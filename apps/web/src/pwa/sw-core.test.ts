@@ -76,7 +76,7 @@ function setup(network: (request: Request) => Promise<Response>) {
       return network(request);
     },
   };
-  installServiceWorker(scope, { buildId: 'b2', precache: ['/index.html', '/assets/index-abc.js'], words: WORDS, icon: '/icons/icon-192.png' });
+  installServiceWorker(scope, { buildId: 'b2', precache: ['/index.html', '/assets/index-abc.js'], words: WORDS, icon: '/icons/icon-192.png', apiBase: '/api/' });
   const waits: Promise<unknown>[] = [];
   const dispatch = <E extends object>(type: string, event: E): E & { waits: Promise<unknown>[] } => {
     const full = { ...event, waitUntil: (promise: Promise<unknown>) => waits.push(promise) };
@@ -235,6 +235,52 @@ describe('the service worker (R7)', () => {
     expect(options.body).toBe(WORDS.body);
     expect(options.data).toEqual({ url: `/r/${ID}` });
     expect(JSON.stringify(world.shown)).not.toMatch(/2\.?500|Nguyễn|HD-2027|amount/);
+  });
+
+  describe('the receipt of a push', () => {
+    const TOKEN = 'B'.repeat(113) + '-';
+
+    it('tells the server the notification was shown, with the token and the event and nothing else, after it is on the screen', async () => {
+      const requests: Request[] = [];
+      const bodies: string[] = [];
+      const world = setup(async (request) => {
+        requests.push(request);
+        bodies.push(await request.clone().text());
+        return new Response('{"acknowledged":true}', { status: 200 });
+      });
+      const data = JSON.stringify({ v: 1, title: 'Viec moi', url: `/r/${ID}`, rcpt: TOKEN });
+      await Promise.all(world.dispatch('push', { data: { text: () => data } } as Partial<PushEventLike>).waits);
+      expect(world.shown).toHaveLength(1);
+      expect(world.shown[0]?.options.data).toEqual({ url: `/r/${ID}`, rcpt: TOKEN });
+      expect(requests).toHaveLength(1);
+      expect(requests[0]?.method).toBe('POST');
+      expect(requests[0]?.url).toBe(`${ORIGIN}/api/push/receipts`);
+      expect(requests[0]?.credentials).toBe('omit');
+      expect(JSON.parse(bodies[0] as string)).toEqual({ receipt: TOKEN, event: 'SHOWN' });
+    });
+
+    it('tells the server the notification was tapped, and opens the link whatever the answer is', async () => {
+      const bodies: string[] = [];
+      const world = setup(async (request) => {
+        bodies.push(await request.clone().text());
+        throw new Error('offline');
+      });
+      await Promise.all(world.dispatch('notificationclick', { notification: { close: vi.fn(), data: { url: `/r/${ID}`, rcpt: TOKEN } } } as Partial<NotificationClickEventLike>).waits);
+      expect(world.opened).toEqual([`${ORIGIN}/r/${ID}`]);
+      expect(JSON.parse(bodies[0] as string)).toEqual({ receipt: TOKEN, event: 'CLICKED' });
+    });
+
+    it('still shows the notification when the server cannot be reached, and posts nothing when the push carried no token', async () => {
+      const failing = setup(() => Promise.reject(new Error('offline')));
+      const data = JSON.stringify({ v: 1, title: 'Viec moi', url: '/m', rcpt: TOKEN });
+      await Promise.all(failing.dispatch('push', { data: { text: () => data } } as Partial<PushEventLike>).waits);
+      expect(failing.shown).toHaveLength(1);
+      const plain = setup(() => Promise.resolve(ok('x', 'text/plain')));
+      await Promise.all(plain.dispatch('push', { data: { text: () => JSON.stringify({ v: 1, title: '', url: '/m', rcpt: 'forged' }) } } as Partial<PushEventLike>).waits);
+      await Promise.all(plain.dispatch('notificationclick', { notification: { close: vi.fn(), data: { url: '/m', rcpt: 'forged' } } } as Partial<NotificationClickEventLike>).waits);
+      expect(plain.fetched).toEqual([]);
+      expect(plain.shown[0]?.options.data).toEqual({ url: '/m' });
+    });
   });
 
   it('shows a push that has no data as the product name and the start page', async () => {

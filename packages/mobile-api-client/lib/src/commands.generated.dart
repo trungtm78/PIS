@@ -43,6 +43,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> acknowledgeProjectRiskAlert(PrjRiskAlertAck body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeProjectRiskAlert', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> acknowledgePush(PushReceipt body, {CommandAttempt? attempt}) =>
+      execute('acknowledgePush', body: body, attempt: attempt);
+
   Future<Object?> acknowledgeWarrantyClaim(AstAcknowledgeWarrantyClaim body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeWarrantyClaim', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
@@ -4581,6 +4584,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> sendMonitoringNotice(SendMonitoringNotice body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('sendMonitoringNotice', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
+  Future<Object?> sendMyTestPush({required String deviceId, CommandAttempt? attempt}) =>
+      execute('sendMyTestPush', path: <String, Object?>{'deviceId': deviceId}, attempt: attempt);
 
   Future<Object?> sendTestNotification(TestSendRequest body, {required String templateId, CommandAttempt? attempt}) =>
       execute('sendTestNotification', path: <String, Object?>{'templateId': templateId}, body: body, attempt: attempt);

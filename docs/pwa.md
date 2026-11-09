@@ -97,9 +97,16 @@ A generic title and a link, never an amount or a name. The data is `{"v":1,"titl
 | Server | `apps/api/src/notifications/push/web-push.ts`, wired in `notifications/delivery/wiring.ts` |
 | Tests | `src/pwa/**/*.test.ts(x)`, `apps/api/test/notifications/web-push.test.ts`, `apps/web/e2e/pwa-flows.spec.ts` (written, not run in the lane; the last block needs `E2E_PWA_PREVIEW_URL`) |
 
+## Web push in operation (lane WEBPUSH)
+
+- **State of the channel:** `MOCK` (no VAPID key), `PENDING_SPIKE` (keys set, real sender, runs outside production only), `VERIFIED` (`MACHVON_WEBPUSH_SPIKE_VERIFIED=true` after `docs/runbooks/web-push-spike.md`; probe: `scripts/web-push-probe.mjs`). In production the web channel (provider `web-push`, `PUSH_FCM`) is registered only when `VERIFIED`.
+- **Keys** come from a file (`MACHVON_WEBPUSH_VAPID_PRIVATE_KEY_FILE`, `MACHVON_WEBPUSH_RECEIPT_KEY_FILE`), else a vault reference, else the variable. A limit per tenant (`MACHVON_WEBPUSH_TENANT_PER_MINUTE`, default 600) answers QUOTA_EXCEEDED with a pause; the pause a push service asks for (`Retry-After`) reaches the delivery engine; priority CRITICAL/HIGH sends `Urgency: high` with a 4 hour TTL.
+- **Receipt:** the push carries `rcpt`, an opaque HMAC token bound to tenant, notification and device (48 hours). The worker posts `{receipt, event: SHOWN|CLICKED}` to `POST /push/receipts` (`acknowledgePush`, public, no session): the send moves ProviderAccepted -> Delivered -> Read through the monotonic reducer, idempotent. The alert ladder (NOT-30) reads these statuses as rung receipts, so an unacknowledged push is waited out by the `wait_minutes` of its rung and the next rung (e-mail, Teams) is sent; `TEAMS` is now a ladder channel.
+- **Page:** `/m/notifications` (PWA-05): permission, subscribe, unsubscribe, test notification to myself (`sendMyTestPush`).
+
 ## Not here (yet)
 
-- The sandbox spike of the real push services and the promotion of the web channel from MOCK to VERIFIED.
+- The live check itself (needs real browser subscriptions): the channel stays `PENDING_SPIKE`.
 - The directive entity (DIR-1) and its list operation: the hook is the contract.
 - A shared constant for the manager start paths between the server and the worker (they are repeated, and tested against each other).
 - A web push for `PUSH_FCM` in production is not registered (no MOCK adapter runs there), like FCM and APNs.

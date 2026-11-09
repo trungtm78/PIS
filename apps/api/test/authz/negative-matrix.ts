@@ -2753,6 +2753,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/me/devices/${t.otherDeviceId}/revoke`, body: { reason: REASON } }),
   },
+  sendMyTestPush: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/me/devices/${t.otherDeviceId}/test-push`, body: {} }),
+  },
   createWorkflowDraft: {
     referencesTenantIds: false,
     build: () => ({

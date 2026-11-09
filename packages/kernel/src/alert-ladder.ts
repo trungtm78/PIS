@@ -8,7 +8,7 @@ import { DomainError } from './errors.ts';
  */
 
 export const LADDER_RULE_TYPE = 'ALERT_CHANNEL_LADDER';
-export const LADDER_CHANNELS = ['IN_APP', 'PUSH', 'EMAIL', 'ZALO', 'SMS'] as const;
+export const LADDER_CHANNELS = ['IN_APP', 'PUSH', 'EMAIL', 'TEAMS', 'ZALO', 'SMS'] as const;
 export type LadderChannel = (typeof LADDER_CHANNELS)[number];
 export const LADDER_SEVERITIES = ['URGENT', 'ACTION', 'WATCH'] as const;
 export type LadderSeverity = (typeof LADDER_SEVERITIES)[number];
@@ -234,7 +234,7 @@ export function assertLadderPayload(payload: unknown): LadderPayload {
 export const channelNeedsConsent = (channel: LadderChannel): boolean => channel !== 'IN_APP';
 
 /** The notification channel of the engine a rung is carried by, as the workflow definition names it. */
-export const ENGINE_CHANNEL: Readonly<Record<LadderChannel, string>> = { IN_APP: 'IN_APP', PUSH: 'PUSH_FCM', EMAIL: 'EMAIL', ZALO: 'ZALO_ZNS', SMS: 'SMS' };
+export const ENGINE_CHANNEL: Readonly<Record<LadderChannel, string>> = { IN_APP: 'IN_APP', PUSH: 'PUSH_FCM', EMAIL: 'EMAIL', TEAMS: 'TEAMS', ZALO: 'ZALO_ZNS', SMS: 'SMS' };
 
 /** The event type that carries a rung of a channel into the notification workflows of the tenant. */
 export const ladderEventType = (channel: LadderChannel): string => `home.alert_ladder_${channel.toLowerCase()}.v1`;
