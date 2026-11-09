@@ -39,6 +39,10 @@ export interface DirectiveItem {
 
 export interface DirectivesQuery {
   status: DirectiveStatus | 'ALL';
+  /** Only the directives past their due day (the server's `overdue` filter). */
+  overdue?: boolean;
+  /** One executing unit, or absent for the whole scope of the reader. */
+  unitId?: string;
 }
 
 /** What a reading of the directives is, in the words of the states of design.md. */

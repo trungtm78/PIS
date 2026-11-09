@@ -1,6 +1,6 @@
 # The installed manager application (PWA, YCK.01, eng review R7)
 
-The web application (`apps/web`) is also an installed application for the leaders: a start page, three screens built for a phone of 360 px, notifications that open the right screen, and a service worker that keeps **the shell and the static files and nothing else**. The Flutter application stays; this is the second door, for people who will not install a phone application.
+The web application (`apps/web`) is also an installed application for the leaders: a start page, nine screens built for a phone of 360 px, notifications that open the right screen, and a service worker that keeps **the shell and the static files and nothing else**. The Flutter application stays; this is the second door, for people who will not install a phone application.
 
 ## The screens
 
@@ -12,6 +12,12 @@ They sit under `/m` in the same application, behind the same sign-in and tenant 
 | PWA-02 | `/m/approvals` | The approval queue of the period data: approve (the comment is optional) or return for correction (the comment is required) | `get_resources_approval_task` (`mine`, `Pending`) and `decideApprovalTask` (`If-Match` the version of the task, `aal2`), the same operations as the approval inbox of the phone application and the monitor ADM-18 |
 | PWA-03 | `/m/dashboard` | The leader dashboard: the context of every figure, the amount disbursed with its ring, the two rates side by side, the plan, what waits, "Cần xử lý ngay" | `getCommandCenter` and the alert source of the bell, through the model, hooks and kit of HOME-09, so the figures cannot differ from the full screen |
 | PWA-04 | `/m/directives`, `/m/directives/:id` | The directive tracking: the steering meeting that gave it, the unit, the deadline, the status (open, in progress, done, overdue, cancelled), the progress; the detail shows the latest progress and the timeline, read only | `listDirectives` (status filter, pages by cursor) and `getDirective` of the directive module (DIR-1) through `src/pwa/screens/directives-api-source.ts`, provided by `PwaRoutes` |
+| PWA-05 | `/m/approvals/:taskId` | The detail of a task: project, period and unit by name; the six cells against the plan and the period before; the changed cells against the revision it corrects; the evidence (name, type, size, head of the digest); the step history; approve or return | `get_resources_approval_task_id`, `getReportRevision` (the revision and the one it corrects), `get_resources_approval_task?workflow_instance_id`, `get_resources_organization_unit`; the decision as in PWA-02 |
+| PWA-06 | `/m/directives/:id` | The detail of a directive (built with PWA-04 by ENT-4c); see PWA-04 | `getDirective` |
+| PWA-07 | `/m/settings` | Sessions and devices (end one with a reason of at least 10 characters), language (saved to the profile under its version), notifications per category (inbox, push, mail), digest, quiet hours | `listMySessions`, `listMyDevices`, `revokeMySession`, `revokeMyDevice`, `getMyProfile`, `updateMyProfile`, `getMyNotificationPreferences`, `updateMyNotificationPreferences` |
+| PWA-08 | `/m/dashboard/detail` | The drill-down of HOME-09 for a phone: amounts of the snapshot, ranking, causes, cash flow, changes, warning band, one card each, one column | the cards of HOME-09 (`getCommandCenter` and the readings of the cards) |
+| PWA-09 | `/m/progress` | The drill-down of BID-27 for a phone: counts, each method with its steps in order, the packages of a step on a tap | `getPackageProcessTree`, `listPackageProcessTreeNodePackages` |
+| PWA-10 | `/m/notifications` | Push permission, subscribe, unsubscribe and a test notification to myself | `registerDevice`, `revokeMyDevice`, `sendMyTestPush` |
 
 States (design.md): loading is a skeleton and never a 0; empty has its kinds (nothing waits / the filter found nothing / the module is not built); an error names itself and retries in place; stale says when the list was read ("Số liệu cũ ... lúc HH:mm") and keeps the list; denied says the scope is hidden and names nothing; offline is the standard offline card; submitting locks the sheet (one request however often it is tapped); success is a receipt (record, step, time, next step); version conflict and "already decided" offer to reload the list and decide again; period locked, licence expired, self-approval and "second factor needed" are said in words, with the second factor asked for in place. A read-only session shows no decision control.
 
@@ -21,16 +27,11 @@ A decision is one request, sent while the page is online, under the version of t
 
 The list of the API does not carry the progress that was reported, so a card says "open the detail to see the progress" (`progressKnown: false`) and the detail shows the latest progress of the timeline; "not reported" is said only where the timeline is known. Without a provider (a screen mounted alone) the default source still says `notBuilt`.
 
-The screen is written against `src/pwa/screens/directives-source.ts`: a typed hook `useDirectives({ status })` that returns `loading`, `notBuilt`, `error`, or `ready` with the items, the time they were read, whether they are stale and the sources that could not be read. The default source says `notBuilt`, which the screen shows as its own empty state ("Chưa có dữ liệu chỉ đạo"), never as "no directive" and never with invented items. To plug the entity in, provide a source through `DirectivesSourceContext` (or make it the default of the context). The shape the screen needs:
+The tracking view also narrows the list by overdue and by unit and shows the counts of the scope (`getDirectiveSummary`, with the formula of each number): a count that cannot be read is said so and never shown as 0.
 
-```
-GET /directives?status={OPEN|IN_PROGRESS|DONE|OVERDUE|CANCELLED}&unit_id={uuid}      read permission of the directive module, scope: the units of the reader
-200 { items: Directive[], next_cursor, as_of, unavailable_sources: string[] }
-Directive { id, title, issued_by: {id, name}, issued_on: 'YYYY-MM-DD', due_on: 'YYYY-MM-DD' | null, status,
-            assignee_unit: {id, name} | null, progress_percent: 0..100 | null, last_update_at | null, overdue_days }
-```
+### Drill-downs and layout at 360 px
 
-`progress_percent` is null when nothing was reported: the screen says "Chưa báo cáo", never 0%. Directive text is shown in the application only, never in a notification.
+The two links of the dashboard that left the installed application for desktop screens have phone versions: the figures behind the dashboard (PWA-08) and the procurement progress (PWA-09). They use the same snapshot, models and hooks as HOME-09 and BID-27, so the numbers are the same; the graph of BID-27 is shown as a list. The full screens stay linked as the second button. The layout is one column that wraps long words, tables are in a scrolling block, and every control has a 44 px target; `DrillDowns.test.tsx` pins these rules in the stylesheet. It was not opened in a real browser at 360 px in the lane that wrote it: that is part of the UAT (UAT-PWA-01 to UAT-PWA-04).
 
 ## The cache policy (R7)
 
@@ -94,8 +95,8 @@ A generic title and a link, never an amount or a name. The data is `{"v":1,"titl
 | Worker | `src/pwa/cache-policy.ts` (pure policy), `push-payload.ts` (pure payload), `sw-core.ts` (the handlers over an injected scope), `sw.ts` (entry), `sw-texts.ts` |
 | Build | `vite.pwa.ts` (manifest, worker, shell list, build id), `src/pwa/manifest.ts`, `manifest-texts.ts`, `brand.ts`, `icon-art.ts`, `icons-cli.ts` |
 | Page | `register.ts`, `install.ts`, `pwa-state.ts`, `push-client.ts`, `usePushControl.ts`, `purge.ts`, `PwaSessionGuard.tsx`, `UpdateBanner.tsx`, `PwaRoutes.tsx`, `SessionGate.tsx` |
-| Screens | `src/pwa/screens/` (`PwaStartScreen`, `ApprovalQueueScreen`, `LeaderDashboardScreen`, `DirectivesScreen`, `DecisionSheet`, `pwa.css`) |
-| Words | `src/i18n/parts/pwa.vi.json`, `pwa.en.json` (the worker's own sentence is in `sw-texts.ts`: a worker has no catalogue) |
+| Screens | `src/pwa/screens/` (`PwaStartScreen`, `ApprovalQueueScreen`, `LeaderDashboardScreen`, `DirectivesScreen`, `DecisionSheet`, `pwa.css`, and for PWA2 `ApprovalDetailScreen`, `DirectiveDetailScreen`, `SettingsScreen`, `FiguresDetailScreen`, `ProgressScreen`) |
+| Words | `src/i18n/parts/pwa.vi.json`, `pwa.en.json`, `pwa2.vi.json`, `pwa2.en.json` (the worker's own sentence is in `sw-texts.ts`: a worker has no catalogue) |
 | Server | `apps/api/src/notifications/push/web-push.ts`, wired in `notifications/delivery/wiring.ts` |
 | Tests | `src/pwa/**/*.test.ts(x)`, `apps/api/test/notifications/web-push.test.ts`, `apps/web/e2e/pwa-flows.spec.ts` (written, not run in the lane; the last block needs `E2E_PWA_PREVIEW_URL`) |
 
@@ -104,11 +105,12 @@ A generic title and a link, never an amount or a name. The data is `{"v":1,"titl
 - **State of the channel:** `MOCK` (no VAPID key), `PENDING_SPIKE` (keys set, real sender, runs outside production only), `VERIFIED` (`MACHVON_WEBPUSH_SPIKE_VERIFIED=true` after `docs/runbooks/web-push-spike.md`; probe: `scripts/web-push-probe.mjs`). In production the web channel (provider `web-push`, `PUSH_FCM`) is registered only when `VERIFIED`.
 - **Keys** come from a file (`MACHVON_WEBPUSH_VAPID_PRIVATE_KEY_FILE`, `MACHVON_WEBPUSH_RECEIPT_KEY_FILE`), else a vault reference, else the variable. A limit per tenant (`MACHVON_WEBPUSH_TENANT_PER_MINUTE`, default 600) answers QUOTA_EXCEEDED with a pause; the pause a push service asks for (`Retry-After`) reaches the delivery engine; priority CRITICAL/HIGH sends `Urgency: high` with a 4 hour TTL.
 - **Receipt:** the push carries `rcpt`, an opaque HMAC token bound to tenant, notification and device (48 hours). The worker posts `{receipt, event: SHOWN|CLICKED}` to `POST /push/receipts` (`acknowledgePush`, public, no session): the send moves ProviderAccepted -> Delivered -> Read through the monotonic reducer, idempotent. The alert ladder (NOT-30) reads these statuses as rung receipts, so an unacknowledged push is waited out by the `wait_minutes` of its rung and the next rung (e-mail, Teams) is sent; `TEAMS` is now a ladder channel.
-- **Page:** `/m/notifications` (PWA-05): permission, subscribe, unsubscribe, test notification to myself (`sendMyTestPush`).
+- **Page:** `/m/notifications` (PWA-10): permission, subscribe, unsubscribe, test notification to myself (`sendMyTestPush`).
 
 ## Not here (yet)
 
+- The sandbox spike of the real push services and the promotion of the web channel from MOCK to VERIFIED.
+- Opening an evidence file on the phone: no operation downloads a report file yet, so PWA-05 lists name, type, size and the head of the digest and says so.
 - The live check itself (needs real browser subscriptions): the channel stays `PENDING_SPIKE`.
-- The directive entity (DIR-1) and its list operation: the hook is the contract.
 - A shared constant for the manager start paths between the server and the worker (they are repeated, and tested against each other).
 - A web push for `PUSH_FCM` in production is not registered (no MOCK adapter runs there), like FCM and APNs.

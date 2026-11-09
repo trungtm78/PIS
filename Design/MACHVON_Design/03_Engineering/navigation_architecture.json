@@ -3,12 +3,12 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 582,
-    "webCatalog": 582,
-    "webModules": 37,
+    "webRoutes": 592,
+    "webCatalog": 592,
+    "webModules": 38,
     "mobileRoutes": 82,
     "mobileCatalog": 82,
-    "modulesTotal": 38
+    "modulesTotal": 39
   },
   "libraryGroups": [
     {
@@ -20,7 +20,8 @@
         "DIR",
         "IAM",
         "DOC",
-        "BAN"
+        "BAN",
+        "PWA"
       ]
     },
     {
@@ -2506,6 +2507,61 @@
           }
         }
       ]
+    },
+    "PWA": {
+      "name": "Ứng dụng cài đặt cho lãnh đạo",
+      "groups": [
+        {
+          "title": "Phê duyệt trên điện thoại",
+          "description": "Trang chủ ứng dụng, hàng đợi phê duyệt và chi tiết phê duyệt số liệu kỳ",
+          "ids": [
+            1,
+            2,
+            5
+          ],
+          "primary": [
+            1,
+            2
+          ],
+          "parents": {
+            "5": 2
+          }
+        },
+        {
+          "title": "Bảng điều hành trên điện thoại",
+          "description": "Bảng điều hành của lãnh đạo, chi tiết số liệu và tiến độ đấu thầu",
+          "ids": [
+            3,
+            8,
+            9
+          ],
+          "primary": [
+            3
+          ],
+          "parents": {
+            "8": 3,
+            "9": 3
+          }
+        },
+        {
+          "title": "Chỉ đạo và cài đặt",
+          "description": "Theo dõi chỉ đạo, chi tiết chỉ đạo và cài đặt thiết bị, ngôn ngữ, thông báo",
+          "ids": [
+            4,
+            6,
+            7,
+            10
+          ],
+          "primary": [
+            4,
+            7
+          ],
+          "parents": {
+            "6": 4,
+            "10": 7
+          }
+        }
+      ]
     }
   },
   "quickModules": [
@@ -3019,7 +3075,8 @@
     "EBS": "Nhập tệp từ Oracle EBS và đối chiếu số liệu theo mã dự án với giải trình chênh lệch.",
     "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu.",
     "ORG": "Xem tổ chức và vai trò của bản enterprise: đơn vị đầu mối, vai trò theo phạm vi, chỗ ngồi và nhóm thư mục, quy trình duyệt, kế hoạch nạp và báo cáo kiểm chứng.",
-    "EQP": "Dòng mua sắm trang thiết bị của dự án: kế hoạch, gói thầu, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân."
+    "EQP": "Dòng mua sắm trang thiết bị của dự án: kế hoạch, gói thầu, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân.",
+    "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy."
   },
   "adminLibraryModules": [
     "IAM",
@@ -9095,6 +9152,136 @@
       "group": "Quy tắc quản trị",
       "role": "workspace",
       "parent": null
+    },
+    {
+      "id": "ADM-29",
+      "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-32",
+      "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
+      "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-29",
+      "title": "Sao lưu và yêu cầu sao lưu thủ công",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWA-01",
+      "title": "Trang chủ ứng dụng cài đặt",
+      "kind": "cards",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Phê duyệt trên điện thoại",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWA-02",
+      "title": "Hàng đợi phê duyệt số liệu kỳ",
+      "kind": "approval",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Phê duyệt trên điện thoại",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWA-03",
+      "title": "Bảng điều hành của lãnh đạo",
+      "kind": "dashboard",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Bảng điều hành trên điện thoại",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWA-04",
+      "title": "Theo dõi chỉ đạo",
+      "kind": "list",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Chỉ đạo và cài đặt",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWA-05",
+      "title": "Chi tiết phê duyệt số liệu kỳ",
+      "kind": "approval",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Phê duyệt trên điện thoại",
+      "role": "detail",
+      "parent": "PWA-02"
+    },
+    {
+      "id": "PWA-06",
+      "title": "Chi tiết chỉ đạo và dòng thời gian",
+      "kind": "timeline",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Chỉ đạo và cài đặt",
+      "role": "detail",
+      "parent": "PWA-04"
+    },
+    {
+      "id": "PWA-07",
+      "title": "Cài đặt ứng dụng cài đặt",
+      "kind": "form",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Chỉ đạo và cài đặt",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWA-08",
+      "title": "Chi tiết số liệu bảng điều hành",
+      "kind": "detail",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Bảng điều hành trên điện thoại",
+      "role": "detail",
+      "parent": "PWA-03"
+    },
+    {
+      "id": "PWA-09",
+      "title": "Tiến độ đấu thầu trên điện thoại",
+      "kind": "tree",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Bảng điều hành trên điện thoại",
+      "role": "detail",
+      "parent": "PWA-03"
+    },
+    {
+      "id": "PWA-10",
+      "title": "Cài đặt thông báo đẩy",
+      "kind": "form",
+      "area": "overview",
+      "module": "PWA",
+      "group": "Chỉ đạo và cài đặt",
+      "role": "detail",
+      "parent": "PWA-07"
     }
   ],
   "mobileRoutes": [

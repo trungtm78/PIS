@@ -88,7 +88,7 @@ export default function PwaNotificationsScreen({ pushDeps }: PwaNotificationsScr
 
   const busy = push.state === 'working' || test === 'working';
   return (
-    <section className="pwa-screen" data-screen-id="PWA-05" aria-labelledby="screen-title">
+    <section className="pwa-screen" data-screen-id="PWA-10" aria-labelledby="screen-title">
       <PwaBackLink to={START_PATH} />
       <div className="heading">
         <div>

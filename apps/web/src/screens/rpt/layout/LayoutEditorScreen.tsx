@@ -32,13 +32,13 @@ function Move<T>({ list, index, set, testId }: { list: T[]; index: number; set: 
   return (
     <span className="rpt-lay__move">
       <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.move.up')} disabled={index === 0} data-testid={`${testId}-up`} onClick={() => set(moveItem(list, index, -1))}>
-        ^
+        {'2191'}
       </button>
       <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.move.down')} disabled={index === list.length - 1} data-testid={`${testId}-down`} onClick={() => set(moveItem(list, index, 1))}>
-        v
+        {'2193'}
       </button>
       <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.remove')} data-testid={`${testId}-remove`} onClick={() => set(list.filter((_, at) => at !== index))}>
-        x
+        {'00D7'}
       </button>
     </span>
   );

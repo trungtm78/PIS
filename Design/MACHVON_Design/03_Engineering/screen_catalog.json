@@ -14003,5 +14003,205 @@
     "platform": "mobile",
     "req": "FR-MOB-77",
     "source": "Kế hoạch MOBILE3, RPT-1; phần điện thoại chỉ đọc"
+  },
+  {
+    "id": "PWA-01",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Trang chủ ứng dụng cài đặt",
+    "kind": "cards",
+    "fields": [
+      "Số việc chờ duyệt",
+      "Ba lối vào",
+      "Cách cài đặt",
+      "Bật thông báo đẩy"
+    ],
+    "role": "Lãnh đạo, người phê duyệt",
+    "rule": "Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 (ứng dụng cho lãnh đạo, cài đặt được, thông báo đẩy); docs/pwa.md"
+  },
+  {
+    "id": "PWA-02",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Hàng đợi phê duyệt số liệu kỳ",
+    "kind": "approval",
+    "fields": [
+      "Loại hồ sơ",
+      "Bước",
+      "Đơn vị",
+      "Dự án",
+      "Số tiền",
+      "Hạn",
+      "Phê duyệt",
+      "Trả lại kèm ý kiến"
+    ],
+    "role": "Lãnh đạo, người phê duyệt",
+    "rule": "Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 mục (i); cùng thao tác với MOB-23 và ADM-18"
+  },
+  {
+    "id": "PWA-03",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Bảng điều hành của lãnh đạo",
+    "kind": "dashboard",
+    "fields": [
+      "Phạm vi và ngày chốt",
+      "Giải ngân và tỷ lệ",
+      "Kế hoạch và việc chờ",
+      "Cần xử lý ngay",
+      "Tiến độ đấu thầu",
+      "Hội đồng"
+    ],
+    "role": "Lãnh đạo",
+    "rule": "Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); HOME-09"
+  },
+  {
+    "id": "PWA-04",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Theo dõi chỉ đạo",
+    "kind": "list",
+    "fields": [
+      "Số liệu tổng hợp",
+      "Bộ lọc trạng thái, quá hạn, đơn vị",
+      "Danh sách chỉ đạo",
+      "Hạn và tiến độ"
+    ],
+    "role": "Lãnh đạo, thư ký giao ban",
+    "rule": "Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 mục (iii); DIR-03, MOB chỉ đạo"
+  },
+  {
+    "id": "PWA-05",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Chi tiết phê duyệt số liệu kỳ",
+    "kind": "approval",
+    "fields": [
+      "Nội dung và số tiền",
+      "So sánh với kế hoạch",
+      "So sánh với lần báo cáo trước",
+      "Bằng chứng đính kèm",
+      "Lịch sử các bước",
+      "Phê duyệt hoặc trả lại"
+    ],
+    "role": "Lãnh đạo, người phê duyệt",
+    "rule": "Tên đơn vị và dự án thay cho mã; mỗi phần đọc bằng quyền riêng, thiếu quyền thì bỏ phần đó, mất kết nối thì báo lỗi; phê duyệt và trả lại giữ nguyên quy tắc If-Match, aal2, khóa chống gửi lặp",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 mục (i); cùng nội dung với MOB-24"
+  },
+  {
+    "id": "PWA-06",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Chi tiết chỉ đạo và dòng thời gian",
+    "kind": "timeline",
+    "fields": [
+      "Nội dung chỉ đạo",
+      "Đơn vị và người thực hiện",
+      "Hạn gốc và hạn hiện tại",
+      "Dòng thời gian",
+      "Đề nghị gia hạn",
+      "Bằng chứng"
+    ],
+    "role": "Lãnh đạo, thư ký giao ban",
+    "rule": "Chỉ đọc trên điện thoại; lịch sử không sửa; số ngày quá hạn do máy chủ tính",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 mục (iii); DIR-04"
+  },
+  {
+    "id": "PWA-07",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Cài đặt ứng dụng cài đặt",
+    "kind": "form",
+    "fields": [
+      "Thiết bị và phiên đăng nhập",
+      "Ngôn ngữ",
+      "Thông báo theo nhóm sự kiện",
+      "Giờ yên lặng"
+    ],
+    "role": "Mọi người dùng đã đăng nhập",
+    "rule": "Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 (thông báo đẩy, đăng nhập một lần có xác thực hai bước); IAM-06, NOT"
+  },
+  {
+    "id": "PWA-08",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Chi tiết số liệu bảng điều hành",
+    "kind": "detail",
+    "fields": [
+      "Số tiền theo bản chốt",
+      "Xếp hạng",
+      "Nguyên nhân chậm giải ngân",
+      "Dòng tiền",
+      "Thay đổi so với bản chốt trước",
+      "Mức cảnh báo"
+    ],
+    "role": "Lãnh đạo",
+    "rule": "Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); HOME-09, bản dành cho điện thoại"
+  },
+  {
+    "id": "PWA-09",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Tiến độ đấu thầu trên điện thoại",
+    "kind": "tree",
+    "fields": [
+      "Số gói và việc quá hạn",
+      "Các bước của quy trình",
+      "Gói ở từng bước"
+    ],
+    "role": "Lãnh đạo, chuyên viên đấu thầu",
+    "rule": "Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); BID-27, bản dành cho điện thoại"
+  },
+  {
+    "id": "PWA-10",
+    "module": "PWA",
+    "moduleName": "Ứng dụng cài đặt cho lãnh đạo (PWA)",
+    "title": "Cài đặt thông báo đẩy",
+    "kind": "form",
+    "fields": [
+      "Quyền thông báo của trình duyệt",
+      "Đăng ký và hủy đăng ký thiết bị",
+      "Thông báo thử gửi cho chính mình"
+    ],
+    "role": "Mọi người dùng đã đăng nhập",
+    "rule": "Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng",
+    "phase": "P1",
+    "platform": "web",
+    "req": "YCK.01",
+    "source": "Yêu cầu khách hàng YCK.01 (thông báo đẩy); docs/pwa.md"
   }
 ]

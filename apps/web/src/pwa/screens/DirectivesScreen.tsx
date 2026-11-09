@@ -11,6 +11,8 @@ import type { Tone } from '../../ui';
 import { clockAndDay, todayOf } from '../../ui/alerts/format';
 import { DIRECTIVE_STATUSES, useDirectives } from './directives-source';
 import type { DirectiveItem, DirectiveStatus } from './directives-source';
+import { useSummary, useUnitOptions } from '../../screens/dir/hooks';
+import { SummaryTiles } from './DirectiveSummaryTiles';
 import { PwaBackLink } from './PwaBackLink';
 import './pwa.css';
 
@@ -60,9 +62,14 @@ export default function DirectivesScreen() {
 function DirectivesContent() {
   const { t } = useTranslation();
   const [status, setStatus] = useState<DirectiveStatus | 'ALL'>('ALL');
-  const reading = useDirectives({ status });
+  const [overdue, setOverdue] = useState(false);
+  const [unitId, setUnitId] = useState('');
+  const reading = useDirectives({ status, overdue, unitId });
+  const units = useUnitOptions();
+  const summary = useSummary({ unitId, projectId: '', meetingId: '' });
   const today = todayOf();
   const items = reading.state === 'ready' ? reading.items : [];
+  const narrowed = status !== 'ALL' || overdue || unitId !== '';
   const shown = status === 'ALL' ? items : items.filter((item) => item.status === status);
   const screenState: ScreenState = reading.state === 'loading' ? 'loading' : reading.state === 'error' ? failureState(reading.error) : 'default';
 
@@ -96,6 +103,7 @@ function DirectivesContent() {
                 {t('pwa.directives.unavailable.note', { sources: reading.unavailableSources.join(', ') })}
               </p>
             )}
+            <SummaryTiles summary={summary.data ?? null} failed={summary.isError || (summary.isSuccess && summary.data === null)} retry={() => void summary.refetch()} />
             <div className="pwa-filters">
               <div className="field">
                 <label htmlFor="pwa-directives-status">{t('pwa.directives.filter.status')}</label>
@@ -108,6 +116,21 @@ function DirectivesContent() {
                   ))}
                 </select>
               </div>
+              <div className="field">
+                <label htmlFor="pwa-directives-unit">{t('pwa2.directives.filter.unit')}</label>
+                <select id="pwa-directives-unit" value={unitId} onChange={(event) => setUnitId(event.target.value)}>
+                  <option value="">{t('pwa2.directives.filter.unitAll')}</option>
+                  {(units.data ?? []).map((unit) => (
+                    <option key={unit.id} value={unit.id}>
+                      {unit.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <label className="pwa-check" htmlFor="pwa-directives-late">
+                <input type="checkbox" id="pwa-directives-late" checked={overdue} onChange={(event) => setOverdue(event.target.checked)} />
+                <span>{t('pwa2.directives.filter.overdue')}</span>
+              </label>
             </div>
             <p className="sub" data-testid="counts">
               {t('pwa.directives.counts.line', { shown: shown.length, total: items.length })}
@@ -115,14 +138,22 @@ function DirectivesContent() {
               {t('pwa.directives.counts.updated', { time: clockAndDay(reading.asOf) })}
             </p>
             {shown.length === 0 ? (
-              <div className="card statecard pwa-empty" role="status" data-testid="empty" data-kind={items.length === 0 ? 'none' : 'filtered'}>
-                <h2>{items.length === 0 ? t('pwa.directives.empty.none.title') : t('pwa.directives.empty.filtered.title')}</h2>
-                <p className="muted">{items.length === 0 ? t('pwa.directives.empty.none.body') : t('pwa.directives.empty.filtered.body')}</p>
-                {items.length === 0 ? null : (
-                  <button type="button" className="ui-button ui-button--outline pwa-touch" onClick={() => setStatus('ALL')}>
+              <div className="card statecard pwa-empty" role="status" data-testid="empty" data-kind={narrowed ? 'filtered' : 'none'}>
+                <h2>{narrowed ? t('pwa.directives.empty.filtered.title') : t('pwa.directives.empty.none.title')}</h2>
+                <p className="muted">{narrowed ? t('pwa.directives.empty.filtered.body') : t('pwa.directives.empty.none.body')}</p>
+                {narrowed ? (
+                  <button
+                    type="button"
+                    className="ui-button ui-button--outline pwa-touch"
+                    onClick={() => {
+                      setStatus('ALL');
+                      setOverdue(false);
+                      setUnitId('');
+                    }}
+                  >
                     {t('pwa.directives.empty.filtered.clear')}
                   </button>
-                )}
+                ) : null}
               </div>
             ) : (
               <ul className="pwa-cards" aria-label={t('pwa.directives.list.aria')}>

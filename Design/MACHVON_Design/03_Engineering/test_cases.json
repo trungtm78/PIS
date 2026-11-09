@@ -26296,5 +26296,258 @@
       "FR-EQP-01",
       "FR-EQP-02"
     ]
+  },
+  {
+    "id": "UI-PWA-01",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-01 mở ở độ rộng 360 px (đường dẫn /m)",
+    "steps": [
+      "Mở PWA-01 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Số việc chờ duyệt, Ba lối vào, Cách cài đặt, Bật thông báo đẩy",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Trang chủ ứng dụng cài đặt: hiển thị đúng 4 nhóm trường, áp quy tắc \"Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-02",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-02 mở ở độ rộng 360 px (đường dẫn /m/approvals)",
+    "steps": [
+      "Mở PWA-02 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Loại hồ sơ, Bước, Đơn vị, Dự án, Số tiền, Hạn, Phê duyệt, Trả lại kèm ý kiến",
+      "Thực hiện thao tác chính theo quy tắc: Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Hàng đợi phê duyệt số liệu kỳ: hiển thị đúng 8 nhóm trường, áp quy tắc \"Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-03",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-03 mở ở độ rộng 360 px (đường dẫn /m/dashboard)",
+    "steps": [
+      "Mở PWA-03 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Phạm vi và ngày chốt, Giải ngân và tỷ lệ, Kế hoạch và việc chờ, Cần xử lý ngay, Tiến độ đấu thầu, Hội đồng",
+      "Thực hiện thao tác chính theo quy tắc: Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Bảng điều hành của lãnh đạo: hiển thị đúng 6 nhóm trường, áp quy tắc \"Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-04",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-04 mở ở độ rộng 360 px (đường dẫn /m/directives)",
+    "steps": [
+      "Mở PWA-04 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Số liệu tổng hợp, Bộ lọc trạng thái, quá hạn, đơn vị, Danh sách chỉ đạo, Hạn và tiến độ",
+      "Thực hiện thao tác chính theo quy tắc: Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Theo dõi chỉ đạo: hiển thị đúng 4 nhóm trường, áp quy tắc \"Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-05",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-05 mở ở độ rộng 360 px (đường dẫn /m/approvals/:taskId)",
+    "steps": [
+      "Mở PWA-05 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Nội dung và số tiền, So sánh với kế hoạch, So sánh với lần báo cáo trước, Bằng chứng đính kèm, Lịch sử các bước, Phê duyệt hoặc trả lại",
+      "Thực hiện thao tác chính theo quy tắc: Tên đơn vị và dự án thay cho mã; mỗi phần đọc bằng quyền riêng, thiếu quyền thì bỏ phần đó, mất kết nối thì báo lỗi; phê duyệt và trả lại giữ nguyên quy tắc If-Match, aal2, khóa chống gửi lặp",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Chi tiết phê duyệt số liệu kỳ: hiển thị đúng 6 nhóm trường, áp quy tắc \"Tên đơn vị và dự án thay cho mã; mỗi phần đọc bằng quyền riêng, thiếu quyền thì bỏ phần đó, mất kết nối thì báo lỗi; phê duyệt và trả lại giữ nguyên quy tắc If-Match, aal2, khóa chống gửi lặp\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-06",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-06 mở ở độ rộng 360 px (đường dẫn /m/directives/:id)",
+    "steps": [
+      "Mở PWA-06 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Nội dung chỉ đạo, Đơn vị và người thực hiện, Hạn gốc và hạn hiện tại, Dòng thời gian, Đề nghị gia hạn, Bằng chứng",
+      "Thực hiện thao tác chính theo quy tắc: Chỉ đọc trên điện thoại; lịch sử không sửa; số ngày quá hạn do máy chủ tính",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Chi tiết chỉ đạo và dòng thời gian: hiển thị đúng 6 nhóm trường, áp quy tắc \"Chỉ đọc trên điện thoại; lịch sử không sửa; số ngày quá hạn do máy chủ tính\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-07",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-07 mở ở độ rộng 360 px (đường dẫn /m/settings)",
+    "steps": [
+      "Mở PWA-07 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Thiết bị và phiên đăng nhập, Ngôn ngữ, Thông báo theo nhóm sự kiện, Giờ yên lặng",
+      "Thực hiện thao tác chính theo quy tắc: Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Cài đặt ứng dụng cài đặt: hiển thị đúng 4 nhóm trường, áp quy tắc \"Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-08",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-08 mở ở độ rộng 360 px (đường dẫn /m/dashboard/detail)",
+    "steps": [
+      "Mở PWA-08 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Số tiền theo bản chốt, Xếp hạng, Nguyên nhân chậm giải ngân, Dòng tiền, Thay đổi so với bản chốt trước, Mức cảnh báo",
+      "Thực hiện thao tác chính theo quy tắc: Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Chi tiết số liệu bảng điều hành: hiển thị đúng 6 nhóm trường, áp quy tắc \"Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-09",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-09 mở ở độ rộng 360 px (đường dẫn /m/progress)",
+    "steps": [
+      "Mở PWA-09 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Số gói và việc quá hạn, Các bước của quy trình, Gói ở từng bước",
+      "Thực hiện thao tác chính theo quy tắc: Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Tiến độ đấu thầu trên điện thoại: hiển thị đúng 3 nhóm trường, áp quy tắc \"Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UI-PWA-10",
+    "source": "YCK.01",
+    "type": "screen-contract",
+    "priority": "P0",
+    "setup": "Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-10 mở ở độ rộng 360 px (đường dẫn /m/notifications)",
+    "steps": [
+      "Mở PWA-10 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Quyền thông báo của trình duyệt, Đăng ký và hủy đăng ký thiết bị, Thông báo thử gửi cho chính mình",
+      "Thực hiện thao tác chính theo quy tắc: Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng",
+      "Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập"
+    ],
+    "expected": "Cài đặt thông báo đẩy: hiển thị đúng 3 nhóm trường, áp quy tắc \"Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-PWA-01",
+    "source": "PWA.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data; a leader with the rights of the screens and a user without them; the page opened at a width of 360 px.",
+    "steps": [
+      "Open a pending report.accept task from the queue and read the project, period, unit, the cells against the plan and the period before, the evidence and the steps",
+      "Open the task of a corrected revision and a task whose report the leader may not read",
+      "Return the task with no comment, then with a comment; approve another task",
+      "Repeat the approval after a lost answer and after the task changed"
+    ],
+    "expected": "Step 1: names instead of ids, six cells with plan, previous period and change, the share of the plan with no rate over a plan of zero; step 2: the changed cells against the revision before it, and the refused part left out with its reason; step 3: a return with no comment is refused before sending, then one request under If-Match with the second factor asked for in place; step 4: the same idempotency key is reused after a lost answer, a conflict offers to reload.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-PWA-02",
+    "source": "PWA.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data; a leader with the rights of the screens and a user without them; the page opened at a width of 360 px.",
+    "steps": [
+      "Open the dashboard and the detail of the figures",
+      "Open the procurement progress and tap a step",
+      "Open both without the right to read"
+    ],
+    "expected": "Step 1: the amounts, ranking, causes, cash flow and changes of the snapshot of HOME-09, a card that cannot be read is named without hiding the others; step 2: the steps by method in order with counts and lateness and the packages of the step in place; step 3: the scope is said to be hidden and nothing is asked of the server.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-PWA-03",
+    "source": "PWA.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data; a leader with the rights of the screens and a user without them; the page opened at a width of 360 px.",
+    "steps": [
+      "Open the directive tracking, read the counts and filter by overdue, by status and by unit",
+      "Load the next page, make the summary fail",
+      "Open a directive with progress events, an extension request and evidence"
+    ],
+    "expected": "Step 1: the list and the counts follow the filter through the real operations; step 2: more pages on request and a failed summary said so, never as 0; step 3: the clock as the server counts it, the latest progress (or that none was reported), the timeline newest first, read-only.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-PWA-04",
+    "source": "PWA.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant TNT-A with synthetic data; a leader with the rights of the screens and a user without them; the page opened at a width of 360 px.",
+    "steps": [
+      "Open the settings, read the sessions and devices, end another session with a reason of 4 characters and then of 30",
+      "Remove a device",
+      "Change the language, switch a push off, set equal quiet hours, then correct them and save"
+    ],
+    "expected": "Step 1: the current session has no end action and a short reason is refused before sending; step 2: the device is removed with its reason; step 3: the language changes at once and is saved under the version of the profile, the preferences are saved under their version, a locked channel cannot be switched off, equal quiet hours are refused.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
   }
 ]

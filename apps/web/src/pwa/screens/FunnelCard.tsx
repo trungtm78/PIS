@@ -8,6 +8,8 @@ import { READ_PERMISSION, fullDay, vietnamDay, vietnamTime } from '../../screens
 
 /** The tree of the procurement progress, where the leader goes for the drill-down the phone does not repeat. */
 export const PROGRESS_TREE_PATH = '/bid/bid-27';
+/** The same progress as a one-column list for the phone (PWA-09). */
+export const PROGRESS_PWA_PATH = '/m/progress';
 
 /**
  * The funnel of the procurement progress on the leader dashboard (PRC-1, docs/process-tree-design.md section 8): the five steps with most packages, each with its count and, in words, whether some are late, and the link to the
@@ -57,6 +59,9 @@ export function FunnelCard() {
           </>
         )}
         <p>
+          <Link className="ui-button ui-button--primary pwa-touch" to={PROGRESS_PWA_PATH} data-testid="pwa-progress-link">
+            {t('pwa2.progress.link')}
+          </Link>{' '}
           <Link className="ui-button ui-button--outline pwa-touch" to={PROGRESS_TREE_PATH}>
             {t('prc1.funnel.link.action')}
           </Link>

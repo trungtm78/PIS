@@ -38,7 +38,7 @@ function open(pushDeps: PushControlDeps, command?: (operation: string, input: un
 
 afterEach(cleanup);
 
-describe('PwaNotificationsScreen (PWA-05): the notification settings of the installed application', () => {
+describe('PwaNotificationsScreen (PWA-10): the notification settings of the installed application', () => {
   it('shows the permission the browser holds and that this device is subscribed', async () => {
     open(deps({ subscribed: true, permission: 'granted' }));
     await waitFor(() => expect(screen.getByTestId('push-state').getAttribute('data-state')).toBe('on'));

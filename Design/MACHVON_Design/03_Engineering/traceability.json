@@ -12769,5 +12769,175 @@
       "UI-EQP-02",
       "UAT-EQP-ENT4E-1"
     ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-01",
+    "title": "Trang chủ ứng dụng cài đặt",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 (ứng dụng cho lãnh đạo, cài đặt được, thông báo đẩy); docs/pwa.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m",
+    "backlog_id": "BL-PWA-01",
+    "test_ids": [
+      "UI-PWA-01"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-02",
+    "title": "Hàng đợi phê duyệt số liệu kỳ",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (i); cùng thao tác với MOB-23 và ADM-18",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/approvals",
+    "backlog_id": "BL-PWA-02",
+    "test_ids": [
+      "UI-PWA-02"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-03",
+    "title": "Bảng điều hành của lãnh đạo",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); HOME-09",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/dashboard",
+    "backlog_id": "BL-PWA-03",
+    "test_ids": [
+      "UI-PWA-03"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-04",
+    "title": "Theo dõi chỉ đạo",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (iii); DIR-03, MOB chỉ đạo",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/directives",
+    "backlog_id": "BL-PWA-04",
+    "test_ids": [
+      "UI-PWA-04"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-05",
+    "title": "Chi tiết phê duyệt số liệu kỳ",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (i); cùng nội dung với MOB-24",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/approvals/:taskId",
+    "backlog_id": "BL-PWA-05",
+    "test_ids": [
+      "UI-PWA-05"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-06",
+    "title": "Chi tiết chỉ đạo và dòng thời gian",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (iii); DIR-04",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/directives/:id",
+    "backlog_id": "BL-PWA-06",
+    "test_ids": [
+      "UI-PWA-06"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-07",
+    "title": "Cài đặt ứng dụng cài đặt",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 (thông báo đẩy, đăng nhập một lần có xác thực hai bước); IAM-06, NOT",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/settings",
+    "backlog_id": "BL-PWA-07",
+    "test_ids": [
+      "UI-PWA-07"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-08",
+    "title": "Chi tiết số liệu bảng điều hành",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); HOME-09, bản dành cho điện thoại",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/dashboard/detail",
+    "backlog_id": "BL-PWA-08",
+    "test_ids": [
+      "UI-PWA-08"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-09",
+    "title": "Tiến độ đấu thầu trên điện thoại",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 mục (ii); BID-27, bản dành cho điện thoại",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/progress",
+    "backlog_id": "BL-PWA-09",
+    "test_ids": [
+      "UI-PWA-09"
+    ]
+  },
+  {
+    "requirement": "YCK.01",
+    "screen": "PWA-10",
+    "title": "Cài đặt thông báo đẩy",
+    "use_cases": [
+      "UC-PWA-01"
+    ],
+    "source": "Yêu cầu khách hàng YCK.01 (thông báo đẩy); docs/pwa.md",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "built",
+    "verification": "05_modules/PWA.md section 10; vitest /m/notifications",
+    "backlog_id": "BL-PWA-10",
+    "test_ids": [
+      "UI-PWA-10"
+    ]
   }
 ]
