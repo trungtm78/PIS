@@ -86,7 +86,7 @@ const UNSPECIFIED = 'UNSPECIFIED';
 export class CoreProvinceFactsReader implements ProvinceFactsReader {
   async read(tx: TenantTx, request: ProvinceFactsRequest): Promise<ProvinceFacts> {
     const snapshots = await tx.query<SnapshotRow>(
-      `select id, as_of_date::text as as_of_date from machvon.period_snapshot where status = 'FROZEN' and as_of_date <= $1::date order by as_of_date desc, frozen_at desc nulls last, id limit 1`,
+      `select id, as_of_date::text as as_of_date from machvon.period_snapshot where status = 'FROZEN' and snapshot_kind <> 'ENTERPRISE_CLOSE' and as_of_date <= $1::date order by as_of_date desc, frozen_at desc nulls last, id limit 1`,
       [request.asOf],
     );
     const snapshot = snapshots[0];
@@ -105,11 +105,11 @@ export class CoreProvinceFactsReader implements ProvinceFactsReader {
     );
     const sameDayLastYear = addDirectiveDays(asOf, -365);
     const prior = await tx.query<SnapshotRow>(
-      `select id, as_of_date::text as as_of_date from machvon.period_snapshot where status = 'FROZEN' and as_of_date <= $1::date and as_of_date > $1::date - 40 order by as_of_date desc, frozen_at desc nulls last, id limit 1`,
+      `select id, as_of_date::text as as_of_date from machvon.period_snapshot where status = 'FROZEN' and snapshot_kind <> 'ENTERPRISE_CLOSE' and as_of_date <= $1::date and as_of_date > $1::date - 40 order by as_of_date desc, frozen_at desc nulls last, id limit 1`,
       [sameDayLastYear],
     );
     const fullYear = await tx.query<SnapshotRow>(
-      `select id, as_of_date::text as as_of_date from machvon.period_snapshot where status = 'FROZEN' and as_of_date >= make_date($1::int - 1, 12, 1) and as_of_date <= make_date($1::int - 1, 12, 31) order by as_of_date desc, frozen_at desc nulls last, id limit 1`,
+      `select id, as_of_date::text as as_of_date from machvon.period_snapshot where status = 'FROZEN' and snapshot_kind <> 'ENTERPRISE_CLOSE' and as_of_date >= make_date($1::int - 1, 12, 1) and as_of_date <= make_date($1::int - 1, 12, 31) order by as_of_date desc, frozen_at desc nulls last, id limit 1`,
       [year],
     );
     const priorSums = async (row: SnapshotRow | undefined): Promise<Map<string, string | null> | null> => {
