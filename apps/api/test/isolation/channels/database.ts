@@ -492,6 +492,7 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'buildPeriodSnapshot',
   'freezePeriodSnapshot',
   'getSubmissionProgress',
+  'getReportingCalendarBoard',
   'createReportExport',
   'getReportExportDownload',
   'listPeriodSnapshotLines',
