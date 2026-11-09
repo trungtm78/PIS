@@ -1,5 +1,8 @@
 import { ApiError } from '@machvon/api-client';
 import type { ReportDetail } from '../report/model';
+import type { components } from '@machvon/contracts';
+
+type DirectiveStatus = components['schemas']['ReportNarrativeEnterprise'] extends { directive_refs?: Array<{ status_at_end: infer S }> } ? S : never;
 import { keepBody } from '../report/step-model';
 import type { ReportDraftBody } from '../report/model';
 
@@ -100,7 +103,7 @@ export function bodyOf(detail: ReportDetail, form: NarrativeForm): ReportDraftBo
   const enterprise = {
     ...words,
     ...(form.causeCodes.length === 0 ? {} : { cause_codes: form.causeCodes }),
-    ...(form.directives.length === 0 ? {} : { directive_refs: form.directives.map((one) => ({ id: one.id, code: one.code, status_at_end: one.statusAtEnd })) }),
+    ...(form.directives.length === 0 ? {} : { directive_refs: form.directives.map((one) => ({ id: one.id, code: one.code, status_at_end: one.statusAtEnd as DirectiveStatus })) }),
   };
   return { ...keepBody(detail), narrative: { ...publicSections, ...(issues.length === 0 ? {} : { linked_issue_ids: issues }), ...(Object.keys(enterprise).length === 0 ? {} : { enterprise }) } };
 }
