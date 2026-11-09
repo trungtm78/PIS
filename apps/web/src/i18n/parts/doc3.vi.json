@@ -1,0 +1,17 @@
+{
+  "shell.help.open.label": "Hướng dẫn màn hình này",
+  "shell.help.open.title": "Hướng dẫn màn hình này (phím ?)",
+  "shell.help.close.label": "Đóng hướng dẫn",
+  "shell.help.drawer.title": "Hướng dẫn: {screen}",
+  "shell.help.loading.text": "Đang tải hướng dẫn…",
+  "shell.help.error.text": "Không tải được hướng dẫn. Kiểm tra kết nối rồi thử lại.",
+  "shell.help.retry.label": "Thử lại",
+  "shell.help.missing.text": "Địa chỉ này chưa có hướng dẫn riêng. Mở trung tâm trợ giúp để xem hướng dẫn chung.",
+  "shell.help.audience.heading": "Ai dùng màn hình này",
+  "shell.help.steps.heading": "Cách dùng",
+  "shell.help.fields.heading": "Thông tin trên màn hình",
+  "shell.help.rule.heading": "Lưu ý nghiệp vụ",
+  "shell.help.chapter.heading": "Có trong chương hướng dẫn",
+  "shell.help.tips.heading": "Mẹo dùng chung",
+  "shell.help.centre.label": "Mở trung tâm trợ giúp"
+}

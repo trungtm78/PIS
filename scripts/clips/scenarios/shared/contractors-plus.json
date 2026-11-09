@@ -1,0 +1,399 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "contractors-plus",
+  "title": "Quản lý nhà thầu nâng cao",
+  "summary": "Contractor controls of VND-2 and the investigation tools of VND-3: independence checks, finance ratios and load, bid security register, risk grade, performance evaluation with proposals, certificates, reputation events and debarment, related-party graph, continuous screening.",
+  "mainOptional": true,
+  "figures": {
+    "leads-new": {
+      "kind": "count",
+      "sample": 6,
+      "description": "Investigation leads waiting to be taken by an auditor.",
+      "source": {
+        "operation": "listVendorLeads",
+        "select": "counts.new"
+      }
+    },
+    "screening-pending": {
+      "kind": "count",
+      "sample": 3,
+      "description": "Screening results waiting for a decision.",
+      "source": {
+        "operation": "getVendorScreening",
+        "select": "counts.pending"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "vnd2-independence",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Trước khi chấm thầu, hệ thống kiểm tính độc lập giữa nhà thầu với hội đồng, cán bộ dự án và chủ đầu tư. Quan hệ họ hàng, cổ phần hay nơi làm việc cũ đều là căn cứ. Phát hiện mạnh chưa có người khác quyết định thì chặn bước trao thầu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "VND-07"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.package-controls.independence-findings"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.package-controls.decision-column"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Tín hiệu, không phải kết luận · người khác quyết định",
+          "atSec": 3,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 17.9
+    },
+    {
+      "id": "vnd2-finance-load",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Mỗi năm nhà thầu có một kỳ tài chính đã xác minh. Từ đó hệ thống tính tỷ số thanh toán hiện hành, nợ trên tài sản, khả năng trả lãi và doanh thu bình quân. Liên danh được xét theo phần của từng thành viên. Tải đồng thời so với doanh thu cho biết có giao quá sức không.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-08",
+          "VND-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "VND-08"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.finance.ratios"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.finance.load-signal"
+        },
+        {
+          "do": "open",
+          "screen": "VND-07"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.package-controls.finance-check"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Mỗi con số có giải thích",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 20.3
+    },
+    {
+      "id": "vnd2-bid-security",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Sổ bảo đảm dự thầu theo dõi từng thư bảo lãnh. Thư đã nhận được nơi phát hành xác nhận bởi người thứ hai, rồi hoàn trả, hết hạn hoặc tịch thu. Một người đề xuất tịch thu, người khác quyết định trên văn bản. Nhà thầu có sự kiện uy tín phải bảo đảm cao hơn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-09"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "VND-09"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.bid-security.register"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.bid-security.forfeit-proposal"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Đề xuất ≠ quyết định tịch thu",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 19.4
+    },
+    {
+      "id": "vnd2-risk-grade",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Mỗi nhà thầu có một hạng rủi ro tính từ tín hiệu có giải thích: chậm tiến độ, vi phạm, tài chính và tải. Hạng đang tính khác hạng đã xác nhận, và người xác nhận khác người chạy. Hạng giúp chọn việc kiểm tra, không loại nhà thầu một mình.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-11"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "VND-11"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.risk-grade.tier-column"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.risk-grade.signal-lines"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Hạng rủi ro: đang tính và đã xác nhận",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 17.3
+    },
+    {
+      "id": "vnd2-performance",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Kết quả thực hiện hợp đồng được chấm theo bộ tiêu chí có trọng số. Trợ lý AI chỉ đề xuất điểm kèm dẫn chứng, người chấm quyết định, nhà thầu được phản hồi. Kết quả đủ điều kiện thì công khai theo quy định.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-37",
+          "VND-12",
+          "LLM-25"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-37"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.performance.proposal"
+        },
+        {
+          "do": "open",
+          "screen": "VND-12"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.performance.disclosure"
+        },
+        {
+          "do": "open",
+          "screen": "LLM-25"
+        },
+        {
+          "do": "spot",
+          "ref": "llm.performance.ai-suggestion"
+        }
+      ],
+      "captions": [
+        {
+          "text": "AI đề xuất, người quyết định",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "vnd2-credentials",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Chứng chỉ hành nghề và nhân sự chủ chốt của nhà thầu đều có ngày hết hạn. Sắp hết hạn thì cảnh báo tới đúng người phụ trách. Hồ sơ dự thầu dùng chứng chỉ đã hết hạn bị nêu rõ ngay khi chấm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "VND-05"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.credentials.expiry-column"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.credentials.key-staff"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "vnd2-reputation",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Sự kiện uy tín như bỏ thầu, từ chối ký hợp đồng hay vi phạm được ghi thành sổ, kể cả khi đi theo liên danh. Hồ sơ cấm tham gia đấu thầu đi đủ thủ tục. Có hiệu lực thì cổng chặn ở mọi khâu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-06",
+          "VND-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "VND-06"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.reputation.events"
+        },
+        {
+          "do": "open",
+          "screen": "VND-03"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.debarment.procedure"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "vnd3-link-graph",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Cho kiểm toán viên, đồ thị liên kết nối các nhà thầu. Căn cứ là mã số thuế, địa chỉ, điện thoại, người đại diện, chủ sở hữu và dấu vết nộp hồ sơ. Hiện có {{figure:leads-new}} đầu mối mới. Đầu mối chỉ là tín hiệu điều tra, và người từng dự gói thầu bị chặn xem.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-13",
+          "VND-14"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "VND-13"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.leads.ranked-list"
+        },
+        {
+          "do": "open",
+          "screen": "VND-14"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.link-graph.graph"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.link-graph.table-fallback"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Tín hiệu để điều tra, không phải kết luận",
+          "atSec": 3,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 19.4
+    },
+    {
+      "id": "vnd3-screening",
+      "chapter": "contractors-plus",
+      "main": false,
+      "narration": "Hệ thống sàng lọc liên tục nhà thầu với danh sách bên bị cấm: mỗi đêm, khi hồ sơ đổi và sau mỗi lần nhập tệp. Trùng mã số thuế là căn cứ quyết định, chỉ trùng tên thì mới là có thể. Hiện có {{figure:screening-pending}} kết quả chờ xử lý. Kết quả cao đặt nhà thầu vào diện tạm giữ cho đến khi người khác xác nhận hoặc bác.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "VND-15"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "auditor"
+        },
+        {
+          "do": "open",
+          "screen": "VND-15"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.screening.hits"
+        },
+        {
+          "do": "spot",
+          "ref": "vnd.screening.runs"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Tạm giữ chờ người thứ hai xác nhận",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 23.4
+    }
+  ]
+}

@@ -1,0 +1,248 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "claims-warnings",
+  "title": "Claim và cảnh báo sớm hợp đồng",
+  "summary": "The claim register with limitation clocks from the approved term of each contract (GOV-8), the early warning register of contracts, contract settlement clocks and the links between a contract and its project, package, contractor and adjustment version (GOV-11), protests and their outcomes.",
+  "mainOptional": true,
+  "figures": {
+    "claims-open": {
+      "kind": "count",
+      "sample": 7,
+      "description": "Claims still open.",
+      "source": {
+        "operation": "listClaims",
+        "select": "totals.open"
+      }
+    },
+    "claims-no-term": {
+      "kind": "count",
+      "sample": 4,
+      "description": "Contracts or claims with no approved claim term.",
+      "source": {
+        "operation": "listClaims",
+        "select": "totals.without_term"
+      }
+    },
+    "warnings-open": {
+      "kind": "count",
+      "sample": 9,
+      "description": "Open contract early warnings.",
+      "source": {
+        "operation": "listContractEarlyWarnings",
+        "select": "summary.open"
+      }
+    },
+    "warnings-no-owner": {
+      "kind": "count",
+      "sample": 2,
+      "description": "Open early warnings with no person in charge.",
+      "source": {
+        "operation": "listContractEarlyWarnings",
+        "select": "summary.without_owner"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "claims-register",
+      "chapter": "claims-warnings",
+      "main": false,
+      "narration": "Sổ claim ghi mọi claim của chủ đầu tư và của nhà thầu: loại, ngày xảy ra, ngày biết, số tiền và số ngày yêu cầu. Hiện có {{figure:claims-open}} claim đang mở. Mỗi claim có dòng thời gian chỉ thêm, không sửa.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-32"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-32"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.claims.register"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.claims.timeline"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.7
+    },
+    {
+      "id": "claims-limitation",
+      "chapter": "claims-warnings",
+      "main": false,
+      "narration": "Thời hiệu của claim lấy từ điều khoản đã duyệt của chính hợp đồng, một người đề xuất và người khác duyệt. Hợp đồng chưa có điều khoản thì ghi rõ là chưa có đồng hồ, hiện có {{figure:claims-no-term}} trường hợp. Các mốc thông báo là cấu hình mặc định, chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-33",
+          "CTR-34"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-33"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.claims.limitation-clock"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-34"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.claims.term-approval"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+          "atSec": 3,
+          "forSec": 7
+        }
+      ],
+      "expectedSec": 18.2,
+      "stamps": [
+        "unverified-legal"
+      ]
+    },
+    {
+      "id": "warnings-register",
+      "chapter": "claims-warnings",
+      "main": false,
+      "narration": "Sổ cảnh báo sớm hợp đồng khác với cảnh báo giải ngân. Bên nào cũng được nêu rủi ro, rồi đánh giá tác động bằng một con số hoặc ghi rõ là không tác động. Có {{figure:warnings-open}} cảnh báo mở, trong đó {{figure:warnings-no-owner}} chưa có người phụ trách. Mỗi biện pháp có người và ngày, và cuộc họp phải rà từng cảnh báo mở.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-35",
+          "CTR-36"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-35"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.warnings.register"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-36"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.warnings.assessment"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 21.5
+    },
+    {
+      "id": "contract-settlement-clocks",
+      "chapter": "claims-warnings",
+      "main": false,
+      "narration": "Đồng hồ quyết toán hợp đồng cho biết còn bao nhiêu ngày đến hạn, và đã đạt hạn hay chưa. Liên kết hợp đồng với dự án, gói thầu, nhà thầu và phiên bản điều chỉnh cho thấy một thay đổi ảnh hưởng đến đâu. Thời hạn trong quy định là cấu hình mặc định, chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CTR-38",
+          "CTR-39"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "ctrOfficer"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-38"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.settlement.clock-list"
+        },
+        {
+          "do": "open",
+          "screen": "CTR-39"
+        },
+        {
+          "do": "spot",
+          "ref": "ctr.links.contract-map"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+          "atSec": 3,
+          "forSec": 7
+        }
+      ],
+      "expectedSec": 19.4,
+      "stamps": [
+        "unverified-legal"
+      ]
+    },
+    {
+      "id": "protests",
+      "chapter": "claims-warnings",
+      "main": false,
+      "narration": "Kiến nghị trong lựa chọn nhà thầu đi theo thủ tục và có hạn giải quyết. Kết quả giải quyết được ghi lại và tính thống kê. Người dự gói thầu khai xung đột lợi ích trước, và việc khai được kiểm khi chấm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-20",
+          "BID-34"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-20"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.protests.list"
+        },
+        {
+          "do": "open",
+          "screen": "BID-34"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.protests.outcome"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    }
+  ]
+}

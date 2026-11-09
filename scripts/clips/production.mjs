@@ -4,7 +4,7 @@ import { DATASET_PHASES } from '../clip-seed-lib.mjs';
 import { CLIPS_DIR, clock, loadPhonetics, loadSpec, readJson, REPO_ROOT } from './common.mjs';
 import { figureIds } from './figures.mjs';
 import { applyPhonetics } from './phonetics.mjs';
-import { cutNames, cutSeconds, estimateScene, listClips, loadContext, loadScenario, selectScenes, speedOf, validateScenario } from './scenario.mjs';
+import { cutNames, cutSeconds, estimateScene, KEBAB, listClips, loadContext, loadScenario, pendingLanes, selectScenes, speedOf, validateScenario } from './scenario.mjs';
 import { checkCues, cuesForScene } from './subtitles.mjs';
 import { displayText, sentencesOf } from './text.mjs';
 
@@ -64,6 +64,8 @@ export function screenFact(id, context, facts) {
     const route = facts.pwaRoutes.get(id);
     return { id, title: id, kind: 'pwa', route: route ?? null, found: route !== undefined, implemented: context.planned.screens?.[id]?.status === 'built' };
   }
+  const plannedScreen = context.planned.screens?.[id];
+  if (entry === undefined && plannedScreen !== undefined) return { id, title: plannedScreen.title ?? id, kind: 'planned', route: plannedScreen.route ?? null, found: true, implemented: plannedScreen.status === 'built', lane: plannedScreen.lane };
   if (entry === undefined) return { id, title: id, kind: 'unknown', route: null, found: false, implemented: false };
   if (entry.platform === 'mobile') {
     const tab = facts.mobileRoutes.get(id);
@@ -129,7 +131,10 @@ export function shotChecklist(scene, scenario, context, facts, production) {
     if (fact.kind === 'web') items.push({ kind: 'screen', text: fill(shot.web, { id, title: fact.title, route }) });
     else if (fact.kind === 'pwa') items.push({ kind: 'screen', text: fill(shot.pwa, { id, route }) });
     else if (fact.kind === 'phone') items.push({ kind: 'screen', text: fill(shot.phone, { id, title: fact.title, route }) });
+    else if (fact.kind === 'planned') items.push({ kind: 'screen', text: fill(shot.planned, { id, title: fact.title, lane: fact.lane ?? '-' }) });
   }
+  const waiting = pendingLanes(scene, context.planned);
+  if (waiting.length > 0) items.push({ kind: 'requires', text: fill(shot.requires, { lanes: waiting.join(', ') }) });
   if (platform === 'animatic') items.push({ kind: 'animatic', text: fill(shot.animatic, { id: scene.screen.animatic }) });
   if (platform === 'title') items.push({ kind: 'animatic', text: fill(shot.title, { id: scene.screen.animatic }) });
   for (const step of scene.steps ?? []) {
@@ -160,7 +165,7 @@ export function musicTimeline(clip, scenario, production, context) {
     if (!starts.has(scene.chapter)) starts.set(scene.chapter, cursor);
     cursor += scene.expectedSec ?? voiceOf(scene, scenario, context).sceneMs / 1000;
   }
-  return cues.map((cue) => ({ ...cue, startSec: Math.min(...cue.chapters.filter((chapter) => starts.has(chapter)).map((chapter) => starts.get(chapter))) }));
+  return cues.map((cue) => ({ ...cue, startSec: Math.min(...cue.chapters.filter((chapter) => starts.has(chapter)).map((chapter) => starts.get(chapter))) })).map((cue) => ({ ...cue, startSec: Number.isFinite(cue.startSec) ? cue.startSec : null }));
 }
 
 /** Chapters whose data groups are not all run and verified, and the gaps recorded for them. */
@@ -168,10 +173,11 @@ export function dataRisks(scenario, production) {
   const dataset = production.readiness.datasets[scenario.data?.dataset];
   const risks = new Map();
   if (dataset === undefined) return risks;
+  const proofOf = (group) => dataset.groups[group]?.proof ?? dataset.plannedGroups?.[group]?.proof;
   for (const chapter of scenario.chapters) {
     const entry = dataset.chapters[chapter.id];
     if (entry === undefined) continue;
-    const pending = entry.groups.filter((group) => dataset.groups[group]?.proof !== 'RUN_VERIFIED');
+    const pending = entry.groups.filter((group) => proofOf(group) !== 'RUN_VERIFIED');
     if (pending.length > 0 || (entry.gaps ?? []).length > 0) risks.set(chapter.id, { pending, gaps: entry.gaps ?? [] });
   }
   return risks;
@@ -194,10 +200,19 @@ export function checkClip(clip, { context, facts, production, strict = false, st
   // Screens and routes: every id of a scene resolves to a route, and (strict) to a screen that exists in this build.
   const seenScreens = new Set();
   for (const scene of scenario.scenes) {
+    const waiting = pendingLanes(scene, context.planned);
+    if (waiting.length > 0) warnings.push(`${clip}: scene ${scene.id} waits for lane ${waiting.join(', ')} and is left out of a recording until the lane is merged`);
     for (const id of sceneScreenIds(scene)) {
-      if (seenScreens.has(id)) continue;
-      seenScreens.add(id);
+      const key = `${id}|${waiting.length > 0}`;
+      if (seenScreens.has(key)) continue;
+      seenScreens.add(key);
       const fact = screenFact(id, context, facts);
+      if (waiting.length > 0) {
+        if (fact.kind === 'unknown') fail(`screen ${id} is not in the catalogue and not in planned.json`);
+        else if (!fact.found && fact.kind !== 'planned') fail(`screen ${id} has no route in the ${fact.kind} route table`);
+        else if (!fact.found || !fact.implemented) warnings.push(`${clip}: screen ${id} waits for lane ${waiting.join(', ')}`);
+        continue;
+      }
       if (fact.kind === 'unknown') fail(`screen ${id} is not in the catalogue`);
       else if (!fact.found) fail(`screen ${id} has no route in the ${fact.kind} route table`);
       else if (!fact.implemented) (strict ? problems : warnings).push(`${clip}: screen ${id} (${fact.route}) has a route but no module in this build yet`);
@@ -294,11 +309,17 @@ export function checkClip(clip, { context, facts, production, strict = false, st
     const known = new Set(DATASET_PHASES[dataset].flatMap((phase) => phase.groups));
     for (const group of Object.keys(readiness.groups)) if (!known.has(group)) fail(`readiness group ${group} is not a group of the ${dataset} dataset`);
     for (const group of known) if (readiness.groups[group] === undefined) fail(`the group ${group} of the ${dataset} dataset has no proof state`);
+    for (const [group, state] of Object.entries(readiness.plannedGroups ?? {})) {
+      if (!KEBAB.test(group)) fail(`planned group ${group} is not kebab-case`);
+      if (known.has(group) || readiness.groups[group] !== undefined) fail(`planned group ${group} exists in the dataset now: move it to groups with its proof state`);
+      if (state.proof !== 'NOT_DONE') fail(`planned group ${group} must be NOT_DONE until its seed exists`);
+      if (!Array.isArray(state.needs) || state.needs.length === 0) fail(`planned group ${group} must list what its seed creates`);
+    }
     for (const state of Object.values(readiness.groups)) if (!['RUN_VERIFIED', 'WRITTEN_NOT_RUN', 'NOT_DONE'].includes(state.proof)) fail(`unknown proof state ${state.proof}`);
     for (const id of chapterIds) {
       const entry = readiness.chapters[id];
       if (entry === undefined) fail(`chapter ${id} has no readiness entry`);
-      else for (const group of entry.groups) if (readiness.groups[group] === undefined) fail(`chapter ${id} needs the group ${group}, which is not in the dataset`);
+      else for (const group of entry.groups) if (readiness.groups[group] === undefined && readiness.plannedGroups?.[group] === undefined) fail(`chapter ${id} needs the group ${group}, which is not in the dataset and not a planned group`);
     }
     for (const [id, risk] of dataRisks(scenario, production)) {
       const text = `chapter ${id}: ${risk.pending.length > 0 ? `groups not run and verified: ${risk.pending.join(', ')}` : ''}${risk.gaps.length > 0 ? `${risk.pending.length > 0 ? '; ' : ''}${risk.gaps.length} data gap(s) recorded` : ''}`;
@@ -337,6 +358,11 @@ export function buildBook(clip, { context, facts, production }) {
   const readiness = production.readiness.datasets[scenario.data.dataset];
   lines.push('', `## ${book.data}`, '', `${book.dataset}: \`${scenario.data.dataset}\` (docs/clip-data.md)`, '', `| ${book.group} | ${book.proof} |`, '|---|---|');
   for (const [group, state] of Object.entries(readiness.groups)) lines.push(`| \`${group}\` | ${state.proof} |`);
+  const plannedGroups = Object.entries(readiness.plannedGroups ?? {});
+  if (plannedGroups.length > 0) {
+    lines.push('', `**${book.plannedGroups}**`, '', `| ${book.group} | ${book.needs} |`, '|---|---|');
+    for (const [group, state] of plannedGroups) lines.push(`| \`${group}\` | ${state.needs.join(' ')} |`);
+  }
   lines.push('', `| ${book.chapter} | ${book.chapterData} | ${book.gaps} |`, '|---|---|---|');
   for (const chapter of scenario.chapters) {
     const entry = readiness.chapters[chapter.id];
@@ -350,14 +376,15 @@ export function buildBook(clip, { context, facts, production }) {
   lines.push('', `| ${book.cue} | ${book.chapter} | ${book.start} | ${book.level} | ${book.mood} |`, '|---|---|---|---|---|');
   for (const cue of musicTimeline(clip, scenario, production, context)) {
     const level = production.music.levels[cue.level];
-    lines.push(`| \`${cue.id}\` | ${cue.chapters.map((chapter) => `\`${chapter}\``).join(', ')} | ${mmss(cue.startSec)} | ${level.relativeDb} dB | ${cue.note} |`);
+    lines.push(`| \`${cue.id}\` | ${cue.chapters.map((chapter) => `\`${chapter}\``).join(', ')} | ${cue.startSec === null ? '-' : mmss(cue.startSec)} | ${level.relativeDb} dB | ${cue.note} |`);
   }
   for (const chapter of scenario.chapters) {
     lines.push('', `## ${chapter.title} (\`${chapter.id}\`)`, '');
     for (const scene of selectScenes(scenario, chapter.id)) {
       const platform = scene.screen?.platform;
       const spoken = applyPhonetics(scene.narration, context.phonetics);
-      lines.push(`### \`${scene.id}\``, '', `${book.platform}: ${platform}; ${scene.expectedSec} ${book.seconds}; ${mainIds.has(scene.id) ? book.inMain : book.chapterOnly}`, '');
+      const waiting = pendingLanes(scene, context.planned);
+      lines.push(`### \`${scene.id}\``, '', `${book.platform}: ${platform}; ${scene.expectedSec} ${book.seconds}; ${mainIds.has(scene.id) ? book.inMain : book.chapterOnly}${waiting.length > 0 ? `; ${book.requires}: ${waiting.join(', ')}` : ''}`, '');
       const screens = (scene.screen?.screens ?? []).map((id) => screenFact(id, context, facts));
       if (screens.length > 0) lines.push(`${book.screens}: ${screens.map((fact) => `\`${fact.id}\` ${fact.title} (${fact.route ?? '-'})`).join('; ')}`, '');
       lines.push(`**${book.narration}**`, '', `> ${scene.narration}`, '', `**${book.voice}**`, '', `> ${spoken}`, '', `**${book.subtitles}**`, '');
