@@ -584,27 +584,6 @@
         "expect": "^Giải phóng mặt bằng"
       },
       {
-        "id": "mob-65",
-        "screens": [
-          "MOB-65"
-        ],
-        "ops": [
-          {
-            "pause": true
-          },
-          {
-            "tab": "Phê duyệt"
-          },
-          {
-            "tap": "^Duyệt nghiệm thu"
-          },
-          {
-            "resume": true
-          }
-        ],
-        "expect": "^Nghiệm thu chất lượng"
-      },
-      {
         "id": "doc-23",
         "screens": [
           "DOC-23"
@@ -1109,71 +1088,6 @@
     "needs": [
       "một cuộc giao ban có chỉ đạo giao cho người xem",
       "một gói thầu đang thực hiện theo quy trình đấu thầu"
-    ]
-  },
-  {
-    "id": "m14-ban-chi-dao-rui-ro-nha-thau-dien-thoai",
-    "group": "Ứng dụng điện thoại",
-    "title": "Ứng dụng điện thoại: bảng điều hành Ban chỉ đạo tỉnh và rủi ro nhà thầu",
-    "audience": "Trưởng ban, thành viên và thư ký Ban chỉ đạo, cán bộ quản lý hợp đồng",
-    "outcome": "Xem bảng điều hành Ban chỉ đạo tỉnh chỉ đọc, danh sách nhà thầu theo mức rủi ro và rủi ro cùng kết quả thực hiện của một nhà thầu; mỗi cảnh báo nêu nguồn bằng chữ và mở đúng màn hình.",
-    "module": "MOB",
-    "steps": [
-      {
-        "id": "mob-72",
-        "screens": [
-          "MOB-72"
-        ],
-        "ops": [
-          {
-            "tab": "Trang chủ"
-          },
-          {
-            "see": "^Cần xử lý ngay"
-          },
-          {
-            "tap": "^Mở bảng điều hành đầy đủ",
-            "scroll": true
-          }
-        ],
-        "expect": "^Chỉ đọc. Mỗi lần mở bảng này"
-      },
-      {
-        "id": "mob-73",
-        "screens": [
-          "MOB-73"
-        ],
-        "ops": [
-          {
-            "back": true
-          },
-          {
-            "tab": "Dự án"
-          },
-          {
-            "tap": "^Rủi ro nhà thầu",
-            "open": "^Báo cáo và công việc hiện trường"
-          }
-        ],
-        "expect": "^Chỉ đọc. Mức rủi ro là tín hiệu"
-      },
-      {
-        "id": "mob-74",
-        "screens": [
-          "MOB-74"
-        ],
-        "ops": [
-          {
-            "tap": ", (Thấp|Trung bình|Cao|Nghiêm trọng)$"
-          }
-        ],
-        "expect": "^Mức rủi ro"
-      }
-    ],
-    "needs": [
-      "một người xem có quyền xem Ban chỉ đạo và quyền xem nhà thầu",
-      "cảnh báo thuộc nhiều nguồn, mỗi nguồn có đích mở trên điện thoại",
-      "một nhà thầu có mức rủi ro đã chấm và kết quả thực hiện hợp đồng"
     ]
   }
 ]

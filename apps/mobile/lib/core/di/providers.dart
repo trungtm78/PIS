@@ -57,6 +57,7 @@ final Provider<StringCatalogue> stringCatalogueProvider = Provider<StringCatalog
       kCoreStrings,
       for (final MobileFeature feature in features)
         if (feature.strings != null) feature.strings!,
+      if (ref.watch(editionProfileProvider).homeStrings != null) ref.watch(editionProfileProvider).homeStrings!,
     ],
     overlay: ref.watch(editionProfileProvider).overlay,
   );

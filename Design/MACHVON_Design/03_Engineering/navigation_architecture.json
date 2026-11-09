@@ -9583,6 +9583,27 @@
       "tabRoot": "MOB-09"
     },
     {
+      "id": "MOB-75",
+      "title": "Ủy quyền và vắng mặt trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-76",
+      "title": "Sổ chỉ tiêu trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-77",
+      "title": "Danh mục biểu mẫu báo cáo trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
       "id": "QMS-09",
       "title": "Nhật ký thi công ngoại tuyến trên điện thoại",
       "kind": "offline",

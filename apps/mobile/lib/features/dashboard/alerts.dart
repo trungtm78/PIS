@@ -533,6 +533,49 @@ const Map<String, AlertTargetRule> kAlertTargets = <String, AlertTargetRule>{
   'VND-11': (screenId: 'MOB-74', withId: true),
   'VND-12': (screenId: 'MOB-74', withId: true),
   'MOB-74': (screenId: 'MOB-74', withId: true),
+  // payments: the clock of the Treasury, the payment and its documents, advances, recovery, the ceiling exceptions: the payment tracking list
+  'PAY-22': (screenId: 'MOB-27', withId: false),
+  'PAY-03': (screenId: 'MOB-27', withId: false),
+  'PAY-12': (screenId: 'MOB-27', withId: false),
+  'PAY-18': (screenId: 'MOB-27', withId: false),
+  'PAY-21': (screenId: 'MOB-27', withId: false),
+  'MOB-27': (screenId: 'MOB-27', withId: false),
+  // the daily Treasury reconciliation
+  'PAY-20': (screenId: 'MOB-60', withId: false),
+  'MOB-60': (screenId: 'MOB-60', withId: false),
+  // contracts (claims, early warnings, guarantees, the settlement clock, the adjustments): the contracts and site milestones list
+  'CTR-03': (screenId: 'MOB-61', withId: false),
+  'CTR-05': (screenId: 'MOB-61', withId: false),
+  'CTR-33': (screenId: 'MOB-61', withId: false),
+  'CTR-35': (screenId: 'MOB-61', withId: false),
+  'CTR-36': (screenId: 'MOB-61', withId: false),
+  'CTR-38': (screenId: 'MOB-61', withId: false),
+  'CTR-39': (screenId: 'MOB-61', withId: false),
+  'MOB-61': (screenId: 'MOB-61', withId: false),
+  // the site diary of a contract (the missing-diary alert names the contract)
+  'QMS-11': (screenId: 'MOB-62', withId: true),
+  'MOB-62': (screenId: 'MOB-62', withId: true),
+  // issues: the follow-up screen (MOB-31) is keyed by the local reference of a queued report, so a server issue opens the weekly issues list
+  'ISS-03': (screenId: 'MOB-59', withId: false),
+  // reports that are returned or overdue: the drafts list
+  'DIS-03': (screenId: 'MOB-22', withId: false),
+  // the cover of an absence (alert coverage): the delegations and absences view
+  'ADM-28': (screenId: 'MOB-75', withId: false),
+  'MOB-75': (screenId: 'MOB-75', withId: false),
+};
+
+/// The target screens of the server that the phone has no screen for, each once. The alert is then handled from its actions (claim, assign, snooze).
+/// A test reads the target screens the server writes and fails when one is in neither table, so a screen added on the server is decided here.
+const Set<String> kAlertTargetsWithoutPhoneScreen = <String>{
+  // permits (PMT-02): the phone has no permit register; audit (AUD-11 escalations, AUD-13 duty separation, AUD-14 to AUD-16 red flags); the alert dossier
+  'PMT-02', 'AUD-11', 'AUD-13', 'AUD-14', 'AUD-15', 'AUD-16', 'HOME-06', 'HOME-30', 'HOME-31', 'NOT-30',
+  // administration, data governance, integrations, documents
+  'ADM-24', 'DGV-04', 'HUB-03', 'FEED-01', 'FEED-04', 'BID-22', 'BID-32', 'DOC-02',
+  // money planning, monthly reports and explanations
+  'CAP-07', 'CAP-22', 'PRJ-19', 'PRJ-22', 'MNE-03', 'DIS-26', 'DIS-30',
+  // contractor registers and the portal (the phone reads the grade and the performance only)
+  'VND-02', 'VND-03', 'VND-04', 'VND-05', 'VND-06', 'VND-07', 'VND-08', 'VND-09', 'VND-10', 'VND-13', 'VND-14', 'VND-15', 'VND-16', 'VND-17',
+  'VND-18', 'VND-19', 'VND-20', 'VND-21', 'VND-22',
 };
 
 final RegExp _plainId = RegExp(r'^[A-Za-z0-9_-]{1,64}$');

@@ -13949,5 +13949,59 @@
     "platform": "web",
     "req": "FR-ADM-29",
     "source": "HSKT YCK.06"
+  },
+  {
+    "id": "MOB-75",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Ủy quyền và vắng mặt trên điện thoại",
+    "kind": "list",
+    "fields": [
+      "Ủy quyền có thời hạn và vĩnh viễn: người nhận, vai trò, từ ngày đến ngày, trạng thái",
+      "Vắng mặt của người nhận cảnh báo, người thay và độ phủ",
+      "Yêu cầu thay thế đang chờ xác nhận và quy tắc đang áp dụng"
+    ],
+    "role": "Người dùng có quyền xem ủy quyền (iam.delegation.read) hoặc xem trang chủ (home.read)",
+    "rule": "Chỉ đọc; tạo, thu hồi, xét lại ủy quyền và khai báo vắng mặt ở lại trên máy tính; mỗi phần đọc riêng, phần nào bị từ chối thì báo rõ phần đó",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-75",
+    "source": "Kế hoạch MOBILE3, ADM-04, ADM-25, ADM-28; phần điện thoại chỉ đọc"
+  },
+  {
+    "id": "MOB-76",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Sổ chỉ tiêu trên điện thoại",
+    "kind": "list",
+    "fields": [
+      "Mã, tên, công thức, tử số, mẫu số, loại trừ, đơn vị, kỳ, nguồn và chủ sở hữu của từng chỉ tiêu",
+      "Độ trễ cho phép, chu kỳ làm mới, phiên bản và cờ chưa kiểm chứng",
+      "Chứng nhận của phiên bản đang hiệu lực"
+    ],
+    "role": "Người dùng có quyền home.read",
+    "rule": "Chỉ đọc; định nghĩa một nơi, không tính lại số trên điện thoại; chỉ tiêu chưa kiểm chứng ghi rõ",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-76",
+    "source": "Kế hoạch MOBILE3, sổ chỉ tiêu G0-4; phần điện thoại chỉ đọc"
+  },
+  {
+    "id": "MOB-77",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Danh mục biểu mẫu báo cáo trên điện thoại",
+    "kind": "list",
+    "fields": [
+      "Mã, tên, phiên bản, ấn bản và trạng thái của từng biểu mẫu",
+      "Nơi nhận, loại kỳ, nguồn số liệu, biểu mẫu chính thức hay mẫu thử",
+      "Biểu mẫu đã đăng ký, có thể phát hành, theo toàn đơn vị"
+    ],
+    "role": "Người dùng có quyền rpt.read",
+    "rule": "Chỉ đọc; không phát hành báo cáo từ điện thoại; mẫu thử luôn ghi nhãn thử",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-77",
+    "source": "Kế hoạch MOBILE3, RPT-1; phần điện thoại chỉ đọc"
   }
 ]

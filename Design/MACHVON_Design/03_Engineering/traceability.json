@@ -10203,6 +10203,60 @@
     ]
   },
   {
+    "requirement": "FR-MOB-75",
+    "screen": "MOB-75",
+    "title": "Ủy quyền và vắng mặt trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch MOBILE3, ADM-04, ADM-25, ADM-28; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-75",
+    "test_ids": [
+      "UI-MOB-75",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-76",
+    "screen": "MOB-76",
+    "title": "Sổ chỉ tiêu trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch MOBILE3, sổ chỉ tiêu G0-4; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-76",
+    "test_ids": [
+      "UI-MOB-76",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
+    "requirement": "FR-MOB-77",
+    "screen": "MOB-77",
+    "title": "Danh mục biểu mẫu báo cáo trên điện thoại",
+    "use_cases": [
+      "UC06"
+    ],
+    "source": "Kế hoạch MOBILE3, RPT-1; phần điện thoại chỉ đọc",
+    "phase": "P1",
+    "design_status": "module-spec-m1",
+    "implementation_status": "not-built",
+    "verification": "05_modules/MOB.md §10–§11; 2 test",
+    "backlog_id": "BL-MOB-77",
+    "test_ids": [
+      "UI-MOB-77",
+      "UAT-PLAN-3101"
+    ]
+  },
+  {
     "requirement": "FR-DIR-01",
     "screen": "DIR-01",
     "title": "Các cuộc giao ban đầu tư",

@@ -21176,6 +21176,60 @@
     ]
   },
   {
+    "id": "UI-MOB-75",
+    "source": "Screen MOB-75",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-75 (iam.delegation.read và home.read) và một người không có; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-75 hiển thị đúng quyền, trạng thái và theo mockup; chỉ đọc, mỗi con số kèm nguồn và ngày số liệu; không có nút lệnh; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-75"
+    ]
+  },
+  {
+    "id": "UI-MOB-76",
+    "source": "Screen MOB-76",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-76 (home.read) và một người không có; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-76 hiển thị đúng quyền, trạng thái và theo mockup; chỉ đọc, mỗi con số kèm nguồn và ngày số liệu; không có nút lệnh; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-76"
+    ]
+  },
+  {
+    "id": "UI-MOB-77",
+    "source": "Screen MOB-77",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "TNT-A; người dùng có quyền xem MOB-77 (rpt.read) và một người không có; dữ liệu synthetic theo fixture",
+    "steps": [
+      "Mở màn hình trên thiết bị 390×844 và 360×800",
+      "Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối",
+      "Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình"
+    ],
+    "expected": "MOB-77 hiển thị đúng quyền, trạng thái và theo mockup; chỉ đọc, mỗi con số kèm nguồn và ngày số liệu; không có nút lệnh; không có dữ liệu ngoài phạm vi",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-MOB-77"
+    ]
+  },
+  {
     "id": "UAT-PLAN-132",
     "source": "DIR.md",
     "type": "business",

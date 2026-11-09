@@ -18211,6 +18211,99 @@
     ]
   },
   {
+    "id": "BL-MOB-75",
+    "requirement": "FR-MOB-75",
+    "screen": "MOB-75",
+    "title": "Ủy quyền và vắng mặt trên điện thoại",
+    "module": "MOB",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Mobile",
+    "dependencies": "IAM",
+    "fields": [
+      "Ủy quyền có thời hạn và vĩnh viễn: người nhận, vai trò, từ ngày đến ngày, trạng thái",
+      "Vắng mặt của người nhận cảnh báo, người thay và độ phủ",
+      "Yêu cầu thay thế đang chờ xác nhận và quy tắc đang áp dụng"
+    ],
+    "rule": "Chỉ đọc; tạo, thu hồi, xét lại ủy quyền và khai báo vắng mặt ở lại trên máy tính; mỗi phần đọc riêng, phần nào bị từ chối thì báo rõ phần đó",
+    "test_ids": [
+      "UI-MOB-75",
+      "UAT-PLAN-3101"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-MOB-042"
+    ]
+  },
+  {
+    "id": "BL-MOB-76",
+    "requirement": "FR-MOB-76",
+    "screen": "MOB-76",
+    "title": "Sổ chỉ tiêu trên điện thoại",
+    "module": "MOB",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Mobile",
+    "dependencies": "IAM",
+    "fields": [
+      "Mã, tên, công thức, tử số, mẫu số, loại trừ, đơn vị, kỳ, nguồn và chủ sở hữu của từng chỉ tiêu",
+      "Độ trễ cho phép, chu kỳ làm mới, phiên bản và cờ chưa kiểm chứng",
+      "Chứng nhận của phiên bản đang hiệu lực"
+    ],
+    "rule": "Chỉ đọc; định nghĩa một nơi, không tính lại số trên điện thoại; chỉ tiêu chưa kiểm chứng ghi rõ",
+    "test_ids": [
+      "UI-MOB-76",
+      "UAT-PLAN-3101"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-MOB-042"
+    ]
+  },
+  {
+    "id": "BL-MOB-77",
+    "requirement": "FR-MOB-77",
+    "screen": "MOB-77",
+    "title": "Danh mục biểu mẫu báo cáo trên điện thoại",
+    "module": "MOB",
+    "platform": "mobile",
+    "phase": "P1",
+    "owner": "Mobile",
+    "dependencies": "IAM",
+    "fields": [
+      "Mã, tên, phiên bản, ấn bản và trạng thái của từng biểu mẫu",
+      "Nơi nhận, loại kỳ, nguồn số liệu, biểu mẫu chính thức hay mẫu thử",
+      "Biểu mẫu đã đăng ký, có thể phát hành, theo toàn đơn vị"
+    ],
+    "rule": "Chỉ đọc; không phát hành báo cáo từ điện thoại; mẫu thử luôn ghi nhãn thử",
+    "test_ids": [
+      "UI-MOB-77",
+      "UAT-PLAN-3101"
+    ],
+    "status": "NOT_BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Chốt action→operationId, field constraints, role/scope và test data; đặc tả 05_modules/MOB.md đã review",
+    "definition_of_done": "Code review + API/DB tests + UI/accessibility + audit/telemetry + UAT pass",
+    "blockers": [],
+    "release": "R3",
+    "stories": [
+      "ST-MOB-042"
+    ]
+  },
+  {
     "id": "BL-DIR-01",
     "requirement": "FR-DIR-01",
     "screen": "DIR-01",
