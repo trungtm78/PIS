@@ -961,6 +961,7 @@
     "importEbsFile",
     "reconcileEbs",
     "resolveEbsDifference",
-    "reassignEbsDifference"
+    "reassignEbsDifference",
+    "materialiseEnterpriseOrgPack"
   ]
 }

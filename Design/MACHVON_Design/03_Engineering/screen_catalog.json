@@ -13650,5 +13650,27 @@
     "platform": "web",
     "req": "FR-BID-34",
     "source": "Phần việc còn lại của VND-3 (kiến nghị chưa có kết quả); kế hoạch PORTAL-2"
+  },
+  {
+    "id": "ORG-01",
+    "module": "ORG",
+    "moduleName": "Tổ chức enterprise",
+    "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)",
+    "kind": "dashboard",
+    "fields": [
+      "Đơn vị và 09 đầu mối",
+      "Vai trò và phạm vi",
+      "Chỗ ngồi và nhóm thư mục",
+      "Quy trình duyệt từng bước",
+      "Ủy quyền",
+      "Danh mục dùng chung",
+      "Kế hoạch nạp và báo cáo kiểm chứng"
+    ],
+    "role": "Quản trị Ban CĐS&CNTT, Ban KHĐT, lãnh đạo xem",
+    "rule": "Chỉ đọc; gói mẫu PVFCCO-TEMPLATE không có người, không có tài khoản; nạp qua lô nhập ADM (chạy thử, áp dụng bởi người khác) rồi biến thành đối tượng thật; không ghi đè khác biệt",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-ADM-ENT3D",
+    "source": "HSKT v0.3 HT.02, HT.03, MD.03, QT.01"
   }
 ]

@@ -1444,6 +1444,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getEgpObligation({required String id, Map<String, Object?>? query}) =>
       execute('getEgpObligation', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getEnterpriseOrgPack({Map<String, Object?>? query}) =>
+      execute('getEnterpriseOrgPack', query: query);
+
   Future<Object?> getEvaluationReport({required String id, Map<String, Object?>? query}) =>
       execute('getEvaluationReport', path: <String, Object?>{'id': id}, query: query);
 
@@ -3402,6 +3405,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> matchTreasuryTransaction(PayMatchTreasuryTransaction body, {required String id, CommandAttempt? attempt}) =>
       execute('matchTreasuryTransaction', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
+  Future<Object?> materialiseEnterpriseOrgPack(EntOrgPackMaterialiseRequest body, {CommandAttempt? attempt}) =>
+      execute('materialiseEnterpriseOrgPack', body: body, attempt: attempt);
 
   Future<Object?> mergeContacts(ContactMerge body, {CommandAttempt? attempt}) =>
       execute('mergeContacts', body: body, attempt: attempt);
