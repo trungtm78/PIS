@@ -22467,5 +22467,295 @@
     "stories": [
       "ST-BID-033"
     ]
+  },
+  {
+    "id": "BL-PWA-01",
+    "requirement": "YCK.01",
+    "screen": "PWA-01",
+    "title": "Trang chủ ứng dụng cài đặt",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Số việc chờ duyệt",
+      "Ba lối vào",
+      "Cách cài đặt",
+      "Bật thông báo đẩy"
+    ],
+    "rule": "Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn",
+    "test_ids": [
+      "UI-PWA-01"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-001"
+    ]
+  },
+  {
+    "id": "BL-PWA-02",
+    "requirement": "YCK.01",
+    "screen": "PWA-02",
+    "title": "Hàng đợi phê duyệt số liệu kỳ",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Loại hồ sơ",
+      "Bước",
+      "Đơn vị",
+      "Dự án",
+      "Số tiền",
+      "Hạn",
+      "Phê duyệt",
+      "Trả lại kèm ý kiến"
+    ],
+    "rule": "Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo",
+    "test_ids": [
+      "UI-PWA-02"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-001"
+    ]
+  },
+  {
+    "id": "BL-PWA-03",
+    "requirement": "YCK.01",
+    "screen": "PWA-03",
+    "title": "Bảng điều hành của lãnh đạo",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Phạm vi và ngày chốt",
+      "Giải ngân và tỷ lệ",
+      "Kế hoạch và việc chờ",
+      "Cần xử lý ngay",
+      "Tiến độ đấu thầu",
+      "Hội đồng"
+    ],
+    "rule": "Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem",
+    "test_ids": [
+      "UI-PWA-03"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-002"
+    ]
+  },
+  {
+    "id": "BL-PWA-04",
+    "requirement": "YCK.01",
+    "screen": "PWA-04",
+    "title": "Theo dõi chỉ đạo",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Số liệu tổng hợp",
+      "Bộ lọc trạng thái, quá hạn, đơn vị",
+      "Danh sách chỉ đạo",
+      "Hạn và tiến độ"
+    ],
+    "rule": "Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo",
+    "test_ids": [
+      "UI-PWA-04"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-003"
+    ]
+  },
+  {
+    "id": "BL-PWA-05",
+    "requirement": "YCK.01",
+    "screen": "PWA-05",
+    "title": "Chi tiết phê duyệt số liệu kỳ",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Nội dung và số tiền",
+      "So sánh với kế hoạch",
+      "So sánh với lần báo cáo trước",
+      "Bằng chứng đính kèm",
+      "Lịch sử các bước",
+      "Phê duyệt hoặc trả lại"
+    ],
+    "rule": "Tên đơn vị và dự án thay cho mã; mỗi phần đọc bằng quyền riêng, thiếu quyền thì bỏ phần đó, mất kết nối thì báo lỗi; phê duyệt và trả lại giữ nguyên quy tắc If-Match, aal2, khóa chống gửi lặp",
+    "test_ids": [
+      "UI-PWA-05"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-001"
+    ]
+  },
+  {
+    "id": "BL-PWA-06",
+    "requirement": "YCK.01",
+    "screen": "PWA-06",
+    "title": "Chi tiết chỉ đạo và dòng thời gian",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Nội dung chỉ đạo",
+      "Đơn vị và người thực hiện",
+      "Hạn gốc và hạn hiện tại",
+      "Dòng thời gian",
+      "Đề nghị gia hạn",
+      "Bằng chứng"
+    ],
+    "rule": "Chỉ đọc trên điện thoại; lịch sử không sửa; số ngày quá hạn do máy chủ tính",
+    "test_ids": [
+      "UI-PWA-06"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-003"
+    ]
+  },
+  {
+    "id": "BL-PWA-07",
+    "requirement": "YCK.01",
+    "screen": "PWA-07",
+    "title": "Cài đặt ứng dụng cài đặt",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Thiết bị và phiên đăng nhập",
+      "Ngôn ngữ",
+      "Thông báo theo nhóm sự kiện",
+      "Giờ yên lặng"
+    ],
+    "rule": "Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được",
+    "test_ids": [
+      "UI-PWA-07"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-004"
+    ]
+  },
+  {
+    "id": "BL-PWA-08",
+    "requirement": "YCK.01",
+    "screen": "PWA-08",
+    "title": "Chi tiết số liệu bảng điều hành",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Số tiền theo bản chốt",
+      "Xếp hạng",
+      "Nguyên nhân chậm giải ngân",
+      "Dòng tiền",
+      "Thay đổi so với bản chốt trước",
+      "Mức cảnh báo"
+    ],
+    "rule": "Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px",
+    "test_ids": [
+      "UI-PWA-08"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-002"
+    ]
+  },
+  {
+    "id": "BL-PWA-09",
+    "requirement": "YCK.01",
+    "screen": "PWA-09",
+    "title": "Tiến độ đấu thầu trên điện thoại",
+    "module": "PWA",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Web/PWA",
+    "dependencies": "IAM,NOT,DIS,DIR,BID,HOME",
+    "fields": [
+      "Số gói và việc quá hạn",
+      "Các bước của quy trình",
+      "Gói ở từng bước"
+    ],
+    "rule": "Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị",
+    "test_ids": [
+      "UI-PWA-09"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Đặc tả 01_Documents/05_modules/PWA.md đã review; operationId và quyền lấy từ các màn hình web tương ứng; fixture synthetic",
+    "definition_of_done": "Code review + vitest màn hình (các trạng thái chuẩn, truy cập, mục tiêu chạm 44 px) + UAT của lãnh đạo trên điện thoại",
+    "blockers": [],
+    "release": "R2",
+    "stories": [
+      "ST-PWA-002"
+    ]
   }
 ]

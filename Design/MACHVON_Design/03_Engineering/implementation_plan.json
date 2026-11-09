@@ -215,6 +215,12 @@
       "module": "FEED",
       "title": "Data feed of the Finance Department into the public investment system",
       "goal": "Take the records of the Finance Department application in by file, by push and from a data generator through one judgement, map its project codes to ours with a maker and a checker, compare it with our own figures and give every difference an owner, show how fresh and how good the data is, and keep every figure behind an \"i\" with formula, source and day."
+    },
+    {
+      "id": "EP-PWA",
+      "module": "PWA",
+      "title": "The installed manager application",
+      "goal": "Give the leaders who will not install a phone application the three things they need on a phone, installable and with notifications: decide the period data with its figures in front of them, read the leader dashboard and its drill-downs, and follow the directives, with the settings of their devices, language and notifications."
     }
   ],
   "features": [
@@ -1082,6 +1088,21 @@
       "id": "FT-VND-04",
       "epic": "EP-VND",
       "title": "Contractor portal, annual re-confirmation, remediation plans, disputes and the OCDS parties"
+    },
+    {
+      "id": "FT-PWA-01",
+      "epic": "EP-PWA",
+      "title": "Approval of period data on the phone"
+    },
+    {
+      "id": "FT-PWA-02",
+      "epic": "EP-PWA",
+      "title": "Leader dashboard and its phone drill-downs"
+    },
+    {
+      "id": "FT-PWA-03",
+      "epic": "EP-PWA",
+      "title": "Directive tracking and settings on the phone"
     }
   ],
   "stories": [
@@ -58027,6 +58048,374 @@
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
             "UI-BID-34"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWA-001",
+      "epic": "EP-PWA",
+      "feature": "FT-PWA-01",
+      "module": "PWA",
+      "title": "Decide the period data on the phone: queue, detail with plan and revision comparison, evidence and step history, approve or return",
+      "narrative": "As a leader I open a task from my queue, read the project, the figures against the plan and the period before, the evidence and the steps so far, and approve or return it with a comment, so that I decide with the numbers in front of me.",
+      "release": "R2",
+      "screens": [
+        "PWA-01",
+        "PWA-02",
+        "PWA-05"
+      ],
+      "operations": [
+        "get_resources_approval_task",
+        "get_resources_approval_task_id",
+        "decideApprovalTask",
+        "getReportRevision",
+        "get_resources_organization_unit"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWA-001-1",
+          "given": "A task of the leader on a report with a previous revision",
+          "when": "The leader opens the task from the queue",
+          "then": "The detail names the project, period and unit (no id prefix), compares the cells with the plan and the period before and the revision with the one it corrects, lists the evidence and the steps; a refused part is left out with the reason",
+          "test_id": "UAT-PWA-01"
+        },
+        {
+          "id": "AC-ST-PWA-001-2",
+          "given": "The leader on the detail of a pending task",
+          "when": "The leader approves, and then returns without a comment",
+          "then": "The decision goes once under the version of the task (If-Match) with an idempotency key and a fresh second factor; a return without a comment is refused before sending; a conflict offers to reload",
+          "test_id": "UAT-PWA-01"
+        },
+        {
+          "id": "AC-ST-PWA-001-3",
+          "given": "The queue at 360 px",
+          "when": "Cards, filters and the sheet are used with a thumb",
+          "then": "No horizontal scroll, every control at least 44 px, the sheet at the bottom of the screen",
+          "test_id": "UI-PWA-02"
+        }
+      ],
+      "dependencies": [
+        "ST-DIR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Built on the operations the web screens and the phone application already use; no new operation."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWA-001-1",
+          "kind": "web",
+          "title": "PWA-01, PWA-02, PWA-05 built with the kit, the seven standard states and 44 px targets",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-001-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWA-01, PWA-02, PWA-05; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-001-3",
+          "kind": "qa",
+          "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
+          "test_ids": [
+            "UAT-PWA-01",
+            "UI-PWA-01",
+            "UI-PWA-02",
+            "UI-PWA-05"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWA-002",
+      "epic": "EP-PWA",
+      "feature": "FT-PWA-02",
+      "module": "PWA",
+      "title": "Leader dashboard on the phone with the drill-downs of the figures and of the procurement progress",
+      "narrative": "As a leader I read the dashboard and tap through to the figures behind it and to the procurement progress, in one column, from the same snapshot and the same numbers as the full screens.",
+      "release": "R2",
+      "screens": [
+        "PWA-03",
+        "PWA-08",
+        "PWA-09"
+      ],
+      "operations": [
+        "getCommandCenter",
+        "getPackageProcessTree",
+        "listPackageProcessTreeNodePackages",
+        "getPackageWorkflowSummary"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWA-002-1",
+          "given": "The latest frozen snapshot",
+          "when": "The leader opens the dashboard and then the detail of the figures",
+          "then": "The amounts, ranking, causes, cash flow and changes belong to the same snapshot as HOME-09, a card that cannot be read says so without hiding the others",
+          "test_id": "UAT-PWA-02"
+        },
+        {
+          "id": "AC-ST-PWA-002-2",
+          "given": "The procurement tree with steps and packages",
+          "when": "The leader opens the progress and taps a step",
+          "then": "The steps are listed by method in order with counts and lateness and the packages of the step open in place; a leader without the right to read is told the scope is hidden",
+          "test_id": "UAT-PWA-02"
+        },
+        {
+          "id": "AC-ST-PWA-002-3",
+          "given": "The dashboard at 360 px",
+          "when": "The leader reads the figures",
+          "then": "One column, no horizontal scroll, figures that cannot be given are said so and never shown as 0",
+          "test_id": "UI-PWA-03"
+        }
+      ],
+      "dependencies": [
+        "ST-DIR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Built on the operations the web screens and the phone application already use; no new operation."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWA-002-1",
+          "kind": "web",
+          "title": "PWA-03, PWA-08, PWA-09 built with the kit, the seven standard states and 44 px targets",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-002-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWA-03, PWA-08, PWA-09; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-002-3",
+          "kind": "qa",
+          "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
+          "test_ids": [
+            "UAT-PWA-02",
+            "UI-PWA-03",
+            "UI-PWA-08",
+            "UI-PWA-09"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWA-003",
+      "epic": "EP-PWA",
+      "feature": "FT-PWA-03",
+      "module": "PWA",
+      "title": "Directive tracking on the phone: list with filters and counts, detail with timeline",
+      "narrative": "As a leader I see the directives of my scope with the counts, filter them by status, overdue and unit, and open one to read its timeline, extension requests and evidence.",
+      "release": "R2",
+      "screens": [
+        "PWA-04",
+        "PWA-06"
+      ],
+      "operations": [
+        "listDirectives",
+        "getDirectiveSummary",
+        "getDirective"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWA-003-1",
+          "given": "Directives in the scope of the leader",
+          "when": "The leader opens the tracking and filters by overdue and by unit",
+          "then": "The list and the counts are read from listDirectives and getDirectiveSummary with the filter, a failed summary is said so and never shown as 0, and more pages load on request",
+          "test_id": "UAT-PWA-03"
+        },
+        {
+          "id": "AC-ST-PWA-003-2",
+          "given": "A directive with progress events and an extension request",
+          "when": "The leader opens it",
+          "then": "The detail shows the clock as the server counts it, the latest progress (or that none was reported), the timeline newest first, the request and the evidence, read-only",
+          "test_id": "UAT-PWA-03"
+        }
+      ],
+      "dependencies": [
+        "ST-DIR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Built on the operations the web screens and the phone application already use; no new operation."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWA-003-1",
+          "kind": "web",
+          "title": "PWA-04, PWA-06 built with the kit, the seven standard states and 44 px targets",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-003-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWA-04, PWA-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-003-3",
+          "kind": "qa",
+          "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
+          "test_ids": [
+            "UAT-PWA-03",
+            "UI-PWA-04",
+            "UI-PWA-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWA-004",
+      "epic": "EP-PWA",
+      "feature": "FT-PWA-03",
+      "module": "PWA",
+      "title": "Settings of the installed application: sessions and devices, language, notifications per category",
+      "narrative": "As a user I see where I am signed in, end a session or remove a device with a reason, choose my language and decide which kinds of events reach my inbox, my push and my mail.",
+      "release": "R2",
+      "screens": [
+        "PWA-07"
+      ],
+      "operations": [
+        "listMySessions",
+        "listMyDevices",
+        "revokeMySession",
+        "revokeMyDevice",
+        "getMyProfile",
+        "updateMyProfile",
+        "getMyNotificationPreferences",
+        "updateMyNotificationPreferences"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWA-004-1",
+          "given": "A user with two sessions and three devices",
+          "when": "The user ends the other session with a short and then a proper reason",
+          "then": "The current session has no end action, a reason under 10 characters is refused before sending, and the end is sent once with the reason",
+          "test_id": "UAT-PWA-04"
+        },
+        {
+          "id": "AC-ST-PWA-004-2",
+          "given": "The notification preferences under a version",
+          "when": "The user switches a push off and saves",
+          "then": "The whole set is saved under the version the user saw, a channel locked for an urgent category cannot be switched off, equal quiet hours are refused",
+          "test_id": "UAT-PWA-04"
+        }
+      ],
+      "dependencies": [
+        "ST-DIR-003"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Built on the operations the web screens and the phone application already use; no new operation."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWA-004-1",
+          "kind": "web",
+          "title": "PWA-07 built with the kit, the seven standard states and 44 px targets",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-004-2",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWA-07; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWA-004-3",
+          "kind": "qa",
+          "title": "Screen-contract tests for the states, accessibility and the 360 px layout",
+          "test_ids": [
+            "UAT-PWA-04",
+            "UI-PWA-07"
           ]
         }
       ]
