@@ -5,6 +5,11 @@ What it proves (ST-KERNEL-111 AC-1, ST-KERNEL-031 AC-1): every route of the gene
 overflow; and the screens that exist match the baseline PNGs of `Design/MACHVON_Design/04_Design_Assets` within 0.1
 percent of the pixels (anti-aliasing excluded).
 
+Since CR-06-13 (2026-11-07, the Xanh dau dieu hanh palette, the brand block, the search and the alert bell of the shell) the baselines of the frame regions are
+`apps/web/e2e/visual-baselines/{screens,states}/*.png`: captures of the real application, kept only inside the gated regions (the rest is blank). The mockups of
+`Design/MACHVON_Design/04_Design_Assets` stay as the design package and are no longer read by the spec. After an intended change of the shell, look at the new captures
+(`apps/web/e2e/__diff__/<ID>.actual.png`), then rewrite the baselines with `npm run e2e:visual:update -w @machvon/web` (`E2E_UPDATE_VISUAL=1`) and commit the images; never to turn a failure green.
+
 ## Prerequisites
 
 - Google Chrome installed at `C:/Program Files/Google/Chrome/Application/chrome.exe` (the baselines were rendered with it, so

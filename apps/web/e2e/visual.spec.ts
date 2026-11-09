@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
@@ -10,8 +11,16 @@ import { recordMissingVisuals, upsertVisual } from './support/report.ts';
 import { stackInfo } from './support/stack.ts';
 import type { VisualEntry } from './support/report.ts';
 
-const ASSETS = fileURLToPath(new URL('../../../Design/MACHVON_Design/04_Design_Assets', import.meta.url));
 const OUT = fileURLToPath(new URL('./__diff__', import.meta.url));
+/**
+ * The baselines of the screen frames. The mockups of 04_Design_Assets/screens were exported from the prototype before CR-06-13 (the Xanh dau dieu hanh palette, the brand block, the search and the alert bell of the shell), so the
+ * real shell has been different from them on purpose since 2026-11-07. The mockups stay untouched (they are the design package, under baseline preservation); the frame of each screen is compared with its own capture,
+ * taken after the new look was reviewed, in this folder. `E2E_UPDATE_VISUAL=1` (npm run e2e:visual:update -w @machvon/web) rewrites them: do it only after looking at the new captures, never to turn a failure green.
+ */
+const BASELINES = fileURLToPath(new URL('./visual-baselines', import.meta.url));
+const UPDATE_BASELINES = process.env.E2E_UPDATE_VISUAL === '1';
+/** Every gated region lies in the first 944 rows (the height of the sidebar region), so the baseline keeps no more. */
+const BASELINE_ROWS = 944;
 /** AC-ST-KERNEL-031-1: at most 0.1 percent of the pixels of a screen may differ, anti-aliasing excluded. This is a target, never a tuning knob. */
 const RATIO_TARGET = 0.001;
 const VIEWPORT = { width: 1440, height: 1000 };
@@ -50,6 +59,25 @@ const pathOf = (id: string): string => {
   return route.path;
 };
 
+/**
+ * With `E2E_UPDATE_VISUAL=1` the capture becomes the baseline of its screen. Only the gated regions are kept (the rest is blanked: a flat area costs nothing in the repository, and nothing outside a region is ever compared),
+ * as an RGB image without alpha.
+ */
+function writeBaseline(actual: string, expected: string, regions: readonly Region[]): void {
+  if (!UPDATE_BASELINES) return;
+  const source = PNG.sync.read(readFileSync(actual));
+  const height = Math.min(source.height, BASELINE_ROWS);
+  const kept = new PNG({ width: source.width, height });
+  kept.data.fill(255);
+  for (const region of regions) {
+    const width = Math.min(region.width, source.width - region.x);
+    const rows = Math.min(region.height, height - region.y);
+    if (width > 0 && rows > 0) PNG.bitblt(source, kept, region.x, region.y, width, rows, region.x, region.y);
+  }
+  mkdirSync(dirname(expected), { recursive: true });
+  writeFileSync(expected, PNG.sync.write(kept, { colorType: 2, inputHasAlpha: true, deflateLevel: 9 }));
+}
+
 const sizeOf = (file: string): { width: number; height: number } => {
   const { width, height } = PNG.sync.read(readFileSync(file));
   return { width, height };
@@ -64,7 +92,7 @@ async function capture(page: Page, id: string, file: string, query = ''): Promis
   await page.addStyleTag({ content: `${EXPORT_STYLE}${SCROLLER_STYLE}` });
   // Every route without an implementation renders NotImplementedScreen, which marks itself.
   const implemented = (await page.locator('[data-not-implemented]').count()) === 0;
-  await page.locator('#screen-capture').screenshot({ path: file });
+  await page.locator('#screen-capture').screenshot({ path: file, animations: 'disabled' });
   return { implemented };
 }
 
@@ -1351,23 +1379,16 @@ const queryOf = (id: string): string => {
 
 for (const id of ['AUD-01', 'AUD-02', 'AUD-03', 'AUD-04', 'AUD-05', 'AUD-06', 'AUD-07', 'AUD-08', 'AUD-10', 'ADM-01', 'ADM-02', 'ADM-07', 'ADM-09', 'ADM-10', 'ADM-11', 'ADM-12', 'ADM-15','ADM-03', 'ADM-05', 'ADM-17', 'BID-01', 'BID-02', 'BID-03', 'BID-04', 'BID-05', 'BID-15', 'BID-16', 'BID-17', 'BID-18', 'BID-19', 'BID-20', 'DGV-01', 'DGV-03', 'DGV-04', 'DGV-06', 'DGV-07', 'DOC-02', 'DOC-03', 'DOC-04', 'DOC-05', 'DOC-06', 'DOC-07', 'DOC-08', 'DOC-09', 'DOC-10', 'DOC-14', 'DOC-19', 'DOC-21', 'IAM-04', 'IAM-08', 'IAM-09', 'LND-01', 'LND-02', 'LND-03', 'LND-04', 'LND-05', 'LND-06', 'LND-07', 'LND-08', 'LND-10', 'LND-13', 'LND-11', 'ISS-01', 'ISS-02', 'ISS-03', 'ISS-04', 'ISS-07', 'ISS-09', 'ISS-10', 'MDM-01', 'MDM-02', 'MDM-03', 'MDM-04', 'MDM-05', 'MDM-06', 'MDM-07', 'MDM-08', 'MDM-09', 'MDM-10', 'MDM-11', 'MDM-12', 'MDM-13', 'MDM-14', 'MDM-15', 'MDM-16', 'MDM-17', 'MDM-18', 'MDM-19', 'MDM-20', 'MDM-21', 'MDM-22', 'MDM-23', 'MDM-24', 'MDM-25', 'MDM-26', 'MDM-29', 'MDM-27', 'MDM-28', 'MDM-31', 'MDM-32', 'MDM-33', 'MDM-34', 'MDM-37', 'MNE-01', 'MNE-02', 'NOT-01', 'NOT-02', 'NOT-03', 'NOT-11', 'NOT-12', 'NOT-13', 'NOT-17', 'PMT-01', 'PMT-02', 'PMT-03', 'PMT-04', 'PMT-05', 'PMT-06', 'PRJ-01', 'PRJ-02', 'PRJ-03', 'PRJ-09', 'PRJ-10', 'PRJ-14', 'PRJ-15', 'PRJ-17', 'PRJ-18', 'PRJ-21', 'PAY-13', 'CAP-01', 'CAP-02', 'CAP-03', 'CAP-04', 'CAP-05', 'CAP-06', 'CAP-07', 'CAP-08', 'CAP-10', 'CAP-11', 'CAP-14', 'CAP-15', 'CAP-16', 'CAP-17', 'CAP-20', 'CTR-03', 'CTR-04', 'CTR-05', 'CTR-07', 'CTR-08', 'CTR-10', 'CTR-19', 'CTR-20', 'CTR-22', 'CTR-26', 'DIS-01', 'DIS-02', 'DIS-03', 'DIS-04', 'DIS-05', 'DIS-06', 'DIS-18', 'DIS-14', 'DIS-22', 'SAS-01','SAS-02', 'SAS-03', 'SAS-04', 'SAS-06', 'SAS-07', 'SAS-08', 'SAS-11', 'SAS-12', 'SAS-13', 'SAS-14', 'SAS-15', 'SAS-16', 'SAS-22', 'SAS-25', 'QMS-04', 'QMS-05', 'QMS-07', 'AST-01', 'AST-02', 'AST-03', 'AST-04', 'CTR-21', 'CTR-12', 'PAY-10', 'PAY-01', 'PAY-02', 'PAY-03', 'CTR-13', 'PAY-07', 'CTR-06', 'PAY-04', 'PAY-14', 'PAY-05', 'PAY-06', 'PAY-09', 'PAY-08', 'PAY-15', 'PAY-17'] as const) {
   const regionIds = Object.keys(SCREEN_REGIONS[id]).map((name) => `${id}:${name}`);
-  visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }, testInfo) => {
+  visualTest(`${id}: the page frame regions match the baseline PNG`, regionIds, async ({ page }) => {
     const actual = `${OUT}/${id}.actual.png`;
-    const expected = `${ASSETS}/screens/${id}.png`;
+    const expected = `${BASELINES}/screens/${id}.png`;
     // The tenant owner (the system administrator on the control plane) sees the screen with its data (the API stack seeds the fixture tenant).
     const { implemented } = await capture(page, id, actual, queryOf(id));
     if (!implemented) {
       record({ id, status: 'pending', reason: 'the screen is not implemented yet (the route renders the fallback)' });
       return;
     }
-    // The real page is taller than the mockup when it holds data: the informational ratio then covers the first rows both share.
-    const shared = Math.min(sizeOf(actual).height, sizeOf(expected).height);
-    const whole = compare(`${id}:whole-page`, actual, expected, { x: 0, y: 0, width: VIEWPORT.width, height: shared });
-    const note =
-      whole.ratio === undefined ? `${id} whole page: ${whole.reason}` : `${id} whole page (first ${shared} rows): ratio ${whole.ratio.toFixed(4)} (${whole.differentPixels} of ${whole.totalPixels} pixels); not gated`;
-    testInfo.annotations.push({ type: 'informational', description: note });
-    process.stdout.write(`${note}
-`);
+    writeBaseline(actual, expected, Object.values(SCREEN_REGIONS[id]));
     for (const [name, region] of Object.entries(SCREEN_REGIONS[id])) record(compare(`${id}:${name}`, actual, expected, region));
   });
 }
@@ -1376,8 +1397,8 @@ for (const id of ['AUD-01', 'AUD-02', 'AUD-03', 'AUD-04', 'AUD-05', 'AUD-06', 'A
 // whether or not ADM-01's own content exists yet. The heights differ, hence the common height of the sidebar region.
 visualTest('shell frame: sidebar and top bar of ADM-01 match the baseline regions', ['shell-frame:sidebar', 'shell-frame:topbar'], async ({ page }) => {
   const actual = `${OUT}/shell-frame.actual.png`;
-  const expected = `${ASSETS}/screens/ADM-01.png`;
-  await capture(page, 'ADM-01', actual);
+  const expected = `${BASELINES}/screens/ADM-01.png`;
+  await capture(page, 'ADM-01', actual, queryOf('ADM-01'));
   const height = Math.min(sizeOf(actual).height, sizeOf(expected).height);
   const sidebar = compare('shell-frame:sidebar', actual, expected, { x: 0, y: 0, width: SIDEBAR_WIDTH, height });
   const topbar = compare('shell-frame:topbar', actual, expected, { x: SIDEBAR_WIDTH, y: 0, width: VIEWPORT.width - SIDEBAR_WIDTH, height: TOPBAR_HEIGHT });
@@ -1387,17 +1408,17 @@ visualTest('shell frame: sidebar and top bar of ADM-01 match the baseline region
   expect.soft(topbar.ratio ?? 1, `top bar region: ${topbar.differentPixels} of ${topbar.totalPixels} pixels differ, see ${topbar.diffPath}`).toBeLessThanOrEqual(RATIO_TARGET);
 });
 
-// The state baselines (04_Design_Assets/states/web-*.png) are renders of the prototype's HOME-01 from before the Ruby
-// palette: indigo buttons and selection, a sidebar with groups open, a toast. Those parts cannot match and are not
-// compared; what is compared is the card itself (frame, glyph or skeleton, title and body), which the palette does not
-// touch. The primary button of the message cards is left out of the region for the same reason (indigo against ruby).
-const STATE_CARD: Region = { x: 517, y: 200, width: 659, height: 208 };
-const STATE_SKELETON: Region = { x: 287, y: 177, width: 1119, height: 366 };
+// The state baselines (visual-baselines/states/web-*.png) are captures of the real HOME-01 with `?demoState=`, taken after the new look was reviewed (the mockups in 04_Design_Assets/states are the Ruby-era prototype: indigo
+// buttons, groups open, a toast, and a card that carries a retry button the application demo does not offer). What is compared is the card itself (frame, glyph or skeleton, title and body); the shell around it is gated by the screens.
+const STATE_CARD: Region = { x: 516, y: 190, width: 661, height: 206 };
+const STATE_SKELETON: Region = { x: 284, y: 160, width: 1124, height: 365 };
 
 for (const state of STATES) {
   visualTest(`state demo ${state} matches the card of states/web-${state}.png`, [`state:${state}`], async ({ page }) => {
     const actual = `${OUT}/state-${state}.actual.png`;
     await capture(page, 'HOME-01', actual, `?demoState=${state}`);
-    record(compare(`state:${state}`, actual, `${ASSETS}/states/web-${state}.png`, state === 'loading' ? STATE_SKELETON : STATE_CARD));
+    const expected = `${BASELINES}/states/web-${state}.png`;
+    writeBaseline(actual, expected, [state === 'loading' ? STATE_SKELETON : STATE_CARD]);
+    record(compare(`state:${state}`, actual, expected, state === 'loading' ? STATE_SKELETON : STATE_CARD));
   });
 }
