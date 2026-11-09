@@ -29,6 +29,7 @@ const CHECKER = 2;
 const APPROVER = 3;
 const EXPLAINER = 4;
 const READER = 5;
+const SECOND_EXPLAINER = 6;
 const ROOT = 1;
 const NOW = new Date('2026-12-20T03:00:00Z');
 const QUARTER = { kind: 'QUARTER', year: 2026, index: 4 };
@@ -75,8 +76,11 @@ describe('the comparison of the reports of one period and the gate on release (E
     process.env.DEMO_FORMS = 'true';
     await harness.start();
     for (const tenant of [TENANT_A, TENANT_B]) await harness.seedUnits(tenant, [{ n: ROOT, path: `/${unitId(ROOT)}/` }]);
-    for (const n of [PREPARER, CHECKER, APPROVER, EXPLAINER, READER]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [PREPARER, CHECKER, APPROVER, EXPLAINER, READER, SECOND_EXPLAINER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, READER, ROOT);
+    // The reader of tenant B holds the right over the whole of tenant B: what it reads is the comparison of tenant B, which holds no report, never one row of tenant A.
+    await harness.seedRole(TENANT_B, 5, 'RPT_READER', ['rpt.read', 'rpt.crosscheck.read'], 30);
+    await harness.seedGrants(TENANT_B, [{ n: 5, member: READER, role: 5, kind: 'TENANT' }]);
     await harness.seedRole(TENANT_A, 1, 'RPT_PREPARER', ['rpt.read', 'rpt.generate', 'rpt.crosscheck.read', 'rpt.crosscheck.explain'], 30);
     await harness.seedRole(TENANT_A, 2, 'RPT_CHECKER', ['rpt.read', 'rpt.check'], 30);
     await harness.seedRole(TENANT_A, 3, 'RPT_APPROVER', ['rpt.read', 'rpt.approve', 'rpt.issue'], 30);
@@ -88,6 +92,7 @@ describe('the comparison of the reports of one period and the gate on release (E
       { n: 3, member: APPROVER, role: 3, kind: 'TENANT' },
       { n: 4, member: EXPLAINER, role: 4, kind: 'TENANT' },
       { n: 5, member: READER, role: 5, kind: 'TENANT' },
+      { n: 6, member: SECOND_EXPLAINER, role: 4, kind: 'TENANT' },
     ]);
     // The tenant approved a version of the rule that also compares the invented data of the demo forms (maker, submitter and approver are three different people).
     await harness.owner(TENANT_A, [
@@ -186,7 +191,7 @@ describe('the comparison of the reports of one period and the gate on release (E
       const made = await explain(finding.fingerprint);
       expect([made.status, made.json.outcome]).toEqual([200, 'CREATED']);
     }
-    const again = await explain((blocking[0] as Finding).fingerprint, CHECKER);
+    const again = await explain((blocking[0] as Finding).fingerprint, SECOND_EXPLAINER);
     expect([again.status, again.json.outcome]).toEqual([200, 'EXISTING']);
     const after = (await crosscheck(quarterly)).json as { findings: Finding[]; gate: { passed: boolean; blocking_explained: number } };
     expect(after.findings.filter((one) => one.severity === 'BLOCKING').every((one) => one.status === 'EXPLAINED' && one.blocks_release === false)).toBe(true);

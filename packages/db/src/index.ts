@@ -1885,7 +1885,7 @@ export { HomeVendorInvestigationSources } from './home-vendor-investigation-sour
 // VND-3 (portal, reconfirmation, remediation, disputes, OCDS): stores and the alert source.
 export { VendorPortalPolicyReader } from './vnd3-portal-policy.ts';
 export { VendorPortalStore } from './vnd-portal-store.ts';
-export type { NewPortalRequest, PortalAnswer, PortalCaller, PortalEvaluationRow, PortalRequestRow } from './vnd-portal-store.ts';
+export type { NewPortalRequest, PortalAnswer, PortalCaller, PortalEvaluationRow, PortalRequestRow, PortalTarget } from './vnd-portal-store.ts';
 export { VendorReconfirmationStore } from './vnd-reconfirmation-store.ts';
 export type { ReconfirmationDone, ReconfirmationLine, ReconfirmationView } from './vnd-reconfirmation-store.ts';
 export { VendorRemediationStore } from './vnd-remediation-store.ts';

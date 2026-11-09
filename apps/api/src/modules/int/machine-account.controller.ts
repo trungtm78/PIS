@@ -113,6 +113,8 @@ export class MachineAccountController {
   async update(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['MachineAccountUpdate']): Promise<CommandResult> {
     wholeTenant(access, PERMISSIONS.updateMachineAccount);
     const now = new Date();
+    // The account comes first: an id that is not in this tenant is 404 whatever the body says, so a refusal of the body never tells that an id of another tenant exists.
+    if ((await this.accounts.find(scope.tx, id, now)) === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const input = body as unknown as Record<string, unknown>;
     const reason = egpReasonOf(input.reason);
     const change: { description?: string | null; scopes?: string[]; ratePerMinute?: number; expiresOn?: string | null } = {};

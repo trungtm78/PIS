@@ -45,7 +45,7 @@ const SEAT_RULES: Readonly<Record<RoleKind, { scope: SeatScope; unit: UnitFuncti
 export const GROUP_SUFFIX: Readonly<Record<RoleKind, string>> = { ENTRY: 'ENTRY', UNIT_APPROVER: 'APPROVER', PLANNING_REVIEWER: 'REVIEW', LEADERSHIP_VIEWER: 'LEADER', ADMINISTRATOR: 'ADMIN' };
 
 /** Permissions that decide something about data that somebody else entered. Only the roles that decide hold them: not entry, not the administrators, never the viewers. */
-export const DECISION_PERMISSIONS: readonly string[] = ['approval.decide', 'report.review', 'funding.figure.accept', 'rpt.approve', 'rpt.issue', 'period.lock', 'period.reopen.approve', 'hpm.push', 'hpm.receipt'];
+export const DECISION_PERMISSIONS: readonly string[] = ['approval.decide', 'report.review', 'funding.figure.accept', 'rpt.approve', 'rpt.issue', 'rpt.crosscheck.explain', 'period.lock', 'period.reopen.approve', 'hpm.push', 'hpm.receipt'];
 const READ_VERBS = ['read', 'query', 'list', 'view'];
 /** Rights that every working role holds because they are about the person's own work and not about the data: handing the work over (HT.03) and asking to act for somebody. */
 const WORK_RIGHTS: readonly string[] = ['iam.delegation.create', 'iam.acting.request'];

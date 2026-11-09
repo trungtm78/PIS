@@ -134,10 +134,13 @@ export class ProjectDocumentsController {
   @Command({ operation: 'addProjectDocumentVersion' })
   async addVersion(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['ProjectDocumentVersionCreate']): Promise<CommandResult> {
     const now = new Date();
+    const documentScope = projectScope(access, PERMISSIONS.addProjectDocumentVersion, now);
+    // The document comes first: one that is not in this tenant, or whose project is out of the scope, is 404 whatever the body says, so a refusal of the note or of the file never tells that an id of another tenant exists.
+    if ((await this.store.find(scope.tx, idOf(id), documentScope, now)) === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const changeNote = noteOf(body.change_note, 'change_note');
     const opened = await this.repositoryFiles.open(scope.tenant, body.file_object_key, body.file_sha256);
     const { record, facts } = await this.repositoryFiles.read(opened);
-    const { document, version } = await this.store.addVersion(scope.tx, idOf(id), facts, record, changeNote, scope.tenant.membershipId, projectScope(access, PERMISSIONS.addProjectDocumentVersion, now), now);
+    const { document, version } = await this.store.addVersion(scope.tx, idOf(id), facts, record, changeNote, scope.tenant.membershipId, documentScope, now);
     await this.versionWritten(scope, document.id, document.project.id, document.securityClass, version.id, version.versionNo, version.fileSha256, version.extractionStatus, record, now);
     return commandResult(scope, 'VERSION_ADDED', version.versionNo, version.id);
   }

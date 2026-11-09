@@ -33,7 +33,7 @@ export class PortalController {
   async respond(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['PortalRespondRequest']): Promise<CommandResult> {
     assertHoldsAnywhere(access, PERMISSIONS.respondPortalRequest);
     const now = new Date();
-    const caller = await this.portal.enter(scope.tx, scope.tenant.membershipId);
+    const caller = await this.portal.enter(scope.tx, scope.tenant.membershipId, { kind: 'REQUEST', id });
     const row = await this.portal.respond(scope.tx, caller, id, this.version(scope), { text: body.text, documentId: body.document_id, qualificationId: body.qualification_id }, now);
     await announcePortal(scope, now, { action: 'vnd.portal_request_answered', resourceType: 'contractor_portal_request', resourceId: id, classification: PORTAL_CLASS.answer, version: row.version, eventType: 'vnd.portal.request.changed.v1', diff: { contractor_id: caller.contractorId, kind: row.kind, round: row.round, response_late: row.responseLate } });
     return commandResult(scope, 'RESPONDED', row.version, id);
@@ -78,7 +78,7 @@ export class PortalController {
   async agree(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<CommandResult> {
     assertHoldsAnywhere(access, PERMISSIONS.agreePortalRemediationPlan);
     const now = new Date();
-    const caller = await this.portal.enter(scope.tx, scope.tenant.membershipId);
+    const caller = await this.portal.enter(scope.tx, scope.tenant.membershipId, { kind: 'REMEDIATION_PLAN', id });
     const row = await this.plans.agree(scope.tx, caller, id, this.version(scope), now);
     await announcePortal(scope, now, { action: 'vnd.remediation_plan_agreed', resourceType: 'contractor_remediation_plan', resourceId: id, classification: PORTAL_CLASS.answer, version: row.version, eventType: 'vnd.remediation.changed.v1', diff: { contractor_id: caller.contractorId } });
     return commandResult(scope, 'AGREED', row.version, id);
@@ -91,7 +91,7 @@ export class PortalController {
   async done(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['PortalActionDone']): Promise<CommandResult> {
     assertHoldsAnywhere(access, PERMISSIONS.markPortalRemediationActionDone);
     const now = new Date();
-    const caller = await this.portal.enter(scope.tx, scope.tenant.membershipId);
+    const caller = await this.portal.enter(scope.tx, scope.tenant.membershipId, { kind: 'REMEDIATION_ACTION', id });
     const row = await this.plans.markDone(scope.tx, caller, id, this.version(scope), { note: body.note, documentId: body.document_id }, now);
     await announcePortal(scope, now, { action: 'vnd.remediation_action_done', resourceType: 'contractor_remediation_action', resourceId: id, classification: PORTAL_CLASS.answer, version: row.version, eventType: 'vnd.remediation.changed.v1', diff: { contractor_id: caller.contractorId, plan_id: row.planId } });
     return commandResult(scope, 'DONE', row.version, id);

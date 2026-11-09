@@ -108,8 +108,8 @@ describe('ReportStoreIssuedReports.delivered', () => {
     jest.spyOn(ReportStore.prototype, 'findIssue').mockResolvedValue(issue());
     const deliver = jest.spyOn(ReportStore.prototype, 'deliver').mockRejectedValueOnce(new DomainError('ALREADY_DELIVERED', 409, 'delivery'));
     await expect(new ReportStoreIssuedReports().delivered(tx, ISSUE_ID, 'u', 'r')).resolves.toBeUndefined();
-    deliver.mockRejectedValueOnce(new DomainError('FORBIDDEN', 403, 'x'));
-    await expect(new ReportStoreIssuedReports().delivered(tx, ISSUE_ID, 'u', 'r')).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    deliver.mockRejectedValueOnce(new DomainError('SCOPE_DENIED', 403, 'x'));
+    await expect(new ReportStoreIssuedReports().delivered(tx, ISSUE_ID, 'u', 'r')).rejects.toMatchObject({ code: 'SCOPE_DENIED' });
     deliver.mockRejectedValueOnce(new Error('connection lost'));
     await expect(new ReportStoreIssuedReports().delivered(tx, ISSUE_ID, 'u', 'r')).rejects.toThrow('connection lost');
   });
