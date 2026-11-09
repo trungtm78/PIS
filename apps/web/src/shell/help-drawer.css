@@ -1,0 +1,124 @@
+/* The drawer of the on-screen help (YCK.08). Tokens only: every colour is var(--mv-color-*). */
+.help-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: flex-end;
+  background: rgb(0 0 0 / 35%);
+}
+
+.help-drawer__panel {
+  display: flex;
+  flex-direction: column;
+  width: min(440px, 100vw);
+  height: 100%;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  border-inline-start: 1px solid var(--mv-color-border);
+  box-shadow: -8px 0 24px rgb(0 0 0 / 16%);
+}
+
+.help-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mv-space-12);
+  padding: var(--mv-space-16);
+  border-block-end: 1px solid var(--mv-color-border);
+}
+
+.help-drawer__head h2 {
+  margin: 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.help-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+  cursor: pointer;
+}
+
+.help-drawer__close svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentcolor;
+}
+
+.help-drawer__close:focus-visible,
+.help-drawer__foot a:focus-visible {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: 2px;
+}
+
+.help-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--mv-space-16);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.help-drawer__content section {
+  margin-block-start: var(--mv-space-16);
+}
+
+.help-drawer__content h3 {
+  margin: 0 0 var(--mv-space-4);
+  font-size: 13px;
+  color: var(--mv-color-text-secondary);
+}
+
+.help-drawer__content p,
+.help-drawer__content ul,
+.help-drawer__content ol {
+  margin: 0;
+}
+
+.help-drawer__content ul,
+.help-drawer__content ol {
+  padding-inline-start: var(--mv-space-24);
+}
+
+.help-drawer__content li + li {
+  margin-block-start: var(--mv-space-4);
+}
+
+.help-drawer__purpose {
+  font-weight: 600;
+}
+
+.help-drawer__ref {
+  margin-block-start: var(--mv-space-16);
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+
+.help-drawer__note {
+  margin: 0;
+  padding: var(--mv-space-12);
+  background: var(--mv-color-surface2);
+  border: 1px solid var(--mv-color-border);
+  border-radius: var(--mv-radius-control);
+}
+
+.help-drawer__foot {
+  padding: var(--mv-space-12) var(--mv-space-16);
+  border-block-start: 1px solid var(--mv-color-border);
+}
+
+@media (max-width: 480px) {
+  .help-drawer__panel {
+    width: 100vw;
+  }
+}

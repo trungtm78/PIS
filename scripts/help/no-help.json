@@ -1,0 +1,4 @@
+{
+  "comment": "A web screen id without an on-screen guide needs a reason here; every screen has one today, so the list is empty. A screen with a reason gets no entry; the check fails on a reason for an id that is not a web screen or is empty.",
+  "reasons": {}
+}

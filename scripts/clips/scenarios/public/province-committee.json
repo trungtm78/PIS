@@ -343,6 +343,34 @@
       ],
       "captions": [],
       "expectedSec": 16.6
+    },
+    {
+      "id": "ban-phone",
+      "chapter": "province-committee",
+      "main": false,
+      "narration": "Trưởng ban chỉ đạo xem bảng điều hành của Ban chỉ đạo ngay trên điện thoại: tỷ lệ giải ngân, dự án cần quan tâm và chỉ đạo quá hạn. Mỗi lần xem màn nhạy cảm đều ghi vào nhật ký của Ban.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-72"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-72"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.committee.dashboard-phone"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
     }
   ]
 }
