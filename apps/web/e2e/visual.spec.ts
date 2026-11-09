@@ -83,12 +83,28 @@ const sizeOf = (file: string): { width: number; height: number } => {
   return { width, height };
 };
 
+/**
+ * The shell shows the work waiting for the person twice (the alert bell of the top bar and the badge of "Viec cua toi" in the sidebar, which also changes the height of that row) and both read one answer of the API, the counts
+ * of `GET /home/my-work/counts`. That answer is data, not frame: the baselines were captured on the freshly seeded stack (nothing waiting), and a run that follows the flow specs in the same stack (the UAT run executes the whole
+ * suite in one go) finds the alerts those flows raised (5, 2 urgent) and every frame region differs. The capture therefore pins the answer to "nothing waiting"; the counts themselves are tested by the alert specs.
+ */
+const NOTHING_WAITING = JSON.stringify({ view: 'mine', counts: { urgent: 0, action: 0, watch: 0, total: 0 }, unavailable_sources: [], as_of: null });
+
 /** Opens a route and captures `#screen-capture` the way work/export_screens.cjs captured the baselines. */
 async function capture(page: Page, id: string, file: string, query = ''): Promise<{ implemented: boolean }> {
   await page.setViewportSize(VIEWPORT);
+  await page.route('**/home/my-work/counts**', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: NOTHING_WAITING }));
   await page.goto(`${pathOf(id)}${query}`);
   await page.waitForSelector('.workspace-breadcrumb');
   await page.waitForLoadState('networkidle');
+  // The web fonts decide the width of every text. The browser fetches a subset (latin, latin-ext, vietnamese) of a weight only when a text that needs it is laid out, and `fonts.ready` can answer before a late
+  // fetch has started under load (a full run, a busy machine); so every weight is asked for with a sample of each subset, and the capture waits for them and for two frames.
+  await page.evaluate(async () => {
+    const sample = 'Aa được ĀḀ';
+    await Promise.all(['400', '500', '600', '700'].map((weight) => document.fonts.load(`${weight} 16px "Be Vietnam Pro"`, sample)));
+    await document.fonts.ready;
+    await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  });
   await page.addStyleTag({ content: `${EXPORT_STYLE}${SCROLLER_STYLE}` });
   // Every route without an implementation renders NotImplementedScreen, which marks itself.
   const implemented = (await page.locator('[data-not-implemented]').count()) === 0;
