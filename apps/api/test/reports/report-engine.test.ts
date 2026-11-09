@@ -251,7 +251,18 @@ describe('the report engine over HTTP: generate, check, approve, issue, deliver 
     expect(file.status).toBe(200);
     expect(sha(Buffer.from(file.json.content_base64 as string, 'base64'))).toBe((issue.files as Array<{ sha256: string }>)[0]?.sha256);
     expect((await call('GET', `/report-engine/issues/${issueId}/files/DOCX`, { member: READER })).status).toBe(404);
-    expect((await call('GET', `/report-engine/issues/${issueId}/files/PDF`, { member: READER })).status).toBe(422);
+    // ENT-4b: the PDF of the same document is kept with its own hash, named by the file-name rule, checked on every read, and carries the layout hash of the copy.
+    const pdf = await call('GET', `/report-engine/issues/${issueId}/files/PDF`, { member: READER });
+    expect(pdf.status).toBe(200);
+    expect(pdf.json.name).toMatch(/^DIS-WEEKLY_2027-10-17_v01_[0-9a-f]{8}.pdf$/);
+    const pdfBytes = Buffer.from(pdf.json.content_base64 as string, 'base64');
+    expect(pdfBytes.subarray(0, 5).toString('latin1')).toBe('%PDF-');
+    expect(sha(pdfBytes)).toBe(pdf.json.sha256);
+    expect((issue.files as Array<{ format: string }>).map((one) => one.format)).toEqual(['XLSX', 'PDF']);
+    expect(issue.layout_sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect((await call('GET', `/report-engine/issues/${issueId}/files/ODS`, { member: READER })).status).toBe(422);
+    // The package digest is still the digest of the workbook alone: the PDF is a rendition, not a second source.
+    expect((issue.files as Array<{ sha256: string }>)[0]?.sha256).not.toBe(issue.sha256);
     // Insert-only: not even the owner of the database changes or removes an issued copy; an issued draft is frozen too.
     await expect(rows('update machvon.report_issue set reason = $1 where id = $2', ['x'.repeat(12), issueId])).rejects.toThrow(/never changes/);
     await expect(rows('delete from machvon.report_issue where id = $1', [issueId])).rejects.toThrow(/never changes/);

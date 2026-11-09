@@ -149,8 +149,12 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
       if (hasNarrative) {
         const text = readDocxHeaderFooter(new Uint8Array(Buffer.from(docx.json.content_base64 as string, 'base64')));
         expect([...text.headers, ...text.footers].join(' ')).toContain(DEMO_MARK);
-        expect((draft.files as unknown[]).length).toBe(2);
       }
+      // The PDF is made for every form, with the demo mark drawn on its pages; the narrative adds the Word file.
+      expect((draft.files as Array<{ format: string }>).map((one) => one.format)).toEqual(hasNarrative ? ['XLSX', 'DOCX', 'PDF'] : ['XLSX', 'PDF']);
+      const pdf = await call('GET', `/report-engine/drafts/${draftId}/files/PDF`, { member: SENDER });
+      expect(pdf.status).toBe(200);
+      expect(Buffer.from(pdf.json.content_base64 as string, 'base64').subarray(0, 5).toString('latin1')).toBe('%PDF-');
     }
   });
 
