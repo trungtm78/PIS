@@ -7427,6 +7427,30 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "EQUIPMENT_LINE_CODE_TAKEN": {
+      "status": 409,
+      "title": "Equipment line code taken",
+      "meaning": "Mã dòng mua sắm trang thiết bị đã có trong dự án, hoặc gói thầu đã gắn với một dòng khác còn hiệu lực.",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "EQUIPMENT_LINE_STATE_INVALID": {
+      "status": 409,
+      "title": "Equipment line state invalid",
+      "meaning": "Dòng mua sắm trang thiết bị đã hủy hoặc đã gắn gói thầu, hợp đồng khác; chỉ gắn một lần.",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
+    },
+    "EQUIPMENT_LINK_INVALID": {
+      "status": 422,
+      "title": "Equipment link invalid",
+      "meaning": "Gói thầu hoặc hợp đồng không thuộc dự án của dòng, hoặc hợp đồng không thuộc gói thầu đã gắn.",
+      "module": "BID",
+      "statusBasis": "spec",
+      "source": "spec:BID"
     }
   }
 }

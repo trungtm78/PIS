@@ -3236,6 +3236,31 @@ final class ConversationToIssue implements RequestModel {
       };
 }
 
+final class CreateEquipmentLine implements RequestModel {
+  const CreateEquipmentLine({
+    required this.projectId,
+    required this.code,
+    required this.name,
+    required this.plannedValueVnd,
+    this.planRef,
+  });
+
+  final String projectId;
+  final String code;
+  final String name;
+  final String plannedValueVnd;
+  final String? planRef;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'code': code,
+        'name': name,
+        'planned_value_vnd': plannedValueVnd,
+        if (planRef != null) 'plan_ref': planRef,
+      };
+}
+
 final class CtrActivateContract implements RequestModel {
   const CtrActivateContract({
     required this.decision,
@@ -14848,6 +14873,65 @@ final class RptPeriod implements RequestModel {
       };
 }
 
+final class SaveAuditDetailPolicy implements RequestModel {
+  const SaveAuditDetailPolicy({
+    required this.resourceType,
+    required this.enabled,
+    required this.maxBytes,
+    required this.reason,
+    required this.expectedVersion,
+    this.sensitiveKeys,
+  });
+
+  final String resourceType;
+  final bool enabled;
+  final int maxBytes;
+  final List<String>? sensitiveKeys;
+  final String reason;
+  final int expectedVersion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'resource_type': resourceType,
+        'enabled': enabled,
+        'max_bytes': maxBytes,
+        if (sensitiveKeys != null) 'sensitive_keys': sensitiveKeys,
+        'reason': reason,
+        'expected_version': expectedVersion,
+      };
+}
+
+final class SaveLogCapacityPolicy implements RequestModel {
+  const SaveLogCapacityPolicy({
+    required this.recordClass,
+    required this.warnPct,
+    required this.active,
+    required this.reason,
+    required this.expectedVersion,
+    this.maxRows,
+    this.maxBytes,
+  });
+
+  final String recordClass;
+  final Object? maxRows;
+  final Object? maxBytes;
+  final int warnPct;
+  final bool active;
+  final String reason;
+  final int expectedVersion;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'record_class': recordClass,
+        if (maxRows != null) 'max_rows': maxRows,
+        if (maxBytes != null) 'max_bytes': maxBytes,
+        'warn_pct': warnPct,
+        'active': active,
+        'reason': reason,
+        'expected_version': expectedVersion,
+      };
+}
+
 final class SavePortalSettings implements RequestModel {
   const SavePortalSettings({
     required this.expectedVersion,
@@ -15924,6 +16008,31 @@ final class UnitReorganizationCreateSuccessorsItem implements RequestModel {
   Map<String, Object?> toJson() => <String, Object?>{
         if (existingUnitId != null) 'existing_unit_id': existingUnitId,
         if (newUnit != null) 'new_unit': newUnit,
+      };
+}
+
+final class UpdateEquipmentLine implements RequestModel {
+  const UpdateEquipmentLine({
+    this.name,
+    this.planRef,
+    this.packageId,
+    this.contractId,
+    this.cancelReason,
+  });
+
+  final String? name;
+  final Object? planRef;
+  final String? packageId;
+  final String? contractId;
+  final String? cancelReason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (name != null) 'name': name,
+        if (planRef != null) 'plan_ref': planRef,
+        if (packageId != null) 'package_id': packageId,
+        if (contractId != null) 'contract_id': contractId,
+        if (cancelReason != null) 'cancel_reason': cancelReason,
       };
 }
 

@@ -87,6 +87,7 @@ import {
   PmtWaiverExpiry,
   PrjExplanationOverdueJob,
   PrjTransferApplyJob,
+  LogCapacityJob,
   RetentionJob,
   SubscriptionStore,
   applyBaseline,
@@ -235,6 +236,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const riskRescore = new RiskRescoreJob(audit, deps.metrics);
   const diaryCoverage = new QmsDiaryCoverageJob(deps.metrics);
   const retention = new RetentionJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.payloads === undefined ? {} : { payloads: deps.payloads }) });
+  const logCapacity = new LogCapacityJob(deps.tenants, { ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }), ...(deps.exportFiles === undefined ? {} : { archives: deps.exportFiles }) });
   const inbox =
     deps.inboxHandlers === undefined ? undefined : new IntegrationInboxProcessor(deps.tenants, deps.inboxHandlers, { alerts, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const finops = new LlmFinopsStore();
@@ -260,7 +262,18 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
     },
     disPeriods: { autoclose: (ctx) => deps.tenants.withTenant(ctx, (tx) => disPeriods.run(tx, ctx.membershipId, new Date())) },
     disReopens: { expire: (ctx) => deps.tenants.withTenant(ctx, (tx) => disReopens.run(tx, ctx.membershipId, new Date())) },
-    retention: { run: (ctx, now) => retention.run(ctx, now) },
+    retention: {
+      run: async (ctx, now) => {
+        // The caps on the log classes run after the retention rule, in the same nightly pass; a failure of one does not hide the other (HT.06).
+        const outcome = await retention.run(ctx, now).then(
+          (done) => ({ done }),
+          (error: unknown) => ({ error }),
+        );
+        await logCapacity.run(ctx, now);
+        if ('error' in outcome) throw outcome.error;
+        return outcome.done;
+      },
+    },
     guaranteeExpiry: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => guaranteeExpiry.run(tx, ctx.membershipId, now)) },
     retentionDue: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => retentionDue.run(tx, now)) },
     revisionEffective: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => revisionEffective.run(tx, ctx.membershipId, now)) },

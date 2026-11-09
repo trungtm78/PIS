@@ -44,6 +44,21 @@ const EXTENSIONS: Readonly<Record<string, string>> = {
 
 const people = new BidWorkflowReads();
 
+/** The push as the audit keeps it when the tenant opted in for the full before and after (HT.06): the facts of the row, never the attempts or the file. */
+const pushDetail = (row: HpmPushRow): Record<string, unknown> => ({
+  key: row.key,
+  layout_code: row.layoutCode,
+  period: row.period,
+  revision: row.revision,
+  sha256: row.sha256,
+  status: row.status,
+  attempts: row.attempts,
+  last_error_code: row.lastErrorCode,
+  overwrites: row.overwrites,
+  correction_id: row.correctionId,
+  package_format: row.packageFormat,
+});
+
 /** A query value that must be one non-empty string or absent. */
 function text(value: unknown, field: string, max = 100): string | undefined {
   if (value === undefined) return undefined;
@@ -242,6 +257,8 @@ export class HpmPushController {
         package_format: row.packageFormat,
         acceptance: hpmAcceptance(row.packageFormat),
       },
+      // HT.06: with the opt-in for `hpm_push` the audit keeps the whole push before and after this step (the state it left, and the push as it now stands).
+      detail: { before: done.before === null ? null : pushDetail(done.before), after: { ...pushDetail(row), outcome: done.outcome } },
     });
     if (done.outcome === 'ALREADY_DELIVERED') return;
     this.metrics.increment('hpm_push_total', { outcome: done.outcome });
