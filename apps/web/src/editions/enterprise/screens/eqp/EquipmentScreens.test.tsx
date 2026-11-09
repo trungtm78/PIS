@@ -16,7 +16,7 @@ const READER = ['bid.read'];
 const MANAGER = ['bid.read', 'bid.plan.manage'];
 
 // The screens read the line from the address (`?line=`); the session harness mounts a router at the root, so the reading of the address is fixed here.
-vi.mock('react-router-dom', async (original) => ({ ...(await original<typeof import('react-router-dom')>()), useSearchParams: () => [new URLSearchParams({ line: '00000000-0000-4000-8000-0000000000b1' })] }));
+vi.mock('react-router-dom', async (original: () => Promise<Record<string, unknown>>) => ({ ...(await original()), useSearchParams: () => [new URLSearchParams({ line: '00000000-0000-4000-8000-0000000000b1' })] }));
 
 afterEach(cleanup);
 

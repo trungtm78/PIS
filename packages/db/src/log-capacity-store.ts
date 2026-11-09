@@ -154,7 +154,7 @@ export class LogCapacityStore {
   async save(tx: TenantTx, actorId: string, input: LogCapacityInput, expectedVersion: number): Promise<{ row: LogCapacityPolicyRow; before: LogCapacityPolicyRow | undefined }> {
     const policy: LogCapPolicy = { recordClass: input.recordClass, maxRows: input.maxRows, maxBytes: input.maxBytes, warnPct: input.warnPct };
     const [reading] = await tx.query<{ protected_rows: string }>('select protected_rows::text as protected_rows from machvon.log_capacity_reading where record_class = $1', [input.recordClass]);
-    const findings: LogCapacityFinding[] = logCapFindings(policy, input.reason, reading === undefined ? 0 : Number(reading.protected_rows));
+    const findings: LogCapacityFinding[] = logCapFindings(policy, input.reason, reading === undefined || !input.active ? 0 : Number(reading.protected_rows));
     const first = findings[0];
     if (first !== undefined) throw new DomainError('VALIDATION_FAILED', 422, first.field, { extensions: { errors: findings } });
     if (capacityKindOf(input.recordClass) === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'record_class');

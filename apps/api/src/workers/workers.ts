@@ -269,7 +269,9 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
           (done) => ({ done }),
           (error: unknown) => ({ error }),
         );
-        await logCapacity.run(ctx, now);
+        await logCapacity.run(ctx, now).catch((error: unknown) => {
+          if (!('error' in outcome)) throw error;
+        });
         if ('error' in outcome) throw outcome.error;
         return outcome.done;
       },

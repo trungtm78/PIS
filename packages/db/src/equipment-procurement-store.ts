@@ -73,7 +73,7 @@ function lineSelect(scopes: { read: { sql: string }; contract: { sql: string }; 
       k.id as package_id, k.code as package_code, k.title as package_title, k.status as package_status, k.external_package_code,
       rs.outcome as result_outcome, rs.status as result_status, rs.award_price_vnd::text as award_price_vnd, w.legal_name as winner_name,
       c.id as contract_id, c.code as contract_code, c.status as contract_status, cr.amount_vnd::text as contract_value_vnd,
-      coalesce((select sum(pr.net_vnd) from machvon.payment_request pr where pr.tenant_id = c.tenant_id and pr.contract_id = c.id and pr.status = 'SETTLED'), 0)::text as paid_vnd,
+      coalesce((select sum(pr.gross_vnd) from machvon.payment_request pr where pr.tenant_id = c.tenant_id and pr.contract_id = c.id and pr.status = 'SETTLED'), 0)::text as paid_vnd,
       l.external_code as link_code, l.diff_status as link_diff,
       (${scopes.contract.sql}) as may_contract, (${scopes.payment.sql}) as may_payment
     from machvon.equipment_procurement_item i
@@ -132,7 +132,7 @@ const lineOf = (row: LineSql): EquipmentLine => {
       row.result_outcome === null || row.result_status === null
         ? null
         : { outcome: row.result_outcome, status: row.result_status, awardPriceVnd: row.award_price_vnd, winnerName: row.winner_name },
-    contract: row.contract_id === null || row.contract_code === null || row.contract_status === null ? null : { id: row.contract_id, code: row.contract_code, status: row.contract_status },
+    contract: !row.may_contract || row.contract_id === null || row.contract_code === null || row.contract_status === null ? null : { id: row.contract_id, code: row.contract_code, status: row.contract_status },
     contractValueVnd: shown.figures.contractValueVnd,
     planVarianceVnd: shown.figures.planVarianceVnd,
     paidVnd: shown.figures.paidVnd,
@@ -196,6 +196,7 @@ export class EquipmentProcurementStore {
   }
 
   async create(tx: TenantTx, scope: ScopeBuilder, actorId: string, input: EquipmentCreateInput): Promise<{ id: string; version: number }> {
+    if (input.name.length < 3 || input.name.length > 500 || !/^[A-Za-z0-9][A-Za-z0-9._/-]{0,59}$/.test(input.code) || !/^[1-9][0-9]{0,23}$/.test(input.plannedValueVnd)) throw new DomainError('VALIDATION_FAILED', 422, 'line');
     await this.assertProject(tx, scope, input.projectId);
     const taken = await tx.query('select 1 from machvon.equipment_procurement_item where project_id = $1::uuid and code = $2', [input.projectId, input.code]);
     if (taken.length > 0) throw new DomainError('EQUIPMENT_LINE_CODE_TAKEN', 409, 'code');

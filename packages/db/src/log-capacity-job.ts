@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { CAPACITY_CLASSES, NOOP_METRICS, capacityKindOf, evaluateCapacity, planArchive, safeDiff, sha256Hex, technicalCutoff } from '@machvon/kernel';
+import { CAPACITY_CLASSES, NOOP_METRICS, capacityKindOf, evaluateCapacity, planArchive, sha256Hex, technicalCutoff } from '@machvon/kernel';
 import type { CapacityClass, CapacityState, LogCapPolicy, LogReading, MetricsSink, TechnicalClass, TenantContext } from '@machvon/kernel';
 import { AuditWriter } from './audit-writer.ts';
 import { LogCapacityStore } from './log-capacity-store.ts';
@@ -163,7 +163,8 @@ export class LogCapacityJob {
     const estimated = rows > sampled && sampled > 0;
     const bytes = estimated ? Math.round((Number(sample?.bytes ?? 0) * rows) / sampled) : Number(sample?.bytes ?? 0);
     let eligibleRows = 0;
-    if (technical !== undefined) {
+    // A policy that keeps the class for good leaves nothing for a cap to remove (the retention rule is the stricter one).
+    if (technical !== undefined && retention?.retentionBasis !== 'PERMANENT') {
       const cutoff = cutoffOf(recordClass as TechnicalClass, retention, now);
       const [eligible] = await tx.query<{ n: string }>(`select count(*)::text as n from machvon.${technical.table} where ${technical.eligible} and ${technical.held}`, [cutoff.toISOString()]);
       eligibleRows = Number(eligible?.n ?? 0);
@@ -185,7 +186,7 @@ export class LogCapacityJob {
       [cutoff.toISOString(), limit],
     );
     if (doomed.length === 0) return 0;
-    const text = `${doomed.map((item) => JSON.stringify(safeDiff(item.row))).join('\n')}\n`;
+    const text = `${doomed.map((item) => JSON.stringify(item.row)).join('\n')}\n`;
     const bytes = Buffer.from(text, 'utf8');
     const batchId = randomUUID();
     const key = await sink.storeGenerated(ctx, ARCHIVE_KIND, batchId, bytes, ARCHIVE_TYPE);
