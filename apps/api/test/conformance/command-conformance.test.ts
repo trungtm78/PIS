@@ -77,8 +77,8 @@ describe('command conformance generator (ST-KERNEL-028)', () => {
     const operations = writeOperationsOf(loadOpenApi());
     const versioned = operations.filter((operation) => operation.versioned).length;
     const cases = operations.flatMap(commandCasesFor);
-    expect(operations.length).toBe(957);
-    expect(versioned).toBe(588);
+    expect(operations.length).toBe(972);
+    expect(versioned).toBe(594);
     expect(cases.length).toBe(operations.length * 3 + versioned * 2);
     expect(new Set(cases.map((c) => c.id)).size).toBe(cases.length);
     expect(commandCasesFor(operations[0] as WriteOperation).map((c) => c.id.split(':')[1])).toEqual(

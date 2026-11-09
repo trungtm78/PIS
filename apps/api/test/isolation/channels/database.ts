@@ -118,7 +118,7 @@ import {
 } from '../suite';
 import { PROCUREMENT_PLAN_FIXTURES } from '../suite';
 import { CRITERIA_FIXTURES } from '../suite';
-import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES, FUNDING_FIGURE_FIXTURES } from '../suite';
+import { AVC_POLICY_FIXTURES, EXTENSION_FIXTURES, FISCAL_YEAR_FIXTURES, FUNDING_FIGURE_FIXTURES, WEB_DEVICE_FIXTURES } from '../suite';
 
 import { DOA_FIXTURES } from '../suite';
 import { RETENTION_FIXTURES } from '../suite';
@@ -133,6 +133,7 @@ import {
   SCENARIO_FIXTURES,
   TRANSFER_FIXTURES,
   PERIOD_CALENDAR_FIXTURES,
+  CALENDAR_PERIOD_FIXTURES,
   PERIOD_FIXTURES,
   PERIOD_SNAPSHOT_FIXTURES,
   REPORT_EXPORT_FIXTURES,
@@ -995,6 +996,11 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'updateMyProfile',
   'revokeMySession',
   'revokeMyDevice',
+  'sendMyTestPush',
+  'getAuditEventDetail',
+  'listAuditDetailPolicies',
+  'getLogCapacity',
+  'getReportingCalendar',
   'getMyProfile',
   'listMySessions',
   'listMyDevices',
@@ -1882,6 +1888,10 @@ const INSERT_USER_SESSION = `insert into machvon.user_session
   (tenant_id, id, user_account_id, membership_id, idp_session_id, assurance_level, ip_hash, user_agent_summary)
   select $1::uuid, $2::uuid, m.user_id, m.id, $4, 'aal1', repeat('a', 64), 'Isolation browser' from machvon.membership m where m.id = $3::uuid on conflict do nothing`;
 
+const INSERT_WEB_DEVICE = `insert into machvon.device_registration
+  (tenant_id, id, membership_id, device_public_id, push_secret_ref, platform, last_seen_at, token_fingerprint, app_version)
+  values ($1, $2, $3, $4, 'secret://isolation-web', 'web', now(), repeat('c', 64), '1.0.0') on conflict do nothing`;
+
 const INSERT_DEVICE = `insert into machvon.device_registration
   (tenant_id, id, membership_id, device_public_id, push_secret_ref, platform, last_seen_at, token_fingerprint, app_version)
   values ($1, $2, $3, $4, 'secret://isolation', 'android', now(), repeat('b', 64), '1.0.0') on conflict do nothing`;
@@ -2522,6 +2532,14 @@ const INSERT_SIGNING_SESSION = `insert into machvon.doc_signing_session
   (tenant_id, id, outgoing_document_id, role, signer_user_id, signing_certificate_id, adapter_code, adapter_status, status, base_version_id, digest_hex, byte_range, provider_txn_ref, expires_at, created_by, updated_by)
   values ($1, $2, $3, 'LEADER', $4, null, 'MOCK', 'MOCK', 'AWAITING_SIGNER', $5, repeat('a', 64), '[0,1,2,3]'::jsonb, 'isolation-session', now() + interval '1 day', $4, $4) on conflict do nothing`;
 
+const INSERT_CALENDAR_PERIOD = `insert into machvon.reporting_period
+  (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
+  values ($1, $2, $3, 1, date '2026-02-01', date '2026-02-28', timestamptz '2026-03-05T03:00:00Z', 'DEFAULT', 'MONTH', 2026, 'OPEN', $4, $5, $5) on conflict do nothing`;
+
+const INSERT_AUDIT_EVENT_DETAIL = `insert into machvon.audit_event_detail
+  (tenant_id, audit_event_id, resource_type, resource_id, before_value, after_value, detail_sha256, bytes)
+  values ($1, $2, 'isolation_fixture', $2, '{}'::jsonb, '{"note": "isolation"}'::jsonb, repeat('b', 64), 20) on conflict do nothing`;
+
 const INSERT_AUDIT_EVENT = `insert into machvon.audit_event
   (tenant_id, id, actor_id, action, resource_type, resource_id, safe_diff, correlation_id, request_id, occurred_at)
   values ($1, $2, $3, $4, 'isolation_fixture', $2, '{}'::jsonb, $2, $2, '2026-01-01T00:00:00Z') on conflict do nothing`;
@@ -2572,6 +2590,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CONVERSATION_MESSAGE, [tenantId, CONVERSATION_FIXTURES[tenant].messageId, CONVERSATION_FIXTURES[tenant].id, CONVERSATION_FIXTURES[tenant].text]);
     await client.query(INSERT_CONSENT, [tenantId, CONSENT_FIXTURES[tenant].id, MEMBERSHIP_ID]);
     await client.query(INSERT_AUDIT_EVENT, [tenantId, AUDIT_EVENT_FIXTURES[tenant].id, MEMBERSHIP_ID, AUDIT_EVENT_FIXTURES[tenant].action]);
+    await client.query(INSERT_AUDIT_EVENT_DETAIL, [tenantId, AUDIT_EVENT_FIXTURES[tenant].id]);
     await client.query(INSERT_LEGAL_HOLD, [tenantId, LEGAL_HOLD_FIXTURES[tenant].id, LEGAL_HOLD_FIXTURES[tenant].authorityReference, MEMBERSHIP_ID]);
     const certificate = CERTIFICATE_FIXTURES[tenant];
     await client.query(INSERT_CERTIFICATE, [tenantId, certificate.id, home, certificate.serial, certificate.fingerprint, ACTOR_ID]);
@@ -2601,6 +2620,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     await client.query(INSERT_CALENDAR_RECORD, [tenantId, periodCalendar.recordId, ACTOR_ID]);
     await client.query(INSERT_CALENDAR_VERSION, [tenantId, periodCalendar.versionId, periodCalendar.recordId, ACTOR_ID]);
     await client.query(INSERT_PERIOD, [tenantId, period.id, period.code, periodCalendar.versionId, ACTOR_ID]);
+    await client.query(INSERT_CALENDAR_PERIOD, [tenantId, CALENDAR_PERIOD_FIXTURES[tenant].id, CALENDAR_PERIOD_FIXTURES[tenant].code, periodCalendar.versionId, ACTOR_ID]);
     const reopen = REOPEN_FIXTURES[tenant];
     await client.query(INSERT_LOCKED_PERIOD, [tenantId, reopen.periodId, reopen.periodCode, periodCalendar.versionId, ACTOR_ID]);
     await client.query(INSERT_REOPEN, [tenantId, reopen.id, reopen.periodId, reopen.reason, ACTOR_ID]);
@@ -2745,6 +2765,7 @@ export async function seedTenantAuthz(ownerUrl: string, tenant: TenantName): Pro
     const own = SELF_FIXTURES[tenant];
     await client.query(INSERT_USER_SESSION, [tenantId, own.sessionId, MEMBERSHIP_ID, `idp-${own.sessionId}`]);
     await client.query(INSERT_DEVICE, [tenantId, own.deviceId, MEMBERSHIP_ID, own.devicePublicId]);
+    await client.query(INSERT_WEB_DEVICE, [tenantId, WEB_DEVICE_FIXTURES[tenant].id, MEMBERSHIP_ID, WEB_DEVICE_FIXTURES[tenant].devicePublicId]);
     await client.query(INSERT_SYNC_ATTACHMENT, [tenantId, own.attachmentId, own.deviceId, MEMBERSHIP_ID]);
     const flow = WORKFLOW_FIXTURES[tenant];
     await client.query(INSERT_WORKFLOW_VERSION, [tenantId, flow.versionId, MEMBERSHIP_ID, ACTOR_ID]);

@@ -416,6 +416,12 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'freezePeriodSnapshot',
         'getSubmissionProgress',
         'getReportingCalendarBoard',
+        'getReportingCalendar',
+        // ENT-4e: the audit detail and the caps on the log classes; the push receipt of a provider (anonymous, signed by the provider).
+        'getAuditEventDetail',
+        'listAuditDetailPolicies',
+        'getLogCapacity',
+        'acknowledgePush',
         'createReportExport',
         'getReportExportDownload',
         'listPeriodSnapshotLines',

@@ -986,6 +986,12 @@ export const SELF_FIXTURES: Readonly<Record<TenantName, { sessionId: string; dev
   },
 };
 
+/** The installed web application of the test membership in each tenant: a device of the platform `web` with a push subscription, the one a test push is sent to (the phone of SELF_FIXTURES is Android). */
+export const WEB_DEVICE_FIXTURES: Readonly<Record<TenantName, { id: string; devicePublicId: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0d5-000000000004', devicePublicId: 'alpha-web-device-public-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0d5-000000000004', devicePublicId: 'beta-web-device-public-0001' },
+};
+
 /** A published workflow definition, a running instance of it and a pending task of the instance (their ids and business type are distinctive; tenant data). */
 export const WORKFLOW_FIXTURES: Readonly<Record<TenantName, { versionId: string; instanceId: string; taskId: string; resourceId: string }>> = {
   'TNT-A': {
@@ -1165,6 +1171,12 @@ export const PERMIT_FIXTURES: Readonly<Record<TenantName, { dossierId: string; p
 };
 
 /** An OPEN reporting period of each tenant, past its deadline (the code is distinctive; the calendar of reporting is tenant configuration). */
+/** A monthly reporting period of each tenant: the calendar of the reports (ENT-4c) lists the periods of the grains MONTH, QUARTER and YEAR, not the weeks of PERIOD_FIXTURES. */
+export const CALENDAR_PERIOD_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
+  'TNT-A': { id: '00000000-0000-4000-a0b5-000000000002', code: 'ALPHA-MONTH-0001' },
+  'TNT-B': { id: '00000000-0000-4000-b0b5-000000000002', code: 'BETA-MONTH-0001' },
+};
+
 export const PERIOD_FIXTURES: Readonly<Record<TenantName, { id: string; code: string }>> = {
   'TNT-A': { id: '00000000-0000-4000-a0b5-000000000001', code: 'ALPHA-PERIOD-0001' },
   'TNT-B': { id: '00000000-0000-4000-b0b5-000000000001', code: 'BETA-PERIOD-0001' },
@@ -2087,6 +2099,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'batch reference', value: SOURCE_FIXTURES[tenant].batchRef },
     { kind: 'session id', value: SELF_FIXTURES[tenant].sessionId },
     { kind: 'device id', value: SELF_FIXTURES[tenant].deviceId },
+    { kind: 'web device id', value: WEB_DEVICE_FIXTURES[tenant].id },
     { kind: 'upload id', value: SELF_FIXTURES[tenant].attachmentId },
     { kind: 'device public id', value: SELF_FIXTURES[tenant].devicePublicId },
     { kind: 'workflow version id', value: WORKFLOW_FIXTURES[tenant].versionId },
@@ -2131,6 +2144,7 @@ function markersOf(tenant: TenantName): Array<{ kind: string; value: string }> {
     { kind: 'expired permit id', value: PERMIT_FIXTURES[tenant].expiredId },
     { kind: 'expired permit number', value: PERMIT_FIXTURES[tenant].expiredNo },
     { kind: 'reporting period id', value: PERIOD_FIXTURES[tenant].id },
+    { kind: 'reporting calendar period id', value: CALENDAR_PERIOD_FIXTURES[tenant].id },
     { kind: 'reporting period code', value: PERIOD_FIXTURES[tenant].code },
     { kind: 'report import id', value: REPORT_IMPORT_FIXTURES[tenant].id },
     { kind: 'report import file hash', value: REPORT_IMPORT_FIXTURES[tenant].fileSha256 },

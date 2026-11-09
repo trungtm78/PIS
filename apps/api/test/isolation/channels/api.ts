@@ -127,6 +127,8 @@ import {
   REALLOCATION_FIXTURES,
   SCENARIO_FIXTURES,
   TRANSFER_FIXTURES,
+  CALENDAR_PERIOD_FIXTURES,
+  WEB_DEVICE_FIXTURES,
   PERIOD_FIXTURES,
   PERIOD_SNAPSHOT_FIXTURES,
   REPORT_EXPORT_FIXTURES,
@@ -481,7 +483,9 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'applyReportImport', method: 'POST', id: REPORT_IMPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'getReportExportDownload', method: 'GET', id: REPORT_EXPORT_FIXTURES['TNT-B'].id },
   { operation: 'getSubmissionProgress', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
-  { operation: 'getReportingCalendarBoard', method: 'GET', id: PERIOD_FIXTURES['TNT-B'].id },
+  { operation: 'getReportingCalendarBoard', method: 'GET', id: CALENDAR_PERIOD_FIXTURES['TNT-B'].id },
+  // ENT-4e: the full before and after of an audit row are read by the id of the audit event; the fixture row of the detail is written with the event.
+  { operation: 'getAuditEventDetail', method: 'GET', id: AUDIT_EVENT_FIXTURES['TNT-B'].id },
   { operation: 'listPeriodSnapshotLines', method: 'GET', id: PERIOD_SNAPSHOT_FIXTURES['TNT-B'].id },
   { operation: 'freezePeriodSnapshot', method: 'POST', id: PERIOD_SNAPSHOT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'publishEarlyWarningRule', method: 'POST', id: EARLY_WARNING_FIXTURES['TNT-B'].ruleId, versioned: true, body: {} },
@@ -744,6 +748,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   { operation: 'cancelWorkflowInstance', method: 'POST', id: WORKFLOW_FIXTURES['TNT-B'].instanceId, versioned: true, body: { reason: 'Isolation probe of the cancellation' } },
   { operation: 'revokeMySession', method: 'POST', id: SELF_FIXTURES['TNT-B'].sessionId, body: { reason: 'Isolation probe of the revocation' } },
   { operation: 'revokeMyDevice', method: 'POST', id: SELF_FIXTURES['TNT-B'].deviceId, body: { reason: 'Isolation probe of the revocation' } },
+  { operation: 'sendMyTestPush', method: 'POST', id: WEB_DEVICE_FIXTURES['TNT-B'].id, body: {} },
   { operation: 'get_resources_quality_incident_id', method: 'GET', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].incidentId },
   { operation: 'get_resources_quality_exception_id', method: 'GET', id: QUALITY_INCIDENT_FIXTURES['TNT-B'].exceptionId },
   {
