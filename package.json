@@ -17,7 +17,7 @@
     "architecture": "node scripts/architecture-check.mjs",
     "clips:check": "node scripts/clips/scenario.mjs check",
     "perf:budget": "node scripts/perf-budget.mjs",
-    "qa:check": "node scripts/a11y-lint.mjs && node scripts/hdsd/verification.mjs --check && node scripts/perf-budget.mjs --check && node scripts/clip-scripts-check.mjs",
+    "qa:check": "node scripts/a11y-lint.mjs && node scripts/hdsd/verification.mjs --check && node scripts/perf-budget.mjs --check && node scripts/clip-scripts-check.mjs && node scripts/help-index.mjs check",
     "edition:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/edition-check.mjs",
     "coverage:libs": "node scripts/coverage-libs.mjs",
     "uat:run": "node scripts/uat-run.mjs",

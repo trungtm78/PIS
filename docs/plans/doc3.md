@@ -21,7 +21,7 @@ Lane `lane/doc3`, ENT-3 gaps G17 (online help, YCK.08) and G18 (TH.01, TH.02, TK
 ## Steps
 
 - [ ] 1. Plan (this file).
-- [ ] 2. `scripts/help-index.mjs` (generate, check), `scripts/help/kind-guides.json`, `scripts/help/no-help.json`, generated `apps/web/src/help/help.vi.json`, node tests. Test: `node --test scripts/help-index.test.mjs`.
+- [x] 2. `scripts/help-index.mjs` (generate, check), `scripts/help/kind-guides.json`, `scripts/help/no-help.json`, generated `apps/web/src/help/help.vi.json`, node tests. Test: `node --test scripts/help-index.test.mjs`.
 - [ ] 3. Web: `apps/web/src/help/` loader + types, `apps/web/src/shell/HelpDrawer.tsx` (keyboard: opens with the button and the `?` key outside inputs, focus moved in and returned, Esc, Tab trap), TopBar and portal frame wiring, i18n parts `doc3.{vi,en}.json`. Tests: vitest of the single files (loader, drawer, TopBar, Shell help test).
 - [ ] 4. `docs/admin-guide.md` from the runbooks (roles, rules, calendars, catalogues, integration hub, backup, audit export, upgrade).
 - [ ] 5. `docs/integration/hpm-proposal.md`.
