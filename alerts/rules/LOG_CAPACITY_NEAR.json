@@ -1,0 +1,14 @@
+{
+  "id": "LOG_CAPACITY_NEAR",
+  "severity": "warning",
+  "channel": "product",
+  "owner": "tenant-administration",
+  "runbook": "docs/runbooks/alerts/LOG_CAPACITY_NEAR.md",
+  "adapter": "log",
+  "source": {
+    "type": "gauge",
+    "metric": "log_capacity_near",
+    "above": 0
+  },
+  "summary": "A log class of a tenant stands at or above the warning share of its cap on rows or size."
+}

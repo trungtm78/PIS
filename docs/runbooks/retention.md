@@ -67,3 +67,12 @@ owner confirms CXN-RET-01 to CXN-RET-03 (and CXN-05 for the catalogue); ADM-12 s
 - Publishing needs another person than the author (403 `SELF_APPROVAL_DENIED`), a draft whose version is the one the caller saw (409 `VERSION_CONFLICT`,
   also for a draft that a newer one replaced) and an `effective_from` that has come (422, finding `DATE_FUTURE`): a version never leaves a class without a rule.
 - The version in force is superseded in the same step; versions are kept for good (the runtime role cannot delete them, a trigger keeps their content).
+
+## Caps on the number and the size of the log classes (HT.06, ENT-4e)
+
+ADM-30 (`getLogCapacity`, `saveLogCapacityPolicy`, permissions `adm.log_capacity.read` and `adm.log_capacity.manage`, whole tenant) sets for each log class a cap on rows and on bytes and the share `warn_pct` (default 80) at which `LOG_CAPACITY_NEAR` is raised. The nightly `retention-purge` pass runs the cap job (`packages/db/src/log-capacity-job.ts`) after the retention rule:
+
+- A TECHNICAL class over its cap is archived then purged: the oldest eligible rows (older than the retention cutoff of the class and not under a legal hold) beyond 90 percent of the cap are written to a hashed JSON lines file (`log_archive_batch`, key kind `log_archive`), the batch is recorded `ARCHIVED`, exactly those rows are deleted, and the batch becomes `PURGED`, all in one transaction. With no archive store configured, or no eligible row, nothing is removed and `LOG_CAPACITY_EXCEEDED` is raised.
+- A cap on the rows of a technical class below the rows that the retention rule protects (last reading) is refused (422, finding `BELOW_PROTECTED_ROWS`): a cap never shortens retention.
+- `audit_event` and `audit_event_detail` are MONITOR-ONLY: measured and alerted, never removed. The BUSINESS rule above is unchanged.
+- The size of a class above 50,000 rows is estimated from a sample (`bytes_estimated`). Alert runbooks: `docs/runbooks/alerts/LOG_CAPACITY_NEAR.md`, `LOG_CAPACITY_EXCEEDED.md`.

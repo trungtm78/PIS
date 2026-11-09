@@ -703,6 +703,8 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'listProjectPipeline',
   'createRetentionPolicyVersion',
   'publishRetentionPolicy',
+  'saveAuditDetailPolicy',
+  'saveLogCapacityPolicy',
   'createIntegrationConnector',
   'updateIntegrationConnector',
   'replayInboxEvent',

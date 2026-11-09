@@ -327,6 +327,8 @@
     "recordPermitMilestone",
     "recordPlanFeedback",
     "recordProcurementMilestone",
+    "saveAuditDetailPolicy",
+    "saveLogCapacityPolicy",
     "recordProjectAppraisal",
     "recordRecoveryNotice",
     "recordMaterialTestResult",
@@ -952,6 +954,8 @@
     "replyWhistleReportAsReporter"
   ],
   "enterpriseCommands": [
+    "createEquipmentProcurementItem",
+    "updateEquipmentProcurementItem",
     "setHpmConnectionState",
     "submitHpmPush",
     "retryHpmPush",

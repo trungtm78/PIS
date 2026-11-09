@@ -2,7 +2,11 @@ import {
   ADVANCE_CATEGORIES,
   CALENDAR_TIMEZONES,
   CONSTRUCTION_GRADES,
+  DELAY_CAUSE_GROUPS,
   DomainError,
+  FX_PERIOD_KINDS,
+  FX_RATE_KINDS,
+  FX_SOURCES,
   INSPECTION_TYPES,
   LAND_DAY_COUNTS,
   LAND_TIMER_CODES,
@@ -17,6 +21,7 @@ import {
   WEEKDAYS,
   assertCalendar,
   capPercentFor,
+  fxRateFindings,
   percentScaled,
 } from '@machvon/kernel';
 import type { CalendarDefinition } from '@machvon/kernel';
@@ -378,7 +383,13 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     fields: [
       { name: 'handler_unit_key', kind: 'text', maxLength: 100, pattern: KEY },
       { name: 'sla_priority_key', kind: 'key', refType: 'PRIORITY' },
+      // ENT-4e: the entry may be named as a standard cause of delay (project issue form, narrative forms) and the family it is listed under.
+      { name: 'delay_cause', kind: 'boolean' },
+      { name: 'cause_group', kind: 'choice', choices: DELAY_CAUSE_GROUPS },
     ],
+    check: ({ content }) => {
+      if (content.attributes.cause_group !== undefined && content.attributes.delay_cause !== true) fail('attributes.cause_group');
+    },
   },
   {
     masterType: 'REPORTING_PERIOD_KIND',
@@ -539,6 +550,38 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
     check: ({ content, businessKey }) => {
       // The code of the entry is the ISO code: the key and the attribute never disagree.
       if (content.attributes.iso_code !== businessKey) fail('attributes.iso_code');
+    },
+  },
+  {
+    // MD.03 (ENT-4e): one entry per pair and kind of rate (`USD_VND_OFFICIAL_AVERAGE`), one version per day or period, each with its source and the decision that fixed it. The conversion is in the kernel (fx-rate.ts).
+    masterType: 'FX_RATE',
+    fields: [
+      { name: 'base_currency', kind: 'text', required: true, maxLength: 3, pattern: CURRENCY_CODE },
+      { name: 'quote_currency', kind: 'text', required: true, maxLength: 3, pattern: CURRENCY_CODE },
+      { name: 'rate', kind: 'text', required: true, maxLength: 21 },
+      { name: 'rate_kind', kind: 'choice', required: true, choices: FX_RATE_KINDS },
+      { name: 'period_kind', kind: 'choice', required: true, choices: FX_PERIOD_KINDS },
+      { name: 'source', kind: 'choice', required: true, choices: FX_SOURCES },
+      { name: 'source_ref', kind: 'text', required: true, maxLength: 200 },
+      { name: 'approval_ref', kind: 'text', maxLength: 200 },
+    ],
+    strict: true,
+    check: async ({ content, businessKey, lookup }) => {
+      const attributes = content.attributes;
+      if (businessKey !== `${String(attributes.base_currency)}_${String(attributes.quote_currency)}_${String(attributes.rate_kind)}`) fail('attributes.rate_kind');
+      const found = fxRateFindings({
+        baseCurrency: String(attributes.base_currency),
+        quoteCurrency: String(attributes.quote_currency),
+        rate: String(attributes.rate),
+        periodKind: attributes.period_kind as (typeof FX_PERIOD_KINDS)[number],
+        validFrom: content.validFrom,
+        validUntil: content.validUntil,
+        sourceRef: String(attributes.source_ref),
+      })[0];
+      if (found !== undefined) fail(found.code === 'PERIOD_NOT_ALIGNED' ? 'valid_from' : `attributes.${found.field}`);
+      for (const field of ['base_currency', 'quote_currency']) {
+        if ((await lookup.entry('CURRENCY', String(attributes[field]))) === undefined) fail(`attributes.${field}`);
+      }
     },
   },
   {

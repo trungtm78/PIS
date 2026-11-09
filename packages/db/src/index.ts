@@ -66,6 +66,12 @@ export {
 } from './retention-job.ts';
 export type { PayloadRemover, RetentionJobOptions, RetentionRunResult } from './retention-job.ts';
 export { BUSINESS_SOURCES } from './retention-sources.ts';
+export { LOG_ARCHIVED_METRIC, LOG_CAPACITY_EXCEEDED_METRIC, LOG_CAPACITY_NEAR_METRIC, LogCapacityJob, LogCapacityRunFailed } from './log-capacity-job.ts';
+export type { LogArchiveSink, LogCapacityJobOptions, LogCapacityRunResult } from './log-capacity-job.ts';
+export { LogCapacityStore } from './log-capacity-store.ts';
+export type { ArchiveBatchRow, LogCapacityInput, LogCapacityPolicyRow, LogCapacityReadingRow } from './log-capacity-store.ts';
+export { AuditDetailPolicyStore, AuditDetailReads } from './audit-detail-store.ts';
+export type { AuditDetailPolicyChange, AuditDetailPolicyInput, AuditDetailPolicyRow, AuditDetailView } from './audit-detail-store.ts';
 export { RetentionReviewStore } from './retention-review-store.ts';
 export type { ReviewItemRow, ReviewPageAnchor } from './retention-review-store.ts';
 export { IntegrationConnectorStore } from './integration-connector-store.ts';
@@ -1897,6 +1903,7 @@ export { BidPetitionOutcomeStore } from './bid-petition-outcome-store.ts';
 export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-store.ts';
 export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
 <<<<<<< HEAD
+<<<<<<< HEAD
 export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';
 // ENT-3a: the enterprise period snapshot (docs/ent-snapshot.md).
 export { ENTERPRISE_METRIC_SET_VERSION, ENTERPRISE_PACK, ENTERPRISE_SNAPSHOT_BUILD_METRIC, ENTERPRISE_SNAPSHOT_FREEZE_METRIC, ENTERPRISE_SNAPSHOT_KIND, EnterpriseSnapshotStore, periodRefOf } from './enterprise-snapshot-store.ts';
@@ -1915,3 +1922,7 @@ export type { ScheduleReading } from './reporting-schedule-reader.ts';
 >>>>>>> lane/ent4c
 =======
 >>>>>>> lane/ent4d
+=======
+export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';export { EquipmentProcurementStore } from './equipment-procurement-store.ts';
+export type { EquipmentCreateInput, EquipmentLine, EquipmentListFilter, EquipmentPatch } from './equipment-procurement-store.ts';
+>>>>>>> lane/ent4e

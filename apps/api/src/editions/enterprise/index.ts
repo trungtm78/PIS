@@ -6,6 +6,7 @@ import { APPROVAL_PUSH_PORT } from '../../modules/adm/approval-hold.service';
 import { defineModule } from '../../modules/module-descriptor';
 import { HpmApprovalPush } from './approval-push';
 import { EbsImportController, EbsReadsController, EbsReconciliationController } from './ebs.controller';
+import { EquipmentCommandsController, EquipmentReadsController } from './equipment.controller';
 import { directoryFileSink } from './file-sink';
 import { LeaderReadsController } from './leader.controller';
 import { ReportMailCommandController, ReportMailReadsController } from './report-mail.controller';
@@ -44,6 +45,7 @@ export const ebsModule = defineModule({
   controllers: [EbsReadsController, EbsImportController, EbsReconciliationController],
 });
 
+<<<<<<< HEAD
 /** The leadership dashboard of the enterprise edition (ENT-4d): the rates against the annual plan with last year, read from the frozen enterprise snapshot, and the projects blocked on procedure. */
 export const leaderModule = defineModule({ code: 'LDR', editions: ['enterprise'], controllers: [LeaderReadsController] });
 
@@ -63,3 +65,17 @@ export const orgPackModule = defineModule({
 
 /** The modules of the enterprise edition, in the order the registry mounts them after its own. */
 export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, orgPackModule, leaderModule, reportMailModule];
+=======
+/**
+ * The equipment procurement view of the Ban Thuong mai (ENT-4e, CN.02): the lines of the plan bought as equipment with the package, the choice of contractor, the contract and the payments read from BID, CTR and PAY in the scope of the caller, and the
+ * state of the file import that feeds them (PENDING-EXTERNAL layout). The module exists in the enterprise edition only.
+ */
+export const eqpModule = defineModule({
+  code: 'EQP',
+  editions: ['enterprise'],
+  controllers: [EquipmentReadsController, EquipmentCommandsController],
+});
+
+/** The modules of the enterprise edition, in the order the registry mounts them after its own. */
+export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, eqpModule];
+>>>>>>> lane/ent4e
