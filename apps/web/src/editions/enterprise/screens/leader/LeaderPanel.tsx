@@ -39,7 +39,7 @@ function Rates() {
       </SectionCard>
     );
   }
-  const money = (value: string | null): string => (value === null ? t('ent.leader.noData.text') : moneyText(value, locale));
+  const money = (value: string | null | undefined): string => (value === null || value === undefined ? t('ent.leader.noData.text') : moneyText(value, locale));
   const rateCell = (row: LeaderRateRow): string => (row.rate_pct === null ? t('ent.leader.noData.text') : percentText(row.rate_pct, locale));
   const lastCell = (row: LeaderRateRow): string => (row.last_year.rate_pct !== null ? percentText(row.last_year.rate_pct, locale) : row.last_year.null_reason === 'NO_PRIOR_SNAPSHOT' ? t('ent.leader.lastYear.none') : row.last_year.null_reason === 'NOT_IN_PRIOR_SNAPSHOT' ? t('ent.leader.lastYear.new') : t('ent.leader.noData.text'));
   const columns = (first: string): DataTableColumn<LeaderRateRow>[] => [
@@ -55,12 +55,12 @@ function Rates() {
     <SectionCard title={t('ent.leader.rates.title')} unit={t('ent.leader.rates.unit')}>
       <div data-testid="leader-rates">
         <KpiStrip label={t('ent.leader.company.aria')}>
-          <KpiTile label={t('ent.leader.company.rate')} value={rateCell(company)} sub={company.rate_pct === null ? nullText(company.null_reason) : `${money(company.disbursed_vnd)} / ${money(company.plan_vnd)}`} tone="info" />
-          <KpiTile label={t('ent.leader.company.lastYear')} value={lastCell(company)} sub={data.prior_as_of_date === null ? t('ent.leader.lastYear.none') : t('ent.leader.lastYear.asOf', { day: data.prior_as_of_date })} />
+          <KpiTile label={t('ent.leader.company.rate')} value={rateCell(company)} sub={company.rate_pct === null ? nullText(company.null_reason ?? null) : `${money(company.disbursed_vnd)} / ${money(company.plan_vnd)}`} tone="info" />
+          <KpiTile label={t('ent.leader.company.lastYear')} value={lastCell(company)} sub={data.prior_as_of_date === null || data.prior_as_of_date === undefined ? t('ent.leader.lastYear.none') : t('ent.leader.lastYear.asOf', { day: data.prior_as_of_date })} />
           <KpiTile label={t('ent.leader.company.delta')} value={company.delta_points === null ? t('ent.leader.noData.text') : deltaText(company.delta_points, locale)} sub={company.trend === null ? undefined : trendText(company.trend)} tone={company.trend === 'DOWN' ? 'warning' : company.trend === 'UP' ? 'success' : 'neutral'} />
         </KpiStrip>
         <p className="muted" data-testid="leader-rates-context">
-          {t('ent.leader.context.text', { day: data.as_of_date, revision: data.revision })}
+          {t('ent.leader.context.text', { day: data.as_of_date, revision: data.revision ?? 0 })}
         </p>
         <DataTable caption={t('ent.leader.units.caption')} columns={columns(t('ent.leader.col.unit'))} rows={data.units} rowKey={(row) => row.id ?? row.code ?? ''} state={data.units.length === 0 ? 'empty' : 'ready'} />
         <DataTable caption={t('ent.leader.projects.caption')} columns={columns(t('ent.leader.col.project'))} rows={data.projects.slice(0, PROJECT_ROWS)} rowKey={(row) => row.id ?? row.code ?? ''} state={data.projects.length === 0 ? 'empty' : 'ready'} />

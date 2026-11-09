@@ -3,6 +3,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { translator } from '../../i18n';
 import { harness, mount, routeOf } from '../mne/test-support';
 import BoardScreen from './BoardScreen';
 import { useRunQuery } from './hooks';
@@ -408,8 +409,8 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     mount(<BoardScreen route={BOARD} />, client(normal(), () => answer()), { permissions: QUERIER });
     await findFigure(RATE.id);
     await user.click(screen.getByTestId('present-open'));
-    const presentation = await screen.findByRole('dialog', { name: vi_['bi.present.title.text'].replace('{period}', '2026-10') });
-    expect(within(presentation).getByRole('heading', { level: 2, name: vi_['bi.present.page.text'].replace('{from}', '1').replace('{to}', '2') })).toBeTruthy();
+    const presentation = await screen.findByRole('dialog', { name: translator.t('bi.present.title.text', { period: '2026-10' }) });
+    expect(within(presentation).getByRole('heading', { level: 2, name: translator.t('bi.present.page.text', { from: 1, to: 2 }) })).toBeTruthy();
     expect(presentation.querySelector(`[data-metric-id="${RATE.id}"]`)).not.toBeNull();
     expect(within(presentation).queryByLabelText(vi_['bi.board.period'])).toBeNull();
     await user.keyboard('{Escape}');

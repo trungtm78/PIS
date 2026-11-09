@@ -263,7 +263,7 @@ export function PresentationMode({ title, boards, onExit, intervalSeconds = DEFA
           <button type="button" className="ui-button ui-button--outline" onClick={() => setSize((value) => [...PRESENTATION_SIZES].reverse().find((step) => step < value) ?? value)} disabled={size <= PRESENTATION_SIZES[0]}>
             {t('ui.presentation.smaller.action')}
           </button>
-          <button type="button" className="ui-button ui-button--outline" onClick={() => setSize((value) => PRESENTATION_SIZES.find((step) => step > value) ?? value)} disabled={size >= PRESENTATION_SIZES[PRESENTATION_SIZES.length - 1]}>
+          <button type="button" className="ui-button ui-button--outline" onClick={() => setSize((value) => PRESENTATION_SIZES.find((step) => step > value) ?? value)} disabled={size >= Math.max(...PRESENTATION_SIZES)}>
             {t('ui.presentation.larger.action')}
           </button>
           <button type="button" className="ui-button ui-button--outline" aria-pressed={full} onClick={toggleFullscreen}>
