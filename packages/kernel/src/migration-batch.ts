@@ -32,13 +32,18 @@ export interface MigrationMapping {
   amountColumn: string | null;
   requiredColumns: readonly string[];
   references: readonly MigrationReference[];
+  /**
+   * The rules of a mapping that look across rows (the organisation pack of ENT-3d judges a tree, roles and seats as a whole): run once on the rows that passed the row rules, each error it returns is reported on its row and
+   * the row leaves the judged set. Pure and synchronous; a rule that needs the database is a verifier of the store.
+   */
+  check?: (rows: readonly JudgedRow[]) => RowError[];
 }
 
 /**
  * The mappings the platform knows. The mapping of a real source (which columns, which entity) waits for the decision on the source mapping (D04); until then a file is converted into rows of a target entity with its
  * business key, its amount and the rest of its columns kept as they came, and a mapping can name the entity its rows refer to.
  */
-export const MIGRATION_MAPPINGS: ReadonlyMap<string, MigrationMapping> = new Map<string, MigrationMapping>([
+const REGISTERED_MAPPINGS = new Map<string, MigrationMapping>([
   ['GENERIC-1', { version: 'GENERIC-1', businessKeyColumn: 'business_key', amountColumn: 'amount', requiredColumns: ['business_key'], references: [] }],
   [
     'GENERIC-CHILD-1',
@@ -51,6 +56,15 @@ export const MIGRATION_MAPPINGS: ReadonlyMap<string, MigrationMapping> = new Map
     },
   ],
 ]);
+
+export const MIGRATION_MAPPINGS: ReadonlyMap<string, MigrationMapping> = REGISTERED_MAPPINGS;
+
+/** Adds a mapping of an edition to the process (the enterprise seam registers the organisation pack mapping once when it loads); registering the same mapping again is harmless, another mapping under a taken version is a defect. */
+export function registerMigrationMapping(mapping: MigrationMapping): void {
+  const taken = REGISTERED_MAPPINGS.get(mapping.version);
+  if (taken !== undefined && taken !== mapping) throw new Error(`the migration mapping ${mapping.version} is already registered`);
+  REGISTERED_MAPPINGS.set(mapping.version, mapping);
+}
 
 export interface JudgedRow {
   /** The place of the row among the rows of the file, from 1. */
@@ -68,7 +82,7 @@ export interface RowError {
   rowNumber: number;
   lineNumber: number;
   field: string;
-  code: 'COLUMN_MISSING' | 'KEY_MISSING' | 'KEY_TOO_LONG' | 'DUPLICATE_KEY' | 'FIELD_MISSING' | 'FIELD_TOO_LONG' | 'AMOUNT_INVALID' | 'REFERENCE_UNKNOWN' | 'TOO_MANY_ROWS';
+  code: 'COLUMN_MISSING' | 'KEY_MISSING' | 'KEY_TOO_LONG' | 'DUPLICATE_KEY' | 'FIELD_MISSING' | 'FIELD_TOO_LONG' | 'AMOUNT_INVALID' | 'REFERENCE_UNKNOWN' | 'TOO_MANY_ROWS' | 'PACK_INVALID';
   message: string;
 }
 
@@ -161,6 +175,16 @@ export function judgeMigrationFile(table: { headers: readonly string[]; rows: re
       judged.push({ rowNumber, lineNumber, businessKey: key, amount, payload, refs });
     }
   });
+  if (mapping.check !== undefined) {
+    const failed = new Set<number>();
+    for (const error of mapping.check(judged)) {
+      report(error);
+      failed.add(error.rowNumber);
+    }
+    errors.sort((a, b) => a.rowNumber - b.rowNumber);
+    const kept = judged.filter((row) => !failed.has(row.rowNumber));
+    return { rowCount: table.rows.length, rows: kept, errors, errorCount, totals: { rows: kept.length, amount: sumOf(kept).toString() } };
+  }
   return { rowCount: table.rows.length, rows: judged, errors, errorCount, totals: { rows: judged.length, amount: sumOf(judged).toString() } };
 }
 
