@@ -113,10 +113,13 @@ export class OrgPackStore {
       [pack.units.map((unit) => unit.code)],
     );
     const units = new Map<string, { id: string; name: string; parentCode: string | null; active: boolean }>();
+    // The root is adopted under the code of the pack, so a child of the root has the parent the pack names whatever the root is called in the tenant.
+    const actualRoot = unitRows.find((row) => row.is_root)?.code;
     for (const row of unitRows) {
       const code = row.is_root && rootCode !== undefined ? rootCode : row.code;
       if (!row.is_root && !pack.units.some((unit) => unit.code === row.code)) continue;
-      units.set(code, { id: row.id, name: row.name, parentCode: row.parent_code, active: ['Active', 'Planned'].includes(row.status) });
+      const parentCode = row.parent_code !== null && row.parent_code === actualRoot && rootCode !== undefined ? rootCode : row.parent_code;
+      units.set(code, { id: row.id, name: row.name, parentCode, active: ['Active', 'Planned'].includes(row.status) });
     }
     const roleRows = await tx.query<RoleSql>('select id, code, name, permissions, rank, status from machvon.role_definition where code = any($1::text[])', [pack.roles.map((role) => role.code)]);
     const roles = new Map(roleRows.map((row) => [row.code, { id: row.id, name: row.name, rank: row.rank, permissions: row.permissions, active: row.status === 'Active' }]));
