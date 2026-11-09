@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { WEB_ROUTES } from '../routes/web-routes';
 import { SessionGate } from './SessionGate';
+import ApprovalDetailScreen from './screens/ApprovalDetailScreen';
 import ApprovalQueueScreen from './screens/ApprovalQueueScreen';
 import DirectivesScreen from './screens/DirectivesScreen';
 import LeaderDashboardScreen from './screens/LeaderDashboardScreen';
@@ -23,6 +24,7 @@ export function PwaRoutes() {
     <Routes>
       <Route index element={<Gated><PwaStartScreen /></Gated>} />
       <Route path="approvals" element={<Gated><ApprovalQueueScreen /></Gated>} />
+      <Route path="approvals/:taskId" element={<Gated><ApprovalDetailScreen /></Gated>} />
       <Route path="dashboard" element={<Gated><LeaderDashboardScreen /></Gated>} />
       <Route path="directives" element={<Gated><DirectivesScreen /></Gated>} />
       <Route path="*" element={<Navigate to={PWA_ROUTE_PREFIX} replace />} />

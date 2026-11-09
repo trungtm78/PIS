@@ -30,16 +30,22 @@ export interface ApprovalTask {
   escalated: boolean;
   /** The server says the person may decide this task. */
   canDecide: boolean;
+  /** `Pending`, `Decided`, `Reassigned`, `Cancelled` or `Expired`, as the server says; the queue holds the pending ones only. */
+  status: string;
+  /** The workflow instance the task belongs to: its other tasks are the step history. */
+  instanceId: string | null;
 }
 
-export function toApprovalTask(raw: unknown): ApprovalTask | undefined {
+/** A task of any status (the detail opens a task that was decided meanwhile and says so), or undefined when the row is not a task. */
+export function toTaskRecord(raw: unknown): ApprovalTask | undefined {
   const row = record(raw);
   const instance = record(row?.instance);
   const resource = record(row?.resource);
   const actions = record(row?.actions);
   const id = text(row?.id);
   const dueAt = text(row?.due_at);
-  if (row === undefined || row.status !== 'Pending' || id === undefined || dueAt === undefined || typeof row.version !== 'number') return undefined;
+  const status = text(row?.status);
+  if (row === undefined || status === undefined || id === undefined || dueAt === undefined || typeof row.version !== 'number') return undefined;
   const amount = instance?.amount_vnd;
   return {
     id,
@@ -54,7 +60,15 @@ export function toApprovalTask(raw: unknown): ApprovalTask | undefined {
     overdue: row.overdue === true,
     escalated: text(row.escalated_at) !== undefined,
     canDecide: actions?.decide === true,
+    status,
+    instanceId: text(instance?.id) ?? text(row.workflow_instance_id) ?? null,
   };
+}
+
+/** A task that waits for a decision, as the queue lists it. */
+export function toApprovalTask(raw: unknown): ApprovalTask | undefined {
+  const task = toTaskRecord(raw);
+  return task?.status === 'Pending' ? task : undefined;
 }
 
 /** The late tasks first, then by deadline, then by id (stable). */
