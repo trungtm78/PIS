@@ -471,6 +471,8 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   },
   { operation: 'getReportRevision', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },
   { operation: 'getReportWorkflow', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },
+  { operation: 'getReportNarrativeContext', method: 'GET', id: REPORT_FIXTURES['TNT-B'].id },
+  { operation: 'inheritReportNarrative', method: 'POST', id: REPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'getReportImport', method: 'GET', id: REPORT_IMPORT_FIXTURES['TNT-B'].id },
   { operation: 'applyReportImport', method: 'POST', id: REPORT_IMPORT_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'getReportExportDownload', method: 'GET', id: REPORT_EXPORT_FIXTURES['TNT-B'].id },

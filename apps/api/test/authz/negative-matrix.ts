@@ -1105,6 +1105,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/draft-deletion`, ifMatch: '"1"', body: { reason: 'Started in the wrong week.' } }),
   },
+  inheritReportNarrative: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/reports/${t.legalHoldId}/narrative-inheritance`, ifMatch: '"1"', body: {} }),
+  },
   uploadReportImportFile: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/report-imports/files', body: {} }),
