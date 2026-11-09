@@ -239,16 +239,20 @@ export const CATALOGUES: Readonly<Record<string, CatalogueConfig>> = {
   'MDM-12': {
     id: 'MDM-12',
     slug: 'unit',
-    types: ['UNIT', 'CURRENCY'],
+    types: ['UNIT', 'CURRENCY', 'FX_RATE'],
     tree: false,
     columns: [
       column('type', (record) => record.masterType),
       KEY,
       NAME,
-      column('dimension', (record, { value }) => (record.masterType === 'CURRENCY' ? plain(attribute(record, 'iso_code')) : value('dimension', attribute(record, 'dimension')))),
-      column('factor', (record) => plain(attribute(record, 'factor'))),
-      column('scale', (record) => plain(attribute(record, 'scale'))),
-      column('rounding', (record, { value }) => value('rounding', attribute(record, 'rounding'))),
+      // A rate (ENT-4e) is listed in the same columns: the pair, the rate, the kind of period and of rate.
+      column('dimension', (record, { value }) => {
+        if (record.masterType === 'FX_RATE') return `${plain(attribute(record, 'base_currency'))}/${plain(attribute(record, 'quote_currency'))}`;
+        return record.masterType === 'CURRENCY' ? plain(attribute(record, 'iso_code')) : value('dimension', attribute(record, 'dimension'));
+      }),
+      column('factor', (record) => plain(attribute(record, record.masterType === 'FX_RATE' ? 'rate' : 'factor'))),
+      column('scale', (record) => plain(attribute(record, record.masterType === 'FX_RATE' ? 'period_kind' : 'scale'))),
+      column('rounding', (record, { value }) => (record.masterType === 'FX_RATE' ? plain(attribute(record, 'rate_kind')) : value('rounding', attribute(record, 'rounding')))),
     ],
     rules: [],
   },

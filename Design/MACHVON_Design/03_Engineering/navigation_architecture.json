@@ -3,12 +3,12 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 569,
-    "webCatalog": 569,
-    "webModules": 34,
+    "webRoutes": 573,
+    "webCatalog": 573,
+    "webModules": 35,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
-    "modulesTotal": 35
+    "modulesTotal": 36
   },
   "libraryGroups": [
     {
@@ -50,7 +50,8 @@
         "MNE",
         "AUD",
         "RPT",
-        "VND"
+        "VND",
+        "EQP"
       ]
     },
     {
@@ -1272,7 +1273,9 @@
             25,
             26,
             27,
-            28
+            28,
+            29,
+            30
           ],
           "primary": [
             19,
@@ -1281,7 +1284,9 @@
             25,
             26,
             27,
-            28
+            28,
+            29,
+            30
           ],
           "parents": {
             "20": 19,
@@ -2428,6 +2433,25 @@
           "parents": {}
         }
       ]
+    },
+    "EQP": {
+      "name": "Mua sắm trang thiết bị",
+      "groups": [
+        {
+          "title": "Mua sắm trang thiết bị",
+          "description": "Kế hoạch, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân của từng dòng",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {
+            "2": 1
+          }
+        }
+      ]
     }
   },
   "quickModules": [
@@ -2939,7 +2963,8 @@
     "IND": "Từ điển chỉ tiêu của doanh nghiệp, quy tắc kiểm số liệu ngay khi nhập và bảng ánh xạ nhập tệp Excel có phiên bản và người duyệt.",
     "HPM": "Đẩy báo cáo đã phát hành lên HPM theo khóa chống trùng, biên nhận và đính chính kỳ đã được nhận.",
     "EBS": "Nhập tệp từ Oracle EBS và đối chiếu số liệu theo mã dự án với giải trình chênh lệch.",
-    "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu."
+    "FEED": "Nhận số liệu đầu tư công từ ứng dụng của Sở Tài chính, ánh xạ mã dự án, đối chiếu với số của ta và điều khiển bộ sinh dữ liệu.",
+    "EQP": "Dòng mua sắm trang thiết bị của dự án: kế hoạch, gói thầu, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân."
   },
   "adminLibraryModules": [
     "IAM",
@@ -8876,6 +8901,46 @@
       "group": "Nhà thầu & lựa chọn",
       "role": "detail",
       "parent": "BID-20"
+    },
+    {
+      "id": "ADM-29",
+      "title": "Nhật ký đủ trước và sau theo loại đối tượng",
+      "kind": "form",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-30",
+      "title": "Giới hạn số lượng và dung lượng log",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "EQP-01",
+      "title": "Mua sắm trang thiết bị dự án",
+      "kind": "table",
+      "area": "insights",
+      "module": "EQP",
+      "group": "Mua sắm trang thiết bị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "EQP-02",
+      "title": "Chi tiết dòng mua sắm trang thiết bị",
+      "kind": "detail",
+      "area": "insights",
+      "module": "EQP",
+      "group": "Mua sắm trang thiết bị",
+      "role": "detail",
+      "parent": "EQP-01"
     }
   ],
   "mobileRoutes": [

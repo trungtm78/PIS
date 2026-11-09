@@ -5,6 +5,7 @@ import { PeriodScopeCommandsController, PeriodScopeReadsController } from './per
 import { StandingDelegationCommandsController, StandingDelegationReadsController } from './standing-delegation.controller';
 import { ApprovalCommandsController, ApprovalTaskReadsController, WorkflowInstanceReadsController, WorkflowVersionReadsController } from './approval.controller';
 import { APPROVAL_FINAL_COMMANDS, ApprovalBootGuard, ApprovalService, FinalCommandRegistry } from './approval.service';
+import { AuditDetailPoliciesController, AuditEventDetailController, LogCapacityController } from './audit-detail.controller';
 import { AuditEventsController } from './audit-events.controller';
 import { AuditExportsController } from './audit-export.controller';
 import { SigningCertificateReadsController, SigningCertificatesController } from './certificates.controller';
@@ -37,6 +38,9 @@ export const admModule = defineModule({
   code: 'ADM',
   controllers: [
     AuditEventsController,
+    AuditDetailPoliciesController,
+    AuditEventDetailController,
+    LogCapacityController,
     AuditExportsController,
     LegalHoldsController,
     LegalHoldReadsController,

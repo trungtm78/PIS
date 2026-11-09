@@ -569,6 +569,10 @@
     {"id":"VND-22","path":"/vnd/vnd-22","title":"Kiến nghị, claim và xuất OCDS của nhà thầu","kind":"dashboard","area":"insights","module":"VND","group":"Điều tra và sàng lọc nhà thầu","role":"detail","parent":null,"req":"FR-VND-22"},
     {"id":"VND-23","path":"/vnd/vnd-23","title":"Lời mời vào cổng nhà thầu","kind":"table","area":"insights","module":"VND","group":"Quản lý cổng và khắc phục","role":"workspace","parent":null,"req":"FR-VND-23"},
     {"id":"VND-24","path":"/vnd/vnd-24","title":"Tệp đính kèm trên cổng nhà thầu","kind":"table","area":"insights","module":"VND","group":"Cổng nhà thầu","role":"detail","parent":"VND-16","req":"FR-VND-24"},
-    {"id":"BID-34","path":"/bid/bid-34","title":"Kết quả giải quyết kiến nghị của nhà thầu","kind":"table","area":"insights","module":"BID","group":"Nhà thầu & lựa chọn","role":"detail","parent":"BID-20","req":"FR-BID-34"}
+    {"id":"BID-34","path":"/bid/bid-34","title":"Kết quả giải quyết kiến nghị của nhà thầu","kind":"table","area":"insights","module":"BID","group":"Nhà thầu & lựa chọn","role":"detail","parent":"BID-20","req":"FR-BID-34"},
+    {"id":"ADM-29","path":"/adm/adm-29","title":"Nhật ký đủ trước và sau theo loại đối tượng","kind":"form","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-AUDIT-DETAIL"},
+    {"id":"ADM-30","path":"/adm/adm-30","title":"Giới hạn số lượng và dung lượng log","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-LOG-CAPACITY"},
+    {"id":"EQP-01","path":"/eqp/eqp-01","title":"Mua sắm trang thiết bị dự án","kind":"table","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"workspace","parent":null,"req":"FR-EQP-01"},
+    {"id":"EQP-02","path":"/eqp/eqp-02","title":"Chi tiết dòng mua sắm trang thiết bị","kind":"detail","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"detail","parent":"EQP-01","req":"FR-EQP-02"}
   ]
 }

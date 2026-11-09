@@ -4,6 +4,7 @@ import { DisPeriodReopenPort, HpmFileWriter, ReportStoreIssuedReports } from '@m
 import type { HpmFileSink } from '@machvon/edition-enterprise/src/server.ts';
 import { defineModule } from '../../modules/module-descriptor';
 import { EbsImportController, EbsReadsController, EbsReconciliationController } from './ebs.controller';
+import { EquipmentCommandsController, EquipmentReadsController } from './equipment.controller';
 import { directoryFileSink } from './file-sink';
 import { HpmCorrectionController, HpmPushController, HpmReadsController } from './hpm.controller';
 import { HPM_FILE_SINK, HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
@@ -37,5 +38,15 @@ export const ebsModule = defineModule({
   controllers: [EbsReadsController, EbsImportController, EbsReconciliationController],
 });
 
+/**
+ * The equipment procurement view of the Ban Thuong mai (ENT-4e, CN.02): the lines of the plan bought as equipment with the package, the choice of contractor, the contract and the payments read from BID, CTR and PAY in the scope of the caller, and the
+ * state of the file import that feeds them (PENDING-EXTERNAL layout). The module exists in the enterprise edition only.
+ */
+export const eqpModule = defineModule({
+  code: 'EQP',
+  editions: ['enterprise'],
+  controllers: [EquipmentReadsController, EquipmentCommandsController],
+});
+
 /** The modules of the enterprise edition, in the order the registry mounts them after its own. */
-export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule];
+export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, eqpModule];
