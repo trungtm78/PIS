@@ -1,0 +1,327 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "payments",
+  "title": "Thanh toán và Kho bạc",
+  "summary": "The payment file from request to supporting documents, the Treasury follow-up, statement import and Treasury forms (demo forms), mismatch handling, reversal and adjustment, the payment chain trace, the payment and advance clocks of the Treasury with standard return reasons, ceiling exceptions, annual settlement and advances with recovery.",
+  "mainOptional": true,
+  "figures": {
+    "pay-in-time": {
+      "kind": "percent",
+      "sample": 88.5,
+      "digits": 1,
+      "description": "Share of payment requests handled by the Treasury within its working-day clock.",
+      "source": {
+        "operation": "listPaymentClocks",
+        "select": "summary.in_time_rate_pct"
+      }
+    },
+    "pay-breached": {
+      "kind": "count",
+      "sample": 3,
+      "description": "Payment clocks that ran out.",
+      "source": {
+        "operation": "listPaymentClocks",
+        "select": "summary.breached"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "pay-request-file",
+      "chapter": "payments",
+      "main": false,
+      "narration": "Hồ sơ thanh toán được tạo từ khối lượng đã nghiệm thu, đính chứng từ và kiểm điều kiện trước khi trình. Danh sách cho kế toán thấy hồ sơ nào đang ở bước nào.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-01",
+          "PAY-02",
+          "PAY-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "treasuryMaker"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-01"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.payment.list"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-02"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.payment.create"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-03"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.payment.documents"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 12.1
+    },
+    {
+      "id": "pay-treasury-forms",
+      "chapter": "payments",
+      "main": false,
+      "narration": "Theo dõi gửi Kho bạc, nhập sao kê, và các biểu mẫu thanh toán của Kho bạc. Các biểu mẫu hiện là mẫu demo, vì mẫu chính thức của Kho bạc chưa được cung cấp. Theo dõi dự án Kho bạc cho biết mỗi dự án đang ở đâu.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-04",
+          "PAY-13",
+          "PAY-14",
+          "PAY-09"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "treasuryMaker"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-04"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.treasury.tracking"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-13"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.treasury.statement-import"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-14"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.treasury.forms"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-09"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.treasury.project-tracking"
+        }
+      ],
+      "captions": [
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 5,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 17,
+      "stamps": [
+        "demo-form"
+      ]
+    },
+    {
+      "id": "pay-mismatch-trace",
+      "chapter": "payments",
+      "main": false,
+      "narration": "Sai lệch được xử lý có lý do. Đảo và điều chỉnh giao dịch không xóa giao dịch cũ mà thêm bút toán mới. Truy vết chuỗi thanh toán đi từ khối lượng, nghiệm thu, đề nghị đến giao dịch Kho bạc.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-06",
+          "PAY-08",
+          "PAY-17"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "treasuryMaker"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-06"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.mismatch.handling"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-08"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.mismatch.reverse-adjust"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-17"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.mismatch.chain-trace"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "pay-treasury-clocks",
+      "chapter": "payments",
+      "main": false,
+      "narration": "Đồng hồ xử lý của Kho bạc đo hạn thanh toán và hạn tạm ứng theo ngày làm việc. Tỷ lệ xử lý đúng hạn là {{figure:pay-in-time}}, có {{figure:pay-breached}} hồ sơ hết hạn. Lý do trả lại theo danh mục chuẩn, và ngoại lệ vượt trần giải ngân có người duyệt. Số ngày là cấu hình mặc định, chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-22",
+          "PAY-21"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "treasuryMaker"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-22"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.clocks.treasury"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-21"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.clocks.ceiling-exception"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+          "atSec": 4,
+          "forSec": 7
+        }
+      ],
+      "expectedSec": 22.5,
+      "stamps": [
+        "unverified-legal"
+      ]
+    },
+    {
+      "id": "pay-advance-settlement",
+      "chapter": "payments",
+      "main": false,
+      "narration": "Đề nghị tạm ứng, thu hồi tạm ứng theo lịch, rồi quyết toán niên độ và quyết toán dự án hoàn thành. Biểu mẫu quyết toán có hạn thẩm tra. Tạm ứng quá hạn thu hồi bị cảnh báo đến đúng người.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PAY-11",
+          "PAY-07",
+          "PAY-15",
+          "PAY-16"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "treasuryMaker"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-11"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.advance.request"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-07"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.advance.recovery"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-15"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.settlement.annual"
+        },
+        {
+          "do": "open",
+          "screen": "PAY-16"
+        },
+        {
+          "do": "spot",
+          "ref": "pay.settlement.forms-deadlines"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "pay-phone-treasury",
+      "chapter": "payments",
+      "main": false,
+      "narration": "Kế toán đối soát Kho bạc và theo dõi thanh toán ngay trên điện thoại. Việc xử lý tiếp vẫn làm ở máy tính với đầy đủ chứng từ.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-60",
+          "MOB-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "treasuryMaker"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-60"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.treasury.reconcile"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-27"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.treasury.payment-tracking"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 10.2
+    }
+  ]
+}

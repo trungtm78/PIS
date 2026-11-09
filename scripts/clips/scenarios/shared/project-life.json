@@ -1,0 +1,242 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "project-life",
+  "title": "Vòng đời dự án đầu tư",
+  "summary": "From the investment proposal, appraisal and decision to the project workspace, legal file, structure and milestones, adjustments, team, leader assignment, disbursement task force, explanation requests, transfer between units, national code, monthly follow-up, asset handover and project settlement.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "prj-proposal",
+      "chapter": "project-life",
+      "main": false,
+      "narration": "Dự án bắt đầu từ đề xuất chủ trương, qua thẩm định và quyết định, rồi mới được tạo. Không gian dự án gom hồ sơ, vốn, tiến độ, hợp đồng và trao đổi của dự án vào một chỗ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-09",
+          "PRJ-10",
+          "PRJ-02",
+          "PRJ-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-09"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.proposal"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-10"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.appraisal-decision"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-02"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.create"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-03"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.workspace"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "prj-structure",
+      "chapter": "project-life",
+      "main": false,
+      "narration": "Hồ sơ pháp lý, cấu trúc phân rã công việc, tiến độ và mốc của dự án được quản trong cùng một nơi. Điều chỉnh dự án đi qua thủ tục có lý do. Nhóm thực hiện ghi rõ vai trò của từng người.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-04",
+          "PRJ-05",
+          "PRJ-06",
+          "PRJ-07",
+          "PRJ-08"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-04"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.legal-file"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-05"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.wbs"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-06"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.adjustment"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-07"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.milestones"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-08"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.team"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "prj-leadership",
+      "chapter": "project-life",
+      "main": false,
+      "narration": "Mỗi dự án có lãnh đạo phụ trách. Tổ công tác đôn đốc giải ngân gửi yêu cầu giải trình và nhận phản hồi có hạn. Dự án chuyển giữa các đơn vị có hồ sơ, và mã dự án trên hệ thống quốc gia được gắn vào.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-17",
+          "PRJ-18",
+          "PRJ-19",
+          "PRJ-20",
+          "PRJ-21"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-17"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.leader-assignment"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-18"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.task-force"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-19"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.explanation-requests"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-20"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.unit-transfer"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-21"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.national-code"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    },
+    {
+      "id": "prj-closure",
+      "chapter": "project-life",
+      "main": false,
+      "narration": "Theo dõi dự án hằng tháng cho thấy tiến độ và giải ngân. Khi hoàn thành, dự án bàn giao tài sản rồi quyết toán. Mỗi bước sau chỉ mở khi bước trước đã đủ hồ sơ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-13",
+          "PRJ-11",
+          "PRJ-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-13"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.monthly-follow-up"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-11"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.asset-handover"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-12"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.project.settlement"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13
+    }
+  ]
+}

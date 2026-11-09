@@ -1,0 +1,267 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "capital-control",
+  "title": "Kế hoạch và kiểm soát vốn",
+  "summary": "Mid-term plan, capital option, funding sources, allocation decisions, monthly registration, plan approval, carry-over and year lock, support and additional revenue, the budget estimate ledger, available limit control, hold before commitment, the ledger as of a date, extension of disbursement time, contract cost control with forecast to completion, and reallocation by performance with impact simulation.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "cc-plan",
+      "chapter": "capital-control",
+      "main": false,
+      "narration": "Kế hoạch vốn bắt đầu từ trung hạn, qua phương án vốn, nguồn vốn và quyết định giao vốn, rồi phân bổ xuống từng dự án. Mỗi bước có người lập và người duyệt khác nhau, và con số ở bước sau không vượt bước trước.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CAP-01",
+          "CAP-02",
+          "CAP-04",
+          "CAP-05",
+          "CAP-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-01"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.mid-term"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-02"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.option"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-04"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.sources"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-05"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.allocation-decisions"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-06"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.allocation"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    },
+    {
+      "id": "cc-approve-close",
+      "chapter": "capital-control",
+      "main": false,
+      "narration": "Đăng ký giải ngân tháng, phê duyệt kế hoạch, chuyển nguồn và khóa năm đều đi qua luồng duyệt. Vốn hỗ trợ và tăng thu được theo dõi riêng. Màn theo dõi kế hoạch vốn so sánh kế hoạch với thực hiện suốt năm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CAP-08",
+          "CAP-10",
+          "CAP-11",
+          "CAP-14",
+          "CAP-15"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-08"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.monthly-registration"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-10"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.plan-approval"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-11"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.carry-over"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-14"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-15"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.capital.plan-tracking"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "cc-limit-control",
+      "chapter": "capital-control",
+      "main": false,
+      "narration": "Sổ dự toán ghi nguồn được giao. Kiểm soát hạn mức khả dụng chặn cam kết vượt phần còn lại. Giữ vốn trước cam kết đặt chỗ trước cho gói thầu sắp ký, nên hai nơi không cùng tiêu một đồng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CAP-16",
+          "CAP-17",
+          "CAP-18"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-16"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.control.estimate-ledger"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-17"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.control.available-limit"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-18"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.control.hold-before-commitment"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Không cam kết vượt hạn mức khả dụng",
+          "atSec": 3,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "cc-ledger-extension",
+      "chapter": "capital-control",
+      "main": false,
+      "narration": "Sổ cái vốn tra cứu được theo bất kỳ thời điểm nào trong quá khứ. Kéo dài thời gian giải ngân phải có lý do và người duyệt. Kiểm soát vốn theo hợp đồng dự báo chi phí đến khi hoàn thành.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CAP-21",
+          "CAP-20",
+          "CAP-22"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-21"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.control.ledger-as-of"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-20"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.control.extension"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-22"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.control.contract-cost-forecast"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "cc-performance-transfer",
+      "chapter": "capital-control",
+      "main": false,
+      "narration": "Đề xuất điều chuyển vốn theo hiệu suất đi cùng mô phỏng tác động: dự án nhận thêm bao nhiêu, dự án nhường giảm bao nhiêu. Việc phê duyệt có thể ủy quyền, nhưng người duyệt luôn khác người đề xuất.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "CAP-23"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-23"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.transfer.performance-proposal"
+        },
+        {
+          "do": "spot",
+          "ref": "cap.transfer.impact-simulation"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    }
+  ]
+}

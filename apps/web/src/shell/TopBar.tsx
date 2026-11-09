@@ -5,6 +5,7 @@ import { useTranslation } from '../i18n';
 import type { SessionUser } from '../session/SessionContext';
 import { AlertBell } from '../ui/alerts';
 import { Breadcrumb } from './Breadcrumb';
+import { HelpButton } from './HelpDrawer';
 import { Icon } from './Icon';
 
 export interface TopBarProps {
@@ -113,11 +114,7 @@ export function TopBar(props: TopBarProps) {
             <Icon name="star" />
           </button>
         )}
-        {props.helpPath === undefined ? null : (
-          <Link to={props.helpPath} aria-label={t('shell.nav.help.label')}>
-            <Icon name="help" />
-          </Link>
-        )}
+        <HelpButton screenId={props.screenId} title={props.title} helpCentrePath={props.helpPath} />
       </div>
       <AlertBell />
       {user === undefined || props.accountPath === undefined ? null : (

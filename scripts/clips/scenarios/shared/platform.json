@@ -1,0 +1,617 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "platform",
+  "title": "Nền tảng, dữ liệu chủ và quản trị",
+  "summary": "Access and profile screens, the organisation tree, users and roles, shared catalogues, working calendar, digital signature set up, integration mapping and sync monitoring, migration with dry run, retention, rule versions and comparison, master data catalogues with crosswalk and merge, data quality governance, dashboard builder, notification operations and the unified inbox, tenant branding with the new logo, platform health and backups.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "pl-access",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Người dùng chọn tổ chức khi thuộc nhiều đơn vị, quản hồ sơ, xem các phiên và thiết bị đang đăng nhập, và tìm kiếm trên toàn hệ thống. Màn phạm vi quyền hiệu lực cho biết chính xác mình được làm gì, theo vai trò, ủy quyền và kỳ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "IAM-04",
+          "IAM-05",
+          "IAM-06",
+          "IAM-07",
+          "IAM-09"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "IAM-04"
+        },
+        {
+          "do": "spot",
+          "ref": "iam.access.choose-organisation"
+        },
+        {
+          "do": "open",
+          "screen": "IAM-05"
+        },
+        {
+          "do": "open",
+          "screen": "IAM-06"
+        },
+        {
+          "do": "spot",
+          "ref": "iam.access.sessions-devices"
+        },
+        {
+          "do": "open",
+          "screen": "IAM-07"
+        },
+        {
+          "do": "spot",
+          "ref": "iam.access.global-search"
+        },
+        {
+          "do": "open",
+          "screen": "IAM-09"
+        },
+        {
+          "do": "spot",
+          "ref": "iam.access.effective-scope"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    },
+    {
+      "id": "pl-organisation",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Quản trị dựng cây tổ chức, mời người dùng, gán vai trò và quyền theo phạm vi. Sắp xếp lại đơn vị giữ nguyên lịch sử. Thành viên khách như nhà thầu gắn với đúng một bên và chỉ thấy phần của mình.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-01",
+          "ADM-02",
+          "ADM-03",
+          "ADM-16",
+          "ADM-17"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-01"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.org.tree"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-02"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.org.users-invite"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-03"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.org.roles-permissions"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-16"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.org.reorganise"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-17"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.org.guest-members"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "pl-calendar-signature",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Danh mục dùng chung và lịch công tác kèm ngày nghỉ được khai một lần. Mọi đồng hồ làm việc đều đọc cùng một lịch. Chữ ký số được cấu hình ở đây cho văn bản và báo cáo.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-05",
+          "ADM-07",
+          "ADM-08"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-05"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.common.catalogues"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-07"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.common.working-calendar"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-08"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.common.digital-signature"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "pl-sync-migration",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Tích hợp và ánh xạ, giám sát đồng bộ cho thấy từng đường dữ liệu có chạy không. Nhập chuyển đổi dữ liệu đi theo lô: đăng ký, chạy thử, người khác áp dụng, và hoàn tác được. Chính sách lưu trữ đặt thời hạn giữ theo loại.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-09",
+          "ADM-10",
+          "ADM-13",
+          "ADM-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-09"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.sync.integration-mapping"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-10"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.sync.monitoring"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-13"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.sync.migration-batch"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-12"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.sync.retention"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    },
+    {
+      "id": "pl-rules",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Mọi ngưỡng đều là quy tắc có phiên bản, công thức, nguồn và ngày hiệu lực. Soạn bản mới, so sánh với bản đang chạy, rồi một người khác phê duyệt. Giá trị chưa ai xác nhận mang dấu chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-21",
+          "ADM-22"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-21"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.rules.draft-version"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-22"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.rules.compare-versions"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "pl-master-data",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Trung tâm danh mục quản địa bàn và lịch sử sáp nhập, cơ quan, nguồn vốn, lĩnh vực và hàng chục danh mục khác. Mã trùng được hợp nhất, thuộc tính nào thắng khi hai bản ghi khác nhau do quy tắc quyết định. Đơn vị hành chính sau sáp nhập kế thừa đúng dữ liệu cũ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "MDM-01",
+          "MDM-02",
+          "MDM-04",
+          "MDM-30",
+          "MDM-36",
+          "MDM-37"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-01"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.mdm.catalogue-hub"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-02"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.mdm.merger-history"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-04"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-30"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.mdm.merge-duplicates"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-36"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.mdm.survivorship"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-37"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.mdm.inheritance"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 19.1
+    },
+    {
+      "id": "pl-data-quality",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Điều hành chất lượng dữ liệu có thuật ngữ nghiệp vụ, quy tắc chất lượng và điểm chất lượng cho từng bộ dữ liệu. Sự cố dữ liệu được ghi, phân người xử lý và đóng khi sửa xong. Chủ sở hữu và người quản lý từng dữ liệu được nêu rõ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DGV-01",
+          "DGV-02",
+          "DGV-06",
+          "DGV-07",
+          "DGV-08"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-01"
+        },
+        {
+          "do": "spot",
+          "ref": "dgv.quality.control-room"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-02"
+        },
+        {
+          "do": "spot",
+          "ref": "dgv.quality.glossary"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-06"
+        },
+        {
+          "do": "spot",
+          "ref": "dgv.quality.rules"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-07"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-08"
+        },
+        {
+          "do": "spot",
+          "ref": "dgv.quality.incidents"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.6
+    },
+    {
+      "id": "pl-dashboard-builder",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Người dùng tự dựng dashboard từ danh mục chỉ tiêu có định nghĩa. Quyền theo dòng và cột bảo đảm mỗi người chỉ thấy dữ liệu của mình. Trình phân tích cho khoan từ tổng xuống chi tiết.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-03",
+          "BI-05",
+          "BI-08",
+          "BI-09"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "BI-03"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.builder.dashboard"
+        },
+        {
+          "do": "open",
+          "screen": "BI-05"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.builder.metric-catalogue"
+        },
+        {
+          "do": "open",
+          "screen": "BI-08"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.builder.row-column-security"
+        },
+        {
+          "do": "open",
+          "screen": "BI-09"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.builder.explorer"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "pl-notification-ops",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Vận hành thông báo gồm mẫu đa kênh, lịch gửi, hạn mức và chi phí từng kênh. Gửi diện rộng cần người khác phê duyệt. Hộp thư hợp nhất gom trao đổi từ các kênh vào một chỗ và chuyển thành việc khi cần.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "NOT-04",
+          "NOT-07",
+          "NOT-10",
+          "NOT-15",
+          "NOT-16",
+          "OMNI-01"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-04"
+        },
+        {
+          "do": "spot",
+          "ref": "not.notify.ops-overview"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-07"
+        },
+        {
+          "do": "spot",
+          "ref": "not.notify.templates"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-10"
+        },
+        {
+          "do": "spot",
+          "ref": "not.notify.schedule"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-15"
+        },
+        {
+          "do": "open",
+          "screen": "NOT-16"
+        },
+        {
+          "do": "spot",
+          "ref": "not.notify.broadcast-approval"
+        },
+        {
+          "do": "open",
+          "screen": "OMNI-01"
+        },
+        {
+          "do": "spot",
+          "ref": "omni.notify.unified-inbox"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "pl-branding",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Mỗi đơn vị sử dụng có chủ đề và thương hiệu riêng: tên, màu và biểu trưng. Biểu trưng và bộ nhận diện mới của sản phẩm xuất hiện nhất quán trên web, ứng dụng điện thoại và biểu tượng PWA. Gói sản phẩm quyết định tính năng nào được bật.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "SAS-04",
+          "SAS-06"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "SAS-04"
+        },
+        {
+          "do": "spot",
+          "ref": "sas.branding.theme-logo"
+        },
+        {
+          "do": "open",
+          "screen": "SAS-06"
+        },
+        {
+          "do": "spot",
+          "ref": "sas.branding.feature-package"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Một bộ nhận diện trên web, điện thoại và PWA",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "pl-platform-health",
+      "chapter": "platform",
+      "main": false,
+      "narration": "Sức khỏe nền tảng cho thấy dịch vụ nào đang chậm hay lỗi. Cờ tính năng bật hoặc tắt từng tính năng khi phát hành. Sao lưu và khôi phục theo từng đơn vị có lịch sử, và mọi khôi phục đều qua phê duyệt.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "SAS-18",
+          "SAS-20",
+          "SAS-21"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "SAS-18"
+        },
+        {
+          "do": "spot",
+          "ref": "sas.ops.platform-health"
+        },
+        {
+          "do": "open",
+          "screen": "SAS-20"
+        },
+        {
+          "do": "spot",
+          "ref": "sas.ops.feature-flags"
+        },
+        {
+          "do": "open",
+          "screen": "SAS-21"
+        },
+        {
+          "do": "spot",
+          "ref": "sas.ops.backup-restore"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.4
+    }
+  ]
+}
