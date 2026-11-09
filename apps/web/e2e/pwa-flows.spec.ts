@@ -218,7 +218,7 @@ test.describe('signing out leaves nothing of the person on the device (R7)', () 
     await page.getByTestId('signin-already').getByRole('button', { name: vi['iam.signin.signOut.action'] }).click();
 
     await expect.poll(() => page.evaluate(async () => (await caches.keys()).length)).toBe(0);
-    expect(await page.evaluate(() => localStorage.getItem('mv.pwa.device'))).toBeNull();
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('mv.pwa.device'))).toBeNull();
     // The screens of the manager application ask to sign in again: nothing of the last session is shown.
     await page.evaluate(() => {
       window.history.pushState({}, '', '/m/approvals');

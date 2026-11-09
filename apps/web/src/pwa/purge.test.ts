@@ -38,6 +38,21 @@ describe('purge on logout or session expiry (R7)', () => {
     expect(report).toEqual({ caches: true, worker: true, push: true, device: true });
   });
 
+  it('forgets the device record at once, before it waits for the caches, the worker or the push service (a worker that never gets ready must not hold it)', async () => {
+    vi.useFakeTimers();
+    try {
+      const w = world();
+      const neverReady = { ...w.deps, container: { ready: new Promise(() => undefined), controller: null } as unknown as ServiceWorkerContainer };
+      const pending = purgeClientState(neverReady);
+      // Nothing has been awaited yet: the record is already gone while the other steps are still running.
+      expect(w.removed).toEqual([DEVICE_STORAGE_KEY]);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(await pending).toEqual({ caches: true, worker: false, push: false, device: true });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('goes on with the other steps when one fails', async () => {
     const w = world({ keysFail: true, unsubscribeFails: true });
     const report = await purgeClientState(w.deps);
