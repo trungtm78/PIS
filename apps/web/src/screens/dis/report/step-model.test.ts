@@ -209,12 +209,12 @@ describe('the notes and the files of DIS-06 (AC-ST-DIS-004-4)', () => {
     expect(notesBody(detail, { results: '  New  ', causes: '', solutions: 'S', proposals: ' ' }).narrative).toEqual({ results: 'New', solutions: 'S', linked_issue_ids: [ISSUE] });
     expect(notesBody(detailOf(), { results: 'R', causes: '', solutions: '', proposals: '' }).narrative).toEqual({ results: 'R' });
     expect(notesBody(detailOf(), { results: ' ', causes: '', solutions: '', proposals: '' }).narrative).toEqual({});
+    expect(notesBody(detail, { results: '', causes: '', solutions: '', proposals: '' }).narrative).toEqual({ linked_issue_ids: [ISSUE] });
   });
 
   it('hands the structured narrative of the enterprise pack back as it was when the notes are saved, without the empty fields and the trace', () => {
     const detail = detailOf({ narrative: { results: 'Old', enterprise: { status: 'Works', schedule: null, cause_codes: ['SITE_HANDOVER'], directive_refs: [], inheritance: { from_report_id: ISSUE } } } });
     expect(notesBody(detail, { results: 'New', causes: '', solutions: '', proposals: '' }).narrative).toEqual({ results: 'New', enterprise: { status: 'Works', cause_codes: ['SITE_HANDOVER'], directive_refs: [] } });
-    expect(notesBody(detail, { results: '', causes: '', solutions: '', proposals: '' }).narrative).toEqual({ linked_issue_ids: [ISSUE] });
   });
 
   it('saves the whole list of files in the order it is shown, with the cells as they stand', () => {
