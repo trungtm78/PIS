@@ -1,0 +1,18 @@
+{
+  "version": "0.1",
+  "connections": [
+    {
+      "details": {
+        "protocol": "postgresql",
+        "address": {
+          "server": "<database-host>:5432",
+          "database": "<database-name>"
+        },
+        "options": {},
+        "query": null
+      },
+      "options": {},
+      "mode": "Import"
+    }
+  ]
+}
