@@ -22,7 +22,7 @@ Status legend: `[ ]` open, `[x]` done.
 4. [x] Malware scan adapter (`clamd` INSTREAM), closed by default, pipeline and portal wiring, quarantine view. Tests: fake clamd server (clean, infected, error, oversize, timeout, unconfigured).
 5. [x] Egress allowlist test, ransomware catalogue (md + json) and checker, pentest pack wiring, Keycloak import check, lab-install checklist. Tests: fixtures and mutated copies.
 6. [x] Sizing document `docs/runbooks/infra/sizing-uat-prod.md` and its check (required sections, the figures consistent with `infra/onprem/compose`).
-7. [ ] Manual backup request: kernel rules, migration V2800, store, port and adapter, contract through `contract-patch`, controller and permissions (ADM), web screen with i18n part `infra2`, design rows, authz and isolation entries for the shared suites.
+7. [x] Manual backup request: kernel rules, migration V2800, store, port and adapter, contract through `contract-patch`, controller and permissions (ADM), web screen with i18n part `infra2`, design rows, authz and isolation entries for the shared suites.
 8. [ ] Gates after the pre-push gate is done: lint, typecheck, DB and API suites of the lane, shared suites once. Independent review (Codex when its limit allows, else a read-only reviewer subagent), triage, `git merge main`.
 
 ## Risks
