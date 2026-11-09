@@ -119,6 +119,6 @@
 
 @media (max-width: 480px) {
   .help-drawer__panel {
-    width: 100vw;
+    width: 100%;
   }
 }
