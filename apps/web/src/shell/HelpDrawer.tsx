@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { helpFor, loadHelpIndex } from '../help/help-index';
 import type { ScreenHelp } from '../help/help-index';
@@ -21,7 +21,8 @@ type State = { status: 'loading' } | { status: 'error' } | { status: 'ready'; he
 /** A key press that is typing: the `?` shortcut must not take it. */
 function isTyping(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+  if (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return true;
+  return ['textbox', 'combobox', 'searchbox'].includes(target.getAttribute('role') ?? '');
 }
 
 /**
@@ -35,7 +36,10 @@ export function HelpButton({ screenId, title, helpCentrePath }: HelpButtonProps)
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key !== '?' || event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
+      if (event.key !== '?' || event.repeat || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || isTyping(event.target)) return;
+      // Another dialog (not this drawer) is open: the key belongs to it.
+      const foreign = [...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].some((dialog) => dialog.closest('#screen-help') === null);
+      if (foreign) return;
       event.preventDefault();
       setOpen((value) => !value);
     };
@@ -74,6 +78,7 @@ function HelpDrawer({ screenId, title, helpCentrePath, onClose }: HelpDrawerProp
   const headingId = useId();
   const [state, setState] = useState<State>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
+  const body = useRef<HTMLDivElement>(null);
 
   const load = useCallback(() => {
     let current = true;
@@ -102,7 +107,7 @@ function HelpDrawer({ screenId, title, helpCentrePath, onClose }: HelpDrawerProp
             <Icon name="close" />
           </button>
         </header>
-        <div className="help-drawer__body">
+        <div className="help-drawer__body" ref={body} tabIndex={0} role="region" aria-labelledby={headingId}>
           {state.status === 'loading' ? (
             <p role="status" className="help-drawer__note">
               {t('shell.help.loading.text')}
@@ -111,7 +116,11 @@ function HelpDrawer({ screenId, title, helpCentrePath, onClose }: HelpDrawerProp
           {state.status === 'error' ? (
             <div role="alert" className="help-drawer__note">
               <p>{t('shell.help.error.text')}</p>
-              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setAttempt((value) => value + 1)}>
+              <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => {
+                  // The button is replaced by the loading note: keep the focus inside the drawer so Escape and Tab still work.
+                  body.current?.focus();
+                  setAttempt((value) => value + 1);
+                }}>
                 {t('shell.help.retry.label')}
               </button>
             </div>

@@ -10,7 +10,7 @@ import { plainRole, plainRule } from './hdsd/narration.mjs';
  *   - the hdsd tours (the chapter of the guide that shows the screen),
  *   - scripts/help/kind-guides.json (the generic steps of each kind of screen and the tips every screen shares).
  * `check` fails when the committed file differs from what `generate` would write, when a screen has neither an entry nor a reason
- * in scripts/help/no-help.json, or when a reason is stale. All Vietnamese words live in JSON; this file holds none.
+ * in scripts/help/no-help.json, or when a reason names an id that is not a web screen or is empty. All Vietnamese words live in JSON; this file holds none.
  */
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = resolve(HERE, '..');
@@ -25,7 +25,11 @@ const CHAPTERS = join('scripts', 'hdsd', 'chapters.json');
 export const SCHEMA = 1;
 
 const readJson = (root, path) => JSON.parse(readFileSync(join(root, path), 'utf8'));
-const fill = (template, params) => template.replace(/\{(\w+)\}/gu, (_, key) => String(params[key]));
+const fill = (template, params) =>
+  template.replace(/\{(\w+)\}/gu, (_, key) => {
+    if (!(key in params)) throw new Error(`no value for the placeholder {${key}}`);
+    return String(params[key]);
+  });
 const sentence = (text) => {
   const trimmed = String(text).trim().replace(/[.;,\s]+$/u, '');
   return trimmed === '' ? '' : `${trimmed}.`;

@@ -26,45 +26,45 @@ FROM machvon_bi.v_disbursement_lines;
 
 -- 4. Disbursement rate of the latest period by project (rate = summed amounts, not the average of line rates)
 WITH latest AS (
-  SELECT max(as_of_date) AS as_of_date FROM machvon_bi.v_disbursement_lines
+  SELECT period_id FROM machvon_bi.v_disbursement_lines ORDER BY as_of_date DESC LIMIT 1
 )
 SELECT d.project_id,
        sum(d.plan_total_vnd)                                          AS plan_vnd,
        sum(d.disbursed_treasury_vnd)                                  AS disbursed_treasury_vnd,
        round(100.0 * sum(d.disbursed_treasury_vnd) / NULLIF(sum(d.plan_total_vnd), 0), 2) AS rate_pct
 FROM machvon_bi.v_disbursement_lines d
-JOIN latest l ON l.as_of_date = d.as_of_date
+JOIN latest l ON l.period_id = d.period_id
 GROUP BY d.project_id
 ORDER BY rate_pct DESC NULLS LAST;
 
 -- 5. The same by bucket and budget level (current-year plan, carry-over, central or local)
 WITH latest AS (
-  SELECT max(as_of_date) AS as_of_date FROM machvon_bi.v_disbursement_lines
+  SELECT period_id FROM machvon_bi.v_disbursement_lines ORDER BY as_of_date DESC LIMIT 1
 )
 SELECT d.bucket, d.budget_level,
        sum(d.plan_total_vnd)         AS plan_vnd,
        sum(d.disbursed_treasury_vnd) AS disbursed_treasury_vnd,
        round(100.0 * sum(d.disbursed_treasury_vnd) / NULLIF(sum(d.plan_total_vnd), 0), 2) AS rate_pct
 FROM machvon_bi.v_disbursement_lines d
-JOIN latest l ON l.as_of_date = d.as_of_date
+JOIN latest l ON l.period_id = d.period_id
 GROUP BY d.bucket, d.budget_level
 ORDER BY d.bucket, d.budget_level;
 
 -- 6. Trend of the whole organization: one point per period (cumulative figures, so no sum across periods)
-SELECT as_of_date,
+SELECT period_id, as_of_date,
        sum(plan_total_vnd)         AS plan_vnd,
        sum(disbursed_treasury_vnd) AS disbursed_treasury_vnd,
        sum(period_delta_vnd)       AS period_delta_vnd,
        round(100.0 * sum(disbursed_treasury_vnd) / NULLIF(sum(plan_total_vnd), 0), 2) AS rate_pct
 FROM machvon_bi.v_disbursement_lines
-GROUP BY as_of_date
-ORDER BY as_of_date;
+GROUP BY period_id, as_of_date
+ORDER BY as_of_date, period_id;
 
 -- 7. How trustworthy a period is: lines the Treasury does not cover and why a rate is missing
-SELECT as_of_date, treasury_coverage, rate_null_reason, count(*) AS line_count
+SELECT period_id, as_of_date, treasury_coverage, rate_null_reason, count(*) AS line_count
 FROM machvon_bi.v_disbursement_lines
-GROUP BY as_of_date, treasury_coverage, rate_null_reason
-ORDER BY as_of_date DESC, treasury_coverage, rate_null_reason;
+GROUP BY period_id, as_of_date, treasury_coverage, rate_null_reason
+ORDER BY as_of_date DESC, period_id, treasury_coverage, rate_null_reason;
 
 -- 8. Reconciliation of a Lakehouse copy: one row per period to compare with the copy
 SELECT period_id, as_of_date, count(*) AS line_count,
@@ -102,16 +102,20 @@ JOIN latest l ON l.period_id = c.period_id AND l.revision = c.revision
 GROUP BY c.project_id, c.contract_status
 ORDER BY c.project_id, c.contract_status;
 
--- 11. What changed between two revisions of the same period (a correction): contracts whose value moved
+-- 11. What changed between consecutive revisions of the same period (a correction): contracts whose value moved
 WITH r AS (
-  SELECT period_id, contract_id, revision, sum(active_value_vnd) AS active_value_vnd, sum(paid_vnd) AS paid_vnd
+  SELECT period_id, contract_id, revision, sum(active_value_vnd) AS active_value_vnd, sum(paid_vnd) AS paid_vnd,
+         lag(revision)          OVER w AS from_revision,
+         lag(sum(active_value_vnd)) OVER w AS from_active_value_vnd,
+         lag(sum(paid_vnd))     OVER w AS from_paid_vnd
   FROM machvon_bi.v_contract_lines
   GROUP BY period_id, contract_id, revision
+  WINDOW w AS (PARTITION BY period_id, contract_id ORDER BY revision)
 )
-SELECT a.period_id, a.contract_id, a.revision AS from_revision, b.revision AS to_revision,
-       b.active_value_vnd - a.active_value_vnd AS value_change_vnd,
-       b.paid_vnd - a.paid_vnd                 AS paid_change_vnd
-FROM r a
-JOIN r b ON b.period_id = a.period_id AND b.contract_id = a.contract_id AND b.revision = a.revision + 1
-WHERE b.active_value_vnd <> a.active_value_vnd OR b.paid_vnd <> a.paid_vnd
-ORDER BY a.period_id, a.contract_id;
+SELECT period_id, contract_id, from_revision, revision AS to_revision,
+       active_value_vnd - from_active_value_vnd AS value_change_vnd,
+       paid_vnd - from_paid_vnd                 AS paid_change_vnd
+FROM r
+WHERE from_revision IS NOT NULL
+  AND (active_value_vnd <> from_active_value_vnd OR paid_vnd <> from_paid_vnd)
+ORDER BY period_id, contract_id;

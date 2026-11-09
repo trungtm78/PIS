@@ -14,7 +14,7 @@ Yêu cầu TH.01: tự động đẩy số liệu báo cáo tháng (và dữ li�
 
 | Thành phần | Trạng thái |
 |---|---|
-| Cổng `HpmPort` và bộ ghi tệp `HpmFileWriter` | Có. Dựng gói zip (`manifest.json` + báo cáo + tệp đính kèm), cố định thời gian trong zip nên cùng yêu cầu cho cùng byte; ghi vào thư mục của tenant, không mở kết nối mạng |
+| Cổng `HpmPort` và bộ ghi tệp `HpmFileWriter` | Có. Dựng gói zip (`manifest.json` + báo cáo + tệp đính kèm), cố định thời gian trong zip nên cùng yêu cầu cho cùng byte (một lần gửi lại chỉ khác số lần thử và thời gian trong bản kê); ghi vào thư mục của tenant, không mở kết nối mạng |
 | Khóa chống trùng `tổ chức, mẫu, kỳ, rN` | Có. `hpm_push` duy nhất theo (tenant, khóa); nội dung khác dưới cùng khóa là `HPM_KEY_REUSED` |
 | Đẩy lại | Có. `hpm_push_attempt` chỉ thêm, tối đa `max_attempts` của quy tắc `HPM_PUSH_POLICY` (mặc định 5, chưa kiểm chứng), hết lượt là `HPM_RETRY_EXHAUSTED` |
 | Thứ tự phiên bản | Có. Bản cũ hơn bản đã phát hành hoặc bản HPM đã nhận là `REPORT_OUT_OF_DATE`; cùng byte là `ALREADY_DELIVERED` |
@@ -120,8 +120,8 @@ Mỗi giai đoạn kết thúc bằng một bản xác nhận của Ban CĐS&CNT
 
 | Loại | Ví dụ | Xử lý | Cảnh báo |
 |---|---|---|---|
-| Tạm thời | Hết thời gian chờ, lỗi mạng, HPM bảo trì, mã 5xx | Thử lại **cùng khóa**, lần thử n+1, lùi dần giữa các lần (ví dụ 1, 5, 15, 60 phút), tối đa `max_attempts` (mặc định 5) | Sau lần thử cuối: `HPM_PUSH_FAILED` cho quản trị tích hợp |
-| Hết lượt | `HPM_RETRY_EXHAUSTED` | Dừng tự động; người có quyền `hpm.push` xem nguyên nhân, nâng giới hạn có lý do ghi nhật ký rồi đẩy lại | `HPM_PUSH_FAILED` mức cao hơn |
+| Tạm thời | Hết thời gian chờ, lỗi mạng, HPM bảo trì, mã 5xx | Hiện: người có quyền `hpm.push` đẩy lại thủ công, **cùng khóa**, lần thử n+1, tối đa `max_attempts` (mặc định 5). Đề xuất (chưa có): tự thử lại có lùi dần (ví dụ 1, 5, 15, 60 phút) khi có bộ chuyển tiếp API | `HPM_PUSH_FAILED` ngay khi có lần đẩy lỗi, cho quản trị tích hợp |
+| Hết lượt | `HPM_RETRY_EXHAUSTED` | Không đẩy lại được nữa. Quản trị công bố phiên bản mới của quy tắc `HPM_PUSH_POLICY` (ADM-21, người công bố khác người soạn) với `max_attempts` lớn hơn, kèm lý do, rồi người có quyền `hpm.push` đẩy lại | `HPM_PUSH_FAILED` (cùng mức với `HPM_PUSH_STALE`, theo `stale_severity`) |
 | Bị từ chối do dữ liệu | HPM trả lỗi hợp lệ (thiếu trường, mã lạ, sai kỳ) | **Không** tự thử lại. Người lập sửa số liệu ở nguồn (ví dụ thiếu ánh xạ mã), phát hành phiên bản mới (rN+1) rồi đẩy | Hiện trên HPM-01 với lý do HPM trả |
 | Trùng | HPM báo đã có, hoặc MACHVON thấy cùng byte | Coi là thành công (`ALREADY_DELIVERED`), không gửi lại | Không |
 | Quá cũ | Bản cũ hơn bản đã phát hành hoặc bản HPM đã nhận (`REPORT_OUT_OF_DATE`) | Từ chối; trả về phiên bản hiện hành để người dùng đẩy bản đúng | Không |

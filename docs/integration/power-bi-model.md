@@ -13,7 +13,7 @@ Tệp kèm theo (không chứa bí mật):
 
 | Đường | Dùng khi | Cách nối | Giới hạn |
 |---|---|---|---|
-| Tài khoản BI chỉ-đọc vào cơ sở dữ liệu (khuyến nghị cho Power BI và Lakehouse) | Cần khối lượng lớn, truy vấn SQL | Máy chủ và cơ sở dữ liệu của nền tảng, tài khoản `machvon_bi_xxxxxxxxxxxx` cấp ở INT-04, lược đồ `machvon_bi` | Mỗi tenant một tài khoản; số kết nối 1 đến 20; mỗi câu lệnh tối đa 60 giây; chỉ đọc |
+| Tài khoản BI chỉ-đọc vào cơ sở dữ liệu (khuyến nghị cho Power BI và Lakehouse) | Cần khối lượng lớn, truy vấn SQL | Máy chủ và cơ sở dữ liệu của nền tảng, tài khoản `machvon_bi_xxxxxxxxxxxx` cấp ở INT-04, lược đồ `machvon_bi` | Mỗi tài khoản gắn đúng một tenant (một tenant có thể có nhiều tài khoản); số kết nối 1 đến 20; mỗi câu lệnh tối đa 60 giây; chỉ đọc |
 | API mở `/open/v1` | Cần danh mục dự án, mã dự án nhiều hệ thống, hoặc công cụ không nối được cơ sở dữ liệu | OAuth 2 client credentials, tài khoản máy ở INT-01, mã truy cập 5 phút | Giới hạn tần suất của tài khoản (429 `RATE_LIMIT`, header `Retry-After`); phân trang `limit` tối đa 200 |
 
 Hai đường cùng đọc **bản chụp đã đóng băng** (không đọc bảng sống) và chỉ khi tập dữ liệu đã được bật và chứng nhận ở INT-04. Tập dữ liệu chưa bật, chưa chứng nhận hoặc hết hạn thì view trả về không có dòng nào (không báo lỗi); view `v_dataset_catalogue` cho biết lý do.
@@ -35,7 +35,7 @@ Lược đồ `machvon_bi`. Các cột `*_vnd` là số nguyên đồng (numeric
 
 ### 3.2 `v_disbursement_lines` (DS-DISB, giải ngân)
 
-Một dòng cho mỗi (dự án, đơn vị, phiên bản nguồn vốn, nhóm `bucket`, cấp ngân sách) của bản chụp đã đóng băng "đóng kỳ" của một kỳ báo cáo.
+Một dòng cho mỗi ô (dự án, nhóm `bucket`, cấp ngân sách) của bản chụp; đơn vị và phiên bản nguồn vốn là thuộc tính của dòng. Bản chụp là bản chụp đã đóng băng "đóng kỳ" của một kỳ báo cáo.
 
 | Cột | Kiểu | Ý nghĩa |
 |---|---|---|
@@ -96,19 +96,27 @@ Quan hệ: một-nhiều từ chiều sang sự kiện, lọc một chiều. Ki�
 ```dax
 Plan VND := SUM ( FactDisbursement[plan_total_vnd] )
 
--- Giải ngân là lũy kế: luôn ở một kỳ. Kỳ được chọn bởi bộ lọc DimPeriod; nếu chọn nhiều kỳ, lấy kỳ cuối.
-Disbursed Treasury VND :=
-VAR LastPeriod = MAX ( DimPeriod[as_of_date] )
-RETURN
-    CALCULATE (
-        SUM ( FactDisbursement[disbursed_treasury_vnd] ),
-        DimPeriod[as_of_date] = LastPeriod
-    )
+-- Giải ngân là lũy kế nên luôn tính ở đúng một kỳ (theo period_id, vì hai kỳ khác nhau có thể trùng ngày chốt).
+-- Người xem chọn một kỳ trong bộ lọc DimPeriod; nếu không chọn thì lấy kỳ có ngày chốt mới nhất.
+Chosen Period :=
+COALESCE (
+    SELECTEDVALUE ( DimPeriod[period_id] ),
+    MAXX ( TOPN ( 1, ALLSELECTED ( DimPeriod ), DimPeriod[as_of_date], DESC ), DimPeriod[period_id] )
+)
 
-Disbursement Rate % :=
-VAR LastPeriod = MAX ( DimPeriod[as_of_date] )
-VAR Plan = CALCULATE ( [Plan VND], DimPeriod[as_of_date] = LastPeriod )
-RETURN DIVIDE ( [Disbursed Treasury VND], Plan )
+Disbursed Treasury VND :=
+CALCULATE (
+    SUM ( FactDisbursement[disbursed_treasury_vnd] ),
+    FILTER ( ALL ( DimPeriod ), DimPeriod[period_id] = [Chosen Period] )
+)
+
+Plan In Period VND :=
+CALCULATE (
+    [Plan VND],
+    FILTER ( ALL ( DimPeriod ), DimPeriod[period_id] = [Chosen Period] )
+)
+
+Disbursement Rate % := DIVIDE ( [Disbursed Treasury VND], [Plan In Period VND] )
 
 Period Delta VND := SUM ( FactDisbursement[period_delta_vnd] )
 
@@ -120,7 +128,7 @@ Paid To Contractors VND := SUM ( FactContract[paid_vnd] )
 Paid Share % := DIVIDE ( [Paid To Contractors VND], [Contract Value VND] )
 ```
 
-Lưu ý: `Disbursement Rate %` không dùng cột `rate_total_pct` đã tính sẵn vì tỷ lệ không cộng được qua các dòng; chia lại tổng với tổng cho đúng ở mọi mức gộp. Mỗi phép đo cần kèm chú thích công thức, nguồn và ngày chốt số theo quy ước của MACHVON ("mọi con số có công thức, nguồn, thời điểm"): đặt `as_of_date` của kỳ trên đầu trang báo cáo.
+Lưu ý: dòng có `treasury_coverage = "NONE"` nằm trong mẫu số (kế hoạch) nhưng không có giải ngân Kho bạc, nên tỷ lệ bị thấp đi; xem phép đo `Lines Without Treasury Coverage` và cân nhắc lọc kế hoạch về các dòng có dữ liệu Kho bạc khi báo cáo cho lãnh đạo. `Disbursement Rate %` không dùng cột `rate_total_pct` đã tính sẵn vì tỷ lệ không cộng được qua các dòng; chia lại tổng với tổng cho đúng ở mọi mức gộp. Mỗi phép đo cần kèm chú thích công thức, nguồn và ngày chốt số theo quy ước của MACHVON ("mọi con số có công thức, nguồn, thời điểm"): đặt `as_of_date` của kỳ trên đầu trang báo cáo.
 
 ## 6. Dữ liệu chiều từ API mở (Power Query)
 
@@ -131,7 +139,7 @@ let
     GetToken = () =>
         let
             Body = Json.FromValue([grant_type = "client_credentials", client_id = ClientId, client_secret = ClientSecret, scope = "open.projects.read"]),
-            Response = Web.Contents(BaseUrl & "/open/v1/token", [Headers = [#"Content-Type" = "application/json"], Content = Body]),
+            Response = Web.Contents(BaseUrl, [RelativePath = "open/v1/token", Headers = [#"Content-Type" = "application/json"], Content = Body]),
             Token = Json.Document(Response)[access_token]
         in Token,
     Token = GetToken(),

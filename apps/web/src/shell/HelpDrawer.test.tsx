@@ -80,6 +80,17 @@ describe('HelpButton', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
+  it('does not open on a repeated ? key or while another modal dialog is open', async () => {
+    render(
+      <MemoryRouter>
+        <div role="dialog" aria-modal="true" aria-label="other" />
+        <HelpButton screenId="ADM-06" title="t" />
+      </MemoryRouter>,
+    );
+    await userEvent.keyboard('?');
+    expect(screen.queryByRole('dialog', { name: t('shell.help.drawer.title', { screen: 't' }) })).toBeNull();
+  });
+
   it('closes on a press on the backdrop and on the close button', async () => {
     renderButton({ screenId: 'ADM-06' });
     await userEvent.click(screen.getByRole('button', { name: OPEN }));
@@ -102,6 +113,9 @@ describe('HelpButton', () => {
     await userEvent.click(screen.getByRole('button', { name: t('shell.help.retry.label') }));
     expect(await screen.findByText(/Đây là màn hình quy trình/u)).toBeInTheDocument();
     expect(spy).toHaveBeenCalledTimes(2);
+    // The retry button is gone, yet Escape still reaches the drawer because the focus stayed inside it.
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 
   it('closes the drawer when the address changes to another screen', async () => {

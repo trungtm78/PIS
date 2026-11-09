@@ -21,10 +21,10 @@ Màn hình: ADM-01 Cây tổ chức, ADM-02 Người dùng và mời thành viê
 **Vai trò có sẵn.** Chủ sở hữu tổ chức (toàn quyền trong tổ chức, thao tác nhạy cảm cần xác thực lần hai), Quản trị tổ chức, Quản trị an ninh, Quản trị đơn vị, Lãnh đạo (phê duyệt hồ sơ thuộc thẩm quyền, xem bảng điều hành), Quản trị thông báo, Chuyên viên (làm nghiệp vụ theo các vai trò nghiệp vụ cấp thêm), Cán bộ chủ đầu tư, Kiểm toán viên (chỉ đọc nhật ký), Người xem thuê bao, Nhà thầu (khách, chỉ xem hợp đồng của mình), Thành viên (quyền cơ bản). Bảng đầy đủ và lời diễn giải: `scripts/hdsd/content.json`.
 
 **Cấp quyền.**
-1. Tạo cây đơn vị ở ADM-01 (09 đầu mối của PVFCCo là 07 Ban/Đơn vị và 02 Tổ dự án; danh sách đầu mối và người nhập, người duyệt sẽ được đưa vào bằng gói cấu hình PVFCCo, không lấy dữ liệu thật của khách vào mã nguồn).
+1. Tạo cây đơn vị ở ADM-01 (hồ sơ kỹ thuật TK.01 nêu 09 đầu mối; cách chia 07 Ban/Đơn vị và 02 Tổ dự án là theo kế hoạch ENT-3 và chờ danh sách chính thức của PVFCCo; danh sách đầu mối và người nhập, người duyệt sẽ được đưa vào bằng gói cấu hình PVFCCo, không lấy dữ liệu thật của khách vào mã nguồn).
 2. Mời hoặc tạo thành viên ở ADM-02, gán vai trò ở ADM-03. Một vai trò được cấp theo đơn vị: quyền chỉ có hiệu lực trong đơn vị đó và các đơn vị con. Quyền "trên toàn tenant" (ví dụ xuất nhật ký kiểm toán) không cấp theo cây con.
 3. Thành viên khách của nhà thầu (ADM-17) chỉ thấy cổng nhà thầu.
-4. Đăng nhập một lần (SSO), LDAP/Active Directory và xác thực đa yếu tố (MFA) do Keycloak đảm nhiệm; việc ánh xạ nhóm AD sang vai trò thuộc gói cấu hình PVFCCo (mục 9 nêu cách vận hành Keycloak).
+4. Đăng nhập một lần (SSO), LDAP/Active Directory và xác thực đa yếu tố (MFA) do Keycloak đảm nhiệm; mục 9 nêu cách vận hành Keycloak. Ánh xạ nhóm AD hiện có (`ad-group-role-map.json`) chỉ áp cho vai trò của nền tảng (quản trị hệ thống, vận hành nền tảng, thanh toán dịch vụ, hỗ trợ); ánh xạ sang vai trò nghiệp vụ của tenant là việc của gói cấu hình PVFCCo (ENT-3d).
 
 **Thẩm quyền phê duyệt (DoA).** ADM-15 là bảng dữ liệu "loại hồ sơ, khoảng số tiền, đơn vị, vai trò người duyệt, số cấp duyệt". Hồ sơ đang chạy giữ phiên bản ma trận lúc bắt đầu; ma trận công bố sau chỉ áp cho hồ sơ bắt đầu sau. Đơn vị gần nhất với hồ sơ thắng; ô "cần người duyệt khác nhau" buộc các cấp là những người khác nhau. Chi tiết: `docs/adm-doa-resolver.md`.
 
@@ -76,7 +76,7 @@ Màn hình: HUB-01 Danh mục bộ kết nối và sức khỏe, HUB-02 Chi ti�
 **Hub quản mọi kết nối ngoài như nhau.** Mỗi bộ kết nối có một bản mô tả: hướng (vào/ra), giao thức, mẫu tệp có phiên bản, quy tắc độ mới, loại thông tin xác thực, chủ xử lý, khai báo đường ra mạng. Hub chỉ đọc bảng của bộ kết nối, không ghi đè. Chi tiết: `docs/integration-hub.md`.
 
 Việc người quản trị tích hợp làm hằng ngày:
-1. Mở HUB-01: xem bộ kết nối nào đang `FRESH`, `AGING` hay `STALE` và còn sự cố mở.
+1. Mở HUB-01: xem bộ kết nối nào đang `FRESH`, `AGING`, `STALE` hay `NEVER_PUSHED` (chưa từng đẩy, không có cảnh báo) và còn sự cố mở.
 2. Sự cố mở ở HUB-03: nhận, ghi nguyên nhân, đóng; cảnh báo `CONNECTOR_FAILING`, `CONNECTOR_STALE`, `HPM_PUSH_FAILED`, `HPM_PUSH_STALE` thuộc chủ xử lý là quản trị tích hợp.
 3. Bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu `secret://`; đổi bí mật theo `docs/runbooks/infra/secrets-rotation.md`.
 4. Bộ kết nối chờ thông tin của khách (HPM, EBS, eProcurement, văn thư) hiện nhãn `PENDING-EXTERNAL`: chạy bằng giả định, chưa được nghiệm thu cho tới khi có đặc tả và xác nhận của bên kia.
@@ -134,7 +134,7 @@ Khuyến nghị cho PVFCCo: cài UAT trước, sau đó mới nâng cấp Produc
 
 ## 9. Vận hành thường ngày
 
-- **Danh tính.** Keycloak (`docs/runbooks/infra/keycloak.md`): quản trị Keycloak đầu tiên đăng nhập một lần rồi tạo quản trị có tên với WebAuthn và tắt tài khoản khởi tạo; liên kết thư mục (AD/LDAP) và MFA bắt buộc cho truy cập từ ngoài mạng nội bộ; xuất realm định kỳ (không chứa mật khẩu); đăng nhập thất bại hàng loạt từ một nguồn là dấu hiệu dò mật khẩu: siết phát hiện brute-force và chặn nguồn ở biên.
+- **Danh tính.** Keycloak (`docs/runbooks/infra/keycloak.md`): quản trị Keycloak đầu tiên đăng nhập một lần rồi tạo quản trị có tên với WebAuthn và tắt tài khoản khởi tạo; liên kết thư mục (AD/LDAP); mỗi người đăng ký yếu tố thứ hai ở lần đăng nhập đầu và vai trò nền tảng bắt buộc WebAuthn (chính sách "MFA khi truy cập từ ngoài mạng nội bộ" của HT.02 cần được xác nhận và cấu hình khi cài tại PVFCCo); xuất realm định kỳ (không chứa mật khẩu); đăng nhập thất bại hàng loạt từ một nguồn là dấu hiệu dò mật khẩu: siết phát hiện brute-force và chặn nguồn ở biên.
 - **Bí mật.** Đổi bí mật bằng phiên bản mới, triển khai bên dùng, kiểm tra, vô hiệu bản cũ, ghi nhật ký xoay; bí mật lộ thì theo mục "A leaked secret" của `secrets-rotation.md`.
 - **Cảnh báo vận hành.** Mỗi quy tắc cảnh báo có một sổ tay riêng trong `docs/runbooks/alerts`, `npm run alerts:check` bảo đảm quy tắc nào cũng có chủ và sổ tay.
 - **Giám sát.** `docs/runbooks/infra/observability.md`; sức khỏe toàn nền tảng ở SAS-18 (nhà cung cấp).
