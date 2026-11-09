@@ -1026,8 +1026,8 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
       const applied = await call('POST', `/report-imports/${idOf(good)}/apply`, { member: MAKER, body: {}, ifMatch: '"1"' });
       expect(applied).toMatchObject({ status: 200, json: { status: 'APPLIED' } });
       const after = await state(idOf(made));
-      expect(Number(after.version)).toBe(Number(before.version) + 1);
-      expect(after.payload_hash).not.toBe(before.payload_hash);
+      expect(Number(after?.version)).toBe(Number(before?.version) + 1);
+      expect(after?.payload_hash).not.toBe(before?.payload_hash);
       expect((await read(idOf(made))).json.narrative).toMatchObject({ enterprise: { status: 'From the file', schedule: 'On time', disbursement: 'Half of the plan', next_plan: 'Finish the roof', cause_codes: [CAUSE] } });
       expect(await call('POST', `/report-imports/${idOf(good)}/apply`, { member: MAKER, body: {}, ifMatch: '"2"' })).toMatchObject({ status: 409, json: { code: 'IMPORT_FILE_ALREADY_APPLIED' } });
     });
