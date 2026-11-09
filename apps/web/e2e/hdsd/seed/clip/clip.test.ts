@@ -86,3 +86,22 @@ test('the period codes are the ones the report engine writes: months zero padded
   assert.equal(periodCode({ kind: 'MONTH', index: 10 }, 2026), '2026-M10');
   assert.equal(periodCode({ kind: 'QUARTER', index: 3 }, 2026), '2026-Q3');
 });
+
+// ---- the actuals of the enterprise snapshot --------------------------------------------------------------------------------------------------
+
+test('the actuals of the snapshot group: the same cell always gets the same figures, only for the months asked, whole millions, and a cell without a plan gets none', async () => {
+  const { actualPlan, hashOf } = await import('./enterprise-snapshot.ts');
+  const input = { key: 'DA-1:EQUITY', measure: 'DISBURSED', planVnd: '100000000000', lastMonth: 10, months: [1, 2, 3, 10] };
+  const first = actualPlan(input);
+  assert.deepEqual(first, actualPlan(input));
+  assert.deepEqual(
+    first.map((entry) => entry.month),
+    [1, 2, 3, 10],
+  );
+  for (const entry of first) assert.match(entry.amountVnd, /^[1-9]\d*000000$/);
+  const total = actualPlan({ ...input, months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }).reduce((sum, entry) => sum + BigInt(entry.amountVnd), 0n);
+  assert.ok(total > 30_000_000_000n && total < 100_000_000_000n, `the cumulative stays under the plan, got ${total}`);
+  assert.ok(actualPlan({ ...input, measure: 'EXECUTED' }).every((entry, index) => BigInt(entry.amountVnd) >= BigInt(first[index]?.amountVnd ?? '0') - 1_000_000n * 3n));
+  assert.deepEqual(actualPlan({ ...input, planVnd: null }), [1, 2, 3, 10].map((month) => ({ month, amountVnd: '0' })));
+  assert.notEqual(hashOf('DA-1:EQUITY'), hashOf('DA-1:LOAN'));
+});

@@ -41,11 +41,32 @@ describe('the enterprise web overlay', () => {
     expect(enOverlay['shell.brand.mark.text']).toBe(enterpriseBundle.manifest.brand.mark.en);
   });
 
+  it('takes the Treasury and the Prime Minister out of the words of the home screens an enterprise reads (HOME-09, HOME-01)', () => {
+    installEdition(enterpriseBundle);
+    try {
+      for (const key of listed.filter((one) => one.startsWith('home.') || one.startsWith('govc.home.'))) {
+        const said = translator.t(key, { date: '10/11/2026', pm: '1', group: 'A' });
+        expect(said, key).not.toMatch(/Kho bạc|Thủ tướng/u);
+      }
+      expect(translator.t('home.ov.hero.caption', { date: '10/11/2026' })).toBe('Theo số liệu đã chốt đến 10/11/2026');
+    } finally {
+      resetEdition();
+    }
+    expect(translator.t('home.ov.hero.ring')).toBe(vi['home.ov.hero.ring']);
+  });
+
   it('is what the translator says once the bundle is installed, and the public words come back when it is removed', () => {
     installEdition(enterpriseBundle);
     expect(translator.t('shell.brand.name.text')).toBe('Phần mềm quản lý đầu tư xây dựng');
     expect(translator.t('shell.brand.home.label')).toBe('Phần mềm quản lý đầu tư xây dựng: trang chủ');
     resetEdition();
     expect(translator.t('shell.brand.name.text')).toBe(vi['shell.brand.name.text']);
+  });
+});
+
+describe('the enterprise way of drawing the figures of the home screens', () => {
+  it('groups the digits of a sum and leaves out the blocks of the public plan', () => {
+    expect(enterpriseBundle.slots?.homeFigures).toEqual({ groupDigits: true, publicPlanBlocks: false });
+    expect(enterpriseBundle.slots?.fundingStructure).toBeDefined();
   });
 });

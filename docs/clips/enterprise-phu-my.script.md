@@ -65,6 +65,7 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-contracts` | RUN_VERIFIED |
 | `clip-ent-workflow` | RUN_VERIFIED |
 | `clip-ent-disbursement` | RUN_VERIFIED |
+| `clip-ent-snapshot` | RUN_VERIFIED |
 | `clip-ent-bi` | RUN_VERIFIED |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**

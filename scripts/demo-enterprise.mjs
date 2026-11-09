@@ -282,7 +282,8 @@ export async function main(argv, env = process.env) {
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   const infoPath = join(dir, 'stack-info.json');
-  const sessionKey = randomBytes(32).toString('base64');
+  // A fixed key (DEMO_SESSION_KEY) lets the presenter load the sample data again by hand against the running stack (`clip-seed.mjs apply` needs the key the stack started with); by default the key is new at every start.
+  const sessionKey = process.env.DEMO_SESSION_KEY ?? randomBytes(32).toString('base64');
   const fixtureUsers = JSON.parse(readFileSync(join(ROOT, 'apps', 'web', 'e2e', 'support', 'e2e-fixtures.json'), 'utf8')).users;
   const people = JSON.parse(readFileSync(join(ROOT, 'apps', 'web', 'e2e', 'support', 'docs-people.json'), 'utf8'));
   const stackEnv = buildStackEnv({ ports, sessionKey, infoPath });

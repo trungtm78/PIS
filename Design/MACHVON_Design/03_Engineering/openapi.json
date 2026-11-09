@@ -314810,6 +314810,9 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "structure": {
+            "$ref": "#/components/schemas/LeaderFundingStructure"
           }
         }
       },
@@ -317398,6 +317401,94 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "LeaderFundingStructure": {
+        "type": "object",
+        "required": [
+          "measure",
+          "plan_total_vnd",
+          "disbursed_total_vnd",
+          "classes"
+        ],
+        "properties": {
+          "measure": {
+            "type": "string"
+          },
+          "plan_total_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "disbursed_total_vnd": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "classes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "class_code",
+                "plan_vnd",
+                "disbursed_vnd",
+                "plan_share_pct",
+                "disbursed_share_pct",
+                "rate_pct",
+                "null_reason"
+              ],
+              "properties": {
+                "class_code": {
+                  "type": "string",
+                  "description": "A class of the funding taxonomy of the enterprise pack (EQUITY, LOAN, OTHER)"
+                },
+                "plan_vnd": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Annual plan in force of the class, whole dong; null when no project has a plan in it"
+                },
+                "disbursed_vnd": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Disbursed since the start of the year, whole dong"
+                },
+                "plan_share_pct": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Share of the class in the plan in force, percent with four places"
+                },
+                "disbursed_share_pct": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Share of the class in the disbursed figure, percent with four places"
+                },
+                "rate_pct": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Disbursed over plan of the class, percent with four places"
+                },
+                "null_reason": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
           }
         }
       }

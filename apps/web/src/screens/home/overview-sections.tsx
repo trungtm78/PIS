@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import { CommandHero, DataTable, FlowChart, KpiStrip, KpiTile, PeriodProgress, SectionCard, StatusPill } from '../../ui';
@@ -51,9 +52,15 @@ function FigureNotes({ tile }: { tile: Tile | undefined }) {
   );
 }
 
+/** A whole number of dong with its digits grouped by thousands in the format of the language, when the edition asks for it; any other text is left as it came. */
+export function groupedText(text: string, locale: string, on: boolean): string {
+  return on && /^\d{4,}$/.test(text) ? text.replace(/\B(?=(\d{3})+(?!\d))/g, locale === 'en' ? ',' : '.') : text;
+}
+
 /** The dark command block: the amount disbursed, the ring over the plan the Prime Minister gave, the two rates side by side with their denominators, and the two actions. */
 export function Hero({ center, year }: { center: CommandCenter; year: string }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const style = useEdition().slots?.homeFigures;
   const hero = heroOf(center);
   const disbursedTile = tileOf(center, 'DISBURSED_TREASURY');
   const pm = tileOf(center, 'DISBURSEMENT_RATE_PM');
@@ -63,18 +70,22 @@ export function Hero({ center, year }: { center: CommandCenter; year: string }) 
   return (
     <CommandHero
       label={t('home.ov.hero.label', { year })}
-      value={amount === null ? '—' : figureText({ displayValue: amount })}
+      value={amount === null ? '—' : groupedText(figureText({ displayValue: amount }), locale, style?.groupDigits === true)}
       unit={amount === null ? '' : t('govc.home.unit.vnd')}
       caption={
         <>
           {amount === null ? missing : t('home.ov.hero.caption', { date: dayText(center.treasuryCutoffDate === '' ? center.asOfDate : center.treasuryCutoffDate) })} <FigureNotes tile={disbursedTile} />
         </>
       }
-      ratio={{ percent: hero.ringPercent, label: t('home.ov.hero.ring') }}
-      chips={[
-        { label: t('home.ov.hero.chip.pm'), value: rateChip(t, pm), info: <FigureNotes tile={pm} /> },
-        { label: t('home.ov.hero.chip.total'), value: rateChip(t, total), info: <FigureNotes tile={total} /> },
-      ]}
+      {...(style?.publicPlanBlocks === false
+        ? {}
+        : {
+            ratio: { percent: hero.ringPercent, label: t('home.ov.hero.ring') },
+            chips: [
+              { label: t('home.ov.hero.chip.pm'), value: rateChip(t, pm), info: <FigureNotes tile={pm} /> },
+              { label: t('home.ov.hero.chip.total'), value: rateChip(t, total), info: <FigureNotes tile={total} /> },
+            ],
+          })}
       actions={
         <>
           {disbursedTile === undefined ? null : (
@@ -102,11 +113,13 @@ export function Kpis({ center, waiting, counts }: { center: CommandCenter; waiti
   const realloc = countTileOf(given, 'PENDING_REALLOCATIONS');
   const coverage = coverageOf(center.scope.projects, center.projectsWithoutData);
   const warningTone: Tone = warnings === undefined || warnings.displayValue === null ? 'neutral' : waiting.openWarnings > 0 ? 'warning' : 'success';
+  const style = useEdition().slots?.homeFigures;
   const planText = planTile?.displayValue ?? null;
   const pmText = pmTile?.displayValue ?? null;
   return (
     <div data-testid="home-kpis">
       <KpiStrip label={t('home.ov.kpi.group')}>
+        {style?.publicPlanBlocks === false ? null : (
         <KpiTile
           label={t('home.ov.kpi.plan.label')}
           value={planText ?? '—'}
@@ -118,6 +131,7 @@ export function Kpis({ center, waiting, counts }: { center: CommandCenter; waiti
             </>
           }
         />
+        )}
         <KpiTile
           label={t('home.ov.kpi.warnings.label')}
           value={warnings === undefined ? '—' : figureText(warnings)}

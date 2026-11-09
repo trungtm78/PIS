@@ -503,6 +503,9 @@
         "clip-ent-disbursement": {
           "proof": "RUN_VERIFIED"
         },
+        "clip-ent-snapshot": {
+          "proof": "RUN_VERIFIED"
+        },
         "clip-ent-bi": {
           "proof": "RUN_VERIFIED"
         }

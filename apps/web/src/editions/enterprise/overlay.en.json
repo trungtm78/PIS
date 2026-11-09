@@ -2,5 +2,17 @@
   "shell.app.name.title": "Construction Investment Management Software",
   "shell.brand.home.label": "Construction Investment Management Software: home",
   "shell.brand.mark.text": "CI",
-  "shell.brand.name.text": "Construction Investment Management Software"
+  "shell.brand.name.text": "Construction Investment Management Software",
+  "home.context.cutoff.label": "Figures closed on",
+  "home.tile.metric.disbursed": "Cumulative disbursement",
+  "home.tile.metric.planPm": "Capital plan assigned",
+  "home.tile.nullReason.treasuryNone": "No disbursement booked",
+  "home.ov.hero.caption": "Per the figures closed on {date}",
+  "home.ov.hero.noData": "There is no disbursement figure for this scope yet.",
+  "home.ov.hero.ring": "Against the capital plan assigned",
+  "home.ov.hero.chip.pm": "Rate against the capital plan assigned",
+  "home.ov.hero.chip.total": "Rate against the total capital plan",
+  "home.ov.kpi.plan.subMissing": "No capital plan assigned yet",
+  "home.ov.rank.caption": "Top units of group {group}, against the capital plan assigned",
+  "govc.home.kpi.plan.sub": "Of which assigned {pm} VND"
 }

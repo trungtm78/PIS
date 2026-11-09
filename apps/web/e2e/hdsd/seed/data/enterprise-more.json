@@ -1,5 +1,6 @@
 {
   "biRole.lapBi.name": "Lập bảng điều hành",
   "biRole.duyetBi.name": "Duyệt và công bố bảng điều hành",
-  "biRoleGrant.reason": "Bảng điều hành lãnh đạo của Tổng công ty"
+  "biRoleGrant.reason": "Bảng điều hành lãnh đạo của Tổng công ty",
+  "snapshotPeriod.reason": "Chốt số liệu kỳ báo cáo của Tổng công ty để lập bản chốt kỳ"
 }

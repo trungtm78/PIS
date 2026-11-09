@@ -41,14 +41,14 @@ Lệnh này (file `scripts/demo-enterprise.mjs`) làm theo thứ tự:
 
 1. Kiểm tra Node, thư viện đã cài, các cổng 5173 (web), 47311 (API), 47312 (đăng nhập thử) còn trống; nếu bận thì dừng và nói rõ cổng nào, cách xử lý.
 2. Khởi động API + PostgreSQL nhúng: chính là `npm run e2e:stack -w @machvon/api` (đúng bộ khung đã dùng cho các bài kiểm thử trình duyệt), với `MACHVON_EDITION=enterprise`, `E2E_SEED=docs`, `DEMO_FORMS=true`.
-3. Nạp bộ dữ liệu mẫu Đạm Phú Mỹ: chính là `node scripts/clip-seed.mjs apply --dataset enterprise` (xem `docs/clip-data.md`). Chạy một lần mỗi lần khởi động, mất khoảng 2 đến 5 phút. Trong thời gian này màn hình in tiến độ từng pha; đừng đóng cửa sổ.
+3. Nạp bộ dữ liệu mẫu Đạm Phú Mỹ: chính là `node scripts/clip-seed.mjs apply --dataset enterprise` (xem `docs/clip-data.md`). Chạy một lần mỗi lần khởi động, mất khoảng 2 đến 6 phút. Trong thời gian này màn hình in tiến độ từng pha; đừng đóng cửa sổ. Pha cuối (nhóm `clip-ent-snapshot`) dựng bản chốt số liệu enterprise của tháng gần nhất đã quá hạn nộp: nhập số thực hiện lũy kế của từng dự án theo vốn chủ sở hữu và vốn vay, khóa kỳ, lập bản chốt rồi chốt bằng người thứ hai. Nhờ bản chốt này khung tỷ lệ giải ngân so với kế hoạch năm (HOME-09) và cơ cấu vốn (HOME-07) có số liệu ngay khi mở.
 4. Khởi động web (Vite, `VITE_EDITION=enterprise`) và chờ đến khi trang trả lời.
 5. In ra khung chữ SAN SANG cùng địa chỉ mở bằng Chrome và danh sách người dùng demo.
 
 Tổng cộng 4 đến 8 phút ở lần chạy đầu. Hãy khởi động trước giờ demo ít nhất 15 phút và để cửa sổ dòng lệnh chạy suốt buổi.
 Dừng: bấm Ctrl+C trong cửa sổ đó. Lệnh tự dừng web, API, PostgreSQL nhúng và xóa thư mục tạm. Mỗi lần khởi động là một cơ sở dữ liệu mới và nạp lại dữ liệu mẫu (cùng một hạt giống nên cùng số liệu, ngày tháng tính theo ngày chạy).
 
-Tùy chọn: `npm run demo:enterprise -- --open` (tự mở Chrome), `--web-port 5200 --api-port 47400 --idp-port 47401` (đổi cổng), `--no-seed` (bỏ nạp dữ liệu, chỉ để thử nhanh), `--dry-run`, `--help`.
+Tùy chọn: `npm run demo:enterprise -- --open` (tự mở Chrome), `--web-port 5200 --api-port 47400 --idp-port 47401` (đổi cổng), `--no-seed` (bỏ nạp dữ liệu, chỉ để thử nhanh), `--dry-run`, `--help`. Biến môi trường `DEMO_SESSION_KEY` (chuỗi ngẫu nhiên 32 byte mã base64) giữ khóa phiên cố định, dùng khi cần nạp lại dữ liệu bằng tay với `--no-seed` (`E2E_SESSION_KEY` của lệnh `clip-seed.mjs` phải trùng khóa này).
 
 Vì sao web chạy bằng `vite dev` chứ không phải bản build + preview: đăng nhập của người dùng demo là "phiên phát triển" (`?devUser=`), chỉ có trong bản dev; bản build production không có phiên này và sẽ đòi hệ thống đăng nhập thật (OIDC). Đây cũng chính là cách các bài kiểm thử trình duyệt và các clip đã chạy.
 
@@ -77,8 +77,8 @@ Mở Chrome toàn màn hình, thu nhỏ chữ nếu cần (Ctrl và dấu trừ)
 
 | # | Vai trò | Địa chỉ (sau `127.0.0.1:5173`) | Làm gì và nói gì |
 |---|---|---|---|
-| 1 | `owner` | `/home/home-09?devUser=owner` | Trung tâm điều hành (HOME-09). Chỉ dải số liệu chính và khung "tỷ lệ so với kế hoạch năm theo công ty, đơn vị, dự án" (khung dành riêng cho bản enterprise). Nói: "Lãnh đạo thấy ngay đâu đang chậm, đâu đang bị chặn." |
-| 2 | `owner` | `/home/home-07` | Cơ cấu các nguồn vốn (HOME-07): vốn chủ sở hữu và vốn vay, so sánh số ước với số thực. Nói về hai loại vốn của doanh nghiệp, không phải ngân sách tỉnh. |
+| 1 | `owner` | `/home/home-09?devUser=owner` | Trung tâm điều hành (HOME-09). Chỉ dải số liệu chính và khung "Giải ngân so với kế hoạch năm, theo tổng công ty, đơn vị và dự án" (khung dành riêng cho bản enterprise, đọc từ bản chốt enterprise tháng gần nhất: tỷ lệ của cả công ty, từng đơn vị, từng dự án và so với cùng kỳ năm trước nếu có). Lời trên các khung chung đã đổi sang cách nói của doanh nghiệp ("kế hoạch vốn được giao", "số liệu đã chốt"), không còn Kho bạc hay Thủ tướng giao. Nói: "Lãnh đạo thấy ngay đâu đang chậm, đâu đang bị chặn." |
+| 2 | `owner` | `/home/home-07` | Cơ cấu vốn (HOME-07): vốn chủ sở hữu, vốn vay và vốn khác theo bản chốt enterprise: kế hoạch vốn năm đang có hiệu lực, số đã giải ngân lũy kế từ đầu năm, tỷ trọng của từng nguồn và tỷ lệ so với kế hoạch của chính nguồn đó (số tiền in theo tỷ đồng kèm số đồng đầy đủ có dấu chấm ngăn cách). "Vốn khác" chưa có số liệu nên ghi "Chưa có dữ liệu", không ghi bằng 0. Nói về các loại vốn của doanh nghiệp, không phải ngân sách tỉnh. |
 | 3 | `capApprover` | `/cap/cap-03`, `/cap/cap-07`, `/cap/cap-12` | Kế hoạch vốn năm, điều chỉnh và điều chuyển giữa các phiên bản, kế hoạch ước giải ngân. Có thể bấm so sánh phiên bản. |
 | 4 | `projectManager` | `/prj/prj-01`, `/prj/prj-14`, `/prj/prj-15` | 12 dự án (6 đầu tư xây dựng, 6 mua sắm thiết bị) ở các giai đoạn: danh sách, cổng giai đoạn (ngân hàng dự án và vòng đời), chấm điểm thẩm định. Mở một dự án để xem hồ sơ. |
 | 5 | `docHead` | `/rpt/rpt-01?devUser=docHead` | Báo cáo gửi Tập đoàn (PVN) và HPM: danh mục sáu biểu mẫu demo (cột trạng thái, nhãn "MẪU DEMO - chờ mẫu chính thức"). Chọn một biểu mẫu, bấm lập báo cáo, xem bản xem trước. |

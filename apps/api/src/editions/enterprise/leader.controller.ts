@@ -2,7 +2,7 @@ import { Controller, Get, Inject, Optional, Query } from '@nestjs/common';
 import { TenantDatabase, projectScope } from '@machvon/db';
 import { DomainError, EnterpriseFigureReader, NOOP_METRICS, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
-import { BLOCKED_DEFINITION_STATUS, BLOCKED_FORMULA, BLOCKED_STALLED_DAYS_DEFAULT, LeaderStore, blockedBoard, cutsOf, leaderRateBoard } from '@machvon/edition-enterprise/src/server.ts';
+import { BLOCKED_DEFINITION_STATUS, BLOCKED_FORMULA, BLOCKED_STALLED_DAYS_DEFAULT, LeaderStore, blockedBoard, cutsOf, leaderRateBoard, structureOf } from '@machvon/edition-enterprise/src/server.ts';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { CurrentTenant } from '../../tenant-context.decorator';
@@ -16,7 +16,7 @@ export const LEADER_NULL_METRIC = 'leader_rate_null_total';
 /**
  * The leadership dashboard of the enterprise edition (ENT-4d, HSKT BC.02): the disbursement against the annual plan by company, unit and project with the same period of last year, read from the frozen enterprise
  * snapshot through the one reader (`EnterpriseFigureReader`, R21), and the projects blocked on procedure. Nothing is written. Figures are those of the snapshot until a newer one is frozen; a figure that cannot be
- * given is null with its reason and never 0. The public edition does not mount this controller, so the rates of HOME-01 and HOME-09 cannot move.
+ * given is null with its reason and never 0. The answer also tells the funding structure of the same snapshot (equity, loan, other: the classes of the enterprise taxonomy), which HOME-07 shows. The public edition does not mount this controller, so the rates of HOME-01 and HOME-09 cannot move.
  */
 @Controller()
 export class LeaderReadsController {
@@ -36,7 +36,7 @@ export class LeaderReadsController {
     if (snapshotId !== undefined && (typeof snapshotId !== 'string' || !UUID.test(snapshotId))) throw new DomainError('VALIDATION_FAILED', 422, 'snapshot_id');
     const now = new Date();
     const scope = projectScope(access, LEADER_READ, now);
-    const board = await this.database.withTenant(tenant, async (tx) => {
+    const { board, structure } = await this.database.withTenant(tenant, async (tx) => {
       const pair = await this.store.pair(tx, snapshotId);
       if (pair === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'snapshot_id');
       if (pair.current.status !== 'FROZEN' && pair.current.status !== 'SUPERSEDED') throw new DomainError('SNAPSHOT_NOT_FROZEN', 422, 'snapshot_id');
@@ -46,7 +46,9 @@ export class LeaderReadsController {
       const directory = await this.store.directory(tx, reader.unitIds(), reader.projectIds());
       const current = cutsOf(reader, directory, visible);
       const before = prior === undefined ? undefined : cutsOf(prior, directory, visible);
-      return leaderRateBoard({ current, previous: before });
+      const allowed = visible === undefined ? undefined : new Set(visible);
+      const structure = structureOf(reader, allowed === undefined ? {} : { projectIds: reader.projectIds().filter((id) => allowed.has(id)) });
+      return { board: leaderRateBoard({ current, previous: before }), structure };
     });
     if (board.company.ratePct === null) this.metrics.increment(LEADER_NULL_METRIC, { reason: board.company.nullReason ?? 'NO_DATA' });
     const rowDto = (row: (typeof board)['company']): Record<string, unknown> => ({
@@ -75,6 +77,20 @@ export class LeaderReadsController {
       company: rowDto(board.company),
       units: board.units.map(rowDto),
       projects: board.projects.map(rowDto),
+      structure: {
+        measure: structure.measure,
+        plan_total_vnd: structure.planTotalVnd,
+        disbursed_total_vnd: structure.disbursedTotalVnd,
+        classes: structure.classes.map((one) => ({
+          class_code: one.classCode,
+          plan_vnd: one.planVnd,
+          disbursed_vnd: one.disbursedVnd,
+          plan_share_pct: one.planSharePct,
+          disbursed_share_pct: one.disbursedSharePct,
+          rate_pct: one.ratePct,
+          null_reason: one.nullReason,
+        })),
+      },
       as_of: now.toISOString(),
     };
   }

@@ -96,6 +96,25 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
       await expect(generate(2028, '2026-12-15T00:00:00Z')).resolves.toBeDefined();
     });
 
+    it('generates the months of the enterprise calendar under codes of their own, beside the weeks of the weekly calendar, once (ENT-3a)', async () => {
+      const weeks = await generate(2026, '2026-12-15T00:00:00Z');
+      const months = await generate(2026, '2026-12-15T00:00:00Z', TENANT_A, { calendarCode: 'ENTERPRISE', periodType: 'MONTH' });
+      expect(months.periods).toHaveLength(12);
+      expect(months.periods.map((period) => period.code)).toEqual(expect.arrayContaining([expect.stringMatching(/^ENT-/)]));
+      expect(months.periods.every((period) => period.code.startsWith('ENT-'))).toBe(true);
+      expect(months.periods.every((period) => weeks.periods.every((week) => week.code !== period.code))).toBe(true);
+      // The months are calendar months, as the enterprise snapshot asks of a period (`periodRefOf`).
+      expect(months.periods[0]).toMatchObject({ startDate: '2026-01-01', endDate: '2026-01-31' });
+      expect(months.periods[10]).toMatchObject({ startDate: '2026-11-01', endDate: '2026-11-30' });
+      const stored = await owner<{ calendar_code: string; period_type: string; n: string }>(
+        `select calendar_code, period_type, count(*)::text as n from machvon.reporting_period where calendar_code = 'ENTERPRISE' group by 1, 2`,
+      );
+      expect(stored).toEqual([{ calendar_code: 'ENTERPRISE', period_type: 'MONTH', n: '12' }]);
+      expect(await refusal(generate(2026, '2026-12-15T00:00:00Z', TENANT_A, { calendarCode: 'ENTERPRISE', periodType: 'MONTH' }))).toEqual({ code: 'PERIOD_OVERLAP', status: 409, detail: 'fiscal_year' });
+      // The enterprise calendar has no weeks.
+      expect(await refusal(generate(2027, '2026-12-15T00:00:00Z', TENANT_A, { calendarCode: 'ENTERPRISE', periodType: 'WEEK' }))).toMatchObject({ code: 'VALIDATION_FAILED', status: 422, detail: 'period_type' });
+    });
+
     it('binds the periods to the calendar in force on the later of the day of the request and 1 January of the year', async () => {
       const early = await generate(2026, '2026-09-01T00:00:00Z');
       expect(early.calendar.revision).toBe(1);

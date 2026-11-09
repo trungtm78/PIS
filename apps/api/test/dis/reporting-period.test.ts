@@ -106,6 +106,13 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
       await reset();
     });
 
+    it('refuses the calendar of the enterprise months in a process of the public edition and writes nothing (ENT-3a)', async () => {
+      const refused = await generate(MANAGER, 2027, { calendar_code: 'ENTERPRISE', period_type: 'MONTH' });
+      expect(refused.status).toBe(422);
+      expect(refused.json).toMatchObject({ code: 'CALENDAR_NOT_EFFECTIVE' });
+      expect(await rows("select 1 from machvon.reporting_period where calendar_code = 'ENTERPRISE'")).toHaveLength(0);
+    });
+
     it('generates the weeks of 2027 once, due on Friday at 03:00 UTC, and answers a repeat with 409 PERIOD_OVERLAP (AC-ST-DIS-001-3)', async () => {
       const first = await generate(MANAGER, 2027);
       expect(first.status).toBe(200);

@@ -38039,5 +38039,22 @@
   "states.crash.body": "Hệ thống chưa hiển thị được nội dung. Thông tin đã lưu không bị mất. Hãy tải lại màn hình hoặc quay về trang chủ.",
   "states.crash.reload": "Tải lại màn hình",
   "states.crash.home": "Về trang chủ",
-  "shell.notFound.home": "Về trang chủ"
+  "shell.notFound.home": "Về trang chủ",
+  "ent.funding.page.title": "Cơ cấu vốn: vốn chủ sở hữu, vốn vay và vốn khác",
+  "ent.funding.page.subtitle": "Kế hoạch vốn năm đang có hiệu lực và số đã giải ngân lũy kế từ đầu năm theo từng nguồn vốn của Tổng công ty, đọc từ bản chốt enterprise mới nhất. Chỉ đọc.",
+  "ent.funding.empty": "Chưa có bản chốt enterprise nào được chốt, nên chưa có cơ cấu vốn.",
+  "ent.funding.context.snapshot": "Bản chốt",
+  "ent.funding.context.snapshotValue": "Ngày {day}, phiên bản {revision}",
+  "ent.funding.total.title": "Tổng vốn của Tổng công ty",
+  "ent.funding.total.plan": "Kế hoạch vốn năm",
+  "ent.funding.total.disbursed": "Đã giải ngân lũy kế từ đầu năm",
+  "ent.funding.total.note": "Cộng của các nguồn vốn bên dưới; nguồn nào chưa có số liệu thì ghi chưa có số liệu, không ghi bằng 0.",
+  "ent.funding.classes.title": "Theo nguồn vốn",
+  "ent.funding.class.equity": "Vốn chủ sở hữu",
+  "ent.funding.class.loan": "Vốn vay",
+  "ent.funding.class.other": "Vốn khác",
+  "ent.funding.card.planShare": "Tỷ trọng trong kế hoạch vốn năm: {value}",
+  "ent.funding.card.disbursed": "Đã giải ngân: {value}",
+  "ent.funding.card.disbursedShare": "Tỷ trọng trong số đã giải ngân: {value}",
+  "ent.funding.card.rate": "Đạt so với kế hoạch của nguồn này: {value}"
 }
