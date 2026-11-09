@@ -9,3 +9,5 @@ export { ENTERPRISE_AI_POLICY, clearEnterpriseAiPolicy, registerEnterpriseAiPoli
 export * from './integration/exports.ts';
 // The leadership dashboard of the enterprise edition (ENT-4d): rates against the annual plan by company, unit and project with the same period of last year, and the projects blocked on procedure.
 export * from './leader/exports.ts';
+// The scheduled e-mail delivery of issued report forms (ENT-4d).
+export * from './delivery/exports.ts';

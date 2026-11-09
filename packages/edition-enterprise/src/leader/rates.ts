@@ -1,33 +1,42 @@
-import { DomainError, addSums, rateOfSums } from '@machvon/kernel';
-import type { RateBasis, RateFigures, RateSums } from '@machvon/kernel';
+import { DomainError } from '@machvon/kernel';
 
 /**
  * The disbursement against the annual plan of the leadership dashboard of the enterprise edition (ENT-4d, HSKT BC.02: "ty le giai ngan so voi ke hoach nam theo Tong cong ty / don vi / du an ... so sanh cung ky nam truoc").
- * The levels are the three of the requirement: the whole company, a unit, a project. Every rate is made by `rateOfSums` of the kernel, the code DIS-19 and HOME use, so a rate on this board and the same rate on HOME-09
- * cannot differ by a digit: the rate of a group is the sum of its numerators over the sum of its denominators, never the mean of the rates of the parts. The sums come in through `RateGroupSource`; the default source reads
- * the lines of a frozen snapshot, and the reader of the enterprise snapshot (ENT-3a, `EnterpriseFigureReader`) is adapted to the same shape. Pure: no clock, no database.
+ * The levels are the three of the requirement: the whole company, a unit, a project. The figures are read from the frozen enterprise snapshot through the one reader (`EnterpriseFigureReader`, ENT-3a, eng-review R21), whose
+ * rate of a group is the sum of its numerators over the sum of its denominators and never the mean of the rates of the parts; this module takes those readings, puts the snapshot of the same period one year before beside
+ * them and says the change in percentage points, exactly. Pure: no clock, no database.
  */
 
 export const LEADER_LEVELS = ['COMPANY', 'UNIT', 'PROJECT'] as const;
 export type LeaderLevel = (typeof LEADER_LEVELS)[number];
 
-/** Which plan the rate is over: the whole annual plan, or the plan the parent body assigned (the first can pass 100 percent). */
-export const LEADER_DENOMINATORS = ['TOTAL', 'PM_ASSIGNED'] as const;
-export type LeaderDenominator = (typeof LEADER_DENOMINATORS)[number];
+/** What the reader says of one group: the plan in force for the year, what was disbursed to the day, and the rate over them. */
+export interface RateReading {
+  projects: number;
+  /** The annual plan in force, whole dong. */
+  planVnd: string;
+  /** Disbursed since the start of the year to the day, whole dong; null when nobody has the figure (never 0). */
+  disbursedVnd: string | null;
+  /** Percent with four places; null with `nullReason` when it cannot be given. */
+  ratePct: string | null;
+  nullReason: string | null;
+}
 
-/** What the lines of one group of a snapshot add up to (the shape the database gives `DisSnapshotStore.rateSums`). */
 export interface RateGroup {
   id: string | null;
   code: string | null;
   name: string | null;
-  sums: RateSums;
+  reading: RateReading;
 }
 
 /** The three cuts of one frozen snapshot: the whole, by unit, by project. */
 export interface RateCuts {
-  /** The id and the day of the snapshot the cuts are of. */
   snapshotId: string;
   asOfDate: string;
+  /** The revision and the hash of the snapshot: what the figures stand on. */
+  revision: number;
+  hash: string | null;
+  whole: RateReading;
   units: readonly RateGroup[];
   projects: readonly RateGroup[];
 }
@@ -42,14 +51,10 @@ export interface LeaderRateRow {
   code: string | null;
   name: string | null;
   projects: number;
-  /** The annual plan the rate is over, whole dong. */
   planVnd: string;
-  /** What was disbursed, whole dong; null when nothing is booked (never 0). */
   disbursedVnd: string | null;
-  /** Percent with four places; null with `nullReason` when it cannot be given. */
   ratePct: string | null;
   nullReason: string | null;
-  treasuryCoverage: RateFigures['treasuryCoverage'];
   lastYear: {
     ratePct: string | null;
     disbursedVnd: string | null;
@@ -62,9 +67,10 @@ export interface LeaderRateRow {
 }
 
 export interface LeaderRateBoard {
-  denominator: LeaderDenominator;
   snapshotId: string;
   asOfDate: string;
+  revision: number;
+  hash: string | null;
   /** The snapshot of the same period one year before, or null when there is none. */
   priorSnapshotId: string | null;
   priorAsOfDate: string | null;
@@ -102,35 +108,24 @@ export function trendOf(points: string | null): RateTrend | null {
   return value > 0n ? 'UP' : value < 0n ? 'DOWN' : 'FLAT';
 }
 
-const BASIS: RateBasis = 'CURRENT_YEAR';
+type Previous = RateReading | 'NO_SNAPSHOT' | 'MISSING';
 
-function figuresOf(sums: RateSums, denominator: LeaderDenominator): { figures: RateFigures; ratePct: string | null; planVnd: string } {
-  const figures = rateOfSums(sums, BASIS);
-  return denominator === 'TOTAL' ? { figures, ratePct: figures.rateTotalPct, planVnd: figures.planTotalVnd } : { figures, ratePct: figures.ratePmPct, planVnd: figures.planPmVnd };
-}
-
-function rowOf(level: LeaderLevel, group: Pick<RateGroup, 'id' | 'code' | 'name'>, sums: RateSums, previous: RateSums | 'NO_SNAPSHOT' | 'MISSING', denominator: LeaderDenominator): LeaderRateRow {
-  const now = figuresOf(sums, denominator);
-  const nullReason = now.ratePct === null ? (now.figures.rateNullReason ?? 'NO_DATA') : null;
+function rowOf(level: LeaderLevel, group: Pick<RateGroup, 'id' | 'code' | 'name'>, now: RateReading, previous: Previous): LeaderRateRow {
   let lastYear: LeaderRateRow['lastYear'];
   if (previous === 'NO_SNAPSHOT') lastYear = { ratePct: null, disbursedVnd: null, nullReason: 'NO_PRIOR_SNAPSHOT' };
   else if (previous === 'MISSING') lastYear = { ratePct: null, disbursedVnd: null, nullReason: 'NOT_IN_PRIOR_SNAPSHOT' };
-  else {
-    const before = figuresOf(previous, denominator);
-    lastYear = { ratePct: before.ratePct, disbursedVnd: before.figures.numeratorVnd, nullReason: before.ratePct === null ? (before.figures.rateNullReason ?? 'NO_DATA') : null };
-  }
+  else lastYear = { ratePct: previous.ratePct, disbursedVnd: previous.disbursedVnd, nullReason: previous.ratePct === null ? (previous.nullReason ?? 'NO_DATA') : null };
   const deltaPoints = now.ratePct !== null && lastYear.ratePct !== null ? pointsBetween(now.ratePct, lastYear.ratePct) : null;
   return {
     level,
     id: group.id,
     code: group.code,
     name: group.name,
-    projects: now.figures.projects,
+    projects: now.projects,
     planVnd: now.planVnd,
-    disbursedVnd: now.figures.numeratorVnd,
+    disbursedVnd: now.disbursedVnd,
     ratePct: now.ratePct,
-    nullReason,
-    treasuryCoverage: now.figures.treasuryCoverage,
+    nullReason: now.ratePct === null ? (now.nullReason ?? 'NO_DATA') : null,
     lastYear,
     deltaPoints,
     trend: trendOf(deltaPoints),
@@ -141,28 +136,25 @@ const keyOf = (group: Pick<RateGroup, 'id' | 'code'>): string => group.id ?? `co
 
 /**
  * The board: the whole company, each unit and each project of the current snapshot, each against the same group of the snapshot of the same period last year. A group that did not exist last year says
- * `NOT_IN_PRIOR_SNAPSHOT`; with no snapshot of last year at all every row says `NO_PRIOR_SNAPSHOT`; neither is ever shown as a rate of 0. The whole company is the sum of the unit groups plus the lines that belong to no unit,
- * which the caller gives as `whole` so that a project with no unit is not lost from the company figure.
+ * `NOT_IN_PRIOR_SNAPSHOT`; with no snapshot of last year at all every row says `NO_PRIOR_SNAPSHOT`; neither is ever shown as a rate of 0.
  */
-export function leaderRateBoard(input: { current: RateCuts; whole: RateSums; previous: (RateCuts & { whole: RateSums }) | undefined; denominator: LeaderDenominator }): LeaderRateBoard {
-  const { current, previous, denominator } = input;
-  const priorUnits = previous === undefined ? undefined : new Map(previous.units.map((group) => [keyOf(group), group.sums]));
-  const priorProjects = previous === undefined ? undefined : new Map(previous.projects.map((group) => [keyOf(group), group.sums]));
-  const lookup = (prior: Map<string, RateSums> | undefined, group: RateGroup): RateSums | 'NO_SNAPSHOT' | 'MISSING' => (prior === undefined ? 'NO_SNAPSHOT' : (prior.get(keyOf(group)) ?? 'MISSING'));
+export function leaderRateBoard(input: { current: RateCuts; previous: RateCuts | undefined }): LeaderRateBoard {
+  const { current, previous } = input;
+  const priorUnits = previous === undefined ? undefined : new Map(previous.units.map((group) => [keyOf(group), group.reading]));
+  const priorProjects = previous === undefined ? undefined : new Map(previous.projects.map((group) => [keyOf(group), group.reading]));
+  const lookup = (prior: Map<string, RateReading> | undefined, group: RateGroup): Previous => (prior === undefined ? 'NO_SNAPSHOT' : (prior.get(keyOf(group)) ?? 'MISSING'));
   return {
-    denominator,
     snapshotId: current.snapshotId,
     asOfDate: current.asOfDate,
+    revision: current.revision,
+    hash: current.hash,
     priorSnapshotId: previous?.snapshotId ?? null,
     priorAsOfDate: previous?.asOfDate ?? null,
-    company: rowOf('COMPANY', { id: null, code: null, name: null }, input.whole, previous === undefined ? 'NO_SNAPSHOT' : previous.whole, denominator),
-    units: current.units.map((group) => rowOf('UNIT', group, group.sums, lookup(priorUnits, group), denominator)),
-    projects: current.projects.map((group) => rowOf('PROJECT', group, group.sums, lookup(priorProjects, group), denominator)),
+    company: rowOf('COMPANY', { id: null, code: null, name: null }, current.whole, previous === undefined ? 'NO_SNAPSHOT' : previous.whole),
+    units: current.units.map((group) => rowOf('UNIT', group, group.reading, lookup(priorUnits, group))),
+    projects: current.projects.map((group) => rowOf('PROJECT', group, group.reading, lookup(priorProjects, group))),
   };
 }
-
-/** The whole of a snapshot from its unit groups (used when a source gives the groups only). */
-export const wholeOf = (groups: readonly RateGroup[]): RateSums => addSums(groups.map((group) => group.sums));
 
 /** The day one year before a day; 29 February of a leap year becomes 28 February. */
 export function sameDayLastYear(asOfDate: string): string {

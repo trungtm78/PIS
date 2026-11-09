@@ -27,6 +27,15 @@ export interface ChannelSendRequest {
   deepLink?: string;
   /** A data message with no text, to make the app read again what changed (entitlements, access); never shown. */
   silent?: { what: string };
+  /** Files that go with an e-mail (ENT-4d: the issued copy of a report form). An adapter of a channel that cannot carry a file answers a PERMANENT `ATTACHMENT_UNSUPPORTED` failure instead of dropping it; the SHA-256 is of the bytes, and is also in the text of the message. */
+  attachments?: ChannelAttachment[];
+}
+
+export interface ChannelAttachment {
+  fileName: string;
+  mediaType: string;
+  content: Uint8Array;
+  sha256: string;
 }
 
 export type ChannelSendResult =
