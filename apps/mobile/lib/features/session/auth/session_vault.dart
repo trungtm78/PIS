@@ -46,16 +46,20 @@ final class StoredSession {
 /// What the device remembers after the session is gone, so the person signs back in to the same place without typing the
 /// tenant again (the "last tenant" hint of MOB-01 and the context MOB-44 returns to). Nothing in it is secret.
 final class LastContext {
-  const LastContext({this.config, this.tenantCode, this.tenantId, this.membershipId});
+  const LastContext({this.config, this.tenantCode, this.tenantName, this.tenantId, this.membershipId});
 
   final OidcConfig? config;
   final String? tenantCode;
+
+  /// The display name of the organisation as discovery gave it (MOB-01), so the sign-in screen names it instead of the host of the provider.
+  final String? tenantName;
   final String? tenantId;
   final String? membershipId;
 
   Map<String, Object?> toJson() => <String, Object?>{
         if (config != null) 'config': config!.toJson(),
         if (tenantCode != null) 'tenant_code': tenantCode,
+        if (tenantName != null) 'tenant_name': tenantName,
         if (tenantId != null) 'tenant_id': tenantId,
         if (membershipId != null) 'membership_id': membershipId,
       };
@@ -63,19 +67,22 @@ final class LastContext {
   static LastContext fromJson(Map<String, Object?> json) {
     final Object? config = json['config'];
     final Object? code = json['tenant_code'];
+    final Object? name = json['tenant_name'];
     final Object? tenant = json['tenant_id'];
     final Object? membership = json['membership_id'];
     return LastContext(
       config: config is Map<String, Object?> ? OidcConfig.fromJson(config) : null,
       tenantCode: code is String ? code : null,
+      tenantName: name is String && name.isNotEmpty ? name : null,
       tenantId: tenant is String ? tenant : null,
       membershipId: membership is String ? membership : null,
     );
   }
 
-  LastContext copyWith({OidcConfig? config, String? tenantCode, String? tenantId, String? membershipId}) => LastContext(
+  LastContext copyWith({OidcConfig? config, String? tenantCode, String? tenantName, String? tenantId, String? membershipId}) => LastContext(
         config: config ?? this.config,
         tenantCode: tenantCode ?? this.tenantCode,
+        tenantName: tenantName ?? this.tenantName,
         tenantId: tenantId ?? this.tenantId,
         membershipId: membershipId ?? this.membershipId,
       );

@@ -107,6 +107,17 @@ class OidcConfigNotifier extends Notifier<OidcConfig?> {
 final NotifierProvider<OidcConfigNotifier, OidcConfig?> oidcConfigProvider =
     NotifierProvider<OidcConfigNotifier, OidcConfig?>(OidcConfigNotifier.new);
 
+/// The display name of the organisation the person chose at discovery (MOB-01), or null when only the provider is known (a single-tenant
+/// build, or a start from the stored context before the name is read). The sign-in screen names the organisation with it.
+class TenantNameNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void choose(String? name) => state = name;
+}
+
+final NotifierProvider<TenantNameNotifier, String?> tenantNameProvider = NotifierProvider<TenantNameNotifier, String?>(TenantNameNotifier.new);
+
 /// The lifecycle of the application as a stream, so the session lock is tested without a device.
 final Provider<Stream<AppLifecycleState>> appLifecycleProvider = Provider<Stream<AppLifecycleState>>((Ref ref) {
   final StreamController<AppLifecycleState> controller = StreamController<AppLifecycleState>.broadcast();

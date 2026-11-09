@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +15,7 @@ import '../../../core/state/state_boundary.dart';
 import '../../../core/widgets/brand_logo.dart';
 import '../auth/auth_service.dart';
 import '../auth/oidc_client.dart';
+import '../auth/session_vault.dart';
 import '../flow.dart';
 import '../session_providers.dart';
 
@@ -38,17 +41,30 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   bool _cancelled = false;
   bool _unlockFailed = false;
 
+  /// The organisation name the device remembers from discovery; the name chosen in this run ([tenantNameProvider]) wins.
+  String? _storedName;
+
   OidcConfig? get _config => ref.read(oidcConfigProvider) ?? ref.read(authServiceProvider).config;
 
   @override
   void initState() {
     super.initState();
+    unawaited(_readStoredName());
     // No tenant is known yet: tenant discovery (MOB-01) comes first.
     WidgetsBinding.instance.addPostFrameCallback((Duration _) {
       if (mounted && _config == null && !widget.unlock) {
         context.go(withReturn(ref.read(routeTableProvider).locationOf('MOB-01'), widget.returnTo));
       }
     });
+  }
+
+  Future<void> _readStoredName() async {
+    try {
+      final LastContext? last = await ref.read(sessionVaultProvider).loadLast();
+      if (mounted && last?.tenantName != null) setState(() => _storedName = last!.tenantName);
+    } on Object {
+      // The name is a courtesy: without it the screen says it neutrally.
+    }
   }
 
   Future<void> _signIn() async {
@@ -88,10 +104,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     }
   }
 
+  String? _organisationName() {
+    final String? chosen = ref.watch(tenantNameProvider);
+    final String? name = (chosen != null && chosen.trim().isNotEmpty) ? chosen : _storedName;
+    return (name == null || name.trim().isEmpty) ? null : name;
+  }
+
   @override
   Widget build(BuildContext context) {
     final FlowState flow = ref.watch(signInFlowProvider);
     final OidcConfig? config = _config;
+    final String? organisation = _organisationName();
     return AuthPage(
       child: StateBoundary(
         state: flow.state,
@@ -111,8 +134,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               Text(context.t('mob.signIn.body.text')),
               const SizedBox(height: MachvonSpace.space24),
               if (config != null) ...<Widget>[
-                Text(context.t('mob.signIn.tenant.label'), style: Theme.of(context).textTheme.labelMedium),
-                Text(config.issuer.host),
+                // The organisation by its name; when only the host of the provider is known, a neutral line (the host is not a name).
+                if (organisation == null)
+                  Text(context.t('mob.signIn.tenant.unnamed.text'))
+                else ...<Widget>[
+                  Text(context.t('mob.signIn.tenant.label'), style: Theme.of(context).textTheme.labelMedium),
+                  Text(organisation),
+                ],
                 const SizedBox(height: MachvonSpace.space8),
               ],
               if (widget.unlock) ...<Widget>[

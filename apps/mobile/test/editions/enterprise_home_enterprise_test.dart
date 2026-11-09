@@ -12,6 +12,7 @@ import 'package:machvon_mobile/core/l10n/core_strings.dart';
 import 'package:machvon_mobile/core/l10n/string_table.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/theme/app_theme.dart';
+import 'package:machvon_mobile/core/widgets/brand_logo.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_home.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_profile.dart';
 import 'package:machvon_mobile/features/account/account_providers.dart';
@@ -19,6 +20,7 @@ import 'package:machvon_mobile/features/account/account_strings.dart';
 import 'package:machvon_mobile/features/dashboard/widgets/edition_cards.dart';
 import 'package:machvon_mobile/features/read_support/read_support_strings.dart';
 import 'package:machvon_mobile/features/session/auth/identity_api.dart';
+import 'package:machvon_mobile/features/session/session_strings.dart';
 
 import '../features/support/scripted_server.dart';
 import '../support/harness.dart';
@@ -130,6 +132,7 @@ void main() {
       }
 
       await pump(kEnterpriseEditionProfile);
+      expect(find.text('Mạch Vốn'), findsOneWidget);
       expect(find.text('Phần mềm quản lý đầu tư xây dựng'), findsOneWidget);
       expect(find.text('Tổng công ty Đạm Phú Mỹ, Cán bộ của tổ chức'), findsOneWidget);
       expect(find.textContaining('Hà Giang'), findsNothing);
@@ -181,6 +184,43 @@ void main() {
       expect(find.text('Đẩy số liệu sang HPM'), findsNothing);
       expect(find.text('Đối chiếu EBS'), findsOneWidget);
       expect(find.text('Chưa đọc được phần này.'), findsOneWidget);
+    });
+  });
+
+  group('the head of the sign-in screens names the product', () {
+    Future<void> pumpHeader(WidgetTester tester, EditionProfile profile) async {
+      final ProviderContainer container = ProviderContainer(overrides: <Override>[editionProfileProvider.overrideWithValue(profile)]);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: buildAppTheme(),
+            locale: const Locale('vi'),
+            supportedLocales: const <Locale>[Locale('vi'), Locale('en')],
+            localizationsDelegates: <LocalizationsDelegate<Object?>>[
+              AppStringsDelegate(StringCatalogue(<StringTable>[kCoreStrings, sessionStrings, if (profile.homeStrings != null) profile.homeStrings!])),
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: const Scaffold(body: BrandHeader()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('the enterprise edition shows Mạch Vốn, what the product is and the tagline; the public edition keeps its tagline alone', (WidgetTester tester) async {
+      await pumpHeader(tester, kEnterpriseEditionProfile);
+      expect(find.text('Mạch Vốn'), findsOneWidget);
+      expect(find.text('Phần mềm quản lý đầu tư xây dựng'), findsOneWidget);
+      expect(find.text('Vốn đến đúng công trình, việc đúng tiến độ'), findsOneWidget);
+
+      await pumpHeader(tester, kPublicEditionProfile);
+      expect(find.text('Mạch Vốn'), findsNothing);
+      expect(find.text('Phần mềm quản lý đầu tư xây dựng'), findsNothing);
+      expect(find.text('Mạch vốn thông suốt, đầu tư công minh bạch'), findsOneWidget);
     });
   });
 }
