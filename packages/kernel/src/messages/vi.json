@@ -1628,5 +1628,9 @@
   "ent.narrative.word.none": "Chưa có thuyết minh của các dự án trong kỳ này.",
   "ent.narrative.word.empty": "Chưa nhập nội dung.",
   "ent.narrative.word.standard_causes": "Nguyên nhân theo danh mục chuẩn: {causes}.",
-  "ent.narrative.word.directives": "Kết quả thực hiện chỉ đạo tại các cuộc họp giao ban"
+  "ent.narrative.word.directives": "Kết quả thực hiện chỉ đạo tại các cuộc họp giao ban",
+  "ent.narrative.template.sheet": "Thuyết minh",
+  "ent.narrative.template.causes_sheet": "Nguyên nhân chuẩn",
+  "ent.narrative.template.help_sheet": "Hướng dẫn",
+  "ent.narrative.template.help": "Mỗi dòng của trang đầu là thuyết minh của một dự án trong kỳ báo cáo; cột project_code là mã dự án và bắt buộc.\nTám cột status, schedule, disbursement, causes, difficulties, solutions, next_plan, proposals lần lượt là: tình hình thực hiện, đánh giá các mốc tiến độ, đánh giá giải ngân, nguyên nhân, khó khăn vướng mắc, giải pháp, kế hoạch kỳ tới, kiến nghị; mỗi trường tối đa 4000 ký tự.\nCột cause_codes ghi các mã nguyên nhân chuẩn ở trang Nguyên nhân chuẩn, cách nhau bằng dấu chấm phẩy.\nDự án phải có bản nháp báo cáo của kỳ; tệp được chạy thử trước, chỉ áp dụng khi không có lỗi nào, và không ghi đè phần chỉ đạo giao ban đã tổng hợp."
 }

@@ -9,6 +9,7 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { assertPeriodReach } from './period-gate';
+import { enforceNarrativeEntry } from '../../ind-entry-guard';
 import { OperationId } from '../../operation-id.decorator';
 import { APPROVAL_FINAL_COMMANDS, effectsOf } from '../adm/approval.service';
 import type { FinalCommandRegistry } from '../adm/approval.service';
@@ -63,6 +64,10 @@ export class ReportSubmitController {
     const review = await reviewOf(scope.tx, this.reports, this.periods, detail, now);
     const refusal = submitRefusal(review);
     if (refusal !== undefined) throw refusal;
+    // IND-1 (DL.02): the approved rules of the narrative of a period hold the words to the mandatory fields when the report is handed in (none approved: nothing changes).
+    if (detail.reportType === 'MONTHLY' || detail.narrative?.enterprise !== undefined) {
+      await enforceNarrativeEntry(scope, { resourceId: id, block: detail.narrative?.enterprise ?? null, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, phase: 'SUBMIT', now });
+    }
 
     const payloadHash = this.reports.hashOf(detail);
     const workflowVersionId = await this.reports.workflowVersionFor(scope.tx, WORKFLOW_BUSINESS_TYPE);

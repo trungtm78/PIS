@@ -25,12 +25,13 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { assertPeriodReach } from './period-gate';
-import { enforceReportEntry } from '../../ind-entry-guard';
+import { enforceNarrativeEntry, enforceReportEntry } from '../../ind-entry-guard';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { FileService } from '../files';
 import { REPORT_FILE_PURPOSE } from './report-file.controller';
+import { enterpriseTrail, judgeNarrative, narrativeView } from './narrative-support';
 import { reviewOf } from './report-review';
 import { DIS_CLOCK } from './tokens';
 
@@ -114,10 +115,7 @@ export function reportView(detail: RevisionDetail, review: Review | null = null,
             as_of_date: detail.progress.asOfDate,
             measurement_basis: detail.progress.measurementBasis,
           },
-    narrative:
-      detail.narrative === null
-        ? null
-        : { results: detail.narrative.resultsText, causes: detail.narrative.causesText, solutions: detail.narrative.solutionsText, proposals: detail.narrative.proposalsText, linked_issue_ids: [...detail.narrative.linkedIssueIds] },
+    narrative: narrativeView(detail.narrative),
     attachments: detail.attachments.map((file) => ({
       id: file.id,
       file_object_id: file.fileObjectId,
@@ -313,6 +311,8 @@ export class ReportController {
       throw new DomainError('PLAN_VERSION_NOT_EFFECTIVE', 422, 'plan_version_id', { extensions: effective === undefined ? {} : { effective_plan_version_id: effective.id } });
     }
     await this.assertIssues(scope.tx, project.id, entries.narrative ?? null);
+    await judgeNarrative(scope.tx, entries.narrative, { access, projectId: project.id, period: judged.period, now });
+    await enforceNarrativeEntry(scope, { resourceId: project.id, block: entries.narrative?.enterprise ?? null, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, phase: 'SAVE', now });
     // IND-1: the approved data entry rules of the tenant hold the figures to the identities of the data (none approved: nothing changes).
     await enforceReportEntry(scope, { projectId: project.id, totals: fundingTotals(entries.cells), progress: entries.progress, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, now });
     const files = await resolveFiles(this.files, scope.tenant, entries.attachments ?? []);
@@ -377,6 +377,8 @@ export class ReportController {
     await assertPeriodReach(scope.tx, this.reports, this.periods, head.projectId, head.periodId, access, EDIT_PERMISSION, now);
     const judged = await this.periods.judge(scope.tx, head.periodId, head.projectId, now);
     await this.assertIssues(scope.tx, head.projectId, entries.narrative ?? null);
+    await judgeNarrative(scope.tx, entries.narrative, { access, projectId: head.projectId, period: judged.period, now });
+    await enforceNarrativeEntry(scope, { resourceId: id, block: entries.narrative?.enterprise ?? null, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, phase: 'SAVE', now });
     await enforceReportEntry(scope, { projectId: head.projectId, totals: fundingTotals(entries.cells), progress: entries.progress, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, now });
     const files = entries.attachments === undefined ? undefined : await resolveFiles(this.files, scope.tenant, entries.attachments);
     const saved = await this.reports.saveDraft(
@@ -432,6 +434,7 @@ export class ReportController {
             physical_progress_pct: progress.physicalProgressPct,
           }),
       ...(narrative === undefined ? {} : { narrative_sections: narrative === null ? 0 : [narrative.resultsText, narrative.causesText, narrative.solutionsText, narrative.proposalsText].filter((text) => text !== null).length, linked_issues: narrative?.linkedIssueIds.length ?? 0 }),
+      ...(narrative === undefined || narrative === null ? {} : enterpriseTrail(narrative.enterprise)),
       ...(attachments === undefined ? {} : { attachments: attachments.length }),
     };
   }

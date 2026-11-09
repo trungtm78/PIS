@@ -185,6 +185,15 @@ export function evaluateEntryRules(rules: readonly EntryRule[], facts: EntryFact
   return verdict;
 }
 
+/**
+ * The verdict without the rules that ask for a field to be given: a draft that is still being written is judged on what it has, and the "required" rules are held against it when it is handed in. The rules that were
+ * evaluated stay listed, so the trail says what was asked.
+ */
+export function withoutRequiredChecks(verdict: EntryVerdict): EntryVerdict {
+  const keep = (list: EntryViolation[]): EntryViolation[] => list.filter((one) => one.check !== 'FIELD_REQUIRED');
+  return { ...verdict, violations: keep(verdict.violations), blocking: keep(verdict.blocking), warnings: keep(verdict.warnings) };
+}
+
 /** The error of an entry a rule blocks: 422 `IND_ENTRY_RULE_VIOLATED`, the detail names the first rule and the extension lists every blocking violation (the warnings are not an error). */
 export function entryRefusal(verdict: EntryVerdict): DomainError | undefined {
   const first = verdict.blocking[0];

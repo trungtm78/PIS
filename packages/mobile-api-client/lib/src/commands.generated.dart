@@ -1741,6 +1741,12 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getReportIssueFile({required String id, required String format, Map<String, Object?>? query}) =>
       execute('getReportIssueFile', path: <String, Object?>{'id': id, 'format': format}, query: query);
 
+  Future<Object?> getReportNarrativeContext({required String id, Map<String, Object?>? query}) =>
+      execute('getReportNarrativeContext', path: <String, Object?>{'id': id}, query: query);
+
+  Future<Object?> getReportNarrativeTemplate({Map<String, Object?>? query}) =>
+      execute('getReportNarrativeTemplate', query: query);
+
   Future<Object?> getReportRevision({required String id, Map<String, Object?>? query}) =>
       execute('getReportRevision', path: <String, Object?>{'id': id}, query: query);
 
@@ -2481,6 +2487,9 @@ extension MachvonOperations on MachvonApiClient {
 
   Future<Object?> indexAiKnowledgeItem(LlmIndexItem body, {required String id, CommandAttempt? attempt}) =>
       execute('indexAiKnowledgeItem', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
+
+  Future<Object?> inheritReportNarrative(InheritReportNarrative body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('inheritReportNarrative', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
   Future<Object?> inviteGuestContractor(GuestInvite body, {CommandAttempt? attempt}) =>
       execute('inviteGuestContractor', body: body, attempt: attempt);

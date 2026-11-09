@@ -63,7 +63,7 @@ export class EntNarrativeStore {
   }
 
   /**
-   * The most recent report of the same project, in an earlier period of the same kind, that was handed in (submitted, under review or accepted) and has an enterprise narrative. A report still being drafted
+   * The most recent report of the same project, in an earlier period of the same kind, that was handed in and not replaced or taken back (submitted, under review, accepted or asked to be amended) and has an enterprise narrative. A report still being drafted
    * is not what a period says about itself, so it is never copied; undefined when the project has none.
    */
   async previousOf(tx: TenantTx, reportId: string): Promise<PreviousNarrative | undefined> {
@@ -74,7 +74,7 @@ export class EntNarrativeStore {
          join machvon.report_revision r on r.tenant_id = cur.tenant_id and r.project_id = cur.project_id and r.id <> cur.id
          join machvon.reporting_period rp on rp.tenant_id = r.tenant_id and rp.id = r.period_id and rp.period_type = cp.period_type and rp.end_date < cp.start_date
          join machvon.report_narrative n on n.tenant_id = r.tenant_id and n.report_revision_id = r.id and n.pack_code = $2
-        where cur.id = $1::uuid and r.is_current and r.deleted_at is null and r.status in ('SUBMITTED', 'UNDER_REVIEW', 'ACCEPTED')
+        where cur.id = $1::uuid and r.deleted_at is null and r.status in ('SUBMITTED', 'UNDER_REVIEW', 'ACCEPTED', 'AMENDMENT_REQUESTED')
         order by rp.end_date desc, r.revision desc
         limit 1`,
       [reportId, NARRATIVE_PACK_ENTERPRISE],
@@ -107,6 +107,21 @@ export class EntNarrativeStore {
     );
     const present = new Set(found.map((row) => row.code));
     return codes.filter((code) => !present.has(code));
+  }
+
+  /** The projects of the caller's reach that have a live draft of the period, by code: the rows the Excel template is prefilled with. */
+  async draftProjects(tx: TenantTx, periodId: string, scope: ScopeBuilder): Promise<Array<{ code: string; name: string }>> {
+    const visible = scope(2);
+    return tx.query<{ code: string; name: string }>(
+      `select p.code, p.name
+         from machvon.report_revision r
+         join machvon.project p on p.tenant_id = r.tenant_id and p.id = r.project_id
+         join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
+         left join machvon.organization_unit iu on iu.tenant_id = p.tenant_id and iu.id = p.investor_unit_id
+        where r.period_id = $1::uuid and r.status = 'DRAFT' and r.is_current and r.deleted_at is null and ${visible.sql}
+        order by p.code`,
+      [periodId, ...visible.params],
+    );
   }
 
   /** The names of the causes by code, in the order given (a code that left the list keeps its code as its name). */

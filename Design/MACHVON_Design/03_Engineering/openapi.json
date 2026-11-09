@@ -228550,6 +228550,394 @@
           "vnd.portal.attachment.uploaded.v1"
         ]
       }
+    },
+    "/reports/{id}/narrative-context": {
+      "get": {
+        "operationId": "getReportNarrativeContext",
+        "summary": "Ngữ cảnh viết thuyết minh có cấu trúc của một báo cáo: danh mục nguyên nhân, kết quả chỉ đạo giao ban của kỳ, thuyết minh kỳ trước có thể kế thừa và kết quả kiểm tra quy tắc nhập liệu",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "report.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportNarrativeContext"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
+    },
+    "/reports/{id}/narrative-inheritance": {
+      "post": {
+        "operationId": "inheritReportNarrative",
+        "summary": "Kế thừa thuyết minh kỳ trước vào bản nháp: sao chép có dấu vết các trường còn trống, không ghi đè nội dung đã nhập",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "report.edit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 16
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Strong ETag of the current resource version; required for changes to versioned records."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InheritReportNarrative"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command accepted; returns resource id/version/status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "REVISION_IMMUTABLE",
+          "VERSION_CONFLICT",
+          "PERIOD_LOCKED",
+          "VALIDATION_FAILED",
+          "NARRATIVE_NOTHING_TO_INHERIT"
+        ],
+        "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
+      }
+    },
+    "/report-narrative-template": {
+      "get": {
+        "operationId": "getReportNarrativeTemplate",
+        "summary": "Tải mẫu Excel thuyết minh kỳ báo cáo (mỗi dự án một dòng, tám trường và mã nguyên nhân chuẩn) để nhập hàng loạt, chạy thử trước khi áp dụng",
+        "tags": [
+          "DIS"
+        ],
+        "x-permission": "report.import",
+        "parameters": [
+          {
+            "name": "period_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "The period the template is prefilled for: one row for each project the caller may report on that has a live draft of it."
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportNarrativeTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -253829,7 +254217,7 @@
       "ReportNarrative": {
         "type": "object",
         "additionalProperties": false,
-        "description": "The words of a report (DIS-06 notes). Every section is optional in the weekly report; a section is at most 4000 characters and the issues are those of the project, each named once (at most 50). The member is the whole narrative: what it leaves out is removed from the draft.",
+        "description": "The words of a report (DIS-06 notes). Every section is optional in the weekly report; a section is at most 4000 characters and the issues are those of the project, each named once (at most 50). The member is the whole narrative: what it leaves out is removed from the draft. The `enterprise` member is the block of the enterprise pack (ENT-3b).",
         "properties": {
           "results": {
             "type": "string",
@@ -253854,6 +254242,9 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          "enterprise": {
+            "$ref": "#/components/schemas/ReportNarrativeEnterprise"
           }
         }
       },
@@ -287274,7 +287665,8 @@
                 "DIS_REPORT",
                 "PRJ_PROJECT",
                 "INDICATOR_ENTRY",
-                "INDICATOR_IMPORT"
+                "INDICATOR_IMPORT",
+                "PERIOD_NARRATIVE"
               ]
             }
           },
@@ -287618,7 +288010,8 @@
               "DIS_REPORT",
               "PRJ_PROJECT",
               "INDICATOR_ENTRY",
-              "INDICATOR_IMPORT"
+              "INDICATOR_IMPORT",
+              "PERIOD_NARRATIVE"
             ]
           },
           "values": {
@@ -308462,6 +308855,413 @@
           },
           "as_of": {
             "type": "string"
+          }
+        }
+      },
+      "ReportNarrativeEnterprise": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "The structured narrative of the enterprise pack (ENT-3b; DL.01, CN.02): the eight fields of the form, at most 4000 characters each, the standard causes picked from the list (MDM-17, at most 20 codes, each once) and the directives of the leadership meetings that were rolled up (at most 50). The member is the whole block: what it leaves out is removed from the draft. The trace of an inheritance is never written by a request.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "schedule": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "disbursement": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "causes": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "difficulties": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "solutions": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "next_plan": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "proposals": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "cause_codes": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            }
+          },
+          "directive_refs": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "code",
+                "status_at_end"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "code": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "status_at_end": {
+                  "type": "string",
+                  "enum": [
+                    "OPEN",
+                    "IN_PROGRESS",
+                    "DONE",
+                    "OVERDUE",
+                    "CANCELLED"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "InheritReportNarrative": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Copies the narrative of the previous period into the draft (CN.02). `fields` names the fields to copy; none named means every field the draft has left empty. A field that already has words is never overwritten.",
+        "properties": {
+          "fields": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "enum": [
+                "status",
+                "schedule",
+                "disbursement",
+                "causes",
+                "difficulties",
+                "solutions",
+                "next_plan",
+                "proposals"
+              ]
+            }
+          },
+          "include_causes": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ReportNarrativeContext": {
+        "type": "object",
+        "description": "What a person needs to write the narrative of one report: the fields, the standard causes, the directives of the period (DIR-05) ready to be rolled up, the previous period's narrative that can be inherited, the trace of an inheritance, and what the approved entry rules say now.",
+        "required": [
+          "as_of",
+          "report_id",
+          "fields",
+          "causes",
+          "directives",
+          "previous",
+          "inheritance",
+          "unchanged_inherited",
+          "mandatory",
+          "verdict"
+        ],
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "report_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "causes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "code",
+                "label"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "directives": {
+            "type": "object",
+            "required": [
+              "from",
+              "to",
+              "truncated",
+              "items"
+            ],
+            "properties": {
+              "from": {
+                "type": "string",
+                "format": "date"
+              },
+              "to": {
+                "type": "string",
+                "format": "date"
+              },
+              "truncated": {
+                "type": "boolean"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "code",
+                    "status_at_end",
+                    "line"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "meeting_date": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "assignee_unit": {
+                      "type": "string"
+                    },
+                    "due_on": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "status_at_end": {
+                      "type": "string"
+                    },
+                    "last_note": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "line": {
+                      "type": "string"
+                    },
+                    "rolled_up": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "previous": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "report_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "period_code": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cause_codes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "inheritance": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "from_report_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "from_period_id": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true
+              },
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "by": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "unchanged_inherited": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mandatory": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verdict": {
+            "type": "object",
+            "required": [
+              "blocking",
+              "warnings"
+            ],
+            "properties": {
+              "blocking": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "rule_code": {
+                      "type": "string"
+                    },
+                    "check": {
+                      "type": "string"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "rule_code": {
+                      "type": "string"
+                    },
+                    "check": {
+                      "type": "string"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ReportNarrativeTemplate": {
+        "type": "object",
+        "description": "The Excel template for the narratives of a period (CN.02): one row per project, the eight fields and the codes of the standard causes. The file is read back with the mapping `ENT-NARRATIVE-1` through the report import, dry run first.",
+        "required": [
+          "file_name",
+          "content_type",
+          "sha256",
+          "content_base64",
+          "mapping_version",
+          "columns",
+          "causes"
+        ],
+        "properties": {
+          "file_name": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "content_base64": {
+            "type": "string"
+          },
+          "mapping_version": {
+            "type": "string"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "causes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "code",
+                "label"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }

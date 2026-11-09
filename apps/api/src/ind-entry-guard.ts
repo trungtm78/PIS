@@ -1,6 +1,6 @@
 import { IND_FIGURE_RESOURCE, IndEntryRuleStore, IndFigureStore } from '@machvon/db';
-import { assertEntryAllowed, verdictTrail, vietnamDateOf } from '@machvon/kernel';
-import type { EntrySurface, FundingTotals, ProgressInput } from '@machvon/kernel';
+import { assertEntryAllowed, narrativeEntryValues, verdictTrail, vietnamDateOf, withoutRequiredChecks } from '@machvon/kernel';
+import type { EnterpriseNarrative, EntrySurface, FundingTotals, ProgressInput } from '@machvon/kernel';
 import type { CommandScope } from './command-scope';
 
 /**
@@ -11,8 +11,10 @@ import type { CommandScope } from './command-scope';
 const rules = new IndEntryRuleStore();
 const figures = new IndFigureStore();
 
-async function enforce(scope: CommandScope, surface: EntrySurface, values: Record<string, string>, periodStatus: string | undefined, resource: { type: string; id: string }, now: Date): Promise<void> {
-  const verdict = await rules.check(scope.tx, { surface, facts: { values, periodStatus }, asOf: vietnamDateOf(now) });
+async function enforce(scope: CommandScope, surface: EntrySurface, values: Record<string, string>, periodStatus: string | undefined, resource: { type: string; id: string }, now: Date, phase: 'SAVE' | 'SUBMIT' = 'SUBMIT'): Promise<void> {
+  const judged = await rules.check(scope.tx, { surface, facts: { values, periodStatus }, asOf: vietnamDateOf(now) });
+  // A draft that is still being written is not held to the rules that ask for a field to be given; they are held against it when it is handed in.
+  const verdict = phase === 'SAVE' ? withoutRequiredChecks(judged) : judged;
   assertEntryAllowed(verdict);
   if (verdict.warnings.length > 0) {
     await scope.audit({ action: 'ind.entry_warned', resourceType: resource.type, resourceId: resource.id, classification: 'INTERNAL', diff: { surface, ...verdictTrail(verdict) } });
@@ -41,4 +43,16 @@ export async function enforceReportEntry(
 /** The figures of a project of the register when it is created: its total investment. */
 export async function enforceProjectEntry(scope: CommandScope, input: { totalInvestmentVnd: string; now: Date }): Promise<void> {
   await enforce(scope, 'PRJ_PROJECT', { TOTAL_INVESTMENT: input.totalInvestmentVnd }, undefined, { type: 'project', id: scope.tenant.tenantId }, input.now);
+}
+
+/**
+ * The structured narrative of a period (ENT-3b, DL.02: mandatory fields): the rules of the surface `PERIOD_NARRATIVE` hold the eight fields up to what the customer approved. A save of a draft with a block is held to
+ * the rules that are not about missing fields (the closed period); the hand-in holds the narrative to all of them, a report of the month without any block included. None approved: nothing changes.
+ */
+export async function enforceNarrativeEntry(
+  scope: CommandScope,
+  input: { resourceId: string; block: EnterpriseNarrative | null; periodStatus: string; phase: 'SAVE' | 'SUBMIT'; now: Date },
+): Promise<void> {
+  if (input.phase === 'SAVE' && input.block === null) return;
+  await enforce(scope, 'PERIOD_NARRATIVE', narrativeEntryValues(input.block), input.periodStatus, { type: 'report_narrative', id: input.resourceId }, input.now, input.phase);
 }

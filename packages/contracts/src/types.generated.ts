@@ -26043,6 +26043,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/{id}/narrative-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ngữ cảnh viết thuyết minh có cấu trúc của một báo cáo: danh mục nguyên nhân, kết quả chỉ đạo giao ban của kỳ, thuyết minh kỳ trước có thể kế thừa và kết quả kiểm tra quy tắc nhập liệu */
+        get: operations["getReportNarrativeContext"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/{id}/narrative-inheritance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Kế thừa thuyết minh kỳ trước vào bản nháp: sao chép có dấu vết các trường còn trống, không ghi đè nội dung đã nhập */
+        post: operations["inheritReportNarrative"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/report-narrative-template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tải mẫu Excel thuyết minh kỳ báo cáo (mỗi dự án một dòng, tám trường và mã nguyên nhân chuẩn) để nhập hàng loạt, chạy thử trước khi áp dụng */
+        get: operations["getReportNarrativeTemplate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -32871,13 +32922,14 @@ export interface components {
         LndHandlePlanFeedback: {
             handling_note: string;
         };
-        /** @description The words of a report (DIS-06 notes). Every section is optional in the weekly report; a section is at most 4000 characters and the issues are those of the project, each named once (at most 50). The member is the whole narrative: what it leaves out is removed from the draft. */
+        /** @description The words of a report (DIS-06 notes). Every section is optional in the weekly report; a section is at most 4000 characters and the issues are those of the project, each named once (at most 50). The member is the whole narrative: what it leaves out is removed from the draft. The `enterprise` member is the block of the enterprise pack (ENT-3b). */
         ReportNarrative: {
             results?: string;
             causes?: string;
             solutions?: string;
             proposals?: string;
             linked_issue_ids?: string[];
+            enterprise?: components["schemas"]["ReportNarrativeEnterprise"];
         };
         /** @description A file attached to a report, as the upload door `uploadReportFile` answered it. Only a file that the scan found clean, of this tenant, with this hash, can be attached (422 FILE_NOT_CLEAN, 409 SCAN_PENDING, 422 HASH_MISMATCH). */
         ReportAttachmentRef: {
@@ -41332,7 +41384,7 @@ export interface components {
             /** @enum {string|null} */
             vat_basis: "EXCLUDING_VAT" | "INCLUDING_VAT" | "NOT_APPLICABLE" | null;
             aliases: string[];
-            required_on: ("DIS_REPORT" | "PRJ_PROJECT" | "INDICATOR_ENTRY" | "INDICATOR_IMPORT")[];
+            required_on: ("DIS_REPORT" | "PRJ_PROJECT" | "INDICATOR_ENTRY" | "INDICATOR_IMPORT" | "PERIOD_NARRATIVE")[];
             version: number;
             /** @enum {string} */
             origin: "RULE" | "DEFAULT";
@@ -41400,7 +41452,7 @@ export interface components {
         };
         IndEntryEvaluate: {
             /** @enum {string} */
-            surface: "DIS_REPORT" | "PRJ_PROJECT" | "INDICATOR_ENTRY" | "INDICATOR_IMPORT";
+            surface: "DIS_REPORT" | "PRJ_PROJECT" | "INDICATOR_ENTRY" | "INDICATOR_IMPORT" | "PERIOD_NARRATIVE";
             values: {
                 [key: string]: string;
             };
@@ -46432,6 +46484,112 @@ export interface components {
                 mimes: string[];
             };
             as_of: string;
+        };
+        /** @description The structured narrative of the enterprise pack (ENT-3b; DL.01, CN.02): the eight fields of the form, at most 4000 characters each, the standard causes picked from the list (MDM-17, at most 20 codes, each once) and the directives of the leadership meetings that were rolled up (at most 50). The member is the whole block: what it leaves out is removed from the draft. The trace of an inheritance is never written by a request. */
+        ReportNarrativeEnterprise: {
+            status?: string;
+            schedule?: string;
+            disbursement?: string;
+            causes?: string;
+            difficulties?: string;
+            solutions?: string;
+            next_plan?: string;
+            proposals?: string;
+            cause_codes?: string[];
+            directive_refs?: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                /** @enum {string} */
+                status_at_end: "OPEN" | "IN_PROGRESS" | "DONE" | "OVERDUE" | "CANCELLED";
+            }[];
+        };
+        /** @description Copies the narrative of the previous period into the draft (CN.02). `fields` names the fields to copy; none named means every field the draft has left empty. A field that already has words is never overwritten. */
+        InheritReportNarrative: {
+            fields?: ("status" | "schedule" | "disbursement" | "causes" | "difficulties" | "solutions" | "next_plan" | "proposals")[];
+            include_causes?: boolean;
+        };
+        /** @description What a person needs to write the narrative of one report: the fields, the standard causes, the directives of the period (DIR-05) ready to be rolled up, the previous period's narrative that can be inherited, the trace of an inheritance, and what the approved entry rules say now. */
+        ReportNarrativeContext: {
+            /** Format: date-time */
+            as_of: string;
+            /** Format: uuid */
+            report_id: string;
+            fields: string[];
+            causes: {
+                code: string;
+                label: string;
+            }[];
+            directives: {
+                /** Format: date */
+                from: string;
+                /** Format: date */
+                to: string;
+                truncated: boolean;
+                items: {
+                    /** Format: uuid */
+                    id: string;
+                    code: string;
+                    /** Format: date */
+                    meeting_date?: string;
+                    text?: string;
+                    assignee_unit?: string;
+                    /** Format: date */
+                    due_on?: string;
+                    status_at_end: string;
+                    last_note?: string | null;
+                    line: string;
+                    rolled_up?: boolean;
+                }[];
+            };
+            previous: {
+                /** Format: uuid */
+                report_id?: string;
+                period_code?: string;
+                status?: string;
+                fields?: string[];
+                cause_codes?: string[];
+            } | null;
+            inheritance: {
+                /** Format: uuid */
+                from_report_id?: string;
+                /** Format: uuid */
+                from_period_id?: string | null;
+                /** Format: date-time */
+                at?: string;
+                /** Format: uuid */
+                by?: string;
+                fields?: string[];
+            } | null;
+            unchanged_inherited: string[];
+            mandatory: string[];
+            verdict: {
+                blocking: {
+                    rule_code?: string;
+                    check?: string;
+                    fields?: string[];
+                    message?: string;
+                }[];
+                warnings: {
+                    rule_code?: string;
+                    check?: string;
+                    fields?: string[];
+                    message?: string;
+                }[];
+            };
+        };
+        /** @description The Excel template for the narratives of a period (CN.02): one row per project, the eight fields and the codes of the standard causes. The file is read back with the mapping `ENT-NARRATIVE-1` through the report import, dry run first. */
+        ReportNarrativeTemplate: {
+            file_name: string;
+            content_type: string;
+            sha256: string;
+            content_base64: string;
+            mapping_version: string;
+            columns: string[];
+            causes: {
+                code: string;
+                label: string;
+            }[];
         };
     };
     responses: never;
@@ -206349,6 +206507,297 @@ export interface operations {
             };
             /** @description Rate limit */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getReportNarrativeContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportNarrativeContext"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    inheritReportNarrative: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InheritReportNarrative"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getReportNarrativeTemplate: {
+        parameters: {
+            query?: {
+                /** @description The period the template is prefilled for: one row for each project the caller may report on that has a live draft of it. */
+                period_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportNarrativeTemplate"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

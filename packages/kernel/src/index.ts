@@ -2851,7 +2851,7 @@ export { DATA_ENTRY_CHECKS, DATA_ENTRY_RULE_TYPE, DATA_ENTRY_SEVERITIES, ENTRY_S
 export type { DataEntryCheck, DataEntrySeverity, EntrySurface, ImportLayout, ImportScale, IndicatorCategory, IndicatorSeed, IndicatorValueKind, NumberFormat, PeriodState, VatBasis } from './ind-definitions.ts';
 export { INDICATOR_RULE_TYPE, dictionaryFindings, filterDictionary, indicatorOf, isEnterable, mandatoryFieldsOf, normalizeLabel } from './ind-dictionary.ts';
 export type { DictionaryFilter, DictionaryFinding, IndicatorEntry } from './ind-dictionary.ts';
-export { assertEntryAllowed, entryRefusal, entryRuleOf, evaluateEntryRules, verdictTrail } from './ind-entry.ts';
+export { assertEntryAllowed, entryRefusal, entryRuleOf, evaluateEntryRules, verdictTrail, withoutRequiredChecks } from './ind-entry.ts';
 export type { EntryFacts, EntryRule, EntrySkip, EntryVerdict, EntryViolation } from './ind-entry.ts';
 export { INDICATOR_IMPORT_CONNECTOR, INDICATOR_IMPORT_MAX_ROWS, canonicalDecimal, figureFitsUnit, importMappingOf, indicatorImportFormat, mappingFitsHeaders, mappingProblems, missingHeaders, parseNumberCell, scaledFigure } from './ind-import-mapping.ts';
 export type { ImportContext, ImportMapping, ImportMappingLine, ImportRecord, MappingProblem, ScaleOutcome } from './ind-import-mapping.ts';
