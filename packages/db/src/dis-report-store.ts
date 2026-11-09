@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, FUNDING_CELLS, RESTORE_WINDOW_DAYS, assertFourEyes, decisionOutcome, deleteRefusal, deltaOf, draftHash, fundingTotals, restoreRefusal, versionConflict, withdrawRefusal } from '@machvon/kernel';
 import type { AttachmentRef, DecisionInput, BudgetLevel, FundingBucket, FundingInput, FundingTotals, MeasurementBasis, NarrativeInput, ProgressInput, ReportType, RevisionStatus } from '@machvon/kernel';
+import { PACK_SELECT, enterpriseBlockOf, packParams } from './ent-narrative-codec.ts';
+import type { PackColumns } from './ent-narrative-codec.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -605,13 +607,53 @@ export class DisReportStore {
     };
   }
 
-  /** The narrative of a report; null when none was written. */
+  /** The narrative of a report; null when none was written. The block of the enterprise pack (ENT-3b) is part of it when the row has one. */
   async narrativeOf(tx: TenantTx, reportId: string): Promise<NarrativeInput | null> {
-    const [row] = await tx.query<{ results: string | null; causes: string | null; solutions: string | null; proposals: string | null; issues: string[] | null }>(
-      'select results_text as results, causes_text as causes, solutions_text as solutions, proposals_text as proposals, linked_issue_ids as issues from machvon.report_narrative where report_revision_id = $1::uuid',
+    const [row] = await tx.query<{ results: string | null; causes: string | null; solutions: string | null; proposals: string | null; issues: string[] | null } & PackColumns>(
+      `select n.results_text as results, n.causes_text as causes, n.solutions_text as solutions, n.proposals_text as proposals, n.linked_issue_ids as issues, ${PACK_SELECT}
+         from machvon.report_narrative n where n.report_revision_id = $1::uuid`,
       [reportId],
     );
-    return row === undefined ? null : { resultsText: row.results, causesText: row.causes, solutionsText: row.solutions, proposalsText: row.proposals, linkedIssueIds: row.issues ?? [] };
+    if (row === undefined) return null;
+    const enterprise = enterpriseBlockOf(row);
+    return { resultsText: row.results, causesText: row.causes, solutionsText: row.solutions, proposalsText: row.proposals, linkedIssueIds: row.issues ?? [], ...(enterprise === undefined ? {} : { enterprise }) };
+  }
+
+  /**
+   * Replaces the narrative of a live draft and nothing else (the copy of the previous period, the apply of a file of narratives): the hash and the version of the report move with it, so what was handed in
+   * later is exactly what the draft held. The cells, the volumes and the files are read as they stand.
+   */
+  async saveNarrative(tx: TenantTx, head: RevisionHead, narrative: NarrativeInput | null, actor: string): Promise<{ version: number; payloadHash: string }> {
+    this.assertEditable(head);
+    const stored = await tx.query<{ bucket: FundingBucket; budget_level: BudgetLevel; cumulative: string; ctmtqg: string | null; next_month: string; next_month_ctmtqg: string | null; source_year: number | null }>(
+      `select bucket, budget_level, disbursed_cumulative_vnd::text as cumulative, ctmtqg_subset_vnd::text as ctmtqg, next_month_registered_vnd::text as next_month,
+              next_month_ctmtqg_subset_vnd::text as next_month_ctmtqg, source_year
+         from machvon.funding_snapshot_line where report_revision_id = $1::uuid`,
+      [head.id],
+    );
+    const byCell = new Map(stored.map((line) => [cellKey(line.bucket, line.budget_level), line]));
+    const cells: FundingInput[] = FUNDING_CELLS.flatMap((cell): FundingInput[] => {
+      const line = byCell.get(cellKey(cell.bucket, cell.budgetLevel));
+      return line === undefined ? [] : [{ bucket: cell.bucket, budgetLevel: cell.budgetLevel, cumulativeVnd: line.cumulative, ctmtqgVnd: line.ctmtqg, nextMonthVnd: line.next_month, nextMonthCtmtqgVnd: line.next_month_ctmtqg, sourceYear: line.source_year }];
+    });
+    const hash = draftHash({
+      projectId: head.projectId,
+      periodId: head.periodId,
+      planVersionId: head.planVersionId,
+      reportType: head.reportType,
+      measurementBasis: head.measurementBasis,
+      cells,
+      negativeDeltaExplanation: head.negativeDeltaExplanation,
+      progress: (await this.progressOf(tx, head.id))?.progress ?? null,
+      narrative,
+      attachments: await this.attachmentsOf(tx, head.id),
+    });
+    const [updated] = await tx.query<{ version: string }>(
+      'update machvon.report_revision set payload_hash = $2, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid returning version::text as version',
+      [head.id, hash, actor],
+    );
+    await this.writeNarrative(tx, head.id, narrative, actor);
+    return { version: Number((updated as { version: string }).version), payloadHash: hash };
   }
 
   /** The issues among the ones named that do not exist or are not issues of the project; empty when every one is. */
@@ -654,7 +696,10 @@ export class DisReportStore {
     );
   }
 
-  /** The narrative is written whole: the row is replaced, and removed when the save leaves none. */
+  /**
+   * The narrative is written whole: the row is replaced, and removed when the save leaves none. The trace of an inheritance (ENT-3b) is written only when the caller names one and is kept as it is when the
+   * block is saved again without it; it goes with the block when the block goes.
+   */
   private async writeNarrative(tx: TenantTx, reportId: string, narrative: NarrativeInput | null, actor: string): Promise<void> {
     if (narrative === null) {
       await tx.query('delete from machvon.report_narrative where report_revision_id = $1::uuid', [reportId]);
@@ -662,12 +707,19 @@ export class DisReportStore {
     }
     await tx.query(
       `insert into machvon.report_narrative
-         (tenant_id, id, report_revision_id, results_text, causes_text, solutions_text, proposals_text, linked_issue_ids, created_by, updated_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2, $3, $4, $5, $6::uuid[], $7::uuid, $7::uuid)
+         (tenant_id, id, report_revision_id, results_text, causes_text, solutions_text, proposals_text, linked_issue_ids, created_by, updated_by,
+          pack_code, pack_version, pack_fields, cause_codes, directive_refs, inherited_from_report_id, inherited_at, inherited_by, inherited_hashes)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1::uuid, $2, $3, $4, $5, $6::uuid[], $7::uuid, $7::uuid,
+               $8, $9::smallint, $10::jsonb, $11::text[], $12::jsonb, $13::uuid, $14::timestamptz, $15::uuid, $16::jsonb)
        on conflict (tenant_id, report_revision_id) do update
          set results_text = excluded.results_text, causes_text = excluded.causes_text, solutions_text = excluded.solutions_text, proposals_text = excluded.proposals_text,
-             linked_issue_ids = excluded.linked_issue_ids, updated_at = now(), updated_by = excluded.updated_by, version = machvon.report_narrative.version + 1`,
-      [reportId, narrative.resultsText, narrative.causesText, narrative.solutionsText, narrative.proposalsText, [...narrative.linkedIssueIds], actor],
+             linked_issue_ids = excluded.linked_issue_ids, updated_at = now(), updated_by = excluded.updated_by, version = machvon.report_narrative.version + 1,
+             pack_code = excluded.pack_code, pack_version = excluded.pack_version, pack_fields = excluded.pack_fields, cause_codes = excluded.cause_codes, directive_refs = excluded.directive_refs,
+             inherited_from_report_id = case when excluded.pack_code is null then null else coalesce(excluded.inherited_from_report_id, machvon.report_narrative.inherited_from_report_id) end,
+             inherited_at = case when excluded.pack_code is null then null else coalesce(excluded.inherited_at, machvon.report_narrative.inherited_at) end,
+             inherited_by = case when excluded.pack_code is null then null else coalesce(excluded.inherited_by, machvon.report_narrative.inherited_by) end,
+             inherited_hashes = case when excluded.pack_code is null then null else coalesce(excluded.inherited_hashes, machvon.report_narrative.inherited_hashes) end`,
+      [reportId, narrative.resultsText, narrative.causesText, narrative.solutionsText, narrative.proposalsText, [...narrative.linkedIssueIds], actor, ...packParams(narrative.enterprise)],
     );
   }
 
