@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 569,
-    "webCatalog": 569,
+    "webRoutes": 570,
+    "webCatalog": 570,
     "webModules": 34,
     "mobileRoutes": 76,
     "mobileCatalog": 76,
@@ -6020,6 +6020,16 @@
     {
       "id": "ADM-27",
       "title": "Phạm vi theo kỳ báo cáo",
+      "kind": "table",
+      "area": "admin",
+      "module": "ADM",
+      "group": "Quy tắc quản trị",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "ADM-29",
+      "title": "Sao lưu và yêu cầu sao lưu thủ công",
       "kind": "table",
       "area": "admin",
       "module": "ADM",
