@@ -154,7 +154,7 @@ class DelegationsScreen extends StatelessWidget {
       body: DataView<DelegationsView>(
         cacheKey: 'reads.delegations',
         read: (MachvonApiClient client) async {
-          final Object? grants = await _optional(() => client.get_resources_delegation_grant(query: <String, Object?>{'limit': 50}));
+          final Object? grants = await _optional(() => client.getResourcesDelegationGrant(query: <String, Object?>{'limit': 50}));
           final Object? absences = await _optional(() => client.listAlertAbsences(query: <String, Object?>{'mine': false}));
           return <String, Object?>{'grants': grants, 'absences': absences};
         },
