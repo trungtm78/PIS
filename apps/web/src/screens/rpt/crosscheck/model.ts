@@ -6,7 +6,6 @@ import { ApiError } from '@machvon/api-client';
 export type Crosscheck = components['schemas']['RptCrosscheck'];
 export type Finding = components['schemas']['RptCrosscheckFinding'];
 export type Term = components['schemas']['RptCrosscheckTerm'];
-export type PathStep = components['schemas']['RptCrosscheckPathStep'];
 export type Skip = components['schemas']['RptCrosscheckSkip'];
 export type Explanation = components['schemas']['RptCrosscheckExplanation'];
 
@@ -65,7 +64,8 @@ export function sortFindings(findings: readonly Finding[]): Finding[] {
   return findings.map((one, at) => ({ one, at })).sort((a, b) => rank(a.one) - rank(b.one) || a.at - b.at).map((entry) => entry.one);
 }
 
-export const stepKey = (step: PathStep['step']): string => `rpt.crosscheck.path.${step.toLowerCase()}`;
+/** The word of a server enum in the keys of the catalogue: `PVN_MONTHLY` is `pvnMonthly`. */
+export const camel = (value: string): string => value.toLowerCase().replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
 
 export interface Refusal {
   code: string;

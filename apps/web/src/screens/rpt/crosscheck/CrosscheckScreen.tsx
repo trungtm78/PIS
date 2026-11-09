@@ -12,7 +12,7 @@ import { vietnamDateTime } from '../model';
 import '../rpt.css';
 import './crosscheck.css';
 import { useCrosscheck, useExplain } from './hooks';
-import { REASON_MAX, differenceText, draftFromSearch, figureText, periodFromSearch, reasonProblem, refusalOf, sortFindings, stepKey } from './model';
+import { REASON_MAX, camel, differenceText, draftFromSearch, figureText, periodFromSearch, reasonProblem, refusalOf, sortFindings } from './model';
 import type { Crosscheck, Finding, PeriodChoice, Skip } from './model';
 
 const severityTone = (finding: Finding): Tone => (finding.status === 'EXPLAINED' ? 'success' : finding.severity === 'BLOCKING' ? 'danger' : 'warning');
@@ -142,7 +142,7 @@ function Gate({ gate }: { gate: NonNullable<Crosscheck['gate']> }) {
 function ReportsTable({ data }: { data: Crosscheck }) {
   const { t } = useTranslation();
   const columns: DataTableColumn<Crosscheck['reports'][number]>[] = [
-    { key: 'role', header: t('rpt.crosscheck.reports.col.role'), pinned: true, render: (row) => t(`rpt.crosscheck.role.${row.role.toLowerCase()}`) },
+    { key: 'role', header: t('rpt.crosscheck.reports.col.role'), pinned: true, render: (row) => t(`rpt.crosscheck.role.${row.role === 'SNAPSHOT' ? 'snapshot' : camel(row.role)}`) },
     { key: 'form', header: t('rpt.crosscheck.reports.col.form'), render: (row) => <strong>{row.layout_code}</strong> },
     { key: 'period', header: t('rpt.crosscheck.reports.col.period'), render: (row) => row.period_code },
     { key: 'ref', header: t('rpt.crosscheck.reports.col.ref'), render: (row) => (row.ref.kind === 'ISSUE' ? t('rpt.crosscheck.ref.issue', { revision: row.ref.revision ?? 1 }) : row.ref.kind === 'SNAPSHOT' ? t('rpt.crosscheck.ref.snapshot', { revision: row.ref.revision ?? 1 }) : t('rpt.crosscheck.ref.draft')) },
@@ -158,7 +158,7 @@ function SkippedTable({ skipped }: { skipped: readonly Skip[] }) {
   if (skipped.length === 0) return <p>{t('rpt.crosscheck.skipped.none')}</p>;
   const columns: DataTableColumn<Skip>[] = [
     { key: 'rule', header: t('rpt.crosscheck.skipped.col.rule'), pinned: true, render: (row) => row.rule_id },
-    { key: 'reason', header: t('rpt.crosscheck.skipped.col.reason'), render: (row) => t(`rpt.crosscheck.skip.${row.reason.toLowerCase()}`) },
+    { key: 'reason', header: t('rpt.crosscheck.skipped.col.reason'), render: (row) => t(`rpt.crosscheck.skip.${camel(row.reason)}`) },
     { key: 'text', header: t('rpt.crosscheck.skipped.col.text'), render: (row) => row.text },
   ];
   return <DataTable caption={t('rpt.crosscheck.skipped.caption')} columns={columns} rows={[...skipped]} rowKey={(row) => `${row.rule_id}|${row.reason}|${row.role ?? ''}|${row.period_code ?? ''}|${row.code ?? ''}`} />;
@@ -197,7 +197,7 @@ function FindingCard({ finding, period, thousands }: { finding: Finding; period:
         <strong>{t('rpt.crosscheck.path.title')}</strong>
         <ol className="rpt-cc__path">
           {finding.path.map((step, at) => (
-            <li key={`${step.step}-${at}`}>{t(stepKey(step.step), { form: step.layout_code ?? '', period: step.period_code ?? '', rows: (step.rows ?? []).join(', ') })}</li>
+            <li key={`${step.step}-${at}`}>{t(`rpt.crosscheck.path.${camel(step.step)}`, { form: step.layout_code ?? '', period: step.period_code ?? '', rows: (step.rows ?? []).join(', ') })}</li>
           ))}
         </ol>
       </div>
@@ -215,7 +215,7 @@ function FindingCard({ finding, period, thousands }: { finding: Finding; period:
 function TermsTable({ finding, thousands }: { finding: Finding; thousands: string }) {
   const { t } = useTranslation();
   const columns: DataTableColumn<Finding['terms'][number]>[] = [
-    { key: 'role', header: t('rpt.crosscheck.terms.col.role'), pinned: true, render: (row) => (row.role === 'SNAPSHOT' ? t('rpt.crosscheck.role.snapshot') : t(`rpt.crosscheck.role.${row.role.toLowerCase()}`)) },
+    { key: 'role', header: t('rpt.crosscheck.terms.col.role'), pinned: true, render: (row) => t(`rpt.crosscheck.role.${row.role === 'SNAPSHOT' ? 'snapshot' : camel(row.role)}`) },
     { key: 'form', header: t('rpt.crosscheck.terms.col.form'), render: (row) => row.layout_code },
     { key: 'period', header: t('rpt.crosscheck.terms.col.period'), render: (row) => row.period_code },
     { key: 'row', header: t('rpt.crosscheck.terms.col.row'), render: (row) => row.row_key ?? '–' },
