@@ -95,6 +95,7 @@
     "dgvSteward",
     "mneAdmin",
     "sysAdmin",
-    "docHead"
+    "docHead",
+    "contractorUser"
   ]
 }

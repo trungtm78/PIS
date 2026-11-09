@@ -1,0 +1,263 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "procurement-desk",
+  "title": "Lựa chọn nhà thầu và phân tích hồ sơ dự thầu",
+  "summary": "The selection plan and its tracking, the package and criteria set up, bid intake with OCR check, the evidence bench with AI analysis and side by side comparison, clarification, expert verification, the evaluation record and the contract handover.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "bid-plan",
+      "chapter": "procurement-desk",
+      "main": false,
+      "narration": "Kế hoạch lựa chọn nhà thầu được lập và điều chỉnh có lý do. Mỗi mốc mời thầu được theo dõi, và kết quả lựa chọn được phê duyệt trước khi sang hợp đồng. Liên kết với cổng đấu thầu quốc gia và đối soát nằm cùng một chỗ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-15",
+          "BID-16",
+          "BID-17",
+          "BID-18",
+          "BID-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-15"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.plan.selection-plan"
+        },
+        {
+          "do": "open",
+          "screen": "BID-16"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.plan.adjust"
+        },
+        {
+          "do": "open",
+          "screen": "BID-17"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.plan.milestones"
+        },
+        {
+          "do": "open",
+          "screen": "BID-18"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.plan.result-approval"
+        },
+        {
+          "do": "open",
+          "screen": "BID-19"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    },
+    {
+      "id": "bid-package",
+      "chapter": "procurement-desk",
+      "main": false,
+      "narration": "Mỗi gói thầu có đề án và bộ tiêu chí đánh giá, khai trước khi mở hồ sơ. Hồ sơ dự thầu được tiếp nhận, ghi lại thời điểm nộp và người nhận.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-03",
+          "BID-04",
+          "BID-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-03"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.package.setup"
+        },
+        {
+          "do": "open",
+          "screen": "BID-04"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.package.criteria"
+        },
+        {
+          "do": "open",
+          "screen": "BID-05"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.package.intake"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 11.5
+    },
+    {
+      "id": "bid-ocr",
+      "chapter": "procurement-desk",
+      "main": false,
+      "narration": "Hồ sơ dạng ảnh được đọc bằng OCR, người kiểm tra lại chỗ đọc chưa chắc. Lượt phân tích được cấu hình trước, và tiến trình chạy hiện từng bước. Chạy lại bao nhiêu lần cũng được lưu đủ.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-06",
+          "BID-07",
+          "BID-08"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-06"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.analysis.ocr-check"
+        },
+        {
+          "do": "open",
+          "screen": "BID-07"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.analysis.run-config"
+        },
+        {
+          "do": "open",
+          "screen": "BID-08"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.analysis.progress"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "bid-evidence-bench",
+      "chapter": "procurement-desk",
+      "main": false,
+      "narration": "Bàn phân tích có dẫn chứng: mỗi nhận định chỉ ra đoạn gốc trong hồ sơ. So sánh các đề án đặt cạnh nhau theo tiêu chí. AI chỉ gợi ý, người chấm quyết định và ghi lý do.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-09",
+          "BID-10"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-09"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.analysis.evidence-bench"
+        },
+        {
+          "do": "open",
+          "screen": "BID-10"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.analysis.compare-bids"
+        }
+      ],
+      "captions": [
+        {
+          "text": "AI gợi ý, người chấm quyết định",
+          "atSec": 4,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "bid-evaluation",
+      "chapter": "procurement-desk",
+      "main": false,
+      "narration": "Làm rõ hồ sơ đi theo câu hỏi và trả lời có hạn. Chuyên gia thẩm tra độc lập, rồi biên bản đánh giá được lập. Kết quả đi tiếp sang hợp đồng và các thay đổi của hợp đồng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BID-11",
+          "BID-12",
+          "BID-13",
+          "BID-14"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "bidManager"
+        },
+        {
+          "do": "open",
+          "screen": "BID-11"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.evaluation.clarification"
+        },
+        {
+          "do": "open",
+          "screen": "BID-12"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.evaluation.expert-review"
+        },
+        {
+          "do": "open",
+          "screen": "BID-13"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.evaluation.minutes"
+        },
+        {
+          "do": "open",
+          "screen": "BID-14"
+        },
+        {
+          "do": "spot",
+          "ref": "bid.evaluation.contract-handover"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    }
+  ]
+}

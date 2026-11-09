@@ -1,0 +1,356 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "integration",
+  "title": "Tích hợp: Hub, API mở và dữ liệu",
+  "summary": "The Integration Hub (connector catalogue, detail with seven tabs, incident log), machine accounts and scopes of the open API, BI accounts on certified datasets, the project code crosswalk, the open API access log, data contracts and pipelines, metric registration, export and dashboard sharing.",
+  "mainOptional": true,
+  "figures": {
+    "hub-total": {
+      "kind": "count",
+      "sample": 12,
+      "description": "Connectors in the Integration Hub.",
+      "source": {
+        "operation": "getHubHealthSummary",
+        "select": "summary.total"
+      }
+    },
+    "hub-healthy-pct": {
+      "kind": "percent",
+      "sample": 83.3,
+      "digits": 1,
+      "description": "Share of monitored connectors that are healthy.",
+      "source": {
+        "operation": "getHubHealthSummary",
+        "select": "summary.healthy_percent"
+      }
+    }
+  },
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "hub-catalogue",
+      "chapter": "integration",
+      "main": false,
+      "narration": "Trung tâm tích hợp quản mọi bộ kết nối trong một danh mục. Có {{figure:hub-total}} bộ kết nối, {{figure:hub-healthy-pct}} đang khỏe. Trạng thái gồm khỏe, cũ, lỗi, tắt, chờ bên ngoài và chưa từng chạy. Bộ nào chưa ai dùng không bị coi là ổn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HUB-01"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "HUB-01"
+        },
+        {
+          "do": "spot",
+          "ref": "hub.catalogue.connector-list"
+        },
+        {
+          "do": "spot",
+          "ref": "hub.catalogue.health-summary"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Chưa từng chạy ≠ khỏe",
+          "atSec": 4,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 17.9
+    },
+    {
+      "id": "hub-detail",
+      "chapter": "integration",
+      "main": false,
+      "narration": "Chi tiết một bộ kết nối có bảy thẻ: giao thức, đường ống, ánh xạ, thông tin xác thực, ngoại lệ ra ngoài, tác nhân thu thập và xu hướng. Sự cố tự mở sổ nhật ký. Kết nối ra máy chủ ngoài chỉ chạy khi đã có ngoại lệ do đơn vị duyệt.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HUB-02",
+          "HUB-03"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "HUB-02"
+        },
+        {
+          "do": "spot",
+          "ref": "hub.connector.tabs"
+        },
+        {
+          "do": "spot",
+          "ref": "hub.connector.freshness-rule"
+        },
+        {
+          "do": "open",
+          "screen": "HUB-03"
+        },
+        {
+          "do": "spot",
+          "ref": "hub.incidents.log"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "int-machine-accounts",
+      "chapter": "integration",
+      "main": false,
+      "narration": "Hệ thống khác gọi API mở bằng tài khoản máy. Khóa bí mật chỉ hiện một lần, lưu dạng băm. Tạm khóa có hiệu lực ngay ở lần gọi kế tiếp. Phạm vi xác định đúng dữ liệu được đọc, không rộng hơn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "INT-01",
+          "INT-02"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "INT-01"
+        },
+        {
+          "do": "spot",
+          "ref": "int.accounts.list"
+        },
+        {
+          "do": "open",
+          "screen": "INT-02"
+        },
+        {
+          "do": "spot",
+          "ref": "int.accounts.scopes-keys"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.8
+    },
+    {
+      "id": "int-bi-accounts",
+      "chapter": "integration",
+      "main": false,
+      "narration": "Tài khoản BI đọc các bộ dữ liệu đã chứng nhận qua đường riêng, mỗi đơn vị một đăng nhập, chỉ thấy ảnh chụp kỳ đã chốt. Power BI nối được vào mà không chạm tới bảng nguồn.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "INT-04",
+          "BI-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "INT-04"
+        },
+        {
+          "do": "spot",
+          "ref": "int.bi.accounts"
+        },
+        {
+          "do": "open",
+          "screen": "BI-19"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.bi.certified-datasets"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.6
+    },
+    {
+      "id": "int-crosswalk",
+      "chapter": "integration",
+      "main": false,
+      "narration": "Mã dự án ở các hệ thống khác nhau được ánh xạ qua bảng đối chiếu có hai người duyệt và thời hạn hiệu lực. Mã đã là mã của dự án khác bị từ chối, nên lịch sử đối chiếu không bao giờ đổi dự án một cách âm thầm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "INT-03",
+          "MDM-35"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "INT-03"
+        },
+        {
+          "do": "spot",
+          "ref": "int.crosswalk.project-codes"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-35"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.crosswalk.records"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.9
+    },
+    {
+      "id": "int-access-log",
+      "chapter": "integration",
+      "main": false,
+      "narration": "Nhật ký truy cập API mở ghi từng lần gọi: tài khoản, phạm vi, kết quả và thời điểm. Giới hạn tần suất áp dụng cho từng tài khoản, nên một hệ thống gọi quá dày không làm chậm các hệ thống khác.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "INT-05"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "INT-05"
+        },
+        {
+          "do": "spot",
+          "ref": "int.open-api.access-log"
+        },
+        {
+          "do": "spot",
+          "ref": "int.open-api.rate-limit"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.1
+    },
+    {
+      "id": "dgv-contracts",
+      "chapter": "integration",
+      "main": false,
+      "narration": "Hợp đồng dữ liệu mô tả lược đồ mà nguồn hứa giữ. Đường ống và ánh xạ nối nguồn với bảng đích. Thay đổi hợp đồng phải được chấp thuận. Sản phẩm dữ liệu chỉ được chứng nhận khi qua các kiểm tra chất lượng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DGV-13",
+          "DGV-14",
+          "DGV-18",
+          "DGV-19"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "dgvSteward"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-13"
+        },
+        {
+          "do": "spot",
+          "ref": "dgv.data-contract.schema"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-14"
+        },
+        {
+          "do": "spot",
+          "ref": "dgv.pipeline.mapping"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-18"
+        },
+        {
+          "do": "spot",
+          "ref": "dgv.data-product.certification"
+        },
+        {
+          "do": "open",
+          "screen": "DGV-19"
+        },
+        {
+          "do": "spot",
+          "ref": "dgv.data-contract.change-approval"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 15.8
+    },
+    {
+      "id": "bi-registry-share",
+      "chapter": "integration",
+      "main": false,
+      "narration": "Chỉ tiêu được đăng ký từ mã nguồn nên định nghĩa chỉ có một nơi. Xuất dữ liệu bị giới hạn theo phạm vi quyền của người xuất. Dashboard chia sẻ cho từng người hoặc nhóm, và người nhận chỉ thấy phần dữ liệu mình được xem.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-15",
+          "BI-16",
+          "BI-17"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "BI-15"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.registry.from-code"
+        },
+        {
+          "do": "open",
+          "screen": "BI-16"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.export.scope"
+        },
+        {
+          "do": "open",
+          "screen": "BI-17"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.sharing.dashboard"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    }
+  ]
+}

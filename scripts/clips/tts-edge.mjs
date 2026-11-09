@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { argument, flag, mapLimit, positionals, readJson, sha256 } from './common.mjs';
-import { loadScenario, selectScenes } from './scenario.mjs';
+import { loadScenario, recordableScenes } from './scenario.mjs';
 import { sentencesOf, speechText } from './text.mjs';
 import { parseWav } from './tts.mjs';
 
@@ -119,7 +119,7 @@ async function main(argv) {
   const scenario = loadScenario(clip);
   const index = await synthesizeEdge({
     scenario,
-    scenes: selectScenes(scenario, cut),
+    scenes: recordableScenes(scenario, cut, { includePending: flag(argv, 'include-pending') }),
     manifest: manifestPath === undefined ? undefined : readJson(manifestPath),
     mode: flag(argv, 'sample') ? 'sample' : 'manifest',
     cacheDir: argument(argv, 'cache', process.env.CLIPS_EDGE_CACHE ?? 'D:/tmp/clips-cache/audio-edge'),

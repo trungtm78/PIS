@@ -1,0 +1,405 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "risk-forecast",
+  "title": "Dự báo, rủi ro và hiệu quả đầu tư",
+  "summary": "Forecasts and insight of GOV-11 (milestone forecasts and accuracy, year-end band, ranking, bottlenecks, heat map, decision log, freshness and source trace), the project risk board of MR-1, the site look-ahead plan, lessons learned at the closing gate and the effectiveness after investment.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "fc-milestones",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Dự báo giải ngân tính tới từng mốc chỉ đạo, và kế hoạch giải ngân tuần theo dự án cho biết cần bao nhiêu mỗi tuần. Sau mỗi tháng, độ chính xác dự báo của từng chủ đầu tư được đo. Chủ đầu tư hay dự báo lệch được đánh dấu để rà lại.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-30",
+          "DIS-31",
+          "DIS-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-30"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.forecast.milestones"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-31"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.forecast.accuracy"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-24"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.forecast.weekly-plan"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.2
+    },
+    {
+      "id": "fc-year-band",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Dự báo cuối năm hiện thành một dải chứ không phải một con số. Dải tính từ tốc độ bốn đến tám tuần gần nhất, kèm số cần giải ngân mỗi tuần. Ngưỡng cảnh báo được kiểm lại trên dữ liệu quá khứ trước khi tin dùng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-21",
+          "BI-30"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "BI-21"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.forecast.year-end-band"
+        },
+        {
+          "do": "open",
+          "screen": "BI-30"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.forecast.backtest"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16
+    },
+    {
+      "id": "fc-ranking",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Xếp hạng nhiều chỉ số, chuẩn hóa theo quy mô, đặt tỷ lệ giải ngân cạnh tiến độ thực tế. Đơn vị bị vướng vì nguyên nhân bên ngoài được ghi chú có duyệt. Số liệu bị khiếu nại có hàng chờ riêng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-25",
+          "BI-26"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "BI-25"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.ranking.multi-metric"
+        },
+        {
+          "do": "open",
+          "screen": "BI-26"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.ranking.annotations"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8
+    },
+    {
+      "id": "fc-bottleneck",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Phân tích điểm nghẽn cho biết số tiền đang bị giữ, nguyên nhân chuẩn, tuổi của khoản nợ và đơn vị đang giữ. Dự án dừng có hồ sơ lý do và kế hoạch khởi động lại, không bị bỏ quên.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-27",
+          "BI-28"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "BI-27"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.bottleneck.held-amount"
+        },
+        {
+          "do": "open",
+          "screen": "BI-28"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.bottleneck.halted-projects"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 13.9
+    },
+    {
+      "id": "fc-heatmap-decisions",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Bản đồ nhiệt giải ngân theo đơn vị, nguồn vốn và nhà thầu cho thấy chỗ nóng nhất. Mỗi quyết định của lãnh đạo gắn với cảnh báo hoặc con số lúc ra quyết định, được đóng băng trong nhật ký quyết định.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-29",
+          "BI-22"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "BI-29"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.heatmap.grid"
+        },
+        {
+          "do": "open",
+          "screen": "BI-22"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.decisions.log"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.5
+    },
+    {
+      "id": "fc-trust",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Mỗi số có độ tươi theo từng bộ dữ liệu, dữ liệu quá hạn bị đánh dấu là cũ. Thẻ điểm chất lượng chấm theo từng phân hệ và đơn vị. Truy nguồn đi từ chỉ tiêu về bộ dữ liệu, bảng và phân hệ sinh ra nó.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "BI-23",
+          "BI-24"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "BI-23"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.freshness.scorecard"
+        },
+        {
+          "do": "open",
+          "screen": "BI-24"
+        },
+        {
+          "do": "spot",
+          "ref": "bi.trace.source-path"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.3
+    },
+    {
+      "id": "risk-board",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Bảng rủi ro dự án chấm từ tín hiệu thật: chậm tiến độ, toàn vẹn thanh toán, claim và cảnh báo sớm, thiếu vốn, mua sắm chậm. Số không biết được thì ghi là chưa có, không bao giờ ghi là số không. Điểm tăng qua ngưỡng mới báo, mỗi ngày một lần cho mỗi vấn đề.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-28",
+          "PRJ-16"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-28"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.risk.signal-lines"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.risk.score-history"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-16"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.risk.register"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Không biết thì ghi chưa có, không ghi số không",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 19.4
+    },
+    {
+      "id": "look-ahead",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Kế hoạch nhìn trước hai đến sáu tuần của công trường liệt kê hạng mục sắp làm, ràng buộc và người gỡ ràng buộc. Công trường công bố mỗi tuần một kế hoạch. Ràng buộc quá hạn được nêu rõ, và người công bố là chủ của kế hoạch.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-30"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-30"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.look-ahead.items"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.look-ahead.constraints"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 16.6
+    },
+    {
+      "id": "lessons-closure",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Cổng đóng dự án có phần bài học kinh nghiệm. Bài học được ghi lại với nguyên nhân và đề xuất, rồi dùng khi chuẩn bị các dự án sau. Dự án chưa qua cổng thì chưa được coi là đóng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "PRJ-29"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "PRJ-29"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.lessons.closing-gate"
+        },
+        {
+          "do": "spot",
+          "ref": "prj.lessons.entries"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.2
+    },
+    {
+      "id": "effectiveness",
+      "chapter": "risk-forecast",
+      "main": false,
+      "narration": "Hiệu quả sau đầu tư có bộ chỉ tiêu mục tiêu do một người soạn, người khác chốt rồi không sửa nữa. Số thực đo theo từng kỳ, độ lệch tính chính xác. Người ngoài người trình quyết định kết luận. Lịch đánh giá theo nhóm dự án là cấu hình mặc định, chưa kiểm chứng.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "MNE-11",
+          "AST-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "MNE-11"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.effectiveness.target-set"
+        },
+        {
+          "do": "spot",
+          "ref": "mne.effectiveness.variance"
+        },
+        {
+          "do": "open",
+          "screen": "AST-07"
+        },
+        {
+          "do": "spot",
+          "ref": "ast.effectiveness.trigger"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Con số pháp lý là cấu hình mặc định, chưa kiểm chứng",
+          "atSec": 4,
+          "forSec": 7
+        }
+      ],
+      "expectedSec": 19.1,
+      "stamps": [
+        "unverified-legal"
+      ]
+    }
+  ]
+}

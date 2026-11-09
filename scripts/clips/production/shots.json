@@ -99,6 +99,623 @@
     ],
     "ph-approval": [
       "Màn xác nhận phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại, ghi rõ đó là hình dựng lại"
+    ],
+    "vnd2-independence": [
+      "Mỗi phát hiện có mức mạnh hay yếu và lý do bằng chữ",
+      "Cột quyết định hiện tên người khác với người chạy kiểm tra"
+    ],
+    "vnd2-finance-load": [
+      "Bảng tỷ số hiện giá trị, ngưỡng của quy tắc và kết quả đạt hay không",
+      "Tín hiệu tải hiện rõ khi vượt bội số của quy tắc"
+    ],
+    "vnd2-bid-security": [
+      "Sổ có các trạng thái đã nhận, đã xác nhận, hoàn trả, hết hạn, tịch thu",
+      "Dòng đề xuất tịch thu chờ người thứ hai"
+    ],
+    "vnd2-risk-grade": [
+      "Cột hạng hiện cả hạng đã xác nhận và hạng đang tính",
+      "Mỗi tín hiệu có lời giải thích"
+    ],
+    "vnd2-performance": [
+      "Đề xuất xếp hạng có dẫn chứng và ô phản hồi của nhà thầu",
+      "Điểm AI nằm cạnh điểm người chấm, không thay thế"
+    ],
+    "vnd2-credentials": [
+      "Cột hạn hiện màu theo mức sắp hết hạn",
+      "Danh sách nhân sự chủ chốt gắn với chứng chỉ"
+    ],
+    "vnd2-reputation": [
+      "Sổ sự kiện có loại sự kiện và nhà thầu liên quan",
+      "Hồ sơ cấm hiện các bước đề nghị, phản hồi, quyết định, hiệu lực"
+    ],
+    "vnd3-link-graph": [
+      "Đồ thị và bảng thay thế cùng hiện",
+      "Bằng chứng chỉ hiện dấu vân tay ngắn, không hiện dữ liệu gốc"
+    ],
+    "vnd3-screening": [
+      "Bảng kết quả có điểm khớp và căn cứ khớp",
+      "Các lần chạy sàng lọc hiện thời gian và nguồn danh sách"
+    ],
+    "portal-home": [
+      "Tài khoản đăng nhập là thành viên khách gắn với một nhà thầu",
+      "Không có dữ liệu của nhà thầu khác trên màn hình"
+    ],
+    "portal-requests": [
+      "Mỗi yêu cầu hiện hạn trả lời còn lại",
+      "Ô trả lời đính kèm được tệp"
+    ],
+    "portal-certificates": [
+      "Danh sách chứng chỉ có trạng thái chờ xác minh",
+      "Giới hạn tệp hiện trên màn hình"
+    ],
+    "portal-evaluations": [
+      "Đánh giá có ô phản hồi của nhà thầu",
+      "Kế hoạch khắc phục hiện các bước và hạn"
+    ],
+    "portal-petitions": [
+      "Thống kê kiến nghị theo kết quả và thời gian xử lý",
+      "Nút xuất danh sách các bên"
+    ],
+    "portal-admin": [
+      "Danh sách thư mời có hạn dùng",
+      "Công tắc bật hoặc khóa cổng của từng nhà thầu"
+    ],
+    "claims-register": [
+      "Sổ có bên yêu cầu, loại claim, trạng thái và hạn gần nhất",
+      "Tổng hợp trên đầu bảng khớp với số dòng"
+    ],
+    "claims-limitation": [
+      "Đồng hồ thời hiệu hiện số ngày còn lại hoặc nhãn chưa có điều khoản",
+      "Dấu chưa kiểm chứng hiện trên hình"
+    ],
+    "warnings-register": [
+      "Cảnh báo có phân loại, bên nêu và mức tác động",
+      "Danh sách biện pháp có người phụ trách và hạn"
+    ],
+    "contract-settlement-clocks": [
+      "Cột trạng thái đồng hồ: còn hạn, sắp đến, quá hạn, đã đạt",
+      "Sơ đồ liên kết hợp đồng mở được từng liên kết"
+    ],
+    "protests": [
+      "Kiến nghị có hạn giải quyết và người xử lý",
+      "Khai xung đột lợi ích gắn với gói thầu"
+    ],
+    "al-escalation-policy": [
+      "Các mức leo thang hiện thời gian chờ từng mức",
+      "Danh sách cảnh báo đã được đẩy lên mức cao hơn"
+    ],
+    "al-channel-ladder": [
+      "Thang kênh hiện thứ tự và thời gian chờ",
+      "Hành trình gửi của một thông báo có biên nhận"
+    ],
+    "al-my-profile": [
+      "Cài đặt giờ yên lặng và kênh",
+      "Bản tóm tắt hằng ngày"
+    ],
+    "al-wrong-feedback": [
+      "Hàng chờ phản hồi có lý do của người nhận",
+      "Nhóm cảnh báo bị gộp vì dồn dập"
+    ],
+    "al-deferred": [
+      "Việc hoãn có ngày xem lại",
+      "Mỗi quy tắc có công thức, nguồn và ngày hiệu lực"
+    ],
+    "del-permanent": [
+      "Yêu cầu có người ủy quyền, người được ủy quyền, quyền và ngày xem xét lại",
+      "Tên người duyệt khác cả hai người kia"
+    ],
+    "del-acting": [
+      "Danh sách quyền được làm thay không có động từ quyết định",
+      "Nhật ký ghi hai danh tính"
+    ],
+    "del-period-scope": [
+      "Danh sách quyền có cột kỳ được phép",
+      "Hàng không giới hạn ghi rõ là mọi kỳ"
+    ],
+    "del-absence-cover": [
+      "Khoảng trống độ phủ hiện theo vị trí",
+      "Cảnh báo mồ côi có chủ cũ"
+    ],
+    "aud-list": [
+      "Danh sách có trạng thái và hạn từng cuộc",
+      "Ô tổng quan khớp với danh sách"
+    ],
+    "aud-findings": [
+      "Mỗi phát hiện có căn cứ và liên kết tài liệu"
+    ],
+    "aud-recommendations": [
+      "Kiến nghị có đơn vị, hạn và tiến độ",
+      "Thứ tự theo chủ đầu tư"
+    ],
+    "aud-remediation": [
+      "Dòng thu hồi có số thanh toán đối chiếu",
+      "Bằng chứng khắc phục gắn với kiến nghị"
+    ],
+    "aud-redflag-detail": [
+      "Chi tiết tín hiệu nêu chỉ báo và dữ liệu căn cứ",
+      "Sổ chỉ báo có công thức và ngày hiệu lực"
+    ],
+    "aud-whistle-gifts": [
+      "Tố giác hiện mã theo dõi, không hiện danh tính",
+      "Sổ quà tặng có giá trị và người khai"
+    ],
+    "fc-milestones": [
+      "Bảng mốc chỉ đạo có số dự báo và số cần",
+      "Bảng độ chính xác theo chủ đầu tư"
+    ],
+    "fc-year-band": [
+      "Dải dự báo có cận trên và cận dưới",
+      "Kết quả kiểm lại ngưỡng trên dữ liệu quá khứ"
+    ],
+    "fc-ranking": [
+      "Cột tiến độ thực tế cạnh tỷ lệ giải ngân",
+      "Ghi chú đã duyệt gắn với đơn vị"
+    ],
+    "fc-bottleneck": [
+      "Bảng điểm nghẽn có tuổi nợ và đơn vị giữ",
+      "Dự án dừng có kế hoạch khởi động lại"
+    ],
+    "fc-heatmap-decisions": [
+      "Bản đồ nhiệt có chú thích thang màu",
+      "Nhật ký quyết định có số liệu đóng băng"
+    ],
+    "fc-trust": [
+      "Cờ dữ liệu cũ hiện ở bộ dữ liệu quá hạn",
+      "Đường truy nguồn từ chỉ tiêu về phân hệ"
+    ],
+    "risk-board": [
+      "Mỗi dòng tín hiệu có điểm và lời giải thích",
+      "Lịch sử điểm của dự án"
+    ],
+    "look-ahead": [
+      "Bảng hạng mục theo tuần",
+      "Ràng buộc có người gỡ và hạn"
+    ],
+    "lessons-closure": [
+      "Danh sách bài học có nguyên nhân và đề xuất",
+      "Trạng thái cổng đóng dự án"
+    ],
+    "effectiveness": [
+      "Bộ mục tiêu đã chốt không có nút sửa",
+      "Độ lệch giữa mục tiêu và thực tế từng kỳ"
+    ],
+    "doc-viewer": [
+      "Văn bản hiện cùng cột ghi chú",
+      "Mã trích dẫn cố định cạnh đoạn trích"
+    ],
+    "doc-review-board": [
+      "Bảng có các bước và người duyệt song song",
+      "Bản đã duyệt hiện biểu tượng khóa"
+    ],
+    "doc-compare": [
+      "Hai phiên bản cạnh nhau với đoạn khác biệt tô màu"
+    ],
+    "doc-transmittal": [
+      "Bảng bốn trạng thái tài liệu",
+      "Phiếu chuyển giao có hạn xem xét từng người nhận"
+    ],
+    "ai-grounded": [
+      "Câu trả lời có nhãn nguồn, giả định, suy luận",
+      "Bản ghi quyết định của người tách khỏi lượt hỏi"
+    ],
+    "ai-review-checklist": [
+      "Danh mục kiểm có mục quy tắc và mục AI",
+      "Kết luận ghi rõ là lời khuyên"
+    ],
+    "ai-data-policy": [
+      "Ngoại lệ có hai người duyệt và ngày hết hạn",
+      "Nhật ký định tuyến ghi từng lần gọi"
+    ],
+    "ai-admin": [
+      "Trang tổng quan AI có chi phí và lượt gọi",
+      "Nút dừng khẩn cấp có xác nhận"
+    ],
+    "doc-draft": [
+      "Thư viện mẫu có phiên bản",
+      "Báo lỗi thể thức hiện ngay trên bản soạn"
+    ],
+    "doc-sign": [
+      "Các bước rà soát, ký lãnh đạo, cấp số, ký cơ quan",
+      "Màn xác minh chữ ký hiện kết quả hợp lệ"
+    ],
+    "doc-issue": [
+      "Sổ đăng ký có số, ngày và nơi nhận",
+      "Dòng thu hồi hoặc đính chính có lý do"
+    ],
+    "doc-incoming": [
+      "Sổ văn bản đến có người được phân công",
+      "Hạn xử lý hiện trên từng dòng"
+    ],
+    "doc-archive": [
+      "Quy tắc bảo quản có thời hạn giữ theo loại",
+      "Tổng quan văn bản có số việc tồn"
+    ],
+    "hub-catalogue": [
+      "Danh mục có sáu trạng thái",
+      "Bộ chưa từng chạy hiện nhãn riêng"
+    ],
+    "hub-detail": [
+      "Bảy thẻ của bộ kết nối",
+      "Nhật ký sự cố có thời điểm mở và đóng"
+    ],
+    "int-machine-accounts": [
+      "Khóa chỉ hiện một lần khi tạo",
+      "Danh sách phạm vi theo tài khoản"
+    ],
+    "int-bi-accounts": [
+      "Bộ dữ liệu có nhãn đã chứng nhận",
+      "Đăng nhập BI gắn với một đơn vị"
+    ],
+    "int-crosswalk": [
+      "Đề xuất ánh xạ chờ người duyệt thứ hai",
+      "Mã trùng với dự án khác bị từ chối"
+    ],
+    "int-access-log": [
+      "Mỗi dòng nhật ký có tài khoản và kết quả",
+      "Cột giới hạn tần suất"
+    ],
+    "dgv-contracts": [
+      "Hợp đồng dữ liệu có phiên bản lược đồ",
+      "Sản phẩm dữ liệu hiện nhãn chứng nhận"
+    ],
+    "bi-registry-share": [
+      "Danh sách chỉ tiêu có mã nguồn",
+      "Hộp chia sẻ dashboard theo người hoặc nhóm"
+    ],
+    "iss-register": [
+      "Danh sách vướng mắc có mức độ và hạn",
+      "Không gian xử lý có trao đổi và nhiệm vụ"
+    ],
+    "iss-escalate": [
+      "Chính sách thời hạn theo loại",
+      "Tổ công tác gắn với vướng mắc leo thang"
+    ],
+    "iss-weekly": [
+      "Ma trận vướng mắc theo tuần",
+      "Bước xác nhận hoàn tất"
+    ],
+    "qms-diary": [
+      "Nhật ký có chữ ký của hai bên",
+      "Ngày thiếu nhật ký tô màu cảnh báo"
+    ],
+    "qms-quality": [
+      "Biên bản chất lượng có chữ ký",
+      "Điểm không phù hợp có hạn đóng"
+    ],
+    "qms-photos": [
+      "Ảnh có tọa độ và thời điểm",
+      "Danh sách ảnh cần giải trình cho thấy hai dự án có ảnh giống nhau"
+    ],
+    "lnd-survey": [
+      "Bản đồ hoặc danh sách thửa đất",
+      "Tổng quan theo trạng thái thửa"
+    ],
+    "lnd-compensation": [
+      "Phương án có trạng thái niêm yết",
+      "Khiếu nại có hạn xử lý"
+    ],
+    "lnd-handover": [
+      "Bảng bàn giao mặt bằng theo đoạn",
+      "Danh sách tái định cư"
+    ],
+    "pmt-permits": [
+      "Quy tắc cổng chặn mốc",
+      "Miễn trừ có lý do và người duyệt"
+    ],
+    "ast-handover": [
+      "Biên bản bàn giao có danh sách tồn tại",
+      "Yêu cầu bảo hành có trạng thái"
+    ],
+    "bid-plan": [
+      "Kế hoạch có lịch sử điều chỉnh",
+      "Mốc mời thầu có ngày dự kiến và thực tế"
+    ],
+    "bid-package": [
+      "Bộ tiêu chí có trọng số",
+      "Danh sách hồ sơ nhận kèm thời điểm"
+    ],
+    "bid-ocr": [
+      "Màn kiểm tra OCR có chỗ chưa chắc tô màu",
+      "Tiến trình phân tích theo bước"
+    ],
+    "bid-evidence-bench": [
+      "Mỗi nhận định có dẫn chứng bấm được",
+      "Bảng so sánh các đề án theo tiêu chí"
+    ],
+    "bid-evaluation": [
+      "Câu hỏi làm rõ có hạn trả lời",
+      "Biên bản đánh giá có chữ ký các thành viên"
+    ],
+    "ctr-draft": [
+      "Bảng khối lượng và mốc thanh toán",
+      "Danh sách phiên bản hợp đồng có ngày hiệu lực"
+    ],
+    "ctr-change": [
+      "So sánh phụ lục hai cột",
+      "Quyết định tạm dừng có lý do"
+    ],
+    "ctr-site": [
+      "Khối lượng nghiệm thu khớp bảng giá trị thanh toán"
+    ],
+    "ctr-closeout": [
+      "Yêu cầu bồi hoàn có số ngày chậm",
+      "Nút xuất hồ sơ nhà thầu"
+    ],
+    "prj-proposal": [
+      "Dòng quyết định chủ trương",
+      "Không gian dự án có các thẻ chính"
+    ],
+    "prj-structure": [
+      "Cây công việc của dự án",
+      "Lịch sử điều chỉnh có lý do"
+    ],
+    "prj-leadership": [
+      "Lãnh đạo phụ trách theo dự án",
+      "Yêu cầu giải trình có hạn phản hồi"
+    ],
+    "prj-closure": [
+      "Bảng theo dõi tháng",
+      "Trạng thái bàn giao và quyết toán"
+    ],
+    "rc-period-figures": [
+      "Bảng số liệu kỳ có cột gốc, điều chỉnh, ước, thực",
+      "Lịch sử chuyển đổi của một kỳ"
+    ],
+    "rc-definitions": [
+      "Bộ số kiểm hiện kết quả khớp",
+      "Bảng kiểm tổng chéo có dòng lệch tô màu"
+    ],
+    "rc-calendar-board": [
+      "Lịch kỳ có trạng thái mở hoặc đóng",
+      "Bảng nộp có đơn vị còn thiếu"
+    ],
+    "rc-lock-sign": [
+      "Dòng kỳ đã khóa có người chốt",
+      "Chữ ký số trên báo cáo đã phát hành"
+    ],
+    "rc-workflow-builder": [
+      "Trình dựng luồng hiện các bước và hạn",
+      "Ma trận thẩm quyền theo mức giá trị"
+    ],
+    "rc-excel-entry": [
+      "Bảng ánh xạ có phiên bản đã duyệt",
+      "Kết quả chạy thử hiện dòng lỗi"
+    ],
+    "rc-history-narrative": [
+      "So sánh hai kỳ cạnh nhau",
+      "Thuyết minh của một dự án"
+    ],
+    "rc-export-formats": [
+      "Hộp chọn định dạng xuất",
+      "Bản xem trước khớp với bảng đang xem"
+    ],
+    "pl-access": [
+      "Danh sách phiên và thiết bị có nút đăng xuất",
+      "Phạm vi quyền hiệu lực liệt kê vai trò và ủy quyền"
+    ],
+    "pl-organisation": [
+      "Cây tổ chức nhiều cấp",
+      "Ma trận vai trò và quyền"
+    ],
+    "pl-calendar-signature": [
+      "Lịch công tác có ngày nghỉ của năm",
+      "Cấu hình chữ ký số"
+    ],
+    "pl-sync-migration": [
+      "Lô chuyển đổi có bước chạy thử và áp dụng",
+      "Chính sách lưu trữ theo loại dữ liệu"
+    ],
+    "pl-rules": [
+      "So sánh hai phiên bản quy tắc",
+      "Dấu chưa kiểm chứng ở quy tắc mặc định"
+    ],
+    "pl-master-data": [
+      "Lịch sử sáp nhập địa bàn",
+      "Hàng chờ hợp nhất mã trùng"
+    ],
+    "pl-data-quality": [
+      "Điểm chất lượng theo bộ dữ liệu",
+      "Sự cố dữ liệu có người xử lý"
+    ],
+    "pl-dashboard-builder": [
+      "Danh mục chỉ tiêu có định nghĩa",
+      "Cấu hình quyền theo dòng và cột"
+    ],
+    "pl-notification-ops": [
+      "Hạn mức và chi phí theo kênh",
+      "Hộp thư hợp nhất có hội thoại từ nhiều kênh"
+    ],
+    "pl-branding": [
+      "Biểu trưng mới trên màn hình cấu hình",
+      "Xem trước giao diện theo chủ đề của đơn vị"
+    ],
+    "pl-platform-health": [
+      "Bảng sức khỏe các dịch vụ",
+      "Lịch sử sao lưu và khôi phục"
+    ],
+    "pp-staff-home": [
+      "Trang chủ cán bộ có việc của tôi",
+      "Bản đồ hiện trường có vị trí dự án"
+    ],
+    "pp-weekly-entry": [
+      "Các màn nhập khối lượng và vốn",
+      "Màn đính chứng từ bằng ảnh"
+    ],
+    "pp-monthly": [
+      "Cơ cấu nguồn vốn có biểu đồ",
+      "Danh sách dự án chưa nộp"
+    ],
+    "pp-field-contract": [
+      "Khối lượng có ảnh bằng chứng",
+      "Màn duyệt nghiệm thu có xác nhận"
+    ],
+    "pp-diary-photos": [
+      "Nhật ký ngoại tuyến có nhãn chờ đồng bộ",
+      "Ảnh kiểm vị trí hiện kết quả"
+    ],
+    "pp-sign-directives": [
+      "Danh sách văn bản chờ ký",
+      "Chỉ đạo giao ban và hạn"
+    ],
+    "pp-risk-bi": [
+      "Xếp hạng nhà thầu theo hạng rủi ro",
+      "Dashboard cá nhân"
+    ],
+    "pp-conversation": [
+      "Trao đổi gắn với hồ sơ",
+      "Cài đặt thông báo trên điện thoại"
+    ],
+    "pp-system-states": [
+      "Màn không đủ quyền nêu lý do",
+      "Màn lỗi dịch vụ có nút thử lại"
+    ],
+    "pp-first-run": [
+      "Màn chào mang tên và biểu trưng của đơn vị",
+      "Lời giải thích trước mỗi lần xin quyền"
+    ],
+    "pp-pwa-directives": [
+      "Màn chỉ đạo hiện số liệu thật, không báo chưa bật"
+    ],
+    "mon-calendar": [
+      "Lịch nghĩa vụ có hạn nộp",
+      "Mẫu biểu có phiên bản"
+    ],
+    "mon-draft": [
+      "Báo cáo lập từ số liệu của hệ thống",
+      "Báo cáo nhanh tuần"
+    ],
+    "mon-issue": [
+      "Xác nhận nộp có ngày và người nộp",
+      "Lịch sử phiên bản của báo cáo đính chính"
+    ],
+    "mon-mof-forms": [
+      "Biểu mẫu điền từ số liệu đã chốt",
+      "Nhật ký giao có tệp và thời điểm"
+    ],
+    "cc-plan": [
+      "Phân bổ không vượt quyết định giao vốn",
+      "Nguồn vốn theo cây phân loại"
+    ],
+    "cc-approve-close": [
+      "Trạng thái phê duyệt kế hoạch",
+      "Chuyển nguồn hiện số dư từng nguồn"
+    ],
+    "cc-limit-control": [
+      "Hạn mức khả dụng sau khi trừ phần giữ",
+      "Chặn cam kết vượt hạn mức"
+    ],
+    "cc-ledger-extension": [
+      "Ô chọn ngày để tra sổ cái",
+      "Dự báo hoàn thành theo hợp đồng"
+    ],
+    "cc-performance-transfer": [
+      "Mô phỏng tác động trước và sau điều chuyển"
+    ],
+    "pay-request-file": [
+      "Danh sách hồ sơ theo trạng thái",
+      "Chứng từ gắn với từng hồ sơ"
+    ],
+    "pay-treasury-forms": [
+      "Nhãn mẫu demo hiện trên biểu mẫu",
+      "Sao kê nhập có số dòng khớp"
+    ],
+    "pay-mismatch-trace": [
+      "Chuỗi truy vết từ khối lượng đến Kho bạc",
+      "Bút toán đảo có tham chiếu giao dịch gốc"
+    ],
+    "pay-treasury-clocks": [
+      "Đồng hồ hiện giờ làm việc còn lại",
+      "Lý do trả lại theo danh mục chuẩn"
+    ],
+    "pay-advance-settlement": [
+      "Lịch thu hồi tạm ứng",
+      "Hạn thẩm tra quyết toán"
+    ],
+    "pay-phone-treasury": [
+      "Màn đối soát Kho bạc trên điện thoại",
+      "Dòng lệch được đánh dấu"
+    ],
+    "portal-community": [
+      "Hồ sơ có hạn thông báo",
+      "Phản ánh có phản hồi và hạn"
+    ],
+    "portal-governance": [
+      "Danh sách trường cho phép",
+      "Bản ghi đã công bố có thời điểm"
+    ],
+    "portal-open-data": [
+      "Cổng công khai mở không cần đăng nhập",
+      "Nút xuất dữ liệu mở"
+    ],
+    "ec-snapshot-close": [
+      "Kỳ thiếu số bị từ chối kèm danh sách đơn vị thiếu",
+      "Ảnh chụp đã chốt có mã băm"
+    ],
+    "ec-narrative": [
+      "Tám mục hiện đủ trên màn thuyết minh",
+      "Nút kế thừa kỳ trước và danh sách nguyên nhân chuẩn"
+    ],
+    "ec-push-receipt": [
+      "Bước đẩy hiện trạng thái chờ biên nhận",
+      "Hai dấu giả định và mẫu demo cùng hiện trên hình"
+    ],
+    "ec-org-pack": [
+      "Chín đầu mối kèm người nhập và người duyệt",
+      "Dấu dữ liệu minh họa hiện trên hình"
+    ],
+    "ec-codes-catalogues": [
+      "Mã EBS và mã HPM trên cùng một dự án",
+      "Danh mục loại dự án có cờ khởi công mới hoặc chuyển tiếp"
+    ],
+    "ec-cross-compare": [
+      "Bảng so sánh các loại báo cáo của cùng một kỳ",
+      "Ô giải trình chênh lệch"
+    ],
+    "ec-pdf-layout": [
+      "Nút tải PDF cạnh Excel và Word",
+      "Trình cấu hình bố cục lưu thành phiên bản"
+    ],
+    "ec-calendar-reminders": [
+      "Hạn từng bước của một kỳ",
+      "Bảng trạng thái theo đầu mối"
+    ],
+    "ec-presentation-rates": [
+      "Nút trình chiếu trên bảng điều hành",
+      "Tỷ lệ theo ba cấp công ty, đơn vị, dự án"
+    ],
+    "ec-equipment": [
+      "Danh sách gói mua sắm thiết bị theo bước",
+      "Nguyên nhân chậm chọn từ danh mục chuẩn"
+    ],
+    "ec-audit-catalogues": [
+      "Dòng nhật ký có chi tiết trước và sau",
+      "Danh mục tỷ giá có hiệu lực theo ngày"
+    ],
+    "ban-phone": [
+      "Bảng điều hành Ban chỉ đạo hiện đầy đủ trên điện thoại"
+    ],
+    "ebs-connection": [
+      "Trạng thái kết nối, kết quả chạy thử và dấu giả định hiện trên hình"
+    ],
+    "hpm-correction": [
+      "Phiên bản mới nằm cạnh bản cũ trong lịch sử",
+      "Dấu giả định hiện trên hình"
+    ],
+    "pwa-approval-detail": [
+      "Hàng chờ có ít nhất một việc đang chờ duyệt",
+      "Ô ghi chú trả lại báo bắt buộc khi để trống"
+    ],
+    "pp-alert-routing": [
+      "Thông báo mở đúng màn của cảnh báo",
+      "Cài đặt kênh và giờ yên lặng"
+    ],
+    "pp-push-devices": [
+      "Danh sách thiết bị đẩy theo người dùng",
+      "Nút thu hồi thiết bị"
+    ],
+    "ec-phone-home": [
+      "Ô trạng thái đẩy HPM của kỳ hiện hành",
+      "Ô chênh lệch kế toán khớp số trên màn EBS-02"
     ]
   }
 }
