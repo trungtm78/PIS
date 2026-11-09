@@ -92,6 +92,11 @@ describe('the package of the PUSH step', () => {
     const other = pushLayoutCodeOf('DIS_WEEKLY', 'da/0001');
     expect(plain).toMatch(/^DIS_WEEKLY-DA-0001-[0-9A-F]{6}$/);
     expect(other).not.toBe(plain);
+    // Two long codes that share their first 60 characters stay two series.
+    const longA = pushLayoutCodeOf('FND_FIGURES', `${'A'.repeat(70)}.1`);
+    const longB = pushLayoutCodeOf('FND_FIGURES', `${'A'.repeat(70)}.2`);
+    expect(longA).not.toBe(longB);
+    expect(pushLayoutCodeOf('FND_FIGURES', 'PRJ-1.CAPEX.T1.DISBURSED.ACTUAL')).not.toBe(pushLayoutCodeOf('FND_FIGURES', 'PRJ-1.CAPEX.T1.PLANNED.ACTUAL'));
     expect(pushLayoutCodeOf('DIS_WEEKLY', 'x'.repeat(200)).length).toBeLessThanOrEqual(60);
     expect(pushLayoutCodeOf('DIS_WEEKLY', 'x'.repeat(200))).toMatch(/^[A-Z][A-Z0-9_-]{1,59}$/);
   });

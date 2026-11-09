@@ -79,6 +79,7 @@ export interface HpmAdjustmentFilter {
   state?: HpmAdjustmentState | undefined;
   layoutCode?: string | undefined;
   targetPeriod?: string | undefined;
+  sourcePeriod?: string | undefined;
 }
 
 /**
@@ -93,9 +94,9 @@ export class HpmAdjustmentStore {
 
   async list(tx: TenantTx, filter: HpmAdjustmentFilter, request: { limit: number; after: { key: string; id: string } | undefined }): Promise<HpmAdjustmentRow[]> {
     const rows = await tx.query<AdjustmentSql>(
-      `select * from (${SELECT} where ($1::text is null or a.state = $1) and ($2::text is null or a.layout_code = $2) and ($3::text is null or a.target_period = $3)) x
+      `select * from (${SELECT} where ($1::text is null or a.state = $1) and ($2::text is null or a.layout_code = $2) and ($3::text is null or a.target_period = $3) and ($7::text is null or a.source_period = $7)) x
         where ($4::text is null or (x.created_at_key, x.id) < ($4::text, $5::uuid)) order by x.created_at_key desc, x.id desc limit $6`,
-      [filter.state ?? null, filter.layoutCode ?? null, filter.targetPeriod ?? null, request.after?.key ?? null, request.after?.id ?? null, request.limit],
+      [filter.state ?? null, filter.layoutCode ?? null, filter.targetPeriod ?? null, request.after?.key ?? null, request.after?.id ?? null, request.limit, filter.sourcePeriod ?? null],
     );
     return rows.map(adjustmentOf);
   }
@@ -148,6 +149,11 @@ export class HpmAdjustmentStore {
     if (before === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (before.version !== expectedVersion) throw versionConflict(before.version);
     const decided = hpmAdjustmentDecision(before, { ...step, actorId: actor });
+    // An approval is judged against what the receiver holds now: once the next period was sent, the difference has no package left to ride on (use the overwrite mode).
+    if (decided.to === 'APPROVED') {
+      const [sent] = await tx.query<{ found: boolean }>(`select exists (select 1 from machvon.hpm_push where layout_code = $1 and period = $2 and status in ('WRITTEN', 'ACCEPTED')) as found`, [before.layoutCode, before.targetPeriod]);
+      if (sent?.found === true) throw new DomainError('HPM_ADJUSTMENT_STATE_INVALID', 409, 'target_period');
+    }
     await tx.query(
       `update machvon.hpm_adjustment set state = $2, decided_by = $3::uuid, decided_at = $4::timestamptz, decision_reason = $5, version = version + 1, updated_at = $4::timestamptz where id = $1::uuid`,
       [id, decided.to, actor, now.toISOString(), decided.reason],

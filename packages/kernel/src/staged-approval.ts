@@ -46,7 +46,7 @@ export const stagedApprovalOfBusinessType = (businessType: string): StagedApprov
 /** The series of one record under a layout: `DIS_WEEKLY-DA-0001`. A code that had to be changed to fit a layout code gets six hex digits of its hash, so two codes never share a series. */
 export function pushLayoutCodeOf(base: string, subjectCode: string): string {
   const cleaned = subjectCode.toUpperCase().replace(/[^A-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '');
-  const exact = cleaned === subjectCode.toUpperCase() && cleaned !== '';
+  const exact = cleaned === subjectCode.toUpperCase() && cleaned !== '' && `${base}-${cleaned}`.length <= 60;
   const tail = exact ? cleaned : `${cleaned.slice(0, 40)}-${sha256Hex(subjectCode).slice(0, 6).toUpperCase()}`.replace(/^-/, '');
   return `${base}-${tail}`.slice(0, 60);
 }

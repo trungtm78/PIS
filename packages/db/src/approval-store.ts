@@ -818,6 +818,8 @@ export class ApprovalStore {
     const hold = await this.holds.find(tx, peek.id, true);
     // A hold that is no longer waiting (the instance ended or went back meanwhile) has nothing to release; the receipt of the push stands on its own.
     if (hold === undefined || hold.state !== 'AWAITING_RECEIPT') return undefined;
+    // The person who held the step is never the one who confirms it (the table says so too): a refusal here is a clean 403, not a database error.
+    if (hold.heldBy === input.by) throw new DomainError('SELF_APPROVAL_DENIED', 403, 'actor');
     const answered = await this.holds.answer(tx, hold, { outcome: input.outcome, by: input.by, reference: input.reference, at: input.now });
     if (!answered.release) {
       await effects.audit({ action: 'approval.step_receipt_rejected', resourceType: 'approval_task', resourceId: hold.taskId, diff: { step_id: hold.stepKey, instance_id: hold.workflowInstanceId, push_id: input.pushId } });

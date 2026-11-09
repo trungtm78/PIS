@@ -67,7 +67,7 @@ async function writeBatch(tx: TenantTx, effects: ApprovalEffects, batch: EntryBa
 export function indEntryHandler(clock: () => Date): FinalCommand {
   const batches = new IndEntryBatchStore();
   return async ({ tx, instance, outcome, effects }) => {
-    if (instance.resourceType !== IND_ENTRY_RESOURCE || outcome === 'REJECTED') return 'GUARD_REJECTED';
+    if (instance.resourceType !== IND_ENTRY_RESOURCE) return 'GUARD_REJECTED';
     const batch = await batches.find(tx, instance.resourceId, EVERYTHING, true);
     if (batch === undefined || batch.status !== 'SUBMITTED' || batch.enteredBy === effects.actor) return 'GUARD_REJECTED';
     const [tenant] = await tx.query<{ tenant_id: string }>("select nullif(current_setting('app.tenant_id', true), '') as tenant_id");

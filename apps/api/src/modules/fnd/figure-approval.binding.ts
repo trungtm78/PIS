@@ -31,7 +31,7 @@ export function figurePeriodOf(batch: Pick<FigureBatch, 'grain' | 'planYear' | '
 export function fndFigureHandler(packCode: string, clock: () => Date): FinalCommand {
   const store = new FndFigureStore();
   return async ({ tx, instance, outcome, effects }) => {
-    if (instance.resourceType !== FND_FIGURE_RESOURCE || outcome === 'REJECTED') return 'GUARD_REJECTED';
+    if (instance.resourceType !== FND_FIGURE_RESOURCE) return 'GUARD_REJECTED';
     const batch = await store.find(tx, instance.resourceId, EVERYTHING, true);
     if (batch === undefined || batch.status !== 'SUBMITTED' || batch.preparedBy === effects.actor) return 'GUARD_REJECTED';
     const [tenant] = await tx.query<{ tenant_id: string }>("select nullif(current_setting('app.tenant_id', true), '') as tenant_id");
@@ -62,7 +62,8 @@ export function fndPushSource(): ApprovalPushSource {
       if (batch === undefined) return undefined;
       const revision = Math.max(1, ...batch.entries.map((entry) => entry.revision));
       return {
-        subjectCode: batch.projectCode,
+        // One series per project AND kind of figure: two batches of one project and year are two series, never one key with two contents.
+        subjectCode: [batch.projectCode, batch.classCode, batch.tierCode, batch.measure, batch.kind].join('.'),
         period: figurePeriodOf(batch),
         revision,
         headRevision: revision,
