@@ -36991,7 +36991,7 @@
   "ent3b.narr.field.causes": "Nguyên nhân",
   "ent3b.narr.field.difficulties": "Khó khăn, vướng mắc",
   "ent3b.narr.field.solutions": "Giải pháp",
-  "ent3b.narr.field.next_plan": "Kế hoạch kỳ tới",
+  "ent3b.narr.field.nextPlan": "Kế hoạch kỳ tới",
   "ent3b.narr.field.proposals": "Kiến nghị",
   "ent3b.narr.error.tooLong": "Tối đa {max} ký tự.",
   "ent3b.narr.causes.title": "Nguyên nhân theo danh mục chuẩn",

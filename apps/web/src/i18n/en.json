@@ -36991,7 +36991,7 @@
   "ent3b.narr.field.causes": "Causes",
   "ent3b.narr.field.difficulties": "Difficulties and obstacles",
   "ent3b.narr.field.solutions": "Solutions",
-  "ent3b.narr.field.next_plan": "Plan for the next period",
+  "ent3b.narr.field.nextPlan": "Plan for the next period",
   "ent3b.narr.field.proposals": "Proposals",
   "ent3b.narr.error.tooLong": "At most {max} characters.",
   "ent3b.narr.causes.title": "Causes from the standard list",

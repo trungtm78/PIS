@@ -42,7 +42,7 @@ describe('DIS-34 structured narrative of a period', () => {
     const user = userEvent.setup();
     const h = open();
     for (const field of ['status', 'schedule', 'disbursement', 'causes', 'difficulties', 'solutions', 'next_plan', 'proposals']) {
-      expect(await screen.findByLabelText(vi_[`ent3b.narr.field.${field}` as keyof typeof vi_])).toBeTruthy();
+      expect(await screen.findByLabelText(vi_[`ent3b.narr.field.${field === 'next_plan' ? 'nextPlan' : field}` as keyof typeof vi_])).toBeTruthy();
     }
     await user.type(screen.getByLabelText(vi_['ent3b.narr.field.status']), 'Works continue');
     await user.click(screen.getByLabelText('Site handover'));

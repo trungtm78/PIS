@@ -16,7 +16,7 @@ import { canEdit } from '../report/model';
 import type { ReportDetail } from '../report/model';
 import { statusTone } from '../report/weekly-model';
 import { useInheritNarrative, useNarrativeContext } from './hooks';
-import { FIELDS, FIELD_MAX_CHARS, appendLine, bodyOf, formOf, problemOf, tooLong } from './model';
+import { FIELDS, FIELD_KEY, FIELD_MAX_CHARS, appendLine, bodyOf, formOf, problemOf, tooLong } from './model';
 import type { DirectiveItem, NarrativeContext, NarrativeForm as Form } from './model';
 
 /**
@@ -141,7 +141,7 @@ function Editor({ detail, context, editable }: { detail: ReportDetail; context: 
           )}
         </div>
         {FIELDS.map((field) => (
-          <Field key={field} id={`narr-${field}`} label={t(`ent3b.narr.field.${field}`)} error={submitted && long.includes(field) ? t('ent3b.narr.field.tooLong', { max: FIELD_MAX_CHARS }) : undefined}>
+          <Field key={field} id={`narr-${field}`} label={t(`ent3b.narr.field.${FIELD_KEY[field]}`)} error={submitted && long.includes(field) ? t('ent3b.narr.error.tooLong', { max: FIELD_MAX_CHARS }) : undefined}>
             <textarea id={`narr-${field}`} rows={4} value={form.fields[field]} readOnly={!editable} onChange={(event) => setField(field, event.target.value)} />
           </Field>
         ))}

@@ -9,7 +9,8 @@ type Raw = Record<string, unknown>;
 export const FIELDS = ['status', 'schedule', 'disbursement', 'causes', 'difficulties', 'solutions', 'next_plan', 'proposals'] as const;
 export type Field = (typeof FIELDS)[number];
 export const FIELD_MAX_CHARS = 4000;
-export const THIS_PATH = '/dis/dis-34';
+/** The segment of the translation key of each field (keys are camel case). */
+export const FIELD_KEY: Readonly<Record<Field, string>> = { status: 'status', schedule: 'schedule', disbursement: 'disbursement', causes: 'causes', difficulties: 'difficulties', solutions: 'solutions', next_plan: 'nextPlan', proposals: 'proposals' };
 
 const record = (value: unknown): Raw | undefined => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Raw) : undefined);
 const text = (value: unknown): string => (typeof value === 'string' ? value : '');
