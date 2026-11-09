@@ -1891,3 +1891,5 @@ export { BidPetitionOutcomeStore } from './bid-petition-outcome-store.ts';
 export type { OutcomeInput, PetitionOutcomeLine } from './bid-petition-outcome-store.ts';
 export { PORTAL_DOC_TYPE, PORTAL_SUBJECT_MODULE, VendorPortalAttachmentStore } from './vnd-portal-attachment-store.ts';
 export type { NewPortalAttachment, PortalAttachmentRow } from './vnd-portal-attachment-store.ts';
+export { registerMigrationVerifier } from './adm-migration-store.ts';
+export type { MigrationVerifier } from './adm-migration-store.ts';

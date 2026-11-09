@@ -209,5 +209,14 @@ export function checkReferences(judgement: MigrationJudgement, mapping: Migratio
   return { rowCount: judgement.rowCount, rows, errors, errorCount, totals: { rows: rows.length, amount: sumOf(rows).toString() } };
 }
 
+/** The judgement with more errors added (the verifier of a mapping looks at the database, which the judge cannot): the rows they fall on leave the judged set and the totals are those of the rows that are left. */
+export function addRowErrors(judgement: MigrationJudgement, extra: readonly RowError[]): MigrationJudgement {
+  if (extra.length === 0) return judgement;
+  const failed = new Set(extra.map((error) => error.rowNumber));
+  const rows = judgement.rows.filter((row) => !failed.has(row.rowNumber));
+  const errors = [...judgement.errors, ...extra].sort((a, b) => a.rowNumber - b.rowNumber).slice(0, MAX_ERRORS);
+  return { rowCount: judgement.rowCount, rows, errors, errorCount: judgement.errorCount + extra.length, totals: { rows: rows.length, amount: sumOf(rows).toString() } };
+}
+
 /** Whether what was written is what the file said: the same number of rows and the same sum. */
 export const totalsMatch = (expected: ControlTotals, actual: ControlTotals): boolean => expected.rows === actual.rows && expected.amount === actual.amount;

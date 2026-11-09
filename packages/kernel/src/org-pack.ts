@@ -3,6 +3,7 @@ import { DomainError } from './errors.ts';
 import { absencePolicyOf } from './alert-coverage.ts';
 import { MAX_DELEGATION_DAYS } from './adm-delegation.ts';
 import { csvLine } from './dis-export.ts';
+import type { DoaRuleContent } from './doa.ts';
 import { REPORT_ACCEPT_BUSINESS_TYPE, REPORT_STEP_KINDS, reportWorkflowDefect } from './dis-report-workflow.ts';
 import type { ReportStepKind } from './dis-report-workflow.ts';
 import { STANDING_REVIEW_MAX_DAYS } from './iam-standing-delegation.ts';
@@ -606,7 +607,7 @@ export function workflowRuleParams(pack: Pick<OrgPack, 'steps'>, unitIdOfCode: R
 }
 
 /** The rule of the matrix of authority for the pack: the unit approver of the unit the report belongs to, over the whole tree. */
-export function doaRuleContent(pack: Pick<OrgPack, 'doa'>, unitId: string, roleId: string): Record<string, unknown> {
+export function doaRuleContent(pack: Pick<OrgPack, 'doa'>, unitId: string, roleId: string): DoaRuleContent {
   return {
     document_type: pack.doa.documentType,
     unit_id: unitId,
@@ -749,7 +750,7 @@ export function seatReports(pack: OrgPack, state: Pick<OrgPackState, 'holders'>)
   });
 }
 
-export interface VerificationReport {
+export interface OrgPackVerification {
   label: string;
   digest: string;
   items: PlanItem[];
@@ -763,7 +764,7 @@ export interface VerificationReport {
 }
 
 /** The verification report: the plan against the state, and the seats against their holders. */
-export function verifyOrgPack(pack: OrgPack, state: OrgPackState): VerificationReport {
+export function verifyOrgPack(pack: OrgPack, state: OrgPackState): OrgPackVerification {
   const items = planOrgPack(pack, state);
   const seats = seatReports(pack, state);
   const counts: Record<PlanAction, number> = { CREATE: 0, UNCHANGED: 0, PENDING: 0, DRIFT: 0, BLOCKED: 0 };
