@@ -1,5 +1,5 @@
 import { PDFDocument, PDFPage } from 'pdf-lib';
-import { cellRef, documentSheetOf, evaluateFormula, narrativeLinesOf, reportDocumentOf } from '@machvon/kernel';
+import { cellRef, documentSheetOf, evaluateFormula, narrativeLinesOf, formDocumentOf } from '@machvon/kernel';
 import type { FormulaValue, NarrativeBlock, ReportDocument, ReportFillData, ReportLayout } from '@machvon/kernel';
 import { readDocxParagraphs, renderDocx } from '../../src/modules/reports/docx-render';
 import { reportPdfOf } from '../../src/modules/reports/report-pdf';
@@ -28,7 +28,7 @@ const squash = (text: string): string => text.replace(/\s+/g, '');
 
 /** Fills the form three ways from one document. */
 export async function writeAll(input: { layout: ReportLayout; narrative: readonly NarrativeBlock[] | null; data: ReportFillData; template: Uint8Array; issuedAt: Date }): Promise<ThreeWriters> {
-  const document = reportDocumentOf(input.layout, input.narrative, input.data);
+  const document = formDocumentOf(input.layout, input.narrative, input.data);
   const xlsx = await fillXlsxTemplate(input.template, document.grid, { issuedAt: input.issuedAt, creator: 'MACHVON' });
   const docx = document.narrative === null ? null : await renderDocx(document.narrative.blocks, { title: document.name, creator: 'MACHVON', issuedAt: input.issuedAt, stamp: document.stamp, headerText: document.name });
   const drawn: string[] = [];

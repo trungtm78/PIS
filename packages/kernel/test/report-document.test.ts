@@ -1,4 +1,4 @@
-import { DIS_WEEKLY_LAYOUT, cellRef, dataRowOf, documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, reportDocumentOf, validateLayout } from '../src/index.ts';
+import { DIS_WEEKLY_LAYOUT, cellRef, dataRowOf, documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, formDocumentOf, validateLayout } from '../src/index.ts';
 import type { LayoutColumn, ReportFillData, ReportLayout } from '../src/index.ts';
 
 const COLUMNS: LayoutColumn[] = [
@@ -49,7 +49,7 @@ const DATA: ReportFillData = {
 };
 
 describe('the one document model of the report writers (R26)', () => {
-  const document = reportDocumentOf(LAYOUT, null, DATA);
+  const document = formDocumentOf(LAYOUT, null, DATA);
   const sheet = documentSheetOf(document);
   const textOf = (row: number, col: number): string | undefined => sheet.rows.find((one) => one.row === row)?.cells.find((cell) => cell.col === col)?.text;
 
@@ -89,7 +89,7 @@ describe('the one document model of the report writers (R26)', () => {
   it('reports a formula it cannot evaluate and prints the cell empty, never a number it made up', () => {
     const broken: ReportLayout = { ...LAYOUT, body: [{ kind: 'NOTE', cells: [{ col: 1, binding: { kind: 'FORMULA', formula: 'VLOOKUP(A1,A1:B2,2)' } }] }] };
     validateLayout(broken);
-    const made = documentSheetOf(reportDocumentOf(broken, null, DATA));
+    const made = documentSheetOf(formDocumentOf(broken, null, DATA));
     expect(made.unevaluated).toEqual([cellRef(4, 1)]);
     expect(made.rows.find((row) => row.row === 4)?.cells[0]?.text).toBe('');
   });
@@ -101,7 +101,7 @@ describe('the one document model of the report writers (R26)', () => {
 
 describe('the weekly form of the public edition as a document', () => {
   it('is a WRITE layout: the header words are in the grid and the document adds none of its own', () => {
-    const document = reportDocumentOf(DIS_WEEKLY_LAYOUT, null, { period: { kind: 'AS_OF', year: 2026, day: '2026-11-08' }, meta: { ORG_NAME: 'Org', SNAPSHOT_LINE: 'Line' }, definitions: {}, figures: [], datasets: {} });
+    const document = formDocumentOf(DIS_WEEKLY_LAYOUT, null, { period: { kind: 'AS_OF', year: 2026, day: '2026-11-08' }, meta: { ORG_NAME: 'Org', SNAPSHOT_LINE: 'Line' }, definitions: {}, figures: [], datasets: {} });
     expect(document.headerMode).toBe('WRITE');
     expect(document.headerCells.length).toBeGreaterThan(0);
     const sheet = documentSheetOf(document);

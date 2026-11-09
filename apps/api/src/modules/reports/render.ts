@@ -1,4 +1,4 @@
-import { periodRange, previewOf, reportDocumentOf } from '@machvon/kernel';
+import { periodRange, previewOf, formDocumentOf } from '@machvon/kernel';
 import type { FilledGrid, FilledNarrative, NarrativeBlock, ReportDocument, ReportFillData, ReportLayout, ReportPreview } from '@machvon/kernel';
 import { renderDocx } from './docx-render';
 import { reportPdfOf } from './report-pdf';
@@ -32,7 +32,7 @@ export interface RenderedReport {
 }
 
 export async function renderReport(input: RenderInput): Promise<RenderedReport> {
-  const document = reportDocumentOf(input.layout, input.narrative, input.data);
+  const document = formDocumentOf(input.layout, input.narrative, input.data);
   const { grid, narrative } = document;
   const issuedAt = new Date(`${periodRange(input.data.period).to}T00:00:00Z`);
   const xlsx = await fillXlsxTemplate(input.xlsxTemplate, grid, { issuedAt, creator: input.creator });

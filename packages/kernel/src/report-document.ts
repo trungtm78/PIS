@@ -36,7 +36,7 @@ export interface ReportDocument {
 export const layoutHashOf = (layout: ReportLayout, narrative: readonly NarrativeBlock[] | null): string => sha256Hex(canonicalJson({ layout, narrative }));
 
 /** Fills the layout and the narrative of a form with the data of one period: the one document the three writers read. */
-export function reportDocumentOf(layout: ReportLayout, narrative: readonly NarrativeBlock[] | null, data: ReportFillData): ReportDocument {
+export function formDocumentOf(layout: ReportLayout, narrative: readonly NarrativeBlock[] | null, data: ReportFillData): ReportDocument {
   const grid = fillGrid(layout, data);
   const filled = narrative === null ? null : fillNarrative(narrative, data, layout.moneyScale);
   const start = layout.startRow ?? 1;

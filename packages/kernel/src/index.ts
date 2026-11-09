@@ -2178,7 +2178,7 @@ export type { IssueAction, IssueActors, IssueRole, IssueSignatories, IssueState,
 export { PREVIEW_ROW_CAP, RECEIVER_CODE, REPORT_CHANNELS, REPORT_FILE_FORMATS, REPORT_OUTPUT_FORMATS, assertDeliveryTarget, assertPeriodFitsForm, packageDigestOf, previewOf } from './report-form.ts';
 export type { PreviewCell, PreviewRow, ReportChannel, ReportDataSourceKind, ReportFileFormat, ReportFormBundle, ReportOutputFormat, ReportPreview, ReportTemplateBytes } from './report-form.ts';
 export { DIS_WEEKLY_CODE, DIS_WEEKLY_FORM_REF, DIS_WEEKLY_INDICATORS, DIS_WEEKLY_LAYOUT, DIS_WEEKLY_SHEET, DIS_WEEKLY_VERSION, WEEKLY_ORG_FALLBACK, weeklySnapshotLine } from './report-public-forms.ts';
-export { documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, reportDocumentOf } from './report-document.ts';
+export { documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, formDocumentOf } from './report-document.ts';
 export type { DocumentSheet, ReportDocument, SheetCell, SheetRow } from './report-document.ts';
 export { columnNumberOf, evaluateFormula, roundHalfAway } from './report-formula.ts';
 export { ENT4B_TEXT } from './messages/ent4b-texts.ts';
