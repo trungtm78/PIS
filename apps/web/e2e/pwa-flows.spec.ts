@@ -83,6 +83,27 @@ test.describe('the start page and the three screens at 360 px', () => {
     await expect(page.getByTestId('push-state')).toBeVisible();
   });
 
+  // PWA2 (written, not run in the lane): the settings, the drill-downs of the dashboard and the empty detail routes fit a phone and keep the way back.
+  test('the settings and the two drill-downs open at 360 px without horizontal scroll', async ({ page }) => {
+    for (const [path, screen] of [
+      ['/m/settings', 'PWA-07'],
+      ['/m/dashboard/detail', 'PWA-08'],
+      ['/m/progress', 'PWA-09'],
+    ] as const) {
+      await open(page, path);
+      await expect(page.locator(`[data-screen-id="${screen}"]`)).toBeVisible();
+      await expectNoHorizontalScroll(page);
+      await expect(page.getByTestId('pwa-back')).toBeVisible();
+    }
+  });
+
+  test('a detail of a task that is not there says so and offers the way back to the queue', async ({ page }) => {
+    await open(page, '/m/approvals/00000000-0000-4000-8000-0000000000ff');
+    await expect(page.locator('[data-screen-id="PWA-05"]')).toBeVisible();
+    await expectNoHorizontalScroll(page);
+    await expect(page.getByTestId('pwa-back')).toBeVisible();
+  });
+
   test('each entry opens its screen, and each screen has the way back to the start page', async ({ page }) => {
     await open(page, '/m');
     for (const [entry, screen] of [
