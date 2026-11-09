@@ -68,6 +68,7 @@ CREATE TABLE machvon.report_mailing (
 CREATE INDEX report_mailing_schedule_idx ON machvon.report_mailing (tenant_id, schedule_id, created_at DESC, id);
 CREATE INDEX report_mailing_issue_idx ON machvon.report_mailing (tenant_id, issue_id);
 CREATE INDEX report_mailing_recipient_idx ON machvon.report_mailing (tenant_id, recipient_id);
+CREATE INDEX report_mailing_provider_message_idx ON machvon.report_mailing (tenant_id, provider_message_id) WHERE provider_message_id IS NOT NULL;
 
 CREATE FUNCTION machvon.guard_report_mail_schedule() RETURNS trigger
 LANGUAGE plpgsql

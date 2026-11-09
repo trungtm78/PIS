@@ -63,6 +63,7 @@ CREATE TABLE machvon.audit_event_detail (
   CONSTRAINT audit_event_detail_bytes_chk CHECK (bytes BETWEEN 2 AND 262144)
 );
 CREATE INDEX audit_event_detail_resource_idx ON machvon.audit_event_detail (tenant_id, resource_type, resource_id, created_at DESC);
+CREATE INDEX audit_event_detail_resource_id_idx ON machvon.audit_event_detail (tenant_id, resource_id);
 
 CREATE FUNCTION machvon.audit_detail_append_only() RETURNS trigger
 LANGUAGE plpgsql
