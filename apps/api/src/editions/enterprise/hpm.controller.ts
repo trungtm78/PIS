@@ -7,6 +7,7 @@ import {
   EntConnectionStore,
   HPM_CONNECTION,
   HPM_PACKAGE_FORMATS,
+  HpmAdjustmentStore,
   HpmCorrectionStore,
   HpmPushStore,
   assertHpmPushAllowed,
@@ -24,15 +25,17 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { ApprovalHoldService } from '../../modules/adm/approval-hold.service';
 import { holdsOnWholeTenant } from '../../modules/adm/tenant-authority';
 import { FileService } from '../../modules/files';
 import { ENTERPRISE_METRICS, HPM_ISSUED_REPORTS, HPM_PERIOD_REOPEN, HPM_PORT } from './tokens';
-import { correctionDto, pendingExternalDto, pushDto, ruleDto } from './views';
+import { adjustmentDto, correctionDto, pendingExternalDto, pushDto, ruleDto } from './views';
 import type { Caller } from './views';
 
 const CONNECTION_RESOURCE = 'ent_connection';
 const PUSH_RESOURCE = 'hpm_push';
 const CORRECTION_RESOURCE = 'hpm_correction';
+const ADJUSTMENT_RESOURCE = 'hpm_adjustment';
 const CLASSIFICATION = 'INTERNAL';
 const HISTORY = 10;
 /** The kinds of report file the object store holds for an issued copy, and the extension the package gives the file inside it. */
@@ -69,6 +72,7 @@ export class HpmReadsController {
   private readonly connections = new EntConnectionStore(HPM_CONNECTION);
   private readonly pushes = new HpmPushStore();
   private readonly corrections = new HpmCorrectionStore();
+  private readonly adjustments = new HpmAdjustmentStore();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
 
@@ -158,17 +162,25 @@ export class HpmReadsController {
     if (!holdsOnWholeTenant(access, PERMISSIONS.listHpmCorrections)) throw new DomainError('SCOPE_DENIED', 403);
     const now = new Date();
     const state = text(query.state, 'state', 20);
-    if (state !== undefined && !['PROPOSED', 'APPROVED', 'REJECTED', 'CONSUMED'].includes(state)) throw new DomainError('VALIDATION_FAILED', 422, 'state');
+    if (state !== undefined && !['PROPOSED', 'APPROVED', 'REJECTED', 'CONSUMED', 'APPLIED'].includes(state)) throw new DomainError('VALIDATION_FAILED', 422, 'state');
     const layoutCode = text(query.layout_code, 'layout_code', 60);
     const period = text(query.period, 'period', 10);
     const request = parsePageRequest(query.limit, query.cursor);
     const caller = callerOf(tenant, access);
     return this.database.withTenant(tenant, async (tx) => {
-      const rows = await this.corrections.list(tx, { state: state as 'PROPOSED' | 'APPROVED' | 'REJECTED' | 'CONSUMED' | undefined, layoutCode, period }, { limit: request.limit + 1, after: request.after === undefined ? undefined : { key: request.after.code, id: request.after.id } });
-      const shown = rows.slice(0, request.limit);
+      const after = request.after === undefined ? undefined : { key: request.after.code, id: request.after.id };
+      // Both modes of a correction (overwrite after a reopening, adjustment in the next period) are one list, newest first; each table is paged by the same keyset, so the merge of the first page of each is the first page of both.
+      const overwrites = state === 'APPLIED' ? [] : await this.corrections.list(tx, { state: state as 'PROPOSED' | 'APPROVED' | 'REJECTED' | 'CONSUMED' | undefined, layoutCode, period }, { limit: request.limit + 1, after });
+      const adjustments = state === 'CONSUMED' ? [] : await this.adjustments.list(tx, { state: state as 'PROPOSED' | 'APPROVED' | 'REJECTED' | 'APPLIED' | undefined, layoutCode, ...(period === undefined ? {} : { sourcePeriod: period }) }, { limit: request.limit + 1, after });
+      const merged = [...overwrites.map((row) => ({ kind: 'OVERWRITE' as const, key: row.createdAtKey, id: row.id, row })), ...adjustments.map((row) => ({ kind: 'ADJUST' as const, key: row.createdAtKey, id: row.id, row }))].sort((left, right) => (left.key < right.key ? 1 : left.key > right.key ? -1 : left.id < right.id ? 1 : -1));
+      const shown = merged.slice(0, request.limit);
       const last = shown[shown.length - 1];
-      const names = await people.names(tx, shown.flatMap((row) => [row.proposedBy, row.decidedBy]));
-      return { items: shown.map((row) => correctionDto(row, names, caller)), next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.createdAtKey, id: last.id }) : null, as_of: now.toISOString() };
+      const names = await people.names(tx, shown.flatMap((one) => [one.row.proposedBy, one.row.decidedBy]));
+      return {
+        items: shown.map((one) => (one.kind === 'OVERWRITE' ? correctionDto(one.row, names, caller) : adjustmentDto(one.row, names, caller))),
+        next_cursor: merged.length > request.limit && last !== undefined ? encodeCursor({ code: last.key, id: last.id }) : null,
+        as_of: now.toISOString(),
+      };
     });
   }
 }
@@ -189,6 +201,7 @@ export class HpmPushController {
     @Inject(HPM_PERIOD_REOPEN) private readonly reopen: PeriodReopenPort,
     @Inject(HPM_ISSUED_REPORTS) private readonly issued: IssuedReportPort,
     @Optional() @Inject(ENTERPRISE_METRICS) metrics?: MetricsSink,
+    @Optional() @Inject(ApprovalHoldService) private readonly holds?: ApprovalHoldService,
   ) {
     this.metrics = metrics ?? NOOP_METRICS;
   }
@@ -345,6 +358,8 @@ export class HpmPushController {
     if (before === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     if (before.version !== (scope.expectedVersion ?? 0)) throw versionConflict(before.version);
     if (before.status !== 'FAILED' && before.status !== 'WRITTEN') throw new DomainError('HPM_PUSH_STATE_INVALID', 409, 'status');
+    // The push of a step of an approval is tried again by approving the step again: the package is built from the record, not from a file of the object store (ENT-3c).
+    if (before.fileObjectKey?.startsWith('approval:') === true) throw new DomainError('HPM_PUSH_STATE_INVALID', 409, 'origin');
     // A retry re-sends what the key stands for, exactly: the same request, the same key; the number of the attempt is the only thing that moves.
     const report = await this.reportOf(scope, requestOfRow(before));
     const request = report.request;
@@ -365,6 +380,8 @@ export class HpmPushController {
     const now = new Date();
     const done = await this.pushes.recordReceipt(scope.tx, id, scope.expectedVersion ?? 0, { outcome: body.outcome, reference: body.reference, note: body.note }, scope.tenant.membershipId, now);
     const { row } = done;
+    // The PUSH step of an approval waits for this answer (R22): an acceptance finishes the decision of the person who held the step, a rejection ends the hold. A push that is not a step of an approval has no hold.
+    await this.holds?.receive(scope, { pushId: row.id, outcome: row.status as 'ACCEPTED' | 'REJECTED', reference: row.receiptReference as string, now });
     // The answer of HPM is also the answer in the delivery log of the report engine, for the copy the push delivered.
     if (row.issueId !== null) await this.issued.answered(scope.tx, row.issueId, row.status as 'ACCEPTED' | 'REJECTED', scope.tenant.membershipId, row.receiptReference as string, row.receiptNote);
     await scope.audit({
@@ -392,6 +409,7 @@ export class HpmPushController {
 @Controller()
 export class HpmCorrectionController {
   private readonly corrections = new HpmCorrectionStore();
+  private readonly adjustments = new HpmAdjustmentStore();
 
   constructor(@Inject(HPM_PERIOD_REOPEN) private readonly reopen: PeriodReopenPort) {}
 
@@ -402,6 +420,7 @@ export class HpmCorrectionController {
   async propose(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['HpmCorrectionPropose']): Promise<Record<string, unknown>> {
     if (!holdsOnWholeTenant(access, PERMISSIONS.proposeHpmCorrection)) throw new DomainError('SCOPE_DENIED', 403);
     const now = new Date();
+    if (body.mode === 'ADJUST_NEXT_PERIOD') return this.proposeAdjustment(scope, access, body, now);
     const row = await this.corrections.propose(scope.tx, body as unknown as Record<string, unknown>, scope.tenant.membershipId, now, this.reopen);
     await scope.audit({
       action: 'hpm.correction_proposed',
@@ -431,6 +450,8 @@ export class HpmCorrectionController {
   async decide(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['HpmCorrectionDecision']): Promise<CommandResult> {
     if (!holdsOnWholeTenant(access, PERMISSIONS.decideHpmCorrection)) throw new DomainError('SCOPE_DENIED', 403);
     const now = new Date();
+    // The id names a correction by overwrite or an adjustment in the next period: the two modes share the family of operations.
+    if ((await this.corrections.find(scope.tx, id)) === undefined && (await this.adjustments.find(scope.tx, id)) !== undefined) return this.decideAdjustment(scope, id, body, now);
     const done = await this.corrections.decide(scope.tx, id, scope.expectedVersion ?? 0, { decision: body.decision, reason: body.reason }, scope.tenant.membershipId, now, this.reopen);
     const { row } = done;
     await scope.audit({
@@ -449,6 +470,55 @@ export class HpmCorrectionController {
       schemaVersion: 1,
       payload: { tenant_id: scope.tenant.tenantId, correction_id: row.id, layout_code: row.layoutCode, period: row.period, from_revision: row.fromRevision, state: row.state, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
       eventKey: `${CORRECTION_RESOURCE}:${row.id}:${row.version}`,
+    });
+    return commandResult(scope, row.state, row.version, row.id);
+  }
+
+  /**
+   * The adjustment in the next period (TH.01): the second mode of a correction. The accepted period stays as it is; a signed amount for a subject is booked in the next period of the same layout, proposed here, decided
+   * by somebody else, and used once by the push of the next period. The proposer and the decider are two people (the table says so); every move is on the trail (ADM-11) and in the journal of the adjustment.
+   */
+  private async proposeAdjustment(scope: CommandScope, access: EffectiveAccess, body: Schemas['HpmCorrectionPropose'], now: Date): Promise<Record<string, unknown>> {
+    const row = await this.adjustments.propose(scope.tx, { layout_code: body.layout_code, source_period: body.period, source_revision: body.from_revision, subject_code: body.subject_code, amount_vnd: body.amount_vnd, reason: body.reason }, scope.tenant.membershipId, now);
+    await scope.audit({
+      action: 'hpm.adjustment_proposed',
+      resourceType: ADJUSTMENT_RESOURCE,
+      resourceId: row.id,
+      classification: CLASSIFICATION,
+      reason: row.reason,
+      diff: { layout_code: row.layoutCode, source_period: row.sourcePeriod, source_revision: row.sourceRevision, target_period: row.targetPeriod, subject_code: row.subjectCode, state: row.state },
+    });
+    await scope.emit({
+      aggregateType: ADJUSTMENT_RESOURCE,
+      aggregateId: row.id,
+      aggregateVersion: row.version,
+      type: 'hpm.adjustment.proposed.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: scope.tenant.tenantId, adjustment_id: row.id, layout_code: row.layoutCode, source_period: row.sourcePeriod, target_period: row.targetPeriod, subject_code: row.subjectCode, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
+      eventKey: `${ADJUSTMENT_RESOURCE}:${row.id}:proposed`,
+    });
+    const names = await people.names(scope.tx, [row.proposedBy]);
+    return adjustmentDto(row, names, callerOf(scope.tenant, access));
+  }
+
+  private async decideAdjustment(scope: CommandScope, id: string, body: Schemas['HpmCorrectionDecision'], now: Date): Promise<CommandResult> {
+    const { row } = await this.adjustments.decide(scope.tx, id, scope.expectedVersion ?? 0, { decision: body.decision, reason: body.reason }, scope.tenant.membershipId, now);
+    await scope.audit({
+      action: row.state === 'APPROVED' ? 'hpm.adjustment_approved' : 'hpm.adjustment_rejected',
+      resourceType: ADJUSTMENT_RESOURCE,
+      resourceId: row.id,
+      classification: CLASSIFICATION,
+      reason: row.decisionReason ?? body.reason,
+      diff: { layout_code: row.layoutCode, source_period: row.sourcePeriod, target_period: row.targetPeriod, subject_code: row.subjectCode, state: row.state, proposed_by: row.proposedBy },
+    });
+    await scope.emit({
+      aggregateType: ADJUSTMENT_RESOURCE,
+      aggregateId: row.id,
+      aggregateVersion: row.version,
+      type: 'hpm.adjustment.decided.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: scope.tenant.tenantId, adjustment_id: row.id, layout_code: row.layoutCode, source_period: row.sourcePeriod, target_period: row.targetPeriod, state: row.state, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
+      eventKey: `${ADJUSTMENT_RESOURCE}:${row.id}:${row.version}`,
     });
     return commandResult(scope, row.state, row.version, row.id);
   }

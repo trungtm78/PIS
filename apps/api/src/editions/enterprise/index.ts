@@ -1,8 +1,10 @@
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DisPeriodReopenPort, HpmFileWriter, ReportStoreIssuedReports } from '@machvon/edition-enterprise/src/server.ts';
-import type { HpmFileSink } from '@machvon/edition-enterprise/src/server.ts';
+import type { HpmFileSink, HpmPort, PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts';
+import { APPROVAL_PUSH_PORT } from '../../modules/adm/approval-hold.service';
 import { defineModule } from '../../modules/module-descriptor';
+import { HpmApprovalPush } from './approval-push';
 import { EbsImportController, EbsReadsController, EbsReconciliationController } from './ebs.controller';
 import { directoryFileSink } from './file-sink';
 import { HpmCorrectionController, HpmPushController, HpmReadsController } from './hpm.controller';
@@ -24,6 +26,8 @@ export const hpmModule = defineModule({
     { provide: HPM_PORT, useFactory: (sink: HpmFileSink) => new HpmFileWriter(sink), inject: [HPM_FILE_SINK] },
     { provide: HPM_PERIOD_REOPEN, useValue: new DisPeriodReopenPort() },
     { provide: HPM_ISSUED_REPORTS, useValue: new ReportStoreIssuedReports() },
+    // The PUSH step of the staged approval hands its package to HPM and waits for the receipt (ENT-3c, R22).
+    { provide: APPROVAL_PUSH_PORT, useFactory: (port: HpmPort, reopen: PeriodReopenPort) => new HpmApprovalPush(port, reopen), inject: [HPM_PORT, HPM_PERIOD_REOPEN] },
   ],
 });
 

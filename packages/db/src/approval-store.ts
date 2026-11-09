@@ -305,7 +305,7 @@ export interface HoldAnswer {
  * the task is written; it answers the state of the hold (the package was written and waits for the receipt, or could not be written), or nothing when there is no receiver for this record. A refusal it throws (a revision
  * the receiver already replaced) refuses the decision and writes nothing.
  */
-export type HoldHook = (call: { tx: TenantTx; instance: InstanceRecord; task: TaskRecord; caller: string; reason: string | undefined; now: Date }) => Promise<HoldAnswer | undefined>;
+export type HoldHook = (call: { tx: TenantTx; instance: InstanceRecord; task: TaskRecord; caller: string; reason: string | undefined; now: Date; effects: ApprovalEffects }) => Promise<HoldAnswer | undefined>;
 
 export interface DecideInput {
   taskId: string;
@@ -677,7 +677,7 @@ export class ApprovalStore {
         const open = await this.holds.openFor(tx, task.id, true);
         // A second approval while the package waits for its receipt changes nothing: the step is already held.
         if (open !== undefined && open.state === 'AWAITING_RECEIPT') return { kind: 'HELD', task, instance, hold: open };
-        const answer = await input.hold({ tx, instance, task, caller, reason: input.reason, now: input.now });
+        const answer = await input.hold({ tx, instance, task, caller, reason: input.reason, now: input.now, effects });
         if (answer !== undefined) {
           const held = await this.holds.hold(tx, {
             workflowInstanceId: instance.id,
@@ -801,7 +801,7 @@ export class ApprovalStore {
   /**
    * The receiver answered the package of a held PUSH step. An acceptance finishes the decision of the person who held it, as theirs (the final command runs once, with the key of the instance, and the instance ends);
    * a rejection ends the hold and leaves the task pending, so the record goes back by the usual return. Nothing in it asks who may decide: that was judged when the step was held. Returns undefined when the push has
-   * no hold (a push that is not a step of an approval); 409 `APPROVAL_HOLD_STATE_INVALID` when the hold is not waiting for the receipt.
+   * no hold waiting for it (a push that is not a step of an approval, or a hold the end of the instance cancelled).
    */
   async answerHold(
     tx: TenantTx,
@@ -813,7 +813,8 @@ export class ApprovalStore {
     // The instance first, as a decision does, then the hold and the task.
     await tx.query('select id from machvon.workflow_instance where id = $1::uuid for update', [peek.workflowInstanceId]);
     const hold = await this.holds.find(tx, peek.id, true);
-    if (hold === undefined) return undefined;
+    // A hold that is no longer waiting (the instance ended or went back meanwhile) has nothing to release; the receipt of the push stands on its own.
+    if (hold === undefined || hold.state !== 'AWAITING_RECEIPT') return undefined;
     const answered = await this.holds.answer(tx, hold, { outcome: input.outcome, by: input.by, reference: input.reference, at: input.now });
     if (!answered.release) {
       await effects.audit({ action: 'approval.step_receipt_rejected', resourceType: 'approval_task', resourceId: hold.taskId, diff: { step_id: hold.stepKey, instance_id: hold.workflowInstanceId, push_id: input.pushId } });

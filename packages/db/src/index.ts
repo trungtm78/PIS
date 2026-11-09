@@ -1681,6 +1681,8 @@ export type { EvmPolicyView as CtrEvmPolicyView, EvmRead as CtrEvmRead } from '.
 export { ReportStore, copyRefOf } from './report-store.ts';
 export type { DraftFilter as ReportDraftFilter, IssueFilter as ReportIssueFilter, IssueRequest as ReportIssueRequest, NewDraft as ReportNewDraft, RegisterLayoutInput as ReportRegisterLayoutInput, ReportDeliveryRow, ReportDraftRow, ReportIssueRow, ReportLayoutRow } from './report-store.ts';
 // IND-1: the indicator dictionary, the rules at entry, the Excel import mappings and the figures entered against them.
+export { ENTRY_BATCH_STATUSES, IND_ENTRY_BATCH_RESOURCE, IndEntryBatchStore } from './ind-entry-batch-store.ts';
+export type { EntryBatchFigure, EntryBatchFilter, EntryBatchRow, EntryBatchStatus } from './ind-entry-batch-store.ts';
 export { IND_FIGURE_RESOURCE, figureSetLockKey, IndDictionaryStore, IndEntryRuleStore, IndImportReads, IndFigureStore, IndMappingStore, figureFacts } from './ind-store.ts';
 export type { EntryCheckInput, EntryRuleView, IndDifferenceRow, IndRunRow, FigureFilter as IndFigureFilter, FigureOutcome, FigureRow as IndFigureRow, FigureSource, FigureWrite, IndicatorUsage, IndProjectFacts, MappingView, RuleVersionRow } from './ind-store.ts';
 export { IND_DIFFERENCE_CODES, IndImportAdapter } from './ind-import.ts';

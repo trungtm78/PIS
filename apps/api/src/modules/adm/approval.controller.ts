@@ -12,6 +12,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
+import { ApprovalHoldService } from './approval-hold.service';
 import { APPROVAL_FINAL_COMMANDS, effectsOf } from './approval.service';
 import type { FinalCommandRegistry } from './approval.service';
 import { holdsOnWholeTenant } from './tenant-authority';
@@ -109,6 +110,7 @@ export class ApprovalCommandsController {
   constructor(
     @Inject(APPROVAL_FINAL_COMMANDS) private readonly commands: FinalCommandRegistry,
     @Optional() @Inject(ADM_METRICS) metrics?: MetricsSink,
+    @Optional() @Inject(ApprovalHoldService) private readonly holds?: ApprovalHoldService,
   ) {
     this.metrics = metrics ?? NOOP_METRICS;
   }
@@ -195,8 +197,11 @@ export class ApprovalCommandsController {
       reason: body.reason,
       returnToStep: body.return_to_step,
       now: new Date(),
+      hold: this.holds?.hook(scope.tenant.tenantId),
       finish: this.commands.asFinalCommand(),
     });
+    // The PUSH step handed its package over and waits for the receipt (R22): nothing is decided yet.
+    if (result.kind === 'HELD') return commandResult(scope, result.hold.state === 'PUSH_FAILED' ? 'PUSH_FAILED' : 'AWAITING_RECEIPT', result.task.version, result.task.id);
     if (result.kind === 'SELF_APPROVAL') {
       // The reassignment is committed with the audit row; the answer is the refusal.
       await scope.audit({ action: 'approval.self_approval_refused', resourceType: TASK_RESOURCE, resourceId: result.task.id, diff: { reassigned_to: result.reassignedTo, step_id: result.task.stepId } });

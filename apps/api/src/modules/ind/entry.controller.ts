@@ -1,14 +1,17 @@
 import { Body, Controller, HttpCode, Inject, Optional, Post } from '@nestjs/common';
-import { PERMISSIONS } from '@machvon/contracts';
-import { BidWorkflowReads, DisPeriodStore, IND_FIGURE_RESOURCE, IndDictionaryStore, IndEntryRuleStore, IndFigureStore, figureFacts, projectScope } from '@machvon/db';
+import { BidWorkflowReads, DisPeriodStore, IND_ENTRY_BATCH_RESOURCE, IND_FIGURE_RESOURCE, IndDictionaryStore, IndEntryBatchStore, IndEntryRuleStore, IndFigureStore } from '@machvon/db';
 import type { IndFigureRow as FigureRow } from '@machvon/db';
-import { DomainError, assertEntryAllowed, figureFitsUnit, isEnterable, vietnamDateOf, verdictTrail } from '@machvon/kernel';
-import type { EffectiveAccess, EntryFacts, IndicatorEntry } from '@machvon/kernel';
+import { DomainError, stagedApprovalOf, vietnamDateOf, verdictTrail } from '@machvon/kernel';
+import type { EffectiveAccess, EntryFacts, EntryVerdict } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { APPROVAL_FINAL_COMMANDS, effectsOf } from '../adm/approval.service';
+import type { FinalCommandRegistry } from '../adm/approval.service';
+import { StagedApprovalFlow } from '../adm/staged-approval.flow';
+import { judgeEntry } from './entry-judge';
 import { figureDto, violationDto } from './ind-view';
 import { IND_CLOCK } from './tokens';
 
@@ -28,10 +31,16 @@ export class IndEntryController {
   private readonly figures = new IndFigureStore();
   private readonly periods = new DisPeriodStore();
   private readonly people = new BidWorkflowReads();
+  private readonly batches = new IndEntryBatchStore();
+  private readonly flow: StagedApprovalFlow;
   private readonly clock: () => Date;
 
-  constructor(@Optional() @Inject(IND_CLOCK) clock?: () => Date) {
+  constructor(
+    @Optional() @Inject(IND_CLOCK) clock?: () => Date,
+    @Optional() @Inject(APPROVAL_FINAL_COMMANDS) commands?: FinalCommandRegistry,
+  ) {
     this.clock = clock ?? ((): Date => new Date());
+    this.flow = new StagedApprovalFlow(stagedApprovalOf('IND_ENTRY'), commands);
   }
 
   @Post('indicator-entry-rules/evaluate')
@@ -62,32 +71,9 @@ export class IndEntryController {
   @Command({ operation: 'enterIndicatorFigures' })
   async enter(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['IndFigureEntry']): Promise<Record<string, unknown>> {
     const now = this.clock();
-    const day = vietnamDateOf(now);
-    const project = await this.figures.project(scope.tx, body.project_id, projectScope(access, PERMISSIONS.listIndicatorFigures, now), projectScope(access, PERMISSIONS.enterIndicatorFigures, now));
-    // A locked period takes nothing unless an approved reopening covers the project.
-    const period = await this.periods.find(scope.tx, body.period_id, 'share');
-    if (period === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    if (await this.periods.closedFor(scope.tx, period.id, project.id, now)) throw new DomainError('PERIOD_LOCKED', 409);
-    const dictionary = await this.dictionary.list(scope.tx, day);
-    const byCode = new Map(dictionary.map((entry) => [entry.code, entry]));
-    const seen = new Set<string>();
-    const planned: Array<{ indicator: IndicatorEntry; value: string; reason: string | undefined }> = [];
-    for (const [index, figure] of body.figures.entries()) {
-      const indicator = byCode.get(figure.indicator_code);
-      if (indicator === undefined || !isEnterable(indicator) || seen.has(figure.indicator_code)) throw new DomainError('VALIDATION_FAILED', 422, `figures[${index}].indicator_code`);
-      if (!figureFitsUnit(figure.value, indicator.unit)) throw new DomainError('VALIDATION_FAILED', 422, `figures[${index}].value`);
-      seen.add(figure.indicator_code);
-      planned.push({ indicator, value: figure.value, reason: figure.reason });
-    }
-    // The rules read several figures together: nobody else judges or writes this set until this command ends.
-    await this.figures.lockSet(scope.tx, project.id, period.id);
-    const held = await this.figures.current(scope.tx, project.id, period.id);
-    const values: Record<string, string> = { ...figureFacts(held, dictionary) };
-    if (values['TOTAL_INVESTMENT'] === undefined) values['TOTAL_INVESTMENT'] = project.totalInvestmentVnd;
-    for (const one of planned) if (one.indicator.entryField !== null) values[one.indicator.entryField] = one.value;
-    const periodStatus = period.status === 'LOCKED' ? 'REOPENED' : period.status;
-    const verdict = await this.entryRules.check(scope.tx, { surface: 'INDICATOR_ENTRY', facts: { values, periodStatus }, asOf: day });
-    assertEntryAllowed(verdict);
+    const { project, period, planned, verdict } = await judgeEntry({ dictionary: this.dictionary, entryRules: this.entryRules, figures: this.figures, periods: this.periods }, scope, access, body, now);
+    // A tenant that approved the staged rule has its entries handed in as a batch and decided by the steps; the figures reach the register when the last step approves (ENT-3c).
+    if (await this.flow.isStaged(scope.tx, now)) return this.handIn(scope, project.id, period.id, project.code, period.code, body, verdict, now);
     const written: FigureRow[] = [];
     let created = 0;
     let revised = 0;
@@ -128,5 +114,28 @@ export class IndEntryController {
     }
     const names = await this.people.names(scope.tx, written.map((row) => row.enteredBy));
     return { operation_id: scope.requestId, status: 'ENTERED', resource_version: 1, created, revised, unchanged, warnings: verdict.warnings.map(violationDto), figures: written.map((row) => figureDto(row, names)) };
+  }
+
+  /**
+   * The entry of a tenant that runs the staged approval: the figures were judged like any entry, and are kept as a batch with the warnings the rules gave (they do not block, BBH 43) while the steps decide it. The answer
+   * is the entry's own shape with nothing written yet (`SUBMITTED`); the register gets the figures, under the name of the person who entered them, when the last step approves.
+   */
+  private async handIn(scope: CommandScope, projectId: string, periodId: string, projectCode: string, periodCode: string, body: Schemas['IndFigureEntry'], verdict: EntryVerdict, now: Date): Promise<Record<string, unknown>> {
+    const warnings = verdict.warnings.map(violationDto);
+    const batch = await this.batches.submit(scope.tx, { projectId, periodId, figures: body.figures.map((figure) => ({ indicator_code: figure.indicator_code, value: figure.value, ...(figure.reason === undefined ? {} : { reason: figure.reason }) })), warnings }, scope.tenant.membershipId, now);
+    const [owner] = await scope.tx.query<{ owner_unit_id: string }>('select owner_unit_id from machvon.project where id = $1::uuid', [projectId]);
+    if (owner === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    await this.flow.startIfStaged(scope.tx, effectsOf(scope), { id: batch.id, version: batch.version, unitId: owner.owner_unit_id, amountVnd: null, initiator: scope.tenant.membershipId }, now);
+    await scope.audit({ action: 'ind.entry_batch_submitted', resourceType: IND_ENTRY_BATCH_RESOURCE, resourceId: batch.id, classification: CLASSIFICATION, diff: { project_code: projectCode, period_code: periodCode, revision: batch.revision, figures: batch.figureCount, warnings: warnings.length } });
+    await scope.emit({
+      aggregateType: IND_ENTRY_BATCH_RESOURCE,
+      aggregateId: batch.id,
+      aggregateVersion: batch.version,
+      type: 'ind.entry_batch.submitted.v1',
+      schemaVersion: 1,
+      payload: { tenant_id: scope.tenant.tenantId, batch_id: batch.id, project_id: projectId, period_id: periodId, revision: batch.revision, figures: batch.figureCount, warnings: warnings.length, actor_id: scope.tenant.membershipId, occurred_at: now.toISOString() },
+      eventKey: `${IND_ENTRY_BATCH_RESOURCE}:${batch.id}:submitted`,
+    });
+    return { operation_id: scope.requestId, status: 'SUBMITTED', resource_version: batch.version, created: 0, revised: 0, unchanged: 0, warnings, figures: [] };
   }
 }

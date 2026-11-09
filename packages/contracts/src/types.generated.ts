@@ -37747,8 +37747,11 @@ export interface components {
                 /** @enum {string} */
                 kind: "UNIT_APPROVER" | "PLANNING_REVIEW" | "PERIOD_CLOSE" | "PUSH";
                 name: string;
-                /** @enum {string} */
-                status: "WAITING" | "CURRENT" | "DONE" | "CANCELLED";
+                /**
+                 * @description AWAITING_RECEIPT is the PUSH step that handed its package to the receiver and waits for the receipt; PUSH_FAILED is the same step when the package could not be written (the step is tried again with the same key).
+                 * @enum {string}
+                 */
+                status: "WAITING" | "CURRENT" | "AWAITING_RECEIPT" | "PUSH_FAILED" | "DONE" | "CANCELLED";
                 sla_working_hours: number;
                 /** Format: date-time */
                 due_at?: string | null;
@@ -37772,6 +37775,24 @@ export interface components {
                     /** Format: date-time */
                     escalated_at?: string | null;
                 }[];
+                /** @description The receipt the PUSH step waits for (ENT-3c, R22); null for any other step. */
+                receipt?: {
+                    /** @enum {string} */
+                    state?: "AWAITING_RECEIPT" | "PUSH_FAILED" | "PUSHED" | "REJECTED" | "CANCELLED";
+                    /** Format: uuid */
+                    push_id?: string | null;
+                    push_key?: string | null;
+                    push_status?: string | null;
+                    attempts?: number;
+                    /** Format: uuid */
+                    held_by?: string;
+                    /** Format: date-time */
+                    held_at?: string;
+                    /** Format: date-time */
+                    receipt_at?: string | null;
+                    /** @description The screen where the receipt is recorded (HPM-01); null where no receiver exists. */
+                    receiver_screen?: string | null;
+                } | null;
             }[];
             /** Format: date-time */
             as_of: string;
@@ -43273,10 +43294,10 @@ export interface components {
             period: string;
             from_revision: number;
             /** Format: uuid */
-            period_reopen_id: string;
+            period_reopen_id: string | null;
             reason: string;
             /** @enum {string} */
-            state: "PROPOSED" | "APPROVED" | "REJECTED" | "CONSUMED";
+            state: "PROPOSED" | "APPROVED" | "REJECTED" | "CONSUMED" | "APPLIED";
             /** Format: uuid */
             proposed_by: string;
             proposed_by_name: string | null;
@@ -43293,6 +43314,15 @@ export interface components {
             actions: {
                 may_decide: boolean;
             };
+            /**
+             * @description OVERWRITE replaces the accepted revision after a reopening; ADJUST_NEXT_PERIOD books the difference in the next period and leaves the accepted period as it is (TH.01).
+             * @enum {string}
+             */
+            mode: "OVERWRITE" | "ADJUST_NEXT_PERIOD";
+            target_period?: string | null;
+            subject_code?: string | null;
+            /** @description Signed whole dong, for an adjustment in the next period. */
+            amount_vnd?: string | null;
         };
         HpmCorrectionPage: {
             items: components["schemas"]["HpmCorrection"][];
@@ -43305,10 +43335,19 @@ export interface components {
             from_revision: number;
             /**
              * Format: uuid
-             * @description The approved reopening of the period (DIS) whose window is open
+             * @description OVERWRITE: the approved reopening of the period (DIS) whose window is open; not used by ADJUST_NEXT_PERIOD.
              */
-            period_reopen_id: string;
+            period_reopen_id?: string;
             reason: string;
+            /**
+             * @default OVERWRITE
+             * @enum {string}
+             */
+            mode: "OVERWRITE" | "ADJUST_NEXT_PERIOD";
+            /** @description ADJUST_NEXT_PERIOD: what the amount is about. */
+            subject_code?: string;
+            /** @description ADJUST_NEXT_PERIOD: signed whole dong booked in the next period. */
+            amount_vnd?: string;
         };
         HpmCorrectionDecision: {
             /** @enum {string} */

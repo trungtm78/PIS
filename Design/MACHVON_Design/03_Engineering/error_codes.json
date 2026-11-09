@@ -7427,6 +7427,30 @@
       "module": "BID",
       "statusBasis": "spec",
       "source": "spec:BID"
+    },
+    "APPROVAL_HOLD_STATE_INVALID": {
+      "status": 409,
+      "title": "The step is not waiting for a receipt",
+      "meaning": "Bước phê duyệt không ở trạng thái chờ biên nhận nên không nhận được biên nhận hoặc đã kết thúc.",
+      "module": "ADM",
+      "statusBasis": "spec",
+      "source": "spec:ADM"
+    },
+    "HPM_ADJUSTMENT_STATE_INVALID": {
+      "status": 409,
+      "title": "The adjustment is not in a state that allows this",
+      "meaning": "Điều chỉnh ở kỳ sau không ở trạng thái cho phép quyết định, đã có một điều chỉnh đang chờ cho chỉ tiêu này, hoặc kỳ sau đã được nơi nhận chấp nhận.",
+      "module": "HPM",
+      "statusBasis": "spec",
+      "source": "spec:HPM"
+    },
+    "IND_ENTRY_BATCH_STATE_INVALID": {
+      "status": 409,
+      "title": "The entry batch is not in a state that allows this",
+      "meaning": "Lô nhập chỉ tiêu không ở trạng thái cho phép thao tác này, hoặc đã có một lô khác đang chờ quyết định cho dự án và kỳ này.",
+      "module": "IND",
+      "statusBasis": "spec",
+      "source": "spec:IND"
     }
   }
 }
