@@ -6,7 +6,7 @@ import { decimalTextOf, isMoneyScale, periodCode } from './report-layout.ts';
 import type { FormPeriod, MoneyScale } from './report-layout.ts';
 
 /**
- * The comparison of the reports of one period against each other before they are released (CN.04, ENT-4a, docs/report-crosscheck.md). Pure: it reads no table and no snapshot. What it compares is what each report was
+ * The comparison of the reports of one period against each other before they are released (CN.04, ENT-4a, docs/report-engine.md, section "Cross-report comparison"). Pure: it reads no table and no snapshot. What it compares is what each report was
  * FILLED with (the figures of its strip and the project rows of its datasets, which the enterprise forms read through `EnterpriseFigureReader`, review decision R21), and the frozen snapshot of the period, which the
  * caller gives as one more set of figures made with the same reader. Figures are whole dong in decimal text and are compared as exact integers; a rate is compared in percentage points.
  *

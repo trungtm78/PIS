@@ -609,7 +609,8 @@
         "screens": [
           "EBS-01",
           "EBS-02",
-          "DIS-26"
+          "DIS-26",
+          "RPT-09"
         ],
         "operations": [
           "uploadEbsFile",
@@ -617,23 +618,32 @@
           "importEbsFile",
           "reconcileEbs",
           "getCrossTotalControl",
-          "evaluateCrossTotal"
+          "evaluateCrossTotal",
+          "getReportCrosscheck",
+          "listCrosscheckExplanations",
+          "explainCrosscheckFinding"
         ],
         "stories": [
           "ST-EBS-001",
           "ST-EBS-002",
           "ST-DIS-025",
-          "ST-DIS-022"
+          "ST-DIS-022",
+          "ST-RPT-141"
         ],
         "docs": [
           "docs/hpm-ebs-connectors.md",
-          "docs/gov-d-cross-total.md"
+          "docs/gov-d-cross-total.md",
+          "docs/report-engine.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/RPT.md"
         ],
         "tests": [
-          "apps/api/test/editions/ebs.enterprise.test.ts"
+          "apps/api/test/editions/ebs.enterprise.test.ts",
+          "packages/kernel/test/report-crosscheck.test.ts",
+          "apps/web/src/screens/rpt/crosscheck/CrosscheckScreen.test.tsx",
+          "apps/api/test/reports/crosscheck.enterprise.test.ts"
         ]
       },
-      "gap": "G4: chưa có so sánh chéo cùng kỳ giữa các loại báo cáo (tháng, quý, giao ban, HPM) và chặn phát hành khi lệch có giải trình; đối chiếu EBS chạy trên bố cục giả định.",
+      "gap": "ENT-4a đã dựng so sánh chéo cùng kỳ giữa báo cáo tháng, quý, giao ban, HPM và bản chốt kỳ, chặn phát hành khi lệch ở mức chặn trừ khi có giải trình của người khác người lập; dung sai, mức chặn và cặp báo cáo là giá trị khởi đầu chưa được chủ nghiệp vụ xác nhận (D03) và 6 biểu mẫu vẫn là mẫu DEMO; đối chiếu EBS chạy trên bố cục giả định.",
       "owners": [
         "ENT-4a",
         "ENT-3e"

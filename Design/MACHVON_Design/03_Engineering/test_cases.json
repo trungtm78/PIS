@@ -26586,5 +26586,59 @@
     "covers": [
       "FR-DIS-35"
     ]
+  },
+  {
+    "id": "UI-RPT-09",
+    "source": "FR-RPT-09",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A; a reader (rpt.crosscheck.read), a person who may explain (rpt.crosscheck.explain) and the preparer of one of the reports; a quarter and its months with one difference; route RPT-09",
+    "steps": [
+      "Open RPT-09 from the menu and from a draft; check the labelled fields: the period and the reports compared, the coverage, each difference with its numbers, formula, source and time, the path to an explanation, the explanations given",
+      "As the person who may explain, record an explanation with a reason shorter than 20 characters, then with a good one",
+      "Force the 7 states and check the hidden explanation form for a reader and for the preparer of an involved report"
+    ],
+    "expected": "All fields shown; a comparison that made no comparison says so and never reads as agreeing; the short reason is refused on the screen and sends nothing; the explanation goes with the fingerprint and the period; no write in the read-only mode",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-09"
+    ]
+  },
+  {
+    "id": "UAT-RPT-ENT4A-1",
+    "source": "RPT.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "The monthly PVN reports of a quarter, the quarterly report, the steering, board and HPM reports, all from one frozen snapshot; then one change at a time to the data",
+    "steps": [
+      "Compare the consistent set",
+      "Change one figure of one month by one dong; leave out a month; give a project row no unit; push a cumulative above the total investment; make the HPM report differ from PVN",
+      "Open RPT-09 for the period"
+    ],
+    "expected": "Step 1 gives no difference and a number of comparisons above zero; each change of step 2 is found by its own rule with formula, source and time of each number; a missing month is skipped with the reason, not passed",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-09"
+    ]
+  },
+  {
+    "id": "UAT-RPT-ENT4A-2",
+    "source": "RPT.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "An approved draft of the quarterly report with a blocking difference against its months; a preparer, an approver and a third person who may explain",
+    "steps": [
+      "The approver issues the draft",
+      "The preparer tries to explain the difference; the third person records a short reason, then a good reason",
+      "The approver issues again; the third person repeats the explanation"
+    ],
+    "expected": "Step 1 is 409 REPORT_CROSSCHECK_BLOCKED and audited; the preparer gets 403 SELF_APPROVAL_DENIED; a short reason is 422; the good reason is recorded once; step 3 issues the copy and keeps the evidence of the comparison; the repeat returns the first explanation",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-09"
+    ]
   }
 ]

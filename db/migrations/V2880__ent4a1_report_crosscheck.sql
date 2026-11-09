@@ -1,4 +1,4 @@
--- Authored by hand (not generated): ENT-4a (docs/plans/ent4a.md, docs/report-crosscheck.md). The comparison of the reports of one period before release (HSKT CN.04).
+-- Authored by hand (not generated): ENT-4a (docs/plans/ent4a.md, docs/report-engine.md, section "Cross-report comparison"). The comparison of the reports of one period before release (HSKT CN.04).
 --   * `report_figure_set`: the figures a draft was FILLED with (the strip and the project rows), recorded once when the draft is generated. Comparing the recorded fill data compares exactly what the files were made
 --     from; it is never a second reading of the cells. Insert-only; a draft made before this lane has none.
 --   * `report_crosscheck_explanation`: why a finding that blocks a release may nevertheless pass. One row per fingerprint of a finding (rule, figure, period and the values of its terms), so changed figures need a

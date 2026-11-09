@@ -29,7 +29,7 @@ Branch `lane/ent4a`, worktree `D:\PIS-ent4a`, migration block ENT4A-1 2880-2899 
 - [ ] 3. DB: `V2880__ent4a1_report_crosscheck.sql`, `CrosscheckStore`, db test (written, not run on this machine).
 - [ ] 4. API: figure set at generate, gather, controller (read, explain, list), gate in `issueReport`, error codes, permissions, contract patch, authz matrix, tests.
 - [ ] 5. Web: RPT-09, hook, i18n `ent4a`, help, tests.
-- [ ] 6. Docs: `docs/report-crosscheck.md`, `docs/report-engine.md` pointer, Design rows, design check.
+- [ ] 6. Docs: `docs/report-engine.md, section "Cross-report comparison"`, `docs/report-engine.md` pointer, Design rows, design check.
 
 ## Tests per step
 Kernel (`packages/kernel/test/report-crosscheck.test.ts`, node test runner; no database): each rule passes and fails, tolerance edge, skip reasons, fingerprint stability, metamorphic: a clean family of reports derived from one snapshot has no finding, and every injected perturbation (one figure +1 dong, a missing month, a stale snapshot revision, a row without a unit, cumulative above total) is detected, so the check can go red. DB lane (written, not run): `packages/db/test/report-crosscheck-store.test.ts`. API (unit lane where possible, DB lane written): `apps/api/test/reports/crosscheck.test.ts`. Web: `apps/web/src/screens/rpt/crosscheck/CrosscheckScreen.test.tsx`.

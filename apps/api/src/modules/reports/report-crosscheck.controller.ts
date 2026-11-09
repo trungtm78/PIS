@@ -40,7 +40,7 @@ function periodOfQuery(query: Record<string, unknown>): FormPeriod {
 }
 
 /**
- * The reads and the explanation of the comparison of the reports of one period (ENT-4a, CN.04, docs/report-crosscheck.md). The comparison itself is computed at the moment of the read from the reports as they stand
+ * The reads and the explanation of the comparison of the reports of one period (ENT-4a, CN.04, docs/report-engine.md, section "Cross-report comparison"). The comparison itself is computed at the moment of the read from the reports as they stand
  * (the head issued copy of each form, else its newest open draft) and the frozen snapshot of the period, so it can never be out of date; what is kept is the figures each draft was filled with, the explanations and the
  * evidence of each release. Reading needs `rpt.crosscheck.read` over the whole tenant; explaining needs `rpt.crosscheck.explain` and is refused to anyone who prepared a report the finding is about.
  */

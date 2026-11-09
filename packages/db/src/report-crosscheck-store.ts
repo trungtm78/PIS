@@ -3,7 +3,7 @@ import type { CrosscheckRow, FigureEntry, FigureSet, FormPeriod, SnapshotRevisio
 import type { TenantTx } from './tenant-database.ts';
 
 /**
- * The store of the comparison of reports before release (ENT-4a, docs/report-crosscheck.md): the figures a draft was filled with (insert-only), the explanations of findings (insert-only, one per fingerprint, the
+ * The store of the comparison of reports before release (ENT-4a, docs/report-engine.md, section "Cross-report comparison"): the figures a draft was filled with (insert-only), the explanations of findings (insert-only, one per fingerprint, the
  * explainer prepared none of the reports involved), the evidence kept with an issued copy, and the candidates the comparison reads: for each form and period the head issued copy, else the newest open draft. The
  * rules are the kernel's (`compareReports`, `gateOf`); the database keeps the people rule and the insert-only rule as well with a trigger and a revoke.
  */

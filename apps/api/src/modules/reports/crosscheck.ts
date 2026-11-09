@@ -21,7 +21,7 @@ import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { REPORT_FORMS, layoutReadable } from './form-registry';
 
 /**
- * The comparison of the reports of one period before release (ENT-4a, docs/report-crosscheck.md), on the API side. The rules are the kernel's (`compareReports`, `gateOf`) and the numbers of the rule are the governance
+ * The comparison of the reports of one period before release (ENT-4a, docs/report-engine.md, section "Cross-report comparison"), on the API side. The rules are the kernel's (`compareReports`, `gateOf`) and the numbers of the rule are the governance
  * rule `REPORT_CROSSCHECK`; this module only gathers what is compared: for each form that plays a part and each period of the family (the quarter and its months) the head issued copy, else the newest open draft, with the
  * figures it was filled with; and, for each period, the frozen snapshot read through the provider of the forms (the one reader, R21). It writes nothing except the figure set of a draft (at generation) and the evidence of a
  * release. A report the caller may not read (a guarded form) is left out, never shown.
