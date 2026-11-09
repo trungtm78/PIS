@@ -282,7 +282,7 @@
       "id": "ec-pdf-layout",
       "chapter": "ent-cycle",
       "main": false,
-      "narration": "Biểu mẫu xuất thêm PDF, cùng một mô hình tài liệu với Excel và Word. Có mẫu cho Sở, Ban, Ngành. Bố cục biểu mẫu cấu hình qua giao diện, lưu thành quy tắc có phiên bản, không cần lập trình. Các biểu mẫu vẫn là mẫu demo, chờ mẫu chính thức.",
+      "narration": "Biểu mẫu xuất thêm PDF, cùng một mô hình tài liệu với Excel và Word. Có mẫu riêng cho phòng ban. Bố cục biểu mẫu cấu hình qua giao diện, lưu thành quy tắc có phiên bản, không cần lập trình. Các biểu mẫu vẫn là mẫu demo, chờ mẫu chính thức.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -376,7 +376,7 @@
         "platform": "web",
         "screens": [
           "HOME-01",
-          "DIR-05"
+          "BAN-01"
         ]
       },
       "steps": [
@@ -394,11 +394,11 @@
         },
         {
           "do": "open",
-          "screen": "DIR-05"
+          "screen": "BAN-01"
         },
         {
           "do": "spot",
-          "ref": "dir.dashboard.presentation-mode"
+          "ref": "ban.dashboard.presentation-mode"
         }
       ],
       "captions": [],
@@ -481,7 +481,7 @@
       "id": "ec-audit-catalogues",
       "chapter": "ent-cycle",
       "main": false,
-      "narration": "Nhật ký kiểm toán có thể ghi đủ trước và sau của các đối tượng nghiệp vụ được bật. Dữ liệu nhạy cảm được che và có giới hạn dung lượng. Tỷ giá, loại báo cáo và cơ quan nhận là danh mục quản lý được, không còn nằm trong mã.",
+      "narration": "Nhật ký kiểm toán có thể ghi đủ trước và sau của các đối tượng nghiệp vụ được bật. Dữ liệu nhạy cảm được che và có giới hạn dung lượng. Đơn vị tính, tiền tệ và tỷ giá là danh mục quản lý được, có hiệu lực theo ngày, không còn nằm trong mã.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -512,7 +512,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 17.3,
+      "expectedSec": 18.5,
       "requires": [
         "ENT-4e"
       ]

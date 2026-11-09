@@ -104,7 +104,9 @@ export function recordableScenes(scenario, selector, { includePending = false, p
   if (includePending) return scenes;
   const skipped = scenes.filter((scene) => isPending(scene, planned));
   if (skipped.length > 0) log(`skipping ${skipped.length} scene(s) that wait for a lane: ${skipped.map((scene) => `${scene.id} (${pendingLanes(scene, planned).join(', ')})`).join('; ')}`);
-  return scenes.filter((scene) => !isPending(scene, planned));
+  const ready = scenes.filter((scene) => !isPending(scene, planned));
+  if (ready.length === 0) throw new Error(`all ${scenes.length} scene(s) of ${selector} wait for lanes (${skipped.flatMap((scene) => pendingLanes(scene, planned)).filter((lane, index, list) => list.indexOf(lane) === index).join(', ')}); use --include-pending to make them anyway`);
+  return ready;
 }
 
 export const cutNames = (scenario) => ['main', ...scenario.chapters.map((chapter) => chapter.id)];
@@ -235,6 +237,10 @@ export function validateScenario(scenario, context) {
     const screen = scene.screen ?? {};
     if (scene.requires !== undefined && (!Array.isArray(scene.requires) || scene.requires.length === 0 || !scene.requires.every((lane) => typeof lane === 'string'))) fail(`${where}: requires is a list of lane ids`);
     for (const lane of Array.isArray(scene.requires) ? scene.requires : []) if (context.planned.lanes?.[lane] === undefined) fail(`${where}: requires lane ${lane}, which is not in planned.json lanes`);
+    for (const id of screen.screens ?? []) {
+      const lane = context.planned.screens?.[id]?.lane;
+      if (lane !== undefined && context.planned.lanes?.[lane] !== undefined && context.catalogue.has(id) === false && !(scene.requires ?? []).includes(lane)) fail(`${where}: planned screen ${id} belongs to lane ${lane}; the scene must list it in requires`);
+    }
     const sceneContext = isPending(scene, context.planned) ? { ...context, pending: true } : context;
     if (scene.layout !== undefined && !LAYOUT_NAMES.includes(scene.layout)) fail(`${where}: layout ${scene.layout} is not one of ${LAYOUT_NAMES.join(', ')}`);
     for (const [index, callout] of (scene.callouts ?? []).entries()) if (typeof callout.text !== 'string' || !(callout.atSec >= 0) || !(callout.forSec > 0)) fail(`${where}: callout ${index + 1} needs text, atSec and forSec`);

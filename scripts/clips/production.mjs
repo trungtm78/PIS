@@ -209,6 +209,7 @@ export function checkClip(clip, { context, facts, production, strict = false, st
       const fact = screenFact(id, context, facts);
       if (waiting.length > 0) {
         if (fact.kind === 'unknown') fail(`screen ${id} is not in the catalogue and not in planned.json`);
+        else if (!fact.found && fact.kind !== 'planned') fail(`screen ${id} has no route in the ${fact.kind} route table`);
         else if (!fact.found || !fact.implemented) warnings.push(`${clip}: screen ${id} waits for lane ${waiting.join(', ')}`);
         continue;
       }

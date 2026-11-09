@@ -290,7 +290,7 @@
       "id": "pay-phone-treasury",
       "chapter": "payments",
       "main": false,
-      "narration": "Kế toán đối soát Kho bạc và theo dõi thanh toán ngay trên điện thoại. Dòng nào lệch được đánh dấu, và việc xử lý tiếp vẫn làm ở máy tính với đầy đủ chứng từ.",
+      "narration": "Kế toán đối soát Kho bạc và theo dõi thanh toán ngay trên điện thoại. Việc xử lý tiếp vẫn làm ở máy tính với đầy đủ chứng từ.",
       "screen": {
         "platform": "phone",
         "screens": [
@@ -321,7 +321,7 @@
         }
       ],
       "captions": [],
-      "expectedSec": 12.4
+      "expectedSec": 10.2
     }
   ]
 }

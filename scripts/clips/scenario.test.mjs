@@ -148,8 +148,8 @@ test('a scene that waits for a lane is accepted while the lane is pending, left 
   for (const scene of waiting) assert.ok(isPending(scene, strict.planned), scene.id);
   assert.deepEqual(validateScenario(base, strict).problems, [], 'strict mode does not fail on a pending scene');
   const lines = [];
-  const recordable = recordableScenes(base, 'ent-cycle', { log: (line) => lines.push(line) });
-  assert.equal(recordable.length, 0);
+  assert.throws(() => recordableScenes(base, 'ent-cycle', { log: (line) => lines.push(line) }), /wait for lanes/u);
+  assert.equal(recordableScenes(base, 'features-tour', { log: () => {} }).length, 1, 'the tour of the cycle waits, the other tour scene is made');
   assert.match(lines[0], /ec-snapshot-close \(ENT-3a\)/u);
   assert.equal(recordableScenes(base, 'ent-cycle', { includePending: true }).length, selectScenes(base, 'ent-cycle').length);
   // a planned screen that is not in the catalogue fails strict mode when the scene does not wait for a lane
@@ -190,4 +190,12 @@ test('the added chapters cover the features of the plan in both clips', () => {
 test('every scenario file under scenarios/ is valid JSON', () => {
   const dir = join(CLIPS_DIR, 'scenarios');
   for (const sub of ['enterprise', 'public', 'shared']) for (const name of readdirSync(join(dir, sub))) JSON.parse(readFileSync(join(dir, sub, name), 'utf8'));
+});
+
+test('a recording of a cut whose scenes all wait for lanes is refused with the lanes named, and a planned screen needs its lane in requires', () => {
+  const base = loadScenario('enterprise-phu-my');
+  assert.throws(() => recordableScenes(base, 'ent-cycle', { log: () => {} }), /wait for lanes \(ENT-3a/u);
+  const copy = { ...base, scenes: base.scenes.map((scene) => ({ ...scene })), _loadProblems: [] };
+  copy.scenes.find((scene) => scene.id === 'ec-org-pack').requires = ['ENT-3a'];
+  assert.ok(validateScenario(copy, loadContext()).problems.some((p) => /planned screen planned:ent-org-pack belongs to lane ENT-3d/u.test(p)));
 });

@@ -306,6 +306,10 @@
       "screen": "BAN-01",
       "what": "dashboard / year end forecast band (committee)"
     },
+    "ban.dashboard.presentation-mode": {
+      "screen": "BAN-01",
+      "what": "dashboard / presentation mode (ban)"
+    },
     "ban.pack.roles": {
       "screen": "BAN-03",
       "what": "pack / maker, checker and approver (committee)"

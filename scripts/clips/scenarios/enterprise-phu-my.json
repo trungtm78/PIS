@@ -1539,7 +1539,7 @@
     {
       "id": "ent-tour-cycle",
       "chapter": "features-tour",
-      "main": true,
+      "main": false,
       "narration": "Riêng bản doanh nghiệp có chu kỳ báo cáo đầy đủ. Đó là chốt kỳ, thuyết minh tám mục, đẩy HPM chờ biên nhận, so sánh chéo, xuất PDF, lịch nhắc việc, trình chiếu và mua sắm thiết bị.",
       "screen": {
         "platform": "animatic",

@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `enterprise-phu-my`
 - Bản: enterprise
-- Video chính: 11:48 (46 cảnh)
+- Video chính: 11:33 (45 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,7 +12,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 46 | 11:48 |
+| Video chính (`main`) | 45 | 11:33 |
 | Giới thiệu phần mềm (`intro`) | 4 | 1:14 |
 | Tổng quan điều hành (`leader-home`) | 7 | 1:29 |
 | Cơ cấu vốn và kế hoạch (`capital`) | 4 | 1:07 |
@@ -36,7 +36,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 | Dự báo, rủi ro và hiệu quả đầu tư (`risk-forecast`) | 10 | 2:43 |
 | Vòng đời dự án đầu tư (`project-life`) | 4 | 0:58 |
 | Báo cáo biểu mẫu và chốt kỳ (`reports-close`) | 8 | 2:03 |
-| Chu kỳ báo cáo doanh nghiệp: chốt kỳ, thuyết minh, đẩy HPM (`ent-cycle`) | 12 | 3:45 |
+| Chu kỳ báo cáo doanh nghiệp: chốt kỳ, thuyết minh, đẩy HPM (`ent-cycle`) | 12 | 3:46 |
 | Lựa chọn nhà thầu và phân tích hồ sơ dự thầu (`procurement-desk`) | 5 | 1:10 |
 | Thực hiện hợp đồng và nghiệm thu (`contract-delivery`) | 4 | 0:57 |
 | Hiện trường, chất lượng và giải phóng mặt bằng (`field-ops`) | 11 | 2:36 |
@@ -155,7 +155,7 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 | `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:50 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
 | `ent-tree-phone` | `process-tree`, `phone` | 8:14 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
 | `ent-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus` | 10:33 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
-| `ent-close` | `close` | 11:13 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `ent-close` | `close` | 10:59 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu phần mềm (`intro`)
 
@@ -6049,16 +6049,16 @@ Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `plann
 
 **Lời đọc**
 
-> Biểu mẫu xuất thêm PDF, cùng một mô hình tài liệu với Excel và Word. Có mẫu cho Sở, Ban, Ngành. Bố cục biểu mẫu cấu hình qua giao diện, lưu thành quy tắc có phiên bản, không cần lập trình. Các biểu mẫu vẫn là mẫu demo, chờ mẫu chính thức.
+> Biểu mẫu xuất thêm PDF, cùng một mô hình tài liệu với Excel và Word. Có mẫu riêng cho phòng ban. Bố cục biểu mẫu cấu hình qua giao diện, lưu thành quy tắc có phiên bản, không cần lập trình. Các biểu mẫu vẫn là mẫu demo, chờ mẫu chính thức.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Biểu mẫu xuất thêm pi-đi-ép, cùng một mô hình tài liệu với ếch-xeo và oớt. Có mẫu cho Sở, Ban, Ngành. Bố cục biểu mẫu cấu hình qua giao diện, lưu thành quy tắc có phiên bản, không cần lập trình. Các biểu mẫu vẫn là mẫu đê-mô, chờ mẫu chính thức.
+> Biểu mẫu xuất thêm pi-đi-ép, cùng một mô hình tài liệu với ếch-xeo và oớt. Có mẫu riêng cho phòng ban. Bố cục biểu mẫu cấu hình qua giao diện, lưu thành quy tắc có phiên bản, không cần lập trình. Các biểu mẫu vẫn là mẫu đê-mô, chờ mẫu chính thức.
 
 **Phụ đề**
 
 - Biểu mẫu xuất thêm PDF, cùng một / mô hình tài liệu với Excel và Word.
-- Có mẫu cho Sở, Ban, Ngành.
+- Có mẫu riêng cho phòng ban.
 - Bố cục biểu mẫu cấu hình qua giao diện,
 - lưu thành quy tắc có phiên / bản, không cần lập trình.
 - Các biểu mẫu vẫn là mẫu / demo, chờ mẫu chính thức.
@@ -6130,7 +6130,7 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `planned:ent-cale
 
 Nền tảng: web; 17.6 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4d
 
-Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `DIR-05` Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau (/dir/dir-05)
+Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `BAN-01` Bảng điều hành Ban chỉ đạo (/ban/ban-01)
 
 **Lời đọc**
 
@@ -6152,17 +6152,17 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `DIR-05` Chỉ 
 - `do=as persona=owner`
 - `do=open screen=HOME-01`
 - `do=spot ref=home.dashboard.enterprise-rates`
-- `do=open screen=DIR-05`
-- `do=spot ref=dir.dashboard.presentation-mode`
+- `do=open screen=BAN-01`
+- `do=spot ref=ban.dashboard.presentation-mode`
 
 **Cần thấy trên hình**
 
 - [ ] Màn HOME-01 "Tổng quan điều hành" mở được ở đường dẫn /home/home-01, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn DIR-05 "Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau" mở được ở đường dẫn /dir/dir-05, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn BAN-01 "Bảng điều hành Ban chỉ đạo" mở được ở đường dẫn /ban/ban-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Cảnh chờ làn ENT-4d: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần home.dashboard.enterprise-rates đúng lúc giọng đọc nói tới
-- [ ] Khung vào phần dir.dashboard.presentation-mode đúng lúc giọng đọc nói tới
+- [ ] Khung vào phần ban.dashboard.presentation-mode đúng lúc giọng đọc nói tới
 - [ ] Nút trình chiếu trên bảng điều hành
 - [ ] Tỷ lệ theo ba cấp công ty, đơn vị, dự án
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -6247,24 +6247,24 @@ Màn hình: `planned:ent-equipment-procurement` Mua sắm trang thiết bị the
 
 ### `ec-audit-catalogues`
 
-Nền tảng: web; 17.3 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4e
+Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4e
 
 Màn hình: `ADM-11` Nhật ký kiểm toán (/adm/adm-11); `MDM-12` Đơn vị tính và tiền tệ (/mdm/mdm-12)
 
 **Lời đọc**
 
-> Nhật ký kiểm toán có thể ghi đủ trước và sau của các đối tượng nghiệp vụ được bật. Dữ liệu nhạy cảm được che và có giới hạn dung lượng. Tỷ giá, loại báo cáo và cơ quan nhận là danh mục quản lý được, không còn nằm trong mã.
+> Nhật ký kiểm toán có thể ghi đủ trước và sau của các đối tượng nghiệp vụ được bật. Dữ liệu nhạy cảm được che và có giới hạn dung lượng. Đơn vị tính, tiền tệ và tỷ giá là danh mục quản lý được, có hiệu lực theo ngày, không còn nằm trong mã.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Nhật ký kiểm toán có thể ghi đủ trước và sau của các đối tượng nghiệp vụ được bật. Dữ liệu nhạy cảm được che và có giới hạn dung lượng. Tỷ giá, loại báo cáo và cơ quan nhận là danh mục quản lý được, không còn nằm trong mã.
+> Nhật ký kiểm toán có thể ghi đủ trước và sau của các đối tượng nghiệp vụ được bật. Dữ liệu nhạy cảm được che và có giới hạn dung lượng. Đơn vị tính, tiền tệ và tỷ giá là danh mục quản lý được, có hiệu lực theo ngày, không còn nằm trong mã.
 
 **Phụ đề**
 
 - Nhật ký kiểm toán có thể ghi đủ trước và / sau của các đối tượng nghiệp vụ được bật.
 - Dữ liệu nhạy cảm được che / và có giới hạn dung lượng.
-- Tỷ giá, loại báo cáo / và cơ quan nhận là danh
-- mục quản lý được, không còn nằm trong mã.
+- Đơn vị tính, tiền tệ và tỷ / giá là danh mục quản lý được,
+- có hiệu lực theo ngày, / không còn nằm trong mã.
 
 **Các bước quay**
 
@@ -9314,7 +9314,7 @@ Nền tảng: animatic; 25.5 giây; có trong video chính
 
 ### `ent-tour-cycle`
 
-Nền tảng: animatic; 14.5 giây; có trong video chính; chờ làn: ENT-3a, ENT-3b, ENT-3c, ENT-3d, ENT-3e, ENT-4a, ENT-4b, ENT-4c, ENT-4d, ENT-4e
+Nền tảng: animatic; 14.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3a, ENT-3b, ENT-3c, ENT-3d, ENT-3e, ENT-4a, ENT-4b, ENT-4c, ENT-4d, ENT-4e
 
 **Lời đọc**
 

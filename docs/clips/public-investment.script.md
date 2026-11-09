@@ -33,7 +33,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 | Dự báo, rủi ro và hiệu quả đầu tư (`risk-forecast`) | 10 | 2:43 |
 | Vòng đời dự án đầu tư (`project-life`) | 4 | 0:58 |
 | Kế hoạch và kiểm soát vốn (`capital-control`) | 5 | 1:13 |
-| Thanh toán và Kho bạc (`payments`) | 6 | 1:33 |
+| Thanh toán và Kho bạc (`payments`) | 6 | 1:31 |
 | Báo cáo biểu mẫu và chốt kỳ (`reports-close`) | 8 | 2:03 |
 | Báo cáo giám sát và nộp lên hệ thống quốc gia (`monitoring`) | 4 | 0:58 |
 | Lựa chọn nhà thầu và phân tích hồ sơ dự thầu (`procurement-desk`) | 5 | 1:10 |
@@ -5898,23 +5898,22 @@ Màn hình: `PAY-11` Đề nghị tạm ứng (/pay/pay-11); `PAY-07` Tạm ứn
 
 ### `pay-phone-treasury`
 
-Nền tảng: phone; 12.4 giây; chỉ trong chương cắt riêng
+Nền tảng: phone; 10.2 giây; chỉ trong chương cắt riêng
 
 Màn hình: `MOB-60` Đối soát Kho bạc trên điện thoại (tab projects); `MOB-27` Theo dõi thanh toán (tab projects)
 
 **Lời đọc**
 
-> Kế toán đối soát Kho bạc và theo dõi thanh toán ngay trên điện thoại. Dòng nào lệch được đánh dấu, và việc xử lý tiếp vẫn làm ở máy tính với đầy đủ chứng từ.
+> Kế toán đối soát Kho bạc và theo dõi thanh toán ngay trên điện thoại. Việc xử lý tiếp vẫn làm ở máy tính với đầy đủ chứng từ.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Kế toán đối soát Kho bạc và theo dõi thanh toán ngay trên điện thoại. Dòng nào lệch được đánh dấu, và việc xử lý tiếp vẫn làm ở máy tính với đầy đủ chứng từ.
+> Kế toán đối soát Kho bạc và theo dõi thanh toán ngay trên điện thoại. Việc xử lý tiếp vẫn làm ở máy tính với đầy đủ chứng từ.
 
 **Phụ đề**
 
 - Kế toán đối soát Kho bạc và theo / dõi thanh toán ngay trên điện thoại.
-- Dòng nào lệch được đánh dấu, và việc xử lý
-- tiếp vẫn làm ở máy tính / với đầy đủ chứng từ.
+- Việc xử lý tiếp vẫn làm ở / máy tính với đầy đủ chứng từ.
 
 **Các bước quay**
 
