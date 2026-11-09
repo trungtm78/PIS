@@ -108,7 +108,7 @@ describe('the staged approval of a batch of indicator entries (ENT-3c)', () => {
     expect(await decideTask(await pendingTask(LEADER), LEADER, { decision: 'approve' })).toMatchObject({ status: 200 });
     expect(await figures(projectId, period as string)).toEqual([]);
     expect(await decideTask(await pendingTask(PUSHER), PUSHER, { decision: 'approve' })).toMatchObject({ status: 200 });
-    expect(await figures(projectId, period as string)).toEqual([{ value: '2500', entered_by: memberId(ENTERER) }]);
+    expect(await figures(projectId, period as string)).toEqual([{ value: '2500.000000', entered_by: memberId(ENTERER) }]);
     expect((await batchOf(projectId, period as string))[0]).toMatchObject({ status: 'ACCEPTED' });
   });
 
