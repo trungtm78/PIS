@@ -33,7 +33,7 @@
   "bundle.code.BUNDLE_IMAGE_MISSING": "một image của danh sách image không có trong gói: {detail}",
   "bundle.code.BUNDLE_IMAGE_ARCH_MISSING": "kho lưu image thiếu một nền tảng bắt buộc: {detail}",
   "bundle.code.BUNDLE_IMAGE_UNREADABLE": "kho lưu image không phải bố cục OCI: {detail}",
-  "backupVerify.usage": "cách dùng: node scripts/backup-verify.mjs [offline | live --bucket <tên> --endpoint <url> [--region <r>] [--probe]] [--evidence <tệp>] [--root <thư mục>]",
+  "backupVerify.usage": "cách dùng: node scripts/backup-verify.mjs [offline | drill-status | live --bucket <tên> --endpoint <url> [--region <r>] [--probe] [--archive-bucket <tên> [--archive-endpoint <url>]]] [--evidence <tệp>] [--root <thư mục>]",
   "backupVerify.check": "{name}: {state} {detail}",
   "backupVerify.summary.pass.offline": "chính sách sao lưu: lịch, tính bất biến, mã hóa, thời hạn lưu, mục tiêu và diễn tập đều đạt",
   "backupVerify.summary.pass.live": "bucket sao lưu: khóa đối tượng, đánh phiên bản và mã hóa đúng như chính sách",
@@ -80,5 +80,12 @@
   "infra.BACKUP_POLICY_VIOLATION": "chính sách sao lưu hoặc phần thực thi yếu hơn yêu cầu (bất biến, mã hóa, lịch, mục tiêu): {detail}",
   "infra.SCAN_WORKFLOW": "thiếu hoặc chưa đủ workflow quét bảo mật (CodeQL, quét bí mật, quét image, DAST): {detail}",
   "infra.WORKFLOW_FLOATING_ACTION": "workflow dùng action theo nhánh đang thay đổi: {detail}",
-  "infra.NATIVE_DEPS": "phụ thuộc native chưa có bản linux arm64 hoặc chưa được ghi nhận: {detail}"
+  "infra.NATIVE_DEPS": "phụ thuộc native chưa có bản linux arm64 hoặc chưa được ghi nhận: {detail}",
+  "backupVerify.drillStatus": "diễn tập khôi phục: {state} ({detail})",
+  "backupVerify.code.BACKUP_CYCLES": "các chu kỳ ngày, tuần, tháng chưa bao trùm bản đầy đủ, bản khác biệt và bản gia tăng: {detail}",
+  "backupVerify.code.BACKUP_MINIMUM": "số bản sao lưu giữ lại ít hơn mức tối thiểu của chính sách hoặc chính sách lưu giữ lệch với cấu hình: {detail}",
+  "backupVerify.code.BACKUP_ARCHIVE": "kho lưu trữ chưa tách biệt, mã hóa và khóa bất biến như chính sách quy định: {detail}",
+  "backupVerify.code.BACKUP_OFFLINE_COPY": "bản sao ngoại tuyến chưa được khai báo đủ người giữ và mục hướng dẫn vận hành: {detail}",
+  "backupVerify.code.BACKUP_DRILL_LEDGER": "sổ diễn tập khôi phục sai cấu trúc: {detail}",
+  "backupVerify.code.BACKUP_DRILL_OVERDUE": "diễn tập khôi phục quá hạn hoặc không đạt: {detail}"
 }

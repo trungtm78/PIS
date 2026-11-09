@@ -1,0 +1,10 @@
+[Unit]
+Description=MACHVON monthly full backup into the archive repository
+
+[Timer]
+OnCalendar=*-*-01 03:00:00
+Persistent=true
+Unit=machvon-backup-monthly.service
+
+[Install]
+WantedBy=timers.target

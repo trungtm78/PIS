@@ -17,8 +17,8 @@ Status legend: `[ ]` open, `[x]` done.
 ## Steps
 
 1. [x] Plan (this file), committed first.
-2. [ ] Backup policy v2: `backup-policy.json` (differential, monthly archive repo, minimumBackups, offline copy, drill ledger), pgBackRest template for the three cycles, systemd units, `backup-verify` rules and messages, `artefacts.json` entries. Tests: mutated copies of each rule fail with the named code.
-3. [ ] Restore drill ledger and `drill-status` command, runbook updates (restore, archive, offline copy). Tests: schema and freshness.
+2. [x] Backup policy v2: `backup-policy.json` (differential, monthly archive repo, minimumBackups, offline copy, drill ledger), pgBackRest template for the three cycles, systemd units, `backup-verify` rules and messages, `artefacts.json` entries. Tests: mutated copies of each rule fail with the named code.
+3. [x] Restore drill ledger and `drill-status` command, runbook updates (restore, archive, offline copy). Tests: schema and freshness.
 4. [ ] Malware scan adapter (`clamd` INSTREAM), closed by default, pipeline and portal wiring, quarantine view. Tests: fake clamd server (clean, infected, error, oversize, timeout, unconfigured).
 5. [ ] Egress allowlist test, ransomware catalogue (md + json) and checker, pentest pack wiring, Keycloak import check, lab-install checklist. Tests: fixtures and mutated copies.
 6. [ ] Sizing document `docs/runbooks/infra/sizing-uat-prod.md` and its check (required sections, the figures consistent with `infra/onprem/compose`).

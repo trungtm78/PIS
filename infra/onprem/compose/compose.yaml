@@ -51,6 +51,12 @@ x-backup-environment: &backup-environment
   PGBACKREST_REPO1_CIPHER_PASS_FILE: /run/secrets/pgbackrest_cipher_pass
   PGBACKREST_REPO1_S3_KEY_FILE: /run/secrets/backup_s3_access_key
   PGBACKREST_REPO1_S3_KEY_SECRET_FILE: /run/secrets/backup_s3_secret_key
+  PGBACKREST_REPO2_S3_ENDPOINT: ${BACKUP_ARCHIVE_S3_ENDPOINT}
+  PGBACKREST_REPO2_S3_BUCKET: ${BACKUP_ARCHIVE_S3_BUCKET}
+  PGBACKREST_REPO2_S3_REGION: ${BACKUP_ARCHIVE_S3_REGION}
+  PGBACKREST_REPO2_CIPHER_PASS_FILE: /run/secrets/pgbackrest_archive_cipher_pass
+  PGBACKREST_REPO2_S3_KEY_FILE: /run/secrets/backup_archive_s3_access_key
+  PGBACKREST_REPO2_S3_KEY_SECRET_FILE: /run/secrets/backup_archive_s3_secret_key
 
 x-api-secrets: &api-secrets
   - database_url_app
@@ -108,6 +114,9 @@ services:
       - pgbackrest_cipher_pass
       - backup_s3_access_key
       - backup_s3_secret_key
+      - pgbackrest_archive_cipher_pass
+      - backup_archive_s3_access_key
+      - backup_archive_s3_secret_key
     healthcheck:
       test: ["CMD", "pg_isready", "--quiet", "--host", "/var/run/postgresql", "--username", "machvon_owner", "--dbname", "machvon"]
       interval: 10s
@@ -337,6 +346,9 @@ services:
       - pgbackrest_cipher_pass
       - backup_s3_access_key
       - backup_s3_secret_key
+      - pgbackrest_archive_cipher_pass
+      - backup_archive_s3_access_key
+      - backup_archive_s3_secret_key
     deploy:
       resources:
         limits:
@@ -397,3 +409,9 @@ secrets:
     file: ${MACHVON_SECRETS_DIR}/backup_s3_access_key
   backup_s3_secret_key:
     file: ${MACHVON_SECRETS_DIR}/backup_s3_secret_key
+  pgbackrest_archive_cipher_pass:
+    file: ${MACHVON_SECRETS_DIR}/pgbackrest_archive_cipher_pass
+  backup_archive_s3_access_key:
+    file: ${MACHVON_SECRETS_DIR}/backup_archive_s3_access_key
+  backup_archive_s3_secret_key:
+    file: ${MACHVON_SECRETS_DIR}/backup_archive_s3_secret_key

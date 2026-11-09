@@ -29,7 +29,12 @@
     "docs/runbooks/infra/security-scanning.md",
     "docs/security/pentest-readiness.md",
     "docs/security/identity-test-plan.md",
-    "infra/onprem/config/egress-firewall.sh"
+    "infra/onprem/config/egress-firewall.sh",
+    "infra/backup/restore-drill-ledger.json",
+    "infra/backup/bucket/archive/object-lock-configuration.json",
+    "infra/onprem/systemd/machvon-backup-diff.timer",
+    "infra/onprem/systemd/machvon-backup-monthly.timer",
+    "infra/onprem/systemd/machvon-backup-monthly.service"
   ],
   "repositoryRequired": [
     ".github/workflows/security.yml",
