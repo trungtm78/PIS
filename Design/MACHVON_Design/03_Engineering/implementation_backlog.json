@@ -23300,5 +23300,41 @@
     "stories": [
       "ST-PWA-004"
     ]
+  },
+  {
+    "id": "BL-DIS-35",
+    "requirement": "FR-DIS-35",
+    "screen": "DIS-35",
+    "title": "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)",
+    "module": "DIS",
+    "platform": "web",
+    "phase": "P1",
+    "owner": "Core/Backend",
+    "dependencies": "DIS,MDM",
+    "fields": [
+      "Tình hình thực hiện",
+      "Đánh giá các mốc tiến độ",
+      "Đánh giá giải ngân",
+      "Nguyên nhân",
+      "Khó khăn vướng mắc",
+      "Giải pháp",
+      "Kế hoạch kỳ tới",
+      "Kiến nghị",
+      "Nguyên nhân chuẩn (MDM-17)",
+      "Chỉ đạo giao ban của kỳ"
+    ],
+    "rule": "Chỉ sửa khi báo cáo còn là bản nháp; kế thừa chỉ điền trường trống và ghi dấu vết; quy tắc nhập liệu đã duyệt (trường bắt buộc) được xét khi lưu và khi gửi",
+    "test_ids": [
+      "UI-DIS-35",
+      "UAT-DIS-ENT3B-1"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R2",
+    "stories": [
+      "ST-DIS-030"
+    ]
   }
 ]

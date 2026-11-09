@@ -11911,6 +11911,28 @@
       "req": "QT.02",
       "rule": "Kỳ đã sinh giữ hạn nhập liệu lúc sinh."
     },
+    "DIS-35": {
+      "title": "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)",
+      "module": "DIS",
+      "moduleName": "Báo cáo giải ngân",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Người lập báo cáo của đầu mối và người xem báo cáo xem ở chế độ",
+      "fields": [
+        "Tình hình thực hiện",
+        "Đánh giá các mốc tiến độ",
+        "Đánh giá giải ngân",
+        "Nguyên nhân",
+        "Khó khăn vướng mắc",
+        "Giải pháp",
+        "Kế hoạch kỳ tới",
+        "Kiến nghị",
+        "Nguyên nhân chuẩn",
+        "Chỉ đạo giao ban của kỳ"
+      ],
+      "req": "DL.01",
+      "rule": "Chỉ sửa khi báo cáo còn là bản nháp. Kế thừa chỉ điền trường trống và ghi dấu vết. Quy tắc nhập liệu đã duyệt (trường bắt buộc) được xét khi lưu và khi gửi."
+    },
     "PAY-22": {
       "title": "Đồng hồ xử lý của Kho bạc: thanh toán 2 ngày, tạm ứng 1 ngày",
       "module": "PAY",

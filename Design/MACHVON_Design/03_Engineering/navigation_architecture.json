@@ -3,8 +3,8 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 592,
-    "webCatalog": 592,
+    "webRoutes": 593,
+    "webCatalog": 593,
     "webModules": 38,
     "mobileRoutes": 82,
     "mobileCatalog": 82,
@@ -404,14 +404,16 @@
             18,
             30,
             31,
-            34
+            34,
+            35
           ],
           "primary": [
             1,
             10,
             30,
             31,
-            34
+            34,
+            35
           ],
           "parents": {
             "2": 1,
@@ -3279,7 +3281,8 @@
         "ADM-31",
         "ADM-32",
         "DIS-33",
-        "DIS-34"
+        "DIS-34",
+        "DIS-35"
       ],
       "autoAssigned": [],
       "dropped": [],
@@ -8542,6 +8545,16 @@
       "id": "DIS-34",
       "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
       "kind": "table",
+      "area": "investment",
+      "module": "DIS",
+      "group": "Lập & gửi báo cáo",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "DIS-35",
+      "title": "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)",
+      "kind": "form",
       "area": "investment",
       "module": "DIS",
       "group": "Lập & gửi báo cáo",

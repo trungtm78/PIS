@@ -1146,6 +1146,11 @@
       "id": "FT-PWA-03",
       "epic": "EP-PWA",
       "title": "Directive tracking and settings on the phone"
+    },
+    {
+      "id": "FT-DIS-12",
+      "epic": "EP-DIS",
+      "title": "Structured narrative of a period: eight fields, inheritance and a template for bulk entry (ENT-3b)"
     }
   ],
   "stories": [
@@ -59616,6 +59621,108 @@
             "UAT-PWA-04",
             "UI-PWA-07",
             "UI-PWA-10"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-DIS-030",
+      "epic": "EP-DIS",
+      "feature": "FT-DIS-12",
+      "module": "DIS",
+      "title": "Structured narrative of a period report with eight fields, the standard causes, inheritance from the previous period and a template for bulk entry",
+      "narrative": "As the author of a report of an input point I can write the narrative in eight fields with the standard causes and the steering directives of the period beside it, inherit the empty fields from the previous period, and fill the narrative of many projects from one template, so that the narrative is as structured as the figures.",
+      "release": "R2",
+      "screens": [
+        "DIS-35"
+      ],
+      "operations": [
+        "getReportNarrativeContext",
+        "inheritReportNarrative",
+        "getReportNarrativeTemplate"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-DIS-030-1",
+          "given": "A draft report with one empty field and a report of the previous period that has text in two fields",
+          "when": "The author inherits the narrative of the previous period, then inherits it again",
+          "then": "only the empty field is filled and the text already entered is unchanged; every copied field carries the trace of its source period; the second call is 422 NARRATIVE_NOTHING_TO_INHERIT",
+          "test_id": "UAT-DIS-ENT3B-1"
+        },
+        {
+          "id": "AC-ST-DIS-030-2",
+          "given": "A report that is no longer a draft, a locked period, and a stale version",
+          "when": "The author inherits the narrative of the previous period in each case",
+          "then": "409 REVISION_IMMUTABLE for the submitted report; 409 PERIOD_LOCKED for the locked period; 409 VERSION_CONFLICT for the stale version; the template download needs the import permission and answers 403 without it",
+          "test_id": "UAT-DIS-ENT3B-1"
+        },
+        {
+          "id": "AC-ST-DIS-030-3",
+          "given": "DIS-35 opened at 1440 px and 390 px by a reader with the edit permission and one with the read permission only",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-DIS-35"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 20,
+          "max": 45
+        },
+        "confidence": "medium",
+        "assumption": "The eight fields and the template columns follow the narrative of the customer reports; the standard causes come from the MDM catalogue ISSUE_CATEGORY."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-DIS-030-1",
+          "kind": "backend",
+          "title": "Narrative context, inheritance and template with Idempotency-Key and If-Match: getReportNarrativeContext, inheritReportNarrative, getReportNarrativeTemplate",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-030-2",
+          "kind": "web",
+          "title": "DIS-35 built with the kit and the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-030-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for DIS-35; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-DIS-030-4",
+          "kind": "qa",
+          "title": "API tests for the acceptance criteria",
+          "test_ids": [
+            "UAT-DIS-ENT3B-1"
+          ]
+        },
+        {
+          "id": "TK-DIS-030-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-DIS-35"
           ]
         }
       ]

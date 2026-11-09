@@ -26549,5 +26549,42 @@
     "covers": [
       "YCK.01"
     ]
+  },
+  {
+    "id": "UI-DIS-35",
+    "source": "FR-DIS-35",
+    "type": "screen-contract",
+    "priority": "P1",
+    "setup": "Tenant TNT-A; a user with report.edit and a read-only user; a draft report and a submitted one; route DIS-35",
+    "steps": [
+      "Open DIS-35 from a report; check the labelled fields: the eight narrative fields, standard cause, steering directive of the period",
+      "Inherit the narrative of the previous period; enter text and save",
+      "Force the 7 states and check the hidden actions without the permission"
+    ],
+    "expected": "All fields shown, only empty fields are filled by the inheritance, a submitted report is read only, no write in the read-only mode",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-35"
+    ]
+  },
+  {
+    "id": "UAT-DIS-ENT3B-1",
+    "source": "DIS.md",
+    "type": "business",
+    "priority": "P1",
+    "setup": "A draft report with one empty narrative field, the report of the previous period with text in two fields, a submitted report and a locked period",
+    "steps": [
+      "The author inherits the narrative of the previous period",
+      "The author inherits it again",
+      "The author inherits into the submitted report, into the locked period and with a stale version",
+      "A user without the import permission downloads the template"
+    ],
+    "expected": "Step 1 fills only the empty field and records the source period; step 2 is 422 NARRATIVE_NOTHING_TO_INHERIT; step 3 is 409 REVISION_IMMUTABLE, 409 PERIOD_LOCKED and 409 VERSION_CONFLICT; step 4 is 403",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-35"
+    ]
   }
 ]

@@ -12939,5 +12939,21 @@
     "test_ids": [
       "UI-PWA-10"
     ]
+  },
+  {
+    "requirement": "FR-DIS-35",
+    "screen": "DIS-35",
+    "title": "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)",
+    "use_cases": [],
+    "source": "HSKT v0.3 DL.01, CN.02, CN.03; docs/plans/ent3b.md",
+    "phase": "P1",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-DIS-35",
+    "test_ids": [
+      "UI-DIS-35",
+      "UAT-DIS-ENT3B-1"
+    ]
   }
 ]
