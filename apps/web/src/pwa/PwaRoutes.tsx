@@ -5,6 +5,7 @@ import { SessionGate } from './SessionGate';
 import ApprovalQueueScreen from './screens/ApprovalQueueScreen';
 import DirectivesScreen from './screens/DirectivesScreen';
 import LeaderDashboardScreen from './screens/LeaderDashboardScreen';
+import PwaNotificationsScreen from './screens/PwaNotificationsScreen';
 import PwaStartScreen from './screens/PwaStartScreen';
 
 /** The route of the start page and the three screens; `/m` is what the manifest's `start_url` opens. */
@@ -25,6 +26,7 @@ export function PwaRoutes() {
       <Route path="approvals" element={<Gated><ApprovalQueueScreen /></Gated>} />
       <Route path="dashboard" element={<Gated><LeaderDashboardScreen /></Gated>} />
       <Route path="directives" element={<Gated><DirectivesScreen /></Gated>} />
+      <Route path="notifications" element={<Gated><PwaNotificationsScreen /></Gated>} />
       <Route path="*" element={<Navigate to={PWA_ROUTE_PREFIX} replace />} />
     </Routes>
   );

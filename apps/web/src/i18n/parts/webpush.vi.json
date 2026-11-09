@@ -1,0 +1,23 @@
+{
+  "webpush.page.title": "Cài đặt thông báo đẩy",
+  "webpush.page.subtitle": "Quyền thông báo của trình duyệt, trạng thái của thiết bị này và thông báo thử gửi đến chính bạn.",
+  "webpush.state.title": "Thiết bị này",
+  "webpush.permission.label": "Quyền của trình duyệt",
+  "webpush.permission.granted": "Đã cho phép thông báo.",
+  "webpush.permission.denied": "Đang bị chặn. Mở cài đặt trình duyệt của trang này và cho phép thông báo.",
+  "webpush.permission.default": "Chưa được hỏi. Bật thông báo đẩy để trình duyệt hỏi bạn.",
+  "webpush.permission.unknown": "Không xác định được quyền trên trình duyệt này.",
+  "webpush.device.label": "Thông báo đẩy",
+  "webpush.test.title": "Gửi thông báo thử",
+  "webpush.test.hint": "Hệ thống gửi một thông báo chung, chỉ có tên sản phẩm, đến thiết bị này. Chạm vào thông báo sẽ mở trang chính của ứng dụng.",
+  "webpush.test.action.send": "Gửi thông báo thử đến tôi",
+  "webpush.test.needsOn": "Bật thông báo đẩy trên thiết bị này trước khi gửi thử.",
+  "webpush.test.state.working": "Đang gửi thông báo thử.",
+  "webpush.test.state.sent": "Đã gửi. Thông báo sẽ hiện trên thiết bị trong chốc lát.",
+  "webpush.test.state.gone": "Dịch vụ thông báo của trình duyệt không còn nhận thiết bị này. Tắt rồi bật lại thông báo đẩy.",
+  "webpush.test.state.retry": "Dịch vụ thông báo chưa trả lời. Thử lại sau ít phút.",
+  "webpush.test.state.inactive": "Kênh thông báo đẩy chưa được kích hoạt ở môi trường này.",
+  "webpush.test.state.noToken": "Thiết bị này chưa đăng ký với hệ thống. Bật thông báo đẩy rồi thử lại.",
+  "webpush.test.state.failed": "Không gửi được thông báo thử. Thử lại sau.",
+  "webpush.start.link": "Cài đặt thông báo và gửi thông báo thử"
+}
