@@ -228550,6 +228550,119 @@
           "vnd.portal.attachment.uploaded.v1"
         ]
       }
+    },
+    "/push/receipts": {
+      "post": {
+        "operationId": "acknowledgePush",
+        "summary": "Biên nhận của thiết bị: thông báo đẩy web đã hiện (SHOWN) hoặc đã được chạm (CLICKED); xác thực bằng receipt token, idempotent",
+        "tags": [
+          "NOT"
+        ],
+        "x-permission": "webhook.provider",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Committed result (replayed on idempotent retry)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushReceiptAck"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "SESSION_EXPIRED / SIGNATURE_INVALID",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "SCOPE_DENIED / ENTITLEMENT_DENIED / module-specific denial",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "RESOURCE_NOT_FOUND within authorized scope",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "VERSION_CONFLICT / IDEMPOTENCY_CONFLICT / state conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED / domain invariant",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "RATE_LIMIT",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "SIGNATURE_INVALID",
+          "VALIDATION_FAILED",
+          "RESOURCE_NOT_FOUND",
+          "RATE_LIMIT"
+        ],
+        "x-plane": "edge",
+        "x-public": true,
+        "security": [],
+        "x-auth": "push-receipt-token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushReceipt"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -308462,6 +308575,40 @@
           },
           "as_of": {
             "type": "string"
+          }
+        }
+      },
+      "PushReceipt": {
+        "type": "object",
+        "required": [
+          "receipt",
+          "event"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "receipt": {
+            "type": "string",
+            "minLength": 100,
+            "maxLength": 160,
+            "description": "Opaque receipt token carried by the push; bound to tenant, notification and device; valid 48 hours."
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "SHOWN",
+              "CLICKED"
+            ]
+          }
+        }
+      },
+      "PushReceiptAck": {
+        "type": "object",
+        "required": [
+          "acknowledged"
+        ],
+        "properties": {
+          "acknowledged": {
+            "type": "boolean"
           }
         }
       }

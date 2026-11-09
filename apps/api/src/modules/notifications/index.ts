@@ -16,6 +16,8 @@ import { MyPreferencesController } from '../../notifications/preferences/prefere
 import { MyPreferencesReadController } from '../../notifications/preferences/preferences-read.controller';
 import { DeviceRegistrationsController } from '../../notifications/devices/devices.controller';
 import { InMemoryPushTokenVault, PUSH_TOKEN_VAULT } from '../../notifications/devices/push-vault';
+import { PushReceiptController, WEBPUSH_RECEIPT_KEYS } from '../../notifications/push/push-receipt.controller';
+import { receiptKeysFromEnv } from '../../notifications/push/web-push-config';
 import { CampaignsController } from '../../notifications/campaigns/campaigns.controller';
 import { ChannelLimitsController } from '../../notifications/limits/limits.controller';
 import { NotificationTemplatesController } from '../../notifications/templates/templates.controller';
@@ -47,6 +49,7 @@ export const notificationsModule = defineModule({
     DeviceRegistrationsController,
     ChannelLimitsController,
     CampaignsController,
+    PushReceiptController,
   ],
   // The provider webhook finds its tenant through the control plane (the channel account of the receipt), so it is active only where the application has one.
   controlPlane: { controllers: [ChannelWebhookController] },
@@ -57,6 +60,8 @@ export const notificationsModule = defineModule({
     // The push tokens wait in memory until the vault of the platform is deployed (MOCK): the same vault serves the registration and the revocation of a device.
     { provide: PUSH_TOKEN_VAULT, useClass: InMemoryPushTokenVault },
     { provide: WEBHOOK_PAYLOADS, useFactory: () => defaultWebhookPayloads() },
+    // The keys that verify the receipt a web push carries (the acknowledgement of a service worker); none means no receipt is verified.
+    { provide: WEBPUSH_RECEIPT_KEYS, useFactory: () => receiptKeysFromEnv(process.env) },
     {
       provide: DELIVERY_ENGINE,
       useFactory: (database: TenantDatabase, metrics?: MetricsSink) => createDeliveryEngine(new AuditWriter(database), metrics),

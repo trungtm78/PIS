@@ -79,6 +79,8 @@ export async function bundleServiceWorker(input: WorkerBuild): Promise<string> {
       __MV_BUILD_ID__: JSON.stringify(input.buildId),
       __MV_PRECACHE__: JSON.stringify(input.precache),
       __MV_APP_NAME__: JSON.stringify(input.appName),
+      // Where the worker posts the receipt of a push: the API base of the build, empty for the same origin.
+      __MV_API_BASE__: JSON.stringify(process.env.VITE_API_BASE_URL ?? ''),
     },
     logLevel: 'silent',
   });

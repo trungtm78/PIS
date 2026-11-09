@@ -15,6 +15,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'acknowledgeGovernanceAlert': OperationDescriptor(method: 'POST', path: '/project-governance-alerts/{id}/acknowledgement', versioned: true, stepUp: null, permission: 'project.governance.alert.acknowledge'),
   'acknowledgeNotification': OperationDescriptor(method: 'POST', path: '/notifications/{notificationId}/acknowledge', versioned: false, stepUp: null, permission: 'notification.self'),
   'acknowledgeProjectRiskAlert': OperationDescriptor(method: 'POST', path: '/project-risk-alerts/{id}/acknowledgement', versioned: true, stepUp: null, permission: 'project.risk.alert.acknowledge'),
+  'acknowledgePush': OperationDescriptor(method: 'POST', path: '/push/receipts', versioned: false, stepUp: null, permission: 'webhook.provider'),
   'acknowledgeWarrantyClaim': OperationDescriptor(method: 'POST', path: '/warranty-claims/{id}/acknowledge', versioned: true, stepUp: null, permission: 'warranty.respond'),
   'activateAiProvider': OperationDescriptor(method: 'POST', path: '/ai-providers/{id}/activation', versioned: true, stepUp: null, permission: 'llm.provider.approve'),
   'addCompensationPlanItems': OperationDescriptor(method: 'POST', path: '/compensation-plans/{id}/items', versioned: true, stepUp: null, permission: 'land.plan.write'),

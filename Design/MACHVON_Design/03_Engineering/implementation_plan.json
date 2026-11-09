@@ -34044,7 +34044,9 @@
       "narrative": "As a mobile user I receive push messages that never show confidential data on the lock screen, and my app refreshes its entitlements through a silent push when they change.",
       "release": "R1",
       "screens": [],
-      "operations": [],
+      "operations": [
+        "acknowledgePush"
+      ],
       "tables": [],
       "nfr": [
         "NFR-PRIVACY-02",

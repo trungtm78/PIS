@@ -940,7 +940,7 @@
   "identityCommands": [
     "acceptInvitation",
     "issueOpenApiToken",
-    "receiveChannelWebhook",
+    "receiveChannelWebhook","acknowledgePush",
     "receiveEInvoiceWebhook",
     "receivePaymentWebhook",
     "selectTenantContext",

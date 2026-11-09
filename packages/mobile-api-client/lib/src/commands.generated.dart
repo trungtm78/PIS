@@ -43,6 +43,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> acknowledgeProjectRiskAlert(PrjRiskAlertAck body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeProjectRiskAlert', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> acknowledgePush(PushReceipt body, {CommandAttempt? attempt}) =>
+      execute('acknowledgePush', body: body, attempt: attempt);
+
   Future<Object?> acknowledgeWarrantyClaim(AstAcknowledgeWarrantyClaim body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('acknowledgeWarrantyClaim', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 

@@ -13,6 +13,7 @@ export const OPERATIONS = {
   "acknowledgeGovernanceAlert": { method: "post", path: "/project-governance-alerts/{id}/acknowledgement", versioned: true, stepUp: null, permission: "project.governance.alert.acknowledge" },
   "acknowledgeNotification": { method: "post", path: "/notifications/{notificationId}/acknowledge", versioned: false, stepUp: null, permission: "notification.self" },
   "acknowledgeProjectRiskAlert": { method: "post", path: "/project-risk-alerts/{id}/acknowledgement", versioned: true, stepUp: null, permission: "project.risk.alert.acknowledge" },
+  "acknowledgePush": { method: "post", path: "/push/receipts", versioned: false, stepUp: null, permission: "webhook.provider" },
   "acknowledgeWarrantyClaim": { method: "post", path: "/warranty-claims/{id}/acknowledge", versioned: true, stepUp: null, permission: "warranty.respond" },
   "activateAiProvider": { method: "post", path: "/ai-providers/{id}/activation", versioned: true, stepUp: null, permission: "llm.provider.approve" },
   "addCompensationPlanItems": { method: "post", path: "/compensation-plans/{id}/items", versioned: true, stepUp: null, permission: "land.plan.write" },

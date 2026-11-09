@@ -26043,6 +26043,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/push/receipts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Biên nhận của thiết bị: thông báo đẩy web đã hiện (SHOWN) hoặc đã được chạm (CLICKED); xác thực bằng receipt token, idempotent */
+        post: operations["acknowledgePush"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -46432,6 +46449,15 @@ export interface components {
                 mimes: string[];
             };
             as_of: string;
+        };
+        PushReceipt: {
+            /** @description Opaque receipt token carried by the push; bound to tenant, notification and device; valid 48 hours. */
+            receipt: string;
+            /** @enum {string} */
+            event: "SHOWN" | "CLICKED";
+        };
+        PushReceiptAck: {
+            acknowledged: boolean;
         };
     };
     responses: never;
@@ -206348,6 +206374,93 @@ export interface operations {
                 };
             };
             /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    acknowledgePush: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushReceipt"];
+            };
+        };
+        responses: {
+            /** @description Committed result (replayed on idempotent retry) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushReceiptAck"];
+                };
+            };
+            /** @description INVALID_REQUEST */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SESSION_EXPIRED / SIGNATURE_INVALID */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description SCOPE_DENIED / ENTITLEMENT_DENIED / module-specific denial */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RESOURCE_NOT_FOUND within authorized scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description VERSION_CONFLICT / IDEMPOTENCY_CONFLICT / state conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description VALIDATION_FAILED / domain invariant */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description RATE_LIMIT */
             429: {
                 headers: {
                     [name: string]: unknown;

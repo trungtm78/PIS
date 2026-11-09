@@ -16,6 +16,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'acknowledgeGovernanceAlert': CommandResultResponse.fromJson,
   'acknowledgeNotification': CommandResultResponse.fromJson,
   'acknowledgeProjectRiskAlert': CommandResultResponse.fromJson,
+  'acknowledgePush': PushReceiptAckResponse.fromJson,
   'acknowledgeWarrantyClaim': CommandResultResponse.fromJson,
   'activateAiProvider': CommandResultResponse.fromJson,
   'addCompensationPlanItems': CommandResultResponse.fromJson,
@@ -55401,6 +55402,32 @@ final class ProjectDocumentVersionViewResponse implements ResponseModel {
         'open_comments': openComments,
         'created_at': createdAt,
         'created_by_name': createdByName,
+        ...extra,
+      };
+}
+
+final class PushReceiptAckResponse implements ResponseModel {
+  const PushReceiptAckResponse({
+    required this.acknowledged,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PushReceiptAckResponse.fromJson(Object? json, [String path = 'PushReceiptAckResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PushReceiptAckResponse(
+      acknowledged: requiredField(map, path, 'acknowledged', asBool),
+      extra: unknownFields(map, path, const <String>{'acknowledged'}, strict: false),
+    );
+  }
+
+  final bool acknowledged;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'acknowledged': acknowledged,
         ...extra,
       };
 }

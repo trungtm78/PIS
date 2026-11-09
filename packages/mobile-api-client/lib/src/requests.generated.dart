@@ -13640,6 +13640,22 @@ final class PublishPortalRecord implements RequestModel {
       };
 }
 
+final class PushReceipt implements RequestModel {
+  const PushReceipt({
+    required this.receipt,
+    required this.event,
+  });
+
+  final String receipt;
+  final String event;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'receipt': receipt,
+        'event': event,
+      };
+}
+
 final class QmsAddSupervisorRemark implements RequestModel {
   const QmsAddSupervisorRemark({
     required this.remark,

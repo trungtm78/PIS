@@ -12,6 +12,7 @@
   "acknowledgeGovernanceAlert": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "acknowledgeNotification": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "acknowledgeProjectRiskAlert": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
+  "acknowledgePush": {"acknowledged":true},
   "acknowledgeWarrantyClaim": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "activateAiProvider": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "addCompensationPlanItems": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
