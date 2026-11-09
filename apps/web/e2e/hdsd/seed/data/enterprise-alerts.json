@@ -1,0 +1,9 @@
+{
+  "alerts.legalBasis": "Ngưỡng theo quy chế điều hành đầu tư xây dựng của Tổng công ty; số liệu minh họa",
+  "alerts.rule.info": "Dự án chậm nộp báo cáo tuần, cần theo dõi",
+  "alerts.rule.warning": "Dự án chậm nộp báo cáo tuần quá hạn, cần xử lý",
+  "alerts.rule.critical": "Dự án chưa nộp báo cáo tuần quá lâu, khẩn",
+  "alerts.triage.dismissed": "Đã nhận báo cáo của dự án ngoài hệ thống, bỏ qua cảnh báo",
+  "alerts.triage.merged": "Gộp vào cảnh báo cùng dự án ở mức phù hợp hơn",
+  "alerts.triage.acknowledged": "Đã nhận cảnh báo, giao phòng đầu tư làm việc với ban quản lý dự án"
+}

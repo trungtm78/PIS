@@ -10,7 +10,7 @@ import { clipPlan } from './plan.ts';
 const MAKER = 'projectManager';
 const LEADER = 'capApprover';
 
-interface RuleSpec {
+export interface RuleSpec {
   rule_code: string;
   name: string;
   metric_code: string;
@@ -25,6 +25,11 @@ export async function seedClipAlerts(ctx: SeedContext): Promise<void> {
     ctx.warn('no clip plan with alert rules: nothing to do');
     return;
   }
+  await publishAlertRules(ctx, block);
+}
+
+/** The rules of a block made by the officer and published by the leader; a rule in force is left alone (the enterprise group uses it with its own rules). */
+export async function publishAlertRules(ctx: SeedContext, block: { rules: RuleSpec[]; legalBasis: string }): Promise<void> {
   const known = await ctx.list<Obj>(MAKER, '/early-warning-rules');
   for (const rule of block.rules) {
     const inForce = known.find((row) => row.rule_code === rule.rule_code && String(row.status).toUpperCase() === 'PUBLISHED' && String(row.effective_from) <= ctx.today);

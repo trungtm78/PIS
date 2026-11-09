@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import { StatusPill } from '../../ui';
@@ -126,9 +127,13 @@ export function GridIssues({ issues }: { issues: ReadonlyArray<{ ref: string; co
   );
 }
 
-/** The sheet as the file will show it: every row of the grid with its cells; a number is as the form writes it, a formula as written, an empty cell empty. */
+/**
+ * The sheet as the file will show it: every row of the grid with its cells; a number is as the cell of the form writes it (thousands grouped, a rate with its decimal), a formula as its value, an empty cell empty.
+ * A merged cell (the title rows, the two-level header) spans its columns and rows, and the cells it covers are not drawn; the columns have the same width, so a long title wraps inside its own span, not in one column.
+ */
 export function PreviewTable({ preview }: { preview: Preview }) {
   const { t } = useTranslation();
+  const covered = new Set<string>();
   return (
     <div data-testid="preview">
       {preview.stamp === null ? null : (
@@ -137,16 +142,34 @@ export function PreviewTable({ preview }: { preview: Preview }) {
         </p>
       )}
       <div className="rpt-sheet" tabIndex={0} role="region" aria-label={t('rpt.common.preview.region')}>
-        <table className="rpt-sheet__table">
+        <table className="rpt-sheet__table" style={{ '--rpt-cols': preview.columns } as CSSProperties}>
           <caption className="rpt-sr">{t('rpt.common.preview.caption')}</caption>
+          <colgroup>
+            <col className="rpt-sheet__rowno" />
+            {Array.from({ length: preview.columns }, (_unused, index) => (
+              <col key={index} />
+            ))}
+          </colgroup>
           <tbody>
             {preview.rows.map((row) => (
               <tr key={row.row} className={`rpt-sheet__row rpt-sheet__row--${row.kind.toLowerCase()}`} data-row={row.row}>
                 <th scope="row">{row.row}</th>
                 {Array.from({ length: preview.columns }, (_unused, index) => {
-                  const cell = row.cells.find((one) => one.col === index + 1);
+                  const col = index + 1;
+                  if (covered.has(`${row.row}:${col}`)) return null;
+                  const cell = row.cells.find((one) => one.col === col);
+                  const colSpan = Math.max(1, Math.min(cell?.col_span ?? 1, preview.columns - index));
+                  const rowSpan = Math.max(1, cell?.row_span ?? 1);
+                  // The place the merge takes is the place of other cells: they are not drawn (a td under a merge would push the row out of line).
+                  for (let down = 0; down < rowSpan; down += 1) for (let across = 0; across < colSpan; across += 1) if (down > 0 || across > 0) covered.add(`${row.row + down}:${col + across}`);
                   return (
-                    <td key={index} className={cell?.kind === 'NUMBER' || cell?.kind === 'FORMULA' ? 'rpt-sheet__num' : undefined} data-cell={`${row.row}:${index + 1}`}>
+                    <td
+                      key={index}
+                      className={cell?.kind === 'NUMBER' || cell?.kind === 'FORMULA' ? 'rpt-sheet__num' : undefined}
+                      data-cell={`${row.row}:${col}`}
+                      {...(colSpan > 1 ? { colSpan } : {})}
+                      {...(rowSpan > 1 ? { rowSpan } : {})}
+                    >
                       {cell?.text ?? ''}
                     </td>
                   );

@@ -16,7 +16,10 @@
 .rpt-files { list-style: none; padding: 0; display: grid; gap: var(--space-3, 12px); }
 .rpt-files li { display: grid; gap: 4px; }
 .rpt-sheet { overflow: auto; max-height: 28rem; border: 1px solid var(--border, #cfd8dc); border-radius: 8px; }
-.rpt-sheet__table { border-collapse: collapse; font-size: 0.8125rem; min-width: 100%; }
+.rpt-sheet__table { border-collapse: collapse; font-size: 0.8125rem; table-layout: fixed; min-width: 100%; width: calc(2.5rem + var(--rpt-cols, 8) * 7rem); }
+.rpt-sheet__table col { width: 7rem; }
+.rpt-sheet__table col.rpt-sheet__rowno { width: 2.5rem; }
+.rpt-sheet__table td { overflow-wrap: anywhere; }
 .rpt-sheet__table td, .rpt-sheet__table th { border: 1px solid var(--border, #cfd8dc); padding: 2px 6px; vertical-align: top; }
 .rpt-sheet__table th { position: sticky; left: 0; background: var(--surface-2, #f3f6f8); font-weight: 400; color: var(--text-muted, #5b6770); }
 .rpt-sheet__num { text-align: right; font-variant-numeric: tabular-nums; }

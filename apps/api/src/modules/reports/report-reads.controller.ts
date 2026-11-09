@@ -67,7 +67,7 @@ export class ReportReadsController {
       const registered = new Map((await reportStore.listLayouts(tx)).map((row) => [row.code, row]));
       const configured = await configuredFormsOf(tx, vietnamDateOf(now));
       return {
-        items: [...REPORT_FORMS.list(), ...configured.map((one) => one.bundle)].map((bundle) => catalogueEntryDto(bundle, registered.get(bundle.layout.code), demoMode)),
+        items: [...REPORT_FORMS.listVisible(), ...configured.map((one) => one.bundle).filter((bundle) => !REPORT_FORMS.isHidden(bundle.layout.code))].map((bundle) => catalogueEntryDto(bundle, registered.get(bundle.layout.code), demoMode)),
         demo_mode: demoMode,
         as_of: now.toISOString(),
         can_generate: holdsPermission(held, PERMISSIONS.generateReport),

@@ -114,6 +114,8 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     for (const item of demo) expect(item).toMatchObject({ edition: 'enterprise', official: 'PENDING_EXTERNAL', data_source: 'ILLUSTRATIVE', demo_mark: DEMO_MARK, issuable: false, form_ref: null });
     expect(reply.json.demo_mode).toBe(false);
     expect(items.find((item) => item.code === 'DIS-WEEKLY')).toMatchObject({ edition: 'public', issuable: true });
+    // DEMO-09: the forms of the public edition for the Ministry of Finance and the request to the offices of a province are not in the catalogue of the enterprise.
+    expect(items.filter((item) => String(item.code).startsWith('MOF-') || item.code === 'CFG_AGENCY_REQUEST')).toEqual([]);
     process.env.DEMO_FORMS = 'true';
     const on = await call('GET', '/report-engine/catalogue', { member: SENDER });
     expect(on.json.demo_mode).toBe(true);

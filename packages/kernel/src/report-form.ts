@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import { DomainError } from './errors.ts';
 import type { Edition } from './edition.ts';
+import { documentSheetOf } from './report-document.ts';
+import type { ReportDocument } from './report-document.ts';
 import { assertReportPeriod, groupDigits } from './report-layout.ts';
 import type { FilledGrid, FilledNarrative, FormPeriod, FormPeriodKind, GridCellKind, LayoutRowKind, NarrativeBlock, ReportFillData, ReportLayout } from './report-layout.ts';
 
@@ -81,6 +83,9 @@ export interface PreviewCell {
   col: number;
   kind: GridCellKind;
   text: string;
+  /** Columns and rows a merged cell spans (absent when it spans one): the screen draws the merge, and the cells it covers are left out of the row. */
+  col_span?: number;
+  row_span?: number;
 }
 
 export interface PreviewRow {
@@ -125,4 +130,25 @@ export function previewOf(grid: FilledGrid, narrative: FilledNarrative | null = 
   }
   const rows: PreviewRow[] = grid.rows.slice(0, PREVIEW_ROW_CAP).map((gridRow) => ({ row: gridRow.row, kind: gridRow.kind, cells: (byRow.get(gridRow.row) ?? []).sort((a, b) => a.col - b.col) }));
   return { columns, rows, rowCount: grid.rows.length, truncated: grid.rows.length > PREVIEW_ROW_CAP, narrative: narrative === null ? [] : narrativeLines(narrative.blocks), stamp: grid.stamp };
+}
+
+/**
+ * The preview of a whole document, as a reader of the file sees the sheet: the formulas are evaluated (`documentSheetOf`, the very values the workbook and the PDF show), the numbers are written in the format of their cell
+ * (thousands grouped, a rate with its one decimal) and the merged cells (the title rows, the two-level header) carry their span. A formula the engine cannot evaluate is shown empty, never as its text.
+ */
+export function previewOfDocument(document: ReportDocument): ReportPreview {
+  const sheet = documentSheetOf(document);
+  const rows: PreviewRow[] = sheet.rows.slice(0, PREVIEW_ROW_CAP).map((sheetRow) => ({
+    row: sheetRow.row,
+    kind: sheetRow.kind,
+    cells: sheetRow.cells.map((cell) => ({
+      col: cell.col,
+      kind: cell.kind,
+      text: cell.text,
+      ...(cell.colSpan > 1 ? { col_span: cell.colSpan } : {}),
+      ...(cell.rowSpan > 1 ? { row_span: cell.rowSpan } : {}),
+    })),
+  }));
+  const { narrative } = document;
+  return { columns: sheet.columns, rows, rowCount: sheet.rows.length, truncated: sheet.rows.length > PREVIEW_ROW_CAP, narrative: narrative === null ? [] : narrativeLines(narrative.blocks), stamp: document.grid.stamp };
 }

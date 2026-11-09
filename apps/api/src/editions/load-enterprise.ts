@@ -1,7 +1,11 @@
+import { MOF_LAYOUTS } from '@machvon/kernel';
 import type { EditionManifest, TenantContext } from '@machvon/kernel';
 import { REPORT_FORMS } from '../modules/reports/form-registry';
 import type { ModuleDescriptor } from '../modules/module-descriptor';
 import type { ReportMailJobDeps } from './enterprise/report-mail-job.ts';
+
+/** The configured form (a REPORT_LAYOUT rule) that asks the offices of a province for figures: a public-edition form. */
+const PUBLIC_ONLY_CONFIGURED_FORM = 'CFG_AGENCY_REQUEST';
 
 /**
  * The one place of the API that names the enterprise package (ENT-0, structure B). The package is loaded only when the process serves
@@ -26,6 +30,8 @@ export async function loadEnterpriseManifest(): Promise<EditionManifest> {
   const { EnterpriseSnapshotProvider } = await import('./enterprise/snapshot-provider.ts');
   REPORT_FORMS.registerProvider(new EnterpriseSnapshotProvider());
   for (const bundle of enterpriseReportBundles()) REPORT_FORMS.register(bundle);
+  // DEMO-09: the forms that belong to the public edition (the four for the Ministry of Finance, the request to the offices of a province) are not in the catalogue of the enterprise; the public process lists them as before.
+  REPORT_FORMS.hide([...MOF_LAYOUTS.map((layout) => layout.code), PUBLIC_ONLY_CONFIGURED_FORM]);
   return ENTERPRISE_EDITION.manifest;
 }
 
