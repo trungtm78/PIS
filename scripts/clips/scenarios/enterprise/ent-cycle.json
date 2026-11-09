@@ -1,0 +1,521 @@
+{
+  "schema": "clip-chapter/1",
+  "id": "ent-cycle",
+  "title": "Chu kỳ báo cáo doanh nghiệp: chốt kỳ, thuyết minh, đẩy HPM",
+  "summary": "The enterprise reporting cycle of ENT-3 and ENT-4: closing the enterprise period snapshot, the structured narrative of eight fields, the PUSH step that waits for the HPM receipt, the PVFCCo organisation pack, project codes and catalogues, cross-report comparison, PDF and layout configuration, the reporting calendar with reminders, the presentation mode and enterprise rates, equipment procurement, audit detail and catalogues. Every scene waits for its lane.",
+  "mainOptional": true,
+  "figures": {},
+  "literalNumbers": {},
+  "animatics": {},
+  "typed": {},
+  "scenes": [
+    {
+      "id": "ec-snapshot-close",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Lãnh đạo chốt kỳ: hệ thống dựng ảnh chụp số liệu doanh nghiệp từ kế hoạch vốn và chỉ tiêu đã nhập, rồi băm và đóng băng. Kỳ chưa đủ số của đơn vị nào thì không chốt được, và màn hình chỉ rõ đơn vị, dự án còn thiếu. Biểu mẫu, bảng điều hành và đẩy HPM đều đọc đúng một ảnh chụp ấy.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-21",
+          "DIS-27"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "capApprover"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-21"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.snapshot.build-close"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.snapshot.missing-units"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-27"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.snapshot.figures"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Một ảnh chụp, một đường đọc số liệu",
+          "atSec": 4,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 22.1,
+      "requires": [
+        "ENT-3a"
+      ]
+    },
+    {
+      "id": "ec-narrative",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Thuyết minh có cấu trúc tám mục. Đó là tình hình thực hiện, đánh giá mốc, đánh giá giải ngân, nguyên nhân, khó khăn, giải pháp, kế hoạch kỳ tới và kiến nghị. Kế thừa từ kỳ trước, nguyên nhân chọn từ danh mục chuẩn, và kết quả chỉ đạo giao ban tự điền vào.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-13"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-13"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.narrative.eight-fields"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.narrative.inherit-previous"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.narrative.cause-list"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.5,
+      "requires": [
+        "ENT-3b"
+      ]
+    },
+    {
+      "id": "ec-push-receipt",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Bước đẩy của luồng duyệt gọi HPM kèm khóa chống trùng, rồi chờ biên nhận. Còn chờ thì quyết định chưa hoàn tất. HPM từ chối thì báo cáo quay lại theo đường trả lại. Bộ ghi tệp chuẩn thay chỗ HPM, là giả định tạm, và biểu mẫu gửi đi là mẫu demo.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-18",
+          "HPM-01"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "mneAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-18"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.approval.push-step"
+        },
+        {
+          "do": "open",
+          "screen": "HPM-01"
+        },
+        {
+          "do": "spot",
+          "ref": "hpm.push.awaiting-receipt"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Giả định tạm, chờ tài liệu chính thức của bên nhận",
+          "atSec": 4,
+          "forSec": 6
+        },
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 11,
+          "forSec": 4
+        }
+      ],
+      "expectedSec": 20.6,
+      "requires": [
+        "ENT-3c"
+      ],
+      "stamps": [
+        "external-assumption",
+        "demo-form"
+      ]
+    },
+    {
+      "id": "ec-org-pack",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Gói tổ chức của doanh nghiệp có chín đầu mối, gồm bảy ban hoặc đơn vị và hai tổ dự án. Mỗi đầu mối có người nhập và người duyệt, Ban kế hoạch đầu tư rà soát, lãnh đạo xem. Gói được nạp qua đường nhập chuyển đổi: chạy thử, người khác áp dụng, kiểm tra được bất cứ lúc nào. Tên người trong gói là dữ liệu minh họa.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:ent-org-pack"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ent-org-pack"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.org-pack.input-points"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.org-pack.roles"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Dữ liệu minh họa",
+          "atSec": 4,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 23.4,
+      "requires": [
+        "ENT-3d"
+      ],
+      "stamps": [
+        "illustrative-data"
+      ]
+    },
+    {
+      "id": "ec-codes-catalogues",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Mã dự án ở kế toán và HPM đi qua bảng đối chiếu có hai người duyệt, thay cho so khớp thẳng. Danh mục loại dự án gồm đầu tư xây dựng cơ bản, mua sắm và sửa chữa lớn, kèm cờ khởi công mới hoặc chuyển tiếp. Nguồn kế hoạch tách rõ vốn Tập đoàn giao và vốn Hội đồng quản trị duyệt.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "INT-03",
+          "MDM-35"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "INT-03"
+        },
+        {
+          "do": "spot",
+          "ref": "int.crosswalk.ebs-hpm-codes"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-35"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.crosswalk.project-type-catalogue"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 21.8,
+      "requires": [
+        "ENT-3e"
+      ]
+    },
+    {
+      "id": "ec-cross-compare",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Trước khi phát hành, hệ thống so sánh chéo số liệu cùng kỳ giữa báo cáo tháng, quý, giao ban và HPM. Lệch số thì chặn phát hành cho đến khi có giải trình của người chịu trách nhiệm.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:ent-cross-compare"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ent-cross-compare"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.cross-compare.report-types"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.cross-compare.gap-explanation"
+        }
+      ],
+      "captions": [
+        {
+          "text": "Lệch số thì chặn phát hành cho đến khi giải trình",
+          "atSec": 3,
+          "forSec": 6
+        }
+      ],
+      "expectedSec": 13.9,
+      "requires": [
+        "ENT-4a"
+      ]
+    },
+    {
+      "id": "ec-pdf-layout",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Biểu mẫu xuất thêm PDF, cùng một mô hình tài liệu với Excel và Word. Có mẫu riêng cho phòng ban. Bố cục biểu mẫu cấu hình qua giao diện, lưu thành quy tắc có phiên bản, không cần lập trình. Các biểu mẫu vẫn là mẫu demo, chờ mẫu chính thức.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "RPT-03",
+          "planned:ent-layout-config"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "docHead"
+        },
+        {
+          "do": "open",
+          "screen": "RPT-03"
+        },
+        {
+          "do": "spot",
+          "ref": "rpt.forms.pdf-download"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ent-layout-config"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.layout.config-editor"
+        }
+      ],
+      "captions": [
+        {
+          "text": "MẪU DEMO — chờ mẫu chính thức",
+          "atSec": 8,
+          "forSec": 5
+        }
+      ],
+      "expectedSec": 19.1,
+      "requires": [
+        "ENT-4b"
+      ],
+      "stamps": [
+        "demo-form"
+      ]
+    },
+    {
+      "id": "ec-calendar-reminders",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Lịch kỳ cấu hình cho tháng, quý, năm và giao ban, mỗi bước có hạn riêng: nhập, duyệt đơn vị, Ban kế hoạch rà soát, chốt và đẩy. Nhắc việc đi bằng thư điện tử và Teams, mỗi nhắc ghi đúng một lần. Bảng cho biết đầu mối nào đã xong bước nào.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "DIS-14",
+          "planned:ent-calendar-board"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "unitAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "DIS-14"
+        },
+        {
+          "do": "spot",
+          "ref": "dis.calendar.configurable"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ent-calendar-board"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.calendar.step-board"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.9,
+      "requires": [
+        "ENT-4c"
+      ]
+    },
+    {
+      "id": "ec-presentation-rates",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Chế độ trình chiếu chuyển từng bảng điều hành sang toàn màn hình khi họp giao ban, tự chuyển có nút tạm dừng. Tỷ lệ kế hoạch tính theo công ty, đơn vị và dự án, so với cùng kỳ năm trước. Biểu mẫu đã phát hành có thể gửi theo lịch.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "HOME-01",
+          "BAN-01"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "open",
+          "screen": "HOME-01"
+        },
+        {
+          "do": "spot",
+          "ref": "home.dashboard.enterprise-rates"
+        },
+        {
+          "do": "open",
+          "screen": "BAN-01"
+        },
+        {
+          "do": "spot",
+          "ref": "ban.dashboard.presentation-mode"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.6,
+      "requires": [
+        "ENT-4d"
+      ]
+    },
+    {
+      "id": "ec-phone-home",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Trên điện thoại, trang chủ lãnh đạo của bản doanh nghiệp có thêm trạng thái đẩy HPM của kỳ: đang chờ biên nhận, đã nhận hay bị từ chối. Cạnh đó là số chênh lệch kế toán đang mở, hiện {{figure:ent-ebs-differences}}. Chạm vào từng ô để mở đúng màn chi tiết.",
+      "screen": {
+        "platform": "phone",
+        "screens": [
+          "MOB-07"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
+        {
+          "do": "phone-open",
+          "screen": "MOB-07"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.enterprise-home.hpm-status"
+        },
+        {
+          "do": "spot",
+          "ref": "mob.enterprise-home.ebs-differences"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 17.9,
+      "requires": [
+        "ENT-4d"
+      ]
+    },
+    {
+      "id": "ec-equipment",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Màn mua sắm trang thiết bị dành cho Ban Thương mại theo dõi từng gói: tiến độ, giá trị và nguyên nhân chậm lấy từ danh mục chuẩn. Kết quả chỉ đạo giao ban về mua sắm nối thẳng vào thuyết minh kỳ sau.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "planned:ent-equipment-procurement"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "projectManager"
+        },
+        {
+          "do": "open",
+          "screen": "planned:ent-equipment-procurement"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.equipment.package-list"
+        },
+        {
+          "do": "spot",
+          "ref": "ent.equipment.delay-causes"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 14.8,
+      "requires": [
+        "ENT-4e"
+      ]
+    },
+    {
+      "id": "ec-audit-catalogues",
+      "chapter": "ent-cycle",
+      "main": false,
+      "narration": "Nhật ký kiểm toán có thể ghi đủ trước và sau của các đối tượng nghiệp vụ được bật. Dữ liệu nhạy cảm được che và có giới hạn dung lượng. Đơn vị tính, tiền tệ và tỷ giá là danh mục quản lý được, có hiệu lực theo ngày, không còn nằm trong mã.",
+      "screen": {
+        "platform": "web",
+        "screens": [
+          "ADM-11",
+          "MDM-12"
+        ]
+      },
+      "steps": [
+        {
+          "do": "as",
+          "persona": "sysAdmin"
+        },
+        {
+          "do": "open",
+          "screen": "ADM-11"
+        },
+        {
+          "do": "spot",
+          "ref": "adm.audit.before-after-detail"
+        },
+        {
+          "do": "open",
+          "screen": "MDM-12"
+        },
+        {
+          "do": "spot",
+          "ref": "mdm.catalogue.exchange-rates"
+        }
+      ],
+      "captions": [],
+      "expectedSec": 18.5,
+      "requires": [
+        "ENT-4e"
+      ]
+    }
+  ]
+}

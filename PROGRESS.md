@@ -1,7 +1,7 @@
 STATUS: IN_PROGRESS
 
 # PROGRESS
-BƯỚC TIẾP THEO: (1) cổng pre-push lần 5 chỉ còn lỗi hiệu năng/độ trễ: test R12 contract-fact (p95 > 800 ms), template-database, vài test web timeout, một suite api chưa rõ; hai agent PERF và GATEFIX4 đang sửa; (2) chạy lại cổng từ worktree LF D:PIS-push3 (sau khi dọn tiến trình postgres/stack thừa) rồi push; (3) clip tiếng Việt đã dựng ở D:PIS-clips-out (còn thiếu giọng VieNeuTTS vì chưa có khóa, nhạc chờ duyệt, một số cảnh điện thoại); (4) UAT cuối trên bản cài và hạ tầng sau khi push.
+BƯỚC TIẾP THEO: (1) cổng pre-push lần 8 đang chạy từ worktree LF D:PIS-push3 (log push8.log trong scratchpad); (2) đợt A của kế hoạch ENT-3 (đối chiếu HSKT v0.3) đang chạy 12 làn: ENT-3a/3b/3c/3d/3e, ENT-4b/4c/4d/4e, INFRA-2, DELIVERY-1, DOC-3 (ENT-4a chờ ENT-3a); (3) khi xong: gộp bằng git merge từng lane, tích hợp chung (hợp đồng, route, i18n, suite dùng chung), rồi đẩy qua cổng; (4) clip tiếng Việt đã dựng ở D:PIS-clips-out, còn thiếu giọng VieNeuTTS, nhạc chờ duyệt, vài cảnh điện thoại.
 Cập nhật: 2026-11-08 | Đã hợp nhất đợt 1 của hai sản phẩm (nền quản trị, đồng hồ, kiểm soát tiền, toàn vẹn, phân tích hợp đồng, chỉ đạo, theo dõi mua sắm theo luồng, bộ máy báo cáo, cơ chế bản doanh nghiệp, PWA); trước đó 2026-11-05T17:30+07:00 | Milestone: M3/6 | Task: OMNI-1 xong ST-OMNI-001, 002, 003; NOT-1 xong 007, 009, 010; còn R2: OMNI-004..007, MOB-007, CTR/PAY/ISS/QMS/LND/AST/DOC/BID/LLM/BI/DGV/ADM/SAS/MDM/PRJ/CAP/MNE
 
 Spec gốc: `Design/MACHVON_Design` (baseline v1.3, commit 82a707f). Kế hoạch đã duyệt: `C:\Users\PNE_AI_01\.claude\plans\pasted-content-id-f8fb-h-y-s-unified-brook.md` (sổ quyết định D-B01..D-B12, ledger R1..R11, task T1..T12).
