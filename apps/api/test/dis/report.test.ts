@@ -1129,7 +1129,7 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       await rows(
         `insert into machvon.reporting_period
            (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
-         select tenant_id, $1::uuid, 'M2027-09', calendar_version, date '2027-09-01', date '2027-09-30', timestamptz '2027-10-05T10:00:00Z', 'MONTHLY', 'MONTH', 2027, 'OPEN', calendar_version_id, created_by, updated_by
+         select tenant_id, $1::uuid, 'M2027-09', calendar_version, date '2027-09-01', date '2027-09-30', timestamptz '2027-10-05T03:00:00Z', 'MONTHLY', 'MONTH', 2027, 'OPEN', calendar_version_id, created_by, updated_by
            from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK' and calendar_code = 'DEFAULT' limit 1`,
         [month],
       );

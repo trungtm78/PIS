@@ -108,7 +108,8 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     const reply = await call('GET', '/report-engine/catalogue', { member: SENDER });
     expect(reply.status).toBe(200);
     const items = reply.json.items as Array<Record<string, unknown>>;
-    const demo = items.filter((item) => item.status === 'DEMO');
+    // The layouts a tenant configures without code (ENT-4b, codes CFG_*) may be demo too; they are not among the six forms of the catalogue.
+    const demo = items.filter((item) => item.status === 'DEMO' && !String(item.code).startsWith('CFG_'));
     expect(demo.map((item) => item.code).sort()).toEqual(REPORT_FORM_CATALOGUE.map((entry) => entry.code).sort());
     for (const item of demo) expect(item).toMatchObject({ edition: 'enterprise', official: 'PENDING_EXTERNAL', data_source: 'ILLUSTRATIVE', demo_mark: DEMO_MARK, issuable: false, form_ref: null });
     expect(reply.json.demo_mode).toBe(false);
@@ -144,7 +145,7 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
       expect(marks.sheets[0]?.oddHeader).toContain(DEMO_MARK);
       expect(marks.sheets[0]?.oddFooter).toContain(DEMO_MARK);
       const docx = await call('GET', `/report-engine/drafts/${draftId}/files/DOCX`, { member: SENDER });
-      const hasNarrative = ['PVN-QUARTERLY-F2', 'COMMITTEE-PERIODIC', 'INVEST-STEERING', 'PLANT-PHU-MY'].includes(entry.code);
+      const hasNarrative = ['PVN-QUARTERLY-F2', 'COMMITTEE-PERIODIC', 'INVEST-STEERING', 'PLANT-PHU-MY', 'PVN-MONTHLY', 'HPM-MONTHLY'].includes(entry.code);
       expect(docx.status).toBe(hasNarrative ? 200 : 404);
       if (hasNarrative) {
         const text = readDocxHeaderFooter(new Uint8Array(Buffer.from(docx.json.content_base64 as string, 'base64')));

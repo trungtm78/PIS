@@ -153,8 +153,8 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
     it('refuses what the contract and the rules do not allow, naming the field', async () => {
       const unknown = await generate(MANAGER, 2027, { tenant_id: TENANT_A });
       expect([unknown.status, unknown.json.code]).toEqual([400, 'FIELD_NOT_ALLOWED']);
-      const quarter = await generate(MANAGER, 2027, { period_type: 'QUARTER' });
-      expect([quarter.status, quarter.json.code, quarter.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'period_type']);
+      const halfYear = await generate(MANAGER, 2027, { period_type: 'HALF_YEAR' });
+      expect([halfYear.status, halfYear.json.code, halfYear.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'period_type']);
       const other = await generate(MANAGER, 2027, { calendar_code: 'OTHER' });
       expect([other.status, other.json.code, other.json.detail]).toEqual([422, 'CALENDAR_NOT_EFFECTIVE', 'calendar_code']);
       const early = await generate(MANAGER, 1969);
