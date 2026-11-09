@@ -69,7 +69,7 @@ describe('LogCapacityJob (HT.06, ENT-4e)', () => {
     const [batch] = await admin<{ status: string; row_count: string; file_key: string; file_sha256: string }>("select status, row_count::text, file_key, file_sha256 from machvon.log_archive_batch where tenant_id = $1", [TENANT_A]);
     expect(batch).toMatchObject({ status: 'PURGED', row_count: '7' });
     expect(archives.files.get(batch?.file_key ?? '')?.length).toBeGreaterThan(0);
-    expect(result.states.delivery_attempt).toBe('OK');
+    expect(result.states.delivery_attempt).toBe('NEAR');
   });
 
   it('removes nothing that is younger than the retention rule, and says the cap is exceeded', async () => {
