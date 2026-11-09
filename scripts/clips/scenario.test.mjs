@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { CLIPS_DIR, loadSpec } from './common.mjs';
-import { cutNames, estimateScene, listClips, loadContext, loadScenario, selectScenes, speedOf, STEP_VERBS, unusedRefs, validateScenario } from './scenario.mjs';
+import { cutNames, estimateScene, isPending, listClips, loadContext, loadScenario, pendingLanes, recordableScenes, selectScenes, speedOf, STEP_VERBS, unusedRefs, validateScenario } from './scenario.mjs';
 import { estimateVoiceMs, sceneMsFromVoice, sentencesOf, syllableCount } from './text.mjs';
 
 const context = loadContext();
@@ -138,4 +138,56 @@ test('duration estimates follow the syllable count and the pause between sentenc
   assert.equal(estimateVoiceMs('một hai ba bốn năm sáu', 2, spec), 1000);
   assert.equal(sceneMsFromVoice(1000, spec), spec.narration.minSceneSec * 1000);
   assert.equal(sceneMsFromVoice(10_000, spec), 10_000 + spec.narration.leadInMs + spec.narration.tailMs);
+});
+
+test('a scene that waits for a lane is accepted while the lane is pending, left out of a recording, and checked as any other once the lane is merged', () => {
+  const strict = loadContext({ strict: true });
+  const base = loadScenario('enterprise-phu-my');
+  const waiting = base.scenes.filter((scene) => scene.requires !== undefined);
+  assert.ok(waiting.length >= 10, 'the enterprise cycle scenes wait for their lanes');
+  for (const scene of waiting) assert.ok(isPending(scene, strict.planned), scene.id);
+  assert.deepEqual(validateScenario(base, strict).problems, [], 'strict mode does not fail on a pending scene');
+  const lines = [];
+  const recordable = recordableScenes(base, 'ent-cycle', { log: (line) => lines.push(line) });
+  assert.equal(recordable.length, 0);
+  assert.match(lines[0], /ec-snapshot-close \(ENT-3a\)/u);
+  assert.equal(recordableScenes(base, 'ent-cycle', { includePending: true }).length, selectScenes(base, 'ent-cycle').length);
+  // a planned screen that is not in the catalogue fails strict mode when the scene does not wait for a lane
+  const copy = { ...base, scenes: base.scenes.map((scene) => ({ ...scene })), _loadProblems: [] };
+  const target = copy.scenes.find((scene) => scene.id === 'ec-org-pack');
+  delete target.requires;
+  assert.ok(validateScenario(copy, strict).problems.some((p) => /planned:ent-org-pack is still planned \(lane ENT-3d\)/u.test(p)));
+  // a merged lane makes the scene ready
+  const merged = { ...strict.planned, lanes: { ...strict.planned.lanes, 'ENT-3d': { status: 'merged' } } };
+  assert.equal(pendingLanes(base.scenes.find((scene) => scene.id === 'ec-org-pack'), merged).length, 0);
+  // an unknown lane is an error
+  const unknown = { ...base, scenes: base.scenes.map((scene) => ({ ...scene })), _loadProblems: [] };
+  unknown.scenes.find((scene) => scene.id === 'ec-org-pack').requires = ['NO-SUCH-LANE'];
+  assert.ok(validateScenario(unknown, loadContext()).problems.some((p) => /requires lane NO-SUCH-LANE/u.test(p)));
+});
+
+test('a chapter marked mainOptional needs no scene in the main video, and the main video stays inside its range with the tour scene', () => {
+  const scenario = loadScenario('public-investment');
+  const optional = scenario.chapters.filter((chapter) => chapter.mainOptional === true);
+  assert.ok(optional.length >= 15);
+  for (const chapter of optional) assert.ok(!scenario.scenes.some((scene) => scene.chapter === chapter.id && scene.main), chapter.id);
+  assert.ok(scenario.scenes.some((scene) => scene.id === 'tour-more' && scene.main));
+  const broken = { ...scenario, chapters: scenario.chapters.map((chapter) => (chapter.id === 'field-ops' ? { ...chapter, mainOptional: false } : chapter)), _loadProblems: [] };
+  assert.ok(validateScenario(broken, context).problems.some((p) => /chapter field-ops has no scene in the main video/u.test(p)));
+});
+
+test('the added chapters cover the features of the plan in both clips', () => {
+  const wanted = ['contractors-plus', 'contractor-portal', 'claims-warnings', 'alerts-plus', 'delegation', 'audit-controls', 'risk-forecast', 'docs-ai-plus', 'integration', 'reports-close', 'field-ops', 'phone-plus', 'platform'];
+  for (const clip of clips) {
+    const scenario = loadScenario(clip);
+    for (const id of wanted) assert.ok(selectScenes(scenario, id).length >= 4, `${clip} ${id}`);
+  }
+  const enterprise = loadScenario('enterprise-phu-my');
+  assert.ok(selectScenes(enterprise, 'ent-cycle').length >= 10);
+  assert.ok(selectScenes(loadScenario('public-investment'), 'payments').length >= 5);
+});
+
+test('every scenario file under scenarios/ is valid JSON', () => {
+  const dir = join(CLIPS_DIR, 'scenarios');
+  for (const sub of ['enterprise', 'public', 'shared']) for (const name of readdirSync(join(dir, sub))) JSON.parse(readFileSync(join(dir, sub, name), 'utf8'));
 });

@@ -13,12 +13,12 @@ Branch `lane/clipfeatures`, worktree `D:\PIS-clipfeatures`. Owner request 2026-1
 
 ## Steps
 
-- [ ] 1. Plan committed (this file).
-- [ ] 2. Tool support for `requires` (scenario.mjs, production.mjs, make/tts/tts-edge/subtitles), `mainOptional` chapters, planned screens, planned seed groups; tests for each.
-- [ ] 3. Shared chapters: contractors-plus, contractor-portal, claims-warnings, alerts-plus, delegation, audit-controls, risk-forecast, docs-ai-plus, correspondence, integration, field-ops, procurement-desk, project-life, reports-close, platform, phone-plus.
-- [ ] 4. Public chapters: capital-control, payments, monitoring, portal-public. Enterprise chapters: ent-cycle (ENT-3, ENT-4, pending lanes), extra scenes of hpm-ebs.
-- [ ] 5. Both scenarios: includes, tour scene, music cues, readiness groups, refs, shots, phonetics; `scenario.mjs stamp`; book generated with `clip-scripts-check.mjs book --write`.
-- [ ] 6. Checks: `node --test scripts/clips/*.test.mjs scripts/clip-scripts-check.test.mjs`, `node scripts/clips/scenario.mjs check`, `node scripts/clip-scripts-check.mjs check`.
+- [x] 1. Plan committed (this file).
+- [x] 2. Tool support for `requires` (scenario.mjs, production.mjs, make/tts/tts-edge/subtitles), `mainOptional` chapters, planned screens, planned seed groups; tests for each.
+- [x] 3. Shared chapters: contractors-plus, contractor-portal, claims-warnings, alerts-plus, delegation, audit-controls, risk-forecast, docs-ai-plus, correspondence, integration, field-ops, procurement-desk, project-life, reports-close, platform, phone-plus.
+- [x] 4. Public chapters: capital-control, payments, monitoring, portal-public. Enterprise chapters: ent-cycle (ENT-3, ENT-4, pending lanes), extra scenes of hpm-ebs.
+- [x] 5. Both scenarios: includes, tour scene, music cues, readiness groups, refs, shots, phonetics; `scenario.mjs stamp`; book generated with `clip-scripts-check.mjs book --write`.
+- [x] 6. Checks: `node --test scripts/clips/*.test.mjs scripts/clip-scripts-check.test.mjs`, `node scripts/clips/scenario.mjs check`, `node scripts/clip-scripts-check.mjs check`.
 - [ ] 7. Independent read-only review of `git diff main...HEAD` (Codex is rate limited until 2026-11-10 23:17: a fresh Plan/Explore subagent), triage, fixes.
 
 ## Tests per step

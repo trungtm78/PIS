@@ -64,7 +64,7 @@ export function loadScenario(clip, dir = SCENARIO_DIR) {
     const content = readJson(part);
     files.set(part, content);
     if (content.schema !== 'clip-chapter/1') problems.push(`${entry.include}: schema must be clip-chapter/1`);
-    if (!chapters.some((chapter) => chapter.id === content.id)) chapters.push({ id: content.id, title: content.title, summary: content.summary });
+    if (!chapters.some((chapter) => chapter.id === content.id)) chapters.push({ id: content.id, title: content.title, summary: content.summary, ...(content.mainOptional === true ? { mainOptional: true } : {}), ...(content.standalone === false ? { standalone: false } : {}) });
     merge(figures, content.figures, 'figure', entry.include);
     merge(literalNumbers, content.literalNumbers, 'literal number', entry.include);
     merge(animatics, content.animatics, 'animatic', entry.include);
@@ -89,6 +89,22 @@ export function selectScenes(scenario, selector) {
   const cut = scenario.scenes.filter((scene) => scene.chapter === selector);
   if (cut.length === 0) throw new Error(`no chapter ${selector} in ${scenario.clip}`);
   return cut;
+}
+
+/** The lanes a scene waits for: the ones of its `requires` that `planned.json` does not list as merged. A scene with none is ready to record. */
+export function pendingLanes(scene, planned = readJson('planned.json')) {
+  return (scene.requires ?? []).filter((lane) => planned.lanes?.[lane]?.status !== 'merged');
+}
+
+export const isPending = (scene, planned) => pendingLanes(scene, planned).length > 0;
+
+/** The scenes of one cut that a recording can make today: the ones that wait for a lane that is not merged are left out (all of them with `includePending`). */
+export function recordableScenes(scenario, selector, { includePending = false, planned = readJson('planned.json'), log = (line) => console.log(line) } = {}) {
+  const scenes = selectScenes(scenario, selector);
+  if (includePending) return scenes;
+  const skipped = scenes.filter((scene) => isPending(scene, planned));
+  if (skipped.length > 0) log(`skipping ${skipped.length} scene(s) that wait for a lane: ${skipped.map((scene) => `${scene.id} (${pendingLanes(scene, planned).join(', ')})`).join('; ')}`);
+  return scenes.filter((scene) => !isPending(scene, planned));
 }
 
 export const cutNames = (scenario) => ['main', ...scenario.chapters.map((chapter) => chapter.id)];
@@ -134,7 +150,7 @@ function stepProblems(step, where, context, scenario, used) {
     const known = context.operationIds.has(step[key]);
     const planned = context.planned.operations?.[step[key]];
     if (!known && planned === undefined) problems.push(`${where}: operation ${step[key]} is not in the contract and not in planned.json`);
-    if (!known && planned !== undefined && context.strict) problems.push(`${where}: operation ${step[key]} is still planned (lane ${planned.lane}), not in the contract`);
+    if (!known && planned !== undefined && context.strict && !context.pending) problems.push(`${where}: operation ${step[key]} is still planned (lane ${planned.lane}), not in the contract`);
   }
   if (step.fixture !== undefined && scenario.data?.fixtures?.[step.fixture] === undefined) problems.push(`${where}: fixture ${step.fixture} is not declared in data.fixtures`);
   if (step.textKey !== undefined && scenario.typed?.[step.textKey] === undefined) problems.push(`${where}: textKey ${step.textKey} is not in typed`);
@@ -152,7 +168,7 @@ function screenProblems(ids, where, context) {
     const inCatalogue = context.catalogue.has(id);
     const planned = context.planned.screens?.[id];
     if (!inCatalogue && planned === undefined) problems.push(`${where}: screen ${id} is not in the catalogue and not in planned.json`);
-    else if (!inCatalogue && context.strict && planned.status !== 'built') problems.push(`${where}: screen ${id} is still planned (lane ${planned.lane})`);
+    else if (!inCatalogue && context.strict && planned.status !== 'built' && !context.pending) problems.push(`${where}: screen ${id} is still planned (lane ${planned.lane})`);
   }
   return problems;
 }
@@ -175,7 +191,7 @@ export function validateScenario(scenario, context) {
     chapterIds.add(chapter.id);
     if (typeof chapter.title !== 'string' || chapter.title.trim() === '') fail(`chapter ${chapter.id} has no title`);
     if (!scenario.scenes.some((scene) => scene.chapter === chapter.id)) fail(`chapter ${chapter.id} has no scene`);
-    if (!scenario.scenes.some((scene) => scene.chapter === chapter.id && scene.main === true)) fail(`chapter ${chapter.id} has no scene in the main video`);
+    if (chapter.mainOptional !== true && !scenario.scenes.some((scene) => scene.chapter === chapter.id && scene.main === true)) fail(`chapter ${chapter.id} has no scene in the main video`);
   }
 
   for (const [id, declaration] of Object.entries(scenario.figures)) {
@@ -217,10 +233,13 @@ export function validateScenario(scenario, context) {
     }
 
     const screen = scene.screen ?? {};
+    if (scene.requires !== undefined && (!Array.isArray(scene.requires) || scene.requires.length === 0 || !scene.requires.every((lane) => typeof lane === 'string'))) fail(`${where}: requires is a list of lane ids`);
+    for (const lane of Array.isArray(scene.requires) ? scene.requires : []) if (context.planned.lanes?.[lane] === undefined) fail(`${where}: requires lane ${lane}, which is not in planned.json lanes`);
+    const sceneContext = isPending(scene, context.planned) ? { ...context, pending: true } : context;
     if (scene.layout !== undefined && !LAYOUT_NAMES.includes(scene.layout)) fail(`${where}: layout ${scene.layout} is not one of ${LAYOUT_NAMES.join(', ')}`);
     for (const [index, callout] of (scene.callouts ?? []).entries()) if (typeof callout.text !== 'string' || !(callout.atSec >= 0) || !(callout.forSec > 0)) fail(`${where}: callout ${index + 1} needs text, atSec and forSec`);
     if (!PLATFORMS.includes(screen.platform)) fail(`${where}: screen.platform must be one of ${PLATFORMS.join(', ')}`);
-    problems.push(...screenProblems(screen.screens ?? [], where, context));
+    problems.push(...screenProblems(screen.screens ?? [], where, sceneContext));
     for (const id of screen.screens ?? []) {
       const entry = context.catalogueEntries?.get(id);
       if (entry !== undefined && screen.platform === 'phone' && entry.platform !== 'mobile') fail(`${where}: screen ${id} is not a phone screen`);
@@ -232,7 +251,7 @@ export function validateScenario(scenario, context) {
     }
     if (['animatic', 'title'].includes(screen.platform) && screen.animatic === undefined) fail(`${where}: an ${screen.platform} scene names its animatic`);
     if (!Array.isArray(scene.steps) || scene.steps.length === 0) fail(`${where}: steps are missing`);
-    for (const [index, step] of (scene.steps ?? []).entries()) problems.push(...stepProblems(step, `${where} step ${index + 1}`, context, scenario, used));
+    for (const [index, step] of (scene.steps ?? []).entries()) problems.push(...stepProblems(step, `${where} step ${index + 1}`, sceneContext, scenario, used));
 
     let estimate;
     try {

@@ -1,8 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { argument, loadSpec, positionals, readJson } from './common.mjs';
-import { loadScenario, selectScenes } from './scenario.mjs';
+import { argument, flag, loadSpec, positionals, readJson } from './common.mjs';
+import { loadScenario, recordableScenes } from './scenario.mjs';
 import { displayText, sentencesOf, sceneMsFromVoice } from './text.mjs';
 
 const letters = (text) => (text.match(/[\p{L}\p{N}]/gu) ?? []).length;
@@ -204,7 +204,7 @@ function main(argv) {
   const scenario = loadScenario(clip);
   const audio = JSON.parse(readFileSync(audioPath, 'utf8')).scenes;
   const manifest = manifestPath === undefined ? undefined : readJson(manifestPath);
-  const scenes = selectScenes(scenario, cut);
+  const scenes = recordableScenes(scenario, cut, { includePending: flag(argv, 'include-pending') });
   const missing = scenes.filter((scene) => audio[scene.id]?.voiceMs === undefined).map((scene) => scene.id);
   if (missing.length > 0) {
     console.error(`no measured voice for: ${missing.join(', ')} (run tts.mjs first)`);
