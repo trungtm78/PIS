@@ -15,6 +15,7 @@ export class ReportFormRegistry {
   private readonly forms = new Map<string, ReportFormBundle>();
   private readonly providers = new Map<string, ReportFigureProvider>();
   private readonly guards = new Map<string, string>();
+  private readonly hidden = new Set<string>();
 
   /** Adds a form. A code is registered once with one layout version; a DEMO form must be illustrative, a form with live figures names a provider the process has. */
   register(bundle: ReportFormBundle): void {
@@ -62,8 +63,26 @@ export class ReportFormRegistry {
     return [...this.forms.values()].sort((a, b) => a.layout.code.localeCompare(b.layout.code));
   }
 
+  /**
+   * Takes forms out of the catalogue of the process (an edition that does not offer them, DEMO-09: the enterprise edition shows no form of the Ministry of Finance or of the offices of a province). The form stays registered, so a draft or a copy
+   * that already exists is still read, and the public edition (another process) lists it as before.
+   */
+  hide(codes: readonly string[]): void {
+    for (const code of codes) this.hidden.add(code);
+  }
+
+  isHidden(code: string): boolean {
+    return this.hidden.has(code);
+  }
+
+  /** The forms the catalogue offers: `list` without the hidden ones. */
+  listVisible(): ReportFormBundle[] {
+    return this.list().filter((bundle) => !this.hidden.has(bundle.layout.code));
+  }
+
   /** Only for tests: forgets every form and provider. */
   clear(): void {
+    this.hidden.clear();
     this.forms.clear();
     this.providers.clear();
     this.guards.clear();
