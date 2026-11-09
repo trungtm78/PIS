@@ -231551,7 +231551,9 @@
             "enum": [
               "CURRENT_YEAR",
               "CARRYOVER",
-              "OTHER"
+              "OTHER",
+              "EQUITY",
+              "LOAN"
             ]
           },
           "source_year": {
@@ -231661,14 +231663,17 @@
               "LOCAL_ADDED",
               "CARRYOVER",
               "CENTRAL_SUPPORT",
-              "REVENUE_INCREASE"
+              "REVENUE_INCREASE",
+              "GROUP_ASSIGNED",
+              "BOARD_APPROVED"
             ]
           },
           "budget_level": {
             "type": "string",
             "enum": [
               "CENTRAL",
-              "LOCAL"
+              "LOCAL",
+              "ALL"
             ]
           },
           "program_master_version_id": {
@@ -231705,6 +231710,10 @@
           "capital_plan_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "decision_kind": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
           }
         }
       },
@@ -290262,6 +290271,12 @@
           },
           "as_of": {
             "type": "string"
+          },
+          "coverage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectCodeCoverage"
+            }
           }
         }
       },
@@ -308462,6 +308477,46 @@
           },
           "as_of": {
             "type": "string"
+          }
+        }
+      },
+      "ProjectCodeCoverage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_system",
+          "projects",
+          "mapped",
+          "direct_only",
+          "unmapped",
+          "proposed",
+          "shadows",
+          "direct_fallback"
+        ],
+        "properties": {
+          "source_system": {
+            "type": "string"
+          },
+          "projects": {
+            "type": "integer"
+          },
+          "mapped": {
+            "type": "integer"
+          },
+          "direct_only": {
+            "type": "integer"
+          },
+          "unmapped": {
+            "type": "integer"
+          },
+          "proposed": {
+            "type": "integer"
+          },
+          "shadows": {
+            "type": "integer"
+          },
+          "direct_fallback": {
+            "type": "boolean"
           }
         }
       }

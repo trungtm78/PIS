@@ -382,6 +382,24 @@ const SETTLEMENT_DEADLINES: readonly BaselineEntry[] = [
 
 export const BASELINE_PACK: BaselinePack = sealPack('PLATFORM-2026.1', [...ENTRIES, ...CALENDAR_AND_UNITS, ...OPERATIONAL_CATALOGUES, ...LAND_TIMERS, ...PETITION_DEADLINES, ...QMS_REGIMES, ...WARRANTY_MINIMUMS, ...ADVANCE_CAPS, ...SETTLEMENT_DEADLINES, ...AREAS]);
 
+const EDITION_PACKS = new Map<string, BaselinePack>();
+
+/**
+ * Adds a signed pack of an edition to the baselines the sync job applies after the platform pack (ENT-3e: the project types of the enterprise edition). Idempotent for the same pack; a different pack under a used id is a
+ * defect of the caller. A public process registers none, so its job applies exactly the platform pack as before.
+ */
+export function registerEditionBaseline(pack: BaselinePack): void {
+  const known = EDITION_PACKS.get(pack.id);
+  if (known !== undefined) {
+    if (known.sha256 !== pack.sha256) throw new Error(`baseline pack ${pack.id} is already registered with other content`);
+    return;
+  }
+  EDITION_PACKS.set(pack.id, pack);
+}
+
+/** The packs of the edition the process serves, in the order they were registered. */
+export const editionBaselines = (): BaselinePack[] => [...EDITION_PACKS.values()];
+
 export interface BaselineResult {
   created: number;
   /** Entries that gained a version because the pack carries a later one. */

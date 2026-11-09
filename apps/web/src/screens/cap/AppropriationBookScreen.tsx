@@ -14,6 +14,8 @@ import {
   EMPTY_FILTER,
   EMPTY_FORM,
   MANAGE_PERMISSION,
+  ENTERPRISE_LEVEL,
+  ENTERPRISE_ORIGINS,
   ORIGINS,
   REASON_MAX_LENGTH,
   REASON_MIN_LENGTH,
@@ -66,6 +68,9 @@ function BookContent({ route }: ScreenProps) {
   const programs = useMasterOptions(['PROGRAM'], panel !== undefined);
   const state = useScreenState({ isLoading: book.isLoading, error: book.error, data: book.data });
   const shown = useMemo(() => sortLines(filterLines(book.data ?? [], filter)), [book.data, filter]);
+  // The public origins and levels, and the enterprise ones only when the register holds a line of them (the public edition never sees them).
+  const filterOrigins = useMemo(() => [...ORIGINS, ...ENTERPRISE_ORIGINS.filter((origin) => (book.data ?? []).some((line) => line.origin === origin))] as readonly Origin[], [book.data]);
+  const filterLevels = useMemo(() => [...BUDGET_LEVELS, ...((book.data ?? []).some((line) => line.budgetLevel === ENTERPRISE_LEVEL) ? [ENTERPRISE_LEVEL] : [])] as readonly BudgetLevel[], [book.data]);
   const totals = useMemo(() => totalsOf(shown.filter(isPublished)), [shown]);
   const problem = register.isError ? describeProblem(register.error) : decide.isError ? describeProblem(decide.error) : undefined;
   const reasonTooShort = reason.trim().length < REASON_MIN_LENGTH;
@@ -159,7 +164,7 @@ function BookContent({ route }: ScreenProps) {
               <label htmlFor="book-origin">{t('cap.book.origin.label')}</label>
               <select id="book-origin" value={filter.origin} onChange={(event) => setFilter({ ...filter, origin: event.target.value as Origin | '' })}>
                 <option value="">{t('cap.book.filter.all')}</option>
-                {ORIGINS.map((origin) => (
+                {filterOrigins.map((origin) => (
                   <option key={origin} value={origin}>
                     {originLabel(t, origin)}
                   </option>
@@ -170,7 +175,7 @@ function BookContent({ route }: ScreenProps) {
               <label htmlFor="book-level">{t('cap.book.level.label')}</label>
               <select id="book-level" value={filter.budgetLevel} onChange={(event) => setFilter({ ...filter, budgetLevel: event.target.value as BudgetLevel | '' })}>
                 <option value="">{t('cap.book.filter.all')}</option>
-                {BUDGET_LEVELS.map((level) => (
+                {filterLevels.map((level) => (
                   <option key={level} value={level}>
                     {levelLabel(t, level)}
                   </option>

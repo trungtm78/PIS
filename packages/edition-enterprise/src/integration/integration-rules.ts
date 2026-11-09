@@ -6,6 +6,7 @@ import { EBS_CONNECTION, EntConnectionStore, HPM_CONNECTION } from './ent-connec
 import type { EntConnectionDef } from './ent-connection-store.ts';
 import { ENTERPRISE_CONNECTORS, HPM_FRESHNESS_RULE_CODE } from './hub-descriptors.ts';
 import { ebsAlertReader, hpmAlertReader } from './integration-alerts.ts';
+import { registerEnterpriseCodeSystems } from './project-code-resolver.ts';
 import { textsOf } from '../report-forms/texts.ts';
 
 /**
@@ -67,6 +68,8 @@ export function registerEnterpriseIntegrationRules(): void {
   if (registered) return;
   registered = true;
   registerIntegrationRules();
+  // The codes of EBS and HPM are read through the crosswalk with the direct match as the fallback of this version (ENT-3e): a mapping may not shadow another project.
+  registerEnterpriseCodeSystems();
   const texts = integrationTexts();
   registerRuleDefaults('CONNECTOR_FRESHNESS', {
     [HPM_FRESHNESS_RULE_CODE]: {
