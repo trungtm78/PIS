@@ -10,9 +10,11 @@ import {
   HpmAdjustmentStore,
   HpmCorrectionStore,
   HpmPushStore,
+  hpmAdjustmentLineOf,
   assertHpmPushAllowed,
   hpmAcceptance,
   hpmCopyRequestOf,
+  hpmKeyOf,
   requestOfRow,
 } from '@machvon/edition-enterprise/src/server.ts';
 import type { HpmCopyRequest, HpmPort, HpmPushRow, HpmSendResult, IssuedReportPort, PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts';
@@ -193,6 +195,7 @@ export class HpmReadsController {
 export class HpmPushController {
   private readonly connections = new EntConnectionStore(HPM_CONNECTION);
   private readonly pushes = new HpmPushStore();
+  private readonly adjustments = new HpmAdjustmentStore();
   private readonly metrics: MetricsSink;
 
   constructor(
@@ -225,6 +228,16 @@ export class HpmPushController {
     if (fileSha256(bytes) !== asked.sha256) throw new DomainError('HASH_MISMATCH', 422, 'file');
     const extension = EXTENSIONS[object.contentType.split(';')[0]?.trim().toLowerCase() ?? ''] ?? 'bin';
     return { request: asked, bytes, fileName: `${asked.layoutCode}_${asked.period}_r${asked.revision}.${extension}`, attachments: [], issuedHeadRevision: undefined };
+  }
+
+  /**
+   * The adjustments in the next period that ride on this push (TH.01): the first push of a period takes the ones approved for it, a retry of the key carries exactly the ones its first try used. They travel as one more file
+   * of the package, so the report itself is not touched; the file is absent when there is none.
+   */
+  private async carried(scope: CommandScope, request: HpmCopyRequest, pushId: string | undefined): Promise<{ rows: Awaited<ReturnType<HpmAdjustmentStore['approvedFor']>>; attachments: Array<{ name: string; bytes: Uint8Array }> }> {
+    const rows = pushId === undefined ? await this.adjustments.approvedFor(scope.tx, request.layoutCode, request.period, true) : await this.adjustments.appliedBy(scope.tx, pushId);
+    if (rows.length === 0) return { rows, attachments: [] };
+    return { rows, attachments: [{ name: 'adjustments.json', bytes: new TextEncoder().encode(JSON.stringify({ target_period: request.period, adjustments: rows.map(hpmAdjustmentLineOf) })) }] };
   }
 
   /** What the push did, in the delivery log of the report engine: a copy that was written to HPM for the first time is delivered to it there. */
@@ -341,7 +354,10 @@ export class HpmPushController {
     const request = report.request;
     const { row: connection } = await this.connections.ensure(scope.tx, scope.tenant.membershipId);
     assertHpmPushAllowed(connection);
-    const done = await this.pushes.send(scope.tx, request, 'SUBMIT', { tenantId: scope.tenant.tenantId, actor: scope.tenant.membershipId, now, port: this.port, reopen: this.reopen, bytes: report.bytes, fileName: report.fileName, attachments: report.attachments, ...(report.issuedHeadRevision === undefined ? {} : { issuedHeadRevision: report.issuedHeadRevision }) });
+    const before = await this.pushes.findByKey(scope.tx, hpmKeyOf(request));
+    const carried = await this.carried(scope, request, before?.id);
+    const done = await this.pushes.send(scope.tx, request, 'SUBMIT', { tenantId: scope.tenant.tenantId, actor: scope.tenant.membershipId, now, port: this.port, reopen: this.reopen, bytes: report.bytes, fileName: report.fileName, attachments: [...report.attachments, ...carried.attachments], ...(report.issuedHeadRevision === undefined ? {} : { issuedHeadRevision: report.issuedHeadRevision }) });
+    if (before === undefined && carried.rows.length > 0) await this.adjustments.apply(scope.tx, carried.rows, done.row.id, scope.tenant.membershipId, now);
     await this.mirrorDelivery(scope, done);
     await this.announce(scope, done, 'hpm.push_submitted', now);
     return this.resultOf(scope, done, access);
@@ -365,7 +381,8 @@ export class HpmPushController {
     const request = report.request;
     const { row: connection } = await this.connections.ensure(scope.tx, scope.tenant.membershipId);
     assertHpmPushAllowed(connection);
-    const done = await this.pushes.send(scope.tx, request, 'RETRY', { tenantId: scope.tenant.tenantId, actor: scope.tenant.membershipId, now, port: this.port, reopen: this.reopen, bytes: report.bytes, fileName: report.fileName, attachments: report.attachments, ...(report.issuedHeadRevision === undefined ? {} : { issuedHeadRevision: report.issuedHeadRevision }) });
+    const carried = await this.carried(scope, request, before.id);
+    const done = await this.pushes.send(scope.tx, request, 'RETRY', { tenantId: scope.tenant.tenantId, actor: scope.tenant.membershipId, now, port: this.port, reopen: this.reopen, bytes: report.bytes, fileName: report.fileName, attachments: [...report.attachments, ...carried.attachments], ...(report.issuedHeadRevision === undefined ? {} : { issuedHeadRevision: report.issuedHeadRevision }) });
     await this.mirrorDelivery(scope, done);
     await this.announce(scope, done, 'hpm.push_retried', now);
     return this.resultOf(scope, done, access);

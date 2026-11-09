@@ -676,7 +676,10 @@ export class ApprovalStore {
       if (Number(given?.approvals ?? 0) + 1 >= requiredApprovals(step, instance.doaLevels ?? undefined)) {
         const open = await this.holds.openFor(tx, task.id, true);
         // A second approval while the package waits for its receipt changes nothing: the step is already held.
-        if (open !== undefined && open.state === 'AWAITING_RECEIPT') return { kind: 'HELD', task, instance, hold: open };
+        if (open !== undefined && open.state === 'AWAITING_RECEIPT') {
+          await effects.audit({ action: 'approval.step_held', resourceType: 'approval_task', resourceId: task.id, diff: { step_id: task.stepId, hold_state: open.state, push_status: open.pushStatus, attempts: open.attempts, instance_id: instance.id, resource_revision: open.resourceRevision, repeated: true } });
+          return { kind: 'HELD', task, instance, hold: open };
+        }
         const answer = await input.hold({ tx, instance, task, caller, reason: input.reason, now: input.now, effects });
         if (answer !== undefined) {
           const held = await this.holds.hold(tx, {

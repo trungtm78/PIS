@@ -104,11 +104,11 @@ export class ReportApprovalFlow {
   }
 
   /** What a screen shows of the approval of a report: the rule in force, the instance the report had last (running or not), the definition it ran by and its tasks. */
-  async read(tx: TenantTx, reportId: string, now: Date): Promise<{ governed: GovernedWorkflow; instance: WorkflowInstanceRecord | undefined; definition: ApprovalWorkflowDefinition | undefined; tasks: ApprovalTaskRecord[] }> {
+  async read(tx: TenantTx, reportId: string, now: Date): Promise<{ governed: GovernedWorkflow; instance: WorkflowInstanceRecord | undefined; definition: ApprovalWorkflowDefinition | undefined; tasks: ApprovalTaskRecord[]; holds: HoldRecord[] }> {
     const governed = await this.workflowFor(tx, now);
     const instance = await this.approvals.findLatest(tx, REPORT_WORKFLOW_RESOURCE, reportId);
-    if (instance === undefined) return { governed, instance, definition: undefined, tasks: [] };
-    return { governed, instance, definition: await this.approvals.definitionOf(tx, instance), tasks: await this.approvals.tasksOf(tx, instance.id) };
+    if (instance === undefined) return { governed, instance, definition: undefined, tasks: [], holds: [] };
+    return { governed, instance, definition: await this.approvals.definitionOf(tx, instance), tasks: await this.approvals.tasksOf(tx, instance.id), holds: await this.approvals.holdsOf(tx, [instance.id]) };
   }
 
   /** The report was sent back or taken back: the running instance ends Cancelled with its open tasks (false when there was none). */

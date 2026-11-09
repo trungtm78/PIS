@@ -1,7 +1,16 @@
 import type { StepperStatus, StepperStep } from '../../../ui';
 
 /** The steps of the approval of a report as `getReportWorkflow` answers them (WF-1): the rule in force, the instance the report had last and each step with its deadline and the people it was given to. */
-export type StepState = 'WAITING' | 'CURRENT' | 'DONE' | 'CANCELLED';
+export type StepState = 'WAITING' | 'CURRENT' | 'AWAITING_RECEIPT' | 'PUSH_FAILED' | 'DONE' | 'CANCELLED';
+
+/** The receipt a PUSH step waits for (ENT-3c, R22): the package was handed to the receiver and the step is done only when the receiver answers. */
+export interface StepReceipt {
+  state: string;
+  pushKey: string | null;
+  attempts: number;
+  /** The screen where the receipt is recorded (HPM-01); null where no receiver exists. */
+  screen: string | null;
+}
 export type WorkflowMode = 'SINGLE_DECISION' | 'STAGED';
 
 export interface WorkflowTask {
@@ -25,6 +34,7 @@ export interface WorkflowStep {
   dueAt: string | null;
   overdue: boolean;
   tasks: WorkflowTask[];
+  receipt: StepReceipt | null;
 }
 
 export interface ReportWorkflow {
@@ -35,7 +45,7 @@ export interface ReportWorkflow {
   steps: WorkflowStep[];
 }
 
-const STATES: readonly StepState[] = ['WAITING', 'CURRENT', 'DONE', 'CANCELLED'];
+const STATES: readonly StepState[] = ['WAITING', 'CURRENT', 'AWAITING_RECEIPT', 'PUSH_FAILED', 'DONE', 'CANCELLED'];
 const DAY_MS = 86_400_000;
 const WORKING_DAY_HOURS = 8;
 
@@ -59,6 +69,12 @@ function taskOf(raw: unknown): WorkflowTask | undefined {
   };
 }
 
+function receiptOf(raw: unknown): StepReceipt | null {
+  const receipt = record(raw);
+  if (receipt === undefined || typeof receipt.state !== 'string') return null;
+  return { state: receipt.state, pushKey: text(receipt.push_key), attempts: typeof receipt.attempts === 'number' ? receipt.attempts : 1, screen: text(receipt.receiver_screen) };
+}
+
 function stepOf(raw: unknown): WorkflowStep | undefined {
   const step = record(raw);
   if (step === undefined || typeof step.id !== 'string' || typeof step.name !== 'string') return undefined;
@@ -73,6 +89,7 @@ function stepOf(raw: unknown): WorkflowStep | undefined {
     dueAt: text(step.due_at),
     overdue: step.overdue === true,
     tasks: Array.isArray(step.tasks) ? step.tasks.flatMap((task) => taskOf(task) ?? []) : [],
+    receipt: receiptOf(step.receipt),
   };
 }
 
@@ -88,7 +105,7 @@ export function toWorkflow(raw: unknown): ReportWorkflow | undefined {
 /** The screen shows the steps when the tenant runs the staged approval or the report went through an instance; on the default definition the one decision is what it always was. */
 export const showsSteps = (workflow: ReportWorkflow): boolean => workflow.mode === 'STAGED' || workflow.instanceStatus !== null;
 
-const STATUS_OF: Readonly<Record<StepState, StepperStatus>> = { DONE: 'done', CURRENT: 'current', WAITING: 'upcoming', CANCELLED: 'skipped' };
+const STATUS_OF: Readonly<Record<StepState, StepperStatus>> = { DONE: 'done', CURRENT: 'current', AWAITING_RECEIPT: 'hold', PUSH_FAILED: 'late', WAITING: 'upcoming', CANCELLED: 'skipped' };
 
 /** The days a step is given: its working hours counted in days of 8 hours, at least one. */
 export const plannedDaysOf = (slaWorkingHours: number): number => Math.max(1, Math.ceil(slaWorkingHours / WORKING_DAY_HOURS));
@@ -101,7 +118,7 @@ export function stepperOf(steps: readonly WorkflowStep[], now: Date, label: (ste
       code: step.id,
       label: label(step),
       status: late ? 'late' : STATUS_OF[step.state],
-      current: step.state === 'CURRENT',
+      current: step.state === 'CURRENT' || step.state === 'AWAITING_RECEIPT' || step.state === 'PUSH_FAILED',
       plannedDays: plannedDaysOf(step.slaWorkingHours),
       ...(late && step.dueAt !== null ? { lateDays: Math.max(1, Math.floor((now.getTime() - Date.parse(step.dueAt)) / DAY_MS)) } : {}),
     };

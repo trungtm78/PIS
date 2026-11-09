@@ -1,0 +1,5 @@
+{
+  "ent3c.workflow.awaitingReceipt.text": "Awaiting receipt: the package was handed to the receiver and the step is done only when the receiver confirms.",
+  "ent3c.workflow.pushFailed.text": "The package could not be handed over: approve this step again to try once more with the same key.",
+  "ent3c.workflow.receiptLink.link": "Open the push log to record the receipt"
+}

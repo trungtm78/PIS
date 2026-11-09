@@ -47,6 +47,19 @@ describe('the approval steps on the report (WF-1)', () => {
     expect(current).toContain('2020');
   });
 
+  it('ENT-3c: the PUSH step that handed its package over reads as awaiting the receipt, not as done, with the way to the push log', async () => {
+    const receipt = { state: 'AWAITING_RECEIPT', push_id: '00000000-0000-4000-8000-0000000000c1', push_key: 'org|DIS_WEEKLY-DA-1|2026-12-13|r1', push_status: 'WRITTEN', attempts: 1, held_by: '00000000-0000-4000-8000-0000000000b3', held_at: '2026-12-15T04:00:00.000Z', receipt_at: null, receiver_screen: 'HPM-01' };
+    const waiting = { ...staged, instance: { status: 'Running', outcome: null, current_step: 2 }, steps: [...staged.steps.slice(0, 2).map((step) => ({ ...step, status: 'DONE' })), { ...staged.steps[2], status: 'AWAITING_RECEIPT', receipt }] };
+    open(waiting);
+    const steps = await screen.findByTestId('workflow-steps');
+    const push = within(steps).getByTestId('workflow-details').querySelector('[data-step="push"]');
+    expect(push?.getAttribute('data-state')).toBe('AWAITING_RECEIPT');
+    expect(within(steps).getByTestId('step-awaiting-receipt')).toBeTruthy();
+    expect(within(steps).getByTestId('step-receipt-link').getAttribute('href')).toBe('/hpm/hpm-01');
+    expect(within(steps).queryByTestId('step-push-failed')).toBeNull();
+    expect(within(steps).getByRole('list', { name: vi_['dis.workflow.list.label'] }).querySelector('[data-step="push"]')?.className).not.toContain('done');
+  });
+
   it('shows nothing on the default definition, and nothing when the steps cannot be read', async () => {
     const plain = { ...staged, mode: 'SINGLE_DECISION', instance: null };
     const first = open(plain);

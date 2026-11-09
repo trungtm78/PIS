@@ -1,0 +1,5 @@
+{
+  "ent3c.workflow.awaitingReceipt.text": "Chờ biên nhận: gói đã được giao cho nơi nhận, bước chỉ hoàn tất khi nơi nhận xác nhận.",
+  "ent3c.workflow.pushFailed.text": "Chưa giao được gói: phê duyệt lại bước này để thử lần nữa với cùng khóa.",
+  "ent3c.workflow.receiptLink.link": "Mở nhật ký đẩy để ghi biên nhận"
+}

@@ -117,7 +117,7 @@ export class ApprovalHoldStore {
 
   /** The hold a push belongs to (the newest, when a retry of the step opened more than one over time). */
   async forPush(tx: TenantTx, pushId: string, lock = false): Promise<HoldRecord | undefined> {
-    const rows = await tx.query<HoldSql>(`${SELECT} where h.push_id = $1::uuid order by h.created_at desc, h.id limit 1${lock ? ' for update of h' : ''}`, [pushId]);
+    const rows = await tx.query<HoldSql>(`${SELECT} where h.push_id = $1::uuid order by (h.state in ('AWAITING_RECEIPT', 'PUSH_FAILED')) desc, h.created_at desc, h.id limit 1${lock ? ' for update of h' : ''}`, [pushId]);
     return rows[0] === undefined ? undefined : toHold(rows[0]);
   }
 
