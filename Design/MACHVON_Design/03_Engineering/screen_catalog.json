@@ -14228,5 +14228,26 @@
     "platform": "web",
     "req": "DL.01",
     "source": "HSKT v0.3 DL.01, CN.02, CN.03; ENT-3b"
+  },
+  {
+    "id": "RPT-09",
+    "module": "RPT",
+    "moduleName": "Bộ sinh báo cáo",
+    "title": "So sánh chéo báo cáo cùng kỳ trước khi phát hành",
+    "kind": "table",
+    "fields": [
+      "Kỳ (tháng hoặc quý) và các báo cáo cùng kỳ được so sánh: báo cáo tháng PVN, quý, giao ban, HPM và bản chốt kỳ",
+      "Độ phủ: số quy tắc đã chạy, số phép so sánh, số phép bị bỏ qua và lý do",
+      "Từng số lệch: quy tắc, chỉ tiêu, số kỳ vọng, số thực tế, chênh lệch, dung sai, mức chặn hoặc cảnh báo",
+      "Công thức, nguồn và thời điểm của từng số hạng",
+      "Đường giải trình (lập lại báo cáo, gán đơn vị, hoàn tất tháng còn thiếu, giải trình)",
+      "Giải trình đã ghi: người, lý do, thời điểm"
+    ],
+    "role": "Người lập, kiểm tra, phê duyệt báo cáo (xem), người giải trình khác người lập (ghi giải trình)",
+    "rule": "Số lệch ở mức CHẶN làm chặn phát hành báo cáo liên quan cho tới khi có giải trình của người khác người lập; giải trình chỉ có giá trị cho đúng số liệu hiện tại (dấu vân tay) và không sửa số; cảnh báo không chặn; phép so sánh không đủ dữ liệu được ghi là bỏ qua kèm lý do, không bao giờ là khớp.",
+    "phase": "P1",
+    "platform": "web",
+    "req": "CN.04",
+    "source": "Làn ENT-4a; kế hoạch ENT-3 G4; HSKT PVFCCo v0.3, yêu cầu CN.04"
   }
 ]

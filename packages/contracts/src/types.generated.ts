@@ -26526,6 +26526,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/report-engine/crosscheck": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** So sánh chéo các báo cáo cùng kỳ (báo cáo tháng, quý, giao ban, HPM và bản chốt kỳ): số lệch, công thức, nguồn và thời điểm của từng số, đường giải trình (ENT-4a, CN.04) */
+        get: operations["getReportCrosscheck"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/report-engine/crosscheck/explanations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Các giải trình số lệch giữa báo cáo cùng kỳ: ai, khi nào, lý do (ENT-4a, CN.04) */
+        get: operations["listCrosscheckExplanations"];
+        put?: never;
+        /** Ghi giải trình cho một số lệch giữa báo cáo cùng kỳ để cho phép phát hành: người giải trình không phải người lập báo cáo liên quan, một giải trình cho mỗi dấu vân tay (ENT-4a, CN.04) */
+        post: operations["explainCrosscheckFinding"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -47754,6 +47789,156 @@ export interface components {
                 code: string;
                 label: string;
             }[];
+        };
+        RptCrosscheckRef: {
+            /** @enum {string} */
+            kind: "DRAFT" | "ISSUE" | "SNAPSHOT";
+            id: string;
+            revision?: number | null;
+        };
+        RptCrosscheckTerm: {
+            role: string;
+            layout_code: string;
+            ref: components["schemas"]["RptCrosscheckRef"];
+            period_code: string;
+            code: string;
+            row_key?: string | null;
+            /** @description Whole dong, a count, or a rate in percent, as decimal text */
+            value: string | null;
+            /** @description Where the number comes from: the report as filled, its project rows, or the frozen snapshot with its revision */
+            source: string;
+            as_of?: string | null;
+        };
+        RptCrosscheckPathStep: {
+            /** @enum {string} */
+            step: "REGENERATE_REPORT" | "COMPLETE_MONTH" | "ASSIGN_UNIT" | "CHECK_SOURCE" | "EXPLAIN";
+            layout_code?: string;
+            ref?: string;
+            period_code?: string;
+            rows?: string[];
+        };
+        RptCrosscheckExplanation: {
+            /** Format: uuid */
+            id: string;
+            fingerprint: string;
+            rule_id: string;
+            figure_code: string;
+            period_code: string;
+            /** @enum {string} */
+            severity: "BLOCKING" | "WARNING";
+            involves: string[];
+            reason: string;
+            /** Format: uuid */
+            explained_by: string;
+            explained_by_name?: string | null;
+            /** Format: date-time */
+            created_at: string;
+        };
+        RptCrosscheckFinding: {
+            /** @enum {string} */
+            rule_id: "XR-01" | "XR-02" | "XR-03" | "XR-04" | "XR-05" | "XR-06";
+            rule_name: string;
+            /** @enum {string} */
+            severity: "BLOCKING" | "WARNING";
+            code: string;
+            period_code: string;
+            formula: string;
+            expected: string | null;
+            actual: string | null;
+            difference: string;
+            tolerance: string;
+            /** @enum {string} */
+            unit: "VND" | "COUNT" | "PCT";
+            terms: components["schemas"]["RptCrosscheckTerm"][];
+            units?: {
+                unit: string;
+                sum: string;
+            }[] | null;
+            involves: string[];
+            path: components["schemas"]["RptCrosscheckPathStep"][];
+            fingerprint: string;
+            /** @enum {string} */
+            status: "OPEN" | "EXPLAINED";
+            explanation?: components["schemas"]["RptCrosscheckExplanation"] | null;
+            /** @description Only when a draft is named: this finding involves it, is BLOCKING and has no explanation */
+            blocks_release?: boolean;
+            /** @description The caller may explain it: holds the permission and prepared none of the reports involved */
+            can_explain?: boolean;
+        };
+        RptCrosscheckSkip: {
+            rule_id: string;
+            /** @enum {string} */
+            reason: "NO_FIGURES" | "ILLUSTRATIVE" | "MISSING_REPORT" | "NO_VALUE" | "NO_SNAPSHOT" | "DUPLICATE";
+            role?: string | null;
+            layout_code?: string | null;
+            period_code?: string | null;
+            code?: string | null;
+            text: string;
+        };
+        RptCrosscheckReport: {
+            role: string;
+            layout_code: string;
+            ref: components["schemas"]["RptCrosscheckRef"];
+            period_code: string;
+            state?: string | null;
+            /** @enum {string} */
+            data_source: "LIVE" | "ILLUSTRATIVE";
+            has_figures: boolean;
+            snapshot_id?: string | null;
+            snapshot_revision?: number | null;
+        };
+        RptCrosscheckGate: {
+            /** Format: uuid */
+            draft_id: string;
+            blocking_open: number;
+            blocking_explained: number;
+            warnings: number;
+            passed: boolean;
+        };
+        RptCrosscheck: {
+            period_code: string;
+            rule: {
+                code: string;
+                version: number;
+                /** @enum {string} */
+                source: "RULE" | "DEFAULT";
+                unverified: boolean;
+                formula: string;
+                origin?: string | null;
+                as_of?: string | null;
+            };
+            reports: components["schemas"]["RptCrosscheckReport"][];
+            findings: components["schemas"]["RptCrosscheckFinding"][];
+            skipped: components["schemas"]["RptCrosscheckSkip"][];
+            coverage: {
+                reports: number;
+                usable: number;
+                rules_run: number;
+                comparisons: number;
+                skipped: number;
+            };
+            sha256: string;
+            gate?: components["schemas"]["RptCrosscheckGate"] | null;
+            can_explain: boolean;
+            /** Format: date-time */
+            as_of: string;
+        };
+        RptCrosscheckExplain: {
+            period: components["schemas"]["RptPeriod"];
+            /** @description The fingerprint of an open difference of the period, as the comparison gave it */
+            fingerprint: string;
+            reason: string;
+        };
+        RptCrosscheckExplained: {
+            /** @enum {string} */
+            outcome: "CREATED" | "EXISTING";
+            explanation: components["schemas"]["RptCrosscheckExplanation"];
+        };
+        RptCrosscheckExplanationPage: {
+            items: components["schemas"]["RptCrosscheckExplanation"][];
+            truncated: boolean;
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -210975,6 +211160,296 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportNarrativeTemplate"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getReportCrosscheck: {
+        parameters: {
+            query: {
+                kind: string;
+                year: number;
+                index: number;
+                draft_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RptCrosscheck"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listCrosscheckExplanations: {
+        parameters: {
+            query?: {
+                period_code?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RptCrosscheckExplanationPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    explainCrosscheckFinding: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RptCrosscheckExplain"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RptCrosscheckExplained"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
