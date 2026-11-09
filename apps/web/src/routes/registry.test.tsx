@@ -33,7 +33,7 @@ describe('route lookup', () => {
   });
 
   it('has a route for every module screen of the table', () => {
-    expect(WEB_ROUTES).toHaveLength(582);
+    expect(WEB_ROUTES).toHaveLength(592);
   });
 });
 

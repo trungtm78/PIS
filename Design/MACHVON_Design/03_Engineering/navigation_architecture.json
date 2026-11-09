@@ -9154,36 +9154,6 @@
       "parent": null
     },
     {
-      "id": "ADM-29",
-      "title": "Hạn từng bước của lịch kỳ báo cáo (quy tắc quản trị)",
-      "kind": "table",
-      "area": "admin",
-      "module": "ADM",
-      "group": "Quy tắc quản trị",
-      "role": "workspace",
-      "parent": null
-    },
-    {
-      "id": "DIS-32",
-      "title": "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối",
-      "kind": "table",
-      "area": "investment",
-      "module": "DIS",
-      "group": "Lập & gửi báo cáo",
-      "role": "workspace",
-      "parent": null
-    },
-    {
-      "id": "ADM-29",
-      "title": "Sao lưu và yêu cầu sao lưu thủ công",
-      "kind": "table",
-      "area": "admin",
-      "module": "ADM",
-      "group": "Quy tắc quản trị",
-      "role": "workspace",
-      "parent": null
-    },
-    {
       "id": "PWA-01",
       "title": "Trang chủ ứng dụng cài đặt",
       "kind": "cards",

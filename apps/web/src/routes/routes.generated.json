@@ -582,6 +582,16 @@
     {"id":"ADM-30","path":"/adm/adm-30","title":"Giới hạn số lượng và dung lượng log","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-LOG-CAPACITY"},
     {"id":"EQP-01","path":"/eqp/eqp-01","title":"Mua sắm trang thiết bị dự án","kind":"table","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"workspace","parent":null,"req":"FR-EQP-01"},
     {"id":"EQP-02","path":"/eqp/eqp-02","title":"Chi tiết dòng mua sắm trang thiết bị","kind":"detail","area":"insights","module":"EQP","group":"Mua sắm trang thiết bị","role":"detail","parent":"EQP-01","req":"FR-EQP-02"},
-    {"id":"ADM-32","path":"/adm/adm-32","title":"Sao lưu và yêu cầu sao lưu thủ công","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-32"}
+    {"id":"ADM-32","path":"/adm/adm-32","title":"Sao lưu và yêu cầu sao lưu thủ công","kind":"table","area":"admin","module":"ADM","group":"Quy tắc quản trị","role":"workspace","parent":null,"req":"FR-ADM-32"},
+    {"id":"PWA-01","path":"/pwa/pwa-01","title":"Trang chủ ứng dụng cài đặt","kind":"cards","area":"overview","module":"PWA","group":"Phê duyệt trên điện thoại","role":"workspace","parent":null,"req":"YCK.01"},
+    {"id":"PWA-02","path":"/pwa/pwa-02","title":"Hàng đợi phê duyệt số liệu kỳ","kind":"approval","area":"overview","module":"PWA","group":"Phê duyệt trên điện thoại","role":"workspace","parent":null,"req":"YCK.01"},
+    {"id":"PWA-03","path":"/pwa/pwa-03","title":"Bảng điều hành của lãnh đạo","kind":"dashboard","area":"overview","module":"PWA","group":"Bảng điều hành trên điện thoại","role":"workspace","parent":null,"req":"YCK.01"},
+    {"id":"PWA-04","path":"/pwa/pwa-04","title":"Theo dõi chỉ đạo","kind":"list","area":"overview","module":"PWA","group":"Chỉ đạo và cài đặt","role":"workspace","parent":null,"req":"YCK.01"},
+    {"id":"PWA-05","path":"/pwa/pwa-05","title":"Chi tiết phê duyệt số liệu kỳ","kind":"approval","area":"overview","module":"PWA","group":"Phê duyệt trên điện thoại","role":"detail","parent":"PWA-02","req":"YCK.01"},
+    {"id":"PWA-06","path":"/pwa/pwa-06","title":"Chi tiết chỉ đạo và dòng thời gian","kind":"timeline","area":"overview","module":"PWA","group":"Chỉ đạo và cài đặt","role":"detail","parent":"PWA-04","req":"YCK.01"},
+    {"id":"PWA-07","path":"/pwa/pwa-07","title":"Cài đặt ứng dụng cài đặt","kind":"form","area":"overview","module":"PWA","group":"Chỉ đạo và cài đặt","role":"workspace","parent":null,"req":"YCK.01"},
+    {"id":"PWA-08","path":"/pwa/pwa-08","title":"Chi tiết số liệu bảng điều hành","kind":"detail","area":"overview","module":"PWA","group":"Bảng điều hành trên điện thoại","role":"detail","parent":"PWA-03","req":"YCK.01"},
+    {"id":"PWA-09","path":"/pwa/pwa-09","title":"Tiến độ đấu thầu trên điện thoại","kind":"tree","area":"overview","module":"PWA","group":"Bảng điều hành trên điện thoại","role":"detail","parent":"PWA-03","req":"YCK.01"},
+    {"id":"PWA-10","path":"/pwa/pwa-10","title":"Cài đặt thông báo đẩy","kind":"form","area":"overview","module":"PWA","group":"Chỉ đạo và cài đặt","role":"detail","parent":"PWA-07","req":"YCK.01"}
   ]
 }
