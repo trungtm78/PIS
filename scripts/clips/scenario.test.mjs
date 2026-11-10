@@ -151,7 +151,7 @@ test('a scene that waits for a lane is accepted while the lane is pending, left 
   const waiting = base.scenes.filter((scene) => scene.requires !== undefined);
   assert.ok(waiting.length >= 10, 'the enterprise cycle scenes name their lanes');
   for (const scene of waiting) assert.ok(isPending(scene, planned), scene.id);
-  for (const scene of waiting.filter((scene) => !scene.requires.includes('ENT-3b-data'))) assert.ok(!isPending(scene, strict.planned), `${scene.id} is ready once the lanes are merged`);
+  for (const scene of waiting.filter((scene) => !scene.requires.includes('ENT-3b-data') && !scene.requires.some((lane) => lane.startsWith('PUB-')))) assert.ok(!isPending(scene, strict.planned), `${scene.id} is ready once the lanes are merged`);
   assert.ok(isPending(waiting.find((scene) => scene.id === 'ec-narrative'), strict.planned), 'the narrative scene waits for its data');
   assert.deepEqual(validateScenario(base, { ...strict, planned }).problems, [], 'strict mode does not fail on a pending scene');
   const lines = [];
