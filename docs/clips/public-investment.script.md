@@ -58,17 +58,17 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 | `capital` | RUN_VERIFIED |
 | `clip-public-documents` | RUN_VERIFIED |
 | `clip-public-procurement` | RUN_VERIFIED |
-| `clip-public-contracts` | WRITTEN_NOT_RUN |
-| `clip-public-payments` | WRITTEN_NOT_RUN |
+| `clip-public-contracts` | RUN_VERIFIED |
+| `clip-public-payments` | RUN_VERIFIED |
 | `clip-public-workflow` | RUN_VERIFIED |
-| `clip-public-alerts` | WRITTEN_NOT_RUN |
+| `clip-public-alerts` | RUN_VERIFIED |
 | `clip-public-egp` | RUN_VERIFIED |
 | `clip-public-disbursement` | RUN_VERIFIED |
-| `clip-public-feed` | WRITTEN_NOT_RUN |
-| `clip-public-bi` | WRITTEN_NOT_RUN |
-| `clip-public-directives` | WRITTEN_NOT_RUN |
+| `clip-public-feed` | RUN_VERIFIED |
+| `clip-public-bi` | RUN_VERIFIED |
+| `clip-public-directives` | RUN_VERIFIED |
 | `clip-public-committee` | RUN_VERIFIED |
-| `clip-public-extras` | WRITTEN_NOT_RUN |
+| `clip-public-extras` | RUN_VERIFIED |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**
 
@@ -100,15 +100,15 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 |---|---|---|
 | `intro` | - | - |
 | `leader-home` | `capital`, `clip-public-disbursement` | - |
-| `disbursement` | `capital`, `clip-public-disbursement` | Chưa có seed cho nghiệm thu khối lượng, thanh toán và tạm ứng, nên các cảnh điều kiện thanh toán và tạm ứng cần dữ liệu bổ sung. |
-| `contracts` | `clip-public-procurement`, `clip-public-contracts` | Chưa có seed cho nghiệm thu, thanh toán và tạm ứng của hợp đồng. |
-| `analytics` | `capital`, `clip-public-procurement`, `clip-public-contracts` | Chưa nạp được gói chỉ tiêu BI vì chưa có đường HTTP lưu tệp gói chỉ tiêu: các cảnh dashboard BI cần dữ liệu bổ sung. |
+| `disbursement` | `capital`, `clip-public-disbursement` | - |
+| `contracts` | `clip-public-procurement`, `clip-public-contracts` | - |
+| `analytics` | `capital`, `clip-public-procurement`, `clip-public-contracts` | - |
 | `alerts` | `clip-public-alerts`, `clip-public-disbursement` | - |
 | `contractors` | `clip-public-procurement`, `clip-public-contracts` | - |
 | `egp` | `clip-public-egp`, `clip-public-workflow` | - |
-| `province-committee` | `clip-public-committee`, `clip-public-disbursement`, `clip-public-feed`, `clip-public-directives` | Không gian làm việc của Ban chỉ đạo đọc ảnh chụp kỳ đã chốt, chưa đọc bản ghi nguồn cấp; nguồn cấp được quay qua các chỉ số chất lượng, sai lệch và cảnh báo của chính nó. |
+| `province-committee` | `clip-public-committee`, `clip-public-disbursement`, `clip-public-feed`, `clip-public-directives` | - |
 | `process-tree` | `clip-public-workflow`, `clip-public-procurement` | - |
-| `phone` | `clip-public-procurement`, `clip-public-alerts`, `clip-public-contracts` | Cảnh điện thoại quay bằng máy ảo; màn Phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại. |
+| `phone` | `clip-public-procurement`, `clip-public-alerts`, `clip-public-contracts` | - |
 | `contractors-plus` | `clip-public-vendor-controls`, `clip-public-vendor-investigation`, `clip-public-procurement`, `clip-public-contracts` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `contractor-portal` | `clip-public-contractor-portal`, `clip-public-procurement` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `claims-warnings` | `clip-public-claims`, `clip-public-contracts` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
@@ -133,7 +133,7 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 | `features-tour` | - | - |
 | `close` | - | - |
 
-**Cảnh có nhóm dữ liệu chưa chạy trọn:** `disbursement`, `contracts`, `analytics`, `alerts`, `contractors`, `province-committee`, `phone`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `capital-control`, `payments`, `reports-close`, `monitoring`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `portal-public`, `platform`, `phone-plus`
+**Cảnh có nhóm dữ liệu chưa chạy trọn:** `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `capital-control`, `payments`, `reports-close`, `monitoring`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `portal-public`, `platform`, `phone-plus`
 
 ## Bảng nhạc nền
 

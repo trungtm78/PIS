@@ -129,9 +129,9 @@ test('seed readiness: groups must be groups of the dataset, every chapter has an
   assert.ok(check(({ production }) => delete production.readiness.datasets.public.chapters.egp).problems.some((p) => /chapter egp has no readiness entry/u.test(p)));
   assert.ok(check(({ production }) => (production.readiness.datasets.public.groups.base.proof = 'MAYBE')).problems.some((p) => /unknown proof state/u.test(p)));
   const risks = dataRisks(loadScenario(clip), all.production);
-  assert.deepEqual(risks.get('alerts').pending, ['clip-public-alerts']);
-  assert.ok(check().warnings.some((p) => /chapter alerts: groups not run/u.test(p)));
-  assert.ok(check(() => {}, { strictData: true }).problems.some((p) => /chapter alerts: groups not run/u.test(p)));
+  assert.deepEqual(risks.get('contractor-portal').pending, ['clip-public-contractor-portal']);
+  assert.ok(check().warnings.some((p) => /chapter contractor-portal: groups not run/u.test(p)));
+  assert.ok(check(() => {}, { strictData: true }).problems.some((p) => /chapter contractor-portal: groups not run/u.test(p)));
 });
 
 test('the shot checklist names the screen with its route, every stamp and caption, and every figure with its source', () => {
