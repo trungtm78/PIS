@@ -55,6 +55,17 @@ describe('the enterprise web overlay', () => {
     expect(translator.t('home.ov.hero.ring')).toBe(vi['home.ov.hero.ring']);
   });
 
+  it('says nothing of the national target programmes on CAP-03 and nothing of the Prime Minister, the Treasury or the local plan in the evidence of HOME-06', () => {
+    installEdition(enterpriseBundle);
+    try {
+      for (const key of ['cap.annual.page.subtitle', 'cap.annual.total.note']) expect(translator.t(key), key).not.toMatch(/CTMTQG/u);
+      for (const key of ['home.profile.evidence.planPm', 'home.profile.evidence.disbursed', 'home.profile.evidence.ratePm']) expect(translator.t(key), key).not.toMatch(/Kho bạc|Thủ tướng|địa phương/u);
+    } finally {
+      resetEdition();
+    }
+    expect(translator.t('cap.annual.total.note')).toBe(vi['cap.annual.total.note']);
+  });
+
   it('is what the translator says once the bundle is installed, and the public words come back when it is removed', () => {
     installEdition(enterpriseBundle);
     expect(translator.t('shell.brand.name.text')).toBe('Phần mềm quản lý đầu tư xây dựng');
@@ -66,7 +77,7 @@ describe('the enterprise web overlay', () => {
 
 describe('the enterprise way of drawing the figures of the home screens', () => {
   it('groups the digits of a sum and leaves out the blocks of the public plan', () => {
-    expect(enterpriseBundle.slots?.homeFigures).toEqual({ groupDigits: true, publicPlanBlocks: false, useDisbursed: expect.any(Function) });
+    expect(enterpriseBundle.slots?.homeFigures).toEqual({ groupDigits: true, publicPlanBlocks: false, treasuryBlocks: false, useDisbursed: expect.any(Function) });
     expect(enterpriseBundle.slots?.fundingStructure).toBeDefined();
   });
 });

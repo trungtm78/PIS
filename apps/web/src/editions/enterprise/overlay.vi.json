@@ -16,5 +16,10 @@
   "home.ov.rank.caption": "Các đơn vị đứng đầu nhóm {group}, theo kế hoạch vốn được giao",
   "govc.home.kpi.plan.sub": "Trong đó được giao {pm} đồng",
   "prj.list.column.nationalCode": "Mã dự án cấp trên",
-  "prj.create.nationalCode.label": "Mã dự án cấp trên"
+  "prj.create.nationalCode.label": "Mã dự án cấp trên",
+  "home.profile.evidence.planPm": "Kế hoạch vốn được giao",
+  "home.profile.evidence.disbursed": "Giải ngân (số liệu đã chốt)",
+  "home.profile.evidence.ratePm": "Tỷ lệ theo kế hoạch vốn được giao",
+  "cap.annual.page.subtitle": "Vốn của năm và vốn kéo dài theo từng dự án.",
+  "cap.annual.total.note": "Tổng vốn là tổng của các dòng vốn trong bảng."
 }

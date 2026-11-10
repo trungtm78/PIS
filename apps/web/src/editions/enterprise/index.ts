@@ -12,4 +12,4 @@ import { LeaderPanel } from './screens/leader/LeaderPanel';
  * The web side of the enterprise edition: its manifest (from the package) and its terminology overlay and its screens (the connections to HPM and Oracle EBS, ENT-2). The overlay holds exactly the keys the
  * manifest lists for the web and only keys that exist in the base catalogue (`overlay.enterprise.test.ts` holds it to both).
  */
-export const enterpriseBundle: WebEditionBundle = { manifest: ENTERPRISE_EDITION_MANIFEST, overlay: { vi, en }, screens: enterpriseScreens, slots: { leaderPanel: LeaderPanel, fundingStructure: FundingStructureScreen, homeFigures: { groupDigits: true, publicPlanBlocks: false, useDisbursed: useSnapshotDisbursed } }, help: { vi: helpVi } };
+export const enterpriseBundle: WebEditionBundle = { manifest: ENTERPRISE_EDITION_MANIFEST, overlay: { vi, en }, screens: enterpriseScreens, slots: { leaderPanel: LeaderPanel, fundingStructure: FundingStructureScreen, homeFigures: { groupDigits: true, publicPlanBlocks: false, treasuryBlocks: false, useDisbursed: useSnapshotDisbursed } }, help: { vi: helpVi } };

@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { ApiError } from '@machvon/api-client';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -47,6 +48,7 @@ export default function FiguresDetailScreen() {
 
 function FiguresContent() {
   const { t } = useTranslation();
+  const treasuryBlocks = useEdition().slots?.homeFigures?.treasuryBlocks !== false;
   const { tenant } = useSession();
   const queryClient = useQueryClient();
   const query = useCommandCenter({ snapshotId: '', unitId: '' });
@@ -93,11 +95,13 @@ function FiguresContent() {
               </div>
               {center.projectsWithoutData > 0 ? <p className="sub">{t('home.footer.withoutData', { count: center.projectsWithoutData })}</p> : null}
             </section>
-            <div className="pwa-scroll-x" data-testid="figures-ranking">
-              <RankingCard />
-            </div>
+            {treasuryBlocks ? (
+              <div className="pwa-scroll-x" data-testid="figures-ranking">
+                <RankingCard />
+              </div>
+            ) : null}
             <Causes />
-            <CashFlowCard snapshotId={center.snapshotId} unitId="" year={center.asOfDate.slice(0, 4)} />
+            {treasuryBlocks ? <CashFlowCard snapshotId={center.snapshotId} unitId="" year={center.asOfDate.slice(0, 4)} /> : null}
             <ChangesCard snapshotId={center.snapshotId} unitId="" />
             <RagSummaryCard snapshotId={center.snapshotId} unitId="" />
           </>
