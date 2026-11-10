@@ -1,0 +1,36 @@
+{
+  "screens": {
+    "HOME-07": {
+      "fields": ["Vốn chủ sở hữu", "Vốn vay", "Vốn khác", "Kế hoạch vốn năm", "Đã giải ngân lũy kế từ đầu năm"]
+    },
+    "CAP-04": {
+      "fields": ["Vốn chủ sở hữu", "Vốn vay", "Vốn khác", "Hiệu lực", "Vốn ODA vay lại"]
+    },
+    "DIS-04": {
+      "fields": ["Vốn năm", "Vốn kéo dài", "Vốn khác"]
+    }
+  },
+  "terms": [
+    ["Thanh toán và Kho bạc", "Thanh toán và kế toán"],
+    ["Tỷ lệ theo KH gồm địa phương giao thêm", "Tỷ lệ theo tổng kế hoạch vốn"],
+    ["Tỷ lệ theo KH gồm giao thêm", "Tỷ lệ theo tổng kế hoạch vốn"],
+    ["Tỷ lệ theo KH TTg giao", "Tỷ lệ theo kế hoạch vốn được giao"],
+    ["KH địa phương giao thêm", "KH giao thêm"],
+    ["KH TTg giao", "KH được giao"],
+    ["Trong đó CTMTQG", "Trong đó vốn vay"],
+    ["Chương trình và CTMTQG", "Chương trình và nguồn vốn"],
+    ["NSTW hoặc NSĐP", "vốn chủ sở hữu hoặc vốn vay"],
+    ["Cơ quan Kho bạc và mã liên kết", "Đơn vị kế toán và mã liên kết"],
+    ["Ngày chốt Kho bạc", "Ngày chốt số liệu"],
+    ["Độ phủ Kho bạc", "Độ phủ số giải ngân"],
+    ["Đủ số Kho bạc", "Đủ số giải ngân"],
+    ["Actual Kho bạc", "Thực tế giải ngân"],
+    ["số Kho bạc đã chi", "số đã chi"],
+    ["số Kho bạc chi", "số đã chi"],
+    ["giải ngân Kho bạc", "giải ngân đã ghi nhận"],
+    ["Kho bạc", "kế toán"],
+    ["Sở Tài chính", "Phòng Tài chính - Kế toán"],
+    ["gửi Bộ Tài chính", "gửi cơ quan quản lý cấp trên"],
+    ["Bộ Tài chính", "cơ quan quản lý cấp trên"]
+  ]
+}

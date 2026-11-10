@@ -34,6 +34,15 @@ export interface HelpIndex {
   screens: Record<string, HelpEntry>;
 }
 
+/**
+ * How an edition says the guides its own way: per-screen replacements of whole fields (applied first), then ordered literal term substitutions over every text of the index.
+ * The public edition has none; the enterprise bundle brings its own file, handed over through the edition bundle (`WebEditionBundle.help`).
+ */
+export interface HelpOverlay {
+  terms?: readonly (readonly string[])[];
+  screens?: Readonly<Record<string, Partial<Omit<HelpEntry, 'chapter'>>>>;
+}
+
 /** What the drawer shows for one screen: the entry joined with the steps of its kind. */
 export interface ScreenHelp extends HelpEntry {
   id: string;
@@ -68,4 +77,28 @@ export function helpFor(index: HelpIndex, screenId: string | undefined): ScreenH
   const entry = index.screens[screenId];
   if (entry === undefined) return undefined;
   return { ...entry, id: screenId, steps: index.kinds[entry.kind]?.steps ?? [], tips: index.tips, locale: index.locale };
+}
+
+/** Keeps the capital letter a text began with when the substitution turned its first word into a lower-case one. */
+function mapText(text: string, terms: readonly (readonly string[])[]): string {
+  let out = text;
+  for (const [from = '', to = ''] of terms) if (from !== '') out = out.split(from).join(to);
+  const first = text.charAt(0);
+  return out !== text && first !== first.toLowerCase() && out.charAt(0) === out.charAt(0).toLowerCase() ? out.charAt(0).toUpperCase() + out.slice(1) : out;
+}
+
+function mapValue<T>(value: T, terms: readonly (readonly string[])[]): T {
+  if (typeof value === 'string') return mapText(value, terms) as T;
+  if (Array.isArray(value)) return value.map((one) => mapValue(one, terms)) as T;
+  if (value !== null && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, one]) => [key, mapValue(one, terms)])) as T;
+  return value;
+}
+
+/** The index as an edition says it: the per-screen replacements first, then the term substitutions over every text. A new index; the loaded one is never changed. */
+export function applyHelpOverlay(index: HelpIndex, overlay: HelpOverlay | undefined): HelpIndex {
+  if (overlay === undefined) return index;
+  const terms = overlay.terms ?? [];
+  const screens: Record<string, HelpEntry> = {};
+  for (const [id, entry] of Object.entries(index.screens)) screens[id] = mapValue({ ...entry, ...overlay.screens?.[id] }, terms);
+  return { ...index, tips: mapValue(index.tips, terms), kinds: mapValue(index.kinds, terms), screens };
 }

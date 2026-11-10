@@ -52,7 +52,7 @@ const blocked = (over: Record<string, unknown> = {}) => ({
 });
 const widget = { counts: { overdue: 3, due_soon: 1, escalated: 0, open: 4 }, items: [], truncated: false, definitions: {}, policy: { code: 'DEFAULT', version: null, source: 'DEFAULT', unverified: true, reminder_days_before: [], escalate_after_overdue_days: 7, max_extensions: 1, max_extension_days: 7, close_requires_evidence: true }, as_of: '2026-11-09T01:00:00.000Z' };
 
-function open(part: 'rates' | 'tiles' | 'all', answers: Record<string, unknown> = {}) {
+function open(part: 'rates' | 'summary' | 'tiles' | 'all', answers: Record<string, unknown> = {}) {
   const h = harness((operation) => (operation in answers ? answers[operation] : operation === 'getLeaderRates' ? rates() : operation === 'getBlockedProjects' ? blocked() : widget));
   mount(<LeaderPanel part={part} />, h, { permissions: ['home.read'] });
   return h;
@@ -118,5 +118,13 @@ describe('number text', () => {
     expect(deltaText('20.0000', 'vi')).toBe('+20,00');
     expect(deltaText('-0.5000', 'vi')).toBe('-0,50');
     expect(deltaText('0.0000', 'vi')).toBe('0,00');
+  });
+  it('draws the summary for the phone: the company rate and the units, without the table of projects and without the blocked tiles', async () => {
+    open('summary');
+    const panel = await screen.findByTestId('leader-rates');
+    expect(within(panel).getAllByText(percentText('40.0000', 'vi')).length).toBeGreaterThan(0);
+    expect(within(panel).getByTestId('leader-units-list').textContent).toContain('BAN-1');
+    expect(within(panel).queryByRole('table')).toBeNull();
+    expect(screen.queryByTestId('leader-blocked')).toBeNull();
   });
 });

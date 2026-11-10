@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { helpFor, loadHelpIndex } from '../help/help-index';
+import { useEdition } from '../editions/EditionContext';
+import { applyHelpOverlay, helpFor, loadHelpIndex } from '../help/help-index';
 import type { ScreenHelp } from '../help/help-index';
 import { useTranslation } from '../i18n';
 import { Icon } from './Icon';
@@ -75,6 +76,7 @@ interface HelpDrawerProps extends HelpButtonProps {
 
 function HelpDrawer({ screenId, title, helpCentrePath, onClose }: HelpDrawerProps) {
   const { t, locale } = useTranslation();
+  const overlay = useEdition().help?.[locale];
   const headingId = useId();
   const [state, setState] = useState<State>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
@@ -85,7 +87,7 @@ function HelpDrawer({ screenId, title, helpCentrePath, onClose }: HelpDrawerProp
     setState({ status: 'loading' });
     loadHelpIndex(locale).then(
       (index) => {
-        if (current) setState({ status: 'ready', help: helpFor(index, screenId) });
+        if (current) setState({ status: 'ready', help: helpFor(applyHelpOverlay(index, overlay), screenId) });
       },
       () => {
         if (current) setState({ status: 'error' });
@@ -94,7 +96,7 @@ function HelpDrawer({ screenId, title, helpCentrePath, onClose }: HelpDrawerProp
     return () => {
       current = false;
     };
-  }, [locale, screenId]);
+  }, [locale, screenId, overlay]);
   // `attempt` makes the retry button read again.
   useEffect(() => load(), [load, attempt]);
 

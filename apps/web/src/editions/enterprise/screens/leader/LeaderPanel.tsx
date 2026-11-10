@@ -15,7 +15,7 @@ const PROJECT_ROWS = 15;
 
 const refused = (error: unknown): boolean => error instanceof ApiError && (error.status === 403 || error.status === 404);
 
-function Rates() {
+function Rates({ compact = false }: { compact?: boolean }) {
   const { t, locale } = useTranslation();
   const trendText = (trend: LeaderRateRow['trend']): string => (trend === 'UP' ? t('ent.leader.trend.up') : trend === 'DOWN' ? t('ent.leader.trend.down') : trend === 'FLAT' ? t('ent.leader.trend.flat') : '');
   const nullText = (reason: string | null): string => (reason === 'ZERO_DENOMINATOR' ? t('ent.leader.null.zeroPlan') : t('ent.leader.null.noData'));
@@ -56,15 +56,29 @@ function Rates() {
       <div data-testid="leader-rates">
         <KpiStrip label={t('ent.leader.company.aria')}>
           <KpiTile label={t('ent.leader.company.rate')} value={rateCell(company)} sub={company.rate_pct === null ? nullText(company.null_reason ?? null) : `${money(company.disbursed_vnd)} / ${money(company.plan_vnd)}`} tone="info" />
-          <KpiTile label={t('ent.leader.company.lastYear')} value={lastCell(company)} sub={data.prior_as_of_date === null || data.prior_as_of_date === undefined ? t('ent.leader.lastYear.none') : t('ent.leader.lastYear.asOf', { day: dayText(data.prior_as_of_date) })} />
-          <KpiTile label={t('ent.leader.company.delta')} value={company.delta_points === null ? t('ent.leader.noData.text') : deltaText(company.delta_points, locale)} sub={company.trend === null ? undefined : trendText(company.trend)} tone={company.trend === 'DOWN' ? 'warning' : company.trend === 'UP' ? 'success' : 'neutral'} />
+          {compact && company.last_year.rate_pct === null ? null : (
+            <>
+            <KpiTile label={t('ent.leader.company.lastYear')} value={lastCell(company)} sub={data.prior_as_of_date === null || data.prior_as_of_date === undefined ? t('ent.leader.lastYear.none') : t('ent.leader.lastYear.asOf', { day: dayText(data.prior_as_of_date) })} />
+            <KpiTile label={t('ent.leader.company.delta')} value={company.delta_points === null ? t('ent.leader.noData.text') : deltaText(company.delta_points, locale)} sub={company.trend === null ? undefined : trendText(company.trend)} tone={company.trend === 'DOWN' ? 'warning' : company.trend === 'UP' ? 'success' : 'neutral'} />
+            </>
+          )}
         </KpiStrip>
         <p className="muted" data-testid="leader-rates-context">
           {t('ent.leader.context.text', { day: dayText(data.as_of_date), revision: data.revision ?? 0 })}
         </p>
+        {compact ? (
+          <ul className="leader-blocked-list" aria-label={t('ent.leader.units.caption')} data-testid="leader-units-list">
+            {data.units.map((row) => (
+              <li key={row.id ?? row.code ?? ''}>
+                <strong>{rateCell(row)}</strong> {`${row.code ?? ''} ${row.name ?? ''}`.trim()}: {money(row.disbursed_vnd)} / {money(row.plan_vnd)}
+              </li>
+            ))}
+          </ul>
+        ) : (
         <DataTable caption={t('ent.leader.units.caption')} columns={columns(t('ent.leader.col.unit'))} rows={data.units} rowKey={(row) => row.id ?? row.code ?? ''} state={data.units.length === 0 ? 'empty' : 'ready'} />
-        <DataTable caption={t('ent.leader.projects.caption')} columns={columns(t('ent.leader.col.project'))} rows={data.projects.slice(0, PROJECT_ROWS)} rowKey={(row) => row.id ?? row.code ?? ''} state={data.projects.length === 0 ? 'empty' : 'ready'} />
-        {data.projects.length > PROJECT_ROWS ? <p className="muted">{t('ent.leader.projects.more', { count: data.projects.length - PROJECT_ROWS })}</p> : null}
+        )}
+        {compact ? null : <DataTable caption={t('ent.leader.projects.caption')} columns={columns(t('ent.leader.col.project'))} rows={data.projects.slice(0, PROJECT_ROWS)} rowKey={(row) => row.id ?? row.code ?? ''} state={data.projects.length === 0 ? 'empty' : 'ready'} />}
+        {compact || data.projects.length <= PROJECT_ROWS ? null : <p className="muted">{t('ent.leader.projects.more', { count: data.projects.length - PROJECT_ROWS })}</p>}
       </div>
     </SectionCard>
   );
@@ -130,8 +144,8 @@ function Tiles() {
 export function LeaderPanel({ part }: { part: LeaderPanelPart }) {
   return (
     <div className="leader-panel" data-testid="leader-panel" data-part={part}>
-      {part === 'tiles' ? null : <Rates />}
-      {part === 'rates' ? null : <Tiles />}
+      {part === 'tiles' ? null : <Rates compact={part === 'summary'} />}
+      {part === 'rates' || part === 'summary' ? null : <Tiles />}
     </div>
   );
 }

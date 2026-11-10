@@ -3,6 +3,9 @@ import { cleanup, configure, fireEvent, screen, waitFor, within } from '@testing
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { EditionProvider } from '../../editions/EditionContext';
+import { PUBLIC_BUNDLE } from '../../editions/edition';
+import type { WebEditionBundle } from '../../editions/edition';
 import { describeViolations, seriousViolations } from '../../test/axe';
 import LeaderDashboardScreen from './LeaderDashboardScreen';
 import { COMMAND_CENTER_PATH } from './LeaderDashboardScreen';
@@ -55,7 +58,7 @@ const body = (overrides: Record<string, unknown> = {}) => ({
 
 const alerts = { view: 'scope', items: [], next_cursor: null, counts: { urgent: 0, action: 0, watch: 0, total: 0 }, unavailable_sources: [], as_of: '2027-10-12T08:00:00.000Z' };
 
-function open(center: () => unknown, options: { permissions?: readonly string[] | undefined } = {}) {
+function open(center: () => unknown, options: { permissions?: readonly string[] | undefined; edition?: WebEditionBundle } = {}) {
   const h = pwaClient({
     read: (operation) => {
       if (operation === 'getCommandCenter') return center();
@@ -63,7 +66,8 @@ function open(center: () => unknown, options: { permissions?: readonly string[] 
       return new Error(`unexpected read ${operation}`);
     },
   });
-  const mounted = mountPwa(<LeaderDashboardScreen />, h, { permissions: 'permissions' in options ? options.permissions : READER, path: '/m/dashboard' });
+  const screenNode = options.edition === undefined ? <LeaderDashboardScreen /> : <EditionProvider edition={options.edition}><LeaderDashboardScreen /></EditionProvider>;
+  const mounted = mountPwa(screenNode, h, { permissions: 'permissions' in options ? options.permissions : READER, path: '/m/dashboard' });
   return { ...h, ...mounted };
 }
 
@@ -165,5 +169,24 @@ describe('LeaderDashboardScreen (PWA-03): the command center on the phone', () =
     await screen.findByTestId('pwa-rates');
     await waitFor(() => expect(screen.getByTestId('pwa-band')).toBeInTheDocument());
     expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
+  });
+});
+
+describe('LeaderDashboardScreen (PWA-03) in an edition with its own plan reading', () => {
+  // A stand-in for the leader panel of the enterprise edition (this file may not name that folder): it receives the part the phone asks for.
+  const Panel = ({ part }: { part: string }) => <section data-testid="own-plan" data-part={part}>Kế hoạch vốn được giao</section>;
+  const own: WebEditionBundle = { ...PUBLIC_BUNDLE, slots: { leaderPanel: Panel, homeFigures: { groupDigits: true, publicPlanBlocks: false } } };
+
+  it('draws the rates of the edition panel (summary) and not the two rates over the public plan', async () => {
+    open(() => body(), { edition: own });
+    expect((await screen.findByTestId('own-plan')).getAttribute('data-part')).toBe('summary');
+    expect(screen.queryByTestId('pwa-rates')).toBeNull();
+    expect(document.body.textContent).not.toMatch(/Thủ tướng|Chưa có kế hoạch vốn để tính/u);
+  });
+
+  it('keeps the two public rates when the edition draws the public plan', async () => {
+    open(() => body(), { edition: { ...PUBLIC_BUNDLE, slots: { leaderPanel: Panel, homeFigures: { groupDigits: false, publicPlanBlocks: true } } } });
+    expect(await screen.findByTestId('pwa-rates')).toBeInTheDocument();
+    expect(screen.queryByTestId('own-plan')).toBeNull();
   });
 });

@@ -4,6 +4,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as helpIndex from '../help/help-index';
 import type * as HelpIndexModule from '../help/help-index';
+import { EditionProvider } from '../editions/EditionContext';
+import { PUBLIC_BUNDLE } from '../editions/edition';
 import { t } from '../i18n';
 import { HelpButton } from './HelpDrawer';
 
@@ -133,4 +135,24 @@ describe('HelpButton', () => {
 
 beforeEach(() => {
   document.body.focus();
+});
+
+describe('HelpButton in an edition with guides of its own', () => {
+  it('shows the guide with the words of the edition overlay, and the public words without it', async () => {
+    const own = { ...PUBLIC_BUNDLE, help: { vi: { terms: [['Sở Tài chính', 'Phòng Tài chính - Kế toán']] as const } } };
+    const { unmount } = render(
+      <MemoryRouter>
+        <EditionProvider edition={own}>
+          <HelpButton screenId="PRJ-01" title="Dự án" />
+        </EditionProvider>
+      </MemoryRouter>,
+    );
+    await userEvent.click(screen.getByRole('button', { name: OPEN }));
+    const dialog = await screen.findByRole('dialog');
+    expect(await within(dialog).findByText('Chủ đầu tư và Phòng Tài chính - Kế toán')).toBeInTheDocument();
+    unmount();
+    renderButton({ screenId: 'PRJ-01', title: 'Dự án' });
+    await userEvent.click(screen.getByRole('button', { name: OPEN }));
+    expect(await within(await screen.findByRole('dialog')).findByText('Chủ đầu tư và Sở Tài chính')).toBeInTheDocument();
+  });
 });
