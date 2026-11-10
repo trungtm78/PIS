@@ -4447,7 +4447,7 @@ Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `ADM-25` Ủy 
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=ADM-04`
 - `do=spot ref=adm.delegation.temporary`
 - `do=open screen=ADM-25`
@@ -4457,7 +4457,7 @@ Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `ADM-25` Ủy 
 
 - [ ] Màn ADM-04 "Ủy quyền có thời hạn" mở được ở đường dẫn /adm/adm-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ADM-25 "Ủy quyền vĩnh viễn" mở được ở đường dẫn /adm/adm-25, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần adm.delegation.temporary đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần adm.delegation.permanent-request đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Người thứ ba duyệt · quá hạn xem xét thì dừng" hiện từ giây 3, kéo dài 6 giây
@@ -4562,7 +4562,7 @@ Màn hình: `ADM-28` Vắng mặt, người thay và độ phủ người nhận
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=ADM-28`
 - `do=spot ref=adm.absence.cover-list`
 - `do=spot ref=adm.absence.coverage-gaps`
@@ -4570,7 +4570,7 @@ Màn hình: `ADM-28` Vắng mặt, người thay và độ phủ người nhận
 **Cần thấy trên hình**
 
 - [ ] Màn ADM-28 "Vắng mặt, người thay và độ phủ người nhận cảnh báo" mở được ở đường dẫn /adm/adm-28, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần adm.absence.cover-list đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần adm.absence.coverage-gaps đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Thay là chuyển chú ý, không chuyển thẩm quyền" hiện từ giây 3, kéo dài 6 giây
@@ -4601,7 +4601,7 @@ Màn hình: `AUD-01` Tổng quan thanh tra, kiểm toán (/aud/aud-01); `AUD-02`
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=AUD-01`
 - `do=spot ref=aud.overview.tiles`
 - `do=open screen=AUD-02`
@@ -4611,7 +4611,7 @@ Màn hình: `AUD-01` Tổng quan thanh tra, kiểm toán (/aud/aud-01); `AUD-02`
 
 - [ ] Màn AUD-01 "Tổng quan thanh tra, kiểm toán" mở được ở đường dẫn /aud/aud-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-02 "Danh sách cuộc thanh tra, kiểm toán" mở được ở đường dẫn /aud/aud-02, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.overview.tiles đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.inspections.list đúng lúc giọng đọc nói tới
 - [ ] Danh sách có trạng thái và hạn từng cuộc
@@ -4640,7 +4640,7 @@ Màn hình: `AUD-03` Hồ sơ cuộc thanh tra, kiểm toán (/aud/aud-03); `AUD
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=AUD-03`
 - `do=spot ref=aud.case.header`
 - `do=open screen=AUD-04`
@@ -4653,7 +4653,7 @@ Màn hình: `AUD-03` Hồ sơ cuộc thanh tra, kiểm toán (/aud/aud-03); `AUD
 - [ ] Màn AUD-03 "Hồ sơ cuộc thanh tra, kiểm toán" mở được ở đường dẫn /aud/aud-03, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-04 "Tiếp nhận kết luận, báo cáo kiểm toán" mở được ở đường dẫn /aud/aud-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-05 "Phát hiện" mở được ở đường dẫn /aud/aud-05, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.case.header đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.conclusion.intake đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.findings.list đúng lúc giọng đọc nói tới
@@ -4682,7 +4682,7 @@ Màn hình: `AUD-06` Kiến nghị và phân công (/aud/aud-06); `AUD-07` Theo 
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=AUD-06`
 - `do=spot ref=aud.recommendations.assignment`
 - `do=open screen=AUD-07`
@@ -4695,7 +4695,7 @@ Màn hình: `AUD-06` Kiến nghị và phân công (/aud/aud-06); `AUD-07` Theo 
 - [ ] Màn AUD-06 "Kiến nghị và phân công" mở được ở đường dẫn /aud/aud-06, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-07 "Theo dõi thực hiện kiến nghị" mở được ở đường dẫn /aud/aud-07, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-17 "Thứ tự theo dõi kiến nghị kiểm toán của chủ đầu tư" mở được ở đường dẫn /aud/aud-17, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.recommendations.assignment đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.recommendations.progress đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.recommendations.investor-order đúng lúc giọng đọc nói tới
@@ -4725,7 +4725,7 @@ Màn hình: `AUD-08` Thu hồi tài chính và đối chiếu PAY (/aud/aud-08);
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=AUD-08`
 - `do=spot ref=aud.recovery.payment-match`
 - `do=open screen=AUD-09`
@@ -4740,7 +4740,7 @@ Màn hình: `AUD-08` Thu hồi tài chính và đối chiếu PAY (/aud/aud-08);
 - [ ] Màn AUD-09 "Bằng chứng khắc phục" mở được ở đường dẫn /aud/aud-09, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-10 "Báo cáo kết quả thực hiện kiến nghị" mở được ở đường dẫn /aud/aud-10, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-11 "Cảnh báo quá hạn và leo thang" mở được ở đường dẫn /aud/aud-11, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.recovery.payment-match đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.evidence.upload đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.overdue.escalation đúng lúc giọng đọc nói tới
@@ -4771,7 +4771,7 @@ Màn hình: `AUD-15` Chi tiết tín hiệu rủi ro mua sắm (/aud/aud-15); `A
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=AUD-15`
 - `do=spot ref=aud.red-flag.detail`
 - `do=open screen=AUD-16`
@@ -4781,7 +4781,7 @@ Màn hình: `AUD-15` Chi tiết tín hiệu rủi ro mua sắm (/aud/aud-15); `A
 
 - [ ] Màn AUD-15 "Chi tiết tín hiệu rủi ro mua sắm" mở được ở đường dẫn /aud/aud-15, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-16 "Sổ chỉ báo red flag" mở được ở đường dẫn /aud/aud-16, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.red-flag.detail đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.red-flag.indicator-ledger đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Tín hiệu để điều tra, không phải kết luận" hiện từ giây 3, kéo dài 5 giây
@@ -4811,7 +4811,7 @@ Màn hình: `AUD-18` Tố giác ẩn danh (/aud/aud-18); `AUD-19` Sổ quà tặ
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=AUD-18`
 - `do=spot ref=aud.whistle.channel`
 - `do=open screen=AUD-19`
@@ -4821,7 +4821,7 @@ Màn hình: `AUD-18` Tố giác ẩn danh (/aud/aud-18); `AUD-19` Sổ quà tặ
 
 - [ ] Màn AUD-18 "Tố giác ẩn danh" mở được ở đường dẫn /aud/aud-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn AUD-19 "Sổ quà tặng" mở được ở đường dẫn /aud/aud-19, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.whistle.channel đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.gifts.register đúng lúc giọng đọc nói tới
 - [ ] Tố giác hiện mã theo dõi, không hiện danh tính
@@ -7387,7 +7387,7 @@ Màn hình: `DOC-25` Hồ sơ và trình xem có dẫn nguồn (/doc/doc-25)
 
 **Các bước quay**
 
-- `do=as persona=projectManager`
+- `do=as persona=owner`
 - `do=open screen=DOC-25`
 - `do=spot ref=doc.viewer.document`
 - `do=spot ref=doc.viewer.citation-id`
@@ -7395,7 +7395,7 @@ Màn hình: `DOC-25` Hồ sơ và trình xem có dẫn nguồn (/doc/doc-25)
 **Cần thấy trên hình**
 
 - [ ] Màn DOC-25 "Hồ sơ và trình xem có dẫn nguồn" mở được ở đường dẫn /doc/doc-25, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản projectManager
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.viewer.document đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.viewer.citation-id đúng lúc giọng đọc nói tới
 - [ ] Văn bản hiện cùng cột ghi chú
@@ -7425,7 +7425,7 @@ Màn hình: `DOC-26` Bảng luồng duyệt hồ sơ (/doc/doc-26)
 
 **Các bước quay**
 
-- `do=as persona=docHead`
+- `do=as persona=owner`
 - `do=open screen=DOC-26`
 - `do=spot ref=doc.review-board.stages`
 - `do=spot ref=doc.review-board.return`
@@ -7433,7 +7433,7 @@ Màn hình: `DOC-26` Bảng luồng duyệt hồ sơ (/doc/doc-26)
 **Cần thấy trên hình**
 
 - [ ] Màn DOC-26 "Bảng luồng duyệt hồ sơ" mở được ở đường dẫn /doc/doc-26, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản docHead
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.review-board.stages đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.review-board.return đúng lúc giọng đọc nói tới
 - [ ] Bảng có các bước và người duyệt song song
@@ -7461,7 +7461,7 @@ Màn hình: `DOC-27` So sánh hai phiên bản hồ sơ (/doc/doc-27)
 
 **Các bước quay**
 
-- `do=as persona=projectManager`
+- `do=as persona=owner`
 - `do=open screen=DOC-27`
 - `do=spot ref=doc.compare.diff-view`
 - `do=spot ref=doc.compare.versions`
@@ -7469,7 +7469,7 @@ Màn hình: `DOC-27` So sánh hai phiên bản hồ sơ (/doc/doc-27)
 **Cần thấy trên hình**
 
 - [ ] Màn DOC-27 "So sánh hai phiên bản hồ sơ" mở được ở đường dẫn /doc/doc-27, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản projectManager
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.compare.diff-view đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.compare.versions đúng lúc giọng đọc nói tới
 - [ ] Hai phiên bản cạnh nhau với đoạn khác biệt tô màu
@@ -7497,7 +7497,7 @@ Màn hình: `DOC-28` Tài liệu dự án theo trạng thái và transmittal (/d
 
 **Các bước quay**
 
-- `do=as persona=projectManager`
+- `do=as persona=owner`
 - `do=open screen=DOC-28`
 - `do=spot ref=doc.transmittal.state-board`
 - `do=open screen=DOC-29`
@@ -7507,7 +7507,7 @@ Màn hình: `DOC-28` Tài liệu dự án theo trạng thái và transmittal (/d
 
 - [ ] Màn DOC-28 "Tài liệu dự án theo trạng thái và transmittal" mở được ở đường dẫn /doc/doc-28, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-29 "Chi tiết transmittal tài liệu" mở được ở đường dẫn /doc/doc-29, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản projectManager
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.transmittal.state-board đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.transmittal.review-deadline đúng lúc giọng đọc nói tới
 - [ ] Bảng bốn trạng thái tài liệu
@@ -7580,7 +7580,7 @@ Màn hình: `LLM-24` Rà soát hồ sơ trước khi trình (/llm/llm-24); `LLM-
 
 **Các bước quay**
 
-- `do=as persona=projectManager`
+- `do=as persona=owner`
 - `do=open screen=LLM-24`
 - `do=spot ref=llm.review.dossier-verdict`
 - `do=open screen=LLM-26`
@@ -7590,7 +7590,7 @@ Màn hình: `LLM-24` Rà soát hồ sơ trước khi trình (/llm/llm-24); `LLM-
 
 - [ ] Màn LLM-24 "Rà soát hồ sơ trước khi trình" mở được ở đường dẫn /llm/llm-24, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn LLM-26 "Danh mục rà soát và bộ tiêu chí đánh giá" mở được ở đường dẫn /llm/llm-26, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản projectManager
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần llm.review.dossier-verdict đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần llm.review.checklists đúng lúc giọng đọc nói tới
 - [ ] Danh mục kiểm có mục quy tắc và mục AI
@@ -7621,7 +7621,7 @@ Màn hình: `LLM-19` Chính sách phân loại dữ liệu và định tuyến A
 
 **Các bước quay**
 
-- `do=as persona=sysAdmin`
+- `do=as persona=owner`
 - `do=open screen=LLM-19`
 - `do=spot ref=llm.policy.data-classes`
 - `do=open screen=LLM-20`
@@ -7636,7 +7636,7 @@ Màn hình: `LLM-19` Chính sách phân loại dữ liệu và định tuyến A
 - [ ] Màn LLM-20 "Bản ghi quyết định của con người" mở được ở đường dẫn /llm/llm-20, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn LLM-21 "Nhật ký định tuyến AI" mở được ở đường dẫn /llm/llm-21, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn LLM-27 "Ngoại lệ nhà cung cấp ngoài và cam kết dữ liệu" mở được ở đường dẫn /llm/llm-27, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản sysAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần llm.policy.data-classes đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần llm.policy.routing-log đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần llm.policy.exceptions đúng lúc giọng đọc nói tới
@@ -7667,7 +7667,7 @@ Màn hình: `LLM-01` Tổng quan AI (/llm/llm-01); `LLM-05` Routing và fallback
 
 **Các bước quay**
 
-- `do=as persona=sysAdmin`
+- `do=as persona=owner`
 - `do=open screen=LLM-01`
 - `do=spot ref=llm.admin.overview`
 - `do=open screen=LLM-05`
@@ -7686,7 +7686,7 @@ Màn hình: `LLM-01` Tổng quan AI (/llm/llm-01); `LLM-05` Routing và fallback
 - [ ] Màn LLM-07 "Ngân sách và quota" mở được ở đường dẫn /llm/llm-07, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn LLM-15 "Guardrail và dữ liệu" mở được ở đường dẫn /llm/llm-15, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn LLM-18 "Sự cố và dừng khẩn cấp" mở được ở đường dẫn /llm/llm-18, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản sysAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần llm.admin.overview đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần llm.admin.routing-fallback đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần llm.admin.budget đúng lúc giọng đọc nói tới
@@ -7720,7 +7720,7 @@ Màn hình: `DOC-02` Soạn thảo văn bản đi (/doc/doc-02); `DOC-14` Thư v
 
 **Các bước quay**
 
-- `do=as persona=docHead`
+- `do=as persona=owner`
 - `do=open screen=DOC-02`
 - `do=spot ref=doc.outgoing.draft`
 - `do=open screen=DOC-14`
@@ -7733,7 +7733,7 @@ Màn hình: `DOC-02` Soạn thảo văn bản đi (/doc/doc-02); `DOC-14` Thư v
 - [ ] Màn DOC-02 "Soạn thảo văn bản đi" mở được ở đường dẫn /doc/doc-02, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-14 "Thư viện mẫu văn bản" mở được ở đường dẫn /doc/doc-14, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-16 "Thể thức và bố cục theo Phụ lục I NĐ 30/2020" mở được ở đường dẫn /doc/doc-16, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản docHead
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.outgoing.draft đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.templates.library đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.templates.layout-rules đúng lúc giọng đọc nói tới
@@ -7763,7 +7763,7 @@ Màn hình: `DOC-04` Rà soát và trình ký (/doc/doc-04); `DOC-05` Ký số l
 
 **Các bước quay**
 
-- `do=as persona=docHead`
+- `do=as persona=owner`
 - `do=open screen=DOC-04`
 - `do=spot ref=doc.signing.review`
 - `do=open screen=DOC-05`
@@ -7779,7 +7779,7 @@ Màn hình: `DOC-04` Rà soát và trình ký (/doc/doc-04); `DOC-05` Ký số l
 - [ ] Màn DOC-05 "Ký số lãnh đạo" mở được ở đường dẫn /doc/doc-05, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-06 "Cấp số và ký số cơ quan" mở được ở đường dẫn /doc/doc-06, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-07 "Xác minh chữ ký và chứng thư" mở được ở đường dẫn /doc/doc-07, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản docHead
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.signing.review đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.signing.leader-sign đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.signing.number-and-seal đúng lúc giọng đọc nói tới
@@ -7811,7 +7811,7 @@ Màn hình: `DOC-08` Phát hành và phân phối (/doc/doc-08); `DOC-09` Tải 
 
 **Các bước quay**
 
-- `do=as persona=docHead`
+- `do=as persona=owner`
 - `do=open screen=DOC-08`
 - `do=spot ref=doc.issue.distribution`
 - `do=open screen=DOC-09`
@@ -7829,7 +7829,7 @@ Màn hình: `DOC-08` Phát hành và phân phối (/doc/doc-08); `DOC-09` Tải 
 - [ ] Màn DOC-10 "Sổ đăng ký văn bản đi" mở được ở đường dẫn /doc/doc-10, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-19 "Thu hồi, thay thế và đính chính" mở được ở đường dẫn /doc/doc-19, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-20 "Liên thông văn bản qua LGSP" mở được ở đường dẫn /doc/doc-20, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản docHead
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.issue.distribution đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.issue.outgoing-register đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.issue.recall-correct đúng lúc giọng đọc nói tới
@@ -7860,7 +7860,7 @@ Màn hình: `DOC-11` Tiếp nhận văn bản đến (/doc/doc-11); `DOC-12` S�
 
 **Các bước quay**
 
-- `do=as persona=docHead`
+- `do=as persona=owner`
 - `do=open screen=DOC-11`
 - `do=spot ref=doc.incoming.intake`
 - `do=open screen=DOC-12`
@@ -7873,7 +7873,7 @@ Màn hình: `DOC-11` Tiếp nhận văn bản đến (/doc/doc-11); `DOC-12` S�
 - [ ] Màn DOC-11 "Tiếp nhận văn bản đến" mở được ở đường dẫn /doc/doc-11, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-12 "Sổ văn bản đến và phân công" mở được ở đường dẫn /doc/doc-12, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-13 "Xử lý văn bản đến" mở được ở đường dẫn /doc/doc-13, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản docHead
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.incoming.intake đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.incoming.register-assign đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.incoming.handling đúng lúc giọng đọc nói tới
@@ -7904,7 +7904,7 @@ Màn hình: `DOC-01` Tổng quan văn bản (/doc/doc-01); `DOC-17` Hồ sơ và
 
 **Các bước quay**
 
-- `do=as persona=docHead`
+- `do=as persona=owner`
 - `do=open screen=DOC-01`
 - `do=spot ref=doc.archive.overview`
 - `do=open screen=DOC-17`
@@ -7920,7 +7920,7 @@ Màn hình: `DOC-01` Tổng quan văn bản (/doc/doc-01); `DOC-17` Hồ sơ và
 - [ ] Màn DOC-17 "Hồ sơ và lưu trữ" mở được ở đường dẫn /doc/doc-17, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-18 "Quy tắc bảo quản tài liệu" mở được ở đường dẫn /doc/doc-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DOC-21 "Cấu hình sổ cấp số và loại văn bản" mở được ở đường dẫn /doc/doc-21, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản docHead
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần doc.archive.overview đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.archive.files đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần doc.archive.retention-rules đúng lúc giọng đọc nói tới
@@ -7954,7 +7954,7 @@ Màn hình: `HUB-01` Danh mục bộ kết nối và sức khỏe tích hợp (/
 
 **Các bước quay**
 
-- `do=as persona=sysAdmin`
+- `do=as persona=owner`
 - `do=open screen=HUB-01`
 - `do=spot ref=hub.catalogue.connector-list`
 - `do=spot ref=hub.catalogue.health-summary`
@@ -7962,7 +7962,7 @@ Màn hình: `HUB-01` Danh mục bộ kết nối và sức khỏe tích hợp (/
 **Cần thấy trên hình**
 
 - [ ] Màn HUB-01 "Danh mục bộ kết nối và sức khỏe tích hợp" mở được ở đường dẫn /hub/hub-01, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản sysAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần hub.catalogue.connector-list đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần hub.catalogue.health-summary đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Chưa từng chạy ≠ khỏe" hiện từ giây 4, kéo dài 5 giây
@@ -7995,7 +7995,7 @@ Màn hình: `HUB-02` Chi tiết bộ kết nối (/hub/hub-02); `HUB-03` Nhật 
 
 **Các bước quay**
 
-- `do=as persona=sysAdmin`
+- `do=as persona=owner`
 - `do=open screen=HUB-02`
 - `do=spot ref=hub.connector.tabs`
 - `do=spot ref=hub.connector.freshness-rule`
@@ -8006,7 +8006,7 @@ Màn hình: `HUB-02` Chi tiết bộ kết nối (/hub/hub-02); `HUB-03` Nhật 
 
 - [ ] Màn HUB-02 "Chi tiết bộ kết nối" mở được ở đường dẫn /hub/hub-02, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HUB-03 "Nhật ký sự cố tích hợp" mở được ở đường dẫn /hub/hub-03, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản sysAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần hub.connector.tabs đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần hub.connector.freshness-rule đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần hub.incidents.log đúng lúc giọng đọc nói tới
@@ -8037,7 +8037,7 @@ Màn hình: `INT-01` Tài khoản máy (/int/int-01); `INT-02` Phạm vi và kh�
 
 **Các bước quay**
 
-- `do=as persona=sysAdmin`
+- `do=as persona=owner`
 - `do=open screen=INT-01`
 - `do=spot ref=int.accounts.list`
 - `do=open screen=INT-02`
@@ -8047,7 +8047,7 @@ Màn hình: `INT-01` Tài khoản máy (/int/int-01); `INT-02` Phạm vi và kh�
 
 - [ ] Màn INT-01 "Tài khoản máy" mở được ở đường dẫn /int/int-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn INT-02 "Phạm vi và khóa" mở được ở đường dẫn /int/int-02, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản sysAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần int.accounts.list đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần int.accounts.scopes-keys đúng lúc giọng đọc nói tới
 - [ ] Khóa chỉ hiện một lần khi tạo
@@ -8076,7 +8076,7 @@ Màn hình: `INT-04` Tài khoản BI và tập dữ liệu chứng nhận (/int/
 
 **Các bước quay**
 
-- `do=as persona=sysAdmin`
+- `do=as persona=owner`
 - `do=open screen=INT-04`
 - `do=spot ref=int.bi.accounts`
 - `do=open screen=BI-19`
@@ -8086,7 +8086,7 @@ Màn hình: `INT-04` Tài khoản BI và tập dữ liệu chứng nhận (/int/
 
 - [ ] Màn INT-04 "Tài khoản BI và tập dữ liệu chứng nhận" mở được ở đường dẫn /int/int-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn BI-19 "Chứng nhận chỉ tiêu và bộ dữ liệu" mở được ở đường dẫn /bi/bi-19, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản sysAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần int.bi.accounts đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần bi.bi.certified-datasets đúng lúc giọng đọc nói tới
 - [ ] Bộ dữ liệu có nhãn đã chứng nhận
@@ -8116,7 +8116,7 @@ Màn hình: `INT-03` Ánh xạ mã dự án đa hệ thống (/int/int-03); `MDM
 
 **Các bước quay**
 
-- `do=as persona=sysAdmin`
+- `do=as persona=capApprover`
 - `do=open screen=INT-03`
 - `do=spot ref=int.crosswalk.project-codes`
 - `do=open screen=MDM-35`
@@ -8126,7 +8126,7 @@ Màn hình: `INT-03` Ánh xạ mã dự án đa hệ thống (/int/int-03); `MDM
 
 - [ ] Màn INT-03 "Ánh xạ mã dự án đa hệ thống" mở được ở đường dẫn /int/int-03, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn MDM-35 "Bản ghi chủ, crosswalk và tách/hợp nhất" mở được ở đường dẫn /mdm/mdm-35, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản sysAdmin
+- [ ] Đăng nhập bằng tài khoản capApprover
 - [ ] Khung vào phần int.crosswalk.project-codes đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần mdm.crosswalk.records đúng lúc giọng đọc nói tới
 - [ ] Đề xuất ánh xạ chờ người duyệt thứ hai
@@ -8155,7 +8155,7 @@ Màn hình: `INT-05` Nhật ký truy cập API mở (/int/int-05)
 
 **Các bước quay**
 
-- `do=as persona=sysAdmin`
+- `do=as persona=owner`
 - `do=open screen=INT-05`
 - `do=spot ref=int.open-api.access-log`
 - `do=spot ref=int.open-api.rate-limit`
@@ -8163,7 +8163,7 @@ Màn hình: `INT-05` Nhật ký truy cập API mở (/int/int-05)
 **Cần thấy trên hình**
 
 - [ ] Màn INT-05 "Nhật ký truy cập API mở" mở được ở đường dẫn /int/int-05, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản sysAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần int.open-api.access-log đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần int.open-api.rate-limit đúng lúc giọng đọc nói tới
 - [ ] Mỗi dòng nhật ký có tài khoản và kết quả
@@ -8193,7 +8193,7 @@ Màn hình: `DGV-13` Data contract và schema (/dgv/dgv-13); `DGV-14` Pipeline v
 
 **Các bước quay**
 
-- `do=as persona=dgvSteward`
+- `do=as persona=owner`
 - `do=open screen=DGV-13`
 - `do=spot ref=dgv.data-contract.schema`
 - `do=open screen=DGV-14`
@@ -8209,7 +8209,7 @@ Màn hình: `DGV-13` Data contract và schema (/dgv/dgv-13); `DGV-14` Pipeline v
 - [ ] Màn DGV-14 "Pipeline và mapping" mở được ở đường dẫn /dgv/dgv-14, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DGV-18 "Data product và chứng nhận" mở được ở đường dẫn /dgv/dgv-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DGV-19 "Chấp thuận thay đổi hợp đồng dữ liệu" mở được ở đường dẫn /dgv/dgv-19, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản dgvSteward
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần dgv.data-contract.schema đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dgv.pipeline.mapping đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dgv.data-product.certification đúng lúc giọng đọc nói tới

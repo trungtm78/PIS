@@ -43,7 +43,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "sysAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -82,7 +82,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "sysAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -123,7 +123,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "sysAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -160,7 +160,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "sysAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -197,7 +197,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "sysAdmin"
+          "persona": "capApprover"
         },
         {
           "do": "open",
@@ -233,7 +233,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "sysAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -268,7 +268,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "dgvSteward"
+          "persona": "owner"
         },
         {
           "do": "open",

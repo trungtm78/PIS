@@ -23,7 +23,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "projectManager"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -55,7 +55,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "docHead"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -87,7 +87,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "projectManager"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -120,7 +120,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "projectManager"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -204,7 +204,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "projectManager"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -243,7 +243,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "sysAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -295,7 +295,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "sysAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",

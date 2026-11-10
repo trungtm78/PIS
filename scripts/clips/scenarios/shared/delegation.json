@@ -24,7 +24,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -130,7 +130,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
