@@ -344,7 +344,8 @@
           "forSec": 5
         }
       ],
-      "expectedSec": 26.3
+      "expectedSec": 26.3,
+      "headline": "Trung tâm điều hành giải ngân"
     },
     {
       "include": "shared/leader-home.json"
@@ -390,7 +391,8 @@
         }
       ],
       "captions": [],
-      "expectedSec": 30.3
+      "expectedSec": 30.3,
+      "headline": "Cơ cấu vốn: chủ sở hữu và vốn vay"
     },
     {
       "id": "ent-plan-versions",

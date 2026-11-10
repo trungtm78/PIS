@@ -694,6 +694,60 @@
           "hold": 3000
         }
       ]
+    },
+    "ec-phone-home": {
+      "persona": "owner",
+      "headline": "Trang chủ: đẩy HPM và chênh lệch kế toán",
+      "minSec": 24,
+      "before": [
+        {
+          "reset": true
+        },
+        {
+          "tab": "Trang chủ"
+        },
+        {
+          "reset": true
+        },
+        {
+          "top": true
+        }
+      ],
+      "ops": [
+        {
+          "hold": 3000
+        },
+        {
+          "scroll": 2
+        },
+        {
+          "hold": 3000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4500
+        },
+        {
+          "scroll": 1
+        },
+        {
+          "hold": 4000
+        }
+      ]
     }
   }
 }

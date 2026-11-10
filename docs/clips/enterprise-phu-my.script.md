@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `enterprise-phu-my`
 - Bản: enterprise
-- Video chính: 11:25 (43 cảnh)
+- Video chính: 11:23 (43 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,9 +12,9 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 43 | 11:25 |
+| Video chính (`main`) | 43 | 11:23 |
 | Giới thiệu phần mềm (`intro`) | 4 | 1:14 |
-| Tổng quan điều hành (`leader-home`) | 7 | 1:42 |
+| Tổng quan điều hành (`leader-home`) | 6 | 1:26 |
 | Cơ cấu vốn và kế hoạch (`capital`) | 4 | 1:19 |
 | Dự án đầu tư xây dựng (`projects`) | 5 | 1:11 |
 | Báo cáo gửi Tập đoàn (`reports-pvn`) | 6 | 1:41 |
@@ -22,11 +22,11 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 | Đẩy số HPM và đối chiếu kế toán (`hpm-ebs`) | 7 | 2:04 |
 | Chỉ đạo giao ban (`directives`) | 4 | 0:56 |
 | Hồ sơ dự án và trợ lý AI (`docs-ai`) | 4 | 1:05 |
-| Báo cáo phân tích và BI (`analytics`) | 9 | 2:18 |
+| Báo cáo phân tích và BI (`analytics`) | 8 | 2:02 |
 | Cảnh báo (`alerts`) | 8 | 1:59 |
-| Quản lý nhà thầu và nhà cung cấp (`contractors`) | 9 | 2:26 |
+| Quản lý nhà thầu và nhà cung cấp (`contractors`) | 7 | 1:51 |
 | Cây tiến độ (`process-tree`) | 9 | 2:09 |
-| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:40 |
+| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:38 |
 | Quản lý nhà thầu nâng cao (`contractors-plus`) | 9 | 2:44 |
 | Cổng nhà thầu (`contractor-portal`) | 6 | 1:28 |
 | Claim và cảnh báo sớm hợp đồng (`claims-warnings`) | 5 | 1:30 |
@@ -162,8 +162,8 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 | `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:44 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
 | `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:57 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
 | `ent-tree-phone` | `process-tree`, `phone` | 8:05 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
-| `ent-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus` | 10:25 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
-| `ent-close` | `close` | 10:50 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `ent-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus` | 10:23 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
+| `ent-close` | `close` | 10:49 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu phần mềm (`intro`)
 
@@ -431,38 +431,6 @@ Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `DI
 - [ ] Màn DIS-23 "Dự báo dòng tiền và ước cuối năm (EAC)" mở được ở đường dẫn /dis/dis-23, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Khung vào phần home.changes.list đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.forecast.band đúng lúc giọng đọc nói tới
-- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
-
-### `home-ranking`
-
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
-
-Màn hình: `HOME-04` Xếp hạng giải ngân (/home/home-04)
-
-**Lời đọc**
-
-> Xếp hạng giải ngân dùng nhiều chỉ số, chuẩn hóa theo quy mô, và ghép tỷ lệ giải ngân với tiến độ vật lý. Đơn vị vướng ngoài tầm kiểm soát được ghi chú có người duyệt, và có quyền khiếu nại số liệu của mình.
-
-**Lời gửi cho giọng đọc (đã phiên âm)**
-
-> Xếp hạng giải ngân dùng nhiều chỉ số, chuẩn hóa theo quy mô, và ghép tỷ lệ giải ngân với tiến độ vật lý. Đơn vị vướng ngoài tầm kiểm soát được ghi chú có người duyệt, và có quyền khiếu nại số liệu của mình.
-
-**Phụ đề**
-
-- Xếp hạng giải ngân dùng nhiều / chỉ số, chuẩn hóa theo quy mô,
-- và ghép tỷ lệ giải ngân / với tiến độ vật lý.
-- Đơn vị vướng ngoài tầm / kiểm soát được ghi chú có
-- người duyệt, và có quyền / khiếu nại số liệu của mình.
-
-**Các bước quay**
-
-- `do=open screen=HOME-04`
-- `do=spot ref=home.ranking.table`
-
-**Cần thấy trên hình**
-
-- [ ] Màn HOME-04 "Xếp hạng giải ngân" mở được ở đường dẫn /home/home-04, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Khung vào phần home.ranking.table đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `home-map`
@@ -1863,44 +1831,6 @@ Màn hình: `BI-20` Sổ chỉ tiêu (/bi/bi-20); `BI-19` Chứng nhận chỉ t
 - [ ] Chú thích "Công thức · nguồn · giờ cập nhật · ngày chốt" hiện từ giây 2, kéo dài 5 giây
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
-### `ana-evm`
-
-Nền tảng: web; 16 giây; chỉ trong chương cắt riêng
-
-Màn hình: `PRJ-27` Giá trị thu được (EVM) và đường S (/prj/prj-27); `PRJ-26` Đường cơ sở, độ lệch và số lần dời mốc (/prj/prj-26)
-
-**Lời đọc**
-
-> Báo cáo giá trị thu được tính đủ chỉ số chi phí và tiến độ, kèm đường S so với đường cơ sở. Chỉ khối lượng đã nghiệm thu mới tạo giá trị. Thiếu đường cơ sở thì ghi chưa đủ dữ liệu, không ghi số không.
-
-**Lời gửi cho giọng đọc (đã phiên âm)**
-
-> Báo cáo giá trị thu được tính đủ chỉ số chi phí và tiến độ, kèm đường ét so với đường cơ sở. Chỉ khối lượng đã nghiệm thu mới tạo giá trị. Thiếu đường cơ sở thì ghi chưa đủ dữ liệu, không ghi số không.
-
-**Phụ đề**
-
-- Báo cáo giá trị thu được / tính đủ chỉ số chi phí
-- và tiến độ, kèm đường / S so với đường cơ sở.
-- Chỉ khối lượng đã nghiệm / thu mới tạo giá trị.
-- Thiếu đường cơ sở thì ghi chưa / đủ dữ liệu, không ghi số không.
-
-**Các bước quay**
-
-- `do=as persona=owner`
-- `do=open screen=PRJ-27`
-- `do=spot ref=prj.evm.s-curve`
-- `do=click ref=prj.evm.view-at-date`
-
-**Cần thấy trên hình**
-
-- [ ] Màn PRJ-27 "Giá trị thu được (EVM) và đường S" mở được ở đường dẫn /prj/prj-27, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn PRJ-26 "Đường cơ sở, độ lệch và số lần dời mốc" mở được ở đường dẫn /prj/prj-26, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản owner
-- [ ] Khung vào phần prj.evm.s-curve đúng lúc giọng đọc nói tới
-- [ ] Khung vào phần prj.evm.view-at-date đúng lúc giọng đọc nói tới
-- [ ] Chú thích "Giá trị thu được chỉ từ khối lượng đã nghiệm thu" hiện từ giây 1.5, kéo dài 5 giây
-- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
-
 ### `ana-bi-dashboard`
 
 Nền tảng: web; 12.1 giây; có trong video chính
@@ -2612,74 +2542,6 @@ Màn hình: `BID-22` Kết nối hệ thống mạng đấu thầu quốc gia (/
 - [ ] Dấu bắt buộc hiện rõ trên hình: "Mẫu tệp là giả định, chờ đặc tả chính thức"
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
-### `vnd-redflag`
-
-Nền tảng: web; 20 giây; chỉ trong chương cắt riêng
-
-Màn hình: `AUD-14` Tín hiệu rủi ro mua sắm (red flag) (/aud/aud-14)
-
-**Lời đọc**
-
-> Cho kiểm toán, hệ thống tính 12 chỉ báo đáng ngờ trong mua sắm từ dữ liệu có sẵn. Ví dụ chỉ một nhà thầu tham gia hay một nhà thầu thắng lặp lại. Chỉ kiểm toán viên mới xem được. Xếp hạng chỉ để điều tra, không phải kết luận, và người liên quan bị chặn xem.
-
-**Lời gửi cho giọng đọc (đã phiên âm)**
-
-> Cho kiểm toán, hệ thống tính 12 chỉ báo đáng ngờ trong mua sắm từ dữ liệu có sẵn. Ví dụ chỉ một nhà thầu tham gia hay một nhà thầu thắng lặp lại. Chỉ kiểm toán viên mới xem được. Xếp hạng chỉ để điều tra, không phải kết luận, và người liên quan bị chặn xem.
-
-**Phụ đề**
-
-- Cho kiểm toán, hệ thống tính 12 chỉ báo / đáng ngờ trong mua sắm từ dữ liệu có sẵn.
-- Ví dụ chỉ một nhà thầu tham gia / hay một nhà thầu thắng lặp lại.
-- Chỉ kiểm toán viên mới xem được.
-- Xếp hạng chỉ để điều tra, không phải kết / luận, và người liên quan bị chặn xem.
-
-**Các bước quay**
-
-- `do=as persona=auditor`
-- `do=open screen=AUD-14`
-- `do=spot ref=aud.red-flags.indicator-list`
-
-**Cần thấy trên hình**
-
-- [ ] Màn AUD-14 "Tín hiệu rủi ro mua sắm (red flag)" mở được ở đường dẫn /aud/aud-14, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
-- [ ] Khung vào phần aud.red-flags.indicator-list đúng lúc giọng đọc nói tới
-- [ ] Chú thích "Tín hiệu để điều tra, không phải kết luận" hiện từ giây 3, kéo dài 5 giây
-- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
-
-### `vnd-portal`
-
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
-
-Màn hình: `VND-16` Cổng nhà thầu: hồ sơ của tôi (/vnd/vnd-16)
-
-**Lời đọc**
-
-> Nhà thầu có cổng riêng: xem hồ sơ và đánh giá của chính mình, phản hồi trong thời hạn, tải chứng chỉ mới và tái xác nhận hằng năm. Nhà thầu không thấy chỉ báo đáng ngờ và không thấy dữ liệu của nhà thầu khác.
-
-**Lời gửi cho giọng đọc (đã phiên âm)**
-
-> Nhà thầu có cổng riêng: xem hồ sơ và đánh giá của chính mình, phản hồi trong thời hạn, tải chứng chỉ mới và tái xác nhận hằng năm. Nhà thầu không thấy chỉ báo đáng ngờ và không thấy dữ liệu của nhà thầu khác.
-
-**Phụ đề**
-
-- Nhà thầu có cổng riêng: xem hồ / sơ và đánh giá của chính mình,
-- phản hồi trong thời hạn, tải chứng / chỉ mới và tái xác nhận hằng năm.
-- Nhà thầu không thấy chỉ báo đáng ngờ và / không thấy dữ liệu của nhà thầu khác.
-
-**Các bước quay**
-
-- `do=as persona=owner`
-- `do=open screen=VND-16`
-- `do=spot ref=vnd.portal.my-evaluations`
-
-**Cần thấy trên hình**
-
-- [ ] Màn VND-16 "Cổng nhà thầu: hồ sơ của tôi" mở được ở đường dẫn /vnd/vnd-16, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản owner
-- [ ] Khung vào phần vnd.portal.my-evaluations đúng lúc giọng đọc nói tới
-- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
-
 ### `vnd-subcontract`
 
 Nền tảng: web; 13.3 giây; chỉ trong chương cắt riêng
@@ -3144,23 +3006,22 @@ Màn hình: `MOB-32` Hộp thông báo (tab inbox); `MOB-33` Chi tiết thông b
 
 ### `ph-approval`
 
-Nền tảng: phone; 14.5 giây; có trong video chính
+Nền tảng: phone; 12.7 giây; có trong video chính
 
 Màn hình: `MOB-23` Danh sách phê duyệt (tab approval); `MOB-24` Chi tiết phê duyệt (tab approval); `MOB-25` Xác nhận phê duyệt và ký (tab approval)
 
 **Lời đọc**
 
-> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Hiện có {{figure:phone-approvals-waiting}} việc chờ. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
+> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Hiện có {{figure:phone-approvals-waiting}} việc chờ. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
+> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
 
 **Phụ đề**
 
 - Lãnh đạo duyệt ngay trên / điện thoại: xem hồ sơ,
 - duyệt hoặc trả lại kèm lý / do, xác thực lần hai rồi ký.
-- Hiện có {n} việc chờ.
 - Màn xác nhận bị hệ điều hành / chặn quay nên dùng hình dựng lại.
 
 **Các bước quay**
@@ -3176,7 +3037,6 @@ Màn hình: `MOB-23` Danh sách phê duyệt (tab approval); `MOB-24` Chi tiết
 - [ ] Màn MOB-24 "Chi tiết phê duyệt" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Màn MOB-25 "Xác nhận phê duyệt và ký" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Chú thích "Hình dựng lại: hệ điều hành chặn quay màn này" hiện từ giây 6, kéo dài 6 giây
-- [ ] Con số phone-approvals-waiting đọc từ dữ liệu thật qua get_resources_approval_task (items.length); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Màn xác nhận phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại, ghi rõ đó là hình dựng lại
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -5846,7 +5706,7 @@ Màn hình: `DIS-32` Dựng và rà soát bản chốt kỳ doanh nghiệp: đ�
 
 ### `ec-narrative`
 
-Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng
+Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3b-data
 
 Màn hình: `DIS-35` Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban) (/dis/dis-35)
 
@@ -5877,6 +5737,7 @@ Màn hình: `DIS-35` Thuyết minh kỳ báo cáo có cấu trúc (8 trường, 
 **Cần thấy trên hình**
 
 - [ ] Màn DIS-35 "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)" mở được ở đường dẫn /dis/dis-35, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Cảnh chờ làn ENT-3b-data: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần dis.narrative.eight-fields đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.narrative.inherit-previous đúng lúc giọng đọc nói tới
@@ -6116,7 +5977,7 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `DIS-34` Lịch k
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=DIS-14`
 - `do=spot ref=dis.calendar.configurable`
 - `do=open screen=DIS-34`
@@ -6126,7 +5987,7 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `DIS-34` Lịch k
 
 - [ ] Màn DIS-14 "Lịch kỳ và khóa sổ" mở được ở đường dẫn /dis/dis-14, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-34 "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối" mở được ở đường dẫn /dis/dis-34, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần dis.calendar.configurable đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.calendar.step-board đúng lúc giọng đọc nói tới
 - [ ] Hạn từng bước của một kỳ

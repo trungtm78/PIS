@@ -64,6 +64,10 @@
     "ENT-4e": {
       "status": "merged",
       "note": "audit detail and log caps, exchange rate catalogue, equipment procurement view of the commercial division"
+    },
+    "ENT-3b-data": {
+      "status": "pending",
+      "note": "DIS-35 opens only from a report draft that already holds a structured narrative: the seed group clip-ent-narrative is not written yet, so the scene waits for its data"
     }
   }
 }

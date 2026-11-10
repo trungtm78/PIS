@@ -3,17 +3,7 @@
   "id": "phone",
   "title": "Ứng dụng điện thoại và PWA",
   "summary": "The phone application and the installed web application for leaders: the leader home with the alert card, the notification inbox, approvals, field reports with photo and location, the PWA, lists, the weekly report, offline work, security and AI answers with sources.",
-  "figures": {
-    "phone-approvals-waiting": {
-      "kind": "count",
-      "sample": 5,
-      "description": "Approval tasks waiting for the signed-in leader.",
-      "source": {
-        "operation": "get_resources_approval_task",
-        "select": "items.length"
-      }
-    }
-  },
+  "figures": {},
   "literalNumbers": {},
   "animatics": {
     "approval-sheet-reconstructed": {
@@ -94,7 +84,7 @@
       "id": "ph-approval",
       "chapter": "phone",
       "main": true,
-      "narration": "Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Hiện có {{figure:phone-approvals-waiting}} việc chờ. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.",
+      "narration": "Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.",
       "screen": {
         "platform": "phone",
         "screens": [
@@ -128,7 +118,7 @@
           "forSec": 6
         }
       ],
-      "expectedSec": 14.5
+      "expectedSec": 12.7
     },
     {
       "id": "ph-field",

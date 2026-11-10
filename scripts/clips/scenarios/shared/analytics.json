@@ -155,7 +155,7 @@
         }
       ],
       "expectedSec": 16,
-      "mainFor": [
+      "onlyFor": [
         "public"
       ]
     },

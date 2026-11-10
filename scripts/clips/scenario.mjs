@@ -41,6 +41,7 @@ export function loadScenario(clip, dir = SCENARIO_DIR) {
   const raw = readJson(file);
   const files = new Map([[file, raw]]);
   const scenes = [];
+  const leftOut = [];
   const origin = new Map();
   const chapters = [...(raw.chapters ?? [])];
   const figures = { ...(raw.figures ?? {}) };
@@ -70,9 +71,21 @@ export function loadScenario(clip, dir = SCENARIO_DIR) {
     merge(animatics, content.animatics, 'animatic', entry.include);
     merge(typed, content.typed, 'typed text', entry.include);
     for (const scene of content.scenes ?? []) {
+      // A shared scene that only one edition has the data for (`onlyFor`) is left out of the other edition.
+      if (Array.isArray(scene.onlyFor) && raw.edition !== undefined && !scene.onlyFor.includes(raw.edition)) {
+        leftOut.push(scene);
+        continue;
+      }
       scenes.push({ ...scene, chapter: scene.chapter ?? content.id });
       origin.set(scene.id, part);
     }
+  }
+  // A literal number that only the scenes left out for this edition use is not listed either.
+  const textOf = (scene) => [scene.narration ?? '', ...(scene.captions ?? []).map((caption) => caption.text)].join(' ');
+  const keptText = scenes.map(textOf).join(' ');
+  for (const key of Object.keys(literalNumbers)) {
+    const digits = new RegExp(`(^|\\D)${key}(\\D|$)`, 'u');
+    if (!digits.test(keptText) && leftOut.some((scene) => digits.test(textOf(scene)))) delete literalNumbers[key];
   }
   const firstAt = (chapter) => scenes.findIndex((scene) => scene.chapter === chapter.id);
   chapters.sort((a, b) => firstAt(a) - firstAt(b));

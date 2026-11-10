@@ -95,7 +95,7 @@
       "captions": [],
       "expectedSec": 18.5,
       "requires": [
-        "ENT-3b"
+        "ENT-3b-data"
       ]
     },
     {
@@ -342,7 +342,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
