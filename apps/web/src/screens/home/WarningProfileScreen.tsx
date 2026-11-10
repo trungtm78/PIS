@@ -26,6 +26,22 @@ type T = Translator['t'];
 const REASON_MIN = 5;
 const QUESTION_MIN = 10;
 const NONE = '—';
+/** The words of each key of a threshold (the rule carries the keys of the engine); a key nobody lists is left out, never shown as it came. */
+const THRESHOLD_WORD: Readonly<Record<string, string>> = {
+  points: 'home.profile.threshold.points',
+  critical_points: 'home.profile.threshold.criticalPoints',
+  grace_days: 'home.profile.threshold.graceDays',
+  explanation_due_days: 'home.profile.threshold.explanationDueDays',
+};
+
+/** A threshold in sentences with their units (days, points), one per key the product lists. */
+export function thresholdSentences(t: T, threshold: Readonly<Record<string, unknown>>): string[] {
+  return Object.entries(threshold).flatMap(([key, value]) => {
+    const word = THRESHOLD_WORD[key];
+    return word === undefined || (typeof value !== 'string' && typeof value !== 'number') ? [] : [t(word, { value: String(value) })];
+  });
+}
+
 const STATUS_TONE: Readonly<Record<string, Tone>> = { OPEN: 'warning', ACKNOWLEDGED: 'info', EXPLANATION_REQUESTED: 'info', RESOLVED: 'success', DISMISSED: 'neutral' };
 
 function historyLabel(t: T, event: HistoryEvent): string {
@@ -174,7 +190,8 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
     if (action === 'acknowledge' && reasonOk) acknowledge.mutate({ warning, reason: reason.trim() }, { onSuccess });
     if (action === 'dismiss' && reasonOk) dismiss.mutate({ warning, reason: reason.trim() }, { onSuccess });
   };
-  const threshold = warning.threshold === null ? null : Object.entries(warning.threshold).map(([key, value]) => `${key} ${String(value)}`).join(', ');
+  const sentences = warning.threshold === null ? [] : thresholdSentences(t, warning.threshold);
+  const threshold = sentences.length === 0 ? null : sentences.join('; ');
   const gap = typeof warning.observed.gap_points === 'string' ? trimmed(warning.observed.gap_points) : null;
 
   const evidenceColumns: DataTableColumn<EvidenceCell>[] = [

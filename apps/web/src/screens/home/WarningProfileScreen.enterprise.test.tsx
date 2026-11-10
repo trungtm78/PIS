@@ -37,6 +37,20 @@ describe('HOME-06 evidence: enterprise against public', () => {
     expect(text).not.toMatch(/CENTRAL|LOCAL|CURRENT_YEAR|CARRYOVER|Kho bạc|Thủ tướng|địa phương/u);
   });
 
+  it('words the days of the threshold the same way on the enterprise edition', async () => {
+    installEdition(enterpriseBundle);
+    const rule = { code: 'EW-DN-03', name: 'Báo cáo tuần chậm', metric_code: 'REPORT_OVERDUE', comparator: 'MISSING', threshold: { grace_days: 3, explanation_due_days: 3 } };
+    mount(
+      <EditionProvider edition={enterpriseBundle}>
+        <WarningProfileScreen route={ROUTE} />
+      </EditionProvider>,
+      harness((operation) => (operation === 'getHomeWarnings' ? { items: [warningBody(W1, { status: 'OPEN', rule, evidence })], next_cursor: null, as_of: '2027-10-15T03:00:00Z' } : new Error(operation))),
+      { permissions: ['home.read'] },
+      `/?warning=${W1}`,
+    );
+    expect((await screen.findByTestId('profile-threshold')).textContent).toBe('Thời hạn nội bộ 3 ngày; Thời hạn giải trình 3 ngày');
+  });
+
   it('keeps the public columns and the codes of the cells on the public edition', async () => {
     mount(
       <EditionProvider edition={PUBLIC_BUNDLE}>
