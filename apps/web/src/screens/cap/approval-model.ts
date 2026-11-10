@@ -41,6 +41,8 @@ export interface ImpactRow {
   projectCode: string;
   projectName: string;
   fundLabel: string;
+  /** The name of the source in words (its label in the catalogue), which an edition that does not show codes puts where the code stands. */
+  fundName: string;
   previousVnd: string;
   nextVnd: string;
   deltaVnd: string;
@@ -83,6 +85,7 @@ export function computeImpact(lines: readonly PlanLine[], base: readonly PlanLin
       projectCode: line.project.code,
       projectName: line.project.name,
       fundLabel: line.fundSource.businessKey,
+      fundName: line.fundSource.label,
       previousVnd,
       nextVnd: line.amountVnd,
       deltaVnd: delta.toString(),
@@ -99,6 +102,7 @@ export function computeImpact(lines: readonly PlanLine[], base: readonly PlanLin
       projectCode: before.project.code,
       projectName: before.project.name,
       fundLabel: before.fundSource.businessKey,
+      fundName: before.fundSource.label,
       previousVnd: before.amountVnd,
       nextVnd: '0',
       deltaVnd: (-big(before.amountVnd)).toString(),

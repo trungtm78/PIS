@@ -180,6 +180,8 @@ function CenterBody({ center, waiting, counts, unitId }: { center: CommandCenter
   const LeaderPanel = useEdition().slots?.leaderPanel;
   // An edition that reports through its own frozen snapshot has no Treasury rates or amounts here: they would be a second, different figure beside the one of the command block.
   const ownFigures = useEdition().slots?.homeFigures?.useDisbursed !== undefined;
+  // The monthly curve through the Treasury and the ranking over the plan the Prime Minister gave are the Treasury's blocks: an edition without them draws neither on the page nor as a board of the presentation (4 boards, not 5).
+  const treasuryBlocks = useEdition().slots?.homeFigures?.treasuryBlocks !== false;
   // The boards of the presentation: the figures only, one idea to a board; the enterprise edition adds its own two.
   const boards: PresentationBoard[] = [
     {
@@ -202,16 +204,20 @@ function CenterBody({ center, waiting, counts, unitId }: { center: CommandCenter
         </div>
       ),
     },
-    {
-      id: 'cash',
-      title: t('home.present.cash.title'),
-      content: (
-        <div className="home-pair">
-          <CashFlowCard snapshotId={center.snapshotId} unitId={unitId} year={year} />
-          <RankingCard />
-        </div>
-      ),
-    },
+    ...(treasuryBlocks
+      ? [
+          {
+            id: 'cash',
+            title: t('home.present.cash.title'),
+            content: (
+              <div className="home-pair">
+                <CashFlowCard snapshotId={center.snapshotId} unitId={unitId} year={year} />
+                <RankingCard />
+              </div>
+            ),
+          },
+        ]
+      : []),
     ...(LeaderPanel === undefined
       ? []
       : [
@@ -234,10 +240,12 @@ function CenterBody({ center, waiting, counts, unitId }: { center: CommandCenter
         <RagSummaryCard snapshotId={center.snapshotId} unitId={unitId} />
       </div>
       <Causes />
-      <div className="home-pair">
-        <CashFlowCard snapshotId={center.snapshotId} unitId={unitId} year={year} />
-        <RankingCard />
-      </div>
+      {treasuryBlocks ? (
+        <div className="home-pair">
+          <CashFlowCard snapshotId={center.snapshotId} unitId={unitId} year={year} />
+          <RankingCard />
+        </div>
+      ) : null}
       <details className="home-details" data-testid="home-details">
         <summary>{t('home.ov.details.title')}</summary>
         <p className="sub">{t('home.ov.details.hint')}</p>

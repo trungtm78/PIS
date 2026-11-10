@@ -61,7 +61,7 @@ describe('HOME-09 on the enterprise edition: one disbursed figure', () => {
     expect(document.body.textContent).not.toMatch(/\d{4}-\d{2}-\d{2}/);
   });
 
-  it('names the Treasury as the source of the monthly curve beside it', async () => {
+  it('draws no Treasury monthly curve and no ranking over the plan of the Prime Minister, on the page or in the presentation (4 boards, not 5)', async () => {
     mount(
       <EditionProvider edition={enterpriseBundle}>
         <CommandCenterScreen route={CC} />
@@ -70,7 +70,17 @@ describe('HOME-09 on the enterprise edition: one disbursed figure', () => {
       { permissions: ['home.read'] },
     );
     await screen.findByTestId('home-details');
-    expect(await screen.findByText(tr('home.ov.flow.treasury.title'))).toBeTruthy();
+    await waitFor(() => expect(document.body.textContent).toContain('928.756.000.000'));
+    for (const key of ['home.ov.flow.treasury.title', 'home.ov.flow.title', 'home.ov.rank.title']) expect(screen.queryByText(tr(key))).toBeNull();
+    await userEvent.click(screen.getByTestId('present-open'));
+    const presentation = await screen.findByRole('dialog', { name: tr('home.present.page.title') });
+    expect(within(presentation).getByTestId('presentation-status').textContent).toContain(tr('ui.presentation.position.text', { index: 1, total: 4 }));
+    // The boards in order, by the buttons of the strip: the rates, the changes and the two of the leader panel; the board of cash flow and ranking is not among them.
+    const titles = within(presentation)
+      .getAllByRole('button', { name: /^Mở bảng [0-9]/u })
+      .map((dot) => (dot.getAttribute('aria-label') ?? '').replace(/^Mở bảng [0-9]+: /u, ''));
+    expect(titles).toEqual([tr('home.present.rates.title'), tr('home.present.changes.title'), tr('home.present.leaderRates.title'), tr('home.present.leaderTiles.title')]);
+    expect(titles).not.toContain(tr('home.present.cash.title'));
   });
 
   it('keeps the Treasury figure of the command center on the public edition', async () => {
@@ -85,6 +95,8 @@ describe('HOME-09 on the enterprise edition: one disbursed figure', () => {
     expect(document.body.textContent).toContain('543330000000');
     expect(document.body.textContent).not.toContain('928');
     expect(screen.queryByText(tr('home.ov.flow.treasury.title'))).toBeNull();
+    expect(await screen.findByText(tr('home.ov.flow.title'))).toBeTruthy();
+    expect(screen.getByText(tr('home.ov.rank.title'))).toBeTruthy();
   });
 });
 

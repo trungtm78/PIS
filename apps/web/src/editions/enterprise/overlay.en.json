@@ -16,5 +16,10 @@
   "home.ov.rank.caption": "Top units of group {group}, against the capital plan assigned",
   "govc.home.kpi.plan.sub": "Of which assigned {pm} VND",
   "prj.list.column.nationalCode": "Parent-level project code",
-  "prj.create.nationalCode.label": "Parent-level project code"
+  "prj.create.nationalCode.label": "Parent-level project code",
+  "home.profile.evidence.planPm": "Plan of capital assigned",
+  "home.profile.evidence.disbursed": "Disbursed (closed figures)",
+  "home.profile.evidence.ratePm": "Rate on the plan of capital assigned",
+  "cap.annual.page.subtitle": "Capital of the year and carried-over capital project by project.",
+  "cap.annual.total.note": "The total is the sum of the lines of the table."
 }

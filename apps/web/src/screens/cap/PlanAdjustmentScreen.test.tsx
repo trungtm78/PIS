@@ -1,6 +1,9 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { EditionProvider } from '../../editions/EditionContext';
+import { PUBLIC_BUNDLE } from '../../editions/edition';
+import type { WebEditionBundle } from '../../editions/edition';
 import vi_ from '../../i18n/vi.json';
 import PlanAdjustmentScreen from './PlanAdjustmentScreen';
 import { ANNUAL_ID, BILLION, PUBLISHED_ID, mount, plan, planClient, planLine, planWorld, routeOf } from './plan-test-support';
@@ -165,5 +168,32 @@ describe('PlanAdjustmentScreen (CAP-07): the adjustment and transfer of a capita
     await waitFor(() => expect(screen.getByTestId('problem')).toBeTruthy());
     expect(screen.getByTestId('problem').getAttribute('data-problem')).toBe(kind);
     expect(screen.queryByTestId('created')).toBeNull();
+  });
+});
+
+// The enterprise edition names the source that moves in words, not by its code (CAP-07 on the demo of Đạm Phú Mỹ).
+const ENTERPRISE = { manifest: { ...PUBLIC_BUNDLE.manifest, edition: 'enterprise' } } as unknown as WebEditionBundle;
+
+describe('PlanAdjustmentScreen (CAP-07) in the enterprise edition', () => {
+  const sourceOf = async (edition: WebEditionBundle): Promise<string> => {
+    mount(
+      <EditionProvider edition={edition}>
+        <PlanAdjustmentScreen route={ROUTE} />
+      </EditionProvider>,
+      planClient(world({ revision: 'DRAFT' })),
+      { permissions: PLANNER, path: `/?plan=${ANNUAL_ID}` },
+    );
+    await waitFor(() => expect(screen.getByTestId('transfer')).toBeTruthy());
+    return within(screen.getByTestId('side-down')).getAllByRole('row')[1]?.textContent ?? '';
+  };
+
+  it('shows the name of the source where the public edition shows its code', async () => {
+    const row = await sourceOf(ENTERPRISE);
+    expect(row).toContain('Ngân sách trung ương');
+    expect(row).not.toContain('NSTW-DTPT');
+  });
+
+  it('shows the code of the source on the public edition', async () => {
+    expect(await sourceOf(PUBLIC_BUNDLE)).toContain('NSTW-DTPT');
   });
 });

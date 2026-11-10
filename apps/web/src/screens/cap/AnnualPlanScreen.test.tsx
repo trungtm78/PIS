@@ -1,6 +1,9 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { EditionProvider } from '../../editions/EditionContext';
+import { PUBLIC_BUNDLE } from '../../editions/edition';
+import type { WebEditionBundle } from '../../editions/edition';
 import vi_ from '../../i18n/vi.json';
 import AnnualPlanScreen from './AnnualPlanScreen';
 import { ANNUAL_ID, PLAN_PLANNER, PLAN_READER, PUBLISHED_ID, mount, planClient, planLine, planWorld, routeOf } from './plan-test-support';
@@ -122,5 +125,37 @@ describe('AnnualPlanScreen (CAP-03): the lines of an annual plan', () => {
     mount(<AnnualPlanScreen route={ROUTE} />, h, { permissions: PLAN_READER });
     await waitFor(() => expect(rows()).toHaveLength(2));
     expect(h.read).toHaveBeenCalledTimes(2);
+  });
+});
+
+// The enterprise edition reads its sources of capital by their names and has no national target programme (CAP-03 on the demo of Đạm Phú Mỹ).
+const ENTERPRISE = { manifest: { ...PUBLIC_BUNDLE.manifest, edition: 'enterprise' } } as unknown as WebEditionBundle;
+
+describe('AnnualPlanScreen (CAP-03) in the enterprise edition', () => {
+  it('names the source in words, not by its code, and shows neither the CTMTQG column nor its total', async () => {
+    mount(
+      <EditionProvider edition={ENTERPRISE}>
+        <AnnualPlanScreen route={ROUTE} />
+      </EditionProvider>,
+      planClient(planWorld()),
+      { permissions: PLAN_READER, path: '/?plan=' + ANNUAL_ID },
+    );
+    await ready();
+    const headers = Array.from(document.querySelectorAll('thead th')).map((header) => header.textContent);
+    expect(headers).toHaveLength(8);
+    expect(headers).not.toContain(vi_['cap.annual.column.ctmtqg']);
+    const [yearLine] = rows();
+    expect(cell(yearLine, 2)).toContain('Ngân sách trung ương');
+    expect(cell(yearLine, 2)).not.toContain('NSTW-DTPT');
+    expect(screen.queryByTestId('ctmtqg')).toBeNull();
+    expect(screen.queryByTestId('total-ctmtqg')).toBeNull();
+    expect(screen.getByTestId('total').textContent).toBe('3.000');
+  });
+
+  it('keeps the code of the source and the CTMTQG column on the public edition', async () => {
+    mount(<AnnualPlanScreen route={ROUTE} />, planClient(planWorld()), { permissions: PLAN_READER, path: '/?plan=' + ANNUAL_ID });
+    await ready();
+    expect(cell(rows()[0], 2)).toContain('NSTW-DTPT');
+    expect(screen.getByTestId('total-ctmtqg')).toBeTruthy();
   });
 });

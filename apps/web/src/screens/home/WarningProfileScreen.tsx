@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -119,8 +120,21 @@ function ProfileContent({ route, id, chosen, loading }: ScreenProps & { id: stri
   );
 }
 
+/** The words of the capital bucket of an evidence cell (the cell carries the code of the snapshot); a code nobody lists is shown as it came. */
+const BUCKET_WORD: Readonly<Record<string, string>> = { CURRENT_YEAR: 'cap.bucket.currentYear.label', CARRYOVER: 'cap.bucket.carryover.label', EQUITY: 'cap.bucket.equity.label', LOAN: 'cap.bucket.loan.label', OTHER: 'cap.bucket.other.label' };
+
+/**
+ * The evidence cells an edition that has no local plan and no levels of budget shows: a cell of the local level that holds no figure at all is the empty half of a pair of the public product and is left out, and the
+ * level is not part of the name of a cell. The public edition shows every cell as it came.
+ */
+export function evidenceRowsFor(cells: readonly EvidenceCell[], ownPlan: boolean): EvidenceCell[] {
+  return ownPlan ? cells.filter((cell) => cell.budgetLevel !== 'LOCAL' || cell.planPmVnd !== '0' || cell.planLocalVnd !== '0' || cell.disbursedVnd !== null) : [...cells];
+}
+
 function ProfileBody({ warning }: { warning: WarningItem }) {
   const { t } = useTranslation();
+  // An edition with its own frozen snapshot (the enterprise) has one plan, no local plan added and no level of budget: its columns say so in its words, with no codes of the public pack.
+  const ownPlan = useEdition().slots?.homeFigures?.publicPlanBlocks === false;
   const { permissions, mode } = useSession();
   const frozen = mode === 'READ_ONLY';
   const holds = (permission: string): boolean => permissions === undefined || permissions.includes(permission);
@@ -164,9 +178,9 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
   const gap = typeof warning.observed.gap_points === 'string' ? trimmed(warning.observed.gap_points) : null;
 
   const evidenceColumns: DataTableColumn<EvidenceCell>[] = [
-    { key: 'cell', header: t('home.profile.evidence.cell'), pinned: true, render: (cell) => `${cell.bucket} · ${cell.budgetLevel}` },
+    { key: 'cell', header: t('home.profile.evidence.cell'), pinned: true, render: (cell) => (ownPlan ? t(BUCKET_WORD[cell.bucket] ?? 'cap.bucket.other.label') : `${cell.bucket} · ${cell.budgetLevel}`) },
     { key: 'planPm', header: t('home.profile.evidence.planPm'), align: 'right', render: (cell) => formatVnd(cell.planPmVnd) },
-    { key: 'planLocal', header: t('home.profile.evidence.planLocal'), align: 'right', render: (cell) => formatVnd(cell.planLocalVnd) },
+    ...(ownPlan ? [] : [{ key: 'planLocal', header: t('home.profile.evidence.planLocal'), align: 'right' as const, render: (cell: EvidenceCell) => formatVnd(cell.planLocalVnd) }]),
     { key: 'disbursed', header: t('home.profile.evidence.disbursed'), align: 'right', render: (cell) => (cell.disbursedVnd === null ? t('home.tile.nullReason.noData') : formatVnd(cell.disbursedVnd)) },
     { key: 'ratePm', header: t('home.profile.evidence.ratePm'), align: 'right', render: (cell) => (cell.ratePmPct === null ? t('home.tile.nullReason.noData') : t('home.tile.value.percent', { value: cell.ratePmPct })) },
   ];
@@ -230,7 +244,7 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
               <p className="home-note" data-testid="evidence-context">
                 {t('home.profile.evidence.context', { id: shortId(warning.evidence.snapshotId), date: dayText(warning.evidence.asOfDate) })}
               </p>
-              <DataTable caption={t('home.profile.evidence.title')} columns={evidenceColumns} rows={warning.evidence.cells} rowKey={(cell) => `${cell.bucket}|${cell.budgetLevel}`} />
+              <DataTable caption={t('home.profile.evidence.title')} columns={evidenceColumns} rows={evidenceRowsFor(warning.evidence.cells, ownPlan)} rowKey={(cell) => `${cell.bucket}|${cell.budgetLevel}`} />
             </>
           )}
         </SectionCard>

@@ -44,6 +44,11 @@ export interface HomeFiguresStyle {
   readonly groupDigits: boolean;
   readonly publicPlanBlocks: boolean;
   /**
+   * Whether the blocks that read the Treasury report (the monthly curve of the amount disbursed through the Treasury and the ranking of the units over the plan the Prime Minister gave) are drawn on the command
+   * center, in its presentation and on the phone. False for an edition that reports through its own frozen snapshot, which has no monthly series and no such plan; unset means drawn.
+   */
+  readonly treasuryBlocks?: boolean;
+  /**
    * The one source of the amount disbursed that the command block (HOME-09, HOME-01 and the presentation) shows, for an edition that does not report through the Treasury: the enterprise reads its frozen period
    * snapshot through the one reader (rule R21), the very figures of the leader panel and of HOME-07. It is a hook (called on every render, so the number of hooks never changes); the public edition has none and
    * the command block shows the Treasury figure of the command center.

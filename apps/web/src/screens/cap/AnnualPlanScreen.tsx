@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -29,6 +30,8 @@ const isCarryover = (line: PlanLine): boolean => line.bucket === 'CARRYOVER';
 
 function AnnualContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  // An enterprise has no national target programmes and names its sources of capital in words, not by the codes of the catalogue.
+  const enterprise = useEdition().manifest.edition === 'enterprise';
   const { permissions, mode } = useSession();
   const mayDraft = canDraft(permissions, mode);
   const plans = usePlans();
@@ -43,7 +46,7 @@ function AnnualContent({ route }: ScreenProps) {
   const plan = detail.data?.plan;
   const lines = detail.data?.lines ?? [];
   const totals = detail.data?.totals;
-  const columns: DataTableColumn<(typeof lines)[number]>[] = [
+  const allColumns: DataTableColumn<(typeof lines)[number]>[] = [
     {
       key: 'year',
       header: t('cap.annual.column.year'),
@@ -64,7 +67,7 @@ function AnnualContent({ route }: ScreenProps) {
       header: t('cap.annual.column.fund'),
       render: (line) => (
         <>
-          {line.fundSource.businessKey} <small className="sub">{bucketLabel(t, line.bucket)}</small>
+          {enterprise ? line.fundSource.label : line.fundSource.businessKey} <small className="sub">{bucketLabel(t, line.bucket)}</small>
         </>
       ),
     },
@@ -102,6 +105,7 @@ function AnnualContent({ route }: ScreenProps) {
       render: (line) => <span data-testid="ctmtqg">{line.ctmtqgSubsetVnd === '0' ? '' : <Money vnd={line.ctmtqgSubsetVnd} />}</span>,
     },
   ];
+  const columns = enterprise ? allColumns.filter((column) => column.key !== 'ctmtqg') : allColumns;
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -141,12 +145,14 @@ function AnnualContent({ route }: ScreenProps) {
                   <Money vnd={totals?.allocatedVnd ?? '0'} />
                 </dd>
               </div>
-              <div>
-                <dt>{t('cap.annual.column.ctmtqg')}</dt>
-                <dd data-testid="total-ctmtqg">
-                  <Money vnd={totals?.ctmtqgSubsetVnd ?? '0'} />
-                </dd>
-              </div>
+              {enterprise ? null : (
+                <div>
+                  <dt>{t('cap.annual.column.ctmtqg')}</dt>
+                  <dd data-testid="total-ctmtqg">
+                    <Money vnd={totals?.ctmtqgSubsetVnd ?? '0'} />
+                  </dd>
+                </div>
+              )}
               <p className="sub">{t('cap.annual.total.note')}</p>
             </dl>
           </SectionCard>
