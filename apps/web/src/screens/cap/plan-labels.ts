@@ -32,6 +32,10 @@ export function bucketLabel(t: Translate, bucket: Bucket): string {
       return t('cap.bucket.currentYear.label');
     case 'CARRYOVER':
       return t('cap.bucket.carryover.label');
+    case 'EQUITY':
+      return t('cap.bucket.equity.label');
+    case 'LOAN':
+      return t('cap.bucket.loan.label');
     case 'OTHER':
       return t('cap.bucket.other.label');
   }

@@ -6,6 +6,7 @@ import {
   appropriationsFor,
   canDraft,
   ceilingStates,
+  bucketsOf,
   defaultBucket,
   describePlanProblem,
   differenceVnd,
@@ -65,6 +66,10 @@ describe('the readers of the answers of the API', () => {
     const extended = toPlanLine(planLine(2, { bucket: 'CARRYOVER', is_extended: true, extended_to: '2026-12-31', extension_document: { id: 'e', symbol: '55/QD', issued_on: '2026-01-05' } })) as PlanLine;
     expect(extended).toMatchObject({ isExtended: true, extendedTo: '2026-12-31', extensionDocument: { id: 'e', symbol: '55/QD', issuedOn: '2026-01-05' } });
     expect(toPlanLine(planLine(1, { appropriation: null }))?.appropriation).toBeNull();
+    // The enterprise pack (ENT-3e) draws its lines in equity and loan: the annual plan of the enterprise reads them like any other line (CAP-03 was empty for want of this).
+    expect(toPlanLine(planLine(3, { bucket: 'EQUITY' }))?.bucket).toBe('EQUITY');
+    expect(toPlanLine(planLine(4, { bucket: 'LOAN' }))?.bucket).toBe('LOAN');
+    expect(toPlanLine(planLine(5, { bucket: 'MYSTERY' }))).toBeUndefined();
     expect(toPlanLine(planLine(1, { amount_vnd: 'abc' }))?.amountVnd).toBe('0');
     for (const broken of [null, {}, planLine(1, { bucket: 'ELSE' }), planLine(1, { project: {} }), planLine(1, { fund_source: {} }), planLine(1, { source_year: 'x' }), planLine(1, { version: null })]) {
       expect(toPlanLine(broken)).toBeUndefined();
@@ -105,6 +110,9 @@ describe('the plans', () => {
     expect(defaultBucket(appropriation({ origin: 'CARRYOVER' }))).toBe('CARRYOVER');
     expect(defaultBucket(appropriation())).toBe('CURRENT_YEAR');
     expect(defaultBucket(undefined)).toBe('CURRENT_YEAR');
+    expect(defaultBucket(appropriation(), true)).toBe('EQUITY');
+    expect(bucketsOf(true)).toEqual(['EQUITY', 'LOAN', 'OTHER']);
+    expect(bucketsOf(false)).toEqual(['CURRENT_YEAR', 'CARRYOVER', 'OTHER']);
     expect(canDraft(undefined, 'FULL')).toBe(true);
     expect(canDraft(['capital.plan.draft'], 'FULL')).toBe(true);
     expect(canDraft(['capital.read'], 'FULL')).toBe(false);

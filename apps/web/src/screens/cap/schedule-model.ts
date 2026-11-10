@@ -1,7 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { isVnd, vndOfMillions } from './model';
 import { BUCKETS } from './plan-model';
-import type { Bucket } from './plan-model';
+import type { ScheduleBucket } from './plan-model';
 
 /** The permission that gates the registration; the server decides again under the scope of the project. */
 export const REGISTER_SCHEDULE_PERMISSION = 'capital.schedule.register';
@@ -26,7 +26,7 @@ const text = (value: unknown): string | undefined => (typeof value === 'string' 
 export interface ScheduleItem {
   id: string;
   month: number;
-  bucket: Bucket;
+  bucket: ScheduleBucket;
   budgetLevel: BudgetLevel;
   amountVnd: string;
   ctmtqgSubsetVnd: string | null;
@@ -52,7 +52,7 @@ export function toScheduleItem(raw: unknown): ScheduleItem | undefined {
   return {
     id,
     month,
-    bucket: bucket as Bucket,
+    bucket: bucket as ScheduleBucket,
     budgetLevel: level as BudgetLevel,
     amountVnd: amount,
     ctmtqgSubsetVnd: subset !== undefined && isVnd(subset) ? subset : null,
@@ -64,7 +64,7 @@ export function toScheduleItem(raw: unknown): ScheduleItem | undefined {
 /** One month of the year: what is registered for each source group (both budget levels together), and what was paid. */
 export interface MonthRow {
   month: number;
-  byBucket: Record<Bucket, string>;
+  byBucket: Record<ScheduleBucket, string>;
   registeredVnd: string;
   disbursedVnd: string;
   /** The paid over the registered, to four decimals; null when nothing is registered (the screen says there is no registration). */
@@ -83,7 +83,7 @@ export function rateOf(disbursedVnd: string, registeredVnd: string): string | nu
 export function monthRows(items: readonly ScheduleItem[]): MonthRow[] {
   return MONTHS.map((month) => {
     const mine = items.filter((item) => item.month === month);
-    const byBucket = Object.fromEntries(BUCKETS.map((bucket) => [bucket, mine.filter((item) => item.bucket === bucket).reduce((sum, item) => sum + BigInt(item.amountVnd), 0n).toString()])) as Record<Bucket, string>;
+    const byBucket = Object.fromEntries(BUCKETS.map((bucket) => [bucket, mine.filter((item) => item.bucket === bucket).reduce((sum, item) => sum + BigInt(item.amountVnd), 0n).toString()])) as Record<ScheduleBucket, string>;
     const registered = mine.reduce((sum, item) => sum + BigInt(item.amountVnd), 0n).toString();
     const disbursed = mine.reduce((sum, item) => sum + BigInt(item.disbursedVnd), 0n).toString();
     return { month, byBucket, registeredVnd: registered, disbursedVnd: disbursed, rate: rateOf(disbursed, registered) };
@@ -103,14 +103,14 @@ export function ratePercent(rate: string, locale: string): string {
 }
 
 /** The current registration of a key, when there is one: the form shows what the next save replaces. */
-export const currentOf = (items: readonly ScheduleItem[], month: number, bucket: Bucket, level: BudgetLevel): ScheduleItem | undefined =>
+export const currentOf = (items: readonly ScheduleItem[], month: number, bucket: ScheduleBucket, level: BudgetLevel): ScheduleItem | undefined =>
   items.find((item) => item.month === month && item.bucket === bucket && item.budgetLevel === level);
 
 // ---- the form ------------------------------------------------------------------------------------------------------------
 
 export interface RegistrationForm {
   month: string;
-  bucket: Bucket;
+  bucket: ScheduleBucket;
   budgetLevel: BudgetLevel;
   /** Millions of dong as typed. */
   amount: string;

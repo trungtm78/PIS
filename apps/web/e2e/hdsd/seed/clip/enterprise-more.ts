@@ -2,6 +2,7 @@ import type { Obj, SeedContext } from '../context.ts';
 import { seedCapital } from '../capital.ts';
 import { seedDoc } from '../platform-records/doc.ts';
 import { ensureDoaMatrix } from './doa.ts';
+import { seedEnterprisePlanRevision, seedEnterpriseSchedules } from './enterprise-capital.ts';
 import { seedClipBi } from './public-bi.ts';
 import { clipPlan } from './plan.ts';
 import TEXTS from '../data/enterprise-more.json' with { type: 'json' };
@@ -22,6 +23,13 @@ function enterprisePlanOnly(ctx: SeedContext): boolean {
 export async function seedClipEnterpriseCapital(ctx: SeedContext): Promise<void> {
   if (!enterprisePlanOnly(ctx)) return;
   await seedCapital(ctx);
+  await ctx.step('CAP', 'monthly schedules of disbursement', () => seedEnterpriseSchedules(ctx));
+}
+
+/** The adjustment of the plan of the year (CAP-07): a revision with a transfer between projects, approved and published. It runs after the groups that use the lines of the first revision. */
+export async function seedClipEnterpriseCapitalAdjust(ctx: SeedContext): Promise<void> {
+  if (!enterprisePlanOnly(ctx)) return;
+  await ctx.step('CAP', 'adjustment of the plan of the year', () => seedEnterprisePlanRevision(ctx));
 }
 
 /** Documents: the delegation matrix, then the outgoing decisions and letters, the register of incoming letters and the dossiers (platform-records/doc.ts, enterprise texts). */

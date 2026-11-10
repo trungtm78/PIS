@@ -1,6 +1,6 @@
 import { isVnd, millionsInput, millionsText } from '../model';
 import { BUCKETS } from '../plan-model';
-import type { Bucket } from '../plan-model';
+import type { ScheduleBucket } from '../plan-model';
 import { ADJUSTMENT_MONTH, BUDGET_LEVELS, MONTHS, REASON_MAX, monthOf, vndOfTyped } from '../schedule-model';
 import type { BudgetLevel } from '../schedule-model';
 
@@ -31,7 +31,7 @@ export interface ScheduleLine {
   id: string;
   kind: Kind;
   month: number;
-  bucket: Bucket;
+  bucket: ScheduleBucket;
   budgetLevel: BudgetLevel;
   amountVnd: string;
   assumption: string | null;
@@ -120,7 +120,7 @@ export const estimatesOf = (lines: readonly ScheduleLine[]): ScheduleLine[] =>
 
 export interface ForecastForm {
   month: string;
-  bucket: Bucket;
+  bucket: ScheduleBucket;
   budgetLevel: BudgetLevel;
   /** Millions of dong as typed. */
   amount: string;

@@ -12,7 +12,7 @@ import { levelLabel } from './labels';
 import { millionsInput, millionsText } from './model';
 import { useProjects } from './plan-hooks';
 import { BUCKETS } from './plan-model';
-import type { Bucket } from './plan-model';
+import type { ScheduleBucket } from './plan-model';
 import { useRegisterSchedule, useSchedules } from './schedule-hooks';
 import { amountProblemMessage, ctmtqgProblemMessage, monthLabel, scheduleProblemMessage, sourceLabel } from './schedule-labels';
 import {
@@ -270,7 +270,7 @@ function RegisterForm({ projectId, year, items, allowed, frozen, locale }: Regis
           </select>
         </Field>
         <Field id="register-bucket" label={t('cap.schedule.bucket.label')} error={undefined}>
-          <select id="register-bucket" value={form.bucket} onChange={(event) => setField('bucket', event.target.value as Bucket)}>
+          <select id="register-bucket" value={form.bucket} onChange={(event) => setField('bucket', event.target.value as ScheduleBucket)}>
             {BUCKETS.map((bucket) => (
               <option key={bucket} value={bucket}>
                 {sourceLabel(t, bucket)}

@@ -1196,6 +1196,8 @@
   "cap.annual.total.note": "CTMTQG is part of its line and is not added to the total.",
   "cap.bucket.carryover.label": "Carried over",
   "cap.bucket.currentYear.label": "Of the year",
+  "cap.bucket.equity.label": "Equity",
+  "cap.bucket.loan.label": "Loans",
   "cap.bucket.other.label": "Other",
   "cap.grid.amount.aria": "Amount for project {project} (million dong)",
   "cap.grid.avc.notice": "Not set",
