@@ -38058,5 +38058,10 @@
   "ent.funding.card.planShare": "Share of the annual capital plan: {value}",
   "ent.funding.card.disbursed": "Disbursed: {value}",
   "ent.funding.card.disbursedShare": "Share of what was disbursed: {value}",
-  "ent.funding.card.rate": "Against the plan of this source: {value}"
+  "ent.funding.card.rate": "Against the plan of this source: {value}",
+  "home.ov.hero.snapshotCaption": "Year to date per the period snapshot of {date}, revision {revision}",
+  "home.ov.hero.loading": "Reading the disbursement figure.",
+  "home.ov.flow.treasury.title": "Disbursed through the Treasury by month",
+  "home.ov.flow.treasury.actual": "Disbursed through the Treasury (cumulative)",
+  "home.ov.flow.treasury.caption": "Source: the closed Treasury figures, cumulative by month, year {year}. Different from the closed figure reported by the company in the block above."
 }

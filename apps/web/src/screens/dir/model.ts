@@ -495,9 +495,11 @@ export function idFrom(value: string | null): string | undefined {
   return value !== null && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value) ? value.toLowerCase() : undefined;
 }
 
-/** `2026-11-08T03:00:00.000Z` as `03:00 08/11/2026` (the time the server gave; not converted). */
+/** `2026-11-08T03:00:00.000Z` as `10:00 08/11/2026`: an instant (it has a zone) is written in Vietnam time like every other screen; a time without a zone is shown as it came. */
 export function asOfText(value: string): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  const instant = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/.test(value) ? Date.parse(value) : Number.NaN;
+  const shown = Number.isNaN(instant) ? value : new Date(instant + 7 * 3_600_000).toISOString();
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(shown);
   return match === null ? value : `${match[4]}:${match[5]} ${match[3]}/${match[2]}/${match[1]}`;
 }
 

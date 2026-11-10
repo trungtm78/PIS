@@ -66,7 +66,7 @@ describe('the enterprise web overlay', () => {
 
 describe('the enterprise way of drawing the figures of the home screens', () => {
   it('groups the digits of a sum and leaves out the blocks of the public plan', () => {
-    expect(enterpriseBundle.slots?.homeFigures).toEqual({ groupDigits: true, publicPlanBlocks: false });
+    expect(enterpriseBundle.slots?.homeFigures).toEqual({ groupDigits: true, publicPlanBlocks: false, useDisbursed: expect.any(Function) });
     expect(enterpriseBundle.slots?.fundingStructure).toBeDefined();
   });
 });

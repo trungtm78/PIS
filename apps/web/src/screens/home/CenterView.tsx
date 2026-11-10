@@ -178,6 +178,8 @@ function CenterBody({ center, waiting, counts, unitId }: { center: CommandCenter
   const year = center.asOfDate.slice(0, 4);
   const [presenting, setPresenting] = useState(false);
   const LeaderPanel = useEdition().slots?.leaderPanel;
+  // An edition that reports through its own frozen snapshot has no Treasury rates or amounts here: they would be a second, different figure beside the one of the command block.
+  const ownFigures = useEdition().slots?.homeFigures?.useDisbursed !== undefined;
   // The boards of the presentation: the figures only, one idea to a board; the enterprise edition adds its own two.
   const boards: PresentationBoard[] = [
     {
@@ -245,8 +247,9 @@ function CenterBody({ center, waiting, counts, unitId }: { center: CommandCenter
             {shortId(center.snapshotId)}
           </dd>
           <dt>{t('home.context.cutoff.label')}</dt>
-          <dd data-testid="context-cutoff">{center.treasuryCutoffDate}</dd>
+          <dd data-testid="context-cutoff">{dayText(center.treasuryCutoffDate)}</dd>
         </dl>
+        {ownFigures ? null : (
         <section className="card" aria-labelledby="home-rates-title" data-testid="home-rates">
           <h2 id="home-rates-title">{t('home.rates.title')}</h2>
           {pair === undefined ? (
@@ -268,6 +271,7 @@ function CenterBody({ center, waiting, counts, unitId }: { center: CommandCenter
             </p>
           ) : null}
         </section>
+        )}
       </details>
     </>
   );

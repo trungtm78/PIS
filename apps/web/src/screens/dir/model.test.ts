@@ -141,7 +141,11 @@ describe('the small rules', () => {
     expect(dayText('2026-11-08')).toBe('08/11/2026');
     expect(dayText(null)).toBe('');
     expect(dayText('hôm nay')).toBe('hôm nay');
-    expect(asOfText('2026-11-08T03:05:00.000Z')).toBe('03:05 08/11/2026');
+    expect(asOfText('2026-11-08T03:05:00.000Z')).toBe('10:05 08/11/2026');
+    expect(asOfText('2026-11-10T00:08:00.000Z')).toBe('07:08 10/11/2026');
+    expect(asOfText('2026-11-08T20:30:00Z')).toBe('03:30 09/11/2026');
+    expect(asOfText('2026-11-08T10:05:00+07:00')).toBe('10:05 08/11/2026');
+    expect(asOfText('2026-11-08T10:05:00')).toBe('10:05 08/11/2026');
     expect(asOfText('x')).toBe('x');
   });
 

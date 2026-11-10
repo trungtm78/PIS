@@ -66,7 +66,9 @@ describe('the leader panel of the enterprise edition (ENT-4d)', () => {
     expect(within(panel).getAllByText(percentText('30.0000', 'vi')).length).toBeGreaterThan(0);
     expect(panel.textContent).toContain(deltaText('10.0000', 'vi'));
     expect(panel.textContent).toContain(deltaText('-5.0000', 'vi'));
-    expect(screen.getByTestId('leader-rates-context').textContent).toContain('2026-10-31');
+    expect(screen.getByTestId('leader-rates-context').textContent).toContain('31/10/2026');
+    expect(panel.textContent).toContain('31/10/2025');
+    expect(panel.textContent).not.toMatch(/\d{4}-\d{2}-\d{2}/);
     const units = within(panel).getByRole('table', { name: word('ent.leader.units.caption') });
     const missing = within(units).getByText(/BAN-2/).closest('tr') as HTMLElement;
     expect(missing.textContent).toContain(word('ent.leader.noData.text'));

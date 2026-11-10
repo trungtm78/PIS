@@ -4,7 +4,7 @@ import type { LeaderPanelPart } from '../../../edition';
 import { DirectiveWidget } from '../../../../screens/dir/DirectiveWidget';
 import { DataTable, KpiStrip, KpiTile, SectionCard } from '../../../../ui';
 import type { DataTableColumn } from '../../../../ui';
-import { moneyText } from '../shared/format';
+import { dayText, moneyText } from '../shared/format';
 import { useBlockedProjects, useLeaderRates } from './hooks';
 import type { BlockedProjects, LeaderRateRow } from './hooks';
 import { deltaText, percentText } from './model';
@@ -56,11 +56,11 @@ function Rates() {
       <div data-testid="leader-rates">
         <KpiStrip label={t('ent.leader.company.aria')}>
           <KpiTile label={t('ent.leader.company.rate')} value={rateCell(company)} sub={company.rate_pct === null ? nullText(company.null_reason ?? null) : `${money(company.disbursed_vnd)} / ${money(company.plan_vnd)}`} tone="info" />
-          <KpiTile label={t('ent.leader.company.lastYear')} value={lastCell(company)} sub={data.prior_as_of_date === null || data.prior_as_of_date === undefined ? t('ent.leader.lastYear.none') : t('ent.leader.lastYear.asOf', { day: data.prior_as_of_date })} />
+          <KpiTile label={t('ent.leader.company.lastYear')} value={lastCell(company)} sub={data.prior_as_of_date === null || data.prior_as_of_date === undefined ? t('ent.leader.lastYear.none') : t('ent.leader.lastYear.asOf', { day: dayText(data.prior_as_of_date) })} />
           <KpiTile label={t('ent.leader.company.delta')} value={company.delta_points === null ? t('ent.leader.noData.text') : deltaText(company.delta_points, locale)} sub={company.trend === null ? undefined : trendText(company.trend)} tone={company.trend === 'DOWN' ? 'warning' : company.trend === 'UP' ? 'success' : 'neutral'} />
         </KpiStrip>
         <p className="muted" data-testid="leader-rates-context">
-          {t('ent.leader.context.text', { day: data.as_of_date, revision: data.revision ?? 0 })}
+          {t('ent.leader.context.text', { day: dayText(data.as_of_date), revision: data.revision ?? 0 })}
         </p>
         <DataTable caption={t('ent.leader.units.caption')} columns={columns(t('ent.leader.col.unit'))} rows={data.units} rowKey={(row) => row.id ?? row.code ?? ''} state={data.units.length === 0 ? 'empty' : 'ready'} />
         <DataTable caption={t('ent.leader.projects.caption')} columns={columns(t('ent.leader.col.project'))} rows={data.projects.slice(0, PROJECT_ROWS)} rowKey={(row) => row.id ?? row.code ?? ''} state={data.projects.length === 0 ? 'empty' : 'ready'} />

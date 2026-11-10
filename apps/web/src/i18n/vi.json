@@ -38058,5 +38058,10 @@
   "ent.funding.card.planShare": "Tỷ trọng trong kế hoạch vốn năm: {value}",
   "ent.funding.card.disbursed": "Đã giải ngân: {value}",
   "ent.funding.card.disbursedShare": "Tỷ trọng trong số đã giải ngân: {value}",
-  "ent.funding.card.rate": "Đạt so với kế hoạch của nguồn này: {value}"
+  "ent.funding.card.rate": "Đạt so với kế hoạch của nguồn này: {value}",
+  "home.ov.hero.snapshotCaption": "Lũy kế từ đầu năm theo bản chốt kỳ ngày {date}, phiên bản {revision}",
+  "home.ov.hero.loading": "Đang đọc số liệu giải ngân.",
+  "home.ov.flow.treasury.title": "Giải ngân qua Kho bạc theo tháng",
+  "home.ov.flow.treasury.actual": "Đã giải ngân qua Kho bạc (lũy kế)",
+  "home.ov.flow.treasury.caption": "Nguồn: số liệu Kho bạc đã chốt, lũy kế theo tháng, năm {year}. Khác với số báo cáo đã chốt của doanh nghiệp ở khối phía trên."
 }

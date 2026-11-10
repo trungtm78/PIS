@@ -11,6 +11,14 @@ export type MessageParams = Readonly<Record<string, string | number>>;
 const RESOURCE = join('src', 'messages', 'vi.json');
 const PLACE = /\{([A-Za-z0-9_]+)\}/g;
 
+/** The keys whose text a person reads on a screen (the work of HOME): a day in them is written as the reader writes it (`10/11/2026`), never as the `2026-11-10` of the books. The files of an export keep the ISO day. */
+const SCREEN_PREFIX = 'home.source.';
+const ISO_DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
+const dayForReader = (value: string | number): string => {
+  const match = typeof value === 'string' ? ISO_DAY.exec(value) : null;
+  return match === null ? String(value) : `${match[3]}/${match[2]}/${match[1]}`;
+};
+
 let catalogue: Readonly<Record<string, string>> | undefined;
 
 function locate(): string {
@@ -43,10 +51,11 @@ function load(): Readonly<Record<string, string>> {
 export function message(key: string, params?: MessageParams): string {
   const text = load()[key];
   if (text === undefined) throw new Error(`kernel messages: no text for ${key}`);
+  const readable = key.startsWith(SCREEN_PREFIX);
   return text.replace(PLACE, (_place, name: string) => {
     const value = params?.[name];
     if (value === undefined) throw new Error(`kernel messages: ${key} needs ${name}`);
-    return String(value);
+    return readable ? dayForReader(value) : String(value);
   });
 }
 
