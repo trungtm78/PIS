@@ -14,6 +14,9 @@ import { seedClipAlerts } from './clip/public-alerts.ts';
 import { seedClipEnterpriseAlertTriage, seedClipEnterpriseAlerts } from './clip/enterprise-alerts.ts';
 import { seedClipEnterpriseEquipment } from './clip/enterprise-equipment.ts';
 import { seedClipEnterpriseSnapshot } from './clip/enterprise-snapshot.ts';
+import { seedClipEnterpriseCrosscheck } from './clip/enterprise-crosscheck.ts';
+import { seedClipEnterpriseCapitalPrior } from './clip/enterprise-capital-prior.ts';
+import { seedClipEnterpriseSnapshotPrior } from './clip/enterprise-snapshot-prior.ts';
 import { seedClipEnterpriseBi, seedClipEnterpriseCapital, seedClipEnterpriseCapitalAdjust, seedClipEnterpriseDocuments } from './clip/enterprise-more.ts';
 import { seedClipEnterpriseDirectives, seedMeetings, seedClipEnterpriseEbs, seedClipEnterpriseFunding, seedClipEnterpriseProjects } from './clip/enterprise.ts';
 import { seedClipDisbursement } from './clip/public-dis.ts';
@@ -68,6 +71,9 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-ent-workflow', seed: seedClipWorkflow },
   { name: 'clip-ent-disbursement', seed: seedClipDisbursement },
   { name: 'clip-ent-snapshot', seed: seedClipEnterpriseSnapshot },
+  { name: 'clip-ent-capital-prior', seed: seedClipEnterpriseCapitalPrior },
+  { name: 'clip-ent-snapshot-prior', seed: seedClipEnterpriseSnapshotPrior },
+  { name: 'clip-ent-crosscheck', seed: seedClipEnterpriseCrosscheck },
   { name: 'clip-ent-bi', seed: seedClipEnterpriseBi },
   { name: 'clip-ent-alert-triage', seed: seedClipEnterpriseAlertTriage },
   { name: 'clip-ent-capital-adjust', seed: seedClipEnterpriseCapitalAdjust },
