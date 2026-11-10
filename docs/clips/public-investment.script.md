@@ -918,7 +918,7 @@ Màn hình: `AUD-12` Phát hiện toàn vẹn thanh toán (/aud/aud-12); `ADM-24
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=AUD-12`
 - `do=spot ref=aud.integrity.findings`
 
@@ -926,7 +926,7 @@ Màn hình: `AUD-12` Phát hiện toàn vẹn thanh toán (/aud/aud-12); `ADM-24
 
 - [ ] Màn AUD-12 "Phát hiện toàn vẹn thanh toán" mở được ở đường dẫn /aud/aud-12, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ADM-24 "Tách bạch nhiệm vụ" mở được ở đường dẫn /adm/adm-24, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.integrity.findings đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -1815,21 +1815,21 @@ Màn hình: `AUD-14` Tín hiệu rủi ro mua sắm (red flag) (/aud/aud-14)
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=AUD-14`
 - `do=spot ref=aud.red-flags.indicator-list`
 
 **Cần thấy trên hình**
 
 - [ ] Màn AUD-14 "Tín hiệu rủi ro mua sắm (red flag)" mở được ở đường dẫn /aud/aud-14, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.red-flags.indicator-list đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Tín hiệu để điều tra, không phải kết luận" hiện từ giây 3, kéo dài 5 giây
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `vnd-portal`
 
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
+Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng; chờ làn: PUB-contractor-account
 
 Màn hình: `VND-16` Cổng nhà thầu: hồ sơ của tôi (/vnd/vnd-16)
 
@@ -1856,6 +1856,7 @@ Màn hình: `VND-16` Cổng nhà thầu: hồ sơ của tôi (/vnd/vnd-16)
 **Cần thấy trên hình**
 
 - [ ] Màn VND-16 "Cổng nhà thầu: hồ sơ của tôi" mở được ở đường dẫn /vnd/vnd-16, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Cảnh chờ làn PUB-contractor-account: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần vnd.portal.my-evaluations đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -8456,7 +8457,7 @@ Màn hình: `ADM-01` Cây tổ chức (/adm/adm-01); `ADM-02` Người dùng và
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=ADM-01`
 - `do=spot ref=adm.org.tree`
 - `do=open screen=ADM-02`
@@ -8475,7 +8476,7 @@ Màn hình: `ADM-01` Cây tổ chức (/adm/adm-01); `ADM-02` Người dùng và
 - [ ] Màn ADM-03 "Vai trò và quyền" mở được ở đường dẫn /adm/adm-03, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ADM-16 "Sắp xếp lại đơn vị" mở được ở đường dẫn /adm/adm-16, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ADM-17 "Thành viên khách – nhà thầu" mở được ở đường dẫn /adm/adm-17, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần adm.org.tree đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần adm.org.users-invite đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần adm.org.roles-permissions đúng lúc giọng đọc nói tới
@@ -8822,7 +8823,7 @@ Màn hình: `NOT-04` Tổng quan vận hành thông báo (/not/not-04); `NOT-07`
 
 ### `pl-branding`
 
-Nền tảng: web; 18.2 giây; chỉ trong chương cắt riêng
+Nền tảng: web; 18.2 giây; chỉ trong chương cắt riêng; chờ làn: PUB-platform-console
 
 Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói sản phẩm và tính năng (/sas/sas-06)
 
@@ -8853,6 +8854,7 @@ Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói
 
 - [ ] Màn SAS-04 "Theme & thương hiệu tenant" mở được ở đường dẫn /sas/sas-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-06 "Gói sản phẩm và tính năng" mở được ở đường dẫn /sas/sas-06, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Cảnh chờ làn PUB-platform-console: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần sas.branding.theme-logo đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần sas.branding.feature-package đúng lúc giọng đọc nói tới
@@ -8863,7 +8865,7 @@ Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói
 
 ### `pl-platform-health`
 
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
+Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng; chờ làn: PUB-platform-console
 
 Màn hình: `SAS-18` Sức khỏe toàn nền tảng (/sas/sas-18); `SAS-20` Cờ tính năng và phát hành (/sas/sas-20); `SAS-21` Sao lưu và khôi phục tenant (/sas/sas-21)
 
@@ -8897,6 +8899,7 @@ Màn hình: `SAS-18` Sức khỏe toàn nền tảng (/sas/sas-18); `SAS-20` C�
 - [ ] Màn SAS-18 "Sức khỏe toàn nền tảng" mở được ở đường dẫn /sas/sas-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-20 "Cờ tính năng và phát hành" mở được ở đường dẫn /sas/sas-20, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-21 "Sao lưu và khôi phục tenant" mở được ở đường dẫn /sas/sas-21, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Cảnh chờ làn PUB-platform-console: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần sas.ops.platform-health đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần sas.ops.feature-flags đúng lúc giọng đọc nói tới

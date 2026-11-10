@@ -8052,7 +8052,7 @@ Màn hình: `ADM-01` Cây tổ chức (/adm/adm-01); `ADM-02` Người dùng và
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=ADM-01`
 - `do=spot ref=adm.org.tree`
 - `do=open screen=ADM-02`
@@ -8071,7 +8071,7 @@ Màn hình: `ADM-01` Cây tổ chức (/adm/adm-01); `ADM-02` Người dùng và
 - [ ] Màn ADM-03 "Vai trò và quyền" mở được ở đường dẫn /adm/adm-03, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ADM-16 "Sắp xếp lại đơn vị" mở được ở đường dẫn /adm/adm-16, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ADM-17 "Thành viên khách – nhà thầu" mở được ở đường dẫn /adm/adm-17, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần adm.org.tree đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần adm.org.users-invite đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần adm.org.roles-permissions đúng lúc giọng đọc nói tới
@@ -8418,7 +8418,7 @@ Màn hình: `NOT-04` Tổng quan vận hành thông báo (/not/not-04); `NOT-07`
 
 ### `pl-branding`
 
-Nền tảng: web; 18.2 giây; chỉ trong chương cắt riêng
+Nền tảng: web; 18.2 giây; chỉ trong chương cắt riêng; chờ làn: PUB-platform-console
 
 Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói sản phẩm và tính năng (/sas/sas-06)
 
@@ -8449,6 +8449,7 @@ Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói
 
 - [ ] Màn SAS-04 "Theme & thương hiệu tenant" mở được ở đường dẫn /sas/sas-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-06 "Gói sản phẩm và tính năng" mở được ở đường dẫn /sas/sas-06, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Cảnh chờ làn PUB-platform-console: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần sas.branding.theme-logo đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần sas.branding.feature-package đúng lúc giọng đọc nói tới
@@ -8459,7 +8460,7 @@ Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói
 
 ### `pl-platform-health`
 
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
+Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng; chờ làn: PUB-platform-console
 
 Màn hình: `SAS-18` Sức khỏe toàn nền tảng (/sas/sas-18); `SAS-20` Cờ tính năng và phát hành (/sas/sas-20); `SAS-21` Sao lưu và khôi phục tenant (/sas/sas-21)
 
@@ -8493,6 +8494,7 @@ Màn hình: `SAS-18` Sức khỏe toàn nền tảng (/sas/sas-18); `SAS-20` C�
 - [ ] Màn SAS-18 "Sức khỏe toàn nền tảng" mở được ở đường dẫn /sas/sas-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-20 "Cờ tính năng và phát hành" mở được ở đường dẫn /sas/sas-20, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-21 "Sao lưu và khôi phục tenant" mở được ở đường dẫn /sas/sas-21, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Cảnh chờ làn PUB-platform-console: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần sas.ops.platform-health đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần sas.ops.feature-flags đúng lúc giọng đọc nói tới
