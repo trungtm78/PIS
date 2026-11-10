@@ -23,7 +23,7 @@ const root = (tenantId: string | undefined) => ['dis', tenantId, 'reports'] as c
 export const PAGE_SIZE = 25;
 
 /** One page of the list of reports with the figures of the filter and of the whole scope; the cursor of the page is part of the key, so a page is read once. */
-export function useReportPage(filter: FilterState, cursor: string | undefined, size = PAGE_SIZE) {
+export function useReportPage(filter: FilterState, cursor: string | undefined, size = PAGE_SIZE, enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<ReportPage>({
@@ -41,7 +41,7 @@ export function useReportPage(filter: FilterState, cursor: string | undefined, s
         }),
       );
     },
-    enabled: tenant !== undefined,
+    enabled: tenant !== undefined && enabled,
     retry: false,
   });
 }

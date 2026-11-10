@@ -11,7 +11,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { AuditLine, ConfirmDialog, ContextBar, KpiTile, MakerCheckerBadge, SectionCard, StatusPill, StickyActions } from '../../../ui';
 import { InputsPanel } from './InputsPanel';
 import { ResultsPanel } from './ResultsPanel';
-import { useAppraisal, useApproveAppraisal, useCreateAppraisal, useExportAppraisal, useReturnAppraisal, useRunAppraisal, useSubmitAppraisal, useUpdateInputs } from './hooks';
+import { useAppraisal, useAppraisalList, useApproveAppraisal, useCreateAppraisal, useExportAppraisal, useReturnAppraisal, useRunAppraisal, useSubmitAppraisal, useUpdateInputs } from './hooks';
 import { LIST_PATH, asOfText, draftOf, draftProblems, idFrom, inputsBody, sameDraft, saveFile, startScenarios, workbenchPath } from './model';
 import type { Appraisal, Draft } from './model';
 import './fin.css';
@@ -48,7 +48,11 @@ function WorkbenchContent({ route }: ScreenProps) {
   const { tenant, mode } = useSession();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const id = idFrom(params.get('appraisal'));
+  const named = idFrom(params.get('appraisal'));
+  // Opened without an appraisal in the address, the first one of the register with a result is taken (the register stays one link away), as the appraisal screens take the first project in appraisal.
+  const fallback = useAppraisalList({ status: '', kind: '', q: '', projectId: undefined, offset: 0 }, named === undefined);
+  const first = fallback.data?.items.find((item) => item.resultState !== 'NONE') ?? fallback.data?.items[0];
+  const id = named ?? first?.id;
   const query = useAppraisal(id);
   const state = useScreenState({ isLoading: query.isLoading, error: query.error, data: query.data, isEmpty: () => false });
   const view = query.data ?? undefined;
@@ -165,7 +169,9 @@ function WorkbenchContent({ route }: ScreenProps) {
         unit={t('fin1.unit.vnd')}
         {...(view === undefined ? {} : { asOf: asOfText(view.asOf) })}
       />
-      {id === undefined ? (
+      {id === undefined && named === undefined && fallback.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : id === undefined ? (
         <p className="callout" data-testid="no-target">
           {t('fin1.work.noTarget')}
         </p>
@@ -177,6 +183,11 @@ function WorkbenchContent({ route }: ScreenProps) {
             </p>
           ) : (
             <>
+              {named === undefined ? (
+                <p className="callout" role="status" data-testid="default-appraisal">
+                  {t('fin1.work.default.notice')} <Link to={LIST_PATH}>{t('fin1.work.default.link')}</Link>
+                </p>
+              ) : null}
               {message === undefined ? null : (
                 <p className={message.tone === 'ok' ? 'callout' : 'callout fin1-error'} role={message.tone === 'ok' ? 'status' : 'alert'} data-testid="message">
                   {message.text}

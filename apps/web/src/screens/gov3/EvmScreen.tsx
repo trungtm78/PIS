@@ -8,6 +8,8 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ContextBar, DataTable, FlowChart, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
 import type { FlowSeries } from '../../ui';
+import { LIST_PATH } from '../prj/model';
+import { useDefaultProject } from '../prj/hooks';
 import { useBaseline, useComponentContracts, useEvm, useExportSCurve, useLinkContract, useSCurve } from './hooks';
 import type { EvmSelection } from './hooks';
 import { methodText, ragText, ragTone, reasonText, refusalText } from './labels';
@@ -64,7 +66,10 @@ function EvmContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { tenant, mode, permissions } = useSession();
   const [params] = useSearchParams();
-  const projectId = idFrom(params.get('project'));
+  const named = idFrom(params.get('project'));
+  // Opened without a project in the address, the first project under way of the register is taken (the register stays one link away).
+  const fallback = useDefaultProject(named === undefined, 'IMPLEMENTATION');
+  const projectId = named ?? fallback.project?.id;
   const today = vietnamToday();
   const [asOf, setAsOf] = useState('');
   const [scope, setScope] = useState<EvmSelection['scope']>('PROJECT');
@@ -148,12 +153,19 @@ function EvmContent({ route }: ScreenProps) {
         unit={t('govb1.common.unit')}
         {...(view === undefined ? {} : { asOf: dayText(view.asOf) })}
       />
-      {projectId === undefined ? (
+      {projectId === undefined && named === undefined && fallback.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : projectId === undefined ? (
         <p className="callout" data-testid="no-target">
           {t('govb1.evm.noTarget')}
         </p>
       ) : (
         <>
+          {named === undefined ? (
+            <p className="callout" role="status" data-testid="default-project">
+              {t('govb1.default.project.notice')} <Link to={LIST_PATH}>{t('govb1.default.project.link')}</Link>
+            </p>
+          ) : null}
           <form className="gov3-form" aria-label={t('govb1.evm.choose')} onSubmit={(event: FormEvent) => event.preventDefault()}>
             <label>
               {t('govb1.evm.asOf')}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -10,9 +10,9 @@ import { ContextBar, SectionCard, StatusPill, StickyActions } from '../../../ui'
 import { Field } from '../components';
 import '../dis.css';
 import '../rates/rates.css';
-import { useReport, useSaveDraft } from '../report/hooks';
+import { useReport, useReportPage, useSaveDraft } from '../report/hooks';
 import { reportStatusLabel } from '../report/labels';
-import { canEdit } from '../report/model';
+import { NO_FILTER, REPORTS_PATH, canEdit } from '../report/model';
 import type { ReportDetail } from '../report/model';
 import { statusTone } from '../report/weekly-model';
 import { useInheritNarrative, useNarrativeContext } from './hooks';
@@ -28,7 +28,10 @@ export default function NarrativeScreen({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { tenant } = useSession();
   const [params] = useSearchParams();
-  const reportId = params.get('report') ?? undefined;
+  const named = params.get('report') ?? undefined;
+  // Opened without a report in the address, the newest draft of the register is taken (the register stays one link away), as the appraisal screens take the first project in appraisal.
+  const fallback = useReportPage({ ...NO_FILTER, status: 'DRAFT' }, undefined, 1, named === undefined);
+  const reportId = named ?? fallback.data?.items[0]?.id;
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -37,12 +40,21 @@ export default function NarrativeScreen({ route }: ScreenProps) {
           <p>{t('ent3b.narr.page.subtitle')}</p>
         </div>
       </div>
-      {reportId === undefined ? (
+      {reportId === undefined && named === undefined && fallback.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : reportId === undefined ? (
         <p className="w2dis-banner w2dis-banner--info" role="status" data-testid="no-report">
           {t('ent3b.narr.noReport.note')}
         </p>
       ) : (
-        <Content key={`${tenant?.id ?? 'none'}:${reportId}`} reportId={reportId} />
+        <>
+          {named === undefined ? (
+            <p className="w2dis-banner w2dis-banner--info" role="status" data-testid="default-report">
+              {t('ent3b.narr.default.notice')} <Link to={REPORTS_PATH}>{t('ent3b.narr.default.link')}</Link>
+            </p>
+          ) : null}
+          <Content key={`${tenant?.id ?? 'none'}:${reportId}`} reportId={reportId} />
+        </>
       )}
       <p className="prototype-note">{t('ent3b.narr.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>

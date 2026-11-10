@@ -6,6 +6,8 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, KpiStrip, KpiTile, SectionCard, StatusPill } from '../../ui';
+import { useDefaultProject } from '../prj/hooks';
+import { LIST_PATH } from '../prj/model';
 import { GovernanceAlertRegister } from './GovernanceAlertRegister';
 import { useAcknowledgeAlert, useBaseline, useCaptureBaseline, useDecideReappraisal } from './hooks';
 import { refusalText } from './labels';
@@ -38,7 +40,10 @@ function BaselineContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { tenant, mode } = useSession();
   const [params] = useSearchParams();
-  const projectId = idFrom(params.get('project'));
+  const named = idFrom(params.get('project'));
+  // Opened without a project in the address, the first project under way of the register is taken (the register stays one link away).
+  const fallback = useDefaultProject(named === undefined, 'IMPLEMENTATION');
+  const projectId = named ?? fallback.project?.id;
   const baseline = useBaseline(projectId);
   const state = useScreenState({ isLoading: baseline.isLoading, error: baseline.error, data: baseline.data, isEmpty: () => false });
   const money = (value: string | null | undefined): string => vnd(value, locale);
@@ -67,7 +72,9 @@ function BaselineContent({ route }: ScreenProps) {
         unit={t('govb1.common.unit')}
         {...(view === undefined ? {} : { asOf: asOfText(view.asOf) })}
       />
-      {projectId === undefined ? (
+      {projectId === undefined && named === undefined && fallback.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : projectId === undefined ? (
         <>
           <p className="callout" data-testid="no-target">
             {t('govb1.baseline.noTarget')}
@@ -76,6 +83,11 @@ function BaselineContent({ route }: ScreenProps) {
         </>
       ) : (
         <StateBoundary state={state} onRetry={() => void baseline.refetch()}>
+          {named === undefined ? (
+            <p className="callout" role="status" data-testid="default-project">
+              {t('govb1.default.project.notice')} <Link to={LIST_PATH}>{t('govb1.default.project.link')}</Link>
+            </p>
+          ) : null}
           {view === undefined ? (
             <p className="callout" data-testid="missing">
               {t('govb1.baseline.missing')}

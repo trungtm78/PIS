@@ -38074,5 +38074,11 @@
   "home.profile.threshold.graceDays": "Thời hạn nội bộ {value} ngày",
   "home.profile.threshold.explanationDueDays": "Thời hạn giải trình {value} ngày",
   "cap.fund.nsdpDtpt.label": "Vốn đầu tư phát triển ngân sách địa phương",
-  "prj.score.default.fallback.notice": "Chưa có dự án nào đang thẩm định trong phạm vi của bạn; đang mở dự án đầu tiên còn hoạt động."
+  "prj.score.default.fallback.notice": "Chưa có dự án nào đang thẩm định trong phạm vi của bạn; đang mở dự án đầu tiên còn hoạt động.",
+  "ent3b.narr.default.notice": "Chưa chọn báo cáo trên địa chỉ nên đang mở bản nháp mới nhất của sổ báo cáo.",
+  "ent3b.narr.default.link": "Chọn báo cáo khác trong danh sách báo cáo",
+  "fin1.work.default.notice": "Chưa chọn hồ sơ trên địa chỉ nên đang mở hồ sơ thẩm định đã có kết quả mới nhất của sổ hồ sơ.",
+  "fin1.work.default.link": "Chọn hồ sơ khác trong danh sách hồ sơ thẩm định",
+  "govb1.default.project.notice": "Chưa chọn dự án trên địa chỉ nên đang mở dự án đầu tiên đang thực hiện của sổ dự án.",
+  "govb1.default.project.link": "Chọn dự án khác trong danh sách dự án"
 }

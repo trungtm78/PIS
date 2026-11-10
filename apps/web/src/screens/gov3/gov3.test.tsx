@@ -76,11 +76,11 @@ describe('PRJ-26: the baseline, the deviation and the number of moves', () => {
     return h;
   };
 
-  it('says what to open it from when the address names no project, and reads no project (only the register of alerts)', () => {
+  it('says what to open it from when the address names no project and the register has none, and reads no project (only the register of alerts)', async () => {
     const h = serve({ listGovernanceAlerts: { items: [], as_of: '2026-11-08' } });
     mount(<BaselineScreen route={route} />, h, ['project.baseline.read'], '/prj/prj-26');
-    expect(screen.getByTestId('no-target').textContent).toBe(text('govb1.baseline.noTarget'));
-    expect(h.read.mock.calls.every((call) => call[0] === 'listGovernanceAlerts')).toBe(true);
+    expect((await screen.findByTestId('no-target')).textContent).toBe(text('govb1.baseline.noTarget'));
+    expect(h.read.mock.calls.every((call) => call[0] === 'listGovernanceAlerts' || call[0] === 'get_resources_project')).toBe(true);
   });
 
   it('shows the versions, the deviation against the thresholds, the policy as not confirmed, the moves, the events, the requests and the alerts', async () => {
@@ -370,11 +370,11 @@ describe('PRJ-27: earned value and the S-curve', () => {
   };
   const kpi = (label: string): HTMLElement => screen.getByText(text(label), { selector: '.ui-kpi__label' }).closest('article') as HTMLElement;
 
-  it('says what to open it from when the address names no project, and reads nothing', () => {
+  it('says what to open it from when the address names no project and the register has none, and reads no project figure', async () => {
     const h = serve({});
     mount(<EvmScreen route={route} />, h, permissions, '/prj/prj-27');
-    expect(screen.getByTestId('no-target').textContent).toBe(text('govb1.evm.noTarget'));
-    expect(h.read).not.toHaveBeenCalled();
+    expect((await screen.findByTestId('no-target')).textContent).toBe(text('govb1.evm.noTarget'));
+    expect(h.read.mock.calls.every((call) => call[0] === 'get_resources_project')).toBe(true);
   });
 
   it('shows the nine figures, the colour band of the indices in words, the method named, the policy and the packages with their contracts', async () => {
