@@ -4,6 +4,7 @@ import { useTranslation } from '../../i18n';
 import type { Translator } from '../../i18n';
 import { CommandHero, DataTable, FlowChart, KpiStrip, KpiTile, PeriodProgress, SectionCard, StatusPill } from '../../ui';
 import type { Severity, Tone } from '../../ui';
+import type { HomeDisbursed } from '../../editions/edition';
 import { FigureInfo, FlagPills, figureShown, noneText } from './figure-components';
 import { MY_WORK_PATH, REALLOCATION_PATH, WARNINGS_PATH, countTileOf, drillPathOf, figureText } from './model';
 import type { CommandCenter, Tile, WaitingCounts } from './model';
@@ -15,6 +16,7 @@ import type { RankingRow } from './warning-model';
 
 type T = Translator['t'];
 export const RANKING_PATH = '/home/home-04';
+const FUNDING_PATH = '/home/home-07';
 const RANK_ROWS = 5;
 
 const RULE_SEVERITY: Record<Bottleneck['worst'], Severity> = {
@@ -57,16 +59,20 @@ export function groupedText(text: string, locale: string, on: boolean): string {
   return on && /^\d{4,}$/.test(text) ? text.replace(/\B(?=(\d{3})+(?!\d))/g, locale === 'en' ? ',' : '.') : text;
 }
 
+const NO_SNAPSHOT_FIGURE = (): HomeDisbursed | undefined => undefined;
+
 /** The dark command block: the amount disbursed, the ring over the plan the Prime Minister gave, the two rates side by side with their denominators, and the two actions. */
 export function Hero({ center, year }: { center: CommandCenter; year: string }) {
   const { t, locale } = useTranslation();
   const style = useEdition().slots?.homeFigures;
+  // An edition that reports through its own frozen snapshot (the enterprise) has that figure first and only: the Treasury figure of the command center is never shown beside it (one number, one source).
+  const snapshot: HomeDisbursed | undefined = (style?.useDisbursed ?? NO_SNAPSHOT_FIGURE)();
   const hero = heroOf(center);
-  const disbursedTile = tileOf(center, 'DISBURSED_TREASURY');
+  const disbursedTile = snapshot === undefined ? tileOf(center, 'DISBURSED_TREASURY') : undefined;
   const pm = tileOf(center, 'DISBURSEMENT_RATE_PM');
   const total = tileOf(center, 'DISBURSEMENT_RATE_TOTAL');
-  const amount = disbursedTile === undefined ? null : disbursedTile.displayValue;
-  const missing = disbursedTile === undefined || disbursedTile.nullReason === null || disbursedTile.nullReason === 'NO_DATA' ? t('home.ov.hero.noData') : noneText(t, disbursedTile);
+  const amount = snapshot !== undefined ? (snapshot.state === 'ready' ? snapshot.valueVnd : null) : disbursedTile === undefined ? null : disbursedTile.displayValue;
+  const missing = snapshot !== undefined || disbursedTile === undefined || disbursedTile.nullReason === null || disbursedTile.nullReason === 'NO_DATA' ? t('home.ov.hero.noData') : noneText(t, disbursedTile);
   return (
     <CommandHero
       label={t('home.ov.hero.label', { year })}
@@ -74,7 +80,14 @@ export function Hero({ center, year }: { center: CommandCenter; year: string }) 
       unit={amount === null ? '' : t('govc.home.unit.vnd')}
       caption={
         <>
-          {amount === null ? missing : t('home.ov.hero.caption', { date: dayText(center.treasuryCutoffDate === '' ? center.asOfDate : center.treasuryCutoffDate) })} <FigureNotes tile={disbursedTile} />
+          {amount === null
+            ? snapshot?.state === 'loading'
+              ? t('home.ov.hero.loading')
+              : missing
+            : snapshot?.state === 'ready'
+              ? t('home.ov.hero.snapshotCaption', { date: dayText(snapshot.asOfDate), revision: snapshot.revision })
+              : t('home.ov.hero.caption', { date: dayText(center.treasuryCutoffDate === '' ? center.asOfDate : center.treasuryCutoffDate) })}{' '}
+          <FigureNotes tile={disbursedTile} />
         </>
       }
       {...(style?.publicPlanBlocks === false
@@ -88,7 +101,11 @@ export function Hero({ center, year }: { center: CommandCenter; year: string }) 
           })}
       actions={
         <>
-          {disbursedTile === undefined ? null : (
+          {snapshot !== undefined ? (
+            <Link className="ui-button ui-button--onDark" to={FUNDING_PATH}>
+              {t('home.ov.hero.action.sources')}
+            </Link>
+          ) : disbursedTile === undefined ? null : (
             <Link className="ui-button ui-button--onDark" to={drillPathOf(disbursedTile)}>
               {t('home.ov.hero.action.sources')}
             </Link>
@@ -229,11 +246,11 @@ export function Causes() {
   );
 }
 
-function flowSeries(t: T, flow: CashFlow) {
+function flowSeries(t: T, flow: CashFlow, treasury: boolean) {
   const label = (month: number): string => t('home.ov.flow.month', { month });
   return [
     {
-      label: t('home.ov.flow.actual'),
+      label: treasury ? t('home.ov.flow.treasury.actual') : t('home.ov.flow.actual'),
       style: 'actual' as const,
       points: flow.points.flatMap((point) => (point.actualBillions === null ? [] : [{ x: label(point.month), y: point.actualBillions }])),
     },
@@ -250,13 +267,15 @@ export function CashFlowCard({ snapshotId, unitId, year }: { snapshotId: string;
   const { t } = useTranslation();
   const query = useCashFlow(snapshotId, unitId);
   const flow = query.data;
-  const caption = t('home.ov.flow.caption', { year: flow?.planYear ?? year });
+  // On an edition with its own frozen snapshot the curve is the Treasury's, and it says so: it is another concept than the amount reported in the command block, with its own source and as-of day.
+  const treasuryOnly = useEdition().slots?.homeFigures?.useDisbursed !== undefined;
+  const caption = treasuryOnly ? t('home.ov.flow.treasury.caption', { year: flow?.planYear ?? year }) : t('home.ov.flow.caption', { year: flow?.planYear ?? year });
   return (
-    <SectionCard title={t('home.ov.flow.title')} unit={t('home.ov.flow.unit')}>
+    <SectionCard title={treasuryOnly ? t('home.ov.flow.treasury.title') : t('home.ov.flow.title')} unit={t('home.ov.flow.unit')}>
       {query.isError ? (
         <SourceError source={t('home.ov.source.cashflow')} onRetry={() => void query.refetch()} />
       ) : (
-        <FlowChart unit={t('home.ov.flow.unit')} caption={caption} state={flow === undefined ? 'loading' : hasCurve(flow) ? 'ready' : 'empty'} series={flow === undefined ? [] : flowSeries(t, flow)} />
+        <FlowChart unit={t('home.ov.flow.unit')} caption={caption} state={flow === undefined ? 'loading' : hasCurve(flow) ? 'ready' : 'empty'} series={flow === undefined ? [] : flowSeries(t, flow, treasuryOnly)} />
       )}
     </SectionCard>
   );

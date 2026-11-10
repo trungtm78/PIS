@@ -40,7 +40,16 @@ export interface WebEditionSlots {
 export interface HomeFiguresStyle {
   readonly groupDigits: boolean;
   readonly publicPlanBlocks: boolean;
+  /**
+   * The one source of the amount disbursed that the command block (HOME-09, HOME-01 and the presentation) shows, for an edition that does not report through the Treasury: the enterprise reads its frozen period
+   * snapshot through the one reader (rule R21), the very figures of the leader panel and of HOME-07. It is a hook (called on every render, so the number of hooks never changes); the public edition has none and
+   * the command block shows the Treasury figure of the command center.
+   */
+  readonly useDisbursed?: () => HomeDisbursed;
 }
+
+/** The disbursement of the frozen snapshot of an edition: whole dong, the day the snapshot is as of and its revision; `none` when nothing is frozen yet (never a 0). */
+export type HomeDisbursed = { readonly state: 'loading' } | { readonly state: 'none' } | { readonly state: 'ready'; readonly valueVnd: string; readonly asOfDate: string; readonly revision: number };
 
 export const PUBLIC_BUNDLE: WebEditionBundle = { manifest: PUBLIC_EDITION_MANIFEST };
 

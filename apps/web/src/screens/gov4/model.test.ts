@@ -17,7 +17,7 @@ describe('the models of the money control screens', () => {
     expect(idFrom(ID.toUpperCase())).toBe(ID);
     expect(idFrom('x')).toBeUndefined();
     expect(idFrom(null)).toBeUndefined();
-    expect(asOfText('2026-11-08T03:05:00.000Z')).toBe('03:05 08/11/2026');
+    expect(asOfText('2026-11-08T03:05:00.000Z')).toBe('10:05 08/11/2026');
     expect(asOfText('yesterday')).toBe('yesterday');
   });
 

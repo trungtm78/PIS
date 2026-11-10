@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { components } from '@machvon/contracts';
 import { useApiClient } from '../../../../api/ApiClientContext';
 import { useSession } from '../../../../session/SessionContext';
+import type { HomeDisbursed } from '../../../edition';
 
 export type LeaderRates = components['schemas']['LeaderRates'];
 export type LeaderRateRow = components['schemas']['LeaderRateRow'];
@@ -38,4 +39,20 @@ export function useBlockedProjects() {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
+}
+
+/**
+ * The amount disbursed that the command block of HOME shows on the enterprise edition: the company line of the frozen snapshot (the same read as the leader panel, so one number never has two sources). Nothing
+ * frozen, or a company with no figure, is `none`: the block says so and never falls back to the Treasury figure.
+ */
+export function useSnapshotDisbursed(): HomeDisbursed {
+  const read = useLeaderRates();
+  return snapshotDisbursedOf(read.isLoading, read.data);
+}
+
+export function snapshotDisbursedOf(loading: boolean, data: LeaderRates | undefined): HomeDisbursed {
+  if (loading) return { state: 'loading' };
+  const value = data?.company.disbursed_vnd;
+  if (data === undefined || value === null || value === undefined) return { state: 'none' };
+  return { state: 'ready', valueVnd: value, asOfDate: data.as_of_date, revision: data.revision ?? 0 };
 }

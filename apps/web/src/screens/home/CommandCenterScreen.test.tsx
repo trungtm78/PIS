@@ -114,7 +114,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
     expect(contextText()).toContain(scopeAll(3));
     expect(contextText()).toContain('12/10/2027');
     expect(screen.getByTestId('context-snapshot').getAttribute('title')).toBe(S40);
-    expect(screen.getByTestId('context-cutoff').textContent).toBe('2027-10-12');
+    expect(screen.getByTestId('context-cutoff').textContent).toBe('12/10/2027');
   });
 
   it('gives each tile the way to its source, carrying its signed token and nothing else', async () => {

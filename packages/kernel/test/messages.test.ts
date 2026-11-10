@@ -18,4 +18,10 @@ describe('kernel messages', () => {
     expect(dimensions.unit).toBe('Đơn vị');
     expect(messagesUnder('no.such.family')).toEqual({});
   });
+
+  it('writes a day in a text of the screens of HOME as dd/mm/yyyy and leaves the files of an export in ISO', () => {
+    expect(message('home.source.prc.step.due', { date: '2026-09-03' })).toBe('Hạn bước 03/09/2026');
+    expect(message('home.source.prc.step.due', { date: 'hôm qua' })).toBe('Hạn bước hôm qua');
+    expect(message('bi.export.title', { code: '2026-09-03' })).toBe('Xuất số liệu 2026-09-03');
+  });
 });

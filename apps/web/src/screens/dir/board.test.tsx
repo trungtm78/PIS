@@ -59,7 +59,7 @@ describe('DIR-03: the board of the directives', () => {
     expect(within(panel).getByText(text('dir.info.source.text'))).toBeTruthy();
     expect(within(panel).getByText(text('dir.policy.default.text'))).toBeTruthy();
     expect(within(panel).getByText(text('dir.info.unverified.text'))).toBeTruthy();
-    expect(within(panel).getByText('03:00 08/11/2026')).toBeTruthy();
+    expect(within(panel).getByText('10:00 08/11/2026')).toBeTruthy();
   });
 
   it('shows a skeleton for the figures and the columns while it reads, never a zero', () => {

@@ -398,9 +398,11 @@ export function toAdvancePolicy(raw: unknown): AdvancePolicyVersion[] {
   }));
 }
 
-/** The day and the hour of a time the server gave, as the reader writes it; text that is not a time is shown as it came. */
+/** The day and the hour of a time the server gave, as the reader writes it: an instant (it has a zone) in Vietnam time like every other screen; text that is not a time is shown as it came. */
 export function asOfText(value: string): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  const instant = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})$/.test(value) ? Date.parse(value) : Number.NaN;
+  const shown = Number.isNaN(instant) ? value : new Date(instant + 7 * 3_600_000).toISOString();
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(shown);
   return match === null ? value : `${match[4]}:${match[5]} ${match[3]}/${match[2]}/${match[1]}`;
 }
 
