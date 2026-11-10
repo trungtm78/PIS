@@ -14,16 +14,22 @@ interface Person {
   initials: string;
   membershipId?: string;
 }
-const fixtureUsers = (JSON.parse(readFileSync(new URL('./e2e/support/e2e-fixtures.json', import.meta.url), 'utf8')) as { users: Array<{ key: string; membershipId: string }> }).users;
+const fixtureUsers = (JSON.parse(readFileSync(new URL('./e2e/support/e2e-fixtures.json', import.meta.url), 'utf8')) as { users: Array<{ key: string; membershipId: string; audience?: string; roles?: string[]; permissions?: string[] | null }> }).users;
 const people = JSON.parse(readFileSync(new URL('./e2e/support/docs-people.json', import.meta.url), 'utf8')) as Person[];
 // The development session knows its users by key; the people of the guide have real names and no list of permissions (the API decides what each may do).
-const devUsers = people.map((person) => ({
-  key: person.key,
-  displayName: person.name,
-  initials: person.initials,
-  membershipId: fixtureUsers.find((user) => user.key === person.key)?.membershipId,
-  permissions: null,
-}));
+const devUsers = people.map((person) => {
+  const fixture = fixtureUsers.find((user) => user.key === person.key);
+  return {
+    key: person.key,
+    displayName: person.name,
+    initials: person.initials,
+    membershipId: fixture?.membershipId,
+    // The control-plane screens hold a person to the permissions the fixture lists; the people of a tenant are left to the API.
+    permissions: fixture?.audience === 'control' ? (fixture.permissions ?? null) : null,
+    // The platform operator signs in on the control plane: a token of the control audience with its realm roles.
+    ...(fixture?.audience === 'control' ? { audience: 'control', roles: fixture.roles ?? [] } : {}),
+  };
+});
 
 const servers = (Array.isArray(base.webServer) ? base.webServer : base.webServer === undefined ? [] : [base.webServer]).map((server, index) => ({
   ...server,

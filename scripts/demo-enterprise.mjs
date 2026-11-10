@@ -37,6 +37,7 @@ export const DEMO_PERSONAS = Object.freeze([
   { key: 'unitAdmin', who: 'Le Minh Cuong - quan tri don vi', shows: 'Quan tri don vi, lich nhac, thanh vien', home: '/home/home-01' },
   { key: 'treasuryMaker', who: 'Hoang Thi Lan - ke toan', shows: 'Thanh toan, doi chieu ke toan', home: '/home/home-01' },
   { key: 'auditor', who: 'Vu Duc Minh - kiem toan', shows: 'Chi doc: kiem toan, nhat ky', home: '/home/home-01' },
+  { key: 'securityAdmin', who: 'Ngo Thanh Son - quan tri bao mat', shows: 'Chi doc: uy quyen vinh vien ADM-25, lam thay ADM-26, pham vi theo ky ADM-27', home: '/adm/adm-25' },
   { key: 'nobody', who: 'Do Thi Ha - thanh vien thuong', shows: 'Quyen toi thieu: de minh hoa man hinh tu choi quyen', home: '/home/home-02' },
 ]);
 
@@ -100,13 +101,19 @@ export function buildStackEnv({ ports, sessionKey, infoPath }) {
 
 /** The development users of the web: the people of the docs stack on the accounts of the fixture users (what playwright.hdsd.config.ts builds). Pure. */
 export function buildDevUsers(fixtureUsers, people) {
-  return people.map((person) => ({
-    key: person.key,
-    displayName: person.name,
-    initials: person.initials,
-    membershipId: fixtureUsers.find((user) => user.key === person.key)?.membershipId,
-    permissions: null,
-  }));
+  return people.map((person) => {
+    const fixture = fixtureUsers.find((user) => user.key === person.key);
+    return {
+      key: person.key,
+      displayName: person.name,
+      initials: person.initials,
+      membershipId: fixture?.membershipId,
+      // The screens of the control plane hold a person to the permissions the fixture lists (the restore screen refuses a session that lists none); the people of a tenant are left to the API.
+      permissions: fixture?.audience === 'control' ? (fixture.permissions ?? null) : null,
+      // The platform operator signs in on the control plane (token of the control audience with its realm roles), not in a tenant.
+      ...(fixture?.audience === 'control' ? { audience: 'control', roles: fixture.roles ?? [] } : {}),
+    };
+  });
 }
 
 /** The environment of the Vite dev server of the enterprise edition. Pure. */
