@@ -36,6 +36,8 @@ export const ENTERPRISE_EDITION_MANIFEST: EditionManifest = defineEditionManifes
       'home.ov.kpi.plan.subMissing',
       'home.ov.rank.caption',
       'govc.home.kpi.plan.sub',
+      'prj.list.column.nationalCode',
+      'prj.create.nationalCode.label',
     ],
     mobile: ['mob.account.biometric.reason', 'mob.home.leader.title', 'mob.release.upgrade.failed', 'mob.signIn.unlock.reason', 'mob.welcome.logo.label', 'mob.welcome.title.text'],
   },

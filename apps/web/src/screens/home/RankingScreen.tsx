@@ -12,6 +12,7 @@ import type { DataTableColumn } from '../../ui';
 import '../dis/dis.css';
 import './home.css';
 import { FORMULA_REFERENCE, shortId } from './model';
+import { dayText } from './overview-model';
 import { useRankings } from './warning-hooks';
 import { DENOMINATORS, groupsOf, tablesFor } from './warning-model';
 import type { Denominator, RankingRow } from './warning-model';
@@ -71,7 +72,7 @@ function RankingContent({ route }: ScreenProps) {
           <ContextBar
             items={[
               { label: t('dis.wr.ctx.scope'), value: tenant?.name ?? t('dis.wr.ctx.scope.all') },
-              { label: t('home.drill.fact.asOf'), value: rankings.asOfDate },
+              { label: t('home.drill.fact.asOf'), value: dayText(rankings.asOfDate) },
               { label: t('home.ranking.denominator.label'), value: denominatorLabel(t, denominator) },
             ]}
             unit={t('dis.wr.unit')}
@@ -114,7 +115,7 @@ function RankingContent({ route }: ScreenProps) {
           {rankings === undefined ? null : (
             <>
               <p className="home-note" data-testid="ranking-context">
-                {t('home.ranking.snapshot', { id: shortId(rankings.snapshotId), date: rankings.asOfDate })}
+                {t('home.ranking.snapshot', { id: shortId(rankings.snapshotId), date: dayText(rankings.asOfDate) })}
               </p>
               {rankings.definitionStatus === 'SIGNED' ? null : (
                 <p>

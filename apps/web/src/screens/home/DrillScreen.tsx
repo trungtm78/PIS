@@ -387,7 +387,7 @@ function DrillBody({ drill, trail, metric, rows, sources, dimension, onDimension
       <ContextBar
         items={[
           { label: t('home.drill.fact.place'), value: place ?? t('dis.wr.ctx.scope.all') },
-          { label: t('home.drill.fact.asOf'), value: drill.asOfDate },
+          { label: t('home.drill.fact.asOf'), value: dayText(drill.asOfDate) },
         ]}
         {...(money ? { unit: t('dis.wr.unit') } : {})}
       />

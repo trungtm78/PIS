@@ -78,7 +78,7 @@ describe('HOME-04 ranking (ST-HOME-003, HOME 3 F3, BR-HOME-06)', () => {
   it('AC-ST-HOME-003-5: UI-HOME-04 shows the snapshot and the day, says the formulas are proposals, and says which units are shown when the tenant limits the ranking to the reader', async () => {
     mount(<RankingScreen route={ROUTE} />, harness(() => body({ visibility: 'OWN_ONLY' })), { permissions: READER });
     const context = await screen.findByTestId('ranking-context');
-    expect(context.textContent).toBe(fill(vi_['home.ranking.snapshot'], { id: '00000000…00f2', date: '2027-10-12' }));
+    expect(context.textContent).toBe(fill(vi_['home.ranking.snapshot'], { id: '00000000…00f2', date: '12/10/2027' }));
     expect(screen.getByText(fill(vi_['home.tile.definition.pending'], { ref: 'CXN-03' }))).toBeTruthy();
     expect(screen.getByTestId('ranking-own-only').textContent).toBe(vi_['home.ranking.visibility.ownOnly']);
   });

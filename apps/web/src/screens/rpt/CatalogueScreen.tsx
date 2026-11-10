@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -101,6 +102,8 @@ function CatalogueContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { tenant } = useSession();
   const navigate = useNavigate();
+  // The catalogue is the one of the running edition: its enterprise build never labels a form it offers as public.
+  const running = useEdition().manifest.edition;
   const query = useCatalogue();
   const [chosen, setChosen] = useState<Entry | undefined>(undefined);
   const [result, setResult] = useState<{ entry: Entry; generated: Generated } | undefined>(undefined);
@@ -123,7 +126,7 @@ function CatalogueContent({ route }: ScreenProps) {
       ),
     },
     { key: 'version', header: t('rpt.cat.col.version'), render: (entry) => entry.version },
-    { key: 'edition', header: t('rpt.cat.col.edition'), render: (entry) => t(`rpt.common.edition.${entry.edition}`) },
+    { key: 'edition', header: t('rpt.cat.col.edition'), render: (entry) => t(`rpt.common.edition.${running === 'enterprise' ? 'enterprise' : entry.edition}`) },
     { key: 'status', header: t('rpt.cat.col.status'), render: (entry) => <StatusPill tone={statusTone(entry.status)}>{t(`rpt.common.status.${statusWord(entry.status)}`)}</StatusPill> },
     { key: 'official', header: t('rpt.cat.col.official'), render: (entry) => t(`rpt.common.official.${statusWord(entry.official)}`) },
     { key: 'receiver', header: t('rpt.cat.col.receiver'), render: (entry) => entry.receiver },

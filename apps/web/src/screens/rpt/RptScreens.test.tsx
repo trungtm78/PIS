@@ -1,6 +1,9 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { EditionProvider } from '../../editions/EditionContext';
+import { PUBLIC_BUNDLE } from '../../editions/edition';
+import type { WebEditionBundle } from '../../editions/edition';
 import { translator } from '../../i18n';
 import base from '../../i18n/vi.json';
 import CatalogueScreen from './CatalogueScreen';
@@ -45,6 +48,20 @@ describe('RPT-01, the catalogue and the generation of a report', () => {
     expect(screen.getByText(word('rpt.common.source.illustrative'))).toBeTruthy();
     expect(screen.getByText(word('rpt.common.edition.enterprise'))).toBeTruthy();
     expect(screen.getByTestId('demo-note').textContent).toBe(word('rpt.cat.demo.on.text'));
+  });
+
+  it('in the enterprise edition no form is labelled as public: the column names the edition that runs', async () => {
+    const enterprise = { manifest: { ...PUBLIC_BUNDLE.manifest, edition: 'enterprise' } } as unknown as WebEditionBundle;
+    mount(
+      <EditionProvider edition={enterprise}>
+        <CatalogueScreen route={route} />
+      </EditionProvider>,
+      harness(() => catalogue([entry(), demoEntry()], { demo_mode: true })),
+      { permissions: ALL },
+    );
+    await screen.findByTestId('form-DIS-WEEKLY');
+    expect(screen.queryByText(word('rpt.common.edition.public'))).toBeNull();
+    expect(screen.getAllByText(word('rpt.common.edition.enterprise'))).toHaveLength(2);
   });
 
   it('does not offer a demo form while demo forms are off and says why', async () => {

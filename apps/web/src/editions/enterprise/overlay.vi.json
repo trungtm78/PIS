@@ -14,5 +14,7 @@
   "home.ov.hero.chip.total": "Tỷ lệ theo tổng kế hoạch vốn",
   "home.ov.kpi.plan.subMissing": "Chưa có kế hoạch vốn được giao",
   "home.ov.rank.caption": "Các đơn vị đứng đầu nhóm {group}, theo kế hoạch vốn được giao",
-  "govc.home.kpi.plan.sub": "Trong đó được giao {pm} đồng"
+  "govc.home.kpi.plan.sub": "Trong đó được giao {pm} đồng",
+  "prj.list.column.nationalCode": "Mã dự án cấp trên",
+  "prj.create.nationalCode.label": "Mã dự án cấp trên"
 }
