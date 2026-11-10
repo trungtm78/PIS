@@ -3,8 +3,8 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { toMasterOption, toProjectLine, toProjectView, toUnitOption } from './model';
-import type { CreateBody, MasterOption, ProfileBody, ProjectLine, ProjectView, UnitOption } from './model';
+import { defaultProject, toMasterOption, toProjectLine, toProjectView, toUnitOption } from './model';
+import type { CreateBody, MasterOption, ProfileBody, ProjectLine, ProjectStatus, ProjectView, UnitOption } from './model';
 
 // What the register shows depends on the scope of the membership that is signed in, not only on the tenant: switching between two
 // memberships of one tenant keeps the query client, so the membership is part of every key.
@@ -23,6 +23,19 @@ export function useProjects() {
     enabled: key[1] !== undefined,
     retry: false,
   });
+}
+
+/** The project a screen of one project shows when it is opened without one (see `defaultProject`); `enabled` is false when the address names a project, and then nothing is read. */
+export function useDefaultProject(enabled: boolean, stage?: ProjectStatus): { project: ProjectLine | undefined; isLoading: boolean } {
+  const client = useApiClient();
+  const key = useScopeKey();
+  const register = useQuery<ProjectLine[]>({
+    queryKey: [...key, 'projects'],
+    queryFn: async () => (await client.readAll('get_resources_project')).flatMap((raw) => toProjectLine(raw) ?? []),
+    enabled: enabled && key[1] !== undefined,
+    retry: false,
+  });
+  return { project: enabled ? defaultProject(register.data ?? [], stage) : undefined, isLoading: enabled && register.isLoading };
 }
 
 /** One project with its workspace data; null when none is named. */

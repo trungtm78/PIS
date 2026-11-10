@@ -198,25 +198,39 @@ describe('ContractorScorecardScreen (CTR-23): the scorecard of a contractor and 
     expect(screen.queryByTestId('violations-cut')).toBeNull();
   });
 
-  it('offers the contractors to choose from when none is named, and reads the scorecard of the one that is chosen', async () => {
+  it('reads the scorecard of the first contractor when none is named, keeps the picker, and reads the one that is chosen instead', async () => {
+    const OTHER = '00000000-0000-4000-8000-0000000000c9';
     const h = open(() => card(), {
       query: '',
-      contractors: () => ({ items: [{ id: CONTRACTOR, legal_name: 'Công ty Cầu Đường 5', contract_count: 2 }, { contract_count: 1 }], as_of: 'x' }),
+      contractors: () => ({ items: [{ id: CONTRACTOR, legal_name: 'Công ty Cầu Đường 5', contract_count: 2 }, { id: OTHER, legal_name: 'Công ty Thiết bị 9', contract_count: 1 }, { contract_count: 1 }], as_of: 'x' }),
     });
     expect(await screen.findByTestId('picker')).toBeTruthy();
-    expect(h.read.mock.calls.every((call) => call[0] === 'listScorecardContractors')).toBe(true);
+    // The first contractor of the list is read without anyone choosing it.
+    expect(await screen.findByTestId('summary')).toBeTruthy();
+    expect(h.read.mock.calls.some((call) => JSON.stringify(call[1]) === JSON.stringify({ path: { id: CONTRACTOR }, query: {} }))).toBe(true);
     const select = (await waitFor(() => {
       const found = document.getElementById('pick-contractor') as HTMLSelectElement;
-      if (found.options.length < 2) throw new Error('not yet');
+      if (found.options.length < 3) throw new Error('not yet');
       return found;
     })) as HTMLSelectElement;
-    expect([...select.options].map((option) => option.textContent)).toEqual([text('ctr.scorecard.pick.choose'), text('ctr.scorecard.pick.option', { name: 'Công ty Cầu Đường 5', count: 2 })]);
-    expect((screen.getByRole('button', { name: text('ctr.scorecard.pick.action') }) as HTMLButtonElement).disabled).toBe(true);
-    fireEvent.change(select, { target: { value: CONTRACTOR } });
+    expect([...select.options].map((option) => option.textContent)).toEqual([text('ctr.scorecard.pick.choose'), text('ctr.scorecard.pick.option', { name: 'Công ty Cầu Đường 5', count: 2 }), text('ctr.scorecard.pick.option', { name: 'Công ty Thiết bị 9', count: 1 })]);
+    expect(select.value).toBe(CONTRACTOR);
+    expect((screen.getByRole('button', { name: text('ctr.scorecard.pick.action') }) as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.change(select, { target: { value: OTHER } });
     fireEvent.submit(screen.getByTestId('picker'));
-    await waitFor(() => expect(h.read.mock.calls.some((call) => JSON.stringify(call[1]) === JSON.stringify({ path: { id: CONTRACTOR }, query: {} }))).toBe(true));
-    expect(await screen.findByTestId('summary')).toBeTruthy();
+    await waitFor(() => expect(h.read.mock.calls.some((call) => JSON.stringify(call[1]) === JSON.stringify({ path: { id: OTHER }, query: {} }))).toBe(true));
     expect(screen.queryByTestId('picker')).toBeNull();
+  });
+
+  it('keeps the standard empty state when there is no contractor to preselect, and a named contractor is read without asking for the list', async () => {
+    const h = open(() => card(), { query: '', contractors: () => ({ items: [], as_of: 'x' }) });
+    expect(await screen.findByTestId('picker')).toBeTruthy();
+    await screen.findByText(vi_['states.empty.title']);
+    expect(h.read.mock.calls.every((call) => call[0] === 'listScorecardContractors')).toBe(true);
+    cleanup();
+    const named = open(() => card());
+    await ready();
+    expect(named.read.mock.calls.some((call) => call[0] === 'listScorecardContractors')).toBe(false);
   });
 
   it('says so when the contractors cannot be loaded, and offers no picker to one who may not read the scorecards', async () => {

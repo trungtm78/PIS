@@ -11,7 +11,7 @@ import { SectionCard, StatusPill } from '../../../../ui';
 import { Fact } from '../shared/parts';
 import { moneyText } from '../shared/format';
 import { DataGuide } from './DataGuide';
-import { useEquipmentLine, useUpdateLine } from './hooks';
+import { useEquipmentLine, useEquipmentLines, useUpdateLine } from './hooks';
 import { LIST_PATH, MANAGE_PERMISSION, describeProblem, stageTone, validateLink } from './model';
 import type { Line } from './model';
 import '../shared/shared.css';
@@ -26,7 +26,10 @@ function EquipmentDetailContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { permissions, mode } = useSession();
   const [params] = useSearchParams();
-  const id = params.get('line') ?? undefined;
+  const namedId = params.get('line') ?? undefined;
+  // Opened without a line in the address (a typed address, the menu), the first line of the list is shown; the list stays one link away.
+  const lines = useEquipmentLines({ projectId: undefined, stage: undefined, includeCancelled: false }, namedId === undefined);
+  const id = namedId ?? lines.data?.items[0]?.id;
   const mayManage = (permissions === undefined || permissions.includes(MANAGE_PERMISSION)) && mode !== 'READ_ONLY';
   const found = useEquipmentLine(id);
   const state = useScreenState({ isLoading: found.isLoading, error: found.error, data: found.data === undefined ? undefined : found.data, isEmpty: (data) => data === null });
@@ -45,9 +48,14 @@ function EquipmentDetailContent({ route }: ScreenProps) {
           </p>
         </div>
       </div>
-      <StateBoundary state={id === undefined ? 'empty' : state} onRetry={() => void found.refetch()}>
+      <StateBoundary state={id === undefined ? (namedId === undefined && lines.isLoading ? 'loading' : 'empty') : state} onRetry={() => void found.refetch()}>
         {line === undefined || detail === undefined ? null : (
           <>
+            {namedId === undefined ? (
+              <p className="callout" role="status" data-testid="default-line">
+                {t('eqp.detail.default')}
+              </p>
+            ) : null}
             <SectionCard title={`${line.code} · ${line.name}`} status={<StatusPill tone={stageTone(line.stage)}>{t(`eqp.stage.${camel(line.stage)}`)}</StatusPill>}>
               <dl className="ent2-facts">
                 <Fact label={t('eqp.col.project')} testId="fact-project">

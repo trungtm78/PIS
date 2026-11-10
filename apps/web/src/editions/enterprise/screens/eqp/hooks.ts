@@ -21,14 +21,14 @@ export interface ListFilter {
 }
 
 /** The lines in the scope of the caller, with the state of the file import that feeds them. */
-export function useEquipmentLines(filter: ListFilter) {
+export function useEquipmentLines(filter: ListFilter, enabled = true) {
   const client = useApiClient();
   const key = useScopeKey();
   return useQuery<ListResult>({
     queryKey: [...key, 'lines', filter.projectId ?? 'all', filter.stage ?? 'all', filter.includeCancelled],
     queryFn: async () =>
       toList(await client.read('listEquipmentProcurement', { query: q({ ...(filter.projectId === undefined ? {} : { project_id: filter.projectId }), ...(filter.stage === undefined ? {} : { stage: filter.stage }), ...(filter.includeCancelled ? { include_cancelled: true } : {}) }) })),
-    enabled: key[1] !== undefined,
+    enabled: enabled && key[1] !== undefined,
     retry: false,
   });
 }

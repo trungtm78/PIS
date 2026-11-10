@@ -13,6 +13,7 @@ import {
   extensionProblem,
   idFrom,
   isDay,
+  mostUrgent,
   narrowsBeyondSummary,
   parseIds,
   phaseTone,
@@ -208,5 +209,15 @@ describe('the small rules', () => {
     expect(phaseTone('ESCALATED')).toBe('danger');
     expect(phaseTone('DUE_SOON')).toBe('warning');
     expect(phaseTone('ENDED')).toBe('neutral');
+  });
+});
+
+describe('mostUrgent', () => {
+  const line = (code: string, status: string, dueOn: string, overdueDays: number | null) => ({ code, status, dueOn, overdueDays }) as never;
+  it('puts the directive overdue the longest first, then the one due first, and never offers an ended one', () => {
+    expect(mostUrgent([line('B', 'OVERDUE', '2026-11-03', 5), line('A', 'OVERDUE', '2026-10-20', 19), line('C', 'OPEN', '2026-11-09', null)])?.code).toBe('A');
+    expect(mostUrgent([line('L', 'OPEN', '2026-12-01', null), line('S', 'IN_PROGRESS', '2026-11-12', null), line('D', 'DONE', '2026-10-01', null)])?.code).toBe('S');
+    expect(mostUrgent([line('D', 'DONE', '2026-10-01', null), line('X', 'CANCELLED', '2026-10-02', null)])).toBeUndefined();
+    expect(mostUrgent([])).toBeUndefined();
   });
 });

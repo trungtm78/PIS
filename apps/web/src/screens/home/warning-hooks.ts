@@ -17,7 +17,7 @@ export interface WarningFilter {
 }
 
 /** The open warnings of the projects the reader may read, newest first, a page at a time, narrowed by the severity and the rule. */
-export function useHomeWarnings(filter: WarningFilter) {
+export function useHomeWarnings(filter: WarningFilter, enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useInfiniteQuery<WarningPage, Error, { pages: WarningPage[] }, readonly unknown[], string | undefined>({
@@ -26,7 +26,7 @@ export function useHomeWarnings(filter: WarningFilter) {
     queryFn: async ({ pageParam }) =>
       toWarningPage(await client.read('getHomeWarnings', { query: { limit: PAGE_SIZE, ...(filter.severity === '' ? {} : { severity: filter.severity }), ...(filter.ruleCode === '' ? {} : { rule_code: filter.ruleCode }), ...(pageParam === undefined ? {} : { cursor: pageParam }) } })),
     getNextPageParam: (last) => last.nextCursor,
-    enabled: tenant !== undefined,
+    enabled: enabled && tenant !== undefined,
     retry: false,
   });
 }
