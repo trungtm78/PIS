@@ -7,11 +7,11 @@ import { createHash } from 'node:crypto';
 export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the enterprise dataset, in order: portfolio, capital of the year (lines for the packages), funding, directives, accounting file, report forms, documents, procurement, contracts, process tree, disbursement, the frozen enterprise snapshot, BI, the triage of the warnings. */
-export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust'];
+export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
-  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras'],
+  public: ['base', 'capital', 'clip-public-documents', 'clip-public-procurement', 'clip-public-contracts', 'clip-public-payments', 'clip-public-workflow', 'clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras', 'clip-public-contractor-portal'],
   enterprise: ENTERPRISE_GROUPS,
 };
 
@@ -34,6 +34,8 @@ export const DATASET_PHASES = {
     ...WORKFLOW_CLOCKS.map((clockDays) => ({ clockDays, groups: ['clip-public-workflow'], env: { CLIP_WORKFLOW_CLOCK: String(clockDays) } })),
     { clockDays: 0, groups: ['clip-public-payments'], env: { CLIP_PAY_STAGE: 'CLOSE' } },
     { clockDays: 0, groups: ['clip-public-alerts', 'clip-public-egp', 'clip-public-disbursement', 'clip-public-feed', 'clip-public-bi', 'clip-public-directives', 'clip-public-committee', 'clip-public-extras'] },
+    // The vendor portal opens on a contractor with an invitation and two requests (the contractor accepting the invitation is an act of its own identity provider, played by the stack).
+    { clockDays: 0, groups: ['clip-public-contractor-portal'] },
   ],
   enterprise: [
     { clockDays: 0, groups: ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts'] },
@@ -46,6 +48,8 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-ent-alert-triage'] },
     // The adjustment of the plan of the year comes last: the lines of the first revision are the ones the packages, contracts and snapshots above were made on.
     { clockDays: 0, groups: ['clip-ent-capital-adjust'] },
+    // The appraisal stage, the effectiveness appraisals, the earned value, the project documents and the structured narratives come last: they only read what the groups above made.
+    { clockDays: 0, groups: ['clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal'] },
   ],
 };
 
@@ -499,6 +503,7 @@ export function buildPlan(dataset) {
       procurement: { legalBasis: dataset.procurement.legalBasis, note: dataset.procurement.note, decisionLetter: dataset.procurement.decisionLetter, plans: workflowPlans },
       bi: dataset.bi,
       disbursement: buildDisbursement(dataset, built.projects),
+      appraisalPack: dataset.appraisalPack,
       expect: {
         packages: tenders.reduce((sum, plan) => sum + plan.packages.length, 0) + workflowPlans.reduce((sum, plan) => sum + plan.packages.length, 0),
         contractors: dataset.contractors.length,

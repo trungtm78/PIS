@@ -226,10 +226,38 @@ export async function enterpriseBiChecks(plan, reader) {
   ];
 }
 
+/**
+ * The appraisal stage, the effectiveness appraisals, the earned value, the project documents, the structured narratives and the portal invitation of the enterprise dataset
+ * (groups clip-ent-appraisal, clip-ent-project-docs, clip-ent-narrative, clip-ent-contractor-portal).
+ */
+export async function enterpriseLifecycleChecks(plan, reader) {
+  const pack = plan.appraisalPack;
+  if (pack === undefined) return [];
+  const projects = await safe(() => reader.list('projectManager', '/resources/project'));
+  const appraisals = await safe(() => reader.list('projectManager', '/investment-appraisals', { limit: 50 }));
+  const documents = await safe(() => reader.list('projectManager', '/project-documents'));
+  const reports = await safe(() => reader.list('projectManager', '/resources/report_revision'));
+  const invitations = await safe(() => reader.list('projectManager', '/vendor/portal/invitations'));
+  const wanted = new Set(pack.projects.map((project) => project.code));
+  const evmProject = projects?.find((row) => row.code === pack.evm.project);
+  const baseline = evmProject === undefined ? undefined : await safe(() => reader.get('projectManager', `/projects/${evmProject.id}/baseline`));
+  const periods = new Set(pack.narratives.map((one) => one.period));
+  const narrated = new Set(pack.narratives.map((one) => `${one.project}:${one.period}`));
+  return [
+    { name: 'projects at appraisal', value: projects === undefined ? undefined : projects.filter((row) => wanted.has(row.code) && row.status === 'APPRAISAL').length, min: pack.projects.length },
+    { name: 'effectiveness appraisals with a result', value: appraisals === undefined ? undefined : appraisals.filter((row) => row.result_state !== 'NONE').length, min: pack.appraisals.length },
+    { name: 'effectiveness appraisals approved', value: appraisals === undefined ? undefined : appraisals.filter((row) => row.status === 'APPROVED').length, min: 1 },
+    { name: 'earned value project has its baseline', value: baseline === undefined ? undefined : baseline.ok ? 1 : 0, min: 1 },
+    { name: 'project documents', value: documents?.length, min: pack.documents.length },
+    { name: 'report drafts and reports with a narrative', value: reports === undefined ? undefined : reports.filter((row) => periods.has(String(row.period?.code)) && narrated.has(`${row.project?.code}:${row.period?.code}`)).length, min: pack.narratives.length },
+    { name: 'portal invitations approved', value: invitations === undefined ? undefined : invitations.filter((row) => row.status === 'APPROVED').length, min: 1 },
+  ];
+}
+
 /** The checks of a dataset, in the order they are printed. */
 export async function verifyChecks(plan, reader) {
   if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await biChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
   if (plan.dataset === 'public') return [...(await portfolioChecks(plan, reader)), ...(await procurementChecks(plan, reader)), ...(await contractChecks(plan, reader)), ...(await paymentChecks(plan, reader)), ...(await workflowChecks(plan, reader)), ...(await alertChecks(plan, reader)), ...(await egpChecks(plan, reader)), ...(await moneyChecks(plan, reader)), ...(await committeeChecks(plan, reader))];
-  if (plan.dataset === 'enterprise') return [...(await enterpriseChecks(plan, reader)), ...(await enterpriseSharedChecks(plan, reader))];
+  if (plan.dataset === 'enterprise') return [...(await enterpriseChecks(plan, reader)), ...(await enterpriseSharedChecks(plan, reader)), ...(await enterpriseLifecycleChecks(plan, reader))];
   return [];
 }

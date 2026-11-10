@@ -277,6 +277,20 @@ export class SeedContext {
     }
   }
 
+  /**
+   * The contractor accepts the invitation of the registry through its own identity provider: an act outside the product that no command gives. The stack stands in for it (POST /__e2e/portal-account):
+   * the account of the person of the docs stack named (`contractorUser`) becomes a guest of the contractor of that tax code. False when the stack has no such route or no such contractor.
+   */
+  async bindPortalAccount(person: string, taxIdentifier: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.base}/__e2e/portal-account`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ person, tax_identifier: taxIdentifier }) });
+      if (!response.ok) return false;
+      return ((await response.json()) as { bound?: number }).bound !== 0;
+    } catch {
+      return false;
+    }
+  }
+
   /** The legal confirmation of a layout profile is an act outside the product; the stack (POST /__e2e/layout-confirmation) stands in for the legal officer. False when the stack has no such route. */
   async confirmLayout(profileCode: string, reference: string): Promise<boolean> {
     try {

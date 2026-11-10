@@ -74,6 +74,10 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-crosscheck` | RUN_VERIFIED |
 | `clip-ent-alert-triage` | RUN_VERIFIED |
 | `clip-ent-capital-adjust` | RUN_VERIFIED |
+| `clip-ent-appraisal` | RUN_VERIFIED |
+| `clip-ent-project-docs` | RUN_VERIFIED |
+| `clip-ent-narrative` | RUN_VERIFIED |
+| `clip-ent-contractor-portal` | RUN_VERIFIED |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**
 
@@ -96,7 +100,6 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-platform` | Chủ đề và biểu trưng của doanh nghiệp, mã trùng chờ hợp nhất, sự cố chất lượng dữ liệu, mẫu thông báo, lịch sử sao lưu. |
 | `clip-ent-phone-extra` | Tài khoản cán bộ và lãnh đạo có dữ liệu cho các màn điện thoại còn lại; phim quay trên máy ảo theo tên cảnh trong thư mục phone-ent. |
 | `clip-ent-snapshot-close` | Làn ENT-3a: kế hoạch vốn và chỉ tiêu đã nhập đủ cho một kỳ để dựng và chốt ảnh chụp doanh nghiệp, cùng một kỳ còn thiếu để quay lời từ chối. |
-| `clip-ent-narrative` | Làn ENT-3b: thuyết minh tám mục của kỳ trước, danh mục nguyên nhân chuẩn và kết quả chỉ đạo giao ban của kỳ. |
 | `clip-ent-approval-push` | Làn ENT-3c: luồng duyệt có bước đẩy HPM đang chờ biên nhận, một lần bị từ chối. |
 | `clip-ent-org-pack` | Làn ENT-3d: gói tổ chức mẫu chín đầu mối nạp qua đường nhập chuyển đổi (chạy thử, áp dụng bởi người khác). |
 | `clip-ent-codes` | Làn ENT-3e: mục đối chiếu mã dự án EBS và HPM, danh mục loại dự án và nguồn kế hoạch mới. |
@@ -110,25 +113,25 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `intro` | - | - |
 | `leader-home` | `clip-ent-projects`, `clip-ent-funding`, `clip-ent-snapshot`, `clip-ent-snapshot-prior`, `clip-ent-alert-triage` | - |
 | `capital` | `clip-ent-funding`, `clip-ent-capital-adjust`, `clip-ent-capital-prior` | - |
-| `projects` | `clip-ent-projects` | - |
+| `projects` | `clip-ent-projects`, `clip-ent-appraisal` | - |
 | `reports-pvn` | `clip-ent-reports` | - |
 | `workflow` | `clip-ent-reports`, `clip-ent-workflow` | - |
 | `hpm-ebs` | `clip-ent-reports`, `clip-ent-ebs` | - |
 | `directives` | `clip-ent-directives` | - |
-| `docs-ai` | `clip-ent-documents` | - |
+| `docs-ai` | `clip-ent-documents`, `clip-ent-project-docs` | - |
 | `analytics` | `clip-ent-projects`, `clip-ent-funding`, `clip-ent-bi` | - |
 | `alerts` | `clip-ent-alerts`, `clip-ent-alert-triage` | - |
 | `contractors` | `clip-ent-procurement`, `clip-ent-contracts` | - |
 | `process-tree` | `clip-ent-workflow`, `clip-ent-procurement` | - |
 | `phone` | `clip-ent-projects`, `clip-ent-directives` | - |
 | `contractors-plus` | `clip-ent-vendor`, `clip-ent-procurement`, `clip-ent-contracts` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
-| `contractor-portal` | `clip-ent-vendor` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
+| `contractor-portal` | `clip-ent-vendor`, `clip-ent-contractor-portal` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `claims-warnings` | `clip-ent-claims`, `clip-ent-contracts` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `alerts-plus` | `clip-ent-alert-governance` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `delegation` | `clip-ent-alert-governance` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `audit-controls` | `clip-ent-audit-controls` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `risk-forecast` | `clip-ent-fund-forecast`, `clip-ent-risk-lookahead`, `clip-ent-bi`, `clip-ent-funding` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
-| `project-life` | `clip-ent-projects`, `clip-ent-lifecycle` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
+| `project-life` | `clip-ent-projects`, `clip-ent-lifecycle`, `clip-ent-appraisal` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `reports-close` | `clip-ent-funding`, `clip-ent-reports-close` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `ent-cycle` | `clip-ent-snapshot-close`, `clip-ent-narrative`, `clip-ent-approval-push`, `clip-ent-org-pack`, `clip-ent-codes`, `clip-ent-cross-compare-pdf`, `clip-ent-calendar`, `clip-ent-presentation`, `clip-ent-equipment-audit` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `procurement-desk` | `clip-ent-procurement`, `clip-ent-bid-analysis` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
@@ -4646,7 +4649,7 @@ Màn hình: `AUD-08` Thu hồi tài chính và đối chiếu PAY (/aud/aud-08);
 
 Nền tảng: web; 17.6 giây; chỉ trong chương cắt riêng
 
-Màn hình: `AUD-15` Chi tiết tín hiệu rủi ro mua sắm (/aud/aud-15); `AUD-16` Sổ chỉ báo red flag (/aud/aud-16)
+Màn hình: `AUD-15` Chi tiết tín hiệu rủi ro mua sắm (/aud/aud-15); `AUD-16` Sổ chỉ báo dấu hiệu rủi ro (/aud/aud-16)
 
 **Lời đọc**
 
@@ -4674,7 +4677,7 @@ Màn hình: `AUD-15` Chi tiết tín hiệu rủi ro mua sắm (/aud/aud-15); `A
 **Cần thấy trên hình**
 
 - [ ] Màn AUD-15 "Chi tiết tín hiệu rủi ro mua sắm" mở được ở đường dẫn /aud/aud-15, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn AUD-16 "Sổ chỉ báo red flag" mở được ở đường dẫn /aud/aud-16, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn AUD-16 "Sổ chỉ báo dấu hiệu rủi ro" mở được ở đường dẫn /aud/aud-16, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.red-flag.detail đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.red-flag.indicator-ledger đúng lúc giọng đọc nói tới
@@ -5706,7 +5709,7 @@ Màn hình: `DIS-32` Dựng và rà soát bản chốt kỳ doanh nghiệp: đ�
 
 ### `ec-narrative`
 
-Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3b-data
+Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `DIS-35` Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban) (/dis/dis-35)
 
@@ -5737,7 +5740,6 @@ Màn hình: `DIS-35` Thuyết minh kỳ báo cáo có cấu trúc (8 trường, 
 **Cần thấy trên hình**
 
 - [ ] Màn DIS-35 "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)" mở được ở đường dẫn /dis/dis-35, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3b-data: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần dis.narrative.eight-fields đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.narrative.inherit-previous đúng lúc giọng đọc nói tới
@@ -8418,7 +8420,7 @@ Màn hình: `NOT-04` Tổng quan vận hành thông báo (/not/not-04); `NOT-07`
 
 ### `pl-branding`
 
-Nền tảng: web; 18.2 giây; chỉ trong chương cắt riêng; chờ làn: PUB-platform-console
+Nền tảng: web; 18.2 giây; chỉ trong chương cắt riêng
 
 Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói sản phẩm và tính năng (/sas/sas-06)
 
@@ -8449,7 +8451,6 @@ Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói
 
 - [ ] Màn SAS-04 "Theme & thương hiệu tenant" mở được ở đường dẫn /sas/sas-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-06 "Gói sản phẩm và tính năng" mở được ở đường dẫn /sas/sas-06, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn PUB-platform-console: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần sas.branding.theme-logo đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần sas.branding.feature-package đúng lúc giọng đọc nói tới
@@ -8460,7 +8461,7 @@ Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói
 
 ### `pl-platform-health`
 
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng; chờ làn: PUB-platform-console
+Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
 
 Màn hình: `SAS-18` Sức khỏe toàn nền tảng (/sas/sas-18); `SAS-20` Cờ tính năng và phát hành (/sas/sas-20); `SAS-21` Sao lưu và khôi phục tenant (/sas/sas-21)
 
@@ -8494,7 +8495,6 @@ Màn hình: `SAS-18` Sức khỏe toàn nền tảng (/sas/sas-18); `SAS-20` C�
 - [ ] Màn SAS-18 "Sức khỏe toàn nền tảng" mở được ở đường dẫn /sas/sas-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-20 "Cờ tính năng và phát hành" mở được ở đường dẫn /sas/sas-20, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-21 "Sao lưu và khôi phục tenant" mở được ở đường dẫn /sas/sas-21, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn PUB-platform-console: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần sas.ops.platform-health đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần sas.ops.feature-flags đúng lúc giọng đọc nói tới

@@ -69,6 +69,7 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 | `clip-public-directives` | RUN_VERIFIED |
 | `clip-public-committee` | RUN_VERIFIED |
 | `clip-public-extras` | RUN_VERIFIED |
+| `clip-public-contractor-portal` | WRITTEN_NOT_RUN |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**
 
@@ -76,7 +77,6 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 |---|---|
 | `clip-public-vendor-controls` | Kỳ tài chính đã xác minh cho vài nhà thầu, kể cả liên danh. Khai quan hệ cá nhân để có một phát hiện độc lập mạnh chưa quyết định và một phát hiện đã người khác quyết định. Sổ bảo đảm dự thầu: thư đã nhận, đã xác nhận bởi người thứ hai, một đề xuất tịch thu. Chạy hạng rủi ro nhà thầu, đề xuất xếp hạng thực hiện hợp đồng có điểm AI, chứng chỉ sắp hết hạn, sự kiện uy tín và một hồ sơ cấm. |
 | `clip-public-vendor-investigation` | Một số nhà thầu dùng chung mã số thuế đầu, địa chỉ hoặc điện thoại; dấu vết nộp hồ sơ của từng đề xuất. Đầu mối điều tra ở trạng thái mới và đang rà soát. Danh sách bên bị cấm nạp qua đường nhập tệp, một lần sàng lọc và một kết quả tạm giữ. |
-| `clip-public-contractor-portal` | Tài khoản thành viên khách tên contractorUser gắn với một nhà thầu (thêm vào docs-people). Thư mời, yêu cầu mở và đã trả lời, chứng chỉ tải lên chờ xác minh, đánh giá có kế hoạch khắc phục, thống kê kiến nghị. |
 | `clip-public-claims` | Điều khoản claim đã duyệt cho vài hợp đồng và một hợp đồng chưa có điều khoản. Claim của cả hai bên ở nhiều trạng thái, có dòng thời gian. Cảnh báo sớm có đánh giá tác động, biện pháp, một cuộc họp rà soát, một cảnh báo chưa có người phụ trách; đồng hồ quyết toán hợp đồng. |
 | `clip-public-alert-governance` | Cảnh báo bị leo thang qua chính sách, người vắng mặt có người thay đã được cho phép. Thiết lập nhận cảnh báo cá nhân, thang kênh có biên nhận, phản hồi cảnh báo sai, cảnh báo đã đóng rồi mở lại, một nhóm cảnh báo dồn dập, việc bị hoãn. |
 | `clip-public-audit-controls` | Cuộc thanh tra có phát hiện, kiến nghị phân công, thu hồi tài chính đối chiếu thanh toán, bằng chứng khắc phục. Chạy quét red flag và có sổ chỉ báo; một tố giác ẩn danh và vài dòng sổ quà tặng. |
@@ -1796,7 +1796,7 @@ Màn hình: `BID-22` Kết nối hệ thống mạng đấu thầu quốc gia (/
 
 Nền tảng: web; 20 giây; chỉ trong chương cắt riêng
 
-Màn hình: `AUD-14` Tín hiệu rủi ro mua sắm (red flag) (/aud/aud-14)
+Màn hình: `AUD-14` Dấu hiệu rủi ro mua sắm (/aud/aud-14)
 
 **Lời đọc**
 
@@ -1821,7 +1821,7 @@ Màn hình: `AUD-14` Tín hiệu rủi ro mua sắm (red flag) (/aud/aud-14)
 
 **Cần thấy trên hình**
 
-- [ ] Màn AUD-14 "Tín hiệu rủi ro mua sắm (red flag)" mở được ở đường dẫn /aud/aud-14, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn AUD-14 "Dấu hiệu rủi ro mua sắm" mở được ở đường dẫn /aud/aud-14, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.red-flags.indicator-list đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Tín hiệu để điều tra, không phải kết luận" hiện từ giây 3, kéo dài 5 giây
@@ -1829,7 +1829,7 @@ Màn hình: `AUD-14` Tín hiệu rủi ro mua sắm (red flag) (/aud/aud-14)
 
 ### `vnd-portal`
 
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng; chờ làn: PUB-contractor-account
+Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
 
 Màn hình: `VND-16` Cổng nhà thầu: hồ sơ của tôi (/vnd/vnd-16)
 
@@ -1856,7 +1856,6 @@ Màn hình: `VND-16` Cổng nhà thầu: hồ sơ của tôi (/vnd/vnd-16)
 **Cần thấy trên hình**
 
 - [ ] Màn VND-16 "Cổng nhà thầu: hồ sơ của tôi" mở được ở đường dẫn /vnd/vnd-16, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn PUB-contractor-account: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần vnd.portal.my-evaluations đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
@@ -4753,7 +4752,7 @@ Màn hình: `AUD-08` Thu hồi tài chính và đối chiếu PAY (/aud/aud-08);
 
 Nền tảng: web; 17.6 giây; chỉ trong chương cắt riêng
 
-Màn hình: `AUD-15` Chi tiết tín hiệu rủi ro mua sắm (/aud/aud-15); `AUD-16` Sổ chỉ báo red flag (/aud/aud-16)
+Màn hình: `AUD-15` Chi tiết tín hiệu rủi ro mua sắm (/aud/aud-15); `AUD-16` Sổ chỉ báo dấu hiệu rủi ro (/aud/aud-16)
 
 **Lời đọc**
 
@@ -4781,7 +4780,7 @@ Màn hình: `AUD-15` Chi tiết tín hiệu rủi ro mua sắm (/aud/aud-15); `A
 **Cần thấy trên hình**
 
 - [ ] Màn AUD-15 "Chi tiết tín hiệu rủi ro mua sắm" mở được ở đường dẫn /aud/aud-15, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn AUD-16 "Sổ chỉ báo red flag" mở được ở đường dẫn /aud/aud-16, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn AUD-16 "Sổ chỉ báo dấu hiệu rủi ro" mở được ở đường dẫn /aud/aud-16, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần aud.red-flag.detail đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần aud.red-flag.indicator-ledger đúng lúc giọng đọc nói tới
@@ -8823,7 +8822,7 @@ Màn hình: `NOT-04` Tổng quan vận hành thông báo (/not/not-04); `NOT-07`
 
 ### `pl-branding`
 
-Nền tảng: web; 18.2 giây; chỉ trong chương cắt riêng; chờ làn: PUB-platform-console
+Nền tảng: web; 18.2 giây; chỉ trong chương cắt riêng
 
 Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói sản phẩm và tính năng (/sas/sas-06)
 
@@ -8854,7 +8853,6 @@ Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói
 
 - [ ] Màn SAS-04 "Theme & thương hiệu tenant" mở được ở đường dẫn /sas/sas-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-06 "Gói sản phẩm và tính năng" mở được ở đường dẫn /sas/sas-06, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn PUB-platform-console: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần sas.branding.theme-logo đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần sas.branding.feature-package đúng lúc giọng đọc nói tới
@@ -8865,7 +8863,7 @@ Màn hình: `SAS-04` Theme & thương hiệu tenant (/sas/sas-04); `SAS-06` Gói
 
 ### `pl-platform-health`
 
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng; chờ làn: PUB-platform-console
+Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
 
 Màn hình: `SAS-18` Sức khỏe toàn nền tảng (/sas/sas-18); `SAS-20` Cờ tính năng và phát hành (/sas/sas-20); `SAS-21` Sao lưu và khôi phục tenant (/sas/sas-21)
 
@@ -8899,7 +8897,6 @@ Màn hình: `SAS-18` Sức khỏe toàn nền tảng (/sas/sas-18); `SAS-20` C�
 - [ ] Màn SAS-18 "Sức khỏe toàn nền tảng" mở được ở đường dẫn /sas/sas-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-20 "Cờ tính năng và phát hành" mở được ở đường dẫn /sas/sas-20, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn SAS-21 "Sao lưu và khôi phục tenant" mở được ở đường dẫn /sas/sas-21, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn PUB-platform-console: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần sas.ops.platform-health đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần sas.ops.feature-flags đúng lúc giọng đọc nói tới

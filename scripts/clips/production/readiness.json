@@ -48,6 +48,9 @@
         },
         "clip-public-extras": {
           "proof": "RUN_VERIFIED"
+        },
+        "clip-public-contractor-portal": {
+          "proof": "WRITTEN_NOT_RUN"
         }
       },
       "chapters": {
@@ -328,13 +331,6 @@
             "Danh sách bên bị cấm nạp qua đường nhập tệp, một lần sàng lọc và một kết quả tạm giữ."
           ]
         },
-        "clip-public-contractor-portal": {
-          "proof": "NOT_DONE",
-          "needs": [
-            "Tài khoản thành viên khách tên contractorUser gắn với một nhà thầu (thêm vào docs-people).",
-            "Thư mời, yêu cầu mở và đã trả lời, chứng chỉ tải lên chờ xác minh, đánh giá có kế hoạch khắc phục, thống kê kiến nghị."
-          ]
-        },
         "clip-public-claims": {
           "proof": "NOT_DONE",
           "needs": [
@@ -514,6 +510,18 @@
         },
         "clip-ent-capital-adjust": {
           "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-appraisal": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-project-docs": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-narrative": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-contractor-portal": {
+          "proof": "RUN_VERIFIED"
         }
       },
       "chapters": {
@@ -538,7 +546,8 @@
         },
         "projects": {
           "groups": [
-            "clip-ent-projects"
+            "clip-ent-projects",
+            "clip-ent-appraisal"
           ]
         },
         "reports-pvn": {
@@ -571,7 +580,8 @@
         },
         "docs-ai": {
           "groups": [
-            "clip-ent-documents"
+            "clip-ent-documents",
+            "clip-ent-project-docs"
           ]
         },
         "analytics": {
@@ -623,7 +633,8 @@
         },
         "contractor-portal": {
           "groups": [
-            "clip-ent-vendor"
+            "clip-ent-vendor",
+            "clip-ent-contractor-portal"
           ],
           "gaps": [
             "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
@@ -676,7 +687,8 @@
         "project-life": {
           "groups": [
             "clip-ent-projects",
-            "clip-ent-lifecycle"
+            "clip-ent-lifecycle",
+            "clip-ent-appraisal"
           ],
           "gaps": [
             "Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục \"Nhóm phải tạo\" rồi chuyển sang groups."
@@ -880,12 +892,6 @@
           "proof": "NOT_DONE",
           "needs": [
             "Làn ENT-3a: kế hoạch vốn và chỉ tiêu đã nhập đủ cho một kỳ để dựng và chốt ảnh chụp doanh nghiệp, cùng một kỳ còn thiếu để quay lời từ chối."
-          ]
-        },
-        "clip-ent-narrative": {
-          "proof": "NOT_DONE",
-          "needs": [
-            "Làn ENT-3b: thuyết minh tám mục của kỳ trước, danh mục nguyên nhân chuẩn và kết quả chỉ đạo giao ban của kỳ."
           ]
         },
         "clip-ent-approval-push": {

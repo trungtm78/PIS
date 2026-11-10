@@ -316,8 +316,45 @@ test('the accounting rows name projects of the plan, two periods, and differ fro
 });
 
 test('the enterprise dataset runs its own groups (capital, documents, procurement, contracts, process tree, BI) and no group of the public dataset', () => {
-  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust']);
+  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal']);
   assert.ok(DATASET_GROUPS.public.every((group) => !group.startsWith('clip-ent')));
+});
+
+test('every group of a dataset runs in some phase (the workflow group in several, at its clocks), and the groups that fill the repositories come last', () => {
+  for (const dataset of DATASETS) {
+    const phased = DATASET_PHASES[dataset].flatMap((phase) => phase.groups);
+    assert.deepEqual([...new Set(phased)].sort(), [...DATASET_GROUPS[dataset]].sort(), dataset);
+  }
+  const last = DATASET_PHASES.enterprise.at(-1);
+  assert.deepEqual(last.groups, ['clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal']);
+});
+
+test('the enterprise plan carries the appraisal pack: three projects at appraisal, three effectiveness appraisals, an earned-value project with a contract, documents and narratives of both kinds', () => {
+  const plan = buildPlan(enterpriseDataset());
+  const pack = plan.appraisalPack;
+  assert.equal(pack.projects.length, 3);
+  assert.ok(pack.projects.every((project) => !plan.projects.some((known) => known.code === project.code)), 'the pack adds projects the plan does not have');
+  assert.deepEqual(pack.appraisals.map((one) => one.state), ['SUBMITTED', 'DRAFT', 'APPROVED']);
+  assert.ok(plan.projects.some((project) => project.code === pack.evm.project && project.target === 'IMPLEMENTATION'));
+  assert.ok(pack.documents.length >= 6 && pack.documents.some((one) => one.changes.length > 0));
+  assert.deepEqual(pack.narratives.map((one) => one.kind).sort(), ['filled', 'inherited', 'previous']);
+  assert.ok(pack.narratives.some((one) => Object.keys(one.fields ?? {}).length === 8), 'one narrative has all eight fields');
+  for (const key of ['pay.measurementPaper', 'pay.acceptancePaper', 'appraisal.note', 'portal.contactEmail']) assert.ok(plan.texts[key], key);
+});
+
+test('the guest, security, audit and platform accounts of the clips are people of the docs stack with a fixture account', () => {
+  const people = JSON.parse(readFileSync(join(HERE, '..', 'apps', 'web', 'e2e', 'support', 'docs-people.json'), 'utf8'));
+  const fixtures = JSON.parse(readFileSync(join(HERE, '..', 'apps', 'web', 'e2e', 'support', 'e2e-fixtures.json'), 'utf8')).users;
+  for (const key of ['platformOperator', 'contractorUser', 'securityAdmin', 'auditor']) {
+    assert.ok(people.some((person) => person.key === key), `${key} is a person of the docs stack`);
+    assert.ok(fixtures.some((user) => user.key === key), `${key} has a fixture account`);
+  }
+  const operator = fixtures.find((user) => user.key === 'platformOperator');
+  assert.equal(operator.audience, 'control');
+  assert.ok(operator.roles.includes('SystemAdmin'));
+  assert.equal(people.find((person) => person.key === 'platformOperator').plane, 'control');
+  assert.equal(people.find((person) => person.key === 'contractorUser').plane, 'guest');
+  assert.deepEqual(new Set(people.map((person) => person.key)).size, people.length, 'no person twice');
 });
 
 test('a verdict over no check fails, so an unsupported dataset or an empty list never passes', () => {
@@ -328,13 +365,19 @@ test('the enterprise checks fail on an unseeded stack and pass on a seeded one',
   const plan = buildPlan(enterpriseDataset());
   const empty = { async list() { return []; }, async get() { return { ok: true, json: {} }; } };
   assert.equal(judgeAll(await verifyChecks(plan, empty)).ok, false);
+  const pack = plan.appraisalPack;
   const projects = plan.projects.map((project, index) => ({ code: project.code, id: `p${index}`, status: 'IMPLEMENTATION' }));
+  const evmId = projects.find((project) => project.code === pack.evm.project).id;
   const batches = projects.flatMap((project) => [{ project_id: project.id, figure_kind: 'PLAN_YEAR', class_code: 'EQUITY', status: 'ACCEPTED' }, { project_id: project.id, figure_kind: 'PLAN_YEAR', class_code: 'LOAN', status: 'ACCEPTED' }]);
   const directives = Array.from({ length: plan.expect.directives }, (_, index) => ({ id: index }));
   const issues = Array.from({ length: plan.expect.reportIssues }, (_, index) => ({ id: index, form_status: 'DEMO' }));
   const rows = (count, row) => Array.from({ length: count }, (_, index) => ({ id: index, ...row }));
   const lists = {
-    '/resources/project': projects,
+    '/resources/project': [...projects, ...pack.projects.map((project) => ({ code: project.code, id: project.code, status: 'APPRAISAL' }))],
+    '/investment-appraisals': pack.appraisals.map((one) => ({ id: one.key, status: one.state, result_state: 'COMPUTED' })),
+    '/project-documents': rows(pack.documents.length, {}),
+    '/resources/report_revision': pack.narratives.map((one) => ({ project: { code: one.project }, period: { code: one.period } })),
+    '/vendor/portal/invitations': rows(1, { status: 'APPROVED' }),
     '/funding-figures/batches': batches,
     '/directives': directives,
     '/ebs/differences': [{ id: 1 }],
@@ -348,6 +391,7 @@ test('the enterprise checks fail on an unseeded stack and pass on a seeded one',
     '/bi/dashboards': plan.bi.dashboards.map((entry) => ({ code: entry.code, status: 'PUBLISHED' })),
   };
   const gets = {
+    [`/projects/${evmId}/baseline`]: { versions: [{ version: 0 }] },
     '/hpm/connection': { counts: { pushes: 2, written: 1, rejected: 1, accepted: 0 } },
     '/package-workflows/summary': { total: plan.expect.packages, not_started: 3, late: 6, on_hold: 1 },
     '/package-workflows/process-tree': { nodes: rows(12, {}), total: { count: plan.expect.packages } },

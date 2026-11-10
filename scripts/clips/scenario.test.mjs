@@ -151,15 +151,15 @@ test('a scene that waits for a lane is accepted while the lane is pending, left 
   const waiting = base.scenes.filter((scene) => scene.requires !== undefined);
   assert.ok(waiting.length >= 10, 'the enterprise cycle scenes name their lanes');
   for (const scene of waiting) assert.ok(isPending(scene, planned), scene.id);
-  for (const scene of waiting.filter((scene) => !scene.requires.includes('ENT-3b-data') && !scene.requires.some((lane) => lane.startsWith('PUB-')))) assert.ok(!isPending(scene, strict.planned), `${scene.id} is ready once the lanes are merged`);
-  assert.ok(isPending(waiting.find((scene) => scene.id === 'ec-narrative'), strict.planned), 'the narrative scene waits for its data');
+  for (const scene of waiting) assert.ok(!isPending(scene, strict.planned), `${scene.id} is ready once the lanes are merged`);
+  assert.ok(!isPending(waiting.find((scene) => scene.id === 'ec-narrative'), strict.planned), 'the narrative scene has its data');
   assert.deepEqual(validateScenario(base, { ...strict, planned }).problems, [], 'strict mode does not fail on a pending scene');
   const lines = [];
   assert.throws(() => recordableScenes(base, 'ent-cycle', { planned, log: (line) => lines.push(line) }), /wait for lanes/u);
   assert.equal(recordableScenes(base, 'features-tour', { planned, log: () => {} }).length, 1, 'the tour of the cycle waits, the other tour scene is made');
   assert.match(lines[0], /ec-snapshot-close \(ENT-3a\)/u);
   assert.equal(recordableScenes(base, 'ent-cycle', { planned, includePending: true }).length, selectScenes(base, 'ent-cycle').length);
-  assert.equal(recordableScenes(base, 'ent-cycle', { log: () => {} }).length, selectScenes(base, 'ent-cycle').length - 1, 'merged lanes: every scene of the cycle is recorded but the narrative scene, which waits for its data');
+  assert.equal(recordableScenes(base, 'ent-cycle', { log: () => {} }).length, selectScenes(base, 'ent-cycle').length, 'merged lanes: every scene of the cycle is recorded, the narrative scene too');
   // a merged lane makes the scene ready
   const merged = { ...planned, lanes: { ...planned.lanes, 'ENT-3d': { status: 'merged' } } };
   assert.equal(pendingLanes(base.scenes.find((scene) => scene.id === 'ec-org-pack'), merged).length, 0);

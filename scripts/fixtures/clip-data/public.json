@@ -308,7 +308,16 @@
     "doa.title": "Quyết định về việc phân cấp ủy quyền ký văn bản",
     "doa.reason": "Ma trận ủy quyền của tỉnh",
     "feed.mapping": "Đã đối chiếu ánh xạ với tệp nguồn cấp",
-    "feed.generator": "Khởi động bộ sinh dữ liệu cho cả tỉnh từ hạt giống của bộ dữ liệu"
+    "feed.generator": "Khởi động bộ sinh dữ liệu cho cả tỉnh từ hạt giống của bộ dữ liệu",
+    "portal.contactName": "Đặng Minh Tuấn",
+    "portal.contactEmail": "tuan.dm@nhathau-minhhoa.example",
+    "portal.contactPaper": "Thư giới thiệu người đại diện số 12/2026",
+    "portal.approveNote": "Đã đối chiếu thư giới thiệu với hồ sơ năng lực của nhà thầu",
+    "portal.request1.title": "Bổ sung thông tin năng lực thi công trong năm",
+    "portal.request1.body": "Đề nghị nhà thầu cập nhật số lượng thiết bị thi công và nhân lực chủ chốt đang có.",
+    "portal.request2.title": "Gửi bản sao chứng chỉ năng lực hoạt động xây dựng còn hiệu lực",
+    "portal.request2.body": "Chứng chỉ sẽ được cán bộ đối chiếu với bản gốc trước khi xác minh.",
+    "portal.answer": "Nhà thầu xin cập nhật: 12 máy thi công chủ lực và 38 cán bộ, công nhân kỹ thuật; hồ sơ chi tiết gửi kèm trong tuần này."
   },
   "expect": {
     "projects": {

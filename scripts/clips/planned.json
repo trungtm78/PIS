@@ -66,16 +66,16 @@
       "note": "audit detail and log caps, exchange rate catalogue, equipment procurement view of the commercial division"
     },
     "ENT-3b-data": {
-      "status": "pending",
-      "note": "DIS-35 opens only from a report draft that already holds a structured narrative: the seed group clip-ent-narrative is not written yet, so the scene waits for its data"
+      "status": "merged",
+      "note": "DIS-35 opens on the newest report draft when no report is named; the seed group clip-ent-narrative makes a report of the previous period (accepted), a draft that inherits it and a draft with all eight fields and the standard causes"
     },
     "PUB-contractor-account": {
-      "status": "pending",
-      "note": "VND-16 opens only for a contractor member account (contractorUser): the seed group clip-public-contractor-portal is not written yet, so the scene waits for its data"
+      "status": "merged",
+      "note": "VND-16 opens for the guest account contractorUser of the docs stack: the seed group clip-public-contractor-portal (and clip-ent-contractor-portal) proposes and approves the invitation, the stack binds the account to the contractor, two requests are put and one answered"
     },
     "PUB-platform-console": {
-      "status": "pending",
-      "note": "SAS-06 and SAS-18 to SAS-21 open only for a platform operator, a person the docs stack does not have: the scenes wait for that account"
+      "status": "merged",
+      "note": "SAS-06 and SAS-18 to SAS-21 open for the platform operator platformOperator of the docs stack (control plane, role SystemAdmin, permissions listed by its fixture)"
     }
   }
 }
