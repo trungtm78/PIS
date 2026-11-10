@@ -5349,7 +5349,7 @@ Màn hình: `DIS-27` Số liệu vốn theo kỳ: kế hoạch gốc và điều
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=DIS-27`
 - `do=spot ref=dis.figures.period-table`
 - `do=open screen=DIS-28`
@@ -5362,7 +5362,7 @@ Màn hình: `DIS-27` Số liệu vốn theo kỳ: kế hoạch gốc và điều
 - [ ] Màn DIS-27 "Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ" mở được ở đường dẫn /dis/dis-27, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-28 "Lập và duyệt lô số liệu vốn: kế hoạch phân kỳ, số ước, số thực, điều chỉnh muộn" mở được ở đường dẫn /dis/dis-28, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-29 "Lịch sử chuyển đổi của một kỳ: các lần ước rồi số thực thay thế" mở được ở đường dẫn /dis/dis-29, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần dis.figures.period-table đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.figures.batch-approval đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.figures.conversion-history đúng lúc giọng đọc nói tới
@@ -5393,7 +5393,7 @@ Màn hình: `DIS-25` Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=DIS-25`
 - `do=spot ref=dis.definitions.golden`
 - `do=open screen=DIS-26`
@@ -5406,7 +5406,7 @@ Màn hình: `DIS-25` Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số
 - [ ] Màn DIS-25 "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden" mở được ở đường dẫn /dis/dis-25, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-26 "Kiểm tổng chéo số giải ngân theo đơn vị, nguồn vốn, dự án" mở được ở đường dẫn /dis/dis-26, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-19 "Hai tỷ lệ giải ngân song song" mở được ở đường dẫn /dis/dis-19, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần dis.definitions.golden đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.definitions.cross-check đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.definitions.two-rates đúng lúc giọng đọc nói tới
@@ -5436,7 +5436,7 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `DIS-15` Tiến �
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=DIS-14`
 - `do=spot ref=dis.calendar.periods`
 - `do=open screen=DIS-15`
@@ -5449,7 +5449,7 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `DIS-15` Tiến �
 - [ ] Màn DIS-14 "Lịch kỳ và khóa sổ" mở được ở đường dẫn /dis/dis-14, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-15 "Tiến độ nộp báo cáo" mở được ở đường dẫn /dis/dis-15, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-12 "Tổng hợp theo chủ đầu tư" mở được ở đường dẫn /dis/dis-12, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần dis.calendar.periods đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.calendar.submission-board đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.calendar.investor-total đúng lúc giọng đọc nói tới
@@ -5521,7 +5521,7 @@ Màn hình: `ADM-06` Dựng quy trình phê duyệt (/adm/adm-06); `ADM-15` Ma t
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=ADM-06`
 - `do=spot ref=adm.workflow.builder`
 - `do=open screen=ADM-15`
@@ -5531,7 +5531,7 @@ Màn hình: `ADM-06` Dựng quy trình phê duyệt (/adm/adm-06); `ADM-15` Ma t
 
 - [ ] Màn ADM-06 "Dựng quy trình phê duyệt" mở được ở đường dẫn /adm/adm-06, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ADM-15 "Ma trận thẩm quyền phê duyệt" mở được ở đường dẫn /adm/adm-15, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần adm.workflow.builder đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần adm.workflow.authority-matrix đúng lúc giọng đọc nói tới
 - [ ] Trình dựng luồng hiện các bước và hạn
@@ -5561,7 +5561,7 @@ Màn hình: `IND-03` Bảng ánh xạ nhập Excel (/ind/ind-03); `DIS-10` Nhậ
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=IND-03`
 - `do=spot ref=ind.entry.excel-mapping`
 - `do=open screen=DIS-10`
@@ -5574,7 +5574,7 @@ Màn hình: `IND-03` Bảng ánh xạ nhập Excel (/ind/ind-03); `DIS-10` Nhậ
 - [ ] Màn IND-03 "Bảng ánh xạ nhập Excel" mở được ở đường dẫn /ind/ind-03, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-10 "Nhập dữ liệu hàng loạt" mở được ở đường dẫn /dis/dis-10, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-16 "Bảng số liệu đầy đủ và cấu hình cột" mở được ở đường dẫn /dis/dis-16, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần ind.entry.excel-mapping đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.entry.bulk đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.entry.full-table đúng lúc giọng đọc nói tới
@@ -6544,7 +6544,7 @@ Màn hình: `CTR-14` Chậm tiến độ và yêu cầu bồi hoàn (/ctr/ctr-14
 
 **Các bước quay**
 
-- `do=as persona=ctrOfficer`
+- `do=as persona=owner`
 - `do=open screen=CTR-14`
 - `do=spot ref=ctr.closeout.delay-compensation`
 - `do=open screen=CTR-15`
@@ -6562,7 +6562,7 @@ Màn hình: `CTR-14` Chậm tiến độ và yêu cầu bồi hoàn (/ctr/ctr-14
 - [ ] Màn CTR-16 "Bảo hành và khắc phục tồn tại" mở được ở đường dẫn /ctr/ctr-16, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn CTR-18 "Hồ sơ tài sản và chuyển giao vận hành" mở được ở đường dẫn /ctr/ctr-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn CTR-24 "Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia" mở được ở đường dẫn /ctr/ctr-24, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản ctrOfficer
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần ctr.closeout.delay-compensation đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ctr.closeout.completion-handover đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ctr.closeout.warranty đúng lúc giọng đọc nói tới
@@ -6639,7 +6639,7 @@ Màn hình: `ISS-04` Chuyển cấp và gia hạn (/iss/iss-04); `ISS-09` Chính
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=ISS-04`
 - `do=spot ref=iss.issues.escalate-extend`
 - `do=open screen=ISS-09`
@@ -6655,7 +6655,7 @@ Màn hình: `ISS-04` Chuyển cấp và gia hạn (/iss/iss-04); `ISS-09` Chính
 - [ ] Màn ISS-09 "Chính sách SLA theo loại và đơn vị" mở được ở đường dẫn /iss/iss-09, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ISS-10 "Leo thang và tổ công tác" mở được ở đường dẫn /iss/iss-10, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn ISS-11 "Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng" mở được ở đường dẫn /iss/iss-11, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần iss.issues.escalate-extend đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần iss.issues.sla-policy đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần iss.issues.task-force đúng lúc giọng đọc nói tới
@@ -6777,7 +6777,7 @@ Màn hình: `QMS-04` Đề nghị kiểm tra, nghiệm thu (/qms/qms-04); `QMS-0
 
 **Các bước quay**
 
-- `do=as persona=projectManager`
+- `do=as persona=owner`
 - `do=open screen=QMS-04`
 - `do=spot ref=qms.quality.inspection-request`
 - `do=open screen=QMS-05`
@@ -6792,7 +6792,7 @@ Màn hình: `QMS-04` Đề nghị kiểm tra, nghiệm thu (/qms/qms-04); `QMS-0
 - [ ] Màn QMS-05 "Biên bản nghiệm thu chất lượng" mở được ở đường dẫn /qms/qms-05, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn QMS-06 "Thí nghiệm vật liệu" mở được ở đường dẫn /qms/qms-06, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn QMS-07 "Không phù hợp và hành động khắc phục" mở được ở đường dẫn /qms/qms-07, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản projectManager
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần qms.quality.inspection-request đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần qms.quality.material-tests đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần qms.quality.nonconformity đúng lúc giọng đọc nói tới
@@ -6821,7 +6821,7 @@ Màn hình: `QMS-08` Kho ảnh hiện trường có định vị (/qms/qms-08); 
 
 **Các bước quay**
 
-- `do=as persona=auditor`
+- `do=as persona=owner`
 - `do=open screen=QMS-08`
 - `do=spot ref=qms.photos.geotagged-store`
 - `do=open screen=QMS-12`
@@ -6831,7 +6831,7 @@ Màn hình: `QMS-08` Kho ảnh hiện trường có định vị (/qms/qms-08); 
 
 - [ ] Màn QMS-08 "Kho ảnh hiện trường có định vị" mở được ở đường dẫn /qms/qms-08, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn QMS-12 "Ảnh hiện trường cần giải trình giữa các dự án" mở được ở đường dẫn /qms/qms-12, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần qms.photos.geotagged-store đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần qms.photos.cross-project-check đúng lúc giọng đọc nói tới
 - [ ] Ảnh có tọa độ và thời điểm
