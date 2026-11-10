@@ -15,8 +15,17 @@ export const PLAN_KINDS = ['ANNUAL', 'MEDIUM_TERM'] as const;
 export type PlanKind = (typeof PLAN_KINDS)[number];
 export const PLAN_STATUSES = ['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED', 'SUPERSEDED', 'REJECTED'] as const;
 export type PlanStatus = (typeof PLAN_STATUSES)[number];
+/** The classes of a plan line of the public edition: the capital of the year, the capital carried over, another. */
 export const BUCKETS = ['CURRENT_YEAR', 'CARRYOVER', 'OTHER'] as const;
-export type Bucket = (typeof BUCKETS)[number];
+/** The classes of a plan line of the enterprise edition (ENT-3e): own equity, loan, another. */
+export const ENTERPRISE_BUCKETS = ['EQUITY', 'LOAN', 'OTHER'] as const;
+/** Every class a line may carry: what a read accepts (the register of the edition judges what a form may send). */
+export const ALL_BUCKETS = ['CURRENT_YEAR', 'CARRYOVER', 'EQUITY', 'LOAN', 'OTHER'] as const;
+export type Bucket = (typeof ALL_BUCKETS)[number];
+/** The classes of the monthly schedule of disbursement, whose store keeps the public ones only (the enterprise plan is read in EQUITY and LOAN, the schedule is not). */
+export type ScheduleBucket = (typeof BUCKETS)[number];
+/** The classes the forms and grids of the edition offer. */
+export const bucketsOf = (enterprise: boolean): readonly Bucket[] => (enterprise ? ENTERPRISE_BUCKETS : BUCKETS);
 
 export const PLAN_CODE_MAX = 50;
 export const MIN_YEAR = 1990;
@@ -165,7 +174,7 @@ export function toPlanLine(raw: unknown): PlanLine | undefined {
   const bucket = text(row?.bucket);
   const sourceYear = whole(row?.source_year);
   const version = whole(row?.version);
-  if (row === undefined || id === undefined || projectId === undefined || fundSource === undefined || bucket === undefined || !(BUCKETS as readonly string[]).includes(bucket)) return undefined;
+  if (row === undefined || id === undefined || projectId === undefined || fundSource === undefined || bucket === undefined || !(ALL_BUCKETS as readonly string[]).includes(bucket)) return undefined;
   if (sourceYear === undefined || version === undefined) return undefined;
   const appropriation = asRecord(row.appropriation);
   const appropriationId = text(appropriation?.id);
@@ -294,7 +303,7 @@ export type ProposalProblem = 'required' | 'invalidAmount' | 'subsetExceeds' | '
 export const EMPTY_PROPOSAL: ProposalForm = { projectId: '', appropriationId: '', bucket: 'CURRENT_YEAR', amount: '', ctmtqg: '' };
 
 /** The bucket a line takes by default: carried-over capital goes in the carry-over bucket, everything else in the year's. */
-export const defaultBucket = (appropriation: AppropriationLine | undefined): Bucket => (appropriation?.origin === 'CARRYOVER' ? 'CARRYOVER' : 'CURRENT_YEAR');
+export const defaultBucket = (appropriation: AppropriationLine | undefined, enterprise = false): Bucket => (enterprise ? 'EQUITY' : appropriation?.origin === 'CARRYOVER' ? 'CARRYOVER' : 'CURRENT_YEAR');
 
 /** What is wrong with a proposal before anything is sent; the server judges the same rules again under the lock. */
 export function validateProposal(form: ProposalForm, appropriation: AppropriationLine | undefined, locale: string): Partial<Record<ProposalField, ProposalProblem>> {

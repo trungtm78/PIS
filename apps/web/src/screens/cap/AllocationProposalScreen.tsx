@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -13,7 +14,7 @@ import { millionsText, vndOfMillions, vndText } from './model';
 import { BackLink, PlanChooser, PlanHeader, SignedMoney, YearLockedBanner, usePlanChoice } from './plan-components';
 import { useDraftAllocation, usePlanLines, usePlans, useProjects } from './plan-hooks';
 import { bucketLabel, planProblemMessage, proposalProblemMessage } from './plan-labels';
-import { ALLOCATION_GRID_PATH, BUCKETS, PLAN_LIST_PATH, EMPTY_PROPOSAL, canDraft, appropriationsFor, defaultBucket, describePlanProblem, differenceVnd, isDraft, proposalBody, validateProposal } from './plan-model';
+import { ALLOCATION_GRID_PATH, PLAN_LIST_PATH, bucketsOf, EMPTY_PROPOSAL, canDraft, appropriationsFor, defaultBucket, describePlanProblem, differenceVnd, isDraft, proposalBody, validateProposal } from './plan-model';
 import type { Bucket, ProposalField, ProposalForm, ProposalProblem } from './plan-model';
 import './cap.css';
 
@@ -38,7 +39,10 @@ function ProposalContent({ route }: ScreenProps) {
   const book = useAppropriations();
   const projects = useProjects(mayDraft);
   const draft = useDraftAllocation();
-  const [form, setForm] = useState<ProposalForm>(EMPTY_PROPOSAL);
+  // The enterprise edition draws its lines in the classes of its pack (equity, loan, other), the public one in the capital of the year, the carry-over and other.
+  const enterprise = useEdition().manifest.edition === 'enterprise';
+  const emptyForm = useMemo<ProposalForm>(() => ({ ...EMPTY_PROPOSAL, bucket: defaultBucket(undefined, enterprise) }), [enterprise]);
+  const [form, setForm] = useState<ProposalForm>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<ProposalField, ProposalProblem>>>({});
   const [saved, setSaved] = useState(false);
   const [locked, setLocked] = useState(false);
@@ -54,7 +58,7 @@ function ProposalContent({ route }: ScreenProps) {
   const setField = (field: ProposalField, value: string): void => {
     setForm((current) => {
       const next = { ...current, [field]: value };
-      if (field === 'appropriationId') next.bucket = defaultBucket(offered.find((line) => line.id === value));
+      if (field === 'appropriationId') next.bucket = defaultBucket(offered.find((line) => line.id === value), enterprise);
       return next;
     });
     setErrors((current) => ({ ...current, [field]: undefined }));
@@ -71,7 +75,7 @@ function ProposalContent({ route }: ScreenProps) {
       {
         onSuccess: () => {
           setSaved(true);
-          setForm({ ...EMPTY_PROPOSAL, projectId: form.projectId });
+          setForm({ ...emptyForm, projectId: form.projectId });
         },
         onError: (error) => setLocked(describePlanProblem(error).reason === 'yearLocked'),
       },
@@ -135,7 +139,7 @@ function ProposalContent({ route }: ScreenProps) {
             </Field>
             <Field id="proposal-bucket" label={t('cap.proposal.bucket.label')} error={undefined}>
               <select id="proposal-bucket" value={form.bucket} onChange={(event) => setField('bucket', event.target.value as Bucket)}>
-                {BUCKETS.map((bucket) => (
+                {bucketsOf(enterprise).map((bucket) => (
                   <option key={bucket} value={bucket}>
                     {bucketLabel(t, bucket)}
                   </option>

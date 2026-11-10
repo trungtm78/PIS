@@ -11,6 +11,10 @@ export function sourceLabel(t: Translate, bucket: Bucket): string {
       return t('cap.schedule.column.year');
     case 'CARRYOVER':
       return t('cap.schedule.column.carryover');
+    case 'EQUITY':
+      return t('cap.bucket.equity.label');
+    case 'LOAN':
+      return t('cap.bucket.loan.label');
     case 'OTHER':
       return t('cap.schedule.column.other');
   }

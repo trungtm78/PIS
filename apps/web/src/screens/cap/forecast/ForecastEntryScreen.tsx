@@ -12,7 +12,7 @@ import { Field, Money } from '../components';
 import { levelLabel } from '../labels';
 import { useProjects } from '../plan-hooks';
 import { BUCKETS } from '../plan-model';
-import type { Bucket } from '../plan-model';
+import type { ScheduleBucket } from '../plan-model';
 import { monthLabel, scheduleProblemMessage, sourceLabel } from '../schedule-labels';
 import { ADJUSTMENT_MONTH, BUDGET_LEVELS, MONTHS, REASON_MAX, REGISTER_SCHEDULE_PERMISSION, SCHEDULABLE_STATUSES, describeScheduleProblem } from '../schedule-model';
 import type { BudgetLevel } from '../schedule-model';
@@ -227,7 +227,7 @@ function EntryForm({ projectId, year, estimates, form, setForm, locale }: FormPr
           </select>
         </Field>
         <Field id="entry-bucket" label={t('cap.schedule.bucket.label')} error={undefined}>
-          <select id="entry-bucket" value={form.bucket} onChange={(event) => setField('bucket', event.target.value as Bucket)}>
+          <select id="entry-bucket" value={form.bucket} onChange={(event) => setField('bucket', event.target.value as ScheduleBucket)}>
             {BUCKETS.map((bucket) => (
               <option key={bucket} value={bucket}>
                 {sourceLabel(t, bucket)}

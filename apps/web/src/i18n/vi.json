@@ -1196,6 +1196,8 @@
   "cap.annual.total.note": "CTMTQG là một phần của dòng vốn, không cộng vào tổng.",
   "cap.bucket.carryover.label": "Vốn kéo dài",
   "cap.bucket.currentYear.label": "Vốn năm",
+  "cap.bucket.equity.label": "Vốn chủ sở hữu",
+  "cap.bucket.loan.label": "Vốn vay",
   "cap.bucket.other.label": "Khác",
   "cap.grid.amount.aria": "Số tiền của dự án {project} (triệu đồng)",
   "cap.grid.avc.notice": "Chưa thiết lập",

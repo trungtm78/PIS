@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the enterprise dataset, in order: portfolio, capital of the year (lines for the packages), funding, directives, accounting file, report forms, documents, procurement, contracts, process tree, disbursement, the frozen enterprise snapshot, BI, the triage of the warnings. */
-export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-bi', 'clip-ent-alert-triage'];
+export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
@@ -44,6 +44,8 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-bi'] },
     // The leader handles the warnings the freeze of the weekly snapshots opened (the job runs after the freeze).
     { clockDays: 0, groups: ['clip-ent-alert-triage'] },
+    // The adjustment of the plan of the year comes last: the lines of the first revision are the ones the packages, contracts and snapshots above were made on.
+    { clockDays: 0, groups: ['clip-ent-capital-adjust'] },
   ],
 };
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import en from '../../i18n/en.json';
 import vi_ from '../../i18n/vi.json';
 import { bucketLabel, gridProblemMessage, kindLabel, planFormProblemMessage, planProblemMessage, planStatusLabel, proposalProblemMessage } from './plan-labels';
-import { BUCKETS, PLAN_KINDS, PLAN_STATUSES } from './plan-model';
+import { BUCKETS, ENTERPRISE_BUCKETS, PLAN_KINDS, PLAN_STATUSES } from './plan-model';
 import type { GridProblem, PlanFormProblem, PlanProblemReason, ProposalProblem } from './plan-model';
 
 const vi = (key: string, params: Record<string, string | number> = {}): string => (vi_ as Record<string, string>)[key]?.replace(/\{(\w+)\}/g, (_, name: string) => String(params[name] ?? `{${name}}`)) ?? `?${key}`;
@@ -13,6 +13,8 @@ describe('the words of the planning screens', () => {
     expect(PLAN_KINDS.map((kind) => kindLabel(t, kind))).toEqual(['Kế hoạch năm', 'Kế hoạch trung hạn']);
     expect(PLAN_STATUSES.map((status) => planStatusLabel(t, status))).toEqual(['Nháp', 'Chờ duyệt', 'Đã duyệt', 'Đã công bố', 'Kế hoạch đã bị thay thế', 'Bị từ chối']);
     expect(BUCKETS.map((bucket) => bucketLabel(t, bucket))).toEqual(['Vốn năm', 'Vốn kéo dài', 'Khác']);
+    expect(ENTERPRISE_BUCKETS.map((bucket) => bucketLabel(t, bucket))).toEqual(['Vốn chủ sở hữu', 'Vốn vay', 'Khác']);
+    expect(en['cap.bucket.equity.label']).toBe('Equity');
     expect(en['cap.planStatus.inReview.label']).toBe('In review');
   });
 
