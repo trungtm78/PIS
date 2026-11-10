@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useEdition } from '../../editions/EditionContext';
+import { useFundName } from '../../editions/fund-name';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -239,6 +240,7 @@ interface TransferSideProps {
 function TransferSide({ kind, rows, total, basis }: TransferSideProps) {
   const { t } = useTranslation();
   const enterprise = useEdition().manifest.edition === 'enterprise';
+  const fundName = useFundName();
   const title = kind === 'down' ? t('cap.adjustment.down.title') : t('cap.adjustment.up.title');
   if (rows.length === 0) {
     return (
@@ -267,7 +269,7 @@ function TransferSide({ kind, rows, total, basis }: TransferSideProps) {
               <th scope="row">
                 {row.projectCode} <small className="sub">{row.projectName}</small>
               </th>
-              <td>{enterprise ? row.fundName : row.fundLabel}</td>
+              <td>{enterprise ? fundName(row.fundLabel, row.fundName) : row.fundLabel}</td>
               <td className="cap-number" data-testid="value">
                 <Money vnd={row.deltaVnd.replace('-', '')} />
               </td>

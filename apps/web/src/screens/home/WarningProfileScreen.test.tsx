@@ -47,6 +47,14 @@ const commands = (h: Harness): Array<[string, Record<string, unknown>]> => h.com
 afterEach(cleanup);
 
 describe('HOME-06 warning profile (ST-HOME-003, HOME 3 F4)', () => {
+  it('shows the days of an overdue-report rule as sentences with their units, and never the keys of the engine', async () => {
+    const rule = { code: 'EW-DN-03', name: 'Báo cáo tuần chậm', metric_code: 'REPORT_OVERDUE', comparator: 'MISSING', threshold: { grace_days: 3, explanation_due_days: 3, unknown_key: 9 } };
+    mount(<WarningProfileScreen route={ROUTE} />, client(() => page(profile({ rule }))), { permissions: ALL }, OPEN);
+    const threshold = (await screen.findByTestId('profile-threshold')).textContent ?? '';
+    expect(threshold).toBe('Thời hạn nội bộ 3 ngày; Thời hạn giải trình 3 ngày');
+    expect(threshold).not.toMatch(/grace_days|explanation_due_days|unknown_key|_/u);
+  });
+
   it('AC-ST-HOME-003-2: UAT-AC271 shows the cause (the rule, the threshold, the 22% against the 45%), the evidence in the snapshot, the leader, the explanation and the history', async () => {
     mount(<WarningProfileScreen route={ROUTE} />, client(() => page(profile())), { permissions: ALL }, OPEN);
     const cause = await screen.findByTestId('profile-cause');
@@ -54,7 +62,7 @@ describe('HOME-06 warning profile (ST-HOME-003, HOME 3 F4)', () => {
     expect(within(cause).getByTestId('profile-project').textContent).toBe('P-A-002 Cầu Bến Lức');
     expect(within(cause).getByTestId('profile-observed').textContent).toBe(fill(vi_['home.warnings.observed.text'], { observed: '22', expected: '45' }));
     expect(within(cause).getByTestId('profile-gap').textContent).toBe(fill(vi_['home.profile.cause.gap.value'], { gap: '23' }));
-    expect(within(cause).getByTestId('profile-threshold').textContent).toContain('points 10');
+    expect(within(cause).getByTestId('profile-threshold').textContent).toBe(`${fill(vi_['home.profile.threshold.points'], { value: '10' })}; ${fill(vi_['home.profile.threshold.criticalPoints'], { value: '20' })}`);
     expect(within(cause).getByTestId('profile-threshold').getAttribute('title')).toContain('CXN-03');
     const evidence = screen.getByTestId('profile-evidence');
     expect(within(evidence).getByTestId('evidence-context').textContent).toBe(fill(vi_['home.profile.evidence.context'], { id: '00000000…00f2', date: '12/10/2027' }));

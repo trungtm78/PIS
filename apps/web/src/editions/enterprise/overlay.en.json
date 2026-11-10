@@ -21,5 +21,6 @@
   "home.profile.evidence.disbursed": "Disbursed (closed figures)",
   "home.profile.evidence.ratePm": "Rate on the plan of capital assigned",
   "cap.annual.page.subtitle": "Capital of the year and carried-over capital project by project.",
+  "cap.fund.nsdpDtpt.label": "Equity - development investment",
   "cap.annual.total.note": "The total is the sum of the lines of the table."
 }

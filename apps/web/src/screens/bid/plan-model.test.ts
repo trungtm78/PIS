@@ -39,7 +39,7 @@ describe('the plan model', () => {
     });
     expect(toPlanLine({ id: 'x' })).toBeUndefined();
     expect(toPlanLine(plan(1, { status: 'WEIRD' }))).toBeUndefined();
-    expect(toPackageLine(pack(1, 1))).toMatchObject({ code: 'GT-1', planRevision: 1, fundSourceLabel: 'Ngân sách trung ương', durationDays: 180 });
+    expect(toPackageLine(pack(1, 1))).toMatchObject({ code: 'GT-1', planRevision: 1, fundSourceLabel: 'Ngân sách trung ương', fundSourceKey: 'NSTW', durationDays: 180 });
     expect(toPackageLine(pack(1, null))).toMatchObject({ planId: null, planStatus: null });
     expect(toPackageLine({ id: 'x' })).toBeUndefined();
     expect(toPackageLine(null)).toBeUndefined();

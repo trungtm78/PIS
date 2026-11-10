@@ -84,6 +84,8 @@ export interface PackageLine {
   biddingForm: BiddingForm | null;
   allocationLineId: string | null;
   fundSourceLabel: string | null;
+  /** The code of the fund source in the catalogue (the screen may say it its own way in an edition); null when the line names none. */
+  fundSourceKey: string | null;
   plannedStartPeriod: string | null;
   durationDays: number | null;
   status: string;
@@ -163,6 +165,7 @@ export function toPackageLine(raw: unknown): PackageLine | undefined {
     biddingForm: oneOf(BIDDING_FORMS, record.bidding_form) ?? null,
     allocationLineId: nullableText(record.allocation_line_id),
     fundSourceLabel: nullableText(fund?.label),
+    fundSourceKey: nullableText(fund?.business_key),
     plannedStartPeriod: nullableText(record.planned_start_period),
     durationDays: whole(record.duration_days) ?? null,
     status: text(record.status) ?? '',

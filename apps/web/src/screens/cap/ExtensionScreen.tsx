@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
+import { useFundName } from '../../editions/fund-name';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -52,6 +53,7 @@ export default function ExtensionScreen({ route }: ScreenProps) {
 }
 
 function ExtensionContent({ route }: ScreenProps) {
+  const fundName = useFundName();
   const { t, locale } = useTranslation();
   const { tenant, permissions, mode } = useSession();
   const frozen = mode === 'READ_ONLY';
@@ -209,7 +211,7 @@ function ExtensionContent({ route }: ScreenProps) {
                 <option value="">{t('cap.extension.line.choose')}</option>
                 {lines.map((candidate) => (
                   <option key={candidate.id} value={candidate.id}>
-                    {t('cap.extension.line.option', { project: candidate.project.code, fund: candidate.fundSource.label, amount: formatVnd(candidate.amountVnd, locale) })}
+                    {t('cap.extension.line.option', { project: candidate.project.code, fund: fundName(candidate.fundSource.businessKey, candidate.fundSource.label), amount: formatVnd(candidate.amountVnd, locale) })}
                   </option>
                 ))}
               </select>
@@ -298,7 +300,7 @@ function ExtensionContent({ route }: ScreenProps) {
           </Field>
           {line === undefined || year === undefined || shown.amountVnd !== undefined || form.amountVnd.trim() === '' || problems.amountVnd !== undefined ? null : (
             <p className="callout" data-testid="preview">
-              {t('cap.extension.preview.text', { amount: formatVnd(form.amountVnd.trim(), locale), year, next: year + 1, fund: line.fundSource.label })}
+              {t('cap.extension.preview.text', { amount: formatVnd(form.amountVnd.trim(), locale), year, next: year + 1, fund: fundName(line.fundSource.businessKey, line.fundSource.label) })}
             </p>
           )}
           <button type="submit" className="primary" disabled={request.isPending}>

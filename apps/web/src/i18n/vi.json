@@ -38068,5 +38068,10 @@
   "prj.score.default.notice": "Đang chấm điểm dự án đầu tiên đang thẩm định trong phạm vi của bạn.",
   "prj.score.default.link": "Chọn dự án khác từ danh mục",
   "eqp.detail.default": "Đang hiển thị dòng thiết bị đầu tiên của danh sách. Muốn xem dòng khác, quay lại danh sách rồi chọn.",
-  "home.profile.default": "Đang hiển thị cảnh báo đứng đầu (mức nghiêm trọng cao nhất đang xử lý). Muốn xem cảnh báo khác, quay lại danh sách cảnh báo rồi chọn."
+  "home.profile.default": "Đang hiển thị cảnh báo đứng đầu (mức nghiêm trọng cao nhất đang xử lý). Muốn xem cảnh báo khác, quay lại danh sách cảnh báo rồi chọn.",
+  "home.profile.threshold.points": "Chênh lệch tối thiểu {value} điểm %",
+  "home.profile.threshold.criticalPoints": "Mức nghiêm trọng từ {value} điểm %",
+  "home.profile.threshold.graceDays": "Thời hạn nội bộ {value} ngày",
+  "home.profile.threshold.explanationDueDays": "Thời hạn giải trình {value} ngày",
+  "cap.fund.nsdpDtpt.label": "Vốn đầu tư phát triển ngân sách địa phương"
 }

@@ -38068,5 +38068,10 @@
   "prj.score.default.notice": "Scoring the first project under appraisal in your scope.",
   "prj.score.default.link": "Choose another project from the register",
   "eqp.detail.default": "Showing the first equipment line of the list. To see another, go back to the list and choose.",
-  "home.profile.default": "Showing the top alert (the most severe one still being handled). To see another, go back to the list of alerts and choose."
+  "home.profile.default": "Showing the top alert (the most severe one still being handled). To see another, go back to the list of alerts and choose.",
+  "home.profile.threshold.points": "Gap of at least {value} percentage points",
+  "home.profile.threshold.criticalPoints": "Critical from {value} percentage points",
+  "home.profile.threshold.graceDays": "Internal deadline {value} days",
+  "home.profile.threshold.explanationDueDays": "Explanation deadline {value} days",
+  "cap.fund.nsdpDtpt.label": "Local budget development investment capital"
 }

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useEdition } from '../../editions/EditionContext';
+import { useFundName } from '../../editions/fund-name';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -149,6 +150,7 @@ interface ImpactProps {
 function ImpactCard({ plan, base, impact }: ImpactProps) {
   const { t } = useTranslation();
   const enterprise = useEdition().manifest.edition === 'enterprise';
+  const fundName = useFundName();
   if (impact === undefined) return null;
   return (
     <div className="card" data-testid="impact">
@@ -187,7 +189,7 @@ function ImpactCard({ plan, base, impact }: ImpactProps) {
                 <th scope="row">
                   {row.projectCode} <small className="sub">{row.projectName}</small>
                 </th>
-                <td>{enterprise ? row.fundName : row.fundLabel}</td>
+                <td>{enterprise ? fundName(row.fundLabel, row.fundName) : row.fundLabel}</td>
                 <td className="cap-number">
                   <Money vnd={row.previousVnd} />
                 </td>

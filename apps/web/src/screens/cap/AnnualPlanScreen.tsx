@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useEdition } from '../../editions/EditionContext';
+import { useFundName } from '../../editions/fund-name';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -32,6 +33,7 @@ function AnnualContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   // An enterprise has no national target programmes and names its sources of capital in words, not by the codes of the catalogue.
   const enterprise = useEdition().manifest.edition === 'enterprise';
+  const fundName = useFundName();
   const { permissions, mode } = useSession();
   const mayDraft = canDraft(permissions, mode);
   const plans = usePlans();
@@ -67,7 +69,7 @@ function AnnualContent({ route }: ScreenProps) {
       header: t('cap.annual.column.fund'),
       render: (line) => (
         <>
-          {enterprise ? line.fundSource.label : line.fundSource.businessKey} <small className="sub">{bucketLabel(t, line.bucket)}</small>
+          {enterprise ? fundName(line.fundSource.businessKey, line.fundSource.label) : line.fundSource.businessKey} <small className="sub">{bucketLabel(t, line.bucket)}</small>
         </>
       ),
     },

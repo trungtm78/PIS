@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
+import { useFundName } from '../../editions/fund-name';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useEdition } from '../../editions/EditionContext';
@@ -286,12 +287,13 @@ interface RowProps {
 
 function BookRow({ line, mine, canManage, canApprove, acting, reason, reasonTooShort, pending, onReason, onRevise, onAct, onCancel, onSend }: RowProps) {
   const { t } = useTranslation();
+  const fundName = useFundName();
   const draft = line.status === 'DRAFT';
   return (
     <>
       <tr data-appropriation-id={line.id} data-origin={line.origin}>
         <th scope="row" className="cap-pin cap-pin-1">
-          <span>{line.fundSource.businessKey}</span> <small className="sub">{line.fundSource.label}</small>
+          <span>{line.fundSource.businessKey}</span> <small className="sub">{fundName(line.fundSource.businessKey, line.fundSource.label)}</small>
           {line.program === null ? null : <small className="sub"> · {line.program.label}</small>}
         </th>
         <td className="cap-pin cap-pin-2">{line.planYear}</td>

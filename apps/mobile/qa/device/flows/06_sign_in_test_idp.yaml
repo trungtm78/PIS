@@ -29,7 +29,8 @@ appId: vn.machvon.app
     visible: 'Chọn đơn vị và vai trò'
     timeout: 30000
 - takeScreenshot: mob03_choose_unit
-- tapOn: 'Cao Bằng.*'
+# The chooser lists the units of the person: the demo tenants are Đạm Phú Mỹ (enterprise) and Cao Bằng (public); either one is a good start.
+- tapOn: '(Đạm Phú Mỹ|Cao Bằng).*'
 - tapOn: 'Tiếp tục'
 - extendedWaitUntil:
     visible: 'Xác thực hai yếu tố'

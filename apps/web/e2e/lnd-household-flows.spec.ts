@@ -165,11 +165,11 @@ test.describe('LND-03: the households affected by a land recovery', () => {
       await expect(page.locator('[data-household-id]')).toHaveCount(nationalIds.indexOf(nationalId) + 1);
     }
     const [paid, unpaid] = await sql<{ id: string }>('select id from machvon.affected_household where project_id = $1 order by household_code', [project.id]);
-    // A payment was made to the first household: the voucher of it has to be kept. The plan it belongs to is another story, so the foreign keys are off for this one row.
+    // A payment was made to the first household: the voucher of it has to be kept. The plan it belongs to is another story, so the foreign keys are off for this one row. It was paid on its day: a payment paid after its day has to say why (compensation_payment_status_chk).
     const [voucher] = await sql<{ id: string }>("select id from machvon.document_version where scan_status = 'CLEAN' limit 1");
     await sql(`begin; set local session_replication_role = replica;
       insert into machvon.compensation_payment (tenant_id, id, plan_id, household_id, owner_unit_id, payment_no, amount_vnd, due_on, paid_on, method, voucher_document_version_id, status, created_by, updated_by)
-      values ('${tenant}', gen_random_uuid(), gen_random_uuid(), '${paid?.id}', '${unit}', 1, 1000000, date '2026-10-01', date '2026-10-10', 'BANK_TRANSFER', '${voucher?.id}', 'PAID', '${membershipOf('householdOfficer')}', '${membershipOf('householdOfficer')}');
+      values ('${tenant}', gen_random_uuid(), gen_random_uuid(), '${paid?.id}', '${unit}', 1, 1000000, date '2026-10-01', date '2026-10-01', 'BANK_TRANSFER', '${voucher?.id}', 'PAID', '${membershipOf('householdOfficer')}', '${membershipOf('householdOfficer')}');
       commit;`);
 
     await open(page, 'householdDpo', `/lnd/lnd-03?project=${project.id}`);

@@ -26,6 +26,30 @@ type T = Translator['t'];
 const REASON_MIN = 5;
 const QUESTION_MIN = 10;
 const NONE = '—';
+/** The words of one key of a threshold (the rule carries the keys of the engine) with its unit; a key nobody lists is left out, never shown as it came. */
+function thresholdSentence(t: T, key: string, value: string): string | undefined {
+  switch (key) {
+    case 'points':
+      return t('home.profile.threshold.points', { value });
+    case 'critical_points':
+      return t('home.profile.threshold.criticalPoints', { value });
+    case 'grace_days':
+      return t('home.profile.threshold.graceDays', { value });
+    case 'explanation_due_days':
+      return t('home.profile.threshold.explanationDueDays', { value });
+    default:
+      return undefined;
+  }
+}
+
+/** A threshold in sentences with their units (days, points), one per key the product lists. */
+export function thresholdSentences(t: T, threshold: Readonly<Record<string, unknown>>): string[] {
+  return Object.entries(threshold).flatMap(([key, value]) => {
+    const sentence = typeof value === 'string' || typeof value === 'number' ? thresholdSentence(t, key, String(value)) : undefined;
+    return sentence === undefined ? [] : [sentence];
+  });
+}
+
 const STATUS_TONE: Readonly<Record<string, Tone>> = { OPEN: 'warning', ACKNOWLEDGED: 'info', EXPLANATION_REQUESTED: 'info', RESOLVED: 'success', DISMISSED: 'neutral' };
 
 function historyLabel(t: T, event: HistoryEvent): string {
@@ -174,7 +198,8 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
     if (action === 'acknowledge' && reasonOk) acknowledge.mutate({ warning, reason: reason.trim() }, { onSuccess });
     if (action === 'dismiss' && reasonOk) dismiss.mutate({ warning, reason: reason.trim() }, { onSuccess });
   };
-  const threshold = warning.threshold === null ? null : Object.entries(warning.threshold).map(([key, value]) => `${key} ${String(value)}`).join(', ');
+  const sentences = warning.threshold === null ? [] : thresholdSentences(t, warning.threshold);
+  const threshold = sentences.length === 0 ? null : sentences.join('; ');
   const gap = typeof warning.observed.gap_points === 'string' ? trimmed(warning.observed.gap_points) : null;
 
   const evidenceColumns: DataTableColumn<EvidenceCell>[] = [

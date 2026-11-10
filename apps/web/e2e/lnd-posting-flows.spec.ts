@@ -147,7 +147,9 @@ test.describe('LND-06: the posting of a plan, the opinions on it and its approva
     await page.getByRole('button', { name: vi['lnd.dialog.submit.action'] }).click();
     await expect(page.getByTestId('refusal')).toHaveText(vi['lnd.posting.problem.unresolved.error']);
     await page.getByRole('button', { name: vi['lnd.dialog.cancel.action'] }).click();
-    await expect(page.getByRole('button', { name: vi['lnd.posting.handle.action'] })).toHaveCount(0);
+    // The approver holds no right to handle an opinion: the opinion is still listed (open) and has no handle button. The row is asked, not the page: the shell's own bell ('Cần xử lý, ...') holds the same words.
+    await expect(page.locator('[data-feedback-id]')).toHaveCount(1);
+    await expect(page.locator('[data-feedback-id]').getByRole('button', { name: vi['lnd.posting.handle.action'] })).toHaveCount(0);
 
     // The officer handles the opinion; the approver approves with the decision document.
     await open(page, 'landPlanWriter', aim, true);
