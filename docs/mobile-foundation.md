@@ -150,7 +150,8 @@ The foundation provides the places, not the queue (ST-MOB-005, ST-MOB-006, ST-MO
 - Cached data shows `as_of`; offline never shows "latest". Money fields are read-only reference data offline. The clock of the phone is never used to judge a licence or a deadline.
 - A command that changes the money of a report is not merged automatically; the user chooses (MOB-42).
 - Everything stored locally belongs to one tenant and is purged on sign-out and tenant switch; a command carries its tenant and user and is never sent under another tenant.
-- `reachabilityProvider` is learned from real requests (an answer means online, a refused connection means offline); it is `unknown` before the first request and treated as online. A story that adds a platform connectivity source calls `ReachabilityNotifier.report`.
+- `reachabilityProvider` is learned from real requests (an answer means online, a refused connection means offline); it is `unknown` before the first request and treated as online. 
+  A request alone reports nothing while the screen is idle, so `ConnectivityMonitor` (`core/connectivity/connectivity_monitor.dart`, started by `SessionServices` while a person is signed in and the app is in the foreground) also reports: every 5 s it asks `dart:io` whether any non-loopback interface holds an address (none means airplane mode or a network taken down: offline at once, no traffic), and at most every 20 s (every tick while offline) it probes the API with a token-less read of `/mobile/version-policy` (any answer is online; a refused connection or no answer within 5 s is offline). The banner of the shell therefore shows within about 5 s of the airplane mode on a phone and on an emulator, and the queue and the uploads send again when the state turns online. No plugin is used; when the platform cannot list the interfaces the probe alone decides.
 - `syncStatusProvider` is written by the queue story; the foundation only reads it.
 
 ## Seams for the next stories

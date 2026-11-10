@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/connectivity/connectivity_providers.dart';
 import '../core/offline/offline_providers.dart';
 import '../core/session/session.dart';
 import '../features/notification_inbox/push_lifecycle.dart';
@@ -11,6 +12,7 @@ import '../features/session/session_providers.dart';
 
 /// What must run for as long as a person is signed in, whatever screen is open (ST-MOB-041, SYNC-01 and SEC-01):
 ///
+///  * the monitor of the connection, so the offline banner follows the radio and the server while nobody sends a request;
 ///  * the queue runner and the upload runner, so a command or an upload that was queued before the phone was killed is sent when
 ///    the application starts, when the device comes back online and when a wait ends, and not when a screen happens to read them;
 ///  * the publisher of the sync banner, so the banner and MOB-44 count what the queue really holds;
@@ -35,6 +37,7 @@ class SessionServices extends ConsumerWidget {
     });
     ref.watch(integrityMonitorProvider);
     if (ref.watch(sessionProvider.select((SessionSnapshot s) => s.isSignedIn))) {
+      ref.watch(connectivityMonitorProvider);
       ref.watch(queueRunnerProvider);
       ref.watch(uploadRunnerProvider);
       ref.watch(syncStatusPublisherProvider);
