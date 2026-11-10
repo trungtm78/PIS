@@ -38073,5 +38073,6 @@
   "home.profile.threshold.criticalPoints": "Mức nghiêm trọng từ {value} điểm %",
   "home.profile.threshold.graceDays": "Thời hạn nội bộ {value} ngày",
   "home.profile.threshold.explanationDueDays": "Thời hạn giải trình {value} ngày",
-  "cap.fund.nsdpDtpt.label": "Vốn đầu tư phát triển ngân sách địa phương"
+  "cap.fund.nsdpDtpt.label": "Vốn đầu tư phát triển ngân sách địa phương",
+  "prj.score.default.fallback.notice": "Chưa có dự án nào đang thẩm định trong phạm vi của bạn; đang mở dự án đầu tiên còn hoạt động."
 }

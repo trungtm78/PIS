@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/app/bootstrap.dart';
+import 'package:machvon_mobile/core/connectivity/connectivity_providers.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/offline/offline_probe_policy.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
@@ -90,6 +91,7 @@ void main() {
       );
       addTearDown(container.dispose);
       expect(container.read(offlineProbePolicyProvider), same(OfflineProbePolicy.standard));
+      expect(container.read(connectivityPolicyProvider), isNotNull, reason: 'the offline banner needs the monitor of the connection');
     });
 
     test('a person who never signed in starts signed out', () async {

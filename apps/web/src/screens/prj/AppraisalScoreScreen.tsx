@@ -48,7 +48,7 @@ function ScoreContent({ route }: ScreenProps) {
         <StateBoundary state={state} onRetry={() => void view.refetch()}>
           {namedId === undefined && view.data !== undefined && view.data !== null ? (
             <p className="callout" role="status" data-testid="default-project">
-              {t('prj.score.default.notice')} <Link to={LIST_PATH}>{t('prj.score.default.link')}</Link>
+              {t(view.data.status === 'APPRAISAL' ? 'prj.score.default.notice' : 'prj.score.default.fallback.notice')} <Link to={LIST_PATH}>{t('prj.score.default.link')}</Link>
             </p>
           ) : null}
           {view.data === undefined || view.data === null ? null : <Scoring view={view.data} />}

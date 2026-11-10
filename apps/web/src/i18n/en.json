@@ -38073,5 +38073,6 @@
   "home.profile.threshold.criticalPoints": "Critical from {value} percentage points",
   "home.profile.threshold.graceDays": "Internal deadline {value} days",
   "home.profile.threshold.explanationDueDays": "Explanation deadline {value} days",
-  "cap.fund.nsdpDtpt.label": "Local budget development investment capital"
+  "cap.fund.nsdpDtpt.label": "Local budget development investment capital",
+  "prj.score.default.fallback.notice": "No project is under appraisal in your scope; showing the first living project."
 }
