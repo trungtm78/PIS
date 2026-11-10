@@ -2361,6 +2361,56 @@
       "roles": [
         "BillingOperator"
       ]
+    },
+    {
+      "key": "platformOperator",
+      "displayName": "Lý Quang Vinh",
+      "initials": "QV",
+      "membershipId": "00000000-0000-4000-8000-0000000000ec",
+      "permissions": [
+        "system.tenant.read",
+        "system.tenant.manage",
+        "system.billing.manage",
+        "system.release.manage",
+        "system.license.manage",
+        "system.theme.manage",
+        "system.support.request",
+        "support_access_grant.read"
+      ],
+      "audience": "control",
+      "roles": [
+        "SystemAdmin"
+      ]
+    },
+    {
+      "key": "contractorUser",
+      "displayName": "Đặng Minh Tuấn",
+      "initials": "MT",
+      "membershipId": "00000000-0000-4000-8000-0000000000ed",
+      "permissions": [
+        "vnd.portal.read",
+        "vnd.portal.respond",
+        "vnd.portal.certificate",
+        "vnd.portal.reconfirm",
+        "vnd.portal.remediation",
+        "vnd.portal.upload",
+        "session.self"
+      ]
+    },
+    {
+      "key": "securityAdmin",
+      "displayName": "Ngô Thanh Sơn",
+      "initials": "TS",
+      "membershipId": "00000000-0000-4000-8000-0000000000ee",
+      "permissions": [
+        "iam.delegation.read",
+        "iam.delegation.create",
+        "iam.acting.read",
+        "iam.acting.request",
+        "role_grant.read",
+        "adm.security.read",
+        "session.self"
+      ]
     }
   ],
   "lifecycleMembershipId": "00000000-0000-4000-8000-0000000000e6"

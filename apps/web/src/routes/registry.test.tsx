@@ -19,6 +19,14 @@ function home() {
   return { ...first, id: 'ZZZ-99', title: 'Màn hình chưa có', path: '/zzz/zzz-99', req: 'FR-ZZZ-99' };
 }
 
+describe('route titles', () => {
+  it('says the risk-signal screens in Vietnamese: no English term red flag in a menu label', () => {
+    expect(WEB_ROUTES.filter((route) => /red.?flag/i.test(route.title))).toEqual([]);
+    expect(routeById('AUD-14')?.title).toBe('Dấu hiệu rủi ro mua sắm');
+    expect(routeById('AUD-16')?.title).toBe('Sổ chỉ báo dấu hiệu rủi ro');
+  });
+});
+
 describe('route lookup', () => {
   it('finds a route by id and by path, ignoring case and a trailing slash', () => {
     expect(routeById('ADM-01')?.path).toBe('/adm/adm-01');

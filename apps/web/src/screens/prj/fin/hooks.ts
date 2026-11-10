@@ -20,7 +20,7 @@ export function useScopeKey(): readonly ['fin1', string | undefined, string | un
   return ['fin1', tenant?.id, tenant?.membershipId];
 }
 
-export function useAppraisalList(filter: ListFilter) {
+export function useAppraisalList(filter: ListFilter, enabled = true) {
   const client = useApiClient();
   const key = useScopeKey();
   return useQuery({
@@ -33,7 +33,7 @@ export function useAppraisalList(filter: ListFilter) {
       if (filter.projectId !== undefined) query.project_id = filter.projectId;
       return toList(await client.read('listInvestmentAppraisals' as never, { query } as never));
     },
-    enabled: key[1] !== undefined,
+    enabled: key[1] !== undefined && enabled,
     retry: false,
   });
 }

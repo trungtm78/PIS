@@ -8086,7 +8086,7 @@
     },
     {
       "id": "AUD-14",
-      "title": "Tín hiệu rủi ro mua sắm (red flag)",
+      "title": "Dấu hiệu rủi ro mua sắm",
       "kind": "table",
       "area": "insights",
       "module": "AUD",
@@ -8106,7 +8106,7 @@
     },
     {
       "id": "AUD-16",
-      "title": "Sổ chỉ báo red flag",
+      "title": "Sổ chỉ báo dấu hiệu rủi ro",
       "kind": "table",
       "area": "insights",
       "module": "AUD",

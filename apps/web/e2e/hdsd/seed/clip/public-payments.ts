@@ -31,7 +31,7 @@ async function activeContract(ctx: SeedContext, packageCode: string): Promise<Ob
   return found !== undefined && found.status === 'ACTIVE' ? found : undefined;
 }
 
-async function reportingPeriodId(ctx: SeedContext, fiscalYear: number): Promise<string | undefined> {
+export async function reportingPeriodId(ctx: SeedContext, fiscalYear: number): Promise<string | undefined> {
   await ctx.attempt(MAKER, 'POST', '/reporting-periods/generate', { calendar_code: 'DEFAULT', fiscal_year: fiscalYear, period_type: 'MONTH' });
   const periods = await ctx.list<Obj>(MAKER, '/resources/reporting_period');
   const month = periods.filter((row) => row.period_type === 'MONTH' && Number(row.fiscal_year) === fiscalYear).sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)))[0];
@@ -39,7 +39,7 @@ async function reportingPeriodId(ctx: SeedContext, fiscalYear: number): Promise<
 }
 
 /** A measurement of the work, approved; an acceptance made from it, submitted and approved by a second person. Returns the acceptance id. */
-async function measuredAndAccepted(ctx: SeedContext, contract: Obj, periodId: string, tag: string): Promise<string | undefined> {
+export async function measuredAndAccepted(ctx: SeedContext, contract: Obj, periodId: string, tag: string): Promise<string | undefined> {
   const contractId = String(contract.id);
   const revision = (await ctx.list<Obj>(MAKER, '/resources/contract_revision')).find((row) => String(row.contract_id) === contractId);
   const line = (await ctx.list<Obj>(MAKER, '/resources/boq_line', { contract_id: contractId }))[0];

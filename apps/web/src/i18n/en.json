@@ -21754,7 +21754,7 @@
   "fin1.work.title": "Appraisal workbench",
   "fin1.work.subtitle": "Enter the inputs with their source and owner; the server computes the results; the approver is not the maker.",
   "fin1.work.backToList": "Back to the list",
-  "fin1.work.noTarget": "Open this screen from the list of appraisals (the address names an appraisal).",
+  "fin1.work.noTarget": "Open this screen from the list of appraisals (the address must name the appraisal file).",
   "fin1.work.missing": "This appraisal does not exist, or it is outside your scope.",
   "fin1.work.kind": "Kind",
   "fin1.work.version": "Record version {version}",
@@ -38074,5 +38074,11 @@
   "home.profile.threshold.graceDays": "Internal deadline {value} days",
   "home.profile.threshold.explanationDueDays": "Explanation deadline {value} days",
   "cap.fund.nsdpDtpt.label": "Local budget development investment capital",
-  "prj.score.default.fallback.notice": "No project is under appraisal in your scope; showing the first living project."
+  "prj.score.default.fallback.notice": "No project is under appraisal in your scope; showing the first living project.",
+  "ent3b.narr.default.notice": "No report is named in the address, so the newest draft of the register is open.",
+  "ent3b.narr.default.link": "Pick another report from the list of reports",
+  "fin1.work.default.notice": "No appraisal is named in the address, so the first appraisal of the register with a result is open.",
+  "fin1.work.default.link": "Pick another appraisal from the list of appraisals",
+  "govb1.default.project.notice": "No project is named in the address, so the first project under way of the register is open.",
+  "govb1.default.project.link": "Pick another project from the list of projects"
 }

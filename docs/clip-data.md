@@ -45,6 +45,7 @@ Enterprise groups: `clip-ent-projects`, `clip-ent-funding`, `clip-ent-directives
 - Payments: a measurement approved by the leader, an acceptance approved by a second person, a payment request checked by the accountant with the four demo forms, sent to the Treasury; one confirmed and matched (settled), one left waiting (its clock runs out), and an advance paid long ago (over its recovery deadline).
 - Alerts: early-warning rules published before the snapshots are frozen; the warnings are made by the platform when a snapshot is frozen. Nothing is inserted into an alert table.
 - e-GP, Treasury statement, frozen snapshots, finance feed, committee roster, directives (some overdue), BI (the metric bundle of the repository synced inline, two dashboards published by the leader).
+- Public portal account: `clip-public-contractor-portal` (also run on the enterprise stack as `clip-ent-contractor-portal`), see Accounts.
 - Enterprise: 6 investment and 6 equipment-purchase projects; equity and loan year plans; directives; the accounting file imported and reconciled; the PVN and HPM demo forms issued by three people, and the HPM push log.
 
 ## The phone conflict (MOB-42)
@@ -55,7 +56,18 @@ answers 409 `DIARY_SYNC_CONFLICT` and keeps the second copy as a conflict diary,
 ## Accounts
 
 The people are the accounts of the docs stack (`apps/web/e2e/support/docs-people.json`): leader (`capApprover`), unit admin (`unitAdmin`), officer (`projectManager`), accountant (`treasuryMaker`), auditor (`auditor`), tenant owner (`owner`, the second person of every maker-checker pair), a plain member, and the
-committee head `docHead` (the docs stack grants the system role COMMITTEE_HEAD at start; it approves and issues the report engine forms and reads the committee workspace). They sign in with the development session of the stack (`?devUser=`). There are no passwords in the dev stack; the session key (`E2E_SESSION_KEY`) is generated per run and
+committee head `docHead` (the docs stack grants the system role COMMITTEE_HEAD at start; it approves and issues the report engine forms and reads the committee workspace). They sign in with the development session of the stack (`?devUser=`).
+
+Personas added for the scenes no account could open (grants of the clip stack only, in `serve.stack.ts` `docsRoles()` and `docs-people.json`; no authorization of the product is weakened):
+
+| `?devUser=` | Who | What it holds | Opens |
+|---|---|---|---|
+| `auditor` | Vu Duc Minh | system role AUDITOR plus the stack role `THANH_TRA_KIEM_TOAN` (reads: `aud.read`, `aud.standing.read`, red flags, gifts, SoD, whistle reports, `project.read`) | AUD-01, 02, 06, 11, 14, 16, 17 |
+| `securityAdmin` | Ngo Thanh Son | system role SECURITY_ADMIN plus the stack role `QUAN_TRI_UY_QUYEN` (`iam.delegation.read/create`, `iam.acting.read/request`, `role_grant.read`); the second person who approves is the owner | ADM-25, 26, 27 |
+| `contractorUser` | Dang Minh Tuan | a vendor portal account: system role PORTAL_CONTRACTOR on one unit, a guest of ONE contractor | VND-16 and the portal screens |
+| `platformOperator` | Ly Quang Vinh | a control-plane account (token of the control audience, realm role SystemAdmin, permissions listed by its fixture), no membership in the tenant | SAS-06, 18, 19, 20, 21 |
+
+The contractor accepting the invitation of the registry is an act of its own identity provider that no command gives; the stack stands in for it (`POST /__e2e/portal-account`, like `/__e2e/layout-confirmation`): the groups `clip-public-contractor-portal` / `clip-ent-contractor-portal` first make the invitation with the real commands (proposed by the officer with the paper that proves the contact, approved by the owner), then bind `contractorUser` to that contractor and put two requests, one answered by the guest through the portal. The development session of the web reads the platform operator with its roles and permissions (`buildDevUsers`, `playwright.hdsd.config.ts`). There are no passwords in the dev stack; the session key (`E2E_SESSION_KEY`) is generated per run and
 lives only in your local environment or an untracked file, never in the repository.
 
 ## What a stack window must run (exact commands)
@@ -133,3 +145,12 @@ Enterprise groups in order: `clip-ent-projects`, `clip-ent-capital` (appraisal t
 - The stack of the docs seed takes the enterprise brand (theme and unit names) when `MACHVON_EDITION=enterprise` (`serve.stack.ts`).
 - Payments, Treasury and e-GP chapters have no enterprise data (they belong to the public edition).
 - Own stack, own ports: `E2E_API_PORT`, `E2E_IDP_PORT`, `MACHVON_TEST_LANE=unit` (no shared database lane), web app on its own port with `VITE_EDITION=enterprise`.
+
+## Appraisal, earned value, project documents and narratives (enterprise, FIXAB)
+
+The groups `clip-ent-appraisal`, `clip-ent-project-docs`, `clip-ent-narrative` and `clip-ent-contractor-portal` run last (they only read what the groups above made). The data is `appraisalPack` of `enterprise.json`; real commands only; every step skips what exists.
+
+- **Appraisal (PRJ-15, PRJ-24)**: three more projects (DA-PMDT431, DA-PMDT437, DA-PMTB433) registered and sent to appraisal by the officer; the owner's score sheet is recorded on DA-PMDT437 (the decision of the leader is left to the person who films). Three effectiveness appraisals of the finance desk (inputs, run of the server: NPV, IRR, payback): one sent to the leader, one a draft with its result, one approved. PRJ-15 opens on the first project in appraisal, PRJ-24 on the first appraisal with a result (no address query needed).
+- **Earned value (PRJ-26, PRJ-27)**: DA-PMDT105 (first project under way): three first-level packages, four milestones (two done), baseline version 0, each package carried by one active contract (a contract carries one package), one measured and accepted quantity on the construction contract HD-PMDT105-XL01 (earned value). The contracts of the enterprise dataset have no party for a payment (`PARTY_REQUIRED`), so no certified payment exists and the actual cost (CPI, EAC) is answered "not enough data" with the reason, never a zero. PRJ-26 and PRJ-27 open on the first project under way.
+- **Project documents (DOC-24)**: seven documents of six classes on three projects, each a text PDF (the text is extracted and searchable; no scanned image, so no OCR engine output), second and third versions with their change notes, two comments (one resolved). The review round of a document is not made: it needs an approval workflow of the business type that the dataset does not configure.
+- **Structured narrative (DIS-35)**: a report of ENT-M2026-11 (previous period) with the eight fields, sent and accepted; the draft of ENT-M2026-12 that inherits those words and adds its own; a draft of ENT-M2026-11 for DA-PMDT114 with all eight fields and two standard causes. The draft periods are the ones that end after the day the plan of the year (revision 2) took effect: a report of an older period is refused with `PLAN_VERSION_NOT_EFFECTIVE`. DIS-35 opens on the newest draft when no report is named.

@@ -62,6 +62,16 @@ test('buildDevUsers puts the people on the fixture memberships; buildWebEnv carr
   assert.equal(JSON.parse(env.VITE_DEV_USERS)[0].key, 'owner');
 });
 
+test('the platform operator signs in on the control plane with the roles and permissions of its fixture; a tenant person keeps none', () => {
+  const fixtures = [{ key: 'platformOperator', membershipId: 'c1', audience: 'control', roles: ['SystemAdmin'], permissions: ['system.tenant.read', 'system.tenant.manage'] }, { key: 'owner', membershipId: 'm1', permissions: ['x'] }];
+  const [operator, owner] = buildDevUsers(fixtures, [{ key: 'platformOperator', name: 'V', initials: 'V' }, { key: 'owner', name: 'An', initials: 'VA' }]);
+  assert.equal(operator.audience, 'control');
+  assert.deepEqual(operator.roles, ['SystemAdmin']);
+  assert.deepEqual(operator.permissions, ['system.tenant.read', 'system.tenant.manage']);
+  assert.equal(owner.audience, undefined);
+  assert.equal(owner.permissions, null);
+});
+
 test('the personas are people of the docs stack, and the sign-in address names them', () => {
   assert.ok(DEMO_PERSONAS.length >= 4);
   assert.equal(loginUrl(5173, DEMO_PERSONAS[0]), 'http://127.0.0.1:5173/home/home-09?devUser=owner');

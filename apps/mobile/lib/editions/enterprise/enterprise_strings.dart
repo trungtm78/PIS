@@ -10,7 +10,14 @@ const StringTable kEnterpriseStrings = StringTable(
   vi: <String, String>{
     'mob.account.biometric.reason':
         'Bật mở khóa Phần mềm quản lý đầu tư xây dựng bằng sinh trắc học',
+    'mob.alert.source.treasuryRecon.label': 'Đối chiếu số liệu đã chốt',
+    'mob.home.context.cutoff.label': 'Số liệu chốt đến ngày',
     'mob.home.leader.title': 'Trang chủ điều hành',
+    'mob.home.tile.metric.disbursed': 'Giải ngân lũy kế',
+    'mob.home.tile.metric.planPm': 'Kế hoạch vốn được giao',
+    'mob.home.tile.metric.ratePm': 'Tỷ lệ theo kế hoạch vốn được giao',
+    'mob.home.tile.nullReason.treasuryNone': 'Chưa ghi nhận giải ngân',
+    'mob.prj.list.work.treasury': 'Đối soát số liệu đã chốt',
     'mob.release.upgrade.failed': 'Chưa mở được trang cập nhật. Thử lại hoặc tìm Phần mềm quản lý đầu tư xây dựng trong cửa hàng ứng dụng.',
     'mob.signIn.unlock.reason': 'Mở khóa Phần mềm quản lý đầu tư xây dựng',
     'mob.welcome.logo.label': 'Biểu trưng Phần mềm quản lý đầu tư xây dựng',
@@ -18,7 +25,14 @@ const StringTable kEnterpriseStrings = StringTable(
   },
   en: <String, String>{
     'mob.account.biometric.reason': 'Turn on biometric unlock for the Construction Investment Management Software',
+    'mob.alert.source.treasuryRecon.label': 'Reconciliation of the closed figures',
+    'mob.home.context.cutoff.label': 'Closed figures as of',
     'mob.home.leader.title': 'Executive home',
+    'mob.home.tile.metric.disbursed': 'Cumulative disbursement',
+    'mob.home.tile.metric.planPm': 'Assigned capital plan',
+    'mob.home.tile.metric.ratePm': 'Rate on the assigned capital plan',
+    'mob.home.tile.nullReason.treasuryNone': 'No disbursement recorded',
+    'mob.prj.list.work.treasury': 'Reconciliation of the closed figures',
     'mob.release.upgrade.failed': 'The update page could not be opened. Try again or look for the Construction Investment Management Software in the app store.',
     'mob.signIn.unlock.reason':
         'Unlock the Construction Investment Management Software',

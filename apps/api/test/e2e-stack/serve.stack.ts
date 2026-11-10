@@ -772,7 +772,7 @@ interface GrantPlan {
   n: number;
   user: string;
   role: string;
-  kind: 'TENANT' | 'UNIT_SUBTREE';
+  kind: 'TENANT' | 'UNIT_SUBTREE' | 'UNIT_ONLY';
   refs: string[];
 }
 
@@ -1174,11 +1174,18 @@ const DOCS = process.env.E2E_SEED === 'docs';
 interface DocsPerson {
   key: string;
   name: string;
-  unit: number;
-  role: string;
-  kind: 'TENANT' | 'UNIT_SUBTREE';
+  /** Absent for a person of the control plane (the platform operator), who has no membership in a tenant. */
+  unit?: number;
+  role?: string;
+  kind?: 'TENANT' | 'UNIT_SUBTREE' | 'UNIT_ONLY';
+  /** Roles of the unit the person holds besides `role`: the audit reader and the authority reader are grants of the clip stack only, never a change of authorization. */
+  extraRoles?: string[];
+  /** `control`: signs in on the control plane (SystemAdmin), no membership in a tenant. `guest`: a vendor portal account, bound to a contractor later (POST /__e2e/portal-account). */
+  plane?: 'control' | 'guest';
 }
 const DOCS_PEOPLE: DocsPerson[] = JSON.parse(readFileSync(resolve(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'docs-people.json'), 'utf8')) as DocsPerson[];
+/** The people who are members of tenant A: everyone but the operator of the platform. */
+const TENANT_PEOPLE = DOCS_PEOPLE.filter((person) => person.plane !== 'control');
 
 /** The roles of a unit made from the permissions the tests use: the staff of the project board do the work, the leader decides, the accountant pays. */
 function docsRoles(): Array<{ n: number; code: string; permissions: string[]; rank: number }> {
@@ -1191,13 +1198,17 @@ function docsRoles(): Array<{ n: number; code: string; permissions: string[]; ra
     { n: 901, code: 'CAN_BO_BAN_QLDA', permissions: everything.filter((permission) => !deciding(permission)), rank: 45 },
     { n: 902, code: 'LANH_DAO_SO', permissions: everything.filter((permission) => deciding(permission) || permission.endsWith('.read')), rank: 65 },
     { n: 903, code: 'KE_TOAN_THANH_TOAN', permissions: unique([...PAY_ROLES, ...PAYMENT_ROLES, ...LEDGER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES]), rank: 40 },
+    // Persona grants of the clip stack (the system roles AUDITOR and SECURITY_ADMIN hold none of these): the auditor reads the inspections, recommendations, red flags, gifts and the ranking of investors (AUD-02, 06, 11, 14, 16, 17);
+    // the security administrator reads the permanent delegations, the acting grants and the period scopes (ADM-25, 26, 27) and asks for them; the second person who approves is the owner. Reading and asking only.
+    { n: 904, code: 'THANH_TRA_KIEM_TOAN', permissions: everything.filter((permission) => /^aud.(read|standing.read|redflag.read|gift.read|sod.read|whistle.read)$/.test(permission) || permission === 'project.read'), rank: 28 },
+    { n: 905, code: 'QUAN_TRI_UY_QUYEN', permissions: everything.filter((permission) => ['iam.delegation.read', 'iam.delegation.create', 'iam.acting.read', 'iam.acting.request', 'role_grant.read', 'membership.read', 'organization_unit.read'].includes(permission)), rank: 80 },
   ];
 }
 
 async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name: TenantName): Promise<void> {
   const tenantId = fixtures.tenants[name];
   await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => seedSystemRoles(tx, ACTOR));
-  const memberships = name === 'A' ? (DOCS ? DOCS_PEOPLE.map((person) => userKey(person.key).membershipId) : fixtures.users.filter((user) => user.audience !== 'control').map((user) => user.membershipId).concat(fixtures.recipientMembershipId)) : [userKey('owner').membershipId];
+  const memberships = name === 'A' ? (DOCS ? TENANT_PEOPLE.map((person) => userKey(person.key).membershipId) : fixtures.users.filter((user) => user.audience !== 'control').map((user) => user.membershipId).concat(fixtures.recipientMembershipId)) : [userKey('owner').membershipId];
   const statements: Array<[string, unknown[]?]> = [];
   for (const unit of UNITS[name]) {
     statements.push([
@@ -1207,8 +1218,8 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
     ]);
   }
   for (const membershipId of memberships) {
-    const person = DOCS && name === 'A' ? DOCS_PEOPLE.find((candidate) => userKey(candidate.key).membershipId === membershipId) : undefined;
-    const organization = person !== undefined ? unitId(person.unit) : membershipId === userKey('unitAdmin').membershipId ? unitId(2) : unitId(1);
+    const person = DOCS && name === 'A' ? TENANT_PEOPLE.find((candidate) => userKey(candidate.key).membershipId === membershipId) : undefined;
+    const organization = person?.unit !== undefined ? unitId(person.unit) : membershipId === userKey('unitAdmin').membershipId ? unitId(2) : unitId(1);
     statements.push([
       "insert into machvon.user_account (id, idp_subject, email_normalized, display_name, status) values ($1, $2, $3, $4, 'Active') on conflict do nothing",
       [membershipId, `e2e-${membershipId}`, `${membershipId}@example.test`, person?.name ?? `E2E ${membershipId.slice(-2)}`],
@@ -1234,10 +1245,15 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
 
   const roles = await asOwner<{ id: string; code: string }>(database, tenantId, [['select id, code from machvon.role_definition', []]]);
   const roleByCode = new Map(roles.map((row) => [row.code, row.id]));
-  const docsGrants = DOCS_PEOPLE.flatMap((person, index): GrantPlan[] => [
-    { n: 900 + index, user: person.key, role: person.role, kind: person.kind, refs: person.kind === 'TENANT' ? [] : [unitId(person.unit)] },
-    ...(person.key === 'capApprover' ? [{ n: 950, user: person.key, role: 'LEADER', kind: 'TENANT' as const, refs: [] }] : []),
-  ]);
+  const docsGrants = TENANT_PEOPLE.flatMap((person, index): GrantPlan[] => {
+    const kind = person.kind ?? 'TENANT';
+    const refs = kind === 'TENANT' ? [] : [unitId(person.unit ?? 1)];
+    return [
+      { n: 900 + index, user: person.key, role: person.role ?? 'MEMBER', kind, refs },
+      ...(person.key === 'capApprover' ? [{ n: 950, user: person.key, role: 'LEADER', kind: 'TENANT' as const, refs: [] }] : []),
+      ...(person.extraRoles ?? []).map((role, order) => ({ n: 960 + index * 4 + order, user: person.key, role, kind, refs })),
+    ];
+  });
   const plans: GrantPlan[] = name === 'A' ? (DOCS ? docsGrants : GRANTS) : GRANTS.filter((grant) => grant.user === 'owner');
   await asOwner(
     database,
@@ -1750,6 +1766,23 @@ class LayoutConfirmationController {
   }
 }
 
+/**
+ * The account of the vendor portal (VND-16) of the clips. The contractor accepts the invitation of the registry through its own identity provider, an act outside the product that no command gives; the stack
+ * stands in for it: POST /__e2e/portal-account {person, tax_identifier} makes the membership of that person of the docs stack (the guest account `contractorUser`) a guest of the contractor of that tax code,
+ * valid for a year. The invitation itself is made by the real commands of the registry (proposed by one person, approved by a second).
+ */
+let bindPortalAccount: ((person: string, taxIdentifier: string) => Promise<{ bound: number }>) | undefined;
+
+@Controller('__e2e')
+class PortalAccountController {
+  @Post('portal-account')
+  @Public()
+  async bind(@Body() body: { person?: string; tax_identifier?: string }): Promise<{ bound: number }> {
+    if (bindPortalAccount === undefined || typeof body.person !== 'string' || typeof body.tax_identifier !== 'string') return { bound: 0 };
+    return bindPortalAccount(body.person, body.tax_identifier);
+  }
+}
+
 @Controller('__e2e')
 class HealthController {
   @Get('health')
@@ -1810,6 +1843,21 @@ describe('e2e API stack', () => {
     relayPool.on('error', () => undefined);
     const lockPool = new Pool({ connectionString: database.urlFor('machvon_outbox_relay'), max: 6 });
     lockPool.on('error', () => undefined);
+    bindPortalAccount = async (person, taxIdentifier): Promise<{ bound: number }> => {
+      const account = TENANT_PEOPLE.find((candidate) => candidate.key === person && candidate.plane === 'guest');
+      if (account === undefined) return { bound: 0 };
+      const client = new Client({ connectionString: database.adminUrl });
+      await client.connect();
+      try {
+        const done = await client.query(
+          "update machvon.membership m set membership_type = 'GUEST_CONTRACTOR', contractor_id = c.id, valid_until = now() + interval '1 year' from machvon.contractor c where m.id = $1 and c.tenant_id = m.tenant_id and c.tax_identifier = $2",
+          [userKey(person).membershipId, taxIdentifier],
+        );
+        return { bound: done.rowCount ?? 0 };
+      } finally {
+        await client.end();
+      }
+    };
     confirmLayoutProfile = async (profileCode, reference): Promise<number> => {
       const client = new Client({ connectionString: database.adminUrl });
       await client.connect();
@@ -1938,7 +1986,7 @@ describe('e2e API stack', () => {
                 // MACHVON_EDITION names the edition the stack serves (the clip dataset of the second edition needs its modules); unset or public leaves the stack as it always was.
                 ...(process.env.MACHVON_EDITION === 'enterprise' ? { edition: await loadEditionManifest('enterprise'), editionModules: await loadEditionModules('enterprise') } : {}),
               })],
-            controllers: [HealthController, ClockController, LayoutConfirmationController, DevMailboxController, E2eProviderController],
+            controllers: [HealthController, ClockController, LayoutConfirmationController, PortalAccountController, DevMailboxController, E2eProviderController],
             providers: [
               { provide: SIGNING_KEY, useValue: key },
               { provide: TENANT_RUNTIME, useValue: tenantRuntime },

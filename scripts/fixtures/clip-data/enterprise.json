@@ -612,7 +612,28 @@
     "capital-plan:symbol.023": "95/QĐ-HĐTV",
     "capital-plan:title.024": "Quyết định về việc giao kế hoạch vốn đầu tư năm 2026 cho các đơn vị chủ đầu tư",
     "capital-plan:note.021": "Bố trí vốn năm 2026 cho các dự án chuyển tiếp và khởi công mới của Tổng công ty",
-    "capital-plan:reason.022": "Phù hợp kế hoạch được giao và tiến độ thực hiện của các dự án"
+    "capital-plan:reason.022": "Phù hợp kế hoạch được giao và tiến độ thực hiện của các dự án",
+    "pay.supervisor": "Tư vấn giám sát",
+    "pay.measurementPaper": "Biên bản đo khối lượng {0}",
+    "pay.measurementReason": "Khối lượng khớp với nhật ký thi công",
+    "pay.acceptancePaper": "Biên bản nghiệm thu khối lượng {0}",
+    "pay.investorRep": "Đại diện chủ đầu tư",
+    "pay.acceptanceReason": "Nghiệm thu theo biên bản đo khối lượng",
+    "pay.invoicePaper": "Hóa đơn {0}",
+    "pay.contractor": "Nhà thầu",
+    "appraisal.note": "Dự án phù hợp định hướng phát triển của Tổng công ty; đề nghị thông qua và chuyển vào ngân hàng dự án.",
+    "appraisal.cause": "Giả định lấy theo hồ sơ của tư vấn lập dự án",
+    "doc.versionNote": "Bản đầu tiên của hồ sơ",
+    "doc.reviewNote": "Gửi lãnh đạo xem xét trước khi trình Ban chỉ đạo",
+    "portal.contactName": "Đặng Minh Tuấn",
+    "portal.contactEmail": "tuan.dm@nhathau-minhhoa.example",
+    "portal.contactPaper": "Thư giới thiệu người đại diện số 12/2026",
+    "portal.approveNote": "Đã đối chiếu thư giới thiệu với hồ sơ năng lực của nhà thầu",
+    "portal.request1.title": "Bổ sung thông tin năng lực thi công cho kế hoạch sản xuất",
+    "portal.request1.body": "Đề nghị nhà thầu cập nhật số lượng thiết bị thi công và nhân lực chủ chốt đang có.",
+    "portal.request2.title": "Gửi bản sao chứng chỉ năng lực hoạt động xây dựng còn hiệu lực",
+    "portal.request2.body": "Chứng chỉ sẽ được cán bộ đối chiếu với bản gốc trước khi xác minh.",
+    "portal.answer": "Nhà thầu xin cập nhật: 12 máy thi công chủ lực và 38 cán bộ, công nhân kỹ thuật; hồ sơ chi tiết gửi kèm trong tuần này."
   },
   "disbursement": {
     "office": {
@@ -641,5 +662,401 @@
       "IMPLEMENTATION",
       "BUDGETED"
     ]
+  },
+  "appraisalPack": {
+    "note": "Projects at the appraisal stage, the effectiveness appraisals (NPV, IRR) of the finance desk, the earned value of the first project under way, the project documents and the structured narratives of the period (ENT-3b). All names and figures are illustrative.",
+    "projects": [
+      {
+        "code": "DA-PMDT431",
+        "name": "Đầu tư dây chuyền sản xuất phân bón NPK công suất 200.000 tấn mỗi năm",
+        "area": "PM-KCN-PHU-MY",
+        "sector": "ENVIRONMENT",
+        "type": "NEW_BUILD",
+        "totalBillions": 860,
+        "startYear": 2027,
+        "endYear": 2030,
+        "group": "B",
+        "scored": false
+      },
+      {
+        "code": "DA-PMDT437",
+        "name": "Xây dựng hệ thống thu hồi nhiệt thải và phát điện nhà máy đạm",
+        "area": "PM-NHA-MAY-DAM",
+        "sector": "ENVIRONMENT",
+        "type": "NEW_BUILD",
+        "totalBillions": 420,
+        "startYear": 2027,
+        "endYear": 2029,
+        "group": "B",
+        "scored": true
+      },
+      {
+        "code": "DA-PMTB433",
+        "name": "Mua sắm hệ thống điều khiển phân tán (DCS) thay thế cho phân xưởng amoniac",
+        "area": "PM-NHA-MAY-DAM",
+        "sector": "ICT",
+        "type": "PROCUREMENT",
+        "totalBillions": 135,
+        "startYear": 2027,
+        "endYear": 2028,
+        "group": "C",
+        "scored": false
+      }
+    ],
+    "appraisals": [
+      {
+        "key": "npk",
+        "project": "DA-PMDT431",
+        "title": "Hiệu quả tài chính dự án dây chuyền NPK 200.000 tấn mỗi năm",
+        "state": "SUBMITTED",
+        "discountRatePct": "11",
+        "lines": [
+          {
+            "period": 0,
+            "capexMillions": 300000
+          },
+          {
+            "period": 1,
+            "capexMillions": 360000
+          },
+          {
+            "period": 2,
+            "capexMillions": 200000
+          },
+          {
+            "period": 3,
+            "benefitMillions": 240000,
+            "opexMillions": 70000
+          },
+          {
+            "period": 4,
+            "benefitMillions": 310000,
+            "opexMillions": 78000
+          },
+          {
+            "period": 5,
+            "benefitMillions": 340000,
+            "opexMillions": 82000
+          },
+          {
+            "period": 6,
+            "benefitMillions": 340000,
+            "opexMillions": 82000,
+            "residualMillions": 90000
+          }
+        ]
+      },
+      {
+        "key": "heat",
+        "project": "DA-PMDT437",
+        "title": "Hiệu quả tài chính hệ thống thu hồi nhiệt thải và phát điện",
+        "state": "DRAFT",
+        "discountRatePct": "10",
+        "lines": [
+          {
+            "period": 0,
+            "capexMillions": 220000
+          },
+          {
+            "period": 1,
+            "capexMillions": 200000
+          },
+          {
+            "period": 2,
+            "benefitMillions": 120000,
+            "opexMillions": 25000
+          },
+          {
+            "period": 3,
+            "benefitMillions": 150000,
+            "opexMillions": 28000
+          },
+          {
+            "period": 4,
+            "benefitMillions": 150000,
+            "opexMillions": 28000,
+            "residualMillions": 40000
+          }
+        ]
+      },
+      {
+        "key": "dcs",
+        "project": "DA-PMTB433",
+        "title": "Hiệu quả đầu tư hệ thống điều khiển phân tán thay thế",
+        "state": "APPROVED",
+        "discountRatePct": "10",
+        "lines": [
+          {
+            "period": 0,
+            "capexMillions": 135000
+          },
+          {
+            "period": 1,
+            "benefitMillions": 48000,
+            "opexMillions": 6000
+          },
+          {
+            "period": 2,
+            "benefitMillions": 55000,
+            "opexMillions": 6000
+          },
+          {
+            "period": 3,
+            "benefitMillions": 55000,
+            "opexMillions": 6000
+          },
+          {
+            "period": 4,
+            "benefitMillions": 55000,
+            "opexMillions": 6000,
+            "residualMillions": 12000
+          }
+        ]
+      }
+    ],
+    "assumptions": {
+      "HORIZON": {
+        "unit": "kỳ",
+        "source": "Quyết định chủ trương đầu tư của Tổng công ty"
+      },
+      "DISCOUNT_RATE": {
+        "unit": "%",
+        "source": "Chi phí vốn bình quân gia quyền theo kế hoạch tài chính của Tổng công ty"
+      },
+      "CAPEX": {
+        "unit": "triệu đồng",
+        "source": "Tổng mức đầu tư sơ bộ của tư vấn lập dự án"
+      },
+      "BENEFIT": {
+        "unit": "triệu đồng mỗi kỳ",
+        "source": "Giá bán sản phẩm bình quân theo kế hoạch kinh doanh"
+      },
+      "OPEX": {
+        "unit": "triệu đồng mỗi kỳ",
+        "source": "Định mức chi phí vận hành của nhà máy"
+      },
+      "RESIDUAL": {
+        "unit": "triệu đồng",
+        "source": "Giá trị thu hồi theo ước tính của kế toán"
+      }
+    },
+    "evm": {
+      "project": "DA-PMDT105",
+      "components": [
+        {
+          "code": "CP1",
+          "name": "Xây lắp và lắp đặt thiết bị chính",
+          "share": 0.6
+        },
+        {
+          "code": "CP2",
+          "name": "Thiết bị công nghệ, chạy thử và nghiệm thu",
+          "share": 0.3
+        },
+        {
+          "code": "CP3",
+          "name": "Tư vấn, thiết kế và quản lý dự án",
+          "share": 0.1
+        }
+      ],
+      "milestones": [
+        {
+          "code": "GD1",
+          "name": "Hoàn thành thiết kế bản vẽ thi công và dự toán",
+          "component": "CP3",
+          "baselineDays": -150,
+          "doneAfterDays": 4
+        },
+        {
+          "code": "GD2",
+          "name": "Ký hợp đồng xây lắp và khởi công",
+          "component": "CP1",
+          "baselineDays": -100,
+          "doneAfterDays": 2
+        },
+        {
+          "code": "GD3",
+          "name": "Hoàn thành lắp đặt thiết bị chính",
+          "component": "CP2",
+          "baselineDays": 60
+        },
+        {
+          "code": "GD4",
+          "name": "Chạy thử có tải và nghiệm thu bàn giao",
+          "component": "CP2",
+          "baselineDays": 210
+        }
+      ],
+      "acceptedContract": "HD-PMDT105-XL01",
+      "links": [
+        {
+          "contract": "HD-PMDT105-XL01",
+          "component": "CP1"
+        },
+        {
+          "contract": "HD-PMDT105-XL02",
+          "component": "CP2"
+        },
+        {
+          "contract": "HD-PMDT105-TV01",
+          "component": "CP3"
+        }
+      ]
+    },
+    "documents": [
+      {
+        "project": "DA-PMDT105",
+        "docClass": "INVESTMENT_DECISION",
+        "title": "Quyết định phê duyệt chủ trương đầu tư dự án",
+        "reference": "QĐ-ĐPM-2026/114",
+        "lines": [
+          "QUYET DINH PHE DUYET CHU TRUONG DAU TU",
+          "Tong cong ty Dam Phu My",
+          "Du an cai tao day chuyen san xuat amoniac",
+          "Tong muc dau tu du kien 612 ty dong",
+          "Nguon von: von chu so huu va von vay"
+        ],
+        "changes": []
+      },
+      {
+        "project": "DA-PMDT105",
+        "docClass": "FEASIBILITY",
+        "title": "Báo cáo nghiên cứu khả thi dự án",
+        "reference": "BC-NCKT-105",
+        "lines": [
+          "BAO CAO NGHIEN CUU KHA THI",
+          "Phuong an ky thuat va cong nghe",
+          "Hieu qua tai chinh: NPV duong, IRR cao hon suat chiet khau",
+          "Tien do thuc hien 36 thang"
+        ],
+        "changes": [
+          "Bổ sung phương án dự phòng công suất theo góp ý của Ban kỹ thuật",
+          "Cập nhật giá thiết bị theo báo giá mới"
+        ]
+      },
+      {
+        "project": "DA-PMDT105",
+        "docClass": "DESIGN",
+        "title": "Hồ sơ thiết kế bản vẽ thi công khu xử lý khí",
+        "reference": "TKBVTC-105-A",
+        "lines": [
+          "HO SO THIET KE BAN VE THI CONG",
+          "Khu xu ly khi thai",
+          "So do cong nghe va mat bang bo tri thiet bi",
+          "Yeu cau ky thuat vat tu"
+        ],
+        "changes": [
+          "Điều chỉnh vị trí ống khói theo kết quả khảo sát địa chất"
+        ]
+      },
+      {
+        "project": "DA-PMDT105",
+        "docClass": "COST_ESTIMATE",
+        "title": "Dự toán gói thầu xây lắp",
+        "reference": "DT-105-XL",
+        "lines": [
+          "DU TOAN GOI THAU XAY LAP",
+          "Chi phi truc tiep va chi phi chung",
+          "Thue gia tri gia tang",
+          "Tong du toan 380 ty dong"
+        ],
+        "changes": []
+      },
+      {
+        "project": "DA-PMDT114",
+        "docClass": "INVESTMENT_DECISION",
+        "title": "Quyết định đầu tư dự án nâng công suất hệ thống nước làm mát",
+        "reference": "QĐ-ĐPM-2026/131",
+        "lines": [
+          "QUYET DINH DAU TU",
+          "Du an nang cong suat he thong nuoc lam mat",
+          "Tong muc dau tu 540 ty dong",
+          "Chu dau tu: Ban quan ly du an Dam Phu My"
+        ],
+        "changes": []
+      },
+      {
+        "project": "DA-PMDT114",
+        "docClass": "CONTRACT",
+        "title": "Hợp đồng tư vấn thiết kế",
+        "contract": "HD-PMDT114-TV01",
+        "reference": "HD-114-TV",
+        "lines": [
+          "HOP DONG TU VAN THIET KE",
+          "Ben A: Tong cong ty Dam Phu My",
+          "Ben B: Nha thau tu van",
+          "Gia tri hop dong theo bao gia da duoc duyet"
+        ],
+        "changes": [
+          "Phụ lục 01 điều chỉnh thời hạn giao hồ sơ"
+        ]
+      },
+      {
+        "project": "DA-PMTB164",
+        "docClass": "PROCUREMENT",
+        "title": "Hồ sơ mời thầu mua sắm thiết bị đo lường",
+        "reference": "HSMT-164",
+        "lines": [
+          "HO SO MOI THAU MUA SAM THIET BI",
+          "Yeu cau ky thuat va tieu chuan danh gia",
+          "Thoi gian giao hang 180 ngay"
+        ],
+        "changes": []
+      }
+    ],
+    "comments": [
+      {
+        "document": "FEASIBILITY",
+        "body": "Đề nghị làm rõ giả định về giá bán sản phẩm ở trang 3 trước khi trình lãnh đạo.",
+        "resolved": true
+      },
+      {
+        "document": "DESIGN",
+        "body": "Cần đối chiếu cao độ ống khói với quy chuẩn môi trường hiện hành.",
+        "resolved": false
+      }
+    ],
+    "narratives": [
+      {
+        "project": "DA-PMDT105",
+        "period": "ENT-M2026-11",
+        "kind": "previous",
+        "fields": {
+          "status": "Hoàn thành 72% khối lượng xây lắp khu xử lý khí; thiết bị chính đã về đến cảng.",
+          "schedule": "Mốc lắp đặt thiết bị chính chậm 12 ngày so với kế hoạch cơ sở.",
+          "disbursement": "Giải ngân lũy kế đạt 58% kế hoạch vốn năm, thấp hơn dự kiến do chờ hồ sơ thanh toán đợt hai.",
+          "causes": "Thủ tục hải quan thiết bị nhập khẩu kéo dài hơn dự kiến.",
+          "difficulties": "Thiếu mặt bằng tập kết vật tư trong thời gian dừng nhà máy.",
+          "solutions": "Thuê thêm bãi tập kết tạm; làm việc trực tiếp với hải quan cảng.",
+          "next_plan": "Hoàn thành lắp đặt thiết bị chính trong kỳ tới.",
+          "proposals": "Đề nghị Tổng công ty hỗ trợ phối hợp với cơ quan hải quan."
+        }
+      },
+      {
+        "project": "DA-PMDT114",
+        "period": "ENT-M2026-11",
+        "kind": "filled",
+        "fields": {
+          "status": "Đã lắp xong 2 trong 3 tổ bơm tuần hoàn; hệ thống đường ống đạt 85% khối lượng.",
+          "schedule": "Các mốc chính đúng kế hoạch; mốc chạy thử có tải dự kiến vào tháng 12.",
+          "disbursement": "Giải ngân lũy kế đạt 71% kế hoạch vốn năm, cao hơn cùng kỳ năm trước.",
+          "causes": "Nhà thầu huy động đủ nhân lực; vật tư về đúng hạn.",
+          "difficulties": "Còn một số điểm giao cắt với hệ thống ống cũ cần xin phép dừng vận hành.",
+          "solutions": "Lập kế hoạch dừng vận hành từng phần với phân xưởng sản xuất.",
+          "next_plan": "Chạy thử tổ bơm thứ ba, nghiệm thu giai đoạn 2.",
+          "proposals": "Đề nghị Ban chỉ đạo chấp thuận lịch dừng vận hành từng phần."
+        }
+      },
+      {
+        "project": "DA-PMDT105",
+        "period": "ENT-M2026-12",
+        "kind": "inherited",
+        "own": {
+          "schedule": "Mốc lắp đặt thiết bị chính vẫn chậm 12 ngày; đã có phương án bù tiến độ.",
+          "disbursement": "Giải ngân lũy kế đạt 63% kế hoạch vốn năm."
+        }
+      }
+    ],
+    "texts": {}
   }
 }

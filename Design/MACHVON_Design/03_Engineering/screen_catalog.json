@@ -11733,7 +11733,7 @@
     "id": "AUD-14",
     "module": "AUD",
     "moduleName": "Thanh tra, kiểm toán và theo dõi khắc phục",
-    "title": "Tín hiệu rủi ro mua sắm (red flag)",
+    "title": "Dấu hiệu rủi ro mua sắm",
     "kind": "table",
     "fields": [
       "Gói thầu hoặc hợp đồng",
@@ -11775,7 +11775,7 @@
     "id": "AUD-16",
     "module": "AUD",
     "moduleName": "Thanh tra, kiểm toán và theo dõi khắc phục",
-    "title": "Sổ chỉ báo red flag",
+    "title": "Sổ chỉ báo dấu hiệu rủi ro",
     "kind": "table",
     "fields": [
       "Chỉ báo và mã OCP",
@@ -13392,7 +13392,7 @@
       "Việc đang chờ"
     ],
     "role": "Nhà thầu (tài khoản khách)",
-    "rule": "Chỉ thấy hồ sơ của chính mình; không thấy red flag hay nhà thầu khác",
+    "rule": "Chỉ thấy hồ sơ của chính mình; không thấy dấu hiệu rủi ro hay nhà thầu khác",
     "phase": "P3",
     "platform": "web",
     "req": "FR-VND-16",

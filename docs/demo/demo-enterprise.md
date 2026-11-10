@@ -66,10 +66,11 @@ LƯU Ý: nếu bấm F5 hoặc gõ lại địa chỉ, phải giữ `?devUser=..
 | `docHead` | Trần Văn Hùng | Trưởng phòng soạn thảo (COMMITTEE_HEAD) | Biểu mẫu báo cáo RPT-01 đến RPT-03, so sánh chéo RPT-09. KHÔNG vào được màn hình đẩy HPM (HPM-01, HPM-02): dùng `owner` cho phần HPM. |
 | `unitAdmin` | Lê Minh Cường | Quản trị đơn vị | Quản trị đơn vị, lịch nhắc, thành viên. |
 | `treasuryMaker` | Hoàng Thị Lan | Kế toán | Thanh toán, đối chiếu kế toán. |
-| `auditor` | Vũ Đức Minh | Kiểm toán | Chỉ đọc, nhật ký kiểm toán. |
+| `auditor` | Vũ Đức Minh | Kiểm toán | Chỉ đọc: nhật ký kiểm toán và nhóm màn hình thanh tra, kiểm toán AUD (danh sách cuộc thanh tra AUD-02, kiến nghị AUD-06, quá hạn và leo thang AUD-11, thứ tự theo dõi của chủ đầu tư AUD-17, dấu hiệu rủi ro AUD-14, AUD-16). Quyền đọc này là phần cấp riêng của bộ khung demo, không đổi quy tắc phân quyền của sản phẩm. |
+| `securityAdmin` | Ngô Thanh Sơn | Quản trị bảo mật | Chỉ đọc và đề nghị: ủy quyền vĩnh viễn ADM-25, làm thay có người duyệt ADM-26, phạm vi theo kỳ báo cáo ADM-27. Người duyệt thứ hai là `owner`. |
 | `nobody` | Đỗ Thị Hà | Thành viên thường | Quyền tối thiểu: minh họa màn hình "không có quyền". |
 
-Bộ người dùng lấy từ `apps/web/e2e/support/docs-people.json` (tên) và `apps/web/e2e/support/e2e-fixtures.json` (tài khoản nền). Các vai trò khác trong bộ clip (ví dụ `mneAdmin`, `dgvSteward`, `sysAdmin`) KHÔNG có trong bộ khung demo này; mọi kịch bản dưới đây dùng 4 vai trò đầu bảng.
+Bộ người dùng lấy từ `apps/web/e2e/support/docs-people.json` (tên) và `apps/web/e2e/support/e2e-fixtures.json` (tài khoản nền). Các vai trò khác trong bộ clip (ví dụ `mneAdmin`, `dgvSteward`) KHÔNG có trong bộ khung demo này; riêng `platformOperator` (người vận hành nền tảng, màn hình SAS) và `contractorUser` (tài khoản cổng nhà thầu VND-16) chỉ dùng để quay clip, không thuộc kịch bản demo doanh nghiệp (cổng nhà thầu cần `clip-ent-contractor-portal`, nhóm này có chạy trong lệnh nạp enterprise); mọi kịch bản dưới đây dùng 4 vai trò đầu bảng.
 
 ## 4. Kịch bản demo 15 bước cho lãnh đạo Đạm Phú Mỹ (khoảng 25 phút)
 
@@ -110,6 +111,16 @@ Thứ tự gợi ý nếu chỉ có 10 phút: bước 1, 2, 4, 5, 7, 8, 10, 13.
 - Bản chốt cùng kỳ năm trước (HOME-09): nhóm nạp `clip-ent-capital-prior` lập kế hoạch vốn KHV-2025 (bằng 85% năm nay, hai quyết định giao vốn, duyệt và công bố), rồi `clip-ent-snapshot-prior` nhập kế hoạch năm, số thực hiện và giải ngân các tháng 1 đến 10 năm 2025, khóa kỳ ENT-M2025-10, lập và chốt bản chốt (hai người khác nhau). Bản chốt hiện tại (ENT-M2026-10: 928.756.000.000 trên 1.534.000.000.000, 60,54%) không đổi.
 - Số lệch RPT-09 (kỳ 2026-M05): nhóm nạp `clip-ent-crosscheck` bằng các lệnh thật: (1) khóa kỳ ENT-M2026-05 và chốt bản chốt bản sửa 1; (2) `projectManager` lập báo cáo PVN-MONTHLY 2026-M05 từ bản chốt đó, `owner` kiểm tra, và để đó; (3) báo cáo lại số giải ngân của tháng 3/2025 của dự án DA-PMDT105 (vốn chủ sở hữu) cao hơn 2 tỷ đồng; (4) `owner` xin mở lại kỳ, `capApprover` duyệt, `projectManager` lập bản sửa 2 và `owner` chốt. Kết quả: đúng một số lệch BLOCKING (XR-02, ENT_DISBURSED_SINCE_START, chênh 2 tỷ), chưa giải trình. Kỳ 2026-M06 và các kỳ của chuỗi HPM (bước 8) không bị đụng tới. Quy tắc so sánh vẫn là mặc định (không bật số minh họa), nên các kỳ khác không bị tạo số lệch.
 - Cách kiểm lại sau khi chạy: `RPT-09` ở `/rpt/rpt-09?devUser=docHead&kind=MONTH&year=2026&index=5` phải báo 1 số lệch chưa giải trình (không có tham số `draft` thì màn chỉ liệt kê số lệch; có `draft` thì thêm câu "Bản nháp này chưa phát hành được").
+
+## 4d. Dữ liệu thẩm định, giá trị thực hiện (EVM), hồ sơ dự án và thuyết minh có cấu trúc
+
+Bốn nhóm nạp chạy cuối cùng (`clip-ent-appraisal`, `clip-ent-project-docs`, `clip-ent-narrative`, `clip-ent-contractor-portal`, xem `docs/clip-data.md`) làm cho các màn hình sau có dữ liệu khi mở thẳng bằng `projectManager` (hoặc `owner`), không cần gõ thêm tham số trên địa chỉ:
+
+- PRJ-15 (chấm điểm thẩm định): mở dự án đầu tiên đang ở giai đoạn thẩm định; có ba dự án mới (DA-PMDT431, DA-PMDT437, DA-PMTB433), một dự án đã có phiếu chấm của `owner` nhưng chưa có quyết định của lãnh đạo.
+- PRJ-24 (bàn thẩm định hiệu quả đầu tư): mở hồ sơ đầu tiên đã có kết quả; ba hồ sơ (một đã gửi lãnh đạo, một nháp đã tính, một đã duyệt) với NPV, IRR, thời gian hoàn vốn do máy chủ tính.
+- PRJ-26 và PRJ-27: dự án đầu tiên đang thực hiện (DA-PMDT105) có cơ cấu công việc ba gói, bốn mốc (hai mốc đã xong), bản cơ sở phiên bản 0, mỗi gói do một hợp đồng đảm nhận và một khối lượng đã nghiệm thu ở hợp đồng xây lắp. Chưa có thanh toán đã xác nhận nên chi phí thực tế và CPI, EAC ghi "chưa đủ dữ liệu" kèm lý do (đúng thiết kế, không ghi bằng 0).
+- DOC-24 (kho hồ sơ dự án): bảy hồ sơ thuộc sáu nhóm, có bản sửa lần hai, ba và ghi chú thay đổi; hai bình luận, một đã giải quyết. Nội dung các tệp là văn bản PDF (tìm kiếm được), không có ảnh quét nên không có kết quả OCR.
+- DIS-35 (thuyết minh có cấu trúc, tám trường): mở bản nháp mới nhất; có báo cáo kỳ ENT-M2026-11 đã được nhận, bản nháp kỳ ENT-M2026-12 kế thừa lời của kỳ trước (mở sẵn khi vào DIS-35), và bản nháp kỳ ENT-M2026-11 của DA-PMDT114 đủ tám trường kèm hai nguyên nhân chuẩn.
 
 ## 5. Xử lý sự cố
 

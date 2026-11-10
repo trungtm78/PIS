@@ -3,7 +3,7 @@ import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
-import { MAKER, READER, REPORT, client, mount, reportRecord, routeOf, world } from '../report/test-support';
+import { MAKER, READER, REPORT, client, lineRecord, mount, pageRecord, reportRecord, routeOf, world } from '../report/test-support';
 import NarrativeScreen from './NarrativeScreen';
 import { appendLine, bodyOf, formOf, problemOf, toContext, tooLong } from './model';
 import { toReportDetail } from '../report/model';
@@ -36,6 +36,14 @@ describe('DIS-35 structured narrative of a period', () => {
   it('asks for a report when none is named', async () => {
     mount(<NarrativeScreen route={ROUTE} />, client(world()), { permissions: MAKER, path: PATH });
     expect(await screen.findByTestId('no-report')).toBeTruthy();
+  });
+
+  it('opens the newest draft of the register when no report is named, and says so', async () => {
+    const h = client(world({ details: { [REPORT]: report() }, narrativeContext: CONTEXT, page: pageRecord([lineRecord(1, { report_type: 'MONTHLY' })]) }));
+    mount(<NarrativeScreen route={ROUTE} />, h, { permissions: MAKER, path: PATH });
+    expect(await screen.findByTestId('default-report')).toBeTruthy();
+    expect(await screen.findByLabelText(vi_['ent3b.narr.field.status'])).toBeTruthy();
+    expect(screen.queryByTestId('no-report')).toBeNull();
   });
 
   it('shows the eight fields, the standard causes and the directives of the period, and saves the whole block with the cause picked', async () => {

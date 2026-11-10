@@ -4,7 +4,10 @@
   { "key": "projectManager", "name": "Phạm Quốc Dũng", "initials": "QD", "unit": 5, "role": "CAN_BO_BAN_QLDA", "kind": "TENANT" },
   { "key": "capApprover", "name": "Trần Thị Bích", "initials": "TB", "unit": 2, "role": "LANH_DAO_SO", "kind": "TENANT" },
   { "key": "treasuryMaker", "name": "Hoàng Thị Lan", "initials": "TL", "unit": 3, "role": "KE_TOAN_THANH_TOAN", "kind": "TENANT" },
-  { "key": "auditor", "name": "Vũ Đức Minh", "initials": "ĐM", "unit": 1, "role": "AUDITOR", "kind": "TENANT" },
+  { "key": "auditor", "name": "Vũ Đức Minh", "initials": "ĐM", "unit": 1, "role": "AUDITOR", "kind": "TENANT", "extraRoles": ["THANH_TRA_KIEM_TOAN"] },
   { "key": "nobody", "name": "Đỗ Thị Hà", "initials": "TH", "unit": 4, "role": "MEMBER", "kind": "TENANT" },
-  { "key": "docHead", "name": "Trần Văn Hùng", "initials": "VH", "unit": 1, "role": "COMMITTEE_HEAD", "kind": "TENANT" }
+  { "key": "docHead", "name": "Trần Văn Hùng", "initials": "VH", "unit": 1, "role": "COMMITTEE_HEAD", "kind": "TENANT" },
+  { "key": "securityAdmin", "name": "Ngô Thanh Sơn", "initials": "TS", "unit": 2, "role": "SECURITY_ADMIN", "kind": "TENANT", "extraRoles": ["QUAN_TRI_UY_QUYEN"] },
+  { "key": "contractorUser", "name": "Đặng Minh Tuấn", "initials": "MT", "unit": 5, "role": "PORTAL_CONTRACTOR", "kind": "UNIT_ONLY", "plane": "guest" },
+  { "key": "platformOperator", "name": "Lý Quang Vinh", "initials": "QV", "plane": "control" }
 ]

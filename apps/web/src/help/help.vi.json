@@ -11043,7 +11043,7 @@
       "rule": "Mười bốn chỉ số của chính hệ thống cảnh báo, mỗi chỉ số một công thức và một nguồn, có nút i mở công thức, nguồn, thời điểm cập nhật. Số không tính được hiện là không có dữ liệu hoặc chưa có nguồn kèm lý do, không bao giờ hiện 0. Job ghi số liệu cũ quá hai lượt chạy thì trang ghi số liệu cũ (G2-10)."
     },
     "AUD-14": {
-      "title": "Tín hiệu rủi ro mua sắm (red flag)",
+      "title": "Dấu hiệu rủi ro mua sắm",
       "module": "AUD",
       "moduleName": "Thanh tra, kiểm toán và theo dõi khắc phục",
       "kind": "table",
@@ -11079,7 +11079,7 @@
       "rule": "Xác nhận không có vấn đề cần hai kiểm toán viên và lý do. Chuyển điều tra cần lý do. Người tham gia gói thầu nhận 404. Tín hiệu mới làm mở lại tín hiệu đã đóng."
     },
     "AUD-16": {
-      "title": "Sổ chỉ báo red flag",
+      "title": "Sổ chỉ báo dấu hiệu rủi ro",
       "module": "AUD",
       "moduleName": "Thanh tra, kiểm toán và theo dõi khắc phục",
       "kind": "table",
@@ -12825,7 +12825,7 @@
         "Việc đang chờ"
       ],
       "req": "FR-VND-16",
-      "rule": "Chỉ thấy hồ sơ của chính mình. Không thấy red flag hay nhà thầu khác."
+      "rule": "Chỉ thấy hồ sơ của chính mình. Không thấy dấu hiệu rủi ro hay nhà thầu khác."
     },
     "VND-17": {
       "title": "Cổng nhà thầu: yêu cầu và trả lời",

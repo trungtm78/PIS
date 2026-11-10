@@ -124,11 +124,26 @@ const route24 = routeOf('PRJ-24', 'Bàn thẩm định hiệu quả đầu tư')
 const open = (h: ReturnType<typeof harness>, permissions: readonly string[] = PERMISSIONS) => mount(<AppraisalWorkbenchScreen route={route24} />, h, permissions, `/prj/prj-24?appraisal=${APPRAISAL}`);
 
 describe('PRJ-24: the workbench', () => {
-  it('says what to open it from when the address names nothing, and reads nothing', () => {
-    const h = harness(() => ({}));
+  it('says what to open it from when the address names nothing and the register is empty', async () => {
+    const h = harness(() => listPage([]));
     mount(<AppraisalWorkbenchScreen route={route24} />, h, PERMISSIONS, '/prj/prj-24');
-    expect(screen.getByTestId('no-target').textContent).toBe(text('fin1.work.noTarget'));
-    expect(h.read).not.toHaveBeenCalled();
+    expect((await screen.findByTestId('no-target')).textContent).toBe(text('fin1.work.noTarget'));
+    expect(h.read).toHaveBeenCalledTimes(1);
+  });
+
+  it('says the empty state in Vietnamese, with no raw English word of the address', async () => {
+    const h = harness(() => listPage([]));
+    mount(<AppraisalWorkbenchScreen route={route24} />, h, PERMISSIONS, '/prj/prj-24');
+    expect((await screen.findByTestId('no-target')).textContent).not.toMatch(/appraisal/i);
+    expect((vi_ as Record<string, string>)['fin1.work.noTarget']).not.toMatch(/appraisal/i);
+  });
+
+  it('opens the first appraisal of the register that has a result when the address names none, and says so', async () => {
+    const h = harness((operation) => (operation === 'listInvestmentAppraisals' ? listPage([listItem({ id: APPRAISAL })]) : workbench()));
+    mount(<AppraisalWorkbenchScreen route={route24} />, h, PERMISSIONS, '/prj/prj-24');
+    expect(await screen.findByTestId('default-appraisal')).toBeTruthy();
+    expect(screen.queryByTestId('no-target')).toBeNull();
+    await waitFor(() => expect(h.read).toHaveBeenCalledWith('getInvestmentAppraisal', expect.objectContaining({ path: { id: APPRAISAL } })));
   });
 
   it('treats an appraisal that is not there for the caller as missing, never as empty', async () => {
