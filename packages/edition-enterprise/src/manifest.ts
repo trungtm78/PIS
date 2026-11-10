@@ -38,6 +38,7 @@ export const ENTERPRISE_EDITION_MANIFEST: EditionManifest = defineEditionManifes
       'govc.home.kpi.plan.sub',
       'cap.annual.page.subtitle',
       'cap.annual.total.note',
+      'cap.fund.nsdpDtpt.label',
       'home.profile.evidence.planPm',
       'home.profile.evidence.disbursed',
       'home.profile.evidence.ratePm',

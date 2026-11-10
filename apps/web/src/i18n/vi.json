@@ -38072,5 +38072,6 @@
   "home.profile.threshold.points": "Chênh lệch tối thiểu {value} điểm %",
   "home.profile.threshold.criticalPoints": "Mức nghiêm trọng từ {value} điểm %",
   "home.profile.threshold.graceDays": "Thời hạn nội bộ {value} ngày",
-  "home.profile.threshold.explanationDueDays": "Thời hạn giải trình {value} ngày"
+  "home.profile.threshold.explanationDueDays": "Thời hạn giải trình {value} ngày",
+  "cap.fund.nsdpDtpt.label": "Vốn đầu tư phát triển ngân sách địa phương"
 }

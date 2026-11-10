@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useFundName } from '../../editions/fund-name';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -88,12 +89,13 @@ function FundContent({ route }: ScreenProps) {
 
 function SourceNode({ source, category }: { source: FundNode; category: Category }) {
   const { t } = useTranslation();
+  const fundName = useFundName();
   const { fundSource } = source;
   return (
     <li className="cap-fund-card" data-fund-source={fundSource.businessKey} data-fund-category={category}>
       <header className="cap-fund-card__head">
         <p className="cap-fund-card__title">
-          <strong>{fundSource.businessKey}</strong> {fundSource.label}
+          <strong>{fundSource.businessKey}</strong> {fundName(fundSource.businessKey, fundSource.label)}
         </p>
         <small className="sub">
           {fundSource.validUntil === null

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useFundName } from '../../editions/fund-name';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -27,6 +28,7 @@ export default function PackageListScreen({ route }: ScreenProps) {
 
 function PackageListContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const fundName = useFundName();
   const packages = usePackages();
   const [filter, setFilter] = useState<PackageFilter>(EMPTY_PACKAGE_FILTER);
   const state = useScreenState({ isLoading: packages.isLoading, error: packages.error, data: packages.data });
@@ -81,7 +83,7 @@ function PackageListContent({ route }: ScreenProps) {
           </>
         ),
     },
-    { key: 'fund', header: t('bid.packages.column.fund'), render: (item) => item.fundSourceLabel ?? '' },
+    { key: 'fund', header: t('bid.packages.column.fund'), render: (item) => (item.fundSourceLabel === null ? '' : fundName(item.fundSourceKey, item.fundSourceLabel)) },
     { key: 'budget', header: t('bid.packages.column.budget'), align: 'right', render: (item) => formatVnd(item.budgetVnd) },
   ];
 
