@@ -10,10 +10,20 @@ import 'package:machvon_mobile/features/registry.generated.dart';
 const Set<String> _identityProviderTexts = <String>{'Sign in', 'Sign In'};
 
 /// The texts of the system browser (first start of Chrome on the emulator) and the names of the units of the seeded test tenant: neither is a string of the application.
-const Set<String> _systemAndFixtureTexts = <String>{'Use without an account', 'No thanks', 'Cao Bằng'};
+const Set<String> _systemAndFixtureTexts = <String>{'Use without an account', 'No thanks', 'Cao Bằng', '(Đạm Phú Mỹ|Cao Bằng)'};
 
 /// What a Maestro text stands for: a pattern ending in `.*` (a tab name carries "Tab 2 trong tổng số 5") is the text before it.
 String _plain(String text) => text.endsWith('.*') ? text.substring(0, text.length - 2) : text;
+
+/// The texts a pattern with one group of alternatives stands for: 'Trang chủ (lãnh đạo|điều hành)' is the home title of the public edition and of the enterprise one.
+List<String> _variants(String text) {
+  final RegExpMatch? group = RegExp(r'\(([^()|]+(?:\|[^()|]+)+)\)').firstMatch(text);
+  if (group == null) return <String>[text];
+  return <String>[for (final String option in group.group(1)!.split('|')) text.replaceRange(group.start, group.end, option)];
+}
+
+/// The words the phone overlay of the enterprise edition says in place of the base ones: read as text, since only tests named *enterprise_test.dart import the folder.
+String _overlayText() => File('lib/editions/enterprise/enterprise_strings.dart').readAsStringSync();
 
 List<File> _files(String directory, String extension) =>
     Directory(directory).listSync().whereType<File>().where((File f) => f.path.endsWith(extension)).toList()..sort((a, b) => a.path.compareTo(b.path));
@@ -78,9 +88,26 @@ void main() {
       for (final File flow in flows) {
         for (final String text in _texts(flow.readAsStringSync())) {
           if (_identityProviderTexts.contains(text) || _systemAndFixtureTexts.contains(_plain(text)) || text.startsWith(r'${')) continue;
-          expect(known, contains(_plain(text)), reason: '${flow.path} uses "$text", which no string table of the application declares');
+          for (final String variant in _variants(_plain(text))) {
+            if (_systemAndFixtureTexts.contains(variant)) continue;
+            expect(known.contains(variant) || _overlayText().contains("'$variant'"), isTrue, reason: '${flow.path} uses "$text" ("$variant"), which no string table of the application declares');
+          }
         }
       }
+    });
+
+    test('the flows match whole texts: the tab carries a position, the banner carries its body, the unit chooser lists either demo tenant', () {
+      final StringCatalogue catalogue = _catalogue();
+      final String flapping = File('qa/device/flows/30_flapping_and_kill_during_submit.yaml').readAsStringSync();
+      final String projects = catalogue.lookup('vi', 'mob.shell.tab.projects')!;
+      expect(flapping, isNot(contains("tapOn: '$projects'")), reason: 'the tab is named "$projects, tab 2 of 5": the pattern ends with .*');
+      expect("tapOn: '$projects.*'".allMatches(flapping), hasLength(2));
+      final String banner = catalogue.lookup('vi', 'mob.banner.offline.title')!;
+      expect(banner, 'Bạn đang ngoại tuyến');
+      expect(flapping, contains("visible: '$banner.*'"), reason: 'the banner reads "$banner. <body>" as one text');
+      expect(flapping, isNot(contains("assertVisible: '$banner'")));
+      final String signIn = File('qa/device/flows/06_sign_in_test_idp.yaml').readAsStringSync();
+      expect(signIn, contains("tapOn: '(Đạm Phú Mỹ|Cao Bằng).*'"));
     });
 
     test('the traversal reaches the five tabs by their names', () {

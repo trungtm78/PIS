@@ -10,11 +10,16 @@
 appId: vn.machvon.app
 ---
 - launchApp
-- tapOn: 'Dự án'
+- tapOn: 'Dự án.*'
 - tapOn: ${PROJECT}
 # The tester fills the seeded figures by hand once (the fields are in docs/mobile-device-matrix.md); then:
 - setAirplaneMode: enabled
-- assertVisible: 'Bạn đang ngoại tuyến'
+# The banner is mounted once in the shell (lib/core/navigation/app_shell.dart, StatusBanners), above every screen of the five tabs, so it shows on the project
+# detail as well as on the home screen. Its text is 'Bạn đang ngoại tuyến. <body>' in one line and Maestro matches the whole text, so the regex ends with .*;
+# the radio is probed, not read, so the banner may come a few seconds after the airplane mode.
+- extendedWaitUntil:
+    visible: 'Bạn đang ngoại tuyến.*'
+    timeout: 20000
 - tapOn: 'Nộp báo cáo'
 # the app is killed while the submission is queued, the radio comes back and goes away again (flapping)
 - stopApp
@@ -26,7 +31,7 @@ appId: vn.machvon.app
 - launchApp
 # The queue list (MOB-41) has no entry from the account tab or from the banner (finding NAV-01 of docs/mobile-security-review.md):
 # the tester reaches the state of the submission from the report it belongs to.
-- tapOn: 'Dự án'
+- tapOn: 'Dự án.*'
 - tapOn: ${PROJECT}
 - takeScreenshot: results/${DEVICE}/30_report_after_flapping
 # Hold here until the radio has been steady for 60 seconds, then:
