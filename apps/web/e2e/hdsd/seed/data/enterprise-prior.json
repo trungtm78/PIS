@@ -1,0 +1,15 @@
+{
+  "appropriation.VCSH.symbol": "81/QĐ-HĐTV",
+  "appropriation.VCSH.title": "Quyết định về việc giao kế hoạch vốn chủ sở hữu đầu tư năm 2025",
+  "appropriation.VCSH.issuedOn": "2024-12-18",
+  "appropriation.VAY.symbol": "82/QĐ-HĐTV",
+  "appropriation.VAY.title": "Quyết định về việc giao kế hoạch vốn vay thương mại đầu tư năm 2025",
+  "appropriation.VAY.issuedOn": "2024-12-20",
+  "appropriation.reason": "Giao vốn đầu tư năm 2025 theo quyết định {0} của {1}",
+  "plan.note": "Kế hoạch vốn đầu tư năm 2025 của Tổng công ty (năm trước, để so sánh cùng kỳ)",
+  "plan.decisionReason": "Kế hoạch vốn năm 2025 khớp các quyết định giao vốn của Hội đồng thành viên",
+  "plan.decision.symbol": "83/QĐ-HĐTV",
+  "plan.decision.title": "Quyết định về việc giao kế hoạch vốn đầu tư năm 2025 của Tổng công ty",
+  "plan.decision.issuedOn": "2025-01-10",
+  "plan.decision.sender": "Hội đồng thành viên Tổng công ty"
+}
