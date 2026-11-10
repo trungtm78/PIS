@@ -49,7 +49,10 @@ class AppShell extends ConsumerWidget {
           child: Column(
             children: <Widget>[
               const StatusBanners(),
-              Expanded(child: navigationShell),
+              // A semantic boundary of its own. Every route of the tabs sits on a modal barrier, and a barrier blocks the
+              // semantics of what was painted before it; without a boundary that reaches up to the banners above, so they
+              // are drawn but a screen reader never meets them. With the boundary the barrier blocks only inside the tab.
+              Expanded(child: Semantics(container: true, explicitChildNodes: true, child: navigationShell)),
             ],
           ),
         ),
