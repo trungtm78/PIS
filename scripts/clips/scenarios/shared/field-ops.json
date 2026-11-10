@@ -72,7 +72,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
