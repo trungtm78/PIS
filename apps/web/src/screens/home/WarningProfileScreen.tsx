@@ -26,19 +26,27 @@ type T = Translator['t'];
 const REASON_MIN = 5;
 const QUESTION_MIN = 10;
 const NONE = '—';
-/** The words of each key of a threshold (the rule carries the keys of the engine); a key nobody lists is left out, never shown as it came. */
-const THRESHOLD_WORD: Readonly<Record<string, string>> = {
-  points: 'home.profile.threshold.points',
-  critical_points: 'home.profile.threshold.criticalPoints',
-  grace_days: 'home.profile.threshold.graceDays',
-  explanation_due_days: 'home.profile.threshold.explanationDueDays',
-};
+/** The words of one key of a threshold (the rule carries the keys of the engine) with its unit; a key nobody lists is left out, never shown as it came. */
+function thresholdSentence(t: T, key: string, value: string): string | undefined {
+  switch (key) {
+    case 'points':
+      return t('home.profile.threshold.points', { value });
+    case 'critical_points':
+      return t('home.profile.threshold.criticalPoints', { value });
+    case 'grace_days':
+      return t('home.profile.threshold.graceDays', { value });
+    case 'explanation_due_days':
+      return t('home.profile.threshold.explanationDueDays', { value });
+    default:
+      return undefined;
+  }
+}
 
 /** A threshold in sentences with their units (days, points), one per key the product lists. */
 export function thresholdSentences(t: T, threshold: Readonly<Record<string, unknown>>): string[] {
   return Object.entries(threshold).flatMap(([key, value]) => {
-    const word = THRESHOLD_WORD[key];
-    return word === undefined || (typeof value !== 'string' && typeof value !== 'number') ? [] : [t(word, { value: String(value) })];
+    const sentence = typeof value === 'string' || typeof value === 'number' ? thresholdSentence(t, key, String(value)) : undefined;
+    return sentence === undefined ? [] : [sentence];
   });
 }
 
