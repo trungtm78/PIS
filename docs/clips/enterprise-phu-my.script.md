@@ -2203,7 +2203,7 @@ Màn hình: `HOME-02` Việc của tôi (/home/home-02)
 
 Nền tảng: web; 12.1 giây; có trong video chính
 
-Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ sơ cảnh báo (/home/home-06)
+Màn hình: `HOME-06` Hồ sơ cảnh báo (/home/home-06)
 
 **Lời đọc**
 
@@ -2222,17 +2222,13 @@ Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ
 **Các bước quay**
 
 - `do=as persona=owner`
-- `do=open screen=ADM-04`
-- `do=spot ref=adm.delegation.coverage-check`
 - `do=open screen=HOME-06`
 - `do=spot ref=alerts.record.escalation-trail`
 
 **Cần thấy trên hình**
 
-- [ ] Màn ADM-04 "Ủy quyền có thời hạn" mở được ở đường dẫn /adm/adm-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-06 "Hồ sơ cảnh báo" mở được ở đường dẫn /home/home-06, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản owner
-- [ ] Khung vào phần adm.delegation.coverage-check đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.record.escalation-trail đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -5806,9 +5802,9 @@ Màn hình: `DIS-17` Xem trước xuất báo cáo (/dis/dis-17)
 
 ### `ec-snapshot-close`
 
-Nền tảng: web; 22.1 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3a
+Nền tảng: web; 22.1 giây; chỉ trong chương cắt riêng
 
-Màn hình: `DIS-21` Chốt và đóng băng số liệu kỳ (/dis/dis-21); `DIS-27` Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ (/dis/dis-27)
+Màn hình: `DIS-32` Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt (/dis/dis-32); `DIS-27` Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ (/dis/dis-27)
 
 **Lời đọc**
 
@@ -5829,7 +5825,7 @@ Màn hình: `DIS-21` Chốt và đóng băng số liệu kỳ (/dis/dis-21); `DI
 **Các bước quay**
 
 - `do=as persona=capApprover`
-- `do=open screen=DIS-21`
+- `do=open screen=DIS-32`
 - `do=spot ref=dis.snapshot.build-close`
 - `do=spot ref=dis.snapshot.missing-units`
 - `do=open screen=DIS-27`
@@ -5837,9 +5833,8 @@ Màn hình: `DIS-21` Chốt và đóng băng số liệu kỳ (/dis/dis-21); `DI
 
 **Cần thấy trên hình**
 
-- [ ] Màn DIS-21 "Chốt và đóng băng số liệu kỳ" mở được ở đường dẫn /dis/dis-21, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn DIS-32 "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt" mở được ở đường dẫn /dis/dis-32, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-27 "Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ" mở được ở đường dẫn /dis/dis-27, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3a: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản capApprover
 - [ ] Khung vào phần dis.snapshot.build-close đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.snapshot.missing-units đúng lúc giọng đọc nói tới
@@ -5851,9 +5846,9 @@ Màn hình: `DIS-21` Chốt và đóng băng số liệu kỳ (/dis/dis-21); `DI
 
 ### `ec-narrative`
 
-Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3b
+Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng
 
-Màn hình: `DIS-13` Báo cáo thuyết minh tháng (/dis/dis-13)
+Màn hình: `DIS-35` Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban) (/dis/dis-35)
 
 **Lời đọc**
 
@@ -5874,15 +5869,14 @@ Màn hình: `DIS-13` Báo cáo thuyết minh tháng (/dis/dis-13)
 **Các bước quay**
 
 - `do=as persona=projectManager`
-- `do=open screen=DIS-13`
+- `do=open screen=DIS-35`
 - `do=spot ref=dis.narrative.eight-fields`
 - `do=spot ref=dis.narrative.inherit-previous`
 - `do=spot ref=dis.narrative.cause-list`
 
 **Cần thấy trên hình**
 
-- [ ] Màn DIS-13 "Báo cáo thuyết minh tháng" mở được ở đường dẫn /dis/dis-13, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3b: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn DIS-35 "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)" mở được ở đường dẫn /dis/dis-35, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần dis.narrative.eight-fields đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.narrative.inherit-previous đúng lúc giọng đọc nói tới
@@ -5893,7 +5887,7 @@ Màn hình: `DIS-13` Báo cáo thuyết minh tháng (/dis/dis-13)
 
 ### `ec-push-receipt`
 
-Nền tảng: web; 20.6 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3c
+Nền tảng: web; 20.6 giây; chỉ trong chương cắt riêng
 
 Màn hình: `ADM-18` Theo dõi quy trình phê duyệt (/adm/adm-18); `HPM-01` Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận (/hpm/hpm-01)
 
@@ -5924,7 +5918,6 @@ Màn hình: `ADM-18` Theo dõi quy trình phê duyệt (/adm/adm-18); `HPM-01` �
 
 - [ ] Màn ADM-18 "Theo dõi quy trình phê duyệt" mở được ở đường dẫn /adm/adm-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HPM-01 "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận" mở được ở đường dẫn /hpm/hpm-01, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3c: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản mneAdmin
 - [ ] Khung vào phần adm.approval.push-step đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần hpm.push.awaiting-receipt đúng lúc giọng đọc nói tới
@@ -5938,9 +5931,9 @@ Màn hình: `ADM-18` Theo dõi quy trình phê duyệt (/adm/adm-18); `HPM-01` �
 
 ### `ec-org-pack`
 
-Nền tảng: web; 23.4 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3d
+Nền tảng: web; 23.4 giây; chỉ trong chương cắt riêng
 
-Màn hình: `planned:ent-org-pack` Gói tổ chức và vai trò của bản doanh nghiệp (-)
+Màn hình: `ORG-01` Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu) (/org/org-01)
 
 **Lời đọc**
 
@@ -5962,14 +5955,13 @@ Màn hình: `planned:ent-org-pack` Gói tổ chức và vai trò của bản doa
 **Các bước quay**
 
 - `do=as persona=sysAdmin`
-- `do=open screen=planned:ent-org-pack`
+- `do=open screen=ORG-01`
 - `do=spot ref=ent.org-pack.input-points`
 - `do=spot ref=ent.org-pack.roles`
 
 **Cần thấy trên hình**
 
-- [ ] Màn Gói tổ chức và vai trò của bản doanh nghiệp (planned:ent-org-pack) chưa có trên bản chính, thuộc làn ENT-3d: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-3d: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn ORG-01 "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)" mở được ở đường dẫn /org/org-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần ent.org-pack.input-points đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.org-pack.roles đúng lúc giọng đọc nói tới
@@ -5981,7 +5973,7 @@ Màn hình: `planned:ent-org-pack` Gói tổ chức và vai trò của bản doa
 
 ### `ec-codes-catalogues`
 
-Nền tảng: web; 21.8 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3e
+Nền tảng: web; 21.8 giây; chỉ trong chương cắt riêng
 
 Màn hình: `INT-03` Ánh xạ mã dự án đa hệ thống (/int/int-03); `MDM-35` Bản ghi chủ, crosswalk và tách/hợp nhất (/mdm/mdm-35)
 
@@ -6013,7 +6005,6 @@ Màn hình: `INT-03` Ánh xạ mã dự án đa hệ thống (/int/int-03); `MDM
 
 - [ ] Màn INT-03 "Ánh xạ mã dự án đa hệ thống" mở được ở đường dẫn /int/int-03, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn MDM-35 "Bản ghi chủ, crosswalk và tách/hợp nhất" mở được ở đường dẫn /mdm/mdm-35, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3e: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần int.crosswalk.ebs-hpm-codes đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần mdm.crosswalk.project-type-catalogue đúng lúc giọng đọc nói tới
@@ -6023,9 +6014,9 @@ Màn hình: `INT-03` Ánh xạ mã dự án đa hệ thống (/int/int-03); `MDM
 
 ### `ec-cross-compare`
 
-Nền tảng: web; 13.9 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4a
+Nền tảng: web; 13.9 giây; chỉ trong chương cắt riêng
 
-Màn hình: `planned:ent-cross-compare` So sánh chéo số liệu cùng kỳ giữa các loại báo cáo (-)
+Màn hình: `RPT-09` So sánh chéo báo cáo cùng kỳ trước khi phát hành (/rpt/rpt-09)
 
 **Lời đọc**
 
@@ -6044,14 +6035,13 @@ Màn hình: `planned:ent-cross-compare` So sánh chéo số liệu cùng kỳ gi
 **Các bước quay**
 
 - `do=as persona=docHead`
-- `do=open screen=planned:ent-cross-compare`
+- `do=open screen=RPT-09`
 - `do=spot ref=ent.cross-compare.report-types`
 - `do=spot ref=ent.cross-compare.gap-explanation`
 
 **Cần thấy trên hình**
 
-- [ ] Màn So sánh chéo số liệu cùng kỳ giữa các loại báo cáo (planned:ent-cross-compare) chưa có trên bản chính, thuộc làn ENT-4a: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-4a: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn RPT-09 "So sánh chéo báo cáo cùng kỳ trước khi phát hành" mở được ở đường dẫn /rpt/rpt-09, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản docHead
 - [ ] Khung vào phần ent.cross-compare.report-types đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.cross-compare.gap-explanation đúng lúc giọng đọc nói tới
@@ -6062,9 +6052,9 @@ Màn hình: `planned:ent-cross-compare` So sánh chéo số liệu cùng kỳ gi
 
 ### `ec-pdf-layout`
 
-Nền tảng: web; 19.1 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4b
+Nền tảng: web; 19.1 giây; chỉ trong chương cắt riêng
 
-Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `planned:ent-layout-config` Cấu hình bố cục biểu mẫu không cần lập trình (-)
+Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `RPT-07` Bố cục biểu mẫu cấu hình (/rpt/rpt-07)
 
 **Lời đọc**
 
@@ -6087,14 +6077,13 @@ Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `plann
 - `do=as persona=docHead`
 - `do=open screen=RPT-03`
 - `do=spot ref=rpt.forms.pdf-download`
-- `do=open screen=planned:ent-layout-config`
+- `do=open screen=RPT-07`
 - `do=spot ref=ent.layout.config-editor`
 
 **Cần thấy trên hình**
 
 - [ ] Màn RPT-03 "Các bản báo cáo đã phát hành" mở được ở đường dẫn /rpt/rpt-03, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn Cấu hình bố cục biểu mẫu không cần lập trình (planned:ent-layout-config) chưa có trên bản chính, thuộc làn ENT-4b: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-4b: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn RPT-07 "Bố cục biểu mẫu cấu hình" mở được ở đường dẫn /rpt/rpt-07, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản docHead
 - [ ] Khung vào phần rpt.forms.pdf-download đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.layout.config-editor đúng lúc giọng đọc nói tới
@@ -6106,9 +6095,9 @@ Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `plann
 
 ### `ec-calendar-reminders`
 
-Nền tảng: web; 17.9 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4c
+Nền tảng: web; 17.9 giây; chỉ trong chương cắt riêng
 
-Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `planned:ent-calendar-board` Lịch kỳ báo cáo và bảng tiến độ từng đầu mối (-)
+Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `DIS-34` Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối (/dis/dis-34)
 
 **Lời đọc**
 
@@ -6130,14 +6119,13 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `planned:ent-cale
 - `do=as persona=unitAdmin`
 - `do=open screen=DIS-14`
 - `do=spot ref=dis.calendar.configurable`
-- `do=open screen=planned:ent-calendar-board`
+- `do=open screen=DIS-34`
 - `do=spot ref=ent.calendar.step-board`
 
 **Cần thấy trên hình**
 
 - [ ] Màn DIS-14 "Lịch kỳ và khóa sổ" mở được ở đường dẫn /dis/dis-14, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn Lịch kỳ báo cáo và bảng tiến độ từng đầu mối (planned:ent-calendar-board) chưa có trên bản chính, thuộc làn ENT-4c: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-4c: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn DIS-34 "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối" mở được ở đường dẫn /dis/dis-34, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản unitAdmin
 - [ ] Khung vào phần dis.calendar.configurable đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.calendar.step-board đúng lúc giọng đọc nói tới
@@ -6147,7 +6135,7 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `planned:ent-cale
 
 ### `ec-presentation-rates`
 
-Nền tảng: web; 17.6 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4d
+Nền tảng: web; 17.6 giây; chỉ trong chương cắt riêng
 
 Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `BAN-01` Bảng điều hành Ban chỉ đạo (/ban/ban-01)
 
@@ -6178,7 +6166,6 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `BAN-01` Bảng
 
 - [ ] Màn HOME-01 "Tổng quan điều hành" mở được ở đường dẫn /home/home-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn BAN-01 "Bảng điều hành Ban chỉ đạo" mở được ở đường dẫn /ban/ban-01, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-4d: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần home.dashboard.enterprise-rates đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ban.dashboard.presentation-mode đúng lúc giọng đọc nói tới
@@ -6188,7 +6175,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `BAN-01` Bảng
 
 ### `ec-phone-home`
 
-Nền tảng: phone; 17.9 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4d
+Nền tảng: phone; 17.9 giây; chỉ trong chương cắt riêng
 
 Màn hình: `MOB-07` Trang chủ lãnh đạo (tab home)
 
@@ -6217,7 +6204,6 @@ Màn hình: `MOB-07` Trang chủ lãnh đạo (tab home)
 **Cần thấy trên hình**
 
 - [ ] Màn MOB-07 "Trang chủ lãnh đạo" trên điện thoại (tab home) hiện đủ nội dung, không bị hệ điều hành che
-- [ ] Cảnh chờ làn ENT-4d: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần mob.enterprise-home.hpm-status đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần mob.enterprise-home.ebs-differences đúng lúc giọng đọc nói tới
@@ -6228,9 +6214,9 @@ Màn hình: `MOB-07` Trang chủ lãnh đạo (tab home)
 
 ### `ec-equipment`
 
-Nền tảng: web; 14.8 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4e
+Nền tảng: web; 14.8 giây; chỉ trong chương cắt riêng
 
-Màn hình: `planned:ent-equipment-procurement` Mua sắm trang thiết bị theo Ban Thương mại (-)
+Màn hình: `EQP-01` Mua sắm trang thiết bị dự án (/eqp/eqp-01)
 
 **Lời đọc**
 
@@ -6249,14 +6235,13 @@ Màn hình: `planned:ent-equipment-procurement` Mua sắm trang thiết bị the
 **Các bước quay**
 
 - `do=as persona=projectManager`
-- `do=open screen=planned:ent-equipment-procurement`
+- `do=open screen=EQP-01`
 - `do=spot ref=ent.equipment.package-list`
 - `do=spot ref=ent.equipment.delay-causes`
 
 **Cần thấy trên hình**
 
-- [ ] Màn Mua sắm trang thiết bị theo Ban Thương mại (planned:ent-equipment-procurement) chưa có trên bản chính, thuộc làn ENT-4e: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-4e: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn EQP-01 "Mua sắm trang thiết bị dự án" mở được ở đường dẫn /eqp/eqp-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần ent.equipment.package-list đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.equipment.delay-causes đúng lúc giọng đọc nói tới
@@ -6266,7 +6251,7 @@ Màn hình: `planned:ent-equipment-procurement` Mua sắm trang thiết bị the
 
 ### `ec-audit-catalogues`
 
-Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4e
+Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `ADM-11` Nhật ký kiểm toán (/adm/adm-11); `MDM-12` Đơn vị tính và tiền tệ (/mdm/mdm-12)
 
@@ -6297,7 +6282,6 @@ Màn hình: `ADM-11` Nhật ký kiểm toán (/adm/adm-11); `MDM-12` Đơn vị 
 
 - [ ] Màn ADM-11 "Nhật ký kiểm toán" mở được ở đường dẫn /adm/adm-11, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn MDM-12 "Đơn vị tính và tiền tệ" mở được ở đường dẫn /mdm/mdm-12, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-4e: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần adm.audit.before-after-detail đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần mdm.catalogue.exchange-rates đúng lúc giọng đọc nói tới
@@ -9267,7 +9251,7 @@ Màn hình: `NOT-14` Thiết bị push (/not/not-14)
 
 ### `pp-pwa-directives`
 
-Nền tảng: pwa; 14.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4c
+Nền tảng: pwa; 14.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `PWA-04` PWA-04 (/m/directives)
 
@@ -9294,7 +9278,6 @@ Màn hình: `PWA-04` PWA-04 (/m/directives)
 **Cần thấy trên hình**
 
 - [ ] Màn PWA-04 của ứng dụng cài đặt (PWA) mở ở đường dẫn /m/directives, trong khung điện thoại
-- [ ] Cảnh chờ làn ENT-4c: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần pwa.directives.tracking đúng lúc giọng đọc nói tới
 - [ ] Màn chỉ đạo hiện số liệu thật, không báo chưa bật
@@ -9333,7 +9316,7 @@ Nền tảng: animatic; 25.5 giây; có trong video chính
 
 ### `ent-tour-cycle`
 
-Nền tảng: animatic; 14.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3a, ENT-3b, ENT-3c, ENT-3d, ENT-3e, ENT-4a, ENT-4b, ENT-4c, ENT-4d, ENT-4e
+Nền tảng: animatic; 14.5 giây; chỉ trong chương cắt riêng
 
 **Lời đọc**
 
@@ -9355,7 +9338,6 @@ Nền tảng: animatic; 14.5 giây; chỉ trong chương cắt riêng; chờ là
 
 **Cần thấy trên hình**
 
-- [ ] Cảnh chờ làn ENT-3a, ENT-3b, ENT-3c, ENT-3d, ENT-3e, ENT-4a, ENT-4b, ENT-4c, ENT-4d, ENT-4e: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Hoạt cảnh features-more chạy hết thời lượng của lời đọc, chữ trên hình là tiếng Việt
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 

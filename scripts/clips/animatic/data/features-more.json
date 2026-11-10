@@ -1,0 +1,17 @@
+{
+  "id": "features-more",
+  "kind": "chapter",
+  "theme": "dark",
+  "durationMs": 9000,
+  "fadeMs": 300,
+  "number": 14,
+  "title": "Còn nhiều chức năng khác",
+  "summary": "Mỗi chức năng có một đoạn phim riêng, xem riêng từng chương.",
+  "items": [
+    "Nhà thầu: quản lý nâng cao và cổng nhà thầu",
+    "Hợp đồng: đề nghị điều chỉnh, cảnh báo sớm và nghiệm thu",
+    "Giám sát: thanh tra kiểm toán, dự báo và rủi ro",
+    "Báo cáo, văn thư ký số, hồ sơ và trợ lý AI",
+    "Tích hợp, điện thoại và PWA nâng cao"
+  ]
+}

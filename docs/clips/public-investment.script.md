@@ -1383,7 +1383,7 @@ Màn hình: `HOME-02` Việc của tôi (/home/home-02)
 
 Nền tảng: web; 12.1 giây; có trong video chính
 
-Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ sơ cảnh báo (/home/home-06)
+Màn hình: `HOME-06` Hồ sơ cảnh báo (/home/home-06)
 
 **Lời đọc**
 
@@ -1402,17 +1402,13 @@ Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ
 **Các bước quay**
 
 - `do=as persona=owner`
-- `do=open screen=ADM-04`
-- `do=spot ref=adm.delegation.coverage-check`
 - `do=open screen=HOME-06`
 - `do=spot ref=alerts.record.escalation-trail`
 
 **Cần thấy trên hình**
 
-- [ ] Màn ADM-04 "Ủy quyền có thời hạn" mở được ở đường dẫn /adm/adm-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-06 "Hồ sơ cảnh báo" mở được ở đường dẫn /home/home-06, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản owner
-- [ ] Khung vào phần adm.delegation.coverage-check đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.record.escalation-trail đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -9522,7 +9518,7 @@ Màn hình: `NOT-14` Thiết bị push (/not/not-14)
 
 ### `pp-pwa-directives`
 
-Nền tảng: pwa; 14.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4c
+Nền tảng: pwa; 14.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `PWA-04` PWA-04 (/m/directives)
 
@@ -9549,7 +9545,6 @@ Màn hình: `PWA-04` PWA-04 (/m/directives)
 **Cần thấy trên hình**
 
 - [ ] Màn PWA-04 của ứng dụng cài đặt (PWA) mở ở đường dẫn /m/directives, trong khung điện thoại
-- [ ] Cảnh chờ làn ENT-4c: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần pwa.directives.tracking đúng lúc giọng đọc nói tới
 - [ ] Màn chỉ đạo hiện số liệu thật, không báo chưa bật

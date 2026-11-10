@@ -138,7 +138,6 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "ADM-04",
           "HOME-06"
         ]
       },
@@ -146,14 +145,6 @@
         {
           "do": "as",
           "persona": "owner"
-        },
-        {
-          "do": "open",
-          "screen": "ADM-04"
-        },
-        {
-          "do": "spot",
-          "ref": "adm.delegation.coverage-check"
         },
         {
           "do": "open",

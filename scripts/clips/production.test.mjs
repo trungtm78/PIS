@@ -183,20 +183,26 @@ test('the book labels a scene as part of the main video only when this edition p
 });
 
 test('planned screens, planned seed groups and waiting scenes are understood by the production check', () => {
-  const fact = screenFact('planned:ent-org-pack', all.context, all.facts);
+  // planned.json says every lane is merged; the mechanism is tested on a copy where the lane of the organisation pack is pending and its screen is still planned.
+  const planned = { ...all.context.planned, lanes: { ...all.context.planned.lanes, 'ENT-3d': { status: 'pending' } }, screens: { ...all.context.planned.screens, 'planned:ent-org-pack': { lane: 'ENT-3d', status: 'planned', platform: 'web', route: null, title: 'Org pack' } } };
+  const context = { ...all.context, planned };
+  const fact = screenFact('planned:ent-org-pack', context, all.facts);
   assert.equal(fact.kind, 'planned');
   assert.equal(fact.lane, 'ENT-3d');
   assert.equal(fact.implemented, false);
-  const enterprise = checkClip('enterprise-phu-my', { ...shared, strict: true });
+  const scenario = clone(loadScenario('enterprise-phu-my'));
+  const orgScene = scenario.scenes.find((candidate) => candidate.id === 'ec-org-pack');
+  orgScene.screen.screens = ['planned:ent-org-pack'];
+  for (const step of orgScene.steps) if (step.screen === 'ORG-01') step.screen = 'planned:ent-org-pack';
+  const enterprise = checkClip('enterprise-phu-my', { ...shared, context, scenario, strict: true });
   assert.deepEqual(enterprise.problems.filter((p) => /planned:/u.test(p)), []);
   assert.ok(enterprise.warnings.some((w) => /scene ec-org-pack waits for lane ENT-3d/u.test(w)));
   assert.ok(enterprise.warnings.some((w) => /screen planned:ent-org-pack waits for lane ENT-3d/u.test(w)));
-  const scene = loadScenario('enterprise-phu-my').scenes.find((candidate) => candidate.id === 'ec-org-pack');
-  const items = shotChecklist(scene, loadScenario('enterprise-phu-my'), all.context, all.facts, all.production);
+  const items = shotChecklist(orgScene, scenario, context, all.facts, all.production);
   assert.ok(items.some((item) => item.kind === 'requires' && /ENT-3d/u.test(item.text)));
-  const planned = all.production.readiness.datasets.public.plannedGroups;
-  assert.ok(Object.keys(planned).length >= 15);
-  for (const state of Object.values(planned)) assert.equal(state.proof, 'NOT_DONE');
+  const groups = all.production.readiness.datasets.public.plannedGroups;
+  assert.ok(Object.keys(groups).length >= 15);
+  for (const state of Object.values(groups)) assert.equal(state.proof, 'NOT_DONE');
   assert.ok(dataRisks(loadScenario('public-investment'), all.production).has('contractors-plus'));
 });
 

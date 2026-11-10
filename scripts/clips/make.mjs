@@ -29,6 +29,8 @@ const VIEWPORT = { width: 1920, height: 1080 };
 /** The screens of the installed web application for leaders (apps/web/src/pwa/PwaRoutes.tsx): they are not in the generated route list. */
 const PWA_ROUTES = { 'PWA-01': '/m', 'PWA-02': '/m/approvals', 'PWA-03': '/m/dashboard', 'PWA-04': '/m/directives' };
 const ROUTES = { ...Object.fromEntries(readJson(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'routes.generated.json')).routes.map((route) => [route.id, route.path])), ...PWA_ROUTES };
+/** Screens that open on the data a scene talks about carry a query string (record/route-queries.json). */
+for (const [screen, query] of Object.entries(readJson(join(CLIPS_DIR, 'record', 'route-queries.json')).queries)) if (ROUTES[screen] !== undefined) ROUTES[screen] = `${ROUTES[screen]}?${query}`;
 const ANIMATIC_ALIASES = { 'platform-map': 'platform-public', 'service-flow': 'service-flow-public' };
 /** The people the development session of the clip stack knows (apps/web/e2e/support/docs-people.json). */
 const KNOWN_PERSONAS = new Set(readJson(join(REPO_ROOT, 'apps', 'web', 'e2e', 'support', 'docs-people.json')).map((person) => person.key));

@@ -17,7 +17,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "DIS-21",
+          "DIS-32",
           "DIS-27"
         ]
       },
@@ -28,7 +28,7 @@
         },
         {
           "do": "open",
-          "screen": "DIS-21"
+          "screen": "DIS-32"
         },
         {
           "do": "spot",
@@ -67,7 +67,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "DIS-13"
+          "DIS-35"
         ]
       },
       "steps": [
@@ -77,7 +77,7 @@
         },
         {
           "do": "open",
-          "screen": "DIS-13"
+          "screen": "DIS-35"
         },
         {
           "do": "spot",
@@ -161,7 +161,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:ent-org-pack"
+          "ORG-01"
         ]
       },
       "steps": [
@@ -171,7 +171,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:ent-org-pack"
+          "screen": "ORG-01"
         },
         {
           "do": "spot",
@@ -245,7 +245,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:ent-cross-compare"
+          "RPT-09"
         ]
       },
       "steps": [
@@ -255,7 +255,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:ent-cross-compare"
+          "screen": "RPT-09"
         },
         {
           "do": "spot",
@@ -287,7 +287,7 @@
         "platform": "web",
         "screens": [
           "RPT-03",
-          "planned:ent-layout-config"
+          "RPT-07"
         ]
       },
       "steps": [
@@ -305,7 +305,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:ent-layout-config"
+          "screen": "RPT-07"
         },
         {
           "do": "spot",
@@ -336,7 +336,7 @@
         "platform": "web",
         "screens": [
           "DIS-14",
-          "planned:ent-calendar-board"
+          "DIS-34"
         ]
       },
       "steps": [
@@ -354,7 +354,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:ent-calendar-board"
+          "screen": "DIS-34"
         },
         {
           "do": "spot",
@@ -450,7 +450,7 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "planned:ent-equipment-procurement"
+          "EQP-01"
         ]
       },
       "steps": [
@@ -460,7 +460,7 @@
         },
         {
           "do": "open",
-          "screen": "planned:ent-equipment-procurement"
+          "screen": "EQP-01"
         },
         {
           "do": "spot",

@@ -250,8 +250,11 @@
       ],
       "ops": [
         {
+          "tap": "^Báo cáo và công việc hiện trường, Đã thu gọn",
+          "optional": true
+        },
+        {
           "tap": "^Hợp đồng và nhật ký công trường",
-          "open": "^Báo cáo và công việc hiện trường",
           "scroll": true
         },
         {

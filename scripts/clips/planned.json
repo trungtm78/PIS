@@ -22,82 +22,47 @@
       "lane": "ENT-0",
       "status": "built",
       "note": "directive tracking"
-    },
-    "planned:ent-org-pack": {
-      "lane": "ENT-3d",
-      "status": "planned",
-      "platform": "web",
-      "route": null,
-      "title": "Gói tổ chức và vai trò của bản doanh nghiệp"
-    },
-    "planned:ent-cross-compare": {
-      "lane": "ENT-4a",
-      "status": "planned",
-      "platform": "web",
-      "route": null,
-      "title": "So sánh chéo số liệu cùng kỳ giữa các loại báo cáo"
-    },
-    "planned:ent-layout-config": {
-      "lane": "ENT-4b",
-      "status": "planned",
-      "platform": "web",
-      "route": null,
-      "title": "Cấu hình bố cục biểu mẫu không cần lập trình"
-    },
-    "planned:ent-calendar-board": {
-      "lane": "ENT-4c",
-      "status": "planned",
-      "platform": "web",
-      "route": null,
-      "title": "Lịch kỳ báo cáo và bảng tiến độ từng đầu mối"
-    },
-    "planned:ent-equipment-procurement": {
-      "lane": "ENT-4e",
-      "status": "planned",
-      "platform": "web",
-      "route": null,
-      "title": "Mua sắm trang thiết bị theo Ban Thương mại"
     }
   },
   "lanes": {
     "ENT-3a": {
-      "status": "pending",
+      "status": "merged",
       "note": "enterprise period snapshot built and closed, one figure reader for forms, dashboards and the push"
     },
     "ENT-3b": {
-      "status": "pending",
+      "status": "merged",
       "note": "structured narrative of eight fields, inheritance from the previous period, standard cause list, directive results"
     },
     "ENT-3c": {
-      "status": "pending",
+      "status": "merged",
       "note": "PUSH step of the approval flow waits for the HPM receipt, one staged flow for report, funding batch and indicator entry"
     },
     "ENT-3d": {
-      "status": "pending",
+      "status": "merged",
       "note": "PVFCCo organisation pack: nine input points, entering and approving persons, planning review, leadership roles"
     },
     "ENT-3e": {
-      "status": "pending",
+      "status": "merged",
       "note": "project codes of EBS and HPM through the crosswalk, project type catalogue, fund source origins"
     },
     "ENT-4a": {
-      "status": "pending",
+      "status": "merged",
       "note": "cross-report comparison of one period before issue, blocks issue on a gap until explained"
     },
     "ENT-4b": {
-      "status": "pending",
+      "status": "merged",
       "note": "PDF of the report forms, Department form, layout configuration without code"
     },
     "ENT-4c": {
-      "status": "pending",
+      "status": "merged",
       "note": "reporting calendar with a deadline per step, e-mail and Teams reminders, PWA directive screen"
     },
     "ENT-4d": {
-      "status": "pending",
+      "status": "merged",
       "note": "presentation mode of dashboards, enterprise rates by company, unit and project, scheduled delivery of issued forms"
     },
     "ENT-4e": {
-      "status": "pending",
+      "status": "merged",
       "note": "audit detail and log caps, exchange rate catalogue, equipment procurement view of the commercial division"
     }
   }
