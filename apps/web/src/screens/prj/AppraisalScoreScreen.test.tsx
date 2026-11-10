@@ -194,10 +194,12 @@ describe('AppraisalScoreScreen (PRJ-15): the scoring of a project against the cr
   });
 
   it('PRJ-15 falls back to the first living project when none is in appraisal, never to an ended one, and keeps the empty notice for an empty register', async () => {
-    const first = appraisalClient(world());
+    const first = appraisalClient(world({ lifecycle: lifecycle('PIPELINE', appraisal({ can_record: false })) }));
     (first.client as unknown as { readAll: unknown }).readAll = vi.fn(() => Promise.resolve([projectLine(5, { status: 'CLOSED' }), projectLine(1, { status: 'IMPLEMENTATION' })]));
     mount(<AppraisalScoreScreen route={ROUTE} />, first, { permissions: APPRAISER, path: '/prj/prj-15' });
     await waitFor(() => expect(first.read).toHaveBeenCalledWith('getProjectLifecycle', { path: { id: PROJECT_ID } }));
+    // The project that was opened is not in appraisal: the notice does not claim it is (the screen also says the project takes no sheet).
+    expect((await screen.findByTestId('default-project')).textContent).toContain(vi_['prj.score.default.fallback.notice']);
     cleanup();
     const ended = appraisalClient(world());
     (ended.client as unknown as { readAll: unknown }).readAll = vi.fn(() => Promise.resolve([projectLine(5, { status: 'CLOSED' })]));
