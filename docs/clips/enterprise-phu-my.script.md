@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `enterprise-phu-my`
 - Bản: enterprise
-- Video chính: 11:33 (45 cảnh)
+- Video chính: 11:23 (43 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,21 +12,21 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 45 | 11:33 |
+| Video chính (`main`) | 43 | 11:23 |
 | Giới thiệu phần mềm (`intro`) | 4 | 1:14 |
-| Tổng quan điều hành (`leader-home`) | 7 | 1:29 |
-| Cơ cấu vốn và kế hoạch (`capital`) | 4 | 1:07 |
-| Dự án đầu tư xây dựng (`projects`) | 5 | 1:15 |
+| Tổng quan điều hành (`leader-home`) | 6 | 1:26 |
+| Cơ cấu vốn và kế hoạch (`capital`) | 4 | 1:19 |
+| Dự án đầu tư xây dựng (`projects`) | 5 | 1:11 |
 | Báo cáo gửi Tập đoàn (`reports-pvn`) | 6 | 1:41 |
 | Quy trình duyệt số liệu kỳ (`workflow`) | 4 | 1:01 |
 | Đẩy số HPM và đối chiếu kế toán (`hpm-ebs`) | 7 | 2:04 |
 | Chỉ đạo giao ban (`directives`) | 4 | 0:56 |
 | Hồ sơ dự án và trợ lý AI (`docs-ai`) | 4 | 1:05 |
-| Báo cáo phân tích và BI (`analytics`) | 9 | 2:18 |
+| Báo cáo phân tích và BI (`analytics`) | 8 | 2:02 |
 | Cảnh báo (`alerts`) | 8 | 1:59 |
-| Quản lý nhà thầu và nhà cung cấp (`contractors`) | 9 | 2:26 |
+| Quản lý nhà thầu và nhà cung cấp (`contractors`) | 7 | 1:51 |
 | Cây tiến độ (`process-tree`) | 9 | 2:09 |
-| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:40 |
+| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:38 |
 | Quản lý nhà thầu nâng cao (`contractors-plus`) | 9 | 2:44 |
 | Cổng nhà thầu (`contractor-portal`) | 6 | 1:28 |
 | Claim và cảnh báo sớm hợp đồng (`claims-warnings`) | 5 | 1:30 |
@@ -67,6 +67,13 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-disbursement` | RUN_VERIFIED |
 | `clip-ent-snapshot` | RUN_VERIFIED |
 | `clip-ent-bi` | RUN_VERIFIED |
+| `clip-ent-alerts` | RUN_VERIFIED |
+| `clip-ent-equipment` | RUN_VERIFIED |
+| `clip-ent-capital-prior` | RUN_VERIFIED |
+| `clip-ent-snapshot-prior` | RUN_VERIFIED |
+| `clip-ent-crosscheck` | RUN_VERIFIED |
+| `clip-ent-alert-triage` | RUN_VERIFIED |
+| `clip-ent-capital-adjust` | RUN_VERIFIED |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**
 
@@ -101,19 +108,19 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | Chương | Chương cần nhóm nào | Khoảng trống |
 |---|---|---|
 | `intro` | - | - |
-| `leader-home` | `clip-ent-projects`, `clip-ent-funding` | - |
-| `capital` | `clip-ent-funding` | - |
+| `leader-home` | `clip-ent-projects`, `clip-ent-funding`, `clip-ent-snapshot`, `clip-ent-snapshot-prior`, `clip-ent-alert-triage` | - |
+| `capital` | `clip-ent-funding`, `clip-ent-capital-adjust`, `clip-ent-capital-prior` | - |
 | `projects` | `clip-ent-projects` | - |
-| `reports-pvn` | `clip-ent-reports` | Sáu biểu mẫu là bản demo do hệ thống tự thiết kế, đóng dấu MẪU DEMO — chờ mẫu chính thức. |
-| `workflow` | `clip-ent-reports` | - |
-| `hpm-ebs` | `clip-ent-reports`, `clip-ent-ebs` | Bản demo không bao giờ được HPM chấp nhận: nhật ký đẩy có một lần ghi tệp và một lần bị từ chối kèm lý do. |
+| `reports-pvn` | `clip-ent-reports` | - |
+| `workflow` | `clip-ent-reports`, `clip-ent-workflow` | - |
+| `hpm-ebs` | `clip-ent-reports`, `clip-ent-ebs` | - |
 | `directives` | `clip-ent-directives` | - |
-| `docs-ai` | - | Bộ dữ liệu doanh nghiệp chưa có nhóm cho kho hồ sơ dự án và trợ lý AI: cần nhóm bổ sung hoặc quay trên kho đã có. |
-| `analytics` | `clip-ent-projects`, `clip-ent-funding` | Chưa nạp được gói chỉ tiêu BI; các chương dùng chung cần số liệu đủ dày trên bộ dữ liệu doanh nghiệp. |
-| `alerts` | - | Bộ dữ liệu doanh nghiệp không có nhóm luật và cảnh báo; chạy các nhóm cảnh báo của bộ công khai trên bản doanh nghiệp hoặc quay chương dùng chung trên bộ công khai. |
-| `contractors` | - | Bộ dữ liệu doanh nghiệp không có nhóm nhà thầu; cần nhóm bổ sung hoặc dùng cảnh quay chung. |
-| `process-tree` | - | Bộ dữ liệu doanh nghiệp không có nhóm quy trình gói thầu; cần chạy nhóm quy trình trên bản doanh nghiệp hoặc dùng cảnh quay chung. |
-| `phone` | `clip-ent-projects`, `clip-ent-directives` | Ứng dụng cài đặt (PWA) cho lãnh đạo đọc tổng quan, hàng chờ duyệt và chỉ đạo của cùng bộ dữ liệu. |
+| `docs-ai` | `clip-ent-documents` | - |
+| `analytics` | `clip-ent-projects`, `clip-ent-funding`, `clip-ent-bi` | - |
+| `alerts` | `clip-ent-alerts`, `clip-ent-alert-triage` | - |
+| `contractors` | `clip-ent-procurement`, `clip-ent-contracts` | - |
+| `process-tree` | `clip-ent-workflow`, `clip-ent-procurement` | - |
+| `phone` | `clip-ent-projects`, `clip-ent-directives` | - |
 | `contractors-plus` | `clip-ent-vendor`, `clip-ent-procurement`, `clip-ent-contracts` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `contractor-portal` | `clip-ent-vendor` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `claims-warnings` | `clip-ent-claims`, `clip-ent-contracts` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
@@ -135,7 +142,7 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `features-tour` | - | - |
 | `close` | - | - |
 
-**Cảnh có nhóm dữ liệu chưa chạy trọn:** `reports-pvn`, `hpm-ebs`, `docs-ai`, `analytics`, `alerts`, `contractors`, `process-tree`, `phone`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus`
+**Cảnh có nhóm dữ liệu chưa chạy trọn:** `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus`
 
 ## Bảng nhạc nền
 
@@ -152,11 +159,11 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 |---|---|---|---|---|
 | `ent-open` | `intro` | 0:00 | 0 dB | Vào dần trong hai giây, nhạc mở đầu trên thẻ tiêu đề và hoạt cảnh bài toán. |
 | `ent-overview` | `leader-home`, `capital`, `projects` | 1:14 | 0 dB | Phần điều hành, cơ cấu vốn và dự án: nền ổn định. |
-| `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:36 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
-| `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:50 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
-| `ent-tree-phone` | `process-tree`, `phone` | 8:14 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
-| `ent-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus` | 10:33 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
-| `ent-close` | `close` | 10:59 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:44 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
+| `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:57 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
+| `ent-tree-phone` | `process-tree`, `phone` | 8:05 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
+| `ent-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus` | 10:23 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
+| `ent-close` | `close` | 10:49 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu phần mềm (`intro`)
 
@@ -281,23 +288,26 @@ Nền tảng: animatic; 16.3 giây; có trong video chính
 
 ### `ent-home`
 
-Nền tảng: web; 13.5 giây; có trong video chính
+Nền tảng: web; 26.3 giây; có trong video chính
 
 Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `HOME-01` Tổng quan điều hành (/home/home-01)
 
 **Lời đọc**
 
-> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, trên {{figure:ent-projects-total}} dự án.
+> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}} trên {{figure:ent-projects-total}} dự án. Kế hoạch vốn năm là {{figure:ent-plan-year}}, đã giải ngân {{figure:ent-disbursed}}, đạt {{figure:ent-disb-rate}} so với kế hoạch, cao hơn {{figure:ent-disb-rate-last-year}} của cùng kỳ năm trước.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, trên {{figure:ent-projects-total}} dự án.
+> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}} trên {{figure:ent-projects-total}} dự án. Kế hoạch vốn năm là {{figure:ent-plan-year}}, đã giải ngân {{figure:ent-disbursed}}, đạt {{figure:ent-disb-rate}} so với kế hoạch, cao hơn {{figure:ent-disb-rate-last-year}} của cùng kỳ năm trước.
 
 **Phụ đề**
 
-- Trang điều hành của Tổng công
-- ty cho thấy tổng mức
-- đầu tư {n}, kế hoạch vốn / năm {n}, trên {n} dự án.
+- Trang điều hành của Tổng
+- công ty cho thấy
+- tổng mức đầu tư {n} trên {n} dự án.
+- Kế hoạch vốn năm là {n}, đã giải ngân {n},
+- đạt {n} so với kế hoạch, cao
+- hơn {n} của cùng kỳ năm trước.
 
 **Các bước quay**
 
@@ -315,8 +325,11 @@ Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `HO
 - [ ] Khung vào phần ent.home.kpi-strip đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Dữ liệu minh họa" hiện từ giây 1, kéo dài 5 giây
 - [ ] Con số ent-total-investment đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_TOTAL_INVESTMENT].value); không gõ tay, thiếu giá trị thì dừng quay
-- [ ] Con số ent-plan-year đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_PLAN_IN_FORCE].value); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Con số ent-projects-total đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_PROJECTS_TOTAL].value); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-plan-year đọc từ dữ liệu thật qua getLeaderRates (company.plan_vnd); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-disbursed đọc từ dữ liệu thật qua getLeaderRates (company.disbursed_vnd); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-disb-rate đọc từ dữ liệu thật qua getLeaderRates (company.rate_pct); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-disb-rate-last-year đọc từ dữ liệu thật qua getLeaderRates (company.last_year.rate_pct); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `home-drill`
@@ -420,38 +433,6 @@ Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `DI
 - [ ] Khung vào phần dis.forecast.band đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
-### `home-ranking`
-
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
-
-Màn hình: `HOME-04` Xếp hạng giải ngân (/home/home-04)
-
-**Lời đọc**
-
-> Xếp hạng giải ngân dùng nhiều chỉ số, chuẩn hóa theo quy mô, và ghép tỷ lệ giải ngân với tiến độ vật lý. Đơn vị vướng ngoài tầm kiểm soát được ghi chú có người duyệt, và có quyền khiếu nại số liệu của mình.
-
-**Lời gửi cho giọng đọc (đã phiên âm)**
-
-> Xếp hạng giải ngân dùng nhiều chỉ số, chuẩn hóa theo quy mô, và ghép tỷ lệ giải ngân với tiến độ vật lý. Đơn vị vướng ngoài tầm kiểm soát được ghi chú có người duyệt, và có quyền khiếu nại số liệu của mình.
-
-**Phụ đề**
-
-- Xếp hạng giải ngân dùng nhiều / chỉ số, chuẩn hóa theo quy mô,
-- và ghép tỷ lệ giải ngân / với tiến độ vật lý.
-- Đơn vị vướng ngoài tầm / kiểm soát được ghi chú có
-- người duyệt, và có quyền / khiếu nại số liệu của mình.
-
-**Các bước quay**
-
-- `do=open screen=HOME-04`
-- `do=spot ref=home.ranking.table`
-
-**Cần thấy trên hình**
-
-- [ ] Màn HOME-04 "Xếp hạng giải ngân" mở được ở đường dẫn /home/home-04, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Khung vào phần home.ranking.table đúng lúc giọng đọc nói tới
-- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
-
 ### `home-map`
 
 Nền tảng: web; 11.8 giây; chỉ trong chương cắt riêng
@@ -521,40 +502,48 @@ Màn hình: `DIR-03` Bảng theo dõi chỉ đạo (/dir/dir-03); `DIR-04` Chi t
 
 ### `ent-capital`
 
-Nền tảng: web; 18.5 giây; có trong video chính
+Nền tảng: web; 30.3 giây; có trong video chính
 
-Màn hình: `HOME-07` Cơ cấu các nguồn vốn (/home/home-07)
+Màn hình: `HOME-07` Cơ cấu các nguồn vốn (/home/home-07); `CAP-03` Kế hoạch năm (/cap/cap-03); `CAP-07` Điều chỉnh và điều chuyển (/cap/cap-07); `CAP-12` Kế hoạch ước giải ngân (/cap/cap-12)
 
 **Lời đọc**
 
-> Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-share-equity}}, vốn vay {{figure:ent-share-debt}} và vốn khác. Kế hoạch có bản giao đầu năm và bản hiện hành, chia theo quý và tháng. Số ước được thay bằng số thực khi có.
+> Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-equity-plan}}, chiếm {{figure:ent-share-equity}} kế hoạch, và vốn vay {{figure:ent-loan-plan}}, chiếm {{figure:ent-share-debt}}. Mỗi nguồn có số đã giải ngân và tỷ lệ so với kế hoạch của chính nguồn đó, nguồn chưa có số liệu ghi rõ là chưa có dữ liệu. Kế hoạch năm có phiên bản hai so với phiên bản một, và số ước giải ngân từng tháng.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-share-equity}}, vốn vay {{figure:ent-share-debt}} và vốn khác. Kế hoạch có bản giao đầu năm và bản hiện hành, chia theo quý và tháng. Số ước được thay bằng số thực khi có.
+> Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-equity-plan}}, chiếm {{figure:ent-share-equity}} kế hoạch, và vốn vay {{figure:ent-loan-plan}}, chiếm {{figure:ent-share-debt}}. Mỗi nguồn có số đã giải ngân và tỷ lệ so với kế hoạch của chính nguồn đó, nguồn chưa có số liệu ghi rõ là chưa có dữ liệu. Kế hoạch năm có phiên bản hai so với phiên bản một, và số ước giải ngân từng tháng.
 
 **Phụ đề**
 
-- Vốn chia theo cơ cấu doanh nghiệp: vốn chủ
-- sở hữu {n}, vốn vay {n} và vốn khác.
-- Kế hoạch có bản giao đầu năm và
-- bản hiện hành, chia theo quý và tháng.
-- Số ước được thay bằng số thực khi có.
+- Vốn chia theo cơ cấu doanh / nghiệp: vốn chủ sở hữu {n},
+- chiếm {n} kế hoạch, và / vốn vay {n}, chiếm {n}.
+- Mỗi nguồn có số đã giải ngân và / tỷ lệ so với kế hoạch của chính
+- nguồn đó, nguồn chưa có số / liệu ghi rõ là chưa có dữ liệu.
+- Kế hoạch năm có phiên bản hai so với phiên
+- bản một, và số ước giải ngân từng tháng.
 
 **Các bước quay**
 
+- `do=as persona=owner`
 - `do=open screen=HOME-07`
 - `do=spot ref=ent.capital.structure-bar`
-- `do=open screen=HOME-07`
-- `do=spot ref=ent.capital.estimate-to-actual`
+- `do=open screen=CAP-03`
+- `do=open screen=CAP-07`
+- `do=open screen=CAP-12`
 
 **Cần thấy trên hình**
 
 - [ ] Màn HOME-07 "Cơ cấu các nguồn vốn" mở được ở đường dẫn /home/home-07, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn CAP-03 "Kế hoạch năm" mở được ở đường dẫn /cap/cap-03, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn CAP-07 "Điều chỉnh và điều chuyển" mở được ở đường dẫn /cap/cap-07, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn CAP-12 "Kế hoạch ước giải ngân" mở được ở đường dẫn /cap/cap-12, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần ent.capital.structure-bar đúng lúc giọng đọc nói tới
-- [ ] Khung vào phần ent.capital.estimate-to-actual đúng lúc giọng đọc nói tới
-- [ ] Con số ent-share-equity đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_SHARE_EQUITY].value); không gõ tay, thiếu giá trị thì dừng quay
-- [ ] Con số ent-share-debt đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_SHARE_DEBT].value); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-equity-plan đọc từ dữ liệu thật qua getLeaderRates (structure.classes[class_code=EQUITY].plan_vnd); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-share-equity đọc từ dữ liệu thật qua getLeaderRates (structure.classes[class_code=EQUITY].plan_share_pct); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-loan-plan đọc từ dữ liệu thật qua getLeaderRates (structure.classes[class_code=LOAN].plan_vnd); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-share-debt đọc từ dữ liệu thật qua getLeaderRates (structure.classes[class_code=LOAN].plan_share_pct); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Vốn chủ sở hữu và vốn vay hiện cạnh nhau, tổng bằng kế hoạch năm
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -667,36 +656,33 @@ Màn hình: `ADM-19` Kho quy tắc quản trị (/adm/adm-19); `ADM-20` Chi ti�
 
 ### `ent-gates`
 
-Nền tảng: web; 13.9 giây; có trong video chính
+Nền tảng: web; 10.5 giây; có trong video chính
 
-Màn hình: `PRJ-14` Ngân hàng dự án và vòng đời PIMA (/prj/prj-14); `PRJ-15` Chấm điểm thẩm định (/prj/prj-15)
+Màn hình: `PRJ-14` Ngân hàng dự án và vòng đời PIMA (/prj/prj-14)
 
 **Lời đọc**
 
-> Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt. Thẩm định chấm điểm theo tiêu chí đã công bố.
+> Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt. Thẩm định chấm điểm theo tiêu chí đã công bố.
+> Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt.
 
 **Phụ đề**
 
 - Dự án đi qua các cổng giai đoạn, / từ chủ trương đến quyết toán.
 - Thiếu hồ sơ thì không qua cổng, ngoại / lệ phải có lý do và người duyệt.
-- Thẩm định chấm điểm theo / tiêu chí đã công bố.
 
 **Các bước quay**
 
 - `do=as persona=projectManager`
 - `do=open screen=PRJ-14`
 - `do=spot ref=prj.lifecycle.gates`
-- `do=open screen=PRJ-15`
 - `do=spot ref=prj.appraisal.criteria-scores`
 
 **Cần thấy trên hình**
 
 - [ ] Màn PRJ-14 "Ngân hàng dự án và vòng đời PIMA" mở được ở đường dẫn /prj/prj-14, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn PRJ-15 "Chấm điểm thẩm định" mở được ở đường dẫn /prj/prj-15, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần prj.lifecycle.gates đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần prj.appraisal.criteria-scores đúng lúc giọng đọc nói tới
@@ -704,7 +690,7 @@ Màn hình: `PRJ-14` Ngân hàng dự án và vòng đời PIMA (/prj/prj-14); `
 
 ### `ent-npv`
 
-Nền tảng: web; 13.6 giây; có trong video chính
+Nền tảng: web; 13.6 giây; chỉ trong chương cắt riêng
 
 Màn hình: `PRJ-24` Bàn thẩm định hiệu quả đầu tư (/prj/prj-24); `PRJ-23` Thẩm định hiệu quả đầu tư (/prj/prj-23)
 
@@ -1845,44 +1831,6 @@ Màn hình: `BI-20` Sổ chỉ tiêu (/bi/bi-20); `BI-19` Chứng nhận chỉ t
 - [ ] Chú thích "Công thức · nguồn · giờ cập nhật · ngày chốt" hiện từ giây 2, kéo dài 5 giây
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
-### `ana-evm`
-
-Nền tảng: web; 16 giây; có trong video chính
-
-Màn hình: `PRJ-27` Giá trị thu được (EVM) và đường S (/prj/prj-27); `PRJ-26` Đường cơ sở, độ lệch và số lần dời mốc (/prj/prj-26)
-
-**Lời đọc**
-
-> Báo cáo giá trị thu được tính đủ chỉ số chi phí và tiến độ, kèm đường S so với đường cơ sở. Chỉ khối lượng đã nghiệm thu mới tạo giá trị. Thiếu đường cơ sở thì ghi chưa đủ dữ liệu, không ghi số không.
-
-**Lời gửi cho giọng đọc (đã phiên âm)**
-
-> Báo cáo giá trị thu được tính đủ chỉ số chi phí và tiến độ, kèm đường ét so với đường cơ sở. Chỉ khối lượng đã nghiệm thu mới tạo giá trị. Thiếu đường cơ sở thì ghi chưa đủ dữ liệu, không ghi số không.
-
-**Phụ đề**
-
-- Báo cáo giá trị thu được / tính đủ chỉ số chi phí
-- và tiến độ, kèm đường / S so với đường cơ sở.
-- Chỉ khối lượng đã nghiệm / thu mới tạo giá trị.
-- Thiếu đường cơ sở thì ghi chưa / đủ dữ liệu, không ghi số không.
-
-**Các bước quay**
-
-- `do=as persona=owner`
-- `do=open screen=PRJ-27`
-- `do=spot ref=prj.evm.s-curve`
-- `do=click ref=prj.evm.view-at-date`
-
-**Cần thấy trên hình**
-
-- [ ] Màn PRJ-27 "Giá trị thu được (EVM) và đường S" mở được ở đường dẫn /prj/prj-27, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn PRJ-26 "Đường cơ sở, độ lệch và số lần dời mốc" mở được ở đường dẫn /prj/prj-26, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản owner
-- [ ] Khung vào phần prj.evm.s-curve đúng lúc giọng đọc nói tới
-- [ ] Khung vào phần prj.evm.view-at-date đúng lúc giọng đọc nói tới
-- [ ] Chú thích "Giá trị thu được chỉ từ khối lượng đã nghiệm thu" hiện từ giây 1.5, kéo dài 5 giây
-- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
-
 ### `ana-bi-dashboard`
 
 Nền tảng: web; 12.1 giây; có trong video chính
@@ -2123,7 +2071,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `HOME-02` Việ
 
 **Các bước quay**
 
-- `do=as persona=owner`
+- `do=as persona=projectManager`
 - `do=open screen=HOME-01`
 - `do=click ref=shell.alert-bell`
 - `do=spot ref=alerts.drawer.consequence-line`
@@ -2132,7 +2080,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `HOME-02` Việ
 
 - [ ] Màn HOME-01 "Tổng quan điều hành" mở được ở đường dẫn /home/home-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-02 "Việc của tôi" mở được ở đường dẫn /home/home-02, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản owner
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần shell.alert-bell đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.drawer.consequence-line đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Khẩn · Cần xử lý · Theo dõi" hiện từ giây 2, kéo dài 5 giây
@@ -2185,7 +2133,7 @@ Màn hình: `HOME-02` Việc của tôi (/home/home-02)
 
 Nền tảng: web; 12.1 giây; có trong video chính
 
-Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ sơ cảnh báo (/home/home-06)
+Màn hình: `HOME-06` Hồ sơ cảnh báo (/home/home-06)
 
 **Lời đọc**
 
@@ -2204,17 +2152,13 @@ Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ
 **Các bước quay**
 
 - `do=as persona=owner`
-- `do=open screen=ADM-04`
-- `do=spot ref=adm.delegation.coverage-check`
 - `do=open screen=HOME-06`
 - `do=spot ref=alerts.record.escalation-trail`
 
 **Cần thấy trên hình**
 
-- [ ] Màn ADM-04 "Ủy quyền có thời hạn" mở được ở đường dẫn /adm/adm-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-06 "Hồ sơ cảnh báo" mở được ở đường dẫn /home/home-06, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản owner
-- [ ] Khung vào phần adm.delegation.coverage-check đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.record.escalation-trail đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -2596,74 +2540,6 @@ Màn hình: `BID-22` Kết nối hệ thống mạng đấu thầu quốc gia (/
 - [ ] Chú thích "Chỉ nhập và xuất tệp, không quét trang web" hiện từ giây 3, kéo dài 5 giây
 - [ ] Chú thích "Mẫu tệp là giả định, chờ đặc tả chính thức" hiện từ giây 9, kéo dài 6 giây
 - [ ] Dấu bắt buộc hiện rõ trên hình: "Mẫu tệp là giả định, chờ đặc tả chính thức"
-- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
-
-### `vnd-redflag`
-
-Nền tảng: web; 20 giây; chỉ trong chương cắt riêng
-
-Màn hình: `AUD-14` Tín hiệu rủi ro mua sắm (red flag) (/aud/aud-14)
-
-**Lời đọc**
-
-> Cho kiểm toán, hệ thống tính 12 chỉ báo đáng ngờ trong mua sắm từ dữ liệu có sẵn. Ví dụ chỉ một nhà thầu tham gia hay một nhà thầu thắng lặp lại. Chỉ kiểm toán viên mới xem được. Xếp hạng chỉ để điều tra, không phải kết luận, và người liên quan bị chặn xem.
-
-**Lời gửi cho giọng đọc (đã phiên âm)**
-
-> Cho kiểm toán, hệ thống tính 12 chỉ báo đáng ngờ trong mua sắm từ dữ liệu có sẵn. Ví dụ chỉ một nhà thầu tham gia hay một nhà thầu thắng lặp lại. Chỉ kiểm toán viên mới xem được. Xếp hạng chỉ để điều tra, không phải kết luận, và người liên quan bị chặn xem.
-
-**Phụ đề**
-
-- Cho kiểm toán, hệ thống tính 12 chỉ báo / đáng ngờ trong mua sắm từ dữ liệu có sẵn.
-- Ví dụ chỉ một nhà thầu tham gia / hay một nhà thầu thắng lặp lại.
-- Chỉ kiểm toán viên mới xem được.
-- Xếp hạng chỉ để điều tra, không phải kết / luận, và người liên quan bị chặn xem.
-
-**Các bước quay**
-
-- `do=as persona=auditor`
-- `do=open screen=AUD-14`
-- `do=spot ref=aud.red-flags.indicator-list`
-
-**Cần thấy trên hình**
-
-- [ ] Màn AUD-14 "Tín hiệu rủi ro mua sắm (red flag)" mở được ở đường dẫn /aud/aud-14, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản auditor
-- [ ] Khung vào phần aud.red-flags.indicator-list đúng lúc giọng đọc nói tới
-- [ ] Chú thích "Tín hiệu để điều tra, không phải kết luận" hiện từ giây 3, kéo dài 5 giây
-- [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
-
-### `vnd-portal`
-
-Nền tảng: web; 15.4 giây; chỉ trong chương cắt riêng
-
-Màn hình: `VND-16` Cổng nhà thầu: hồ sơ của tôi (/vnd/vnd-16)
-
-**Lời đọc**
-
-> Nhà thầu có cổng riêng: xem hồ sơ và đánh giá của chính mình, phản hồi trong thời hạn, tải chứng chỉ mới và tái xác nhận hằng năm. Nhà thầu không thấy chỉ báo đáng ngờ và không thấy dữ liệu của nhà thầu khác.
-
-**Lời gửi cho giọng đọc (đã phiên âm)**
-
-> Nhà thầu có cổng riêng: xem hồ sơ và đánh giá của chính mình, phản hồi trong thời hạn, tải chứng chỉ mới và tái xác nhận hằng năm. Nhà thầu không thấy chỉ báo đáng ngờ và không thấy dữ liệu của nhà thầu khác.
-
-**Phụ đề**
-
-- Nhà thầu có cổng riêng: xem hồ / sơ và đánh giá của chính mình,
-- phản hồi trong thời hạn, tải chứng / chỉ mới và tái xác nhận hằng năm.
-- Nhà thầu không thấy chỉ báo đáng ngờ và / không thấy dữ liệu của nhà thầu khác.
-
-**Các bước quay**
-
-- `do=as persona=owner`
-- `do=open screen=VND-16`
-- `do=spot ref=vnd.portal.my-evaluations`
-
-**Cần thấy trên hình**
-
-- [ ] Màn VND-16 "Cổng nhà thầu: hồ sơ của tôi" mở được ở đường dẫn /vnd/vnd-16, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản owner
-- [ ] Khung vào phần vnd.portal.my-evaluations đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `vnd-subcontract`
@@ -3130,23 +3006,22 @@ Màn hình: `MOB-32` Hộp thông báo (tab inbox); `MOB-33` Chi tiết thông b
 
 ### `ph-approval`
 
-Nền tảng: phone; 14.5 giây; có trong video chính
+Nền tảng: phone; 12.7 giây; có trong video chính
 
 Màn hình: `MOB-23` Danh sách phê duyệt (tab approval); `MOB-24` Chi tiết phê duyệt (tab approval); `MOB-25` Xác nhận phê duyệt và ký (tab approval)
 
 **Lời đọc**
 
-> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Hiện có {{figure:phone-approvals-waiting}} việc chờ. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
+> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Hiện có {{figure:phone-approvals-waiting}} việc chờ. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
+> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
 
 **Phụ đề**
 
 - Lãnh đạo duyệt ngay trên / điện thoại: xem hồ sơ,
 - duyệt hoặc trả lại kèm lý / do, xác thực lần hai rồi ký.
-- Hiện có {n} việc chờ.
 - Màn xác nhận bị hệ điều hành / chặn quay nên dùng hình dựng lại.
 
 **Các bước quay**
@@ -3162,7 +3037,6 @@ Màn hình: `MOB-23` Danh sách phê duyệt (tab approval); `MOB-24` Chi tiết
 - [ ] Màn MOB-24 "Chi tiết phê duyệt" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Màn MOB-25 "Xác nhận phê duyệt và ký" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Chú thích "Hình dựng lại: hệ điều hành chặn quay màn này" hiện từ giây 6, kéo dài 6 giây
-- [ ] Con số phone-approvals-waiting đọc từ dữ liệu thật qua get_resources_approval_task (items.length); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Màn xác nhận phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại, ghi rõ đó là hình dựng lại
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -5788,9 +5662,9 @@ Màn hình: `DIS-17` Xem trước xuất báo cáo (/dis/dis-17)
 
 ### `ec-snapshot-close`
 
-Nền tảng: web; 22.1 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3a
+Nền tảng: web; 22.1 giây; chỉ trong chương cắt riêng
 
-Màn hình: `DIS-21` Chốt và đóng băng số liệu kỳ (/dis/dis-21); `DIS-27` Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ (/dis/dis-27)
+Màn hình: `DIS-32` Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt (/dis/dis-32); `DIS-27` Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ (/dis/dis-27)
 
 **Lời đọc**
 
@@ -5811,7 +5685,7 @@ Màn hình: `DIS-21` Chốt và đóng băng số liệu kỳ (/dis/dis-21); `DI
 **Các bước quay**
 
 - `do=as persona=capApprover`
-- `do=open screen=DIS-21`
+- `do=open screen=DIS-32`
 - `do=spot ref=dis.snapshot.build-close`
 - `do=spot ref=dis.snapshot.missing-units`
 - `do=open screen=DIS-27`
@@ -5819,9 +5693,8 @@ Màn hình: `DIS-21` Chốt và đóng băng số liệu kỳ (/dis/dis-21); `DI
 
 **Cần thấy trên hình**
 
-- [ ] Màn DIS-21 "Chốt và đóng băng số liệu kỳ" mở được ở đường dẫn /dis/dis-21, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn DIS-32 "Dựng và rà soát bản chốt kỳ doanh nghiệp: đủ số liệu của các đầu mối, đơn vị còn thiếu, bản đã chốt" mở được ở đường dẫn /dis/dis-32, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn DIS-27 "Số liệu vốn theo kỳ: kế hoạch gốc và điều chỉnh, số ước, số thực, lũy kế và các tỷ lệ" mở được ở đường dẫn /dis/dis-27, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3a: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản capApprover
 - [ ] Khung vào phần dis.snapshot.build-close đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.snapshot.missing-units đúng lúc giọng đọc nói tới
@@ -5833,9 +5706,9 @@ Màn hình: `DIS-21` Chốt và đóng băng số liệu kỳ (/dis/dis-21); `DI
 
 ### `ec-narrative`
 
-Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3b
+Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3b-data
 
-Màn hình: `DIS-13` Báo cáo thuyết minh tháng (/dis/dis-13)
+Màn hình: `DIS-35` Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban) (/dis/dis-35)
 
 **Lời đọc**
 
@@ -5856,15 +5729,15 @@ Màn hình: `DIS-13` Báo cáo thuyết minh tháng (/dis/dis-13)
 **Các bước quay**
 
 - `do=as persona=projectManager`
-- `do=open screen=DIS-13`
+- `do=open screen=DIS-35`
 - `do=spot ref=dis.narrative.eight-fields`
 - `do=spot ref=dis.narrative.inherit-previous`
 - `do=spot ref=dis.narrative.cause-list`
 
 **Cần thấy trên hình**
 
-- [ ] Màn DIS-13 "Báo cáo thuyết minh tháng" mở được ở đường dẫn /dis/dis-13, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3b: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn DIS-35 "Thuyết minh kỳ báo cáo có cấu trúc (8 trường, kế thừa, nguyên nhân chuẩn, chỉ đạo giao ban)" mở được ở đường dẫn /dis/dis-35, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Cảnh chờ làn ENT-3b-data: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần dis.narrative.eight-fields đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần dis.narrative.inherit-previous đúng lúc giọng đọc nói tới
@@ -5875,7 +5748,7 @@ Màn hình: `DIS-13` Báo cáo thuyết minh tháng (/dis/dis-13)
 
 ### `ec-push-receipt`
 
-Nền tảng: web; 20.6 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3c
+Nền tảng: web; 20.6 giây; chỉ trong chương cắt riêng
 
 Màn hình: `ADM-18` Theo dõi quy trình phê duyệt (/adm/adm-18); `HPM-01` Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận (/hpm/hpm-01)
 
@@ -5906,7 +5779,6 @@ Màn hình: `ADM-18` Theo dõi quy trình phê duyệt (/adm/adm-18); `HPM-01` �
 
 - [ ] Màn ADM-18 "Theo dõi quy trình phê duyệt" mở được ở đường dẫn /adm/adm-18, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HPM-01 "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận" mở được ở đường dẫn /hpm/hpm-01, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3c: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản mneAdmin
 - [ ] Khung vào phần adm.approval.push-step đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần hpm.push.awaiting-receipt đúng lúc giọng đọc nói tới
@@ -5920,9 +5792,9 @@ Màn hình: `ADM-18` Theo dõi quy trình phê duyệt (/adm/adm-18); `HPM-01` �
 
 ### `ec-org-pack`
 
-Nền tảng: web; 23.4 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3d
+Nền tảng: web; 23.4 giây; chỉ trong chương cắt riêng
 
-Màn hình: `planned:ent-org-pack` Gói tổ chức và vai trò của bản doanh nghiệp (-)
+Màn hình: `ORG-01` Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu) (/org/org-01)
 
 **Lời đọc**
 
@@ -5944,14 +5816,13 @@ Màn hình: `planned:ent-org-pack` Gói tổ chức và vai trò của bản doa
 **Các bước quay**
 
 - `do=as persona=sysAdmin`
-- `do=open screen=planned:ent-org-pack`
+- `do=open screen=ORG-01`
 - `do=spot ref=ent.org-pack.input-points`
 - `do=spot ref=ent.org-pack.roles`
 
 **Cần thấy trên hình**
 
-- [ ] Màn Gói tổ chức và vai trò của bản doanh nghiệp (planned:ent-org-pack) chưa có trên bản chính, thuộc làn ENT-3d: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-3d: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn ORG-01 "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)" mở được ở đường dẫn /org/org-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần ent.org-pack.input-points đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.org-pack.roles đúng lúc giọng đọc nói tới
@@ -5963,7 +5834,7 @@ Màn hình: `planned:ent-org-pack` Gói tổ chức và vai trò của bản doa
 
 ### `ec-codes-catalogues`
 
-Nền tảng: web; 21.8 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3e
+Nền tảng: web; 21.8 giây; chỉ trong chương cắt riêng
 
 Màn hình: `INT-03` Ánh xạ mã dự án đa hệ thống (/int/int-03); `MDM-35` Bản ghi chủ, crosswalk và tách/hợp nhất (/mdm/mdm-35)
 
@@ -5995,7 +5866,6 @@ Màn hình: `INT-03` Ánh xạ mã dự án đa hệ thống (/int/int-03); `MDM
 
 - [ ] Màn INT-03 "Ánh xạ mã dự án đa hệ thống" mở được ở đường dẫn /int/int-03, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn MDM-35 "Bản ghi chủ, crosswalk và tách/hợp nhất" mở được ở đường dẫn /mdm/mdm-35, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-3e: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần int.crosswalk.ebs-hpm-codes đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần mdm.crosswalk.project-type-catalogue đúng lúc giọng đọc nói tới
@@ -6005,9 +5875,9 @@ Màn hình: `INT-03` Ánh xạ mã dự án đa hệ thống (/int/int-03); `MDM
 
 ### `ec-cross-compare`
 
-Nền tảng: web; 13.9 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4a
+Nền tảng: web; 13.9 giây; chỉ trong chương cắt riêng
 
-Màn hình: `planned:ent-cross-compare` So sánh chéo số liệu cùng kỳ giữa các loại báo cáo (-)
+Màn hình: `RPT-09` So sánh chéo báo cáo cùng kỳ trước khi phát hành (/rpt/rpt-09)
 
 **Lời đọc**
 
@@ -6026,14 +5896,13 @@ Màn hình: `planned:ent-cross-compare` So sánh chéo số liệu cùng kỳ gi
 **Các bước quay**
 
 - `do=as persona=docHead`
-- `do=open screen=planned:ent-cross-compare`
+- `do=open screen=RPT-09`
 - `do=spot ref=ent.cross-compare.report-types`
 - `do=spot ref=ent.cross-compare.gap-explanation`
 
 **Cần thấy trên hình**
 
-- [ ] Màn So sánh chéo số liệu cùng kỳ giữa các loại báo cáo (planned:ent-cross-compare) chưa có trên bản chính, thuộc làn ENT-4a: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-4a: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn RPT-09 "So sánh chéo báo cáo cùng kỳ trước khi phát hành" mở được ở đường dẫn /rpt/rpt-09, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản docHead
 - [ ] Khung vào phần ent.cross-compare.report-types đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.cross-compare.gap-explanation đúng lúc giọng đọc nói tới
@@ -6044,9 +5913,9 @@ Màn hình: `planned:ent-cross-compare` So sánh chéo số liệu cùng kỳ gi
 
 ### `ec-pdf-layout`
 
-Nền tảng: web; 19.1 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4b
+Nền tảng: web; 19.1 giây; chỉ trong chương cắt riêng
 
-Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `planned:ent-layout-config` Cấu hình bố cục biểu mẫu không cần lập trình (-)
+Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `RPT-07` Bố cục biểu mẫu cấu hình (/rpt/rpt-07)
 
 **Lời đọc**
 
@@ -6069,14 +5938,13 @@ Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `plann
 - `do=as persona=docHead`
 - `do=open screen=RPT-03`
 - `do=spot ref=rpt.forms.pdf-download`
-- `do=open screen=planned:ent-layout-config`
+- `do=open screen=RPT-07`
 - `do=spot ref=ent.layout.config-editor`
 
 **Cần thấy trên hình**
 
 - [ ] Màn RPT-03 "Các bản báo cáo đã phát hành" mở được ở đường dẫn /rpt/rpt-03, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn Cấu hình bố cục biểu mẫu không cần lập trình (planned:ent-layout-config) chưa có trên bản chính, thuộc làn ENT-4b: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-4b: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn RPT-07 "Bố cục biểu mẫu cấu hình" mở được ở đường dẫn /rpt/rpt-07, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản docHead
 - [ ] Khung vào phần rpt.forms.pdf-download đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.layout.config-editor đúng lúc giọng đọc nói tới
@@ -6088,9 +5956,9 @@ Màn hình: `RPT-03` Các bản báo cáo đã phát hành (/rpt/rpt-03); `plann
 
 ### `ec-calendar-reminders`
 
-Nền tảng: web; 17.9 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4c
+Nền tảng: web; 17.9 giây; chỉ trong chương cắt riêng
 
-Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `planned:ent-calendar-board` Lịch kỳ báo cáo và bảng tiến độ từng đầu mối (-)
+Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `DIS-34` Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối (/dis/dis-34)
 
 **Lời đọc**
 
@@ -6109,18 +5977,17 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `planned:ent-cale
 
 **Các bước quay**
 
-- `do=as persona=unitAdmin`
+- `do=as persona=owner`
 - `do=open screen=DIS-14`
 - `do=spot ref=dis.calendar.configurable`
-- `do=open screen=planned:ent-calendar-board`
+- `do=open screen=DIS-34`
 - `do=spot ref=ent.calendar.step-board`
 
 **Cần thấy trên hình**
 
 - [ ] Màn DIS-14 "Lịch kỳ và khóa sổ" mở được ở đường dẫn /dis/dis-14, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn Lịch kỳ báo cáo và bảng tiến độ từng đầu mối (planned:ent-calendar-board) chưa có trên bản chính, thuộc làn ENT-4c: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-4c: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
-- [ ] Đăng nhập bằng tài khoản unitAdmin
+- [ ] Màn DIS-34 "Lịch kỳ báo cáo và bảng trạng thái nhập liệu theo đầu mối" mở được ở đường dẫn /dis/dis-34, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần dis.calendar.configurable đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.calendar.step-board đúng lúc giọng đọc nói tới
 - [ ] Hạn từng bước của một kỳ
@@ -6129,7 +5996,7 @@ Màn hình: `DIS-14` Lịch kỳ và khóa sổ (/dis/dis-14); `planned:ent-cale
 
 ### `ec-presentation-rates`
 
-Nền tảng: web; 17.6 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4d
+Nền tảng: web; 17.6 giây; chỉ trong chương cắt riêng
 
 Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `BAN-01` Bảng điều hành Ban chỉ đạo (/ban/ban-01)
 
@@ -6160,7 +6027,6 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `BAN-01` Bảng
 
 - [ ] Màn HOME-01 "Tổng quan điều hành" mở được ở đường dẫn /home/home-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn BAN-01 "Bảng điều hành Ban chỉ đạo" mở được ở đường dẫn /ban/ban-01, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-4d: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần home.dashboard.enterprise-rates đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ban.dashboard.presentation-mode đúng lúc giọng đọc nói tới
@@ -6170,7 +6036,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `BAN-01` Bảng
 
 ### `ec-phone-home`
 
-Nền tảng: phone; 17.9 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4d
+Nền tảng: phone; 17.9 giây; chỉ trong chương cắt riêng
 
 Màn hình: `MOB-07` Trang chủ lãnh đạo (tab home)
 
@@ -6199,7 +6065,6 @@ Màn hình: `MOB-07` Trang chủ lãnh đạo (tab home)
 **Cần thấy trên hình**
 
 - [ ] Màn MOB-07 "Trang chủ lãnh đạo" trên điện thoại (tab home) hiện đủ nội dung, không bị hệ điều hành che
-- [ ] Cảnh chờ làn ENT-4d: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần mob.enterprise-home.hpm-status đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần mob.enterprise-home.ebs-differences đúng lúc giọng đọc nói tới
@@ -6210,9 +6075,9 @@ Màn hình: `MOB-07` Trang chủ lãnh đạo (tab home)
 
 ### `ec-equipment`
 
-Nền tảng: web; 14.8 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4e
+Nền tảng: web; 14.8 giây; chỉ trong chương cắt riêng
 
-Màn hình: `planned:ent-equipment-procurement` Mua sắm trang thiết bị theo Ban Thương mại (-)
+Màn hình: `EQP-01` Mua sắm trang thiết bị dự án (/eqp/eqp-01)
 
 **Lời đọc**
 
@@ -6231,14 +6096,13 @@ Màn hình: `planned:ent-equipment-procurement` Mua sắm trang thiết bị the
 **Các bước quay**
 
 - `do=as persona=projectManager`
-- `do=open screen=planned:ent-equipment-procurement`
+- `do=open screen=EQP-01`
 - `do=spot ref=ent.equipment.package-list`
 - `do=spot ref=ent.equipment.delay-causes`
 
 **Cần thấy trên hình**
 
-- [ ] Màn Mua sắm trang thiết bị theo Ban Thương mại (planned:ent-equipment-procurement) chưa có trên bản chính, thuộc làn ENT-4e: mở bằng màn thật sau khi làn được gộp
-- [ ] Cảnh chờ làn ENT-4e: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
+- [ ] Màn EQP-01 "Mua sắm trang thiết bị dự án" mở được ở đường dẫn /eqp/eqp-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần ent.equipment.package-list đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần ent.equipment.delay-causes đúng lúc giọng đọc nói tới
@@ -6248,7 +6112,7 @@ Màn hình: `planned:ent-equipment-procurement` Mua sắm trang thiết bị the
 
 ### `ec-audit-catalogues`
 
-Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4e
+Nền tảng: web; 18.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `ADM-11` Nhật ký kiểm toán (/adm/adm-11); `MDM-12` Đơn vị tính và tiền tệ (/mdm/mdm-12)
 
@@ -6279,7 +6143,6 @@ Màn hình: `ADM-11` Nhật ký kiểm toán (/adm/adm-11); `MDM-12` Đơn vị 
 
 - [ ] Màn ADM-11 "Nhật ký kiểm toán" mở được ở đường dẫn /adm/adm-11, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn MDM-12 "Đơn vị tính và tiền tệ" mở được ở đường dẫn /mdm/mdm-12, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Cảnh chờ làn ENT-4e: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản sysAdmin
 - [ ] Khung vào phần adm.audit.before-after-detail đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần mdm.catalogue.exchange-rates đúng lúc giọng đọc nói tới
@@ -9249,7 +9112,7 @@ Màn hình: `NOT-14` Thiết bị push (/not/not-14)
 
 ### `pp-pwa-directives`
 
-Nền tảng: pwa; 14.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4c
+Nền tảng: pwa; 14.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `PWA-04` PWA-04 (/m/directives)
 
@@ -9276,7 +9139,6 @@ Màn hình: `PWA-04` PWA-04 (/m/directives)
 **Cần thấy trên hình**
 
 - [ ] Màn PWA-04 của ứng dụng cài đặt (PWA) mở ở đường dẫn /m/directives, trong khung điện thoại
-- [ ] Cảnh chờ làn ENT-4c: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần pwa.directives.tracking đúng lúc giọng đọc nói tới
 - [ ] Màn chỉ đạo hiện số liệu thật, không báo chưa bật
@@ -9315,7 +9177,7 @@ Nền tảng: animatic; 25.5 giây; có trong video chính
 
 ### `ent-tour-cycle`
 
-Nền tảng: animatic; 14.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-3a, ENT-3b, ENT-3c, ENT-3d, ENT-3e, ENT-4a, ENT-4b, ENT-4c, ENT-4d, ENT-4e
+Nền tảng: animatic; 14.5 giây; chỉ trong chương cắt riêng
 
 **Lời đọc**
 
@@ -9337,7 +9199,6 @@ Nền tảng: animatic; 14.5 giây; chỉ trong chương cắt riêng; chờ là
 
 **Cần thấy trên hình**
 
-- [ ] Cảnh chờ làn ENT-3a, ENT-3b, ENT-3c, ENT-3d, ENT-3e, ENT-4a, ENT-4b, ENT-4c, ENT-4d, ENT-4e: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Hoạt cảnh features-more chạy hết thời lượng của lời đọc, chữ trên hình là tiếng Việt
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 

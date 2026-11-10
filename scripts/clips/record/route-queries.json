@@ -1,0 +1,6 @@
+{
+  "note": "Query strings that a recorder adds to the route of a screen, so a screen opens on the data a scene talks about. RPT-09 opens on the period of the deliberate demo mismatch (docs/demo/demo-enterprise.md, step 7: 2026-M05).",
+  "queries": {
+    "RPT-09": "kind=MONTH&year=2026&index=5"
+  }
+}

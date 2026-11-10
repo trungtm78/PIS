@@ -50,10 +50,6 @@
       "screen": "ADM-07",
       "what": "common / working calendar (adm)"
     },
-    "adm.delegation.coverage-check": {
-      "screen": "ADM-04",
-      "what": "delegation / coverage check (adm)"
-    },
     "adm.delegation.permanent-request": {
       "screen": "ADM-25",
       "what": "delegation / permanent request (adm)"
@@ -1227,23 +1223,19 @@
       "what": "reconcile / difference rows (ebs)"
     },
     "ent.calendar.step-board": {
-      "screen": "planned:ent-calendar-board",
+      "screen": "DIS-34",
       "what": "calendar / step board (ent)"
-    },
-    "ent.capital.estimate-to-actual": {
-      "screen": "HOME-07",
-      "what": "capital / estimate to actual (ent)"
     },
     "ent.capital.structure-bar": {
       "screen": "HOME-07",
       "what": "capital / structure bar (ent)"
     },
     "ent.cross-compare.gap-explanation": {
-      "screen": "planned:ent-cross-compare",
+      "screen": "RPT-09",
       "what": "cross compare / gap explanation (ent)"
     },
     "ent.cross-compare.report-types": {
-      "screen": "planned:ent-cross-compare",
+      "screen": "RPT-09",
       "what": "cross compare / report types (ent)"
     },
     "ent.dictionary.indicator-row": {
@@ -1255,11 +1247,11 @@
       "what": "entry rules / violation hint (ent)"
     },
     "ent.equipment.delay-causes": {
-      "screen": "planned:ent-equipment-procurement",
+      "screen": "EQP-01",
       "what": "equipment / delay causes (ent)"
     },
     "ent.equipment.package-list": {
-      "screen": "planned:ent-equipment-procurement",
+      "screen": "EQP-01",
       "what": "equipment / package list (ent)"
     },
     "ent.home.kpi-strip": {
@@ -1267,15 +1259,15 @@
       "what": "home / kpi strip (ent)"
     },
     "ent.layout.config-editor": {
-      "screen": "planned:ent-layout-config",
+      "screen": "RPT-07",
       "what": "layout / config editor (ent)"
     },
     "ent.org-pack.input-points": {
-      "screen": "planned:ent-org-pack",
+      "screen": "ORG-01",
       "what": "org pack / input points (ent)"
     },
     "ent.org-pack.roles": {
-      "screen": "planned:ent-org-pack",
+      "screen": "ORG-01",
       "what": "org pack / roles (ent)"
     },
     "feed.connection.health": {

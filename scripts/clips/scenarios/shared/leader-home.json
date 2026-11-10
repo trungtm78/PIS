@@ -122,7 +122,10 @@
         }
       ],
       "captions": [],
-      "expectedSec": 15.4
+      "expectedSec": 15.4,
+      "onlyFor": [
+        "public"
+      ]
     },
     {
       "id": "home-map",

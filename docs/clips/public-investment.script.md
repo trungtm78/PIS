@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `public-investment`
 - Bản: public
-- Video chính: 11:55 (49 cảnh)
+- Video chính: 11:54 (49 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,7 +12,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 49 | 11:55 |
+| Video chính (`main`) | 49 | 11:54 |
 | Giới thiệu hệ thống (`intro`) | 5 | 1:20 |
 | Tổng quan điều hành (`leader-home`) | 7 | 1:36 |
 | Giải ngân và kế hoạch vốn (`disbursement`) | 7 | 1:35 |
@@ -23,7 +23,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 | Quản lý kết nối muasamcong (`egp`) | 11 | 2:54 |
 | Ban chỉ đạo cấp tỉnh (`province-committee`) | 10 | 2:40 |
 | Cây tiến độ (`process-tree`) | 9 | 2:09 |
-| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:40 |
+| Ứng dụng điện thoại và PWA (`phone`) | 10 | 2:38 |
 | Quản lý nhà thầu nâng cao (`contractors-plus`) | 9 | 2:44 |
 | Cổng nhà thầu (`contractor-portal`) | 6 | 1:28 |
 | Claim và cảnh báo sớm hợp đồng (`claims-warnings`) | 5 | 1:30 |
@@ -153,8 +153,8 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 | `pub-numbers` | `analytics`, `alerts`, `contractors` | 3:16 | -3 dB | Lời đọc dày chỉ tiêu và thuật ngữ: nhạc lùi. |
 | `pub-egp` | `egp`, `province-committee` | 6:04 | -3 dB | Hai chương nhiều quy trình và số liệu: nhạc lùi. |
 | `pub-tree-phone` | `process-tree`, `phone` | 8:38 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
-| `pub-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `capital-control`, `payments`, `reports-close`, `monitoring`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `portal-public`, `platform`, `phone-plus` | 10:58 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
-| `pub-close` | `close` | 11:27 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `pub-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `capital-control`, `payments`, `reports-close`, `monitoring`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `portal-public`, `platform`, `phone-plus` | 10:56 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
+| `pub-close` | `close` | 11:25 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu hệ thống (`intro`)
 
@@ -1321,7 +1321,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `HOME-02` Việ
 
 **Các bước quay**
 
-- `do=as persona=owner`
+- `do=as persona=projectManager`
 - `do=open screen=HOME-01`
 - `do=click ref=shell.alert-bell`
 - `do=spot ref=alerts.drawer.consequence-line`
@@ -1330,7 +1330,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `HOME-02` Việ
 
 - [ ] Màn HOME-01 "Tổng quan điều hành" mở được ở đường dẫn /home/home-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-02 "Việc của tôi" mở được ở đường dẫn /home/home-02, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản owner
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần shell.alert-bell đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.drawer.consequence-line đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Khẩn · Cần xử lý · Theo dõi" hiện từ giây 2, kéo dài 5 giây
@@ -1383,7 +1383,7 @@ Màn hình: `HOME-02` Việc của tôi (/home/home-02)
 
 Nền tảng: web; 12.1 giây; có trong video chính
 
-Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ sơ cảnh báo (/home/home-06)
+Màn hình: `HOME-06` Hồ sơ cảnh báo (/home/home-06)
 
 **Lời đọc**
 
@@ -1402,17 +1402,13 @@ Màn hình: `ADM-04` Ủy quyền có thời hạn (/adm/adm-04); `HOME-06` Hồ
 **Các bước quay**
 
 - `do=as persona=owner`
-- `do=open screen=ADM-04`
-- `do=spot ref=adm.delegation.coverage-check`
 - `do=open screen=HOME-06`
 - `do=spot ref=alerts.record.escalation-trail`
 
 **Cần thấy trên hình**
 
-- [ ] Màn ADM-04 "Ủy quyền có thời hạn" mở được ở đường dẫn /adm/adm-04, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-06 "Hồ sơ cảnh báo" mở được ở đường dẫn /home/home-06, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản owner
-- [ ] Khung vào phần adm.delegation.coverage-check đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.record.escalation-trail đúng lúc giọng đọc nói tới
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -3116,23 +3112,22 @@ Màn hình: `MOB-32` Hộp thông báo (tab inbox); `MOB-33` Chi tiết thông b
 
 ### `ph-approval`
 
-Nền tảng: phone; 14.5 giây; có trong video chính
+Nền tảng: phone; 12.7 giây; có trong video chính
 
 Màn hình: `MOB-23` Danh sách phê duyệt (tab approval); `MOB-24` Chi tiết phê duyệt (tab approval); `MOB-25` Xác nhận phê duyệt và ký (tab approval)
 
 **Lời đọc**
 
-> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Hiện có {{figure:phone-approvals-waiting}} việc chờ. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
+> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Hiện có {{figure:phone-approvals-waiting}} việc chờ. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
+> Lãnh đạo duyệt ngay trên điện thoại: xem hồ sơ, duyệt hoặc trả lại kèm lý do, xác thực lần hai rồi ký. Màn xác nhận bị hệ điều hành chặn quay nên dùng hình dựng lại.
 
 **Phụ đề**
 
 - Lãnh đạo duyệt ngay trên / điện thoại: xem hồ sơ,
 - duyệt hoặc trả lại kèm lý / do, xác thực lần hai rồi ký.
-- Hiện có {n} việc chờ.
 - Màn xác nhận bị hệ điều hành / chặn quay nên dùng hình dựng lại.
 
 **Các bước quay**
@@ -3148,7 +3143,6 @@ Màn hình: `MOB-23` Danh sách phê duyệt (tab approval); `MOB-24` Chi tiết
 - [ ] Màn MOB-24 "Chi tiết phê duyệt" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Màn MOB-25 "Xác nhận phê duyệt và ký" trên điện thoại (tab approval) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Chú thích "Hình dựng lại: hệ điều hành chặn quay màn này" hiện từ giây 6, kéo dài 6 giây
-- [ ] Con số phone-approvals-waiting đọc từ dữ liệu thật qua get_resources_approval_task (items.length); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Màn xác nhận phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại, ghi rõ đó là hình dựng lại
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -9522,7 +9516,7 @@ Màn hình: `NOT-14` Thiết bị push (/not/not-14)
 
 ### `pp-pwa-directives`
 
-Nền tảng: pwa; 14.5 giây; chỉ trong chương cắt riêng; chờ làn: ENT-4c
+Nền tảng: pwa; 14.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `PWA-04` PWA-04 (/m/directives)
 
@@ -9549,7 +9543,6 @@ Màn hình: `PWA-04` PWA-04 (/m/directives)
 **Cần thấy trên hình**
 
 - [ ] Màn PWA-04 của ứng dụng cài đặt (PWA) mở ở đường dẫn /m/directives, trong khung điện thoại
-- [ ] Cảnh chờ làn ENT-4c: bỏ qua khi quay cho đến khi làn được gộp và planned.json ghi merged
 - [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần pwa.directives.tracking đúng lúc giọng đọc nói tới
 - [ ] Màn chỉ đạo hiện số liệu thật, không báo chưa bật

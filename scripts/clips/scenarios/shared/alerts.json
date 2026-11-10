@@ -10,7 +10,8 @@
       "description": "Open alerts of severity Urgent for the reader.",
       "source": {
         "operation": "getMyWorkCounts",
-        "select": "counts.urgent"
+        "select": "counts.urgent",
+        "as": "projectManager"
       }
     },
     "alerts-action": {
@@ -19,7 +20,8 @@
       "description": "Open alerts of severity Action for the reader.",
       "source": {
         "operation": "getMyWorkCounts",
-        "select": "counts.action"
+        "select": "counts.action",
+        "as": "projectManager"
       }
     },
     "alerts-watch": {
@@ -28,7 +30,8 @@
       "description": "Open alerts of severity Watch for the reader.",
       "source": {
         "operation": "getMyWorkCounts",
-        "select": "counts.watch"
+        "select": "counts.watch",
+        "as": "projectManager"
       }
     }
   },
@@ -55,7 +58,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "owner"
+          "persona": "projectManager"
         },
         {
           "do": "open",
@@ -135,7 +138,6 @@
       "screen": {
         "platform": "web",
         "screens": [
-          "ADM-04",
           "HOME-06"
         ]
       },
@@ -143,14 +145,6 @@
         {
           "do": "as",
           "persona": "owner"
-        },
-        {
-          "do": "open",
-          "screen": "ADM-04"
-        },
-        {
-          "do": "spot",
-          "ref": "adm.delegation.coverage-check"
         },
         {
           "do": "open",
