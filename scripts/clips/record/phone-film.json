@@ -317,6 +317,9 @@
       "minSec": 45,
       "before": [
         {
+          "relaunch": true
+        },
+        {
           "reset": true
         },
         {
@@ -528,6 +531,9 @@
       "headline": "Hỏi đáp có nguồn",
       "minSec": 28,
       "before": [
+        {
+          "relaunch": true
+        },
         {
           "reset": true
         },

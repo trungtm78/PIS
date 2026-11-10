@@ -87,7 +87,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -565,7 +565,10 @@
           "forSec": 6
         }
       ],
-      "expectedSec": 18.2
+      "expectedSec": 18.2,
+      "requires": [
+        "PUB-platform-console"
+      ]
     },
     {
       "id": "pl-platform-health",
@@ -611,7 +614,10 @@
         }
       ],
       "captions": [],
-      "expectedSec": 15.4
+      "expectedSec": 15.4,
+      "requires": [
+        "PUB-platform-console"
+      ]
     }
   ]
 }

@@ -62,7 +62,7 @@ async function walk(serial, ops, recorder, log) {
     }
     if ('top' in op) {
       // The list is brought back to its top (a scene may leave it scrolled).
-      for (let step = 0; step < 5; step += 1) adb(serial, 'shell', 'input', 'swipe', '360', '500', '360', '1250', '350');
+      for (let step = 0; step < 24; step += 1) adb(serial, 'shell', 'input', 'swipe', '360', '400', '360', '1300', '200');
       await sleep(1200);
       continue;
     }

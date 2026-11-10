@@ -68,6 +68,14 @@
     "ENT-3b-data": {
       "status": "pending",
       "note": "DIS-35 opens only from a report draft that already holds a structured narrative: the seed group clip-ent-narrative is not written yet, so the scene waits for its data"
+    },
+    "PUB-contractor-account": {
+      "status": "pending",
+      "note": "VND-16 opens only for a contractor member account (contractorUser): the seed group clip-public-contractor-portal is not written yet, so the scene waits for its data"
+    },
+    "PUB-platform-console": {
+      "status": "pending",
+      "note": "SAS-06 and SAS-18 to SAS-21 open only for a platform operator, a person the docs stack does not have: the scenes wait for that account"
     }
   }
 }

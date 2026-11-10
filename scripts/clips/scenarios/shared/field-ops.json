@@ -72,7 +72,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "unitAdmin"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -229,7 +229,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "projectManager"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -278,7 +278,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "auditor"
+          "persona": "owner"
         },
         {
           "do": "open",

@@ -201,7 +201,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "ctrOfficer"
+          "persona": "owner"
         },
         {
           "do": "open",

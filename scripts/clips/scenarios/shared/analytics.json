@@ -82,6 +82,7 @@
       "id": "ana-kpi-info",
       "chapter": "analytics",
       "main": true,
+      "mainFor": ["enterprise"],
       "narration": "Mỗi con số có nút i: bấm vào để xem công thức, nguồn, giờ cập nhật và ngày chốt. Chỉ tiêu có một định nghĩa, một người chịu trách nhiệm.",
       "screen": {
         "platform": "web",
@@ -120,7 +121,7 @@
     {
       "id": "ana-evm",
       "chapter": "analytics",
-      "main": true,
+      "main": false,
       "narration": "Báo cáo giá trị thu được tính đủ chỉ số chi phí và tiến độ, kèm đường S so với đường cơ sở. Chỉ khối lượng đã nghiệm thu mới tạo giá trị. Thiếu đường cơ sở thì ghi chưa đủ dữ liệu, không ghi số không.",
       "screen": {
         "platform": "web",

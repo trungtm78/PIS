@@ -17,16 +17,16 @@
           "proof": "RUN_VERIFIED"
         },
         "clip-public-contracts": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-public-payments": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-public-workflow": {
           "proof": "RUN_VERIFIED"
         },
         "clip-public-alerts": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-public-egp": {
           "proof": "RUN_VERIFIED"
@@ -35,19 +35,19 @@
           "proof": "RUN_VERIFIED"
         },
         "clip-public-feed": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-public-bi": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-public-directives": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         },
         "clip-public-committee": {
           "proof": "RUN_VERIFIED"
         },
         "clip-public-extras": {
-          "proof": "WRITTEN_NOT_RUN"
+          "proof": "RUN_VERIFIED"
         }
       },
       "chapters": {
@@ -64,18 +64,12 @@
           "groups": [
             "capital",
             "clip-public-disbursement"
-          ],
-          "gaps": [
-            "Chưa có seed cho nghiệm thu khối lượng, thanh toán và tạm ứng, nên các cảnh điều kiện thanh toán và tạm ứng cần dữ liệu bổ sung."
           ]
         },
         "contracts": {
           "groups": [
             "clip-public-procurement",
             "clip-public-contracts"
-          ],
-          "gaps": [
-            "Chưa có seed cho nghiệm thu, thanh toán và tạm ứng của hợp đồng."
           ]
         },
         "analytics": {
@@ -83,9 +77,6 @@
             "capital",
             "clip-public-procurement",
             "clip-public-contracts"
-          ],
-          "gaps": [
-            "Chưa nạp được gói chỉ tiêu BI vì chưa có đường HTTP lưu tệp gói chỉ tiêu: các cảnh dashboard BI cần dữ liệu bổ sung."
           ]
         },
         "alerts": {
@@ -112,9 +103,6 @@
             "clip-public-disbursement",
             "clip-public-feed",
             "clip-public-directives"
-          ],
-          "gaps": [
-            "Không gian làm việc của Ban chỉ đạo đọc ảnh chụp kỳ đã chốt, chưa đọc bản ghi nguồn cấp; nguồn cấp được quay qua các chỉ số chất lượng, sai lệch và cảnh báo của chính nó."
           ]
         },
         "process-tree": {
@@ -128,9 +116,6 @@
             "clip-public-procurement",
             "clip-public-alerts",
             "clip-public-contracts"
-          ],
-          "gaps": [
-            "Cảnh điện thoại quay bằng máy ảo; màn Phê duyệt bị hệ điều hành chặn quay nên dùng hình dựng lại."
           ]
         },
         "close": {

@@ -19,7 +19,7 @@ export const voiceSettings = () => readJson('edge-voices.json');
 export const EDGE_VOICE = process.env.CLIPS_EDGE_VOICE ?? voiceSettings().default;
 const PYTHON = process.env.HDSD_PYTHON ?? 'D:/Python312/python.exe';
 const FFMPEG = process.env.HDSD_FFMPEG ?? 'D:/Python312/Lib/site-packages/imageio_ffmpeg/binaries/ffmpeg-win-x86_64-v9.0.2.exe';
-const RETRY_WAITS_MS = [3000, 8000, 20000, 45000];
+const RETRY_WAITS_MS = [2000, 3000, 5000, 8000, 10000, 15000];
 const CACHE_VERSION = 'edge2';
 
 /** Rate and pitch of a voice: the file, then the environment (`CLIPS_EDGE_RATE`, `CLIPS_EDGE_PITCH`) over it. */
@@ -46,7 +46,15 @@ function speakOnce(text, mp3, settings) {
   });
 }
 
-/** One text (a sentence) to a WAV file (48 kHz mono) in the cache; tries again while the service sends nothing. */
+/** The service answers some exact texts with no audio however often they are asked again (and others only now and then); a changed request gets through: a leading space, no final stop, a slightly slower rate. */
+const VARIANTS = [
+  (text, settings) => [text, settings],
+  (text, settings) => [` ${text}`, settings],
+  (text, settings) => [text.replace(/[.]$/u, ''), settings],
+  (text, settings) => [text, { ...settings, rate: '-5%' }],
+];
+
+/** One text (a sentence) to a WAV file (48 kHz mono) in the cache; tries again while the service sends nothing, then speaks the two halves apart. */
 export async function speakSentence(text, cacheDir, settings, log = console.log) {
   const key = edgeKey(text, settings.voice, settings);
   const wav = join(cacheDir, `${key}.wav`);
@@ -56,7 +64,8 @@ export async function speakSentence(text, cacheDir, settings, log = console.log)
   let failure = '';
   for (let attempt = 0; attempt <= RETRY_WAITS_MS.length; attempt += 1) {
     rmSync(mp3, { force: true });
-    const result = await speakOnce(text, mp3, settings);
+    const [spoken, used] = VARIANTS[attempt % VARIANTS.length](text, settings);
+    const result = await speakOnce(spoken, mp3, used);
     if (result.ok) {
       const converted = spawnSync(FFMPEG, ['-y', '-hide_banner', '-loglevel', 'error', '-i', mp3, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', wav], { encoding: 'utf8' });
       if (converted.status === 0) return { key, wav, cached: false };
@@ -68,6 +77,16 @@ export async function speakSentence(text, cacheDir, settings, log = console.log)
       log(`edge-tts: no audio (${failure.slice(0, 120)}); trying again in ${RETRY_WAITS_MS[attempt] / 1000} s`);
       await delay(RETRY_WAITS_MS[attempt]);
     }
+  }
+  // Last resort: the halves of a long sentence are asked apart and joined (a text the service refuses whole is often accepted in parts).
+  const middle = Math.floor(text.length / 2);
+  const cut = [...text.matchAll(/ /gu)].map((hit) => hit.index).sort((a, b) => Math.abs(a - middle) - Math.abs(b - middle))[0];
+  if (text.length > 30 && cut !== undefined) {
+    const halves = [];
+    for (const part of [text.slice(0, cut), text.slice(cut + 1)]) halves.push(await speakSentence(part, cacheDir, settings, log));
+    const joined = spawnSync(FFMPEG, ['-y', '-hide_banner', '-loglevel', 'error', ...halves.flatMap((half) => ['-i', half.wav]), '-filter_complex', '[0:a][1:a]concat=n=2:v=0:a=1[out]', '-map', '[out]', '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', wav], { encoding: 'utf8' });
+    if (joined.status === 0) return { key, wav, cached: false };
+    failure = joined.stderr;
   }
   throw new Error(`the fallback voice failed for "${text.slice(0, 40)}": ${failure.slice(0, 200)}`);
 }

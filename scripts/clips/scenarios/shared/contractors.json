@@ -270,7 +270,7 @@
       "steps": [
         {
           "do": "as",
-          "persona": "auditor"
+          "persona": "owner"
         },
         {
           "do": "open",
@@ -322,6 +322,9 @@
       "expectedSec": 15.4,
       "onlyFor": [
         "public"
+      ],
+      "requires": [
+        "PUB-contractor-account"
       ]
     },
     {
