@@ -56,7 +56,8 @@ export async function speakSentence(text, cacheDir, settings, log = console.log)
   let failure = '';
   for (let attempt = 0; attempt <= RETRY_WAITS_MS.length; attempt += 1) {
     rmSync(mp3, { force: true });
-    const result = await speakOnce(text, mp3, settings);
+    // The service answers some exact texts with no audio however often they are asked again; a leading space makes it a different request (found at the public round).
+    const result = await speakOnce(attempt % 2 === 1 ? ` ${text}` : text, mp3, settings);
     if (result.ok) {
       const converted = spawnSync(FFMPEG, ['-y', '-hide_banner', '-loglevel', 'error', '-i', mp3, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s16le', wav], { encoding: 'utf8' });
       if (converted.status === 0) return { key, wav, cached: false };

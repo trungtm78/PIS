@@ -410,7 +410,7 @@
     {
       "id": "cap-realloc",
       "chapter": "disbursement",
-      "main": true,
+      "main": false,
       "narration": "Dự án giải ngân chậm có thể được đề xuất chuyển vốn sang dự án nhanh. Hệ thống mô phỏng tác động lên tỷ lệ toàn tỉnh trước khi duyệt, và ghi bất biến mọi quyết định.",
       "screen": {
         "platform": "web",
