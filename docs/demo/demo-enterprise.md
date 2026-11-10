@@ -97,6 +97,15 @@ Lưu ý về cài PWA lên điện thoại: trình duyệt chỉ cho cài khi tr
 
 Thứ tự gợi ý nếu chỉ có 10 phút: bước 1, 2, 4, 5, 7, 8, 10, 13.
 
+## 4b. Điều nên tránh khi trình diễn (kết quả kiểm lần cuối 2026-11-10)
+
+- Không mở thẳng bằng URL các màn , , , : các màn này phải mở từ màn danh sách (chúng chỉ hiện hướng dẫn chọn).
+- Bước 7 (RPT-09): dữ liệu demo khớp hết (26 phép so sánh bị bỏ qua vì biểu mẫu là số minh họa), nên đừng hứa sẽ thấy số liệu lệch.
+- Bước 8 (HPM): chỉ trình diễn được đẩy HPM đến trạng thái chờ biên nhận và "HPM từ chối"; nút "HPM đã nhận" bị khóa trên biểu mẫu DEMO, nên đừng nói tới đính chính kỳ đã được nhận.
+- HOME-09: cột "cùng kỳ năm trước" và bảng xếp hạng giải ngân theo đơn vị ghi "Chưa có dữ liệu" (chỉ có một bản chốt); đừng dừng lâu ở các ô này.
+- Cột "Bản" ở RPT-01 còn chữ "Công khai" và mã đơn vị mẫu (CB-SKHDT-QLDA, UB-DTPT-KHCN): chỉ là mã minh họa.
+- Trước buổi demo hãy chạy thử toàn bộ 15 bước một lần trên đúng máy trình diễn.
+
 ## 5. Xử lý sự cố
 
 | Hiện tượng | Cách xử lý |
