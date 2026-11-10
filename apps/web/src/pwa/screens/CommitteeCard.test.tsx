@@ -1,6 +1,8 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { EditionProvider } from '../../editions/EditionContext';
+import { PUBLIC_BUNDLE } from '../../editions/edition';
 import { feed, workspace } from '../../screens/ban/test/support';
 import { CommitteeCard } from './CommitteeCard';
 import { mountPwa, pwaClient, word } from './test-support';
@@ -71,5 +73,18 @@ describe('CommitteeCard (PWA dashboard)', () => {
     const h = open(() => workspace(), ['home.read']);
     expect(screen.getByTestId('pwa-committee-denied').textContent).toBe(word('ban.pwa.card.denied'));
     expect(h.read).not.toHaveBeenCalled();
+  });
+});
+
+describe('CommitteeCard (PWA dashboard) in an edition with its own plan reading', () => {
+  it('leaves out the two figures that read against the public plan and keeps the other two', async () => {
+    const h = pwaClient({ read: (operation) => (operation === 'getCommitteeWorkspace' ? workspace() : new Error()) });
+    const own = { ...PUBLIC_BUNDLE, slots: { homeFigures: { groupDigits: true, publicPlanBlocks: false } } };
+    mountPwa(<EditionProvider edition={own}><CommitteeCard /></EditionProvider>, h, { permissions: READER });
+    const card = await screen.findByTestId('pwa-committee');
+    await waitFor(() => expect(within(card).getByTestId('figure-COMMITTEE_ATTENTION_PROJECTS')).toBeTruthy());
+    expect(within(card).getByTestId('figure-COMMITTEE_DIRECTIVES_OVERDUE')).toBeTruthy();
+    expect(within(card).queryByTestId('figure-COMMITTEE_DISBURSEMENT_RATE')).toBeNull();
+    expect(within(card).queryByTestId('figure-COMMITTEE_GAP_VS_CURVE')).toBeNull();
   });
 });

@@ -3,6 +3,7 @@ import { PUBLIC_EDITION_MANIFEST, moduleInMenu, screenInEdition } from '@machvon
 import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
 import { translator } from '../i18n';
 import type { Catalogue, Locale } from '../i18n';
+import type { HelpOverlay } from '../help/help-index';
 import type { NavigationAccess } from '../navigation/model';
 import type { ScreenComponent, ScreenLoader, WebRoute } from '../routes/types';
 
@@ -24,10 +25,12 @@ export interface WebEditionBundle {
    * is blocked or overdue) shows on the command center and the committee dashboard through this slot; a public build has none and the screens draw nothing in its place.
    */
   readonly slots?: WebEditionSlots;
+  /** The on-screen guides (DOC-3) said the edition's own way, by language: the drawer applies it to the generated help file, which stays the public text. */
+  readonly help?: Readonly<Record<string, HelpOverlay>>;
 }
 
-/** Which part of the leader panel a screen asks for: the rates, the tiles, or both one under the other. */
-export type LeaderPanelPart = 'rates' | 'tiles' | 'all';
+/** Which part of the leader panel a screen asks for: the rates, the tiles, or both one under the other; 'summary' is the rates without the table of projects, for the phone. */
+export type LeaderPanelPart = 'rates' | 'summary' | 'tiles' | 'all';
 
 export interface WebEditionSlots {
   readonly leaderPanel?: ComponentType<{ part: LeaderPanelPart }>;

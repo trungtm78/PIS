@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { WEB_ROUTES } from '../routes/web-routes';
-import { helpFor, loadHelpIndex } from './help-index';
+import { applyHelpOverlay, helpFor, loadHelpIndex } from './help-index';
 
 describe('help index', () => {
   it('has a guide for every web screen of the route table', async () => {
@@ -39,5 +39,23 @@ describe('help index', () => {
     const index = await loadHelpIndex('vi');
     expect(helpFor(index, undefined)).toBeUndefined();
     expect(helpFor(index, 'NOPE-99')).toBeUndefined();
+  });
+});
+
+describe('applyHelpOverlay', () => {
+  it('returns the index itself without an overlay', async () => {
+    const index = await loadHelpIndex('vi');
+    expect(applyHelpOverlay(index, undefined)).toBe(index);
+  });
+
+  it('replaces the fields of a screen first, then the terms in every text, keeping a capital first letter, and leaves the loaded index untouched', async () => {
+    const index = await loadHelpIndex('vi');
+    const before = JSON.stringify(index);
+    const said = applyHelpOverlay(index, { screens: { 'HOME-07': { fields: ['Một', 'Hai'] } }, terms: [['Kho bạc', 'kế toán'], ['Sở Tài chính', 'Phòng Tài chính']] });
+    expect(said.screens['HOME-07']?.fields).toEqual(['Một', 'Hai']);
+    expect(said.screens['PRJ-01']?.audience).toBe('Chủ đầu tư và Phòng Tài chính');
+    expect(said.screens['PAY-17']?.fields).toContain('Kế toán');
+    expect(said.screens['PAY-01']?.moduleName).toBe('Thanh toán và kế toán');
+    expect(JSON.stringify(index)).toBe(before);
   });
 });

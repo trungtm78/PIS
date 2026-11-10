@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
@@ -137,9 +138,15 @@ function NeedsAction() {
 function Body({ center, waiting }: { center: CommandCenter; waiting: WaitingCounts }) {
   const { t } = useTranslation();
   const pair = ratePair(center);
+  const edition = useEdition();
+  // An edition that counts its capital against its own annual plan (the enterprise) draws that reading here, the same figures as the command center, and not the two public rates over the plan the Prime Minister gave.
+  const Panel = edition.slots?.homeFigures?.publicPlanBlocks === false ? edition.slots.leaderPanel : undefined;
   return (
     <>
       <Hero center={center} year={center.asOfDate.slice(0, 4)} />
+      {Panel !== undefined ? (
+        <Panel part="summary" />
+      ) : (
       <section className="card" aria-labelledby="pwa-rates-title" data-testid="pwa-rates">
         <h2 id="pwa-rates-title">{t('home.rates.title')}</h2>
         {pair === undefined ? (
@@ -151,6 +158,7 @@ function Body({ center, waiting }: { center: CommandCenter; waiting: WaitingCoun
           </div>
         )}
       </section>
+      )}
       <Kpis center={center} waiting={waiting} />
       <p>
         <Link className="ui-button ui-button--primary pwa-touch" to={FIGURES_DETAIL_PATH} data-testid="pwa-detail">
