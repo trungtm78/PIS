@@ -99,11 +99,10 @@ Thứ tự gợi ý nếu chỉ có 10 phút: bước 1, 2, 4, 5, 7, 8, 10, 13.
 
 ## 4b. Điều nên tránh khi trình diễn (kết quả kiểm lần cuối 2026-11-10)
 
-- Không mở thẳng bằng URL các màn `/dir/dir-04`, `/prj/prj-15`, `/eqp/eqp-02`, `/home/home-06`: các màn này phải mở từ màn danh sách (chúng chỉ hiện hướng dẫn chọn).
+- Các màn `/dir/dir-04`, `/prj/prj-15`, `/eqp/eqp-02`, `/home/home-06`, `/ctr/ctr-23` mở thẳng bằng URL sẽ tự chọn mục đầu hợp lý (chỉ đạo cấp bách nhất, dự án đầu tiên đang thẩm định, dòng thiết bị đầu tiên, cảnh báo đứng đầu, nhà thầu đầu tiên) và có ghi chú nói rõ; muốn mục khác thì mở từ màn danh sách. HPM-02 chưa có đề nghị đính chính nào nên hiện câu giải thích, đó là đúng.
 - Bước 7 (RPT-09): kỳ trình diễn là 2026-M05 (chỉ có một số lệch, được dựng sẵn); các kỳ khác (ví dụ 2026-M10) khớp hết hoặc bị bỏ qua vì biểu mẫu là số minh họa, nên đừng mở RPT-09 ở kỳ khác rồi hứa sẽ thấy số lệch. Một lần trình diễn là một lần dùng: đã giải trình và phát hành rồi thì số lệch hết, muốn làm lại phải chạy lại `npm run demo:enterprise`.
 - Bước 8 (HPM): trình diễn được: đẩy thành công (trạng thái "Đã ghi gói, chờ biên nhận"), khóa chống đẩy trùng, "HPM từ chối" (có lý do), và đẩy lại bằng phiên bản mới hơn. KHÔNG có "HPM đã nhận": quy tắc R18 chặn ghi nhận đã nhận cho mọi bản lập từ biểu mẫu DEMO (cả sáu biểu mẫu của bản demo đều là DEMO; không có biểu mẫu chính thức nào trong kho mã), nên đừng nói tới đính chính kỳ đã được nhận. Nếu khách hỏi: "bản chính thức sẽ được ghi nhận khi Tập đoàn bàn giao mẫu chính thức và HPM xác nhận định dạng".
 - HOME-09: khung doanh nghiệp "Giải ngân so với kế hoạch năm" nay có đủ cột "Cùng kỳ năm trước" (46,83%), chênh lệch (+13,71 điểm, mũi tên tăng) theo công ty, đơn vị và dự án, vì dữ liệu demo có thêm bản chốt tháng 10/2025 (kế hoạch vốn KHV-2025 và số giải ngân năm trước). Riêng thẻ "Xếp hạng giải ngân theo đơn vị" ở cuối trang là thẻ kiểu Kho bạc (kế hoạch 0, chỉ một đơn vị) nên vẫn ghi "Chưa có dữ liệu": hãy dùng bảng "Tỷ lệ giải ngân theo đơn vị" ở khung doanh nghiệp, đừng dừng ở thẻ này. Vài dự án chưa có kế hoạch vốn (DA-PMDT154, DA-PMTB204) ghi "Chưa có số liệu" đúng như thiết kế.
-- Cột "Bản" ở RPT-01 còn chữ "Công khai" và mã đơn vị mẫu (CB-SKHDT-QLDA, UB-DTPT-KHCN): chỉ là mã minh họa.
 - Trước buổi demo hãy chạy thử toàn bộ 15 bước một lần trên đúng máy trình diễn.
 
 ## 4c. Dữ liệu dựng sẵn cho các bước 7 và 8 (để người trình diễn biết nó từ đâu ra)

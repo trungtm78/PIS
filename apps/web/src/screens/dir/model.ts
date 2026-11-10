@@ -576,6 +576,20 @@ export function queryOf(filter: FilterState, extra: Record<string, string | numb
   return query;
 }
 
+/** What is still to be done: not done, not cancelled. */
+const isOpenLine = (line: Pick<DirectiveLine, 'status'>): boolean => line.status !== 'DONE' && line.status !== 'CANCELLED';
+
+/**
+ * The directive to show when the screen is opened without one: the most urgent of the open ones, that is the one that has been overdue the longest, else the one that falls due first. Undefined when
+ * nothing is open (there is no common-sense default then).
+ */
+export function mostUrgent(lines: readonly DirectiveLine[]): DirectiveLine | undefined {
+  const open = lines.filter(isOpenLine);
+  const rank = (line: DirectiveLine): number => (line.status === 'OVERDUE' ? 0 : 1);
+  const late = (line: DirectiveLine): number => line.overdueDays ?? 0;
+  return [...open].sort((a, b) => rank(a) - rank(b) || late(b) - late(a) || a.dueOn.localeCompare(b.dueOn) || a.code.localeCompare(b.code))[0];
+}
+
 /** The number of conditions applied. */
 export const appliedCount = (filter: FilterState): number => Object.values(filter).filter((value) => value !== '' && value !== false).length;
 

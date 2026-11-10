@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -12,6 +12,8 @@ import { fieldProblemMessage, problemMessage, recommendationLabel, sheetStatusLa
 import { APPRAISE_PERMISSION, EMPTY_SCORE_FORM, RECOMMENDATIONS, SCORE_VALUES, describeAppraisalProblem, formOfSheet, ownSheet, previewTotal, scoreBody, validateScoreForm } from './appraisal-model';
 import type { AppraisalView, CriteriaSet, Recommendation, ScoreField, ScoreForm, Sheet } from './appraisal-model';
 import { Field } from './components';
+import { useDefaultProject } from './hooks';
+import { LIST_PATH } from './model';
 import './prj.css';
 
 const NEVER_EMPTY = (): boolean => false;
@@ -26,19 +28,29 @@ export default function AppraisalScoreScreen({ route }: ScreenProps) {
 function ScoreContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const [params] = useSearchParams();
-  const projectId = params.get('id') ?? undefined;
+  const namedId = params.get('id') ?? undefined;
+  // Opened without a project in the address, the first project in appraisal of the register is scored (the register stays one link away).
+  const fallback = useDefaultProject(namedId === undefined, 'APPRAISAL');
+  const projectId = namedId ?? fallback.project?.id;
   const view = useAppraisal(projectId);
   const state = useScreenState({ isLoading: view.isLoading, error: view.error, data: projectId === undefined ? undefined : (view.data ?? undefined), isEmpty: NEVER_EMPTY });
   const head = view.data === undefined || view.data === null ? undefined : { id: view.data.projectId, code: view.data.code, status: view.data.status };
 
   return (
     <AppraisalFrame route={route} title={t('prj.score.page.title')} subtitle={t('prj.score.page.subtitle')} project={head}>
-      {projectId === undefined || (view.isSuccess && view.data === null) ? (
+      {projectId === undefined && fallback.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : projectId === undefined || (view.isSuccess && view.data === null) ? (
         <p className="callout warning" role="status" data-testid="no-project">
           {t('prj.score.noProject.notice')}
         </p>
       ) : (
         <StateBoundary state={state} onRetry={() => void view.refetch()}>
+          {namedId === undefined && view.data !== undefined && view.data !== null ? (
+            <p className="callout" role="status" data-testid="default-project">
+              {t('prj.score.default.notice')} <Link to={LIST_PATH}>{t('prj.score.default.link')}</Link>
+            </p>
+          ) : null}
           {view.data === undefined || view.data === null ? null : <Scoring view={view.data} />}
         </StateBoundary>
       )}

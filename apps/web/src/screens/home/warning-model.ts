@@ -127,6 +127,16 @@ export const trimmed = (value: string): string => (value.includes('.') ? value.r
 export const SEVERITY_GLYPH: Readonly<Record<Severity, string>> = { INFO: 'ℹ', WARNING: '⚠', CRITICAL: '⛔' };
 
 export type WarningProblem = 'notFound' | 'general';
+const SEVERITY_ORDER: readonly string[] = ['CRITICAL', 'WARNING', 'INFO'];
+
+/**
+ * The alert to show when the profile is opened without one: of the alerts still being handled (not resolved, not dismissed) the most severe, the newest of those first. Undefined when there is none.
+ */
+export function topWarning(items: readonly WarningItem[]): WarningItem | undefined {
+  const rank = (item: WarningItem): number => SEVERITY_ORDER.indexOf(item.severity);
+  return items.filter((item) => item.status !== 'RESOLVED' && item.status !== 'DISMISSED').sort((a, b) => rank(a) - rank(b) || b.openedAt.localeCompare(a.openedAt))[0];
+}
+
 export const describeWarning = (error: unknown): WarningProblem => (error instanceof ApiError && error.code === 'RESOURCE_NOT_FOUND' ? 'notFound' : 'general');
 
 // ---- the ranking ----

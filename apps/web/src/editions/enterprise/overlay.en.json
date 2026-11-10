@@ -14,5 +14,7 @@
   "home.ov.hero.chip.total": "Rate against the total capital plan",
   "home.ov.kpi.plan.subMissing": "No capital plan assigned yet",
   "home.ov.rank.caption": "Top units of group {group}, against the capital plan assigned",
-  "govc.home.kpi.plan.sub": "Of which assigned {pm} VND"
+  "govc.home.kpi.plan.sub": "Of which assigned {pm} VND",
+  "prj.list.column.nationalCode": "Parent-level project code",
+  "prj.create.nationalCode.label": "Parent-level project code"
 }

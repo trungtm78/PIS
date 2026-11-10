@@ -188,6 +188,10 @@ const UNITS: Record<TenantName, UnitSeed[]> = {
   ],
 };
 
+/** The unit codes the enterprise demo shows (the register of units, the context bars): Đạm Phú Mỹ's own, not the province's. The seed keeps asking for a unit by the key of UNITS; only the stored code differs. */
+const ENTERPRISE_UNIT_CODES: Readonly<Record<string, string>> = { 'CB-HQ': 'DPM-HQ', 'CB-SKHDT': 'DPM-KHDT', 'CB-STC': 'DPM-TCKT', 'CB-SKHDT-VP': 'DPM-KHDT-VP', 'CB-SKHDT-QLDA': 'DPM-KHDT-QLDA' };
+const storedCode = (key: string): string => (ENTERPRISE_BRAND ? (ENTERPRISE_UNIT_CODES[key] ?? key) : key);
+
 /** The catalogue maker and checker of the master data flows: two roles, since no system role holds the master permissions but the owner's. */
 const MASTER_ROLES = [
   { n: 91, code: 'E2E_MASTER_MAKER', permissions: ['master.propose', 'master.import', 'master.crosswalk.manage', 'integration_cursor.read', 'integration.cursor.reset', 'glossary.propose', 'glossary.approve', 'glossary.read', 'master.read', 'master_record_version.read'], rank: 40 },
@@ -1199,7 +1203,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
     statements.push([
       `insert into machvon.organization_unit (tenant_id, id, code, name, parent_id, valid_from, path, depth)
        values ($1, $2, $3, $4, $5, date '2026-01-01', $6, $7)`,
-      [tenantId, unitId(unit.n), unit.code, unit.name, unit.parent === undefined ? null : unitId(unit.parent), pathOf(...unit.chain), unit.chain.length - 1],
+      [tenantId, unitId(unit.n), storedCode(unit.code), unit.name, unit.parent === undefined ? null : unitId(unit.parent), pathOf(...unit.chain), unit.chain.length - 1],
     ]);
   }
   for (const membershipId of memberships) {
@@ -1223,7 +1227,7 @@ async function seedTenant(database: TestDatabase, tenants: TenantDatabase, name:
   if (name === 'B') statements.push(...providerFixtures(tenantId));
   if (name === 'A' && !DOCS) statements.push(...issueFixtures(tenantId), ...investmentFixtures(tenantId), ...governanceFixtures(tenantId), ...deliveryFixtures(tenantId), ...docDraftFixtures(tenantId));
   // The units that owe the reports of the investors in the monitoring calendar (MNE-01): the Office and the Project Management Board of the Department.
-  if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, ['CB-SKHDT-VP', 'CB-SKHDT-QLDA']]]);
+  if (name === 'A') statements.push(["update machvon.organization_unit set is_investor = true where tenant_id = $1 and code = any($2::text[])", [tenantId, [storedCode('CB-SKHDT-VP'), storedCode('CB-SKHDT-QLDA')]]]);
   await asOwner(database, tenantId, statements);
   // The tenant that the browser flows use starts from the baseline the platform publishes (catalogues and rule data), as a provisioned tenant does.
   if (name === 'A') await tenants.withTenant({ tenantId, membershipId: ACTOR, scopeVersion: 1 }, (tx) => applyBaseline(tx, BASELINE_PACK, ACTOR));

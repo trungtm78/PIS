@@ -57,7 +57,7 @@ describe('HOME-06 warning profile (ST-HOME-003, HOME 3 F4)', () => {
     expect(within(cause).getByTestId('profile-threshold').textContent).toContain('points 10');
     expect(within(cause).getByTestId('profile-threshold').getAttribute('title')).toContain('CXN-03');
     const evidence = screen.getByTestId('profile-evidence');
-    expect(within(evidence).getByTestId('evidence-context').textContent).toBe(fill(vi_['home.profile.evidence.context'], { id: '00000000…00f2', date: '2027-10-12' }));
+    expect(within(evidence).getByTestId('evidence-context').textContent).toBe(fill(vi_['home.profile.evidence.context'], { id: '00000000…00f2', date: '12/10/2027' }));
     expect(evidence.textContent).toContain('1.000.000.000.000');
     expect(evidence.textContent).toContain('22.0000%');
     expect(screen.getByTestId('profile-leader').textContent).toContain('Nguyễn Văn A');
@@ -177,10 +177,40 @@ describe('HOME-06 warning profile (ST-HOME-003, HOME 3 F4)', () => {
     expect(await screen.findByTestId('profile-not-found')).toBeTruthy();
     expect(screen.queryByTestId('warning-profile')).toBeNull();
     cleanup();
-    const h = client(() => page(profile()));
+    const h = client(() => ({ items: [], next_cursor: null, as_of: '2027-10-15T03:00:00Z' }));
     mount(<WarningProfileScreen route={ROUTE} />, h, { permissions: ALL });
-    expect(screen.getByTestId('profile-no-id')).toBeTruthy();
-    expect(h.read).not.toHaveBeenCalled();
+    expect(await screen.findByTestId('profile-no-id')).toBeTruthy();
+    expect(screen.queryByTestId('warning-profile')).toBeNull();
+  });
+
+  it('opened without a warning in the address it shows the top alert (the most severe still being handled, the newest first), says so, and a named warning reads no list', async () => {
+    const W2 = '00000000-0000-4000-8000-000000000a02';
+    const W3 = '00000000-0000-4000-8000-000000000a03';
+    const list = {
+      items: [
+        warningBody(W1, { severity: 'WARNING', opened_at: '2027-10-09T03:00:00.000Z' }),
+        warningBody(W3, { severity: 'CRITICAL', status: 'RESOLVED', opened_at: '2027-10-10T03:00:00.000Z' }),
+        warningBody(W2, { severity: 'CRITICAL', opened_at: '2027-10-04T03:00:00.000Z' }),
+      ],
+      next_cursor: null,
+      as_of: '2027-10-15T03:00:00Z',
+    };
+    const h = harness((operation, input) => {
+      if (operation !== 'getHomeWarnings') return new Error(`unexpected read ${operation}`);
+      const query = (input as { query: Record<string, unknown> }).query;
+      return query.warning_id === undefined ? list : page(warningBody(query.warning_id as string, { severity: 'CRITICAL' }));
+    });
+    mount(<WarningProfileScreen route={ROUTE} />, h, { permissions: ALL });
+    expect(await screen.findByTestId('profile-cause')).toBeTruthy();
+    expect(screen.getByTestId('profile-default').textContent).toBe(vi_['home.profile.default']);
+    expect(h.read.mock.calls.some((call) => (call[1] as { query: Record<string, unknown> }).query.warning_id === W2)).toBe(true);
+    expect(screen.queryByTestId('profile-no-id')).toBeNull();
+    cleanup();
+    const named = client(() => page(profile()));
+    mount(<WarningProfileScreen route={ROUTE} />, named, { permissions: ALL }, OPEN);
+    await screen.findByTestId('profile-cause');
+    expect(screen.queryByTestId('profile-default')).toBeNull();
+    expect(named.read.mock.calls.every((call) => (call[1] as { query: Record<string, unknown> }).query.warning_id === W1)).toBe(true);
   });
 
   describe('the seven standard states', () => {

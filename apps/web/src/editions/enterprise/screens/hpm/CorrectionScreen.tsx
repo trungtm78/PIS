@@ -99,7 +99,7 @@ function CorrectionContent({ route }: ScreenProps) {
           ))}
         </select>
       </div>
-      <StateBoundary state={filter !== undefined && state === 'empty' ? 'default' : state} onRetry={() => void query.refetch()}>
+      <StateBoundary state={state === 'empty' ? 'default' : state} onRetry={() => void query.refetch()}>
         <SectionCard title={t('hpm.correction.section.title')}>
           {rows.length === 0 ? (
             <p className="ent2-none" role="status" data-testid="correction-empty">

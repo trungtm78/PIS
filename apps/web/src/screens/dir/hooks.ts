@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { PAGE_SIZE, queryOf, toDirectiveDetail, toDirectivePage, toLookup, toMeetingDetail, toMeetingPage, toReport, toSummary, toWidget } from './model';
+import { NO_FILTER, PAGE_SIZE, mostUrgent, queryOf, toDirectiveDetail, toDirectivePage, toLookup, toMeetingDetail, toMeetingPage, toReport, toSummary, toWidget } from './model';
 import type { DirectiveDetail, DirectiveLine, FilterState, LookupOption, MeetingDetail, MeetingLine, Page, Report, Summary, Widget } from './model';
 
 /** What these screens show depends on the scope of the membership that is signed in, not only on the tenant: the membership is part of every key. */
@@ -76,6 +76,19 @@ export function useDirectiveList(filter: FilterState, limit: number = PAGE_SIZE,
     enabled: enabled && key[1] !== undefined,
     retry: false,
   });
+}
+
+const OVERDUE_FILTER: FilterState = { ...NO_FILTER, overdue: true };
+
+/** The directive DIR-04 shows when it is opened without one (a typed address, the menu): the most urgent of the scope; the overdue ones are read first, the open ones only when none is overdue. */
+export function useDefaultDirective(enabled: boolean): { directive: DirectiveLine | undefined; isLoading: boolean } {
+  const overdue = useDirectiveList(OVERDUE_FILTER, 20, enabled);
+  const lateFound = mostUrgent(overdue.data?.pages.flatMap((page) => page.items) ?? []);
+  const settled = overdue.isSuccess || overdue.isError;
+  const others = useDirectiveList(NO_FILTER, 50, enabled && settled && lateFound === undefined);
+  const found = lateFound ?? mostUrgent(others.data?.pages.flatMap((page) => page.items) ?? []);
+  const isLoading = enabled && found === undefined && (overdue.isLoading || (settled && others.isLoading));
+  return { directive: found, isLoading };
 }
 
 /** The counts of the scope by the status a reader sees, with the formula of each number; the summary narrows by unit, project and meeting only. */

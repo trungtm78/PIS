@@ -1,9 +1,10 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import AppraisalScoreScreen from './AppraisalScoreScreen';
+import { line as projectLine } from './test-support';
 import { CRITERIA, EVIDENCE, PROJECT_ID, SET_ID, SHEET_ID, appraisal, appraisalClient, criteriaSet, lifecycle, mount, routeOf, sheet, world } from './appraisal-test-support';
 
 const ROUTE = routeOf('PRJ-15', 'FR-PRJ-15');
@@ -178,6 +179,39 @@ describe('AppraisalScoreScreen (PRJ-15): the scoring of a project against the cr
     state.failing = new Set();
     await userEvent.setup().click(retry);
     await waitFor(() => expect(screen.getByTestId('grid')).toBeTruthy());
+  });
+
+  it('PRJ-15 without a project in the address scores the first project in appraisal of the register, says so, and keeps the register one link away', async () => {
+    const h = appraisalClient(world());
+    const register = [projectLine(7, { status: 'CONCEPT' }), projectLine(1, { status: 'APPRAISAL' }), projectLine(2, { status: 'APPRAISAL' })];
+    (h.client as unknown as { readAll: unknown }).readAll = vi.fn(() => Promise.resolve(register));
+    mount(<AppraisalScoreScreen route={ROUTE} />, h, { permissions: APPRAISER, path: '/prj/prj-15' });
+    await grid();
+    expect(h.read).toHaveBeenCalledWith('getProjectLifecycle', { path: { id: PROJECT_ID } });
+    expect(screen.queryByTestId('no-project')).toBeNull();
+    expect(screen.getByTestId('default-project').textContent).toContain(vi_['prj.score.default.notice']);
+    expect(within(screen.getByTestId('default-project')).getByRole('link', { name: vi_['prj.score.default.link'] }).getAttribute('href')).toBe('/prj/prj-01');
+  });
+
+  it('PRJ-15 falls back to the first living project when none is in appraisal, never to an ended one, and keeps the empty notice for an empty register', async () => {
+    const first = appraisalClient(world());
+    (first.client as unknown as { readAll: unknown }).readAll = vi.fn(() => Promise.resolve([projectLine(5, { status: 'CLOSED' }), projectLine(1, { status: 'IMPLEMENTATION' })]));
+    mount(<AppraisalScoreScreen route={ROUTE} />, first, { permissions: APPRAISER, path: '/prj/prj-15' });
+    await waitFor(() => expect(first.read).toHaveBeenCalledWith('getProjectLifecycle', { path: { id: PROJECT_ID } }));
+    cleanup();
+    const ended = appraisalClient(world());
+    (ended.client as unknown as { readAll: unknown }).readAll = vi.fn(() => Promise.resolve([projectLine(5, { status: 'CLOSED' })]));
+    mount(<AppraisalScoreScreen route={ROUTE} />, ended, { permissions: APPRAISER, path: '/prj/prj-15' });
+    expect((await screen.findByTestId('no-project')).textContent).toBe(vi_['prj.score.noProject.notice']);
+    expect(ended.read).not.toHaveBeenCalledWith('getProjectLifecycle', expect.anything());
+    cleanup();
+    const named = appraisalClient(world());
+    const spy = vi.fn(() => Promise.resolve([projectLine(9, { status: 'APPRAISAL' })]));
+    (named.client as unknown as { readAll: unknown }).readAll = spy;
+    mount(<AppraisalScoreScreen route={ROUTE} />, named, { permissions: APPRAISER, path: OPEN });
+    await grid();
+    expect(spy).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('default-project')).toBeNull();
   });
 
   it('keeps the set of an older round in view with the weights it was scored by, and links to the decision', async () => {

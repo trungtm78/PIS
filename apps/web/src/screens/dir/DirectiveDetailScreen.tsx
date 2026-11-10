@@ -9,7 +9,7 @@ import { useScreenState } from '../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, MakerCheckerBadge, SectionCard, StatusPill } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import { ClockChip, Field, Notice, PolicyNote, Select, StatusChip } from './components';
-import { useDirCommand, useDirectiveDetail, useMemberOptions, useUnitOptions } from './hooks';
+import { useDefaultDirective, useDirCommand, useDirectiveDetail, useMemberOptions, useUnitOptions } from './hooks';
 import type { CommandInput } from './hooks';
 import { errorText, eventLabel, extensionStatusLabel } from './labels';
 import { BOARD_PATH, asOfText, dayText, extensionProblem, idFrom, meetingPath, parseIds } from './model';
@@ -46,7 +46,10 @@ function DirectiveDetailContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { tenant, mode } = useSession();
   const [params] = useSearchParams();
-  const directiveId = idFrom(params.get('directive'));
+  const namedId = idFrom(params.get('directive'));
+  // Opened without a directive in the address, the most urgent one of the scope is shown (the board stays one click away to choose another).
+  const fallback = useDefaultDirective(namedId === undefined);
+  const directiveId = namedId ?? fallback.directive?.id;
   const read = useDirectiveDetail(directiveId);
   const data = read.data ?? undefined;
   const state = useScreenState({ isLoading: read.isLoading, error: read.data === undefined ? read.error : undefined, data: read.data, isEmpty: NEVER_EMPTY });
@@ -191,11 +194,20 @@ function DirectiveDetailContent({ route }: ScreenProps) {
         stale={stale}
       />
       {directiveId === undefined ? (
-        <p className="callout" data-testid="no-target">
-          {t('dir.directive.noTarget.text')}
-        </p>
+        fallback.isLoading ? (
+          <StateBoundary state="loading" />
+        ) : (
+          <p className="callout" data-testid="no-target">
+            {t('dir.directive.noTarget.text')}
+          </p>
+        )
       ) : (
         <StateBoundary state={state} onRetry={() => void read.refetch()}>
+          {namedId === undefined && data !== undefined ? (
+            <p className="callout" role="status" data-testid="default-target">
+              {t('dir.directive.default.text')}
+            </p>
+          ) : null}
           {data === undefined ? (
             <p className="callout" data-testid="missing">
               {t('dir.directive.missing.text')}

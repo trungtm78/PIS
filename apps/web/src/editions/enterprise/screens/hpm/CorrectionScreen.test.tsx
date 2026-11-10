@@ -98,10 +98,10 @@ describe('CorrectionScreen (HPM-02): the corrections that let an accepted period
     await waitFor(() => expect(screen.getByTestId('correction-empty').textContent).toBe(word('hpm.correction.empty.filtered')));
   });
 
-  it('does not show the table, and says so through the standard empty state, when there is no correction at all', async () => {
+  it('does not show the table, and says in its own words when a correction is needed, when there is no correction at all', async () => {
     mountWith({ world: { corrections: [] } });
     await waitFor(() => expect(screen.queryByRole('table')).toBeNull());
-    expect(await screen.findByRole('status')).toBeTruthy();
+    expect((await screen.findByTestId('correction-empty')).textContent).toBe(word('hpm.correction.empty.none'));
   });
 
   it('hides the actions from a reader and in a read-only workspace, and offers a retry when the read fails', async () => {

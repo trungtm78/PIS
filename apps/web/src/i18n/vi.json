@@ -38063,5 +38063,10 @@
   "home.ov.hero.loading": "Đang đọc số liệu giải ngân.",
   "home.ov.flow.treasury.title": "Giải ngân qua Kho bạc theo tháng",
   "home.ov.flow.treasury.actual": "Đã giải ngân qua Kho bạc (lũy kế)",
-  "home.ov.flow.treasury.caption": "Nguồn: số liệu Kho bạc đã chốt, lũy kế theo tháng, năm {year}. Khác với số báo cáo đã chốt của doanh nghiệp ở khối phía trên."
+  "home.ov.flow.treasury.caption": "Nguồn: số liệu Kho bạc đã chốt, lũy kế theo tháng, năm {year}. Khác với số báo cáo đã chốt của doanh nghiệp ở khối phía trên.",
+  "dir.directive.default.text": "Đang mở chỉ đạo cấp bách nhất trong phạm vi của bạn (quá hạn lâu nhất, hoặc sắp đến hạn nhất). Muốn chọn chỉ đạo khác, mở từ bảng theo dõi.",
+  "prj.score.default.notice": "Đang chấm điểm dự án đầu tiên đang thẩm định trong phạm vi của bạn.",
+  "prj.score.default.link": "Chọn dự án khác từ danh mục",
+  "eqp.detail.default": "Đang hiển thị dòng thiết bị đầu tiên của danh sách. Muốn xem dòng khác, quay lại danh sách rồi chọn.",
+  "home.profile.default": "Đang hiển thị cảnh báo đứng đầu (mức nghiêm trọng cao nhất đang xử lý). Muốn xem cảnh báo khác, quay lại danh sách cảnh báo rồi chọn."
 }

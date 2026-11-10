@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import DirectiveDetailScreen from './DirectiveDetailScreen';
-import { AS_OF, MEMBER_A, POLICY, UNIT_A, UNIT_B, directive, harness, mount, overdueDirective, refusal, routeOf, text, uuid } from './test-support';
+import { AS_OF, MEMBER_A, POLICY, UNIT_A, UNIT_B, directive, harness, mount, overdueDirective, page, refusal, routeOf, text, uuid } from './test-support';
 import type { Harness } from './test-support';
 
 afterEach(() => cleanup());
@@ -67,9 +67,46 @@ describe('DIR-04: one directive', () => {
     expect(h.read).toHaveBeenCalledWith('getDirective', { path: { id: DIRECTIVE_ID } });
   });
 
+  it('opened without a directive it shows the one overdue the longest, says so, and reads the open ones only when none is overdue', async () => {
+    const worst = { ...overdueDirective(3), id: DIRECTIVE_ID, code: 'GB-2026-001/CD-03', overdue_days: 12 };
+    const reads: Array<Record<string, unknown>> = [];
+    const h = harness((operation, input) => {
+      if (operation === 'listDirectives') {
+        const query = (input as { query: Record<string, unknown> }).query;
+        reads.push(query);
+        return query.overdue === true ? page([{ ...overdueDirective(1), overdue_days: 2 }, worst]) : page([]);
+      }
+      if (operation === 'getDirective') return detail({ line: worst });
+      return {};
+    });
+    mountDetail(h, { path: '/dir/dir-04' });
+    expect(await screen.findByRole('heading', { level: 1, name: 'GB-2026-001/CD-03' })).toBeTruthy();
+    expect(screen.getByTestId('default-target').textContent).toBe(text('dir.directive.default.text'));
+    expect(screen.queryByTestId('no-target')).toBeNull();
+    expect(h.read).toHaveBeenCalledWith('getDirective', { path: { id: DIRECTIVE_ID } });
+    expect(reads.every((query) => query.overdue === true)).toBe(true);
+    cleanup();
+    const soon = { ...directive(2), id: DIRECTIVE_ID, due_on: '2026-11-12' };
+    const later = { ...directive(1), id: uuid(299), due_on: '2026-12-30' };
+    const quiet = harness((operation, input) => {
+      if (operation === 'listDirectives') return (input as { query: Record<string, unknown> }).query.overdue === true ? page([]) : page([later, { ...directive(4), id: uuid(298), status: 'DONE', due_on: '2026-10-01' }, soon]);
+      if (operation === 'getDirective') return detail({ line: soon });
+      return {};
+    });
+    mountDetail(quiet, { path: '/dir/dir-04' });
+    await screen.findByTestId('default-target');
+    expect(quiet.read).toHaveBeenCalledWith('getDirective', { path: { id: DIRECTIVE_ID } });
+    cleanup();
+    const named = harness((operation) => (operation === 'getDirective' ? detail() : page([])));
+    mountDetail(named);
+    await screen.findByRole('heading', { level: 1, name: 'GB-2026-001/CD-01' });
+    expect(screen.queryByTestId('default-target')).toBeNull();
+    expect(named.read.mock.calls.some((call) => call[0] === 'listDirectives')).toBe(false);
+  });
+
   it('says what to open it from, that it is not there for the caller, and an error, a denial and a skeleton are not "nothing"', async () => {
-    mount(<DirectiveDetailScreen route={ROUTE} />, harness(() => ({})), { permissions: ['directive.read'], path: '/dir/dir-04' });
-    expect(screen.getByTestId('no-target').textContent).toBe(text('dir.directive.noTarget.text'));
+    mount(<DirectiveDetailScreen route={ROUTE} />, harness((operation) => (operation === 'listDirectives' ? page([]) : {})), { permissions: ['directive.read'], path: '/dir/dir-04' });
+    expect((await screen.findByTestId('no-target')).textContent).toBe(text('dir.directive.noTarget.text'));
     cleanup();
     mountDetail(harness(() => refusal('RESOURCE_NOT_FOUND', 404)));
     expect((await screen.findByTestId('missing')).textContent).toBe(text('dir.directive.missing.text'));

@@ -15,9 +15,10 @@ import type { DataTableColumn, Tone } from '../../ui';
 import '../dis/dis.css';
 import './home.css';
 import { FORMULA_REFERENCE, shortId } from './model';
+import { dayText } from './overview-model';
 import { ObservedText, SeverityBadge, explanationStatusLabel, warningStatusLabel } from './WarningsScreen';
-import { useAcknowledgeWarning, useAskExplanation, useDismissWarning, useHomeWarning } from './warning-hooks';
-import { HANDLE_WARNING_PERMISSION, REQUEST_EXPLANATION_PERMISSION, WARNINGS_PATH, describeWarning, trimmed } from './warning-model';
+import { useAcknowledgeWarning, useAskExplanation, useDismissWarning, useHomeWarning, useHomeWarnings } from './warning-hooks';
+import { HANDLE_WARNING_PERMISSION, REQUEST_EXPLANATION_PERMISSION, WARNINGS_PATH, describeWarning, topWarning, trimmed } from './warning-model';
 import type { EvidenceCell, HistoryEvent, WarningItem } from './warning-model';
 
 type T = Translator['t'];
@@ -66,11 +67,16 @@ const dueMoment = (day: string): string => `${day}T16:59:59.000Z`;
 export default function WarningProfileScreen({ route }: ScreenProps) {
   const tenant = useSession().tenant;
   const [params] = useSearchParams();
-  // What is open belongs to one member of one tenant and to the warning the address names: a switch of either starts the screen over.
-  return <ProfileContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${params.get('warning') ?? ''}`} route={route} id={params.get('warning') ?? ''} />;
+  const named = params.get('warning') ?? '';
+  // Opened without a warning in the address (a typed address, the menu), the top alert of the list is shown; the list stays one link away.
+  const list = useHomeWarnings({ severity: '', ruleCode: '' }, named === '');
+  const top = named === '' ? topWarning(list.data?.pages.flatMap((page) => page.items) ?? []) : undefined;
+  const id = named !== '' ? named : (top?.id ?? '');
+  // What is open belongs to one member of one tenant and to the warning that is shown: a switch of either starts the screen over.
+  return <ProfileContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${id}`} route={route} id={id} chosen={named !== ''} loading={named === '' && list.isLoading} />;
 }
 
-function ProfileContent({ route, id }: ScreenProps & { id: string }) {
+function ProfileContent({ route, id, chosen, loading }: ScreenProps & { id: string; chosen: boolean; loading: boolean }) {
   const { t } = useTranslation();
   const query = useHomeWarning(id);
   const problem = query.error === null ? undefined : describeWarning(query.error);
@@ -88,7 +94,13 @@ function ProfileContent({ route, id }: ScreenProps & { id: string }) {
           </Link>
         </div>
       </div>
-      {id === '' ? (
+      {id === '' && loading ? <StateBoundary state="loading" /> : null}
+      {id !== '' && !chosen ? (
+        <p className="callout" role="status" data-testid="profile-default">
+          {t('home.profile.default')}
+        </p>
+      ) : null}
+      {id === '' && !loading ? (
         <div className="card statecard" role="alert" data-testid="profile-no-id">
           <p>{t('home.profile.noId')}</p>
         </div>
@@ -167,7 +179,7 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
           { label: t('home.profile.cause.rule'), value: `${warning.ruleCode} ${warning.ruleName}` },
           { label: t('home.profile.cause.project'), value: warning.project === null ? NONE : `${warning.project.code} ${warning.project.name}` },
         ]}
-        {...(warning.evidence === null ? {} : { asOf: warning.evidence.asOfDate })}
+        {...(warning.evidence === null ? {} : { asOf: dayText(warning.evidence.asOfDate) })}
       />
       <div data-testid="profile-cause">
         <SectionCard
@@ -216,7 +228,7 @@ function ProfileBody({ warning }: { warning: WarningItem }) {
           ) : (
             <>
               <p className="home-note" data-testid="evidence-context">
-                {t('home.profile.evidence.context', { id: shortId(warning.evidence.snapshotId), date: warning.evidence.asOfDate })}
+                {t('home.profile.evidence.context', { id: shortId(warning.evidence.snapshotId), date: dayText(warning.evidence.asOfDate) })}
               </p>
               <DataTable caption={t('home.profile.evidence.title')} columns={evidenceColumns} rows={warning.evidence.cells} rowKey={(cell) => `${cell.bucket}|${cell.budgetLevel}`} />
             </>

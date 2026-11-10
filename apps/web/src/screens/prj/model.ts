@@ -12,6 +12,15 @@ export const WORKSPACE_PATH = '/prj/prj-03';
 export const PROJECT_STATUSES = ['CONCEPT', 'APPRAISAL', 'PIPELINE', 'BUDGETED', 'IMPLEMENTATION', 'SUSPENDED', 'COMPLETED', 'SETTLED', 'CLOSED', 'REJECTED', 'CANCELLED'] as const;
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
+/**
+ * The project a screen of one project shows when it is opened without one: the first of the register in the stage the screen is for (the appraisal screens: a project in appraisal), else the first one that is
+ * still alive. Undefined when the register is empty or every project has ended.
+ */
+export function defaultProject(lines: readonly ProjectLine[], stage?: ProjectStatus): ProjectLine | undefined {
+  const alive = lines.filter((line) => !FROZEN_STATUSES.includes(line.status));
+  return (stage === undefined ? undefined : alive.find((line) => line.status === stage)) ?? alive[0];
+}
+
 /** The stages in which a project no longer changes: it is closed, rejected or cancelled. */
 export const FROZEN_STATUSES: readonly ProjectStatus[] = ['CLOSED', 'REJECTED', 'CANCELLED'];
 

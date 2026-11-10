@@ -33,6 +33,9 @@ describe('the guides (DOC-3) and the words of the enterprise edition', () => {
     const said = applyHelpOverlay(await loadHelpIndex('vi'), overlay);
     expect(helpFor(said, 'HOME-07')?.fields).toEqual(expect.arrayContaining(['Vốn chủ sở hữu', 'Vốn vay']));
     expect(helpFor(said, 'PRJ-01')?.audience).toBe('Chủ đầu tư và Phòng Tài chính - Kế toán');
+    // The national system code is a public-investment notion: the guides say the code of the parent level instead.
+    expect(helpFor(said, 'PRJ-01')?.fields).toContain('Mã dự án cấp trên');
+    expect(Object.values(said.screens).flatMap((entry) => entry.fields)).not.toContain('Mã dự án TTQG');
   });
 
   it('keeps every screen and its fields (the overlay says the same guide, it drops nothing)', async () => {

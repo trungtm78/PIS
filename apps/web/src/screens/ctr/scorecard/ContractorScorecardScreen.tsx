@@ -32,8 +32,11 @@ function ScorecardContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { permissions, mode } = useSession();
   const [search, setSearch] = useSearchParams();
-  const contractorId = search.get('id') ?? undefined;
+  const namedId = search.get('id') ?? undefined;
   const canRead = permissions === undefined || permissions.includes(READ_PERMISSION);
+  // Opened without a contractor in the address (the menu, a typed URL), the first contractor of the list is read, and the picker stays to change it.
+  const choices = useScorecardContractors(canRead && namedId === undefined);
+  const contractorId = namedId ?? choices.data?.[0]?.id;
   const writable = mode !== 'READ_ONLY';
   const [range, setRange] = useState<Range>({ from: '', to: '' });
   const [draft, setDraft] = useState<Range>({ from: '', to: '' });
@@ -65,8 +68,8 @@ function ScorecardContent({ route }: ScreenProps) {
           <p>{view === undefined ? t('ctr.scorecard.page.subtitle') : t('ctr.scorecard.page.contractor', { name: view.contractor.legalName })}</p>
         </div>
       </div>
-      {contractorId === undefined && canRead ? <ContractorPicker onPick={(id) => setSearch({ id })} /> : null}
-      <StateBoundary state={!canRead ? 'denied' : contractorId === undefined ? 'empty' : state} onRetry={() => void card.refetch()}>
+      {namedId === undefined && canRead ? <ContractorPicker current={contractorId} onPick={(id) => setSearch({ id })} /> : null}
+      <StateBoundary state={!canRead ? 'denied' : contractorId === undefined ? (choices.isLoading ? 'loading' : 'empty') : state} onRetry={() => void card.refetch()}>
         {view === undefined ? null : (
           <>
             <form className="card" onSubmit={apply} aria-label={t('ctr.scorecard.range.aria')} data-testid="range">
@@ -236,10 +239,13 @@ function ScorecardContent({ route }: ScreenProps) {
 }
 
 /** The contractors that hold a contract (the verified ones), to choose the one whose scorecard is read: a person who reaches the screen from the menu has no contractor in the address yet. */
-function ContractorPicker({ onPick }: { onPick(id: string): void }) {
+function ContractorPicker({ current, onPick }: { current: string | undefined; onPick(id: string): void }) {
   const { t } = useTranslation();
   const contractors = useScorecardContractors(true);
-  const [chosen, setChosen] = useState('');
+  const [picked, setPicked] = useState('');
+  // Until the reader chooses, the select shows the contractor whose scorecard is on the screen.
+  const chosen = picked !== '' ? picked : (current ?? '');
+  const setChosen = setPicked;
   return (
     <form
       className="card"

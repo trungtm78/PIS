@@ -58,6 +58,13 @@ describe('shell frame', () => {
     expect(within(screen.getByRole('navigation', { name: BREADCRUMB })).getByText(vi_['shell.notFound.title'])).toBeInTheDocument();
   });
 
+  it('names a screen of the installed application in the breadcrumb, not "not found"', () => {
+    renderApp('/m/dashboard');
+    const breadcrumb = screen.getByRole('navigation', { name: BREADCRUMB });
+    expect(within(breadcrumb).getByText(vi_['pwa.dashboard.page.title'])).toBeInTheDocument();
+    expect(within(breadcrumb).queryByText(vi_['shell.notFound.title'])).not.toBeInTheDocument();
+  });
+
   it('redirects the root address to the home screen', () => {
     renderApp('/');
     expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan điều hành' })).toBeInTheDocument();

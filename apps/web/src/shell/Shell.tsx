@@ -12,6 +12,7 @@ import { useSession } from '../session/SessionContext';
 import { GuardedOutlet } from '../states/ScreenErrorBoundary';
 import { PortalFrame } from '../screens/vnd/portal/portal-frame';
 import { isPortalCaller } from '../screens/vnd/portal/portal-model';
+import { pwaTitle } from '../pwa/pwa-titles';
 import { useAlertCounts } from '../ui/alerts';
 import { AppLibrary } from './AppLibrary';
 import type { LibraryScope } from './AppLibrary';
@@ -91,7 +92,8 @@ function StaffShell() {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [drawerOpen, overlay]);
 
-  const crumb = route === undefined ? { module: undefined, title: t('shell.notFound.title') } : navigation.breadcrumb(route);
+  // The screens of the installed application (/m/...) are not rows of the route table: they are named by their own heading, never "not found".
+  const crumb = route === undefined ? { module: undefined, title: pwaTitle(t, location.pathname) ?? t('shell.notFound.title') } : navigation.breadcrumb(route);
   const tenantName = session.tenant?.name ?? '';
   // The badge follows the inbox once it is loaded; until then the session's own figure stands.
   const unreadNotifications = useUnreadBadge(session.user?.unreadNotifications);
