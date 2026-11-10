@@ -151,5 +151,43 @@ void main() {
         expect(catalogue.lookup('vi', 'mob.shell.tab.home'), 'Trang chủ');
       },
     );
+
+    testWidgets(
+      'the leader home and the project list say closed figures, not the Treasury, and the public edition keeps its words',
+      (WidgetTester tester) async {
+        const List<String> keys = <String>[
+          'mob.home.context.cutoff.label',
+          'mob.home.tile.metric.disbursed',
+          'mob.home.tile.metric.planPm',
+          'mob.home.tile.metric.ratePm',
+          'mob.home.tile.nullReason.treasuryNone',
+          'mob.alert.source.treasuryRecon.label',
+          'mob.prj.list.work.treasury',
+        ];
+        final ProviderContainer enterprise = await pumpApp(
+          tester,
+          features: kAllFeatures,
+          overrides: <Override>[
+            editionProfileProvider.overrideWithValue(kEnterpriseEditionProfile),
+          ],
+        );
+        final StringCatalogue overlaid = enterprise.read(stringCatalogueProvider);
+        for (final String key in keys) {
+          final String text = overlaid.lookup('vi', key)!;
+          expect(text, isNot(contains('Kho bạc')), reason: key);
+          expect(text, isNot(contains('Thủ tướng')), reason: key);
+        }
+        expect(overlaid.lookup('vi', 'mob.home.tile.metric.disbursed'), 'Giải ngân lũy kế');
+        expect(overlaid.lookup('vi', 'mob.home.context.cutoff.label'), 'Số liệu chốt đến ngày');
+        final ProviderContainer base = ProviderContainer(
+          overrides: <Override>[appConfigProvider.overrideWithValue(testConfig)],
+        );
+        addTearDown(base.dispose);
+        final StringCatalogue plain = base.read(stringCatalogueProvider);
+        expect(plain.lookup('vi', 'mob.home.context.cutoff.label'), 'Kho bạc chốt đến ngày');
+        expect(plain.lookup('vi', 'mob.home.tile.metric.disbursed'), 'Giải ngân lũy kế theo Kho bạc');
+        expect(plain.lookup('vi', 'mob.prj.list.work.treasury'), 'Đối soát Kho bạc');
+      },
+    );
   });
 }

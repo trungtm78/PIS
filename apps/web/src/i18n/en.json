@@ -21754,7 +21754,7 @@
   "fin1.work.title": "Appraisal workbench",
   "fin1.work.subtitle": "Enter the inputs with their source and owner; the server computes the results; the approver is not the maker.",
   "fin1.work.backToList": "Back to the list",
-  "fin1.work.noTarget": "Open this screen from the list of appraisals (the address names an appraisal).",
+  "fin1.work.noTarget": "Open this screen from the list of appraisals (the address must name the appraisal file).",
   "fin1.work.missing": "This appraisal does not exist, or it is outside your scope.",
   "fin1.work.kind": "Kind",
   "fin1.work.version": "Record version {version}",

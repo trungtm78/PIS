@@ -131,6 +131,13 @@ describe('PRJ-24: the workbench', () => {
     expect(h.read).not.toHaveBeenCalled();
   });
 
+  it('says the empty state in Vietnamese, with no raw English word of the address', () => {
+    const h = harness(() => ({}));
+    mount(<AppraisalWorkbenchScreen route={route24} />, h, PERMISSIONS, '/prj/prj-24');
+    expect(screen.getByTestId('no-target').textContent).not.toMatch(/appraisal/i);
+    expect((vi_ as Record<string, string>)['fin1.work.noTarget']).not.toMatch(/appraisal/i);
+  });
+
   it('treats an appraisal that is not there for the caller as missing, never as empty', async () => {
     open(harness(() => refusal('RESOURCE_NOT_FOUND', 404)));
     expect((await screen.findByTestId('missing')).textContent).toBe(text('fin1.work.missing'));
