@@ -3,6 +3,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
 import { DEMO_MARK, REPORT_FORM_CATALOGUE, loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { enterpriseReportBundles, registerEnterpriseReportRules } from '@machvon/edition-enterprise/src/server.ts';
+import { hidePublicOnlyReportForms } from '../../src/editions/load-enterprise';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
@@ -83,6 +84,8 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     registerEnterpriseReportRules();
     registerPublicReportForms();
     for (const bundle of enterpriseReportBundles()) REPORT_FORMS.register(bundle);
+    // The same call the enterprise loader makes (apps/api/src/editions/load-enterprise.ts), so the catalogue under test is the one of the real process.
+    hidePublicOnlyReportForms();
     const tenants = harness.tenants as TenantDatabase;
     app = await startTestApp({
       signingKey: SIGNING_KEY,

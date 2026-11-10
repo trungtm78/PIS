@@ -8,6 +8,14 @@ import type { ReportMailJobDeps } from './enterprise/report-mail-job.ts';
 const PUBLIC_ONLY_CONFIGURED_FORM = 'CFG_AGENCY_REQUEST';
 
 /**
+ * DEMO-09: the forms that belong to the public edition (the four for the Ministry of Finance, the request to the offices of a province) are not in the catalogue of the enterprise; the public process lists them as before.
+ * The loader calls it, and so does the test of the enterprise catalogue, so the test asserts what the real process does.
+ */
+export function hidePublicOnlyReportForms(): void {
+  REPORT_FORMS.hide([...MOF_LAYOUTS.map((layout) => layout.code), PUBLIC_ONLY_CONFIGURED_FORM]);
+}
+
+/**
  * The one place of the API that names the enterprise package (ENT-0, structure B). The package is loaded only when the process serves
  * the enterprise edition, so a public process never loads it; `npm run edition:check` and the module-boundary rules allow this file
  * and no other shared one to name it. The package is resolved through the workspace (it is not a dependency of `@machvon/api` on purpose).
@@ -30,8 +38,7 @@ export async function loadEnterpriseManifest(): Promise<EditionManifest> {
   const { EnterpriseSnapshotProvider } = await import('./enterprise/snapshot-provider.ts');
   REPORT_FORMS.registerProvider(new EnterpriseSnapshotProvider());
   for (const bundle of enterpriseReportBundles()) REPORT_FORMS.register(bundle);
-  // DEMO-09: the forms that belong to the public edition (the four for the Ministry of Finance, the request to the offices of a province) are not in the catalogue of the enterprise; the public process lists them as before.
-  REPORT_FORMS.hide([...MOF_LAYOUTS.map((layout) => layout.code), PUBLIC_ONLY_CONFIGURED_FORM]);
+  hidePublicOnlyReportForms();
   return ENTERPRISE_EDITION.manifest;
 }
 
