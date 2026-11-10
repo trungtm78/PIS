@@ -26,10 +26,10 @@ test('check fails when a committed shooting script is out of date or missing', (
   assert.equal(run(['check', 'public-investment'], missing.io), 1);
 });
 
-test('strict turns a screen without a module into a failure, and strict-data a chapter with data not yet proven', () => {
+test('strict passes when every screen has a module (the HPM and EBS screens of the enterprise edition count), and strict-data fails a chapter with data not yet proven', () => {
   const strict = capture();
-  assert.equal(run(['check', '--strict'], strict.io), 1);
-  assert.ok(strict.lines.some((line) => /no module in this build yet/u.test(line)));
+  assert.equal(run(['check', '--strict'], strict.io), 0);
+  assert.ok(!strict.lines.some((line) => /no module in this build yet/u.test(line)));
   const strictData = capture();
   assert.equal(run(['check', 'public-investment', '--strict-data'], strictData.io), 1);
   assert.ok(strictData.lines.some((line) => /groups not run and verified/u.test(line)));

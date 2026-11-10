@@ -50,6 +50,14 @@
     ],
     "ctr.scorecard.view": [
       "role:button:Xem bảng điểm"
+    ],
+    "ent.home.kpi-strip": [
+      "css:[data-testid='leader-rates']",
+      "css:[data-testid='leader-panel']"
+    ],
+    "ent.capital.structure-bar": [
+      "css:[data-screen-id='HOME-07'] section:nth-of-type(2)",
+      "css:[data-screen-id='HOME-07'] section"
     ]
   },
   "tails": {

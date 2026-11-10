@@ -1321,7 +1321,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `HOME-02` Việ
 
 **Các bước quay**
 
-- `do=as persona=owner`
+- `do=as persona=projectManager`
 - `do=open screen=HOME-01`
 - `do=click ref=shell.alert-bell`
 - `do=spot ref=alerts.drawer.consequence-line`
@@ -1330,7 +1330,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `HOME-02` Việ
 
 - [ ] Màn HOME-01 "Tổng quan điều hành" mở được ở đường dẫn /home/home-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-02 "Việc của tôi" mở được ở đường dẫn /home/home-02, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản owner
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần shell.alert-bell đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.drawer.consequence-line đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Khẩn · Cần xử lý · Theo dõi" hiện từ giây 2, kéo dài 5 giây

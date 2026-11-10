@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `enterprise-phu-my`
 - Bản: enterprise
-- Video chính: 11:33 (45 cảnh)
+- Video chính: 11:25 (43 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,11 +12,11 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 45 | 11:33 |
+| Video chính (`main`) | 43 | 11:25 |
 | Giới thiệu phần mềm (`intro`) | 4 | 1:14 |
-| Tổng quan điều hành (`leader-home`) | 7 | 1:29 |
-| Cơ cấu vốn và kế hoạch (`capital`) | 4 | 1:07 |
-| Dự án đầu tư xây dựng (`projects`) | 5 | 1:15 |
+| Tổng quan điều hành (`leader-home`) | 7 | 1:42 |
+| Cơ cấu vốn và kế hoạch (`capital`) | 4 | 1:19 |
+| Dự án đầu tư xây dựng (`projects`) | 5 | 1:11 |
 | Báo cáo gửi Tập đoàn (`reports-pvn`) | 6 | 1:41 |
 | Quy trình duyệt số liệu kỳ (`workflow`) | 4 | 1:01 |
 | Đẩy số HPM và đối chiếu kế toán (`hpm-ebs`) | 7 | 2:04 |
@@ -67,6 +67,13 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-disbursement` | RUN_VERIFIED |
 | `clip-ent-snapshot` | RUN_VERIFIED |
 | `clip-ent-bi` | RUN_VERIFIED |
+| `clip-ent-alerts` | RUN_VERIFIED |
+| `clip-ent-equipment` | RUN_VERIFIED |
+| `clip-ent-capital-prior` | RUN_VERIFIED |
+| `clip-ent-snapshot-prior` | RUN_VERIFIED |
+| `clip-ent-crosscheck` | RUN_VERIFIED |
+| `clip-ent-alert-triage` | RUN_VERIFIED |
+| `clip-ent-capital-adjust` | RUN_VERIFIED |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**
 
@@ -101,19 +108,19 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | Chương | Chương cần nhóm nào | Khoảng trống |
 |---|---|---|
 | `intro` | - | - |
-| `leader-home` | `clip-ent-projects`, `clip-ent-funding` | - |
-| `capital` | `clip-ent-funding` | - |
+| `leader-home` | `clip-ent-projects`, `clip-ent-funding`, `clip-ent-snapshot`, `clip-ent-snapshot-prior`, `clip-ent-alert-triage` | - |
+| `capital` | `clip-ent-funding`, `clip-ent-capital-adjust`, `clip-ent-capital-prior` | - |
 | `projects` | `clip-ent-projects` | - |
-| `reports-pvn` | `clip-ent-reports` | Sáu biểu mẫu là bản demo do hệ thống tự thiết kế, đóng dấu MẪU DEMO — chờ mẫu chính thức. |
-| `workflow` | `clip-ent-reports` | - |
-| `hpm-ebs` | `clip-ent-reports`, `clip-ent-ebs` | Bản demo không bao giờ được HPM chấp nhận: nhật ký đẩy có một lần ghi tệp và một lần bị từ chối kèm lý do. |
+| `reports-pvn` | `clip-ent-reports` | - |
+| `workflow` | `clip-ent-reports`, `clip-ent-workflow` | - |
+| `hpm-ebs` | `clip-ent-reports`, `clip-ent-ebs` | - |
 | `directives` | `clip-ent-directives` | - |
-| `docs-ai` | - | Bộ dữ liệu doanh nghiệp chưa có nhóm cho kho hồ sơ dự án và trợ lý AI: cần nhóm bổ sung hoặc quay trên kho đã có. |
-| `analytics` | `clip-ent-projects`, `clip-ent-funding` | Chưa nạp được gói chỉ tiêu BI; các chương dùng chung cần số liệu đủ dày trên bộ dữ liệu doanh nghiệp. |
-| `alerts` | - | Bộ dữ liệu doanh nghiệp không có nhóm luật và cảnh báo; chạy các nhóm cảnh báo của bộ công khai trên bản doanh nghiệp hoặc quay chương dùng chung trên bộ công khai. |
-| `contractors` | - | Bộ dữ liệu doanh nghiệp không có nhóm nhà thầu; cần nhóm bổ sung hoặc dùng cảnh quay chung. |
-| `process-tree` | - | Bộ dữ liệu doanh nghiệp không có nhóm quy trình gói thầu; cần chạy nhóm quy trình trên bản doanh nghiệp hoặc dùng cảnh quay chung. |
-| `phone` | `clip-ent-projects`, `clip-ent-directives` | Ứng dụng cài đặt (PWA) cho lãnh đạo đọc tổng quan, hàng chờ duyệt và chỉ đạo của cùng bộ dữ liệu. |
+| `docs-ai` | `clip-ent-documents` | - |
+| `analytics` | `clip-ent-projects`, `clip-ent-funding`, `clip-ent-bi` | - |
+| `alerts` | `clip-ent-alerts`, `clip-ent-alert-triage` | - |
+| `contractors` | `clip-ent-procurement`, `clip-ent-contracts` | - |
+| `process-tree` | `clip-ent-workflow`, `clip-ent-procurement` | - |
+| `phone` | `clip-ent-projects`, `clip-ent-directives` | - |
 | `contractors-plus` | `clip-ent-vendor`, `clip-ent-procurement`, `clip-ent-contracts` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `contractor-portal` | `clip-ent-vendor` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
 | `claims-warnings` | `clip-ent-claims`, `clip-ent-contracts` | Chương cần nhóm dữ liệu chưa viết: các tác nhân quay viết nhóm trong scripts/clip-seed-lib.mjs theo mục "Nhóm phải tạo" rồi chuyển sang groups. |
@@ -135,7 +142,7 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `features-tour` | - | - |
 | `close` | - | - |
 
-**Cảnh có nhóm dữ liệu chưa chạy trọn:** `reports-pvn`, `hpm-ebs`, `docs-ai`, `analytics`, `alerts`, `contractors`, `process-tree`, `phone`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus`
+**Cảnh có nhóm dữ liệu chưa chạy trọn:** `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus`
 
 ## Bảng nhạc nền
 
@@ -152,11 +159,11 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 |---|---|---|---|---|
 | `ent-open` | `intro` | 0:00 | 0 dB | Vào dần trong hai giây, nhạc mở đầu trên thẻ tiêu đề và hoạt cảnh bài toán. |
 | `ent-overview` | `leader-home`, `capital`, `projects` | 1:14 | 0 dB | Phần điều hành, cơ cấu vốn và dự án: nền ổn định. |
-| `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:36 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
-| `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:50 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
-| `ent-tree-phone` | `process-tree`, `phone` | 8:14 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
-| `ent-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus` | 10:33 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
-| `ent-close` | `close` | 10:59 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `ent-reports` | `reports-pvn`, `workflow`, `hpm-ebs`, `directives` | 2:44 | -3 dB | Biểu mẫu báo cáo, luồng kỳ, đẩy HPM và đối chiếu kế toán: nhạc lùi. |
+| `ent-docs` | `docs-ai`, `analytics`, `alerts`, `contractors` | 4:57 | -3 dB | Kho hồ sơ, trợ lý, phân tích, cảnh báo và nhà thầu: nhạc lùi. |
+| `ent-tree-phone` | `process-tree`, `phone` | 8:05 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
+| `ent-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `reports-close`, `ent-cycle`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `platform`, `phone-plus` | 10:25 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
+| `ent-close` | `close` | 10:50 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu phần mềm (`intro`)
 
@@ -281,23 +288,26 @@ Nền tảng: animatic; 16.3 giây; có trong video chính
 
 ### `ent-home`
 
-Nền tảng: web; 13.5 giây; có trong video chính
+Nền tảng: web; 26.3 giây; có trong video chính
 
 Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `HOME-01` Tổng quan điều hành (/home/home-01)
 
 **Lời đọc**
 
-> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, trên {{figure:ent-projects-total}} dự án.
+> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}} trên {{figure:ent-projects-total}} dự án. Kế hoạch vốn năm là {{figure:ent-plan-year}}, đã giải ngân {{figure:ent-disbursed}}, đạt {{figure:ent-disb-rate}} so với kế hoạch, cao hơn {{figure:ent-disb-rate-last-year}} của cùng kỳ năm trước.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, trên {{figure:ent-projects-total}} dự án.
+> Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}} trên {{figure:ent-projects-total}} dự án. Kế hoạch vốn năm là {{figure:ent-plan-year}}, đã giải ngân {{figure:ent-disbursed}}, đạt {{figure:ent-disb-rate}} so với kế hoạch, cao hơn {{figure:ent-disb-rate-last-year}} của cùng kỳ năm trước.
 
 **Phụ đề**
 
-- Trang điều hành của Tổng công
-- ty cho thấy tổng mức
-- đầu tư {n}, kế hoạch vốn / năm {n}, trên {n} dự án.
+- Trang điều hành của Tổng
+- công ty cho thấy
+- tổng mức đầu tư {n} trên {n} dự án.
+- Kế hoạch vốn năm là {n}, đã giải ngân {n},
+- đạt {n} so với kế hoạch, cao
+- hơn {n} của cùng kỳ năm trước.
 
 **Các bước quay**
 
@@ -315,8 +325,11 @@ Màn hình: `HOME-09` Trung tâm điều hành giải ngân (/home/home-09); `HO
 - [ ] Khung vào phần ent.home.kpi-strip đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Dữ liệu minh họa" hiện từ giây 1, kéo dài 5 giây
 - [ ] Con số ent-total-investment đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_TOTAL_INVESTMENT].value); không gõ tay, thiếu giá trị thì dừng quay
-- [ ] Con số ent-plan-year đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_PLAN_IN_FORCE].value); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Con số ent-projects-total đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_PROJECTS_TOTAL].value); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-plan-year đọc từ dữ liệu thật qua getLeaderRates (company.plan_vnd); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-disbursed đọc từ dữ liệu thật qua getLeaderRates (company.disbursed_vnd); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-disb-rate đọc từ dữ liệu thật qua getLeaderRates (company.rate_pct); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-disb-rate-last-year đọc từ dữ liệu thật qua getLeaderRates (company.last_year.rate_pct); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `home-drill`
@@ -521,40 +534,48 @@ Màn hình: `DIR-03` Bảng theo dõi chỉ đạo (/dir/dir-03); `DIR-04` Chi t
 
 ### `ent-capital`
 
-Nền tảng: web; 18.5 giây; có trong video chính
+Nền tảng: web; 30.3 giây; có trong video chính
 
-Màn hình: `HOME-07` Cơ cấu các nguồn vốn (/home/home-07)
+Màn hình: `HOME-07` Cơ cấu các nguồn vốn (/home/home-07); `CAP-03` Kế hoạch năm (/cap/cap-03); `CAP-07` Điều chỉnh và điều chuyển (/cap/cap-07); `CAP-12` Kế hoạch ước giải ngân (/cap/cap-12)
 
 **Lời đọc**
 
-> Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-share-equity}}, vốn vay {{figure:ent-share-debt}} và vốn khác. Kế hoạch có bản giao đầu năm và bản hiện hành, chia theo quý và tháng. Số ước được thay bằng số thực khi có.
+> Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-equity-plan}}, chiếm {{figure:ent-share-equity}} kế hoạch, và vốn vay {{figure:ent-loan-plan}}, chiếm {{figure:ent-share-debt}}. Mỗi nguồn có số đã giải ngân và tỷ lệ so với kế hoạch của chính nguồn đó, nguồn chưa có số liệu ghi rõ là chưa có dữ liệu. Kế hoạch năm có phiên bản hai so với phiên bản một, và số ước giải ngân từng tháng.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-share-equity}}, vốn vay {{figure:ent-share-debt}} và vốn khác. Kế hoạch có bản giao đầu năm và bản hiện hành, chia theo quý và tháng. Số ước được thay bằng số thực khi có.
+> Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-equity-plan}}, chiếm {{figure:ent-share-equity}} kế hoạch, và vốn vay {{figure:ent-loan-plan}}, chiếm {{figure:ent-share-debt}}. Mỗi nguồn có số đã giải ngân và tỷ lệ so với kế hoạch của chính nguồn đó, nguồn chưa có số liệu ghi rõ là chưa có dữ liệu. Kế hoạch năm có phiên bản hai so với phiên bản một, và số ước giải ngân từng tháng.
 
 **Phụ đề**
 
-- Vốn chia theo cơ cấu doanh nghiệp: vốn chủ
-- sở hữu {n}, vốn vay {n} và vốn khác.
-- Kế hoạch có bản giao đầu năm và
-- bản hiện hành, chia theo quý và tháng.
-- Số ước được thay bằng số thực khi có.
+- Vốn chia theo cơ cấu doanh / nghiệp: vốn chủ sở hữu {n},
+- chiếm {n} kế hoạch, và / vốn vay {n}, chiếm {n}.
+- Mỗi nguồn có số đã giải ngân và / tỷ lệ so với kế hoạch của chính
+- nguồn đó, nguồn chưa có số / liệu ghi rõ là chưa có dữ liệu.
+- Kế hoạch năm có phiên bản hai so với phiên
+- bản một, và số ước giải ngân từng tháng.
 
 **Các bước quay**
 
+- `do=as persona=owner`
 - `do=open screen=HOME-07`
 - `do=spot ref=ent.capital.structure-bar`
-- `do=open screen=HOME-07`
-- `do=spot ref=ent.capital.estimate-to-actual`
+- `do=open screen=CAP-03`
+- `do=open screen=CAP-07`
+- `do=open screen=CAP-12`
 
 **Cần thấy trên hình**
 
 - [ ] Màn HOME-07 "Cơ cấu các nguồn vốn" mở được ở đường dẫn /home/home-07, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn CAP-03 "Kế hoạch năm" mở được ở đường dẫn /cap/cap-03, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn CAP-07 "Điều chỉnh và điều chuyển" mở được ở đường dẫn /cap/cap-07, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Màn CAP-12 "Kế hoạch ước giải ngân" mở được ở đường dẫn /cap/cap-12, có dữ liệu thật, không báo trống hay lỗi
+- [ ] Đăng nhập bằng tài khoản owner
 - [ ] Khung vào phần ent.capital.structure-bar đúng lúc giọng đọc nói tới
-- [ ] Khung vào phần ent.capital.estimate-to-actual đúng lúc giọng đọc nói tới
-- [ ] Con số ent-share-equity đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_SHARE_EQUITY].value); không gõ tay, thiếu giá trị thì dừng quay
-- [ ] Con số ent-share-debt đọc từ dữ liệu thật qua getKpiRegister (kpis[code=ENT_SHARE_DEBT].value); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-equity-plan đọc từ dữ liệu thật qua getLeaderRates (structure.classes[class_code=EQUITY].plan_vnd); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-share-equity đọc từ dữ liệu thật qua getLeaderRates (structure.classes[class_code=EQUITY].plan_share_pct); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-loan-plan đọc từ dữ liệu thật qua getLeaderRates (structure.classes[class_code=LOAN].plan_vnd); không gõ tay, thiếu giá trị thì dừng quay
+- [ ] Con số ent-share-debt đọc từ dữ liệu thật qua getLeaderRates (structure.classes[class_code=LOAN].plan_share_pct); không gõ tay, thiếu giá trị thì dừng quay
 - [ ] Vốn chủ sở hữu và vốn vay hiện cạnh nhau, tổng bằng kế hoạch năm
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
@@ -667,36 +688,33 @@ Màn hình: `ADM-19` Kho quy tắc quản trị (/adm/adm-19); `ADM-20` Chi ti�
 
 ### `ent-gates`
 
-Nền tảng: web; 13.9 giây; có trong video chính
+Nền tảng: web; 10.5 giây; có trong video chính
 
-Màn hình: `PRJ-14` Ngân hàng dự án và vòng đời PIMA (/prj/prj-14); `PRJ-15` Chấm điểm thẩm định (/prj/prj-15)
+Màn hình: `PRJ-14` Ngân hàng dự án và vòng đời PIMA (/prj/prj-14)
 
 **Lời đọc**
 
-> Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt. Thẩm định chấm điểm theo tiêu chí đã công bố.
+> Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt.
 
 **Lời gửi cho giọng đọc (đã phiên âm)**
 
-> Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt. Thẩm định chấm điểm theo tiêu chí đã công bố.
+> Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt.
 
 **Phụ đề**
 
 - Dự án đi qua các cổng giai đoạn, / từ chủ trương đến quyết toán.
 - Thiếu hồ sơ thì không qua cổng, ngoại / lệ phải có lý do và người duyệt.
-- Thẩm định chấm điểm theo / tiêu chí đã công bố.
 
 **Các bước quay**
 
 - `do=as persona=projectManager`
 - `do=open screen=PRJ-14`
 - `do=spot ref=prj.lifecycle.gates`
-- `do=open screen=PRJ-15`
 - `do=spot ref=prj.appraisal.criteria-scores`
 
 **Cần thấy trên hình**
 
 - [ ] Màn PRJ-14 "Ngân hàng dự án và vòng đời PIMA" mở được ở đường dẫn /prj/prj-14, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Màn PRJ-15 "Chấm điểm thẩm định" mở được ở đường dẫn /prj/prj-15, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần prj.lifecycle.gates đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần prj.appraisal.criteria-scores đúng lúc giọng đọc nói tới
@@ -704,7 +722,7 @@ Màn hình: `PRJ-14` Ngân hàng dự án và vòng đời PIMA (/prj/prj-14); `
 
 ### `ent-npv`
 
-Nền tảng: web; 13.6 giây; có trong video chính
+Nền tảng: web; 13.6 giây; chỉ trong chương cắt riêng
 
 Màn hình: `PRJ-24` Bàn thẩm định hiệu quả đầu tư (/prj/prj-24); `PRJ-23` Thẩm định hiệu quả đầu tư (/prj/prj-23)
 
@@ -1847,7 +1865,7 @@ Màn hình: `BI-20` Sổ chỉ tiêu (/bi/bi-20); `BI-19` Chứng nhận chỉ t
 
 ### `ana-evm`
 
-Nền tảng: web; 16 giây; có trong video chính
+Nền tảng: web; 16 giây; chỉ trong chương cắt riêng
 
 Màn hình: `PRJ-27` Giá trị thu được (EVM) và đường S (/prj/prj-27); `PRJ-26` Đường cơ sở, độ lệch và số lần dời mốc (/prj/prj-26)
 
@@ -2123,7 +2141,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `HOME-02` Việ
 
 **Các bước quay**
 
-- `do=as persona=owner`
+- `do=as persona=projectManager`
 - `do=open screen=HOME-01`
 - `do=click ref=shell.alert-bell`
 - `do=spot ref=alerts.drawer.consequence-line`
@@ -2132,7 +2150,7 @@ Màn hình: `HOME-01` Tổng quan điều hành (/home/home-01); `HOME-02` Việ
 
 - [ ] Màn HOME-01 "Tổng quan điều hành" mở được ở đường dẫn /home/home-01, có dữ liệu thật, không báo trống hay lỗi
 - [ ] Màn HOME-02 "Việc của tôi" mở được ở đường dẫn /home/home-02, có dữ liệu thật, không báo trống hay lỗi
-- [ ] Đăng nhập bằng tài khoản owner
+- [ ] Đăng nhập bằng tài khoản projectManager
 - [ ] Khung vào phần shell.alert-bell đúng lúc giọng đọc nói tới
 - [ ] Khung vào phần alerts.drawer.consequence-line đúng lúc giọng đọc nói tới
 - [ ] Chú thích "Khẩn · Cần xử lý · Theo dõi" hiện từ giây 2, kéo dài 5 giây

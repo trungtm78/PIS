@@ -1230,10 +1230,6 @@
       "screen": "planned:ent-calendar-board",
       "what": "calendar / step board (ent)"
     },
-    "ent.capital.estimate-to-actual": {
-      "screen": "HOME-07",
-      "what": "capital / estimate to actual (ent)"
-    },
     "ent.capital.structure-bar": {
       "screen": "HOME-07",
       "what": "capital / structure bar (ent)"

@@ -25,12 +25,12 @@
     },
     "ent-plan-year": {
       "kind": "money-billion",
-      "sample": 912.3,
-      "digits": 1,
-      "description": "Capital plan of the year in force (ENT_PLAN_IN_FORCE).",
+      "sample": 1534,
+      "digits": 0,
+      "description": "Capital plan of the year in force, company line of the frozen enterprise snapshot (HOME-09, HOME-07).",
       "source": {
-        "operation": "getKpiRegister",
-        "select": "kpis[code=ENT_PLAN_IN_FORCE].value"
+        "operation": "getLeaderRates",
+        "select": "company.plan_vnd"
       }
     },
     "ent-projects-total": {
@@ -44,22 +44,22 @@
     },
     "ent-share-equity": {
       "kind": "percent",
-      "sample": 63.2,
+      "sample": 47.8,
       "digits": 1,
-      "description": "Equity share of the year plan (ENT_SHARE_EQUITY).",
+      "description": "Equity share of the year plan (HOME-07).",
       "source": {
-        "operation": "getKpiRegister",
-        "select": "kpis[code=ENT_SHARE_EQUITY].value"
+        "operation": "getLeaderRates",
+        "select": "structure.classes[class_code=EQUITY].plan_share_pct"
       }
     },
     "ent-share-debt": {
       "kind": "percent",
-      "sample": 31.5,
+      "sample": 52.2,
       "digits": 1,
-      "description": "Loan share of the year plan (ENT_SHARE_DEBT).",
+      "description": "Loan share of the year plan (HOME-07).",
       "source": {
-        "operation": "getKpiRegister",
-        "select": "kpis[code=ENT_SHARE_DEBT].value"
+        "operation": "getLeaderRates",
+        "select": "structure.classes[class_code=LOAN].plan_share_pct"
       }
     },
     "ent-ebs-differences": {
@@ -69,6 +69,56 @@
       "source": {
         "operation": "listEbsDifferences",
         "select": "counts.open"
+      }
+    },
+    "ent-disbursed": {
+      "kind": "money-billion",
+      "sample": 928.8,
+      "digits": 1,
+      "description": "Disbursed since the start of the year, company line of the frozen enterprise snapshot (HOME-09).",
+      "source": {
+        "operation": "getLeaderRates",
+        "select": "company.disbursed_vnd"
+      }
+    },
+    "ent-disb-rate": {
+      "kind": "percent",
+      "sample": 60.54,
+      "digits": 2,
+      "description": "Disbursement rate against the annual plan (HOME-09).",
+      "source": {
+        "operation": "getLeaderRates",
+        "select": "company.rate_pct"
+      }
+    },
+    "ent-disb-rate-last-year": {
+      "kind": "percent",
+      "sample": 46.83,
+      "digits": 2,
+      "description": "The same rate one year earlier (HOME-09).",
+      "source": {
+        "operation": "getLeaderRates",
+        "select": "company.last_year.rate_pct"
+      }
+    },
+    "ent-equity-plan": {
+      "kind": "money-billion",
+      "sample": 733,
+      "digits": 0,
+      "description": "Equity plan of the year (HOME-07).",
+      "source": {
+        "operation": "getLeaderRates",
+        "select": "structure.classes[class_code=EQUITY].plan_vnd"
+      }
+    },
+    "ent-loan-plan": {
+      "kind": "money-billion",
+      "sample": 801,
+      "digits": 0,
+      "description": "Loan plan of the year (HOME-07).",
+      "source": {
+        "operation": "getLeaderRates",
+        "select": "structure.classes[class_code=LOAN].plan_vnd"
       }
     }
   },
@@ -261,7 +311,7 @@
       "id": "ent-home",
       "chapter": "leader-home",
       "main": true,
-      "narration": "Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}}, kế hoạch vốn năm {{figure:ent-plan-year}}, trên {{figure:ent-projects-total}} dự án.",
+      "narration": "Trang điều hành của Tổng công ty cho thấy tổng mức đầu tư {{figure:ent-total-investment}} trên {{figure:ent-projects-total}} dự án. Kế hoạch vốn năm là {{figure:ent-plan-year}}, đã giải ngân {{figure:ent-disbursed}}, đạt {{figure:ent-disb-rate}} so với kế hoạch, cao hơn {{figure:ent-disb-rate-last-year}} của cùng kỳ năm trước.",
       "screen": {
         "platform": "web",
         "screens": [
@@ -294,7 +344,7 @@
           "forSec": 5
         }
       ],
-      "expectedSec": 13.5
+      "expectedSec": 26.3
     },
     {
       "include": "shared/leader-home.json"
@@ -303,14 +353,21 @@
       "id": "ent-capital",
       "chapter": "capital",
       "main": true,
-      "narration": "Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-share-equity}}, vốn vay {{figure:ent-share-debt}} và vốn khác. Kế hoạch có bản giao đầu năm và bản hiện hành, chia theo quý và tháng. Số ước được thay bằng số thực khi có.",
+      "narration": "Vốn chia theo cơ cấu doanh nghiệp: vốn chủ sở hữu {{figure:ent-equity-plan}}, chiếm {{figure:ent-share-equity}} kế hoạch, và vốn vay {{figure:ent-loan-plan}}, chiếm {{figure:ent-share-debt}}. Mỗi nguồn có số đã giải ngân và tỷ lệ so với kế hoạch của chính nguồn đó, nguồn chưa có số liệu ghi rõ là chưa có dữ liệu. Kế hoạch năm có phiên bản hai so với phiên bản một, và số ước giải ngân từng tháng.",
       "screen": {
         "platform": "web",
         "screens": [
-          "HOME-07"
+          "HOME-07",
+          "CAP-03",
+          "CAP-07",
+          "CAP-12"
         ]
       },
       "steps": [
+        {
+          "do": "as",
+          "persona": "owner"
+        },
         {
           "do": "open",
           "screen": "HOME-07"
@@ -321,15 +378,19 @@
         },
         {
           "do": "open",
-          "screen": "HOME-07"
+          "screen": "CAP-03"
         },
         {
-          "do": "spot",
-          "ref": "ent.capital.estimate-to-actual"
+          "do": "open",
+          "screen": "CAP-07"
+        },
+        {
+          "do": "open",
+          "screen": "CAP-12"
         }
       ],
       "captions": [],
-      "expectedSec": 18.5
+      "expectedSec": 30.3
     },
     {
       "id": "ent-plan-versions",
@@ -422,12 +483,11 @@
       "id": "ent-gates",
       "chapter": "projects",
       "main": true,
-      "narration": "Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt. Thẩm định chấm điểm theo tiêu chí đã công bố.",
+      "narration": "Dự án đi qua các cổng giai đoạn, từ chủ trương đến quyết toán. Thiếu hồ sơ thì không qua cổng, ngoại lệ phải có lý do và người duyệt.",
       "screen": {
         "platform": "web",
         "screens": [
-          "PRJ-14",
-          "PRJ-15"
+          "PRJ-14"
         ]
       },
       "steps": [
@@ -444,21 +504,17 @@
           "ref": "prj.lifecycle.gates"
         },
         {
-          "do": "open",
-          "screen": "PRJ-15"
-        },
-        {
           "do": "spot",
           "ref": "prj.appraisal.criteria-scores"
         }
       ],
       "captions": [],
-      "expectedSec": 13.9
+      "expectedSec": 10.5
     },
     {
       "id": "ent-npv",
       "chapter": "projects",
-      "main": true,
+      "main": false,
       "narration": "Phân tích khả thi tính NPV, IRR, thời gian hoàn vốn và TCO bằng hàm có kiểm chứng, kèm kịch bản và độ nhạy. Mô hình chỉ hỗ trợ, quyết định thuộc hội đồng.",
       "screen": {
         "platform": "web",

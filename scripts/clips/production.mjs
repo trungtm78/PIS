@@ -50,6 +50,12 @@ export function loadRepoFacts() {
   const webRoutes = new Map(readJson(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'routes.generated.json')).routes.map((route) => [route.id, route.path]));
   const registry = readFileSync(join(REPO_ROOT, 'apps', 'web', 'src', 'routes', 'screens', 'index.ts'), 'utf8');
   const implemented = new Set([...registry.matchAll(/'([A-Z]+-\d+)':/gu)].map((match) => match[1]));
+  // Screens that only an edition carries (apps/web/src/editions/<edition>/screen-loaders.ts): the HPM and EBS screens of the enterprise edition.
+  const editionsDir = join(REPO_ROOT, 'apps', 'web', 'src', 'editions');
+  for (const entry of readdirSync(editionsDir, { withFileTypes: true })) {
+    const loaders = join(editionsDir, entry.name, 'screen-loaders.ts');
+    if (entry.isDirectory() && existsSync(loaders)) for (const match of readFileSync(loaders, 'utf8').matchAll(/'([A-Z]+-\d+)':/gu)) implemented.add(match[1]);
+  }
   const dart = readFileSync(join(REPO_ROOT, 'apps', 'mobile', 'lib', 'core', 'navigation', 'mobile_routes.generated.dart'), 'utf8');
   const mobileRoutes = new Map([...dart.matchAll(/MobileRoute\(id: '([A-Z]+-\d+)'(?:[^)]*?tab: AppTab\.(\w+))?/gu)].map((match) => [match[1], match[2] ?? 'stack']));
   const pwaText = readFileSync(join(REPO_ROOT, 'docs', 'pwa.md'), 'utf8');

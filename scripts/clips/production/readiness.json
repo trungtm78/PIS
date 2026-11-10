@@ -508,6 +508,27 @@
         },
         "clip-ent-bi": {
           "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-alerts": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-equipment": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-capital-prior": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-snapshot-prior": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-crosscheck": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-alert-triage": {
+          "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-capital-adjust": {
+          "proof": "RUN_VERIFIED"
         }
       },
       "chapters": {
@@ -517,12 +538,17 @@
         "leader-home": {
           "groups": [
             "clip-ent-projects",
-            "clip-ent-funding"
+            "clip-ent-funding",
+            "clip-ent-snapshot",
+            "clip-ent-snapshot-prior",
+            "clip-ent-alert-triage"
           ]
         },
         "capital": {
           "groups": [
-            "clip-ent-funding"
+            "clip-ent-funding",
+            "clip-ent-capital-adjust",
+            "clip-ent-capital-prior"
           ]
         },
         "projects": {
@@ -534,13 +560,14 @@
           "groups": [
             "clip-ent-reports"
           ],
-          "gaps": [
+          "notes": [
             "Sáu biểu mẫu là bản demo do hệ thống tự thiết kế, đóng dấu MẪU DEMO — chờ mẫu chính thức."
           ]
         },
         "workflow": {
           "groups": [
-            "clip-ent-reports"
+            "clip-ent-reports",
+            "clip-ent-workflow"
           ]
         },
         "hpm-ebs": {
@@ -548,7 +575,7 @@
             "clip-ent-reports",
             "clip-ent-ebs"
           ],
-          "gaps": [
+          "notes": [
             "Bản demo không bao giờ được HPM chấp nhận: nhật ký đẩy có một lần ghi tệp và một lần bị từ chối kèm lý do."
           ]
         },
@@ -558,36 +585,33 @@
           ]
         },
         "docs-ai": {
-          "groups": [],
-          "gaps": [
-            "Bộ dữ liệu doanh nghiệp chưa có nhóm cho kho hồ sơ dự án và trợ lý AI: cần nhóm bổ sung hoặc quay trên kho đã có."
+          "groups": [
+            "clip-ent-documents"
           ]
         },
         "analytics": {
           "groups": [
             "clip-ent-projects",
-            "clip-ent-funding"
-          ],
-          "gaps": [
-            "Chưa nạp được gói chỉ tiêu BI; các chương dùng chung cần số liệu đủ dày trên bộ dữ liệu doanh nghiệp."
+            "clip-ent-funding",
+            "clip-ent-bi"
           ]
         },
         "alerts": {
-          "groups": [],
-          "gaps": [
-            "Bộ dữ liệu doanh nghiệp không có nhóm luật và cảnh báo; chạy các nhóm cảnh báo của bộ công khai trên bản doanh nghiệp hoặc quay chương dùng chung trên bộ công khai."
+          "groups": [
+            "clip-ent-alerts",
+            "clip-ent-alert-triage"
           ]
         },
         "contractors": {
-          "groups": [],
-          "gaps": [
-            "Bộ dữ liệu doanh nghiệp không có nhóm nhà thầu; cần nhóm bổ sung hoặc dùng cảnh quay chung."
+          "groups": [
+            "clip-ent-procurement",
+            "clip-ent-contracts"
           ]
         },
         "process-tree": {
-          "groups": [],
-          "gaps": [
-            "Bộ dữ liệu doanh nghiệp không có nhóm quy trình gói thầu; cần chạy nhóm quy trình trên bản doanh nghiệp hoặc dùng cảnh quay chung."
+          "groups": [
+            "clip-ent-workflow",
+            "clip-ent-procurement"
           ]
         },
         "phone": {
@@ -595,7 +619,7 @@
             "clip-ent-projects",
             "clip-ent-directives"
           ],
-          "gaps": [
+          "notes": [
             "Ứng dụng cài đặt (PWA) cho lãnh đạo đọc tổng quan, hàng chờ duyệt và chỉ đạo của cùng bộ dữ liệu."
           ]
         },

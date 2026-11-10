@@ -154,7 +154,10 @@
           "forSec": 5
         }
       ],
-      "expectedSec": 16
+      "expectedSec": 16,
+      "mainFor": [
+        "public"
+      ]
     },
     {
       "id": "ana-bi-dashboard",

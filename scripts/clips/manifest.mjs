@@ -108,6 +108,27 @@ export async function enterpriseValues({ apiUrl, headers, planYear = new Date().
     out['ent-share-equity'] = Math.round((sumOf(accepted.filter((row) => row.class_code === 'EQUITY')) / total) * 1000) / 10;
     out['ent-share-debt'] = Math.round((sumOf(accepted.filter((row) => row.class_code === 'LOAN')) / total) * 1000) / 10;
   }
+  // The home screens of the enterprise edition (HOME-09, HOME-07) read the latest frozen snapshot through getLeaderRates: when it exists those numbers win, so the narration and the screen show one figure.
+  const rates = (await getJson(apiUrl, headers, '/leader/rates')).json;
+  if (rates?.company?.plan_vnd !== undefined && rates.company.plan_vnd !== null) {
+    const billions = (text) => Math.round((Number(text) / 1e9) * 10) / 10;
+    const percent = (text) => Math.round(Number(text) * 100) / 100;
+    out['ent-plan-year'] = billions(rates.company.plan_vnd);
+    if (rates.company.disbursed_vnd != null) out['ent-disbursed'] = billions(rates.company.disbursed_vnd);
+    if (rates.company.rate_pct != null) out['ent-disb-rate'] = percent(rates.company.rate_pct);
+    if (rates.company.last_year?.rate_pct != null) out['ent-disb-rate-last-year'] = percent(rates.company.last_year.rate_pct);
+    const classes = rates.structure?.classes ?? [];
+    const equity = classes.find((row) => row.class_code === 'EQUITY');
+    const loan = classes.find((row) => row.class_code === 'LOAN');
+    if (equity?.plan_vnd != null) {
+      out['ent-share-equity'] = Math.round(Number(equity.plan_share_pct) * 10) / 10;
+      out['ent-equity-plan'] = billions(equity.plan_vnd);
+    }
+    if (loan?.plan_vnd != null) {
+      out['ent-share-debt'] = Math.round(Number(loan.plan_share_pct) * 10) / 10;
+      out['ent-loan-plan'] = billions(loan.plan_vnd);
+    }
+  }
   return out;
 }
 
@@ -122,6 +143,9 @@ export async function buildManifest({ scenario, apiUrl, key, tenantId, membershi
   const enterprise = scenario.edition === 'enterprise' && officerMembershipId !== undefined ? await enterpriseValues({ apiUrl, headers: { authorization: `Bearer ${tokenFor({ key, tenantId, membershipId: officerMembershipId })}` } }) : {};
   for (const [id, declaration] of Object.entries(scenario.figures)) {
     const { operation, select } = declaration.source;
+    // A figure that a screen shows to one person is read as that person (`source.as`, a key of e2e-fixtures.json); the others are read as the reader of the manifest.
+    const hdrs = declaration.source.as === undefined ? headers : { authorization: `Bearer ${tokenFor({ key, tenantId, membershipId: JSON.parse(readFileSync(FIXTURES, 'utf8')).users.find((user) => user.key === declaration.source.as).membershipId })}` };
+    const who = declaration.source.as ?? '';
     const reader = READERS[id];
     if (enterprise[id] !== undefined) {
       figures[id] = { value: enterprise[id], source: 'the accepted plans of the year (GET /funding-figures/batches) and the total investment of the projects (GET /resources/project/{id})' };
@@ -139,8 +163,8 @@ export async function buildManifest({ scenario, apiUrl, key, tenantId, membershi
     }
     const spec = operations[operation];
     if (reader !== undefined) {
-      if (!cache.has(reader.path)) cache.set(reader.path, await getJson(apiUrl, headers, reader.path));
-      const answer = cache.get(reader.path);
+      if (!cache.has(who + reader.path)) cache.set(who + reader.path, await getJson(apiUrl, hdrs, reader.path));
+      const answer = cache.get(who + reader.path);
       const found = answer.error === undefined ? selectValue(answer.json, reader.select) : undefined;
       if (found !== undefined && found !== null && !Number.isNaN(Number(found))) {
         figures[id] = { value: Math.round(Number(found) * (reader.scale ?? 1) * 1e4) / 1e4, source: `${reader.path} ${reader.select}` };
@@ -174,8 +198,8 @@ export async function buildManifest({ scenario, apiUrl, key, tenantId, membershi
         }
         path = path.replace('__first__', encodeURIComponent(firstNode));
       }
-      if (!cache.has(path)) cache.set(path, await getJson(apiUrl, headers, path));
-      const answer = cache.get(path);
+      if (!cache.has(who + path)) cache.set(who + path, await getJson(apiUrl, hdrs, path));
+      const answer = cache.get(who + path);
       if (answer.error !== undefined) {
         reason = `${path}: HTTP ${answer.error}`;
         continue;
