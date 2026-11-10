@@ -4,7 +4,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 - Mã đoạn phim: `public-investment`
 - Bản: public
-- Video chính: 11:54 (49 cảnh)
+- Video chính: 11:14 (46 cảnh)
 
 Độ dài là ước tính theo số âm tiết; khi có âm thanh thật, độ dài đo được thay thế và cổng cuối là `scripts/clips/verify.mjs`.
 
@@ -12,7 +12,7 @@ Tệp này được sinh từ dữ liệu kịch bản bằng `node scripts/clip
 
 | Chương | Số cảnh | Độ dài ước tính |
 |---|---|---|
-| Video chính (`main`) | 49 | 11:54 |
+| Video chính (`main`) | 46 | 11:14 |
 | Giới thiệu hệ thống (`intro`) | 5 | 1:20 |
 | Tổng quan điều hành (`leader-home`) | 7 | 1:36 |
 | Giải ngân và kế hoạch vốn (`disbursement`) | 7 | 1:35 |
@@ -150,11 +150,11 @@ Chỉ dùng bản nhạc CC0, chờ chủ sở hữu duyệt. Máy trộn hiện
 |---|---|---|---|---|
 | `pub-open` | `intro` | 0:00 | 0 dB | Vào dần trong hai giây, nhạc mở đầu trên thẻ tiêu đề và hoạt cảnh bài toán. |
 | `pub-overview` | `leader-home`, `disbursement`, `contracts` | 1:20 | 0 dB | Phần điều hành, vốn và hợp đồng: nền ổn định. |
-| `pub-numbers` | `analytics`, `alerts`, `contractors` | 3:16 | -3 dB | Lời đọc dày chỉ tiêu và thuật ngữ: nhạc lùi. |
-| `pub-egp` | `egp`, `province-committee` | 6:04 | -3 dB | Hai chương nhiều quy trình và số liệu: nhạc lùi. |
-| `pub-tree-phone` | `process-tree`, `phone` | 8:38 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
-| `pub-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `capital-control`, `payments`, `reports-close`, `monitoring`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `portal-public`, `platform`, `phone-plus` | 10:56 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
-| `pub-close` | `close` | 11:25 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
+| `pub-numbers` | `analytics`, `alerts`, `contractors` | 3:03 | -3 dB | Lời đọc dày chỉ tiêu và thuật ngữ: nhạc lùi. |
+| `pub-egp` | `egp`, `province-committee` | 5:25 | -3 dB | Hai chương nhiều quy trình và số liệu: nhạc lùi. |
+| `pub-tree-phone` | `process-tree`, `phone` | 7:59 | 2 dB | Chương có nhiều chuyển động trên hình và trên điện thoại: nhạc nhỉnh lên. |
+| `pub-more` | `features-tour`, `contractors-plus`, `contractor-portal`, `claims-warnings`, `alerts-plus`, `delegation`, `audit-controls`, `risk-forecast`, `project-life`, `capital-control`, `payments`, `reports-close`, `monitoring`, `procurement-desk`, `contract-delivery`, `field-ops`, `docs-ai-plus`, `correspondence`, `integration`, `portal-public`, `platform`, `phone-plus` | 10:17 | -3 dB | Phần các chức năng bổ sung: lời đọc dày thuật ngữ nên nhạc lùi, hoạt cảnh tổng hợp mở đầu phần này. |
+| `pub-close` | `close` | 10:46 | 0 dB | Kết thúc: nhạc tắt dần trong bốn giây sau thẻ cuối. |
 
 ## Giới thiệu hệ thống (`intro`)
 
@@ -650,7 +650,7 @@ Màn hình: `PAY-20` Đối soát Kho bạc hằng ngày theo dự án và ngu�
 
 ### `cap-realloc`
 
-Nền tảng: web; 12.7 giây; có trong video chính
+Nền tảng: web; 12.7 giây; chỉ trong chương cắt riêng
 
 Màn hình: `CAP-19` Đề xuất điều chuyển vốn chậm sang nhanh (/cap/cap-19); `CAP-09` Mô phỏng phân bổ (/cap/cap-09)
 
@@ -1009,7 +1009,7 @@ Màn hình: `CTR-28` Trung tâm báo cáo phân tích hợp đồng (/ctr/ctr-28
 
 ### `ana-kpi-info`
 
-Nền tảng: web; 10.5 giây; có trong video chính
+Nền tảng: web; 10.5 giây; chỉ trong chương cắt riêng
 
 Màn hình: `BI-20` Sổ chỉ tiêu (/bi/bi-20); `BI-19` Chứng nhận chỉ tiêu và bộ dữ liệu (/bi/bi-19)
 
@@ -1045,7 +1045,7 @@ Màn hình: `BI-20` Sổ chỉ tiêu (/bi/bi-20); `BI-19` Chứng nhận chỉ t
 
 ### `ana-evm`
 
-Nền tảng: web; 16 giây; có trong video chính
+Nền tảng: web; 16 giây; chỉ trong chương cắt riêng
 
 Màn hình: `PRJ-27` Giá trị thu được (EVM) và đường S (/prj/prj-27); `PRJ-26` Đường cơ sở, độ lệch và số lần dời mốc (/prj/prj-26)
 
