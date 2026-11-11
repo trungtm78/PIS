@@ -147,6 +147,8 @@ eval "${cmd//\/sdcard/$root}"
       final Directory bin = Directory('${phone.path}/bin')..createSync();
       final Directory sdcard = Directory('${phone.path}/sdcard')..createSync();
       File('${bin.path}/adb').writeAsStringSync(fakeAdb);
+      // A shell finds `adb` on the PATH only when the file is executable: Windows has no such bit, Linux and macOS do.
+      if (!Platform.isWindows) Process.runSync('chmod', <String>['755', '${bin.path}/adb']);
       if (staleDump) File('${sdcard.path}/machvon_cold.xml').writeAsStringSync('<hierarchy rotation="0"><node text="$marker" /></hierarchy>');
       final ProcessResult result = await Process.run(
         'bash',
