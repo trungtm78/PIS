@@ -1,6 +1,14 @@
-STATUS: IN_PROGRESS
+STATUS: BLOCKED
 
 # PROGRESS
+
+## Blocker
+
+1. Vấn đề chính xác: CI trên GitHub đỏ ở các job Mobile (bước "Test (with coverage)"), Security (Trivy "Scan the repository" và gitleaks "Scan the history"), Images ("Scan the image", cả 8 ảnh) và Browser ("Route walk, flows and visual regions") cho commit 709181e6d trở về 1adfa198e; log chi tiết bị chặn: API `GET /actions/jobs/{id}/logs` trả 403 "Must have admin rights to Repository." (tài khoản không có quyền admin trên trungtm78/PIS).
+2. Đã thử: (a) `gh` CLI không có trên máy; (b) API log công khai trả 403; (c) annotations của check-run chỉ cho "Process completed with exit code N"; (d) tái hiện cục bộ: `npm test --workspaces` tìm và sửa 4 test đỏ (egp-posting, rls-catalog + migration V2882, vendor-store, DrillDowns), lỗi typecheck e2e, lệnh jest sai trong workflow, giới hạn thời gian 20 phút của job Protocol gates (đã nâng lên 150, commit 3dbd5c37f, CHƯA push); các job Mobile (48 test SQLite bị Windows Smart App Control chặn), Security và Images không tái hiện được cục bộ.
+3. Đề xuất: chủ sở hữu dán tên bước đỏ và vài dòng lỗi của các job Mobile, Security, Images, Browser từ tab Actions (với gitleaks chỉ cần tệp, dòng, quy tắc; không dán chuỗi bí mật); và cho phép đẩy commit 3dbd5c37f (lần --no-verify thứ chín) để CI chạy lại.
+4. Câu hỏi: bạn cho phép đẩy commit 3dbd5c37f lên GitHub bằng --no-verify (lần thứ chín) và gửi log các job đỏ nêu trên chứ?
+
 BƯỚC TIẾP THEO: (1) bản demo Đạm Phú Mỹ đã GO (7debcc5d trên GitHub); main đã đẩy lên GitHub tại 1adfa198e (lần --no-verify thứ sáu, chủ sở hữu cho phép); CI phải chạy 48 test SQLite mà máy này không chạy được; trước đó main hơn GitHub khoảng 61 commit sau demo (sửa UAT lượt 3 đến 5, phim v3, dữ liệu mồi, thiết bị không cần token đẩy V2900), chưa đẩy: cần xin phép --no-verify (Smart App Control chặn test Flutter cục bộ); (2) đã kiểm trên máy giả lập: flow 06, 10, 30 chạy trọn trên UI thật, đăng ký thiết bị không token, báo cáo nộp đúng một lần; (3) clip v3 của hai bản ở Design/Requirments/Clips/v3 (chưa dựng: 9 chương tính năng doanh nghiệp, contractors-plus, phone-plus, cổng nhà thầu, ủy quyền, audit-controls; dữ liệu mồi và tài khoản đã bổ sung bằng fixab); (4) còn lại: UAT lượt 6 (khóa chứng âm và neo oracle sau khi có đủ kịch bản, G15 DB, flow 20 trên máy thật), 10 test Dart đỏ có sẵn (registry, accessibility sweep, device artifacts), việc ngoài mã (pentest độc lập, phần cứng khách, đào tạo), giọng VieNeuTTS khi có khóa, nhạc chờ duyệt.
 Cập nhật: 2026-11-08 | Đã hợp nhất đợt 1 của hai sản phẩm (nền quản trị, đồng hồ, kiểm soát tiền, toàn vẹn, phân tích hợp đồng, chỉ đạo, theo dõi mua sắm theo luồng, bộ máy báo cáo, cơ chế bản doanh nghiệp, PWA); trước đó 2026-11-05T17:30+07:00 | Milestone: M3/6 | Task: OMNI-1 xong ST-OMNI-001, 002, 003; NOT-1 xong 007, 009, 010; còn R2: OMNI-004..007, MOB-007, CTR/PAY/ISS/QMS/LND/AST/DOC/BID/LLM/BI/DGV/ADM/SAS/MDM/PRJ/CAP/MNE
 
