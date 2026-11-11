@@ -9,6 +9,7 @@ import 'package:machvon_mobile/core/navigation/mobile_routes.generated.dart';
 import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
 import 'package:machvon_mobile/core/navigation/route_policy.dart';
 import 'package:machvon_mobile/core/navigation/route_table.dart';
+import 'package:machvon_mobile/editions/enterprise/enterprise_home_strings.dart';
 import 'package:machvon_mobile/features/registry.generated.dart';
 
 import '../../tool/generate_registry.dart' as registry_tool;
@@ -22,13 +23,14 @@ ScreenSpec _spec(String id, {String suffix = ''}) => ScreenSpec(screenId: id, bu
 
 void main() {
   group('TK-MOB-001-1 the generated files match their sources', () {
+    // A Windows checkout with core.autocrlf holds the generated files with CRLF; the generators write LF (CI is Linux).
     test('the route table matches navigation_architecture.json and screen_catalog.json', () {
-      expect(File(routes_tool.generatedRoutesFile).readAsStringSync(), routes_tool.expectedRoutes());
+      expect(File(routes_tool.generatedRoutesFile).readAsStringSync().replaceAll('\r\n', '\n'), routes_tool.expectedRoutes());
     });
 
     test('the feature registry lists every lib/features/<name>/<name>_feature.dart', () {
       final String expected = registry_tool.renderRegistry(registry_tool.discoverFeatures());
-      expect(File(registry_tool.generatedRegistryFile).readAsStringSync(), expected);
+      expect(File(registry_tool.generatedRegistryFile).readAsStringSync().replaceAll('\r\n', '\n'), expected);
     });
 
     test('the registry is rendered in name order with a prefix per feature', () {
@@ -50,9 +52,9 @@ void main() {
   });
 
   group('TK-MOB-001-1 the screens of the catalogue', () {
-    test('there are 79 screens: the 74 MOB screens, the four web screens that are also on the phone and DIR-06 (the directives of the steering meetings)', () {
-      expect(kMobileRoutes, hasLength(79));
-      expect(kMobileRoutes.where((MobileRoute route) => route.id.startsWith('MOB-')), hasLength(74));
+    test('there are 82 screens: the 77 MOB screens, the four web screens that are also on the phone and DIR-06 (the directives of the steering meetings)', () {
+      expect(kMobileRoutes, hasLength(82));
+      expect(kMobileRoutes.where((MobileRoute route) => route.id.startsWith('MOB-')), hasLength(77));
     });
 
     test('every screen has its functional requirement and its UI test id', () {
@@ -149,6 +151,7 @@ void main() {
   group('TK-MOB-001-5 the string tables', () {
     final List<StringTable> tables = <StringTable>[
       kCoreStrings,
+      kEnterpriseHomeStrings,
       for (final MobileFeature feature in kAllFeatures)
         if (feature.strings != null) feature.strings!,
     ];
