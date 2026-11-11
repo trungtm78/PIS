@@ -13,6 +13,14 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
  */
 
 const TENANT = stackInfo().tenants.A;
+/**
+ * The edition the stack serves (MACHVON_EDITION, which the stack and the browser build both read, as in cap-flows). The enterprise pack has its own origins, one budget level, a kind of decision document and the classes
+ * EQUITY, LOAN and OTHER in place of CURRENT_YEAR and CARRYOVER: an appropriation written for these flows carries the pack of the edition, or the screen (which opens on EQUITY) is refused "Trường bucket chưa hợp lệ".
+ */
+const ENTERPRISE = (process.env.MACHVON_EDITION ?? process.env.VITE_EDITION) === 'enterprise';
+const PACK = ENTERPRISE
+  ? { pack: 'ENTERPRISE', origin: 'GROUP_ASSIGNED', level: 'ALL', kind: 'GROUP_RESOLUTION', bucket: 'EQUITY' }
+  : { pack: 'PUBLIC', origin: 'PM_ASSIGNED', level: 'CENTRAL', kind: null, bucket: 'CURRENT_YEAR' };
 const BILLION = 1_000_000_000;
 
 /** The decision documents the stack seeds in tenant A (apps/api/test/e2e-stack): 1 to 4. */
@@ -44,9 +52,9 @@ async function seedAppropriation(year: number, amount: number, fundKey = 'NSTW')
   );
   await sql(
     `insert into machvon.appropriation
-       (tenant_id, id, fund_source_version_id, plan_year, origin, budget_level, amount_vnd, allocated_total_vnd, decision_document_id, issuing_authority, source_year, revision, status, approved_by, created_by, updated_by)
-     values ($1, $2, $3, $4, 'PM_ASSIGNED', 'CENTRAL', $5::numeric, 0, $6, 'Thủ tướng Chính phủ', $4, 1, 'PUBLISHED', $7, $8, $8)`,
-    [TENANT, id, fund?.id, year, String(amount * BILLION), docId(1), membershipOf('capApprover'), membershipOf('owner')],
+       (tenant_id, id, fund_source_version_id, plan_year, origin, budget_level, amount_vnd, allocated_total_vnd, decision_document_id, issuing_authority, source_year, revision, status, approved_by, created_by, updated_by, taxonomy_pack, decision_kind)
+     values ($1, $2, $3, $4, $9, $10, $5::numeric, 0, $6, 'Thủ tướng Chính phủ', $4, 1, 'PUBLISHED', $7, $8, $8, $11, $12)`,
+    [TENANT, id, fund?.id, year, String(amount * BILLION), docId(1), membershipOf('capApprover'), membershipOf('owner'), PACK.origin, PACK.level, PACK.pack, PACK.kind],
   );
   return id;
 }
@@ -88,9 +96,9 @@ async function seedLine(planId: string, project: string, appropriation: string, 
   }
   await sql(
     `insert into machvon.allocation_line
-       (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin, created_by, updated_by)
-     values ($1, $2, $3, $4, 'CURRENT_YEAR', $5, $6::numeric, $7::numeric, $8, $9, $10, $11, $12, $12)`,
-    [TENANT, lineId, versionId, source?.fund_source_version_id, year, String(amount * BILLION), String(ctmtqg), appropriation, project, source?.budget_level, source?.origin, membershipOf('planPlanner')],
+       (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, appropriation_id, project_id, budget_level, origin, created_by, updated_by, taxonomy_pack)
+     values ($1, $2, $3, $4, $13, $5, $6::numeric, $7::numeric, $8, $9, $10, $11, $12, $12, $14)`,
+    [TENANT, lineId, versionId, source?.fund_source_version_id, year, String(amount * BILLION), String(ctmtqg), appropriation, project, source?.budget_level, source?.origin, membershipOf('planPlanner'), PACK.bucket, PACK.pack],
   );
   await sql(
     `begin; select set_config('app.cap_allocation_write', 'on', true); update machvon.appropriation set allocated_total_vnd = allocated_total_vnd + ${amount * BILLION} where id = '${appropriation}'; update machvon.capital_plan set version = version + 1 where id = '${planId}'; commit`,
@@ -206,6 +214,7 @@ test.describe('CAP-01 and CAP-02: creating a plan and proposing capital', () => 
   });
 
   test('the CTMTQG part is inside its line: CAP-02 refuses a part larger than the amount, and CAP-03 totals the lines without adding it (AC-ST-CAP-002-3)', async ({ page }) => {
+    test.skip(ENTERPRISE, 'the CTMTQG subset belongs to the public pack: the enterprise pack has no subset (the form has no such field, the API refuses a non-zero one)');
     const year = 2032;
     const nstw = await seedAppropriation(year, 10);
     const nsdp = await seedAppropriation(year, 5, 'NSDP');
