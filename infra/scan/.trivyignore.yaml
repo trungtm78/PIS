@@ -1,0 +1,12 @@
+# Accepted Trivy findings of the product (policy: infra/scan/trivy.yaml, rules: docs/runbooks/infra/security-scanning.md).
+# Every entry names the exact file, the owner, the reason and a last day (at most 90 days); after that day the finding fails the scan again and must be fixed or re-reviewed.
+misconfigurations:
+  - id: DS-0002
+    paths:
+      - "infra/onprem/docker/db.Dockerfile"
+    statement: >-
+      Owner: platform owner (PIS). The database image has no USER on purpose: the PostgreSQL entrypoint starts as root only to chown the data directory and the secret files,
+      then drops to the postgres user with gosu before any database process starts. The container is hardened in infra/onprem/compose/compose.yaml (no-new-privileges, all capabilities dropped,
+      only CHOWN, DAC_OVERRIDE, FOWNER, SETGID and SETUID added). Running the whole image as postgres would break the initdb of a fresh volume
+      and cannot be proven here without a container daemon. Review the move to a rootless start (arbitrary --user of the official image) before the last day.
+    expired_at: 2027-02-09
