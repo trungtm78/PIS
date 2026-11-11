@@ -121,12 +121,13 @@ describe('FiguresDetailScreen (PWA-08): the drill-down of the command center', (
 });
 
 describe('the phone layout (360 px)', () => {
-  const css = readFileSync(join(__dirname, 'pwa.css'), 'utf8');
+  // The stylesheet is written over several lines: the checks compare it with its whitespace collapsed.
+  const css = readFileSync(join(__dirname, 'pwa.css'), 'utf8').replace(/\s+/g, ' ');
 
   it('keeps every screen to one column that never grows past the width, and wraps long words (AC-ST-PWA-002-3)', () => {
     expect(css).toMatch(/\.pwa-screen \{[^}]*max-width: 720px/);
     expect(css).toMatch(/\.pwa-screen \{[^}]*min-width: 0; overflow-wrap: anywhere/);
-    expect(css).toMatch(/@media \(max-width: 480px\) \{ \.pwa-screen table \{ display: block; overflow-x: auto; max-width: 100%; \} \}/);
+    expect(css).toMatch(/@media \(max-width: 480px\) \{[^@]*\.pwa-screen table \{ display: block; overflow-x: auto; max-width: 100%; \}/);
     expect(css).toMatch(/\.pwa-tiles \{[^}]*repeat\(2, minmax\(0, 1fr\)\)/);
   });
 
