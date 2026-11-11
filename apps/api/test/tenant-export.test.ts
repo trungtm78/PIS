@@ -466,7 +466,8 @@ describe('the export of the data of a tenant and its offboarding over HTTP (ST-S
     await admin("update machvon.tenant_export_job set expires_at = now() - interval '1 minute' where id = $1", [exportId]);
     await admin('alter table machvon.tenant_export_job enable trigger tenant_export_job_guard');
     expect(await fetchWith(() => undefined)).toBe(422);
-  });
+    // Like every other case of this file it creates a tenant and runs the export worker on a real database: the 5 s default of Jest is too short on a slow runner (the ARM one).
+  }, 120_000);
 
   it('keeps the lifecycle for the System Admin: the Support Operator, the Billing Operator and every member of a tenant are refused', async () => {
     const t = await tenant();
