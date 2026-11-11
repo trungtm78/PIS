@@ -49567,9 +49567,10 @@
                               "granted",
                               "denied",
                               "provisional",
-                              "unknown"
+                              "unknown",
+                              "unavailable"
                             ],
-                            "description": "What the operating system allows this device to do with notifications"
+                            "description": "What the operating system allows this device to do with notifications; unavailable when the build or the device has no push provider"
                           },
                           "push_owner": {
                             "type": "boolean",
@@ -241554,10 +241555,10 @@
         "required": [
           "device_public_id",
           "platform",
-          "push_token",
           "permission_state",
           "app_version"
         ],
+        "description": "The registration of the installation of the app: once for each device, with or without a push token. A build without a push provider (or a person who refused the permission) registers with no push_token and gets the id that the offline command queue names as its device (sync batches); the registration can be repeated later with a token and keeps its id. The state 'unavailable' says that the build or the device has no push provider at all.",
         "properties": {
           "device_public_id": {
             "type": "string",
@@ -241574,7 +241575,8 @@
           },
           "push_token": {
             "type": "string",
-            "maxLength": 4096
+            "maxLength": 4096,
+            "description": "The token the push provider gave the app. Absent (or empty) when the device has none: the device is then registered for the offline queue and receives nothing by push, and a token it held before is taken out of the vault"
           },
           "permission_state": {
             "type": "string",
@@ -241582,7 +241584,8 @@
               "granted",
               "denied",
               "provisional",
-              "unknown"
+              "unknown",
+              "unavailable"
             ]
           },
           "app_version": {
@@ -261818,8 +261821,10 @@
               "granted",
               "denied",
               "provisional",
-              "unknown"
-            ]
+              "unknown",
+              "unavailable"
+            ],
+            "description": "What the operating system allows this device to do with notifications; unavailable when the build or the device has no push provider (the device is then registered without a push token)"
           },
           "app_version": {
             "type": "string"

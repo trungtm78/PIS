@@ -26,6 +26,7 @@ const APP_VERSION = /^[0-9A-Za-z.+_-]{1,40}$/;
 const LOCALE = /^[a-z]{2}-[A-Z]{2}$/;
 const STATUSES: readonly string[] = ['Active', 'Revoked'];
 const PLATFORMS: readonly string[] = ['ios', 'android', 'web'];
+const PERMISSION_STATES: readonly string[] = ['granted', 'denied', 'provisional', 'unknown', 'unavailable'];
 
 /** The shape of the public id that is shown: enough to tell two devices apart, never the whole of it. */
 export function deviceHint(devicePublicId: string): string {
@@ -50,7 +51,8 @@ function viewOf(row: DeviceRegistrationRecord): Schemas['DeviceRegistration'] {
 
 /**
  * The push devices (ST-NOT-006, NOT 3.7). A member registers their own device: once for each device, whatever the number of times the app asks, with the token the provider gave it. The token goes to the vault and the
- * database keeps its fingerprint; it is never in an answer, an audit row or an event. The operators of the tenant read the devices without the token and without the whole public id of the device (NOT-14). A device that
+ * database keeps its fingerprint; it is never in an answer, an audit row or an event. The token is optional (FIXAE-1): the registration is also what gives the app the id of its device for the offline command queue, so a build
+ * without a push provider, or a person who refused the permission, registers with no token and is simply never a push target; registering again with a token later is the same registration. The operators of the tenant read the devices without the token and without the whole public id of the device (NOT-14). A device that
  * the member removes, or whose session ends, is revoked by IAM (ST-IAM-006), which takes the token out of the vault.
  */
 @Controller()
@@ -67,8 +69,12 @@ export class DeviceRegistrationsController {
   @OperationId('registerDevice')
   @Command({ operation: 'registerDevice' })
   async register(@Scope() scope: CommandScope, @Req() request: object, @Body() body: Schemas['DeviceRegister']): Promise<CommandResult> {
-    const token = typeof body.push_token === 'string' ? body.push_token.trim() : '';
-    if (token === '') throw new DomainError('VALIDATION_FAILED', 422, 'push_token');
+    if (body.push_token !== undefined && typeof body.push_token !== 'string') throw new DomainError('VALIDATION_FAILED', 422, 'push_token');
+    // An empty token is no token: the device has none (the app has nothing to send), which is a registration of its own kind.
+    const token = body.push_token?.trim() ?? '';
+    if (!PERMISSION_STATES.includes(body.permission_state)) throw new DomainError('VALIDATION_FAILED', 422, 'permission_state');
+    // A device with a token has a provider: it cannot say that it has none. (The other states are the operating system's to say; a token with 'denied' is revoked at the provider and ignored when pushing.)
+    if (token !== '' && body.permission_state === 'unavailable') throw new DomainError('VALIDATION_FAILED', 422, 'permission_state');
     if (!DEVICE_PUBLIC_ID.test(body.device_public_id)) throw new DomainError('VALIDATION_FAILED', 422, 'device_public_id');
     if (!APP_VERSION.test(body.app_version)) throw new DomainError('VALIDATION_FAILED', 422, 'app_version');
     const locale = body.locale ?? 'vi-VN';
@@ -83,7 +89,7 @@ export class DeviceRegistrationsController {
         permissionState: body.permission_state,
         appVersion: body.app_version,
         locale,
-        tokenFingerprint: createHash('sha256').update(token, 'utf8').digest('hex'),
+        tokenFingerprint: token === '' ? undefined : createHash('sha256').update(token, 'utf8').digest('hex'),
       },
       newId,
       pushSecretRefOf(scope.tenant.tenantId, newId),
@@ -93,8 +99,11 @@ export class DeviceRegistrationsController {
     // registration that was new takes its token away, a rotation puts the previous token back.
     // Every new token has a reference of its own, so no command ever overwrites a token that another command may still need: a command that does not commit removes the token it wrote (the row goes back to its
     // old reference with the transaction, and the old token was never touched), and one that commits removes the token it replaced. A repeated registration of the same token writes the same value to the same place.
-    if (registered.tokenChanged) scope.afterRollback(() => this.vault.remove(registered.secretRef));
-    await this.vault.put(registered.secretRef, token);
+    const secretRef = registered.secretRef;
+    if (secretRef !== undefined) {
+      if (registered.tokenChanged) scope.afterRollback(() => this.vault.remove(secretRef));
+      await this.vault.put(secretRef, token);
+    }
     const replaced = registered.previousRef;
     if (replaced !== undefined) scope.afterCommit(() => this.vault.remove(replaced));
     // The session the request is made with belongs to this device from now on, so that removing the device signs the session out and signing the session out removes the device and its token (IAM, ST-IAM-006).
@@ -113,7 +122,7 @@ export class DeviceRegistrationsController {
       resourceId: registered.id,
       classification: 'PERSONAL',
       // The platform and the state of the permission only: no token, no fingerprint, no public id.
-      diff: { platform: body.platform, permission_state: body.permission_state, app_version: body.app_version, token_changed: registered.tokenChanged },
+      diff: { platform: body.platform, permission_state: body.permission_state, app_version: body.app_version, token_changed: registered.tokenChanged, has_token: secretRef !== undefined },
     });
     return commandResult(scope, registered.created ? 'REGISTERED' : 'UPDATED', 1, registered.id);
   }

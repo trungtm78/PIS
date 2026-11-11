@@ -55,7 +55,7 @@ Tiền điều kiện: `notification_event_type` Active; có `workflow_version` 
 Failed sau hết retry và fallback → DLQ (NOT-13) lưu payload reference tối thiểu, lỗi, số lần. `post_notifications_id_replay` (If-Match): kiểm lại consent, quyền, `expires_at` (hết hạn → 409 `NOTIFICATION_EXPIRED`), trạng thái Unknown phải đối soát trước (409 `RECONCILE_REQUIRED`); tạo attempt mới tiếp số thứ tự nhưng **không vượt cap 5** — nếu đã 5 lần, replay tạo một chuỗi mới có `attempt_no` reset trong bản ghi replay (`notification_instance` mới với dedupe `n1:` của `replay:{id}:{n}`) [GIẢ ĐỊNH — giữ bất biến cap]. `cancelNotification` trước ProviderAccepted → Cancelled; sau đó chỉ ghi `cancel_requested` trong audit.
 
 ### 3.7 Thiết bị push (NOT-14)
-`registerDevice` idempotent theo `(membership, device_public_id)`; token chỉ lưu vault ref + `token_fingerprint`; lỗi vĩnh viễn (UNREGISTERED/BadDeviceToken) → revoke thiết bị; đăng xuất/đổi tenant → revoke (IAM §3.5).
+`registerDevice` idempotent theo `(membership, device_public_id)`; token chỉ lưu vault ref + `token_fingerprint`; **token là tùy chọn** (FIXAE-1, 2026-11-11): bản app không có push (demo, giả lập, khách tắt push) đăng ký không kèm `push_token` với `permission_state` = `unavailable`, vẫn nhận id thiết bị để hàng đợi offline gửi lệnh (`sync_command_receipt.device_id`); không ghi vault, không bao giờ là đích push; có token sau đó là cùng một đăng ký (cùng id); lỗi vĩnh viễn (UNREGISTERED/BadDeviceToken) → revoke thiết bị; đăng xuất/đổi tenant → revoke (IAM §3.5).
 
 ## 4. State machine
 

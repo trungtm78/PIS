@@ -28617,13 +28617,15 @@ export interface components {
             preview_hash: string;
             reason?: string;
         };
+        /** @description The registration of the installation of the app: once for each device, with or without a push token. A build without a push provider (or a person who refused the permission) registers with no push_token and gets the id that the offline command queue names as its device (sync batches); the registration can be repeated later with a token and keeps its id. The state 'unavailable' says that the build or the device has no push provider at all. */
         DeviceRegister: {
             device_public_id: string;
             /** @enum {string} */
             platform: "ios" | "android" | "web";
-            push_token: string;
+            /** @description The token the push provider gave the app. Absent (or empty) when the device has none: the device is then registered for the offline queue and receives nothing by push, and a token it held before is taken out of the vault */
+            push_token?: string;
             /** @enum {string} */
-            permission_state: "granted" | "denied" | "provisional" | "unknown";
+            permission_state: "granted" | "denied" | "provisional" | "unknown" | "unavailable";
             app_version: string;
             locale?: string;
         };
@@ -34199,8 +34201,11 @@ export interface components {
             platform: "ios" | "android" | "web";
             /** @description The start and the end of the public id of the device, never the whole of it */
             device_hint: string;
-            /** @enum {string} */
-            permission_state: "granted" | "denied" | "provisional" | "unknown";
+            /**
+             * @description What the operating system allows this device to do with notifications; unavailable when the build or the device has no push provider (the device is then registered without a push token)
+             * @enum {string}
+             */
+            permission_state: "granted" | "denied" | "provisional" | "unknown" | "unavailable";
             app_version: string;
             locale: string;
             /** Format: date-time */
@@ -82293,10 +82298,10 @@ export interface operations {
                             /** @enum {string} */
                             status?: "ACTIVE" | "REVOKED";
                             /**
-                             * @description What the operating system allows this device to do with notifications
+                             * @description What the operating system allows this device to do with notifications; unavailable when the build or the device has no push provider
                              * @enum {string}
                              */
-                            permission_state?: "granted" | "denied" | "provisional" | "unknown";
+                            permission_state?: "granted" | "denied" | "provisional" | "unknown" | "unavailable";
                             /** @description The device the push of the member goes to: the live device used last that allows notifications. One at most; a device that denied notifications or was removed never is */
                             push_owner?: boolean;
                         }[];

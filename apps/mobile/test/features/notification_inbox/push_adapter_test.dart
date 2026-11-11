@@ -129,6 +129,19 @@ void main() {
       expect(_platform(FakeGateway(), platform: 'ios').platform, 'ios');
     });
 
+    test('a build without push has an identity of its own in the secure store, so two phones never share one registration, and it says it has no provider', () async {
+      final MemorySecureStore store = MemorySecureStore();
+      final NoPushPlatform first = NoPushPlatform(store: store, info: _info);
+      final String id = await first.installId();
+      expect(id, matches(RegExp(r'^[A-Za-z0-9._:-]{16,128}$')));
+      expect(store.data[kInstallIdKey], id);
+      expect(await NoPushPlatform(store: store, info: _info).installId(), id, reason: 'a restart reads the same identity');
+      expect(await NoPushPlatform(store: MemorySecureStore(), info: _info).installId(), isNot(id), reason: 'another installation is another identity');
+      expect(first.appVersion, '1.4.0+27');
+      expect(await first.permission(), PushPermission.unavailable);
+      expect(await first.token(), isNull);
+    });
+
     test('the token is given only when the person allowed notifications; the permission is read, never asked', () async {
       final FakeGateway gateway = FakeGateway(state: PushPermission.denied);
       final DevicePushPlatform platform = _platform(gateway);
@@ -144,7 +157,7 @@ void main() {
     test('a provider that cannot start behaves as no push, and is tried again the next time', () async {
       final FakeGateway gateway = FakeGateway()..startError = StateError('no play services');
       final DevicePushPlatform platform = _platform(gateway);
-      expect(await platform.permission(), PushPermission.unknown);
+      expect(await platform.permission(), PushPermission.unavailable);
       expect(await platform.token(), isNull);
       gateway.startError = null;
       expect(await platform.token(), 'fcm-token-one');

@@ -10,6 +10,7 @@ import '../../core/offline/store/local_store.dart';
 import '../../core/session/session.dart';
 import '../read_support/attempts.dart';
 import '../read_support/wire.dart';
+import '../release/app_info.dart' show AppInfo, appInfoSourceProvider;
 import '../session/session_providers.dart' show secureValueStoreProvider;
 import 'push_config.dart';
 import 'push_device.dart';
@@ -22,8 +23,9 @@ export 'push_port.dart';
 /// the options, see `push_config.dart`), else the null adapter, which has no token and asks for nothing.
 final Provider<PushPlatform> pushPlatformProvider = Provider<PushPlatform>((Ref ref) {
   final PushConfig config = ref.watch(pushConfigProvider);
-  if (!config.enabled) return const NoPushPlatform();
-  final DevicePushPlatform platform = DevicePushPlatform(gateway: ref.watch(pushGatewayProvider), config: config, store: ref.watch(secureValueStoreProvider));
+  Future<AppInfo> info() => ref.read(appInfoSourceProvider).read();
+  if (!config.enabled) return NoPushPlatform(store: ref.watch(secureValueStoreProvider), info: info);
+  final DevicePushPlatform platform = DevicePushPlatform(gateway: ref.watch(pushGatewayProvider), config: config, store: ref.watch(secureValueStoreProvider), info: info);
   ref.onDispose(platform.dispose);
   return platform;
 });
@@ -50,8 +52,9 @@ String deviceLocaleOf(Locale locale) {
 /// The reason the server records with the revocation (it asks for at least ten characters).
 const String signOutReason = 'Signed out on this device';
 
-/// How a registration ended.
-enum RegistrationResult { registered, noToken, offline, refused }
+/// How a registration ended. `registeredWithoutPush` is a device that has no token (no provider, no permission): it is registered all the
+/// same, with no token, so that it has the id its offline command queue needs.
+enum RegistrationResult { registered, registeredWithoutPush, offline, refused }
 
 /// Registers this device for push with the server, keeps exactly one live registration for it, and revokes it at sign-out.
 ///
@@ -89,13 +92,24 @@ class PushRegistration {
     }
   }
 
-  /// Sends the registration with the token the provider gave. A device without a token (no permission, no provider) is not
-  /// registered: it receives nothing by push and still has its inbox.
+  /// Sends the registration with the token the provider gave, or without one when the device has none (no permission, no provider): it
+  /// receives nothing by push and still has its inbox, and it is registered all the same, because the id of the registration is what the
+  /// offline command queue names as its device. A token that comes later is the same registration (the server keys it by the installation).
   Future<RegistrationResult> sync({String? refreshedToken}) async {
-    final String? token = refreshedToken ?? await platform.token();
-    if (token == null || token.isEmpty) return RegistrationResult.noToken;
-    final PushPermission permission = await platform.permission();
-    final String installId = await platform.installId();
+    final String? token;
+    final PushPermission permission;
+    final String installId;
+    try {
+      final String? given = refreshedToken ?? await platform.token();
+      token = given == null || given.isEmpty ? null : given;
+      // A device that holds a token has a provider: whatever the adapter said about the provider, the registration does not claim there is none.
+      final PushPermission reported = await platform.permission();
+      permission = token != null && reported == PushPermission.unavailable ? PushPermission.unknown : reported;
+      installId = await platform.installId();
+    } on Object {
+      // The provider or the secure store failed: nothing is registered now, and the next start or the next token asks again. A push that cannot be read never breaks the application.
+      return RegistrationResult.refused;
+    }
     final DeviceRegister body = DeviceRegister(
       devicePublicId: installId,
       platform: platform.platform,
@@ -104,7 +118,7 @@ class PushRegistration {
       appVersion: platform.appVersion,
       locale: language(),
     );
-    final CommandAttempt attempt = _attempts.forPayload('$installId|$token|${permission.name}');
+    final CommandAttempt attempt = _attempts.forPayload('$installId|${token ?? ''}|${permission.name}');
     try {
       final Object? answer = await client.registerDevice(body, attempt: attempt);
       _attempts.done();
@@ -113,7 +127,7 @@ class PushRegistration {
       final String? known = _serverDeviceId;
       // Not waited for: the registration is made, and the store (opened on its own time) may take the id later or at the next start.
       if (known != null) unawaited(_hand(known));
-      return RegistrationResult.registered;
+      return token == null ? RegistrationResult.registeredWithoutPush : RegistrationResult.registered;
     } on ApiError catch (error) {
       _attempts.ended(error);
       return error.code == networkErrorCode ? RegistrationResult.offline : RegistrationResult.refused;

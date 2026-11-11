@@ -185,8 +185,15 @@ void main() {
 
       final ScriptedServer unknown = ScriptedServer();
       _healthy(unknown);
-      await _open(tester, unknown);
+      await _open(tester, unknown, push: FakePush(state: PushPermission.unknown));
       expect(find.text('Chưa đăng ký thông báo đẩy trên thiết bị này. Thông báo trong ứng dụng vẫn hoạt động.'), findsOneWidget);
+      await _closeApp(tester);
+
+      // FIXAE-1: a build without a push provider says so (it was "not registered", which it no longer is: it is registered without a token).
+      final ScriptedServer none = ScriptedServer();
+      _healthy(none);
+      await _open(tester, none);
+      expect(find.text('Bản ứng dụng hoặc thiết bị này không có thông báo đẩy. Thông báo trong ứng dụng vẫn hoạt động.'), findsOneWidget);
       await _closeApp(tester);
     });
 

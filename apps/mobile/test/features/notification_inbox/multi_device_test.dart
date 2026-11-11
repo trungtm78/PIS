@@ -110,12 +110,19 @@ void main() {
       expect(body, containsPair('device_public_id', _mine));
     });
 
-    testWidgets('a device with no push token is not registered but the list is still read', (WidgetTester tester) async {
+    // Changed with FIXAE-1: a device without a token is registered without one (its offline queue needs the id), and the list is still read.
+    testWidgets('a device with no push token is registered without a token and the list is still read', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _server(server);
       await _open(tester, server, push: FakePush(currentToken: null, state: PushPermission.denied));
-      expect(server.callsTo('POST', '/devices'), isEmpty);
+      final List<HttpCall> registrations = server.callsTo('POST', '/devices');
+      expect(registrations, isNotEmpty);
+      for (final HttpCall call in registrations) {
+        final Map<String, Object?> body = jsonDecode(call.body!) as Map<String, Object?>;
+        expect(body.containsKey('push_token'), isFalse);
+        expect(body, containsPair('permission_state', 'denied'));
+      }
       expect(find.text('Điện thoại Android (thiết bị này)'), findsOneWidget);
     });
 

@@ -2,7 +2,7 @@ export const READ_PERMISSION = 'device_registration.read';
 export const PLATFORMS = ['ios', 'android', 'web'] as const;
 export const STATUSES = ['Active', 'Revoked'] as const;
 export type DeviceStatus = (typeof STATUSES)[number];
-export type PermissionState = 'granted' | 'denied' | 'provisional' | 'unknown';
+export type PermissionState = 'granted' | 'denied' | 'provisional' | 'unknown' | 'unavailable';
 
 /** A push device as the operator sees it: no token, no reference and not the whole public id of the device (NOT-14). */
 export interface DeviceView {
@@ -28,7 +28,7 @@ type Raw = Record<string, unknown>;
 const isRecord = (value: unknown): value is Raw => typeof value === 'object' && value !== null && !Array.isArray(value);
 const text = (value: unknown): string => (typeof value === 'string' ? value : '');
 const optional = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined);
-const PERMISSION_STATES: readonly string[] = ['granted', 'denied', 'provisional', 'unknown'];
+const PERMISSION_STATES: readonly string[] = ['granted', 'denied', 'provisional', 'unknown', 'unavailable'];
 
 export function toDevice(raw: unknown): DeviceView | undefined {
   if (!isRecord(raw) || typeof raw.id !== 'string') return undefined;

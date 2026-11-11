@@ -16727,6 +16727,7 @@
   "not.device.permission.provisional": "Provisional",
   "not.device.permission.denied": "Denied",
   "not.device.permission.unknown": "Unknown",
+  "not.device.permission.unavailable": "No push on this device",
   "not.device.col.device": "Device",
   "not.device.col.member": "Member",
   "not.device.col.platform": "Platform",

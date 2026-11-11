@@ -16727,6 +16727,7 @@
   "not.device.permission.provisional": "Tạm thời",
   "not.device.permission.denied": "Từ chối",
   "not.device.permission.unknown": "Chưa rõ",
+  "not.device.permission.unavailable": "Thiết bị không có thông báo đẩy",
   "not.device.col.device": "Thiết bị",
   "not.device.col.member": "Thành viên",
   "not.device.col.platform": "Nền tảng",
