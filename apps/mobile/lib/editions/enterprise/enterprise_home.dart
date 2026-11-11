@@ -26,9 +26,9 @@ typedef _Reads = Future<Map<String, Object?>> Function(MachvonApiClient client);
 
 /// A card that reads once when it is drawn.
 class _ReadCard extends ConsumerStatefulWidget {
-  const _ReadCard({required this.titleKey, required this.read, required this.lines});
+  const _ReadCard({required this.title, required this.read, required this.lines});
 
-  final String titleKey;
+  final String Function(BuildContext context) title;
   final _Reads read;
   final List<String> Function(BuildContext context, Map<String, Object?> answer) lines;
 
@@ -57,8 +57,8 @@ class _ReadCardState extends ConsumerState<_ReadCard> {
         final ThemeData theme = Theme.of(context);
         final List<String> lines = result.$1 == _Outcome.ok ? widget.lines(context, result.$2) : <String>[context.t('mob.ent.card.unavailable')];
         return SectionCard(
-          title: context.t(widget.titleKey),
-          semanticLabel: '${context.t(widget.titleKey)}. ${lines.join('. ')}',
+          title: widget.title(context),
+          semanticLabel: '${widget.title(context)}. ${lines.join('. ')}',
           children: <Widget>[for (final String line in lines) Text(line, style: theme.textTheme.bodyMedium)],
         );
       },
@@ -83,7 +83,7 @@ Json? currentPeriod(List<Object?> items, String today) {
 }
 
 Widget buildPeriodStatusCard(BuildContext context) => _ReadCard(
-      titleKey: 'mob.ent.period.title',
+      title: (BuildContext context) => context.t('mob.ent.period.title'),
       read: (MachvonApiClient client) async => _object(await client.getResourcesReportingPeriod(query: <String, Object?>{'limit': 50})),
       lines: (BuildContext context, Map<String, Object?> answer) {
         final String today = vietnamTodayText();
@@ -112,7 +112,7 @@ String _hpmStatus(BuildContext context, String? status) {
 }
 
 Widget buildHpmStatusCard(BuildContext context) => _ReadCard(
-      titleKey: 'mob.ent.hpm.title',
+      title: (BuildContext context) => context.t('mob.ent.hpm.title'),
       read: (MachvonApiClient client) async => _object(await client.getHpmConnection()),
       lines: (BuildContext context, Map<String, Object?> answer) {
         final Json health = _object(answer['health']);
@@ -127,7 +127,7 @@ Widget buildHpmStatusCard(BuildContext context) => _ReadCard(
     );
 
 Widget buildEbsStatusCard(BuildContext context) => _ReadCard(
-      titleKey: 'mob.ent.ebs.title',
+      title: (BuildContext context) => context.t('mob.ent.ebs.title'),
       read: (MachvonApiClient client) async => _object(await client.listEbsDifferences(query: <String, Object?>{'limit': 1})),
       lines: (BuildContext context, Map<String, Object?> answer) {
         final Json counts = _object(answer['counts']);

@@ -26,7 +26,6 @@ const StringTable kEnterpriseHomeStrings = StringTable(
     'mob.ent.ebs.counts': '{open} chênh lệch đang mở, {overdue} quá hạn, {resolved} đã xử lý',
     'mob.ent.ebs.reviews': '{count} cần rà soát',
     'mob.ent.ebs.none': 'Không có chênh lệch đang mở.',
-    'mob.ent.snapshot.title': 'Ảnh chụp số liệu doanh nghiệp',
   },
   en: <String, String>{
     'mob.ent.brand.name': 'Mạch Vốn',
@@ -51,6 +50,5 @@ const StringTable kEnterpriseHomeStrings = StringTable(
     'mob.ent.ebs.counts': '{open} open differences, {overdue} overdue, {resolved} resolved',
     'mob.ent.ebs.reviews': '{count} to review',
     'mob.ent.ebs.none': 'No open difference.',
-    'mob.ent.snapshot.title': 'Enterprise data snapshot',
   },
 );
