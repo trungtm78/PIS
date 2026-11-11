@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
@@ -38,6 +39,13 @@ final Provider<PushInbound> pushInboundProvider = Provider<PushInbound>((Ref ref
 /// what the server holds, so the tab badge and the alert list follow the push. Empty and ended at once on a build without push, so nothing
 /// is held open; `test/features/notification_inbox/push_registration_test.dart` pins this default.
 final Provider<Stream<void>> pushArrivalsProvider = Provider<Stream<void>>((Ref ref) => ref.watch(pushInboundProvider).received.map((PushPayload payload) {}));
+
+/// The locale the server takes for a device: language and region (`vi-VN`, `en-US`), the form its registration checks. The interface
+/// language alone (`vi`) is refused with 422, which left every phone without a registration.
+String deviceLocaleOf(Locale locale) {
+  final String region = locale.countryCode ?? (locale.languageCode == 'vi' ? 'VN' : 'US');
+  return '${locale.languageCode}-$region';
+}
 
 /// The reason the server records with the revocation (it asks for at least ten characters).
 const String signOutReason = 'Signed out on this device';
@@ -143,7 +151,7 @@ final Provider<PushRegistration> pushRegistrationProvider = Provider<PushRegistr
   return PushRegistration(
     client: ref.watch(apiClientProvider),
     platform: ref.watch(pushPlatformProvider),
-    language: () => ref.read(localeProvider).languageCode,
+    language: () => deviceLocaleOf(ref.read(localeProvider)),
     onRegistered: (String deviceId) async {
       final LocalStore store = await ref.read(localStoreProvider.future);
       if (store.deviceId == deviceId) return;
