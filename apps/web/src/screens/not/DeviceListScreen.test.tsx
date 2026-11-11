@@ -105,6 +105,9 @@ describe('the model of NOT-14', () => {
     expect(toDevice({ membership_id: 'x' })).toBeUndefined();
     expect(toDevice(deviceRow(1))).toMatchObject({ id: 'device-1', platform: 'android', deviceHint: 'beta…0001', permissionState: 'granted', status: 'Active', revokedAt: undefined, revokeReason: undefined });
     expect(toDevice(deviceRow(1, { permission_state: 'weird', status: 'Revoked', revoked_at: '2026-10-30T03:00:00Z' }))).toMatchObject({ permissionState: 'unknown', status: 'Revoked', revokedAt: '2026-10-30T03:00:00Z' });
+    // FIXAE-1: a device registered without a push token says unavailable, and is not one that can receive a push.
+    const bare = toDevice(deviceRow(1, { permission_state: 'unavailable' })) as NonNullable<ReturnType<typeof toDevice>>;
+    expect([bare.permissionState, canReceivePush(bare)]).toEqual(['unavailable', false]);
     expect(toDevicePage({ items: [deviceRow(1), 4], next_cursor: 'c' })).toMatchObject({ nextCursor: 'c' });
     expect(toDevicePage(null)).toEqual({ items: [], nextCursor: undefined });
   });

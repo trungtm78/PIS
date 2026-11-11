@@ -1,17 +1,16 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../release/app_info.dart';
 import '../session/auth/secure_store.dart';
+import 'install_identity.dart';
 import 'push_config.dart';
 import 'push_gateway.dart';
 import 'push_port.dart';
 
-/// The key under which the identity of this installation is kept in the secure store.
-const String kInstallIdKey = 'push.install_id';
+export 'install_identity.dart' show kInstallIdKey, newInstallId;
 
 final RegExp _notificationId = RegExp(r'^[A-Za-z0-9_-]{16,64}$');
 
@@ -80,14 +79,6 @@ final class NoPushReceipts implements PushReceiptPort {
 
 final Provider<PushReceiptPort> pushReceiptPortProvider = Provider<PushReceiptPort>((Ref ref) => const NoPushReceipts());
 
-/// The identity of an installation: 32 random characters from the system generator, made once and kept in the secure store. It is not the
-/// token and not a hardware id, so a reinstall is a new installation.
-String newInstallId([Random? random]) {
-  final Random generator = random ?? Random.secure();
-  const String alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  return List<String>.generate(32, (int _) => alphabet[generator.nextInt(alphabet.length)]).join();
-}
-
 /// The device adapter of the push port: the token and the permission from the gateway, an identity kept in the secure store, the version of
 /// the application, and the payloads of the messages.
 final class DevicePushPlatform implements PushPlatform, PushInbound {
@@ -99,18 +90,14 @@ final class DevicePushPlatform implements PushPlatform, PushInbound {
     String? platformName,
   })  : _gateway = gateway,
         _config = config,
-        _store = store,
-        _info = info ?? (() => const PlatformAppInfoSource().read()),
+        _identity = InstallIdentity(store: store, info: info),
         _platformName = platformName;
 
   final PushGateway _gateway;
   final PushConfig _config;
-  final SecureValueStore _store;
-  final Future<AppInfo> Function() _info;
+  final InstallIdentity _identity;
   final String? _platformName;
   Future<void>? _started;
-  AppInfo? _loaded;
-  String? _installId;
 
   /// Starts the provider once; false when it could not start (a wrong option, no play services): the adapter then behaves as the null adapter.
   Future<bool> _ready() async {
@@ -128,21 +115,15 @@ final class DevicePushPlatform implements PushPlatform, PushInbound {
 
   /// The version the application reported, once [installId] has been read (the registration reads it first).
   @override
-  String get appVersion => _loaded?.full ?? '0.0.0';
+  String get appVersion => _identity.appVersion;
 
   @override
-  Future<String> installId() async {
-    _loaded ??= await _info();
-    final String? known = _installId ?? await _store.read(kInstallIdKey);
-    if (known != null && known.length >= 16) return _installId = known;
-    final String made = newInstallId();
-    await _store.write(kInstallIdKey, made);
-    return _installId = made;
-  }
+  Future<String> installId() => _identity.installId();
 
   @override
   Future<PushPermission> permission() async {
-    if (!await _ready()) return PushPermission.unknown;
+    // A provider that cannot start (a wrong option, no play services) is no provider: the device is registered all the same, as one without push.
+    if (!await _ready()) return PushPermission.unavailable;
     return _gateway.permission();
   }
 

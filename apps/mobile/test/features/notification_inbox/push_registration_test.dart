@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/features/notification_inbox/push_registration.dart';
+import 'package:machvon_mobile/features/release/app_info.dart';
 
 import '../../support/harness.dart' show FakeTransport;
 import '../support/scripted_server.dart';
@@ -99,15 +100,52 @@ void main() {
       expect(calls[1].headers['idempotency-key'], calls[0].headers['idempotency-key']);
     });
 
-    test('a device without a token is not registered and nothing is sent; a refusal is reported and keeps nothing', () async {
-      final ScriptedServer server = ScriptedServer();
-      expect(await _registration(server, FakePush()).sync(), RegistrationResult.noToken);
-      expect(await _registration(server, FakePush(currentToken: '')).sync(), RegistrationResult.noToken);
-      expect(await PushRegistration(client: _client(server), platform: const NoPushPlatform(), language: () => 'en').sync(), RegistrationResult.noToken);
-      expect(server.calls, isEmpty);
+    // Changed with FIXAE-1: this test pinned "a device without a token is not registered". The registration is also what gives the offline command
+    // queue its device id (FlushBlocker.noDevice), so a device without push (a build without Firebase, a refused permission) registers without a token.
+    test('a device without a token is registered without one, with the permission it reports, and its id reaches the offline store; a refusal is reported and keeps nothing', () async {
+      final List<String> told = <String>[];
+      final ScriptedServer server = ScriptedServer()..on('POST', '/devices', (_) => _registered(serverDeviceId), status: 201);
+      PushRegistration make(PushPlatform platform) => PushRegistration(client: _client(server), platform: platform, language: () => 'en', onRegistered: (String id) async => told.add(id));
+      expect(await make(FakePush(state: PushPermission.denied)).sync(), RegistrationResult.registeredWithoutPush);
+      expect(await make(FakePush(currentToken: '')).sync(), RegistrationResult.registeredWithoutPush);
+      expect(await make(NoPushPlatform(info: () async => const AppInfo(version: '1.4.0', build: '27', platform: 'android', osVersion: '14'))).sync(), RegistrationResult.registeredWithoutPush);
+      await Future<void>.delayed(Duration.zero);
+      final List<Map<String, Object?>> bodies = <Map<String, Object?>>[for (final HttpCall call in server.callsTo('POST', '/devices')) jsonDecode(call.body!) as Map<String, Object?>];
+      expect(bodies, hasLength(3));
+      for (final Map<String, Object?> body in bodies) {
+        expect(body.containsKey('push_token'), isFalse, reason: 'no token is sent, not even an empty one');
+        expect(body['device_public_id'], matches(RegExp(r'^[A-Za-z0-9._:-]{16,128}$')));
+        expect(body['locale'], 'en');
+      }
+      expect(<Object?>[bodies[0]['permission_state'], bodies[1]['permission_state'], bodies[2]['permission_state']], <String>['denied', 'granted', 'unavailable']);
+      expect(told, <String>[serverDeviceId, serverDeviceId, serverDeviceId]);
 
       server.refuse('POST', '/devices', 403, 'SCOPE_DENIED');
       expect(await _registration(server, FakePush(currentToken: 't')).sync(), RegistrationResult.refused);
+    });
+
+    test('a device without a token that gets one later registers again with the same installation and the token, and an adapter that fails registers nothing', () async {
+      final ScriptedServer server = ScriptedServer()..on('POST', '/devices', (_) => _registered(serverDeviceId), status: 201);
+      final FakePush push = FakePush(state: PushPermission.unavailable);
+      final PushRegistration registration = _registration(server, push);
+      expect(await registration.sync(), RegistrationResult.registeredWithoutPush);
+      push
+        ..currentToken = 'token-later'
+        ..state = PushPermission.granted;
+      expect(await registration.sync(), RegistrationResult.registered);
+      push
+        ..currentToken = 'token-claims-no-provider'
+        ..state = PushPermission.unavailable;
+      expect(await registration.sync(), RegistrationResult.registered);
+      final List<Map<String, Object?>> bodies = <Map<String, Object?>>[for (final HttpCall call in server.callsTo('POST', '/devices')) jsonDecode(call.body!) as Map<String, Object?>];
+      expect(bodies[0].containsKey('push_token'), isFalse);
+      expect(bodies[1], containsPair('push_token', 'token-later'));
+      expect(bodies[0]['device_public_id'], bodies[1]['device_public_id']);
+      expect(bodies[2]['permission_state'], 'unknown', reason: 'a device that holds a token does not say that it has no provider');
+
+      final ScriptedServer quiet = ScriptedServer();
+      expect(await PushRegistration(client: _client(quiet), platform: _FailingPush(), language: () => 'vi').sync(), RegistrationResult.refused);
+      expect(quiet.calls, isEmpty);
     });
 
     test('a denied permission is registered as such, so the server knows the device will not show a push', () async {
@@ -173,7 +211,7 @@ void main() {
       final PushPlatform platform = container.read(pushPlatformProvider);
       expect(platform, isA<NoPushPlatform>());
       expect(await platform.token(), isNull);
-      expect(await platform.permission(), PushPermission.unknown);
+      expect(await platform.permission(), PushPermission.unavailable);
       expect(await platform.tokenRefreshes.isEmpty, isTrue);
     });
 
@@ -191,4 +229,28 @@ void main() {
       expect(count, 1);
     });
   });
+}
+
+/// A platform whose secure store fails (the plugin is missing, the keystore is locked): the registration gives up quietly.
+final class _FailingPush implements PushPlatform {
+  @override
+  String get platform => 'android';
+
+  @override
+  String get appVersion => '1.4.0';
+
+  @override
+  Future<String> installId() async => throw StateError('keystore locked');
+
+  @override
+  Future<PushPermission> permission() async => PushPermission.unknown;
+
+  @override
+  Future<String?> token() async => null;
+
+  @override
+  Stream<String> get tokenRefreshes => const Stream<String>.empty();
+
+  @override
+  Future<void> forgetToken() async {}
 }

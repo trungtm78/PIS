@@ -1,5 +1,13 @@
-/// What the operating system allows the application to do with notifications.
-enum PushPermission { granted, denied, provisional, unknown }
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
+
+import '../release/app_info.dart';
+import '../session/auth/secure_store.dart';
+import 'install_identity.dart';
+
+/// What the operating system allows the application to do with notifications. `unavailable` is a device that has no push provider at all
+/// (a build without push, a provider that cannot start): it is registered with the server all the same, because the registration is also what
+/// gives the offline command queue the id of its device, and it is never pushed to.
+enum PushPermission { granted, denied, provisional, unknown, unavailable }
 
 /// The operating-system side of push, behind a port: the token of the provider (FCM on Android, APNs on iOS), the stream of
 /// refreshed tokens, the permission, and an identity of this installation that survives a restart.
@@ -31,21 +39,28 @@ abstract interface class PushPlatform {
   Future<void> forgetToken();
 }
 
-/// No push on this build: no token, no permission asked. In-app notifications are unaffected.
+/// No push on this build: no token, no permission asked. In-app notifications are unaffected, and the installation is registered with the
+/// server without a token (it keeps an identity of its own in the secure store, as a build with push does), so the offline command queue
+/// has its device.
 final class NoPushPlatform implements PushPlatform {
-  const NoPushPlatform();
+  NoPushPlatform({SecureValueStore? store, Future<AppInfo> Function()? info, String? platformName})
+      : _identity = InstallIdentity(store: store, info: info),
+        _platformName = platformName;
+
+  final InstallIdentity _identity;
+  final String? _platformName;
 
   @override
-  String get platform => 'android';
+  String get platform => _platformName ?? (defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android');
 
   @override
-  String get appVersion => '0.0.0';
+  String get appVersion => _identity.appVersion;
 
   @override
-  Future<String> installId() async => 'no-push-installation';
+  Future<String> installId() => _identity.installId();
 
   @override
-  Future<PushPermission> permission() async => PushPermission.unknown;
+  Future<PushPermission> permission() async => PushPermission.unavailable;
 
   @override
   Future<String?> token() async => null;

@@ -264,6 +264,8 @@ class _PushStatus extends ConsumerWidget {
             text = context.t('mob.ntf.pref.push.denied');
           case PushPermission.unknown:
             text = context.t('mob.ntf.pref.push.unknown');
+          case PushPermission.unavailable:
+            text = context.t('mob.ntf.pref.push.unavailable');
         }
         return SectionCard(title: context.t('mob.ntf.pref.push.title'), children: <Widget>[Text(text)]);
       },

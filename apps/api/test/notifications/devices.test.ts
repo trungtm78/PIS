@@ -9,6 +9,7 @@ import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { IDENTITY_LOGOUT, SESSION_REVOCATION, SelfServiceController } from '../../src/session/self.controller';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { PUSH_ELIGIBLE_SQL } from '../../../../packages/db/src/device-registration-store';
 import { CLAIMS_HEADER, TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
@@ -55,8 +56,9 @@ describe('the push devices of the members (ST-NOT-006, NOT-14)', () => {
     ...overrides,
   });
   const register = (body: Record<string, unknown>, member = OWNER, tenantId = TENANT_A, key?: string, sid?: string) => call('POST', '/devices', { member, tenantId, body, ...(key === undefined ? {} : { key }), ...(sid === undefined ? {} : { sid }) });
+  const eligible = (id: unknown) => rows(`select id from machvon.device_registration where id = $1 and ${PUSH_ELIGIBLE_SQL}`, [id]);
   const live = (membership: number, devicePublicId: string) =>
-    rows<{ id: string; push_secret_ref: string | null; token_fingerprint: string; permission_state: string; app_version: string; revoked_at: Date | null; revoke_reason: string | null }>(
+    rows<{ id: string; push_secret_ref: string | null; token_fingerprint: string | null; permission_state: string; app_version: string; revoked_at: Date | null; revoke_reason: string | null }>(
       'select id, push_secret_ref, token_fingerprint, permission_state, app_version, revoked_at, revoke_reason from machvon.device_registration where membership_id = $1 and device_public_id = $2 order by last_seen_at',
       [memberId(membership), devicePublicId],
     );
@@ -127,6 +129,54 @@ describe('the push devices of the members (ST-NOT-006, NOT-14)', () => {
       expect(vault.tokens.has(only?.push_secret_ref as string)).toBe(false);
     });
 
+    it('FIXAE-1: a device with no push provider registers without a token, is never a push target, and has the id that its offline command queue names', async () => {
+      for (const absent of [{ push_token: undefined }, { push_token: '' }, { push_token: '   ' }]) {
+        const body = registration({ ...absent, permission_state: 'unavailable' });
+        const reply = await register(body);
+        expect([reply.status, reply.json.status]).toEqual([201, 'REGISTERED']);
+        const [only, ...rest] = await live(OWNER, body.device_public_id);
+        expect(rest).toEqual([]);
+        expect(only).toMatchObject({ id: reply.json.resource_id, push_secret_ref: null, token_fingerprint: null, permission_state: 'unavailable', revoked_at: null });
+        // The same device asks again (every start of the app does): the same registration.
+        const again = await register(body);
+        expect(again.json).toMatchObject({ status: 'UPDATED', resource_id: reply.json.resource_id });
+        // Whatever the state it reports, a device without a token is not somebody's push owner and not a target.
+        await register({ ...body, permission_state: 'granted' });
+        expect(await eligible(reply.json.resource_id)).toEqual([]);
+        const audits = await rows<{ safe_diff: Record<string, unknown> }>("select safe_diff from machvon.audit_event where resource_id = $1 and action = 'device.registered'", [reply.json.resource_id]);
+        // The audit row keeps the keys of what was said (the values are redacted by the audit port), and no token.
+        expect(Object.keys(audits[0]?.safe_diff ?? {}).sort()).toEqual(['app_version', 'has_token', 'permission_state', 'platform', 'token_changed']);
+        // The device is live and the member's own, which is what the sync batches check of the device they name.
+        expect(await rows('select 1 from machvon.device_registration where id = $1 and membership_id = $2 and revoked_at is null', [reply.json.resource_id, memberId(OWNER)])).toHaveLength(1);
+      }
+    });
+
+    it('FIXAE-1: the same device that later has a token is the same registration with the token in the vault, and one that loses its token gives it back', async () => {
+      const body = registration({ push_token: undefined, permission_state: 'unavailable' });
+      const first = await register(body);
+      const withToken = await register({ ...body, push_token: 'fcm-token-later-1', permission_state: 'granted' });
+      expect(withToken.json).toMatchObject({ status: 'UPDATED', resource_id: first.json.resource_id });
+      const [held] = await live(OWNER, body.device_public_id);
+      expect(held?.token_fingerprint).toMatch(/^[0-9a-f]{64}$/);
+      expect(vault.tokens.get(held?.push_secret_ref as string)).toBe('fcm-token-later-1');
+      expect(await eligible(first.json.resource_id)).toHaveLength(1);
+
+      // The permission was taken back and the provider gave the token up: the registration says so, and the token leaves the vault once that has committed.
+      const lost = await register({ ...body, push_token: undefined, permission_state: 'denied' });
+      expect(lost.json).toMatchObject({ status: 'UPDATED', resource_id: first.json.resource_id });
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const [after] = await live(OWNER, body.device_public_id);
+      expect(after).toMatchObject({ push_secret_ref: null, token_fingerprint: null, permission_state: 'denied', revoked_at: null });
+      expect(vault.tokens.has(held?.push_secret_ref as string)).toBe(false);
+      expect(await eligible(first.json.resource_id)).toEqual([]);
+
+      // A device without a token that is removed is revoked as any other.
+      const removed = await call('POST', `/me/devices/${first.json.resource_id as string}/revoke`, { body: { reason: REASON } });
+      expect(removed.status).toBe(200);
+      const [gone] = await live(OWNER, body.device_public_id);
+      expect(gone).toMatchObject({ push_secret_ref: null, revoke_reason: 'USER_REVOKED' });
+    });
+
     it('never lets the token out: not in the answer, the audit trail, the events, the stored answer of the command or the rows of the table', async () => {
       const body = registration();
       const reply = await register(body);
@@ -141,7 +191,7 @@ describe('the push devices of the members (ST-NOT-006, NOT-14)', () => {
       expect(everything).not.toContain(secret);
       const audits = await rows<{ action: string; safe_diff: Record<string, unknown> }>("select action, safe_diff from machvon.audit_event where resource_id = $1 and action = 'device.registered'", [reply.json.resource_id]);
       expect(audits).toHaveLength(1);
-      expect(Object.keys(audits[0]?.safe_diff ?? {}).sort()).toEqual(['app_version', 'permission_state', 'platform', 'token_changed']);
+      expect(Object.keys(audits[0]?.safe_diff ?? {}).sort()).toEqual(['app_version', 'has_token', 'permission_state', 'platform', 'token_changed']);
     });
 
     it('registers a device again after it was removed as a new registration, and one device of two members as two', async () => {
@@ -196,9 +246,10 @@ describe('the push devices of the members (ST-NOT-006, NOT-14)', () => {
       expect([once.status, replay.status]).toEqual([201, 409]);
     });
 
-    it('refuses what is not a registration: no token, a public id that is not one, an app version or locale that is not, and somebody without notification.self', async () => {
+    it('refuses what is not a registration: a token on a device that says it has no provider, a public id that is not one, an app version or locale that is not, and somebody without notification.self', async () => {
       for (const [overrides, detail] of [
-        [{ push_token: '   ' }, 'push_token'],
+        [{ permission_state: 'unavailable' }, 'permission_state'],
+        [{ permission_state: 'maybe' }, 'permission_state'],
         [{ device_public_id: 'short' }, 'device_public_id'],
         [{ device_public_id: 'has spaces and is long enough' }, 'device_public_id'],
         [{ app_version: 'v 1' }, 'app_version'],

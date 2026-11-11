@@ -99,7 +99,9 @@ export default function DeviceListScreen({ route }: ScreenProps) {
                             ? t('not.device.permission.provisional')
                             : device.permissionState === 'denied'
                               ? t('not.device.permission.denied')
-                              : t('not.device.permission.unknown')}
+                              : device.permissionState === 'unavailable'
+                                ? t('not.device.permission.unavailable')
+                                : t('not.device.permission.unknown')}
                       </td>
                       <td>{device.appVersion}</td>
                       <td>{day(device.lastSeenAt)}</td>

@@ -4768,15 +4768,15 @@ final class DeviceRegister implements RequestModel {
   const DeviceRegister({
     required this.devicePublicId,
     required this.platform,
-    required this.pushToken,
     required this.permissionState,
     required this.appVersion,
+    this.pushToken,
     this.locale,
   });
 
   final String devicePublicId;
   final String platform;
-  final String pushToken;
+  final String? pushToken;
   final String permissionState;
   final String appVersion;
   final String? locale;
@@ -4785,7 +4785,7 @@ final class DeviceRegister implements RequestModel {
   Map<String, Object?> toJson() => <String, Object?>{
         'device_public_id': devicePublicId,
         'platform': platform,
-        'push_token': pushToken,
+        if (pushToken != null) 'push_token': pushToken,
         'permission_state': permissionState,
         'app_version': appVersion,
         if (locale != null) 'locale': locale,

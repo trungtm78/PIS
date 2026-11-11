@@ -20,8 +20,11 @@ export interface RegisterDevice {
   permissionState: string;
   appVersion: string;
   locale: string;
-  /** The SHA-256 of the push token: what is kept in the database to tell that the token changed, never the token. */
-  tokenFingerprint: string;
+  /**
+   * The SHA-256 of the push token: what is kept in the database to tell that the token changed, never the token. Undefined for a device that has no token (a build without a push provider, a permission that was refused): it is
+   * registered all the same, for the offline command queue, and nothing is pushed to it.
+   */
+  tokenFingerprint: string | undefined;
 }
 
 export interface DeviceRegistrationRecord {
@@ -72,40 +75,50 @@ const toRecord = (row: DeviceRow): DeviceRegistrationRecord => ({
 /**
  * The push devices of the members (ST-NOT-006, NOT 3.7). A member has at most one live registration for a device (a unique index of V002 on tenant, membership and the public id of the device), so registering again is
  * the same registration with what changed: the token (its fingerprint), the permission the operating system gave, the version of the app, the locale. The token itself is in the vault, referenced by `push_secret_ref`;
- * the database keeps its fingerprint only. A revoked device keeps its row as history, without its reference (IAM-1 guards that).
+ * the database keeps its fingerprint only. The token is optional (FIXAE-1, V2900): a device without a push provider is registered with neither a reference nor a fingerprint, so that it has the id its offline command queue needs;
+ * it is never a push target. A revoked device keeps its row as history, without its reference (IAM-1 guards that).
  */
 export class DeviceRegistrationStore {
   /**
    * Registers the device of the member, or brings the live registration up to date. `newId` is used only when there is no live registration. `newRef` is the place of a token that is new: every token has a reference
    * of its own, so a command that does not commit leaves the token the registration had untouched (the row goes back to its old reference with the transaction) and only has to remove the one it wrote. When the token
    * has not changed the registration keeps its reference; when it has, `previousRef` is the reference the row had, to be removed from the vault once the change has committed.
+   * A registration without a token (`tokenFingerprint` undefined) keeps no reference: `secretRef` is undefined, and a token the device held before is released through `previousRef` (the device says it has none now).
    */
-  async register(tx: TenantTx, input: RegisterDevice, newId: string, newRef: string): Promise<{ id: string; secretRef: string; previousRef: string | undefined; created: boolean; tokenChanged: boolean }> {
+  async register(
+    tx: TenantTx,
+    input: RegisterDevice,
+    newId: string,
+    newRef: string,
+  ): Promise<{ id: string; secretRef: string | undefined; previousRef: string | undefined; created: boolean; tokenChanged: boolean }> {
+    const fingerprint = input.tokenFingerprint ?? null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const [live] = await tx.query<{ id: string; platform: string; push_secret_ref: string; token_fingerprint: string }>(
+      const [live] = await tx.query<{ id: string; platform: string; push_secret_ref: string | null; token_fingerprint: string | null }>(
         'select id, platform, push_secret_ref, token_fingerprint from machvon.device_registration where membership_id = $1::uuid and device_public_id = $2 and revoked_at is null for update',
         [input.membershipId, input.devicePublicId],
       );
       if (live !== undefined) {
         // The platform is what the device is: a device that says another platform is not this device, and nothing about it is changed.
         if (live.platform !== input.platform) throw new DomainError('VALIDATION_FAILED', 422, 'platform');
-        const tokenChanged = live.token_fingerprint !== input.tokenFingerprint;
+        const tokenChanged = live.token_fingerprint !== fingerprint;
+        const secretRef = fingerprint === null ? null : tokenChanged || live.push_secret_ref === null ? newRef : live.push_secret_ref;
         await tx.query(
           // The platform is what the device is: it is not rewritten here (a device that says another platform is another device).
           'update machvon.device_registration set permission_state = $2, app_version = $3, locale = $4, token_fingerprint = $5, push_secret_ref = $6, last_seen_at = now() where id = $1::uuid',
-          [live.id, input.permissionState, input.appVersion, input.locale, input.tokenFingerprint, tokenChanged ? newRef : live.push_secret_ref],
+          [live.id, input.permissionState, input.appVersion, input.locale, fingerprint, secretRef],
         );
-        return { id: live.id, secretRef: tokenChanged ? newRef : live.push_secret_ref, previousRef: tokenChanged ? live.push_secret_ref : undefined, created: false, tokenChanged };
+        const previousRef = secretRef !== live.push_secret_ref && live.push_secret_ref !== null ? live.push_secret_ref : undefined;
+        return { id: live.id, secretRef: secretRef ?? undefined, previousRef, created: false, tokenChanged };
       }
       await tx.query('savepoint device_registration_new');
       try {
         await tx.query(
           `insert into machvon.device_registration (tenant_id, id, membership_id, device_public_id, push_secret_ref, platform, last_seen_at, token_fingerprint, permission_state, app_version, locale)
            values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5, now(), $6, $7, $8, $9)`,
-          [newId, input.membershipId, input.devicePublicId, newRef, input.platform, input.tokenFingerprint, input.permissionState, input.appVersion, input.locale],
+          [newId, input.membershipId, input.devicePublicId, fingerprint === null ? null : newRef, input.platform, fingerprint, input.permissionState, input.appVersion, input.locale],
         );
         await tx.query('release savepoint device_registration_new');
-        return { id: newId, secretRef: newRef, previousRef: undefined, created: true, tokenChanged: true };
+        return { id: newId, secretRef: fingerprint === null ? undefined : newRef, previousRef: undefined, created: true, tokenChanged: fingerprint !== null };
       } catch (error) {
         // Two registrations of the same device at the same moment: the second finds the first on its next look and updates it.
         if ((error as { code?: string }).code !== UNIQUE_VIOLATION || attempt === 1) throw error;

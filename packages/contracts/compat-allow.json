@@ -732,6 +732,27 @@
       "kind": "REQUEST_BODY_REQUIRED",
       "reason": "a member signs with the dissent they hold, in their own words, or with an empty body when they have none; nothing called the operation before",
       "change_request": "ST-BID-012"
+    },
+    {
+      "operation": "get_resources_device_registration",
+      "kind": "ENUM_EXTENDED",
+      "location": "items[].permission_state",
+      "reason": "a device registered without a push token (a build with no push provider) reports the permission state unavailable; the reading clients show an unknown state as no push, and the one client (the phone) is changed in the same slice",
+      "change_request": "FIXAE-1"
+    },
+    {
+      "operation": "get_resources_device_registration_id",
+      "kind": "ENUM_EXTENDED",
+      "location": "permission_state",
+      "reason": "a device registered without a push token (a build with no push provider) reports the permission state unavailable; the reading clients show an unknown state as no push, and the one client (the phone) is changed in the same slice",
+      "change_request": "FIXAE-1"
+    },
+    {
+      "operation": "listMyDevices",
+      "kind": "ENUM_EXTENDED",
+      "location": "items[].permission_state",
+      "reason": "a device registered without a push token (a build with no push provider) reports the permission state unavailable; the reading clients show an unknown state as no push, and the one client (the phone) is changed in the same slice",
+      "change_request": "FIXAE-1"
     }
   ]
 }
