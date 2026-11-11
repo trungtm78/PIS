@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +16,7 @@ import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/theme/app_theme.dart';
 import 'package:machvon_mobile/core/widgets/brand_logo.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_home.dart';
+import 'package:machvon_mobile/editions/enterprise/enterprise_home_strings.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_profile.dart';
 import 'package:machvon_mobile/features/account/account_providers.dart';
 import 'package:machvon_mobile/features/account/account_strings.dart';
@@ -63,6 +66,41 @@ Future<void> _open(WidgetTester tester, ScriptedServer server, EditionProfile pr
 String _today() => vietnamTodayText();
 
 void main() {
+  group('TK-MOB-001-5 the enterprise home string table', () {
+    test('both languages carry the same keys, none is empty and the placeholders match', () {
+      final RegExp placeholder = RegExp(r'\{([a-zA-Z0-9]+)\}');
+      Set<String> names(String text) => placeholder.allMatches(text).map((Match m) => m.group(1)!).toSet();
+      expect(kEnterpriseHomeStrings.vi.keys.toSet(), kEnterpriseHomeStrings.en.keys.toSet());
+      for (final String key in kEnterpriseHomeStrings.vi.keys) {
+        expect(isValidStringKey(key), isTrue, reason: key);
+        expect(kEnterpriseHomeStrings.vi[key], isNotEmpty, reason: key);
+        expect(kEnterpriseHomeStrings.en[key], isNotEmpty, reason: key);
+        expect(names(kEnterpriseHomeStrings.vi[key]!), names(kEnterpriseHomeStrings.en[key]!), reason: key);
+      }
+    });
+
+    test('every key of the table is written as a literal somewhere in lib/ and every literal of the enterprise folder is declared in it or in the core table', () {
+      final RegExp usage = RegExp(r"""\bt\(\s*'([^']+)'""");
+      final Set<String> usedAnywhere = <String>{};
+      final Set<String> usedHere = <String>{};
+      for (final FileSystemEntity entity in Directory('lib').listSync(recursive: true)) {
+        if (entity is! File || !entity.path.endsWith('.dart')) continue;
+        final bool here = entity.path.replaceAll('\\', '/').contains('lib/editions/enterprise/');
+        for (final Match match in usage.allMatches(entity.readAsStringSync())) {
+          usedAnywhere.add(match.group(1)!);
+          if (here) usedHere.add(match.group(1)!);
+        }
+      }
+      expect(kEnterpriseHomeStrings.vi.keys.toSet().difference(usedAnywhere), isEmpty, reason: 'declared but never used');
+      for (final String key in usedHere) {
+        expect(kEnterpriseHomeStrings.vi.containsKey(key) || kCoreStrings.vi.containsKey(key), isTrue, reason: key);
+      }
+      for (final String key in usedAnywhere.where((String key) => key.startsWith('mob.ent.'))) {
+        expect(kEnterpriseHomeStrings.vi.containsKey(key), isTrue, reason: '$key is written outside the enterprise folder but is not in the enterprise table');
+      }
+    });
+  });
+
   group('the enterprise home cards on the phone', () {
     test('they are the profile cards of the enterprise edition, with their own words in both languages, and the public edition has none', () {
       expect(kEnterpriseEditionProfile.homeCards, hasLength(3));

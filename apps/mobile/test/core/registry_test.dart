@@ -9,7 +9,6 @@ import 'package:machvon_mobile/core/navigation/mobile_routes.generated.dart';
 import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
 import 'package:machvon_mobile/core/navigation/route_policy.dart';
 import 'package:machvon_mobile/core/navigation/route_table.dart';
-import 'package:machvon_mobile/editions/enterprise/enterprise_home_strings.dart';
 import 'package:machvon_mobile/features/registry.generated.dart';
 
 import '../../tool/generate_registry.dart' as registry_tool;
@@ -151,7 +150,6 @@ void main() {
   group('TK-MOB-001-5 the string tables', () {
     final List<StringTable> tables = <StringTable>[
       kCoreStrings,
-      kEnterpriseHomeStrings,
       for (final MobileFeature feature in kAllFeatures)
         if (feature.strings != null) feature.strings!,
     ];
@@ -195,13 +193,15 @@ void main() {
       final RegExp usage = RegExp(r"""\bt\(\s*'([^']+)'""");
       final Set<String> used = <String>{};
       for (final FileSystemEntity entity in Directory('lib').listSync(recursive: true)) {
-        if (entity is! File || !entity.path.endsWith('.dart')) continue;
+        if (entity is! File || !entity.path.endsWith('.dart') || entity.path.replaceAll('\\', '/').contains('lib/editions/enterprise/')) continue;
         for (final Match match in usage.allMatches(entity.readAsStringSync())) {
           used.add(match.group(1)!);
         }
       }
       expect(used, isNotEmpty);
       for (final String key in used) {
+        // The words of the enterprise phone shell live in the enterprise home table: its own test (editions/enterprise_home_enterprise_test.dart) holds them to the same rules.
+        if (key.startsWith('mob.ent.')) continue;
         expect(catalogue.lookup('vi', key), isNotNull, reason: '$key (vi)');
         expect(catalogue.lookup('en', key), isNotNull, reason: '$key (en)');
       }
