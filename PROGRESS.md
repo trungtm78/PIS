@@ -1,6 +1,14 @@
-STATUS: IN_PROGRESS
+STATUS: BLOCKED
 
 # PROGRESS
+
+## Blocker
+
+1. Vấn đề chính xác: sau khi đẩy b7286f592 (CI/CD sửa theo codex gpt-6-astra), GitHub Actions còn 3 chỗ đỏ mà không đọc được log (API log trả 403 "Must have admin rights to Repository."; tải artifact trả 401): (a) workflow Mobile, job "Analyze and test", bước "Test (with coverage)": chú thích công khai ghi "2401 tests passed, 2 failed, 1 skipped" nên chỉ có 2 test Dart đỏ trên Linux, không biết tên; (b) workflow CI, job "ARM64 build and unit tests", bước "Typecheck and unit tests": thoát mã 1 sau 48 phút (job x86 "Protocol gates" cùng bước còn chạy); (c) workflow Browser, bước "Route walk, flows and visual regions": thoát mã 1 sau 29 phút, không có ảnh khác biệt hình ảnh. Đã xanh: Security, Images, Browsers, hai job Edition.
+2. Đã thử: gh CLI (không có), API log (403), artifact (401), chú thích check-run (chỉ có số), chạy toàn bộ npm test các workspace cục bộ (TZ=UTC và TZ mặc định: chỉ 4 test đỏ, đã sửa), chạy test Dart không mở DB theo giờ Việt Nam (đạt), tìm Linux cục bộ (không có WSL, không có Docker), gitleaks/Trivy chạy cục bộ (đã sạch), Codex gpt-6-astra review hai vòng (đã sửa 1 phát hiện).
+3. Đề xuất: chủ sở hữu dán tên 2 test Dart đỏ (Mobile), các dòng FAIL của job ARM64 (hoặc job Protocol gates khi xong), và các dòng failed của Playwright (Browser) từ tab Actions của lần chạy b7286f592; tôi sửa đúng các test đó.
+4. Câu hỏi: bạn dán giúp tôi 3 đoạn log đó (chỉ tên test/tệp và dòng lỗi) được không?
+
 
 ## Blocker
 
