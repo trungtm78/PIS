@@ -40,7 +40,7 @@ for (const viewport of VIEWPORTS) {
         const small = await page.evaluate((minimum) => {
           const seen = new Set<Element>();
           const found: string[] = [];
-          for (const element of document.querySelectorAll<HTMLElement>('main a[href], main button, [data-screen-id] a[href], [data-screen-id] button')) {
+          for (const element of Array.from(document.querySelectorAll<HTMLElement>('main a[href], main button, [data-screen-id] a[href], [data-screen-id] button'))) {
             if (seen.has(element) || element.offsetParent === null) continue;
             seen.add(element);
             const box = element.getBoundingClientRect();
