@@ -104,6 +104,7 @@ describe('the snapshot figure of the command block', () => {
   it('is loading, none (never 0 and never the Treasury) or ready with its day and revision', () => {
     expect(snapshotDisbursedOf(true, undefined)).toEqual({ state: 'loading' });
     expect(snapshotDisbursedOf(false, undefined)).toEqual({ state: 'none' });
+    expect(snapshotDisbursedOf(false, null)).toEqual({ state: 'none' });
     expect(snapshotDisbursedOf(false, { ...rates, company: { ...company, disbursed_vnd: null } } as never)).toEqual({ state: 'none' });
     expect(snapshotDisbursedOf(false, rates as never)).toEqual({ state: 'ready', valueVnd: '928756000000', asOfDate: '2026-10-31', revision: 2 });
   });

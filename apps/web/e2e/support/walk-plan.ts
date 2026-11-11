@@ -73,8 +73,6 @@ export function devUserFor(route: { module: string }): 'owner' | 'sysAdmin' {
 }
 
 const ABSENT_ESTIMATE = /\/api\/disbursement-forecasts\?project_id=/;
-// The leadership dashboard of the enterprise edition answers 404 RESOURCE_NOT_FOUND while no enterprise snapshot is frozen; its panel shows "no snapshot yet" (LeaderPanel).
-const ABSENT_LEADER_BOARD = /\/api\/leader\/rates(\?|$)/;
 // The cross-total control of DIS-26 answers 404 for a snapshot that is not there for the caller; the screen reads that as "no control for this snapshot" (`useControl`) and shows its empty state.
 const ABSENT_CONTROL = /\/api\/period-snapshots\/[0-9a-f-]{36}\/cross-total$/;
 // The area of the contractor portal answers 403 PORTAL_CONTRACTOR_REQUIRED to a member who is not a guest contractor; its screens show the denied state saying the area is for contractor accounts (portal-ui).
@@ -82,11 +80,11 @@ const CONTRACTOR_AREA = /\/api\/portal\//;
 
 /**
  * Whether a console error is the browser noting an answer that the product specifies for the kind of person the walk opens the screen as, and that the screen shows as a state of its own:
- * 404 for a project that has no line in the latest frozen snapshot (DIS: no estimate, docs/dis-forecast.md), 404 for the leadership dashboard before an enterprise snapshot is frozen, 404 for the cross-total control of a snapshot that is not there for the caller, and 403
+ * 404 for a project that has no line in the latest frozen snapshot (DIS: no estimate, docs/dis-forecast.md), 404 for the cross-total control of a snapshot that is not there for the caller, and 403
  * for the contractor portal opened by a member who is not a contractor. It is not a defect of the screen; any other 4xx or 5xx still is.
  */
 export function isExpectedAbsence(text: string, url: string): boolean {
-  if (/status of 404/.test(text)) return ABSENT_ESTIMATE.test(url) || ABSENT_LEADER_BOARD.test(url) || ABSENT_CONTROL.test(url);
+  if (/status of 404/.test(text)) return ABSENT_ESTIMATE.test(url) || ABSENT_CONTROL.test(url);
   if (/status of 403/.test(text)) return CONTRACTOR_AREA.test(url);
   return false;
 }

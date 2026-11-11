@@ -84,6 +84,11 @@ describe('the leader panel of the enterprise edition (ENT-4d)', () => {
   });
 
   it('says nothing is frozen when the server has no snapshot, and offers a retry for any other failure', async () => {
+    // The server answers 200 with snapshot null and the reason (no failed request); a 404 of an older server says the same.
+    open('rates', { getLeaderRates: { snapshot: null, reason: 'NO_FROZEN_SNAPSHOT', as_of: '2026-11-09T01:00:00.000Z' } });
+    expect(await screen.findByTestId('leader-rates-empty')).toBeTruthy();
+    expect(screen.queryByTestId('leader-rates-error')).toBeNull();
+    cleanup();
     open('rates', { getLeaderRates: failure(404, 'RESOURCE_NOT_FOUND') });
     expect(await screen.findByTestId('leader-rates-empty')).toBeTruthy();
     cleanup();

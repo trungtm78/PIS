@@ -12,6 +12,8 @@ import { ENTERPRISE_METRICS } from './tokens';
 const LEADER_READ = 'home.read';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const LEADER_NULL_METRIC = 'leader_rate_null_total';
+/** The reason of the empty answer of `getLeaderRates`: no enterprise snapshot has been frozen yet. */
+export const LEADER_NO_SNAPSHOT_REASON = 'NO_FROZEN_SNAPSHOT';
 
 /**
  * The leadership dashboard of the enterprise edition (ENT-4d, HSKT BC.02): the disbursement against the annual plan by company, unit and project with the same period of last year, read from the frozen enterprise
@@ -36,8 +38,10 @@ export class LeaderReadsController {
     if (snapshotId !== undefined && (typeof snapshotId !== 'string' || !UUID.test(snapshotId))) throw new DomainError('VALIDATION_FAILED', 422, 'snapshot_id');
     const now = new Date();
     const scope = projectScope(access, LEADER_READ, now);
-    const { board, structure } = await this.database.withTenant(tenant, async (tx) => {
+    const read = await this.database.withTenant(tenant, async (tx) => {
       const pair = await this.store.pair(tx, snapshotId);
+      // No snapshot is frozen yet: an answer (200, `snapshot: null` and the reason), not a failed request. A snapshot that was named and is not there stays a 404.
+      if (pair === undefined && snapshotId === undefined) return undefined;
       if (pair === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'snapshot_id');
       if (pair.current.status !== 'FROZEN' && pair.current.status !== 'SUPERSEDED') throw new DomainError('SNAPSHOT_NOT_FROZEN', 422, 'snapshot_id');
       const visible = await this.store.visibleProjects(tx, scope);
@@ -50,6 +54,8 @@ export class LeaderReadsController {
       const structure = structureOf(reader, allowed === undefined ? {} : { projectIds: reader.projectIds().filter((id) => allowed.has(id)) });
       return { board: leaderRateBoard({ current, previous: before }), structure };
     });
+    if (read === undefined) return { snapshot: null, reason: LEADER_NO_SNAPSHOT_REASON, as_of: now.toISOString() };
+    const { board, structure } = read;
     if (board.company.ratePct === null) this.metrics.increment(LEADER_NULL_METRIC, { reason: board.company.nullReason ?? 'NO_DATA' });
     const rowDto = (row: (typeof board)['company']): Record<string, unknown> => ({
       level: row.level,

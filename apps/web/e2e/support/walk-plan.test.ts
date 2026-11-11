@@ -79,10 +79,11 @@ test('the 404 of an estimate that DIS has none to give for a project is an answe
   assert.equal(isExpectedAbsence('Uncaught TypeError', estimate), false);
 });
 
-test('the leadership board before a snapshot is frozen (404) and the contractor portal opened by a member who is not a contractor (403) are answers of the product, and nothing else on those areas is', () => {
+test('the cross-total control (404), the contractor portal opened by a member who is not a contractor (403) are answers of the product, and nothing else on those areas is', () => {
   const notFound = 'Failed to load resource: the server responded with a status of 404 (Not Found)';
   const refused = 'Failed to load resource: the server responded with a status of 403 (Forbidden)';
-  assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/leader/rates'), true);
+  // Before a snapshot is frozen the board answers 200 with snapshot null: a 404 on it is a defect again.
+  assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/leader/rates'), false);
   assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/leader/blocked'), false);
   assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/period-snapshots/542285ab-a558-4908-b4ff-7167435517c0/cross-total'), true);
   assert.equal(isExpectedAbsence(notFound, 'http://127.0.0.1:1/api/period-snapshots/542285ab-a558-4908-b4ff-7167435517c0/lines'), false);

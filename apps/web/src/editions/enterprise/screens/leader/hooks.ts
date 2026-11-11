@@ -14,13 +14,24 @@ function useScopeKey(): readonly ['leader', string | undefined, string | undefin
   return ['leader', tenant?.id, tenant?.membershipId];
 }
 
-/** The rates against the annual plan of the latest frozen enterprise snapshot, with last year. Nothing refreshes them by itself: they belong to the snapshot. */
+/** Whether the answer of `getLeaderRates` is the empty one: no enterprise snapshot is frozen yet (200, `snapshot: null` and the reason), which is a state and never a failed request. */
+export function isNoSnapshot(raw: unknown): boolean {
+  return typeof raw === 'object' && raw !== null && 'snapshot' in raw && (raw as { snapshot: unknown }).snapshot === null;
+}
+
+/**
+ * The rates against the annual plan of the latest frozen enterprise snapshot, with last year. Nothing refreshes them by itself: they belong to the snapshot. `null` is "nothing frozen yet" (the answer is empty,
+ * not a refusal); `undefined` is "not read yet" or "the read failed".
+ */
 export function useLeaderRates() {
   const client = useApiClient();
   const key = useScopeKey();
-  return useQuery<LeaderRates>({
+  return useQuery<LeaderRates | null>({
     queryKey: [...key, 'rates'],
-    queryFn: async () => (await client.read('getLeaderRates')) as LeaderRates,
+    queryFn: async () => {
+      const raw = await client.read('getLeaderRates');
+      return isNoSnapshot(raw) ? null : (raw as LeaderRates);
+    },
     enabled: key[1] !== undefined,
     retry: false,
     refetchOnWindowFocus: false,
@@ -50,9 +61,9 @@ export function useSnapshotDisbursed(): HomeDisbursed {
   return snapshotDisbursedOf(read.isLoading, read.data);
 }
 
-export function snapshotDisbursedOf(loading: boolean, data: LeaderRates | undefined): HomeDisbursed {
+export function snapshotDisbursedOf(loading: boolean, data: LeaderRates | null | undefined): HomeDisbursed {
   if (loading) return { state: 'loading' };
   const value = data?.company.disbursed_vnd;
-  if (data === undefined || value === null || value === undefined) return { state: 'none' };
+  if (data === undefined || data === null || value === null || value === undefined) return { state: 'none' };
   return { state: 'ready', valueVnd: value, asOfDate: data.as_of_date, revision: data.revision ?? 0 };
 }

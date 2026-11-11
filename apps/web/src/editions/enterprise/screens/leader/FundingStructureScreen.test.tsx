@@ -67,7 +67,13 @@ describe('HOME-07 of the enterprise edition: the funding structure by equity, lo
     expect(screen.getByTestId('structure-OTHER-plan-share').textContent).toBe(word('ent.funding.card.planShare', { value: word('ent.leader.noData.text') }));
   });
 
-  it('says there is no frozen snapshot yet (404) as a state, with no retry button', async () => {
+  it('says there is no frozen snapshot yet (the empty answer, snapshot null) as a state, with no retry button', async () => {
+    open({ snapshot: null, reason: 'NO_FROZEN_SNAPSHOT', as_of: '2026-11-09T01:00:00.000Z' });
+    expect((await screen.findByTestId('funding-structure-empty')).textContent).toBe(word('ent.funding.empty'));
+    expect(screen.queryByTestId('funding-structure-error')).toBeNull();
+  });
+
+  it('says the same for the 404 of an older server', async () => {
     open(failure(404, 'RESOURCE_NOT_FOUND'));
     expect((await screen.findByTestId('funding-structure-empty')).textContent).toBe(word('ent.funding.empty'));
     expect(screen.queryByTestId('funding-structure-error')).toBeNull();

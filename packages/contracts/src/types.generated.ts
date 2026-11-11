@@ -26238,7 +26238,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Tỷ lệ giải ngân so với kế hoạch năm theo Tổng công ty, đơn vị, dự án và so với cùng kỳ năm trước, đọc từ bản chốt enterprise qua bộ đọc duy nhất (ENT-4d, HSKT BC.02) */
+        /** Tỷ lệ giải ngân so với kế hoạch năm theo Tổng công ty, đơn vị, dự án và so với cùng kỳ năm trước, đọc từ bản chốt enterprise qua bộ đọc duy nhất (ENT-4d, HSKT BC.02). Khi chưa có bản chốt nào, trả 200 với snapshot: null và lý do (không trả 404) */
         get: operations["getLeaderRates"];
         put?: never;
         post?: never;
@@ -47962,6 +47962,14 @@ export interface components {
                 rate_pct: string | null;
                 null_reason: string | null;
             }[];
+        };
+        /** @description The leadership rates when no enterprise snapshot is frozen yet: an answer, not a failure (the web and the mobile app show the empty state without a failed request). */
+        LeaderRatesNone: {
+            snapshot: null;
+            /** @enum {string} */
+            reason: "NO_FROZEN_SNAPSHOT";
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -209036,13 +209044,13 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of. Without a frozen snapshot: {snapshot: null, reason: NO_FROZEN_SNAPSHOT} */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LeaderRates"];
+                    "application/json": components["schemas"]["LeaderRates"] | components["schemas"]["LeaderRatesNone"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */
