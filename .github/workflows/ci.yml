@@ -132,8 +132,8 @@ jobs:
 
       - name: Edition mechanism of the kernel and the enterprise package
         run: |
-          npx jest --rootDir packages/kernel --coverage=false --testPathPatterns "src/edition.test.ts"
-          npx jest --rootDir packages/edition-enterprise --coverage=false
+          npm test -w @machvon/kernel -- --coverage=false --testPathPatterns "src/edition.test.ts"
+          npm test -w @machvon/edition-enterprise -- --coverage=false
 
       - name: API, the registry mounts what the edition lists
         working-directory: apps/api
