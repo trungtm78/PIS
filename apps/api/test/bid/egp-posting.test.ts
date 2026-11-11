@@ -285,7 +285,7 @@ describe('the duties of posting to the national procurement network, the reconci
     it('opens by hand for a notice, resolving the package by its code, refusing a code that names nothing, two packages or a day in the future, and answering the same opening once', async () => {
       const subject = await seedPackage();
       const key = `key-${randomUUID()}`;
-      const body = { kind: 'NOTICE', our_code: subject.code, our_project_code: subject.projectCode, triggered_on: day(-3) };
+      const body = { kind: 'NOTICE', our_code: subject.code, our_project_code: subject.projectCode, triggered_on: day(0) };
       const first = await call('POST', '/egp/obligations', { member: PREPARER, body, key });
       expect(first.status).toBe(200);
       expect(first.json).toMatchObject({ kind: 'NOTICE', subject_type: 'NOTICE', subject_id: subject.packageId, subject_code: subject.code, state: 'DUE', legal_status: 'UNVERIFIED', rule_version: 0, owner_name: expect.any(String), actions: { prepare: true, submit: false, receipt: false, reject: false, cancel: true } });
