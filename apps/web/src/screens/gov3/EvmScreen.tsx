@@ -79,8 +79,9 @@ function EvmContent({ route }: ScreenProps) {
   const [message, setMessage] = useState<{ tone: 'ok' | 'error'; text: string } | undefined>(undefined);
   const selection = useMemo<EvmSelection>(() => ({ asOf, scope, ref, baseline: baselineChoice }), [asOf, scope, ref, baselineChoice]);
   const evm = useEvm(projectId, selection);
-  const curve = useSCurve(projectId, selection);
   const baseline = useBaseline(projectId);
+  // Version 0 is known from the baseline read: without it the curve is not asked for; when that read fails or finds nothing, the curve is asked for and answers by itself.
+  const curve = useSCurve(projectId, selection, baseline.isPending ? undefined : (baseline.data?.hasBaseline ?? true));
   const links = useComponentContracts(projectId);
   const exporter = useExportSCurve();
   const evmState = useScreenState({ isLoading: evm.isLoading, error: evm.error, data: evm.data, isEmpty: () => false });

@@ -452,7 +452,7 @@ describe('PRJ-27: earned value and the S-curve', () => {
     for (const key of ['govb1.evm.series.ev', 'govb1.evm.series.ac', 'govb1.evm.series.pvV0', 'govb1.evm.series.pvCurrent']) expect(legend).toContain(text(key));
     expect(legend).toContain(text('govb1.evm.series.asOf', { day: '08/11/2026' }));
     // The accessible table of the kit is always there; the visible table is one press away and has every point.
-    expect(document.querySelector('table.ui-sr-only')).not.toBeNull();
+    expect(document.querySelector('.ui-sr-only table')).not.toBeNull();
     expect(screen.queryByRole('table', { name: text('govb1.evm.curve.table') })).toBeNull();
     const toggle = screen.getByTestId('toggle-table');
     expect(toggle.getAttribute('aria-pressed')).toBe('false');
@@ -472,6 +472,13 @@ describe('PRJ-27: earned value and the S-curve', () => {
     expect(within(notice).getByRole('link').getAttribute('href')).toBe(`/prj/prj-26?project=${PROJECT}`);
     expect((screen.getByTestId('export') as HTMLButtonElement).disabled).toBe(true);
     expect(await screen.findByText('36.000.000.000', { selector: '.ui-kpi__value' })).toBeTruthy();
+  });
+
+  it('does not ask for the curve of a project whose baseline read says it has no version 0 (no failed request), and still says so', async () => {
+    const h = open({ getProjectBaseline: baseline({ has_baseline: false, versions: [], deviation: null, reasons: [], alerts: [], reappraisals: [], actions: { capture: true, decide_reappraisal: false, acknowledge_alert: false } }) });
+    expect(await screen.findByTestId('curve-no-baseline')).toBeTruthy();
+    expect(h.read.mock.calls.some((entry) => entry[0] === 'getProjectSCurve')).toBe(false);
+    expect(h.read.mock.calls.some((entry) => entry[0] === 'getProjectEvm')).toBe(true);
   });
 
   it('exports the workbook: asks the server for it and saves the decoded bytes under its name', async () => {
