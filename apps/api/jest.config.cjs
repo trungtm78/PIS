@@ -25,6 +25,8 @@ module.exports = {
       },
     ],
   },
+  // Most cases create a tenant on a real database: the 5 s default of Jest is too short on a slow shared runner (the ARM one failed on it); a case that needs more says so itself.
+  testTimeout: 30_000,
   maxWorkers: 4,
   workerIdleMemoryLimit: '1500MB',
   globalSetup: '<rootDir>/packages/db/jest.global-setup.mjs',

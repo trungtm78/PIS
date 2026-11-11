@@ -71,8 +71,12 @@ jobs:
         run: flutter analyze
 
       # Unit, widget and golden tests. The goldens use the test font and a small tolerance, so they hold on every OS.
+      # Several screens show a moment "in the time zone of the phone" (devices, release notice, context, offline queue) and their tests expect the Vietnam hour (UTC+7, as on the
+      # machines they were written on). A hosted runner is UTC, which reads every such moment 7 hours early, so the run is given the zone of the people the application is for.
       - name: Test (with coverage)
         working-directory: apps/mobile
+        env:
+          TZ: Asia/Ho_Chi_Minh
         run: flutter test --coverage
 
       - name: Coverage floor (90 percent of lines)

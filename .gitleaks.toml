@@ -4,7 +4,7 @@ title = "MACHVON secret scan"
 [extend]
 useDefault = true
 
-[allowlist]
+[[allowlists]]
 description = "Fake credentials of tests, fixtures, the design prototype and generated lockfiles; a real secret in these paths is still caught by the push gate (ci/src/rules.mjs) for product code."
 paths = [
   '''package-lock\.json$''',
@@ -15,3 +15,22 @@ paths = [
   '''^Design/''',
   '''^docs/UAT-''',
 ]
+
+# generic-api-key matches identifiers that merely sit next to a word like "key", "token" or "secrets": none of these is a credential (checked line by line, history included).
+# Each entry names the exact line it forgives, so a real key added to the same file is still caught.
+[[allowlists]]
+description = "Public constants and file names that the generic-api-key rule takes for secrets"
+targetRules = ["generic-api-key"]
+regexTarget = "line"
+regexes = [
+  '''ACCESS_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';''',  # packages/kernel/src/whistle.ts: the 32 letters and digits of the whistle access code, no ambiguous glyphs
+  '''TOKEN_PREFIX = 'machvon-verify=';''',  # packages/kernel/src/sas-domain.ts: the public prefix of the DNS verification record
+  '''STORAGE_KEY = 'machvon\.dis16\.columns';''',  # apps/web/src/screens/dis/rates/FullTableScreen.tsx: a localStorage key name of the screen
+  '''infra/onprem/secrets\.json''',  # scripts/onprem-bundle.mjs: a PATH of the bundle (the manifest of secret NAMES, not values)
+  '''infra/keycloak/onprem`\) \| login, MFA''',  # docs/security/pentest-readiness.md: a directory in a table row
+]
+
+[[allowlists]]
+description = "UAT guard state files of run uat-2026-11-10-r4 (removed from the tree, still in history): they list test file names, no credential"
+targetRules = ["generic-api-key"]
+paths = ['''^uat/run/''']

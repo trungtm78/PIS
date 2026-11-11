@@ -4,14 +4,14 @@
 # The API runs the TypeScript sources of the workspace through the @swc/core loader of apps/api/scripts (a runtime dependency of the API: its platform binary is an
 # optional package, so optional packages are kept), so the image carries the sources and the production dependencies: no dev dependency, and the test-only
 # embedded-postgres (declared in packages/db, imported by test-database.ts only) is deleted after the install.
-FROM node:24.14.0-bookworm-slim@sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8 AS build
+FROM node:24.22.2-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS build
 WORKDIR /app
 COPY . .
 RUN npm ci --omit=dev --ignore-scripts --workspace @machvon/api --include-workspace-root=false \
  && rm -rf node_modules/embedded-postgres node_modules/@embedded-postgres \
  && npm cache clean --force
 
-FROM node:24.14.0-bookworm-slim@sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8 AS runtime
+FROM node:24.22.2-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9 AS runtime
 LABEL org.opencontainers.image.title="machvon-api" \
       org.opencontainers.image.description="MACHVON api" \
       org.opencontainers.image.source="https://github.com/trungtm78/PIS"
@@ -30,6 +30,8 @@ COPY --from=build --chown=node:node /app/db/migrations ./db/migrations
 COPY --from=build --chown=node:node /app/Design/MACHVON_Design/03_Engineering/error_codes.json ./Design/MACHVON_Design/03_Engineering/error_codes.json
 COPY --from=build --chown=node:node /app/Design/MACHVON_Design/03_Engineering/schema_reference.sql ./Design/MACHVON_Design/03_Engineering/schema_reference.sql
 COPY --chmod=0755 infra/onprem/docker/secret-env.sh /usr/local/bin/secret-env
+# The runtime only runs node: npm and corepack (with the npm dependencies Trivy reads as findings) are not needed here and are removed.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 USER node
 WORKDIR /app/apps/api
 EXPOSE 3000

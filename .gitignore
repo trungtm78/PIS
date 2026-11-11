@@ -59,3 +59,6 @@ replay_pid*.log
 
 # Customer documents, templates and finished clips are delivered by hand, never committed.
 Design/Requirments/
+
+# What a failed golden comparison writes next to the test (flutter_test): never committed.
+apps/mobile/test/**/failures/

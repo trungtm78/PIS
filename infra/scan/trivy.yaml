@@ -1,12 +1,14 @@
 # Policy of every Trivy scan of the product (images.yml, security.yml, supply-chain.json "imageScan"): the build fails on a HIGH or CRITICAL finding that has a fix.
-# A finding that cannot be fixed yet is accepted in infra/scan/.trivyignore with an owner and a last day, never by lowering this level.
+# A finding that cannot be fixed yet is accepted in infra/scan/.trivyignore.yaml with an owner and a last day, never by lowering this level.
 format: table
 exit-code: 1
 severity:
   - HIGH
   - CRITICAL
-ignore-unfixed: true
-ignorefile: infra/scan/.trivyignore
+vulnerability:
+  # The Trivy config file reads this flag from the vulnerability section; a top-level ignore-unfixed key is silently ignored and made every unfixed Debian finding fail the scans.
+  ignore-unfixed: true
+ignorefile: infra/scan/.trivyignore.yaml
 scan:
   scanners:
     - vuln

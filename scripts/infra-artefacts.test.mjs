@@ -123,8 +123,8 @@ test('images: a floating or missing tag, a missing digest, drift from the pin, a
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace('keycloak:26.5.2@', 'keycloak:latest@'))), 'IMAGE_FLOATING', /keycloak:latest/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/keycloak:26\.5\.2@sha256:[0-9a-f]{64}/, 'keycloak:26.5.2'))), 'IMAGE_DIGEST_MISSING', /keycloak:26\.5\.2/);
   found(scratch((s) => s.text(COMPOSE, (t) => t.replace(/keycloak:26\.5\.2@sha256:[0-9a-f]{64}/, `keycloak:26.5.2@sha256:${'0'.repeat(64)}`))), 'IMAGE_PIN_DRIFT', /keycloak/);
-  found(scratch((s) => s.text('infra/onprem/docker/api.Dockerfile', (t) => t.replace(/FROM node:24\.14\.0-bookworm-slim@sha256:[0-9a-f]{64} AS runtime/, 'FROM node:latest AS runtime'))), 'IMAGE_FLOATING', /node:latest/);
-  found(scratch((s) => s.text('infra/onprem/docker/db.Dockerfile', (t) => t.replace(/postgres:18\.3-bookworm@sha256:[0-9a-f]{64}/, 'postgres:18.3-bookworm'))), 'IMAGE_DIGEST_MISSING', /postgres/);
+  found(scratch((s) => s.text('infra/onprem/docker/api.Dockerfile', (t) => t.replace(/FROM node:24\.22\.2-bookworm-slim@sha256:[0-9a-f]{64} AS runtime/, 'FROM node:latest AS runtime'))), 'IMAGE_FLOATING', /node:latest/);
+  found(scratch((s) => s.text('infra/onprem/docker/db.Dockerfile', (t) => t.replace(/postgres:18\.6-bookworm@sha256:[0-9a-f]{64}/, 'postgres:18.6-bookworm'))), 'IMAGE_DIGEST_MISSING', /postgres/);
   found(scratch((s) => s.text('infra/onprem/docker/web.Dockerfile', (t) => t.replace('FROM nginxinc', 'FROM --platform=linux/amd64 nginxinc'))), 'IMAGE_ARCH', /linux\/amd64/);
   found(scratch((s) => s.json('infra/onprem/images.json', (i) => { i.platforms = ['linux/amd64']; })), 'IMAGE_ARCH', /linux\/arm64/);
   found(scratch((s) => s.json('infra/onprem/images.json', (i) => { i.thirdParty[0].tag = 'latest'; })), 'IMAGE_FLOATING', /node:latest/);

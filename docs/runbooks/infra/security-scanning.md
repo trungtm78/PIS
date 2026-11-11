@@ -8,7 +8,7 @@ What runs, when it fails, who answers. Nothing here needs a secret of the produc
 | Secret scan | `security.yml` / `secrets` (gitleaks over the whole history) | any finding outside the allowances | `.gitleaks.toml` |
 | Dependency audit | `ci.yml` (`npm run supply-chain:check -- --audit`), `supply-chain-daily.yml` (every day, opens an issue for the owner) | a high or critical advisory in production dependencies without a valid time-boxed exception | `supply-chain.json`, `docs/runbooks/supply-chain.md` |
 | Dependency review | `security.yml` / `dependency-review` (pull requests) | a new dependency with a high advisory or a denied licence | the workflow |
-| Filesystem scan | `security.yml` / `filesystem` (Trivy: vulnerabilities, secrets, misconfiguration of Dockerfiles, compose and workflows) | a HIGH or CRITICAL finding that has a fix | `infra/scan/trivy.yaml`, `infra/scan/.trivyignore` |
+| Filesystem scan | `security.yml` / `filesystem` (Trivy: vulnerabilities, secrets, misconfiguration of Dockerfiles, compose and workflows) | a HIGH or CRITICAL finding that has a fix | `infra/scan/trivy.yaml`, `infra/scan/.trivyignore.yaml` |
 | Image scan | `images.yml` / `image` (each of api, workers, web, db, built natively on amd64 and on arm64, scanned and SBOM kept) | a HIGH or CRITICAL finding that has a fix | `infra/scan/trivy.yaml` |
 | Multi-platform build | `images.yml` / `multi-platform` (QEMU build of both platforms and the plan of the offline bundle) | a build definition that does not build for both platforms | the Dockerfiles |
 | ARM leg | `ci.yml` / `arm64` on `ubuntu-24.04-arm` (typecheck, unit tests, web build, native dependency check) | anything that passes on x86 and fails on ARM | `infra/onprem/native-deps.json` |
@@ -30,7 +30,7 @@ To run the same scan by hand: `docker run --rm -v "$PWD/zap:/zap/wrk:rw" -v "$PW
 | Medium | 5 working days | 90 days |
 | Low and informational | next planning | as planned |
 
-A finding that cannot be fixed in time is accepted for at most 90 days, in a reviewed file with an owner and a reason: `supply-chain.json` `auditExceptions` for npm advisories, `infra/scan/.trivyignore` for image findings (comment with owner and last day), `.zap/rules.tsv` for ZAP rules (a WARN or IGNORE row with the reason in the file and a link here). Lowering a level or deleting a check is not an exception.
+A finding that cannot be fixed in time is accepted for at most 90 days, in a reviewed file with an owner and a reason: `supply-chain.json` `auditExceptions` for npm advisories, `infra/scan/.trivyignore.yaml` for image findings (comment with owner and last day), `.zap/rules.tsv` for ZAP rules (a WARN or IGNORE row with the reason in the file and a link here). Lowering a level or deleting a check is not an exception.
 
 ## Adding or changing a check
 

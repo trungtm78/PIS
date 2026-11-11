@@ -8,6 +8,7 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WORKFLOW = join(REPO_ROOT, '.github', 'workflows', 'browser.yml');
 const REPORT_PATH = 'apps/web/e2e/report.json';
 const DIFF_DIRECTORY = 'apps/web/e2e/__diff__/';
+const LINUX_BASELINES_ARTIFACT = 'visual-baselines-linux';
 
 // ---------------------------------------------------------------------------------------------------------------------
 // A reader for the subset of YAML that the workflow uses: block maps and lists, inline lists, quoted scalars and `|`
@@ -119,7 +120,10 @@ export function browserWorkflowProblems(workflow) {
   const paths = artifactPaths(steps);
   if (!paths.includes(REPORT_PATH)) problems.push(`the artifacts include ${REPORT_PATH}`);
   if (!paths.some((path) => path === DIFF_DIRECTORY || path.startsWith(DIFF_DIRECTORY))) problems.push(`the artifacts include the diff images under ${DIFF_DIRECTORY}`);
-  if (uploads.some((step) => step.if !== 'always()')) problems.push('artifacts are uploaded even when the run fails (if: always())');
+  // The Linux baselines are an upload of the run that renders them (update_visual); every other artifact is kept even when the run fails.
+  if (uploads.some((step) => step.if !== 'always()' && step.with?.name !== LINUX_BASELINES_ARTIFACT)) problems.push('artifacts are uploaded even when the run fails (if: always())');
+  if (workflow.on?.workflow_dispatch?.inputs?.update_visual === undefined) problems.push('a run by hand can render the Linux visual baselines (input update_visual)');
+  if (!uploads.some((step) => step.with?.name === LINUX_BASELINES_ARTIFACT && step.if !== undefined)) problems.push(`the rendered Linux baselines are uploaded as ${LINUX_BASELINES_ARTIFACT} when update_visual is set`);
   if (!(job['timeout-minutes'] > 0)) problems.push('the job has a timeout');
   return problems;
 }
@@ -184,6 +188,14 @@ test('a workflow without a concurrency group, Chrome, the run, the report or alw
   const onlyOnSuccess = clone();
   for (const step of onlyOnSuccess.jobs.browser.steps) if (step.uses?.startsWith('actions/upload-artifact')) delete step.if;
   assert.ok(browserWorkflowProblems(onlyOnSuccess).some((problem) => problem.includes('always()')));
+
+  const noUpdateInput = clone();
+  delete noUpdateInput.on.workflow_dispatch.inputs;
+  assert.ok(browserWorkflowProblems(noUpdateInput).some((problem) => problem.includes('update_visual')));
+
+  const noBaselineUpload = clone();
+  noBaselineUpload.jobs.browser.steps = noBaselineUpload.jobs.browser.steps.filter((step) => step.with?.name !== LINUX_BASELINES_ARTIFACT);
+  assert.ok(browserWorkflowProblems(noBaselineUpload).some((problem) => problem.includes(LINUX_BASELINES_ARTIFACT)));
 
   const twoJobs = clone();
   twoJobs.jobs.second = twoJobs.jobs.browser;

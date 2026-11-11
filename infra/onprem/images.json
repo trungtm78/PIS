@@ -4,13 +4,13 @@
     "linux/amd64",
     "linux/arm64"
   ],
-  "digestsResolvedOn": "2026-11-08",
+  "digestsResolvedOn": "2026-11-11",
   "thirdParty": [
     {
       "name": "node",
       "reference": "docker.io/library/node",
-      "tag": "24.14.0-bookworm-slim",
-      "digest": "sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8",
+      "tag": "24.22.2-bookworm-slim",
+      "digest": "sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9",
       "usedBy": [
         "api",
         "workers",
@@ -21,8 +21,8 @@
     {
       "name": "nginx-unprivileged",
       "reference": "docker.io/nginxinc/nginx-unprivileged",
-      "tag": "1.30.1-alpine",
-      "digest": "sha256:acc3239879a65d9e3d250b21847ec3f34f33367017394d22830242af15cf1cb0",
+      "tag": "1.30.6-alpine",
+      "digest": "sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03",
       "usedBy": [
         "web"
       ],
@@ -31,8 +31,8 @@
     {
       "name": "postgres",
       "reference": "docker.io/library/postgres",
-      "tag": "18.3-bookworm",
-      "digest": "sha256:80630f83606d8db77d30b3851b16a9f78be2d0d4dda6f7b82a1fdca5ebe3acba",
+      "tag": "18.6-bookworm",
+      "digest": "sha256:f1ea2a1a4fb7b68d4836be1fdcb8a6466a89b072158bf9d97663600538c294c5",
       "usedBy": [
         "db"
       ],
@@ -57,6 +57,16 @@
         "clamav"
       ],
       "role": "runtime"
+    },
+    {
+      "name": "golang",
+      "reference": "docker.io/library/golang",
+      "tag": "1.26.11-bookworm",
+      "digest": "sha256:dc40a13b61304647ed7e5d581d246b86413dfc29d63c6d018310feb93cd98fc0",
+      "usedBy": [
+        "db"
+      ],
+      "role": "build"
     }
   ],
   "built": [

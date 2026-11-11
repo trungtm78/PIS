@@ -37,6 +37,10 @@ jobs:
       - name: Install product dependencies
         run: npm ci
 
+      # The supply chain gate also checks the SBOM of the product (dist/sbom.cdx.json); it is generated here, as in ci.yml, or the audit fails on "the SBOM is missing" every day.
+      - name: Generate the SBOM
+        run: npm run sbom
+
       # The audit judges the lockfile against the exceptions of supply-chain.json (owner, reason, last day); an exception that has run out is a finding too.
       - name: Audit npm dependencies
         id: audit
@@ -61,12 +65,17 @@ jobs:
         if: steps.audit.outcome == 'failure' || steps.pub.outcome == 'failure'
         run: |
           title="Dependency advisory found by the daily audit"
-          { echo "The daily supply chain audit failed on $(date -u +%F)."; echo; echo '```'; cat audit.log pub.log 2>/dev/null | tail -n 80; echo '```'; echo; echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; } > body.md
+          { echo "The daily supply chain audit failed on $(date -u +%F)."; echo; echo '```'; cat audit.log pub.log 2>/dev/null | tail -n 80; echo '```'; echo; echo "Owner: @$SUPPLY_CHAIN_OWNER"; echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"; } > body.md
+          # A label that does not exist makes `gh issue create` fail, so the labels are created first (an existing one is left as it is).
+          gh label create supply-chain --description "Findings of the supply chain audit" --color B60205 2>/dev/null || true
+          gh label create security --description "Security findings" --color D93F0B 2>/dev/null || true
           existing=$(gh issue list --state open --label supply-chain --search "$title in:title" --json number --jq '.[0].number')
           if [ -n "$existing" ]; then
             gh issue comment "$existing" --body-file body.md
           else
-            gh issue create --title "$title" --label supply-chain --label security --assignee "${{ env.SUPPLY_CHAIN_OWNER }}" --body-file body.md
+            # The owner may not be assignable (not a collaborator): the issue is still raised, without the assignee, and the owner is named in the body.
+            gh issue create --title "$title" --label supply-chain --label security --assignee "${{ env.SUPPLY_CHAIN_OWNER }}" --body-file body.md \
+              || gh issue create --title "$title" --label supply-chain --label security --body-file body.md
           fi
 
       - name: Fail the run when the audit failed
