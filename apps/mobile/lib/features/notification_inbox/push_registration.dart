@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../../core/di/providers.dart';
+import '../../core/offline/offline_providers.dart';
+import '../../core/offline/store/local_store.dart';
 import '../../core/session/session.dart';
 import '../read_support/attempts.dart';
 import '../read_support/wire.dart';
@@ -37,6 +40,13 @@ final Provider<PushInbound> pushInboundProvider = Provider<PushInbound>((Ref ref
 /// is held open; `test/features/notification_inbox/push_registration_test.dart` pins this default.
 final Provider<Stream<void>> pushArrivalsProvider = Provider<Stream<void>>((Ref ref) => ref.watch(pushInboundProvider).received.map((PushPayload payload) {}));
 
+/// The locale the server takes for a device: language and region (`vi-VN`, `en-US`), the form its registration checks. The interface
+/// language alone (`vi`) is refused with 422, which left every phone without a registration.
+String deviceLocaleOf(Locale locale) {
+  final String region = locale.countryCode ?? (locale.languageCode == 'vi' ? 'VN' : 'US');
+  return '${locale.languageCode}-$region';
+}
+
 /// The reason the server records with the revocation (it asks for at least ten characters).
 const String signOutReason = 'Signed out on this device';
 
@@ -52,7 +62,12 @@ enum RegistrationResult { registered, noToken, offline, refused }
 ///  * only commands are sent, never a table write; nothing here goes to the offline queue, a registration is made when the
 ///    device is online and made again at the next start.
 class PushRegistration {
-  PushRegistration({required this.client, required this.platform, required this.language});
+  PushRegistration({required this.client, required this.platform, required this.language, this.onRegistered});
+
+  /// Told the server's id of the registration each time it is known. The sync batches and the uploads name this id as the device
+  /// (`device_id` of `POST /sync/batches`), so whoever registers the device hands it to the offline store: without it the queue
+  /// leaves every command waiting (`FlushBlocker.noDevice`).
+  final Future<void> Function(String deviceId)? onRegistered;
 
   final MachvonApiClient client;
   final PushPlatform platform;
@@ -65,6 +80,14 @@ class PushRegistration {
 
   /// The server's id of the registration of this device, once known.
   String? get serverDeviceId => _serverDeviceId;
+
+  Future<void> _hand(String deviceId) async {
+    try {
+      await onRegistered?.call(deviceId);
+    } on Object {
+      // The id reaches the store at the next registration.
+    }
+  }
 
   /// Sends the registration with the token the provider gave. A device without a token (no permission, no provider) is not
   /// registered: it receives nothing by push and still has its inbox.
@@ -87,6 +110,9 @@ class PushRegistration {
       _attempts.done();
       final Json? result = asRecord(answer);
       _serverDeviceId = filled(result?['resource_id']) ?? _serverDeviceId;
+      final String? known = _serverDeviceId;
+      // Not waited for: the registration is made, and the store (opened on its own time) may take the id later or at the next start.
+      if (known != null) unawaited(_hand(known));
       return RegistrationResult.registered;
     } on ApiError catch (error) {
       _attempts.ended(error);
@@ -125,7 +151,15 @@ final Provider<PushRegistration> pushRegistrationProvider = Provider<PushRegistr
   return PushRegistration(
     client: ref.watch(apiClientProvider),
     platform: ref.watch(pushPlatformProvider),
-    language: () => ref.read(localeProvider).languageCode,
+    language: () => deviceLocaleOf(ref.read(localeProvider)),
+    onRegistered: (String deviceId) async {
+      final LocalStore store = await ref.read(localStoreProvider.future);
+      if (store.deviceId == deviceId) return;
+      store.deviceId = deviceId;
+      // What waited for a device goes now.
+      (await ref.read(queueRunnerProvider.future)).trigger();
+      (await ref.read(uploadRunnerProvider.future)).trigger();
+    },
   );
 });
 

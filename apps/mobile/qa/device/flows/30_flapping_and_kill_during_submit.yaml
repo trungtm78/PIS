@@ -1,26 +1,132 @@
-# STATUS: NOT RUN. Written on a host with no device; nobody has run this flow on a phone.
-# Supports: AC-ST-MOB-040-3 / UAT-AC502 (network flapping and an app killed during a save: one record, no field lost, the message
+# STATUS: PARTLY RUN on the emulator `guide` (enterprise edition, stack of `node scripts/demo-enterprise.mjs`): every step was run and passed, but in two
+# segments (create the draft up to the airplane toggles; then the queue and the online submit "Lần 1"); the last end-to-end run stopped at "Tạo bản nháp"
+# (the draft was not created on the 4th start of the stack session, cause not found). Run it whole once more before relying on it.
+# Supports: AC-ST-MOB-040-3 / UAT-AC502 (network flapping and an app killed during a submit: one report, no field lost, the message
 # "Chưa xác định kết quả" until the server says ACCEPTED). The host version of the same cases is
 # test/hardening/resilience_matrix_test.dart; this flow is the proof on the real radio and the real process killer.
 # Android only (airplane mode is set from Maestro here; on iOS the tester switches the network off in Control Centre and follows
 # the same steps by hand: docs/mobile-device-matrix.md, "Resilience run").
-# Needs: a seeded weekly report period in draft for the test project, the device registered (a sync device id), the network.
-# Variables: -e PROJECT=<name of the seeded project as shown in MOB-09>
-# After the run the tester counts the records on the server for the submission (SQL or API) and writes the count in the results.
+#
+# The real path of the weekly report on the phone (there is no "Nộp báo cáo" on the project detail: the submit is the last of the
+# 8 steps of a draft, MOB-20): Dự án > Báo cáo và công việc hiện trường > Báo cáo tháng (opens the start screen MOB-13) > Báo cáo tuần > period and project > Tạo bản nháp >
+# MOB-14 volumes > MOB-15 year funds > MOB-16 carried-over funds > MOB-17 other funds > MOB-18 next month > MOB-55 notes (Thuyết minh) >
+# MOB-19 attachments (optional, always has Tiếp tục) > MOB-20 review with "Nộp báo cáo". The flow makes the draft itself, so it needs
+# a period and a project that have no draft yet (a fresh stack), and the phone online for the first minute (the device registers
+# itself with the server at the start: the queue sends nothing without a registered device).
+# Variables: -e PERIOD=<code of an open weekly period, e.g. W2026-46> -e PROJECT=<code of a project of the tenant, e.g. DA-PMDT114>
+# Language of the application: Vietnamese (adb shell cmd locale set-app-locales vn.machvon.app --locales vi-VN).
+# Signed in beforehand (06_sign_in_test_idp.yaml). Where the state is read: the draft list (MOB-22), "Danh sách nháp" of the start screen of the
+# report, and the queue (Cá nhân > Hàng đợi gửi). After the run the tester counts the report revisions on the server for the period and the
+# project and writes the count in the results (it must be one).
+# Run on the emulator `guide` (Android 64-bit x86) against the stack of `node scripts/demo-enterprise.mjs --api-port 3999 --idp-port 3998`
+# with an APK built with MACHVON_EDITION=enterprise, MACHVON_API_BASE_URL=http://10.0.2.2:3999 and the OIDC defines of 06. The device registers
+# itself through the push registration (the server takes a registration only with a push token): the emulator build of that run answered the
+# push port with a fixed test token (a local edit of push_port.dart, not committed), because a build without Firebase has no token.
 appId: vn.machvon.app
 ---
 - launchApp
 - tapOn: 'Dự án.*'
-- tapOn: ${PROJECT}
-# The tester fills the seeded figures by hand once (the fields are in docs/mobile-device-matrix.md); then:
+- tapOn: 'Báo cáo và công việc hiện trường.*'
+- tapOn: 'Báo cáo tháng.*'
+- tapOn: 'Báo cáo tuần'
+- tapOn: 'Kỳ báo cáo.*'
+- tapOn: '${PERIOD}.*'
+- tapOn: 'Dự án.*Chọn dự án'
+- tapOn: '${PROJECT}.*'
+- scrollUntilVisible:
+    element: 'Tạo bản nháp'
+    centerElement: true
+- tapOn: 'Tạo bản nháp'
+# MOB-14: the four volumes (all four are needed to send)
+- extendedWaitUntil:
+    visible: 'Nhập khối lượng'
+    timeout: 20000
+- tapOn: 'Khối lượng thi công'
+- inputText: '1000'
+- tapOn: 'Khối lượng nghiệm thu'
+- inputText: '800'
+- tapOn: 'Đã gửi Kho bạc'
+- inputText: '500'
+- scrollUntilVisible:
+    element: 'Hồ sơ đang hoàn thiện'
+- tapOn: 'Hồ sơ đang hoàn thiện'
+- inputText: '100'
+- hideKeyboard
+- scrollUntilVisible:
+    element: 'Tiếp tục'
+- tapOn: 'Tiếp tục'
+# MOB-15: the year plan, both budgets
+- extendedWaitUntil:
+    visible: 'Nhập vốn năm'
+    timeout: 10000
+- tapOn: 'Lũy kế giải ngân Vốn năm NSTW'
+- inputText: '1000'
+- hideKeyboard
+- scrollUntilVisible:
+    element: 'Lũy kế giải ngân Vốn năm NSĐP'
+- tapOn: 'Lũy kế giải ngân Vốn năm NSĐP'
+- inputText: '500'
+- hideKeyboard
+- scrollUntilVisible:
+    element: 'Tiếp tục'
+- tapOn: 'Tiếp tục'
+# MOB-16 (carried-over funds: no figure to enter when the project was given none) and MOB-17 (other funds: starts at 0)
+- extendedWaitUntil:
+    visible: 'Nhập vốn kéo dài'
+    timeout: 10000
+- scrollUntilVisible:
+    element: 'Tiếp tục'
+- tapOn: 'Tiếp tục'
+- extendedWaitUntil:
+    visible: 'Nhập vốn khác'
+    timeout: 10000
+- scrollUntilVisible:
+    element: 'Tiếp tục'
+- tapOn: 'Tiếp tục'
+# MOB-18: next month
+- extendedWaitUntil:
+    visible: 'Đăng ký tháng sau'
+    timeout: 10000
+- tapOn: 'Đăng ký tháng sau của Vốn năm NSTW'
+- inputText: '100'
+- hideKeyboard
+- scrollUntilVisible:
+    element: 'Đăng ký tháng sau của Vốn năm NSĐP'
+- tapOn: 'Đăng ký tháng sau của Vốn năm NSĐP'
+- inputText: '100'
+- hideKeyboard
+- scrollUntilVisible:
+    element: 'Tiếp tục'
+- tapOn: 'Tiếp tục'
+# MOB-55 notes (optional in a weekly report)
+- extendedWaitUntil:
+    visible: 'Thuyết minh'
+    timeout: 10000
+- scrollUntilVisible:
+    element: 'Tiếp tục'
+- tapOn: 'Tiếp tục'
+# MOB-19: the files are optional; the step has its footer although the list is empty (finding of PHONECHK4)
+- extendedWaitUntil:
+    visible: 'Tệp đính kèm không bắt buộc.*'
+    timeout: 10000
+- tapOn: 'Tiếp tục'
+# MOB-20: the review; no error is left, so "Nộp báo cáo" is on
+- extendedWaitUntil:
+    visible: 'Rà soát và gửi báo cáo'
+    timeout: 10000
+# The radio goes away: the banner comes within 7 s on every screen (lib/core/navigation/app_shell.dart, StatusBanners; the connection
+# monitor reads the interfaces every 2 s and probes the API every 4 s with a 3 s time-out). Its text is 'Bạn đang ngoại tuyến. <body>'.
 - setAirplaneMode: enabled
-# The banner is mounted once in the shell (lib/core/navigation/app_shell.dart, StatusBanners), above every screen of the five tabs, so it shows on the project
-# detail as well as on the home screen. Its text is 'Bạn đang ngoại tuyến. <body>' in one line and Maestro matches the whole text, so the regex ends with .*;
-# the connection monitor (lib/core/connectivity/connectivity_monitor.dart) reads the interfaces every 2 s and probes the API every 4 s (3 s time-out), so the banner comes within 7 s of the airplane mode at the latest, on an idle screen and on every tab (UAT run 4: it did not before, only a failed request set it; UAT run 5: 22 s idle and 45 s on the other tabs with the former 5 s tick and 20 s probe, an emulator keeps its virtual interface so only the probe tells).
 - extendedWaitUntil:
     visible: 'Bạn đang ngoại tuyến.*'
     timeout: 12000
+- scrollUntilVisible:
+    element: 'Nộp báo cáo'
 - tapOn: 'Nộp báo cáo'
+# the command is queued (the banner of the shell counts it)
+- extendedWaitUntil:
+    visible: '1 thay đổi đang chờ gửi'
+    timeout: 10000
 # the app is killed while the submission is queued, the radio comes back and goes away again (flapping)
 - stopApp
 - setAirplaneMode: disabled
@@ -29,12 +135,55 @@ appId: vn.machvon.app
 - stopApp
 - setAirplaneMode: disabled
 - launchApp
-# The queue list (MOB-41) has no entry from the account tab or from the banner (finding NAV-01 of docs/mobile-security-review.md):
-# the tester reaches the state of the submission from the report it belongs to.
+# The state of the submission is read in the draft list of the report (MOB-22) and in the queue (MOB-41, Cá nhân > Hàng đợi gửi).
+# What the phone does when the draft was never saved on the server (the figures were typed on the phone): the first "Nộp báo cáo" queues the
+# SAVE of the draft ("Chờ gửi", the notice "Bản nháp chưa được lưu lên máy chủ... bấm Nộp báo cáo lần nữa"), because a submit is judged under
+# the version the save makes; the submit itself is queued by the second tap, after the save was accepted (docs/mob-weekly-report.md).
 - tapOn: 'Dự án.*'
-- tapOn: ${PROJECT}
+- tapOn: 'Báo cáo và công việc hiện trường.*'
+- tapOn: 'Báo cáo tháng.*'
+- scrollUntilVisible:
+    element: 'Danh sách nháp'
+- tapOn: 'Danh sách nháp'
+- extendedWaitUntil:
+    visible: '1 bản nháp trên máy'
+    timeout: 10000
 - takeScreenshot: results/${DEVICE}/30_report_after_flapping
-# Hold here until the radio has been steady for 60 seconds, then:
+# The radio is steady now: the queue sends the one command it holds (the same key at every attempt) and the draft turns from "Chờ gửi" to
+# "Đã lưu lên máy chủ". It is never "Đã lưu lên máy chủ" before the server answered.
+- extendedWaitUntil:
+    visible: '.*Đã lưu lên máy chủ.*'
+    timeout: 90000
+- assertNotVisible: '.*Chờ gửi.*'
+- assertVisible: '1 bản nháp trên máy'
 - takeScreenshot: results/${DEVICE}/30_report_settled
-# Manual assertions written in the results sheet: the screen said "Chưa xác định kết quả" (not "Đã gửi") while the answer was missing,
-# said the submission was received only after the server confirmed, and the server holds exactly one report revision for it.
+# The queue: nothing is left waiting and the save went once ("Lưu nháp báo cáo. Đã gửi." is one line in the list; the tester counts the
+# commands on the server for the key: one).
+- tapOn: 'Cá nhân.*'
+- tapOn: 'Hàng đợi gửi'
+- assertVisible: '0 thay đổi chưa gửi xong'
+- assertVisible: 'Lưu nháp báo cáo. Đã gửi.*'
+# The submit, online now: open the draft from the list, go to the review and send it: the server receives it once ("Lần 1").
+- launchApp
+- tapOn: 'Dự án.*'
+- tapOn: 'Báo cáo và công việc hiện trường.*'
+- tapOn: 'Báo cáo tháng.*'
+- scrollUntilVisible:
+    element: 'Danh sách nháp'
+- tapOn: 'Danh sách nháp'
+- tapOn: 'Mở nháp'
+- repeat:
+    times: 7
+    commands:
+      - scrollUntilVisible:
+          element: 'Tiếp tục'
+      - tapOn: 'Tiếp tục'
+- scrollUntilVisible:
+    element: 'Nộp báo cáo'
+- tapOn: 'Nộp báo cáo'
+- extendedWaitUntil:
+    visible: 'Báo cáo đã được gửi'
+    timeout: 30000
+- takeScreenshot: results/${DEVICE}/30_report_submitted
+# Manual assertions written in the results sheet: the screen never said "Báo cáo đã được gửi" before the server confirmed, and the server holds
+# exactly one report revision submitted for the period and the project (SQL or API), whatever the number of attempts of the flapping.

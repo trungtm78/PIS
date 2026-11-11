@@ -480,7 +480,7 @@ class _Files extends ConsumerWidget {
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton(
-            onPressed: () => openStep(context, 'MOB-19', draftId),
+            onPressed: () => openStep(context, 'MOB-19', draftId, from: 'MOB-20'),
             child: Text(context.t('mob.rep.files.manage.action')),
           ),
         ),

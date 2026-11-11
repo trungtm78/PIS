@@ -5,6 +5,10 @@ const StringTable attachmentsStrings = StringTable(
   vi: <String, String>{
     'mob.attach.title.label': 'Tệp đính kèm',
     'mob.attach.add.action': 'Thêm tệp',
+    'mob.attach.optional.body': 'Tệp đính kèm không bắt buộc. Bạn có thể tiếp tục để xem lại và nộp báo cáo.',
+    'mob.attach.back.action': 'Quay lại',
+    'mob.attach.next.action': 'Tiếp tục',
+    'mob.attach.review.action': 'Xem lại',
     'mob.attach.summary.label': '{count} tệp',
     'mob.attach.state.pending.label': 'Chờ tải lên',
     'mob.attach.state.uploading.label': 'Đang tải lên',
@@ -32,6 +36,10 @@ const StringTable attachmentsStrings = StringTable(
   en: <String, String>{
     'mob.attach.title.label': 'Attachments',
     'mob.attach.add.action': 'Add a file',
+    'mob.attach.optional.body': 'Attachments are optional. You can continue to review and submit the report.',
+    'mob.attach.back.action': 'Back',
+    'mob.attach.next.action': 'Continue',
+    'mob.attach.review.action': 'Review',
     'mob.attach.summary.label': '{count} files',
     'mob.attach.state.pending.label': 'Waiting to upload',
     'mob.attach.state.uploading.label': 'Uploading',

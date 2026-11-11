@@ -256,9 +256,11 @@ class _Footer extends StatelessWidget {
 }
 
 /// Opens a step of a draft on top of the screen that opened it, so that back returns to where the person was.
-void openStep(BuildContext context, String screenId, String draftId) {
+///
+/// [from] names the screen that opens the attachment list, so that its way on returns there instead of opening that screen a second time.
+void openStep(BuildContext context, String screenId, String draftId, {String? from}) {
   if (screenId == 'MOB-19') {
-    openScreen(context, screenId, query: <String, String>{'owner': 'report', 'ref': draftId}, stacked: true);
+    openScreen(context, screenId, query: <String, String>{'owner': 'report', 'ref': draftId, 'from': ?from}, stacked: true);
   } else {
     openScreen(context, screenId, pathSuffix: '/$draftId', stacked: true);
   }

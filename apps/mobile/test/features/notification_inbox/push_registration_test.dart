@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +22,43 @@ Map<String, Object?> _registered(String id) => <String, Object?>{'operation_id':
 const String serverDeviceId = '3f2b6c1e-0000-4000-8000-0000000000d1';
 
 void main() {
+  test('the locale sent to the server has a region, as its registration requires', () {
+    expect(deviceLocaleOf(const Locale('vi')), 'vi-VN');
+    expect(deviceLocaleOf(const Locale('en')), 'en-US');
+    expect(deviceLocaleOf(const Locale('en', 'GB')), 'en-GB');
+    expect(RegExp(r'^[a-z]{2}-[A-Z]{2}$').hasMatch(deviceLocaleOf(const Locale('vi'))), isTrue);
+  });
+
+  group('the registration hands its id to the offline store as the sync device', () {
+    test('every registration that gives an id tells it; a failure of the store does not undo the registration; a lost answer tells nothing', () async {
+      final List<String> told = <String>[];
+      final ScriptedServer server = ScriptedServer()..on('POST', '/devices', (_) => _registered(serverDeviceId), status: 201);
+      final PushRegistration registration = PushRegistration(
+        client: _client(server),
+        platform: FakePush(currentToken: 'token-one'),
+        language: () => 'vi',
+        onRegistered: (String id) async => told.add(id),
+      );
+      expect(await registration.sync(), RegistrationResult.registered);
+      await Future<void>.delayed(Duration.zero);
+      expect(told, <String>[serverDeviceId]);
+
+      final PushRegistration broken = PushRegistration(
+        client: _client(server),
+        platform: FakePush(currentToken: 'token-one'),
+        language: () => 'vi',
+        onRegistered: (String id) async => throw StateError('store closed'),
+      );
+      expect(await broken.sync(), RegistrationResult.registered);
+
+      final List<String> none = <String>[];
+      final ScriptedServer down = ScriptedServer()..answer('POST', '/devices', (HttpCall call) => throw const SocketException('lost'));
+      final PushRegistration offline = PushRegistration(client: _client(down), platform: FakePush(currentToken: 'token-one'), language: () => 'vi', onRegistered: (String id) async => none.add(id));
+      expect(await offline.sync(), RegistrationResult.offline);
+      expect(none, isEmpty);
+    });
+  });
+
   group('AC-ST-MOB-015-4 UAT-AC192 TK-MOB-015-1 the registration of the device for push', () {
     test('a token refresh keeps one live registration: the same installation identity with the new token, a new key for a new token', () async {
       final ScriptedServer server = ScriptedServer()..on('POST', '/devices', (_) => _registered(serverDeviceId), status: 201);
