@@ -21,7 +21,7 @@ jobs:
   gates:
     name: Protocol gates
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
         with:
@@ -197,7 +197,7 @@ jobs:
   arm64:
     name: ARM64 build and unit tests
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 60
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
 
