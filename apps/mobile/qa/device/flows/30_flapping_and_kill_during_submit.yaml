@@ -1,4 +1,4 @@
-# STATUS: PARTLY RUN on the emulator `guide` (enterprise edition, stack of `node scripts/demo-enterprise.mjs`): every step was run and passed, but in two
+# STATUS: PARTLY RUN on the emulator `guide` (enterprise edition, stack of `node scripts/demo-enterprise.mjs`): every step was run and passed, but NOT RUN on any phone of the matrix, and in two
 # segments (create the draft up to the airplane toggles; then the queue and the online submit "Lần 1"); the last end-to-end run stopped at "Tạo bản nháp"
 # (the draft was not created on the 4th start of the stack session, cause not found). Run it whole once more before relying on it.
 # Supports: AC-ST-MOB-040-3 / UAT-AC502 (network flapping and an app killed during a submit: one report, no field lost, the message
