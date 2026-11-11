@@ -48,7 +48,7 @@ void main(List<String> arguments) {
   final String expected = expectedRoutes();
   final File target = File(generatedRoutesFile);
   if (arguments.contains('--check')) {
-    if (!target.existsSync() || target.readAsStringSync() != expected) {
+    if (!target.existsSync() || _lf(target.readAsStringSync()) != expected) {
       stderr.writeln('$generatedRoutesFile is out of date; run `dart run tool/generate_routes.dart`.');
       exitCode = 1;
     }
@@ -56,3 +56,6 @@ void main(List<String> arguments) {
   }
   target.writeAsStringSync(expected);
 }
+
+/// A checkout with core.autocrlf (Windows) reads the generated file with CRLF; the generator writes LF.
+String _lf(String text) => text.replaceAll('\r\n', '\n');
