@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderException;
+import 'package:go_router/go_router.dart';
 
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
@@ -17,18 +18,28 @@ import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../offline/offline_format.dart';
+import '../../read_support/navigate.dart';
 
 /// MOB-19: the files of a record on their way to the server, each with its size, its progress in chunks, its state
 /// (waiting, uploading, scanning, clean, infected, failed) and the reason when it did not arrive (ST-MOB-009). The record is
-/// named by the query parameters `owner` (the kind, `report`) and `ref` (its local or server id).
-Widget buildAttachmentsScreen(BuildContext context, ScreenContext screen) =>
-    AttachmentsScreen(ownerKind: screen.queryParameters['owner'], ownerRef: screen.queryParameters['ref']);
+/// named by the query parameters `owner` (the kind, `report`) and `ref` (its local or server id). For a report this screen is the
+/// seventh step of the weekly report: the files are optional (the list may be empty and no picker may exist on the device), so the
+/// screen always has its footer, a way back and the way on to the review (MOB-20), where the report is sent. When it was opened from
+/// the review (`from=MOB-20`) the way on is "Xem lại", which returns there instead of opening a second review.
+Widget buildAttachmentsScreen(BuildContext context, ScreenContext screen) => AttachmentsScreen(
+      ownerKind: screen.queryParameters['owner'],
+      ownerRef: screen.queryParameters['ref'],
+      fromReview: screen.queryParameters['from'] == 'MOB-20',
+    );
 
 class AttachmentsScreen extends ConsumerStatefulWidget {
-  const AttachmentsScreen({this.ownerKind, this.ownerRef, super.key});
+  const AttachmentsScreen({this.ownerKind, this.ownerRef, this.fromReview = false, super.key});
 
   final String? ownerKind;
   final String? ownerRef;
+
+  /// Opened from the review of the report: the way on returns there.
+  final bool fromReview;
 
   @override
   ConsumerState<AttachmentsScreen> createState() => _AttachmentsScreenState();
@@ -88,8 +99,10 @@ class _AttachmentsScreenState extends ConsumerState<AttachmentsScreen> {
     } else if (shown.isEmpty) {
       state = ScreenState.empty;
     }
+    final String? draftId = widget.ownerKind == 'report' ? widget.ownerRef : null;
     return Scaffold(
       appBar: AppBar(title: Text(context.t('mob.attach.title.label'))),
+      bottomNavigationBar: draftId == null ? null : _ReportFooter(draftId: draftId, fromReview: widget.fromReview),
       floatingActionButton: picker == null || state == ScreenState.signedOut
           ? null
           : FloatingActionButton.extended(onPressed: _add, icon: const Icon(Icons.attach_file), label: Text(context.t('mob.attach.add.action'))),
@@ -124,6 +137,46 @@ class _AttachmentsScreenState extends ConsumerState<AttachmentsScreen> {
                   ],
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The footer of the step of a report: the files are optional, so it is there whatever the list holds (nothing, files on their way,
+/// a refused file); it never waits for an upload.
+class _ReportFooter extends StatelessWidget {
+  const _ReportFooter({required this.draftId, required this.fromReview});
+
+  final String draftId;
+  final bool fromReview;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(context.t('mob.attach.optional.body'), style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                OutlinedButton(
+                  onPressed: () => context.canPop() ? context.pop() : openScreen(context, 'MOB-22'),
+                  child: Text(context.t('mob.attach.back.action')),
+                ),
+                FilledButton(
+                  onPressed: () => fromReview && context.canPop() ? context.pop() : openScreen(context, 'MOB-20', pathSuffix: '/$draftId', stacked: true),
+                  child: Text(fromReview ? context.t('mob.attach.review.action') : context.t('mob.attach.next.action')),
+                ),
+              ],
             ),
           ],
         ),
