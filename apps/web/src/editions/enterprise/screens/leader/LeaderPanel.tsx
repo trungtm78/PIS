@@ -22,11 +22,11 @@ function Rates({ compact = false }: { compact?: boolean }) {
   const read = useLeaderRates();
   const data = read.data;
   if (read.isLoading) return <SectionCard title={t('ent.leader.rates.title')}><p role="status" aria-busy="true">{t('ent.leader.loading.text')}</p></SectionCard>;
-  if (data === undefined) {
-    // Nothing frozen yet is a state to say, not an error; any other failure keeps its retry.
+  if (data === undefined || data === null) {
+    // Nothing frozen yet (the empty answer, or a refusal of an older server) is a state to say, not an error; any other failure keeps its retry.
     return (
       <SectionCard title={t('ent.leader.rates.title')}>
-        {refused(read.error) ? (
+        {data === null || refused(read.error) ? (
           <p role="status" data-testid="leader-rates-empty">{t('ent.leader.rates.empty')}</p>
         ) : (
           <p role="alert" data-testid="leader-rates-error">

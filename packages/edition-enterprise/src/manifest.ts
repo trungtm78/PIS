@@ -38,6 +38,7 @@ export const ENTERPRISE_EDITION_MANIFEST: EditionManifest = defineEditionManifes
       'home.tile.metric.disbursed',
       'home.tile.metric.planPm',
       'home.tile.nullReason.treasuryNone',
+      'pay.payment.status.sentTreasury',
       'prj.create.nationalCode.label',
       'prj.list.column.nationalCode',
       'shell.app.name.title',

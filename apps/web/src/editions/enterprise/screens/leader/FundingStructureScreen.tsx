@@ -28,7 +28,7 @@ function StructureContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const tenant = useSession().tenant;
   const read = useLeaderRates();
-  const data: LeaderRates | undefined = read.data;
+  const data: LeaderRates | null | undefined = read.data;
   const structure = data?.structure;
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -42,8 +42,8 @@ function StructureContent({ route }: ScreenProps) {
         <p role="status" aria-busy="true">
           {t('ent.leader.loading.text')}
         </p>
-      ) : data === undefined || structure === undefined ? (
-        structureRefused(read.error) ? (
+      ) : data === undefined || data === null || structure === undefined ? (
+        data === null || structureRefused(read.error) ? (
           <p role="status" data-testid="funding-structure-empty">
             {t('ent.funding.empty')}
           </p>

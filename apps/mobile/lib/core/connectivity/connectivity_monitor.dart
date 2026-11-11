@@ -33,11 +33,18 @@ final class InterfaceNetworkPresence implements NetworkPresence {
 /// [interval] is the tick: the platform is asked on every tick (a local call, no traffic). The server is probed at most every
 /// [probeInterval] while the last answer was online, and on every tick while the device is offline, so the return of the connection
 /// is seen at once. A probe that gets no answer within [probeTimeout] counts as offline.
+///
+/// The loss of the connection is seen within [probeInterval] + [probeTimeout] at the latest (7 s with the defaults, the target is
+/// under 8 s) when the platform keeps an interface up (an emulator in airplane mode keeps its virtual interface, so the platform
+/// check alone says "online" and only the probe can tell); sooner when the platform says there is no network at all (one tick).
+/// UAT run 5 measured 22 s on an idle screen and 45 s on the other tabs with the former values (a 5 s tick, a probe every 20 s,
+/// a 5 s time-out): the probe is the only signal on such a device, so it is the one to make frequent. The probe is one small
+/// token-less read; at the default it costs about 15 requests a minute while the application is in the foreground, none in the background.
 final class ConnectivityPolicy {
   const ConnectivityPolicy({
-    this.interval = const Duration(seconds: 5),
-    this.probeInterval = const Duration(seconds: 20),
-    this.probeTimeout = const Duration(seconds: 5),
+    this.interval = const Duration(seconds: 2),
+    this.probeInterval = const Duration(seconds: 4),
+    this.probeTimeout = const Duration(seconds: 3),
   });
 
   final Duration interval;

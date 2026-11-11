@@ -72,15 +72,19 @@ export function useEvm(id: string | undefined, selection: EvmSelection) {
   });
 }
 
-/** The curve; a project without version 0 answers 422 BASELINE_MISSING, which is "no baseline yet" and not a failure of the read. */
-export function useSCurve(id: string | undefined, selection: EvmSelection) {
+/**
+ * The curve; a project without version 0 answers 422 BASELINE_MISSING, which is "no baseline yet" and not a failure of the read. When the baseline read already says there is no version 0
+ * (`hasBaseline` false) the curve is not asked for at all, so the answer "no baseline" costs no failed request; `undefined` means the baseline read is still under way and nothing is asked yet.
+ */
+export function useSCurve(id: string | undefined, selection: EvmSelection, hasBaseline: boolean | undefined) {
   const client = useApiClient();
   const key = useScopeKey();
   const query = queryOf(selection, false);
   const ready = selection.scope === 'PROJECT' || selection.ref !== undefined;
   return useQuery({
-    queryKey: [...key, 's-curve', id ?? '', query],
+    queryKey: [...key, 's-curve', id ?? '', query, hasBaseline ?? 'pending'],
     queryFn: async () => {
+      if (hasBaseline === false) return 'NO_BASELINE' as const;
       try {
         return toSCurveView(await client.read('getProjectSCurve' as never, { path: { id: id ?? '' }, query } as never)) ?? null;
       } catch (error) {
@@ -89,7 +93,7 @@ export function useSCurve(id: string | undefined, selection: EvmSelection) {
         throw error;
       }
     },
-    enabled: key[1] !== undefined && id !== undefined && ready,
+    enabled: key[1] !== undefined && id !== undefined && ready && hasBaseline !== undefined,
     retry: false,
   });
 }

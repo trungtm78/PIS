@@ -66,7 +66,7 @@ LƯU Ý: nếu bấm F5 hoặc gõ lại địa chỉ, phải giữ `?devUser=..
 | `docHead` | Trần Văn Hùng | Trưởng phòng soạn thảo (COMMITTEE_HEAD) | Biểu mẫu báo cáo RPT-01 đến RPT-03, so sánh chéo RPT-09. KHÔNG vào được màn hình đẩy HPM (HPM-01, HPM-02): dùng `owner` cho phần HPM. |
 | `unitAdmin` | Lê Minh Cường | Quản trị đơn vị | Quản trị đơn vị, lịch nhắc, thành viên. |
 | `treasuryMaker` | Hoàng Thị Lan | Kế toán | Thanh toán, đối chiếu kế toán. |
-| `auditor` | Vũ Đức Minh | Kiểm toán | Chỉ đọc: nhật ký kiểm toán và nhóm màn hình thanh tra, kiểm toán AUD (danh sách cuộc thanh tra AUD-02, kiến nghị AUD-06, quá hạn và leo thang AUD-11, thứ tự theo dõi của chủ đầu tư AUD-17, dấu hiệu rủi ro AUD-14, AUD-16). Quyền đọc này là phần cấp riêng của bộ khung demo, không đổi quy tắc phân quyền của sản phẩm. |
+| `auditor` | Vũ Đức Minh | Kiểm toán | Chỉ đọc: nhật ký kiểm toán (ADM-11) và nhóm màn hình thanh tra, kiểm toán AUD (danh sách cuộc thanh tra AUD-02, kiến nghị AUD-06, quá hạn và leo thang AUD-11, thứ tự theo dõi của chủ đầu tư AUD-17, dấu hiệu rủi ro AUD-14, AUD-16). Quyền đọc này là phần cấp riêng của bộ khung demo, không đổi quy tắc phân quyền của sản phẩm; kiểm toán viên không đọc hợp đồng (không có `contract.read`). |
 | `securityAdmin` | Ngô Thanh Sơn | Quản trị bảo mật | Chỉ đọc và đề nghị: ủy quyền vĩnh viễn ADM-25, làm thay có người duyệt ADM-26, phạm vi theo kỳ báo cáo ADM-27. Người duyệt thứ hai là `owner`. |
 | `nobody` | Đỗ Thị Hà | Thành viên thường | Quyền tối thiểu: minh họa màn hình "không có quyền". |
 

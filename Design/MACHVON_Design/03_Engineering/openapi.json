@@ -230073,7 +230073,7 @@
     "/leader/rates": {
       "get": {
         "operationId": "getLeaderRates",
-        "summary": "Tỷ lệ giải ngân so với kế hoạch năm theo Tổng công ty, đơn vị, dự án và so với cùng kỳ năm trước, đọc từ bản chốt enterprise qua bộ đọc duy nhất (ENT-4d, HSKT BC.02)",
+        "summary": "Tỷ lệ giải ngân so với kế hoạch năm theo Tổng công ty, đơn vị, dự án và so với cùng kỳ năm trước, đọc từ bản chốt enterprise qua bộ đọc duy nhất (ENT-4d, HSKT BC.02). Khi chưa có bản chốt nào, trả 200 với snapshot: null và lý do (không trả 404)",
         "tags": [
           "HOME"
         ],
@@ -230093,11 +230093,18 @@
         "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
         "responses": {
           "200": {
-            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of. Without a frozen snapshot: {snapshot: null, reason: NO_FROZEN_SNAPSHOT}",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LeaderRates"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/LeaderRates"
+                    },
+                    {
+                      "$ref": "#/components/schemas/LeaderRatesNone"
+                    }
+                  ]
                 }
               }
             }
@@ -317497,6 +317504,30 @@
                 }
               }
             }
+          }
+        }
+      },
+      "LeaderRatesNone": {
+        "type": "object",
+        "description": "The leadership rates when no enterprise snapshot is frozen yet: an answer, not a failure (the web and the mobile app show the empty state without a failed request).",
+        "required": [
+          "snapshot",
+          "reason",
+          "as_of"
+        ],
+        "properties": {
+          "snapshot": {
+            "type": "null"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "NO_FROZEN_SNAPSHOT"
+            ]
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

@@ -101,23 +101,46 @@ void main() {
     test('an online device is probed at most once per probe interval, an offline one on every tick', () async {
       final _Rig rig = _Rig();
       await rig.monitor.check();
-      rig.advance(const Duration(seconds: 5));
+      rig.advance(const Duration(seconds: 2));
       await rig.monitor.check();
-      rig.advance(const Duration(seconds: 5));
+      rig.advance(const Duration(seconds: 1));
       await rig.monitor.check();
       expect(rig.probe.calls, 1);
-      rig.advance(const Duration(seconds: 10));
+      rig.advance(const Duration(seconds: 1));
       await rig.monitor.check();
       expect(rig.probe.calls, 2);
 
       rig.probe.answer = false;
-      rig.advance(const Duration(seconds: 20));
+      rig.advance(const Duration(seconds: 4));
       await rig.monitor.check();
       expect(rig.state, Reachability.offline);
       final int afterFailure = rig.probe.calls;
-      rig.advance(const Duration(seconds: 5));
+      rig.advance(const Duration(seconds: 2));
       await rig.monitor.check();
       expect(rig.probe.calls, afterFailure + 1, reason: 'offline: probe again at the next tick, so the return is seen at once');
+    });
+
+    test('the loss of the connection on a device that keeps its interface (an emulator in airplane mode) is seen in under 8 seconds', () async {
+      // Ticks every policy.interval; the platform keeps saying "network", the server stops answering just after a probe was answered
+      // and the probe that finds out takes the whole time-out to give up.
+      final _Rig rig = _Rig();
+      await rig.monitor.check();
+      expect(rig.state, Reachability.online);
+      rig.probe.answer = false;
+      Duration waited = Duration.zero;
+      while (rig.state != Reachability.offline) {
+        rig.advance(rig.policy.interval);
+        waited += rig.policy.interval;
+        await rig.monitor.check();
+        expect(waited, lessThan(const Duration(seconds: 8)), reason: 'the banner must not wait for a second probe');
+      }
+      expect(waited + rig.policy.probeTimeout, lessThan(const Duration(seconds: 8)));
+    });
+
+    test('the defaults keep the worst case (probe interval and time-out) under 8 seconds', () {
+      const ConnectivityPolicy policy = ConnectivityPolicy();
+      expect(policy.probeInterval + policy.probeTimeout, lessThan(const Duration(seconds: 8)));
+      expect(policy.interval, lessThanOrEqualTo(policy.probeInterval));
     });
 
     test('the airplane mode on an idle screen: online, then the radio goes away, then it comes back', () async {
@@ -126,12 +149,12 @@ void main() {
       expect(rig.state, Reachability.online);
 
       rig.presence.value = false;
-      rig.advance(const Duration(seconds: 5));
+      rig.advance(const Duration(seconds: 2));
       await rig.monitor.check();
       expect(rig.state, Reachability.offline);
 
       rig.presence.value = true;
-      rig.advance(const Duration(seconds: 5));
+      rig.advance(const Duration(seconds: 2));
       await rig.monitor.check();
       expect(rig.state, Reachability.online);
     });
@@ -175,8 +198,8 @@ void main() {
       await tester.pump();
       expect(rig.monitor.running, isTrue);
       expect(rig.presence.calls, 1);
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pump(const Duration(seconds: 5));
+      await tester.pump(rig.policy.interval);
+      await tester.pump(rig.policy.interval);
       expect(rig.presence.calls, 3);
       expect(rig.state, Reachability.offline);
       rig.monitor.stop();

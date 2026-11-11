@@ -62,7 +62,7 @@ Personas added for the scenes no account could open (grants of the clip stack on
 
 | `?devUser=` | Who | What it holds | Opens |
 |---|---|---|---|
-| `auditor` | Vu Duc Minh | system role AUDITOR plus the stack role `THANH_TRA_KIEM_TOAN` (reads: `aud.read`, `aud.standing.read`, red flags, gifts, SoD, whistle reports, `project.read`) | AUD-01, 02, 06, 11, 14, 16, 17 |
+| `auditor` | Vu Duc Minh | system role AUDITOR plus the stack role `THANH_TRA_KIEM_TOAN` (reads: `aud.read`, `aud.standing.read`, red flags, gifts, SoD, whistle reports, `project.read`, `audit_event.read` for the audit log ADM-11; no `contract.read`: the auditor does not read contracts, on this stack and on the plain e2e stack alike, where the role `E2E_READER` of the auditor holds the units, the grants and the members only) | AUD-01, 02, 06, 11, 14, 16, 17 |
 | `securityAdmin` | Ngo Thanh Son | system role SECURITY_ADMIN plus the stack role `QUAN_TRI_UY_QUYEN` (`iam.delegation.read/create`, `iam.acting.read/request`, `role_grant.read`); the second person who approves is the owner | ADM-25, 26, 27 |
 | `contractorUser` | Dang Minh Tuan | a vendor portal account: system role PORTAL_CONTRACTOR on one unit, a guest of ONE contractor | VND-16 and the portal screens |
 | `platformOperator` | Ly Quang Vinh | a control-plane account (token of the control audience, realm role SystemAdmin, permissions listed by its fixture), no membership in the tenant | SAS-06, 18, 19, 20, 21 |
