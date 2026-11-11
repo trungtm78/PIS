@@ -198,7 +198,14 @@ const MASTER_ROLES = [
   { n: 92, code: 'E2E_MASTER_CHECKER', permissions: ['master.review', 'master.publish', 'glossary.approve', 'glossary.read', 'master.read', 'master_record_version.read'], rank: 50 },
 ];
 
-const READER_ROLE = { n: 90, code: 'E2E_READER', permissions: ['organization_unit.read', 'role_grant.read', 'membership.read', 'contract.read'], rank: 20 };
+/** The read grant of the auditor (ADM-02): the units, the grants and the members, nothing else (an auditor of this stack must not read contracts). */
+const READER_ROLE = { n: 90, code: 'E2E_READER', permissions: ['organization_unit.read', 'role_grant.read', 'membership.read'], rank: 20 };
+
+/** The contracts the unit administrator reads inside the subtree of the unit (the guest contractor flow of ADM-17): a grant of this person only, so the auditor keeps the reader role above without it. */
+/** The security administrator of the persona table (docs/demo/demo-enterprise.md): reads the permanent delegations, the acting grants and the period scopes and asks for them (ADM-25, 26, 27); the same permissions as the docs stack role QUAN_TRI_UY_QUYEN, so the two stacks agree. */
+const SECURITY_ADMIN_ROLE = { n: 100, code: 'E2E_SECURITY_ADMIN', permissions: ['iam.delegation.read', 'iam.delegation.create', 'iam.acting.read', 'iam.acting.request', 'role_grant.read', 'membership.read', 'organization_unit.read', 'adm.security.read', 'session.self'], rank: 80 };
+
+const UNIT_CONTRACT_READER_ROLE = { n: 99, code: 'E2E_UNIT_CONTRACT_READER', permissions: ['contract.read'], rank: 20 };
 
 /** The second person of the delegation-of-authority flow: the owner writes the matrix, this role approves it (no system role holds adm.doa.approve but the administrators'). */
 const DOA_CHECKER_ROLE = { n: 96, code: 'E2E_DOA_CHECKER', permissions: ['adm.doa.approve', 'adm.doa.read', 'organization_unit.read', 'role_grant.read'], rank: 50 };
@@ -780,6 +787,8 @@ const GRANTS: GrantPlan[] = [
   { n: 1, user: 'owner', role: 'TENANT_OWNER', kind: 'TENANT', refs: [] },
   { n: 2, user: 'unitAdmin', role: 'UNIT_ADMIN', kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
   { n: 3, user: 'unitAdmin', role: READER_ROLE.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+  { n: 24, user: 'unitAdmin', role: UNIT_CONTRACT_READER_ROLE.code, kind: 'UNIT_SUBTREE', refs: [unitId(2)] },
+  { n: 25, user: 'securityAdmin', role: SECURITY_ADMIN_ROLE.code, kind: 'TENANT', refs: [] },
   { n: 4, user: 'auditor', role: READER_ROLE.code, kind: 'TENANT', refs: [] },
   { n: 20, user: 'doaChecker', role: DOA_CHECKER_ROLE.code, kind: 'TENANT', refs: [] },
   { n: 5, user: 'nobody', role: 'MEMBER', kind: 'TENANT', refs: [] },
@@ -1162,7 +1171,7 @@ function providerFixtures(tenantId: string): Array<[string, unknown[]]> {
 const deliveryTenants = new Set<string>([fixtures.tenants.B]);
 
 /** Every role the tests make: the browser flows each have people with one narrow role. */
-const E2E_ROLES = [READER_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...PAYMENT_SENDER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...RETENTION_ROLES, ...CLOSURE_ROLES, ...HOUSEHOLD_ROLES, ...INVENTORY_ROLES, ...PLAN_COMP_ROLES, ...AUD_ROLES, ...DIS_REPORT_ROLES, ...MASTER_ROLES];
+const E2E_ROLES = [READER_ROLE, UNIT_CONTRACT_READER_ROLE, SECURITY_ADMIN_ROLE, DOA_CHECKER_ROLE, ADM_READER_ROLE, NOTIFICATION_READER_ROLE, ISS_ROLE, ...ISSUE_ROLES, ...ISSUE_END_ROLES, ...INVESTMENT_ROLES, ...PLAN_ROLES, ...STAGE_ROLES, ...APPRAISAL_ROLES, ...NATIONAL_CODE_ROLES, ...LAND_ROLES, ...ACCOUNTABILITY_ROLES, ...PERMIT_ROLES, ...STORY_ROLES, ...DOC_DRAFT_ROLES, ...DOC_ISSUE_ROLES, ...CTR_ROLES, ...PAY_ROLES, ...QUALITY_ROLES, ...BID_PLAN_ROLES, ...BID_CRITERIA_ROLES, ...SUPPORT_ROLES, ...RECALL_ROLES, ...AVC_ROLES, ...EXTENSION_ROLES, ...YEAR_ROLES, ...PROGRESS_ROLES, ...PROCUREMENT_ROLES, ...PROPOSAL_ROLES, ...LIFECYCLE_ROLES, ...RESULT_ROLES, ...CHANGE_ROLES, ...MEASUREMENT_ROLES, ...PETITION_ROLES, ...INSPECTION_ROLES, ...ACCEPTANCE_ROLES, ...WORK_ACCEPTANCE_ROLES, ...LEDGER_ROLES, ...PAYMENT_ROLES, ...PAYMENT_SENDER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES, ...NCR_ROLES, ...COMPLETION_ROLES, ...HANDOVER_ROLES, ...ASSET_ROLES, ...WARRANTY_ROLES, ...RETENTION_ROLES, ...CLOSURE_ROLES, ...HOUSEHOLD_ROLES, ...INVENTORY_ROLES, ...PLAN_COMP_ROLES, ...AUD_ROLES, ...DIS_REPORT_ROLES, ...MASTER_ROLES];
 
 /**
  * The stack of the user guide (E2E_SEED=docs): the tenants and their units, seven people with real names and the roles of a unit, and no business data at all.
@@ -1200,7 +1209,7 @@ function docsRoles(): Array<{ n: number; code: string; permissions: string[]; ra
     { n: 903, code: 'KE_TOAN_THANH_TOAN', permissions: unique([...PAY_ROLES, ...PAYMENT_ROLES, ...LEDGER_ROLES, ...ADVANCE_ROLES, ...RECONCILE_ROLES, ...SETTLEMENT_ROLES, ...CHAIN_ROLES]), rank: 40 },
     // Persona grants of the clip stack (the system roles AUDITOR and SECURITY_ADMIN hold none of these): the auditor reads the inspections, recommendations, red flags, gifts and the ranking of investors (AUD-02, 06, 11, 14, 16, 17);
     // the security administrator reads the permanent delegations, the acting grants and the period scopes (ADM-25, 26, 27) and asks for them; the second person who approves is the owner. Reading and asking only.
-    { n: 904, code: 'THANH_TRA_KIEM_TOAN', permissions: everything.filter((permission) => /^aud.(read|standing.read|redflag.read|gift.read|sod.read|whistle.read)$/.test(permission) || permission === 'project.read'), rank: 28 },
+    { n: 904, code: 'THANH_TRA_KIEM_TOAN', permissions: everything.filter((permission) => /^aud.(read|standing.read|redflag.read|gift.read|sod.read|whistle.read)$/.test(permission) || permission === 'project.read' || permission === 'audit_event.read'), rank: 28 },
     { n: 905, code: 'QUAN_TRI_UY_QUYEN', permissions: everything.filter((permission) => ['iam.delegation.read', 'iam.delegation.create', 'iam.acting.read', 'iam.acting.request', 'role_grant.read', 'membership.read', 'organization_unit.read'].includes(permission)), rank: 80 },
   ];
 }
