@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,6 +78,27 @@ Map<String, Object?> _grants() => <String, Object?>{
       'as_of': '2026-11-03T03:00:00.000Z',
     };
 
+/// The accessibility contract of a read screen: tap targets large enough on both platforms, every control named and the text readable,
+/// at the normal text size and at 200 percent (the reference of the phone sweep).
+Future<void> _expectAccessible(WidgetTester tester) async {
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+  for (final double scale in <double>[1.0, 2.0]) {
+    tester.platformDispatcher.textScaleFactorTestValue = scale;
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull, reason: 'at $scale');
+    try {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline), reason: 'at $scale');
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      await expectLater(tester, meetsGuideline(iOSTapTargetGuideline), reason: 'at $scale');
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+    await expectLater(tester, meetsGuideline(labeledTapTargetGuideline), reason: 'at $scale');
+    await expectLater(tester, meetsGuideline(textContrastGuideline), reason: 'at $scale');
+  }
+}
+
 void main() {
   group('the models', () {
     test('delegations keep each part on its own: a part that was not read is null, not an empty list', () {
@@ -113,6 +135,7 @@ void main() {
       final ScriptedServer server = ScriptedServer()
         ..on('GET', '/resources/delegation_grant', (_) => _grants())
         ..on('GET', '/home/alert-absences', (_) => _absences());
+      final SemanticsHandle semantics = tester.ensureSemantics();
       await _open(tester, server, const DelegationsScreen());
       expect(find.textContaining('Chỉ đọc'), findsOneWidget);
       expect(find.textContaining('Công tác nước ngoài'), findsOneWidget);
@@ -121,6 +144,8 @@ void main() {
       expect(find.textContaining('Các ngưỡng của quy tắc chưa được kiểm chứng'), findsOneWidget);
       expect(find.byType(ElevatedButton), findsNothing);
       expect(find.byType(FilledButton), findsNothing);
+      await _expectAccessible(tester);
+      semantics.dispose();
     });
 
     testWidgets('MOB-75 says which part could not be read when the delegation register is refused', (WidgetTester tester) async {
@@ -140,11 +165,14 @@ void main() {
                 <String, Object?>{'code': 'DISB', 'name': 'Tỷ lệ giải ngân', 'version': 2, 'formula': 'a / b', 'numerator': 'đã giải ngân', 'denominator': 'kế hoạch vốn', 'unit': '%', 'period': 'MONTH', 'source': 'Kho bạc', 'owner': 'Sở Tài chính', 'unverified': true, 'certification': null},
               ],
             });
+      final SemanticsHandle semantics = tester.ensureSemantics();
       await _open(tester, server, const KpiRegisterScreen());
       expect(find.text('Tỷ lệ giải ngân'), findsOneWidget);
       expect(find.text('Công thức: a / b'), findsOneWidget);
       expect(find.text('Chưa chứng nhận'), findsOneWidget);
       expect(find.text('Chưa kiểm chứng'), findsOneWidget);
+      await _expectAccessible(tester);
+      semantics.dispose();
     });
 
     testWidgets('MOB-77 shows the forms, labels a demo form and does not offer to issue anything', (WidgetTester tester) async {
@@ -157,12 +185,15 @@ void main() {
                 <String, Object?>{'code': 'BC01', 'name': 'Báo cáo giải ngân', 'version': '1', 'edition': 'PUBLIC', 'status': 'ACTIVE', 'official': 'OFFICIAL', 'form_ref': null, 'receiver': 'UBND tỉnh', 'period_kind': 'MONTH', 'has_narrative': true, 'data_source': 'x', 'demo_mark': 'MẪU THỬ', 'registered': true, 'issuable': false, 'whole_tenant': true},
               ],
             });
+      final SemanticsHandle semantics = tester.ensureSemantics();
       await _open(tester, server, const ReportCatalogueScreen());
       expect(find.text('Báo cáo giải ngân'), findsOneWidget);
       expect(find.text('Mẫu thử: MẪU THỬ'), findsOneWidget);
       expect(find.text('Chưa thể phát hành'), findsOneWidget);
       expect(find.byType(FilledButton), findsNothing);
       expect(find.byType(ElevatedButton), findsNothing);
+      await _expectAccessible(tester);
+      semantics.dispose();
     });
   });
 }
