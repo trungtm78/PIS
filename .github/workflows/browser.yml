@@ -6,15 +6,24 @@ name: Browser
 # runner is a machine of its own, so the lock is replaced by the concurrency group below: one run per ref, a newer
 # push cancels the older run. There is one job and one Playwright worker pool (playwright.config.ts sets workers: 1).
 #
-# The baseline PNGs were rendered by Google Chrome on Windows. Pixel-exact regions that contain text can differ on
-# Linux (fonts); a red visual case here is reported with its diff image in the artifact, it is never waived by
-# editing the target (docs/runbooks/release-checklist.md says how a release treats it).
+# The baseline PNGs of apps/web/e2e/visual-baselines were rendered by Google Chrome on Windows. A pixel region that contains text cannot match a render made by another OS
+# (Windows draws sub-pixel LCD text, Linux grayscale hinted text), so the visual cases compare only with baselines of their own OS (apps/web/e2e/support/visual-baselines.ts):
+#  - the route walk and the flows always run here, and so do the visual cases once apps/web/e2e/visual-baselines-linux exists (E2E_REQUIRE_VISUAL and --require-visual are then on);
+#  - until it exists the visual cases are skipped, said so in the output (never passed), and the Windows run of the release checklist is the pixel gate;
+#  - a run started by hand with update_visual renders the Linux baselines on this runner and uploads them (artifact visual-baselines-linux): look at them, then commit them
+#    under apps/web/e2e/visual-baselines-linux (docs/runbooks/web-e2e.md, "Baselines of another OS").
+# A red visual case is reported with its diff image in the artifact, it is never waived by editing the target (docs/runbooks/release-checklist.md says how a release treats it).
 
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      update_visual:
+        description: 'Render the Linux visual baselines (artifact visual-baselines-linux) instead of comparing with them'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -30,7 +39,7 @@ jobs:
     timeout-minutes: 60
     env:
       E2E_BROWSER_CHANNEL: chrome
-      E2E_REQUIRE_VISUAL: '1'
+      E2E_UPDATE_VISUAL: ${{ inputs.update_visual && '1' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -44,15 +53,35 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Google Chrome and its system libraries
-        run: npx playwright install --with-deps chrome
+      # The runner image carries Google Chrome stable and its libraries; installing it again with `playwright install --with-deps chrome` (a purge and a download from
+      # dl.google.com) hung for 10 minutes and failed on two runs in a row. It is installed only when the image has none, with a time limit and a retry.
+      - name: Google Chrome
+        run: |
+          if ! command -v google-chrome >/dev/null 2>&1; then
+            for attempt in 1 2 3; do
+              timeout 300 npx playwright install --with-deps chrome && break
+              echo "attempt $attempt to install Chrome failed"; sleep 15
+            done
+          fi
+          google-chrome --version
+
+      # Pixel gate on the baselines of this OS, only when there are some (see the head of this file).
+      - name: Choose the visual gate
+        run: |
+          if [ -d apps/web/e2e/visual-baselines-linux ] && [ -z "$E2E_UPDATE_VISUAL" ]; then
+            echo "E2E_REQUIRE_VISUAL=1" >> "$GITHUB_ENV"
+            echo "REPORT_FLAGS=--require-walk --require-visual" >> "$GITHUB_ENV"
+          else
+            echo "REPORT_FLAGS=--require-walk" >> "$GITHUB_ENV"
+            echo "::notice::visual cases are not a gate on this run (no Linux baselines yet, or they are being rendered); the Windows run is the pixel gate"
+          fi
 
       - name: Route walk, flows and visual regions
         run: npm run e2e -w @machvon/web
 
       - name: Summary of the browser report
         if: always()
-        run: node scripts/e2e-report.mjs --require-walk --require-visual --locale en
+        run: node scripts/e2e-report.mjs $REPORT_FLAGS --locale en
 
       - name: Upload the browser report
         if: always()
@@ -69,3 +98,11 @@ jobs:
           name: browser-diff-images
           path: apps/web/e2e/__diff__/
           if-no-files-found: warn
+
+      - name: Upload the Linux visual baselines
+        if: ${{ inputs.update_visual }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines-linux
+          path: apps/web/e2e/visual-baselines-linux/
+          if-no-files-found: error

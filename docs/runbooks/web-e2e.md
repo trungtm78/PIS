@@ -270,20 +270,31 @@ publication by a second person, a change from a later date with its history, and
 ## The browser lane in CI
 
 `.github/workflows/browser.yml` (workflow `Browser`, one job `browser` on `ubuntu-latest`) runs `npm run e2e -w @machvon/web`: the route walk, the
-browser flows against the real API stack and the gated visual regions, with Google Chrome installed by `npx playwright install --with-deps chrome`
-and `E2E_BROWSER_CHANNEL=chrome`, `E2E_REQUIRE_VISUAL=1` (a pending visual case fails the run). It runs on pushes to main, on pull requests and by hand.
-A hosted runner is a machine of its own, so the run lock of this document (`apps/web/e2e/.run-lock`, the `browser` lane of `test-lanes.md`) is replaced by the
-job's concurrency group `browser-<workflow>-<ref>` with `cancel-in-progress`: one run per ref, a newer push cancels the older run. One Playwright worker pool
-(`workers: 1`) runs inside the job, as on a developer machine.
+browser flows against the real API stack and the visual regions, with `E2E_BROWSER_CHANNEL=chrome` (the Google Chrome of the runner image; `npx playwright install
+--with-deps chrome` only when the image has none, with a time limit and a retry: the plain install hung for 10 minutes and failed two runs in a row). It runs on
+pushes to main, on pull requests and by hand. A hosted runner is a machine of its own, so the run lock of this document (`apps/web/e2e/.run-lock`, the `browser`
+lane of `test-lanes.md`) is replaced by the job's concurrency group `browser-<workflow>-<ref>` with `cancel-in-progress`: one run per ref, a newer push cancels
+the older run. One Playwright worker pool (`workers: 1`) runs inside the job, as on a developer machine.
 
-After the run (also when it failed) the job prints the report summary (`node scripts/e2e-report.mjs --require-walk --require-visual --locale en`) and uploads two
+After the run (also when it failed) the job prints the report summary (`node scripts/e2e-report.mjs --require-walk [--require-visual] --locale en`) and uploads two
 artifacts: `browser-report` (`apps/web/e2e/report.json`) and `browser-diff-images` (`apps/web/e2e/__diff__/`: the highlighted diff of every compared region and
 the actual captures). `scripts/browser-workflow.test.mjs` checks the structure of the workflow file (one job, ubuntu, Chrome, the run, the concurrency group,
 the artifact paths, `if: always()` on the uploads).
 
-The baselines were rendered by Chrome on Windows. A text region can differ on Linux because of fonts; the workflow has not run on a hosted runner yet, so
-the first run decides. A red case is read from its diff image and handled as `docs/runbooks/release-checklist.md` says; the target ratio and the regions
-are never edited to turn it green.
+### Baselines of another OS
+
+Decision (2026-11-11): the committed baselines `apps/web/e2e/visual-baselines` were rendered by Google Chrome on Windows. Pixels that contain text cannot match a
+render of another OS within the 0.1 percent target (Windows draws sub-pixel LCD text, Linux grayscale hinted text), so the target is not loosened and the Windows
+baselines are not compared on Linux. Each OS compares with baselines of its own (`apps/web/e2e/support/visual-baselines.ts`): Windows uses `visual-baselines`,
+Linux uses `visual-baselines-linux`.
+
+- While `visual-baselines-linux` does not exist, the visual cases are skipped on Linux (the Playwright output says why; they are never reported as passed),
+  `E2E_REQUIRE_VISUAL` and `--require-visual` are off in `browser.yml`, and the pixel gate of a release is the Windows run (`release-checklist.md`). The route walk
+  and the flows run and are required on every run.
+- To make the Linux baselines: run the workflow `Browser` by hand with `update_visual` ticked (Actions, Browser, Run workflow). It renders the baselines on the runner
+  and uploads them as the artifact `visual-baselines-linux`. Look at the captures, unpack the artifact into `apps/web/e2e/visual-baselines-linux/` and commit them.
+  From then on every run on Linux compares with them and requires the visual cases.
+- After an intended change of the shell both sets are rewritten: `npm run e2e:visual:update -w @machvon/web` on Windows, the run with `update_visual` for Linux.
 
 Firefox and WebKit run a smoke subset in their own workflow (`browsers.yml`, selected by `E2E_BROWSERS`); `browser-differences.md` says what runs where and what is known to differ.
 

@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
@@ -9,6 +9,7 @@ import { diffImages } from './support/diff.ts';
 import type { Region } from './support/diff.ts';
 import { recordMissingVisuals, upsertVisual } from './support/report.ts';
 import { stackInfo } from './support/stack.ts';
+import { baselinesFolder, visualGate } from './support/visual-baselines.ts';
 import type { VisualEntry } from './support/report.ts';
 
 const OUT = fileURLToPath(new URL('./__diff__', import.meta.url));
@@ -17,7 +18,8 @@ const OUT = fileURLToPath(new URL('./__diff__', import.meta.url));
  * real shell has been different from them on purpose since 2026-11-07. The mockups stay untouched (they are the design package, under baseline preservation); the frame of each screen is compared with its own capture,
  * taken after the new look was reviewed, in this folder. `E2E_UPDATE_VISUAL=1` (npm run e2e:visual:update -w @machvon/web) rewrites them: do it only after looking at the new captures, never to turn a failure green.
  */
-const BASELINES = fileURLToPath(new URL('./visual-baselines', import.meta.url));
+/** The baselines of this OS (support/visual-baselines.ts): the committed set is the Windows one, another OS has a folder of its own. */
+const BASELINES = fileURLToPath(new URL(`./${baselinesFolder()}`, import.meta.url));
 const UPDATE_BASELINES = process.env.E2E_UPDATE_VISUAL === '1';
 /** Every gated region lies in the first 944 rows (the height of the sidebar region), so the baseline keeps no more. */
 const BASELINE_ROWS = 944;
@@ -46,6 +48,15 @@ function visualTest(title: string, ids: string[], body: Parameters<typeof test>[
   CASE_IDS.set(title, ids);
   test(title, body);
 }
+
+// Rendered pixels are compared only with pixels rendered the same way. With no baselines made on this OS (and none being written now) the cases are skipped, said so in the output, never passed;
+// when the visual cases are required (E2E_REQUIRE_VISUAL=1) a missing baseline folder FAILS the run instead: a gate that cannot compare is not green.
+test.beforeEach(() => {
+  const gate = visualGate({ updating: UPDATE_BASELINES, required: REQUIRE_VISUAL, baselinesExist: existsSync(BASELINES) });
+  const reason = `no baselines rendered on this OS (${BASELINES}): see docs/runbooks/web-e2e.md, "Baselines of another OS"`;
+  if (gate === 'fail') throw new Error(`${reason}, and E2E_REQUIRE_VISUAL=1`);
+  test.skip(gate === 'skip', reason);
+});
 
 test.afterEach(({ page }, testInfo) => {
   if (testInfo.status === 'passed' || testInfo.status === 'skipped') return;
