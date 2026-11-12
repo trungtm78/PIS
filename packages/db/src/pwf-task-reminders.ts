@@ -60,11 +60,10 @@ interface FiredSql {
   membership_id: string | null;
 }
 
-/** How far back a point that was crossed is still worth telling (a task that is more than this overdue has had its last point long ago). */
-const LOOK_BACK_DAYS = 40;
-/** How many tasks a pass reads at a time, and the most pages it reads in one pass (the rest of a very large window is reached by the next pass, which skips what already fired). */
+/** The days before the lowest point of the rules that are added to look back, and what a working day can stretch to on the calendar (weekends and holidays): a task that is further overdue than the lowest point of any rule has had its last point. */
+const LOOK_BACK_MARGIN_DAYS = 14;
+/** How many tasks a pass reads at a time; the window is read to its end, page after page. */
 const PAGE_SIZE = 5_000;
-const MAX_PAGES = 40;
 
 const firedKey = (task: string, version: number, point: number, member: string | null): string => `${task}:${version}:${point}:${member ?? ''}`;
 
@@ -87,11 +86,11 @@ export class PwfTaskReminders {
     const set = await this.policies.load(tx, today);
     const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
     const widest = await this.widestPoint(tx, set.widestReminderDays);
-    const window = [addDays(today, -LOOK_BACK_DAYS), addDays(today, Math.ceil(widest * 1.5) + 21)];
+    const window = [addDays(today, -(Math.ceil(-set.lowestReminderDays * 1.5) + LOOK_BACK_MARGIN_DAYS)), addDays(today, Math.ceil(widest * 1.5) + 21)];
     const notices: PwfReminderNotice[] = [];
     let after: { day: string; id: string } | null = null;
     // The tasks of the window are read a page at a time, in the order of their days, so that a tenant with many of them is reached to the end and not only at its first rows.
-    for (let page = 0; page < MAX_PAGES; page += 1) {
+    for (;;) {
       const tasks: Array<TaskSql & { sort_day: string }> = await tx.query<TaskSql & { sort_day: string }>(
         `select t.id, t.project_id, t.schedule_version, t.kind, t.priority, t.phase_code, t.planned_finish::text as due_on, t.planned_finish::text as sort_day, ou.path as unit_path
            from machvon.project_task t

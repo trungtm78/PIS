@@ -20,6 +20,8 @@ export interface BandPolicySet {
   widestGreenDays: number | null;
   /** The farthest day-before-deadline any rule in force asks to be reminded at (0 when none asks). */
   widestReminderDays: number;
+  /** The lowest day-before-deadline any rule in force asks to be reminded at (negative: days after the deadline; 0 when none asks for one past the day). */
+  lowestReminderDays: number;
 }
 
 interface UnitRule {
@@ -62,6 +64,7 @@ export class PwfBandPolicies {
     return {
       widestGreenDays: widest,
       widestReminderDays: Math.max(0, ...everywhere.flatMap((policy) => policy.reminder_days)),
+      lowestReminderDays: Math.min(0, ...everywhere.flatMap((policy) => policy.reminder_days)),
       forUnitPath: (path) => resolve(chainOf(path)),
       versionForUnitPath: (path) => resolveWithVersion(chainOf(path)).version,
     };

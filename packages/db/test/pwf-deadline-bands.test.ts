@@ -7,6 +7,7 @@ import { PwfBandPolicies } from '../src/pwf-band-policies';
 import { PwfDeadlinePreferenceStore } from '../src/pwf-deadline-preference';
 import { PwfMyTaskReads } from '../src/pwf-my-tasks';
 import { PwfDeadlineReads } from '../src/pwf-deadline-reads';
+import { PwfWorkflowReads } from '../src/pwf-workflow-reads';
 import { PwfTaskReminders } from '../src/pwf-task-reminders';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
@@ -321,6 +322,12 @@ describe('the source PROJECT_TASK of the alert centre', () => {
     const afterUnit = onlyTasks((await collect()).rows).map((row) => row.id.split(':')[0]);
     // The unit of the first project has the tighter rule (not in range at 8 days); the sibling unit keeps the tenant's.
     expect(afterUnit).toEqual([south]);
+    // The board, the detail of a task and the list of tasks of the project say the same official colour as the alert centre: the rule of the unit of the project, nearest first.
+    const onBoard = (await as((tx) => board.board(tx, EVERYTHING, {}, { limit: 20 }, NOW), MANAGER)) as { items: Array<{ task_id: string; band: { band: string } }> };
+    expect(onBoard.items.find((one) => one.task_id === north)?.band.band).toBe('NONE');
+    expect(onBoard.items.find((one) => one.task_id === south)?.band.band).toBe('GREEN');
+    const listed = await as((tx) => new PwfWorkflowReads().listTasks(tx, EVERYTHING, projectDept, {}, { limit: 20 }, NOW), MANAGER);
+    expect(listed.items.find((one) => one.id === north)?.band.band).toBe('NONE');
     const set = await as((tx) => new PwfBandPolicies().load(tx, TODAY));
     expect(set.forUnitPath('/u1/u2/')).toMatchObject({ green_days: 3, yellow_days: 1, red_days: 0 });
     expect(set.forUnitPath('/u1/u3/')).toMatchObject({ green_days: 10, yellow_days: 4, red_days: 1 });
@@ -542,6 +549,14 @@ describe('the multi-point reminders (BR-PWF-24)', () => {
     expect(await fire()).toEqual([]);
     await calendars(`update machvon.work_calendar_version set status = 'Published' where revision = 1`);
     expect((await fire()).length).toBeGreaterThan(0);
+  });
+
+  it('looks back as far as the lowest point of the rules goes, whatever the calendar', async () => {
+    const rule = await approvedRule(LADDER(5, 2, 0, { reminder_days: [5, 2, 0, -30] }));
+    await task(-35);
+    const notices = await fire();
+    expect(notices.map((notice) => notice.point)).toEqual([-30]);
+    await retire(rule);
   });
 
   it('refuses a second row of the same point (the key of the reminder) and never changes one', async () => {
