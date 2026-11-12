@@ -2703,6 +2703,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: false,
     build: () => ({ method: 'PUT', path: '/me/alert-profile', ifMatch: '"0"', body: { digest_enabled: true, push_cap_per_day: 1 } }),
   },
+  // PWF-2: the own days of a person for the three colours of a deadline; it names no id of another tenant, it is the person's own row.
+  setDeadlinePreference: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'PUT', path: '/me/deadline-preference', ifMatch: '"0"', body: { green_days: 7, yellow_days: 3, red_days: 1, reminder_days: [7, 3] } }),
+  },
   declareAlertAbsence: {
     referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/home/alert-absences', body: { kind: 'LEAVE', valid_from: '2999-01-01T00:00:00.000Z', valid_until: '2999-01-05T00:00:00.000Z' } }),

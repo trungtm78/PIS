@@ -237869,7 +237869,10 @@
           "VALIDATION_FAILED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
-        "x-state-guard": "green_days > yellow_days > red_days ≥ -1; mỗi mức lớn hơn hoặc bằng mức chính thức"
+        "x-state-guard": "green_days > yellow_days > red_days ≥ -1; mỗi mức lớn hơn hoặc bằng mức chính thức",
+        "x-domain-events": [
+          "pwf.deadline_preference.set.v1"
+        ]
       }
     },
     "/pwf/deadline-band/preview": {
@@ -276455,7 +276458,8 @@
               "LOOK_AHEAD",
               "LESSONS_LEARNED",
               "PROJECT_RISK",
-              "COMMITTEE"
+              "COMMITTEE",
+              "PROJECT_TASK"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -277826,7 +277830,8 @@
               "LOOK_AHEAD",
               "LESSONS_LEARNED",
               "PROJECT_RISK",
-              "COMMITTEE"
+              "COMMITTEE",
+              "PROJECT_TASK"
             ],
             "description": "The kind of source the item comes from."
           },
@@ -277910,7 +277915,8 @@
               "LOOK_AHEAD",
               "LESSONS_LEARNED",
               "PROJECT_RISK",
-              "COMMITTEE"
+              "COMMITTEE",
+              "PROJECT_TASK"
             ],
             "description": "The kind of source the item comes from."
           },
