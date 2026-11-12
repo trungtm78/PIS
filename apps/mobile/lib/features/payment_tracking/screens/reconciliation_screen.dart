@@ -8,7 +8,17 @@ import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
-import '../../../core/state/empty_state_view.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/deadline.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/sheets.dart';
+import '../../../core/widgets/stat_strip.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../acceptance_handover/widgets/fact_row.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
 import '../../read_support/data_view.dart';
@@ -26,8 +36,9 @@ import '../reconciliation_commands.dart';
 ///
 /// **No figure is chosen.** The two amounts and the difference are shown as they were recorded and the screen has no way to pick the
 /// larger, to correct one or to net them. What the person can do is write down what was found (explain it, or resolve it) and only where
-/// the server offers it, online, under the version of the item, never from a copy. Writing a difference off needs the document that
-/// approves it and stays on the web (PAY-06).
+/// the server offers it, online, under the version of the item, never from a copy; the note is confirmed in a sheet that says what it does
+/// first. Writing a difference off needs the document that approves it and stays on the web (PAY-06). A refusal for a version that moved
+/// offers to read the item again, never to overwrite it.
 Widget buildReconciliationScreen(BuildContext context, ScreenContext screen) {
   final String? item = screen.queryParameters['item'];
   return item == null || item.isEmpty ? const _BoardScreen() : _ItemScreen(itemId: item);
@@ -45,7 +56,7 @@ class _BoardScreenState extends State<_BoardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.treasury.board.title'),
       body: DataView<ReconciliationBoard>(
         cacheKey: 'treasury.board',
@@ -69,37 +80,42 @@ class _BoardScreenState extends State<_BoardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                                SectionCard(
-                                  title: context.t('mob.treasury.board.summary.title'),
-                                  children: <Widget>[
-                                    KpiGroup(
-                                      tiles: <Widget>[
-                                        KpiTile(label: context.t('mob.treasury.board.summary.waiting'), value: '${board.waiting}'),
-                                        KpiTile(label: context.t('mob.treasury.board.summary.overdue'), value: '${board.overdue}'),
-                                      ],
-                                    ),
-                                    const SizedBox(height: MachvonSpace.space8),
-                                    KpiTile(label: context.t('mob.treasury.board.summary.difference'), value: moneyExactLabel(context, board.waitingDifferenceVnd)),
-                                  ],
-                                ),
-                                CheckboxListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-                                  value: _onlyWaiting,
-                                  title: Text(context.t('mob.treasury.board.filter.waiting')),
-                                  onChanged: (bool? value) => setState(() => _onlyWaiting = value ?? false),
-                                ),
-
+                      StatStrip(
+                        cells: <StatCell>[
+                          StatCell(value: '${board.waiting}', label: context.t('mob.treasury.board.summary.waiting')),
+                          StatCell(
+                            value: '${board.overdue}',
+                            label: context.t('mob.treasury.board.summary.overdue'),
+                            band: board.overdue > 0 ? DeadlineBand.late : null,
+                            bandText: board.overdue > 0 ? context.t('mob.treasury.overdue') : null,
+                          ),
+                        ],
+                      ),
+                      InfoRow(label: context.t('mob.treasury.board.summary.difference'), value: moneyExactLabel(context, board.waitingDifferenceVnd), divider: false),
+                      FilterChips<bool>(
+                        options: <ChipOption<bool>>[
+                          ChipOption<bool>(value: true, label: context.t('mob.treasury.board.filter.waiting')),
+                          ChipOption<bool>(value: false, label: context.t('mob.treasury.board.filter.all')),
+                        ],
+                        selected: _onlyWaiting,
+                        onChanged: (bool value) => setState(() => _onlyWaiting = value),
+                      ),
                     ],
                   ),
                 ),
               ),
               Expanded(
                 child: shown.isEmpty
-                    ? EmptyStateView(activeFilters: <String>[context.t('mob.treasury.board.filter.waiting')], onClearFilters: () => setState(() => _onlyWaiting = false))
+                    ? StateView(
+                        kind: StateKind.empty,
+                        details: <Widget>[Center(child: StatusPill(label: context.t('mob.treasury.board.filter.waiting')))],
+                        actionLabel: context.t('mob.states.empty.clearFilters.action'),
+                        onAction: () => setState(() => _onlyWaiting = false),
+                      )
                     : ListView(
                         children: <Widget>[
-                          for (final ReconciliationItem item in shown) _ItemRow(item: item),
-                          if (board.more) Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.treasury.board.more'), style: Theme.of(context).textTheme.bodySmall)),
+                          for (int index = 0; index < shown.length; index += 1) _ItemRow(item: shown[index], dividerAbove: index > 0),
+                          if (board.more) StatusBanner(text: context.t('mob.treasury.board.more'), tone: BannerTone.warning),
                         ],
                       ),
               ),
@@ -112,13 +128,13 @@ class _BoardScreenState extends State<_BoardScreen> {
 }
 
 class _ItemRow extends StatelessWidget {
-  const _ItemRow({required this.item});
+  const _ItemRow({required this.item, required this.dividerAbove});
 
   final ReconciliationItem item;
+  final bool dividerAbove;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final String kind = reconKindLabel(context, item.kind);
     final String figures = context.t('mob.treasury.board.row.figures', <String, Object>{
       'internal': moneyOrNone(context, item.internalVnd),
@@ -126,31 +142,21 @@ class _ItemRow extends StatelessWidget {
       'difference': moneyOrNone(context, item.shownDifference),
     });
     final String refs = <String>[item.projectCode, if (item.requestNo != null) item.requestNo!, if (item.documentNo != null) item.documentNo!].join(' · ');
-    return TappableRow(
-      semanticLabel: context.t('mob.treasury.board.row.aria', <String, Object>{'kind': kind, 'refs': refs, 'figures': figures}),
-      onTap: () => openScreen(context, 'MOB-60', query: <String, String>{'item': item.id}, stacked: true),
-      child: Row(
+    return FactRow(
+      title: kind,
+      icon: Icons.compare_arrows,
+      lines: <String>[refs, figures],
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(kind, style: theme.textTheme.bodyLarge),
-                Text(refs, style: theme.textTheme.bodyMedium),
-                Wrap(
-                  spacing: MachvonSpace.space8,
-                  children: <Widget>[
-                    StatusPill(label: reconStatusLabel(context, item.status)),
-                    if (item.overdue) StatusPill(label: context.t('mob.treasury.overdue'), warn: true),
-                  ],
-                ),
-                Text(figures, style: theme.textTheme.bodySmall),
-              ],
-            ),
-          ),
-          const ExcludeSemantics(child: Icon(Icons.chevron_right)),
+          StatusPill(label: reconStatusLabel(context, item.status), tone: reconTone(item.status)),
+          if (item.overdue) ...<Widget>[const SizedBox(height: MachvonV2Space.s4), StatusPill(label: context.t('mob.treasury.overdue'), tone: MachvonTone.danger)],
         ],
       ),
+      dividerAbove: dividerAbove,
+      semanticLabel: context.t('mob.treasury.board.row.aria', <String, Object>{'kind': kind, 'refs': refs, 'figures': figures}),
+      onTap: () => openScreen(context, 'MOB-60', query: <String, String>{'item': item.id}, stacked: true),
     );
   }
 }
@@ -169,7 +175,7 @@ class _ItemScreenState extends State<_ItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.treasury.item.title'),
       body: DataView<ReconciliationItem>(
         cacheKey: 'treasury.item.${widget.itemId}',
@@ -209,11 +215,6 @@ class _ItemBodyState extends ConsumerState<_ItemBody> with CommandFlow<_ItemBody
   void _send({bool again = false}) {
     final ReconciliationItem item = widget.item;
     final ResolveRequest request = again && _last != null ? _last! : ResolveRequest(itemId: item.id, version: item.version, resolution: _resolution ?? '', note: _note.text);
-    if (!again) {
-      final Map<String, ResolveProblem> problems = checkResolution(resolution: _resolution, note: _note.text);
-      setState(() => _problems = problems);
-      if (problems.isNotEmpty) return;
-    }
     _last = request;
     run(
       () => _commands.resolve(request, retryAfterUnknown: again),
@@ -223,6 +224,39 @@ class _ItemBodyState extends ConsumerState<_ItemBody> with CommandFlow<_ItemBody
         widget.onChanged();
       },
     );
+  }
+
+  /// Checks the form, then says in a sheet what will be written; only a confirmed note is sent.
+  Future<void> _confirm() async {
+    final ReconciliationItem item = widget.item;
+    final Map<String, ResolveProblem> problems = checkResolution(resolution: _resolution, note: _note.text);
+    setState(() => _problems = problems);
+    if (problems.isNotEmpty) return;
+    final String refs = <String>[item.projectCode, if (item.requestNo != null) item.requestNo!, if (item.documentNo != null) item.documentNo!].join(' · ');
+    final bool explained = _resolution == 'EXPLAINED';
+    final bool confirmed = await showConfirmSheet(
+      context,
+      title: context.t('mob.treasury.confirm.title'),
+      facts: <String>[
+        context.t('mob.treasury.confirm.fact.item', <String, Object>{'kind': reconKindLabel(context, item.kind), 'refs': refs}),
+        context.t('mob.treasury.board.row.figures', <String, Object>{'internal': moneyOrNone(context, item.internalVnd), 'confirmed': moneyOrNone(context, item.confirmedVnd), 'difference': moneyOrNone(context, item.shownDifference)}),
+        context.t('mob.treasury.confirm.fact.action', <String, Object>{'action': explained ? context.t('mob.treasury.form.explained') : context.t('mob.treasury.form.resolved')}),
+        context.t('mob.treasury.confirm.fact.note', <String, Object>{'note': _note.text.trim()}),
+        context.t('mob.treasury.confirm.fact.status', <String, Object>{'status': reconStatusLabel(context, explained ? 'EXPLAINED' : 'RESOLVED')}),
+        context.t('mob.treasury.figures.noChoice'),
+      ],
+      confirmLabel: context.t('mob.treasury.confirm.action'),
+      cancelLabel: context.t('mob.treasury.confirm.cancel'),
+      auditNote: context.t('mob.treasury.confirm.audit'),
+    );
+    if (!confirmed || !mounted) return;
+    _send();
+  }
+
+  /// The item moved under the person: nothing is overwritten, the item is read again and the person writes again on what is there.
+  void _reload() {
+    setState(() => outcome = null);
+    widget.onChanged();
   }
 
   Widget _outcome(BuildContext context, CommandOutcome result) {
@@ -239,13 +273,19 @@ class _ItemBodyState extends ConsumerState<_ItemBody> with CommandFlow<_ItemBody
       case CommandOffline():
         return OutcomeCard(title: gateText(context, ReconGate.offline));
       case CommandRefused():
-        return OutcomeCard(title: reconProblemText(context, problemOf(result)), code: result.code);
+        final bool conflict = problemOf(result) == ReconciliationProblem.versionConflict;
+        return OutcomeCard(
+          title: reconProblemText(context, problemOf(result)),
+          code: result.code,
+          actionLabel: conflict ? context.t('mob.treasury.result.conflict.action') : null,
+          onAction: conflict ? _reload : null,
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final ReconciliationItem item = widget.item;
     final SessionSnapshot session = ref.watch(sessionProvider);
     final ReconGate gate = gateOf(offline: isOffline(ref), fromCopy: widget.fromCopy, session: session);
@@ -253,56 +293,58 @@ class _ItemBodyState extends ConsumerState<_ItemBody> with CommandFlow<_ItemBody
     final List<String> choices = <String>[if (item.actions.explain) 'EXPLAINED', if (item.actions.resolve) 'RESOLVED'];
     final bool offered = item.isWaiting && choices.isNotEmpty;
     final bool open = gate == ReconGate.open && !sending;
+    final String? difference = item.shownDifference;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         if (result != null) ConstrainedBox(constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.35), child: SingleChildScrollView(child: _outcome(context, result))),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
             children: <Widget>[
               SectionCard(
                 title: reconKindLabel(context, item.kind),
                 children: <Widget>[
                   Wrap(
-                    spacing: MachvonSpace.space8,
+                    spacing: MachvonV2Space.s8,
+                    runSpacing: MachvonV2Space.s4,
                     children: <Widget>[
-                      StatusPill(label: reconStatusLabel(context, item.status)),
-                      if (item.overdue) StatusPill(label: context.t('mob.treasury.overdue'), warn: true),
+                      StatusPill(label: reconStatusLabel(context, item.status), tone: reconTone(item.status)),
+                      if (item.overdue) StatusPill(label: context.t('mob.treasury.overdue'), tone: MachvonTone.danger),
                     ],
                   ),
-                  FactLine(label: context.t('mob.treasury.item.project'), value: item.projectCode),
-                  if (item.contractCode != null) FactLine(label: context.t('mob.treasury.item.contract'), value: item.contractCode!),
-                  if (item.requestNo != null) FactLine(label: context.t('mob.treasury.item.request'), value: item.requestNo!),
-                  if (item.documentNo != null) FactLine(label: context.t('mob.treasury.item.voucher'), value: item.documentNo!),
-                  if (item.sourceFileName != null) FactLine(label: context.t('mob.treasury.item.source'), value: item.sourceFileName!),
-                  if (item.ownerName != null) FactLine(label: context.t('mob.treasury.item.owner'), value: item.ownerName!),
-                  FactLine(label: context.t('mob.treasury.item.due'), value: formatMoment(item.dueAt)),
+                  InfoRow(label: context.t('mob.treasury.item.project'), value: item.projectCode, divider: false),
+                  InfoRow(label: context.t('mob.treasury.item.contract'), value: item.contractCode),
+                  InfoRow(label: context.t('mob.treasury.item.request'), value: item.requestNo),
+                  InfoRow(label: context.t('mob.treasury.item.voucher'), value: item.documentNo),
+                  InfoRow(label: context.t('mob.treasury.item.source'), value: item.sourceFileName),
+                  InfoRow(label: context.t('mob.treasury.item.owner'), value: item.ownerName),
+                  InfoRow(label: context.t('mob.treasury.item.due'), value: formatMoment(item.dueAt)),
                 ],
               ),
               SectionCard(
                 title: context.t('mob.treasury.figures.title'),
                 children: <Widget>[
-                  KpiTile(label: context.t('mob.treasury.figures.internal'), value: moneyOrNone(context, item.internalVnd)),
-                  const SizedBox(height: MachvonSpace.space8),
-                  KpiTile(label: context.t('mob.treasury.figures.confirmed'), value: moneyOrNone(context, item.confirmedVnd)),
-                  const SizedBox(height: MachvonSpace.space8),
-                  KpiTile(
-                    label: context.t('mob.treasury.figures.difference'),
-                    value: moneyOrNone(context, item.shownDifference),
-                    note: differenceWords(context, item.shownDifference),
-                    noteTone: item.shownDifference == '0' ? MachvonTone.success : (item.shownDifference == null ? MachvonTone.neutral : MachvonTone.warning),
+                  InfoRow(label: context.t('mob.treasury.figures.internal'), value: moneyOrNone(context, item.internalVnd), divider: false),
+                  InfoRow(label: context.t('mob.treasury.figures.confirmed'), value: moneyOrNone(context, item.confirmedVnd)),
+                  InfoRow(label: context.t('mob.treasury.figures.difference'), value: moneyOrNone(context, difference)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: MachvonV2Space.s8),
+                    child: StatusPill(
+                      label: differenceWords(context, difference),
+                      tone: difference == '0' ? MachvonTone.success : (difference == null ? MachvonTone.neutral : MachvonTone.warning),
+                      icon: difference == '0' ? Icons.check_circle_outline : (difference == null ? Icons.help_outline : Icons.difference_outlined),
+                    ),
                   ),
-                  const SizedBox(height: MachvonSpace.space8),
-                  Text(context.t('mob.treasury.figures.noChoice'), style: theme.textTheme.bodySmall),
+                  Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.treasury.figures.noChoice'), style: text.caption)),
                 ],
               ),
               if (item.resolutionNote != null || item.resolvedAt != null)
                 SectionCard(
                   title: context.t('mob.treasury.note.title'),
                   children: <Widget>[
-                    if (item.resolutionNote != null) Text(item.resolutionNote!, style: theme.textTheme.bodyMedium),
-                    if (item.resolvedAt != null) FactLine(label: context.t('mob.treasury.note.closedAt'), value: formatMoment(item.resolvedAt!)),
+                    if (item.resolutionNote != null) Text(item.resolutionNote!, style: text.body),
+                    InfoRow(label: context.t('mob.treasury.note.closedAt'), value: item.resolvedAt == null ? null : formatMoment(item.resolvedAt!), divider: item.resolutionNote != null),
                   ],
                 ),
               if (offered)
@@ -319,21 +361,23 @@ class _ItemBodyState extends ConsumerState<_ItemBody> with CommandFlow<_ItemBody
                       ],
                       onChanged: sending ? null : (String? value) => setState(() => _resolution = value),
                     ),
-                    const SizedBox(height: MachvonSpace.space8),
+                    const SizedBox(height: MachvonV2Space.s8),
                     TextField(
                       controller: _note,
                       readOnly: sending,
                       maxLines: 3,
                       decoration: InputDecoration(labelText: context.t('mob.treasury.form.note.label'), errorText: _problems['note'] == null ? null : resolveProblemText(context, _problems['note']!)),
                     ),
-                    const SizedBox(height: MachvonSpace.space12),
-                    if (gate != ReconGate.open) GateNote(text: gateText(context, gate)),
-                    FilledButton(onPressed: open ? _send : null, child: Text(sending ? context.t('mob.treasury.sending.label') : context.t('mob.treasury.form.submit.action'))),
                   ],
                 ),
             ],
           ),
         ),
+        if (offered)
+          ActionBar(
+            primary: ActionBarButton(label: sending ? context.t('mob.treasury.sending.label') : context.t('mob.treasury.form.submit.action'), onPressed: open ? _confirm : null),
+            why: gate == ReconGate.open ? null : gateText(context, gate),
+          ),
       ],
     );
   }
