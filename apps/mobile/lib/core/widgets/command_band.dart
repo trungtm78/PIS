@@ -88,7 +88,7 @@ class CommandBand extends StatelessWidget {
                       child: Stack(
                         children: <Widget>[
                           Positioned.fill(child: ColoredBox(color: v2.palette.header2)),
-                          FractionallySizedBox(widthFactor: progress.clamp(0, 1).toDouble(), child: ColoredBox(color: v2.palette.accentOnDark)),
+                          FractionallySizedBox(widthFactor: progress.clamp(0, 1).toDouble(), heightFactor: 1, child: ColoredBox(color: v2.palette.accentOnDark)),
                         ],
                       ),
                     ),

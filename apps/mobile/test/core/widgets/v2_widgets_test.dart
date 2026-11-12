@@ -227,6 +227,40 @@ void main() {
       semantics.dispose();
     });
 
+    testWidgets('the fills of a progress bar, a stage strip and a command band have a real size (a fill with no height is not drawn)', (WidgetTester tester) async {
+      await pumpV2(
+        tester,
+        gallery(const <Widget>[
+          Padding(padding: EdgeInsets.all(16), child: Align(alignment: Alignment.centerLeft, child: ProgressMeter(value: 0.5, width: 200))),
+          StageStrip(total: 6, current: 3, currentFraction: 0.5, label: 'Giai đoạn 3/6'),
+          CommandBand(
+            title: 'Tổng quan',
+            label: 'Giải ngân',
+            figure: '1',
+            unit: 'tỷ đồng',
+            progress: 0.5,
+            progressLabel: '50%',
+            footStart: 'a',
+            footEnd: 'b',
+            showBack: false,
+          ),
+        ]),
+      );
+      final Finder meterFill = find.descendant(of: find.byType(ProgressMeter), matching: find.byType(FractionallySizedBox));
+      expect(tester.getSize(meterFill).width, closeTo(100, 0.01));
+      expect(tester.getSize(meterFill).height, MachvonV2Size.barHeight);
+
+      final Finder stageFills = find.descendant(of: find.byType(StageStrip), matching: find.byType(FractionallySizedBox));
+      expect(stageFills, findsNWidgets(3), reason: 'two finished segments and the half of the third');
+      for (final Element fill in stageFills.evaluate()) {
+        expect(tester.getSize(find.byElementPredicate((Element e) => e == fill)).height, MachvonV2Size.stageSegmentHeight);
+      }
+
+      final Finder bandFill = find.descendant(of: find.byType(CommandBand), matching: find.byType(FractionallySizedBox));
+      expect(tester.getSize(bandFill).height, MachvonV2Size.heroBarHeight);
+      expect(tester.getSize(bandFill).width, closeTo((390 - 32) * 0.5, 0.01));
+    });
+
     testWidgets('a mini chart names every bar and carries its value as text', (WidgetTester tester) async {
       final SemanticsHandle semantics = tester.ensureSemantics();
       await pumpV2(
@@ -454,6 +488,25 @@ void main() {
       await tester.tapAt(const Offset(195, 20));
       await tester.pumpAndSettle();
       expect(answer, isFalse, reason: 'closing the sheet any other way is no');
+    });
+
+    testWidgets('a sheet keeps its last button clear of a bottom system area', (WidgetTester tester) async {
+      tester.view.padding = const FakeViewPadding(bottom: 48);
+      tester.view.viewPadding = const FakeViewPadding(bottom: 48);
+      addTearDown(tester.view.resetPadding);
+      addTearDown(tester.view.resetViewPadding);
+      await pumpV2(
+        tester,
+        Builder(
+          builder: (BuildContext context) => TextButton(
+            onPressed: () => showConfirmSheet(context, title: 'Xác nhận', facts: const <String>['Một việc'], confirmLabel: 'Đồng ý', cancelLabel: 'Hủy'),
+            child: const Text('mở'),
+          ),
+        ),
+      );
+      await tester.tap(find.text('mở'));
+      await tester.pumpAndSettle();
+      expect(tester.getBottomLeft(find.widgetWithText(OutlinedButton, 'Hủy')).dy, lessThanOrEqualTo(844 - 48), reason: 'the quiet button ends above the system area');
     });
 
     testWidgets('a destructive confirmation uses the late colour for its primary button; a sheet scrolls at 200 percent', (WidgetTester tester) async {

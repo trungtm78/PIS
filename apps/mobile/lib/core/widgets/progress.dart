@@ -36,7 +36,7 @@ class ProgressMeter extends StatelessWidget {
           child: Stack(
             children: <Widget>[
               Positioned.fill(child: ColoredBox(color: v2.palette.sunken)),
-              FractionallySizedBox(widthFactor: share, child: ColoredBox(color: v2.palette.primary)),
+              FractionallySizedBox(widthFactor: share, heightFactor: 1, child: ColoredBox(color: v2.palette.primary)),
             ],
           ),
         ),

@@ -48,7 +48,7 @@ class StageStrip extends StatelessWidget {
             child: Stack(
               children: <Widget>[
                 Positioned.fill(child: ColoredBox(color: v2.palette.line)),
-                if (filled > 0) FractionallySizedBox(widthFactor: filled, child: ColoredBox(color: v2.palette.primary)),
+                if (filled > 0) FractionallySizedBox(widthFactor: filled, heightFactor: 1, child: ColoredBox(color: v2.palette.primary)),
               ],
             ),
           ),

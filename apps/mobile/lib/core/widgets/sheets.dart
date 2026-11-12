@@ -35,9 +35,12 @@ class ActionSheet extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(MachvonV2Radius.sheet)),
         boxShadow: v2.e2,
       ),
+      // The content keeps clear of the keyboard (the view insets) and of a bottom system area (the safe area): the last button is never behind either.
       child: SingleChildScrollView(
         padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-        child: Padding(
+        child: SafeArea(
+          top: false,
+          child: Padding(
           padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s8, MachvonV2Space.s16, MachvonV2Space.s24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -57,6 +60,7 @@ class ActionSheet extends StatelessWidget {
               child,
             ],
           ),
+        ),
         ),
       ),
     );
