@@ -6,5 +6,5 @@
   "bi.board.sign.unbound": "Bảng này chưa gắn với phiên bản đã phát hành của một bảng điều khiển nên chưa có chữ ký người lập, người kiểm tra, người phê duyệt; không phải là báo cáo đã ký.",
   "bi.present.title.dashboard": "{dashboard}: bảng chỉ tiêu kỳ {period}",
   "bi.dash.library.board": "Xem dạng bảng chỉ tiêu",
-  "bi.board.dashboard.pinned": "Bảng điều khiển này ghim bản dữ liệu khi phát hành: chỉ các kỳ đã ghim được chọn, để chữ ký đi cùng đúng số liệu đã duyệt."
+  "bi.board.dashboard.pinned": "Bảng điều khiển này ghim bản dữ liệu khi phát hành: mỗi chỉ tiêu được đọc ở bản đã ghim của bộ dữ liệu của nó, nên không chọn kỳ khác, và chữ ký đi cùng đúng số liệu đã duyệt."
 }

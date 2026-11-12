@@ -29,12 +29,25 @@ export function boardMetricsOf(version: Pick<DashboardVersion, 'metricVersionIds
   });
 }
 
+/** The snapshot a version can be read at when it pins its dataset versions: frozen, or since superseded by a newer build (the query store serves both). */
+const READABLE = ['FROZEN', 'SUPERSEDED'];
+
+/** The datasets the metrics of a board read: the dataset a metric names, else the default one of the board (the first dataset of period snapshots); each once, in the order of the metrics. */
+export function datasetIdsOf(metrics: readonly Pick<Metric, 'datasetId'>[], fallback: string | undefined): string[] {
+  return [...new Set(metrics.flatMap((metric) => metric.datasetId ?? fallback ?? []))];
+}
+
 /**
- * The snapshots a board may be read at. A board that follows the latest data (not tied to a dashboard, or a published version with the policy LATEST_FROZEN) is read at a frozen snapshot. A version that pins its dataset versions
- * (PINNED) was signed on those figures, so it is read at the pinned ones only, frozen or since superseded by a newer build (the query store serves both): a signature never goes with a newer snapshot, and a pinned snapshot
- * that was superseded does not take the figures away from the board that was approved on it.
+ * The snapshot a metric of a signed board is read at. A published version that pins its dataset versions (PINNED) was approved on those figures, so each metric is read at the pinned version of its own dataset, frozen or since
+ * superseded: a signature never goes with a newer snapshot, a snapshot that a newer build superseded does not take the figures away from the board that was approved on it, and a metric whose dataset has no pinned version here has
+ * no figure (undefined), never one from another snapshot.
  */
-export function snapshotsOf<T extends { id: string; status: string }>(versions: readonly T[], published: Pick<DashboardVersion, 'policy' | 'pinnedDatasetVersionIds'> | undefined): T[] {
-  if (published === undefined || published.policy !== 'PINNED') return versions.filter((one) => one.status === 'FROZEN');
-  return versions.filter((one) => published.pinnedDatasetVersionIds.includes(one.id) && (one.status === 'FROZEN' || one.status === 'SUPERSEDED'));
+export function pinnedSnapshotOf<T extends { id: string; datasetId: string; status: string }>(
+  metric: Pick<Metric, 'datasetId'>,
+  fallback: string | undefined,
+  pinnedIds: readonly string[],
+  versions: readonly T[],
+): T | undefined {
+  const datasetId = metric.datasetId ?? fallback;
+  return versions.find((one) => one.datasetId === datasetId && pinnedIds.includes(one.id) && READABLE.includes(one.status));
 }

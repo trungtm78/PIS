@@ -12,11 +12,11 @@ import { Field } from '../mne/components';
 import '../dis/dis.css';
 import './bi.css';
 import { FigureInfo } from './FigureInfo';
-import { useDashboard, useDashboards, useDatasetVersions, useDatasets, useMetrics, useTile } from './hooks';
+import { useDashboard, useDashboards, useDatasetVersions, useDatasetVersionsOf, useDatasets, useMetrics, useTile } from './hooks';
 import type { Metric } from './bi-model';
-import type { Dataset } from './dataset-model';
+import type { Dataset, DatasetVersion } from './dataset-model';
 import type { SignOff } from './dashboard-model';
-import { BOARD_DASHBOARD_PARAM, boardDashboards, boardMetricsOf, publishedVersionOf, snapshotsOf } from './board-model';
+import { BOARD_DASHBOARD_PARAM, boardDashboards, boardMetricsOf, datasetIdsOf, pinnedSnapshotOf, publishedVersionOf } from './board-model';
 import { queryProblemMessage } from './labels';
 import { WORKBENCH_PATH, describeQueryProblem, formatFigure } from './query-model';
 import { ResultLabels } from './QueryResultView';
@@ -57,15 +57,19 @@ function BoardContent({ route }: ScreenProps) {
     [tied, published, metrics.data],
   );
   const signOff = tied ? (published?.signOff ?? null) : null;
-  // A published version that pins its dataset versions was signed on those figures: the board is read at them only.
-  const served = useMemo(() => snapshotsOf(versions.data ?? [], tied ? published : undefined), [versions.data, tied, published]);
-  const pinned = tied && published?.policy === 'PINNED';
+  const served = useMemo(() => (versions.data ?? []).filter((version) => version.status === 'FROZEN'), [versions.data]);
   const [asked, setAsked] = useState('');
   const chosen = served.find((version) => version.id === asked) ?? served[0];
+  // A published version that pins its dataset versions was signed on those figures: each metric is read at the pinned version of its own dataset, whatever period is chosen for an unpinned board.
+  const pinned = tied && published?.policy === 'PINNED';
+  const pinnedVersions = useDatasetVersionsOf(useMemo(() => (pinned ? datasetIdsOf(certified, disbursement?.id) : []), [pinned, certified, disbursement?.id]));
+  const snapshotOf = (metric: Metric): DatasetVersion | undefined => (pinned ? pinnedSnapshotOf(metric, disbursement?.id, published?.pinnedDatasetVersionIds ?? [], pinnedVersions.data) : chosen);
+  const readAt = pinned ? [...new Map(certified.flatMap((metric) => snapshotOf(metric) ?? []).map((one) => [one.id, one])).values()] : chosen === undefined ? [] : [chosen];
+  const periods = [...new Set(readAt.map((one) => one.asOfPeriod))].join(', ');
   // A board tied to a dashboard is never "empty" as a whole: the choice of the dashboard stays reachable and the reason is said in the page.
   const state = useScreenState({
-    isLoading: metrics.isLoading || datasets.isLoading || (disbursement !== undefined && versions.isLoading) || (tied && dashboard.isLoading),
-    error: metrics.error ?? datasets.error ?? versions.error ?? (tied ? dashboard.error : undefined),
+    isLoading: metrics.isLoading || datasets.isLoading || (disbursement !== undefined && versions.isLoading) || (tied && dashboard.isLoading) || (pinned && pinnedVersions.isLoading),
+    error: metrics.error ?? datasets.error ?? versions.error ?? (tied ? dashboard.error : undefined) ?? (pinned ? pinnedVersions.error : undefined),
     data: metrics.data === undefined || (tied && dashboard.data === undefined) ? undefined : certified,
     isEmpty: (data) => !tied && Array.isArray(data) && data.length === 0,
   });
@@ -82,7 +86,7 @@ function BoardContent({ route }: ScreenProps) {
         <>
           <KpiStrip label={t('bi.board.strip.label')}>
             {page.map((metric) => (
-              <Tile key={`${metric.id}:${chosen?.id ?? ''}`} metric={metric} snapshotId={chosen?.id} dataset={disbursement} />
+              <Tile key={`${metric.id}:${snapshotOf(metric)?.id ?? ''}`} metric={metric} snapshotId={snapshotOf(metric)?.id} dataset={disbursement} />
             ))}
           </KpiStrip>
           {/* A projected board is never unsigned: every page carries the three signatures, or says it has none. */}
@@ -91,11 +95,12 @@ function BoardContent({ route }: ScreenProps) {
       ),
     });
   }
-  const presentationTitle = tied && dashboard.data !== undefined ? t('bi.present.title.dashboard', { dashboard: dashboard.data.title, period: chosen?.asOfPeriod ?? '' }) : t('bi.present.title.text', { period: chosen?.asOfPeriod ?? '' });
+  const presentationTitle = tied && dashboard.data !== undefined ? t('bi.present.title.dashboard', { dashboard: dashboard.data.title, period: periods }) : t('bi.present.title.text', { period: periods });
   const retry = (): void => {
     void metrics.refetch();
     void datasets.refetch();
     void versions.refetch();
+    if (pinned) void pinnedVersions.refetch();
   };
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -110,8 +115,8 @@ function BoardContent({ route }: ScreenProps) {
       <ContextBar
         items={[
           { label: t('bi.board.ctx.scope'), value: tenant?.name ?? t('bi.board.ctx.scope.all') },
-          { label: t('bi.board.ctx.period'), value: chosen?.asOfPeriod ?? t('bi.board.ctx.none') },
-          { label: t('bi.board.ctx.snapshot'), value: chosen === undefined ? t('bi.board.ctx.none') : chosen.id.slice(0, 8) },
+          { label: t('bi.board.ctx.period'), value: periods === '' ? t('bi.board.ctx.none') : periods },
+          { label: t('bi.board.ctx.snapshot'), value: readAt.length === 0 ? t('bi.board.ctx.none') : readAt.map((one) => one.id.slice(0, 8)).join(', ') },
         ]}
         {...(versions.dataUpdatedAt > 0 ? { asOf: new Date(versions.dataUpdatedAt).toLocaleString('vi-VN') } : {})}
       />
@@ -145,28 +150,29 @@ function BoardContent({ route }: ScreenProps) {
         ) : null}
         <FilterPanel applied={asked === '' ? 0 : 1}>
           <div className="bi-board-filter">
-            <Field id="board-period" label={t('bi.board.period')} error={undefined}>
-              <select id="board-period" value={chosen?.id ?? ''} onChange={(event) => setAsked(event.target.value)}>
-                {served.map((version) => (
-                  <option key={version.id} value={version.id}>
-                    {version.asOfPeriod}
-                  </option>
-                ))}
-              </select>
-            </Field>
             {pinned ? (
               <p className="sub" data-testid="board-pinned">
                 {t('bi.board.dashboard.pinned')}
               </p>
-            ) : null}
-            {chosen === undefined ? <p data-testid="board-no-period">{t('bi.board.noPeriod')}</p> : null}
+            ) : (
+              <Field id="board-period" label={t('bi.board.period')} error={undefined}>
+                <select id="board-period" value={chosen?.id ?? ''} onChange={(event) => setAsked(event.target.value)}>
+                  {served.map((version) => (
+                    <option key={version.id} value={version.id}>
+                      {version.asOfPeriod}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
+            {readAt.length === 0 ? <p data-testid="board-no-period">{t('bi.board.noPeriod')}</p> : null}
           </div>
         </FilterPanel>
         <SectionCard title={t('bi.board.section.title')}>
           <div data-testid="board">
             <KpiStrip label={t('bi.board.strip.label')}>
               {certified.map((metric) => (
-                <Tile key={`${metric.id}:${chosen?.id ?? ''}`} metric={metric} snapshotId={chosen?.id} dataset={disbursement} />
+                <Tile key={`${metric.id}:${snapshotOf(metric)?.id ?? ''}`} metric={metric} snapshotId={snapshotOf(metric)?.id} dataset={disbursement} />
               ))}
             </KpiStrip>
           </div>
