@@ -12,17 +12,6 @@
     "db:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/cli.ts check --root ../..",
     "restore:drill": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/restore-drill-cli.ts"
   },
-  "jest": {
-    "preset": "../../jest.preset.cjs",
-    "coverageThreshold": {},
-    "testMatch": [
-      "<rootDir>/src/**/*.test.ts",
-      "<rootDir>/test/**/*.test.ts"
-    ],
-    "maxWorkers": 4,
-    "globalSetup": "<rootDir>/jest.global-setup.mjs",
-    "globalTeardown": "<rootDir>/jest.global-teardown.mjs"
-  },
   "dependencies": {
     "@machvon/kernel": "*",
     "embedded-postgres": "18.4.0-beta.17",

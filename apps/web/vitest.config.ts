@@ -7,6 +7,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: { alias: { '@design': DESIGN_ROOT } },
   test: {
+    // A UAT run (scripts/uat-run.mjs) sets UAT_JOURNAL: the result of each test case is then written to that file.
+    reporters: process.env.UAT_JOURNAL ? ['default', '../../scripts/uat-vitest-reporter.mjs'] : ['default'],
     environment: 'jsdom',
     // A test that waits for something that never comes (a refusal, an absent button) waits the whole async timeout, and a busy machine slows every step.
     testTimeout: 20_000,
