@@ -1,0 +1,11 @@
+C [8,136,104,232] Quay lại
+  [144,159,576,209] Văn bản đến cần xử lý
+  [0,240,720,352] Số liệu tại 12/11/2026 23:45
+C [616,248,712,344] Làm mới
+  [0,352,720,680] Các văn bản đến giao cho bạn xử lý, kèm bút phê của lãnh đạo và hạn. Văn bản quá hạn hiện số ngày trễ nhưng vẫn xử lý được. Xử lý cần có mạng; nội dung và tệp của văn bản không được lưu trên máy.
+  [0,680,720,1066] Văn bản Giấy mời họp giao ban đầu tư tháng 11 năm 2026, Đã giao xử lý, Hạn xử lý: 12/11/2026
+C [0,1368,144,1512] Trang chủ / Tab 1 trong tổng số 5
+C [144,1368,288,1512] Dự án / Tab 2 trong tổng số 5
+C [288,1368,432,1512] Phê duyệt / Tab 3 trong tổng số 5, 6 mục cần xử lý
+C [432,1368,576,1512] Thông báo / Tab 4 trong tổng số 5, 20 mục cần xử lý
+C [576,1368,720,1512] Cá nhân / Tab 5 trong tổng số 5

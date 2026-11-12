@@ -1,0 +1,217 @@
+{
+ "a": [
+  {
+   "name": "1. Trang chủ lãnh đạo",
+   "itemsFullyVisible": 1,
+   "itemsTotal": 3,
+   "smallTargets": [
+    "link 71x20"
+   ],
+   "fontSizes": "12px 13px 15px 16px 17px 20px 28px 32px",
+   "shadows": 5,
+   "gradients": 0
+  },
+  {
+   "name": "2. Trang chủ cán bộ: Việc hôm nay",
+   "itemsFullyVisible": 3,
+   "itemsTotal": 6,
+   "smallTargets": [
+    "fchip 107x36",
+    "fchip 139x36",
+    "fchip 112x36",
+    "btn 186x40",
+    "btn 144x40",
+    "btn 92x40"
+   ],
+   "fontSizes": "12px 13px 15px 17px",
+   "shadows": 6,
+   "gradients": 0
+  },
+  {
+   "name": "3. Chi tiết dự án: tab Tiến độ",
+   "itemsFullyVisible": 4,
+   "itemsTotal": 6,
+   "smallTargets": [
+    "link 47x20"
+   ],
+   "fontSizes": "12px 13px 14px 15px 17px 20px",
+   "shadows": 1,
+   "gradients": 0
+  },
+  {
+   "name": "4. Hộp phê duyệt",
+   "itemsFullyVisible": 2,
+   "itemsTotal": 3,
+   "smallTargets": [
+    "s 116x40"
+   ],
+   "fontSizes": "12px 13px 14px 15px 17px 20px",
+   "shadows": 4,
+   "gradients": 0
+  },
+  {
+   "name": "5. Chi tiết việc",
+   "itemsFullyVisible": 0,
+   "itemsTotal": 0,
+   "smallTargets": [
+    "btn 106x40",
+    "link 25x20"
+   ],
+   "fontSizes": "12px 13px 15px 16px 17px 20px",
+   "shadows": 1,
+   "gradients": 0
+  },
+  {
+   "name": "6. Thông báo",
+   "itemsFullyVisible": 5,
+   "itemsTotal": 6,
+   "smallTargets": [
+    "link 51x20",
+    "fchip 63x36",
+    "fchip 93x36",
+    "fchip 101x36",
+    "fchip 80x36"
+   ],
+   "fontSizes": "12px 13px 15px 17px",
+   "shadows": 0,
+   "gradients": 0
+  }
+ ],
+ "b": [
+  {
+   "name": "1. Trang chủ lãnh đạo",
+   "itemsFullyVisible": 3,
+   "itemsTotal": 4,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 22px 32px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "2. Trang chủ cán bộ: Việc hôm nay",
+   "itemsFullyVisible": 5,
+   "itemsTotal": 6,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 32px",
+   "shadows": 1,
+   "gradients": 0
+  },
+  {
+   "name": "3. Chi tiết dự án: tab Tiến độ",
+   "itemsFullyVisible": 5,
+   "itemsTotal": 6,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 22px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "4. Hộp phê duyệt",
+   "itemsFullyVisible": 4,
+   "itemsTotal": 4,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 22px 32px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "5. Chi tiết việc",
+   "itemsFullyVisible": 0,
+   "itemsTotal": 0,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 22px",
+   "shadows": 1,
+   "gradients": 0
+  },
+  {
+   "name": "6. Thông báo",
+   "itemsFullyVisible": 5,
+   "itemsTotal": 6,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 32px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "7. Xác nhận phê duyệt (bottom sheet)",
+   "itemsFullyVisible": 0,
+   "itemsTotal": 0,
+   "smallTargets": [],
+   "fontSizes": "12px 15px 22px 32px",
+   "shadows": 2,
+   "gradients": 0
+  },
+  {
+   "name": "8. Danh sách dự án",
+   "itemsFullyVisible": 5,
+   "itemsTotal": 5,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 32px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "9. Trạng thái rỗng",
+   "itemsFullyVisible": 0,
+   "itemsTotal": 0,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 22px 32px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "10. Ngoại tuyến, chỉ một dải báo",
+   "itemsFullyVisible": 4,
+   "itemsTotal": 6,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 32px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "11. Đang tải (skeleton)",
+   "itemsFullyVisible": 6,
+   "itemsTotal": 6,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 32px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "12. Chế độ tối",
+   "itemsFullyVisible": 5,
+   "itemsTotal": 6,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 32px",
+   "shadows": 1,
+   "gradients": 0
+  },
+  {
+   "name": "13. Cỡ chữ hệ thống 200%",
+   "itemsFullyVisible": 1,
+   "itemsTotal": 6,
+   "smallTargets": [],
+   "fontSizes": "12px 16px 24px 26px 30px 42px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "14. Cá nhân, ngưỡng nhắc hạn",
+   "itemsFullyVisible": 0,
+   "itemsTotal": 1,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 32px",
+   "shadows": 0,
+   "gradients": 0
+  },
+  {
+   "name": "15. Tạo nhanh báo cáo hiện trường",
+   "itemsFullyVisible": 5,
+   "itemsTotal": 6,
+   "smallTargets": [],
+   "fontSizes": "12px 13px 15px 22px 32px",
+   "shadows": 1,
+   "gradients": 0
+  }
+ ]
+}
