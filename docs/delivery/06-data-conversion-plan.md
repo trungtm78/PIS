@@ -4,9 +4,9 @@ Giai đoạn 5, sản phẩm 6 của mục II.5 (biên bản xác nhận chuyể
 
 Hồ sơ kỹ thuật (TK.03): chuyển đổi danh mục dự án, kế hoạch năm, số liệu lũy kế đến đầu kỳ vận hành và dữ liệu lịch sử từ các biểu mẫu Excel hiện hành theo phạm vi thống nhất; lập biên bản xác nhận với Ban KHĐT.
 
-Nguồn: `docs/ind-indicator-dictionary.md`; `docs/adm-migration.md`; `docs/file-import.md`; `docs/fnd-funding-model.md`; `docs/report-engine.md`; `packages/edition-enterprise/src/report-forms/messages/forms.vi.json` và `kpi-pack.vi.json` (cột và chỉ tiêu của sáu biểu mẫu DEMO); `Design/MACHVON_Design/01_Documents/10_Ke_hoach_kiem_thu_va_chuyen_doi.md` (mục migration rehearsal, cutover); `Design/MACHVON_Design/03_Engineering/mapping_source_template.json`.
+Nguồn: `docs/ind-indicator-dictionary.md`; `docs/adm-migration.md`; `docs/file-import.md`; `docs/fnd-funding-model.md`; `docs/report-engine.md`; `packages/edition-enterprise/src/report-forms/messages/forms.vi.json` và `packages/edition-enterprise/src/report-forms/messages/kpi-pack.vi.json` (cột và chỉ tiêu của sáu biểu mẫu DEMO); `packages/edition-enterprise/templates/org-pack/pvfcco-template.csv` (gói tổ chức mẫu); `docs/hpm-ebs-connectors.md` (mã dự án qua `master_crosswalk`); `Design/MACHVON_Design/01_Documents/10_Ke_hoach_kiem_thu_va_chuyen_doi.md` (mục migration rehearsal, cutover); `Design/MACHVON_Design/03_Engineering/mapping_source_template.json`.
 
-Trạng thái tệp: KHUNG. Chưa nhận tệp Excel hiện hành của khách nên ánh xạ dưới đây là ánh xạ theo sáu biểu mẫu DEMO do hệ thống thiết kế, đánh dấu cần đối chiếu từng cột với tệp thật. Theo quy tắc của kế hoạch chuyển đổi, chưa có tệp thật thì không ghi ánh xạ là đã hoàn tất. Mọi nhãn UNVERIFIED trong chỉ tiêu khởi điểm giữ nguyên tới khi Tổ chuẩn hóa dữ liệu xác nhận (PX-02).
+Trạng thái tệp: v0.2, rà soát ngày 2026-11-12 sau khi các làn ENT-3a đến ENT-3e và ENT-4 đã gộp. Phía hệ thống đã sẵn các đích nạp của bản enterprise (bảng ở mục 1). Chưa nhận tệp Excel hiện hành của khách nên ánh xạ dưới đây là ánh xạ theo sáu biểu mẫu DEMO do hệ thống thiết kế, đánh dấu cần đối chiếu từng cột với tệp thật. Theo quy tắc của kế hoạch chuyển đổi, chưa có tệp thật thì không ghi ánh xạ là đã hoàn tất, không chạy thử chuyển đổi và không ký biên bản. Mọi nhãn UNVERIFIED trong chỉ tiêu khởi điểm giữ nguyên tới khi Tổ chuẩn hóa dữ liệu xác nhận (PX-02). Điều chỉ khách làm được: gửi tệp Excel hiện hành (PX-02, PX-08), danh mục dự án và mã HPM, EBS (PX-14), danh sách 09 đầu mối (PX-05).
 
 ---
 
@@ -15,11 +15,13 @@ Trạng thái tệp: KHUNG. Chưa nhận tệp Excel hiện hành của khách n
 | Nhóm dữ liệu | Nguồn Excel | Đích trong hệ thống | Phạm vi dữ liệu |
 |---|---|---|---|
 | Danh mục dự án và hạng mục | Cột mã, tên, nhóm, loại hình, đơn vị chủ trì của các biểu mẫu | Danh mục dự án (PRJ), bản ghi chủ (MDM) | 22 dự án đầu tư xây dựng, 01 hạng mục mua sắm tài sản dự án, 09 hạng mục mua sắm tài sản cố định theo kế hoạch năm 2026 (hồ sơ kỹ thuật, mục II.2.1) |
-| Ánh xạ mã HPM, EBS | Bảng mã Ban KHĐT và Ban TCKT giữ | `master_crosswalk` (INT-03) | Như trên; [khách điền: danh sách mã] |
-| Kế hoạch năm | Cột "Kế hoạch vốn năm giao đầu năm" và "hiện hành" | Kế hoạch vốn (CAP) và `plan_figure_revision` (FND-1) | Năm 2026 |
+| Tổ chức, vai trò, 09 đầu mối, người nhập và người duyệt | Danh sách do Tổ chuẩn hóa dữ liệu cung cấp | Gói cấu hình `PVFCCO-TEMPLATE` (ORG-01), nạp bằng lô chuyển đổi `ORG-PACK-1`, rồi `materialiseEnterpriseOrgPack` (ENT-3d) | 09 đầu mối: 07 Ban và đơn vị, 02 Tổ dự án; [khách điền: danh sách thật, PX-05] |
+| Ánh xạ mã HPM, EBS | Bảng mã Ban KHĐT và Ban TCKT giữ | `master_crosswalk`: loại `PROJECT_CODE`, hệ nguồn `EBS` hoặc `HPM`, người duyệt khác người đề xuất, có thời hạn hiệu lực (INT-03: `proposeProjectCode`, `decideProjectCode`; ENT-3e) | Như trên; [khách điền: danh sách mã, PX-14] |
+| Loại dự án, cờ khởi công, mốc vòng đời, loại hồ sơ pháp lý | Cột loại hình của biểu mẫu; danh sách Ban KHĐT | Danh mục quy tắc quản trị `ENT_PROJECT_TYPE`, `ENT_START_FLAG`, `ENT_LIFECYCLE_MILESTONE`, `ENT_LEGAL_DOC_TYPE`, cùng bản ghi chủ `PROJECT_TYPE` (ENT-3e); cờ UNVERIFIED tới khi khách xác nhận | Như trên; loại "sửa chữa lớn" có chính thức không: quyết định của Tổ chuẩn hóa dữ liệu |
+| Kế hoạch năm | Cột "Kế hoạch vốn năm giao đầu năm" và "hiện hành" | Kế hoạch vốn (CAP) và `plan_figure_revision` (FND-1); nguồn kế hoạch của bản enterprise `GROUP_ASSIGNED`, `BOARD_APPROVED`, `CARRYOVER`, mỗi nguồn cần văn bản căn cứ đúng loại (nghị quyết, quyết định của Tập đoàn hoặc của công ty) | Năm 2026 |
 | Số liệu lũy kế đến đầu kỳ vận hành | Cột "Lũy kế từ đầu năm", "Lũy kế từ khởi công" | Số dư đầu kỳ của số liệu vốn (FND-1) | Đến hết kỳ trước kỳ vận hành đầu tiên |
 | Cơ cấu vốn | Cột vốn chủ sở hữu, vốn vay, khác | Số liệu vốn theo nhóm (FND-1, `FUNDING_TAXONOMY`) | Như trên |
-| Nội dung thuyết minh | Tình hình, tiến độ, nguyên nhân, khó khăn, kế hoạch tới, kiến nghị | Thuyết minh có cấu trúc (ENT-3b) | Kỳ gần nhất; [khách điền] |
+| Nội dung thuyết minh | Tình hình, tiến độ, nguyên nhân, khó khăn, kế hoạch tới, kiến nghị | Thuyết minh có cấu trúc 8 trường (DIS-35, ENT-3b), nhập bằng bảng ánh xạ `ENT-NARRATIVE-1` của thao tác nhập báo cáo (`createReportImport`) hoặc gõ trực tiếp | Kỳ gần nhất; [khách điền] |
 | Dữ liệu lịch sử | Các kỳ trước | Số liệu theo kỳ | [khách điền: Ban KHĐT chốt phạm vi, PX-08] |
 
 Chuyển đổi chỉ nạp, không thay quy trình: mọi con số nạp vào có nguồn là tệp, mã tệp và dòng.
@@ -34,7 +36,7 @@ Sáu biểu mẫu (mã `PVN-MONTHLY`, `PVN-QUARTERLY-F2`, `HPM-MONTHLY`, `COMMIT
 | Mã dự án (`code`) | Khóa | Mã dự án trong PRJ; mã HPM và EBS vào crosswalk | không | | Nạp danh mục dự án trước |
 | Tên dự án, hạng mục (`name`) | Danh mục | PRJ | không | | Nạp danh mục |
 | Nhóm (`grp`) | Phân loại A/B/C | MDM nhóm và loại dự án | không | | Nạp danh mục |
-| Loại hình, Đơn vị chủ trì (`kind`, `owner_unit`) | Phân loại | MDM loại dự án; đơn vị trong cây tổ chức | không | | Nạp danh mục; loại hình ENT-3e |
+| Loại hình, Đơn vị chủ trì (`kind`, `owner_unit`) | Phân loại | MDM loại dự án (`ENT_PROJECT_TYPE`, ENT-3e); đơn vị trong cây tổ chức của gói `PVFCCO-TEMPLATE` (ENT-3d) | không | | Nạp cây tổ chức trước, rồi danh mục; loại hình theo danh mục enterprise |
 | Tổng mức đầu tư (`tmdt`) | Số liệu | `TOTAL_INVESTMENT` (VND) | `ENT_TOTAL_INVESTMENT` | Triệu đồng trên biểu, đồng trong hệ thống: `scale` MILLION | Nhập từ tệp qua ánh xạ |
 | Kế hoạch vốn năm giao đầu năm (`plan_year`) | Số liệu | `PLAN_YEAR` (VND) | `ENT_PLAN_YEAR` | như trên | Nhập từ tệp; hoặc từ CAP |
 | Kế hoạch vốn năm hiện hành (`plan_force`) | Số liệu | Kế hoạch đang hiệu lực sau điều chỉnh, từ CAP và FND-1 | `ENT_PLAN_IN_FORCE` | như trên | Nạp kế hoạch gốc và các lần điều chỉnh có văn bản |
@@ -46,9 +48,9 @@ Sáu biểu mẫu (mã `PVN-MONTHLY`, `PVN-QUARTERLY-F2`, `HPM-MONTHLY`, `COMMIT
 | Ước thực hiện cả năm (`outlook`) | Dẫn xuất | không nhập | `ENT_OUTLOOK_YEAR` | | Không nạp |
 | Tỷ lệ % so kế hoạch năm, thực hiện, giải ngân, ước cả năm (`rate_exec`, `rate_disb`, `rate_outlook`) | Dẫn xuất | `RATE_YEAR_IN_FORCE`, `RATE_SINCE_START` (DERIVED) | `ENT_RATE_EXECUTED_YTD`, `ENT_RATE_DISBURSED_YTD`, `ENT_RATE_OUTLOOK_YEAR`, `ENT_RATE_SINCE_START` | Phần trăm, hai chữ số | Không nạp; dùng để đối soát tỷ lệ trong tệp với tỷ lệ hệ thống tính |
 | Cơ cấu vốn kế hoạch năm, vốn chủ sở hữu, vốn vay, khác (`cap_equity`, `cap_debt`, `cap_other`) | Số liệu | `EQUITY_CAPITAL`, `LOAN_CAPITAL`, `TOTAL_FUNDING`; nhóm vốn của `FUNDING_TAXONOMY` | `ENT_CAPITAL_EQUITY`, `ENT_CAPITAL_DEBT`, `ENT_CAPITAL_OTHER`; tỷ trọng `ENT_SHARE_*` | như trên | Nhập từ tệp; quy tắc vốn chủ sở hữu cộng vốn vay bằng tổng áp dụng |
-| Tình hình thực hiện, đánh giá tiến độ (`status`, `schedule`) | Văn bản | Thuyết minh; tiến độ vật lý `PHYSICAL_PROGRESS_REPORTED` (PERCENT) nếu có số | không | | Nạp vào thuyết minh khi ENT-3b xong |
-| Nguyên nhân (`cause`) | Văn bản | Danh mục nguyên nhân MDM-17 | không | | Đối chiếu từng câu với danh mục chuẩn; câu không khớp đưa vào ghi chú |
-| Khó khăn vướng mắc và giải pháp, kế hoạch kỳ tới, kiến nghị (`issues`, `next`, `proposal`) | Văn bản | Thuyết minh | không | | Nạp vào thuyết minh |
+| Tình hình thực hiện, đánh giá tiến độ (`status`, `schedule`) | Văn bản | Thuyết minh; tiến độ vật lý `PHYSICAL_PROGRESS_REPORTED` (PERCENT) nếu có số | không | | Nạp vào thuyết minh 8 trường (DIS-35, ENT-3b đã gộp, bảng ánh xạ `ENT-NARRATIVE-1`); tiến độ vật lý nạp bằng chỉ tiêu nếu tệp có số |
+| Nguyên nhân (`cause`) | Văn bản | Danh mục nguyên nhân MDM-17 | không | | Đối chiếu từng câu với danh mục chuẩn (chọn mã trong danh sách MDM-17, kèm văn bản tự do ở trường nguyên nhân); câu không khớp đưa vào ghi chú |
+| Khó khăn vướng mắc và giải pháp, kế hoạch kỳ tới, kiến nghị (`issues`, `next`, `proposal`) | Văn bản | Thuyết minh | không | | Nạp vào thuyết minh (`ENT-NARRATIVE-1`); mỗi trường tối đa 4000 ký tự |
 
 Quy ước: tiền lưu bằng đồng nguyên; biểu mẫu tính bằng triệu đồng nên bảng ánh xạ dùng `scale: MILLION`; số thập phân Việt Nam dùng `number_format: VN` khi tệp viết `1.234,56` (`docs/ind-indicator-dictionary.md`, mục 4). Số không nguyên đồng hoặc quá chính xác bị từ chối kèm dòng và mã (`NUMBER_NOT_WHOLE`, `NUMBER_TOO_PRECISE`).
 
@@ -86,7 +88,9 @@ Theo kế hoạch kiểm thử và chuyển đổi (inventory, profile, mapping 
 | 8 | Đối soát lần cuối và lập biên bản | Mục 6 | Nhà cung cấp, Ban KHĐT | Ban KHĐT |
 | 9 | Hoàn tác nếu sai | `rollbackMigrationBatch` đánh dấu bản ghi INVALID, không xóa | Ban KHĐT duyệt | |
 
-Một lô chuyển đổi đi theo trạng thái `Uploaded`, `Validating`, `DryRunPassed`, `Applying`, `Applied`; lô đã áp dụng giữ người duyệt, số dòng và tổng kiểm (`docs/adm-migration.md`). Bảng ánh xạ chung của nền tảng hiện là `GENERIC-1` và `GENERIC-CHILD-1`; ánh xạ nguồn thật chờ khách (PX-02).
+Một lô chuyển đổi đi theo trạng thái `Uploaded`, `Validating`, `DryRunPassed`, `Applying`, `Applied`; lô đã áp dụng giữ người duyệt, số dòng và tổng kiểm (`docs/adm-migration.md`). Bảng ánh xạ chung của nền tảng là `GENERIC-1` và `GENERIC-CHILD-1`; bản enterprise đăng ký thêm `ORG-PACK-1` (gói tổ chức, nguồn `PVFCCO-TEMPLATE`) và `ENT-NARRATIVE-1` (thuyết minh); bảng nhập chỉ tiêu là quy tắc `INDICATOR_IMPORT_MAPPING` (mục 3). Ánh xạ từ tệp thật của khách vẫn chờ khách (PX-02): chưa có tệp thật thì chưa khai báo và chưa duyệt bảng ánh xạ nguồn.
+
+Thứ tự phụ thuộc khi nạp bản enterprise (mỗi bước chỉ chạy sau bước trước đã được người duyệt khác người đăng ký chấp nhận): (a) gói tổ chức và vai trò `PVFCCO-TEMPLATE` (đơn vị chủ trì phải có trước dự án); (b) danh mục loại dự án, nguồn vốn, đơn vị tính, tỷ giá, nguyên nhân chậm tiến độ (bản ghi chủ và danh mục `ENT_*`); (c) danh mục dự án và ánh xạ mã HPM, EBS (`master_crosswalk`); (d) kế hoạch năm và nguồn kế hoạch; (e) số dư đầu kỳ và các tháng đã qua; (f) thuyết minh kỳ gần nhất. Gói `PVFCCO-TEMPLATE` chỉ chứa tên đơn vị mẫu và hai Tổ dự án mang tên giữ chỗ (`[tên Tổ dự án 1]`, `[tên Tổ dự án 2]`); tên và tài khoản thật do PVFCCo cung cấp, không nằm trong kho mã (PX-05).
 
 Điểm cần lưu ý khi cutover: kỳ vận hành đầu tiên chỉ bắt đầu sau khi biên bản xác nhận chuyển đổi được ký; trước cutover có sao lưu đã thử khôi phục và cửa sổ đóng băng được duyệt (`Design/MACHVON_Design/01_Documents/10_Ke_hoach_kiem_thu_va_chuyen_doi.md`).
 
@@ -99,6 +103,8 @@ Một lô chuyển đổi đi theo trạng thái `Uploaded`, `Validating`, `DryR
 | Lũy kế | Lũy kế hệ thống tính từ số dư đầu kỳ và các tháng bằng lũy kế trong tệp | 0 |
 | Tỷ lệ | Tỷ lệ hệ thống tính bằng tỷ lệ trong tệp, làm tròn hai chữ số | Một đơn vị làm tròn |
 | Cơ cấu vốn | Vốn chủ sở hữu cộng vốn vay cộng khác bằng tổng | 0 |
+| Ánh xạ mã dự án | Mỗi dự án có một mã EBS và một mã HPM đang hiệu lực trong `master_crosswalk`, đều đã duyệt; không mã ngoài nào trùng mã của dự án khác (phần `coverage` của `listProjectCodes`, hiển thị ở INT-03: số dự án, đã ánh xạ, chờ duyệt, xung đột) | 0 dự án thiếu mã |
+| Cây tổ chức và vai trò | Báo cáo kiểm của gói `PVFCCO-TEMPLATE` (ORG-01): không đơn vị mồ côi, mỗi đầu mối đủ ghế nhập và ghế duyệt, không vi phạm tách bạch nhiệm vụ | 0 vi phạm |
 | Đối chiếu EBS | Giải ngân so với bản kê EBS theo mã dự án (EBS-02) | Theo quy tắc `EBS_RECONCILE_POLICY`; chạy trên giả định cho tới khi có PX-04 |
 | Thuyết minh | Mỗi dự án có đủ văn bản từng trường | Kiểm tay |
 
@@ -138,4 +144,4 @@ Chữ ký: Trưởng Ban KHĐT [khách điền]   Nhà cung cấp [khách điề
 3. Số ước và số thực của cùng kỳ: nạp số ước vào đại lượng ước, không nạp vào số thực; phạm vi quản lý số ước chờ Ban KHĐT xác nhận.
 4. Mã HPM và mã EBS từng dự án (PX-14) là điều kiện để đối soát EBS và đẩy HPM chạy đúng.
 
-Lịch sử sửa: v0.1 khung ngày 2026-11-09.
+Lịch sử sửa: v0.1 khung ngày 2026-11-09. v0.2 ngày 2026-11-12 (rà soát bởi làn aud4): thêm các đích nạp đã có của bản enterprise (gói `PVFCCO-TEMPLATE`, `master_crosswalk` cho mã HPM và EBS, danh mục `ENT_*`, nguồn kế hoạch CAP, thuyết minh `ENT-NARRATIVE-1`), thứ tự phụ thuộc khi nạp, hai dòng đối soát mới; giữ nguyên phần chờ khách (PX-02, PX-05, PX-08, PX-14).

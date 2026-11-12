@@ -23,7 +23,7 @@ export const OUTPUT_PATH = 'docs/hskt/TRACEABILITY.md';
 const ENGINEERING = 'Design/MACHVON_Design/03_Engineering';
 
 export const STATUSES = ['DONE', 'PARTIAL', 'MISSING', 'PENDING-EXTERNAL'];
-export const LANES = ['ENT-3a', 'ENT-3b', 'ENT-3c', 'ENT-3d', 'ENT-3e', 'ENT-4a', 'ENT-4b', 'ENT-4c', 'ENT-4d', 'ENT-4e', 'INFRA-2', 'DOC-3', 'DELIVERY-1'];
+export const LANES = ['ENT-3a', 'ENT-3b', 'ENT-3c', 'ENT-3d', 'ENT-3e', 'ENT-4a', 'ENT-4b', 'ENT-4c', 'ENT-4d', 'ENT-4e', 'INFRA-2', 'INT-2', 'DOC-3', 'DELIVERY-1'];
 export const EVIDENCE_KINDS = ['screens', 'operations', 'stories', 'docs', 'tests'];
 
 /** The codes of the dossier: section II.3 (requirements), II.2.3 (the 7 phases) and II.5 (the 11 deliverables). */

@@ -92,6 +92,7 @@ export class ReportSubmitController {
         reopened: judged.reopen !== null,
         version: sealed.version,
       },
+      detail: { before: { status: head.status, payload_hash: head.payloadHash }, after: { status: 'SUBMITTED', is_late: judged.late, deadline_at: judged.deadlineAt, payload_hash: payloadHash, version: sealed.version } },
     });
     await scope.emit({
       aggregateType: REPORT_RESOURCE,

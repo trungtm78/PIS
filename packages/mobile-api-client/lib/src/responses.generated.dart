@@ -120,6 +120,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'captureProjectBaseline': CommandResultResponse.fromJson,
   'certifyDataProduct': CommandResultResponse.fromJson,
   'changeSubscriptionPlan': CommandResultResponse.fromJson,
+  'checkBiPublication': CommandResultResponse.fromJson,
   'checkPaymentIntegrity': PayIntegrityCheckResultResponse.fromJson,
   'checkProjectDisbursement': PayDisbursementCheckResponse.fromJson,
   'checkReport': CommandResultResponse.fromJson,
@@ -761,6 +762,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getProjectEacControl': CapProjectEacControlResponse.fromJson,
   'getProjectEffectiveness': MneProjectEffectivenessResponse.fromJson,
   'getProjectEvm': PrjProjectEvmResponse.fromJson,
+  'getProjectInvestmentProfile': ProjectInvestmentProfileResponse.fromJson,
   'getProjectLifecycle': asObject,
   'getProjectReserve': PrjProjectReserveResponse.fromJson,
   'getProjectRiskSignals': PrjProjectRiskSignalsResponse.fromJson,
@@ -57851,6 +57853,316 @@ final class ProjectDocumentVersionViewResponse implements ResponseModel {
         'open_comments': openComments,
         'created_at': createdAt,
         'created_by_name': createdByName,
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentMilestoneResponse implements ResponseModel {
+  const ProjectInvestmentMilestoneResponse({
+    required this.code,
+    required this.label,
+    required this.sequence,
+    required this.phase,
+    required this.required_,
+    required this.evidenceKinds,
+    required this.state,
+    required this.plannedOn,
+    required this.actualOn,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentMilestoneResponse.fromJson(Object? json, [String path = 'ProjectInvestmentMilestoneResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentMilestoneResponse(
+      code: requiredField(map, path, 'code', asString),
+      label: requiredField(map, path, 'label', asString),
+      sequence: requiredField(map, path, 'sequence', asInt),
+      phase: requiredField(map, path, 'phase', asString),
+      required_: requiredField(map, path, 'required', asBool),
+      evidenceKinds: requiredField(map, path, 'evidence_kinds', asList(asString)),
+      state: requiredField(map, path, 'state', asString),
+      plannedOn: requiredField(map, path, 'planned_on', nullable(asString)),
+      actualOn: requiredField(map, path, 'actual_on', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'label', 'sequence', 'phase', 'required', 'evidence_kinds', 'state', 'planned_on', 'actual_on'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String label;
+  final int sequence;
+  final String phase;
+  final bool required_;
+  final List<String> evidenceKinds;
+  final String state;
+  final String? plannedOn;
+  final String? actualOn;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
+        'sequence': sequence,
+        'phase': phase,
+        'required': required_,
+        'evidence_kinds': evidenceKinds,
+        'state': state,
+        'planned_on': plannedOn,
+        'actual_on': actualOn,
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentProfileResponse implements ResponseModel {
+  const ProjectInvestmentProfileResponse({
+    required this.projectId,
+    required this.planYear,
+    required this.asOf,
+    required this.projectType,
+    required this.startFlag,
+    required this.startYear,
+    required this.startYearBasis,
+    required this.plans,
+    required this.milestones,
+    required this.findings,
+    required this.originSplit,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentProfileResponse.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentProfileResponse(
+      projectId: requiredField(map, path, 'project_id', asString),
+      planYear: requiredField(map, path, 'plan_year', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      projectType: requiredField(map, path, 'project_type', nullable(ProjectInvestmentProfileResponseProjectType.fromJson)),
+      startFlag: requiredField(map, path, 'start_flag', nullable(asString)),
+      startYear: requiredField(map, path, 'start_year', nullable(asInt)),
+      startYearBasis: requiredField(map, path, 'start_year_basis', nullable(asString)),
+      plans: requiredField(map, path, 'plans', asList(ProjectInvestmentProfileResponsePlansItem.fromJson)),
+      milestones: requiredField(map, path, 'milestones', asList(ProjectInvestmentMilestoneResponse.fromJson)),
+      findings: requiredField(map, path, 'findings', asList(asString)),
+      originSplit: requiredField(map, path, 'origin_split', ProjectInvestmentProfileResponseOriginSplit.fromJson),
+      extra: unknownFields(map, path, const <String>{'project_id', 'plan_year', 'as_of', 'project_type', 'start_flag', 'start_year', 'start_year_basis', 'plans', 'milestones', 'findings', 'origin_split'}, strict: true),
+    );
+  }
+
+  final String projectId;
+  final int planYear;
+  final String asOf;
+  final ProjectInvestmentProfileResponseProjectType? projectType;
+  final String? startFlag;
+  final int? startYear;
+  final String? startYearBasis;
+  final List<ProjectInvestmentProfileResponsePlansItem> plans;
+  final List<ProjectInvestmentMilestoneResponse> milestones;
+  final List<String> findings;
+  final ProjectInvestmentProfileResponseOriginSplit originSplit;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'project_id': projectId,
+        'plan_year': planYear,
+        'as_of': asOf,
+        'project_type': (projectType == null ? null : projectType!.toJson()),
+        'start_flag': startFlag,
+        'start_year': startYear,
+        'start_year_basis': startYearBasis,
+        'plans': plans.map((e0) => e0.toJson()).toList(),
+        'milestones': milestones.map((e0) => e0.toJson()).toList(),
+        'findings': findings,
+        'origin_split': originSplit.toJson(),
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentProfileResponseOriginSplit implements ResponseModel {
+  const ProjectInvestmentProfileResponseOriginSplit({
+    required this.totalVnd,
+    required this.groupAssignedVnd,
+    required this.boardApprovedVnd,
+    required this.otherVnd,
+    required this.origins,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentProfileResponseOriginSplit.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponseOriginSplit']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentProfileResponseOriginSplit(
+      totalVnd: requiredField(map, path, 'total_vnd', asString),
+      groupAssignedVnd: requiredField(map, path, 'group_assigned_vnd', asString),
+      boardApprovedVnd: requiredField(map, path, 'board_approved_vnd', asString),
+      otherVnd: requiredField(map, path, 'other_vnd', asString),
+      origins: requiredField(map, path, 'origins', asList(ProjectInvestmentProfileResponseOriginSplitOriginsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'total_vnd', 'group_assigned_vnd', 'board_approved_vnd', 'other_vnd', 'origins'}, strict: true),
+    );
+  }
+
+  final String totalVnd;
+  final String groupAssignedVnd;
+  final String boardApprovedVnd;
+  final String otherVnd;
+  final List<ProjectInvestmentProfileResponseOriginSplitOriginsItem> origins;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'total_vnd': totalVnd,
+        'group_assigned_vnd': groupAssignedVnd,
+        'board_approved_vnd': boardApprovedVnd,
+        'other_vnd': otherVnd,
+        'origins': origins.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentProfileResponseOriginSplitOriginsItem implements ResponseModel {
+  const ProjectInvestmentProfileResponseOriginSplitOriginsItem({
+    required this.origin,
+    required this.amountVnd,
+    required this.lines,
+    required this.decisions,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentProfileResponseOriginSplitOriginsItem.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponseOriginSplitOriginsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentProfileResponseOriginSplitOriginsItem(
+      origin: requiredField(map, path, 'origin', asString),
+      amountVnd: requiredField(map, path, 'amount_vnd', asString),
+      lines: requiredField(map, path, 'lines', asInt),
+      decisions: requiredField(map, path, 'decisions', asList(ProjectInvestmentProfileResponseOriginSplitOriginsItemDecisionsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'origin', 'amount_vnd', 'lines', 'decisions'}, strict: true),
+    );
+  }
+
+  final String origin;
+  final String amountVnd;
+  final int lines;
+  final List<ProjectInvestmentProfileResponseOriginSplitOriginsItemDecisionsItem> decisions;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'origin': origin,
+        'amount_vnd': amountVnd,
+        'lines': lines,
+        'decisions': decisions.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentProfileResponseOriginSplitOriginsItemDecisionsItem implements ResponseModel {
+  const ProjectInvestmentProfileResponseOriginSplitOriginsItemDecisionsItem({
+    required this.kind,
+    required this.symbol,
+    required this.issuedOn,
+    required this.authority,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentProfileResponseOriginSplitOriginsItemDecisionsItem.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponseOriginSplitOriginsItemDecisionsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentProfileResponseOriginSplitOriginsItemDecisionsItem(
+      kind: requiredField(map, path, 'kind', nullable(asString)),
+      symbol: requiredField(map, path, 'symbol', asString),
+      issuedOn: requiredField(map, path, 'issued_on', nullable(asString)),
+      authority: requiredField(map, path, 'authority', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'kind', 'symbol', 'issued_on', 'authority'}, strict: true),
+    );
+  }
+
+  final String? kind;
+  final String symbol;
+  final String? issuedOn;
+  final String? authority;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        'symbol': symbol,
+        'issued_on': issuedOn,
+        'authority': authority,
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentProfileResponsePlansItem implements ResponseModel {
+  const ProjectInvestmentProfileResponsePlansItem({
+    required this.planCode,
+    required this.status,
+    required this.revision,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentProfileResponsePlansItem.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponsePlansItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentProfileResponsePlansItem(
+      planCode: requiredField(map, path, 'plan_code', nullable(asString)),
+      status: requiredField(map, path, 'status', asString),
+      revision: requiredField(map, path, 'revision', asInt),
+      extra: unknownFields(map, path, const <String>{'plan_code', 'status', 'revision'}, strict: true),
+    );
+  }
+
+  final String? planCode;
+  final String status;
+  final int revision;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'plan_code': planCode,
+        'status': status,
+        'revision': revision,
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentProfileResponseProjectType implements ResponseModel {
+  const ProjectInvestmentProfileResponseProjectType({
+    required this.code,
+    required this.label,
+    required this.kind,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentProfileResponseProjectType.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponseProjectType']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentProfileResponseProjectType(
+      code: requiredField(map, path, 'code', asString),
+      label: requiredField(map, path, 'label', asString),
+      kind: requiredField(map, path, 'kind', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'code', 'label', 'kind'}, strict: true),
+    );
+  }
+
+  final String code;
+  final String label;
+  final String? kind;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'label': label,
+        'kind': kind,
         ...extra,
       };
 }

@@ -49,6 +49,7 @@ describe('the demo forms stand on the frozen enterprise snapshot of the period (
     const text = await response.text();
     return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>) };
   }
+  const rowsOf = <R extends object>(sql: string): Promise<R[]> => harness.owner<R>(TENANT_A, [[sql, []]]);
   const generate = (reason?: string): Promise<Reply> => call('POST', '/report-engine/drafts', { member: PREPARER, body: { layout_code: 'PVN-MONTHLY', period: MONTH, ...(reason === undefined ? {} : { reason }) } });
 
   async function seed(statements: Array<[string, unknown[]]>): Promise<void> {
@@ -160,5 +161,35 @@ describe('the demo forms stand on the frozen enterprise snapshot of the period (
     expect(made.status).toBe(200);
     const draft = (await call('GET', `/report-engine/drafts/${made.json.draft_id as string}`, { member: PREPARER })).json;
     expect(draft).toMatchObject({ data_source: 'LIVE', snapshot: { snapshot_id: newer, revision: 2 } });
+  });
+  it('lays the words of the unit, accepted for the period, out in the Word document, and a draft or a handed-in report adds nothing (CN.02, CN.03)', async () => {
+    const reportId = randomUUID();
+    const planId = randomUUID();
+    const periodRow = (await rowsOf<{ id: string }>("select id from machvon.reporting_period where calendar_code = 'ENTERPRISE' and start_date = '2026-10-01' order by created_at limit 1"))[0] as { id: string };
+    await seed([
+      [
+        `insert into machvon.report_revision (tenant_id, id, project_id, period_id, plan_version_id, revision, status, is_current, version, payload_hash, report_type, measurement_basis, created_by, updated_by, submitted_by, submitted_at)
+         values ($1, $2, $3, $4, $5, 1, 'SUBMITTED', false, 1, $6, 'MONTHLY', 'YTD', $7, $7, $7, now())`,
+        [TENANT_A, reportId, projectId, periodRow.id, planId, 'd'.repeat(64), memberId(PREPARER)],
+      ],
+      [
+        `insert into machvon.report_narrative (tenant_id, id, report_revision_id, created_by, updated_by, pack_code, pack_version, pack_fields, cause_codes, directive_refs)
+         values ($1, gen_random_uuid(), $2, $3, $3, 'ENTERPRISE', 1, $4::jsonb, ARRAY[]::text[], '[]'::jsonb)`,
+        [TENANT_A, reportId, memberId(PREPARER), JSON.stringify({ status: 'The works of the project follow the schedule', difficulties: 'The site is not yet handed over' })],
+      ],
+    ]);
+    const wordsOf = async (reason: string): Promise<string> => {
+      const made = await generate(reason);
+      expect(made.status).toBe(200);
+      const draft = (await call('GET', `/report-engine/drafts/${made.json.draft_id as string}`, { member: PREPARER })).json;
+      return JSON.stringify((draft.preview as { narrative: unknown }).narrative);
+    };
+    // Handed in is not accepted: the form carries nothing of it.
+    expect(await wordsOf('The report of the unit was handed in')).not.toContain('The works of the project follow the schedule');
+    await seed([[`update machvon.report_revision set status = 'ACCEPTED', is_current = true, accepted_by = $2, accepted_at = now() where id = $1`, [reportId, memberId(READER)]]]);
+    const accepted = await wordsOf('The unit approver accepted the report of the project');
+    expect(accepted).toContain('The works of the project follow the schedule');
+    expect(accepted).toContain('The site is not yet handed over');
+    expect(accepted).toContain('SNAP-PRJ-1');
   });
 });

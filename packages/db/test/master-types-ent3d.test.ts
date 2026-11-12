@@ -40,6 +40,14 @@ describe('the shared catalogues of the report chain (MD.03, ENT-3d)', () => {
       expect(await problem('RECEIVING_AGENCY', 'PVN', content({ agency_kind: 'PARENT_GROUP', report_type_keys: ['NO_SUCH'], channel: 'HPM' }))).toBe('attributes.report_type_keys');
       expect(await problem('RECEIVING_AGENCY', 'PVN', content({ agency_kind: 'PARENT_GROUP', channel: 'PIGEON' }))).toBe('attributes.channel');
     });
+
+    it('may carry the code its deliveries are logged under (MD.03, the report catalogue)', async () => {
+      const agency = (receiver: unknown) => content({ agency_kind: 'COMMITTEE', channel: 'FILE', report_type_keys: ['MONTHLY_PVN'], receiver_code: receiver });
+      expect(await problem('RECEIVING_AGENCY', 'UB_DTPT_KHCN', agency('UB-DTPT-KHCN'))).toBeUndefined();
+      expect(await problem('RECEIVING_AGENCY', 'UB_DTPT_KHCN', agency('ub dtpt'))).toBe('attributes.receiver_code');
+      expect(await problem('RECEIVING_AGENCY', 'UB_DTPT_KHCN', agency(''))).toBe('attributes.receiver_code');
+      expect(await problem('RECEIVING_AGENCY', 'UB_DTPT_KHCN', agency('A'.repeat(61)))).toBe('attributes.receiver_code');
+    });
   });
 
   describe('CAPITAL_SOURCE and REPORT_UNIT', () => {

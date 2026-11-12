@@ -55,6 +55,21 @@ export async function applyReportDecision(
       payload_hash: detail.payloadHash,
       version: done.version,
     },
+    // HT.06: with the tenant's opt-in for the class, the audit keeps the whole decision, the words of the reason included (they are redacted and bounded by the policy like every detail).
+    detail: {
+      before: { status: head.status, payload_hash: detail.payloadHash },
+      after: {
+        status: outcome,
+        decision: outcome,
+        reason: input.reason,
+        evidence_count: input.evidenceIds.length,
+        items_count: input.returnItems.length,
+        due_at: input.dueAt?.toISOString() ?? null,
+        superseded_report_id: done.supersededId,
+        payload_hash: detail.payloadHash,
+        version: done.version,
+      },
+    },
   });
   await effects.emit({
     aggregateType: REPORT_RESOURCE,

@@ -1,0 +1,2579 @@
+{
+  "feature": "dir",
+  "generated_at": "2026-11-12T05:18:23.660Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/dir/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-PLAN-132",
+      "title": "UAT-PLAN-132: createSteeringMeeting dated 2026-11-09",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01, FR-DIR-02; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-132 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-132 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-01",
+        "COV-FR-DIR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Today 2026-11-08; unit U-1 chairs; one infected file and one clean file.\n1. createSteeringMeeting dated 2026-11-09\n2. attachMeetingMinutes with the infected file\n3. createSteeringMeeting dated today with the clean file\n4. createSteeringMeeting again the same day",
+      "expected": "Step 1: 422 VALIDATION_FAILED; step 2: 422 DECISION_DOCUMENT_REQUIRED; step 3: code GB-2026-001; step 4: GB-2026-002.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-133",
+      "title": "UAT-PLAN-133: addDirective due 2026-10-30",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01, FR-DIR-02; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-133 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-133 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-01",
+        "COV-FR-DIR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Meeting GB-2026-001 dated 2026-11-01; project P-1 and unit U-2.\n1. addDirective due 2026-10-30\n2. addDirective for P-1 and U-2 together\n3. addDirective for P-1 due 2026-11-20\n4. Edit the directive text",
+      "expected": "Steps 1-2: 422 VALIDATION_FAILED; step 3: created for P-1 only; step 4: rejected, a new directive is the only way to change the instruction.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UI-DIR-01",
+      "title": "Các cuộc giao ban đầu tư (DIR-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01; kỳ vọng nguyên văn của ca thiết kế UI-DIR-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình DIR-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIR-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Các cuộc giao ban đầu tư; user có quyền và user chỉ đọc; route DIR-01\n1. Mở DIR-01 từ menu và deep link; kiểm nhãn trường: Mã cuộc giao ban, Ngày, Loại, Đơn vị chủ trì, Biên bản, Số chỉ đạo, Quá hạn\n2. Thực hiện thao tác chính theo quy tắc: Ngày giao ban không ở tương lai; mã GB-năm-số đánh theo năm; biên bản là phiên bản tệp của tenant không nhiễm mã độc\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-01",
+      "expected": "Các cuộc giao ban đầu tư: hiển thị đúng 7 trường, áp quy tắc \"Ngày giao ban không ở tương lai; mã GB-năm-số đánh theo năm; biên bản là phiên bản tệp của tenant không nhiễm mã độc\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UI-DIR-02",
+      "title": "Chi tiết cuộc giao ban và các chỉ đạo đã giao (DIR-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-02",
+      "oracle_source": "Claim → FR-DIR-02; kỳ vọng nguyên văn của ca thiết kế UI-DIR-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình DIR-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Chi tiết cuộc giao ban và các chỉ đạo đã giao; user có quyền và user chỉ đọc; route DIR-02\n1. Mở DIR-02 từ menu và deep link; kiểm nhãn trường: Cuộc giao ban, Biên bản, Chỉ đạo, Về dự án hoặc đơn vị, Đơn vị thực hiện, Người thực hiện, Hạn, Trạng thái\n2. Thực hiện thao tác chính theo quy tắc: Mỗi chỉ đạo về đúng một dự án hoặc một đơn vị, có đơn vị thực hiện và hạn không trước ngày họp; chỉ đạo ghi lại không sửa nội dung\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-02",
+      "expected": "Chi tiết cuộc giao ban và các chỉ đạo đã giao: hiển thị đúng 8 trường, áp quy tắc \"Mỗi chỉ đạo về đúng một dự án hoặc một đơn vị, có đơn vị thực hiện và hạn không trước ngày họp; chỉ đạo ghi lại không sửa nội dung\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIR-02",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-134",
+      "title": "UAT-PLAN-134: listDirectives on 2026-11-08",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-03",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-134 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-134 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Directives D1 due 2026-11-05 and D2 due 2026-11-12, both open, unit U-1; reader of unit U-2.\n1. listDirectives on 2026-11-08\n2. getDirectiveSummary\n3. listDirectives on 2026-11-13\n4. U-2 reader lists directives",
+      "expected": "Step 1: D1 overdue first; step 2: counts equal rows; step 3: D2 overdue; step 4: no rows of U-1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-135",
+      "title": "UAT-PLAN-135: Advance to 2026-11-17",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-03",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-135 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-135 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Directive D3 due 2026-11-20 assigned to X in unit U-1 with leader L; escalate_after_overdue_days 7.\n1. Advance to 2026-11-17\n2. Advance to 2026-11-21\n3. Advance to 2026-11-27",
+      "expected": "Step 1: item in X work list as ACTION; step 2: overdue; step 3: URGENT and visible to L once.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UI-DIR-03",
+      "title": "Bảng theo dõi chỉ đạo (DIR-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-03",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03; kỳ vọng nguyên văn của ca thiết kế UI-DIR-03 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình DIR-03 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Bảng theo dõi chỉ đạo; user có quyền và user chỉ đọc; route DIR-03\n1. Mở DIR-03 từ menu và deep link; kiểm nhãn trường: Trạng thái, Đơn vị thực hiện, Quá hạn trước, Hạn, Dự án, Cuộc giao ban, Số theo trạng thái, Đã nâng cấp\n2. Thực hiện thao tác chính theo quy tắc: Quá hạn là chỉ đạo chưa đóng quá ngày hạn, tính theo đồng hồ trong ngày, không lưu; số liệu có công thức, nguồn và thời điểm\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-03",
+      "expected": "Bảng theo dõi chỉ đạo: hiển thị đúng 8 trường, áp quy tắc \"Quá hạn là chỉ đạo chưa đóng quá ngày hạn, tính theo đồng hồ trong ngày, không lưu; số liệu có công thức, nguồn và thời điểm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-136",
+      "title": "UAT-PLAN-136: G closes D-1",
+      "type": "RED",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-04",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-136 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-136 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Directive D-1 recorded by G, executor X, closer C holds directive.close.\n1. G closes D-1\n2. X closes D-1\n3. C closes D-1 with no evidence\n4. C closes D-1 with an evidence file",
+      "expected": "Steps 1-2: 403 SELF_APPROVAL_DENIED; step 3: 422 DIRECTIVE_EVIDENCE_REQUIRED; step 4: CLOSED with the evidence and the closer in history.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "design-case",
+        "security",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-137",
+      "title": "UAT-PLAN-137: requestDirectiveExtension on D-2",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-04",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-137 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-137 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Policy max_extensions 2, max_extension_days 15; directive D-2 with 2 granted extensions; directive D-3 with a pending request by X.\n1. requestDirectiveExtension on D-2\n2. requestDirectiveExtension of 30 days on D-4\n3. X decides own request on D-3\n4. closeDirective D-3",
+      "expected": "Step 1: 422 DIRECTIVE_EXTENSION_LIMIT; step 2: 422 DIRECTIVE_EXTENSION_INVALID; step 3: 403 SELF_APPROVAL_DENIED; step 4: 409 DIRECTIVE_EXTENSION_PENDING.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-138",
+      "title": "UAT-PLAN-138: reopenDirective D-5 with a reason",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-04",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-138 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-138 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Directive D-5 CLOSED; directive D-6 OPEN.\n1. reopenDirective D-5 with a reason\n2. reopenDirective D-6\n3. Direct SQL UPDATE and DELETE of a D-5 history row",
+      "expected": "Step 1: OPEN again with a history row; step 2: 409 DIRECTIVE_STATE_INVALID; step 3: both rejected by the database.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UI-DIR-04",
+      "title": "Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng (DIR-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-04",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; kỳ vọng nguyên văn của ca thiết kế UI-DIR-04 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình DIR-04 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng; user có quyền và user chỉ đọc; route DIR-04\n1. Mở DIR-04 từ menu và deep link; kiểm nhãn trường: Nội dung chỉ đạo, Đơn vị và người thực hiện, Hạn gốc và hạn hiện tại, Dòng thời gian, Tiến độ, Đề nghị gia hạn, Bằng chứng, Đóng chỉ đạo\n2. Thực hiện thao tác chính theo quy tắc: Đóng cần bằng chứng và người đóng khác người ghi chỉ đạo và người thực hiện; gia hạn có lý do, người duyệt khác người đề nghị, trong số ngày và số lần chính sách cho phép; lịch sử không sửa\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-04",
+      "expected": "Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng: hiển thị đúng 8 trường, áp quy tắc \"Đóng cần bằng chứng và người đóng khác người ghi chỉ đạo và người thực hiện; gia hạn có lý do, người duyệt khác người đề nghị, trong số ngày và số lần chính sách cho phép; lịch sử không sửa\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-139",
+      "title": "UAT-PLAN-139: getDirectivesForReport 2026-W44",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-05",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-05",
+      "oracle_source": "Claim → FR-DIR-05; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-139 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-139 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Period 2026-W44 ends 2026-11-01; directive D-7 due 2026-11-01 closed 2026-11-03; directive D-8 closed 2026-10-30.\n1. getDirectivesForReport 2026-W44",
+      "expected": "D-7 overdue and not done at period end, D-8 done; totals by state equal row count; latest note shown for each.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-05",
+      "story_ids": [
+        "ST-DIR-004"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UI-DIR-05",
+      "title": "Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau (DIR-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-05",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-05",
+      "oracle_source": "Claim → FR-DIR-05; kỳ vọng nguyên văn của ca thiết kế UI-DIR-05 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình DIR-05 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau; user có quyền và user chỉ đọc; route DIR-05\n1. Mở DIR-05 từ menu và deep link; kiểm nhãn trường: Kỳ, Số theo trạng thái cuối kỳ, Chỉ đạo giao trong kỳ, Đã đóng trong kỳ, Đã gia hạn trong kỳ, Còn mở cuối kỳ, Quá hạn cuối kỳ, Ghi chú mới nhất\n2. Thực hiện thao tác chính theo quy tắc: Trạng thái cuối kỳ dựng lại từ dòng thời gian; chỉ đạo đến hạn đúng ngày cuối kỳ mà chưa đóng tính là quá hạn cuối ngày; số liệu cộng khớp với danh sách\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên DIR-05",
+      "expected": "Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau: hiển thị đúng 8 trường, áp quy tắc \"Trạng thái cuối kỳ dựng lại từ dòng thời gian; chỉ đạo đến hạn đúng ngày cuối kỳ mà chưa đóng tính là quá hạn cuối ngày; số liệu cộng khớp với danh sách\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIR-05",
+      "story_ids": [
+        "ST-DIR-004"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-140",
+      "title": "UAT-PLAN-140: Open DIR-06 Assigned to me offline",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-06",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-06",
+      "oracle_source": "Claim → FR-DIR-06; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-140 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-140 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIR-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Device synced 2026-11-07 18:00; directive D-9 overdue on the server; user assigned 3 directives.\n1. Open DIR-06 Assigned to me offline\n2. Open Overdue\n3. Open the timeline of D-9",
+      "expected": "Counts 3 and the overdue count equal rows; data time shown with a not-latest notice; no action buttons.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-06",
+      "story_ids": [
+        "ST-DIR-005"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UI-DIR-06",
+      "title": "Chỉ đạo giao ban trên điện thoại (DIR-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dir-secretary",
+      "journey_ref": "J-FR-DIR-06",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-06",
+      "oracle_source": "Claim → FR-DIR-06; kỳ vọng nguyên văn của ca thiết kế UI-DIR-06 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình DIR-06 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-DIR-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: TNT-A; người dùng có quyền xem DIR-06; dữ liệu synthetic theo fixture\n1. Mở màn hình trên thiết bị 390×844 và 360×800\n2. Kiểm 7 trạng thái chuẩn cộng offline và quyền camera/push bị từ chối\n3. Kiểm vùng chạm ≥44 pt/48 dp, dynamic type 200% và trình đọc màn hình",
+      "expected": "DIR-06 hiển thị đúng quyền, trạng thái và theo mockup; không có dữ liệu ngoài phạm vi",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "DIR-06",
+      "story_ids": [
+        "ST-DIR-005"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-DIR-E2E-01",
+      "title": "Thư ký giao chỉ đạo, người nhận báo tiến độ và xin gia hạn, người khác quyết định, người thứ ba đóng kèm bằng chứng; mỗi bước có dòng kiểm toán và dòng thời gian giữ đủ",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-DIR-LIFECYCLE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03, FR-DIR-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Một bước của vòng đời không để lại dòng kiểm toán, hoặc dòng thời gian thiếu sự kiện",
+      "coverage_ids": [
+        "COV-FR-DIR-03",
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, edition enterprise; dự án P; đơn vị thực hiện U; tệp biên bản và bằng chứng CLEAN; thư ký, người nhận, người quyết định, người đóng là bốn người khác nhau\n1. Thư ký ghi cuộc họp và giao chỉ đạo hạn 5 ngày\n2. Người nhận báo tiến độ 30 phần trăm kèm bằng chứng\n3. Người nhận xin gia hạn đến 20 ngày\n4. Người quyết định duyệt (If-Match là phiên bản của yêu cầu)\n5. Người đóng đóng chỉ đạo kèm bằng chứng và ghi chú\n6. Người đọc xem chi tiết chỉ đạo",
+      "expected": "Chỉ đạo chuyển OPEN, IN_PROGRESS, EXTENSION_REQUESTED, hạn mới đến ngày 20 (APPROVED), DONE; có dòng kiểm toán directive.progress_recorded, directive.extension_approved, directive.closed với reason là ghi chú; sự kiện directive.extension_decided.v1 và directive.closed.v1; dòng thời gian CREATED, PROGRESS, EXTENSION_REQUESTED, EXTENSION_APPROVED, CLOSED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-001",
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR",
+      "db_assert": {
+        "query": "SELECT status FROM machvon.directive WHERE code LIKE 'GB-%/CD-01'",
+        "expect": {
+          "value": "DONE"
+        }
+      },
+      "audit_assert": {
+        "entity": "directive",
+        "entity_id": "<id chỉ đạo>",
+        "action": "directive.closed",
+        "fields": [
+          "actor_id",
+          "reason",
+          "occurred_at"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-IDM-01",
+      "title": "Ghi cùng cuộc họp hai lần với cùng Idempotency-Key trả đúng kết quả lần đầu; cùng khóa khác nội dung bị từ chối 409",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-DIR-LIFECYCLE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Gửi lại tạo cuộc họp thứ hai với mã GB trùng hoặc lệch số thứ tự",
+      "coverage_ids": [
+        "COV-FR-DIR-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; thư ký có directive.meeting.manage\n1. POST /steering-meetings với khóa k\n2. Lặp lại cùng nội dung và khóa\n3. Lặp lại cùng khóa với tiêu đề khác",
+      "expected": "Lần 2: cùng resource_id và mã GB-năm-số; đúng 1 dòng steering_meeting và 1 dòng kiểm toán directive.meeting_created. Lần 3: 409.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR",
+      "idempotency": {
+        "url": "/steering-meetings",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "meeting_date": "<hôm qua>",
+          "meeting_type": "MONTHLY",
+          "title": "Giao ban tháng"
+        },
+        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE title = 'Giao ban tháng'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-IDM-02",
+      "title": "Năm cuộc họp giống hệt gửi cùng lúc với một khóa chỉ tạo một cuộc họp với một mã",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-DIR-LIFECYCLE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Hai lệnh đồng thời cùng cấp một mã GB hoặc tạo hai cuộc họp",
+      "coverage_ids": [
+        "COV-FR-DIR-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; thư ký có directive.meeting.manage\n1. Gửi cùng lúc năm yêu cầu POST /steering-meetings giống hệt, cùng Idempotency-Key\n2. Đếm steering_meeting",
+      "expected": "Mọi yêu cầu trả 200 hoặc 409 (không 5xx), ít nhất một 200 và mọi 200 cùng resource_id; đúng một dòng steering_meeting.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR",
+      "idempotency": {
+        "url": "/steering-meetings",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "meeting_date": "<4 ngày trước>",
+          "meeting_type": "WEEKLY",
+          "title": "Giao ban đồng thời"
+        },
+        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE title = 'Giao ban đồng thời'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-EDG-01",
+      "title": "Ngày giao ban ở tương lai, trường ngoài hợp đồng, biên bản nhiễm mã độc, hạn quá 30 ngày trong quá khứ và tiến độ trên 100 bị từ chối, không ghi gì",
+      "type": "EDGE",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-DIR-LIFECYCLE-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01, FR-DIR-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Cho ghi cuộc họp ngày chưa tới hoặc nhận tệp chưa quét sạch",
+      "coverage_ids": [
+        "COV-FR-DIR-01",
+        "COV-FR-DIR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; biên bản INFECTED; thư ký\n1. Ghi cuộc họp ngày mai\n2. Ghi với trường tenant_id\n3. Ghi với biên bản INFECTED\n4. Giao chỉ đạo hạn trước 31 ngày\n5. Báo tiến độ 101",
+      "expected": "Bước 1: 422 VALIDATION_FAILED. Bước 2: 400 FIELD_NOT_ALLOWED. Bước 3: 422 DECISION_DOCUMENT_REQUIRED. Bước 4: 422 VALIDATION_FAILED. Bước 5: 422. Số cuộc họp không đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SOD-01",
+      "title": "Người ghi chỉ đạo không đóng chỉ đạo đó (403 SELF_APPROVAL_DENIED); không ai tự quyết định yêu cầu gia hạn của mình; người không có quyền bị từ chối",
+      "type": "RED",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-DIR-LIFECYCLE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Người giao việc tự đóng, hoặc người xin gia hạn tự duyệt",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; chỉ đạo do thư ký ghi; người dual giữ directive.progress và directive.extension.decide\n1. Thư ký đóng chỉ đạo\n2. Người nhận và người đọc đóng chỉ đạo\n3. dual xin gia hạn rồi tự duyệt",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: 403. Bước 3: 403 SELF_APPROVAL_DENIED, không dòng kiểm toán directive.extension_approved; chỉ đạo chưa DONE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-DIR-STA-01",
+      "title": "Các bước bất hợp lệ bị chặn: đóng lần hai, mở lại chỉ đạo đang mở, xin gia hạn thứ hai khi một yêu cầu đang chờ, quyết định lần hai, phiên bản cũ",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-DIR-LIFECYCLE-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Máy trạng thái của chỉ đạo cho đi lùi hoặc lặp bước",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; chỉ đạo OPEN\n1. Mở lại chỉ đạo đang OPEN\n2. Xin gia hạn rồi xin lần hai\n3. Quyết định với phiên bản 9, rồi đúng, rồi lần hai\n4. Đóng, đóng lần hai, đóng với phiên bản 1",
+      "expected": "Mở lại: 409. Xin lần hai: 409 DIRECTIVE_EXTENSION_PENDING. Phiên bản 9: 409 VERSION_CONFLICT; quyết định lần hai: 409 DIRECTIVE_EXTENSION_STATE_INVALID. Đóng lần hai: 409 DIRECTIVE_STATE_INVALID; phiên bản cũ: 409.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR",
+      "transition": {
+        "from": "DONE",
+        "to": "DONE",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-STA-02",
+      "title": "Hủy chỉ đạo cần lý do và phiên bản, chỉ đạo đã hủy không nhận tiến độ, mở lại đưa về OPEN; mỗi bước có kiểm toán và sự kiện",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-DIR-LIFECYCLE-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Chỉ đạo đã hủy vẫn nhận báo cáo tiến độ, hoặc hủy không ghi lý do",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; chỉ đạo OPEN phiên bản 1\n1. Hủy với phiên bản 7\n2. Hủy với lý do và phiên bản 1\n3. Người nhận báo tiến độ\n4. Thư ký mở lại với phiên bản 2",
+      "expected": "Bước 1: 409 VERSION_CONFLICT. Bước 2: CANCELLED, phiên bản 2, kiểm toán directive.cancelled có reason. Bước 3: 409. Bước 4: OPEN, phiên bản 3, sự kiện directive.reopened.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR",
+      "audit_assert": {
+        "entity": "directive",
+        "entity_id": "<id chỉ đạo>",
+        "action": "directive.cancelled",
+        "fields": [
+          "actor_id",
+          "reason"
+        ],
+        "expect_rows": 1
+      },
+      "transition": {
+        "from": "CANCELLED",
+        "to": "IN_PROGRESS",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-DAT-01",
+      "title": "Chỉ đạo quá hạn là kết quả của đồng hồ chứ không phải cờ lưu: xếp trước, số quá hạn đúng, và các số của tổng hợp cộng đúng bằng danh sách",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "dir-reader",
+      "journey_ref": "J-DIR-BOARD-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03, FR-DIR-05; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Cờ quá hạn lưu sai khi đồng hồ chạy; tổng hợp lệch danh sách",
+      "coverage_ids": [
+        "COV-FR-DIR-03",
+        "COV-FR-DIR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; hai chỉ đạo: một hạn trước 10 ngày, một hạn sau 2 ngày\n1. Đọc GET /directives?meeting_id=...\n2. Đọc cột status của bảng directive\n3. Đọc GET /directives/summary và danh sách",
+      "expected": "Chỉ đạo quá hạn đứng đầu với status OVERDUE, stored_status OPEN, overdue_days 10; bảng lưu OPEN; tổng by_status cộng bằng total và bằng số dòng danh sách; số OVERDUE khớp.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002",
+        "ST-DIR-004"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR",
+      "db_assert": {
+        "query": "SELECT status FROM machvon.directive WHERE due_on < current_date AND status = 'OPEN' LIMIT 1",
+        "expect": {
+          "min_rows": 1
+        }
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-ISO-01",
+      "title": "Thành viên tenant khác nhận 404 như id không tồn tại cho chỉ đạo và cuộc họp của tenant này, không hủy được, và đọc danh sách rỗng",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "dir-reader",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Lộ hoặc sửa được chỉ đạo của tenant khác (IDOR)",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có chỉ đạo D và cuộc họp M; tenant B có thư ký\n1. Tenant B đọc GET /directives/{D}\n2. Đọc id ngẫu nhiên\n3. Đọc GET /steering-meetings/{M}\n4. Gọi POST /directives/{D}/cancellation\n5. Đọc GET /directives",
+      "expected": "Bước 1 và 2 cùng 404 và cùng mã; bước 3 và 4: 404; bước 5: rỗng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/dir.uat.test.ts"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/{id}",
+        "method": "GET",
+        "allow": [
+          "dir-reader",
+          "dir-secretary"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "assignee",
+          "timeline"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SCP-01",
+      "title": "Người đọc chỉ có quyền trên một đơn vị khác không thấy chỉ đạo nào và tổng hợp bằng 0",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-reader",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đọc chỉ đạo của đơn vị ngoài phạm vi grant",
+      "coverage_ids": [
+        "COV-FR-DIR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; người ngoài có directive.read trên đơn vị khác (UNIT_ONLY)\n1. Đọc GET /directives\n2. Đọc GET /directives/summary\n3. Đọc chi tiết một chỉ đạo ngoài phạm vi",
+      "expected": "Danh sách rỗng, total 0, chi tiết 404.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Suite hiện dùng grant theo cả tenant; ca phạm vi đơn vị cần grant UNIT_ONLY (đã có ở apps/api/test/dir/directive.test.ts), chưa nối vào world của UAT"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives",
+        "method": "GET",
+        "allow": [
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ],
+        "must_not_contain": [
+          "assignee"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-E2E-02",
+      "title": "Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau: số đếm cộng bằng danh sách, trạng thái cuối kỳ dựng lại từ dòng thời gian, kỳ không tồn tại bị từ chối",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "dir-reader",
+      "journey_ref": "J-DIR-REPORT-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-05",
+      "oracle_source": "Claim → FR-DIR-05; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Trạng thái cuối kỳ lấy theo trạng thái hiện tại thay vì dựng lại từ dòng thời gian",
+      "coverage_ids": [
+        "COV-FR-DIR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; kỳ tuần đã khóa; chỉ đạo mở trong kỳ, đóng sau kỳ\n1. Đọc GET /directives/for-report cho kỳ\n2. So với danh sách\n3. Đọc cho kỳ không có",
+      "expected": "Chỉ đạo đóng sau kỳ vẫn là OPEN ở cuối kỳ; tổng cộng đúng; kỳ không có: 422 hoặc 404 theo hợp đồng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-05",
+      "story_ids": [
+        "ST-DIR-004"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần kỳ báo cáo và đồng hồ giả; suite hiện chưa dựng kỳ báo cáo cho DIR"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-DIR-PWA-01",
+      "title": "Lãnh đạo xem chỉ đạo trên điện thoại (PWA 360 px): giao cho tôi, quá hạn, chỉ đọc, không cuộn ngang, số ngày quá hạn do máy chủ tính",
+      "type": "UX",
+      "platform": "web",
+      "persona": "dir-reader",
+      "journey_ref": "J-DIR-PWA-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-06",
+      "oracle_source": "Claim → FR-DIR-06; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Màn điện thoại cho sửa chỉ đạo, tràn ngang ở 360 px, hoặc tính số ngày quá hạn trên máy khách",
+      "coverage_ids": [
+        "COV-FR-DIR-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise, PWA đã cài; người đọc có chỉ đạo giao cho mình và chỉ đạo quá hạn\n1. Mở PWA-04 ở 360 x 780\n2. Lọc \"giao cho tôi\" và \"quá hạn\"\n3. Mở PWA-06\n4. Đổi múi giờ máy sang UTC-12 và mở lại",
+      "expected": "Danh sách một cột không cuộn ngang; không có nút ghi; số ngày quá hạn giữ nguyên khi đổi múi giờ; lịch sử không sửa được.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIR-06",
+      "story_ids": [
+        "ST-DIR-005",
+        "ST-PWA-003"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần trình duyệt di động giả lập trên bản enterprise; có sẵn apps/web/e2e/pwa-flows.spec.ts nhưng không đặt tên theo mã ca"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-DIR-PRF-01",
+      "title": "Bảng theo dõi chỉ đạo trả lời trong 5 giây ở phân vị 95 với 2.000 chỉ đạo",
+      "type": "PERFORMANCE",
+      "platform": "api",
+      "persona": "dir-reader",
+      "journey_ref": "J-DIR-BOARD-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Yêu cầu của khách: mọi chức năng phản hồi dưới 5 giây, đo bằng phân vị 95 (docs/qa/perf-budget.json, lớp FUNCTION; HSKT HT.05; đo trên phần cứng khách là PX-10)",
+      "catches_bug": "Truy vấn bảng theo dõi chậm khi dữ liệu nhiều",
+      "coverage_ids": [
+        "COV-FR-DIR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có 2.000 chỉ đạo\n1. Gọi GET /directives?limit=50 hai mươi lần sau ba lần khởi động",
+      "expected": "p95 không quá 5.000 ms, không lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bộ dữ liệu 2.000 chỉ đạo; chưa có bộ sinh"
+      },
+      "module": "DIR",
+      "perf_budget": {
+        "url": "/directives?limit=50",
+        "method": "GET",
+        "p95_ms": 5000,
+        "sample": 20,
+        "warmup": 3,
+        "max_error_rate": 0
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-A11-01",
+      "title": "Bốn màn DIR đạt WCAG 2.2 AA: biểu mẫu giao chỉ đạo, bảng theo dõi, hộp thoại gia hạn và đóng, trạng thái không chỉ bằng màu",
+      "type": "A11Y",
+      "platform": "web",
+      "persona": "dir-secretary",
+      "journey_ref": "J-DIR-LIFECYCLE-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01, FR-DIR-03, FR-DIR-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Hộp thoại đóng chỉ đạo không giữ tiêu điểm, trạng thái quá hạn chỉ bằng màu đỏ",
+      "coverage_ids": [
+        "COV-FR-DIR-01",
+        "COV-FR-DIR-03",
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; dữ liệu có chỉ đạo quá hạn\n1. Chạy axe ở 1280 px và 360 px\n2. Giao chỉ đạo, xin gia hạn và đóng chỉ bằng bàn phím",
+      "expected": "Không lỗi axe nghiêm trọng hoặc cao; trạng thái có chữ; tiêu điểm trả về nút gọi hộp thoại.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "accessibility",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001",
+        "ST-DIR-002",
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+      },
+      "module": "DIR"
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-01",
+      "title": "listSteeringMeetings (GET /steering-meetings): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01; thao tác listSteeringMeetings yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /steering-meetings thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /steering-meetings với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/steering-meetings",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-02",
+      "title": "createSteeringMeeting (POST /steering-meetings): chỉ người giữ quyền directive.meeting.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01; thao tác createSteeringMeeting yêu cầu quyền directive.meeting.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /steering-meetings thiếu kiểm quyền directive.meeting.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.meeting.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.meeting.manage gọi POST /steering-meetings với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/steering-meetings",
+        "method": "POST",
+        "allow": [
+          "dir-secretary"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-03",
+      "title": "getSteeringMeeting (GET /steering-meetings/{id}): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-02",
+      "oracle_source": "Claim → FR-DIR-02; thao tác getSteeringMeeting yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /steering-meetings/{id} thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /steering-meetings/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-02",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/steering-meetings/{id}",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-04",
+      "title": "attachMeetingMinutes (POST /steering-meetings/{id}/minutes): chỉ người giữ quyền directive.meeting.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-01",
+      "oracle_source": "Claim → FR-DIR-01; thao tác attachMeetingMinutes yêu cầu quyền directive.meeting.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /steering-meetings/{id}/minutes thiếu kiểm quyền directive.meeting.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.meeting.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.meeting.manage gọi POST /steering-meetings/{id}/minutes với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-01",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/steering-meetings/{id}/minutes",
+        "method": "POST",
+        "allow": [
+          "dir-secretary"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-05",
+      "title": "addDirective (POST /steering-meetings/{id}/directives): chỉ người giữ quyền directive.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-02",
+      "oracle_source": "Claim → FR-DIR-02; thao tác addDirective yêu cầu quyền directive.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /steering-meetings/{id}/directives thiếu kiểm quyền directive.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.manage gọi POST /steering-meetings/{id}/directives với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-02",
+      "story_ids": [
+        "ST-DIR-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/steering-meetings/{id}/directives",
+        "method": "POST",
+        "allow": [
+          "dir-secretary"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-06",
+      "title": "listDirectives (GET /directives): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác listDirectives yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /directives thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /directives với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-07",
+      "title": "listOverdueDirectives (GET /directives/overdue): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03; thao tác listOverdueDirectives yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /directives/overdue thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /directives/overdue với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/overdue",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-08",
+      "title": "getDirectiveSummary (GET /directives/summary): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03; thao tác getDirectiveSummary yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /directives/summary thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /directives/summary với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/summary",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-09",
+      "title": "getDirectivesForReport (GET /directives/for-report): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-05",
+      "oracle_source": "Claim → FR-DIR-05; thao tác getDirectivesForReport yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /directives/for-report thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /directives/for-report với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-05",
+      "story_ids": [
+        "ST-DIR-004"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/for-report",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-10",
+      "title": "getDirectiveWidget (GET /directives/widget): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-03",
+      "oracle_source": "Claim → FR-DIR-03; thao tác getDirectiveWidget yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /directives/widget thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /directives/widget với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-03",
+      "story_ids": [
+        "ST-DIR-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/widget",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-11",
+      "title": "getDirective (GET /directives/{id}): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác getDirective yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /directives/{id} thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /directives/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/{id}",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-12",
+      "title": "listProjectDirectives (GET /projects/{id}/directives): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác listProjectDirectives yêu cầu quyền directive.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /projects/{id}/directives thiếu kiểm quyền directive.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.read gọi GET /projects/{id}/directives với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/projects/{id}/directives",
+        "method": "GET",
+        "allow": [
+          "dir-secretary",
+          "dir-assignee",
+          "dir-closer",
+          "dir-decider",
+          "dir-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-13",
+      "title": "assignDirective (POST /directives/{id}/assignment): chỉ người giữ quyền directive.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác assignDirective yêu cầu quyền directive.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /directives/{id}/assignment thiếu kiểm quyền directive.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.manage gọi POST /directives/{id}/assignment với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/{id}/assignment",
+        "method": "POST",
+        "allow": [
+          "dir-secretary"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-14",
+      "title": "recordDirectiveProgress (POST /directives/{id}/progress): chỉ người giữ quyền directive.progress qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-assignee",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác recordDirectiveProgress yêu cầu quyền directive.progress (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /directives/{id}/progress thiếu kiểm quyền directive.progress hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-assignee",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.progress trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.progress gọi POST /directives/{id}/progress với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/{id}/progress",
+        "method": "POST",
+        "allow": [
+          "dir-assignee"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-15",
+      "title": "requestDirectiveExtension (POST /directives/{id}/extension-requests): chỉ người giữ quyền directive.progress qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-assignee",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác requestDirectiveExtension yêu cầu quyền directive.progress (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /directives/{id}/extension-requests thiếu kiểm quyền directive.progress hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-assignee",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.progress trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.progress gọi POST /directives/{id}/extension-requests với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/{id}/extension-requests",
+        "method": "POST",
+        "allow": [
+          "dir-assignee"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-16",
+      "title": "decideDirectiveExtension (POST /directive-extensions/{id}/decision): chỉ người giữ quyền directive.extension.decide qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-decider",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác decideDirectiveExtension yêu cầu quyền directive.extension.decide (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /directive-extensions/{id}/decision thiếu kiểm quyền directive.extension.decide hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-decider",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.extension.decide trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.extension.decide gọi POST /directive-extensions/{id}/decision với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directive-extensions/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "dir-decider"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-17",
+      "title": "closeDirective (POST /directives/{id}/closure): chỉ người giữ quyền directive.close qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác closeDirective yêu cầu quyền directive.close (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /directives/{id}/closure thiếu kiểm quyền directive.close hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.close trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.close gọi POST /directives/{id}/closure với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/{id}/closure",
+        "method": "POST",
+        "allow": [
+          "dir-secretary",
+          "dir-closer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-18",
+      "title": "cancelDirective (POST /directives/{id}/cancellation): chỉ người giữ quyền directive.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác cancelDirective yêu cầu quyền directive.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /directives/{id}/cancellation thiếu kiểm quyền directive.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.manage gọi POST /directives/{id}/cancellation với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/{id}/cancellation",
+        "method": "POST",
+        "allow": [
+          "dir-secretary"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-19",
+      "title": "reopenDirective (POST /directives/{id}/reopening): chỉ người giữ quyền directive.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "dir-secretary",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIR-04",
+      "oracle_source": "Claim → FR-DIR-04; thao tác reopenDirective yêu cầu quyền directive.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /directives/{id}/reopening thiếu kiểm quyền directive.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIR-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "dir-secretary",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ directive.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ directive.manage gọi POST /directives/{id}/reopening với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "DIR-04",
+      "story_ids": [
+        "ST-DIR-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "DIR",
+      "access": {
+        "url": "/directives/{id}/reopening",
+        "method": "POST",
+        "allow": [
+          "dir-secretary"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    }
+  ]
+}

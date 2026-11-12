@@ -13,6 +13,7 @@ import { BREAKPOINTS, BREAKPOINT_RANGE, CHART_PATH, LIBRARY_PATH, MANAGE_DASHBOA
 import type { Dashboard, DashboardVersion, DatasetPolicy, VersionForm, WidgetForm, WidgetKind } from './dashboard-model';
 import { useDashboard, useDashboards, useDatasetVersions, useDatasets, useMetrics, useSaveVersion } from './hooks';
 import { COMPARE_PATH } from './publication-model';
+import { SignOffBlock } from './SignOffBlock';
 import { SectionCard } from '../../ui';
 import './bi-kit.css';
 import { metricLabel } from './metric-names';
@@ -202,6 +203,7 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
                 <th scope="col">{t('bi.dash.col.tiles')}</th>
                 <th scope="col">{t('bi.dash.col.policy')}</th>
                 <th scope="col">{t('bi.dash.col.saved')}</th>
+                <th scope="col">{t('bi.sign.col')}</th>
               </tr>
             </thead>
             <tbody>
@@ -212,12 +214,14 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
                   <td>{version.widgets.length}</td>
                   <td>{policyLabel(t, version.policy)}</td>
                   <td>{version.createdAt}</td>
+                  <td data-testid="version-sign">{t(`bi.sign.state.${(version.signOff?.state ?? 'UNSIGNED').toLowerCase()}`)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
         {dashboard.versions.length > 1 ? <Link to={`${COMPARE_PATH}?dashboard=${dashboard.id}`}>{t('bi.dash.builder.compare')}</Link> : null}
+        <SignOffBlock signOff={dashboard.signOff} />
       </SectionCard>
 
       <SectionCard title={t('bi.dash.builder.preview')}>

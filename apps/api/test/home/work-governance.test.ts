@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
 import { Client } from 'pg';
-import { EffectiveAccessStore, HomeWorkClockStore, InMemoryAuthzCache, TenantDatabase, WORKER_MEMBERSHIP_ID } from '@machvon/db';
+import { EffectiveAccessStore, HomeWorkClockStore, HomeWorkReminderStore, InMemoryAuthzCache, TenantDatabase, WORKER_MEMBERSHIP_ID, reminderSeriesKey } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { MyWorkController } from '../../src/modules/home/my-work.controller';
@@ -449,14 +449,59 @@ describe('the governance of the clocks of the alert centre', () => {
       expect(item.reminders?.next_at).toBe(at(3, '03:00:00'));
     });
 
-    it('records one reminder when two passes run at the same time', async () => {
+    it('records one reminder when two transactions record the same reminder at the same time', async () => {
       await calendars();
       const p = await project(NORTH, 'P-M2');
       await accountable(p, LEADER);
-      await warning(p, 'WARNING', at(-7, '03:00:00'));
-      const [one, two] = await Promise.all([run(), run()]);
-      expect(one.reminders + two.reminders).toBe(1);
+      const w = await warning(p, 'WARNING', at(-7, '03:00:00'));
+      const store = new HomeWorkReminderStore();
+      const input = {
+        source: 'EARLY_WARNING',
+        sourceId: w,
+        kind: 'REMINDER' as const,
+        audience: 'OWNER' as const,
+        recipient: memberId(LEADER),
+        severity: 'ACTION' as const,
+        ordinal: 1,
+        seriesKey: reminderSeriesKey('EARLY_WARNING', w, memberId(LEADER), 1),
+        dueAt: NOW,
+        cadenceWorkingHours: 8,
+        policyVersion: 'builtin',
+      };
+      const tenant = { tenantId: TENANT_A, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 1 };
+      // The first transaction has written its row and holds it open; the second one meets the same series key, waits for the first and then records nothing.
+      // The interleaving is forced by the test (a gate), not left to the speed of the machine: two whole passes started together may or may not overlap.
+      let open!: () => void;
+      const gate = new Promise<void>((resolve) => (open = resolve));
+      let written!: () => void;
+      const hasWritten = new Promise<void>((resolve) => (written = resolve));
+      const first = harness.tenants.withTenant(tenant, async (tx) => {
+        const recorded = await store.record(tx, input);
+        written();
+        await gate;
+        return recorded;
+      });
+      await hasWritten;
+      const second = harness.tenants.withTenant(tenant, (tx) => store.record(tx, input));
+      setTimeout(open, 300);
+      const [one, two] = await Promise.all([first, second]);
+      expect([one.created, two.created]).toEqual([true, false]);
+      expect(two.id).toBe(one.id);
       expect(await rows('select 1 from machvon.work_reminder')).toHaveLength(1);
+    });
+
+    it('never records the same reminder of a series twice when two whole passes run together', async () => {
+      await calendars();
+      const p = await project(NORTH, 'P-M2B');
+      await accountable(p, LEADER);
+      await warning(p, 'WARNING', at(-7, '03:00:00'));
+      // Whether the second pass starts before or after the first one commits depends on the speed of the machine: if it starts after, the first reminder is already counted and the next
+      // one is the second of the series. What may never happen is one reminder of a series recorded twice, or a pass that counts a reminder it did not record.
+      const [one, two] = await Promise.all([run(), run()]);
+      const made = await rows<{ series_key: string }>('select series_key from machvon.work_reminder');
+      expect(new Set(made.map((row) => row.series_key)).size).toBe(made.length);
+      expect(one.reminders + two.reminders).toBe(made.length);
+      expect(made.length).toBeGreaterThanOrEqual(1);
     });
 
     it('does not remind an item that is snoozed or paused, and invents nothing in a year without a calendar', async () => {

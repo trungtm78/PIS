@@ -109,6 +109,7 @@ const ENTRY = {
   performedOn: '2027-01-20',
   release: '1.0.0',
   recoveryPoint: '2027-01-20T01:00:00Z',
+  source: 'repo1',
   rpoSeconds: 40,
   rtoSeconds: 5400,
   verdict: 'matches',
@@ -131,6 +132,10 @@ test('the restore drill ledger: complete, ordered, witnessed by another person; 
   assert.match(broken({ performedOn: 'yesterday' }), /performedOn/);
   assert.match(broken({ rtoSeconds: undefined }), /rpoSeconds and rtoSeconds/);
   assert.match(broken({ release: '' }), /restored release/);
+  // A rehearsal on a laptop (a copy of a development database) is practice, not evidence: the ledger takes only a restore from a repository or from the offline media.
+  assert.match(broken({ source: 'local-rehearsal' }), /source must be one of repo1, repo2, offline-media/);
+  assert.match(broken({ source: undefined }), /source must be one of repo1, repo2, offline-media/);
+  for (const source of ['repo2', 'offline-media']) assert.deepEqual(codes(withEntries({ ...ENTRY, source }).root), []);
   assert.match(details(withEntries(ENTRY, { ...ENTRY, performedOn: '2027-02-01' }).root), /id missing or repeated/);
   assert.match(details(withEntries(ENTRY, { ...ENTRY, id: 'other', performedOn: '2026-12-01' }).root), /not earlier/);
   const missing = scratch((s) => rmSync(join(s.root, LEDGER)));

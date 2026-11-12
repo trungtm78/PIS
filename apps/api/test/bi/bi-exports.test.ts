@@ -164,6 +164,10 @@ describe('exports and the per-recipient schedules (ST-BI-008, BI 3 F7)', () => {
     expect(text).toContain(`Snapshot,${world.version}`);
     expect(text).toContain('disbursed_exp (bản 1, VND)');
     expect(text).toContain(',13000000000,,,');
+    // BC.02: the file carries the three signatures; the person it is made for prepared it, and a certification nobody checked says so instead of naming somebody.
+    expect(text).toMatch(/Người lập,.+, \d{4}-\d{2}-\d{2}/);
+    expect(text).toContain('Người kiểm tra,chưa có');
+    expect(text).toContain('Người phê duyệt,');
     expect(createHash('sha256').update(stored.bytes).digest('hex')).toBe(leader?.fileSha256);
     // No file was made for the staff member, and the denial is a record with an event.
     expect(await app.count("select count(*)::text as n from machvon.bi_export_job where schedule_id = $1 and file_object_key is not null", [scheduleId])).toBe(1);

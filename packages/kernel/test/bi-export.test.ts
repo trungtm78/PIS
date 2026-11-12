@@ -1,5 +1,6 @@
 import { BI_EXPORT_ROW_CAP, buildBiExportDocument, knownTimeZone, nextFire, parseCron, scheduleDue } from '../src/bi-export.ts';
 import { csvOf } from '../src/dis-export.ts';
+import { signOffOf } from '../src/bi-sign-off.ts';
 
 const at = (iso: string): Date => new Date(iso);
 
@@ -118,5 +119,32 @@ describe('the file of a BI export (BI 3 F7)', () => {
     expect(single.header.some((entry) => entry.key === 'dimension')).toBe(false);
     expect(single.rows).toEqual([['', 'Tổng', '1', '1', '', '']]);
     expect(BI_EXPORT_ROW_CAP).toBe(100_000);
+  });
+});
+
+describe('the signatures in the header of a BI export (BC.02)', () => {
+  const input = {
+    metricCode: 'disbursed',
+    metricRevision: 3,
+    unit: 'VND',
+    dimension: undefined,
+    asOfPeriod: '2026-10',
+    datasetVersionId: 'v',
+    scopeDescription: 's',
+    generatedAt: at('2026-11-01T01:00:00Z'),
+    rows: [],
+    total: { value: '1', numerator: '1', denominator: null, nullReason: null },
+  };
+  const entry = (id: string, name: string | null, day: string) => ({ id, name, at: `${day}T01:00:00.000Z` });
+
+  it('adds the prepared, checked and approved lines after the usual header, with the word for a step nobody took', () => {
+    const signed = buildBiExportDocument({ ...input, signOff: signOffOf({ versionId: 'm', revision: 3, prepared: entry('a', 'Lan', '2026-11-01'), checked: null, approved: entry('c', 'Nam', '2026-10-01') }) });
+    expect(signed.header.slice(-3).map((line) => [line.key, line.value])).toEqual([
+      ['sign_prepared', 'Lan, 2026-11-01'],
+      ['sign_checked', 'chưa có'],
+      ['sign_approved', 'Nam, 2026-10-01'],
+    ]);
+    expect(csvOf(signed)).toContain('Người kiểm tra,chưa có');
+    expect(buildBiExportDocument(input).header.some((line) => line.key.startsWith('sign_'))).toBe(false);
   });
 });

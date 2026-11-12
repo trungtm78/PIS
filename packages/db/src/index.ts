@@ -353,6 +353,7 @@ export type { DoaDecision, DoaDecisionResult, DoaMatrixInput, DoaMatrixRow, DoaM
 export { REVIEW_LIFETIME_MS, ThemeStore, themeChanges, themeHash } from './theme-store.ts';
 export type { NewThemeAsset, PublishInput, ReviewInput, ThemeAssetRow, ThemeChange, ThemeConfig, ThemeDraftRow, ThemeReviewResult, ThemeVersionAnchor, ThemeVersionRow } from './theme-store.ts';
 export { BASELINE_POLICIES, MASTER_REFERENCES, MasterStore, contentHashOf } from './master-store.ts';
+export { ReportCatalogueStore } from './report-catalogue-store.ts';
 export { MASTER_MERGE_RESOURCE, MasterMergeStore, SURVIVORSHIP_RULE_RESOURCE } from './master-merge-store.ts';
 export type { MasterMerge, MasterMergeOutcome, Page as MasterPage, RepointedReference, SurvivorshipRule, MasterUnmergeOutcome } from './master-merge-store.ts';
 export { AdmMigrationStore, MIGRATION_BATCH_RESOURCE, MIGRATION_STATUSES, registerMigrationVerifier } from './adm-migration-store.ts';

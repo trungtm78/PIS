@@ -4,9 +4,9 @@ Giai đoạn 5, sản phẩm 7 của mục II.5 (biên bản xác nhận đào t
 
 Hồ sơ kỹ thuật (TK.01): đào tạo người dùng cuối tại 09 đầu mối và Ban KHĐT (nhập liệu, phê duyệt, rà soát, lập báo cáo); đào tạo Lãnh đạo khai thác dashboard; đào tạo quản trị hệ thống cho Ban CĐS&CNTT.
 
-Nguồn: bộ hướng dẫn sử dụng `scripts/hdsd/chapters.json` (91 chương: ba chương theo luồng (đăng nhập, danh mục địa bàn, tạo dự án), 74 chương theo nhóm màn hình `tour-*` và mười bốn chương điện thoại `m01` đến `m14`), `scripts/hdsd/overview.json`; kịch bản hai video `docs/clips/enterprise-phu-my.script.md` và `docs/clips/public-investment.script.md` (chương video của bản PVFCCo: giới thiệu, tổng quan điều hành, cơ cấu vốn và kế hoạch, dự án, báo cáo gửi Tập đoàn, quy trình duyệt số liệu kỳ, đẩy số HPM và đối chiếu kế toán, chỉ đạo giao ban, hồ sơ dự án và trợ lý AI, tin cậy và kết thúc); câu chuyện ST-KERNEL-104 (chương trình đào tạo theo vai trò, môi trường đào tạo dữ liệu tổng hợp) và ST-KERNEL-103 (người dùng thử); `docs/pwa.md`.
+Nguồn: bộ hướng dẫn sử dụng `scripts/hdsd/chapters.json` (90 chương: ba chương theo luồng (đăng nhập, danh mục địa bàn, tạo dự án), 74 chương theo nhóm màn hình `tour-*` và mười ba chương điện thoại `m01` đến `m13`), `scripts/hdsd/overview.json`; trợ giúp trên màn hình `apps/web/src/help/help.vi.json` (594 màn hình web, sinh bởi `scripts/help-index.mjs`; nút trợ giúp hoặc phím `?`); hướng dẫn quản trị `docs/admin-guide.md`; hai tài liệu tích hợp `docs/integration/hpm-proposal.md` và `docs/integration/power-bi-model.md`; câu chuyện ST-KERNEL-104 (chương trình đào tạo theo vai trò, môi trường đào tạo dữ liệu tổng hợp) và ST-KERNEL-103 (người dùng thử); `docs/pwa.md`. Kịch bản hai video `docs/clips/enterprise-phu-my.script.md` và `docs/clips/public-investment.script.md` vẫn nằm trong kho mã làm tư liệu nội dung, nhưng video không thuộc đợt giao này (mục 5).
 
-Trạng thái tệp: KHUNG. Chưa có danh sách người học, lịch, địa điểm, môi trường đào tạo của khách (PX-05, PX-11). Nội dung giáo trình đã gắn vào các chương hướng dẫn có sẵn.
+Trạng thái tệp: v0.2, rà soát ngày 2026-11-12 sau khi DOC-3 và các làn ENT đã gộp. Phía nhà cung cấp đã có: giáo trình gắn với chương hướng dẫn, trợ giúp trên màn hình cho mọi màn hình web kể cả các màn riêng của bản enterprise, hướng dẫn quản trị tiếng Việt, mười bốn bài thực hành tăng lên hai mươi mốt (mục 3). Chưa có danh sách người học, lịch, địa điểm, môi trường đào tạo của khách (PX-05, PX-11) nên chưa tổ chức buổi nào và chưa có biên bản ký. Khoảng trống còn lại của nhà cung cấp: các màn IND, RPT, DIR, HPM, EBS, HUB, INT, EQP, BAN, PWA chưa có chương riêng trong `scripts/hdsd/chapters.json`, đang dựa vào trợ giúp trên màn hình và bài thực hành.
 
 ---
 
@@ -24,21 +24,35 @@ Thời lượng và số người là đề xuất khung; Tổ chuẩn hóa dữ
 
 ## 2. Giáo trình theo nhóm
 
-Mỗi mục trỏ tới chương hướng dẫn có sẵn trong `scripts/hdsd/chapters.json` và chương video. Các chương `tour-*` mô tả theo nhóm màn hình của nền tảng; phần riêng bản enterprise (IND, RPT, DIR, HPM, EBS) học bằng bài thực hành ở mục 3 cho tới khi có chương hướng dẫn riêng (khoảng trống của TK.02, làn DOC-3).
+Mỗi mục trỏ tới chương hướng dẫn có sẵn trong `scripts/hdsd/chapters.json` và tới tên chương của kịch bản video (tư liệu nội dung; video không thuộc đợt giao này, mục 5). Các chương `tour-*` mô tả theo nhóm màn hình của nền tảng; phần riêng bản enterprise (IND, RPT, DIR, HPM, EBS, HUB, INT, EQP, BAN) chưa có chương riêng trong `scripts/hdsd/chapters.json` (khoảng trống của TK.02, xem mục 2.1): học bằng trợ giúp trên màn hình và bài thực hành ở mục 3.
 
-| Nhóm | Chương hướng dẫn (id) | Chương video | Bài thực hành riêng bản enterprise |
+| Nhóm | Chương hướng dẫn (id) | Chương của kịch bản video (tư liệu, video không giao đợt này) | Bài thực hành riêng bản enterprise |
 |---|---|---|---|
-| A | `01-dang-nhap`, `tour-iam-truy-cap`, `tour-iam-khong-gian-ca-nhan`, `tour-dis-lap-gui-bao-cao`, `tour-home-cong-viec-canh-bao` | Quy trình duyệt số liệu kỳ | Nhập chỉ tiêu và nhập từ Excel (IND-02, IND-03); đọc cảnh báo vi phạm quy tắc; gửi và nhận trả về |
-| B | `tour-dis-quan-ly-ky-bao-cao`, `tour-dis-tong-hop-phan-tich`, `tour-cap-ke-hoach-von`, `tour-cap-dieu-hanh-theo-ky`, `tour-prj-danh-muc-theo-doi`, `tour-adm-quy-trinh-cau-hinh` | Báo cáo gửi Tập đoàn; Đẩy số HPM và đối chiếu kế toán; Chỉ đạo giao ban; Cơ cấu vốn và kế hoạch | Chốt kỳ, mở lại kỳ; phát hành biểu mẫu từ bản chốt; đẩy HPM, đẩy lại, ghi biên nhận (HPM-01); đối chiếu EBS (EBS-01, EBS-02); ghi cuộc giao ban (DIR-01 đến DIR-04) |
+| A | `01-dang-nhap`, `tour-iam-truy-cap`, `tour-iam-khong-gian-ca-nhan`, `tour-dis-lap-gui-bao-cao`, `tour-home-cong-viec-canh-bao` | Quy trình duyệt số liệu kỳ | Nhập chỉ tiêu và nhập từ Excel (IND-02, IND-03); đọc cảnh báo vi phạm quy tắc; gửi và nhận trả về; thuyết minh 8 trường (T15) |
+| B | `tour-dis-quan-ly-ky-bao-cao`, `tour-dis-tong-hop-phan-tich`, `tour-cap-ke-hoach-von`, `tour-cap-dieu-hanh-theo-ky`, `tour-prj-danh-muc-theo-doi`, `tour-adm-quy-trinh-cau-hinh` | Báo cáo gửi Tập đoàn; Đẩy số HPM và đối chiếu kế toán; Chỉ đạo giao ban; Cơ cấu vốn và kế hoạch | Chốt kỳ, mở lại kỳ; phát hành biểu mẫu từ bản chốt; đẩy HPM, đẩy lại, ghi biên nhận (HPM-01); đối chiếu EBS (EBS-01, EBS-02); ghi cuộc giao ban (DIR-01 đến DIR-04); bản chốt doanh nghiệp và so sánh chéo báo cáo (T16); lịch kỳ (T17) |
 | C | `tour-home-buc-tranh-tong-the`, `tour-home-cong-viec-canh-bao`, `tour-bi-kham-pha-thiet-ke`, `m01-dang-nhap-dien-thoai`, `m02-trang-chu-dien-thoai` | Tổng quan điều hành; Dự án đầu tư xây dựng | Cài PWA, duyệt trong hàng đợi, xem dashboard, theo dõi chỉ đạo (PWA-01 đến PWA-04, `docs/pwa.md`); đọc chỉ đạo giao ban (DIR-06) |
-| D | `tour-adm-to-chuc-con-nguoi`, `tour-adm-quy-trinh-cau-hinh`, `tour-adm-tich-hop-an-toan`, `tour-mdm-to-chuc-dau-tu`, `tour-mdm-nghiep-vu-quy-uoc`, `tour-mdm-vong-doi-danh-muc`, `tour-sas-van-hanh-nen-tang` | Tin cậy và kết thúc | Soạn và duyệt bảng ánh xạ, quy tắc nhập liệu (ADM-19, IND-01 đến IND-03); cấu hình quy trình (ADM-06); ủy quyền; xem nhật ký (ADM-11); xem hub tích hợp (HUB-01 đến HUB-03); sao lưu và khôi phục theo runbook |
+| D | `tour-adm-to-chuc-con-nguoi`, `tour-adm-quy-trinh-cau-hinh`, `tour-adm-tich-hop-an-toan`, `tour-mdm-to-chuc-dau-tu`, `tour-mdm-nghiep-vu-quy-uoc`, `tour-mdm-vong-doi-danh-muc`, `tour-sas-van-hanh-nen-tang` | Tin cậy và kết thúc | Soạn và duyệt bảng ánh xạ, quy tắc nhập liệu (ADM-19, IND-01 đến IND-03); cấu hình quy trình (ADM-06); ủy quyền; xem nhật ký (ADM-11); xem hub tích hợp (HUB-01 đến HUB-03); sao lưu và khôi phục theo runbook; hạn từng bước của lịch kỳ, sao lưu thủ công, nhật ký trước và sau, hub tích hợp, gói tổ chức (T18 đến T21) |
 | E | `01-dang-nhap` | Đẩy số HPM và đối chiếu kế toán | Tải tệp EBS, chạy thử, đọc chênh lệch, giải trình (EBS-01, EBS-02) |
 
-Tài liệu chuẩn bị riêng cho quản trị (nhóm D): `docs/runbooks/infra/onprem-install.md`, `docs/runbooks/infra/backup-immutable.md`, `docs/runbooks/infra/restore-drill.md`, `docs/runbooks/infra/onprem-upgrade-rollback.md`, `docs/runbooks/release-checklist.md`, `docs/open-api.md`, `docs/integration-hub.md`, `docs/security/identity-test-plan.md`. Hướng dẫn quản trị hoàn chỉnh bằng tiếng Việt: làn DOC-3.
+Tài liệu chuẩn bị riêng cho quản trị (nhóm D): `docs/admin-guide.md` (hướng dẫn quản trị bằng tiếng Việt, mười một mục: vai trò và quyền, quy tắc quản trị, lịch, danh mục, trung tâm tích hợp, sao lưu và khôi phục, xuất nhật ký kiểm toán, nâng cấp và quay lui, vận hành thường ngày, bảng tra cứu, việc chờ bên ngoài), `docs/runbooks/infra/onprem-install.md`, `docs/runbooks/infra/backup-immutable.md`, `docs/runbooks/infra/restore-drill.md`, `docs/runbooks/infra/onprem-upgrade-rollback.md`, `docs/runbooks/release-checklist.md`, `docs/open-api.md`, `docs/integration-hub.md`, `docs/integration/hpm-proposal.md`, `docs/integration/power-bi-model.md`, `docs/security/identity-test-plan.md`.
+
+### 2.1 Màn hình riêng của bản enterprise: tài liệu học và trợ giúp
+
+Mọi màn hình web đều có trợ giúp trên màn hình (594 mục, không màn nào thiếu: `scripts/help/no-help.json` rỗng). Các màn dưới đây chưa thuộc chương nào của `scripts/hdsd/chapters.json` (cột chương trống trong `apps/web/src/help/help.vi.json`), nên người học dùng trợ giúp trên màn hình cùng bài thực hành:
+
+| Nhóm | Màn hình | Bài thực hành |
+|---|---|---|
+| A | IND-02, IND-03 (nhập chỉ tiêu và từ Excel), DIS-35 (thuyết minh 8 trường), DIS-34 (lịch kỳ và bảng trạng thái nhập) | T2, T3, T15 |
+| B | DIS-32, DIS-33 (bản chốt kỳ doanh nghiệp), RPT-01 đến RPT-04, RPT-09 (so sánh chéo), HPM-01, HPM-02, EBS-01, EBS-02, DIR-01 đến DIR-05, EQP-01, EQP-02 | T5 đến T9, T16, T17 |
+| C | HOME-09, BAN-01 (trình chiếu), DIR-05, PWA-04 (theo dõi chỉ đạo trên điện thoại) | T10 |
+| D | ORG-01 (gói tổ chức), IND-01, ADM-19 đến ADM-22, ADM-31 (hạn từng bước), ADM-29, ADM-30 (nhật ký trước và sau, giới hạn log), ADM-32 (sao lưu thủ công), HUB-01 đến HUB-03, INT-01 đến INT-05 | T11 đến T14, T18 đến T20 |
+| E | EBS-01, EBS-02 | T8 |
+
+DIR-06 (chỉ đạo giao ban trên điện thoại) là màn của ứng dụng điện thoại, không nằm trong 594 mục trợ giúp của web; người học nhóm C học qua bài T10 và `docs/pwa.md`.
 
 ## 3. Bài thực hành
 
-Mọi bài làm trên môi trường đào tạo với dữ liệu tổng hợp, không trên dữ liệu thật (ST-KERNEL-104). Dữ liệu minh họa của clip (`docs/clip-data.md`) là nguồn dữ liệu đào tạo; sáu biểu mẫu vẫn mang dấu MẪU DEMO.
+Mọi bài làm trên môi trường đào tạo với dữ liệu tổng hợp, không trên dữ liệu thật (ST-KERNEL-104). Bộ dữ liệu minh họa `docs/clip-data.md` (bộ `enterprise`) là nguồn dữ liệu đào tạo tổng hợp; sáu biểu mẫu vẫn mang dấu MẪU DEMO tới khi có bố cục chính thức (PX-01). Bài T15 đến T21 bổ sung ngày 2026-11-12 cho các chức năng của bản enterprise đã gộp sau bản khung.
 
 | Bài | Nhóm | Việc làm | Kết quả đạt |
 |---|---|---|---|
@@ -56,6 +70,13 @@ Mọi bài làm trên môi trường đào tạo với dữ liệu tổng hợp,
 | T12 | D | Soạn quy tắc nhập liệu mới, trình, duyệt bằng người khác, đọc so sánh phiên bản | Quy tắc có hiệu lực theo phiên bản |
 | T13 | D | Khôi phục một bản sao lưu sang môi trường thử, so băm | Khớp băm |
 | T14 | D | Đọc nhật ký kiểm toán một thao tác chốt kỳ | Tìm được người, thời điểm, lý do |
+| T15 | A | Viết thuyết minh 8 trường cho một dự án (DIS-35): kế thừa kỳ trước, sửa lại, chọn nguyên nhân chuẩn, đưa chỉ đạo giao ban vào; mở trợ giúp trên màn hình bằng phím `?` | Biết trường nào còn từ kỳ trước, trường nào đã viết lại; không bỏ trống trường bắt buộc |
+| T16 | B | Dựng bản chốt kỳ doanh nghiệp (DIS-32, DIS-33): xem đơn vị còn thiếu số liệu, chốt khi đủ; so sánh chéo báo cáo cùng kỳ trước khi phát hành (RPT-09), giải trình một chênh lệch | Bản chốt bị từ chối khi kỳ chưa đủ (`ENTERPRISE_SNAPSHOT_INCOMPLETE`); phát hành bị từ chối (`REPORT_CROSSCHECK_BLOCKED`) khi còn chênh lệch mức chặn chưa giải trình; người giải trình không là người lập báo cáo liên quan |
+| T17 | B | Đọc lịch kỳ và bảng trạng thái nhập theo đầu mối (DIS-34): đầu mối nào chưa nộp, bước nào quá hạn | Tìm đúng đầu mối và bước chậm nhất |
+| T18 | D | Đổi hạn từng bước của lịch kỳ bằng quy tắc quản trị (ADM-31): soạn, trình, duyệt bằng người khác | Hạn mới có hiệu lực từ ngày chọn, kỳ đã sinh giữ hạn cũ |
+| T19 | D | Yêu cầu sao lưu thủ công (ADM-32): một người đề nghị, người khác duyệt; đọc bản sao lưu và lần kiểm gần nhất | Hiểu ứng dụng không tự chạy sao lưu; người chạy là bộ chạy trên máy chủ |
+| T20 | D | Bật chính sách chi tiết nhật ký trước và sau cho một loại đối tượng (ADM-29), đặt giới hạn log (ADM-30); đọc sức khỏe kết nối ở hub (HUB-01 đến HUB-03) | Biết nhật ký kiểm toán không bị dọn tự động; đọc được kết nối nào chậm hoặc lỗi |
+| T21 | D | Nạp gói tổ chức mẫu `PVFCCO-TEMPLATE` trên môi trường đào tạo: đăng ký lô, chạy thử, duyệt bằng người khác, `materialiseEnterpriseOrgPack`, đọc báo cáo kiểm ở ORG-01 | Gói nạp lặp lại không đổi gì; chênh lệch được báo, không bị ghi đè |
 
 ## 4. Lịch đào tạo (điền khi chốt)
 
@@ -63,23 +84,22 @@ Mọi bài làm trên môi trường đào tạo với dữ liệu tổng hợp,
 |---|---|---|---|---|---|---|
 | [khách điền] | | | | | Trực tiếp hoặc trực tuyến | Đào tạo |
 
-Điều kiện mở khóa: danh sách người học (PX-05), môi trường đào tạo (PX-11), tài khoản đã cấp. Sau chuyển đổi dữ liệu (06) và trước vận hành thử song song (08).
+Điều kiện mở khóa, chỉ khách cung cấp được: danh sách người học (PX-05), môi trường đào tạo trên hạ tầng của PVFCCo (PX-11), tài khoản đã cấp. Sau chuyển đổi dữ liệu (06) và trước vận hành thử song song (08). Tất cả buổi đào tạo và biên bản ký (mục 7) vì vậy ở trạng thái PENDING-EXTERNAL cho tới khi PX-05 và PX-11 có.
 
 ## 5. Tài liệu và video hướng dẫn (sản phẩm cùng biên bản)
 
 | Hạng mục | Nơi có | Tình trạng |
 |---|---|---|
-| Hướng dẫn sử dụng theo chương | `scripts/hdsd/chapters.json`; trang dựng bởi `scripts/hdsd/build-docs.mjs` | Có, tiếng Việt; chương riêng IND, RPT, DIR, HPM, EBS cần bổ sung (DOC-3) |
-| Video giới thiệu cho PVFCCo (Đạm Phú Mỹ) | `docs/clips/enterprise-phu-my.script.md` | Kịch bản có; dựng tiếng Việt, còn thiếu giọng đọc và nhạc được duyệt |
-| Video giới thiệu đầu tư công | `docs/clips/public-investment.script.md` | Như trên |
-| Hướng dẫn quản trị | Runbook ở mục 2 | Tập hợp có; bản hướng dẫn tiếng Việt: DOC-3 |
-| Hướng dẫn trực tuyến trên màn hình (YCK.08) | Chưa có | DOC-3 |
+| Hướng dẫn sử dụng theo chương | `scripts/hdsd/chapters.json` (90 chương); trang dựng bởi `scripts/hdsd/build-docs.mjs` | Có, tiếng Việt; chương riêng IND, RPT, DIR, HPM, EBS, HUB, INT, EQP, BAN chưa có: trợ giúp trên màn hình thay thế (mục 2.1); nhà cung cấp có thể bổ sung chương, không cần khách |
+| Hướng dẫn quản trị | `docs/admin-guide.md` và các runbook ở mục 2 | Có, tiếng Việt (DOC-3 đã gộp); bản cứng khi bàn giao theo [10](10-handover-checklist.md) |
+| Hướng dẫn trực tuyến trên màn hình (YCK.08) | `apps/web/src/help/help.vi.json` (594 màn hình), ngăn trợ giúp mở bằng nút hoặc phím `?`; sinh và kiểm bằng `node scripts/help-index.mjs` (`generate`, `check`, nằm trong `npm run qa:check`) | Có (DOC-3 đã gộp) |
+| Video hướng dẫn | Kịch bản `docs/clips/enterprise-phu-my.script.md` và `docs/clips/public-investment.script.md` (tư liệu nội dung) | Video không thuộc đợt giao này: chủ dự án đã dừng việc dựng video; hồ sơ kỹ thuật (II.5, sản phẩm 7) nêu "tài liệu và video hướng dẫn", nên việc có giao video hay không, hay thay bằng tài liệu chữ và trợ giúp trên màn hình, là quyết định của chủ dự án và PVFCCo: [khách điền: quyết định về video hướng dẫn] |
 
 ## 6. Đánh giá sau đào tạo
 
 - Bài kiểm tra thực hành: người học làm lại bài T-nn của nhóm mình mà không nhìn tài liệu; đạt khi hoàn thành bài không trợ giúp. Mục tiêu theo nền tảng: không dưới 90% tác vụ lõi hoàn thành không trợ giúp (BRD, KPI SUS và tác vụ lõi, đo ở pilot).
 - Phiếu phản hồi: [khách điền].
-- Ghi nhận câu hỏi lặp để bổ sung hướng dẫn và trợ giúp trên màn hình.
+- Ghi nhận câu hỏi lặp để bổ sung hướng dẫn và trợ giúp trên màn hình (sửa nội dung trợ giúp bằng `scripts/help/kind-guides.json`, rồi `node scripts/help-index.mjs generate`).
 
 ## 7. Mẫu biên bản xác nhận đào tạo (sản phẩm 7)
 
@@ -101,4 +121,4 @@ Nhóm đào tạo: [ ] A người nhập, người phê duyệt  [ ] B Ban KHĐT
 Chữ ký: đại diện đơn vị được đào tạo [khách điền]   Ban KHĐT [khách điền]   Nhà cung cấp [khách điền]
 ```
 
-Lịch sử sửa: v0.1 khung ngày 2026-11-09.
+Lịch sử sửa: v0.1 khung ngày 2026-11-09. v0.2 ngày 2026-11-12 (rà soát bởi làn aud4): sửa số chương hướng dẫn (90, mười ba chương điện thoại), thêm trợ giúp trên màn hình (594 màn) và hướng dẫn quản trị `docs/admin-guide.md` vào giáo trình, thêm bảng màn hình riêng bản enterprise (mục 2.1), thêm bài T15 đến T21, ghi rõ video không thuộc đợt giao này; giữ nguyên các điều kiện chờ khách (PX-05, PX-11) và quyết định về video.

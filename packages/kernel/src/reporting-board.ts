@@ -3,8 +3,8 @@ import type { ScheduleStepKind, ScheduleStepState, StepDeadline } from './report
 
 /**
  * The status board of a period by input point (QT.02, ENT-4c): for every unit that must report, where each of the five steps of the schedule stands. The board is a read model over facts the platform already keeps (reports,
- * figure revisions, the period); it adds none. A step with no fact behind it is `NOT_TRACKED`, never "open" or "done": the review of the planning board and the push to the group system get their facts from the approval
- * workflow (ENT-3c), and until then the board says so in words.
+ * figure revisions, the period); it adds none. A step with no fact behind it is `NOT_TRACKED`, never "open" or "done": the review of the planning board and the push to the group system get their facts from the staged approval
+ * chain (ENT-3c, `chainStepFact`) where a tenant runs one, and on every other tenant the board says so in words.
  */
 
 /** What the platform knows about the projects of one unit in one period. */
@@ -89,4 +89,21 @@ export function buildBoard(deadlines: readonly StepDeadline[], units: readonly U
     return { unitId: unit.unitId, unitCode: unit.unitCode, unitName: unit.unitName, projects: unit.projects, steps };
   });
   return { periodSteps, units: rows, tally };
+}
+
+/** How many reports of a period run a chain with one kind of step, how many of them passed it, and the latest instant one did. */
+export interface ChainStepCount {
+  total: number;
+  passed: number;
+  doneAt: string | null;
+}
+
+/**
+ * The fact of a period step that the staged approval chain keeps (the review of the planning board, the push), read from the instances of the reports of the period: `undefined` when no report runs a chain with
+ * that step (a tenant on the single decision has none: the platform has no fact, and the board says so), `null` while a report has not passed it, and the instant the last report did once all have. A step whose
+ * instant is not known is never shown as done.
+ */
+export function chainStepFact(count: ChainStepCount): string | null | undefined {
+  if (count.total === 0) return undefined;
+  return count.passed >= count.total ? count.doneAt : null;
 }

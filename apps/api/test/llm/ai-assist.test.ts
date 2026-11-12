@@ -452,12 +452,13 @@ describe('the AI assistant: answers with verified citations, review of a file, e
 
   describe('the assistant decides nothing (AI.04, OWASP LLM06)', () => {
     it('holds only rights of its own and writes only its own records and the trail of the gateway', async () => {
-      const since = new Date(Date.now() - 1000);
+      // The events of this case are the ones the table did not hold before it: a window of time would also take in the tail of the case before, on a machine fast enough to start this one within the second.
+      const before = new Set((await world.rows<{ id: string }>('select id from machvon.audit_event')).map((row) => row.id));
       script([{ id: 's1', text: 'Recorded.', basis: 'SOURCE', citations: [record('PROJECT', records.projectId, 'field:code')] }]);
       const reply = await ask({ kind: 'QA', request_text: 'Project code?', sources: [{ kind: 'PROJECT', id: records.projectId }] });
       await world.call('POST', `/ai/assist/runs/${reply.json.id as string}/decision`, { member: ASKER, body: { decision: 'ACCEPTED', rationale: 'The code of the project is what the register says.' } });
-      const written = await world.rows<{ action: string }>('select distinct action from machvon.audit_event where occurred_at >= $1::timestamptz', [since.toISOString()]);
-      expect(written.map((row) => row.action).sort()).toEqual(['llm.assist_run_decided', 'llm.assist_run_recorded', 'llm.request_routed']);
+      const written = (await world.rows<{ id: string; action: string }>('select id, action from machvon.audit_event')).filter((row) => !before.has(row.id));
+      expect([...new Set(written.map((row) => row.action))].sort()).toEqual(['llm.assist_run_decided', 'llm.assist_run_recorded', 'llm.request_routed']);
       const spec = loadOpenApi();
       const permissions = new Map<string, string>();
       for (const item of Object.values(spec.paths)) for (const operation of Object.values(item as Record<string, { operationId?: string; 'x-permission'?: string }>)) if (operation.operationId !== undefined && operation['x-permission'] !== undefined) permissions.set(operation.operationId, operation['x-permission']);

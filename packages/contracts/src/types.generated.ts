@@ -26561,6 +26561,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bi/publication-requests/{id}/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Người kiểm tra (khác người đề nghị, khác tác giả bản, khác người duyệt) ghi bước kiểm tra của yêu cầu công bố; yêu cầu vẫn chờ duyệt (BC.02) */
+        post: operations["checkBiPublication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{id}/investment-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hồ sơ đầu tư của dự án bản enterprise: loại dự án, cờ khởi công mới hoặc chuyển tiếp, mốc vòng đời so với danh mục, và tách kế hoạch vốn theo Nghị quyết PVN và Quyết định của Tổng công ty (MD.01, MD.02, CN.01) */
+        get: operations["getProjectInvestmentProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -47975,6 +48009,67 @@ export interface components {
             reason: "NO_FROZEN_SNAPSHOT";
             /** Format: date-time */
             as_of: string;
+        };
+        BiPublicationCheck: {
+            /** @description What the checker saw; optional */
+            comment?: string;
+        };
+        ProjectInvestmentProfile: {
+            /** Format: uuid */
+            project_id: string;
+            plan_year: number;
+            /** Format: date */
+            as_of: string;
+            project_type: {
+                code: string;
+                label: string;
+                kind: string | null;
+            } | null;
+            /** @enum {string|null} */
+            start_flag: "NEW_START" | "CONTINUING" | null;
+            start_year: number | null;
+            /** @enum {string|null} */
+            start_year_basis: "ACTUAL" | "PLANNED" | "PROJECT" | null;
+            plans: {
+                plan_code: string | null;
+                status: string;
+                revision: number;
+            }[];
+            milestones: components["schemas"]["ProjectInvestmentMilestone"][];
+            findings: string[];
+            origin_split: {
+                total_vnd: string;
+                group_assigned_vnd: string;
+                board_approved_vnd: string;
+                other_vnd: string;
+                origins: {
+                    origin: string;
+                    amount_vnd: string;
+                    lines: number;
+                    decisions: {
+                        kind: string | null;
+                        symbol: string;
+                        /** Format: date */
+                        issued_on: string | null;
+                        authority: string | null;
+                    }[];
+                }[];
+            };
+        };
+        ProjectInvestmentMilestone: {
+            code: string;
+            label: string;
+            sequence: number;
+            /** @enum {string} */
+            phase: "PREPARATION" | "APPROVAL" | "EXECUTION" | "CLOSURE";
+            required: boolean;
+            evidence_kinds: string[];
+            /** @enum {string} */
+            state: "REACHED" | "PLANNED" | "DELAYED" | "CANCELLED" | "NOT_HELD";
+            /** Format: date */
+            planned_on: string | null;
+            /** Format: date */
+            actual_on: string | null;
         };
     };
     responses: never;
@@ -211486,6 +211581,204 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RptCrosscheckExplained"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    checkBiPublication: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BiPublicationCheck"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getProjectInvestmentProfile: {
+        parameters: {
+            query?: {
+                plan_year?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectInvestmentProfile"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

@@ -2,12 +2,15 @@
 
 Tài liệu cho Chi nhánh QLPTDA, Ban CĐS&CNTT và cán bộ làm báo cáo. Mục tiêu: nối Power BI (và các công cụ BI khác, và Data Lakehouse của Tổng công ty) vào dữ liệu đã chứng nhận của MACHVON mà không đụng tới bảng nghiệp vụ, không có chi phí bản quyền thêm. Căn cứ: `docs/open-api.md` (lane INT-1), migration `V2200` và `V2202`, `packages/kernel/src/open-api.ts`, `packages/db/src/int-bi-reader-store.ts`.
 
+Hướng dẫn từng bước cho Chi nhánh QLPTDA: `power-bi-connection-guide.md`. Đề xuất cấp dữ liệu cho Data Lakehouse (tài khoản theo ứng dụng, RLS, nhịp làm mới, đường mạng): `lakehouse-proposal.md`.
+
 Tệp kèm theo (không chứa bí mật):
 
 | Tệp | Dùng để |
 |---|---|
 | `docs/integration/machvon-bi.pbids` | Mở nhanh kết nối PostgreSQL trong Power BI Desktop; điền máy chủ và cơ sở dữ liệu |
 | `docs/integration/power-bi-sample-queries.sql` | Truy vấn mẫu trên các view; dùng làm nguồn bảng của mô hình hoặc kiểm tra số liệu |
+| `docs/integration/power-bi/machvon-sample-model.tmdl` | Mô hình ngữ nghĩa mẫu dạng văn bản TMDL (bảng, quan hệ, phép đo, tham số); dán vào khung nhìn TMDL của Power BI Desktop hoặc nạp bằng Tabular Editor; chưa mở thử trong Power BI Desktop (xem mục 9) |
 
 ## 1. Hai con đường đọc dữ liệu
 
@@ -83,7 +86,7 @@ Dạng sao với hai bảng sự kiện và các bảng chiều. Tên bảng tro
 |---|---|---|---|
 | `FactDisbursement` | `machvon_bi.v_disbursement_lines` | `line_id` | Nhập (Import); làm mới theo lịch |
 | `FactContract` | `machvon_bi.v_contract_lines` | (`snapshot_id`, `contract_id`, `contractor_id`) | Chỉ giữ phiên bản mới nhất mỗi kỳ trong truy vấn nguồn (xem tệp SQL mẫu) |
-| `DimPeriod` | Các cặp (`period_id`, `as_of_date`) khác nhau của `FactDisbursement`; `FactContract` nối qua `period_id` | `period_id` | Bảng lịch tạo trong Power BI |
+| `DimPeriod` | Hợp các cặp (`period_id`, ngày chốt) khác nhau của `v_disbursement_lines` (`as_of_date`) và `v_contract_lines` (`cutoff_date`); cả hai bảng sự kiện nối qua `period_id` | `period_id` | Bảng lịch tạo trong Power BI |
 | `DimProject` | API mở `GET /open/v1/projects` (mã, tên, trạng thái, phân loại, đơn vị chủ quản, mã quốc gia) | `id` = `project_id` | Cơ sở dữ liệu BI không có tên dự án: lấy từ API mở (mục 6) |
 | `DimUnit`, `DimFundSource`, `DimContractor` | **Chưa có nguồn** trong cổng BI hiện tại: chỉ có khóa uuid | `unit_id`, `fund_source_version_id`, `contractor_id` | Đề xuất bổ sung view danh mục (xem mục 8); trước mắt hiển thị theo mã dự án và đơn vị chủ quản của dự án |
 | `DimBucket` | Bảng nhập tay 3 dòng | `bucket` | `CURRENT_YEAR` là "Kế hoạch năm nay", `CARRYOVER` là "Vốn kéo dài", `OTHER` là "Khác" |
@@ -94,37 +97,41 @@ Quan hệ: một-nhiều từ chiều sang sự kiện, lọc một chiều. Ki�
 ## 5. Phép đo mẫu (DAX)
 
 ```dax
-Plan VND := SUM ( FactDisbursement[plan_total_vnd] )
-
--- Giải ngân là lũy kế nên luôn tính ở đúng một kỳ (theo period_id, vì hai kỳ khác nhau có thể trùng ngày chốt).
+-- Giải ngân và giá trị hợp đồng là lũy kế của từng bản chụp kỳ: luôn tính ở đúng một kỳ (theo period_id, vì hai kỳ khác nhau có thể trùng ngày chốt).
 -- Người xem chọn một kỳ trong bộ lọc DimPeriod; nếu không chọn thì lấy kỳ có ngày chốt mới nhất.
+-- Kỳ được đưa vào biến TRƯỚC khi CALCULATE: nếu gọi phép đo [Chosen Period] bên trong FILTER, chuyển ngữ cảnh dòng làm điều kiện luôn đúng và cộng dồn mọi kỳ.
 Chosen Period :=
 COALESCE (
     SELECTEDVALUE ( DimPeriod[period_id] ),
     MAXX ( TOPN ( 1, ALLSELECTED ( DimPeriod ), DimPeriod[as_of_date], DESC ), DimPeriod[period_id] )
 )
 
+Plan VND :=
+VAR ChosenPeriod = [Chosen Period]
+RETURN CALCULATE ( SUM ( FactDisbursement[plan_total_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+
 Disbursed Treasury VND :=
-CALCULATE (
-    SUM ( FactDisbursement[disbursed_treasury_vnd] ),
-    FILTER ( ALL ( DimPeriod ), DimPeriod[period_id] = [Chosen Period] )
-)
+VAR ChosenPeriod = [Chosen Period]
+RETURN CALCULATE ( SUM ( FactDisbursement[disbursed_treasury_vnd] ), DimPeriod[period_id] = ChosenPeriod )
 
-Plan In Period VND :=
-CALCULATE (
-    [Plan VND],
-    FILTER ( ALL ( DimPeriod ), DimPeriod[period_id] = [Chosen Period] )
-)
+Disbursement Rate % := DIVIDE ( [Disbursed Treasury VND], [Plan VND] )
 
-Disbursement Rate % := DIVIDE ( [Disbursed Treasury VND], [Plan In Period VND] )
-
-Period Delta VND := SUM ( FactDisbursement[period_delta_vnd] )
+Period Delta VND :=
+VAR ChosenPeriod = [Chosen Period]
+RETURN CALCULATE ( SUM ( FactDisbursement[period_delta_vnd] ), DimPeriod[period_id] = ChosenPeriod )
 
 Lines Without Treasury Coverage :=
-    CALCULATE ( COUNTROWS ( FactDisbursement ), FactDisbursement[treasury_coverage] = "NONE" )
+VAR ChosenPeriod = [Chosen Period]
+RETURN CALCULATE ( COUNTROWS ( FactDisbursement ), FactDisbursement[treasury_coverage] = "NONE", DimPeriod[period_id] = ChosenPeriod )
 
-Contract Value VND := SUM ( FactContract[active_value_vnd] )
-Paid To Contractors VND := SUM ( FactContract[paid_vnd] )
+Contract Value VND :=
+VAR ChosenPeriod = [Chosen Period]
+RETURN CALCULATE ( SUM ( FactContract[active_value_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+
+Paid To Contractors VND :=
+VAR ChosenPeriod = [Chosen Period]
+RETURN CALCULATE ( SUM ( FactContract[paid_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+
 Paid Share % := DIVIDE ( [Paid To Contractors VND], [Contract Value VND] )
 ```
 
@@ -169,7 +176,16 @@ Mã truy cập sống 5 phút: nếu danh sách lớn, đặt cả hàm lấy m�
 ## 8. Hạn chế đã biết và đề xuất tiếp theo
 
 1. Chưa có view danh mục đơn vị, nguồn vốn, nhà thầu cho tài khoản BI; chỉ có khóa. Đề xuất thêm các view `v_dim_unit`, `v_dim_fund_source`, `v_dim_contractor` có cùng cơ chế cổng và chứng nhận, rồi cập nhật mô hình này.
-2. Chưa có tập dữ liệu cho số liệu bản doanh nghiệp (số liệu vốn và chỉ tiêu `ind_figure`, `plan_figure_revision`, kế hoạch năm theo đơn vị) cho tới khi làn ENT-3a chốt `period_snapshot` doanh nghiệp; khi có thì mở thêm tập dữ liệu chứng nhận tương ứng, không đọc thẳng bảng nghiệp vụ.
-3. Chưa có đo hiệu năng trên phần cứng của PVFCCo; cần chạy các truy vấn mẫu trên môi trường UAT cấu hình tương đương Production và ghi kết quả.
-4. Việc giữ nhiều `revision` của hợp đồng trong Lakehouse và việc bản chụp hợp đồng cũ có còn hiện sau khi kỳ được chốt lại cần được thử trên UAT bằng một kỳ được chốt lại; kết quả ghi vào tài liệu này.
-5. Bản mẫu `.pbids` không đi kèm báo cáo `.pbix`: báo cáo mẫu cần dữ liệu thật hoặc dữ liệu thử đã chứng nhận trong UAT.
+2. Chưa có tập dữ liệu cho số liệu bản doanh nghiệp. ENT-3a đã chốt bản chốt loại `ENTERPRISE_CLOSE` (migration `V2660`), nhưng `v_disbursement_lines` chỉ đọc loại `PERIOD_CLOSE`, nên với dữ liệu PVFCCo mô hình này chỉ có dòng khi tenant có bản chốt `PERIOD_CLOSE`. Cần mở thêm một tập dữ liệu chứng nhận cho bản chốt doanh nghiệp (số liệu vốn, chỉ tiêu theo đơn vị và dự án) cùng cơ chế cổng; không đọc thẳng bảng nghiệp vụ. Xem `lakehouse-proposal.md` mục 8.
+3. Gói cài ngoại tuyến chưa mở đường mạng tới cơ sở dữ liệu và chưa có `pgaudit` (xem `lakehouse-proposal.md` mục 6): cho tới khi chọn phương án, Power BI lấy dữ liệu qua API mở bằng hàm Power Query ở mục 6, hoặc nối cơ sở dữ liệu ở UAT khi Ban CĐS&CNTT đã mở cổng.
+4. Chưa có đo hiệu năng trên phần cứng của PVFCCo; cần chạy các truy vấn mẫu trên môi trường UAT cấu hình tương đương Production và ghi kết quả.
+5. Việc giữ nhiều `revision` của hợp đồng trong Lakehouse và việc bản chụp hợp đồng cũ có còn hiện sau khi kỳ được chốt lại cần được thử trên UAT bằng một kỳ được chốt lại; kết quả ghi vào tài liệu này.
+6. Bản mẫu `.pbids` không đi kèm báo cáo `.pbix`: báo cáo mẫu cần dữ liệu thật hoặc dữ liệu thử đã chứng nhận trong UAT.
+
+## 9. Mô hình TMDL mẫu
+
+Tệp `docs/integration/power-bi/machvon-sample-model.tmdl` là mô hình ngữ nghĩa của mục 4 và 5 viết dưới dạng văn bản TMDL: ba tham số (`ServerName`, `DatabaseName`, `OpenApiBaseUrl`), bảng `FactDisbursement`, `FactContract`, `DimPeriod`, `DimBucket`, `Catalogue`, các quan hệ một-nhiều và các phép đo DAX. Cách dùng: mở Power BI Desktop, bật khung nhìn TMDL (tính năng xem trước, Options, Preview features), dán nội dung tệp vào và chạy; hoặc nạp bằng Tabular Editor. Bảng `DimProject` lấy từ API mở bằng hàm Power Query ở mục 6, nên không nằm trong tệp (cần tham số thông tin xác thực mà tệp không được chứa).
+
+Tình trạng: **chưa mở thử trong Power BI Desktop** (môi trường soạn tài liệu không có Power BI Desktop). Cú pháp theo đặc tả TMDL; nếu Power BI Desktop báo lỗi ở dòng nào thì sửa dòng đó và ghi lại vào lịch sửa của tài liệu này. Số liệu thật chưa có: mô hình chỉ có ý nghĩa khi tài khoản BI đọc được tập dữ liệu đã bật và chứng nhận (mục 1).
+
+Lịch sửa: v0.2 2026-11-12 (rà soát lane aud4: thêm mục 9, cập nhật mục 8 theo phát hiện về bản chốt doanh nghiệp và đường mạng).

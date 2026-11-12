@@ -354,6 +354,8 @@ export class ReportController {
         ...this.entriesTrail(entries.progress, entries.narrative, entries.attachments),
         reopened: judged.reopen !== null,
       },
+      // HT.06: with the tenant's opt-in for the class, the audit keeps the figures the report was created with.
+      detail: { before: null, after: await this.reports.figuresOf(scope.tx, made.id) },
     });
     return commandResult(scope, 'DRAFT', made.version, made.id);
   }
@@ -381,6 +383,7 @@ export class ReportController {
     await enforceNarrativeEntry(scope, { resourceId: id, block: entries.narrative?.enterprise ?? null, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, phase: 'SAVE', now });
     await enforceReportEntry(scope, { projectId: head.projectId, totals: fundingTotals(entries.cells), progress: entries.progress, periodStatus: judged.reopen !== null ? 'REOPENED' : judged.period.status, now });
     const files = entries.attachments === undefined ? undefined : await resolveFiles(this.files, scope.tenant, entries.attachments);
+    const figuresBefore = await this.reports.figuresOf(scope.tx, id);
     const saved = await this.reports.saveDraft(
       scope.tx,
       head,
@@ -409,6 +412,7 @@ export class ReportController {
         ...this.entriesTrail(entries.progress, entries.narrative, entries.attachments),
         version: saved.version,
       },
+      detail: { before: figuresBefore, after: await this.reports.figuresOf(scope.tx, id) },
     });
     return commandResult(scope, 'DRAFT', saved.version, id);
   }

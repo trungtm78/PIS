@@ -119,6 +119,7 @@
     "saveDashboardVersion",
     "submitBiPublication",
     "decideBiPublication",
+    "checkBiPublication",
     "shareDashboard",
     "revokeDashboardShare",
     "requestBiExport",

@@ -13,6 +13,7 @@ import { configuredFormsOf } from './configured-forms';
 import { sha256Hex } from './digest';
 import { reportFileName } from './file-name';
 import { REPORT_FORMS, assertLayoutAccess, layoutReadable } from './form-registry';
+import { catalogueReceivers } from './report-catalogue';
 import { catalogueEntryDto, deliveryDtos, demoModeOf, draftDtos, issueDtos, reportStore } from './report-view';
 
 const DEFAULT_LIMIT = 50;
@@ -66,8 +67,9 @@ export class ReportReadsController {
       const demoMode = await demoModeOf(tx, vietnamDateOf(now), 'ANY');
       const registered = new Map((await reportStore.listLayouts(tx)).map((row) => [row.code, row]));
       const configured = await configuredFormsOf(tx, vietnamDateOf(now));
+      const receivers = await catalogueReceivers(tx, vietnamDateOf(now));
       return {
-        items: [...REPORT_FORMS.listVisible(), ...configured.map((one) => one.bundle).filter((bundle) => !REPORT_FORMS.isHidden(bundle.layout.code))].map((bundle) => catalogueEntryDto(bundle, registered.get(bundle.layout.code), demoMode)),
+        items: [...REPORT_FORMS.listVisible(), ...configured.map((one) => one.bundle).filter((bundle) => !REPORT_FORMS.isHidden(bundle.layout.code))].map((bundle) => catalogueEntryDto(bundle, registered.get(bundle.layout.code), demoMode, receivers.get(bundle.layout.code))),
         demo_mode: demoMode,
         as_of: now.toISOString(),
         can_generate: holdsPermission(held, PERMISSIONS.generateReport),

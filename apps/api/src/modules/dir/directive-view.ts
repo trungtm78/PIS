@@ -30,6 +30,8 @@ export function directiveLineView(line: DirectiveLine): Record<string, unknown> 
     escalates_on: line.clock.escalatesOn,
     closed_at: line.closedAt,
     evidence_count: line.evidenceCount,
+    progress_percent: line.progressPct,
+    progress_reported_at: line.progressReportedAt,
     open_extension: line.openExtension === null ? null : { id: line.openExtension.id, proposed_due_on: line.openExtension.proposedDueOn, requested_by: line.openExtension.requestedBy, version: line.openExtension.version },
     created_by: person(line.createdBy),
     created_at: line.createdAt,

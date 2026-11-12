@@ -25,7 +25,7 @@ A decision is one request, sent while the page is online, under the version of t
 
 ### Directives contract (wired to the directive module by ENT-4c)
 
-The list of the API does not carry the progress that was reported, so a card says "open the detail to see the progress" (`progressKnown: false`) and the detail shows the latest progress of the timeline; "not reported" is said only where the timeline is known. Without a provider (a screen mounted alone) the default source still says `notBuilt`.
+Each line of the list of the API carries `progress_percent` (the latest percentage a note of progress gave, null when none did) and `progress_reported_at`, read with one subselect per page (no call per directive), so a card shows the bar or "not reported" and never 0%; the detail shows the same latest progress and the timeline. `progressKnown: false` stays in the source contract for a source that cannot tell, and then the card says "open the detail to see the progress". Without a provider (a screen mounted alone) the default source still says `notBuilt`.
 
 The tracking view also narrows the list by overdue and by unit and shows the counts of the scope (`getDirectiveSummary`, with the formula of each number): a count that cannot be read is said so and never shown as 0.
 

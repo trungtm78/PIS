@@ -1165,4 +1165,29 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       expect(mine).toMatchObject({ state: 'SUBMITTED', narrative: { causes: words, results: 'Đạt 60% khối lượng' } });
     });
   });
+  describe('the full audit detail of the figures (HT.06), last because it takes weeks of the shared calendar and leaves the class switched on', () => {
+    it('HT.06: with the tenant opted in for the class, the audit keeps the figures of the report before and after each save, and nothing when the class is off', async () => {
+      const { projectId, planId } = await seedProject();
+      const quiet = await create(draft(projectId, week(), planId));
+      expect(await rows('select 1 from machvon.audit_event_detail where resource_id = $1', [idOf(quiet)])).toEqual([]);
+      await rows(
+        `insert into machvon.audit_detail_policy (tenant_id, resource_type, enabled, max_bytes, reason, created_by, updated_by) values ($1, 'report_revision', true, 8192, 'HT.06 for the weekly report', $2, $2)`,
+        [TENANT_A, memberId(MAKER)],
+      );
+      const { projectId: secondProject, planId: secondPlan } = await seedProject();
+      const made = await create(draft(secondProject, week(), secondPlan));
+      const lines = [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: '150000000', ctmtqg_subset_vnd: '60000000', next_month_vnd: '10000000', next_month_ctmtqg_subset_vnd: '2000000' }];
+      const period = ((await read(idOf(made))).json.period as { id: string }).id;
+      expect((await save(idOf(made), draft(secondProject, period, secondPlan, { funding_lines: lines, measurement_basis: 'PERIOD' }), 1)).status).toBe(200);
+      const kept = await rows<{ action: string; before_value: Record<string, unknown> | null; after_value: Record<string, unknown> }>(
+        `select e.action, d.before_value, d.after_value from machvon.audit_event_detail d join machvon.audit_event e on e.id = d.audit_event_id where d.resource_id = $1 order by e.occurred_at, e.id`,
+        [idOf(made)],
+      );
+      expect(kept.map((row) => row.action)).toEqual(['dis.report_created', 'dis.report_saved']);
+      expect(kept[0]?.before_value).toBeNull();
+      expect(kept[1]?.before_value).toMatchObject({ measurement_basis: 'YTD' });
+      expect(kept[1]?.after_value).toMatchObject({ measurement_basis: 'PERIOD', lines: { 'CURRENT_YEAR|CENTRAL': { cumulative_vnd: '150000000', ctmtqg_vnd: '60000000', next_month_vnd: '10000000', next_month_ctmtqg_vnd: '2000000' } } });
+      expect(Object.keys((kept[1]?.before_value as { lines: Record<string, unknown> }).lines).length).toBeGreaterThan(0);
+    });
+  });
 });

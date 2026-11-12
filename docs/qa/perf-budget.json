@@ -25,13 +25,15 @@
     "reportExportId": "id of a finished report export",
     "mneReportId": "id of a monitoring and evaluation report",
     "evaluationReportId": "id of a bid evaluation report",
-    "allocationLineId": "id of a line of the capital plan (the availability of a line is asked for one line)"
+    "allocationLineId": "id of a line of the capital plan (the availability of a line is asked for one line)",
+    "enterpriseSnapshotId": "id of a frozen enterprise period snapshot (ENT-3a); a tenant of the public edition has none, so the rows that need it are skipped"
   },
   "discovery": {
     "projectId": {"path": "/resources/project", "query": {"limit": "1"}, "pick": "items.0.id"},
     "allocationLineId": {"path": "/resources/allocation_line", "query": {"limit": "1"}, "pick": "items.0.id"},
     "reportDraftId": {"path": "/report-engine/drafts", "query": {"limit": "1"}, "pick": "items.0.id"},
-    "reportIssueId": {"path": "/report-engine/issues", "query": {"limit": "1"}, "pick": "items.0.id"}
+    "reportIssueId": {"path": "/report-engine/issues", "query": {"limit": "1"}, "pick": "items.0.id"},
+    "enterpriseSnapshotId": {"path": "/enterprise-snapshots", "query": {"status": "FROZEN", "limit": "1"}, "pick": "items.0.id"}
   },
   "operations": [
     {"id":"PB-F001","operationId":"getCommandCenter","method":"GET","path":"/home/command-center","permission":"home.read","class":"FUNCTION","area":"HOME"},
@@ -101,6 +103,8 @@
     {"id":"PB-F065","operationId":"getVendorFigures","method":"GET","path":"/vendor/figures","permission":"vnd.read","class":"FUNCTION","area":"VND"},
     {"id":"PB-F066","operationId":"listMneObligations","method":"GET","path":"/mne-obligations","permission":"mne.read","class":"FUNCTION","area":"MNE"},
     {"id":"PB-F067","operationId":"listAuditEngagements","method":"GET","path":"/audit-engagements","permission":"aud.read","class":"FUNCTION","area":"AUD"},
+    {"id":"PB-F068","operationId":"getEnterpriseSnapshot","method":"GET","path":"/enterprise-snapshots/{id}","permission":"funding.snapshot.read","class":"FUNCTION","area":"FND","budgetMs":800,"scale":20,"edition":"ENTERPRISE","pathVars":{"id":"enterpriseSnapshotId"}},
+    {"id":"PB-F069","operationId":"getLeaderRates","method":"GET","path":"/leader/rates","permission":"home.read","class":"FUNCTION","area":"HOME","budgetMs":800,"scale":20,"edition":"ENTERPRISE","query":{"snapshot_id":"$enterpriseSnapshotId"}},
     {"id":"PB-R001","operationId":"exportHomeFigures","method":"GET","path":"/home/command-center/export","permission":"home.read","class":"REPORT","area":"HOME"},
     {"id":"PB-R002","operationId":"exportPackageWorkflowReport","method":"GET","path":"/package-workflows/statistics/export","permission":"bid.read","class":"REPORT","area":"BID"},
     {"id":"PB-R003","operationId":"getContractScheduleSCurve","method":"GET","path":"/contracts/analytics/reports/schedule-delay/s-curve","permission":"contract.analytics.read","class":"REPORT","area":"CTR"},

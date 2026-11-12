@@ -1390,6 +1390,8 @@ export { BREAKPOINT_KEYS, DASHBOARD_CODE, DEFAULT_COLUMNS, MAX_GRID_ROWS, MAX_WI
 export type { DashboardDraft, DashboardWidget, DatasetVersionPolicy, DraftInput, WidgetGrid, WidgetKind } from './bi-dashboard.ts';
 export { CHECK_FORMULA, CHECK_FROZEN_VERSION, CHECK_GROUPS, CHECK_ROWS, PUBLICATION_DECISIONS, PUBLICATION_KINDS, assertDecisionReason, failedCheck, reproductionChecks } from './bi-publication.ts';
 export type { PublicationCheck, PublicationDecision, PublicationKind, Reproduction } from './bi-publication.ts';
+export { SIGN_OFF_STATES, assertApproverIsNotChecker, assertCheckerIsIndependent, signOffLines, signOffOf } from './bi-sign-off.ts';
+export type { SignOffBlock, SignOffEntry, SignOffLabels, SignOffLine, SignOffState } from './bi-sign-off.ts';
 export {
   BI_DIMENSION_LABELS,
   BI_EXPORT_FORMATS,
@@ -2177,6 +2179,8 @@ export { ISSUE_ACTIONS, ISSUE_ROLES, ISSUE_STATES, advanceIssue, assertAcceptabl
 export type { IssueAction, IssueActors, IssueRole, IssueSignatories, IssueState, IssueStep, IssuedCopyMarks, IssuedCopyRef, NextIssue, SnapshotRevisionRef } from './report-issue.ts';
 export { PREVIEW_ROW_CAP, RECEIVER_CODE, REPORT_CHANNELS, REPORT_FILE_FORMATS, REPORT_OUTPUT_FORMATS, assertDeliveryTarget, assertPeriodFitsForm, packageDigestOf, previewOf, previewOfDocument } from './report-form.ts';
 export type { PreviewCell, PreviewRow, ReportChannel, ReportDataSourceKind, ReportFileFormat, ReportFormBundle, ReportOutputFormat, ReportPreview, ReportTemplateBytes } from './report-form.ts';
+export { agencyReceiverOf, assertReceiverKnown, reportCatalogueView } from './report-catalogue.ts';
+export type { CatalogueEntry, CatalogueForm, CatalogueProblem, FormSource, ManagedReportCatalogue, ReportCatalogueView } from './report-catalogue.ts';
 export { DIS_WEEKLY_CODE, DIS_WEEKLY_FORM_REF, DIS_WEEKLY_INDICATORS, DIS_WEEKLY_LAYOUT, DIS_WEEKLY_SHEET, DIS_WEEKLY_VERSION, WEEKLY_ORG_FALLBACK, weeklySnapshotLine } from './report-public-forms.ts';
 export { documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, formDocumentOf } from './report-document.ts';
 export type { DocumentSheet, ReportDocument, SheetCell, SheetRow } from './report-document.ts';
@@ -3264,8 +3268,8 @@ export { ADMIN_MIN_HOLDERS, DECISION_PERMISSIONS, GROUP_SUFFIX, ORG_PACK_COLUMNS
 export type { OrgPack, OrgPackRowKind, OrgPackState, OrgPackVerification, PackAbsence, PackDefect, PackDelegation, PackDoa, PackEntry, PackRole, PackRow, PackSeat, PackStep, PackUnit, PlanAction, PlanItem, PlanSection, RoleKind, SeatReport, SeatScope, SeatState, UnitFunction } from './org-pack.ts';
 export { BASIS_OF, CALENDAR_ITEM_KINDS, CALENDAR_ESCALATION_EVENT, CALENDAR_REMINDER_EVENT, SCHEDULE_DUE_SOON_DAYS, REMINDER_ALERT_TYPES, SCHEDULE_REMINDER_KINDS, SCHEDULE_CODES, SCHEDULE_RULE_TYPE, SCHEDULE_STEP_KINDS, SCHEDULE_STEP_STATES, daysOverdue, entryDeadline, entryOffsetOf, isScheduleCode, meetingPeriod, reminderDue, localTimeOf, reminderEventOf, scheduleCodeOf, scheduleDefaults, scheduleDefect, schedulePeriods, schedulePolicyOf, stepDeadlines, scheduleStepState } from './reporting-schedule.ts';
 export type { CalendarItemKind, DueReminder, ScheduleReminderKind, ScheduleBasis, ScheduleCode, SchedulePeriod, SchedulePolicy, ScheduleStep, ScheduleStepKind, StepDeadline, ScheduleStepState } from './reporting-schedule.ts';
-export { buildBoard } from './reporting-board.ts';
-export type { PeriodStepFacts, ScheduleBoardResult, ScheduleBoardStep, ScheduleBoardUnit, UnitPeriodFacts } from './reporting-board.ts';
+export { buildBoard, chainStepFact } from './reporting-board.ts';
+export type { ChainStepCount, PeriodStepFacts, ScheduleBoardResult, ScheduleBoardStep, ScheduleBoardUnit, UnitPeriodFacts } from './reporting-board.ts';
 export {
   AUDIT_DETAIL_DEFAULT_BYTES,
   AUDIT_DETAIL_MAX_BYTES,

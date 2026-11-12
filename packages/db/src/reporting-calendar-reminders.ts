@@ -37,7 +37,7 @@ interface Target {
  * The job `calendar-reminder` for the tenant of the transaction (QT.02, ENT-4c): for each generated period of the schedule kinds (month, quarter, year) whose steps are still within reach, it puts the facts of the period
  * against the deadlines of the schedule rule in force, and for each unit and step that is not finished decides by the rule which reminder is due (before the deadline, after it, the escalation). Each reminder is a row in
  * `reporting_reminder` with a series key, so a pass run twice or by two processes records it once, and an event in the outbox in the same transaction; the notification workflow of the tenant carries the event to people and
- * channels. Steps that have no fact behind them (the review of the planning board, the push) are never reminded: a reminder about something the platform cannot see would be noise. Steering meetings and plan adjustments are on
+ * channels. Steps that have no fact behind them (the review of the planning board and the push on a tenant that runs no staged approval chain) are never reminded: a reminder about something the platform cannot see would be noise. Steering meetings and plan adjustments are on
  * the calendar and on the board but have no fact either, so they are not reminded yet.
  */
 export async function runCalendarReminders(tx: TenantTx, tenantId: string, now: Date, increment: (name: string, labels?: Record<string, string>) => void = () => undefined): Promise<CalendarReminderResult> {
@@ -59,7 +59,8 @@ export async function runCalendarReminders(tx: TenantTx, tenantId: string, now: 
     if (now.getTime() - last > REMINDER_HORIZON_DAYS * DAY_MS) continue;
     result.periods += 1;
     const facts = await store.unitFacts(tx, WHOLE_TENANT, period);
-    const board = buildBoard(deadlines, facts, { closedAt: period.status === 'LOCKED' ? period.lockedAt : null }, now);
+    const chain = await store.chainFacts(tx, WHOLE_TENANT, period);
+    const board = buildBoard(deadlines, facts, { ...chain, closedAt: period.status === 'LOCKED' ? period.lockedAt : null }, now);
     const targets: Target[] = [];
     for (const unit of board.units) {
       const path = facts.find((one) => one.unitId === unit.unitId)?.unitPath ?? '/';
@@ -70,8 +71,11 @@ export async function runCalendarReminders(tx: TenantTx, tenantId: string, now: 
         targets.push({ unitId: unit.unitId, unitPath: path, step: step.kind, dueAt: step.dueAt, finished: step.state === 'DONE' || step.state === 'DONE_LATE' });
       }
     }
-    const closing = board.periodSteps.find((step) => step.kind === 'PERIOD_CLOSE');
-    if (closing !== undefined && root !== undefined) targets.push({ unitId: null, unitPath: root.path, step: 'PERIOD_CLOSE', dueAt: closing.dueAt, finished: closing.state === 'DONE' || closing.state === 'DONE_LATE' });
+    // The steps of the period as a whole: the close is a fact of the period; the review and the push come from the staged approval chain and are reminded only where a chain runs (a step with no fact is NOT_TRACKED).
+    for (const step of board.periodSteps) {
+      if (step.state === 'NOT_TRACKED' || root === undefined) continue;
+      targets.push({ unitId: null, unitPath: root.path, step: step.kind, dueAt: step.dueAt, finished: step.state === 'DONE' || step.state === 'DONE_LATE' });
+    }
     for (const target of targets) {
       result.checked += 1;
       if (target.finished) continue;

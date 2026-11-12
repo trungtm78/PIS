@@ -25,6 +25,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { configuredFormOf } from './configured-forms';
+import { assertCatalogueReceiver } from './report-catalogue';
 import { blockingSummaryOf, recordFigureSetOf, releaseCheckOf } from './crosscheck';
 import { reportFileName } from './file-name';
 import { REPORT_FORMS, assertLayoutAccess } from './form-registry';
@@ -111,6 +112,7 @@ export class ReportController {
     const marks = issueMarksOf(bundle.layout, { demoMode });
 
     const templates = await bundle.templates();
+    // The layout row is the immutable record of the registration and keeps the receiver of the code; the receiver a form is shown and delivered under is read from the tenant's catalogue each time (MD.03), so a change of the catalogue needs no new layout.
     const registered = await reportStore.registerLayout(tx, { layout: bundle.layout, narrative: bundle.narrative, edition: bundle.edition, receiver: bundle.receiver, periodKind: bundle.periodKind, dataSource: bundle.dataSource, xlsx: templates.xlsx, docx: templates.docx }, by);
     const layout = registered.row;
     if (registered.created) {
@@ -372,6 +374,7 @@ export class ReportController {
     const copy = await reportStore.findIssue(scope.tx, id);
     if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     assertLayoutAccess(access, copy.layoutCode);
+    await assertCatalogueReceiver(scope.tx, copy.layoutCode, body.receiver, vietnamDateOf(this.clock()));
     const signature = await periodStore.signatureOf(scope.tx, copy.id);
     assertSignedForDelivery({
       receiver: body.receiver,
@@ -395,6 +398,7 @@ export class ReportController {
     const copy = await reportStore.findIssue(scope.tx, id);
     if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     assertLayoutAccess(access, copy.layoutCode);
+    // An answer is judged against the delivery that was recorded (the store refuses a receiver the copy was never delivered to), not against today's catalogue: an agency that was retired since still answers.
     const row = await reportStore.answer(scope.tx, copy, body.outcome, { receiver: body.receiver, channel: 'MANUAL', reference: body.reference ?? null, note: body.note ?? null, by: scope.tenant.membershipId });
     await this.announceDelivery(scope, copy, row, 'rpt.report_answered', 'rpt.report.answered.v1');
     if (body.outcome === 'ACCEPTED' && row.countsAsAccepted) await this.lockOnAcceptance(scope, copy.id);

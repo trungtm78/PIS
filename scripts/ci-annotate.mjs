@@ -1,23 +1,26 @@
 #!/usr/bin/env node
-// Turns the log of a failed CI step into ONE public check-run annotation that names the failing tests.
+// Turns the log of a failed CI step into public check-run annotations that name the failing tests.
 //
 // Why: the job log of a GitHub Actions run needs repository admin rights to download, but the annotations of a check run are public. A step that
 // ends with "Process completed with exit code 1" tells nobody which test failed. Running the test command through `tee` and then this script (in a
-// step with `if: failure()`) puts the failing test names and their first error lines into the annotation, where the API and the run page show them.
+// step with `if: failure()`) puts the failing test names and their first error lines into annotations, where the API and the run page show them.
 //
 //   node scripts/ci-annotate.mjs <logfile> <kind> [--title "text"]    kind: jest | dart | playwright | gates
 //
-// The annotation is capped (the check-run API refuses messages over 64 KB), the text is escaped as the workflow-command syntax requires, and the
-// script itself always exits 0: it must never turn a green step red or hide the exit status of the step it reports on.
+// A workflow-command annotation shows only about 4 KB of its message, so the text is cut into chunks (one annotation each, at most 8), lines of passing
+// tests are left out, and the script itself always exits 0: it must never turn a green step red or hide the exit status of the step it reports on.
 import { readFileSync, existsSync } from 'node:fs';
 
-const MAX_MESSAGE = 48_000;
-const MAX_BLOCKS = 60;
+const CHUNK = 3600;
+const MAX_CHUNKS = 8;
+const MAX_BLOCKS = 80;
+/** A line of a passing test: it is context of a failure, never worth the 4 KB. */
+const PASSING = /^\s*(✓|✅|ok \d+|PASS\b)/;
 
 /** Line patterns that start a block worth reporting, and how many lines after it belong to the block. */
 export const KINDS = {
   jest: { start: /^\s*(FAIL |● .+ › |● .+$)|^\s*[✕×]\s|Tests:\s+\d+ failed|Test Suites:\s+\d+ failed|^\s*(ERR!|npm error)\s|error TS\d+|^\s*not ok \d+|^\s*✖ |coverage threshold|does not meet threshold/, after: 6 },
-  dart: { start: /\[E\]|Some tests failed|^\s*Failed to load|^\s*Error: |FAILED:/, after: 8 },
+  dart: { start: /\[E\]|❌|\d+ failed|Some tests failed|^\s*Failed to load|^\s*Error: |FAILED:/, after: 6 },
   playwright: { start: /^\s*(\d+\)\s|[✘x]\s)|\d+ failed|\d+ flaky|Error: |Timeout of \d+ms exceeded/, after: 8 },
   gates: { start: /\bFAIL(ED)?\b|✗|✘|\bERROR\b|exit code [1-9]|not ok /, after: 4 },
 };
@@ -32,7 +35,7 @@ export function escapeProperty(text) {
   return escapeMessage(text).replace(/:/g, '%3A').replace(/,/g, '%2C');
 }
 
-/** The blocks of a log: every start line with the lines after it, consecutive blocks merged, ANSI colours removed. */
+/** The blocks of a log: every start line with the lines after it (passing-test lines dropped), consecutive blocks merged, ANSI colours removed. */
 export function failureBlocks(log, kind) {
   const rule = KINDS[kind];
   if (!rule) throw new Error(`unknown kind ${kind}`);
@@ -50,26 +53,47 @@ export function failureBlocks(log, kind) {
     }
     until = end;
   }
-  return blocks.map((block) => lines.slice(block.start, block.end + 1).map((line) => line.slice(0, 400)).join('\n'));
+  return blocks
+    .map((block) => lines.slice(block.start, block.end + 1).filter((line) => !PASSING.test(line)).map((line) => line.slice(0, 240)).join('\n'))
+    .filter((block) => block.trim() !== '');
 }
 
-/** The annotation text for a log: the failure blocks, the first ones kept when they do not fit, and a tail of the log when nothing matched. */
+/** The last non-empty lines of a log, cut to a readable width. */
+function tailOf(log, count) {
+  return log.split(/\r?\n/).filter((line) => line.trim() !== '').slice(-count).map((line) => line.slice(0, 240)).join('\n');
+}
+
+/** The annotation text for a log: the failure blocks, the first ones kept when there are many, and a tail of the log when nothing matched. */
 export function annotationText(log, kind) {
   const blocks = failureBlocks(log, kind);
-  let body;
   if (blocks.length === 0) {
-    const tail = log.split(/\r?\n/).filter((line) => line.trim() !== '').slice(-25).map((line) => line.slice(0, 400));
-    body = `no failure line matched the ${kind} patterns; last lines of the log:\n${tail.join('\n')}`;
-  } else {
-    const shown = blocks.slice(0, MAX_BLOCKS);
-    body = `${blocks.length} failure block(s)${blocks.length > shown.length ? `, first ${shown.length} shown` : ''}:\n${shown.join('\n---\n')}`;
+    return `no failure line matched the ${kind} patterns; last lines of the log:\n${tailOf(log, 25)}`;
   }
-  return body.length > MAX_MESSAGE ? `${body.slice(0, MAX_MESSAGE)}\n[cut]` : body;
+  const shown = blocks.slice(0, MAX_BLOCKS);
+  // The end of the log is always added: a step that was killed (memory, a dead server) leaves no failure line, only a log that stops.
+  return `${blocks.length} failure block(s)${blocks.length > shown.length ? `, first ${shown.length} shown` : ''}:\n${shown.join('\n---\n')}\n--- end of the log:\n${tailOf(log, 12)}`;
 }
 
-/** The workflow command line to print. */
-export function annotationCommand(log, kind, title) {
-  return `::error title=${escapeProperty(title)}::${escapeMessage(annotationText(log, kind))}`;
+/** The text cut into the chunks of one annotation each, at line ends; what does not fit in MAX_CHUNKS is dropped with a marker. */
+export function chunksOf(text) {
+  const chunks = [];
+  let current = '';
+  for (const line of text.split('\n')) {
+    if (current !== '' && current.length + line.length + 1 > CHUNK) {
+      chunks.push(current);
+      current = '';
+    }
+    current = current === '' ? line.slice(0, CHUNK) : `${current}\n${line}`;
+  }
+  if (current !== '') chunks.push(current);
+  if (chunks.length <= MAX_CHUNKS) return chunks;
+  return [...chunks.slice(0, MAX_CHUNKS - 1), `${chunks[MAX_CHUNKS - 1]}\n[cut: ${chunks.length - MAX_CHUNKS} more chunk(s) dropped]`];
+}
+
+/** The workflow command lines to print: one annotation per chunk, numbered in the title when there are several. */
+export function annotationCommands(log, kind, title) {
+  const chunks = chunksOf(annotationText(log, kind));
+  return chunks.map((chunk, index) => `::error title=${escapeProperty(chunks.length > 1 ? `${title} (${index + 1}/${chunks.length})` : title)}::${escapeMessage(chunk)}`);
 }
 
 export function main(argv, out = (line) => console.log(line)) {
@@ -84,7 +108,7 @@ export function main(argv, out = (line) => console.log(line)) {
     out(`::warning title=${escapeProperty(title)}::the log file ${escapeMessage(file)} does not exist, nothing to report`);
     return 0;
   }
-  out(annotationCommand(readFileSync(file, 'utf8'), kind, title));
+  for (const line of annotationCommands(readFileSync(file, 'utf8'), kind, title)) out(line);
   return 0;
 }
 

@@ -16,6 +16,23 @@ Tài liệu này đáp ứng mục "cấu hình UAT/Production khuyến nghị" 
 
 Nếu số người dùng đồng thời vượt 100 hoặc dung lượng CSDL vượt 100 GB, áp dụng mục 8.
 
+## 1A. Cấu hình theo số người dùng và căn cứ
+
+Số người dùng thật do PVFCCo cung cấp (PX-17); phần mềm không giới hạn bản quyền theo số người dùng, nên số người dùng chỉ quyết định cấu hình máy chủ. Bảng dưới là **khuyến nghị theo kịch bản**, chưa đo trên phần cứng của khách (PX-10, PX-11): kịch bản cơ sở lấy từ mục 1, 3 và 4; các kịch bản còn lại ngoại suy tuyến tính thô từ kịch bản cơ sở theo số người dùng đồng thời (cùng tỷ lệ tài nguyên ứng dụng trên mỗi người dùng đồng thời với kịch bản cơ sở, giới hạn container ở mục 4 làm mốc), rồi làm tròn lên bậc cấu hình phổ biến. Dùng làm điểm xuất phát để đặt mua và lập kế hoạch UAT, không dùng làm cam kết hiệu năng.
+
+| Kịch bản | Người dùng có tên | Đồng thời cao điểm | Ứng dụng (mỗi máy; số máy) | CSDL chính (và standby ở Production) | Đĩa CSDL + WAL | Tệp đính kèm | Kho sao lưu |
+|---|---|---|---|---|---|---|---|
+| S (đợt UAT, đào tạo) | đến 50 | đến 15 | một máy 8 vCPU, 24 GB như mục 3 (ứng dụng và CSDL cùng máy); 1 | cùng máy | 200 GB SSD | 100 GB | 250 GB |
+| M (cơ sở, theo giả định mục 1) | 150 | 40 | 8 vCPU, 16 GB; 2 | 8 vCPU, 32 GB; 1 + 1 | 500 GB SSD | 300 GB | 500 GB (vận hành) + 200 GB (lưu trữ) |
+| L | 300 | 80 | 8 vCPU, 16 GB; 2 (nâng `API_CPUS`, `WORKERS_CPUS` lên 4) | 12 vCPU, 48 GB; 1 + 1 | 750 GB SSD | 600 GB | 800 GB + 300 GB |
+| XL (xem mục 8) | trên 300 | trên 100 | 8 vCPU, 16 GB; 3 trở lên; bộ gom kết nối trước CSDL | 16 vCPU, 64 GB; 1 + 1 | 1 TB SSD | 1 TB | đo lại sau tháng đầu |
+
+Cách đọc: dung lượng CSDL và tệp phụ thuộc vào khối lượng dữ liệu (số dự án, số kỳ, số tệp) hơn là số người dùng; cột đĩa của kịch bản L và XL cộng thêm dự phòng cho nhật ký kiểm toán đủ trước và sau (ADM-29, bật theo loại đối tượng) và cho các bản chốt kỳ doanh nghiệp. Số lõi và bộ nhớ của CSDL tăng theo số đồng thời vì mỗi kết nối cần bộ nhớ làm việc; `DB_MAX_CONNECTIONS` giữ 200 đến khi cần bộ gom kết nối.
+
+Căn cứ theo ngân sách hiệu năng của khách (HT.05): mọi chức năng phản hồi dưới 5 giây và mọi báo cáo dưới 20 giây, đo bằng phân vị 95 của 20 mẫu (`docs/qa/perf-budget.json`: 82 thao tác, trong đó 67 lớp chức năng và 15 lớp báo cáo). Cấu hình một kịch bản chỉ được coi là đạt khi lượt đo ở mục 9 trên máy của khách, với số người dùng đồng thời của kịch bản đó, không có thao tác nào vượt ngân sách: `node scripts/perf-budget.mjs --base-url https://<máy chủ>/v1 --token <mã> --vars vars.json --strict --out ket-qua.json` (`docs/qa/performance.md`). Nếu một thao tác vượt ngân sách, tăng cấu hình lên kịch bản kế tiếp hoặc theo mục 8 rồi đo lại; kết quả đi vào biên bản UAT và vào mục PX-10 của sổ chờ khách.
+
+Tải cao điểm là 5 ngày mỗi tháng quanh hạn nhập số liệu (hạn mặc định ngày 5; xem `docs/delivery/12-maintenance-and-hypercare.md`): kết xuất PDF và Excel lô lớn chạy ở `workers`, không chạy trên API, nên số báo cáo kết xuất cùng lúc quyết định `WORKERS_CPUS` và `WORKERS_MEMORY`. Đường đọc của Power BI và Lakehouse (`docs/integration/lakehouse-proposal.md`) nên đi qua máy dự phòng ở Production để không cộng tải vào máy chính.
+
 ## 2. Mô hình triển khai
 
 | Môi trường | Mô hình | Mục đích |
@@ -66,7 +83,7 @@ Production nâng `DB_CPUS` lên 8, `DB_MEMORY` lên 24g, `DB_SHARED_BUFFERS` lê
 
 ## 5. Sao lưu, lưu trữ và sức chứa kho
 
-Chính sách: `infra/backup/backup-policy.json` (bản đầy đủ hằng ngày, gia tăng 4 giờ, khác biệt hằng tuần, bản đầy đủ hằng tháng vào kho lưu trữ, giữ tối thiểu 03 bản mới nhất, khóa bất biến COMPLIANCE 36 ngày cho kho vận hành và 400 ngày cho kho lưu trữ).
+Chính sách: `infra/backup/backup-policy.json` (bản đầy đủ hằng ngày, gia tăng năm lần mỗi ngày từ 05:30 đến 21:30, khác biệt hằng tuần, bản đầy đủ hằng tháng vào kho lưu trữ, giữ tối thiểu 03 bản mới nhất, khóa bất biến COMPLIANCE 36 ngày cho kho vận hành và 400 ngày cho kho lưu trữ).
 
 | Kho | Cách tính | Dung lượng ước tính |
 |---|---|---|

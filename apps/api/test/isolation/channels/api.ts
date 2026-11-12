@@ -683,6 +683,7 @@ export const FOREIGN_ATTEMPT_SPECS: readonly ForeignAttemptSpec[] = [
   },
   { operation: 'revokeDashboardShare', method: 'POST', id: SHARE_FIXTURES['TNT-B'].id, versioned: true, body: {} },
   { operation: 'decideBiPublication', method: 'POST', id: PUBLICATION_FIXTURES['TNT-B'].id, versioned: true, body: { decision: 'APPROVED' } },
+  { operation: 'checkBiPublication', method: 'POST', id: PUBLICATION_FIXTURES['TNT-B'].id, versioned: true, body: { comment: 'Isolation probe' } },
   {
     operation: 'post_dashboards_id_publish',
     method: 'POST',
