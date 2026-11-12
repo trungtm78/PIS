@@ -14,6 +14,7 @@ import {
   MAX_TIMER_DAYS,
   NOTICE_DAYS,
   PETITION_KINDS,
+  RECEIVER_CODE,
   ROUNDING_MODES,
   SETTLEMENT_DEADLINE_KEY,
   SETTLEMENT_PROJECT_GROUPS,
@@ -418,6 +419,8 @@ const DEFINITIONS: readonly MasterTypeDefinition[] = [
       { name: 'agency_kind', kind: 'choice', required: true, choices: AGENCY_KINDS },
       { name: 'report_type_keys', kind: 'keys', refType: 'REPORT_TYPE', maxItems: 30 },
       { name: 'channel', kind: 'choice', required: true, choices: DELIVERY_CHANNELS },
+      // The code the delivery log and the layouts of the forms carry for this agency; absent, the key of the entry is the code (the report catalogue, MD.03).
+      { name: 'receiver_code', kind: 'text', maxLength: 60, pattern: RECEIVER_CODE },
     ],
   },
   {
