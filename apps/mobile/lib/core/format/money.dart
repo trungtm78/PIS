@@ -94,17 +94,29 @@ String _number(BigInt scaled, int decimals, bool negative, String language) {
   return fraction.isEmpty ? '$sign$whole' : '$sign$whole${decimalMark(language)}$fraction';
 }
 
-/// An amount of whole dong written in the unit that fits it, to at most [decimals] places (trailing zeros dropped); null when
-/// [value] is not whole dong.
+/// An amount of whole dong written in the unit that fits it; null when [value] is not whole dong.
 ///
-/// The unit is the largest in which the amount is at least 1: `38000000000` is `38 ty`, `928800000000` is `928,8 ty`,
-/// `420500000` is `420,5 trieu`, `1000` is `1 nghin` and `999` is `999 dong`. Rounding that reaches 1.000 of a unit moves up to the next
-/// (`999.960.000` is `1 ty`, never `1.000 trieu`). Pass [unit] to force one (a column that is declared in one unit); the amount is then
-/// not moved up. Below one thousand dong the amount is exact, with no decimals.
-MoneyParts? moneyParts(String value, String language, {int decimals = 1, MoneyUnit? unit}) {
+/// The unit is the largest in which the amount is at least 1: `38000000000` is `38 ty`, `420500000` is `420,5 trieu`, `1000` is `1 nghin` and
+/// `999` is `999 dong`. Two modes:
+///
+///  * Exact ([decimals] null, the default): the figure is never rounded, so an approver or a payer sees every digit. The unit is kept only
+///    while it shows the amount in at most three decimals (`1.049.000.000` is `1,049 ty`); an amount that needs more (`1.049.123.456`) is
+///    written in whole dong, grouped, and so is an amount in nghin that is not a whole number of nghin (`1.500`).
+///  * Short ([decimals] given, 1 for a row or a tile): rounded half away from zero to that many places, trailing zeros dropped. Rounding that
+///    reaches 1.000 of a unit moves up to the next (`999.960.000` is `1 ty`, never `1.000 trieu`). It is for reading at a glance; the exact
+///    figure is shown in the detail (`moneyFullLabel`).
+///
+/// Pass [unit] to force one (a column that is declared in one unit); the amount is then not moved up and is rounded to [decimals]
+/// (6 when null, which holds every dong of a million). Below one thousand dong the amount is exact, with no decimals.
+MoneyParts? moneyParts(String value, String language, {int? decimals, MoneyUnit? unit}) {
   final BigInt? amount = parseDong(value);
   if (amount == null) return null;
   final bool negative = amount.isNegative;
+  if (decimals == null) {
+    if (unit == null) return _exactParts(amount, negative, language);
+    final int places = unit == MoneyUnit.dong ? 0 : 6;
+    return MoneyParts(_number(_scaled(amount, unit, places), places, negative, language), unit);
+  }
   MoneyUnit chosen = unit ?? moneyUnitFor(amount);
   int places = chosen == MoneyUnit.dong ? 0 : decimals;
   BigInt scaled = _scaled(amount, chosen, places);
@@ -114,6 +126,16 @@ MoneyParts? moneyParts(String value, String language, {int decimals = 1, MoneyUn
     scaled = _scaled(amount, chosen, places);
   }
   return MoneyParts(_number(scaled, places, negative, language), chosen);
+}
+
+/// The exact mode of [moneyParts]: the unit of the size of the amount while three decimals show it whole, else whole dong.
+MoneyParts _exactParts(BigInt amount, bool negative, String language) {
+  final MoneyUnit unit = moneyUnitFor(amount);
+  final BigInt step = dongPerUnit(unit) ~/ BigInt.from(1000);
+  // Three decimals of a unit are exact exactly when the amount is a whole number of a thousandth of it; a nghin with a fraction is dong.
+  final bool exact = unit != MoneyUnit.dong && amount.abs() % step == BigInt.zero && (unit != MoneyUnit.thousand || amount.abs() % dongPerUnit(unit) == BigInt.zero);
+  if (!exact) return MoneyParts('${negative ? '-' : ''}${groupDigits(amount, language)}', MoneyUnit.dong);
+  return MoneyParts(_number(_scaled(amount, unit, 3), 3, negative, language), unit);
 }
 
 /// Whole dong with the thousands grouped (`420.000.000`); text that is not an amount is returned as it came.

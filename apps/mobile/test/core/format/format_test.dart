@@ -59,6 +59,29 @@ void main() {
       expect(_short('1500', unit: MoneyUnit.dong), '1.500 dong');
     });
 
+    test('the exact mode (the default) never hides a digit: the unit is kept while three decimals show the amount whole, else whole dong', () {
+      String exact(String dong, {String language = 'vi'}) {
+        final MoneyParts parts = moneyParts(dong, language)!;
+        return '${parts.number} ${parts.unit.name}';
+      }
+
+      expect(exact('1049000000'), '1,049 billion', reason: 'an approver sees 1,049 billion, not 1 billion');
+      expect(exact('1049123456'), '1.049.123.456 dong', reason: 'more than three decimals: whole dong');
+      expect(exact('123456789'), '123.456.789 dong');
+      expect(exact('38000000000'), '38 billion');
+      expect(exact('1058300000000', language: 'en'), '1,058.3 billion');
+      expect(exact('420500000'), '420,5 million');
+      expect(exact('1000'), '1 thousand');
+      expect(exact('950000'), '950 thousand');
+      expect(exact('1500'), '1.500 dong', reason: 'a nghin with a fraction is written in dong');
+      expect(exact('999'), '999 dong');
+      expect(exact('0'), '0 dong');
+      expect(exact('-1049000000'), '-1,049 billion');
+      expect(exact('-1500'), '-1.500 dong');
+      expect(exact('999999999999999999'), '999.999.999.999.999.999 dong', reason: 'a huge amount that is not a whole million is whole dong');
+      expect(moneyParts('1000', 'vi', unit: MoneyUnit.million)!.number, '0,001', reason: 'a forced unit in the exact mode holds every dong of a million');
+    });
+
     test('text that is not whole dong gives no parts and is returned as it came by the labels', () {
       expect(moneyParts('abc', 'vi'), isNull);
       expect(moneyParts('1.5', 'vi'), isNull);

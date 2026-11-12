@@ -253,7 +253,7 @@ class _CommandBlock extends StatelessWidget {
         ? _nullReasonText(context, tile.nullReason)
         : context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.displayValue ?? tile.value!, AppStrings.of(context).language)});
     final String line = tile.hasSums && tile.value != null
-        ? context.t('mob.home.command.rate.line', <String, Object>{'label': label, 'value': value, 'numerator': moneyLabel(context, tile.numerator, decimals: 3), 'denominator': moneyLabel(context, tile.denominator, decimals: 3)})
+        ? context.t('mob.home.command.rate.line', <String, Object>{'label': label, 'value': value, 'numerator': moneyLabel(context, tile.numerator), 'denominator': moneyLabel(context, tile.denominator)})
         : '$label: $value';
     final FigureInfo? info = tile.info;
     return Padding(
@@ -491,8 +491,8 @@ class MetricTileCard extends StatelessWidget {
     final String label = metricLabel(context, tile.metricCode);
     final String value = _valueOf(context, tile);
     final String? sums = tile.hasSums
-        ? '${context.t('mob.home.tile.numerator', <String, Object>{'value': moneyLabel(context, tile.numerator, decimals: 3)})} · '
-            '${context.t('mob.home.tile.denominator', <String, Object>{'value': moneyLabel(context, tile.denominator, decimals: 3)})}'
+        ? '${context.t('mob.home.tile.numerator', <String, Object>{'value': moneyLabel(context, tile.numerator)})} · '
+            '${context.t('mob.home.tile.denominator', <String, Object>{'value': moneyLabel(context, tile.denominator)})}'
         : null;
     final String definition = tile.isSigned
         ? context.t('mob.home.tile.definition.signed')

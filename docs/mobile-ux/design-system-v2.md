@@ -162,7 +162,7 @@ Nguồn lỗi hiện hành: xem `findings.md` F-02. Quy tắc:
 | Đầy đủ (chi tiết, xác nhận phê duyệt, thanh toán) | đồng đầy đủ có dấu ngăn nghìn, kèm rút gọn trong ngoặc khi từ 1 triệu | 2.350.000.000 đồng (2,35 tỷ) |
 | Phần trăm | một chữ số thập phân, dấu phẩy | 58,1% |
 
-Không có đơn vị cố định "triệu đồng" cho mọi số; không bao giờ xuống 0,001 triệu. Đã làm ở `apps/mobile/lib/core/format` (`moneyParts`, `moneyLabel`, `moneyExactLabel`, `moneyFullLabel`, `formatDay`, `formatMoment`, `formatDeadline`): một bộ duy nhất, giờ Việt Nam, ngày trước giờ sau. Hành vi cũ giữ cho số liệu báo cáo xuất tệp (không đổi hợp đồng API).
+Không có đơn vị cố định "triệu đồng" cho mọi số; không bao giờ xuống 0,001 triệu. Hai chế độ ở mã: chính xác (mặc định, màn chưa vẽ lại và mọi nơi người duyệt hay trả tiền cần thấy đủ chữ số: giữ đơn vị theo cỡ số nếu ba chữ số thập phân còn đủ, nếu không thì đồng nguyên, ví dụ 1.049.000.000 là 1,049 tỷ đồng và 1.049.123.456 là 1.049.123.456 đồng) và rút gọn (`decimals: 1`, dành cho hàng và ô chỉ số của màn mới, làm tròn). Đã làm ở `apps/mobile/lib/core/format` (`moneyParts`, `moneyLabel`, `moneyExactLabel`, `moneyFullLabel`, `formatDay`, `formatMoment`, `formatDeadline`): một bộ duy nhất, giờ Việt Nam, ngày trước giờ sau. Hành vi cũ giữ cho số liệu báo cáo xuất tệp (không đổi hợp đồng API).
 Ngày: `dd/MM/yyyy`, ngày ngắn `dd/MM`, giờ 24 giờ `HH:mm`, thứ "Thứ Năm". Tương đối chỉ cho hạn: "Hôm nay", "Ngày mai", "Trễ N ngày", "Còn N ngày" kèm ngày thật; không dùng "N ngày trước" cho hạn chót.
 
 ## 7. Cấu trúc điều hướng

@@ -45,7 +45,7 @@ class _MoneyFieldState extends State<MoneyField> {
   @override
   Widget build(BuildContext context) {
     final String? digits = digitsOf(_controller.text);
-    final String? millions = digits == null ? null : moneyLabel(context, digits, decimals: 3);
+    final String? millions = digits == null ? null : moneyLabel(context, digits);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: TextField(

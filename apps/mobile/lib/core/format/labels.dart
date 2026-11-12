@@ -3,9 +3,10 @@ import 'package:flutter/widgets.dart';
 import '../l10n/app_strings.dart';
 import 'money.dart';
 
-/// An amount of whole dong in the unit that fits it, in the language of the interface: `38 ty dong`, `928,8 ty dong`, `420 trieu dong`,
-/// `1 nghin dong`, `999 dong`. A missing amount says so; text that is not an amount is returned as it came. See `moneyParts`.
-String moneyLabel(BuildContext context, String? vnd, {int decimals = 1, MoneyUnit? unit, bool signed = false}) {
+/// An amount of whole dong in the unit that fits it, in the language of the interface: `38 ty dong`, `1,049 ty dong`, `420 trieu dong`,
+/// `1 nghin dong`, `999 dong`. Exact by default (no digit is hidden); pass `decimals: 1` for the short form of a row or a tile. A missing
+/// amount says so; text that is not an amount is returned as it came. See `moneyParts`.
+String moneyLabel(BuildContext context, String? vnd, {int? decimals, MoneyUnit? unit, bool signed = false}) {
   if (vnd == null) return context.t('mob.format.money.none');
   final MoneyParts? parts = moneyParts(vnd, AppStrings.of(context).language, decimals: decimals, unit: unit);
   if (parts == null) return vnd;
