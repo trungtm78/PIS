@@ -25,7 +25,7 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { configuredFormOf } from './configured-forms';
-import { assertCatalogueReceiver, catalogueFormOf } from './report-catalogue';
+import { assertCatalogueReceiver } from './report-catalogue';
 import { blockingSummaryOf, recordFigureSetOf, releaseCheckOf } from './crosscheck';
 import { reportFileName } from './file-name';
 import { REPORT_FORMS, assertLayoutAccess } from './form-registry';
@@ -112,9 +112,8 @@ export class ReportController {
     const marks = issueMarksOf(bundle.layout, { demoMode });
 
     const templates = await bundle.templates();
-    // The receiver of a form of the code is the agency the tenant's catalogue gives it (MD.03); the code's own receiver stands when the catalogue says nothing.
-    const receiver = (await catalogueFormOf(tx, bundle.layout.code, today))?.receiver ?? bundle.receiver;
-    const registered = await reportStore.registerLayout(tx, { layout: bundle.layout, narrative: bundle.narrative, edition: bundle.edition, receiver, periodKind: bundle.periodKind, dataSource: bundle.dataSource, xlsx: templates.xlsx, docx: templates.docx }, by);
+    // The layout row is the immutable record of the registration and keeps the receiver of the code; the receiver a form is shown and delivered under is read from the tenant's catalogue each time (MD.03), so a change of the catalogue needs no new layout.
+    const registered = await reportStore.registerLayout(tx, { layout: bundle.layout, narrative: bundle.narrative, edition: bundle.edition, receiver: bundle.receiver, periodKind: bundle.periodKind, dataSource: bundle.dataSource, xlsx: templates.xlsx, docx: templates.docx }, by);
     const layout = registered.row;
     if (registered.created) {
       await scope.audit({
