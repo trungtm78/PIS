@@ -121,8 +121,32 @@ REVOKE DELETE, TRUNCATE ON TABLE machvon.project_task_exception FROM machvon_app
 
 CREATE TRIGGER project_task_evidence_immutable BEFORE UPDATE OR DELETE ON machvon.project_task_evidence
   FOR EACH ROW EXECUTE FUNCTION machvon.pwf_forbid_change();
-CREATE TRIGGER project_task_assignment_immutable BEFORE UPDATE OR DELETE ON machvon.project_task_assignment
-  FOR EACH ROW EXECUTE FUNCTION machvon.pwf_forbid_change();
+-- A line of the ledger is never edited or removed; the one thing it may gain is the end of an open period (the person who held it hands it over, and a new line starts the next day), once.
+CREATE FUNCTION machvon.guard_project_task_assignment() RETURNS trigger
+LANGUAGE plpgsql
+AS $fn$
+BEGIN
+  IF current_user = 'machvon_owner' THEN
+    IF TG_OP = 'DELETE' THEN
+      RETURN OLD;
+    END IF;
+    RETURN NEW;
+  END IF;
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'a line of the ledger of assignments is never deleted' USING ERRCODE = '42501';
+  END IF;
+  IF (NEW.tenant_id, NEW.id, NEW.task_id, NEW.membership_id, NEW.role, NEW.valid_from, NEW.share_pct, NEW.reason, NEW.assigned_by, NEW.assigned_at, NEW.approved_by)
+     IS DISTINCT FROM
+     (OLD.tenant_id, OLD.id, OLD.task_id, OLD.membership_id, OLD.role, OLD.valid_from, OLD.share_pct, OLD.reason, OLD.assigned_by, OLD.assigned_at, OLD.approved_by)
+     OR OLD.valid_to IS NOT NULL OR NEW.valid_to IS NULL THEN
+    RAISE EXCEPTION 'a line of the ledger of assignments only gains the end of its open period' USING ERRCODE = '42501';
+  END IF;
+  RETURN NEW;
+END;
+$fn$;
+
+CREATE TRIGGER project_task_assignment_guard BEFORE UPDATE OR DELETE ON machvon.project_task_assignment
+  FOR EACH ROW EXECUTE FUNCTION machvon.guard_project_task_assignment();
 
 -- An exception keeps what was asked for good; it is decided once (REQUESTED to APPROVED or REJECTED), and an approved one may be marked USED.
 CREATE FUNCTION machvon.guard_project_task_exception() RETURNS trigger

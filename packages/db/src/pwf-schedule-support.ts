@@ -379,3 +379,6 @@ export function ownTaskDefinition(row: TaskRow): pwfWorkflow.TemplateTask {
     when: [],
   };
 }
+
+/** The reason of the line that the workflow writes for the leader in charge when it starts: such a line is handed over by the next assignment of the role (the ledger closes its open period, it never edits it). */
+export const DEFAULT_ASSIGNMENT_REASON = 'Default: the leader in charge of the project';

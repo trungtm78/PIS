@@ -8,6 +8,7 @@ import { PLAN_PUBLISHED_EVENT } from '../src/prj-stage-machine';
 import { PrjStageStore } from '../src/prj-stage-store';
 import type { ProjectLessonsPort } from '../src/prj-stage-store';
 import { SqlProjectWorkflowGate } from '../src/pwf-gate';
+import { PwfDeadlineReads } from '../src/pwf-deadline-reads';
 import { PwfRescheduleStore } from '../src/pwf-reschedule-store';
 import { pinPublishedCalendars } from '../src/pwf-schedule-support';
 import { PwfTaskReads } from '../src/pwf-task-reads';
@@ -27,6 +28,7 @@ const tasks = new PwfTaskStore();
 const reschedules = new PwfRescheduleStore();
 const reads = new PwfWorkflowReads();
 const taskReads = new PwfTaskReads();
+const deadlines = new PwfDeadlineReads();
 const gate = new SqlProjectWorkflowGate();
 
 const MANAGER = 1;
@@ -295,6 +297,12 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await owner('select 1 from machvon.project_task_log where task_id is null and kind = $1 and workflow_id in (select id from machvon.project_workflow where project_id = $2::uuid)', ['ADOPTED', p.id])).length).toBe(0);
     });
 
+    it('tells in the dry run what apply would refuse for the evidence of a task taken in as done', async () => {
+      const p = await project({ status: 'IMPLEMENTATION' });
+      const preview = await as((tx) => workflows.adopt(tx, { projectId: p.id, templateCode: 'TESTFLOW', plannedStartDate: `${YEAR}-09-01`, effectiveDate: `${YEAR}-10-15`, dryRun: true, facts: { project_group: 'B' }, actor: memberId(MANAGER), scopes, now: now(), pastTasks: [{ taskCode: 'TA', treatment: 'DONE', evidence: [] }, { taskCode: 'MS_A', treatment: 'NOT_TRACKED' }, { taskCode: 'TC', treatment: 'NOT_TRACKED' }] }));
+      expect(preview.findings).toContainEqual({ code: 'EVIDENCE_MISSING', task: 'TA' });
+    });
+
     it('UAT-PWF-NEG-07: refuses to apply while a past task is undecided (422 PWF_ADOPT_INVALID), then applies: not tracked, done with evidence, in progress', async () => {
       const p = await project({ status: 'IMPLEMENTATION' });
       expect(await refusal(adopt(p.id, {}, false))).toMatchObject({ code: 'PWF_ADOPT_INVALID', status: 422 });
@@ -431,6 +439,25 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
   });
 
   describe('the ledger of assignments (R34, BR-PWF-34)', () => {
+    it('hands over the line written for the leader in charge to the next person of the role, by closing its open period, and counts the workload by the period of each line', async () => {
+      const p = await project();
+      await owner(
+        `insert into machvon.project_accountability (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by) values ($1, gen_random_uuid(), $2, $3, 'LEADER_IN_CHARGE', date '2026-01-01', 'ACTIVE', $4, $4)`,
+        [TENANT_A, p.id, memberId(OTHER), memberId(MANAGER)],
+      );
+      const wf = await start(p.id);
+      const a = await taskOf(wf.id, 'TA');
+      const lines = () => owner<{ membership_id: string; valid_to: string | null }>('select membership_id, valid_to::text as valid_to from machvon.project_task_assignment where task_id = $1::uuid order by valid_from', [a.id]);
+      expect((await lines()).map((one) => [one.membership_id, one.valid_to])).toEqual([[memberId(OTHER), null]]);
+      await assign(a.id as string, WORKER, 'RESPONSIBLE', { validFrom: TODAY });
+      expect((await lines()).map((one) => [one.membership_id, one.valid_to === null])).toEqual([[memberId(OTHER), false], [memberId(WORKER), true]]);
+      // The person who held it before is no longer the one who works on it.
+      expect(await refusal(begin(wf.id, 'TA', OTHER))).toMatchObject({ code: 'SCOPE_DENIED' });
+      expect((await begin(wf.id, 'TA', WORKER)).status).toBe('IN_PROGRESS');
+      const load = (await as((tx) => deadlines.workload(tx, everything, {}, { weeks: 4 }, now()))) as { people: Array<{ membership_id: string; open_tasks: number }> };
+      expect(load.people.find((one) => one.membership_id === memberId(WORKER))?.open_tasks).toBeGreaterThan(0);
+    });
+
     it('adds only: the same person twice in a role over the same days is refused, and the shares of one role add up to 100 at most', async () => {
       const wf = await start((await project()).id);
       const a = await taskOf(wf.id, 'TA');

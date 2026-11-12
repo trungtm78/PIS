@@ -325,12 +325,13 @@ export class PwfRescheduleStore {
   /** The progress a person can say about an open task: the days that are left and the percent done (never a finish: a task is finished by completing it). */
   private async applyProgress(tx: TenantTx, workflowId: string, input: RescheduleInput): Promise<void> {
     for (const one of input.progress ?? []) {
+      // A property that is left out stays as it is; one that is given as null clears it, as the preview took it (the same schedule is published and kept).
       await tx.query(
         `update machvon.project_task
-            set remaining_working_days = coalesce($3::int, remaining_working_days), percent_complete = coalesce($4::int, percent_complete),
-                actual_start = case when status = 'IN_PROGRESS' and actual_start is null then coalesce($5::date, actual_start) else actual_start end, updated_at = now(), version = version + 1
+            set remaining_working_days = case when $3::boolean then $4::int else remaining_working_days end, percent_complete = case when $5::boolean then $6::int else percent_complete end,
+                actual_start = case when status = 'IN_PROGRESS' and actual_start is null then coalesce($7::date, actual_start) else actual_start end, updated_at = now(), version = version + 1
           where workflow_id = $1::uuid and task_code = $2 and status in ('IN_PROGRESS', 'ON_HOLD')`,
-        [workflowId, one.taskCode, one.remainingWorkingDays ?? null, one.percentComplete ?? null, one.actualStart ?? null],
+        [workflowId, one.taskCode, one.remainingWorkingDays !== undefined, one.remainingWorkingDays ?? null, one.percentComplete !== undefined, one.percentComplete ?? null, one.actualStart ?? null],
       );
     }
   }

@@ -264,11 +264,12 @@ export class PwfDeadlineReads {
     const monday = addDays(given, -((new Date(`${given}T00:00:00Z`).getUTCDay() + 6) % 7));
     const weeks = Array.from({ length: weeksCount }, (_, index) => addDays(monday, index * 7));
     const where = conditionsOf(scope, filter);
-    const params = [...where.params, today];
-    const rows = await tx.query<{ membership_id: string; display_name: string | null; task_id: string; planned_start: string | null; planned_finish: string | null; share_pct: number }>(
-      `select a.membership_id, u.display_name, t.id as task_id, t.planned_start::text as planned_start, t.planned_finish::text as planned_finish, a.share_pct
+    const end = addDays(weeks[weeks.length - 1] as string, 6);
+    const params = [...where.params, monday, end];
+    const rows = await tx.query<{ membership_id: string; display_name: string | null; task_id: string; planned_start: string | null; planned_finish: string | null; share_pct: number; valid_from: string; valid_to: string | null }>(
+      `select a.membership_id, u.display_name, t.id as task_id, t.planned_start::text as planned_start, t.planned_finish::text as planned_finish, a.share_pct, a.valid_from::text as valid_from, a.valid_to::text as valid_to
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-         join machvon.project_task_assignment a on a.tenant_id = t.tenant_id and a.task_id = t.id and a.role = 'RESPONSIBLE' and a.valid_from <= $${params.length}::date and (a.valid_to is null or a.valid_to >= $${params.length}::date)
+         join machvon.project_task_assignment a on a.tenant_id = t.tenant_id and a.task_id = t.id and a.role = 'RESPONSIBLE' and a.valid_from <= $${params.length}::date and (a.valid_to is null or a.valid_to >= $${params.length - 1}::date)
          left join machvon.tenant_user_directory u on u.tenant_id = a.tenant_id and u.membership_id = a.membership_id
         where ${where.sql} order by a.membership_id, t.id limit ${WORKLOAD_ROWS_CAP}`,
       params,
@@ -284,8 +285,9 @@ export class PwfDeadlineReads {
       person.open.add(row.task_id);
       if (row.planned_start !== null && row.planned_finish !== null) {
         weeks.forEach((week, index) => {
-          const from = row.planned_start! > week ? row.planned_start! : week;
-          const toDay = row.planned_finish! < addDays(week, 6) ? row.planned_finish! : addDays(week, 6);
+          // Only the days on which the person holds the task: the window of the task, the week and the period of the assignment.
+          const from = [row.planned_start!, week, row.valid_from].reduce((latest, day) => (day > latest ? day : latest));
+          const toDay = [row.planned_finish!, addDays(week, 6), ...(row.valid_to === null ? [] : [row.valid_to])].reduce((earliest, day) => (day < earliest ? day : earliest));
           for (let day = from; day <= toDay; day = addDays(day, 1)) if (working(day)) person.weekly[index] = (person.weekly[index] as number) + row.share_pct / 100;
         });
       }

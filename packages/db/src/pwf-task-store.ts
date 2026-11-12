@@ -5,7 +5,7 @@ import { PrjBaselineStore } from './prj-baseline-store.ts';
 import { dateOf } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
 import { logWorkflow, publishSchedule, resultHashOf, syncMilestones } from './pwf-publish.ts';
-import { TASK_COLUMNS, baselineOfRows, earliestYear, ownTaskDefinition, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
+import { DEFAULT_ASSIGNMENT_REASON, TASK_COLUMNS, baselineOfRows, earliestYear, ownTaskDefinition, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow } from './pwf-schedule-support.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -321,6 +321,13 @@ export class PwfTaskStore {
     const reason = textOf(input.reason, 'reason', 5, 500);
     const member = await tx.query<{ id: string }>('select id from machvon.membership where id = $1::uuid', [membershipId]);
     if (member[0] === undefined) throw new DomainError('PWF_ASSIGNMENT_INVALID', 422, 'membership_id');
+    // The line that the workflow wrote for the leader in charge is handed over by the next person of the role: its open period ends the day before (the ledger closes a period, it never edits one).
+    if (input.role === 'RESPONSIBLE') {
+      await tx.query(
+        `update machvon.project_task_assignment set valid_to = $2::date - 1 where task_id = $1::uuid and role = 'RESPONSIBLE' and valid_to is null and reason = $3 and valid_from < $2::date and membership_id <> $4::uuid`,
+        [task.id, from, DEFAULT_ASSIGNMENT_REASON, membershipId],
+      );
+    }
     const others = await tx.query<{ valid_from: string; valid_to: string | null; share_pct: number }>(
       `select valid_from::text as valid_from, valid_to::text as valid_to, share_pct from machvon.project_task_assignment
         where task_id = $1::uuid and role = $2 and daterange(valid_from, valid_to, '[]') && daterange($3::date, $4::date, '[]')`,

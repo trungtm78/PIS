@@ -5,7 +5,7 @@ import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { PrjBaselineStore } from './prj-baseline-store.ts';
 import { dateOf, lockProject } from './prj-stage-support.ts';
 import type { LockedProject, StageScopes } from './prj-stage-support.ts';
-import { earliestYear, inputHashOf, pinPublishedCalendars } from './pwf-schedule-support.ts';
+import { DEFAULT_ASSIGNMENT_REASON, earliestYear, inputHashOf, pinPublishedCalendars } from './pwf-schedule-support.ts';
 import type { PinnedCalendar } from './pwf-schedule-support.ts';
 import { logWorkflow, publishSchedule } from './pwf-publish.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -190,12 +190,14 @@ export class PwfWorkflowStore {
       const treatment: Treatment = excluded ? 'EXCLUDED' : decisions.notTracked.has(code) ? 'NOT_TRACKED' : decisions.progress[code]?.status === 'DONE' ? 'DONE' : decisions.progress[code]?.status === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'TRACKED';
       return { taskCode: code, name: byTemplate.get(code)?.name ?? code, treatment, plannedStart: scheduled.start, plannedFinish: scheduled.finish, needsDecision: !excluded && undecided.includes(code) };
     });
-    const findings = [...plan.result.findings.map((one) => ({ code: one.code, task: one.task })), ...undecided.map((code) => ({ code: 'PAST_TASK_UNDECIDED', task: code }))];
+    // What apply would refuse is told by the dry run, task by task: undecided past tasks and tasks taken in as done without the evidence the template asks for.
+    const short = this.evidenceShortfalls(resolved.template, decisions.evidence);
+    const findings = [...plan.result.findings.map((one) => ({ code: one.code, task: one.task })), ...undecided.map((code) => ({ code: 'PAST_TASK_UNDECIDED', task: code })), ...short.map((code) => ({ code: 'EVIDENCE_MISSING', task: code }))];
     if (request.dryRun) {
       return { dryRun: true, applied: false, workflow: null, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings };
     }
     if (undecided.length > 0) throw new DomainError('PWF_ADOPT_INVALID', 422, 'past_tasks', { extensions: { tasks: undecided } });
-    this.assertEvidence(resolved.template, decisions.evidence);
+    if (short.length > 0) throw new DomainError('PWF_ADOPT_INVALID', 422, 'past_tasks', { extensions: { tasks: short, reason: 'EVIDENCE_MISSING' } });
     const workflow = await this.write(tx, project, request, plan, decisions, 'ADOPTION', today, effectiveDate);
     return { dryRun: false, applied: true, workflow, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings };
   }
@@ -241,7 +243,7 @@ export class PwfWorkflowStore {
   }
 
   /** A task taken in as done carries the evidence the template asks for: every type of legal document, and some evidence at all when it has a required checklist item (BR-PWF-17). */
-  private assertEvidence(template: pwfWorkflow.ProjectWorkflowTemplate, evidence: Map<string, readonly EvidenceDraft[]>): void {
+  private evidenceShortfalls(template: pwfWorkflow.ProjectWorkflowTemplate, evidence: Map<string, readonly EvidenceDraft[]>): string[] {
     const byCode = new Map(template.tasks.map((one) => [one.code, one] as const));
     const short: string[] = [];
     for (const [code, given] of evidence) {
@@ -251,7 +253,7 @@ export class PwfWorkflowStore {
       if (definition.legalDocTypes.some((type) => !kinds.has(type)) || (needsAny && given.length === 0)) short.push(code);
       for (const one of given) if (one.legalDocType !== undefined && pwfWorkflow.resolveLegalDocType(one.legalDocType) === undefined) throw new DomainError('LEGAL_DOC_TYPE_UNKNOWN', 422, 'legal_doc_type');
     }
-    if (short.length > 0) throw new DomainError('PWF_ADOPT_INVALID', 422, 'past_tasks', { extensions: { tasks: short.sort(), reason: 'EVIDENCE_MISSING' } });
+    return short.sort();
   }
 
   private async plan(tx: TenantTx, resolved: ResolvedTemplate, facts: pwfWorkflow.ProjectFacts, plannedStart: string, progress: Record<string, pwfSchedule.TaskProgress>, statusDate: string | null): Promise<Plan> {
@@ -403,9 +405,9 @@ export class PwfWorkflowStore {
     if (leader === undefined) return;
     await tx.query(
       `insert into machvon.project_task_assignment (tenant_id, id, task_id, membership_id, role, valid_from, share_pct, reason, assigned_by)
-       select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), t.id, $2::uuid, 'RESPONSIBLE', least($3::date, $4::date), 100, 'Default: the leader in charge of the project', $5::uuid
+       select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), t.id, $2::uuid, 'RESPONSIBLE', least($3::date, $4::date) - 1, 100, $6, $5::uuid
          from machvon.project_task t where t.workflow_id = $1::uuid and not t.excluded and t.tracked and t.status in ('NOT_STARTED', 'IN_PROGRESS')`,
-      [workflowId, leader, plannedStart, today, actor],
+      [workflowId, leader, plannedStart, today, actor, DEFAULT_ASSIGNMENT_REASON],
     );
   }
 }
