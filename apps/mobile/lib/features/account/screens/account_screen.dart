@@ -369,11 +369,10 @@ class _Choice extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            MachvonV2Space.s16,
-            MachvonV2Space.s12,
-            MachvonV2Space.s16,
-            0,
+          padding: const EdgeInsets.only(
+            left: MachvonV2Space.s16,
+            top: MachvonV2Space.s12,
+            right: MachvonV2Space.s16,
           ),
           child: Semantics(
             header: true,

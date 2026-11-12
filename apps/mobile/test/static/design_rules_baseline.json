@@ -1,34 +1,20 @@
 {
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
-    "AppBar(": 16,
+    "AppBar(": 13,
     "BoxDecoration(": 13,
-    "Card(": 22,
+    "Card(": 19,
     "Colors.": 3,
     "EdgeInsets-number": 29,
     "MachvonColors.": 82,
-    "Scaffold(": 25,
-    "TextStyle(": 15,
+    "Scaffold(": 22,
+    "TextStyle(": 13,
     "fontSize:": 1,
     "toStringAsFixed(": 9
   },
   "files": {
     "lib/editions/enterprise/enterprise_home.dart": {
       "EdgeInsets-number": 1
-    },
-    "lib/features/account/screens/account_screen.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/account/screens/devices_screen.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/account/screens/tenant_switch_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 2,
-      "Scaffold(": 1,
-      "TextStyle(": 2
     },
     "lib/features/ai_review/ai_support.dart": {
       "Card(": 1,
@@ -133,9 +119,6 @@
     },
     "lib/features/foundation/screens/error_state_screen.dart": {
       "Scaffold(": 1
-    },
-    "lib/features/notification_inbox/screens/notification_preferences_screen.dart": {
-      "Card(": 1
     },
     "lib/features/offline/screens/conflict_screen.dart": {
       "AppBar(": 1,
