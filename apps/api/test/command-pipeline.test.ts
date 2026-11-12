@@ -133,13 +133,13 @@ describe('command pipeline (ST-ADM-001, ST-ADM-002, ST-KERNEL-023, ST-KERNEL-028
     expect(await auditRows('command.denied:denyWidget', 'DENIED')).toBe(1);
     // The correlation id the caller receives finds the audit row, even though the caller sent none.
     const { rows } = await admin.query<{ correlation_id: string }>("select correlation_id from machvon.audit_event where action = 'command.denied:denyWidget'");
-    expect(rows.map((row) => row.correlation_id)).toEqual([first.json.correlationId]);
+    expect(rows.map((row) => row.correlation_id)).toEqual([first.json.correlation_id]);
   });
 
   it('keeps a correlation id sent by the caller across the response and the audit row', async () => {
     const correlationId = randomUUID();
     const reply = await send('POST', '/test/widgets/deny', { extraHeaders: { 'x-correlation-id': correlationId } });
-    expect(reply.json.correlationId).toBe(correlationId);
+    expect(reply.json.correlation_id).toBe(correlationId);
     expect(await count("select count(*) as n from machvon.audit_event where action = 'command.denied:denyWidget' and correlation_id = $1", [correlationId])).toBe(1);
   });
 

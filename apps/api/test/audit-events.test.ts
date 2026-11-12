@@ -152,7 +152,7 @@ describe('audit reads (ST-ADM-002, ADM-11)', () => {
     const foreign = await get(`/resources/audit_event/${EVENT(7)}`, AUDITOR);
     const missing = await get(`/resources/audit_event/${id(0x62, 1)}`, AUDITOR);
     expect(foreign.status).toBe(404);
-    expect({ ...foreign.json, correlationId: 'x', instance: 'x' }).toEqual({ ...missing.json, correlationId: 'x', instance: 'x' });
+    expect({ ...foreign.json, correlation_id: 'x', instance: 'x' }).toEqual({ ...missing.json, correlation_id: 'x', instance: 'x' });
     expect(foreign.text).not.toContain('secret of tenant B');
     expect((await get('/resources/audit_event', AUDITOR)).text).not.toContain('secret of tenant B');
   });

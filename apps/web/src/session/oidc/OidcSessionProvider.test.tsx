@@ -261,7 +261,7 @@ describe('OidcSessionProvider', () => {
     });
     expect(calls.filter((call) => call.method === 'POST')).toHaveLength(1);
     await act(async () => {
-      release(json({ code: 'INTERNAL_ERROR', status: 500, title: 't', type: 'x', correlationId: 'c' }, 500));
+      release(json({ code: 'INTERNAL_ERROR', status: 500, title: 't', type: 'x', correlation_id: 'c' }, 500));
       await Promise.allSettled([first, second]);
     });
     selectBehaviour = () => {
@@ -275,7 +275,7 @@ describe('OidcSessionProvider', () => {
   });
 
   it('uses a new idempotency key after a final refusal such as MFA_REQUIRED', async () => {
-    selectBehaviour = () => json({ type: 'urn:machvon:error:MFA_REQUIRED', title: 't', status: 403, code: 'MFA_REQUIRED', correlationId: 'c' }, 403);
+    selectBehaviour = () => json({ type: 'urn:machvon:error:MFA_REQUIRED', title: 't', status: 403, code: 'MFA_REQUIRED', correlation_id: 'c' }, 403);
     mount();
     await signedIn();
     await act(async () => {
@@ -329,7 +329,7 @@ describe('OidcSessionProvider', () => {
     await signedIn();
     await select(TENANT_A);
     const good = selectBehaviour;
-    selectBehaviour = () => json({ type: 'x', title: 't', status: 500, code: 'INTERNAL_ERROR', correlationId: 'c' }, 500);
+    selectBehaviour = () => json({ type: 'x', title: 't', status: 500, code: 'INTERNAL_ERROR', correlation_id: 'c' }, 500);
     nowMs += 240_000;
     await act(async () => {
       await vi.advanceTimersByTimeAsync(240_000);
@@ -410,7 +410,7 @@ describe('OidcSessionProvider', () => {
     mount();
     await signedIn();
     await select(TENANT_A);
-    selectBehaviour = () => json({ type: 'urn:machvon:error:SESSION_EXPIRED', title: 't', status: 401, code: 'SESSION_EXPIRED', correlationId: 'c' }, 401);
+    selectBehaviour = () => json({ type: 'urn:machvon:error:SESSION_EXPIRED', title: 't', status: 401, code: 'SESSION_EXPIRED', correlation_id: 'c' }, 401);
     nowMs += 240_000;
     await act(async () => {
       await vi.advanceTimersByTimeAsync(240_000);

@@ -183,7 +183,7 @@ describe('payment integrity checks and the exceptions to the ceilings of disburs
     expect(await events(second.id, 'pay.payment_request.integrity_blocked.v1')).toHaveLength(1);
     // The same key is the same answer and writes nothing more; a new key is a new attempt with a new run.
     const replayed = await submit(MAKER, second.id, 'duplicate-key-once-1234');
-    expect({ status: replayed.status, json: { ...replayed.json, correlationId: undefined } }).toEqual({ status: refused.status, json: { ...refused.json, correlationId: undefined } });
+    expect({ status: replayed.status, json: { ...replayed.json, correlation_id: undefined } }).toEqual({ status: refused.status, json: { ...refused.json, correlation_id: undefined } });
     expect(await runsOf(second.id)).toHaveLength(1);
     expect(await submit(MAKER, second.id)).toMatchObject({ status: 422, json: { code: 'DUPLICATE_CLAIM' } });
     expect(await runsOf(second.id)).toHaveLength(2);

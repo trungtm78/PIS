@@ -270,7 +270,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       const wrong = await exchange(reader.clientId, `mvs_${'A'.repeat(43)}`);
       expect([unknown.status, wrong.status]).toEqual([401, 401]);
       expect(unknown.json.code).toBe('OPEN_CLIENT_INVALID');
-      expect({ ...wrong.json, correlationId: undefined, detail: undefined }).toEqual({ ...unknown.json, correlationId: undefined, detail: undefined });
+      expect({ ...wrong.json, correlation_id: undefined, detail: undefined }).toEqual({ ...unknown.json, correlation_id: undefined, detail: undefined });
       expect((await open('POST', '/open/v1/token', { body: { grant_type: 'password', client_id: reader.clientId, client_secret: reader.secret } })).status).toBe(422);
       expect((await open('POST', '/open/v1/token', { body: { grant_type: 'client_credentials', client_id: 'nonsense', client_secret: 'x' } })).json.code).toBe('OPEN_CLIENT_INVALID');
       expect((await logOf(reader.id)).filter((entry) => entry.outcome === 'DENIED_CLIENT')).toEqual([expect.objectContaining({ operation: 'issueOpenApiToken', status: 401, path: '/open/v1/token' })]);

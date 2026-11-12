@@ -93,7 +93,7 @@ export class ProblemFilter implements ExceptionFilter {
     if (problem.detail !== undefined) body.detail = problem.detail;
     // Extensions come first so they can never replace a standard member.
     for (const [name, value] of Object.entries(problem.extensions ?? {})) if (!(name in body)) body[name] = value;
-    body.correlationId = correlationId;
+    body.correlation_id = correlationId;
 
     response.setHeader('Content-Type', PROBLEM_CONTENT_TYPE);
     response.setHeader('X-Correlation-Id', correlationId);

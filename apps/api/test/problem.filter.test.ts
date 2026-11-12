@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { ArgumentsHost } from '@nestjs/common';
 import { BadRequestException, HttpException, NotFoundException } from '@nestjs/common';
@@ -43,6 +44,14 @@ function newFilter(registry = REGISTRY) {
 }
 
 describe('ProblemFilter', () => {
+  it('answers with every member the Problem schema of the contract requires, the correlation id as correlation_id', () => {
+    const contract = JSON.parse(readFileSync(resolve(__dirname, '../../../Design/MACHVON_Design/03_Engineering/openapi.json'), 'utf8')) as { components: { schemas: { Problem: { required: string[] } } } };
+    const { filter } = newFilter();
+    const body = run(filter, new DomainError('FIELD_NOT_ALLOWED', 400, 'status')).body;
+    for (const member of contract.components.schemas.Problem.required) expect(body).toHaveProperty(member);
+    expect(body).not.toHaveProperty('correlationId');
+  });
+
   it('renders a DomainError as application/problem+json with the standard members', () => {
     const { filter } = newFilter();
     const result = run(filter, new DomainError('FIELD_NOT_ALLOWED', 400, 'status, tenant_id, role'));
@@ -54,9 +63,9 @@ describe('ProblemFilter', () => {
       status: 400,
       code: 'FIELD_NOT_ALLOWED',
       detail: 'status, tenant_id, role',
-      correlationId: expect.stringMatching(UUID),
+      correlation_id: expect.stringMatching(UUID),
     });
-    expect(result.headers['x-correlation-id']).toBe(result.body.correlationId);
+    expect(result.headers['x-correlation-id']).toBe(result.body.correlation_id);
   });
 
   it('renders DomainError extensions as top-level members that cannot overwrite the standard ones', () => {
@@ -96,14 +105,14 @@ describe('ProblemFilter', () => {
       status: 500,
       code: 'INTERNAL_ERROR',
       detail: 'error.INTERNAL_ERROR.detail',
-      correlationId: expect.stringMatching(UUID),
+      correlation_id: expect.stringMatching(UUID),
     });
     for (const leaked of ['select', 'secret', 'users_email_key', 'a@b.c', 'users', 'problem.filter', 'at ', 'stack']) {
       expect(result.raw).not.toContain(leaked);
     }
     expect(logged).toHaveLength(1);
     expect(logged[0]?.[0]).toBe(failure);
-    expect(logged[0]?.[1]).toBe(result.body.correlationId);
+    expect(logged[0]?.[1]).toBe(result.body.correlation_id);
   });
 
   it.each([
@@ -156,7 +165,7 @@ describe('ProblemFilter', () => {
 
   it('takes the correlation id from a UUID x-correlation-id header', () => {
     const id = '0b7f6c0e-2d52-4c41-9a7e-5d4c3b2a1f00';
-    expect(run(newFilter().filter, new Error('x'), { 'x-correlation-id': id }).body.correlationId).toBe(id);
+    expect(run(newFilter().filter, new Error('x'), { 'x-correlation-id': id }).body.correlation_id).toBe(id);
   });
 
   it.each([
@@ -166,8 +175,8 @@ describe('ProblemFilter', () => {
     ['missing', undefined],
   ])('generates a correlation id when the header is %s', (_label, header) => {
     const result = run(newFilter().filter, new Error('x'), { 'x-correlation-id': header });
-    expect(result.body.correlationId).toMatch(UUID);
-    expect(result.body.correlationId).not.toBe(header);
+    expect(result.body.correlation_id).toMatch(UUID);
+    expect(result.body.correlation_id).not.toBe(header);
   });
 
   describe('errors raised by Express body parsing (not Nest HttpExceptions)', () => {

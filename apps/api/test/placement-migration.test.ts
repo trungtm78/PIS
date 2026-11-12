@@ -141,7 +141,7 @@ describe('the promotion of a tenant to a silo over HTTP (ST-SAS-018)', () => {
     const refused = await approve(id, version);
     expect(refused.status).toBe(422);
     expect(refused.json).toMatchObject({ code: 'MIGRATION_VERIFICATION_FAILED', reason: 'MISMATCH', tables: ['ai_budget'] });
-    expect(refused.json.correlationId).toBeDefined();
+    expect(refused.json.correlation_id).toBeDefined();
     // The one who started: not allowed, whatever the copy.
     const self = await approve(id, version, { admin: STARTER });
     expect(self.status).toBe(403);

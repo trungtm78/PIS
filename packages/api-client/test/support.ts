@@ -42,7 +42,7 @@ export function problem(status: number, code: string, extra: Record<string, unkn
     title: `error.${code}.title`,
     status,
     code,
-    correlationId: '00000000-0000-4000-8000-0000000000c0',
+    correlation_id: '00000000-0000-4000-8000-0000000000c0',
     ...extra,
   };
   return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/problem+json; charset=utf-8', ...headers } });
