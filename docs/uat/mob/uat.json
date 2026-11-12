@@ -2798,8 +2798,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Device-side: the expected text has two effects on the phone, 'DB cuc bo xoa du lieu du an' (the local encrypted SQLite store of the PowerSync client is emptied) and 'nguoi dung thay man dang nhap lai' (the sign-in screen). They need the Flutter app on a device or emulator with the PowerSync client; Flutter sqlite tests cannot run on this machine (Windows Smart App Control blocks sqlite3mc.dll) and the PowerSync service is not in the repo test stack. The server half (the buckets of a revoked scope are empty at the next sync) is proved on PostgreSQL by apps/api/test/dis/mobile-sync.test.ts ('UAT-NFR-TENANCY-07 / AC-ST-DIS-017-4: when the scope is revoked the buckets are empty') but does not prove the wipe, the screen or the IAM audit in one script, so it does not name UAT-AC501."
+      },
       "module": "MOB"
     },
     {
@@ -3075,8 +3080,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Device-side: 'the unlock releases the stored credential only' and 'the approve call carries no biometric result as a signature' are properties of what the phone does and sends. They are proved by Dart tests that already name the case (apps/mobile/test/features/session/auth_service_test.dart:522, adapters_test.dart:76, account_test.dart:630) but those are not in the Jest/Playwright journal and the ones that open the local DB cannot run here (Smart App Control blocks sqlite3mc.dll). The API half (403 MFA_REQUIRED without the second factor) is proved by apps/api/test/policy-guard.test.ts:299 and roles-and-grants.test.ts, but an API test cannot prove what the app sent."
+      },
       "module": "MOB"
     },
     {
@@ -3283,8 +3293,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The expected text ends with 'MOB-68 shows the not-found state', a screen of the phone (proved by apps/mobile/test/features/site_clearance/clearance_test.dart:246, a Dart widget test that names UAT-PLAN-39, outside the Jest/Playwright journal and not runnable here when it opens the local DB). The API half (404 RESOURCE_NOT_FOUND for a record outside the caller's unit without revealing it) exists in apps/api/test/lnd/household.test.ts:370 but does not name the case and is not the whole expected text."
+      },
       "module": "MOB"
     },
     {
@@ -3354,8 +3369,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mob-scope-search.test.ts"
+      },
       "module": "MOB"
     },
     {
@@ -3425,8 +3445,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Needs the phone screen MOB-39 ('the first user sees the cited passage') and a '1 check logged' artefact: the re-check is two requests of the phone (the finding, then the page), and no server log or audit row of 'the check' exists that I could identify to assert on. The Dart tests that name the case (apps/mobile/test/features/ai_review/ai_review_test.dart:393, 574, 687) cannot run here when they open the local DB and are not in the Jest journal. The server 404 for a revoked reader is covered by the BID analysis tests, which do not name the case."
+      },
       "module": "MOB"
     }
   ],

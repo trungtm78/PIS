@@ -1739,8 +1739,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/avc-policy.test.ts"
+      },
       "module": "CAP"
     },
     {
@@ -1843,6 +1848,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/plan-revision.test.ts"
+      },
       "module": "CAP"
     },
     {
@@ -1945,6 +1957,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/schedule.test.ts"
+      },
       "module": "CAP"
     },
     {

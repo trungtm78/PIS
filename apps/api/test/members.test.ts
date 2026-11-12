@@ -569,7 +569,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(reply.status).toBe(422);
     });
 
-    it('refuses an email that is not the invited one, or not verified, and leaves the invitation open (AC-ST-ADM-006-2)', async () => {
+    it('refuses an email that is not the invited one, or not verified, and leaves the invitation open (AC-ST-ADM-006-2, UAT-AC115)', async () => {
       const { email, token, invitationId, membershipId } = await invited();
       const stranger = await accept(identityToken({ sub: 'sub-stranger', email: 'stranger@example.test' }), invitationId, token);
       expect(stranger.status).toBe(403);
@@ -609,7 +609,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(refused.json.code).toBe('MEMBERSHIP_INACTIVE');
     });
 
-    it('expires an invitation that ran out: 409 INVITATION_EXPIRED, invitation and membership Expired, and the person can be invited again (AC-ST-ADM-006-2)', async () => {
+    it('expires an invitation that ran out: 409 INVITATION_EXPIRED, invitation and membership Expired, and the person can be invited again (AC-ST-ADM-006-2, UAT-AC115)', async () => {
       const { email, token, invitationId, membershipId } = await invited();
       await admin("update machvon.membership_invitation set expires_at = now() - interval '1 second' where id = $1", [invitationId]);
       const identity = identityToken({ sub: `sub-new-${email}`, email });
@@ -859,7 +859,7 @@ describe('members and invitations (ST-ADM-006 backend)', () => {
       expect(one.json.can_manage).toBe(false);
     });
 
-    it('never suspends or ends the last tenant owner, and ranks protect owners when there are two (AC-ST-ADM-006-3)', async () => {
+    it('never suspends or ends the last tenant owner, and ranks protect owners when there are two (AC-ST-ADM-006-3, UAT-AC118)', async () => {
       const last = await lifecycle(ADMIN, 'suspend', OWNER, await versionOf(OWNER));
       expect(last.status).toBe(409);
       expect(last.json.code).toBe('LAST_TENANT_OWNER');

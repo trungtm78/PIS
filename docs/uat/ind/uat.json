@@ -721,11 +721,11 @@
         "ST-IND-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Suite dùng grant theo cả tenant; phạm vi đơn vị đã có ở apps/api/test/ind/ind.test.ts, chưa nối vào world của UAT"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ind-extra.test.ts"
       },
       "module": "IND",
       "access": {
@@ -785,7 +785,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Chưa chốt bảng giá trị biên với Tổ chuẩn hóa dữ liệu (PX-02: từ điển chỉ tiêu và quy tắc nhập liệu do khách chốt)"
+        "reason": "finding: a progress of 100.01 or -0.01 is accepted (200) while no tenant rule PROGRESS_PERCENT_IN_RANGE is approved; the case expects 422 naming the value"
       },
       "module": "IND"
     },
@@ -826,11 +826,11 @@
         "ST-IND-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần bộ dữ liệu; chưa có bộ sinh số liệu chỉ tiêu"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ind-extra.test.ts"
       },
       "module": "IND",
       "perf_budget": {
@@ -883,11 +883,11 @@
         "ST-IND-003"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-ind.spec.ts"
       },
       "module": "IND"
     },

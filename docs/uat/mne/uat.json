@@ -973,8 +973,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-mne-form-publish.test.ts"
+      },
       "module": "MNE"
     },
     {

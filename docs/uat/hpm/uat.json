@@ -138,11 +138,11 @@
       "tags": [
         "design-case",
         "security",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM"
     },
@@ -278,11 +278,11 @@
       "tags": [
         "design-case",
         "security",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM"
     },
@@ -925,11 +925,11 @@
         "ST-HPM-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần bơm lỗi vào bộ ghi tệp (giả đĩa đầy), cổng tải bộ ghi chỉ có ở bài jest tích hợp apps/api/test/editions/hpm.enterprise.test.ts, không đạt được qua HTTP của bản đang chạy"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM",
       "transition": {
@@ -1020,11 +1020,11 @@
         "ST-HPM-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa viết kịch bản; có thể thêm vào hpm.uat.test.ts, không đòi hỏi thêm hạ tầng"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM"
     },
@@ -1065,11 +1065,11 @@
         "ST-HPM-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần một bản phát hành từ động cơ báo cáo trên biểu mẫu DEMO (RPT làm trước); suite RPT chưa phát hành biểu mẫu DEMO"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM"
     },
@@ -1170,7 +1170,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Đã có quét axe 111 màn trong apps/web/e2e/a11y.spec.ts nhưng không đặt tên theo mã ca; chưa có đi bàn phím riêng cho hai màn này"
+        "reason": "The expected text includes 'băng PENDING-EXTERNAL được đọc' (read aloud) and the step 'Kiểm thông báo trạng thái đọc được bằng trình đọc màn hình': what NVDA/VoiceOver/TalkBack say needs a person with a screen reader. Everything a machine can prove is automated and green, with titles that do not carry the case id."
       },
       "module": "HPM"
     },

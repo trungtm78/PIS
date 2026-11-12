@@ -1668,11 +1668,11 @@
         "ST-PWA-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Suite dùng grant theo cả tenant; ca phạm vi đơn vị đã có ở apps/api/test/fnd/enterprise-snapshot.test.ts, chưa nối vào world của UAT"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/fnd/enterprise-snapshot.test.ts"
       },
       "module": "ENT",
       "access": {
@@ -1915,7 +1915,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần thiết bị hoặc giả lập đăng ký đẩy; nhà cung cấp đẩy thật là PX-11"
+        "reason": "The case spans three layers with no single script that proves all of it: the screen PWA-07 (no end action on the current session, a short reason refused before sending) is proved by vitest apps/web/src/pwa/screens/SettingsScreen.test.tsx, the device revoke with reason and its audit by apps/api/test/session/self-service.test.ts, the test notification to oneself by apps/api/test/notifications/my-test-push.test.ts; none names the case id and the real push provider and installed PWA on two devices need PX-11 and a device. A browser run on the PWA with two registered devices is not available in the UAT stack."
       },
       "module": "ENT",
       "access": {
@@ -1975,7 +1975,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần báo cáo DIS có thuyết minh nhiều kỳ; ca tích hợp đã có ở apps/api/test/dis/report-decision.test.ts"
+        "reason": "finding: the case says the second inheritance is 422 NARRATIVE_NOTHING_TO_INHERIT, the product and the error registry answer 409"
       },
       "module": "ENT",
       "transition": {
@@ -2082,7 +2082,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Đã có axe 111 màn và kiểm mục tiêu chạm 44 px (lượt UAT 2); chưa đặt tên theo mã ca"
+        "reason": "finding: the rendered boxes at 360 px are not all 44 px (expected: every touch target from 44 px); the case therefore cannot be marked passed by a script"
       },
       "module": "ENT"
     },

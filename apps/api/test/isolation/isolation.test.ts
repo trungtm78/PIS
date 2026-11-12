@@ -1731,7 +1731,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
     expect(idBearingOf(realApp)).toEqual([...API_FOREIGN_ID_CASES].sort());
   });
 
-  it('passes for the API, database, cache, search, file and export channels with a foreign-id case for every id-bearing operation (AC-ST-IAM-001-1)', async () => {
+  it('passes for the API, database, cache, search, file and export channels with a foreign-id case for every id-bearing operation (AC-ST-IAM-001-1, UAT-AC100)', async () => {
     const standard = await createStandardChannels({
       baseUrl: realApp.baseUrl,
       signingKey: SIGNING_KEY,
@@ -1766,7 +1766,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       for (const tenant of TENANT_NAMES) await apiChannel(realApp).seed(tenant);
     });
 
-    it('answers 404 RESOURCE_NOT_FOUND to a TNT-A user asking for a TNT-B unit, with no TNT-B data (AC-ST-IAM-001-1, AC-ST-KERNEL-026-1)', async () => {
+    it('answers 404 RESOURCE_NOT_FOUND to a TNT-A user asking for a TNT-B unit, with no TNT-B data (AC-ST-IAM-001-1, AC-ST-KERNEL-026-1, UAT-AC100)', async () => {
       const reply = await asTenant(realApp.baseUrl, 'TNT-A', `/resources/organization_unit/${foreign?.id}`);
       expect(reply.status).toBe(404);
       expect(reply.contentType).toContain('application/problem+json');
@@ -1834,7 +1834,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
   });
 
   describe('database', () => {
-    it('shows a TNT-A session nothing of TNT-B, even with an explicit tenant_id predicate', async () => {
+    it('shows a TNT-A session nothing of TNT-B, even with an explicit tenant_id predicate (UAT-AC100)', async () => {
       const channel = createDatabaseChannel({ ownerUrl, database: tenantDatabase });
       for (const tenant of TENANT_NAMES) await channel.seed(tenant);
       const rows = await tenantDatabase.withTenant(contextOf('TNT-A'), (tx) => tx.query('select id from machvon.organization_unit where tenant_id = $1', [TENANT_IDS['TNT-B']]));

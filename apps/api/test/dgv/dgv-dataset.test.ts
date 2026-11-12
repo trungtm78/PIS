@@ -101,7 +101,7 @@ describe('dataset catalogue commands and search (ST-DGV-001)', () => {
   }, 60_000);
 
   describe('registerDataset', () => {
-    it('answers 422 OWNER_STEWARD_SAME for a critical dataset with one person in both seats, 200 DRAFT for a valid pair and 409 DATASET_CODE_DUPLICATE for the same code (AC-ST-DGV-001-1)', async () => {
+    it('UAT-AC483: answers 422 OWNER_STEWARD_SAME for a critical dataset with one person in both seats, 200 DRAFT for a valid pair and 409 DATASET_CODE_DUPLICATE for the same code (AC-ST-DGV-001-1)', async () => {
       const same = await register(STEWARD, body({ dataset_code: 'DS-TREASURY', is_critical: true, owner_user_id: memberId(STEWARD), steward_user_id: memberId(STEWARD) }));
       expect([same.status, same.json.code]).toEqual([422, 'OWNER_STEWARD_SAME']);
       expect(await rows('select id from machvon.dataset where dataset_code = $1', ['DS-TREASURY'])).toEqual([]);

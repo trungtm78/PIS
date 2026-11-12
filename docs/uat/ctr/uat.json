@@ -1152,8 +1152,13 @@
       "design_type": "security",
       "screen_id": "CTR-01",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ctr-contract-cases.test.ts"
+      },
       "module": "CTR"
     },
     {
@@ -1339,6 +1344,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "CTR-02",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ctr-contract-cases.test.ts"
+      },
       "module": "CTR"
     },
     {
@@ -1487,6 +1499,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "CTR-05",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/ctr/guarantee-register.test.ts"
+      },
       "module": "CTR"
     },
     {

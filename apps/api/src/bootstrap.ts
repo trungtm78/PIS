@@ -293,7 +293,7 @@ export async function bootstrap(config: Config, overrides: BootstrapOverrides = 
           lockPool: pools.locks,
           signingKey: config.outboxSigningKey,
           alerts,
-          publish: createOutboxPublisher(consumers),
+          publish: createOutboxPublisher(consumers, tracer),
           accessCache: authzCache,
           // The old key of a rotation is revoked at the end of its last day through the same ports the controllers use (ST-LLM-002).
           llmKeys: { litellm: app.get<LiteLlmAdminPort>(LLM_ADMIN, { strict: false }), vault: app.get<SecretVaultPort>(LLM_VAULT, { strict: false }) },

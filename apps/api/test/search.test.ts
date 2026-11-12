@@ -124,7 +124,7 @@ describe('searchGlobal (ST-IAM-008, IAM-07)', () => {
     expect(reply.json.code).toBe('SCOPE_DENIED');
   });
 
-  it('never shows the documents of another tenant: an empty page, not an error and not a count', async () => {
+  it('never shows the documents of another tenant: an empty page, not an error and not a count (UAT-AC100, UAT-NFR-TENANCY-04)', async () => {
     const own = await get('?q=beta%20secret', WHOLE_TENANT);
     expect(own.status).toBe(200);
     expect(own.json).toEqual({ items: [], next_cursor: null });

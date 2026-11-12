@@ -585,8 +585,13 @@
       "design_type": "security",
       "screen_id": "PRJ-02",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/prj-rules.test.ts"
+      },
       "module": "PRJ"
     },
     {
@@ -662,8 +667,13 @@
       "design_type": "security",
       "screen_id": "PRJ-15",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/prj-rules.test.ts"
+      },
       "module": "PRJ"
     },
     {
@@ -700,6 +710,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "PRJ-15",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: a score of 6 is 422 VALIDATION_FAILED detail scores.score (request schema), not 422 SCORE_OUT_OF_RANGE on scores[0].score"
+      },
       "module": "PRJ"
     },
     {
@@ -955,8 +972,13 @@
       "design_type": "security",
       "screen_id": "PRJ-18",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/prj-rules.test.ts"
+      },
       "module": "PRJ"
     },
     {
@@ -1175,8 +1197,13 @@
       "design_type": "security",
       "screen_id": "PRJ-01",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/prj-rules.test.ts"
+      },
       "module": "PRJ"
     },
     {

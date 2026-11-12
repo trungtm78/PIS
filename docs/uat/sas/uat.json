@@ -190,6 +190,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-13",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -227,6 +234,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-13",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -263,6 +277,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-13",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -301,8 +322,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -418,8 +444,13 @@
       "design_type": "integration/security/UAT",
       "screen_id": "SAS-04",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/security-theme-control.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -698,8 +729,13 @@
       "design_type": "integration/security/UAT",
       "screen_id": "SAS-13",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -1705,6 +1741,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-03",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the detail of the refusal is the transition, not the state. Expected detail \"Active\"."
+      },
       "module": "SAS"
     },
     {
@@ -2109,6 +2152,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-12",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: step 3 answers 422 VALIDATION_FAILED, the design says 400 INVALID_REQUEST."
+      },
       "module": "SAS"
     },
     {
@@ -2183,8 +2233,13 @@
       "design_type": "security",
       "screen_id": "SAS-13",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -2221,6 +2276,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-15",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -2658,8 +2720,13 @@
       "design_type": "security",
       "screen_id": "SAS-01",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the list GET /system/tenants does not carry governing_body_type; only the detail GET /system/tenants/{id} does."
+      },
       "module": "SAS"
     },
     {

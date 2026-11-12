@@ -2196,6 +2196,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/dis-definitions-cases.test.ts"
+      },
       "module": "DIS"
     },
     {
@@ -2230,6 +2237,13 @@
       ],
       "design_evidence": null,
       "design_type": "domain",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The precondition is that the capital business owner has SIGNED the expected numbers of FX-DIS-001..007 (D03, CXN-03, PENDING-EXTERNAL); the fixtures are still PROPOSED_PENDING_SIGNOFF (DIS_GOLDEN_STATUS), so a PASS would assert a signature that does not exist. The golden suite apps/api/test/dis/golden.test.ts already runs the seven fixtures as proposals and is labelled CHO KY; it can be registered for this case when the signed numbers replace the proposals."
+      },
       "module": "DIS"
     },
     {
@@ -2332,6 +2346,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Human usability study: moderated sessions with pilot users and observers, a SUS questionnaire (mean >= 80) and observed unaided completion (>= 90 percent); nothing a script can measure or sign."
+      },
       "module": "DIS"
     },
     {

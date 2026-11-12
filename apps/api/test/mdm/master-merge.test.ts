@@ -387,7 +387,7 @@ describe('the merge of master records and its undoing, and the rules of survivor
       expect((await audits('master.merged')).some((entry) => entry.resource_id === survivor.id && entry.safe_diff.repointed === 4)).toBe(true);
     });
 
-    it('undoes the merge: the survivor gets back what it took, the merged entry returns as it was, and the four references go back', async () => {
+    it('UAT-PLAN-56: undoes the merge: the survivor gets back what it took, the merged entry returns as it was, and the four references go back; a second undo is 409 MERGE_ALREADY_REVERTED', async () => {
       const type = newType();
       await rulesFor(type);
       const { survivor, merged } = await pair(type);
@@ -421,8 +421,11 @@ describe('the merge of master records and its undoing, and the rules of survivor
       const stored = asObject(asObjects((await call('GET', `/master-merges?record_id=${merged.id}`, { member: READER })).json.items)[0]);
       expect(stored).toMatchObject({ status: 'REVERTED', revert_reason: 'The merge was a mistake.', reverted_by: memberId(CHECKER) });
       expect((await events('master.unmerged.v1')).some((event) => event.payload.merge_id === mergeId)).toBe(true);
-      // A merge is undone once (UAT-PLAN-56).
+      // A merge is undone once: the second undo is refused and leaves the merge and the survivor as they were.
+      const survivorBefore = { record: await recordOf(survivor.id), current: await currentOf(survivor.id) };
       expect(await unmerge(CHECKER, mergeId, 2)).toMatchObject({ status: 409, json: { code: 'MERGE_ALREADY_REVERTED' } });
+      expect(asObject(asObjects((await call('GET', `/master-merges?record_id=${merged.id}`, { member: READER })).json.items)[0])).toMatchObject({ status: 'REVERTED', revert_reason: 'The merge was a mistake.' });
+      expect({ record: await recordOf(survivor.id), current: await currentOf(survivor.id) }).toEqual(survivorBefore);
       // The same entries can be merged again.
       expect((await merge(CHECKER, survivor.id, merged.id, await versionOfRecord(survivor.id))).status).toBe(200);
     });

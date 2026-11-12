@@ -232,7 +232,7 @@ describe('the availability control policy and the capital left on a line over HT
   });
 
   describe('createAvcPolicyVersion and publishAvcPolicy (AC-ST-CAP-005-2)', () => {
-    it('refuses thresholds that warn after the block or block above 100 with 422 AVC_THRESHOLD_INVALID, and keeps nothing', async () => {
+    it('UAT-PLAN-03: refuses thresholds that warn after the block or block above 100 with 422 AVC_THRESHOLD_INVALID, and keeps nothing', async () => {
       const before = Number((await rows<{ n: string }>('select count(*)::text as n from machvon.avc_policy'))[0]?.n);
       for (const [warn, block, field] of [
         ['95', '90', 'warn_pct'],
@@ -245,7 +245,7 @@ describe('the availability control policy and the capital left on a line over HT
       expect(Number((await rows<{ n: string }>('select count(*)::text as n from machvon.avc_policy'))[0]?.n)).toBe(before);
     });
 
-    it('drafts a policy, which its creator cannot publish (403), and another person publishes once with the event and the audit rows', async () => {
+    it('UAT-PLAN-03: drafts a policy, which its creator cannot publish (403), and another person publishes once with the event and the audit rows', async () => {
       const key = `create-${randomUUID()}`;
       const payload = policyBody({ scope_kind: 'PROJECT_GROUP', scope_value: 'C', warn_pct: '85.5', block_pct: '95', include_reservations: false });
       const draft = await create(payload, SOLO, key);

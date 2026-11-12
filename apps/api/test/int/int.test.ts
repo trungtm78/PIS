@@ -351,7 +351,7 @@ describe('the open interface over HTTP: machine accounts, the open API, certifie
       expect((await open('GET', '/open/v1/projects', { bearer: account.token })).json.code).toBe('OPEN_SCOPE_DENIED');
     });
 
-    it('limits the calls of each account to its own rate, answers 429 with Retry-After, and logs the refusal', async () => {
+    it('UAT-INT-RTL-01 limits the calls of each account to its own rate, answers 429 with Retry-After, and logs the refusal', async () => {
       const slow = await machine('Two per minute', ['open.projects.read'], { rate_limit_per_minute: 2 });
       const fast = await machine('A busy neighbour', ['open.projects.read']);
       expect((await open('GET', '/open/v1/projects', { bearer: slow.token })).status).toBe(200);

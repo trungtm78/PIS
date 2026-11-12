@@ -372,11 +372,11 @@
       "tags": [
         "design-case",
         "security",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/dir-extra.test.ts"
       },
       "module": "DIR"
     },
@@ -1241,11 +1241,11 @@
         "ST-DIR-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Suite hiện dùng grant theo cả tenant; ca phạm vi đơn vị cần grant UNIT_ONLY (đã có ở apps/api/test/dir/directive.test.ts), chưa nối vào world của UAT"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/dir-extra.test.ts"
       },
       "module": "DIR",
       "access": {
@@ -1450,11 +1450,11 @@
         "ST-DIR-003"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-dir.spec.ts"
       },
       "module": "DIR"
     },

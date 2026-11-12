@@ -852,7 +852,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần đồng hồ giả để quá hạn nhịp tim; suite dùng đồng hồ thật"
+        "reason": "finding: the case expects 404 for an agent registered for an unknown connector set, the product and the contract answer 422 VALIDATION_FAILED"
       },
       "module": "HUB",
       "transition": {
@@ -954,11 +954,11 @@
         "ST-HUB-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-hub.spec.ts"
       },
       "module": "HUB"
     },

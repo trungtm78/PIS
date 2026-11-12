@@ -270,7 +270,7 @@ describe('custom roles and role grants (ST-ADM-005 backend)', () => {
       expect(await auditCount('command.denied:grantRole', 'DENIED')).toBe(before + 1);
     });
 
-    it('AC-ST-ADM-005-3: a UNIT_ADMIN of one department cannot grant in another, but can in their own subtree, on units and on projects', async () => {
+    it('AC-ST-ADM-005-3, UAT-AC105: a UNIT_ADMIN of one department cannot grant in another, but can in their own subtree, on units and on projects', async () => {
       const other = await call('POST', '/role-grants', { member: UNIT_ADMIN, aal2: true, body: grantBody(RECIPIENT_B, 'UNIT_HELPER', 'UNIT_SUBTREE', [unitId(3)]) });
       expect(other.status).toBe(403);
       expect(other.json.code).toBe('SCOPE_OUT_OF_GRANTOR_RANGE');

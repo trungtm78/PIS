@@ -41,8 +41,13 @@
       "design_type": "security",
       "screen_id": "MDM-25",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-governance.test.ts"
+      },
       "module": "MDM"
     },
     {
@@ -1625,8 +1630,13 @@
       "design_type": "security",
       "screen_id": "MDM-34",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-governance.test.ts"
+      },
       "module": "MDM"
     },
     {
@@ -1737,8 +1747,13 @@
       "design_type": "security",
       "screen_id": "MDM-33",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-governance.test.ts"
+      },
       "module": "MDM"
     },
     {
@@ -1812,8 +1827,13 @@
       "design_type": "security",
       "screen_id": "MDM-24",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-governance.test.ts"
+      },
       "module": "MDM"
     },
     {
@@ -1925,6 +1945,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "PRJ-02",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-governance.test.ts"
+      },
       "module": "MDM"
     },
     {
@@ -2115,6 +2142,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/mdm/master-data.test.ts"
+      },
       "module": "MDM"
     },
     {
@@ -2150,8 +2184,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-governance.test.ts"
+      },
       "module": "MDM"
     },
     {
@@ -2220,6 +2259,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/mdm/master-merge.test.ts"
+      },
       "module": "MDM"
     }
   ],

@@ -109,7 +109,7 @@ describe('documents API (ST-DOC-001)', () => {
   });
 
   describe('downloads (BR-DOC-19)', () => {
-    it('hands out a URL that lives 300 seconds for a clean file and audits the download (AC-ST-DOC-001-2)', async () => {
+    it('UAT-AC432: hands out a URL that lives 300 seconds for a clean file and audits the download (AC-ST-DOC-001-2)', async () => {
       const rendered = await harnessApp.call('POST', '/document-renders', { member: ADMIN, body: renderBody() });
       const versionId = rendered.json.resource_id as string;
       const reply = await harnessApp.call('GET', `/document-versions/${versionId}/download`, { member: ADMIN });
@@ -119,13 +119,13 @@ describe('documents API (ST-DOC-001)', () => {
       expect(await harnessApp.count("select count(*) as n from machvon.audit_event where action = 'document.download' and outcome = 'SUCCESS' and resource_id = $1", [versionId])).toBe(1);
     });
 
-    it('answers 409 SCAN_PENDING while the scan is pending (AC-ST-DOC-001-2)', async () => {
+    it('UAT-AC432: answers 409 SCAN_PENDING while the scan is pending (AC-ST-DOC-001-2)', async () => {
       const versionId = await insertVersion(TENANT_A, undefined, 'PENDING');
       const reply = await harnessApp.call('GET', `/document-versions/${versionId}/download`, { member: ADMIN });
       expect([reply.status, reply.json.code]).toEqual([409, 'SCAN_PENDING']);
     });
 
-    it('blocks an infected file, records the denial with INFECTED_FILE_BLOCKED and hands out no URL (AC-ST-DOC-001-2)', async () => {
+    it('UAT-AC432: blocks an infected file, records the denial with INFECTED_FILE_BLOCKED and hands out no URL (AC-ST-DOC-001-2)', async () => {
       const versionId = await insertVersion(TENANT_A, undefined, 'INFECTED');
       const reply = await harnessApp.call('GET', `/document-versions/${versionId}/download`, { member: ADMIN });
       expect([reply.status, reply.json.code]).toEqual([403, 'SCOPE_DENIED']);
@@ -136,7 +136,7 @@ describe('documents API (ST-DOC-001)', () => {
       expect(denied?.safe_diff.reason).toBe('INFECTED_FILE_BLOCKED');
     });
 
-    it('hides a version of another tenant and one outside the unit scope of the caller as if it did not exist (AC-ST-DOC-001-3)', async () => {
+    it('UAT-AC432: hides a version of another tenant and one outside the unit scope of the caller as if it did not exist (AC-ST-DOC-001-3)', async () => {
       const foreign = await insertVersion(TENANT_B, undefined, 'CLEAN');
       expect((await harnessApp.call('GET', `/document-versions/${foreign}/download`, { member: ADMIN })).status).toBe(404);
       const inUnitOne = await insertVersion(TENANT_A, unitId(1), 'CLEAN');

@@ -172,7 +172,7 @@ describe('organisation unit commands (ST-ADM-004)', () => {
       expect(await count("select count(*) as n from machvon.outbox_event where type = 'iam.org_unit.created.v1' and aggregate_id = $1", [id])).toBe(1);
     });
 
-    it('answers 422 UNIT_DEPTH_EXCEEDED at depth 9, 409 UNIT_CODE_TAKEN for a duplicate code and 422 UNIT_VALIDITY_INVALID (AC-ST-ADM-004-1)', async () => {
+    it('answers 422 UNIT_DEPTH_EXCEEDED at depth 9, 409 UNIT_CODE_TAKEN for a duplicate code and 422 UNIT_VALIDITY_INVALID (AC-ST-ADM-004-1, UAT-AC110)', async () => {
       let parent: string = unitId(4);
       for (let level = 4; level <= 8; level += 1) {
         const reply = await create(ADMIN, parent);
@@ -277,7 +277,7 @@ describe('organisation unit commands (ST-ADM-004)', () => {
       expect(after[UNIT_ADMIN]).toBe((before[UNIT_ADMIN] ?? 0) + 1);
     });
 
-    it('refuses a cycle with 422 UNIT_CYCLE and changes nothing, no event and no scope_version bump', async () => {
+    it('UAT-AC110: refuses a cycle with 422 UNIT_CYCLE and changes nothing, no event and no scope_version bump', async () => {
       const before = await scopeVersions();
       const reply = await move(ADMIN, 2, 4);
       expect(reply.status).toBe(422);

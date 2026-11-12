@@ -22,6 +22,24 @@ export const STATUSES: readonly Status[] = ['HEALTHY', 'STALE', 'FAILING', 'DISA
 export const DETAIL_TABS = ['overview', 'runs', 'pipeline', 'mapping', 'differences', 'credentials', 'layouts'] as const;
 export type DetailTab = (typeof DETAIL_TABS)[number];
 
+/** The tab an arrow key, Home or End moves to in the WAI-ARIA tabs pattern (the arrows wrap round at the ends); undefined for any other key. */
+export function tabAfterKey(current: DetailTab, key: string): DetailTab | undefined {
+  const last = DETAIL_TABS.length - 1;
+  const at = DETAIL_TABS.indexOf(current);
+  switch (key) {
+    case 'ArrowRight':
+      return DETAIL_TABS[at === last ? 0 : at + 1];
+    case 'ArrowLeft':
+      return DETAIL_TABS[at === 0 ? last : at - 1];
+    case 'Home':
+      return DETAIL_TABS[0];
+    case 'End':
+      return DETAIL_TABS[last];
+    default:
+      return undefined;
+  }
+}
+
 /** The word of a code in the keys of the screens: `PENDING_EXTERNAL` is `pendingExternal`. */
 export const word = (code: string): string => code.toLowerCase().replace(/_(\w)/g, (_match, letter: string) => letter.toUpperCase());
 
