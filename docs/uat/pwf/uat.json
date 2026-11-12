@@ -1132,6 +1132,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1195,6 +1199,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1258,6 +1266,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1322,6 +1334,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1386,6 +1402,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1450,6 +1470,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1516,6 +1540,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -2444,6 +2472,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
     },
     {
@@ -3335,6 +3367,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
     },
     {
@@ -3399,6 +3435,10 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
     },
     {
@@ -4806,6 +4846,10 @@
         "state": "PLANNED",
         "layer": "KERNEL",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
