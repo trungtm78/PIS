@@ -38146,5 +38146,6 @@
   "mdm.value.reportUnitKind.ratio": "Ratio",
   "mdm.value.reportUnitKind.count": "Count",
   "mdm.value.reportUnitKind.area": "Area",
-  "mdm.value.reportUnitKind.other": "Other"
+  "mdm.value.reportUnitKind.other": "Other",
+  "int.bi.dataset.name.enterprise": "Frozen enterprise period figures"
 }

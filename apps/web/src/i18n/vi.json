@@ -38146,5 +38146,6 @@
   "mdm.value.reportUnitKind.ratio": "Tỷ lệ",
   "mdm.value.reportUnitKind.count": "Số đếm",
   "mdm.value.reportUnitKind.area": "Diện tích",
-  "mdm.value.reportUnitKind.other": "Khác"
+  "mdm.value.reportUnitKind.other": "Khác",
+  "int.bi.dataset.name.enterprise": "Số liệu kỳ doanh nghiệp đã chốt"
 }
