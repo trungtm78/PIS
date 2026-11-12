@@ -76,6 +76,224 @@
     "ios_pt": 44,
     "android_dp": 48
   },
+  "mobileV2": {
+    "note": "The mobile.v2 group: used only by the phone application (generated into packages/mobile-tokens). The web tokens above are untouched and the web outputs never carry this group (R31).",
+    "color": {
+      "light": {
+        "bg": "#F3F6F5",
+        "surface": "#FFFFFF",
+        "sunken": "#EAF0EF",
+        "ink": "#122D3B",
+        "ink2": "#4A5E68",
+        "ink3": "#5B6E77",
+        "line": "#DDE6E7",
+        "lineStrong": "#B9C8CC",
+        "outline": "#7A8F99",
+        "header": "#102E3B",
+        "header2": "#1C3B48",
+        "onHeader": "#FFFFFF",
+        "onHeader2": "#C4D5DC",
+        "primary": "#007D77",
+        "primaryStrong": "#00635E",
+        "primarySoft": "#E3F3F1",
+        "onPrimary": "#FFFFFF",
+        "accentOnDark": "#2FB5A8",
+        "focus": "#007D77",
+        "lateFg": "#9C1C14",
+        "lateBg": "#FDECEA",
+        "lateMark": "#B3261E",
+        "soonFg": "#7A4B00",
+        "soonBg": "#FFF3D6",
+        "soonMark": "#B26A00",
+        "okFg": "#14633A",
+        "okBg": "#E4F4EA",
+        "okMark": "#2E7D4F",
+        "infoFg": "#1F5680",
+        "infoBg": "#E6F0F8",
+        "scrim": "#0A2029"
+      },
+      "dark": {
+        "bg": "#0B1A21",
+        "surface": "#112630",
+        "sunken": "#0E202A",
+        "ink": "#E6EEF1",
+        "ink2": "#B3C4CB",
+        "ink3": "#9DB1BA",
+        "line": "#24404C",
+        "lineStrong": "#38596A",
+        "outline": "#6C8A99",
+        "header": "#0A2029",
+        "header2": "#14313D",
+        "onHeader": "#FFFFFF",
+        "onHeader2": "#B3C4CB",
+        "primary": "#4FD1C5",
+        "primaryStrong": "#7FE0D6",
+        "primarySoft": "#123A3C",
+        "onPrimary": "#04211F",
+        "accentOnDark": "#2FB5A8",
+        "focus": "#7FE0D6",
+        "lateFg": "#FFB4AB",
+        "lateBg": "#3D1714",
+        "lateMark": "#FF8A7D",
+        "soonFg": "#FFD58A",
+        "soonBg": "#3B2A07",
+        "soonMark": "#F2B84B",
+        "okFg": "#8FE0B0",
+        "okBg": "#0F3321",
+        "okMark": "#57C285",
+        "infoFg": "#A8D1F0",
+        "infoBg": "#12303F",
+        "scrim": "#000000"
+      }
+    },
+    "type": {
+      "scale": {
+        "display": {
+          "size": 32,
+          "line": 40,
+          "weight": 600
+        },
+        "title": {
+          "size": 22,
+          "line": 30,
+          "weight": 600
+        },
+        "heading": {
+          "size": 16,
+          "line": 24,
+          "weight": 600
+        },
+        "body": {
+          "size": 15,
+          "line": 22,
+          "weight": 400
+        },
+        "label": {
+          "size": 13,
+          "line": 20,
+          "weight": 600
+        },
+        "caption": {
+          "size": 12,
+          "line": 18,
+          "weight": 400
+        }
+      },
+      "emphasis": {
+        "bodyStrong": {
+          "size": 15,
+          "line": 22,
+          "weight": 600
+        },
+        "captionStrong": {
+          "size": 12,
+          "line": 16,
+          "weight": 600
+        }
+      },
+      "scaleCap": {
+        "display": 1.3,
+        "title": 1.3,
+        "navLabel": 1.3
+      },
+      "clampFreeFrom": 1.5
+    },
+    "space": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32
+    ],
+    "radius": {
+      "chip": 8,
+      "control": 12,
+      "card": 16,
+      "sheet": 20,
+      "glyph": 12,
+      "pill": 999
+    },
+    "elevation": {
+      "e1": {
+        "light": [
+          {
+            "dx": 0,
+            "dy": 1,
+            "blur": 2,
+            "spread": 0,
+            "color": "#102E3B",
+            "opacity": 0.08
+          },
+          {
+            "dx": 0,
+            "dy": 1,
+            "blur": 1,
+            "spread": 0,
+            "color": "#102E3B",
+            "opacity": 0.04
+          }
+        ],
+        "dark": [
+          {
+            "dx": 0,
+            "dy": 0,
+            "blur": 0,
+            "spread": 1,
+            "color": "#FFFFFF",
+            "opacity": 0.04
+          }
+        ]
+      },
+      "e2": {
+        "light": [
+          {
+            "dx": 0,
+            "dy": -8,
+            "blur": 28,
+            "spread": 0,
+            "color": "#102E3B",
+            "opacity": 0.18
+          }
+        ],
+        "dark": [
+          {
+            "dx": 0,
+            "dy": -8,
+            "blur": 28,
+            "spread": 0,
+            "color": "#000000",
+            "opacity": 0.5
+          }
+        ]
+      }
+    },
+    "motion": {
+      "fastMs": 150,
+      "slowMs": 250,
+      "reducedMs": 100,
+      "curve": [
+        0.2,
+        0.7,
+        0.2,
+        1
+      ],
+      "scrimOpacity": 0.55
+    },
+    "size": {
+      "navBarHeight": 64,
+      "glyph": 40,
+      "glyphLarge": 44,
+      "glyphEmpty": 72,
+      "rowMinHeight": 64,
+      "touchMin": 44,
+      "actionButton": 48,
+      "fab": 56,
+      "stageSegmentHeight": 8,
+      "barHeight": 6,
+      "heroBarHeight": 10
+    }
+  },
   "displayName": "Hệ Thống Lý Dự Án Đầu Tư Công",
   "prototypeNavigation": {
     "surface": "#102E3B",

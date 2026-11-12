@@ -3,6 +3,7 @@ import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { DART_OUTPUT_PATH, generateDart } from './dart.ts';
 import { DESIGN_TOKENS_PATH } from './generate.ts';
+import { DART_V2_OUTPUT_PATH, generateMobileV2Dart } from './mobile-v2.ts';
 import type { DesignTokens } from './types.ts';
 import { VECTORS_PATH, buildContrastVectors, renderVectors } from './vectors.ts';
 
@@ -21,6 +22,7 @@ function generated(root: string): Array<{ path: string; text: string }> {
   const json = JSON.parse(readFileSync(join(root, DESIGN_TOKENS_PATH), 'utf8')) as DesignTokens;
   return [
     { path: DART_OUTPUT_PATH, text: generateDart(json) },
+    { path: DART_V2_OUTPUT_PATH, text: generateMobileV2Dart(json) },
     { path: VECTORS_PATH, text: renderVectors(buildContrastVectors()) },
   ];
 }

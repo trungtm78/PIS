@@ -44,7 +44,10 @@ function baseTenantTheme(json: DesignTokens): ThemeColors {
 
 /** The design tokens with the base tenant theme attached. */
 export function buildTokens(json: DesignTokens): Tokens {
-  return { ...json, tenantTheme: baseTenantTheme(json) };
+  // The phone-only mobileV2 group never reaches a web output (R31): the CSS and the typed module stay what they were.
+  const web: DesignTokens = { ...json };
+  delete web.mobileV2;
+  return { ...web, tenantTheme: baseTenantTheme(json) };
 }
 
 /** The twelve theme colours as custom properties, one per line. */

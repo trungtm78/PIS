@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { main } from '../src/dart-cli.ts';
 import { DART_OUTPUT_PATH } from '../src/dart.ts';
 import { DESIGN_TOKENS_PATH } from '../src/generate.ts';
+import { DART_V2_OUTPUT_PATH } from '../src/mobile-v2.ts';
 import { VECTORS_PATH } from '../src/vectors.ts';
 import { REPO_ROOT } from './support.ts';
 
