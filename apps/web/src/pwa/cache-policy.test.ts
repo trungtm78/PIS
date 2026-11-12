@@ -44,7 +44,7 @@ describe('cache policy (R7): the worker keeps the shell and the static assets, n
   });
 
   it('never touches the API, the sign-in or the worker itself, whatever the mode', () => {
-    for (const path of ['/api/resources/approval_task', '/v1/approval-tasks/1/decision', '/resources/approval_task', '/me/devices', '/auth/callback', '/oidc/token', '/.well-known/openid-configuration', '/sw.js']) {
+    for (const path of ['/api/resources/approval_task', '/v1/approval-tasks/1/decision', '/resources/approval_task', '/me/devices', '/me/staff-scores', '/staff-score-periods/1/lines', '/staff-score-lines/1', '/staff-score-lines/compare', '/auth/callback', '/oidc/token', '/.well-known/openid-configuration', '/sw.js']) {
       expect(get(path)).toBe('network-only');
       expect(get(path, { mode: 'navigate' })).toBe('network-only');
       expect(isNeverCachedPath(path)).toBe(true);
