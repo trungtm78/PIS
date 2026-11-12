@@ -157,7 +157,8 @@
           "PRJ-03",
           "INT-03",
           "MDM-07",
-          "MDM-35"
+          "MDM-35",
+          "IPF-01"
         ],
         "operations": [
           "createProject",
@@ -172,7 +173,8 @@
           "ST-PRJ-001",
           "ST-PRJ-004",
           "ST-MDM-007",
-          "ST-INT-001"
+          "ST-INT-001",
+          "ST-IPF-001"
         ],
         "docs": [
           "Design/MACHVON_Design/01_Documents/05_modules/PRJ.md",
@@ -180,7 +182,9 @@
           "docs/hpm-ebs-connectors.md",
           "docs/fnd-funding-model.md",
           "docs/plans/ent3e.md",
-          "docs/plans/aud2.md"
+          "docs/plans/aud2.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/IPF.md",
+          "docs/plans/aud5.md"
         ],
         "tests": [
           "packages/edition-enterprise/src/integration/project-code-resolver.test.ts",
@@ -189,10 +193,11 @@
           "packages/edition-enterprise/src/integration/investment-profile.test.ts",
           "apps/api/test/editions/ebs.enterprise.test.ts",
           "apps/api/test/editions/investment-profile.enterprise.test.ts",
-          "apps/web/src/screens/mdm/catalogues.test.ts"
+          "apps/web/src/screens/mdm/catalogues.test.ts",
+          "apps/web/src/editions/enterprise/screens/ipf/ProfileScreen.test.tsx"
         ]
       },
-      "gap": "Đã có (kiểm chứng ở mã và kiểm thử): EBS và HPM tra mã dự án qua master_crosswalk, so khớp thẳng chỉ còn là dự phòng một phiên bản (R25, có hồi quy cho nhập EBS đã đối chiếu); mã HPM theo từng dự án trong gói đẩy; danh mục loại dự án (đầu tư xây dựng, mua sắm, sửa chữa lớn) và sửa chữa lớn trong biểu mẫu MDM-07; cờ khởi công mới hoặc chuyển tiếp theo năm kế hoạch trong getProjectInvestmentProfile. Còn mở: màn hình web hiển thị hồ sơ đầu tư (hiện chỉ có API); danh mục dự án chính thức chờ Ban KHĐT (PX-14).",
+      "gap": "Đã có (kiểm chứng ở mã và kiểm thử): EBS và HPM tra mã dự án qua master_crosswalk, so khớp thẳng chỉ còn là dự phòng một phiên bản (R25, có hồi quy cho nhập EBS đã đối chiếu); mã HPM theo từng dự án trong gói đẩy; danh mục loại dự án (đầu tư xây dựng, mua sắm, sửa chữa lớn) và sửa chữa lớn trong biểu mẫu MDM-07; cờ khởi công mới hoặc chuyển tiếp theo năm kế hoạch trong getProjectInvestmentProfile, và màn hình web IPF-01 (chỉ bản enterprise) hiển thị loại dự án, cờ khởi công, năm khởi công và căn cứ, các kế hoạch năm đã đọc. Còn mở: danh mục dự án chính thức chờ Ban KHĐT (PX-14).",
       "owners": [
         "ENT-3e"
       ],
@@ -210,35 +215,44 @@
           "PRJ-05",
           "PRJ-06",
           "PRJ-07",
-          "DOC-01"
+          "DOC-01",
+          "IPF-01"
         ],
         "operations": [
           "addProjectMilestone",
           "listProjectMilestones",
           "recordMilestoneProgress",
           "createProjectDocument",
-          "getProjectInvestmentProfile"
+          "getProjectInvestmentProfile",
+          "updateProjectDocument"
         ],
         "stories": [
           "ST-PRJ-008",
           "ST-PRJ-009",
-          "ST-CAP-004"
+          "ST-CAP-004",
+          "ST-IPF-001"
         ],
         "docs": [
           "docs/prj-revisions.md",
           "docs/prj-wbs.md",
           "docs/doc-dossiers.md",
           "docs/hpm-ebs-connectors.md",
-          "docs/plans/aud2.md"
+          "docs/plans/aud2.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/IPF.md",
+          "docs/plans/aud5.md",
+          "docs/doc-repository.md"
         ],
         "tests": [
           "packages/edition-enterprise/src/integration/ent-catalogue.test.ts",
           "packages/edition-enterprise/src/integration/investment-profile.test.ts",
           "apps/api/test/editions/investment-profile.enterprise.test.ts",
-          "packages/edition-enterprise/test/external-ports.test.ts"
+          "packages/edition-enterprise/test/external-ports.test.ts",
+          "packages/edition-enterprise/src/integration/legal-doc-type.test.ts",
+          "apps/api/test/editions/project-document-legal-type.enterprise.test.ts",
+          "apps/web/src/editions/enterprise/screens/ipf/ProfileScreen.test.tsx"
         ]
       },
-      "gap": "Đã có: danh mục mốc vòng đời đầu tư và danh mục loại hồ sơ pháp lý (quy tắc quản trị, hai người duyệt), mốc của dự án được đối chiếu với danh mục (trạng thái, thứ tự, mốc bắt buộc bị bỏ qua) trong hồ sơ đầu tư; cổng DocumentRegistryPort cho văn thư với bản giả và bộ kiểm thử hợp đồng (giả định làm việc, PENDING-EXTERNAL). Còn mở: ghi loại hồ sơ pháp lý theo danh mục khi tạo hồ sơ của dự án (createProjectDocument chưa kiểm theo danh mục), màn hình web hồ sơ đầu tư, kết nối văn thư thật chờ đặc tả (PX-07).",
+      "gap": "Đã có: danh mục mốc vòng đời đầu tư và danh mục loại hồ sơ pháp lý (quy tắc quản trị, hai người duyệt), mốc của dự án được đối chiếu với danh mục (trạng thái, thứ tự, mốc bắt buộc bị bỏ qua) trong hồ sơ đầu tư; cổng DocumentRegistryPort cho văn thư với bản giả và bộ kiểm thử hợp đồng (giả định làm việc, PENDING-EXTERNAL); loại hồ sơ pháp lý theo danh mục ENT_LEGAL_DOC_TYPE được kiểm khi tạo và khi sửa hồ sơ của dự án qua điểm mở rộng của bản enterprise (mã đang hiệu lực, kể cả mã tenant thêm; bản công khai không đổi và từ chối loại nêu tên bằng 422 NOT_AVAILABLE), lưu ở bảng riêng project_document_legal_type và đọc theo loại, theo phạm vi đọc hồ sơ, trong hồ sơ đầu tư; màn hình web IPF-01 đối chiếu từng mốc với hồ sơ chứng minh. Còn mở: kết nối văn thư thật chờ đặc tả (PX-07); chọn loại hồ sơ pháp lý ngay trên biểu mẫu tạo hồ sơ DOC-24 (cần một thao tác đọc danh mục cho người lập hồ sơ, hiện API đã nhận trường legal_doc_type).",
       "owners": [
         "ENT-3e"
       ],
@@ -551,7 +565,7 @@
     {
       "code": "CN.01",
       "title": "Kế hoạch đầu tư: kế hoạch vốn năm theo Nghị quyết PVN và Quyết định của Tổng công ty, phân bổ quý/tháng, cơ cấu nguồn, điều chỉnh có căn cứ",
-      "status": "PARTIAL",
+      "status": "DONE",
       "evidence": {
         "screens": [
           "CAP-01",
@@ -560,19 +574,23 @@
           "CAP-05",
           "CAP-06",
           "CAP-07",
-          "CAP-15"
+          "CAP-15",
+          "IPF-01"
         ],
         "stories": [
           "ST-CAP-001",
           "ST-CAP-002",
           "ST-CAP-003",
-          "ST-CAP-004"
+          "ST-CAP-004",
+          "ST-IPF-001"
         ],
         "docs": [
           "docs/capital-balances.md",
           "Design/MACHVON_Design/01_Documents/05_modules/CAP.md",
           "docs/fnd-funding-model.md",
-          "docs/plans/ent3e.md"
+          "docs/plans/ent3e.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/IPF.md",
+          "docs/plans/aud5.md"
         ],
         "operations": [
           "getProjectInvestmentProfile"
@@ -581,10 +599,12 @@
           "packages/db/test/cap-enterprise-origin.test.ts",
           "packages/edition-enterprise/src/integration/investment-profile.test.ts",
           "apps/api/test/editions/investment-profile.enterprise.test.ts",
-          "apps/web/src/screens/cap/enterprise-origin.test.ts"
+          "apps/web/src/screens/cap/enterprise-origin.test.ts",
+          "apps/web/src/editions/enterprise/screens/ipf/ProfileScreen.test.tsx",
+          "apps/web/src/screens/cap/AnnualPlanScreen.enterprise.test.tsx"
         ]
       },
-      "gap": "Đã có: nguồn dòng kế hoạch GROUP_ASSIGNED (Nghị quyết PVN) và BOARD_APPROVED (Quyết định Tổng công ty) kèm loại văn bản căn cứ theo gói (V2740), và đọc tách theo từng dự án trong getProjectInvestmentProfile (số tiền theo nguồn, văn bản căn cứ, hai tổng group_assigned_vnd và board_approved_vnd). Còn mở: màn hình web hiển thị phần tách theo dự án (hiện chỉ có API); bảng nguồn vốn EQUITY, LOAN, OTHER của dòng kế hoạch doanh nghiệp theo ENT-3a.",
+      "gap": "Đã có (kiểm chứng ở mã và kiểm thử): nguồn dòng kế hoạch GROUP_ASSIGNED (Nghị quyết PVN) và BOARD_APPROVED (Quyết định Tổng công ty) kèm loại văn bản căn cứ theo gói (V2740); đọc tách theo từng dự án trong getProjectInvestmentProfile (số tiền theo nguồn, văn bản căn cứ, hai tổng group_assigned_vnd và board_approved_vnd) và màn hình web IPF-01 hiển thị phần tách đó cạnh hồ sơ pháp lý của dự án; bảng nguồn vốn EQUITY, LOAN, OTHER của dòng kế hoạch doanh nghiệp (ENTERPRISE_BUCKETS ở màn kế hoạch năm CAP-03, có kiểm thử riêng của bản enterprise).",
       "owners": [
         "ENT-3e"
       ],
@@ -822,7 +842,8 @@
           "BI-16",
           "BAN-01",
           "BI-11",
-          "RML-01"
+          "RML-01",
+          "BI-02"
         ],
         "operations": [
           "getCommandCenter",
@@ -841,14 +862,16 @@
           "ST-BI-005",
           "ST-BI-008",
           "ST-BAN-001",
-          "ST-DIR-002"
+          "ST-DIR-002",
+          "ST-BI-004"
         ],
         "docs": [
           "docs/home-command-center.md",
           "docs/bi-dashboards.md",
           "docs/bi-exports.md",
           "docs/bi-publications.md",
-          "docs/plans/ent4d.md"
+          "docs/plans/ent4d.md",
+          "docs/plans/aud5.md"
         ],
         "tests": [
           "apps/api/test/bi/bi-sign-off.test.ts",
@@ -857,10 +880,11 @@
           "apps/web/src/ui/PresentationMode.test.tsx",
           "packages/edition-enterprise/src/leader/rates.test.ts",
           "packages/edition-enterprise/src/delivery/delivery-runner.test.ts",
-          "apps/api/test/editions/leader-rates.enterprise.test.ts"
+          "apps/api/test/editions/leader-rates.enterprise.test.ts",
+          "apps/web/src/screens/bi/BoardSignOff.test.tsx"
         ]
       },
-      "gap": "Đã có: chế độ trình chiếu (HOME-09, BAN-01, bảng BI, chỉ đạo), tỷ lệ giải ngân so kế hoạch năm theo công ty, đơn vị, dự án kèm so cùng kỳ năm trước đọc từ bản chốt enterprise (HOME và lãnh đạo đọc bản mới nhất ngay mỗi lần mở, không đệm), gửi email biểu mẫu đã phát hành theo lịch (RML-01), báo cáo quản trị tự tạo có ba dòng người lập, người kiểm tra, người phê duyệt trên phiên bản bảng điều khiển và trên tệp xuất (bước kiểm tra riêng, người kiểm tra khác người lập và người duyệt). Còn lại: bảng BI-02 và trang trình chiếu của nó chưa hiện khối chữ ký vì bảng chưa gắn với một dashboard; bộ dữ liệu BI chỉ dựng lại từ sự kiện chốt kỳ công, chưa dựng từ bản chốt enterprise (sự kiện enterprise.snapshot_frozen.v1 chưa có bên nhận), nên dashboard BI chỉ hiển thị số của kỳ enterprise sau chốt khi có bộ dữ liệu enterprise.",
+      "gap": "Đã có: chế độ trình chiếu (HOME-09, BAN-01, bảng BI, chỉ đạo), tỷ lệ giải ngân so kế hoạch năm theo công ty, đơn vị, dự án kèm so cùng kỳ năm trước đọc từ bản chốt enterprise (HOME và lãnh đạo đọc bản mới nhất ngay mỗi lần mở, không đệm), gửi email biểu mẫu đã phát hành theo lịch (RML-01), báo cáo quản trị tự tạo có ba dòng người lập, người kiểm tra, người phê duyệt trên phiên bản bảng điều khiển và trên tệp xuất (bước kiểm tra riêng, người kiểm tra khác người lập và người duyệt); bảng chỉ tiêu BI-02 được chọn gắn với phiên bản ĐÃ PHÁT HÀNH của một bảng điều khiển (chữ ký thuộc phiên bản đã phát hành, không lấy bản nháp lưu sau đó) và hiện ba dòng chữ ký trên trang lẫn trên mọi trang trình chiếu, bảng không gắn nêu rõ chưa có chữ ký. Còn lại: bộ dữ liệu BI chỉ dựng lại từ sự kiện chốt kỳ công, chưa dựng từ bản chốt enterprise (sự kiện enterprise.snapshot_frozen.v1 chưa có bên nhận; việc này thuộc làn int2), nên dashboard BI chỉ hiển thị số của kỳ enterprise sau chốt khi có bộ dữ liệu enterprise.",
       "owners": [
         "ENT-4d"
       ],
