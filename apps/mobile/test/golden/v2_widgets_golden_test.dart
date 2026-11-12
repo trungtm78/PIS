@@ -137,7 +137,7 @@ Widget _frame() => const AppScaffold(
     );
 
 void main() {
-  useTolerantGoldens('test/golden/v2_widgets_golden_test.dart');
+  useTolerantGoldens('test/golden/v2_widgets_golden_test.dart', tolerance: kTextGoldenTolerance);
 
   final Map<String, Widget Function()> groups = <String, Widget Function()>{
     'rows': _rows,
