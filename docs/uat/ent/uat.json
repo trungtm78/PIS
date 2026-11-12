@@ -1,0 +1,3012 @@
+{
+  "feature": "ent",
+  "generated_at": "2026-11-12T05:15:04.624Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/ent/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-ORG-01",
+      "title": "Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu) (ORG-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-ADM-ENT3D",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-ENT3D",
+      "oracle_source": "Claim → FR-ADM-ENT3D; kỳ vọng nguyên văn của ca thiết kế UI-ORG-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình ORG-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-ADM-ENT3D"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise; a user with adm.migration.read and a read-only user; route ORG-01\n1. Open ORG-01 from the menu and by deep link; check the labelled fields: units, roles, seats with directory groups, staged approval, delegation, catalogue, plan and verification\n2. Enter the id of an applied batch, show its pack, create the units and roles\n3. Force the 7 states and check the hidden actions without the permission",
+      "expected": "All sections shown, the template note visible, no write in the read-only mode",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "ORG-01",
+      "story_ids": [
+        "ST-ORG-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-ORG-1",
+      "title": "UAT-PLAN-ORG-1: Register and dry run a broken pack: the error names the row",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-ADM-ENT3D",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-ENT3D",
+      "oracle_source": "Claim → FR-ADM-ENT3D; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-ORG-1 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-ORG-1 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-ADM-ENT3D"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenant TNT-A with a root unit and an administrator who is not the registrar (story ST-ORG-001)\n1. Register and dry run a broken pack: the error names the row\n2. Register, dry run and apply the template pack by two different people\n3. Materialise the applied batch twice",
+      "expected": "The broken pack stops at the dry run; the first run creates units and roles and proposes the rest; the second creates nothing",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ORG-01",
+      "story_ids": [
+        "ST-ORG-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-ORG-2",
+      "title": "UAT-PLAN-ORG-2: Give the entry role to a person of one input point with the scope of that unit",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-ADM-ENT3D",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-ENT3D",
+      "oracle_source": "Claim → FR-ADM-ENT3D; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-ORG-2 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-ORG-2 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-ADM-ENT3D"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenant TNT-A with a root unit and an administrator who is not the registrar (story ST-ORG-001)\n1. Give the entry role to a person of one input point with the scope of that unit\n2. Read the permissions of that person in their unit and in another\n3. Do the same for the planning reviewer and the leadership viewer",
+      "expected": "The entry person holds ind.entry in their unit only; the planning reviewer and the leadership see every unit; the leadership role holds only reads",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "ORG-01",
+      "story_ids": [
+        "ST-ORG-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-DIS-ENT4C-1",
+      "title": "UAT-DIS-ENT4C-1: Periods of a month, a quarter and a year are generated and the calendar is read",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-DIS-34",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-34",
+      "oracle_source": "Claim → FR-DIS-34, FR-ADM-31; kỳ vọng nguyên văn của ca thiết kế UAT-DIS-ENT4C-1 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-DIS-ENT4C-1 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIS-34",
+        "COV-FR-ADM-31"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A tenant on the built-in schedule and one that approved a new version of the rule\n1. Periods of a month, a quarter and a year are generated and the calendar is read",
+      "expected": "The entry deadline of a generated period is the one of the rule in force on the day it was generated and never changes afterwards; the other steps follow the rule in force; a step with no fact is shown as not tracked",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-DIS-ENT4C-2",
+      "title": "UAT-DIS-ENT4C-2: The job calendar-reminder runs, once or twice",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-DIS-34",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-34",
+      "oracle_source": "Claim → FR-DIS-34; kỳ vọng nguyên văn của ca thiết kế UAT-DIS-ENT4C-2 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-DIS-ENT4C-2 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIS-34"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A step that is not finished, before and after its deadline\n1. The job calendar-reminder runs, once or twice",
+      "expected": "One reminder of each kind is recorded and sent as an event per series, the leader of the unit is told once when the step is days overdue, and a finished step is never reminded",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-DIS-ENT4C-3",
+      "title": "UAT-DIS-ENT4C-3: Each of the seven standard states is forced in turn",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-DIS-34",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-34",
+      "oracle_source": "Claim → FR-DIS-34, FR-ADM-31; kỳ vọng nguyên văn của ca thiết kế UAT-DIS-ENT4C-3 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-DIS-ENT4C-3 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIS-34",
+        "COV-FR-ADM-31"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: DIS-34 and ADM-31 opened at 1440 px and 390 px by a reader with the read permission and one without\n1. Each of the seven standard states is forced in turn",
+      "expected": "Loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker each show their own message",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-EQP-01",
+      "title": "Mua sắm trang thiết bị dự án (EQP-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-EQP-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EQP-01",
+      "oracle_source": "Claim → FR-EQP-01; kỳ vọng nguyên văn của ca thiết kế UI-EQP-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình EQP-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-EQP-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise; a user with bid.read and bid.plan.manage and one without contract.read; route EQP-01\n1. Open EQP-01 from the menu and by deep link; check the labelled fields: line, project, unit, planned value, package, selection result, contract value, paid, share paid, stage, e-GP code, how the data is obtained\n2. Add a line; check the e-GP import block (never imported, fresh, stale)\n3. Force the 7 states and check the masked figures without the permission",
+      "expected": "All twelve fields shown, a masked figure reads as no permission and never as 0, the public build has no such screen",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "EQP-01",
+      "story_ids": [
+        "ST-EQP-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-EQP-02",
+      "title": "Chi tiết dòng mua sắm trang thiết bị (EQP-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-EQP-02",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EQP-02",
+      "oracle_source": "Claim → FR-EQP-02; kỳ vọng nguyên văn của ca thiết kế UI-EQP-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình EQP-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-EQP-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise, one line with a package and one cancelled; a user with bid.plan.manage; route EQP-02\n1. Open EQP-02 from EQP-01; check the labelled fields: line, planned value, package, selection result, winning contractor, contract, contract value, variance to the plan, paid, e-GP code, version\n2. Link the package and the contract once; cancel the line with a reason\n3. Force the 7 states and check the hidden actions without the permission",
+      "expected": "All eleven fields shown, a second link is refused, a cancelled line offers no change",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "EQP-02",
+      "story_ids": [
+        "ST-EQP-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-DIS-ENT3A-1",
+      "title": "UAT-DIS-ENT3A-1: The planner builds the snapshot",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-DIS-32",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32, FR-DIS-33; kỳ vọng nguyên văn của ca thiết kế UAT-DIS-ENT3A-1 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-DIS-ENT3A-1 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIS-32",
+        "COV-FR-DIS-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A locked period of the enterprise pack with one planned cell without an accepted actual; two people with the build and freeze permissions\n1. The planner builds the snapshot\n2. The missing actual is accepted and the snapshot is built\n3. The builder tries to freeze it, then the second person freezes it\n4. The planner builds the same period again",
+      "expected": "Step 1: 422 ENTERPRISE_SNAPSHOT_INCOMPLETE with the missing units and no row; step 3: 403 SELF_APPROVAL_DENIED for the builder, the other person freezes it and its SHA-256 never changes; step 4: 409 SNAPSHOT_FROZEN until a reopening with a reason and a second approver exists, then the next revision supersedes the old one",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-32",
+      "story_ids": [
+        "ST-DIS-029"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ADM-ENT4E-1",
+      "title": "UAT-ADM-ENT4E-1: A command of the class runs",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-ADM-AUDIT-DETAIL",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-AUDIT-DETAIL",
+      "oracle_source": "Claim → FR-ADM-AUDIT-DETAIL; kỳ vọng nguyên văn của ca thiết kế UAT-ADM-ENT4E-1 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-ADM-ENT4E-1 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-ADM-AUDIT-DETAIL"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A tenant with the audit detail of a class off; an administrator with adm.audit_detail.manage and a reader with audit_event.read\n1. A command of the class runs\n2. The administrator switches the class on with a reason; a stale version is sent once\n3. The command runs again and the reader opens the detail of that row",
+      "expected": "Run 1 writes no detail row; the switch without a reason is 422 VALIDATION_FAILED and a stale version 409 VERSION_CONFLICT; run 2 writes one detail row whose SHA-256 equals the detail_ref of the sealed row, secrets are masked at any depth and the row is cut at the byte cap; a user without audit_event.read gets 403",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "ADM-29",
+      "story_ids": [
+        "ST-ADM-031"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ADM-ENT4E-2",
+      "title": "UAT-ADM-ENT4E-2: The nightly retention job runs twice",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-ADM-LOG-CAPACITY",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-LOG-CAPACITY",
+      "oracle_source": "Claim → FR-ADM-LOG-CAPACITY; kỳ vọng nguyên văn của ca thiết kế UAT-ADM-ENT4E-2 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-ADM-ENT4E-2 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-ADM-LOG-CAPACITY"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A technical log over its row cap with old rows, young rows and rows under legal hold, and the audit trail over its own cap\n1. The nightly retention job runs twice\n2. A reader with only the read permission sets a cap\n3. The administrator sets a cap without and with a reason",
+      "expected": "Only the oldest rows beyond the retention period are archived to a hashed file and then deleted, young and held rows stay, the audit trail is measured and alerts but loses no row, the second run deletes nothing; the reader gets 403, no reason is 422 VALIDATION_FAILED",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "ADM-30",
+      "story_ids": [
+        "ST-ADM-032"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-EQP-ENT4E-1",
+      "title": "UAT-EQP-ENT4E-1: Both readers open the line",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-EQP-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EQP-01",
+      "oracle_source": "Claim → FR-EQP-01, FR-EQP-02; kỳ vọng nguyên văn của ca thiết kế UAT-EQP-ENT4E-1 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-EQP-ENT4E-1 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-EQP-01",
+        "COV-FR-EQP-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A line with a package, an approved award, a contract and payments paid in part; a reader with bid.read only and a reader with contract.read and payment_request.read\n1. Both readers open the line\n2. The line is linked to a package of another project\n3. A line code is reused and a cancelled line is changed",
+      "expected": "The full reader sees the stage DISBURSING and the share paid; the other sees contract and payment figures masked, never 0; 422 EQUIPMENT_LINK_INVALID, 409 EQUIPMENT_LINE_CODE_TAKEN, 409 EQUIPMENT_LINE_STATE_INVALID; a cancel without a reason is 422 VALIDATION_FAILED",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "EQP-01",
+      "story_ids": [
+        "ST-EQP-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-01",
+      "title": "Trang chủ ứng dụng cài đặt (PWA-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-01 mở ở độ rộng 360 px (đường dẫn /m)\n1. Mở PWA-01 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Số việc chờ duyệt, Ba lối vào, Cách cài đặt, Bật thông báo đẩy\n2. Thực hiện thao tác chính theo quy tắc: Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Trang chủ ứng dụng cài đặt: hiển thị đúng 4 nhóm trường, áp quy tắc \"Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-01",
+      "story_ids": [
+        "ST-PWA-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-02",
+      "title": "Hàng đợi phê duyệt số liệu kỳ (PWA-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-02 mở ở độ rộng 360 px (đường dẫn /m/approvals)\n1. Mở PWA-02 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Loại hồ sơ, Bước, Đơn vị, Dự án, Số tiền, Hạn, Phê duyệt, Trả lại kèm ý kiến\n2. Thực hiện thao tác chính theo quy tắc: Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Hàng đợi phê duyệt số liệu kỳ: hiển thị đúng 8 nhóm trường, áp quy tắc \"Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-02",
+      "story_ids": [
+        "ST-PWA-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-03",
+      "title": "Bảng điều hành của lãnh đạo (PWA-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-03 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-03 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-03 mở ở độ rộng 360 px (đường dẫn /m/dashboard)\n1. Mở PWA-03 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Phạm vi và ngày chốt, Giải ngân và tỷ lệ, Kế hoạch và việc chờ, Cần xử lý ngay, Tiến độ đấu thầu, Hội đồng\n2. Thực hiện thao tác chính theo quy tắc: Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Bảng điều hành của lãnh đạo: hiển thị đúng 6 nhóm trường, áp quy tắc \"Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-04",
+      "title": "Theo dõi chỉ đạo (PWA-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-04 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-04 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-04 mở ở độ rộng 360 px (đường dẫn /m/directives)\n1. Mở PWA-04 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Số liệu tổng hợp, Bộ lọc trạng thái, quá hạn, đơn vị, Danh sách chỉ đạo, Hạn và tiến độ\n2. Thực hiện thao tác chính theo quy tắc: Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Theo dõi chỉ đạo: hiển thị đúng 4 nhóm trường, áp quy tắc \"Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-04",
+      "story_ids": [
+        "ST-PWA-003"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-05",
+      "title": "Chi tiết phê duyệt số liệu kỳ (PWA-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-05 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-05 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-05 mở ở độ rộng 360 px (đường dẫn /m/approvals/:taskId)\n1. Mở PWA-05 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Nội dung và số tiền, So sánh với kế hoạch, So sánh với lần báo cáo trước, Bằng chứng đính kèm, Lịch sử các bước, Phê duyệt hoặc trả lại\n2. Thực hiện thao tác chính theo quy tắc: Tên đơn vị và dự án thay cho mã; mỗi phần đọc bằng quyền riêng, thiếu quyền thì bỏ phần đó, mất kết nối thì báo lỗi; phê duyệt và trả lại giữ nguyên quy tắc If-Match, aal2, khóa chống gửi lặp\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Chi tiết phê duyệt số liệu kỳ: hiển thị đúng 6 nhóm trường, áp quy tắc \"Tên đơn vị và dự án thay cho mã; mỗi phần đọc bằng quyền riêng, thiếu quyền thì bỏ phần đó, mất kết nối thì báo lỗi; phê duyệt và trả lại giữ nguyên quy tắc If-Match, aal2, khóa chống gửi lặp\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-05",
+      "story_ids": [
+        "ST-PWA-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-06",
+      "title": "Chi tiết chỉ đạo và dòng thời gian (PWA-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-06 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-06 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-06 mở ở độ rộng 360 px (đường dẫn /m/directives/:id)\n1. Mở PWA-06 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Nội dung chỉ đạo, Đơn vị và người thực hiện, Hạn gốc và hạn hiện tại, Dòng thời gian, Đề nghị gia hạn, Bằng chứng\n2. Thực hiện thao tác chính theo quy tắc: Chỉ đọc trên điện thoại; lịch sử không sửa; số ngày quá hạn do máy chủ tính\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Chi tiết chỉ đạo và dòng thời gian: hiển thị đúng 6 nhóm trường, áp quy tắc \"Chỉ đọc trên điện thoại; lịch sử không sửa; số ngày quá hạn do máy chủ tính\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-06",
+      "story_ids": [
+        "ST-PWA-003"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-07",
+      "title": "Cài đặt ứng dụng cài đặt (PWA-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-07 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-07 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-07 mở ở độ rộng 360 px (đường dẫn /m/settings)\n1. Mở PWA-07 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Thiết bị và phiên đăng nhập, Ngôn ngữ, Thông báo theo nhóm sự kiện, Giờ yên lặng\n2. Thực hiện thao tác chính theo quy tắc: Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Cài đặt ứng dụng cài đặt: hiển thị đúng 4 nhóm trường, áp quy tắc \"Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-07",
+      "story_ids": [
+        "ST-PWA-004"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-08",
+      "title": "Chi tiết số liệu bảng điều hành (PWA-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-08 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-08 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-08 mở ở độ rộng 360 px (đường dẫn /m/dashboard/detail)\n1. Mở PWA-08 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Số tiền theo bản chốt, Xếp hạng, Nguyên nhân chậm giải ngân, Dòng tiền, Thay đổi so với bản chốt trước, Mức cảnh báo\n2. Thực hiện thao tác chính theo quy tắc: Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Chi tiết số liệu bảng điều hành: hiển thị đúng 6 nhóm trường, áp quy tắc \"Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-08",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-09",
+      "title": "Tiến độ đấu thầu trên điện thoại (PWA-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-09 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-09 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-09 mở ở độ rộng 360 px (đường dẫn /m/progress)\n1. Mở PWA-09 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Số gói và việc quá hạn, Các bước của quy trình, Gói ở từng bước\n2. Thực hiện thao tác chính theo quy tắc: Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Tiến độ đấu thầu trên điện thoại: hiển thị đúng 3 nhóm trường, áp quy tắc \"Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-09",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UI-PWA-10",
+      "title": "Cài đặt thông báo đẩy (PWA-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UI-PWA-10 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình PWA-10 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic; người dùng lãnh đạo có quyền và người dùng chỉ đọc; màn hình PWA-10 mở ở độ rộng 360 px (đường dẫn /m/notifications)\n1. Mở PWA-10 từ ứng dụng đã cài đặt và bằng liên kết sâu; kiểm nhãn trường: Quyền thông báo của trình duyệt, Đăng ký và hủy đăng ký thiết bị, Thông báo thử gửi cho chính mình\n2. Thực hiện thao tác chính theo quy tắc: Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng\n3. Kiểm các trạng thái (đang tải, có dữ liệu, rỗng, lỗi, từ chối quyền, ngoại tuyến, số liệu cũ) ở 360 px: không cuộn ngang, mọi điều khiển cao tối thiểu 44 px, có nhãn truy cập",
+      "expected": "Cài đặt thông báo đẩy: hiển thị đúng 3 nhóm trường, áp quy tắc \"Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWA-10",
+      "story_ids": [
+        "ST-PWA-004"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-PWA-01",
+      "title": "UAT-PWA-01: Open a pending report.accept task from the queue and read the project, period, unit, the cells against the plan and the period bef",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UAT-PWA-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PWA-01 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A with synthetic data; a leader with the rights of the screens and a user without them; the page opened at a width of 360 px.\n1. Open a pending report.accept task from the queue and read the project, period, unit, the cells against the plan and the period before, the evidence and the steps\n2. Open the task of a corrected revision and a task whose report the leader may not read\n3. Return the task with no comment, then with a comment; approve another task\n4. Repeat the approval after a lost answer and after the task changed",
+      "expected": "Step 1: names instead of ids, six cells with plan, previous period and change, the share of the plan with no rate over a plan of zero; step 2: the changed cells against the revision before it, and the refused part left out with its reason; step 3: a return with no comment is refused before sending, then one request under If-Match with the second factor asked for in place; step 4: the same idempotency key is reused after a lost answer, a conflict offers to reload.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-PWA-02",
+      "title": "UAT-PWA-02: Open the dashboard and the detail of the figures",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UAT-PWA-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PWA-02 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A with synthetic data; a leader with the rights of the screens and a user without them; the page opened at a width of 360 px.\n1. Open the dashboard and the detail of the figures\n2. Open the procurement progress and tap a step\n3. Open both without the right to read",
+      "expected": "Step 1: the amounts, ranking, causes, cash flow and changes of the snapshot of HOME-09, a card that cannot be read is named without hiding the others; step 2: the steps by method in order with counts and lateness and the packages of the step in place; step 3: the scope is said to be hidden and nothing is asked of the server.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-PWA-03",
+      "title": "UAT-PWA-03: Open the directive tracking, read the counts and filter by overdue, by status and by unit",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UAT-PWA-03 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PWA-03 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A with synthetic data; a leader with the rights of the screens and a user without them; the page opened at a width of 360 px.\n1. Open the directive tracking, read the counts and filter by overdue, by status and by unit\n2. Load the next page, make the summary fail\n3. Open a directive with progress events, an extension request and evidence",
+      "expected": "Step 1: the list and the counts follow the filter through the real operations; step 2: more pages on request and a failed summary said so, never as 0; step 3: the clock as the server counts it, the latest progress (or that none was reported), the timeline newest first, read-only.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-PWA-04",
+      "title": "UAT-PWA-04: Open the settings, read the sessions and devices, end another session with a reason of 4 characters and then of 30",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-YCK.01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; kỳ vọng nguyên văn của ca thiết kế UAT-PWA-04 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PWA-04 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A with synthetic data; a leader with the rights of the screens and a user without them; the page opened at a width of 360 px.\n1. Open the settings, read the sessions and devices, end another session with a reason of 4 characters and then of 30\n2. Remove a device\n3. Change the language, switch a push off, set equal quiet hours, then correct them and save",
+      "expected": "Step 1: the current session has no end action and a short reason is refused before sending; step 2: the device is removed with its reason; step 3: the language changes at once and is saved under the version of the profile, the preferences are saved under their version, a locked channel cannot be switched off, equal quiet hours are refused.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-DIS-ENT3B-1",
+      "title": "UAT-DIS-ENT3B-1: The author inherits the narrative of the previous period",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-DIS-35",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-35",
+      "oracle_source": "Claim → FR-DIS-35; kỳ vọng nguyên văn của ca thiết kế UAT-DIS-ENT3B-1 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-DIS-ENT3B-1 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-DIS-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A draft report with one empty narrative field, the report of the previous period with text in two fields, a submitted report and a locked period\n1. The author inherits the narrative of the previous period\n2. The author inherits it again\n3. The author inherits into the submitted report, into the locked period and with a stale version\n4. A user without the import permission downloads the template",
+      "expected": "Step 1 fills only the empty field and records the source period; step 2 is 422 NARRATIVE_NOTHING_TO_INHERIT; step 3 is 409 REVISION_IMMUTABLE, 409 PERIOD_LOCKED and 409 VERSION_CONFLICT; step 4 is 403",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DIS-35",
+      "story_ids": [
+        "ST-DIS-030"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-E2E-01",
+      "title": "Bản chốt kỳ của enterprise: lãnh đạo thấy câu trả lời \"chưa có bản chốt\" chứ không phải lỗi, dựng bị từ chối khi còn đơn vị chưa nộp và không ghi gì, rồi dựng được khi đủ",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-both",
+      "journey_ref": "J-ENT-SNAPSHOT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32, FR-DIS-33; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Dựng bản chốt khi thiếu số liệu của một đơn vị, hoặc lãnh đạo thấy lỗi thay vì câu trả lời khi chưa có bản chốt",
+      "coverage_ids": [
+        "COV-FR-DIS-32",
+        "COV-FR-DIS-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-both",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; kỳ tháng 3 đã khóa; hai dự án ở hai phòng; một ô kế hoạch chưa có số thực được duyệt\n1. Lãnh đạo đọc GET /leader/rates\n2. Người dựng đọc mức sẵn sàng\n3. Người dựng dựng bản chốt khi thiếu\n4. Nhập số thực được duyệt cho hai dự án rồi dựng lại",
+      "expected": "Bước 1: 200 với snapshot null và lý do. Bước 2: complete false, hai đơn vị chưa nộp. Bước 3: 422 ENTERPRISE_SNAPSHOT_INCOMPLETE kèm danh sách đơn vị thiếu, không dòng period_snapshot. Bước 4: BUILDING phiên bản 1, kiểm toán enterprise.snapshot_built (chỉ số lượng, không số tiền), sự kiện enterprise.snapshot_built.v1; lãnh đạo vẫn chưa thấy bản chốt (chưa đóng băng).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ent.uat.test.ts"
+      },
+      "module": "ENT",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE'",
+        "expect": {
+          "value": "1"
+        }
+      },
+      "audit_assert": {
+        "entity": "period_snapshot",
+        "entity_id": "<id bản chốt>",
+        "action": "enterprise.snapshot_built",
+        "fields": [
+          "actor_id",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IDM-01",
+      "title": "Dựng lại bản chốt với cùng Idempotency-Key trả đúng bản đã dựng và không tạo bản thứ hai; cùng khóa cho kỳ khác bị 409 IDEMPOTENCY_CONFLICT",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "ent-both",
+      "journey_ref": "J-ENT-SNAPSHOT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Gửi lại lệnh dựng tạo hai bản chốt của một kỳ",
+      "coverage_ids": [
+        "COV-FR-DIS-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-both",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; kỳ đã khóa có bản chốt BUILDING\n1. Dựng với khóa k\n2. Dựng cho kỳ khác với cùng khóa k",
+      "expected": "Bước 1: 200, vẫn một dòng period_snapshot ENTERPRISE_CLOSE của kỳ. Bước 2: 409 IDEMPOTENCY_CONFLICT.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ent.uat.test.ts"
+      },
+      "module": "ENT",
+      "idempotency": {
+        "url": "/enterprise-snapshots",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "period_id": "<id kỳ>"
+        },
+        "count_query": "SELECT count(*) FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-STA-01",
+      "title": "Kỳ chưa khóa không có bản chốt (409 PERIOD_STATE_INVALID), kỳ không tồn tại 404, thiếu kỳ 400; không ghi gì",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "ent-both",
+      "journey_ref": "J-ENT-SNAPSHOT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Dựng bản chốt cho kỳ còn đang nhập",
+      "coverage_ids": [
+        "COV-FR-DIS-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-both",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một kỳ OPEN\n1. Dựng cho kỳ OPEN\n2. Dựng cho id lạ\n3. Dựng không có period_id",
+      "expected": "Bước 1: 409 PERIOD_STATE_INVALID. Bước 2: 404. Bước 3: 400. Không dòng period_snapshot của kỳ OPEN.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ent.uat.test.ts"
+      },
+      "module": "ENT",
+      "transition": {
+        "from": "OPEN",
+        "to": "ENTERPRISE_CLOSE",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SOD-01",
+      "title": "Người dựng bản chốt không đóng băng nó (403 SELF_APPROVAL_DENIED); người khác đóng băng đúng phiên bản; đóng băng lần hai 409 SNAPSHOT_FROZEN",
+      "type": "RED",
+      "platform": "api",
+      "persona": "ent-both",
+      "journey_ref": "J-ENT-SNAPSHOT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-33",
+      "oracle_source": "Claim → FR-DIS-33; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Một người vừa dựng vừa đóng băng bản chốt, hoặc đóng băng hai lần",
+      "coverage_ids": [
+        "COV-FR-DIS-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-both",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bản chốt BUILDING do người ent-both dựng; người đóng băng khác và người chỉ đọc\n1. Người chỉ đóng băng và người chỉ đọc dựng\n2. ent-both đóng băng\n3. Người chỉ đọc đóng băng\n4. Người đóng băng với phiên bản 9, rồi đúng\n5. Đóng băng lần hai",
+      "expected": "Bước 1: 403. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 403. Bước 4: 409 VERSION_CONFLICT rồi FROZEN phiên bản 2, kiểm toán enterprise.snapshot_frozen có payload_sha256 64 hex, sự kiện enterprise.snapshot_frozen.v1. Bước 5: 409 SNAPSHOT_FROZEN.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ent.uat.test.ts"
+      },
+      "module": "ENT",
+      "audit_assert": {
+        "entity": "period_snapshot",
+        "entity_id": "<id bản chốt>",
+        "action": "enterprise.snapshot_frozen",
+        "fields": [
+          "actor_id",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      },
+      "transition": {
+        "from": "FROZEN",
+        "to": "FROZEN",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-DAT-01",
+      "title": "Bản chốt đã đóng băng đọc với băm đã kiểm và dòng dõi; kỳ đã đóng băng không dựng lại cho đến khi mở lại; lãnh đạo đọc tỷ lệ so với kế hoạch kèm tử số và mẫu số",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-ENT-LEADER-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01, FR-DIS-33; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Màn lãnh đạo và bản chốt cho hai số khác nhau cho một chỉ tiêu, hoặc bản chốt đổi sau khi đóng băng",
+      "coverage_ids": [
+        "COV-YCK.01",
+        "COV-FR-DIS-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bản chốt đã đóng băng, kế hoạch 4.000, thực hiện 1.000 (hai dự án)\n1. Đọc GET /enterprise-snapshots/{id}\n2. Dựng lại cùng kỳ\n3. Đọc tổng và tỷ lệ của bản chốt\n4. Lãnh đạo đọc GET /leader/rates\n5. Người không có home.read đọc, đọc với id bản chốt lạ và id sai khuôn",
+      "expected": "Bước 1: hash_verified true, lineage 1 phần tử. Bước 2: 409 SNAPSHOT_FROZEN, reopen_required true. Bước 3: RATE_YEAR_IN_FORCE tử 1000, mẫu 4000, 25. Bước 4: plan_vnd 4000, disbursed_vnd 1000, rate 25, hai đơn vị, definition_status PROPOSED_PENDING_SIGNOFF. Bước 5: 403, 404, 422.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002",
+        "ST-RML-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ent.uat.test.ts"
+      },
+      "module": "ENT",
+      "db_assert": {
+        "query": "SELECT status FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE' LIMIT 1",
+        "expect": {
+          "value": "FROZEN"
+        }
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-ISO-01",
+      "title": "Tenant khác không thấy bản chốt của enterprise: không trong danh sách, không theo id (404 như id không tồn tại), không đóng băng được",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "ent-reader",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-33",
+      "oracle_source": "Claim → FR-DIS-33; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đọc hoặc đóng băng bản chốt của tenant khác (IDOR)",
+      "coverage_ids": [
+        "COV-FR-DIS-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có bản chốt S; tenant B có quản trị bản chốt\n1. Tenant B đọc S\n2. Đọc id ngẫu nhiên\n3. Đọc danh sách\n4. Đóng băng S",
+      "expected": "Bước 1 và 2 cùng 404 và cùng mã; bước 3 rỗng; bước 4: 404.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ent.uat.test.ts"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise-snapshots/{id}",
+        "method": "GET",
+        "allow": [
+          "ent-reader",
+          "ent-both"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "payload_sha256",
+          "by_unit"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SCP-01",
+      "title": "Người đọc chỉ có quyền trên một cây đơn vị thấy riêng đơn vị đó và tổng của phần mình thấy (partial true)",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-reader",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-33",
+      "oracle_source": "Claim → FR-DIS-33; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Người đọc một đơn vị thấy tổng của cả công ty",
+      "coverage_ids": [
+        "COV-FR-DIS-33"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bản chốt BUILDING; người đọc UNIT_SUBTREE của phòng A\n1. Đọc bản chốt\n2. So tử số và mẫu số với tổng công ty",
+      "expected": "partial true; một dự án; tỷ lệ chỉ của phòng A.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Suite dùng grant theo cả tenant; ca phạm vi đơn vị đã có ở apps/api/test/fnd/enterprise-snapshot.test.ts, chưa nối vào world của UAT"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise-snapshots/{id}",
+        "method": "GET",
+        "allow": [
+          "ent-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ],
+        "must_not_contain": [
+          "OTHER-DEPARTMENT"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-ORG-01",
+      "title": "Gói cấu hình PVFCCo mẫu: gói hỏng dừng ở chạy thử, lần chạy đầu tạo đơn vị và vai trò và đề xuất phần còn lại, lần chạy hai không tạo gì",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-org-admin",
+      "journey_ref": "J-ENT-ORG-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-ENT3D",
+      "oracle_source": "Claim → FR-ADM-ENT3D; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Nạp gói tổ chức hai lần nhân đôi đơn vị và vai trò, hoặc áp dụng trực tiếp cấp quyền không qua duyệt",
+      "coverage_ids": [
+        "COV-FR-ADM-ENT3D"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-org-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; gói PVFCCO-TEMPLATE; người quản trị có adm.migration.read và adm.migration.approve\n1. Đọc GET /enterprise/org-pack\n2. Nạp gói hỏng\n3. Nạp gói đúng lần một\n4. Nạp lại lần hai",
+      "expected": "Gói hỏng dừng ở chạy thử và không tạo gì; lần một tạo đơn vị, vai trò và đề xuất cấp quyền chờ duyệt; lần hai không tạo gì; mọi cấp quyền cần người duyệt thứ hai.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "ORG-01",
+      "story_ids": [
+        "ST-ORG-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần lô nạp (applied batch) của tệp gói; ca tích hợp đã có ở apps/api/test/editions/org-pack.enterprise.test.ts, chưa dựng trong suite UAT; danh sách 09 đầu mối thật là PX-05"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-EQP-01",
+      "title": "Mua sắm trang thiết bị: người đọc đầy đủ thấy giai đoạn và tỷ lệ đã thanh toán, người khác thấy số hợp đồng và thanh toán bị che (không phải 0); liên kết thứ hai và dòng đã hủy bị từ chối",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-equipment",
+      "journey_ref": "J-ENT-EQUIP-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EQP-01",
+      "oracle_source": "Claim → FR-EQP-01, FR-EQP-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Số bị che hiển thị là 0, hoặc dòng đã hủy vẫn sửa được",
+      "coverage_ids": [
+        "COV-FR-EQP-01",
+        "COV-FR-EQP-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-equipment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; dòng kế hoạch mua thiết bị, gói thầu, hợp đồng, thanh toán\n1. Người đọc đầy đủ đọc dòng\n2. Người đọc hạn chế đọc cùng dòng\n3. Gắn liên kết thứ hai\n4. Sửa dòng đã hủy",
+      "expected": "Người đầy đủ thấy DISBURSING và tỷ lệ; người hạn chế thấy số bị che, không phải 0; liên kết thứ hai 422 EQUIPMENT_LINK_INVALID; dòng hủy không sửa được.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "EQP-01",
+      "story_ids": [
+        "ST-EQP-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần chuỗi kế hoạch, gói thầu, hợp đồng, thanh toán ở BID, CTR, PAY; chưa dựng trong suite; layout nhập tệp là PX-06"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-PWA-01",
+      "title": "Lãnh đạo duyệt số liệu kỳ trên điện thoại: hàng đợi, chi tiết có kế hoạch và kỳ trước, quyết định gửi một lần kèm phiên bản, không lưu số liệu trong bộ nhớ đệm của trình duyệt",
+      "type": "E2E",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-ENT-PWA-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Duyệt hai lần khi mất mạng, lưu số liệu nghiệp vụ vào bộ nhớ đệm của PWA, hoặc hiển thị mã thay cho tên đơn vị",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise, PWA đã cài trên khổ 360 x 780; một việc duyệt số liệu kỳ chờ lãnh đạo\n1. Mở PWA-01 và PWA-02\n2. Mở PWA-05 và đọc sáu ô\n3. Quyết định khi đang trực tuyến\n4. Bấm quyết định lần hai và khi mất mạng\n5. Đọc kho lưu của trình duyệt (CacheStorage, IndexedDB)",
+      "expected": "Chỉ hiện số việc chờ duyệt; quyết định gửi với If-Match là phiên bản của việc; lần hai bị 409 và hiện lý do; mất mạng thì không gửi và báo; không có số liệu nghiệp vụ trong kho lưu của trình duyệt; tên đơn vị và dự án thay cho mã.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PWA-01",
+      "story_ids": [
+        "ST-PWA-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần PWA trên bản enterprise trong trình duyệt di động; có sẵn apps/web/e2e/pwa-flows.spec.ts (không đặt tên theo mã ca) nhưng chưa có ca mất mạng khi duyệt"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-PWA-02",
+      "title": "Bảng điều hành lãnh đạo trên điện thoại 360 px và 390 px: một cột, không cuộn ngang, cùng bản chốt và cùng số với màn máy tính, thẻ lỗi nêu tên mà không giấu thẻ khác",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-ENT-PWA-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tràn ngang ở 360 px, hoặc một thẻ lỗi làm trắng cả bảng",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; bản chốt đã đóng băng; một thẻ cố tình lỗi\n1. Mở PWA-03 ở 360 px và 390 px\n2. Mở PWA-08 từ một thẻ\n3. So số với HOME-09\n4. Ép một thẻ lỗi",
+      "expected": "Không cuộn ngang; số giống HOME-09; thẻ lỗi nêu tên, các thẻ khác vẫn hiện; số không có ghi rõ là không có, không phải 0.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Đã có kiểm khổ 360 và 390 px trong apps/web/e2e/pwa-flows.spec.ts; chưa đặt tên theo mã ca nên chưa vào kho kết quả"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-PWA-03",
+      "title": "Cài đặt ứng dụng: phiên hiện tại không có nút kết thúc, lý do ngắn bị từ chối trước khi gửi, thu hồi thiết bị kèm lý do, thông báo đẩy chỉ mang tiêu đề chung và đường dẫn",
+      "type": "SECURITY",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-ENT-PWA-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tự đăng xuất phiên đang dùng, hoặc thông báo đẩy mang nội dung nghiệp vụ",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; PWA đã cài; hai thiết bị đã đăng ký\n1. Mở PWA-07\n2. Thu hồi thiết bị khác với lý do ngắn rồi đủ\n3. Gửi thông báo thử ở PWA-10\n4. Đọc nội dung thông báo",
+      "expected": "Phiên hiện tại không có hành động kết thúc; lý do ngắn không gửi; thiết bị bị thu hồi kèm lý do và kiểm toán; thông báo thử chỉ gửi cho chính người dùng và chỉ mang tiêu đề chung và đường dẫn.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-07",
+      "story_ids": [
+        "ST-PWA-004"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần thiết bị hoặc giả lập đăng ký đẩy; nhà cung cấp đẩy thật là PX-11"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/me/sessions/{sessionId}/revoke",
+        "method": "POST",
+        "allow": [
+          "ent-leader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ],
+        "must_not_contain": [
+          "token",
+          "refresh"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-NAR-01",
+      "title": "Thừa kế thuyết minh kỳ trước chỉ điền ô trống và ghi kỳ nguồn, không còn gì để thừa kế là 422 NARRATIVE_NOTHING_TO_INHERIT, bản đã chốt 409 REVISION_IMMUTABLE",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "ent-report-editor",
+      "journey_ref": "J-ENT-NARRATIVE-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-35",
+      "oracle_source": "Claim → FR-DIS-35; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Thừa kế ghi đè nội dung người lập đã viết, hoặc sửa thuyết minh của bản đã chốt",
+      "coverage_ids": [
+        "COV-FR-DIS-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-report-editor",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; báo cáo kỳ trước có thuyết minh 8 trường; báo cáo kỳ này có một ô trống\n1. Thừa kế lần một\n2. Thừa kế lần hai\n3. Thừa kế vào báo cáo đã chốt",
+      "expected": "Lần một chỉ điền ô trống và ghi kỳ nguồn; lần hai 422 NARRATIVE_NOTHING_TO_INHERIT; báo cáo đã chốt 409 REVISION_IMMUTABLE.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "PWA-02",
+      "story_ids": [
+        "ST-PWA-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần báo cáo DIS có thuyết minh nhiều kỳ; ca tích hợp đã có ở apps/api/test/dis/report-decision.test.ts"
+      },
+      "module": "ENT",
+      "transition": {
+        "from": "REVISION_FROZEN",
+        "to": "REVISION_EDITED",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-PRF-01",
+      "title": "Đọc tỷ lệ lãnh đạo và dự án vướng thủ tục trả lời trong 5 giây ở phân vị 95 với 22 dự án và bản chốt đủ",
+      "type": "PERFORMANCE",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-ENT-LEADER-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Statute",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Yêu cầu của khách: mọi chức năng phản hồi dưới 5 giây và mọi báo cáo dưới 20 giây, đo bằng phân vị 95 (docs/qa/perf-budget.json; HSKT HT.05; đo trên phần cứng khách là PX-10)",
+      "catches_bug": "Tính tỷ lệ lại từ bảng gốc mỗi lần đọc",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có bản chốt đã đóng băng với 22 dự án\n1. Gọi GET /leader/rates và GET /leader/blocked-projects hai mươi lần sau ba lần khởi động",
+      "expected": "p95 không quá 5.000 ms, không lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bộ dữ liệu 22 dự án; đo trên phần cứng khách là PX-10"
+      },
+      "module": "ENT",
+      "perf_budget": {
+        "url": "/leader/rates",
+        "method": "GET",
+        "p95_ms": 5000,
+        "sample": 20,
+        "warmup": 3,
+        "max_error_rate": 0
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-A11-01",
+      "title": "Mười màn PWA đạt WCAG 2.2 AA ở 360 px: mục tiêu chạm tối thiểu 44 px, tương phản, thứ tự đọc, không phụ thuộc cử chỉ",
+      "type": "A11Y",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-ENT-PWA-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Mục tiêu chạm nhỏ hơn 44 px, chữ tương phản thấp trên nền sáng ngoài trời",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; PWA ở khổ 360 x 780\n1. Chạy axe trên từng màn\n2. Đo mục tiêu chạm\n3. Đọc bằng trình đọc màn hình của điện thoại",
+      "expected": "Không lỗi axe nghiêm trọng hoặc cao; mọi mục tiêu chạm từ 44 px; mọi thao tác có phương án không dùng cử chỉ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "accessibility",
+      "screen_id": "PWA-01",
+      "story_ids": [
+        "ST-PWA-001",
+        "ST-PWA-002",
+        "ST-PWA-003",
+        "ST-PWA-004"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Đã có axe 111 màn và kiểm mục tiêu chạm 44 px (lượt UAT 2); chưa đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-PX-01",
+      "title": "PENDING-EXTERNAL PX-05: gói tổ chức PVFCCo mẫu chưa phải danh sách đầu mối thật nên không tính là đạt",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-org-admin",
+      "journey_ref": "J-ENT-ORG-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-ADM-ENT3D",
+      "oracle_source": "Sổ việc phụ thuộc khách PX-05 (docs/delivery/11-pending-external-register.md): danh sách 09 đầu mối và người nhập, người duyệt từng đầu mối",
+      "catches_bug": "Báo cáo nghiệm thu tính đạt cho gói mẫu như cấu hình thật",
+      "coverage_ids": [
+        "COV-FR-ADM-ENT3D"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-org-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise với gói PVFCCO-TEMPLATE\n1. Mở ORG-01 và đọc ghi chú khuôn",
+      "expected": "Ghi chú gói mẫu hiển thị; chế độ chỉ đọc không ghi gì; cấu hình thật chờ khách.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "ORG-01",
+      "story_ids": [
+        "ST-ORG-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chờ khách cung cấp danh sách 09 đầu mối (PX-05)"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-01",
+      "title": "getEnterpriseOrgPack (GET /enterprise/org-pack): chỉ người giữ quyền adm.migration.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-org-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-ENT3D",
+      "oracle_source": "Claim → FR-ADM-ENT3D; thao tác getEnterpriseOrgPack yêu cầu quyền adm.migration.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /enterprise/org-pack thiếu kiểm quyền adm.migration.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-ADM-ENT3D"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-org-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ adm.migration.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ adm.migration.read gọi GET /enterprise/org-pack với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ORG-01",
+      "story_ids": [
+        "ST-ORG-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise/org-pack",
+        "method": "GET",
+        "allow": [
+          "ent-org-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-02",
+      "title": "materialiseEnterpriseOrgPack (POST /enterprise/org-pack/materialisations): chỉ người giữ quyền adm.migration.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-org-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-ADM-ENT3D",
+      "oracle_source": "Claim → FR-ADM-ENT3D; thao tác materialiseEnterpriseOrgPack yêu cầu quyền adm.migration.approve (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /enterprise/org-pack/materialisations thiếu kiểm quyền adm.migration.approve hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-ADM-ENT3D"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-org-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ adm.migration.approve trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ adm.migration.approve gọi POST /enterprise/org-pack/materialisations với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "ORG-01",
+      "story_ids": [
+        "ST-ORG-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise/org-pack/materialisations",
+        "method": "POST",
+        "allow": [
+          "ent-org-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-03",
+      "title": "buildEnterpriseSnapshot (POST /enterprise-snapshots): chỉ người giữ quyền funding.snapshot.build qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-builder",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32; thao tác buildEnterpriseSnapshot yêu cầu quyền funding.snapshot.build (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /enterprise-snapshots thiếu kiểm quyền funding.snapshot.build hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIS-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-builder",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.build trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ funding.snapshot.build gọi POST /enterprise-snapshots với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise-snapshots",
+        "method": "POST",
+        "allow": [
+          "ent-builder",
+          "ent-both"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-04",
+      "title": "listEnterpriseSnapshots (GET /enterprise-snapshots): chỉ người giữ quyền funding.snapshot.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-builder",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32; thao tác listEnterpriseSnapshots yêu cầu quyền funding.snapshot.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /enterprise-snapshots thiếu kiểm quyền funding.snapshot.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIS-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-builder",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ funding.snapshot.read gọi GET /enterprise-snapshots với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise-snapshots",
+        "method": "GET",
+        "allow": [
+          "ent-builder",
+          "ent-freezer",
+          "ent-both",
+          "ent-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-05",
+      "title": "freezeEnterpriseSnapshot (POST /enterprise-snapshots/{id}/freeze): chỉ người giữ quyền funding.snapshot.freeze qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-freezer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32; thao tác freezeEnterpriseSnapshot yêu cầu quyền funding.snapshot.freeze (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /enterprise-snapshots/{id}/freeze thiếu kiểm quyền funding.snapshot.freeze hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIS-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-freezer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.freeze trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ funding.snapshot.freeze gọi POST /enterprise-snapshots/{id}/freeze với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise-snapshots/{id}/freeze",
+        "method": "POST",
+        "allow": [
+          "ent-freezer",
+          "ent-both"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-06",
+      "title": "getEnterpriseSnapshot (GET /enterprise-snapshots/{id}): chỉ người giữ quyền funding.snapshot.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-builder",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32; thao tác getEnterpriseSnapshot yêu cầu quyền funding.snapshot.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /enterprise-snapshots/{id} thiếu kiểm quyền funding.snapshot.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIS-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-builder",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ funding.snapshot.read gọi GET /enterprise-snapshots/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise-snapshots/{id}",
+        "method": "GET",
+        "allow": [
+          "ent-builder",
+          "ent-freezer",
+          "ent-both",
+          "ent-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-07",
+      "title": "getEnterpriseSnapshotReadiness (GET /enterprise-snapshot-readiness): chỉ người giữ quyền funding.snapshot.build qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-builder",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-32",
+      "oracle_source": "Claim → FR-DIS-32; thao tác getEnterpriseSnapshotReadiness yêu cầu quyền funding.snapshot.build (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /enterprise-snapshot-readiness thiếu kiểm quyền funding.snapshot.build hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIS-32"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-builder",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.build trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ funding.snapshot.build gọi GET /enterprise-snapshot-readiness với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/enterprise-snapshot-readiness",
+        "method": "GET",
+        "allow": [
+          "ent-builder",
+          "ent-both"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-08",
+      "title": "getLeaderRates (GET /leader/rates): chỉ người giữ quyền home.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; thao tác getLeaderRates yêu cầu quyền home.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /leader/rates thiếu kiểm quyền home.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ home.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ home.read gọi GET /leader/rates với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/leader/rates",
+        "method": "GET",
+        "allow": [
+          "ent-leader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-09",
+      "title": "getBlockedProjects (GET /leader/blocked-projects): chỉ người giữ quyền home.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-leader",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "YCK.01",
+      "oracle_source": "Claim → YCK.01; thao tác getBlockedProjects yêu cầu quyền home.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /leader/blocked-projects thiếu kiểm quyền home.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-YCK.01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ home.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ home.read gọi GET /leader/blocked-projects với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-03",
+      "story_ids": [
+        "ST-PWA-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/leader/blocked-projects",
+        "method": "GET",
+        "allow": [
+          "ent-leader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-10",
+      "title": "listEquipmentProcurement (GET /equipment-procurement): chỉ người giữ quyền bid.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-equipment",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EQP-01",
+      "oracle_source": "Claim → FR-EQP-01; thao tác listEquipmentProcurement yêu cầu quyền bid.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /equipment-procurement thiếu kiểm quyền bid.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EQP-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-equipment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ bid.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ bid.read gọi GET /equipment-procurement với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EQP-01",
+      "story_ids": [
+        "ST-EQP-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/equipment-procurement",
+        "method": "GET",
+        "allow": [
+          "ent-equipment"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-11",
+      "title": "createEquipmentProcurementItem (POST /equipment-procurement): chỉ người giữ quyền bid.plan.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-equipment",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EQP-02",
+      "oracle_source": "Claim → FR-EQP-02; thao tác createEquipmentProcurementItem yêu cầu quyền bid.plan.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /equipment-procurement thiếu kiểm quyền bid.plan.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EQP-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-equipment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ bid.plan.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ bid.plan.manage gọi POST /equipment-procurement với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EQP-02",
+      "story_ids": [
+        "ST-EQP-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/equipment-procurement",
+        "method": "POST",
+        "allow": [
+          "ent-equipment"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-12",
+      "title": "getEquipmentProcurement (GET /equipment-procurement/{id}): chỉ người giữ quyền bid.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-equipment",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EQP-01",
+      "oracle_source": "Claim → FR-EQP-01; thao tác getEquipmentProcurement yêu cầu quyền bid.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /equipment-procurement/{id} thiếu kiểm quyền bid.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EQP-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-equipment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ bid.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ bid.read gọi GET /equipment-procurement/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EQP-01",
+      "story_ids": [
+        "ST-EQP-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/equipment-procurement/{id}",
+        "method": "GET",
+        "allow": [
+          "ent-equipment"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-13",
+      "title": "updateEquipmentProcurementItem (PATCH /equipment-procurement/{id}): chỉ người giữ quyền bid.plan.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-equipment",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EQP-02",
+      "oracle_source": "Claim → FR-EQP-02; thao tác updateEquipmentProcurementItem yêu cầu quyền bid.plan.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường PATCH /equipment-procurement/{id} thiếu kiểm quyền bid.plan.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EQP-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-equipment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ bid.plan.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ bid.plan.manage gọi PATCH /equipment-procurement/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EQP-02",
+      "story_ids": [
+        "ST-EQP-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/equipment-procurement/{id}",
+        "method": "PATCH",
+        "allow": [
+          "ent-equipment"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-14",
+      "title": "getReportNarrativeContext (GET /reports/{id}/narrative-context): chỉ người giữ quyền report.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-report-editor",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-35",
+      "oracle_source": "Claim → FR-DIS-35; thao tác getReportNarrativeContext yêu cầu quyền report.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /reports/{id}/narrative-context thiếu kiểm quyền report.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIS-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-report-editor",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ report.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ report.read gọi GET /reports/{id}/narrative-context với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-02",
+      "story_ids": [
+        "ST-PWA-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/reports/{id}/narrative-context",
+        "method": "GET",
+        "allow": [
+          "ent-report-editor"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-15",
+      "title": "inheritReportNarrative (POST /reports/{id}/narrative-inheritance): chỉ người giữ quyền report.edit qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-report-editor",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-35",
+      "oracle_source": "Claim → FR-DIS-35; thao tác inheritReportNarrative yêu cầu quyền report.edit (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /reports/{id}/narrative-inheritance thiếu kiểm quyền report.edit hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIS-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-report-editor",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ report.edit trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ report.edit gọi POST /reports/{id}/narrative-inheritance với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-02",
+      "story_ids": [
+        "ST-PWA-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/reports/{id}/narrative-inheritance",
+        "method": "POST",
+        "allow": [
+          "ent-report-editor"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-16",
+      "title": "getReportNarrativeTemplate (GET /report-narrative-template): chỉ người giữ quyền report.import qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-report-editor",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-DIS-35",
+      "oracle_source": "Claim → FR-DIS-35; thao tác getReportNarrativeTemplate yêu cầu quyền report.import (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-narrative-template thiếu kiểm quyền report.import hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-DIS-35"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-report-editor",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ report.import trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ report.import gọi GET /report-narrative-template với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "PWA-02",
+      "story_ids": [
+        "ST-PWA-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/report-narrative-template",
+        "method": "GET",
+        "allow": [
+          "ent-report-editor"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,1606 @@
+{
+  "feature": "ebs",
+  "generated_at": "2026-11-12T05:15:04.619Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/ebs/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-EBS-01",
+      "title": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp (EBS-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ebs-admin",
+      "journey_ref": "J-FR-EBS-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; kỳ vọng nguyên văn của ca thiết kế UI-EBS-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình EBS-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise, synthetic data of Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp; a user with the permission and a read-only user; route EBS-01\n1. Open EBS-01 from the menu and by deep link; check the labelled fields: Kết nối Oracle EBS (bật/tắt, lý do); Phiên bản mẫu tệp giả định (PENDING-EXTERNAL) và cột bắt buộc; Độ mới của tệp gần nhất theo quy tắc CONNECTOR_FRESHNESS; Chọn tệp, chạy thử, áp dụng; Dòng hợp lệ, lỗi từng dòng, trùng và xung đột; Các lần nhập gần nhất\n2. Do the main action under the rule: Chạy thử không ghi gì; áp dụng một lần theo băm tệp, nạp lại bị từ chối; dòng lỗi không làm hỏng cả tệp; mẫu tệp là giả định nên PENDING-EXTERNAL và chưa được nghiệm thu\n3. Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on EBS-01",
+      "expected": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp: all 6 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-173",
+      "title": "UAT-PLAN-173: ST-EBS-001 (previewEbsFile, importEbsFile): Send the command",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-FR-EBS-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-173 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-173 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenant TNT-A with the connection on (story ST-EBS-001); a file with 3 rows (1 invalid) and a project with Treasury payments\n1. ST-EBS-001 (previewEbsFile, importEbsFile): Send the command\n2. Send it again with the same key or file hash\n3. Send a stale or conflicting request\n4. Check the audit rows and the network log",
+      "expected": "Step 2 repeats the first answer without new rows; step 3 is refused with its code; audit rows name the actor; no outbound network call",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-174",
+      "title": "UAT-PLAN-174: ST-EBS-001 (previewEbsFile, importEbsFile): The maker tries to receive, approve or settle their own work",
+      "type": "RED",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-FR-EBS-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-174 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-174 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenants TNT-A and TNT-B, a maker and a checker of story ST-EBS-001\n1. ST-EBS-001 (previewEbsFile, importEbsFile): The maker tries to receive, approve or settle their own work\n2. A member of TNT-B uses a record id of TNT-A\n3. A reader sends a command",
+      "expected": "Step 1: 403 SELF_APPROVAL_DENIED or SCOPE_DENIED; step 2: 404 as for an id that does not exist; step 3: 403; nothing changes",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "design-case",
+        "security",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UI-EBS-02",
+      "title": "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch (EBS-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ebs-admin",
+      "journey_ref": "J-FR-EBS-02",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; kỳ vọng nguyên văn của ca thiết kế UI-EBS-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình EBS-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise, synthetic data of Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch; a user with the permission and a read-only user; route EBS-02\n1. Open EBS-02 from the menu and by deep link; check the labelled fields: Mã dự án, kỳ, chỉ tiêu (giải ngân lũy kế, giá trị cam kết); Số của mình, số của EBS, chênh lệch; Chủ hạng mục, hạn xử lý, quá hạn; Giải trình (số của mình sai, EBS sai, lệch thời điểm, chấp nhận có lý do); Chạy đối chiếu, giao lại\n2. Do the main action under the rule: Mỗi chênh lệch là một hạng mục có chủ và hạn; chủ hạng mục không phải người nạp tệp hay người chạy đối chiếu; giải trình có bằng chứng hoặc ngày xem lại, ghi ADM-11; mẫu tệp giả định nên PENDING-EXTERNAL\n3. Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on EBS-02",
+      "expected": "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-149",
+      "title": "UAT-PLAN-149: ST-EBS-002 (reconcileEbs, resolveEbsDifference, reassignEbsDifference): Send the command",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-FR-EBS-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-149 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-149 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenant TNT-A with the connection on (story ST-EBS-002); a file with 3 rows (1 invalid) and a project with Treasury payments\n1. ST-EBS-002 (reconcileEbs, resolveEbsDifference, reassignEbsDifference): Send the command\n2. Send it again with the same key or file hash\n3. Send a stale or conflicting request\n4. Check the audit rows and the network log",
+      "expected": "Step 2 repeats the first answer without new rows; step 3 is refused with its code; audit rows name the actor; no outbound network call",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-150",
+      "title": "UAT-PLAN-150: ST-EBS-002 (reconcileEbs, resolveEbsDifference, reassignEbsDifference): The maker tries to receive, approve or settle their own wo",
+      "type": "RED",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-FR-EBS-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-150 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-150 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenants TNT-A and TNT-B, a maker and a checker of story ST-EBS-002\n1. ST-EBS-002 (reconcileEbs, resolveEbsDifference, reassignEbsDifference): The maker tries to receive, approve or settle their own work\n2. A member of TNT-B uses a record id of TNT-A\n3. A reader sends a command",
+      "expected": "Step 1: 403 SELF_APPROVAL_DENIED or SCOPE_DENIED; step 2: 404 as for an id that does not exist; step 3: 403; nothing changes",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "design-case",
+        "security",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-EBS-E2E-01",
+      "title": "Người tài chính nạp bảng sao kê EBS: chạy thử không ghi gì, áp dụng ghi bản ghi chỉ thêm, kết nối hiện lần chạy; nhật ký kiểm toán và outbox ghi nhận",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-IMPORT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Chạy thử ghi dữ liệu, hoặc áp dụng không để lại dòng kiểm toán và sự kiện",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, edition enterprise; tệp CSV 3 dòng (1 dự án của ta, 1 dự án lạ, 1 dòng ngày sai); bố cục tệp là giả định (PENDING-EXTERNAL)\n1. Người xem trước chạy POST /ebs/imports/preview\n2. Đếm ebs_record của dự án\n3. Quản trị gọi POST /ebs/imports\n4. Đọc dòng kiểm toán ebs.import_applied, sự kiện ebs.import.applied.v1 và GET /ebs/connection",
+      "expected": "Bước 1: 200 DRY_RUN, counts total 3, valid 2, errors 1. Bước 2: 0 bản ghi. Bước 3: 200 APPLIED, applied 2, quarantined 1, unknown_projects 1. Bước 4: kiểm toán có records_written 2 và file_sha256; sự kiện có rows_applied 2; kết nối registered true, sức khỏe FRESH.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.ebs_record WHERE import_id IS NOT NULL",
+        "expect": {
+          "min_rows": 1
+        }
+      },
+      "audit_assert": {
+        "entity": "file_import",
+        "entity_id": "<id lần nạp>",
+        "action": "ebs.import_applied",
+        "fields": [
+          "actor_id",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-01",
+      "title": "Cùng một tệp áp dụng lần hai bị từ chối (409 IMPORT_FILE_ALREADY_APPLIED), không thêm bản ghi",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-IMPORT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Nạp lại cùng tệp nhân đôi số liệu sao kê",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tệp đã áp dụng\n1. Gọi lại POST /ebs/imports với cùng tệp (cùng sha256)",
+      "expected": "409 IMPORT_FILE_ALREADY_APPLIED; số bản ghi của dự án không đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS",
+      "idempotency": {
+        "url": "/ebs/imports",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "file_object_key": "<khóa tệp>",
+          "file_sha256": "<băm>"
+        },
+        "count_query": "SELECT count(*) FROM machvon.ebs_record WHERE project_code = 'UAT-EBS-P002'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-02",
+      "title": "Gửi lại cùng Idempotency-Key của lệnh áp dụng trả kết quả lần đầu thay vì từ chối",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-IMPORT-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Gửi lại do mất mạng bị báo lỗi trùng tệp thay vì trả kết quả cũ",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tệp chưa áp dụng\n1. Gọi POST /ebs/imports với khóa k\n2. Gọi lại với cùng khóa k",
+      "expected": "Lần 2: 200, cùng resource_id; đúng một bản ghi của dự án.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS",
+      "idempotency": {
+        "url": "/ebs/imports",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "file_object_key": "<khóa tệp>",
+          "file_sha256": "<băm>"
+        },
+        "count_query": "SELECT count(*) FROM machvon.ebs_record WHERE project_code = 'UAT-EBS-P003'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-03",
+      "title": "Năm lệnh áp dụng cùng một tệp gửi cùng lúc chỉ ghi bản ghi một lần: một lệnh áp dụng, các lệnh còn lại bị từ chối là đã áp dụng",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-IMPORT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Hai người bấm áp dụng cùng lúc làm nhân đôi bản ghi sao kê",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tệp chưa áp dụng; quản trị có ebs.import\n1. Gửi cùng lúc năm yêu cầu POST /ebs/imports với cùng tệp (khóa Idempotency khác nhau)\n2. Đếm ebs_record của dự án",
+      "expected": "Đúng một lệnh trả 200; bốn lệnh còn lại 409 IMPORT_FILE_ALREADY_APPLIED; đúng một bản ghi của dự án.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS",
+      "idempotency": {
+        "url": "/ebs/imports",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "file_object_key": "<khóa tệp>",
+          "file_sha256": "<băm>"
+        },
+        "count_query": "SELECT count(*) FROM machvon.ebs_record WHERE project_code = 'UAT-EBS-P006'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-EDG-01",
+      "title": "Tệp không có dòng nào nhận được bị từ chối cả tệp với dòng lỗi từng dòng (422 IMPORT_HAS_ERRORS); tệp sai băm bị từ chối",
+      "type": "EDGE",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-IMPORT-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tệp toàn lỗi vẫn được áp dụng một phần, hoặc băm khai báo không khớp tệp vẫn được nhận",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tệp hai dòng lỗi (kỳ 2026-99 và số tiền abc)\n1. Áp dụng tệp\n2. Áp dụng với băm của tệp khác",
+      "expected": "Bước 1: 422 IMPORT_HAS_ERRORS, errors [[2, PERIOD_INVALID], [3, AMOUNT_INVALID]]. Bước 2: lỗi 4xx. Không bản ghi nào của các dự án trong tệp.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SOD-01",
+      "title": "Người xem trước chạy thử được nhưng không áp dụng được; người chỉ đọc không chạy thử (403)",
+      "type": "RED",
+      "platform": "api",
+      "persona": "ebs-previewer",
+      "journey_ref": "J-EBS-IMPORT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Quyền chạy thử cho phép áp dụng, hoặc người chỉ đọc ghi được",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-previewer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tệp hợp lệ; người xem trước có ebs.import.preview; người đọc có ebs.read\n1. Người xem trước áp dụng\n2. Người xem trước chạy thử\n3. Người đọc chạy thử",
+      "expected": "Bước 1: 403 và không bản ghi. Bước 2: 200. Bước 3: 403.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-EBS-DAT-01",
+      "title": "Tắt kết nối EBS kèm lý do, có dòng kiểm toán; khi tắt vẫn chạy thử được nhưng áp dụng bị từ chối",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-CONN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Kết nối đã tắt vẫn cho áp dụng, hoặc tắt không để lại lý do",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; kết nối đang bật\n1. Tắt kết nối với lý do và phiên bản\n2. Chạy thử một tệp\n3. Áp dụng tệp đó\n4. Bật lại",
+      "expected": "Bước 1: 200, kiểm toán ebs.connection_switched có reason. Bước 2: 200. Bước 3: 409 và không bản ghi. Bước 4: 200.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS",
+      "audit_assert": {
+        "entity": "ent_connection",
+        "entity_id": "<id kết nối>",
+        "action": "ebs.connection_switched",
+        "fields": [
+          "actor_id",
+          "reason"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-E2E-02",
+      "title": "Đối chiếu theo mã dự án mở một mục chênh lệch với người phụ trách không phải người làm số liệu, không nói gì về phần khớp, chạy lại không mở thêm",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ebs-reconciler",
+      "journey_ref": "J-EBS-RECON-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Mục chênh lệch giao cho chính người làm số liệu, mở mục cho số khớp hoặc mở lại mỗi lần chạy",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-reconciler",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; dự án của ta đã chi 600 (Kho bạc), sao kê EBS ghi 700; dự án thứ hai khớp 50 và 50; lịch làm việc đã công bố\n1. Người chỉ đọc chạy đối chiếu\n2. Người đối chiếu chạy POST /ebs/reconciliations kỳ 2026-10 với người phụ trách đã chỉ định\n3. Chạy lại cùng kỳ",
+      "expected": "Bước 1: 403. Bước 2: một mục AMOUNT_MISMATCH ours 600, theirs 700, delta 100, OPEN, owner đúng, không mục cho dự án khớp; owner không thuộc maker_ids; có dòng kiểm toán ebs.reconciliation_run và sự kiện ebs.reconciliation.run.v1. Bước 3: opened 0, refreshed 0; vẫn một mục OPEN.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.ebs_reconciliation_item WHERE state = 'OPEN' AND project_code = 'UAT-EBS-P005'",
+        "expect": {
+          "value": "1"
+        }
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-STA-01",
+      "title": "Chỉ người phụ trách giải trình và đóng mục; mục đã đóng là cuối cùng (409 EBS_ITEM_STATE_INVALID); người làm số liệu không đóng được (403)",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "ebs-owner",
+      "journey_ref": "J-EBS-RECON-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Người làm số liệu tự đóng chênh lệch hoặc mở lại mục đã đóng",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-owner",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một mục OPEN với phiên bản v, người phụ trách là ebs-owner\n1. Quản trị (người làm số liệu) đóng mục\n2. Người đối chiếu khác đóng mục\n3. Người phụ trách đóng với phiên bản sai\n4. Người phụ trách đóng với lý do 5 ký tự\n5. Người phụ trách đóng đúng\n6. Đóng lần nữa",
+      "expected": "Bước 1 và 2: 403. Bước 3: 409 VERSION_CONFLICT. Bước 4: 422. Bước 5: 200 RESOLVED, kiểm toán ebs.difference_resolved có reason và resolution_kind, một sự kiện. Bước 6: 409 EBS_ITEM_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS",
+      "audit_assert": {
+        "entity": "ebs_reconciliation_item",
+        "entity_id": "<id mục>",
+        "action": "ebs.difference_resolved",
+        "fields": [
+          "actor_id",
+          "reason",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      },
+      "transition": {
+        "from": "RESOLVED",
+        "to": "OPEN",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-ISO-01",
+      "title": "Thành viên tenant khác nhận 404 như id không tồn tại cho mục chênh lệch của tenant này và không thấy dữ liệu",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "ebs-reconciler",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Lộ hoặc đóng được mục chênh lệch của tenant khác (IDOR)",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-reconciler",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có mục đã đóng; tenant B có quản trị EBS\n1. Tenant B gọi POST /ebs/differences/{id}/resolution với id của tenant A\n2. Gọi với id ngẫu nhiên\n3. Tenant B đọc GET /ebs/differences",
+      "expected": "Bước 1 và 2: cùng 404 và cùng mã; bước 3: rỗng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ebs.uat.test.ts"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/differences/{id}/resolution",
+        "method": "POST",
+        "allow": [
+          "ebs-owner"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "project_code",
+          "ours",
+          "theirs"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-E2E-03",
+      "title": "Mã dự án của EBS không phải mã của ta được đọc qua ánh xạ ACTIVE (bảng ánh xạ mã), không đọc qua ánh xạ chờ người thứ hai hoặc chưa đến hạn",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ebs-reconciler",
+      "journey_ref": "J-EBS-RECON-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đối chiếu dùng ánh xạ mã chưa được duyệt, hoặc mã ánh xạ thắng mã của dự án khác trùng chữ",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-reconciler",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; ánh xạ EBS ACTIVE, ánh xạ PROPOSED, ánh xạ chưa đến ngày hiệu lực; tệp có ba mã tương ứng\n1. Chạy thử tệp\n2. Áp dụng và đối chiếu",
+      "expected": "Chỉ mã có ánh xạ ACTIVE được gắn vào dự án của ta, giữ nguyên mã tệp khai; hai mã kia là dự án chưa biết.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần ánh xạ mã của INT-03 (cần hai người duyệt); chưa nối hai suite INT và EBS với nhau"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-EBS-EDG-02",
+      "title": "Biên số tiền và kỳ: 0, số âm, 2 chữ số thập phân, 15 chữ số, kỳ 2026-12 và 2027-01, ngày 29/02",
+      "type": "BOUNDARY",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-IMPORT-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Làm tròn, dấu hoặc độ dài số tiền sai, hoặc kỳ không có thật được nhận",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tệp CSV thử biên\n1. Chạy thử tệp có từng giá trị biên\n2. Đọc kết quả từng dòng",
+      "expected": "Số tiền lưu đúng đến đồng và hai số lẻ theo bố cục; kỳ phải YYYY-MM hợp lệ; ngày không có thật bị DATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa viết bảng giá trị biên; bố cục tệp là giả định nên biên cần được chốt với khách trước (PX-04)"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-EBS-PRF-01",
+      "title": "Đọc danh sách chênh lệch EBS trong ngân sách 5 giây ở phân vị 95",
+      "type": "PERFORMANCE",
+      "platform": "api",
+      "persona": "ebs-reader",
+      "journey_ref": "J-EBS-RECON-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Yêu cầu của khách: mọi chức năng phản hồi dưới 5 giây ở phân vị 95 (docs/qa/perf-budget.json; HSKT HT.05)",
+      "catches_bug": "Danh sách chênh lệch chậm khi có nhiều dự án và kỳ",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có 5.000 mục chênh lệch\n1. Gọi GET /ebs/differences?limit=50 hai mươi lần sau ba lần khởi động",
+      "expected": "p95 không quá 5.000 ms, không lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bộ dữ liệu 5.000 mục; chưa có bộ sinh dữ liệu cho EBS"
+      },
+      "module": "EBS",
+      "perf_budget": {
+        "url": "/ebs/differences?limit=50",
+        "method": "GET",
+        "p95_ms": 5000,
+        "sample": 20,
+        "warmup": 3,
+        "max_error_rate": 0
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-A11-01",
+      "title": "Màn EBS-01 và EBS-02 đạt WCAG 2.2 AA: tải tệp bằng bàn phím, bảng chênh lệch có tiêu đề cột, hộp thoại giải trình",
+      "type": "A11Y",
+      "platform": "web",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-RECON-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01, FR-EBS-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Khu vực thả tệp không dùng được bằng bàn phím, bảng thiếu tiêu đề cột hoặc trạng thái chỉ báo bằng màu",
+      "coverage_ids": [
+        "COV-FR-EBS-01",
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; dữ liệu có mục OPEN, quá hạn và đã đóng\n1. Chạy axe ở 1280 px và 360 px\n2. Tải tệp chỉ bằng bàn phím\n3. Đọc trạng thái mục bằng trình đọc màn hình",
+      "expected": "Không lỗi axe nghiêm trọng hoặc cao; mọi thao tác dùng được bằng bàn phím; trạng thái có chữ, không chỉ màu.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "accessibility",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001",
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa có đi bàn phím riêng cho hai màn này; quét axe chung nằm ở apps/web/e2e/a11y.spec.ts"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-EBS-PX-01",
+      "title": "PENDING-EXTERNAL PX-04: bố cục tệp EBS thật chưa được khách xác nhận nên kết quả không tính là đạt",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-EBS-IMPORT-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Sổ việc phụ thuộc khách PX-04 (docs/delivery/11-pending-external-register.md): bố cục tệp EBS",
+      "catches_bug": "Báo cáo nghiệm thu tính đạt cho đối chiếu với bố cục giả định",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bố cục tệp là giả định WORKING-ASSUMPTION-2026.1 (PENDING-EXTERNAL)\n1. Chạy thử và áp dụng một tệp theo bố cục giả định\n2. Mở EBS-01 và đọc băng trạng thái",
+      "expected": "Mọi kết quả mang acceptance PENDING_EXTERNAL và layout_version WORKING-ASSUMPTION-2026.1; băng PENDING-EXTERNAL hiển thị.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chờ khách cung cấp mẫu tệp sao kê EBS thật (PX-04)"
+      },
+      "module": "EBS"
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-01",
+      "title": "getEbsConnection (GET /ebs/connection): chỉ người giữ quyền ebs.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; thao tác getEbsConnection yêu cầu quyền ebs.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /ebs/connection thiếu kiểm quyền ebs.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.read gọi GET /ebs/connection với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/connection",
+        "method": "GET",
+        "allow": [
+          "ebs-admin",
+          "ebs-reconciler",
+          "ebs-previewer",
+          "ebs-owner",
+          "ebs-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-02",
+      "title": "setEbsConnectionState (POST /ebs/connection/state): chỉ người giữ quyền ebs.admin qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; thao tác setEbsConnectionState yêu cầu quyền ebs.admin (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /ebs/connection/state thiếu kiểm quyền ebs.admin hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.admin trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.admin gọi POST /ebs/connection/state với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/connection/state",
+        "method": "POST",
+        "allow": [
+          "ebs-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-03",
+      "title": "uploadEbsFile (POST /ebs/imports/files): chỉ người giữ quyền ebs.import.preview qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; thao tác uploadEbsFile yêu cầu quyền ebs.import.preview (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /ebs/imports/files thiếu kiểm quyền ebs.import.preview hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.import.preview trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.import.preview gọi POST /ebs/imports/files với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/imports/files",
+        "method": "POST",
+        "allow": [
+          "ebs-admin",
+          "ebs-previewer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-04",
+      "title": "previewEbsFile (POST /ebs/imports/preview): chỉ người giữ quyền ebs.import.preview qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; thao tác previewEbsFile yêu cầu quyền ebs.import.preview (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /ebs/imports/preview thiếu kiểm quyền ebs.import.preview hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.import.preview trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.import.preview gọi POST /ebs/imports/preview với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/imports/preview",
+        "method": "POST",
+        "allow": [
+          "ebs-admin",
+          "ebs-previewer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-05",
+      "title": "importEbsFile (POST /ebs/imports): chỉ người giữ quyền ebs.import qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-01",
+      "oracle_source": "Claim → FR-EBS-01; thao tác importEbsFile yêu cầu quyền ebs.import (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /ebs/imports thiếu kiểm quyền ebs.import hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.import trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.import gọi POST /ebs/imports với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-01",
+      "story_ids": [
+        "ST-EBS-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/imports",
+        "method": "POST",
+        "allow": [
+          "ebs-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-06",
+      "title": "reconcileEbs (POST /ebs/reconciliations): chỉ người giữ quyền ebs.reconcile qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; thao tác reconcileEbs yêu cầu quyền ebs.reconcile (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /ebs/reconciliations thiếu kiểm quyền ebs.reconcile hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.reconcile trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.reconcile gọi POST /ebs/reconciliations với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/reconciliations",
+        "method": "POST",
+        "allow": [
+          "ebs-admin",
+          "ebs-reconciler",
+          "ebs-owner"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-07",
+      "title": "listEbsDifferences (GET /ebs/differences): chỉ người giữ quyền ebs.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; thao tác listEbsDifferences yêu cầu quyền ebs.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /ebs/differences thiếu kiểm quyền ebs.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.read gọi GET /ebs/differences với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/differences",
+        "method": "GET",
+        "allow": [
+          "ebs-admin",
+          "ebs-reconciler",
+          "ebs-previewer",
+          "ebs-owner",
+          "ebs-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-08",
+      "title": "resolveEbsDifference (POST /ebs/differences/{id}/resolution): chỉ người giữ quyền ebs.reconcile qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; thao tác resolveEbsDifference yêu cầu quyền ebs.reconcile (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /ebs/differences/{id}/resolution thiếu kiểm quyền ebs.reconcile hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.reconcile trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.reconcile gọi POST /ebs/differences/{id}/resolution với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/differences/{id}/resolution",
+        "method": "POST",
+        "allow": [
+          "ebs-admin",
+          "ebs-reconciler",
+          "ebs-owner"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-09",
+      "title": "reassignEbsDifference (POST /ebs/differences/{id}/owner): chỉ người giữ quyền ebs.reconcile qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ebs-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-EBS-02",
+      "oracle_source": "Claim → FR-EBS-02; thao tác reassignEbsDifference yêu cầu quyền ebs.reconcile (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /ebs/differences/{id}/owner thiếu kiểm quyền ebs.reconcile hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-EBS-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ebs-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ebs.reconcile trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ebs.reconcile gọi POST /ebs/differences/{id}/owner với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "EBS-02",
+      "story_ids": [
+        "ST-EBS-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "EBS",
+      "access": {
+        "url": "/ebs/differences/{id}/owner",
+        "method": "POST",
+        "allow": [
+          "ebs-admin",
+          "ebs-reconciler",
+          "ebs-owner"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    }
+  ]
+}
