@@ -213,7 +213,7 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
                   <td>{version.widgets.length}</td>
                   <td>{policyLabel(t, version.policy)}</td>
                   <td>{version.createdAt}</td>
-                  <td data-testid="version-sign">{t(`bi.sign.state.${version.signOff?.state ?? 'UNSIGNED'}`)}</td>
+                  <td data-testid="version-sign">{t(`bi.sign.state.${(version.signOff?.state ?? 'UNSIGNED').toLowerCase()}`)}</td>
                 </tr>
               ))}
             </tbody>

@@ -3,7 +3,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
-import part from '../../i18n/parts/aud3.vi.json';
+import part from '../../i18n/vi.json';
 import { harness, mount, routeOf } from '../mne/test-support';
 import ChartBuilderScreen from './ChartBuilderScreen';
 import { ChartView, pointsOf } from './ChartView';
@@ -225,13 +225,13 @@ describe('BI-03 builder of a dashboard (ST-BI-005)', () => {
     expect(within(signed).getByTestId('sign-checked').textContent).toContain('Minh');
     expect(within(signed).getByTestId('sign-approved').textContent).toContain(part['bi.sign.none']);
     expect(within(signed).getByTestId('sign-incomplete')).toBeTruthy();
-    expect(screen.getAllByTestId('version-sign').map((cell) => cell.textContent)).toEqual([part['bi.sign.state.CHECKED'], part['bi.sign.state.APPROVED']]);
+    expect(screen.getAllByTestId('version-sign').map((cell) => cell.textContent)).toEqual([part['bi.sign.state.checked'], part['bi.sign.state.approved']]);
   });
 
   it('says a dashboard that gave no signatures is not signed, and has nobody made up', async () => {
     open();
     await screen.findByTestId('versions');
-    expect(screen.getAllByTestId('version-sign').map((cell) => cell.textContent)).toEqual([part['bi.sign.state.UNSIGNED'], part['bi.sign.state.UNSIGNED']]);
+    expect(screen.getAllByTestId('version-sign').map((cell) => cell.textContent)).toEqual([part['bi.sign.state.unsigned'], part['bi.sign.state.unsigned']]);
     expect(screen.getByTestId('sign-none').textContent).toBe(part['bi.sign.noVersion']);
   });
 

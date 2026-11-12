@@ -1,7 +1,7 @@
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
-import part from '../../i18n/parts/aud3.vi.json';
+import part from '../../i18n/vi.json';
 import { harness, mount, routeOf } from '../mne/test-support';
 import PublicationInboxScreen from './PublicationInboxScreen';
 import { SignOffBlock } from './SignOffBlock';
