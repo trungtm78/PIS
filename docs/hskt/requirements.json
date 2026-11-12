@@ -70,7 +70,7 @@
       "id": "PX-05",
       "what": "Danh sách 09 đầu mối (07 Ban/Đơn vị và 02 Tổ dự án, kèm tên 02 Tổ dự án), người nhập liệu và người phê duyệt của từng đầu mối, nhân sự Ban KHĐT và lãnh đạo",
       "provider": "Tổ chuẩn hóa dữ liệu",
-      "assumption": "Chưa có; gói cấu hình mẫu PVFCCO-TEMPLATE sẽ do ENT-3d dựng, không dùng tên thật"
+      "assumption": "Gói cấu hình mẫu PVFCCO-TEMPLATE đã do ENT-3d dựng và nạp qua lệnh có chạy thử; không dùng tên thật"
     },
     {
       "id": "PX-06",
@@ -136,7 +136,7 @@
       "id": "PX-16",
       "what": "Thông tin SSO/LDAP/Active Directory (nhóm AD theo vai trò), SMTP và địa chỉ Teams để gửi nhắc việc",
       "provider": "Ban CĐS&CNTT",
-      "assumption": "Realm Keycloak mẫu (infra/keycloak/realm-template.json); bảng ánh xạ nhóm AD mẫu sẽ do ENT-3d dựng"
+      "assumption": "Realm Keycloak mẫu (infra/keycloak/realm-template.json); bảng ánh xạ nhóm AD mẫu đã do ENT-3d dựng (infra/keycloak/onprem/ad-group-role-map.json, tenantMappings)"
     },
     {
       "id": "PX-17",
@@ -165,7 +165,8 @@
           "listMasterCrosswalks",
           "listProjectCodes",
           "proposeProjectCode",
-          "decideProjectCode"
+          "decideProjectCode",
+          "getProjectInvestmentProfile"
         ],
         "stories": [
           "ST-PRJ-001",
@@ -175,10 +176,23 @@
         ],
         "docs": [
           "Design/MACHVON_Design/01_Documents/05_modules/PRJ.md",
-          "docs/prj-national-code-file.md"
+          "docs/prj-national-code-file.md",
+          "docs/hpm-ebs-connectors.md",
+          "docs/fnd-funding-model.md",
+          "docs/plans/ent3e.md",
+          "docs/plans/aud2.md"
+        ],
+        "tests": [
+          "packages/edition-enterprise/src/integration/project-code-resolver.test.ts",
+          "packages/edition-enterprise/src/integration/hpm-project-codes.test.ts",
+          "packages/edition-enterprise/src/integration/ent-catalogue.test.ts",
+          "packages/edition-enterprise/src/integration/investment-profile.test.ts",
+          "apps/api/test/editions/ebs.enterprise.test.ts",
+          "apps/api/test/editions/investment-profile.enterprise.test.ts",
+          "apps/web/src/screens/mdm/catalogues.test.ts"
         ]
       },
-      "gap": "G7: nhập EBS so khớp thẳng mã dự án, chưa qua master_crosswalk; chưa có mã HPM theo từng dự án; chưa có danh mục loại dự án (ĐTXDCB, mua sắm, sửa chữa lớn) và cờ khởi công mới/chuyển tiếp của bản enterprise.",
+      "gap": "Đã có (kiểm chứng ở mã và kiểm thử): EBS và HPM tra mã dự án qua master_crosswalk, so khớp thẳng chỉ còn là dự phòng một phiên bản (R25, có hồi quy cho nhập EBS đã đối chiếu); mã HPM theo từng dự án trong gói đẩy; danh mục loại dự án (đầu tư xây dựng, mua sắm, sửa chữa lớn) và sửa chữa lớn trong biểu mẫu MDM-07; cờ khởi công mới hoặc chuyển tiếp theo năm kế hoạch trong getProjectInvestmentProfile. Còn mở: màn hình web hiển thị hồ sơ đầu tư (hiện chỉ có API); danh mục dự án chính thức chờ Ban KHĐT (PX-14).",
       "owners": [
         "ENT-3e"
       ],
@@ -202,7 +216,8 @@
           "addProjectMilestone",
           "listProjectMilestones",
           "recordMilestoneProgress",
-          "createProjectDocument"
+          "createProjectDocument",
+          "getProjectInvestmentProfile"
         ],
         "stories": [
           "ST-PRJ-008",
@@ -212,13 +227,20 @@
         "docs": [
           "docs/prj-revisions.md",
           "docs/prj-wbs.md",
-          "docs/doc-dossiers.md"
+          "docs/doc-dossiers.md",
+          "docs/hpm-ebs-connectors.md",
+          "docs/plans/aud2.md"
+        ],
+        "tests": [
+          "packages/edition-enterprise/src/integration/ent-catalogue.test.ts",
+          "packages/edition-enterprise/src/integration/investment-profile.test.ts",
+          "apps/api/test/editions/investment-profile.enterprise.test.ts",
+          "packages/edition-enterprise/test/external-ports.test.ts"
         ]
       },
-      "gap": "G11: chưa có danh mục mốc vòng đời đầu tư enterprise và danh mục loại hồ sơ pháp lý theo dossier; chưa nối hệ thống văn thư.",
+      "gap": "Đã có: danh mục mốc vòng đời đầu tư và danh mục loại hồ sơ pháp lý (quy tắc quản trị, hai người duyệt), mốc của dự án được đối chiếu với danh mục (trạng thái, thứ tự, mốc bắt buộc bị bỏ qua) trong hồ sơ đầu tư; cổng DocumentRegistryPort cho văn thư với bản giả và bộ kiểm thử hợp đồng (giả định làm việc, PENDING-EXTERNAL). Còn mở: ghi loại hồ sơ pháp lý theo danh mục khi tạo hồ sơ của dự án (createProjectDocument chưa kiểm theo danh mục), màn hình web hồ sơ đầu tư, kết nối văn thư thật chờ đặc tả (PX-07).",
       "owners": [
-        "ENT-3e",
-        "ENT-4e"
+        "ENT-3e"
       ],
       "pending": [
         "PX-07"
@@ -227,7 +249,7 @@
     {
       "code": "MD.03",
       "title": "Danh mục dùng chung: đầu mối, kỳ báo cáo, nguồn vốn, đơn vị tính, tỷ giá, nguyên nhân chậm tiến độ, loại báo cáo, cơ quan nhận; do Ban KHĐT/quản trị quản lý tập trung",
-      "status": "PARTIAL",
+      "status": "DONE",
       "evidence": {
         "screens": [
           "MDM-01",
@@ -241,7 +263,10 @@
           "proposeMasterRecord",
           "listMasterChangeRequests",
           "stageMasterImport",
-          "listMasterTypePolicies"
+          "listMasterTypePolicies",
+          "listReportCatalogue",
+          "deliverReport",
+          "answerReportDelivery"
         ],
         "stories": [
           "ST-MDM-001",
@@ -251,13 +276,24 @@
           "ST-ADM-019"
         ],
         "docs": [
-          "docs/mdm-catalogue-dictionary.md"
+          "docs/mdm-catalogue-dictionary.md",
+          "docs/report-engine.md",
+          "docs/plans/ent3d.md",
+          "docs/plans/ent4e.md",
+          "docs/plans/aud2.md"
+        ],
+        "tests": [
+          "packages/kernel/src/report-catalogue.test.ts",
+          "packages/kernel/src/fx-rate.test.ts",
+          "packages/db/test/report-catalogue-store.test.ts",
+          "packages/db/test/master-types-ent3d.test.ts",
+          "packages/edition-enterprise/test/org-pack.test.ts",
+          "apps/api/test/reports/report-engine.enterprise.test.ts",
+          "apps/web/src/screens/mdm/catalogues.test.ts"
         ]
       },
-      "gap": "G11: chưa có danh mục tỷ giá; loại báo cáo và cơ quan nhận còn là hằng số trong mã (REPORT_FORM_CATALOGUE), chưa là danh mục quản lý được.",
-      "owners": [
-        "ENT-4e"
-      ],
+      "gap": "",
+      "owners": [],
       "pending": []
     },
     {
@@ -506,10 +542,21 @@
         ],
         "docs": [
           "docs/capital-balances.md",
-          "Design/MACHVON_Design/01_Documents/05_modules/CAP.md"
+          "Design/MACHVON_Design/01_Documents/05_modules/CAP.md",
+          "docs/fnd-funding-model.md",
+          "docs/plans/ent3e.md"
+        ],
+        "operations": [
+          "getProjectInvestmentProfile"
+        ],
+        "tests": [
+          "packages/db/test/cap-enterprise-origin.test.ts",
+          "packages/edition-enterprise/src/integration/investment-profile.test.ts",
+          "apps/api/test/editions/investment-profile.enterprise.test.ts",
+          "apps/web/src/screens/cap/enterprise-origin.test.ts"
         ]
       },
-      "gap": "G8: danh sách nguồn dòng kế hoạch CAP chưa có GROUP_ASSIGNED và BOARD_APPROVED; chưa tách Nghị quyết PVN và Quyết định Tổng công ty theo dự án.",
+      "gap": "Đã có: nguồn dòng kế hoạch GROUP_ASSIGNED (Nghị quyết PVN) và BOARD_APPROVED (Quyết định Tổng công ty) kèm loại văn bản căn cứ theo gói (V2740), và đọc tách theo từng dự án trong getProjectInvestmentProfile (số tiền theo nguồn, văn bản căn cứ, hai tổng group_assigned_vnd và board_approved_vnd). Còn mở: màn hình web hiển thị phần tách theo dự án (hiện chỉ có API); bảng nguồn vốn EQUITY, LOAN, OTHER của dòng kế hoạch doanh nghiệp theo ENT-3a.",
       "owners": [
         "ENT-3e"
       ],
@@ -518,7 +565,7 @@
     {
       "code": "CN.02",
       "title": "Theo dõi thực hiện và giải ngân: nhập, phê duyệt, tự tính lũy kế và tỷ lệ; thuyết minh có cấu trúc; theo dõi mua sắm trang thiết bị của Ban Thương mại",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "screens": [
           "DIS-03",
@@ -526,13 +573,17 @@
           "DIS-06",
           "DIS-13",
           "DIS-19",
-          "IND-02"
+          "IND-02",
+          "EQP-01",
+          "EQP-02"
         ],
         "operations": [
           "enterIndicatorFigures",
           "getDisbursementRates",
           "submitFundingFigures",
-          "acceptFundingFigures"
+          "acceptFundingFigures",
+          "listEquipmentProcurement",
+          "getEquipmentProcurement"
         ],
         "stories": [
           "ST-DIS-003",
@@ -542,12 +593,17 @@
         ],
         "docs": [
           "docs/dis-rates.md",
-          "docs/dis-report-submit.md"
+          "docs/dis-report-submit.md",
+          "docs/hpm-ebs-connectors.md",
+          "docs/plans/ent4e.md"
+        ],
+        "tests": [
+          "packages/kernel/src/equipment-procurement.test.ts",
+          "packages/edition-enterprise/test/external-ports.test.ts"
         ]
       },
-      "gap": "G2, G12: thuyết minh 8 trường và kế thừa kỳ trước (ENT-3b); chưa có màn mua sắm trang thiết bị theo Ban Thương mại và nối eProcurement (ENT-4e).",
+      "gap": "Đã có: thuyết minh 8 trường và kế thừa kỳ trước (ENT-3b); màn mua sắm trang thiết bị cho Ban Thương mại (EQP-01, EQP-02: kế hoạch, kết quả lựa chọn nhà thầu, hợp đồng, giải ngân, hướng dẫn lấy dữ liệu từ tệp mạng đấu thầu); cổng EProcurementPort với bản giả và kiểm thử hợp đồng. Còn lại chỉ phụ thuộc khách: đặc tả kết nối eProcurement (PX-06).",
       "owners": [
-        "ENT-3b",
         "ENT-4e"
       ],
       "pending": [
@@ -827,7 +883,7 @@
     {
       "code": "TH.03",
       "title": "Tích hợp EBS và hệ thống khác: đọc thanh toán theo mã dự án; sẵn sàng eProcurement, văn thư, xác thực tập trung; API mở có tài liệu, không phí bản quyền",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "screens": [
           "EBS-01",
@@ -856,13 +912,21 @@
           "docs/hpm-ebs-connectors.md",
           "docs/integration-hub.md",
           "docs/open-api.md",
-          "docs/runbooks/infra/keycloak.md"
+          "docs/runbooks/infra/keycloak.md",
+          "docs/plans/ent3e.md",
+          "docs/plans/aud2.md"
+        ],
+        "tests": [
+          "packages/edition-enterprise/src/integration/project-code-resolver.test.ts",
+          "packages/edition-enterprise/src/integration/project-codes.test.ts",
+          "packages/edition-enterprise/src/integration/hpm-project-codes.test.ts",
+          "packages/edition-enterprise/test/external-ports.test.ts",
+          "apps/api/test/editions/ebs.enterprise.test.ts"
         ]
       },
-      "gap": "G7, G18: EBS đối chiếu qua tệp, chưa qua master_crosswalk và chưa đọc DB; eProcurement và văn thư chờ đặc tả (chưa có bộ kết nối).",
+      "gap": "Đã có: đối chiếu EBS và gói HPM tra mã dự án qua master_crosswalk trước, so khớp thẳng là dự phòng một phiên bản (R25), hồi quy trên các lần nhập EBS đã đối chiếu; cổng EProcurementPort và DocumentRegistryPort có bản giả theo giả định làm việc và bộ kiểm thử hợp đồng dùng chung cho bộ kết nối thật. Còn lại phụ thuộc khách: đọc thẳng cơ sở dữ liệu EBS (PX-04), kết nối eProcurement (PX-06) và văn thư (PX-07).",
       "owners": [
-        "ENT-3e",
-        "DOC-3"
+        "ENT-3e"
       ],
       "pending": [
         "PX-04",
@@ -901,21 +965,24 @@
     {
       "code": "HT.02",
       "title": "Phân quyền theo nhóm, vai trò (nhập liệu, phê duyệt đơn vị, rà soát Ban KHĐT, lãnh đạo xem, quản trị) và phạm vi dữ liệu (đơn vị, dự án, kỳ)",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "screens": [
           "ADM-01",
           "ADM-02",
           "ADM-03",
           "ADM-15",
-          "ADM-27"
+          "ADM-27",
+          "ORG-01"
         ],
         "operations": [
           "grantRole",
           "createCustomRole",
           "createPeriodScope",
           "createOrganizationUnit",
-          "inviteMember"
+          "inviteMember",
+          "getEnterpriseOrgPack",
+          "materialiseEnterpriseOrgPack"
         ],
         "stories": [
           "ST-ADM-004",
@@ -925,10 +992,18 @@
         ],
         "docs": [
           "docs/adm-doa-resolver.md",
-          "docs/security/identity-test-plan.md"
+          "docs/security/identity-test-plan.md",
+          "docs/plans/ent3d.md",
+          "Design/MACHVON_Design/01_Documents/05_modules/ORG.md"
+        ],
+        "tests": [
+          "packages/kernel/test/org-pack.test.ts",
+          "packages/edition-enterprise/test/org-pack.test.ts",
+          "packages/edition-enterprise/src/org-pack/org-pack-store.test.ts",
+          "apps/api/test/editions/org-pack.enterprise.test.ts"
         ]
       },
-      "gap": "G6: chưa có gói cấu hình PVFCCo: 09 đầu mối (07 Ban/Đơn vị và 02 Tổ dự án), người nhập và người duyệt mỗi đầu mối, Ban KHĐT rà soát, vai trò lãnh đạo, ánh xạ nhóm AD (ad-group-role-map.json), nạp qua lệnh có chạy thử và nhãn PVFCCO-TEMPLATE.",
+      "gap": "Gói PVFCCO-TEMPLATE đã dựng và kiểm chứng (ENT-3d): 09 đầu mối (07 Ban/Đơn vị, 02 Tổ dự án) dưới một tenant, người nhập và người duyệt mỗi đầu mối (UNIT_ONLY), Ban KHĐT rà soát và chốt, lãnh đạo xem, quản trị (TENANT), bảng nhóm AD trong tenantMappings của ad-group-role-map.json; nạp qua lô nhập ADM (đăng ký, chạy thử, áp dụng bởi người khác) rồi lệnh materialiseEnterpriseOrgPack, nhãn PVFCCO-TEMPLATE, không có tên người hay tài khoản thật. Còn lại chỉ phụ thuộc khách: tên 02 Tổ dự án, nhân sự thật (PX-05), nhóm AD thật (PX-16).",
       "owners": [
         "ENT-3d"
       ],
@@ -1038,19 +1113,25 @@
     {
       "code": "HT.06",
       "title": "Truy vết (audit và log): người, thời điểm, giá trị trước/sau, lý do cho mọi thao tác tạo, sửa, duyệt, chốt, mở lại kỳ, đẩy HPM; tham số giới hạn số lượng và dung lượng log",
-      "status": "PARTIAL",
+      "status": "DONE",
       "evidence": {
         "screens": [
           "ADM-11",
           "ADM-12",
           "RPT-04",
-          "HPM-01"
+          "HPM-01",
+          "ADM-29",
+          "ADM-30"
         ],
         "operations": [
           "exportAuditLog",
           "get_resources_audit_event",
           "createRetentionPolicyVersion",
-          "publishRetentionPolicy"
+          "publishRetentionPolicy",
+          "listAuditDetailPolicies",
+          "saveAuditDetailPolicy",
+          "getLogCapacity",
+          "saveLogCapacityPolicy"
         ],
         "stories": [
           "ST-ADM-002",
@@ -1060,13 +1141,22 @@
         ],
         "docs": [
           "docs/runbooks/audit-export.md",
-          "docs/runbooks/retention.md"
+          "docs/runbooks/retention.md",
+          "docs/plans/ent4e.md",
+          "docs/plans/aud2.md"
+        ],
+        "tests": [
+          "packages/kernel/src/audit-detail.test.ts",
+          "packages/kernel/src/log-capacity.test.ts",
+          "packages/db/test/audit-detail.test.ts",
+          "packages/db/test/log-capacity-job.test.ts",
+          "packages/db/test/dis-report-detail.test.ts",
+          "packages/db/test/dis-period-store.test.ts",
+          "apps/api/test/dis/report.test.ts"
         ]
       },
-      "gap": "G14: chưa có tham số giới hạn số lượng và dung lượng tệp log; nhật ký lưu safe_diff, chưa đủ giá trị trước/sau.",
-      "owners": [
-        "ENT-4e"
-      ],
+      "gap": "",
+      "owners": [],
       "pending": []
     },
     {
