@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { after, test } from 'node:test';
 import { buildOf, buildRunStore, datasetOf, main, readJournal, resultsOfTests, schemaVersionOf, testsOfRun } from './uat-run.mjs';
 
 const roots = [];
 after(() => roots.forEach((root) => rmSync(root, { recursive: true, force: true })));
 
+// The paths of a journal are the ones of the machine that wrote it: built with the separators of the machine that runs the test.
+const ROOT = resolve('repo-root');
 const KNOWN = new Set(['UAT-AC01', 'UAT-AC02', 'UAT-AC03', 'UAT-NFR-AVAILABILITY-04']);
 const request = (id, test, file, extra = {}) => ({ kind: 'request', id, pid: 1, test, file, method: 'GET', path: '/x', status: 200, at: '2026-11-04T10:00:01.000Z', durationMs: 5, ...extra });
 const result = (suite, file, name, status, extra = {}) => ({ kind: 'result', suite, file, name, status, durationMs: 9, at: '2026-11-04T10:00:00.000Z', ...extra });
@@ -18,14 +20,14 @@ test('a journal is read line by line and a line that is not JSON is left out', (
 
 test('a Jest test gets the requests it made, matched by its file and its name; a browser test gets the ones that began while it ran', () => {
   const lines = [
-    request('r-1', 'api UAT-AC01 reads', 'D:\\PIS\\apps\\api\\test\\a.test.ts'),
-    request('r-2', 'api other', 'D:\\PIS\\apps\\api\\test\\a.test.ts'),
+    request('r-1', 'api UAT-AC01 reads', join(ROOT, 'apps', 'api', 'test', 'a.test.ts')),
+    request('r-2', 'api other', join(ROOT, 'apps', 'api', 'test', 'a.test.ts')),
     request('r-3', '', '', { at: '2026-11-04T10:00:02.000Z' }),
     request('r-4', '', '', { at: '2026-11-04T10:05:00.000Z' }),
-    result('jest', 'D:\\PIS\\apps\\api\\test\\a.test.ts', 'api UAT-AC01 reads', 'passed'),
-    result('playwright', 'D:\\PIS\\apps\\web\\e2e\\b.spec.ts', 'flow UAT-AC02', 'passed', { endedAt: '2026-11-04T10:00:03.000Z' }),
+    result('jest', join(ROOT, 'apps', 'api', 'test', 'a.test.ts'), 'api UAT-AC01 reads', 'passed'),
+    result('playwright', join(ROOT, 'apps', 'web', 'e2e', 'b.spec.ts'), 'flow UAT-AC02', 'passed', { endedAt: '2026-11-04T10:00:03.000Z' }),
   ];
-  const tests = testsOfRun(lines, 'D:\\PIS');
+  const tests = testsOfRun(lines, ROOT);
   assert.deepEqual(tests.map((item) => [item.suite, item.file, item.requests.map((entry) => entry.id)]), [
     ['jest', 'apps/api/test/a.test.ts', ['r-1']],
     ['playwright', 'apps/web/e2e/b.spec.ts', ['r-3']],

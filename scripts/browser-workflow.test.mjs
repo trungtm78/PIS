@@ -109,7 +109,7 @@ export function browserWorkflowProblems(workflow) {
   if (!steps.some((step) => usesOf(step) === 'actions/setup-node' && step.with?.['node-version'] === 24)) problems.push('the job sets up Node 24');
   const install = steps.findIndex((step) => /^npm ci\b/.test(runsOf(step).trim()));
   const chrome = steps.findIndex((step) => /playwright install\b.*\bchrome\b/.test(runsOf(step)));
-  const run = steps.findIndex((step) => /npm run e2e -w @machvon\/web\s*$/.test(runsOf(step).trim()));
+  const run = steps.findIndex((step) => /npm run e2e -w @machvon\/web\b/.test(runsOf(step)));
   if (install < 0) problems.push('the job installs the dependencies with npm ci');
   if (chrome < 0) problems.push('the job installs Google Chrome');
   if (run < 0) problems.push('the job runs the walk, the flows and the visual regions with npm run e2e -w @machvon/web');

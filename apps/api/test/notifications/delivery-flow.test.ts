@@ -95,12 +95,16 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     );
 
   /** Fires the five-second jobs (the outbox relay and the dispatcher) until the condition holds. */
-  async function pump(condition: () => Promise<boolean>, what: string): Promise<void> {
-    await until(async () => {
-      timers.fire(TICK);
-      await new Promise((wait) => setTimeout(wait, 150));
-      return await condition();
-    }, what);
+  async function pump(condition: () => Promise<boolean>, what: string, timeoutMs?: number): Promise<void> {
+    await until(
+      async () => {
+        timers.fire(TICK);
+        await new Promise((wait) => setTimeout(wait, 150));
+        return await condition();
+      },
+      what,
+      timeoutMs,
+    );
   }
 
   const createUnit = async (api: RunningApi): Promise<Response> =>
@@ -232,7 +236,6 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     // The provider fails every call (more refusals than there will be calls).
     adapter.enqueue(...Array.from({ length: 30 }, () => ({ kind: 'FAILED', failureClass: 'RETRYABLE', errorCode: 'HTTP_503' }) as const));
     try {
-      const started = Date.now();
       // The business commands (a unit is created here: the commands of the reports need a world this fixture does not have) are answered at once and none of them reaches the provider.
       const events: string[] = [];
       for (let n = 0; n < 20; n += 1) {
@@ -241,8 +244,10 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
         events.push(await plantEvent(`Report ${n}`));
       }
       expect(adapter.requests).toHaveLength(0);
+      // The claim is about the breaker, so the clock starts when the provider can first be called, not when the fixture began to make its twenty events (a slow runner needs a quarter of a minute for them alone).
+      const started = Date.now();
       const circuit = async (): Promise<string | undefined> => (await rows<{ state: string }>('select state from machvon.channel_account_circuit where channel_account_id = $1', [ACCOUNT]))[0]?.state;
-      await pump(async () => (await circuit()) === 'OPEN', 'the breaker of the account to open');
+      await pump(async () => (await circuit()) === 'OPEN', 'the breaker of the account to open', 60_000);
       expect(Date.now() - started).toBeLessThan(30_000);
       // 20 failures opened it: 20 calls were made, one for each delivery, and each of them waits for a retry that is scheduled.
       expect(adapter.requests).toHaveLength(20);
