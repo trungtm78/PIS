@@ -28,6 +28,8 @@ import {
   validateForm,
 } from './model';
 import type { ProjectField, ProjectForm, ProjectView } from './model';
+import { PERMISSIONS, holds } from '../pwf/model';
+import WorkflowTab from '../pwf/workflow/WorkflowTab';
 import { TabBoundary, TabFallback } from './workspace/common';
 import DisbursementTab from './workspace/DisbursementTab';
 import IssuesTab from './workspace/IssuesTab';
@@ -37,8 +39,11 @@ import './prj.css';
 
 const NEVER_EMPTY = (): boolean => false;
 
-type Tab = 'overview' | 'objectives' | 'plan' | 'disbursement' | 'issues';
-const TABS: readonly Tab[] = ['overview', 'objectives', 'plan', 'disbursement', 'issues'];
+type Tab = 'overview' | 'objectives' | 'plan' | 'workflow' | 'disbursement' | 'issues';
+const TABS: readonly Tab[] = ['overview', 'objectives', 'plan', 'workflow', 'disbursement', 'issues'];
+
+/** The workflow tab belongs to the project workflow module: it shows only to a person who may read it. */
+const tabsFor = (permissions: readonly string[] | undefined): readonly Tab[] => TABS.filter((tab) => tab !== 'workflow' || holds(permissions, PERMISSIONS.read));
 
 function tabLabel(t: ReturnType<typeof useTranslation>['t'], tab: Tab): string {
   switch (tab) {
@@ -48,6 +53,8 @@ function tabLabel(t: ReturnType<typeof useTranslation>['t'], tab: Tab): string {
       return t('prj.workspace.tab.objectives');
     case 'plan':
       return t('prj.workspace.tab.plan');
+    case 'workflow':
+      return t('prj.workspace.tab.workflow');
     case 'disbursement':
       return t('prj.workspace.tab.disbursement');
     case 'issues':
@@ -63,11 +70,12 @@ export default function ProjectWorkspaceScreen({ route }: ScreenProps) {
 
 function ProjectWorkspaceContent({ route }: ScreenProps) {
   const { t } = useTranslation();
+  const { permissions: granted } = useSession();
   const [params, setParams] = useSearchParams();
   const projectId = params.get('id') ?? undefined;
   const project = useProject(projectId);
   const requested = params.get('tab');
-  const tab: Tab = TABS.find((item) => item === requested) ?? 'overview';
+  const tab: Tab = tabsFor(granted).find((item) => item === requested) ?? 'overview';
   // The tab lives in the address (?tab=plan), so a reload or a shared link keeps it.
   const setTab = (next: Tab): void =>
     setParams(
@@ -115,6 +123,7 @@ function ProjectWorkspaceContent({ route }: ScreenProps) {
 
 function Workspace({ project, tab, onTab, onReload }: { project: ProjectView; tab: Tab; onTab: (tab: Tab) => void; onReload: () => void }) {
   const { t } = useTranslation();
+  const { permissions } = useSession();
   return (
     <>
       <div className="heading">
@@ -141,7 +150,7 @@ function Workspace({ project, tab, onTab, onReload }: { project: ProjectView; ta
         </div>
       </div>
       <div className="prj-tabs" role="tablist" aria-label={t('prj.workspace.tabs.title')}>
-        {TABS.map((item) => (
+        {tabsFor(permissions).map((item) => (
           <button key={item} type="button" role="tab" id={`tab-${item}`} aria-selected={tab === item} aria-controls={`panel-${item}`} onClick={() => onTab(item)}>
             {tabLabel(t, item)}
           </button>
@@ -152,7 +161,7 @@ function Workspace({ project, tab, onTab, onReload }: { project: ProjectView; ta
           <Overview project={project} onReload={onReload} />
         ) : (
           <TabBoundary key={tab} fallback={<TabFallback />}>
-            {tab === 'objectives' ? <ObjectivesTab project={project} /> : tab === 'plan' ? <PlanTab project={project} /> : tab === 'disbursement' ? <DisbursementTab project={project} /> : <IssuesTab project={project} />}
+            {tab === 'objectives' ? <ObjectivesTab project={project} /> : tab === 'plan' ? <PlanTab project={project} /> : tab === 'workflow' ? <WorkflowTab project={project} /> : tab === 'disbursement' ? <DisbursementTab project={project} /> : <IssuesTab project={project} />}
           </TabBoundary>
         )}
       </div>

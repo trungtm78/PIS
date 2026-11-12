@@ -38,6 +38,8 @@ export interface ProcessTreeProps {
   storageKey?: string | undefined;
   /** How many levels of the outline are open at first. */
   openDepth?: number | undefined;
+  /** What a count counts on the cards of the flow ("packages" by default); a board of another kind of thing says its own word. */
+  unitWord?: string | undefined;
 }
 
 const HEALTH_TONE: Readonly<Record<Exclude<ProcessTreeHealth, 'none'>, Tone>> = { ok: 'success', attention: 'warning', late: 'danger', hold: 'neutral' };
@@ -80,13 +82,13 @@ function Health({ node }: { node: ProcessTreeNode }) {
   );
 }
 
-function Facts({ node }: { node: ProcessTreeNode }) {
+function Facts({ node, unitWord }: { node: ProcessTreeNode; unitWord?: string | undefined }) {
   const { t } = useTranslation();
   const percent = percentOf(node.share);
   return (
     <>
       <span className="ui-process-tree__count">{node.count === null ? t('ui.processTree.node.unknown') : node.count}</span>
-      <span className="ui-process-tree__unitword">{node.count === null ? '' : t('ui.processTree.node.unitWord')}</span>
+      <span className="ui-process-tree__unitword">{node.count === null ? '' : (unitWord ?? t('ui.processTree.node.unitWord'))}</span>
       {node.value !== undefined && (
         <span className="ui-process-tree__value">{t('ui.processTree.node.value', { value: node.value, unit: node.unit ?? '' })}</span>
       )}
@@ -152,6 +154,7 @@ export function ProcessTree({
   notices = [],
   storageKey,
   openDepth = 2,
+  unitWord,
 }: ProcessTreeProps) {
   const { t } = useTranslation();
   const wide = useMediaQuery('(min-width: 980px)');
@@ -497,7 +500,7 @@ export function ProcessTree({
                         </StatusPill>
                       )}
                     </span>
-                    <Facts node={node} />
+                    <Facts node={node} unitWord={unitWord} />
                     <Health node={node} />
                   </button>
                 );
