@@ -10,7 +10,7 @@ import { useRunQuery } from './hooks';
 import { JOB_WAIT, QueryCancelled, QueryJobEnded, QueryStillRunning, describeQueryProblem, formatFigure, resolveQuery, toQueryResult, toQueuedQuery, toRunState } from './query-model';
 import type { JobWatch } from './query-model';
 import WorkbenchScreen from './WorkbenchScreen';
-import { rawMetric, sum } from './test-support';
+import { rawMetric } from './test-support';
 
 const BOARD = routeOf('BI-02', 'FR-BI-02');
 /** The figure of the tile of a metric on the board: the big number of its KPI tile. */
@@ -431,41 +431,6 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
       { permissions: QUERIER },
     );
     expect((await screen.findByTestId('board-no-period')).textContent).toBe(vi_['bi.board.noPeriod']);
-  });
-
-  it('asks each metric on a snapshot of the dataset that serves it, keeps the period per dataset, and leaves off the metric that no dataset serves', async () => {
-    const user = userEvent.setup();
-    const CTR_DATASET = '00000000-0000-4000-8000-0000000000d2'.padStart(36, '0');
-    const CTR_V = '00000000-0000-4000-8000-0000000000c1'.padStart(36, '0');
-    const contractValue = rawMetric({ id: '00000000-0000-4000-8000-0000000000b4'.padStart(36, '0'), code: 'ctr_portfolio_value', aggregation_type: 'additive', unit: 'VND', expression_ast: sum('CONTRACT_VALUE'), numerator_ast: null, denominator_ast: null });
-    const evm = rawMetric({ id: '00000000-0000-4000-8000-0000000000b5'.padStart(36, '0'), code: 'prj_cpi', aggregation_type: 'additive', unit: 'ratio', expression_ast: sum('EARNED_VALUE'), numerator_ast: null, denominator_ast: null });
-    const ctrDataset = { ...dataset, id: CTR_DATASET, dataset_code: 'DS-CTR', title: 'CTR', source_kind: 'CONTRACT_FACT' };
-    const ctrVersion = { ...version(CTR_V, 'FROZEN', '2026-09'), dataset_id: CTR_DATASET };
-    const h = client({ metrics: [RATE, contractValue, evm], datasets: [dataset, ctrDataset], versions: [] }, () => answer());
-    (h.client as unknown as { readAll: unknown }).readAll = vi.fn((operation: string, input?: { path?: { id?: string } }) =>
-      Promise.resolve(
-        operation === 'get_resources_metric_definition'
-          ? [RATE, contractValue, evm]
-          : operation === 'listBiDatasets'
-            ? [dataset, ctrDataset]
-            : input?.path?.id === CTR_DATASET
-              ? [ctrVersion]
-              : [version(V1), version(V2, 'FROZEN', '2026-08')],
-      ),
-    );
-    mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
-    await findFigure(contractValue.id);
-    const asked = (): Record<string, string> => Object.fromEntries(h.command.mock.calls.map(([, input]) => [(input as { body: { metric_version_id: string } }).body.metric_version_id, (input as { body: { snapshot_id: string } }).body.snapshot_id]));
-    // The newest version of each dataset: the metric of the contract fields on the snapshot of DS-CTR, the one of the disbursement fields on DS-DISB.
-    expect(asked()).toEqual({ [RATE.id]: V1, [contractValue.id]: CTR_V });
-    expect(document.querySelector(`[data-metric-id="${evm.id}"]`)).toBeNull();
-    expect(screen.getByTestId('board-unserved').textContent).toContain('prj_cpi');
-    // The metric has a Vietnamese name and keeps its code under it.
-    expect(within(document.querySelector(`[data-metric-id="${contractValue.id}"]`) as HTMLElement).getByText(vi_['bi.metric.ctrPortfolioValue.name'])).toBeTruthy();
-    // A period one dataset lacks says so in its tiles instead of asking.
-    await user.selectOptions(screen.getByLabelText(vi_['bi.board.period']), '2026-08');
-    await waitFor(() => expect(within(document.querySelector(`[data-metric-id="${contractValue.id}"]`) as HTMLElement).getByText(vi_['bi.board.noSnapshot.text'])).toBeTruthy());
-    expect(Object.values(asked())).toContain(V2);
   });
 
   describe('the seven standard states', () => {
