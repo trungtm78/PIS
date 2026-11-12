@@ -31,6 +31,10 @@ class MachvonV2 extends ThemeExtension<MachvonV2> {
   /// bands and the neutral ink keep their contrast.
   MachvonV2 withTenant({Color? header, Color? onHeader, Color? primary, Color? onPrimary}) {
     final MachvonV2Palette p = palette;
+    // The notes and the bar on the command band are derived from the tenant pair, so they stay readable on a light header as well as a dark one.
+    final Color band = header ?? p.header;
+    final Color onBand = onHeader ?? p.onHeader;
+    final bool bandChanged = (header != null && header != p.header) || (onHeader != null && onHeader != p.onHeader);
     final Color nextPrimary = primary ?? p.primary;
     final bool changed = primary != null && primary != p.primary;
     return MachvonV2(
@@ -46,14 +50,14 @@ class MachvonV2 extends ThemeExtension<MachvonV2> {
         lineStrong: p.lineStrong,
         outline: p.outline,
         header: header ?? p.header,
-        header2: header == null ? p.header2 : Color.alphaBlend(Colors.white.withValues(alpha: 0.08), header),
+        header2: bandChanged ? Color.alphaBlend(onBand.withValues(alpha: 0.14), band) : p.header2,
         onHeader: onHeader ?? p.onHeader,
-        onHeader2: p.onHeader2,
+        onHeader2: bandChanged ? _secondaryOn(onBand, band) : p.onHeader2,
         primary: nextPrimary,
         primaryStrong: changed ? (isDark ? Color.lerp(nextPrimary, Colors.white, 0.3)! : Color.lerp(nextPrimary, Colors.black, 0.2)!) : p.primaryStrong,
         primarySoft: changed ? Color.alphaBlend(nextPrimary.withValues(alpha: isDark ? 0.2 : 0.12), p.surface) : p.primarySoft,
         onPrimary: onPrimary ?? p.onPrimary,
-        accentOnDark: p.accentOnDark,
+        accentOnDark: bandChanged ? _accentOn(band, <Color>[p.accentOnDark, nextPrimary, onBand]) : p.accentOnDark,
         focus: changed ? nextPrimary : p.focus,
         lateFg: p.lateFg,
         lateBg: p.lateBg,
@@ -69,6 +73,23 @@ class MachvonV2 extends ThemeExtension<MachvonV2> {
         scrim: p.scrim,
       ),
     );
+  }
+
+  /// The softer text of the band: the tenant text colour thinned toward the band, as far as it keeps 4.5:1.
+  static Color _secondaryOn(Color text, Color band) {
+    for (double alpha = 0.78; alpha < 1; alpha += 0.04) {
+      final Color candidate = Color.alphaBlend(text.withValues(alpha: alpha), band);
+      if (contrastRatio(candidate, band) >= kMinTextContrast) return candidate;
+    }
+    return text;
+  }
+
+  /// The colour of the bar fill on the band: the first of [candidates] that shows against it at 3:1 (WCAG 1.4.11 for shapes).
+  static Color _accentOn(Color band, List<Color> candidates) {
+    for (final Color candidate in candidates) {
+      if (contrastRatio(candidate, band) >= 3) return candidate;
+    }
+    return candidates.last;
   }
 
   @override

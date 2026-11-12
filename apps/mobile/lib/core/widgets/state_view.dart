@@ -121,10 +121,11 @@ class StateView extends StatelessWidget {
                 Text(heading, textAlign: TextAlign.center, style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap)),
                 const SizedBox(height: MachvonV2Space.s8),
                 Text(sentence, textAlign: TextAlign.center, style: text.body.copyWith(color: p.ink2)),
-                for (final Widget detail in details) ...<Widget>[const SizedBox(height: MachvonV2Space.s12), detail],
               ],
             ),
           ),
+          // The facts stay outside the one live message: each keeps its own semantics, so a screen reader meets the error code and the filters too.
+          for (final Widget detail in details) ...<Widget>[const SizedBox(height: MachvonV2Space.s12), detail],
           if (actionLabel != null) ...<Widget>[
             const SizedBox(height: MachvonV2Space.s24),
             FilledButton(onPressed: onAction, style: v2PrimaryButtonStyle(v2), child: Text(actionLabel!, textAlign: TextAlign.center)),

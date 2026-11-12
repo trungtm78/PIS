@@ -181,6 +181,30 @@ void main() {
       semantics.dispose();
     });
 
+    test('on a light tenant header the notes and the bar are derived from the tenant pair and stay readable', () {
+      for (final Map<String, String> overlay in <Map<String, String>>[
+        <String, String>{'menu': '#ffffff', 'menuText': '#000000'},
+        <String, String>{'menu': '#f4e9d8', 'menuText': '#2a1a05'},
+        <String, String>{'menu': '#0a2540', 'menuText': '#ffffff'},
+      ]) {
+        final MachvonV2 v2 = buildAppTheme(tenantOverlay: overlay).extension<MachvonV2>()!;
+        final MachvonV2Palette p = v2.palette;
+        expect(p.header, parseHexColor(overlay['menu']!), reason: 'the overlay is accepted whole, so the band takes it');
+        expect(contrastRatio(p.onHeader, p.header), greaterThanOrEqualTo(4.5), reason: '${overlay['menu']}');
+        expect(contrastRatio(p.onHeader2, p.header), greaterThanOrEqualTo(4.5), reason: 'the notes on ${overlay['menu']}');
+        expect(contrastRatio(p.accentOnDark, p.header), greaterThanOrEqualTo(3), reason: 'the bar on ${overlay['menu']}');
+        expect(p.header2, isNot(p.header), reason: 'the track of the bar shows on ${overlay['menu']}');
+      }
+    });
+
+    test('without a tenant the band keeps the exact tokens of the design', () {
+      final MachvonV2Palette p = buildAppTheme().extension<MachvonV2>()!.palette;
+      expect(p.header, MachvonV2Colors.light.header);
+      expect(p.header2, MachvonV2Colors.light.header2);
+      expect(p.onHeader2, MachvonV2Colors.light.onHeader2);
+      expect(p.accentOnDark, MachvonV2Colors.light.accentOnDark);
+    });
+
     test('the command band takes the tenant colour and keeps the bands', () {
       final ThemeData theme = buildAppTheme(tenantOverlay: const <String, String>{'menu': '#0a2540', 'menuText': '#ffffff', 'primary': '#0a4d8c'});
       final MachvonV2 v2 = theme.extension<MachvonV2>()!;
@@ -554,6 +578,15 @@ void main() {
         await tester.tap(find.text('Quay lại'));
       }
       expect(calls, <String>['empty', 'second', 'error', 'second', 'offline', 'second', 'denied', 'second']);
+      semantics.dispose();
+    });
+
+    testWidgets('the facts of a state are read by a screen reader as well, apart from the live message', (WidgetTester tester) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      await pumpV2(tester, const StateView(kind: StateKind.error, details: <Widget>[Text('Mã lỗi INTERNAL_ERROR'), Text('Mã tham chiếu 3f2b')]));
+      expect(find.bySemanticsLabel('Mã lỗi INTERNAL_ERROR'), findsOneWidget);
+      expect(find.bySemanticsLabel('Mã tham chiếu 3f2b'), findsOneWidget);
+      expect(find.bySemanticsLabel('Chưa thể tải dữ liệu. Thông tin đã nhập không bị mất. Vui lòng thử lại.'), findsOneWidget);
       semantics.dispose();
     });
 
