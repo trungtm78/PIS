@@ -263,20 +263,23 @@
     {
       "code": "DL.01",
       "title": "Bộ dữ liệu nền nhập một lần theo dự án và kỳ: kế hoạch, thực hiện/giải ngân, lũy kế, cơ cấu vốn, thuyết minh; số ước và số thực của cùng một kỳ",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "screens": [
           "DIS-27",
           "DIS-28",
           "DIS-29",
-          "IND-01"
+          "IND-01",
+          "DIS-35"
         ],
         "operations": [
           "getFundingFigureBoard",
           "proposeFundingFigures",
           "acceptFundingFigures",
           "getFundingFigureHistory",
-          "enterIndicatorFigures"
+          "enterIndicatorFigures",
+          "getReportNarrativeContext",
+          "inheritReportNarrative"
         ],
         "stories": [
           "ST-DIS-026",
@@ -284,16 +287,22 @@
         ],
         "docs": [
           "docs/fnd-funding-model.md",
-          "docs/ind-indicator-dictionary.md"
+          "docs/ind-indicator-dictionary.md",
+          "docs/ent-snapshot.md"
         ],
         "tests": [
           "packages/kernel/test/fnd-figures.test.ts",
-          "packages/kernel/test/ind-entry.test.ts"
+          "packages/kernel/test/ind-entry.test.ts",
+          "packages/kernel/test/ent-narrative.test.ts",
+          "packages/db/test/ent-narrative-store.test.ts",
+          "apps/web/src/screens/dis/narrative/NarrativeScreen.test.tsx",
+          "apps/api/test/dis/report-decision.test.ts",
+          "apps/api/test/reports/report-engine.snapshot.enterprise.test.ts"
         ]
       },
-      "gap": "G2: thuyết minh có cấu trúc 8 trường cho bản enterprise (tình hình, đánh giá mốc, giải ngân, nguyên nhân, khó khăn, giải pháp, kế hoạch kỳ tới, kiến nghị), kế thừa kỳ trước và danh mục nguyên nhân chuẩn MDM-17 chưa nối; phạm vi quản lý số ước chờ Ban KHĐT xác nhận.",
+      "gap": "Phần mềm đủ: thuyết minh có cấu trúc 8 trường mở rộng bảng report_narrative (DIS-35), danh mục nguyên nhân chuẩn MDM-17, kế thừa kỳ trước có dấu vết và nhập từ Excel, và các lời đã được duyệt vào tệp Word của biểu mẫu qua bản chốt kỳ. Phạm vi quản lý số ước và bộ chỉ tiêu là giả định UNVERIFIED chờ Ban KHĐT và Tổ chuẩn hóa dữ liệu xác nhận (PX-02).",
       "owners": [
-        "ENT-3b"
+        "DELIVERY-1"
       ],
       "pending": [
         "PX-02"
@@ -354,14 +363,21 @@
           "DIS-21",
           "DIS-22",
           "DIS-11",
-          "DIS-14"
+          "DIS-14",
+          "DIS-32",
+          "DIS-33"
         ],
         "operations": [
           "buildPeriodSnapshot",
           "freezePeriodSnapshot",
           "listPeriodSnapshots",
           "requestPeriodReopen",
-          "decidePeriodReopen"
+          "decidePeriodReopen",
+          "buildEnterpriseSnapshot",
+          "freezeEnterpriseSnapshot",
+          "listEnterpriseSnapshots",
+          "getEnterpriseSnapshot",
+          "getEnterpriseSnapshotReadiness"
         ],
         "stories": [
           "ST-DIS-009",
@@ -369,16 +385,23 @@
           "ST-BI-002"
         ],
         "docs": [
-          "docs/dis-snapshot.md"
+          "docs/dis-snapshot.md",
+          "docs/ent-snapshot.md"
         ],
         "tests": [
           "apps/api/test/dis/snapshot.test.ts",
-          "apps/api/test/dis/period-reopen.test.ts"
+          "apps/api/test/dis/period-reopen.test.ts",
+          "packages/kernel/test/enterprise-snapshot.test.ts",
+          "packages/kernel/test/fnd-public-golden.test.ts",
+          "packages/db/test/enterprise-snapshot-store.test.ts",
+          "apps/api/test/fnd/enterprise-snapshot.test.ts",
+          "apps/api/test/reports/enterprise-snapshot-publication.enterprise.test.ts",
+          "packages/edition-enterprise/test/snapshot-data.test.ts"
         ]
       },
-      "gap": "G1: chưa có lệnh dựng và chốt period_snapshot bản enterprise (băm schema 2) từ plan_figure_revision và ind_figure; sáu biểu mẫu chạy dữ liệu minh họa (dataSource ILLUSTRATIVE); phạm vi dữ liệu lịch sử chờ khách. So sánh cùng kỳ và nhiều kỳ của bản enterprise chưa có (DIS-11 là lịch sử và so sánh của báo cáo tuần).",
+      "gap": "Đã có: bản chốt kỳ enterprise (băm schema 2) dựng và chốt từ plan_figure_revision và ind_figure bởi hai người, bản sửa sau mở lại kỳ có số phiên bản và dòng dõi, một đường đọc EnterpriseFigureReader, sáu biểu mẫu đọc bản chốt và phát hành được, bản công (băm schema 1) không đổi. Còn lại: HOME-09 so cùng kỳ năm trước (ENT-4d) nhưng chưa có màn chuỗi nhiều kỳ liên tiếp của bản enterprise; phạm vi dữ liệu lịch sử chờ Ban KHĐT chốt (PX-08).",
       "owners": [
-        "ENT-3a"
+        "ENT-4d"
       ],
       "pending": [
         "PX-08"
@@ -387,7 +410,7 @@
     {
       "code": "QT.01",
       "title": "Quy trình To-Be cấu hình được: đầu mối nhập, phê duyệt tại đơn vị, Ban KHĐT rà soát, chốt kỳ, đẩy HPM; sai sót trả về kèm cảnh báo",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "screens": [
           "ADM-06",
@@ -416,12 +439,17 @@
         ],
         "tests": [
           "packages/kernel/test/dis-report-workflow.test.ts",
-          "apps/api/test/dis/report-staged-approval.test.ts"
+          "apps/api/test/dis/report-staged-approval.test.ts",
+          "packages/kernel/test/staged-approval.test.ts",
+          "apps/api/test/dis/approval-push-hpm.enterprise.test.ts",
+          "apps/api/test/dis/report-push-hold.test.ts",
+          "apps/api/test/ind/ind-staged-approval.test.ts",
+          "apps/api/test/adm/staged-owners-boot.test.ts"
         ]
       },
-      "gap": "G3: bước PUSH của quy trình duyệt là bước người, chưa gọi đẩy HPM (cần AWAITING_RECEIPT và khóa chống trùng); quy trình duyệt chỉ gắn với báo cáo DIS, chưa gắn với lô số liệu FND và nhập IND; chế độ điều chỉnh \"ở kỳ sau\" chưa có.",
+      "gap": "Phần mềm đủ: quy trình duyệt dùng chung cho báo cáo DIS, lô số liệu FND và nhập IND; bước PUSH gọi đẩy HPM với khóa (tổ chức, mẫu, kỳ, phiên bản), chờ AWAITING_RECEIPT tới khi người khác người đẩy ghi biên nhận rồi mới sang PUSHED, từ chối phiên bản cũ, khởi động thất bại khi loại nghiệp vụ bật mà không có lệnh cuối thật. Bộ ghi HPM là tệp (HPM-FILE-WORKING-ASSUMPTION) tới khi HPM cung cấp giao diện (PX-03); hạn từng bước theo lịch kỳ thuộc QT.02.",
       "owners": [
-        "ENT-3c"
+        "DELIVERY-1"
       ],
       "pending": [
         "PX-03"
@@ -526,13 +554,16 @@
           "DIS-06",
           "DIS-13",
           "DIS-19",
-          "IND-02"
+          "IND-02",
+          "DIS-35"
         ],
         "operations": [
           "enterIndicatorFigures",
           "getDisbursementRates",
           "submitFundingFigures",
-          "acceptFundingFigures"
+          "acceptFundingFigures",
+          "getReportNarrativeContext",
+          "inheritReportNarrative"
         ],
         "stories": [
           "ST-DIS-003",
@@ -543,11 +574,15 @@
         "docs": [
           "docs/dis-rates.md",
           "docs/dis-report-submit.md"
+        ],
+        "tests": [
+          "packages/kernel/test/ent-narrative.test.ts",
+          "packages/db/test/ent-narrative-store.test.ts",
+          "apps/web/src/screens/dis/narrative/NarrativeScreen.test.tsx"
         ]
       },
-      "gap": "G2, G12: thuyết minh 8 trường và kế thừa kỳ trước (ENT-3b); chưa có màn mua sắm trang thiết bị theo Ban Thương mại và nối eProcurement (ENT-4e).",
+      "gap": "G12: chưa có màn mua sắm trang thiết bị theo Ban Thương mại và nối eProcurement (ENT-4e). Thuyết minh 8 trường, kế thừa kỳ trước và danh mục nguyên nhân chuẩn đã có (ENT-3b).",
       "owners": [
-        "ENT-3b",
         "ENT-4e"
       ],
       "pending": [
@@ -557,7 +592,7 @@
     {
       "code": "CN.03",
       "title": "Theo dõi tiến độ và chỉ đạo điều hành: mốc tiến độ, cảnh báo chậm, vướng thủ tục; chỉ đạo giao ban theo dự án, giao việc, theo dõi, tổng hợp vào báo cáo kỳ sau",
-      "status": "PARTIAL",
+      "status": "DONE",
       "evidence": {
         "screens": [
           "DIR-01",
@@ -567,7 +602,8 @@
           "DIR-05",
           "DIR-06",
           "PRJ-05",
-          "DIS-20"
+          "DIS-20",
+          "DIS-35"
         ],
         "operations": [
           "addDirective",
@@ -587,24 +623,29 @@
           "ST-PRJ-009"
         ],
         "docs": [
-          "Design/MACHVON_Design/01_Documents/05_modules/DIR.md"
+          "Design/MACHVON_Design/01_Documents/05_modules/DIR.md",
+          "docs/ent-snapshot.md"
         ],
         "tests": [
           "apps/api/test/dir/directive.test.ts",
-          "packages/kernel/test/directive.test.ts"
+          "packages/kernel/test/directive.test.ts",
+          "packages/kernel/test/ent-narrative.test.ts",
+          "apps/api/test/dis/report-decision.test.ts",
+          "packages/db/test/ent-narrative-store.test.ts",
+          "packages/edition-enterprise/src/leader/tiles.test.ts",
+          "apps/web/src/screens/dis/narrative/NarrativeScreen.test.tsx",
+          "apps/web/src/editions/enterprise/screens/leader/LeaderPanel.test.tsx",
+          "apps/web/src/pwa/screens/directives-api.test.tsx"
         ]
       },
-      "gap": "G12, G13: kết quả chỉ đạo giao ban chưa nối vào thuyết minh biểu mẫu (getDirectivesForReport chưa được thuyết minh gọi); ô \"dự án vướng thủ tục\" còn R2; màn PWA-04 chưa nối dữ liệu chỉ đạo.",
-      "owners": [
-        "ENT-3b",
-        "ENT-4e"
-      ],
+      "gap": "",
+      "owners": [],
       "pending": []
     },
     {
       "code": "CN.04",
       "title": "Đối chiếu số liệu: giải ngân với EBS theo mã dự án và kỳ; so sánh chéo cùng kỳ giữa các loại báo cáo trước khi phát hành",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "screens": [
           "EBS-01",
@@ -643,10 +684,9 @@
           "apps/api/test/reports/crosscheck.enterprise.test.ts"
         ]
       },
-      "gap": "ENT-4a đã dựng so sánh chéo cùng kỳ giữa báo cáo tháng, quý, giao ban, HPM và bản chốt kỳ, chặn phát hành khi lệch ở mức chặn trừ khi có giải trình của người khác người lập; dung sai, mức chặn và cặp báo cáo là giá trị khởi đầu chưa được chủ nghiệp vụ xác nhận (D03) và 6 biểu mẫu vẫn là mẫu DEMO; đối chiếu EBS chạy trên bố cục giả định.",
+      "gap": "Phần mềm đủ và đã kiểm lại: so sánh chéo cùng kỳ giữa báo cáo tháng, quý, giao ban, HPM và bản chốt kỳ chặn phát hành khi lệch ở mức chặn trừ khi có giải trình của người khác người lập (ENT-4a); đối chiếu EBS đọc mã dự án qua master_crosswalk trước, so khớp thẳng làm dự phòng một phiên bản (ENT-3e). Dung sai, mức chặn và cặp báo cáo là giá trị khởi đầu chưa được chủ nghiệp vụ xác nhận (D03), sáu biểu mẫu vẫn là mẫu DEMO (PX-01) và bố cục tệp EBS là giả định (PX-04).",
       "owners": [
-        "ENT-4a",
-        "ENT-3e"
+        "DELIVERY-1"
       ],
       "pending": [
         "PX-04"
@@ -683,16 +723,19 @@
         ],
         "docs": [
           "docs/report-engine.md",
-          "Design/MACHVON_Design/01_Documents/05_modules/RPT.md"
+          "Design/MACHVON_Design/01_Documents/05_modules/RPT.md",
+          "docs/ent-snapshot.md"
         ],
         "tests": [
           "packages/edition-enterprise/test/report-forms.test.ts",
-          "apps/api/test/reports/report-engine.enterprise.test.ts"
+          "apps/api/test/reports/report-engine.enterprise.test.ts",
+          "apps/api/test/reports/enterprise-snapshot-publication.enterprise.test.ts",
+          "apps/api/test/reports/report-engine.snapshot.enterprise.test.ts",
+          "packages/edition-enterprise/test/snapshot-data.test.ts"
         ]
       },
-      "gap": "G1, G5: sáu biểu mẫu chạy dữ liệu minh họa và nhãn DEMO; báo cáo chưa xuất PDF; chưa có mẫu Sở/Ban/Ngành; chưa có công cụ cấu hình bố cục nội bộ không cần lập trình.",
+      "gap": "Từ bản chốt kỳ enterprise, sáu biểu mẫu đọc số liệu thật qua một đường đọc, kèm thuyết minh đã duyệt trong tệp Word, và vẫn mang nhãn DEMO tới khi có mẫu chính thức (PX-01). G5: báo cáo chưa xuất PDF; chưa có mẫu Sở/Ban/Ngành; chưa có công cụ cấu hình bố cục nội bộ không cần lập trình.",
       "owners": [
-        "ENT-3a",
         "ENT-4b"
       ],
       "pending": [
@@ -771,12 +814,14 @@
           "Design/MACHVON_Design/01_Documents/05_modules/HPM.md"
         ],
         "tests": [
-          "apps/api/test/editions/hpm.enterprise.test.ts"
+          "apps/api/test/editions/hpm.enterprise.test.ts",
+          "apps/api/test/editions/hpm-adjustment.enterprise.test.ts",
+          "apps/api/test/dis/approval-push-hpm.enterprise.test.ts",
+          "apps/web/src/editions/enterprise/screens/hpm/CorrectionScreen.test.tsx"
         ]
       },
-      "gap": "G3, G18: bộ ghi HPM là tệp (HPM-FILE-WORKING-ASSUMPTION), bước PUSH của quy trình chưa gọi đẩy; thiếu chế độ điều chỉnh \"ở kỳ sau\"; thiếu tài liệu đề xuất phương thức tích hợp (API, DB trung gian, tệp chuẩn).",
+      "gap": "G18: bộ ghi HPM là tệp (HPM-FILE-WORKING-ASSUMPTION), thiếu tài liệu đề xuất phương thức tích hợp (API, DB trung gian, tệp chuẩn). Đã có: bước PUSH của quy trình gọi đẩy có khóa chống trùng và chờ biên nhận; chế độ điều chỉnh ở kỳ sau bên cạnh ghi đè (đề xuất và duyệt bởi hai người, gói bị từ chối trả khoản điều chỉnh lại, màn HPM-02 có cả hai chế độ).",
       "owners": [
-        "ENT-3c",
         "DOC-3"
       ],
       "pending": [
@@ -1632,10 +1677,9 @@
           "docs/adm-approval-workflow.md"
         ]
       },
-      "gap": "Quy trình To-Be dựng từ quy trình duyệt có bước; cần Tổ chuẩn hóa dữ liệu chốt hạn từng bước và PVFCCo phê duyệt; bước PUSH chờ ENT-3c.",
+      "gap": "Quy trình To-Be dựng từ quy trình duyệt có bước, gồm bước PUSH chờ biên nhận HPM; cần Tổ chuẩn hóa dữ liệu chốt hạn từng bước và PVFCCo phê duyệt.",
       "owners": [
-        "DELIVERY-1",
-        "ENT-3c"
+        "DELIVERY-1"
       ],
       "pending": [
         "PX-12"
