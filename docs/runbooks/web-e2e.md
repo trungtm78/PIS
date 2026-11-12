@@ -296,6 +296,28 @@ Linux uses `visual-baselines-linux`.
   From then on every run on Linux compares with them and requires the visual cases.
 - After an intended change of the shell both sets are rewritten: `npm run e2e:visual:update -w @machvon/web` on Windows, the run with `update_visual` for Linux.
 
+### Baselines of the enterprise edition
+
+Decision (2026-11-12, UAT run r6, R6-ENT-03): a baseline is the pixels of one edition as well as of one OS. The enterprise edition names the product, draws its own brand block and
+home and replaces words through its terminology overlay, so its screens never match the committed baselines, which are the public edition's: the 203 visual cases of the enterprise
+stack went red in run r6 for that reason alone (the same 203 pass in the public edition). Comparing with the wrong edition's pixels is not a defect of the product and loosening the 0.1
+percent target is not the answer, so the folder is chosen by edition (`apps/web/e2e/support/visual-baselines.ts`, the edition is read as the stack and the build read it:
+`MACHVON_EDITION`, then `VITE_EDITION`; an enterprise run sets BOTH, `MACHVON_EDITION=enterprise` for the API stack and `VITE_EDITION=enterprise` for the browser build, because the web reads only `VITE_EDITION`: with one of them the spec expects the enterprise words from a public screen):
+
+| Edition and OS | Folder of the baselines |
+|---|---|
+| public, Windows | `visual-baselines` (committed) |
+| public, another OS | `visual-baselines-<platform>` (for example `visual-baselines-linux`) |
+| enterprise, Windows | `visual-baselines-enterprise` |
+| enterprise, another OS | `visual-baselines-enterprise-<platform>` |
+
+- While the folder of the edition does not exist, the visual cases of that run are skipped and the Playwright output names the edition and the folder (`no baselines of the enterprise edition
+  rendered on this OS (...)`): they are never compared with the other edition's pixels and never reported as passed. With `E2E_REQUIRE_VISUAL=1` the missing folder FAILS the run instead.
+- The enterprise baselines are not created by a test run on its own: render them with `E2E_UPDATE_VISUAL=1` against the enterprise stack (`MACHVON_EDITION=enterprise`), look at the captures,
+  and have the product owner approve them as any baseline (`docs/r10-baseline-approvals.md`) before they are committed. Until then the pixel gate of the enterprise edition is
+  open, and the enterprise release rests on the route walk, the flows and the axe run, which are edition-aware.
+- `E2E_VISUAL_BASELINES` still names a folder explicitly and wins over the edition.
+
 Firefox and WebKit run a smoke subset in their own workflow (`browsers.yml`, selected by `E2E_BROWSERS`); `browser-differences.md` says what runs where and what is known to differ.
 
 ## Screen contract checks (`UI-<screen>`)

@@ -1,5 +1,6 @@
 import type { CommandReply, Obj, SeedContext } from '../context.ts';
 import { CHECKER, MAKER } from '../procurement-finance/shared.ts';
+import { seedOpenData } from './open-data.ts';
 import { clipPlan } from './plan.ts';
 
 /**
@@ -44,6 +45,8 @@ export async function seedClipContractorPortal(ctx: SeedContext): Promise<void> 
     ctx.warn('no clip plan (CLIP_PLAN_FILE): the group has nothing to do');
     return;
   }
+  // The last group of both datasets: the open-data portal and the baseline the budget of the customer measures are made after everything they read.
+  await seedOpenData(ctx);
   const texts = textsOf();
   const contractors = await ctx.list<Obj>(MAKER, '/resources/contractor');
   const contractor = contractors.find((row) => String(row.verification_status) === 'VERIFIED');

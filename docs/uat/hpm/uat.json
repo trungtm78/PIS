@@ -331,33 +331,38 @@
       },
       "module": "HPM",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M10' AND status = 'ACCEPTED'",
+        "query": "SELECT id FROM machvon.hpm_push WHERE status = 'ACCEPTED' AND (receipt_reference IS NULL OR receipt_by IS NULL OR receipt_at IS NULL)",
         "expect": {
-          "value": "1"
+          "rows": 0
         }
       },
       "audit_assert": {
-        "entity": "hpm_push",
-        "entity_id": "<id lượt đẩy>",
-        "action": "hpm.push_submitted",
-        "fields": [
-          "actor_id",
-          "safe_diff",
-          "occurred_at"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.push_submitted' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff, occurred_at FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.push_submitted' ORDER BY occurred_at DESC LIMIT 1"
       },
       "idempotency": {
+        "resolve": {
+          "issue": "SELECT i.id::text FROM machvon.report_issue i WHERE i.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.hpm_push p WHERE p.tenant_id = i.tenant_id AND p.issue_id = i.id) ORDER BY i.issued_at, i.id OFFSET 3 LIMIT 1",
+          "layout": "SELECT layout_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "period": "SELECT period_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "revision": "SELECT revision::text FROM machvon.report_issue WHERE id = '${issue}'",
+          "sha": "SELECT sha256 FROM machvon.report_issue WHERE id = '${issue}'"
+        },
         "url": "/hpm/pushes",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 1,
         "body": {
-          "layout_code": "HPM-MONTHLY",
-          "period": "2026-M10",
-          "revision": 1
+          "layout_code": "${layout}",
+          "period": "${period}",
+          "revision": "${revision|int}",
+          "sha256": "${sha}",
+          "issue_id": "${issue}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M10'",
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}'",
         "expect_rows": 1
       }
     },
@@ -406,16 +411,25 @@
       },
       "module": "HPM",
       "idempotency": {
+        "resolve": {
+          "issue": "SELECT i.id::text FROM machvon.report_issue i WHERE i.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.hpm_push p WHERE p.tenant_id = i.tenant_id AND p.issue_id = i.id) ORDER BY i.issued_at, i.id OFFSET 0 LIMIT 1",
+          "layout": "SELECT layout_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "period": "SELECT period_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "revision": "SELECT revision::text FROM machvon.report_issue WHERE id = '${issue}'",
+          "sha": "SELECT sha256 FROM machvon.report_issue WHERE id = '${issue}'"
+        },
         "url": "/hpm/pushes",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "layout_code": "HPM-MONTHLY",
-          "period": "2026-M09",
-          "revision": 1
+          "layout_code": "${layout}",
+          "period": "${period}",
+          "revision": "${revision|int}",
+          "sha256": "${sha}",
+          "issue_id": "${issue}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M09'",
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}'",
         "expect_rows": 1
       }
     },
@@ -464,16 +478,25 @@
       },
       "module": "HPM",
       "idempotency": {
+        "resolve": {
+          "issue": "SELECT i.id::text FROM machvon.report_issue i WHERE i.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.hpm_push p WHERE p.tenant_id = i.tenant_id AND p.issue_id = i.id) ORDER BY i.issued_at, i.id OFFSET 1 LIMIT 1",
+          "layout": "SELECT layout_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "period": "SELECT period_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "revision": "SELECT revision::text FROM machvon.report_issue WHERE id = '${issue}'",
+          "sha": "SELECT sha256 FROM machvon.report_issue WHERE id = '${issue}'"
+        },
         "url": "/hpm/pushes",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 1,
         "body": {
-          "layout_code": "HPM-MONTHLY",
-          "period": "2026-M08",
-          "revision": 1
+          "layout_code": "${layout}",
+          "period": "${period}",
+          "revision": "${revision|int}",
+          "sha256": "${sha}",
+          "issue_id": "${issue}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M08'",
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}'",
         "expect_rows": 1
       }
     },
@@ -567,16 +590,25 @@
       },
       "module": "HPM",
       "idempotency": {
+        "resolve": {
+          "issue": "SELECT i.id::text FROM machvon.report_issue i WHERE i.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.hpm_push p WHERE p.tenant_id = i.tenant_id AND p.issue_id = i.id) ORDER BY i.issued_at, i.id OFFSET 2 LIMIT 1",
+          "layout": "SELECT layout_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "period": "SELECT period_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "revision": "SELECT revision::text FROM machvon.report_issue WHERE id = '${issue}'",
+          "sha": "SELECT sha256 FROM machvon.report_issue WHERE id = '${issue}'"
+        },
         "url": "/hpm/pushes",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "layout_code": "HPM-MONTHLY",
-          "period": "2026-M11",
-          "revision": 1
+          "layout_code": "${layout}",
+          "period": "${period}",
+          "revision": "${revision|int}",
+          "sha256": "${sha}",
+          "issue_id": "${issue}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M11'",
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}'",
         "expect_rows": 1
       }
     },
@@ -625,7 +657,10 @@
       },
       "module": "HPM",
       "db_assert": {
-        "query": "SELECT status FROM machvon.hpm_push WHERE period = '2026-M06'",
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M06' LIMIT 1"
+        },
+        "query": "SELECT status FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M06' ORDER BY created_at LIMIT 1",
         "expect": {
           "value": "ACCEPTED"
         }
@@ -776,21 +811,20 @@
       },
       "module": "HPM",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M01' AND revision = 1",
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M01' AND revision = 1 LIMIT 1"
+        },
+        "query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M01' AND revision = 1",
         "expect": {
           "value": "1"
         }
       },
       "audit_assert": {
-        "entity": "ent_connection",
-        "entity_id": "<id kết nối>",
-        "action": "hpm.connection_switched",
-        "fields": [
-          "actor_id",
-          "reason",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.connection_switched' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.connection_switched' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {

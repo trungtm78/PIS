@@ -375,6 +375,23 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     expect(within(tile).getByRole('link').getAttribute('href')).toBe(`/bi/bi-09?metric=${RATE.id}&snapshot=${V1}`);
   });
 
+  // UAT run r6, R6-PUB-04: the board asked the snapshot of the disbursement dataset for every certified metric, and the API refuses (422) the metrics that belong to another dataset: 27 of 28 on the public
+  // demo, each a red line in the console and a tile that said nothing useful. A metric that is not of the dataset of the board is not asked for there.
+  it('R6-PUB-04: a metric of another dataset is not asked of the snapshot of the board: its tile says so and sends no request', async () => {
+    const CONTRACTS = rawMetric({ id: '00000000-0000-4000-8000-0000000000b9', code: 'ctr_contract_count', grain: 'contract', aggregation_type: 'additive', unit: 'COUNT' });
+    const OWN = rawMetric({ id: '00000000-0000-4000-8000-0000000000ba', code: 'own_metric', dataset_id: '00000000-0000-4000-8000-0000000000dd', origin: 'TENANT_UI' });
+    const h = client({ ...normal(), metrics: [RATE, DISBURSED, CONTRACTS, OWN] }, () => answer());
+    mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
+    await findFigure(RATE.id);
+    const asked = h.command.mock.calls.map(([, input]) => (input as { body: { metric_version_id: string } }).body.metric_version_id);
+    expect(asked.sort()).toEqual([RATE.id, DISBURSED.id].sort());
+    for (const metric of [CONTRACTS, OWN]) {
+      const tile = document.querySelector(`[data-metric-id="${metric.id}"]`) as HTMLElement;
+      expect(within(tile).getByText(translator.t('bi.board.tile.elsewhere'))).toBeTruthy();
+      expect(tile.querySelector('[data-reason]')).toBeNull();
+    }
+  });
+
   it('names the period and the snapshot of the board in the context bar, and groups the tiles in a strip with a label', async () => {
     mount(<BoardScreen route={BOARD} />, client(normal(), () => answer()), { permissions: QUERIER });
     await findFigure(RATE.id);

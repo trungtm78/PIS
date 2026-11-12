@@ -9,7 +9,8 @@ import { diffImages } from './support/diff.ts';
 import type { Region } from './support/diff.ts';
 import { recordMissingVisuals, upsertVisual } from './support/report.ts';
 import { stackInfo } from './support/stack.ts';
-import { baselinesFolder, visualGate } from './support/visual-baselines.ts';
+import { editionOf } from './support/edition-terms.ts';
+import { baselinesFolder, missingBaselinesReason, visualGate } from './support/visual-baselines.ts';
 import type { VisualEntry } from './support/report.ts';
 
 const OUT = fileURLToPath(new URL('./__diff__', import.meta.url));
@@ -49,11 +50,11 @@ function visualTest(title: string, ids: string[], body: Parameters<typeof test>[
   test(title, body);
 }
 
-// Rendered pixels are compared only with pixels rendered the same way. With no baselines made on this OS (and none being written now) the cases are skipped, said so in the output, never passed;
+// Rendered pixels are compared only with pixels rendered the same way: on the same OS and for the same edition (the enterprise edition has its own name, brand and terminology). With no baselines made on this OS for this edition (and none being written now) the cases are skipped, said so in the output, never passed;
 // when the visual cases are required (E2E_REQUIRE_VISUAL=1) a missing baseline folder FAILS the run instead: a gate that cannot compare is not green.
 test.beforeEach(() => {
   const gate = visualGate({ updating: UPDATE_BASELINES, required: REQUIRE_VISUAL, baselinesExist: existsSync(BASELINES) });
-  const reason = `no baselines rendered on this OS (${BASELINES}): see docs/runbooks/web-e2e.md, "Baselines of another OS"`;
+  const reason = missingBaselinesReason(BASELINES, editionOf());
   if (gate === 'fail') throw new Error(`${reason}, and E2E_REQUIRE_VISUAL=1`);
   test.skip(gate === 'skip', reason);
 });

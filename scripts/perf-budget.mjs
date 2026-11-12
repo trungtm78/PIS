@@ -105,6 +105,16 @@ export function budgetProblems(budget) {
     if (!variables.has(name)) problems.push(`discovery of ${name} names a variable the table does not declare`);
     if (typeof rule?.path !== 'string' || !rule.path.startsWith('/') || /\{\w+\}/.test(rule.path)) problems.push(`discovery of ${name} has no fixed path`);
     if (typeof rule?.pick !== 'string' || rule.pick === '') problems.push(`discovery of ${name} has no pick`);
+    if (rule?.where !== undefined) {
+      if (typeof rule.where.pick !== 'string' || rule.where.pick === '' || !('equals' in rule.where)) problems.push(`discovery of ${name} filters rows without what a row must hold (where.pick, where.equals)`);
+    }
+    if (rule?.verify !== undefined || rule?.where !== undefined) {
+      if (typeof rule.rows !== 'string' || rule.rows === '') problems.push(`discovery of ${name} filters or verifies rows but names none (rows)`);
+    }
+    if (rule?.verify !== undefined) {
+      if (typeof rule.verify.path !== 'string' || !rule.verify.path.startsWith('/') || !rule.verify.path.includes('{value}')) problems.push(`discovery of ${name} verifies with a path that has no {value}`);
+      if (typeof rule.verify.pick !== 'string' || rule.verify.pick === '' || !('equals' in rule.verify)) problems.push(`discovery of ${name} verifies without what the answer must hold (pick, equals)`);
+    }
   }
   return problems;
 }
@@ -122,6 +132,11 @@ export function pickValue(answer, pick) {
 /**
  * Finds the ids the table needs in the tenant that is measured, by reading the first row of a list the API already serves (the `discovery` of the table): a variable that is given is kept, a list that is
  * empty or refused leaves the variable missing (its operations are then `SKIPPED` with the name of the variable, and `problems` says why). Nothing is written to the tenant.
+ *
+ * Some operations need a row that is in a state the first row of a list may not be in (the S-curve export needs a project with a baseline: the first project of the list has none, and the API answers 422). A rule then
+ * names the array of the list (`rows`), what to take from each row (`pick`, relative to the row), and a read that decides (`verify`: a path with `{value}`, and what the answer must hold at `pick`, `equals`); the
+ * first of the first `scan` rows (50 when not said) that passes is the value. No row passes: the variable is missing and `problems` says how many were read. A rule may also keep only the rows that hold a value
+ * (`where`: `pick` relative to the row, `equals`), for a state the list itself shows (the availability of a line exists only for a line of a plan in force: the first line of the list belongs to a superseded revision).
  */
 export async function discoverVariables({ budget, baseUrl, token, headers = {}, vars = {}, fetchImpl = fetch, timeoutMs = 20_000 }) {
   const found = {};
@@ -139,7 +154,28 @@ export async function discoverVariables({ budget, baseUrl, token, headers = {}, 
         problems.push(`${name}: ${rule.path} answered ${response.status}`);
         continue;
       }
-      const value = pickValue(await response.json(), rule.pick);
+      const answer = await response.json();
+      if (rule.rows !== undefined) {
+        const rows = pickValue(answer, rule.rows);
+        const held = (Array.isArray(rows) ? rows : []).filter((row) => rule.where === undefined || pickValue(row, rule.where.pick) === rule.where.equals);
+        const candidates = held.slice(0, rule.scan ?? 50).map((row) => pickValue(row, rule.pick)).filter((value) => typeof value === 'string' && value !== '');
+        let chosen;
+        for (const candidate of rule.verify === undefined ? candidates.slice(0, 1) : candidates) {
+          if (rule.verify === undefined) {
+            chosen = candidate;
+            break;
+          }
+          const check = await fetchImpl(`${baseUrl.replace(/\/+$/, '')}${rule.verify.path.replace('{value}', encodeURIComponent(candidate))}`,{ method: 'GET', headers: requestHeaders, signal: controller.signal });
+          if (check.status >= 200 && check.status < 300 && pickValue(await check.json(), rule.verify.pick) === rule.verify.equals) {
+            chosen = candidate;
+            break;
+          }
+        }
+        if (chosen !== undefined) found[name] = chosen;
+        else problems.push(`${name}: none of the ${candidates.length} rows of ${rule.path} ${rule.verify === undefined ? `has ${rule.where?.pick} = ${JSON.stringify(rule.where?.equals)}` : `passes ${rule.verify.path} (${rule.verify.pick} = ${JSON.stringify(rule.verify.equals)})`}: the tenant has no such row`);
+        continue;
+      }
+      const value = pickValue(answer, rule.pick);
       if (typeof value === 'string' && value !== '') found[name] = value;
       else problems.push(`${name}: ${rule.path} has nothing at ${rule.pick} (the tenant has no such row)`);
     } catch {

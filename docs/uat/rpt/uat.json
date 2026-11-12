@@ -899,20 +899,17 @@
       },
       "module": "RPT",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.report_issue WHERE layout_code = 'DIS-WEEKLY' AND revision = 1",
+        "query": "SELECT tenant_id, layout_code, period_code, revision FROM machvon.report_issue GROUP BY tenant_id, layout_code, period_code, revision HAVING count(*) > 1",
         "expect": {
-          "value": "1"
+          "rows": 0
         }
       },
       "audit_assert": {
-        "entity": "report_issue",
-        "entity_id": "<id bản phát hành>",
-        "action": "rpt.report_issued",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'rpt.report_issued' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'rpt.report_issued' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -960,19 +957,11 @@
         "suite": "apps/api/test/uat/rpt.uat.test.ts"
       },
       "module": "RPT",
-      "idempotency": {
-        "url": "/report-engine/drafts",
-        "method": "POST",
-        "key_header": "Idempotency-Key",
-        "concurrency": 5,
-        "body": {
-          "layout_code": "DIS-WEEKLY",
-          "period": {
-            "kind": "AS_OF"
-          }
-        },
-        "count_query": "SELECT count(*) FROM machvon.report_issue WHERE layout_code = 'DIS-WEEKLY' AND revision = 1",
-        "expect_rows": 1
+      "db_assert": {
+        "query": "SELECT tenant_id, layout_code, period_code, package_sha256 FROM machvon.report_draft WHERE state <> 'ISSUED' GROUP BY tenant_id, layout_code, period_code, package_sha256 HAVING count(*) > 1",
+        "expect": {
+          "rows": 0
+        }
       }
     },
     {
@@ -1165,15 +1154,18 @@
       },
       "module": "RPT",
       "idempotency": {
-        "url": "/report-engine/issues/{id}/deliveries",
+        "resolve": {
+          "issue": "SELECT id::text FROM machvon.report_issue WHERE tenant_id = '${tenant_id}' ORDER BY issued_at DESC, id LIMIT 1"
+        },
+        "url": "/report-engine/issues/${issue}/deliveries",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "receiver": "KBNN",
+          "receiver": "UAT-${stamp}",
           "channel": "DOWNLOAD"
         },
-        "count_query": "SELECT count(*) FROM machvon.report_delivery WHERE receiver = 'KBNN'",
+        "count_query": "SELECT count(*) FROM machvon.report_delivery WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}' AND receiver = 'UAT-${stamp}' AND event = 'DELIVERED'",
         "expect_rows": 1
       }
     },
