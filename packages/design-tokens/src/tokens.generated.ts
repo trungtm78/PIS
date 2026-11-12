@@ -2,7 +2,7 @@
 import type { Tokens } from './types.ts';
 
 export const TOKENS: Tokens = {
-  "name": "MACHVON",
+  "name": "design-tokens",
   "version": "1.3",
   "color": {
     "ink": "#122D3B",
