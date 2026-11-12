@@ -1826,7 +1826,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Kich ban Playwright apps/web/e2e/uat-case-f-pwa.spec.ts (ten chua ma UAT-ENT-PWA-01) da viet nhung chua chay duoc (hang cho khoa lane browser) nen chua chung minh xanh; ngoai ra phan CacheStorage khi service worker dang kiem soat trang khong the phu tren dev server (SW chi dang ky o ban production, ban production khong co phien dev de dang nhap), phan nay moi co don vi test cache-policy/sw-core."
+        "reason": "Chua co kich ban Playwright xanh: ban nhap tren stack enterprise (hang doi duyet, ten thay cho ma, If-Match, 409 o thiet bi thu hai) chay qua buoc dang nhap/MFA nhung do o buoc mat mang (khung quyet dinh khong hien loi sau khi mat mang), nen chua duoc dua vao repo. Ngoai ra phan CacheStorage khi service worker dang kiem soat trang khong phu duoc tren dev server (SW chi dang ky o ban production, ban production khong co phien dev de dang nhap); phan nay moi co don vi test cache-policy/sw-core."
       },
       "module": "ENT"
     },
