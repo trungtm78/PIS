@@ -1,3 +1,4 @@
+import { editionPeriodLockGate } from '@machvon/db';
 import { defaultGovernanceRule, isGovernanceRuleType, resolveGovernanceRule } from '@machvon/kernel';
 import { loadEnterpriseManifest } from '../../src/editions/load-enterprise';
 import { REPORT_FORMS } from '../../src/modules/reports/form-registry';
@@ -11,6 +12,11 @@ describe('the enterprise seam of the API', () => {
     // Demo forms are off until a tenant approves the rule or the environment says so.
     expect(resolveGovernanceRule([], 'REPORT_FORM_MODE', 'DEFAULT', '2026-11-08')?.params).toEqual({ demo_forms: false });
     await expect(loadEnterpriseManifest()).resolves.toBe(manifest);
+  });
+
+  it('gives the job that locks periods the gate that waits for the review and the close of the schedule (INT-2)', async () => {
+    await loadEnterpriseManifest();
+    expect(editionPeriodLockGate()).toBeDefined();
   });
 
   it('adds the six demo forms to the catalogue of the process, as DEMO forms with illustrative data and no form reference (R18), once', async () => {

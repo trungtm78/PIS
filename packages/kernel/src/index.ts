@@ -3266,6 +3266,8 @@ export { BASIS_OF, CALENDAR_ITEM_KINDS, CALENDAR_ESCALATION_EVENT, CALENDAR_REMI
 export type { CalendarItemKind, DueReminder, ScheduleReminderKind, ScheduleBasis, ScheduleCode, SchedulePeriod, SchedulePolicy, ScheduleStep, ScheduleStepKind, StepDeadline, ScheduleStepState } from './reporting-schedule.ts';
 export { buildBoard } from './reporting-board.ts';
 export type { PeriodStepFacts, ScheduleBoardResult, ScheduleBoardStep, ScheduleBoardUnit, UnitPeriodFacts } from './reporting-board.ts';
+export { LOCK_HOLDS, periodLockVerdict } from './reporting-lock-gate.ts';
+export type { LockHold, LockProgress, LockVerdict } from './reporting-lock-gate.ts';
 export {
   AUDIT_DETAIL_DEFAULT_BYTES,
   AUDIT_DETAIL_MAX_BYTES,

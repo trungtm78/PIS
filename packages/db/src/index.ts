@@ -636,7 +636,9 @@ export type {
   ReopenStatus,
   SubmissionJudgement,
 } from './dis-period-store.ts';
-export { AUTOCLOSE_LOCK_REASON, AUTOCLOSE_SOFT_CLOSE_REASON, DisPeriodAutoclose, workingHoursPerDay } from './dis-period-autoclose.ts';
+export { AUTOCLOSE_LOCK_REASON, AUTOCLOSE_SOFT_CLOSE_REASON, DIS_PERIOD_LOCK_HELD_METRIC, DisPeriodAutoclose, workingHoursPerDay } from './dis-period-autoclose.ts';
+export { SchedulePeriodLockGate, editionPeriodLockGate, registerEditionPeriodLockGate } from './period-lock-gate.ts';
+export type { PeriodLockGate } from './period-lock-gate.ts';
 export type { AutocloseOptions, AutocloseResult } from './dis-period-autoclose.ts';
 export {
   DIS_PERIOD_REOPEN_METRIC,

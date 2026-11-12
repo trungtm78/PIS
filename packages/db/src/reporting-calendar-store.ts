@@ -155,6 +155,46 @@ export class ReportingCalendarStore {
     }));
   }
 
+  /**
+   * How far the records of a period went through the steps of the staged approval that are facts of the period as a whole (QT.02, ENT-4c, INT-2): the review of the planning board, the close of the period and the push to
+   * the group system. A record is a report revision, a batch of actual figures or a batch of indicator entries of the period whose approval is running or was approved (a returned, rejected or cancelled one is handed in
+   * again as a new record, so it is not waited for); it passed a step when its instance went beyond it or ended approved, at the instant the last task of the step was decided. For each step the answer is the instant the
+   * last record passed, `null` when some record has not, and `undefined` when no record runs the staged approval (the tenant runs the single decision, so the platform has no fact and says so).
+   */
+  async stepProgress(tx: TenantTx, period: Pick<CalendarPeriodRow, 'id' | 'periodType' | 'fiscalYear' | 'endDate'>): Promise<{ planningReviewAt: string | null | undefined; periodCloseAt: string | null | undefined; pushedAt: string | null | undefined }> {
+    const key = figureKeyOf(period);
+    const rows = await tx.query<{ tag: string; total: number; passed: number; passed_at: string | null }>(
+      `with records as (
+         select 'report_revision'::text as resource_type, r.id as resource_id from machvon.report_revision r where r.period_id = $1::uuid and r.deleted_at is null
+         union
+         select 'plan_figure_batch', f.batch_id from machvon.plan_figure_revision f where f.figure_kind = 'ACTUAL' and f.period_grain = $2::text and f.plan_year = $3::int and f.period_ordinal = $4::smallint
+         union
+         select 'ind_entry_batch', b.id from machvon.ind_entry_batch b where b.period_id = $1::uuid
+       ), steps as (
+         select i.id, i.status, i.current_step, i.ended_at, s.ord::int - 1 as step_index, s.step->>'tag' as tag
+           from records x
+           join machvon.workflow_instance i on i.resource_type = x.resource_type and i.resource_id = x.resource_id and (i.status = 'Running' or (i.status = 'Completed' and i.outcome = 'APPROVED'))
+           join machvon.workflow_version v on v.tenant_id = i.tenant_id and v.id = i.workflow_version_id
+           cross join lateral jsonb_array_elements(v.definition_json->'steps') with ordinality as s(step, ord)
+          where s.step->>'tag' in ('PLANNING_REVIEW', 'PERIOD_CLOSE', 'PUSH')
+       ), judged as (
+         select st.tag, (st.status = 'Completed' or st.current_step > st.step_index) as passed,
+                coalesce((select max(k.decided_at) from machvon.approval_task k where k.workflow_instance_id = st.id and k.step_index = st.step_index and k.status = 'Decided'), st.ended_at) as passed_at
+           from steps st
+       )
+       select tag, count(*)::int as total, (count(*) filter (where passed))::int as passed,
+              to_char(max(passed_at) filter (where passed) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as passed_at
+         from judged group by tag`,
+      [period.id, key.grain, key.year, key.ordinal],
+    );
+    const of = (tag: string): string | null | undefined => {
+      const row = rows.find((one) => one.tag === tag);
+      if (row === undefined) return undefined;
+      return row.passed < row.total ? null : (row.passed_at ?? null);
+    };
+    return { planningReviewAt: of('PLANNING_REVIEW'), periodCloseAt: of('PERIOD_CLOSE'), pushedAt: of('PUSH') };
+  }
+
   /** The steering meetings of a year that the scope reaches, in the order of their days. */
   async meetings(tx: TenantTx, scope: (first: number) => { sql: string; params: unknown[] }, year: number): Promise<CalendarMeetingRow[]> {
     const visible = scope(2);
