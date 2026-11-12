@@ -51,7 +51,7 @@ const STATE_TITLES: Readonly<Record<string, string>> = Object.fromEntries(Object
 const problemBody = (status: number, code: string): string => JSON.stringify({ type: `urn:machvon:error:${code}`, title: `error.${code}.title`, status, code, correlation_id: 'forced', correlationId: 'forced' });
 
 /**
- * Forces a state on the screen itself, the way a person meets it: the API answers what makes the screen show that state (an empty page, a 500, a 403, a lapsed session, no network),
+ * Forces a state on the screen itself, the way a person meets it: the API answers what makes the screen show that state (its lists emptied, a 500, a 403, a lapsed session, no network),
  * or answers late. The requests of the shell (the alert counts) and every change are left alone. The screen's own hooks and its own state card decide what is shown.
  */
 async function forceState(page: Page, state: ForcedState): Promise<void> {
@@ -63,8 +63,13 @@ async function forceState(page: Page, state: ForcedState): Promise<void> {
       case 'loading':
         await new Promise((done) => setTimeout(done, 8000));
         return route.continue().catch(() => undefined);
-      case 'empty':
-        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ items: [], next_cursor: null }) });
+      case 'empty': {
+        // The real answer with its lists emptied: a detail keeps its shape (the empty state of a record screen is the screen opened with no record, see below).
+        const response = await route.fetch();
+        const body: unknown = await response.json().catch(() => undefined);
+        const emptied = Array.isArray(body) ? [] : typeof body === 'object' && body !== null && Array.isArray((body as { items?: unknown }).items) ? { ...body, items: [], total: 0, next_cursor: null } : body;
+        return emptied === undefined ? route.fulfill({ response }) : route.fulfill({ response, json: emptied });
+      }
       case 'error':
         return route.fulfill({ status: 500, contentType: 'application/problem+json', body: problemBody(500, 'INTERNAL_ERROR') });
       case 'denied':
@@ -238,8 +243,10 @@ test.describe('screen contract of the screens of the edition', () => {
                 width: NARROW,
                 immediate: state === 'loading',
                 open: async (page) => {
-                  await forceState(page, state);
-                  await openRoute(path, user, extra)(page);
+                  // A screen of one record is empty when it is opened with no record; its other states are forced on the record.
+                  const noRecord = state === 'empty' && RECORD_SCREENS[route.id] !== undefined;
+                  if (!noRecord) await forceState(page, state);
+                  await openRoute(path, user, noRecord ? '' : extra)(page);
                 },
               }),
             })),
