@@ -752,21 +752,20 @@
       },
       "module": "DIR",
       "db_assert": {
-        "query": "SELECT status FROM machvon.directive WHERE code LIKE 'GB-%/CD-01'",
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.directive WHERE code ~ '^GB-.*/CD-01$' LIMIT 1"
+        },
+        "query": "SELECT status FROM machvon.directive WHERE code ~ '^GB-.*/CD-01$' ORDER BY code LIMIT 1",
         "expect": {
           "value": "DONE"
         }
       },
       "audit_assert": {
-        "entity": "directive",
-        "entity_id": "<id chỉ đạo>",
-        "action": "directive.closed",
-        "fields": [
-          "actor_id",
-          "reason",
-          "occurred_at"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'directive.closed' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason, occurred_at FROM machvon.audit_event WHERE action = 'directive.closed' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -814,16 +813,21 @@
       },
       "module": "DIR",
       "idempotency": {
+        "resolve": {
+          "day": "SELECT (current_date - 1)::text",
+          "unit": "SELECT id::text FROM machvon.organization_unit WHERE tenant_id = '${tenant_id}' AND parent_id IS NULL AND valid_until IS NULL ORDER BY valid_from, id LIMIT 1"
+        },
         "url": "/steering-meetings",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "meeting_date": "<hôm qua>",
+          "meeting_date": "${day}",
           "meeting_type": "MONTHLY",
-          "title": "Giao ban tháng"
+          "title": "Giao ban tháng ${stamp}",
+          "unit_id": "${unit}"
         },
-        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE title = 'Giao ban tháng'",
+        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE tenant_id = '${tenant_id}' AND title = 'Giao ban tháng ${stamp}'",
         "expect_rows": 1
       }
     },
@@ -872,16 +876,21 @@
       },
       "module": "DIR",
       "idempotency": {
+        "resolve": {
+          "day": "SELECT (current_date - 4)::text",
+          "unit": "SELECT id::text FROM machvon.organization_unit WHERE tenant_id = '${tenant_id}' AND parent_id IS NULL AND valid_until IS NULL ORDER BY valid_from, id LIMIT 1"
+        },
         "url": "/steering-meetings",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "meeting_date": "<4 ngày trước>",
+          "meeting_date": "${day}",
           "meeting_type": "WEEKLY",
-          "title": "Giao ban đồng thời"
+          "title": "Giao ban đồng thời ${stamp}",
+          "unit_id": "${unit}"
         },
-        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE title = 'Giao ban đồng thời'",
+        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE tenant_id = '${tenant_id}' AND title = 'Giao ban đồng thời ${stamp}'",
         "expect_rows": 1
       }
     },
@@ -1071,14 +1080,11 @@
       },
       "module": "DIR",
       "audit_assert": {
-        "entity": "directive",
-        "entity_id": "<id chỉ đạo>",
-        "action": "directive.cancelled",
-        "fields": [
-          "actor_id",
-          "reason"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'directive.cancelled' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason FROM machvon.audit_event WHERE action = 'directive.cancelled' ORDER BY occurred_at DESC LIMIT 1"
       },
       "transition": {
         "from": "CANCELLED",

@@ -378,14 +378,11 @@
       },
       "module": "HUB",
       "audit_assert": {
-        "entity": "hub_run_log",
-        "entity_id": "<id lượt chạy>",
-        "action": "hub.run_recorded",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'hub.run_recorded' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'hub.run_recorded' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -433,6 +430,9 @@
       },
       "module": "HUB",
       "idempotency": {
+        "resolve": {
+          "now": "SELECT to_char(now() at time zone 'utc', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"')"
+        },
         "url": "/integration-hub/connectors/treasury.statement/runs",
         "method": "POST",
         "key_header": "Idempotency-Key",
@@ -441,9 +441,10 @@
           "kind": "IMPORT",
           "outcome": "FAILED",
           "error_code": "IMPORT_SCHEMA_INVALID",
-          "source_ref": "sha:treasury-1"
+          "started_at": "${now}",
+          "source_ref": "sha:treasury-${stamp}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hub_run_log WHERE source_ref = 'sha:treasury-1'",
+        "count_query": "SELECT count(*) FROM machvon.hub_run_log WHERE tenant_id = '${tenant_id}' AND connector_code = 'treasury.statement' AND source_ref = 'sha:treasury-${stamp}'",
         "expect_rows": 1
       }
     },
@@ -537,15 +538,11 @@
       },
       "module": "HUB",
       "audit_assert": {
-        "entity": "hub_connector",
-        "entity_id": "<id bộ kết nối>",
-        "action": "hub.connector_switched",
-        "fields": [
-          "actor_id",
-          "reason",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'hub.connector_switched' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason, safe_diff FROM machvon.audit_event WHERE action = 'hub.connector_switched' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -804,7 +801,7 @@
       },
       "module": "HUB",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.hub_run_log WHERE outcome = 'FAILED'",
+        "query": "SELECT 1 FROM machvon.hub_run_log WHERE outcome = 'FAILED' LIMIT 1",
         "expect": {
           "min_rows": 1
         }

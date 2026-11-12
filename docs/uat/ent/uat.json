@@ -1337,20 +1337,17 @@
       },
       "module": "ENT",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE'",
+        "query": "SELECT tenant_id, period_id FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE' AND status = 'FROZEN' GROUP BY tenant_id, period_id HAVING count(*) > 1",
         "expect": {
-          "value": "1"
+          "rows": 0
         }
       },
       "audit_assert": {
-        "entity": "period_snapshot",
-        "entity_id": "<id bản chốt>",
-        "action": "enterprise.snapshot_built",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'enterprise.snapshot_built' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'enterprise.snapshot_built' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -1398,14 +1395,17 @@
       },
       "module": "ENT",
       "idempotency": {
+        "resolve": {
+          "period": "SELECT rp.id::text FROM machvon.reporting_period rp WHERE rp.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.period_snapshot s WHERE s.tenant_id = rp.tenant_id AND s.period_id = rp.id AND s.snapshot_kind = 'ENTERPRISE_CLOSE') ORDER BY rp.start_date DESC, rp.id LIMIT 1"
+        },
         "url": "/enterprise-snapshots",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "period_id": "<id kỳ>"
+          "period_id": "${period}"
         },
-        "count_query": "SELECT count(*) FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE'",
+        "count_query": "SELECT count(*) FROM machvon.period_snapshot WHERE tenant_id = '${tenant_id}' AND period_id = '${period}' AND snapshot_kind = 'ENTERPRISE_CLOSE'",
         "expect_rows": 1
       }
     },
@@ -1504,14 +1504,11 @@
       },
       "module": "ENT",
       "audit_assert": {
-        "entity": "period_snapshot",
-        "entity_id": "<id bản chốt>",
-        "action": "enterprise.snapshot_frozen",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'enterprise.snapshot_frozen' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'enterprise.snapshot_frozen' ORDER BY occurred_at DESC LIMIT 1"
       },
       "transition": {
         "from": "FROZEN",

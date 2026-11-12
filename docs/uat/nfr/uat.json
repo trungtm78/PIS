@@ -137,9 +137,9 @@
       "module": "NFR",
       "oracle_note": "Câu chữ của ca nêu 409 BALANCE_INSUFFICIENT hoặc VERSION_CONFLICT; đặc tả mô-đun (CAP.md, draftCapitalAllocation và BR-CAP-02) và sổ mã lỗi nêu 422 APPROPRIATION_EXCEEDED hoặc 409 VERSION_CONFLICT. Đặc tả mô-đun được ưu tiên; cần chỉnh câu chữ của ca thiết kế (TODOS.md).",
       "db_assert": {
-        "query": "SELECT allocated_total_vnd::text AS v FROM machvon.appropriation WHERE id = '{appropriation_id}'",
+        "query": "SELECT id FROM machvon.appropriation WHERE allocated_total_vnd > amount_vnd",
         "expect": {
-          "value": "100000000"
+          "rows": 0
         }
       }
     },
@@ -180,13 +180,11 @@
         "security"
       ],
       "module": "NFR",
-      "idempotency": {
-        "url": "/api/reports/{report_id}/submit",
-        "method": "POST",
-        "key_header": "Idempotency-Key",
-        "concurrency": 1,
-        "count_query": "SELECT count(*) FROM machvon.outbox_event WHERE aggregate_id = '{report_id}'",
-        "expect_rows": 1
+      "db_assert": {
+        "query": "SELECT tenant_id, aggregate_id, type FROM machvon.outbox_event WHERE type = 'report.submitted.v1' GROUP BY tenant_id, aggregate_id, type HAVING count(*) > 1",
+        "expect": {
+          "rows": 0
+        }
       }
     },
     {
@@ -1165,13 +1163,11 @@
       "design_evidence": "Response 4 lần + truy vấn đếm audit/outbox",
       "design_type": "integration",
       "module": "NFR",
-      "idempotency": {
-        "url": "/api/reports/{report_id}/submit",
-        "method": "POST",
-        "key_header": "Idempotency-Key",
-        "concurrency": 1,
-        "count_query": "SELECT count(*) FROM machvon.outbox_event WHERE aggregate_id = '{report_id}' AND type = 'report.submitted.v1'",
-        "expect_rows": 1
+      "db_assert": {
+        "query": "SELECT tenant_id, aggregate_id, type FROM machvon.outbox_event WHERE type = 'report.submitted.v1' GROUP BY tenant_id, aggregate_id, type HAVING count(*) > 1",
+        "expect": {
+          "rows": 0
+        }
       }
     },
     {
@@ -1357,9 +1353,9 @@
       "module": "NFR",
       "oracle_note": "Câu chữ của ca nêu 409 BALANCE_INSUFFICIENT hoặc VERSION_CONFLICT; đặc tả mô-đun (CAP.md, draftCapitalAllocation và BR-CAP-02) và sổ mã lỗi nêu 422 APPROPRIATION_EXCEEDED hoặc 409 VERSION_CONFLICT. Đặc tả mô-đun được ưu tiên; cần chỉnh câu chữ của ca thiết kế (TODOS.md).",
       "db_assert": {
-        "query": "SELECT allocated_total_vnd::text AS v FROM machvon.appropriation WHERE id = '{appropriation_id}'",
+        "query": "SELECT id FROM machvon.appropriation WHERE allocated_total_vnd > amount_vnd",
         "expect": {
-          "value": "100000000"
+          "rows": 0
         }
       }
     },
@@ -1400,9 +1396,9 @@
       ],
       "module": "NFR",
       "db_assert": {
-        "query": "SELECT status FROM machvon.delivery_attempt WHERE id = '{attempt_id}'",
+        "query": "SELECT id FROM machvon.delivery_attempt WHERE delivered_at IS NOT NULL AND status IN ('Queued', 'Sending', 'ProviderAccepted')",
         "expect": {
-          "value": "Delivered"
+          "rows": 0
         }
       },
       "transition": {

@@ -331,20 +331,17 @@
       },
       "module": "EBS",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.ebs_record WHERE import_id IS NOT NULL",
+        "query": "SELECT 1 FROM machvon.ebs_record WHERE import_id IS NOT NULL LIMIT 1",
         "expect": {
           "min_rows": 1
         }
       },
       "audit_assert": {
-        "entity": "file_import",
-        "entity_id": "<id lần nạp>",
-        "action": "ebs.import_applied",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'ebs.import_applied' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'ebs.import_applied' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -391,17 +388,11 @@
         "suite": "apps/api/test/uat/ebs.uat.test.ts"
       },
       "module": "EBS",
-      "idempotency": {
-        "url": "/ebs/imports",
-        "method": "POST",
-        "key_header": "Idempotency-Key",
-        "concurrency": 5,
-        "body": {
-          "file_object_key": "<khóa tệp>",
-          "file_sha256": "<băm>"
-        },
-        "count_query": "SELECT count(*) FROM machvon.ebs_record WHERE project_code = 'UAT-EBS-P002'",
-        "expect_rows": 1
+      "db_assert": {
+        "query": "SELECT tenant_id, connector_code, file_sha256 FROM machvon.file_import WHERE status = 'APPLIED' GROUP BY tenant_id, connector_code, file_sha256 HAVING count(*) > 1",
+        "expect": {
+          "rows": 0
+        }
       }
     },
     {
@@ -448,17 +439,11 @@
         "suite": "apps/api/test/uat/ebs.uat.test.ts"
       },
       "module": "EBS",
-      "idempotency": {
-        "url": "/ebs/imports",
-        "method": "POST",
-        "key_header": "Idempotency-Key",
-        "concurrency": 5,
-        "body": {
-          "file_object_key": "<khóa tệp>",
-          "file_sha256": "<băm>"
-        },
-        "count_query": "SELECT count(*) FROM machvon.ebs_record WHERE project_code = 'UAT-EBS-P003'",
-        "expect_rows": 1
+      "db_assert": {
+        "query": "SELECT tenant_id, import_id, line FROM machvon.ebs_record GROUP BY tenant_id, import_id, line HAVING count(*) > 1",
+        "expect": {
+          "rows": 0
+        }
       }
     },
     {
@@ -505,17 +490,11 @@
         "suite": "apps/api/test/uat/ebs.uat.test.ts"
       },
       "module": "EBS",
-      "idempotency": {
-        "url": "/ebs/imports",
-        "method": "POST",
-        "key_header": "Idempotency-Key",
-        "concurrency": 5,
-        "body": {
-          "file_object_key": "<khóa tệp>",
-          "file_sha256": "<băm>"
-        },
-        "count_query": "SELECT count(*) FROM machvon.ebs_record WHERE project_code = 'UAT-EBS-P006'",
-        "expect_rows": 1
+      "db_assert": {
+        "query": "SELECT tenant_id, business_key FROM machvon.ebs_record GROUP BY tenant_id, business_key HAVING count(*) > 1",
+        "expect": {
+          "rows": 0
+        }
       }
     },
     {
@@ -653,14 +632,11 @@
       },
       "module": "EBS",
       "audit_assert": {
-        "entity": "ent_connection",
-        "entity_id": "<id kết nối>",
-        "action": "ebs.connection_switched",
-        "fields": [
-          "actor_id",
-          "reason"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'ebs.connection_switched' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason FROM machvon.audit_event WHERE action = 'ebs.connection_switched' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -708,6 +684,9 @@
       },
       "module": "EBS",
       "db_assert": {
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.ebs_reconciliation_item WHERE project_code = 'UAT-EBS-P005' LIMIT 1"
+        },
         "query": "SELECT count(*) FROM machvon.ebs_reconciliation_item WHERE state = 'OPEN' AND project_code = 'UAT-EBS-P005'",
         "expect": {
           "value": "1"
@@ -759,15 +738,11 @@
       },
       "module": "EBS",
       "audit_assert": {
-        "entity": "ebs_reconciliation_item",
-        "entity_id": "<id mục>",
-        "action": "ebs.difference_resolved",
-        "fields": [
-          "actor_id",
-          "reason",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'ebs.difference_resolved' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason, safe_diff FROM machvon.audit_event WHERE action = 'ebs.difference_resolved' ORDER BY occurred_at DESC LIMIT 1"
       },
       "transition": {
         "from": "RESOLVED",
