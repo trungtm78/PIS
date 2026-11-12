@@ -27,7 +27,7 @@ export const TYPE_FORMS: Readonly<Record<string, readonly AttributeSpec[]>> = {
   ],
   SECTOR: [{ name: 'sort_order', kind: 'integer' }],
   PROJECT_GROUP: [{ name: 'rank', kind: 'integer' }],
-  PROJECT_TYPE: [{ name: 'kind', kind: 'choice', family: 'projectKind', choices: ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER'] }],
+  PROJECT_TYPE: [{ name: 'kind', kind: 'choice', family: 'projectKind', choices: ['CAPITAL_WORKS', 'PROCUREMENT', 'PREPARATION', 'OTHER', 'MAJOR_REPAIR'] }],
   PROJECT_STAGE: [
     { name: 'sequence', kind: 'integer' },
     { name: 'allowed_next', kind: 'refs', refType: 'PROJECT_STAGE' },
@@ -94,6 +94,34 @@ export const TYPE_FORMS: Readonly<Record<string, readonly AttributeSpec[]>> = {
     { name: 'source', kind: 'choice', family: 'fxSource', choices: ['SBV', 'COMMERCIAL_BANK', 'PVN_GROUP', 'OTHER'] },
     { name: 'source_ref', kind: 'text' },
     { name: 'approval_ref', kind: 'text' },
+  ],
+  // The report chain of the enterprise edition (MD.03): the periods, the report types, the agencies that receive them, the capital sources and the units a report is written in.
+  REPORTING_PERIOD_KIND: [
+    { name: 'grain', kind: 'choice', family: 'reportingGrain', choices: ['MONTH', 'QUARTER', 'YEAR', 'MEETING'] },
+    { name: 'months', kind: 'integer' },
+    { name: 'entry_deadline_working_days', kind: 'integer' },
+  ],
+  REPORT_TYPE: [
+    { name: 'period_kind_key', kind: 'ref', refType: 'REPORTING_PERIOD_KIND' },
+    { name: 'audience', kind: 'choice', family: 'reportAudience', choices: ['INTERNAL', 'PARENT_GROUP', 'EXTERNAL_AGENCY'] },
+    { name: 'form_code', kind: 'text' },
+  ],
+  RECEIVING_AGENCY: [
+    { name: 'agency_kind', kind: 'choice', family: 'agencyKind', choices: ['PARENT_GROUP', 'COMMITTEE', 'DEPARTMENT', 'INTERNAL_MEETING'] },
+    { name: 'report_type_keys', kind: 'refs', refType: 'REPORT_TYPE' },
+    { name: 'channel', kind: 'choice', family: 'deliveryChannel', choices: ['HPM', 'FILE', 'EMAIL', 'MEETING'] },
+    { name: 'receiver_code', kind: 'text' },
+  ],
+  CAPITAL_SOURCE: [
+    { name: 'fnd_class_code', kind: 'text' },
+    { name: 'repayable', kind: 'boolean' },
+  ],
+  REPORT_UNIT: [
+    { name: 'kind', kind: 'choice', family: 'reportUnitKind', choices: ['MONEY', 'RATIO', 'COUNT', 'AREA', 'OTHER'] },
+    { name: 'symbol', kind: 'text' },
+    { name: 'factor', kind: 'text' },
+    { name: 'scale', kind: 'integer' },
+    { name: 'rounding', kind: 'choice', family: 'rounding', choices: ['HALF_UP', 'HALF_EVEN', 'DOWN', 'UP'] },
   ],
   CONTRACTOR_CRITERION: [
     { name: 'category', kind: 'choice', family: 'criterionCategory', choices: ['QUALITY', 'SCHEDULE', 'SAFETY', 'COST', 'COMPLIANCE'] },
