@@ -4,7 +4,7 @@ Giai đoạn 3 (sản phẩm: kịch bản kiểm thử) và giai đoạn 4 (bi�
 
 Tệp này nối mỗi mã yêu cầu của hồ sơ kỹ thuật với (a) kiểm thử tích hợp hệ thống (SIT) mà nhà cung cấp chạy tự động trong kho mã, (b) ca UAT của các đầu mối trong `docs/uat/<phân hệ>/uat.json`, (c) khoảng trống kiểm thử đã biết. Tệp không chứa kết quả chạy: kết quả chỉ có giá trị khi sinh từ lượt chạy có bằng chứng (mục 5).
 
-Trạng thái tệp: KHUNG. Kịch bản chưa được Tổ chuẩn hóa dữ liệu duyệt. Các ca mới cho IND, RPT, DIR, HPM, EBS, HUB, INT chưa có trong `docs/uat` (mục 4).
+Trạng thái tệp: KHUNG. Kịch bản chưa được Tổ chuẩn hóa dữ liệu duyệt. Ca cho IND, RPT, DIR, HPM, EBS, HUB, INT và ENT (bản enterprise) đã có trong `docs/uat` từ 2026-11-12 (mục 4); chưa có lượt chạy UAT nào được công nhận trên bản đã gộp.
 
 ---
 
@@ -13,7 +13,7 @@ Trạng thái tệp: KHUNG. Kịch bản chưa được Tổ chuẩn hóa dữ l
 | Tầng | Ai chạy | Chạy ở đâu | Công cụ trong kho mã | Kết quả |
 |---|---|---|---|---|
 | SIT | Nhà cung cấp | Môi trường kiểm thử của nhà cung cấp, sau đó trên UAT của PVFCCo | Kiểm thử đơn vị và tích hợp (Jest, Vitest, `node --test`) trên cơ sở dữ liệu thật; route walk và visual của web (`docs/runbooks/web-e2e.md`); kiểm tra tĩnh trong `npm run lint` | Báo cáo chạy của nhà cung cấp kèm bản dựng |
-| UAT | Đầu mối cùng nhà cung cấp, theo kịch bản đã duyệt | Môi trường UAT của PVFCCo | Ca trong `docs/uat/<phân hệ>/uat.json` (hợp đồng handoff của uat-test-writer); chạy bằng Playwright, Maestro hoặc tay | Biên bản UAT (mẫu: [09](09-acceptance-minutes-template.md)); danh sách lỗi |
+| UAT | Đầu mối cùng nhà cung cấp, theo kịch bản đã duyệt | Môi trường UAT của PVFCCo | Ca trong `docs/uat/<phân hệ>/uat.json` (hợp đồng handoff của uat-test-writer); chạy bằng Jest trên bản enterprise (`apps/api/test/uat`), Playwright, Maestro hoặc tay | Biên bản UAT (mẫu: [09](09-acceptance-minutes-template.md)); danh sách lỗi |
 
 Cách chạy tầng SIT trên cơ sở dữ liệu: các suite dùng chung một máy chủ PostgreSQL thử và xếp hàng qua `scripts/lane.mjs` (`docs/runbooks/test-lanes.md`). Nền tảng của ca UAT hiện có: web 857, API 163, Android 77 (`docs/uat/INDEX.md`).
 
@@ -37,7 +37,7 @@ Cột "SIT" là tệp kiểm thử trong kho mã hoặc nhóm kiểm thử. Cộ
 | MD.02 | Thêm văn bản pháp lý có tệp, ghi mốc kế hoạch và thực tế, xem lịch sử phiên bản kế hoạch | `apps/api/test/prj`, `apps/api/test/doc` | `docs/uat/prj`, `docs/uat/doc` (56 ca) | Danh mục mốc vòng đời enterprise |
 | MD.03 | Sửa danh mục bằng đề xuất và duyệt hai người; đơn vị không tự sửa | `apps/api/test/mdm` | `docs/uat/mdm`: TC-UAT-AC48, TC-UAT-AC46 | Tỷ giá, loại báo cáo, cơ quan nhận (ENT-4e) |
 | DL.01 | Nhập một số liệu, thấy lũy kế và tỷ lệ tự tính; nhập số ước rồi số thực, xem lịch sử | `apps/api/test/fnd`, `apps/api/test/dis`, `packages/kernel/test/fnd-figures.test.ts` | `docs/uat/dis` (69 ca) | Thuyết minh 8 trường và kế thừa kỳ trước (ENT-3b) |
-| DL.02 | Nhập sai theo từng quy tắc (lũy kế vượt tổng mức đầu tư, vốn không cân, kỳ đã chốt, thiếu trường); nhập tệp Excel: chạy thử, áp dụng, áp dụng lại cùng tệp | `apps/api/test/ind/ind.test.ts`, `packages/kernel/test/ind-entry.test.ts`, `ind-import-mapping.test.ts` | chưa có thư mục `docs/uat/ind` | Cần ca UAT cho IND-01 đến IND-03 |
+| DL.02 | Nhập sai theo từng quy tắc (lũy kế vượt tổng mức đầu tư, vốn không cân, kỳ đã chốt, thiếu trường); nhập tệp Excel: chạy thử, áp dụng, áp dụng lại cùng tệp | `apps/api/test/ind/ind.test.ts`, `packages/kernel/test/ind-entry.test.ts`, `ind-import-mapping.test.ts` | `docs/uat/ind` (32 ca, 21 chạy tự động): UAT-IND-E2E-01, UAT-IND-E2E-02, UAT-IND-DAT-01 | Từ điển, quy tắc và ánh xạ khởi điểm chờ Tổ chuẩn hóa dữ liệu (PX-02); biên giá trị làm tay |
 | DL.03 | Chốt kỳ, mở lại kỳ, xem bản chốt đúng số đã báo cáo, so cùng kỳ | `apps/api/test/dis/snapshot.test.ts`, `period-reopen.test.ts`, `golden.test.ts` | `docs/uat/dis`: TC-UAT-AC03 (409 PERIOD_LOCKED), TC-UAT-AC246 (lý do mở lại) | Bản chốt enterprise (ENT-3a) |
 
 ### 3.2 QT, CN
@@ -48,18 +48,18 @@ Cột "SIT" là tệp kiểm thử trong kho mã hoặc nhóm kiểm thử. Cộ
 | QT.02 | Sinh kỳ, quá hạn nhập sang kỳ trễ, chốt, mở lại; xem tiến độ nộp từng đầu mối; nhận nhắc việc | `apps/api/test/dis/reporting-period.test.ts`, `submission-progress.test.ts`, `period-reopen.test.ts` | `docs/uat/dis`: TC-UAT-PLAN-66 | Lịch quý, năm, giao ban; email thật (ENT-4c) |
 | CN.01 | Lập kế hoạch năm, phân bổ, điều chỉnh có văn bản | `apps/api/test/cap` | `docs/uat/cap` (54 ca): TC-UAT-AC230, TC-UAT-PLAN-64 | Nguồn GROUP_ASSIGNED, BOARD_APPROVED (ENT-3e) |
 | CN.02 | Nhập và duyệt số liệu thực hiện, giải ngân; xem lũy kế và tỷ lệ | `apps/api/test/dis`, `apps/api/test/fnd` | `docs/uat/dis` | Thuyết minh có cấu trúc; màn mua sắm trang thiết bị (ENT-3b, ENT-4e) |
-| CN.03 | Ghi cuộc giao ban, giao chỉ đạo, ghi tiến độ, gia hạn, đóng; xem chỉ đạo quá hạn; chỉ đạo vào thuyết minh kỳ sau | `apps/api/test/dir/directive.test.ts`, `packages/kernel/test/directive.test.ts` | chưa có thư mục `docs/uat/dir` | Cần ca UAT cho DIR-01 đến DIR-06 |
-| CN.04 | Nạp tệp EBS, chạy thử, áp dụng; đối chiếu; giải trình chênh lệch; so sánh chéo báo cáo | `apps/api/test/editions/ebs.enterprise.test.ts`, `apps/api/test/dis` (kiểm tổng chéo) | chưa có thư mục `docs/uat/ebs` | UAT cho EBS; so sánh chéo giữa loại báo cáo (ENT-4a) |
+| CN.03 | Ghi cuộc giao ban, giao chỉ đạo, ghi tiến độ, gia hạn, đóng; xem chỉ đạo quá hạn; chỉ đạo vào thuyết minh kỳ sau | `apps/api/test/dir/directive.test.ts`, `packages/kernel/test/directive.test.ts` | `docs/uat/dir` (48 ca, 28 chạy tự động): UAT-DIR-E2E-01, UAT-DIR-SOD-01, UAT-DIR-STA-01 | Phạm vi theo đơn vị và đầu vào báo cáo kỳ sau làm tay (cần grant theo đơn vị và đồng hồ giả); DIR-06 trên điện thoại |
+| CN.04 | Nạp tệp EBS, chạy thử, áp dụng; đối chiếu; giải trình chênh lệch; so sánh chéo báo cáo | `apps/api/test/editions/ebs.enterprise.test.ts`, `apps/api/test/dis` (kiểm tổng chéo) | `docs/uat/ebs` (30 ca, 19 chạy tự động): UAT-EBS-E2E-01, UAT-EBS-E2E-02, UAT-EBS-STA-01 | Bố cục tệp EBS thật (PX-04); ánh xạ mã nối với INT làm tay; so sánh chéo ở `docs/uat/rpt` (UAT-RPT-XCK-01, làm tay) |
 
 ### 3.3 BC, TH
 
 | Mã | Kịch bản chính (UAT) | SIT | Ca UAT ví dụ | Khoảng trống |
 |---|---|---|---|---|
-| BC.01 | Lập từng biểu mẫu cho một kỳ, duyệt ba người, phát hành, tải Excel, Word; kiểm bản đồ ô đúng mẫu; xuất lại cho kỳ đã phát hành | `packages/edition-enterprise/test/report-forms.test.ts`, `apps/api/test/reports/report-engine.test.ts`, `report-engine.enterprise.test.ts`, `packages/kernel/test/report-layout.test.ts` | chưa có thư mục `docs/uat/rpt` | UAT cho RPT; mẫu chính thức (PX-01); PDF (ENT-4b) |
+| BC.01 | Lập từng biểu mẫu cho một kỳ, duyệt ba người, phát hành, tải Excel, Word; kiểm bản đồ ô đúng mẫu; xuất lại cho kỳ đã phát hành | `packages/edition-enterprise/test/report-forms.test.ts`, `apps/api/test/reports/report-engine.test.ts`, `report-engine.enterprise.test.ts`, `packages/kernel/test/report-layout.test.ts` | `docs/uat/rpt` (60 ca, 35 chạy tự động): UAT-RPT-E2E-01, UAT-RPT-SOD-01, UAT-RPT-STA-02 | Mẫu chính thức (PX-01); ký số, lịch email và biểu mẫu demo làm tay |
 | BC.02 | Lãnh đạo mở dashboard, thấy tỷ lệ, chậm tiến độ, chỉ đạo quá hạn; truy nguồn; tạo báo cáo; gửi lịch | `apps/api/test/home`, `apps/api/test/bi` | `docs/uat/home` (19 ca): TC-UAT-AC266, TC-UAT-AC267; `docs/uat/bi` (37 ca) | Chế độ trình chiếu, tỷ lệ theo kế hoạch enterprise (ENT-4d) |
-| TH.01 | Đẩy một biểu mẫu đã phát hành, nhận lỗi, đẩy lại cùng khóa, ghi biên nhận, đính chính kỳ đã nhận | `apps/api/test/editions/hpm.enterprise.test.ts` | chưa có thư mục `docs/uat/hpm` | UAT cho HPM; mọi kết quả trên bộ ghi tệp là PENDING-EXTERNAL (PX-03) |
-| TH.02 | Mở tài khoản máy, lấy token, đọc tập dữ liệu chứng nhận; đăng nhập BI chỉ đọc | `apps/api/test/int` | chưa có thư mục `docs/uat/int` | UAT cho INT; Power BI mẫu (DOC-3) |
-| TH.03 | Đối chiếu EBS (xem CN.04); xem sức khỏe kết nối ở hub; gọi API mở không phí | `apps/api/test/hub`, `apps/api/test/int` | chưa có thư mục `docs/uat/hub` | eProcurement, văn thư (PX-06, PX-07) |
+| TH.01 | Đẩy một biểu mẫu đã phát hành, nhận lỗi, đẩy lại cùng khóa, ghi biên nhận, đính chính kỳ đã nhận | `apps/api/test/editions/hpm.enterprise.test.ts` | `docs/uat/hpm` (32 ca, 19 chạy tự động): UAT-HPM-E2E-01, UAT-HPM-IDM-01, UAT-HPM-STA-02 | Mọi kết quả trên bộ ghi tệp là PENDING-EXTERNAL (PX-03); đính chính cần kỳ mở lại thật của DIS (làm tay) |
+| TH.02 | Mở tài khoản máy, lấy token, đọc tập dữ liệu chứng nhận; đăng nhập BI chỉ đọc | `apps/api/test/int` | `docs/uat/int` (42 ca, 29 chạy tự động): UAT-INT-E2E-01, UAT-INT-IDM-01, UAT-INT-SOD-01 | Power BI mẫu (DOC-3); đăng nhập BI bằng kết nối CSDL thật làm tay |
+| TH.03 | Đối chiếu EBS (xem CN.04); xem sức khỏe kết nối ở hub; gọi API mở không phí | `apps/api/test/hub`, `apps/api/test/int` | `docs/uat/hub` (36 ca, 25 chạy tự động): UAT-HUB-E2E-01, UAT-HUB-SOD-01, UAT-HUB-STA-01 | eProcurement, văn thư (PX-06, PX-07) |
 
 ### 3.4 HT, YCK
 
@@ -91,14 +91,14 @@ Cột "SIT" là tệp kiểm thử trong kho mã hoặc nhóm kiểm thử. Cộ
 
 ## 4. Khoảng trống của bộ kịch bản
 
-1. Chưa có thư mục `docs/uat/<phân hệ>/uat.json` cho IND, RPT, DIR, HPM, EBS, HUB, INT, BAN, FEED, FND, VND. Việc sinh ca cho các phân hệ này theo hợp đồng handoff của uat-test-writer thuộc giai đoạn 3; sinh xong thêm vào `docs/uat/INDEX.md`.
+1. Đã có thư mục `docs/uat/<phân hệ>/uat.json` cho IND, RPT, DIR, HPM, EBS, HUB, INT và ENT (339 ca: 198 chạy tự động trong `apps/api/test/uat`, 141 làm tay kèm lý do trong từng ca). Còn thiếu thư mục cho BAN, FEED, FND, VND và các ca thiết kế của phân hệ khác chưa chuyển sang handoff (306 ca của `test_cases.json`).
 2. Bộ ca hiện có phủ 100% mục yêu cầu của thiết kế nhưng chỉ 2 trong 26 phân hệ đạt sàn `TC_min` (`docs/uat/INDEX.md`): các phân hệ còn lại thiếu ca đào giá trị biên, bảng quyết định, đường chuyển trạng thái sai và ma trận quyền.
-3. Chưa có ca cho hành vi của bản enterprise sau khi ENT-3 và ENT-4 gộp: bản chốt enterprise, thuyết minh 8 trường, PUSH gọi HPM, so sánh chéo.
+3. Ca cho hành vi của bản enterprise (bản chốt enterprise, đẩy HPM, đối chiếu EBS, chỉ đạo, báo cáo từ bản chốt, API mở, Hub) đã có và chạy được trên bản enterprise tại `apps/api/test/uat`; còn làm tay: thuyết minh 8 trường (UAT-ENT-NAR-01), PUSH của quy trình gọi HPM với kỳ mở lại thật (UAT-HPM-E2E-02), so sánh chéo (UAT-RPT-XCK-01), PWA trên điện thoại (UAT-ENT-PWA-01 đến 03).
 4. Ca "chờ khách" phải gắn nhãn PX-nn trong tiêu đề hoặc trường `rule_ref` để không lẫn vào số đạt.
 
 ## 5. Bằng chứng và cách ghi kết quả
 
-- Chưa có lượt chạy UAT nào được công nhận: `docs/UAT-EVIDENCE.md` (sinh bởi `npm run uat:evidence`) hiện ghi 63 trên 648 hàng yêu cầu PASS, phần còn lại NOT_RUN; 20 trên 28 kiểm thử then chốt PASS. Đây là số của bản công, không phải của lượt UAT tại PVFCCo.
+- Chưa có lượt chạy UAT nào được công nhận: `docs/UAT-EVIDENCE.md` (sinh bởi `npm run uat:evidence`) hiện ghi 63 trên 676 hàng yêu cầu PASS, phần còn lại NOT_RUN; 20 trên 28 kiểm thử then chốt PASS. Đây là số của bản công, không phải của lượt UAT tại PVFCCo.
 - Một hàng chỉ PASS khi mọi ca nó nêu có bản ghi PASS kèm bằng chứng (thời điểm, bản dựng, phiên bản lược đồ, băm bộ dữ liệu, mã yêu cầu, liên kết). Quy tắc ở `docs/runbooks/uat-evidence.md`.
 - Biên bản UAT của PVFCCo lập theo mẫu ở [09](09-acceptance-minutes-template.md), đính kèm báo cáo sinh từ kho kết quả.
 
@@ -110,4 +110,4 @@ Cột "SIT" là tệp kiểm thử trong kho mã hoặc nhóm kiểm thử. Cộ
 
 Quy tắc: lỗi Nghiêm trọng đóng trước khi sang giai đoạn 5; lỗi còn mở khi nghiệm thu phải có biện pháp giảm thiểu PVFCCo chấp thuận bằng văn bản.
 
-Lịch sử sửa: v0.1 khung ngày 2026-11-09.
+Lịch sử sửa: v0.1 khung ngày 2026-11-09; v0.2 ngày 2026-11-12 thêm ca UAT cho bản enterprise (lane uatent).
