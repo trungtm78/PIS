@@ -159,6 +159,8 @@ String alertSourceLabel(BuildContext context, String source) {
       return context.t('mob.alert.source.projectRisk.label');
     case 'COMMITTEE':
       return context.t('mob.alert.source.committee.label');
+    case 'PROJECT_TASK':
+      return context.t('mob.alert.source.projectTask.label');
     case '':
       return context.t('mob.alert.source.other.label');
     default:
