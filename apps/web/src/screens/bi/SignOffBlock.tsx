@@ -7,7 +7,7 @@ const day = (stamp: string): string => stamp.slice(0, 10);
  * The three signatures of a management report (BC.02): who prepared it, who checked it and who approved it, each with the day. A step nobody took is written as such, a person with no name in the directory is shown by
  * their identifier (a name is never made up), and a report that does not have all three is said not to, in words.
  */
-export function SignOffBlock({ signOff }: { signOff: SignOff | null }) {
+export function SignOffBlock({ signOff, compact = false }: { signOff: SignOff | null; compact?: boolean }) {
   const { t } = useTranslation();
   if (signOff === null) {
     return (
@@ -24,8 +24,8 @@ export function SignOffBlock({ signOff }: { signOff: SignOff | null }) {
   );
   return (
     <div data-testid="sign-off" data-state={signOff.state}>
-      <h3>{t('bi.sign.title')}</h3>
-      <dl>
+      {compact ? <p className="sub">{t('bi.sign.title')}</p> : <h3>{t('bi.sign.title')}</h3>}
+      <dl className={compact ? 'bi-sign-strip' : undefined}>
         {line('sign-prepared', t('bi.sign.prepared'), signOff.prepared)}
         {line('sign-checked', t('bi.sign.checked'), signOff.checked)}
         {line('sign-approved', t('bi.sign.approved'), signOff.approved)}

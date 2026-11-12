@@ -239,6 +239,12 @@
       "module": "PWA",
       "title": "The installed manager application",
       "goal": "Give the leaders who will not install a phone application the three things they need on a phone, installable and with notifications: decide the period data with its figures in front of them, read the leader dashboard and its drill-downs, and follow the directives, with the settings of their devices, language and notifications."
+    },
+    {
+      "id": "EP-IPF",
+      "module": "IPF",
+      "title": "Investment profile of a project (enterprise edition)",
+      "goal": "Show, for one project, its type, whether it starts in the plan year or carries over, its lifecycle milestones against the catalogue of the company, its legal documents by type of the catalogue and its capital plan split by who gave the capital, as a read model over the register."
     }
   ],
   "features": [
@@ -1151,6 +1157,11 @@
       "id": "FT-DIS-12",
       "epic": "EP-DIS",
       "title": "Structured narrative of a period: eight fields, inheritance and a template for bulk entry (ENT-3b)"
+    },
+    {
+      "id": "FT-IPF-01",
+      "epic": "EP-IPF",
+      "title": "Investment profile read model and screen (MD.01, MD.02, CN.01, aud2 and aud5)"
     }
   ],
   "stories": [
@@ -59830,6 +59841,111 @@
           "title": "Screen-contract tests for the seven standard UI states and accessibility",
           "test_ids": [
             "UI-RPT-09"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-IPF-001",
+      "epic": "EP-IPF",
+      "feature": "FT-IPF-01",
+      "module": "IPF",
+      "title": "Investment profile of a project: type, stage flag, milestones, legal documents by type and the plan split by origin",
+      "narrative": "As a planner of the enterprise I can open one project and see its type, whether it is a new start or a carry-over in a plan year, how its milestones stand against the catalogue (reached, planned, delayed, cancelled, not held, out of order, a required one skipped), its legal documents by type of the catalogue, and the capital plan split between the resolution of the group and the decision of the company with the documents behind each, so that the dossier of a project can be read in one place.",
+      "release": "R3",
+      "screens": [
+        "IPF-01"
+      ],
+      "operations": [
+        "getProjectInvestmentProfile",
+        "createProjectDocument",
+        "updateProjectDocument"
+      ],
+      "tables": [
+        "project_document_legal_type"
+      ],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-IPF-001-1",
+          "given": "A project with a type, a groundbreaking milestone, a milestone reached before an earlier one, a required milestone skipped, and plan lines of both origins with decision documents",
+          "when": "a reader in the scope opens the profile of a plan year, and of the year after the start",
+          "then": "the flag is NEW_START in the year of the start and CONTINUING after it, the findings name the order and the skipped milestone, the milestones that are not held read NOT_HELD, and the two totals split the capital by origin with the decision documents",
+          "test_id": "UAT-ENT-IPF-01"
+        },
+        {
+          "id": "AC-ST-IPF-001-2",
+          "given": "A tenant of the enterprise edition and a tenant of the public edition, each with a file staged for a project document",
+          "when": "the document is created and changed with a legal document type",
+          "then": "the enterprise edition keeps a code in force of ENT_LEGAL_DOC_TYPE with the document and refuses another with 422 on legal_doc_type; the public edition creates the document as before and refuses a named type with 422 NOT_AVAILABLE",
+          "test_id": "UAT-ENT-IPF-04"
+        },
+        {
+          "id": "AC-ST-IPF-001-UI",
+          "given": "IPF-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-IPF-01"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 10,
+          "max": 24
+        },
+        "confidence": "medium",
+        "assumption": "A read model over the register; the legal document type is kept in a side table of the enterprise edition through the edition seam, so the public tables are unchanged."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-IPF-001-1",
+          "kind": "db",
+          "title": "Migration V2940 for project_document_legal_type with RLS and tenant-leading indexes",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IPF-001-2",
+          "kind": "backend",
+          "title": "Legal document type seam of the project document repository and the legal_documents of getProjectInvestmentProfile",
+          "test_ids": [
+            "UAT-ENT-IPF-04"
+          ]
+        },
+        {
+          "id": "TK-IPF-001-3",
+          "kind": "web",
+          "title": "IPF-01 in the enterprise web layer with the seven standard states",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IPF-001-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for IPF-01; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-IPF-001-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states",
+          "test_ids": [
+            "UI-IPF-01"
           ]
         }
       ]

@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
@@ -94,6 +94,26 @@ export function useDatasetVersions(datasetId: string | undefined) {
     enabled: tenant !== undefined && datasetId !== undefined,
     retry: false,
   });
+}
+
+/** The versions of several datasets at once (the datasets a signed board reads), on the same keys as useDatasetVersions, so a dataset read twice is read once. */
+export function useDatasetVersionsOf(datasetIds: readonly string[]) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  const results = useQueries({
+    queries: datasetIds.map((datasetId) => ({
+      queryKey: [...biRoot(tenant?.id), 'dataset-versions', tenant?.membershipId, datasetId],
+      queryFn: async (): Promise<DatasetVersion[]> => (await client.readAll('listBiDatasetVersions', { path: { id: datasetId } })).flatMap((raw) => toVersion(raw) ?? []),
+      enabled: tenant !== undefined,
+      retry: false,
+    })),
+  });
+  return {
+    isLoading: results.some((result) => result.isLoading),
+    error: results.find((result) => result.error !== null)?.error ?? undefined,
+    data: results.flatMap((result) => result.data ?? []),
+    refetch: () => Promise.all(results.map((result) => result.refetch())),
+  };
 }
 
 export interface BuildValues {

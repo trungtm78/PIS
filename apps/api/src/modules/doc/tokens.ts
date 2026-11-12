@@ -9,6 +9,9 @@ export const DOC_METRICS = Symbol('DOC_METRICS');
 /** Injection token of the clock of the document module; the system clock is used when none is bound. */
 export const DOC_CLOCK = Symbol('DOC_CLOCK');
 
+/** Injection token of the `ProjectDocumentExtension`: what an edition adds to the commands of the project repository (the legal-document type of the enterprise edition); the public extension answers when none is bound. */
+export const PROJECT_DOCUMENT_EXTENSION = Symbol('PROJECT_DOCUMENT_EXTENSION');
+
 /** How long a download URL lives (BR-DOC-19: at most 300 seconds). */
 export const DOWNLOAD_URL_TTL_SECONDS = 300;
 

@@ -30,6 +30,7 @@
       "icon": "investment",
       "modules": [
         "PRJ",
+        "IPF",
         "CAP",
         "DIS",
         "PAY",
@@ -2560,6 +2561,22 @@
           "parents": {}
         }
       ]
+    },
+    "IPF": {
+      "name": "Hồ sơ đầu tư dự án (enterprise)",
+      "groups": [
+        {
+          "title": "Hồ sơ đầu tư của dự án",
+          "description": "Loại dự án, cờ khởi công, mốc vòng đời, hồ sơ pháp lý và nguồn kế hoạch vốn của một dự án",
+          "ids": [
+            1
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {}
+        }
+      ]
     }
   },
   "quickModules": [
@@ -3075,7 +3092,8 @@
     "ORG": "Xem tổ chức và vai trò của bản enterprise: đơn vị đầu mối, vai trò theo phạm vi, chỗ ngồi và nhóm thư mục, quy trình duyệt, kế hoạch nạp và báo cáo kiểm chứng.",
     "EQP": "Dòng mua sắm trang thiết bị của dự án: kế hoạch, gói thầu, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân.",
     "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy.",
-    "RML": "Lịch gửi email biểu mẫu đã phát hành tới các thành viên, kèm tệp phát hành, mã băm SHA-256 và nhật ký từng thư (chỉ bản doanh nghiệp)."
+    "RML": "Lịch gửi email biểu mẫu đã phát hành tới các thành viên, kèm tệp phát hành, mã băm SHA-256 và nhật ký từng thư (chỉ bản doanh nghiệp).",
+    "IPF": "Hồ sơ đầu tư của một dự án trong bản enterprise: loại dự án, cờ khởi công mới hoặc chuyển tiếp, mốc vòng đời so với danh mục, hồ sơ pháp lý theo loại và phần tách kế hoạch vốn theo Nghị quyết PVN và Quyết định của Tổng công ty."
   },
   "adminLibraryModules": [
     "IAM",
@@ -8451,6 +8469,16 @@
       "area": "data",
       "module": "ORG",
       "group": "Tổ chức và vai trò",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "IPF-01",
+      "title": "Hồ sơ đầu tư của dự án",
+      "kind": "detail",
+      "area": "investment",
+      "module": "IPF",
+      "group": "Hồ sơ đầu tư của dự án",
       "role": "workspace",
       "parent": null
     },

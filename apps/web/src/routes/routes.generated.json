@@ -513,6 +513,7 @@
     {"id":"EBS-01","path":"/ebs/ebs-01","title":"Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp","kind":"import","area":"data","module":"EBS","group":"Dữ liệu từ Oracle EBS","role":"workspace","parent":null,"req":"FR-EBS-01"},
     {"id":"EBS-02","path":"/ebs/ebs-02","title":"Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch","kind":"reconcile","area":"data","module":"EBS","group":"Dữ liệu từ Oracle EBS","role":"workspace","parent":null,"req":"FR-EBS-02"},
     {"id":"ORG-01","path":"/org/org-01","title":"Tổ chức và vai trò của bản enterprise (gói PVFCCo mẫu)","kind":"dashboard","area":"data","module":"ORG","group":"Tổ chức và vai trò","role":"workspace","parent":null,"req":"FR-ADM-ENT3D"},
+    {"id":"IPF-01","path":"/ipf/ipf-01","title":"Hồ sơ đầu tư của dự án","kind":"detail","area":"investment","module":"IPF","group":"Hồ sơ đầu tư của dự án","role":"workspace","parent":null,"req":"FR-IPF-01"},
     {"id":"DOC-24","path":"/doc/doc-24","title":"Kho hồ sơ dự án","kind":"table","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-24"},
     {"id":"DOC-25","path":"/doc/doc-25","title":"Hồ sơ và trình xem có dẫn nguồn","kind":"detail","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"detail","parent":"DOC-24","req":"FR-DOC-25"},
     {"id":"DOC-26","path":"/doc/doc-26","title":"Bảng luồng duyệt hồ sơ","kind":"approval","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-26"},

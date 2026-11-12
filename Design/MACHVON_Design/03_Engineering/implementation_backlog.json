@@ -23369,5 +23369,37 @@
     "stories": [
       "ST-RPT-141"
     ]
+  },
+  {
+    "id": "BL-IPF-01",
+    "requirement": "FR-IPF-01",
+    "screen": "IPF-01",
+    "title": "Hồ sơ đầu tư của dự án",
+    "module": "IPF",
+    "platform": "web",
+    "phase": "P2",
+    "owner": "Core/Backend",
+    "dependencies": "PRJ,CAP,DOC",
+    "fields": [
+      "Dự án và năm kế hoạch",
+      "Loại dự án",
+      "Cờ khởi công mới hoặc chuyển tiếp theo năm kế hoạch, năm khởi công và căn cứ",
+      "Mốc vòng đời đầu tư so với danh mục (trạng thái, thứ tự, ngày kế hoạch, ngày thực tế, mốc bắt buộc bị bỏ qua)",
+      "Hồ sơ pháp lý theo loại của danh mục",
+      "Phần tách kế hoạch vốn theo nguồn (Nghị quyết PVN, Quyết định của Tổng công ty, khác) và văn bản căn cứ"
+    ],
+    "rule": "getProjectInvestmentProfile; chỉ đọc, chỉ bản enterprise (MD.01, MD.02, CN.01); mốc chưa có là chưa có, không phải đã xong; hồ sơ pháp lý theo phạm vi đọc hồ sơ của người xem; loại văn bản kiểm theo danh mục ENT_LEGAL_DOC_TYPE khi gắn vào hồ sơ dự án",
+    "test_ids": [
+      "UI-IPF-01",
+      "UAT-ENT-IPF-01"
+    ],
+    "status": "BUILT",
+    "readiness": "SPEC_REVIEW_REQUIRED",
+    "estimate_person_days": null,
+    "definition_of_ready": "Specification in 05_modules, screen in screen_catalog, operations in openapi.",
+    "release": "R3",
+    "stories": [
+      "ST-IPF-001"
+    ]
   }
 ]

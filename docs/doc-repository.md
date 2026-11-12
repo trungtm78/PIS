@@ -36,3 +36,5 @@ Comments belong to a version, may be anchored to a citation of it and reply one 
 - AI-2: cite by `citation_ref`, read units through `listDocumentTextUnits` / `resolveDocumentCitation`; a consumer of `doc.repo.version_locked.v1` can index approved versions.
 - Ops: bind an OCR reader hosted by the tenant behind `DOC_TEXT_EXTRACTION`; bind the real antivirus.
 - WF-1 (done in parallel): the DIS review stays on its own path; this lane did not touch it.
+
+- Enterprise edition (MD.02): `createProjectDocument` and `updateProjectDocument` take an optional `legal_doc_type`, a code of the catalogue `ENT_LEGAL_DOC_TYPE`, through the `ProjectDocumentExtension` seam (`PROJECT_DOCUMENT_EXTENSION`). The public edition binds none and refuses a named type; the enterprise one judges the code against the catalogue in force and keeps it in `project_document_legal_type`. See `docs/plans/aud5.md`.

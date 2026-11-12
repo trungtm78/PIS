@@ -13643,6 +13643,7 @@ final class ProjectDocumentCreate implements RequestModel {
     this.packageId,
     this.note,
     this.changeNote,
+    this.legalDocType,
   });
 
   final String projectId;
@@ -13658,6 +13659,7 @@ final class ProjectDocumentCreate implements RequestModel {
   final String fileObjectKey;
   final String fileSha256;
   final Object? changeNote;
+  final Object? legalDocType;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -13674,6 +13676,7 @@ final class ProjectDocumentCreate implements RequestModel {
         'file_object_key': fileObjectKey,
         'file_sha256': fileSha256,
         if (changeNote != null) 'change_note': changeNote,
+        if (legalDocType != null) 'legal_doc_type': legalDocType,
       };
 }
 
@@ -13688,6 +13691,7 @@ final class ProjectDocumentUpdate implements RequestModel {
     this.contractId,
     this.packageId,
     this.note,
+    this.legalDocType,
   });
 
   final String? docClass;
@@ -13699,6 +13703,7 @@ final class ProjectDocumentUpdate implements RequestModel {
   final Object? contractId;
   final Object? packageId;
   final Object? note;
+  final Object? legalDocType;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -13711,6 +13716,7 @@ final class ProjectDocumentUpdate implements RequestModel {
         if (contractId != null) 'contract_id': contractId,
         if (packageId != null) 'package_id': packageId,
         if (note != null) 'note': note,
+        if (legalDocType != null) 'legal_doc_type': legalDocType,
       };
 }
 

@@ -17,3 +17,4 @@ export * from './project-code-resolver.ts';
 export * from './ent-catalogue.ts';
 export * from './investment-profile.ts';
 export * from './investment-profile-store.ts';
+export * from './legal-doc-type.ts';

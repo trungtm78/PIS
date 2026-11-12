@@ -1,5 +1,5 @@
-import { startFlagOf } from './ent-catalogue.ts';
-import type { MilestoneEntry, StartFlag } from './ent-catalogue.ts';
+import { LEGAL_DOC_TYPE_SEEDS, startFlagOf } from './ent-catalogue.ts';
+import type { LegalDocTypeEntry, MilestoneEntry, StartFlag } from './ent-catalogue.ts';
 
 /**
  * The investment profile of one project in the enterprise edition (MD.01 type and flag of the stage, MD.02 milestones of the investment life against the catalogue, CN.01 the split of the plan between the resolution of
@@ -65,6 +65,33 @@ export interface OriginSplit {
   origins: OriginAmount[];
 }
 
+/** One active legal document of the project as the register holds it, with the type the enterprise edition gave it. */
+export interface LegalDocumentRow {
+  id: string;
+  legalDocType: string;
+  title: string;
+  reference: string | null;
+  effectiveFrom: string | null;
+  effectiveTo: string | null;
+  effectiveState: 'UNDATED' | 'NOT_YET' | 'IN_FORCE' | 'EXPIRED';
+  status: 'ACTIVE' | 'ARCHIVED';
+}
+
+export interface LegalDocumentGroup {
+  legalDocType: string;
+  /** The label of the catalogue; the code itself for a type that is no longer in the catalogue. */
+  label: string;
+  /** Null for a type that is no longer in the catalogue. */
+  issuer: LegalDocTypeEntry['issuer'] | null;
+  purpose: LegalDocTypeEntry['purpose'] | null;
+  /** The number of documents of the type, whatever is listed. */
+  count: number;
+  documents: Array<Omit<LegalDocumentRow, 'legalDocType'>>;
+}
+
+/** The documents listed under one type; `count` says how many there are. */
+export const LEGAL_DOCUMENTS_PER_TYPE = 20;
+
 export interface InvestmentProfile {
   projectType: { code: string; label: string; kind: string | null } | null;
   planYear: number;
@@ -78,6 +105,8 @@ export interface InvestmentProfile {
   /** `MILESTONE_ORDER:<code>` (reached before an earlier milestone of the catalogue) and `REQUIRED_SKIPPED:<code>` (a required milestone not reached although a later one was). */
   findings: string[];
   originSplit: OriginSplit;
+  /** The legal documents of the project by type of the catalogue (MD.02): the types of the catalogue first in the order of the pack, then the codes a tenant added, then a type that left the catalogue. */
+  legalDocuments: LegalDocumentGroup[];
 }
 
 export interface ProfileInput {
@@ -89,6 +118,10 @@ export interface ProfileInput {
   plans: InvestmentProfile['plans'];
   origins: readonly OriginLine[];
   planYear: number;
+  /** The legal-document types in force (the catalogue ENT_LEGAL_DOC_TYPE on the day). */
+  legalTypes: readonly LegalDocTypeEntry[];
+  /** The active documents of the project that carry a type and that the reader may read, newest first. */
+  legalDocuments: readonly LegalDocumentRow[];
 }
 
 export interface PlanRevision {
@@ -185,6 +218,33 @@ export function originSplitOf(lines: readonly OriginLine[]): OriginSplit {
   };
 }
 
+const SEED_ORDER: ReadonlyMap<string, number> = new Map(LEGAL_DOC_TYPE_SEEDS.map((seed, at) => [seed.code, at]));
+/** The pack lists its own types in the order the customer gives them; a code a tenant added follows by code, and the codes outside the catalogue come last. */
+const typeRank = (code: string, inCatalogue: boolean): number => (!inCatalogue ? 2_000_000 : (SEED_ORDER.get(code) ?? 1_000_000));
+
+/**
+ * The legal documents of a project grouped by type. A group exists for a type with at least one active document; its documents keep the order they come in (newest first) and the first `LEGAL_DOCUMENTS_PER_TYPE` are
+ * listed, while `count` is the whole number. A document of a type the catalogue no longer holds is still shown, under its code, with no issuer or purpose: it is evidence the project holds, not something to hide.
+ */
+export function legalDocumentsOf(types: readonly LegalDocTypeEntry[], rows: readonly LegalDocumentRow[]): LegalDocumentGroup[] {
+  const entries = new Map(types.map((one) => [one.code, one] as const));
+  const byType = new Map<string, LegalDocumentRow[]>();
+  for (const row of rows) if (row.status === 'ACTIVE') byType.set(row.legalDocType, [...(byType.get(row.legalDocType) ?? []), row]);
+  return [...byType.entries()]
+    .sort(([left], [right]) => typeRank(left, entries.has(left)) - typeRank(right, entries.has(right)) || left.localeCompare(right))
+    .map(([code, own]): LegalDocumentGroup => {
+      const entry = entries.get(code);
+      return {
+        legalDocType: code,
+        label: entry?.label ?? code,
+        issuer: entry?.issuer ?? null,
+        purpose: entry?.purpose ?? null,
+        count: own.length,
+        documents: own.slice(0, LEGAL_DOCUMENTS_PER_TYPE).map((one) => ({ id: one.id, title: one.title, reference: one.reference, effectiveFrom: one.effectiveFrom, effectiveTo: one.effectiveTo, effectiveState: one.effectiveState, status: one.status })),
+      };
+    });
+}
+
 export function investmentProfileOf(input: ProfileInput): InvestmentProfile {
   const milestones = [...input.catalogue].sort((left, right) => left.sequence - right.sequence || left.code.localeCompare(right.code)).map((entry) => milestoneOf(entry, input.held));
   const start = startOf(milestones, input.projectStartYear);
@@ -198,5 +258,6 @@ export function investmentProfileOf(input: ProfileInput): InvestmentProfile {
     milestones,
     findings: findingsOf(milestones),
     originSplit: originSplitOf(input.origins),
+    legalDocuments: legalDocumentsOf(input.legalTypes, input.legalDocuments),
   };
 }
