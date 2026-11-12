@@ -182,9 +182,9 @@ export class HpmAdjustmentStore {
     return rows.map(adjustmentOf);
   }
 
-  /** One proposal, one application and one release of a subject of a period at a time: the check of a proposal and the move to APPLIED cannot interleave (the lock ends with the transaction). */
+  /** One proposal, one application and one release of a subject of a period at a time: the check of a proposal and the move to APPLIED cannot interleave (the lock is per tenant and ends with the transaction; subjects are always taken in the order the adjustments were created). */
   private async serialise(tx: TenantTx, layoutCode: string, sourcePeriod: string, subjectCode: string): Promise<void> {
-    await tx.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [`hpm_adjustment|${layoutCode}|${sourcePeriod}|${subjectCode}`]);
+    await tx.query("select pg_advisory_xact_lock(hashtextextended(coalesce(current_setting('app.tenant_id', true), '') || '|' || $1, 0))", [`hpm_adjustment|${layoutCode}|${sourcePeriod}|${subjectCode}`]);
   }
 
   /** The first push of the target period uses the approved adjustments, once (APPROVED to APPLIED, named for the push). */
