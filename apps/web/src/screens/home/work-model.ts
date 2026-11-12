@@ -240,6 +240,9 @@ export function pathOf(item: Pick<WorkItem, 'target'>): string | undefined {
       return `/pay/pay-12?advance=${item.target.id}`;
     case 'CAP-07':
       return `/cap/cap-07?proposal=${item.target.id}`;
+    // The tasks of the project workflow (lane PWF-2): the item names the task, whose detail opens by its id.
+    case 'PWF-04':
+      return `/pwf/pwf-04?id=${item.target.id}`;
     default:
       return undefined;
   }
