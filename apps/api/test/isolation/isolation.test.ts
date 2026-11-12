@@ -1031,6 +1031,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'revokeDashboardShare',
         'submitBiPublication',
         'decideBiPublication',
+        'checkBiPublication',
         'post_dashboards_id_publish',
         'listBiPublicationRequests',
         'listBiDatasetVersions',

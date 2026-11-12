@@ -1127,6 +1127,7 @@ const EARLIER_FULL_RIGHTS_OPERATIONS = [
   'revokeDashboardShare',
   'submitBiPublication',
   'decideBiPublication',
+  'checkBiPublication',
   'post_dashboards_id_publish',
   'listBiPublicationRequests',
   'listBiDatasetVersions',
