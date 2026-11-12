@@ -188,6 +188,13 @@ describe('PWF-14: the signals for the reviewers', () => {
     expect(screen.getByTestId('flags-note').textContent).toBe(text('pwfs.flag.neverChanges.note'));
   });
 
+  it('offers the next page when more people were flagged than one page holds, and asks for it with the cursor', async () => {
+    const h = open({ signals: signals({ next_cursor: 'page-2' }) });
+    await screen.findByTestId('signals');
+    fireEvent.click(screen.getByRole('button', { name: text('pwfs.period.signals.more.action') }));
+    await waitFor(() => expect(h.read).toHaveBeenCalledWith('listStaffScoreSignals', expect.objectContaining({ query: expect.objectContaining({ cursor: 'page-2' }) })));
+  });
+
   it('says there is no signal when there is none', async () => {
     open({ signals: signals({ items: [] }) });
     expect((await screen.findByTestId('no-signals')).textContent).toBe(text('pwfs.period.signals.none.text'));

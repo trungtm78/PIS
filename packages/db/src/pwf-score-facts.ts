@@ -241,14 +241,22 @@ export interface ResolvedKpiSet {
  * The set of KPIs of a workflow: the set that was approved or built in for the code of its template (R37), else the default set. Sets are read once for the day and kept by template code, the newest rule version of
  * a code deciding; two sets for one template are decided by the code, so that the answer never depends on the order of the rows.
  */
-export async function loadKpiSets(tx: TenantTx, policy: GovernancePolicyPort, asOf: string): Promise<{ forTemplate(templateCode: string): ResolvedKpiSet }> {
-  const rules = await policy.getAll(tx, pwfKpi.WORKFLOW_KPI_SET_RULE_TYPE, asOf);
-  const sets = rules.map((rule): ResolvedKpiSet => ({ code: rule.code, ruleId: rule.ruleId, version: rule.version, set: pwfKpi.parseKpiSet(rule.params) }));
-  const fallback = sets.find((one) => one.code === pwfKpi.DEFAULT_KPI_SET_CODE);
+export function loadKpiSets(tx: TenantTx, policy: GovernancePolicyPort): { forTemplate(templateCode: string, day: string): Promise<ResolvedKpiSet> } {
+  // The rules of one day are read once and kept: a task is judged by the rules of the day it was closed (a new set never rescores a task closed before it), and a pass has few distinct days.
+  const byDay = new Map<string, Promise<ResolvedKpiSet[]>>();
+  const setsOf = (day: string): Promise<ResolvedKpiSet[]> => {
+    let found = byDay.get(day);
+    if (found === undefined) {
+      found = policy.getAll(tx, pwfKpi.WORKFLOW_KPI_SET_RULE_TYPE, day).then((rules) => rules.map((rule): ResolvedKpiSet => ({ code: rule.code, ruleId: rule.ruleId, version: rule.version, set: pwfKpi.parseKpiSet(rule.params) })));
+      byDay.set(day, found);
+    }
+    return found;
+  };
   return {
-    forTemplate(templateCode) {
+    async forTemplate(templateCode, day) {
+      const sets = await setsOf(day);
       const own = sets.filter((one) => one.set.templateCode === templateCode).sort((left, right) => (left.code < right.code ? -1 : 1));
-      const found = own[0] ?? fallback;
+      const found = own[0] ?? sets.find((one) => one.code === pwfKpi.DEFAULT_KPI_SET_CODE);
       if (found === undefined) throw new DomainError('GOVERNANCE_RULE_NOT_FOUND', 404, 'kpi_set');
       return found;
     },

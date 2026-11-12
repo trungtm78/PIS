@@ -172,7 +172,7 @@ export class PwfKpiStore {
       today,
     );
     const calendars = await loadCalendars(tx, span.from, span.to);
-    const sets = await loadKpiSets(tx, this.policy, today);
+    const sets = loadKpiSets(tx, this.policy);
     const heads = await tx.query<ResultSql>(
       `select ${RESULT_COLUMNS} from machvon.task_kpi_result r where r.task_id = any($1::uuid[]) and not exists (select 1 from machvon.task_kpi_result n where n.tenant_id = r.tenant_id and n.supersedes_id = r.id)`,
       [[...readings.keys()]],
@@ -183,7 +183,7 @@ export class PwfKpiStore {
       const reading = readings.get(bundle.row.id);
       if (reading === undefined) continue;
       summary.tasks += 1;
-      const resolved = sets.forTemplate(bundle.workflow.templateCode);
+      const resolved = await sets.forTemplate(bundle.workflow.templateCode, reading.closedOn as string);
       for (const scored of scoreBundle(bundle, reading, reading.closedOn as string, resolved, calendars)) {
         const head = headOf.get(`${bundle.row.id}:${scored.item.kpiCode}`);
         if (head !== undefined && head.inputs_hash === scored.result.inputsHash) {

@@ -165,7 +165,7 @@ export class StaffScoreReadsController {
     const page = parsePageRequest(query.limit, query.cursor);
     return this.database.withTenant(tenant, async (tx) => {
       const reach = await reachOf(tx, access, now);
-      const found = await this.reads.signals(tx, reach.review, id.toLowerCase(), { limit: page.limit, after: page.after });
+      const found = await this.reads.signals(tx, reach.review, tenant.membershipId, id.toLowerCase(), { limit: page.limit, after: page.after });
       await auditView(this.audit, tx, tenant, { action: 'score.signals_viewed', resourceType: PWF_RESOURCE_SCORE_PERIOD, resourceId: id.toLowerCase(), diff: { rows: found.items.length } });
       return {
         items: found.items.map((one) => ({ membership_id: one.membershipId, display_name: one.displayName, flags: one.flags.map((flag) => ({ code: flag.code, task_codes: flag.taskCodes })) })),

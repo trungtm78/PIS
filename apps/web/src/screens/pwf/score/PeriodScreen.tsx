@@ -180,6 +180,7 @@ function Detail({ period, canManage }: { period: ScorePeriod; canManage: boolean
   const reload = useReloadScores();
   const mayReview = mayDo(permissions, SCORE_PERMISSIONS.review);
   const signals = useSignals(period.id, mayReview);
+  const signalItems = (signals.data?.pages ?? []).flatMap((page) => page.items);
 
   const run = async (work: () => Promise<unknown>): Promise<void> => {
     setProblem(undefined);
@@ -272,13 +273,13 @@ function Detail({ period, canManage }: { period: ScorePeriod; canManage: boolean
         <SectionCard title={t('pwfs.period.signals.title')}>
           <FlagsNote />
           <StateBoundary state={signals.isLoading ? 'loading' : signals.error === null || signals.error === undefined ? 'default' : 'error'} onRetry={() => void signals.refetch()}>
-            {(signals.data?.items ?? []).length === 0 ? (
+            {signalItems.length === 0 ? (
               <p className="adm-kit-sub" data-testid="no-signals">
                 {t('pwfs.period.signals.none.text')}
               </p>
             ) : (
               <ul className="pwfs-list" data-testid="signals">
-                {(signals.data?.items ?? []).map((item) => (
+                {signalItems.map((item) => (
                   <li key={item.membership_id}>
                     <p>
                       <strong>{item.display_name}</strong>
@@ -288,6 +289,11 @@ function Detail({ period, canManage }: { period: ScorePeriod; canManage: boolean
                 ))}
               </ul>
             )}
+            {signals.hasNextPage ? (
+              <button type="button" className="ui-button ui-button--outline" data-action="more-signals" disabled={signals.isFetchingNextPage} onClick={() => void signals.fetchNextPage()}>
+                {t('pwfs.period.signals.more.action')}
+              </button>
+            ) : null}
           </StateBoundary>
         </SectionCard>
       ) : null}

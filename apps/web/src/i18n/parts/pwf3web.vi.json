@@ -221,6 +221,7 @@
   "pwfs.period.officialize.warning": "Chỉ làm được khi hết cửa sổ phản hồi và không còn phản hồi mở, hoặc mọi phản hồi đã xử lý.",
   "pwfs.period.signals.title": "Tín hiệu thao túng",
   "pwfs.period.signals.none.text": "Không có tín hiệu nào trong kỳ này",
+  "pwfs.period.signals.more.action": "Xem thêm tín hiệu",
   "pwfs.operation.daysDeviation.word": "Số ngày lệch so với hạn cơ sở",
   "pwfs.operation.onTimeRate.word": "Tỷ lệ đúng hạn",
   "pwfs.operation.amountVariance.word": "Chênh lệch tiền so với dự toán (%)",

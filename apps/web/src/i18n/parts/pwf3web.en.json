@@ -221,6 +221,7 @@
   "pwfs.period.officialize.warning": "Possible only when the window of response has ended and no response is open, or every response was handled.",
   "pwfs.period.signals.title": "Signals of gaming",
   "pwfs.period.signals.none.text": "No signal in this period",
+  "pwfs.period.signals.more.action": "Show more signals",
   "pwfs.operation.daysDeviation.word": "Days of deviation from the baseline due day",
   "pwfs.operation.onTimeRate.word": "On-time rate",
   "pwfs.operation.amountVariance.word": "Amount against the estimate (%)",

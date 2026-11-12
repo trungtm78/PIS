@@ -189,12 +189,12 @@ export class PwfScoreStore {
       request.to,
     );
     const calendars = await loadCalendars(tx, Math.min(span.from, Number(request.from.slice(0, 4))), span.to);
-    const sets = await loadKpiSets(tx, this.policies, request.to);
+    const sets = loadKpiSets(tx, this.policies);
     const usedSets = new Map<string, { code: string; rule_id: string | null; version: number }>();
     const tasks: SnapshotTask[] = [];
     for (const bundle of ordered) {
       const reading = readings.get(bundle.row.id) as ReturnType<typeof readingOf>;
-      const resolved = sets.forTemplate(bundle.workflow.templateCode);
+      const resolved = await sets.forTemplate(bundle.workflow.templateCode, reading.final ? (reading.closedOn as string) : request.to);
       let kpi: SnapshotKpi[];
       if (reading.final) {
         kpi = (heads.get(bundle.row.id) ?? []).map((one) => ({ kpi_code: one.kpiCode, operation: one.operation, state: one.state, value: one.value, score: one.score, weight: one.weight, inputs_hash: one.inputsHash, result_id: one.id }));
@@ -234,13 +234,15 @@ export class PwfScoreStore {
     if (!POLICY_CODE.test(request.policyCode)) throw invalid('policy_code');
     if (!unitReached(request.units, unitId)) throw notFound();
     await lockPeriodKey(tx, unitId, request.periodFrom, request.periodTo);
+    // The lock of the period comes before its row, as in `lock`: two commands on one draft never wait for each other in opposite orders.
+    const existing = await tx.query<{ id: string }>('select id from machvon.staff_score_period where scope_unit_id = $1::uuid and period_from = $2::date and period_to = $3::date and supersedes_period_id is null', [unitId, request.periodFrom, request.periodTo]);
+    if (existing[0] !== undefined) await lockPeriod(tx, existing[0].id);
     const overlapping = await tx.query<PeriodSql>(
       `select ${PERIOD_COLUMNS} from machvon.staff_score_period p where p.scope_unit_id = $1::uuid and p.supersedes_period_id is null and daterange(p.period_from, p.period_to, '[]') && daterange($2::date, $3::date, '[]') for update`,
       [unitId, request.periodFrom, request.periodTo],
     );
     const same = overlapping.find((row) => row.period_from === request.periodFrom && row.period_to === request.periodTo);
     if (overlapping.length > 0 && same === undefined) throw new DomainError('STAFF_SCORE_PERIOD_OVERLAP', 409, 'period_from');
-    if (same !== undefined) await lockPeriod(tx, same.id);
     if (same !== undefined && same.status !== 'DRAFT') throw new DomainError('STAFF_SCORE_PERIOD_LOCKED', 409, 'status', { extensions: { period_status: same.status } });
     const built = await withScoreScope(tx, SYSTEM_SCORE_SCOPE, async () => {
       const result = await this.inputsOf(tx, { unitId, from: request.periodFrom, to: request.periodTo, policyCode: request.policyCode }, request.now);

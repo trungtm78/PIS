@@ -152,9 +152,11 @@ export function usePeriodLines(periodId: string | null, filter: LineFilter, enab
 export function useSignals(periodId: string | null, enabled: boolean) {
   const client = useApiClient();
   const key = useScoreKey();
-  return useQuery<SignalPage>({
+  return useInfiniteQuery<SignalPage, Error, { pages: SignalPage[] }, readonly unknown[], string | undefined>({
     queryKey: [...key, 'signals', periodId ?? ''],
-    queryFn: () => client.read('listStaffScoreSignals', { path: { id: periodId ?? '' }, query: { limit: PAGE_SIZE } }),
+    initialPageParam: undefined,
+    queryFn: ({ pageParam }) => client.read('listStaffScoreSignals', { path: { id: periodId ?? '' }, query: { limit: PAGE_SIZE, ...(pageParam === undefined ? {} : { cursor: pageParam }) } }),
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
     enabled: enabled && key[1] !== undefined && periodId !== null,
     ...FRESH,
   });

@@ -382,7 +382,7 @@ export class PwfScoreReads {
   }
 
   /** The signals of a period for the reviewer, by person, in pages. */
-  async signals(tx: TenantTx, reviewUnits: ScoreUnits, periodId: string, page: { limit: number; after?: { code: string; id: string } | undefined }): Promise<PageOf<{ membershipId: string; displayName: string; flags: Array<{ code: string; taskCodes: string[] }> }>> {
+  async signals(tx: TenantTx, reviewUnits: ScoreUnits, reviewer: string, periodId: string, page: { limit: number; after?: { code: string; id: string } | undefined }): Promise<PageOf<{ membershipId: string; displayName: string; flags: Array<{ code: string; taskCodes: string[] }> }>> {
     const id = scoreIdOf(periodId, 'id');
     return withScoreScope(tx, { units: reviewUnits, subject: '' }, async () => {
       const period = await tx.query<{ id: string }>('select id from machvon.staff_score_period p where p.id = $1::uuid', [id]);
@@ -390,9 +390,9 @@ export class PwfScoreReads {
       const rows = await tx.query<{ membership_id: string; display_name: string | null; flags: Array<{ code: string; task_codes: string[] }> }>(
         `select s.membership_id, (select d.display_name from machvon.tenant_user_directory d where d.tenant_id = s.tenant_id and d.membership_id = s.membership_id) as display_name,
                 jsonb_agg(jsonb_build_object('code', s.code, 'task_codes', s.task_codes) order by s.code) as flags
-           from machvon.staff_score_signal s where s.period_id = $1::uuid and s.membership_id is not null and ($2::uuid is null or s.membership_id > $2::uuid)
+           from machvon.staff_score_signal s where s.period_id = $1::uuid and s.membership_id is not null and s.membership_id <> $4::uuid and ($2::uuid is null or s.membership_id > $2::uuid)
           group by s.membership_id, s.tenant_id order by s.membership_id limit $3`,
-        [id, page.after?.id ?? null, page.limit + 1],
+        [id, page.after?.id ?? null, page.limit + 1, scoreIdOf(reviewer, 'membership_id')],
       );
       const shown = rows.slice(0, page.limit);
       const last = shown[shown.length - 1];

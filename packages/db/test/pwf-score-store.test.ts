@@ -712,7 +712,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(line.contributions.find((one) => one.task_code === 'G4')).toMatchObject({ score: 0 });
       expect(line.excluded).toContainEqual({ task_id: expect.any(String), task_code: 'G5', reason: 'CANCELLED_APPROVED' });
       const signalsOf = async (member: number): Promise<string[]> =>
-        (await as((tx) => reads.signals(tx, '*', draft.period.id, { limit: 50 }))).items.find((one) => one.membershipId === memberId(member))?.flags.map((flag) => flag.code) ?? [];
+        (await as((tx) => reads.signals(tx, '*', memberId(HR), draft.period.id, { limit: 50 }))).items.find((one) => one.membershipId === memberId(member))?.flags.map((flag) => flag.code) ?? [];
       expect(await signalsOf(WORKER)).toEqual(['CANCELLED_SHARE_HIGH', 'TASKS_SPLIT_AFTER_BASELINE']);
       expect(await signalsOf(OTHER)).toEqual(['ASSIGNEE_CHANGED_NEAR_DUE']);
       // A baseline moved inside the period is a signal for everyone on the workflow; the score is the same because it is measured against the first one.
@@ -723,8 +723,8 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(await signalsOf(WORKER)).toEqual(['BASELINE_REVISED_IN_PERIOD', 'CANCELLED_SHARE_HIGH', 'TASKS_SPLIT_AFTER_BASELINE']);
       expect(await signalsOf(OTHER)).toEqual(['ASSIGNEE_CHANGED_NEAR_DUE', 'BASELINE_REVISED_IN_PERIOD']);
       // The signals are for the reviewer of the unit only: the person scored and a reader of another unit see none of them.
-      expect((await as((tx) => reads.signals(tx, unitId(SIBLING), draft.period.id, { limit: 50 }))).items).toEqual([]);
-      expect((await as((tx) => reads.signals(tx, '', draft.period.id, { limit: 50 }))).items).toEqual([]);
+      expect((await as((tx) => reads.signals(tx, unitId(SIBLING), memberId(HR), draft.period.id, { limit: 50 }))).items).toEqual([]);
+      expect((await as((tx) => reads.signals(tx, '', memberId(HR), draft.period.id, { limit: 50 }))).items).toEqual([]);
       const own = await as((tx) => withScoreScope(tx, { units: '', subject: memberId(WORKER) }, () => tx.query('select 1 from machvon.staff_score_signal')));
       expect(own).toEqual([]);
       const hrLine = (await lineOf(draft.period.id, WORKER)).id;
