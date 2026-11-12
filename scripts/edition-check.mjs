@@ -3,7 +3,10 @@
 //   - no file outside those homes imports them, except one loader per process (the seams below) and the tests named *.enterprise.test.* / *enterprise_test.dart;
 //   - no source outside the homes carries a word that only the enterprise edition says (its product name, its rule packs), read from its own manifest;
 //   - no module of the API registry exists in the enterprise edition only (the registry of the public edition mounts no enterprise controller);
-//   - the terminology overlays of the web and the phone hold exactly the keys the manifest lists, and only keys the base catalogue knows.
+//   - the terminology overlays of the web and the phone hold exactly the keys the manifest lists, and only keys the base catalogue knows;
+//   - the public edition shows no code name: no source a person of the public edition reads (the web shell and its catalogues, the phone strings and manifests, the API texts, the open API document, the guides, the public logos) carries
+//     "MACHVON" or "Mạch Vốn" as a name, outside the enterprise files (internal identifiers such as package names, environment variables and the database schema are not names and are not matched);
+//   - the names of the product every surface carries are the ones the edition manifests say (`scripts/edition-brand.mjs`: the generated phone files and the static web names).
 // And on a build: `--public-dist <dir>` must carry no enterprise word and no path of the enterprise homes; `--enterprise-dist <dir>` must carry the enterprise name
 // (so a blind scan cannot pass for a clean one). The same list of importers is kept in `.dependency-cruiser.cjs` (rule enterprise-edition-code-only-from-its-homes).
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -11,6 +14,7 @@ import { createRequire } from 'node:module';
 import { dirname, join, posix, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { brandDrift } from './edition-brand.mjs';
 
 const require = createRequire(import.meta.url);
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -25,6 +29,8 @@ export const FINDING_CODES = [
   'ENT_DIST_HOLDS_ENTERPRISE',
   'ENT_DIST_LACKS_ENTERPRISE',
   'ENT_DIST_MISSING',
+  'ENT_CODE_NAME_IN_PUBLIC_SURFACE',
+  'ENT_BRAND_DRIFT',
 ];
 
 /** The folders that hold the enterprise edition only. */
@@ -47,6 +53,77 @@ const WORD_FILE = /\.(?:tsx?|mts|cts|dart|json|html)$/;
 const TEST_FILE = /(?:\.(?:test|spec)\.[cm]?tsx?|_test\.dart)$/;
 const TEST_DIRECTORY = /(?:^|\/)(?:test|tests|e2e|__tests__)\//;
 const DIST_FILE = /\.(?:js|mjs|cjs|css|html|json|webmanifest|map|txt)$/;
+
+/**
+ * The code name as a NAME a person reads: the word MACHVON (or Machvon, Mach Von) standing alone, and the Vietnamese "Mạch Vốn" in any case and with or without marks. An identifier is not a name and is not matched:
+ * `@machvon/kernel`, `MACHVON_EDITION`, `machvon_tokens`, `vn.machvon.app`, `machvon.audit_event`, `MACHVON-PVFCCO`, `MachvonApp`, a lower-case `machvon`.
+ */
+export const CODE_NAME_WORD = /(?<![\w.@/:-])(?:MACHVON|Machvon|MachVon|Mach Von|MACH VON)(?![\w:./-])/;
+export const CODE_NAME_VIETNAMESE = /m[ạa]ch\s+v[ốo]n/i;
+
+/** Whether a line of text says the code name as a name. */
+export function namesCodeName(line) {
+  const text = line.normalize('NFC');
+  return CODE_NAME_WORD.test(text) || CODE_NAME_VIETNAMESE.test(text);
+}
+
+/**
+ * The folders and files a person of the public edition reads, besides what the rules above scan: `{ root, only? }`, paths relative to the repository root, `only` narrowing a folder to the files that are a surface.
+ * The sources of the web, the phone (strings, Android and iOS resources, permission texts), the API (texts of the exports, the open API document), the kernel (messages), the public logos, the open API document of the readers and the admin guide.
+ */
+export const PUBLIC_SURFACES = [
+  { root: 'apps/web', only: /^apps\/web\/(?:index\.html$|public\/|src\/)/ },
+  { root: 'apps/mobile', only: /^apps\/mobile\/(?:lib\/|ios\/Runner\/|android\/app\/src\/(?:main|debug|profile)\/)/ },
+  { root: 'apps/api', only: /^apps\/api\/src\// },
+  { root: 'packages/kernel', only: /^packages\/kernel\/src\// },
+  { root: 'brand', only: /^brand\/logo\/logo-public-[^/]*\.svg$/ },
+  { root: 'docs/open-api' },
+  { root: 'docs', only: /^docs\/admin-guide\.md$/ },
+  { root: 'scripts/hdsd', only: /\.json$/ },
+  { root: 'scripts/help', only: /\.json$/ },
+];
+const SURFACE_SKIPPED = new Set(['node_modules', 'dist', 'coverage', 'build', '.dart_tool', 'test-results', 'lint-fixtures', '.git', 'Pods', '.gradle', 'qa']);
+/** Files that are not a surface of the product: the ones that only carry names for tests, and the files of the enterprise edition by name. */
+const NOT_A_SURFACE = /(?:^|\/)(?:test-support|test-fixtures?)\.[cm]?tsx?$|\/src\/enterprise\/|\.enterprise\./;
+const SURFACE_TEXT = /\.(?:tsx?|mts|cts|dart|json|html|xml|plist|md|svg|webmanifest|strings)$/;
+const CODE_LINE = /\.(?:tsx?|mts|cts|dart)$/;
+const MARKUP_FILE = /\.(?:xml|html|svg|plist)$/;
+
+function* surfaceFiles(root, directory) {
+  if (!existsSync(join(root, directory))) return;
+  for (const entry of readdirSync(join(root, directory), { withFileTypes: true })) {
+    if (SURFACE_SKIPPED.has(entry.name)) continue;
+    const path = posix.join(directory, entry.name);
+    if (entry.isDirectory()) yield* surfaceFiles(root, path);
+    else yield path;
+  }
+}
+
+/** A line that is a comment of a source: a comment about the code name is not shown to anybody. */
+function isCommentLine(path, line) {
+  const trimmed = line.trim();
+  if (CODE_LINE.test(path)) return trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*');
+  if (MARKUP_FILE.test(path)) return trimmed.startsWith('<!--') && trimmed.endsWith('-->');
+  return false;
+}
+
+function codeNameFindings(root) {
+  const found = [];
+  const seen = new Set();
+  for (const surface of PUBLIC_SURFACES) {
+    for (const path of surfaceFiles(root, surface.root)) {
+      if (seen.has(path) || (surface.only !== undefined && !surface.only.test(path))) continue;
+      seen.add(path);
+      if (!SURFACE_TEXT.test(path) || inEnterpriseHome(path) || isTestSource(path) || NOT_A_SURFACE.test(path)) continue;
+      readFileSync(join(root, path), 'utf8')
+        .split(/\r?\n/)
+        .forEach((line, index) => {
+          if (namesCodeName(line) && !isCommentLine(path, line)) found.push(finding('ENT_CODE_NAME_IN_PUBLIC_SURFACE', path, `line ${index + 1} says the code name as a name of the product; the public edition shows none (the names come from the edition manifest)`));
+        });
+    }
+  }
+  return found;
+}
 
 const toPosix = (path) => path.split(sep).join('/');
 const finding = (code, file, message) => ({ code, file, message });
@@ -234,6 +311,19 @@ export function distHits(directory, words) {
   return [...hits];
 }
 
+/** The lines of a build that say the code name as a name (a public build shows none): `{ file, line }`, at most one hit per file and a line cut to a readable length. */
+export function distCodeNameHits(directory) {
+  const hits = [];
+  for (const path of distFiles(directory)) {
+    if (path.endsWith('.map')) continue;
+    const line = readFileSync(path, 'utf8')
+      .split(/\r?\n/)
+      .find((entry) => namesCodeName(entry));
+    if (line !== undefined) hits.push({ file: path, line: line.trim().slice(0, 80) });
+  }
+  return hits;
+}
+
 /**
  * Runs every rule on the sources under `root` and on the builds named. The result lists findings (each with a code, a file and a message) and a summary of what
  * was looked at.
@@ -245,11 +335,15 @@ export async function checkEdition({ root = DEFAULT_ROOT, publicDist = [], enter
     findings.push(finding('ENT_MANIFEST_UNREADABLE', MANIFEST, `the enterprise manifest cannot be loaded: ${error instanceof Error ? error.message : String(error)}`));
     return { manifest: undefined, words: [] };
   });
-  findings.push(...importFindings(root, paths), ...wordFindings(root, paths, words), ...moduleFindings(root, paths));
+  findings.push(...importFindings(root, paths), ...wordFindings(root, paths, words), ...moduleFindings(root, paths), ...codeNameFindings(root));
+  for (const entry of await brandDrift(root)) findings.push(finding('ENT_BRAND_DRIFT', entry.file, entry.message));
   if (manifest !== undefined) findings.push(...webOverlayFindings(root, manifest), ...mobileFindings(root, manifest));
   for (const directory of publicDist) {
     if (!existsSync(directory)) findings.push(finding('ENT_DIST_MISSING', directory, 'the public build to scan does not exist'));
-    else for (const hit of distHits(directory, words)) findings.push(finding('ENT_DIST_HOLDS_ENTERPRISE', directory, `the public build carries "${hit}"`));
+    else {
+      for (const hit of distHits(directory, words)) findings.push(finding('ENT_DIST_HOLDS_ENTERPRISE', directory, `the public build carries "${hit}"`));
+      for (const hit of distCodeNameHits(directory)) findings.push(finding('ENT_CODE_NAME_IN_PUBLIC_SURFACE', hit.file, `the public build says the code name as a name: ${hit.line}`));
+    }
   }
   for (const directory of enterpriseDist) {
     if (!existsSync(directory)) findings.push(finding('ENT_DIST_MISSING', directory, 'the enterprise build to scan does not exist'));

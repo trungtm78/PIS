@@ -11,10 +11,12 @@ import {
   FINDING_CODES,
   checkEdition,
   dartOverlayKeys,
+  distCodeNameHits,
   distHits,
   inEnterpriseHome,
   main,
   mayImportEnterprise,
+  namesCodeName,
   namesEnterprise,
   specifiersOf,
 } from './edition-check.mjs';
@@ -386,5 +388,79 @@ describe('the helpers', () => {
     assert.equal(namesEnterprise('apps/web/src/a.ts', '../../../packages/edition-enterprise'), true);
     assert.equal(namesEnterprise('apps/web/src/a.ts', './editions/edition'), false);
     assert.equal(namesEnterprise('apps/web/src/a.ts', 'react'), false);
+  });
+});
+
+describe('the code name in the surfaces of the public edition', () => {
+  const PUBLIC_FILE = 'apps/web/src/shell/Brand.tsx';
+
+  it('says it as a name: the word alone, in capitals or in Vietnamese in any case, with or without marks', () => {
+    for (const line of ['MACHVON', 'Hệ thống MACHVON mở', 'Machvon', 'MACH VON', 'Mạch Vốn', 'MẠCH VỐN', 'mạch vốn thông suốt', 'Mach Von', "title: 'MACHVON open API'", 'Biểu tượng Mạch Vốn'.normalize('NFD')]) {
+      assert.equal(namesCodeName(line), true, line);
+    }
+  });
+
+  it('does not take an identifier for a name', () => {
+    for (const line of ['@machvon/kernel', 'MACHVON_EDITION=enterprise', 'machvon_tokens', 'package:machvon_api_client/x.dart', 'vn.machvon.app', 'machvon.audit_event', 'MACHVON-PVFCCO', 'MachvonApp', "stanza ?? 'machvon'", 'Design/MACHVON_Design/x.json', 'docs/hdsd/machvon/x', 'machvon-api']) {
+      assert.equal(namesCodeName(line), false, line);
+    }
+  });
+
+  it('is found in a source, a catalogue, a resource and a guide of the public edition, with the file and the line', async () => {
+    const files = {
+      [PUBLIC_FILE]: "export const a = 1;\nexport const NAME = 'Mạch Vốn';\n",
+      'apps/web/src/i18n/vi.json': '{ "logo.mark.alt": "Biểu tượng MACHVON" }\n',
+      'apps/mobile/android/app/src/main/res/values/strings.xml': '<resources><string name="app_name">Mạch Vốn</string></resources>\n',
+      'apps/mobile/ios/Runner/Info.plist': '<string>MACHVON uses the camera</string>\n',
+      'apps/mobile/lib/features/x/strings.dart': "const a = 'Mạch vốn thông suốt';\n",
+      'apps/api/src/modules/reports/x.ts': "pdf.setProducer('MACHVON');\n",
+      'packages/kernel/src/messages/x.ts': "export const T = 'MACHVON';\n",
+      'docs/open-api/openapi.json': '{ "info": { "title": "MACHVON open API" } }\n',
+      'docs/admin-guide.md': '# Hướng dẫn quản trị hệ thống MACHVON\n',
+      'brand/logo/logo-public-icon.svg': '<svg><title>MẠCH VỐN</title></svg>\n',
+    };
+    const { findings } = await checkEdition({ root: layout(files) });
+    const found = findings.filter((entry) => entry.code === 'ENT_CODE_NAME_IN_PUBLIC_SURFACE');
+    assert.deepEqual(found.map((entry) => entry.file).sort(), Object.keys(files).sort());
+    assert.match(found.find((entry) => entry.file === PUBLIC_FILE).message, /^line 2 /);
+  });
+
+  it('is not found in what is not shown: comments, tests, the enterprise files and the files of a build tool', async () => {
+    const files = {
+      [PUBLIC_FILE]: "// the code name MACHVON stays internal\n/** Mạch Vốn is the enterprise product */\nexport const a = 1;\n",
+      'apps/mobile/lib/features/x/strings.dart': "/// The MACHVON API client.\n// Mạch Vốn\nconst a = 1;\n",
+      'apps/mobile/android/app/src/main/AndroidManifest.xml': '<!-- the name of MACHVON -->\n<application />\n',
+      'apps/web/src/shell/Brand.test.tsx': "expect(x).toBe('Mạch Vốn');\n",
+      'apps/web/src/screens/sas/test-support.tsx': "export const T = { name: 'MACHVON' };\n",
+      'apps/web/e2e/a.spec.ts': "const a = 'MACHVON';\n",
+      'apps/web/src/editions/enterprise/overlay.vi.json': '{ "shell.brand.name.text": "Mạch Vốn" }\n',
+      'apps/mobile/lib/editions/enterprise/enterprise_home_strings.dart': "const a = 'Mạch Vốn';\n",
+      'apps/mobile/android/app/src/enterprise/res/values/strings.xml': '<string name="app_name">Mạch Vốn</string>\n',
+      'brand/logo/logo-enterprise-icon.svg': '<svg><title>MẠCH VỐN</title></svg>\n',
+      'docs/integration/hpm-proposal.md': 'MACHVON gọi API của HPM\n',
+      'apps/mobile/qa/device/results/walk.json': '{ "heading": "Biểu trưng MACHVON" }\n',
+    };
+    const { findings } = await checkEdition({ root: layout(files) });
+    assert.deepEqual(findings.filter((entry) => entry.code === 'ENT_CODE_NAME_IN_PUBLIC_SURFACE'), []);
+  });
+
+  it('is found in a public build, never in a build made as the enterprise edition by this rule', () => {
+    const dist = mkdtempSync(join(tmpdir(), 'machvon-dist-'));
+    scratch.push(dist);
+    writeFileSync(join(dist, 'index.html'), '<title>Hệ thống quản lý đầu tư công</title>\n');
+    writeFileSync(join(dist, 'app.js'), 'const a = 1;\nconst brand = "Biểu tượng Mạch Vốn";\n');
+    writeFileSync(join(dist, 'app.js.map'), '{"sources":["Mạch Vốn"]}\n');
+    const hits = distCodeNameHits(dist);
+    assert.equal(hits.length, 1);
+    assert.match(hits[0].file, /app\.js$/);
+    assert.match(hits[0].line, /Mạch Vốn/);
+  });
+
+  it('is reported with its own code by the command line, and the code is a registered one', async () => {
+    assert.ok(FINDING_CODES.includes('ENT_CODE_NAME_IN_PUBLIC_SURFACE'));
+    assert.ok(FINDING_CODES.includes('ENT_BRAND_DRIFT'));
+    const lines = [];
+    assert.equal(await main(['--root', layout({ [PUBLIC_FILE]: "export const NAME = 'MACHVON';\n" })], (line) => lines.push(line)), 1);
+    assert.match(lines.join('\n'), /ENT_CODE_NAME_IN_PUBLIC_SURFACE: apps\/web\/src\/shell\/Brand\.tsx: line 1 /);
   });
 });
