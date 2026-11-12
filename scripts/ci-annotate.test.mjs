@@ -45,6 +45,13 @@ test('dart: the [E] line and the lines after it are kept, colours are removed', 
   assert.equal(blocks[0].includes(String.fromCharCode(27)), false);
 });
 
+test('dart: the github reporter marks a failed test with a cross, passing tests are left out', () => {
+  const log = ['✅ /w/test/a_test.dart: group fine', '❌ /w/test/b_test.dart: group the moment shows 07:00', 'Expected: 07:00', '2401 tests passed, 2 failed, 1 skipped.'].join('\n');
+  const text = annotationText(log, 'dart');
+  assert.match(text, /❌ \/w\/test\/b_test\.dart/);
+  assert.doesNotMatch(text, /group fine/);
+});
+
 test('playwright: numbered failures and the summary line are reported', () => {
   const log = ['Running 40 tests using 1 worker', '  1) [chromium] > route.spec.ts:10:5 > the walk', '    Error: expect(locator).toBeVisible()', '  1 failed', '  39 passed'].join('\n');
   const text = annotationText(log, 'playwright');
