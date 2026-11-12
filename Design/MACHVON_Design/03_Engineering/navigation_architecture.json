@@ -31,6 +31,7 @@
       "modules": [
         "PRJ",
         "IPF",
+        "PWF",
         "CAP",
         "DIS",
         "PAY",
@@ -2577,6 +2578,59 @@
           "parents": {}
         }
       ]
+    },
+    "PWF": {
+      "name": "Workflow dự án và hạn ba màu",
+      "groups": [
+        {
+          "title": "Mẫu workflow dự án",
+          "description": "Thư viện mẫu, soạn mẫu và duyệt mẫu theo loại dự án",
+          "ids": [
+            1,
+            2
+          ],
+          "primary": [
+            1
+          ],
+          "parents": {
+            "2": 1
+          }
+        },
+        {
+          "title": "Workflow của dự án",
+          "description": "Khởi tạo, tiếp nhận, thực hiện công việc, phân công và dời lịch của một dự án",
+          "ids": [
+            3,
+            4,
+            5,
+            6,
+            16
+          ],
+          "primary": [
+            3
+          ],
+          "parents": {
+            "4": 3,
+            "5": 3,
+            "6": 3,
+            "16": 4
+          }
+        },
+        {
+          "title": "Hạn ba màu",
+          "description": "Bảng deadline toàn danh mục và chính sách ngưỡng xanh, vàng, đỏ",
+          "ids": [
+            7,
+            8
+          ],
+          "primary": [
+            7
+          ],
+          "parents": {
+            "8": 7
+          }
+        }
+      ]
     }
   },
   "quickModules": [
@@ -3052,6 +3106,20 @@
         4,
         "Tài khoản nhận tiền"
       ]
+    ],
+    "PWF": [
+      [
+        1,
+        "Mẫu workflow"
+      ],
+      [
+        7,
+        "Bảng deadline"
+      ],
+      [
+        8,
+        "Chính sách ba màu"
+      ]
     ]
   },
   "moduleDescriptions": {
@@ -3093,7 +3161,8 @@
     "EQP": "Dòng mua sắm trang thiết bị của dự án: kế hoạch, gói thầu, kết quả lựa chọn nhà thầu, hợp đồng và giải ngân.",
     "PWA": "Phê duyệt số liệu kỳ, bảng điều hành và theo dõi chỉ đạo trên điện thoại, cài đặt được và có thông báo đẩy.",
     "RML": "Lịch gửi email biểu mẫu đã phát hành tới các thành viên, kèm tệp phát hành, mã băm SHA-256 và nhật ký từng thư (chỉ bản doanh nghiệp).",
-    "IPF": "Hồ sơ đầu tư của một dự án trong bản enterprise: loại dự án, cờ khởi công mới hoặc chuyển tiếp, mốc vòng đời so với danh mục, hồ sơ pháp lý theo loại và phần tách kế hoạch vốn theo Nghị quyết PVN và Quyết định của Tổng công ty."
+    "IPF": "Hồ sơ đầu tư của một dự án trong bản enterprise: loại dự án, cờ khởi công mới hoặc chuyển tiếp, mốc vòng đời so với danh mục, hồ sơ pháp lý theo loại và phần tách kế hoạch vốn theo Nghị quyết PVN và Quyết định của Tổng công ty.",
+    "PWF": "Mẫu workflow theo loại dự án, lịch công việc có đường găng, cổng giai đoạn của dự án, hạn ba màu xanh vàng đỏ và sổ phân công."
   },
   "adminLibraryModules": [
     "IAM",
@@ -8481,6 +8550,96 @@
       "group": "Hồ sơ đầu tư của dự án",
       "role": "workspace",
       "parent": null
+    },
+    {
+      "id": "PWF-01",
+      "title": "Thư viện mẫu workflow",
+      "kind": "table",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Mẫu workflow dự án",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-02",
+      "title": "Soạn mẫu workflow",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Mẫu workflow dự án",
+      "role": "detail",
+      "parent": "PWF-01"
+    },
+    {
+      "id": "PWF-03",
+      "title": "Workflow của dự án",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Workflow của dự án",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-04",
+      "title": "Chi tiết công việc",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Workflow của dự án",
+      "role": "detail",
+      "parent": "PWF-03"
+    },
+    {
+      "id": "PWF-05",
+      "title": "Khởi tạo và tiếp nhận workflow",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Workflow của dự án",
+      "role": "detail",
+      "parent": "PWF-03"
+    },
+    {
+      "id": "PWF-06",
+      "title": "Xem trước và duyệt dời lịch",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Workflow của dự án",
+      "role": "detail",
+      "parent": "PWF-03"
+    },
+    {
+      "id": "PWF-16",
+      "title": "Sổ phân công",
+      "kind": "table",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Workflow của dự án",
+      "role": "detail",
+      "parent": "PWF-04"
+    },
+    {
+      "id": "PWF-07",
+      "title": "Bảng deadline toàn danh mục",
+      "kind": "dashboard",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Hạn ba màu",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-08",
+      "title": "Chính sách ba màu",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Hạn ba màu",
+      "role": "detail",
+      "parent": "PWF-07"
     },
     {
       "id": "DOC-24",

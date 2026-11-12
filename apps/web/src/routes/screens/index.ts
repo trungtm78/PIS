@@ -605,4 +605,13 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'DOC-28': () => import('../../screens/gov12/doc/ContainerScreen'),
   'DOC-29': () => import('../../screens/gov12/doc/TransmittalScreen'),
   'QMS-12': () => import('../../screens/gov12/qms/PhotoFindingScreen'),
+  'PWF-01': () => import('../../screens/pwf/templates/TemplateLibraryScreen'),
+  'PWF-02': () => import('../../screens/pwf/templates/TemplateEditorScreen'),
+  'PWF-03': () => import('../../screens/pwf/workflow/WorkflowScreen'),
+  'PWF-04': () => import('../../screens/pwf/task/TaskDetailScreen'),
+  'PWF-05': () => import('../../screens/pwf/start/StartWorkflowScreen'),
+  'PWF-06': () => import('../../screens/pwf/reschedule/RescheduleScreen'),
+  'PWF-07': () => import('../../screens/pwf/board/DeadlineBoardScreen'),
+  'PWF-08': () => import('../../screens/pwf/bands/BandPolicyScreen'),
+  'PWF-16': () => import('../../screens/pwf/assignments/AssignmentLedgerScreen'),
 };
