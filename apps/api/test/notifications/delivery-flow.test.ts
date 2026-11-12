@@ -225,6 +225,10 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
   it('AC-ST-KERNEL-073-1 (UAT-NFR-AVAILABILITY-04): a provider that fails every call does not touch the business commands: 20 of 20 succeed, every delivery waits for its retry, and the breaker of the account opens within 30 seconds and stops the calls', async () => {
     const { api, adapter } = await start();
     if (adapter === undefined) throw new Error('no e-mail adapter');
+    // The breaker counts the failures of the last minute, and the case before this one (a provider that was down) leaves its own: with one of them still in the minute the 20th call is never made, because the
+    // breaker opens at the 19th. The count starts from nothing here, as it does for a real account that was quiet.
+    await rows('delete from machvon.channel_account_circuit where channel_account_id = $1', [ACCOUNT]);
+    await rows("update machvon.delivery_attempt set failed_at = now() - interval '2 hours' where status = 'Failed' and failed_at > now() - interval '5 minutes'");
     // The provider fails every call (more refusals than there will be calls).
     adapter.enqueue(...Array.from({ length: 30 }, () => ({ kind: 'FAILED', failureClass: 'RETRYABLE', errorCode: 'HTTP_503' }) as const));
     try {

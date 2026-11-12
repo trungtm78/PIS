@@ -14,7 +14,13 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
  * database. The DOC template the forms point at is drafted and published through the API as in doc-template-flows.spec.ts.
  */
 
-const unique = (): string => `E2E-MNE-${Date.now().toString(36).toUpperCase()}${Math.floor(Math.random() * 1000)}`;
+// Three codes are made within the same millisecond and the page finds a row by the text of its code: a code that is the beginning of another one (a random part of 11 against one of 112) would match its rows too,
+// so the random part has a fixed width and a counter keeps two codes of one run apart.
+let uniqueCounter = 0;
+const unique = (): string => {
+  uniqueCounter += 1;
+  return `E2E-MNE-${Date.now().toString(36).toUpperCase()}${String(Math.floor(Math.random() * 100)).padStart(2, '0')}${String(uniqueCounter).padStart(4, '0')}`;
+};
 /** The Vietnam date today, the day the screens judge a deadline by. */
 const today = (): string => new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
 const YEAR = Number(today().slice(0, 4));
