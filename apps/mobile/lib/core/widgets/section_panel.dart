@@ -87,3 +87,22 @@ class RowRule extends StatelessWidget {
         child: SizedBox(height: 1, child: ColoredBox(color: context.v2.palette.line)),
       );
 }
+
+/// A block with a thin outline and the radius of a control: a figure of the steering views that is read on its own (a unit with its colour and
+/// its reason). The outline is a hairline of the design, so it does not stand for a control; it carries no shadow.
+class OutlinedBlock extends StatelessWidget {
+  const OutlinedBlock({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: context.v2.palette.line),
+        borderRadius: BorderRadius.circular(MachvonV2Radius.control),
+      ),
+      child: child,
+    );
+  }
+}

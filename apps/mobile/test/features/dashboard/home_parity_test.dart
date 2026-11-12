@@ -122,7 +122,7 @@ void main() {
       await _open(tester, server);
 
       expect(find.byIcon(Icons.info_outline), findsNothing);
-      expect(find.text('Hai tỷ lệ giải ngân'), findsOneWidget);
+      expect(find.text('Số liệu và công thức'), findsOneWidget);
     });
 
     testWidgets('the sheet speaks English when the phone does', (WidgetTester tester) async {
@@ -373,7 +373,7 @@ void main() {
 
       expect(find.text('Bạn không có quyền xem chỉ đạo giao ban.'), findsOneWidget);
       expect(find.text('Màu xanh vàng đỏ của các đơn vị'), findsOneWidget);
-      expect(find.text('Hai tỷ lệ giải ngân'), findsOneWidget);
+      expect(find.text('Số liệu và công thức'), findsOneWidget);
     });
   });
 
@@ -444,7 +444,7 @@ void main() {
       await _open(tester, server);
 
       expect(find.textContaining('Không đọc được màu xanh vàng đỏ (mã CONTRACT_MISMATCH)'), findsOneWidget);
-      expect(find.text('Hai tỷ lệ giải ngân'), findsOneWidget);
+      expect(find.text('Số liệu và công thức'), findsOneWidget);
     });
 
     testWidgets('the end of the session on an added part is the end of the session of the screen, as for the rest', (WidgetTester tester) async {

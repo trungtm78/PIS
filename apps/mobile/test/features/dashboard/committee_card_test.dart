@@ -11,6 +11,7 @@ import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/widgets/figure_info.dart';
 import 'package:machvon_mobile/features/dashboard/committee_workspace.dart';
 import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
+import 'package:machvon_mobile/features/dashboard/widgets/committee_card.dart' show CommitteeCard;
 import 'package:machvon_mobile/features/dashboard/dashboard_strings.dart';
 
 import '../../support/harness.dart';
@@ -71,9 +72,9 @@ void main() {
       expect(find.text('494,4 tỷ đồng'), findsOneWidget, reason: 'disbursed');
       expect(find.text('420 tỷ đồng'), findsOneWidget, reason: 'the same period of last year');
       expect(find.text('Từ 1.000 tỷ đồng đến 1.100 tỷ đồng (83,33% đến 91,67% kế hoạch)'), findsOneWidget, reason: 'the year-end band');
-      expect(find.text('7'), findsOneWidget, reason: 'projects needing attention');
-      expect(find.text('2'), findsOneWidget, reason: 'units not reporting');
-      expect(find.text('1'), findsOneWidget, reason: 'overdue directives');
+      expect(find.descendant(of: find.byType(CommitteeCard), matching: find.text('7')), findsOneWidget, reason: 'projects needing attention');
+      expect(find.descendant(of: find.byType(CommitteeCard), matching: find.text('2')), findsOneWidget, reason: 'units not reporting');
+      expect(find.descendant(of: find.byType(CommitteeCard), matching: find.text('1')), findsOneWidget, reason: 'overdue directives');
       expect(server.callsTo('GET', _path), hasLength(1), reason: 'one read per opening');
     });
 
@@ -263,8 +264,8 @@ void main() {
       await _open(tester, server);
 
       expect(find.text('Chưa đọc được số liệu của Ban chỉ đạo (mã INTERNAL_ERROR). Các phần khác của trang vẫn đúng.'), findsOneWidget);
-      expect(find.text('Trang chủ lãnh đạo'), findsOneWidget);
-      expect(find.text('Hai tỷ lệ giải ngân'), findsOneWidget, reason: 'the command center of the home is still there');
+      expect(find.text('Tổng quan'), findsOneWidget);
+      expect(find.text('Số liệu và công thức'), findsOneWidget, reason: 'the command center of the home is still there');
       expect(server.callsTo('GET', _path), hasLength(1));
 
       server.on('GET', _path, (_) => committeeWorkspace());
@@ -327,7 +328,7 @@ void main() {
         expect(find.text('Bảng điều hành Ban chỉ đạo'), findsNothing);
         expect(find.textContaining('Ban chỉ đạo'), findsNothing);
         expect(find.byTooltip('Làm mới số liệu của Ban chỉ đạo'), findsNothing);
-        expect(find.text('Hai tỷ lệ giải ngân'), findsOneWidget);
+        expect(find.text('Số liệu và công thức'), findsOneWidget);
         expect(server.callsTo('GET', _path), hasLength(1));
         expect(container.read(committeeRefusalsProvider), <String>{'tenant-a/user-1'}, reason: 'the refusal is remembered for this person in this run');
       });
@@ -380,6 +381,9 @@ void main() {
       expect(server.callsTo('GET', _path), hasLength(1), reason: 'resuming does not read again');
 
       await tester.scrollUntilVisible(find.byTooltip('Làm mới số liệu của Ban chỉ đạo'), 200, scrollable: list);
+      // Visible is not yet clear of the bottom navigation: bring the button to the middle of the view.
+      await tester.ensureVisible(find.byTooltip('Làm mới số liệu của Ban chỉ đạo'));
+      await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Làm mới số liệu của Ban chỉ đạo'));
       await tester.pumpAndSettle();
       expect(server.callsTo('GET', _path), hasLength(2), reason: 'a press is one read');

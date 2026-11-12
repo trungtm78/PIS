@@ -4,11 +4,12 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../theme/colors.dart';
 import '../theme/typography.dart';
 import 'deadline.dart';
+import 'figure_info.dart';
 
 /// One cell of a [StatStrip]: a figure (Title, 22/30), what it counts (Caption) and, when it needs attention, a band label under it
 /// (the shape and the words, never the colour alone).
 class StatCell {
-  const StatCell({required this.value, required this.label, this.of, this.band, this.bandText});
+  const StatCell({required this.value, required this.label, this.of, this.band, this.bandText, this.info});
 
   /// The figure: "6".
   final String value;
@@ -24,6 +25,9 @@ class StatCell {
 
   /// The words of the band label: "Watch", "Overdue". Required with [band].
   final String? bandText;
+
+  /// The definition the figure is made by: when there is one, the cell carries the "i" that opens it (a button of its own, in the corner).
+  final FigureInfo? info;
 }
 
 /// Three figures in one row with thin vertical rules (design B "StatStrip"): the metric tiles of a home screen without the boxes, so they
@@ -64,7 +68,7 @@ class _Cell extends StatelessWidget {
     final MachvonV2Text text = context.v2text;
     final BorderSide rule = BorderSide(color: v2.palette.line);
     final String band = cell.band == null ? '' : deadlineBandName(context, cell.band!);
-    return Semantics(
+    final Widget content = Semantics(
       container: true,
       label: '${cell.value}${cell.of ?? ''} ${cell.label}${cell.band == null ? '' : ', ${cell.bandText ?? band}'}',
       excludeSemantics: true,
@@ -92,5 +96,8 @@ class _Cell extends StatelessWidget {
         ),
       ),
     );
+    if (cell.info == null) return content;
+    // The "i" is a button of its own, outside the one sentence the cell is to a screen reader.
+    return Stack(children: <Widget>[content, Positioned(top: 0, right: 0, child: FigureInfoButton(info: cell.info!))]);
   }
 }

@@ -61,9 +61,8 @@ void main() {
 
       await _openWorkTab(tester);
       expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget);
-      expect(find.text('Quá hạn 2 ngày'), findsOneWidget);
-      expect(find.text('Khẩn 1'), findsOneWidget);
-      expect(find.text('Theo dõi 1'), findsOneWidget);
+      expect(find.text('Trễ 2 ngày'), findsOneWidget);
+      expect(find.text('Khẩn 1 · Theo dõi 1'), findsOneWidget);
       expect(find.text('Tất cả 4'), findsNothing, reason: 'the events tab is out of sight, still mounted');
       expect(server.callsTo('GET', '/home/my-work').any((HttpCall call) => call.url.queryParameters['view'] == 'mine'), isTrue, reason: 'the inbox shows the alerts of the person');
     });
@@ -78,7 +77,7 @@ void main() {
       expect(find.text('Chưa có dữ liệu'), findsOneWidget);
       await _openWorkTab(tester);
       expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget);
-      expect(find.text('Khẩn 1'), findsOneWidget);
+      expect(find.text('Khẩn 1 · Theo dõi 1'), findsOneWidget);
     });
 
     testWidgets('the number on the tab is the alerts to act on once the server has given it; the unread notifications stand in until then', (WidgetTester tester) async {
@@ -101,7 +100,6 @@ void main() {
       });
       await _open(tester, server, '/inbox');
       await _openWorkTab(tester);
-      expect(find.byTooltip('Thao tác với việc này'), findsNothing);
       expect(find.text('Khẩn 0'), findsNothing);
       expect(find.byWidgetPredicate((Widget widget) => widget.runtimeType.toString() == 'AlertListSkeleton'), findsOneWidget);
 

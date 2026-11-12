@@ -2,15 +2,14 @@
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
     "AppBar(": 13,
-    "BoxDecoration(": 13,
-    "Card(": 19,
+    "BoxDecoration(": 7,
+    "Card(": 16,
     "Colors.": 2,
-    "EdgeInsets-number": 29,
-    "MachvonColors.": 82,
+    "EdgeInsets-number": 24,
+    "MachvonColors.": 44,
     "Scaffold(": 22,
-    "TextStyle(": 13,
-    "fontSize:": 1,
-    "toStringAsFixed(": 9
+    "TextStyle(": 12,
+    "toStringAsFixed(": 7
   },
   "files": {
     "lib/editions/enterprise/enterprise_home.dart": {
@@ -58,38 +57,6 @@
     "lib/features/conversations/screens/thread_composer.dart": {
       "Card(": 1,
       "MachvonColors.": 1
-    },
-    "lib/features/dashboard/screens/leader_home_screen.dart": {
-      "BoxDecoration(": 1,
-      "Card(": 1,
-      "EdgeInsets-number": 2,
-      "MachvonColors.": 3,
-      "fontSize:": 1,
-      "toStringAsFixed(": 1
-    },
-    "lib/features/dashboard/widgets/alert_card.dart": {
-      "BoxDecoration(": 2,
-      "Card(": 1,
-      "MachvonColors.": 21
-    },
-    "lib/features/dashboard/widgets/alert_list.dart": {
-      "BoxDecoration(": 2,
-      "Card(": 1,
-      "EdgeInsets-number": 1,
-      "MachvonColors.": 7
-    },
-    "lib/features/dashboard/widgets/alert_sheets.dart": {
-      "EdgeInsets-number": 2,
-      "MachvonColors.": 5
-    },
-    "lib/features/dashboard/widgets/committee_card.dart": {
-      "MachvonColors.": 1,
-      "TextStyle(": 1
-    },
-    "lib/features/dashboard/widgets/rag_card.dart": {
-      "BoxDecoration(": 1,
-      "MachvonColors.": 1,
-      "toStringAsFixed(": 1
     },
     "lib/features/diary_hub/screens/hub_screen.dart": {
       "AppBar(": 1,
