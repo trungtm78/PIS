@@ -14,6 +14,7 @@ import { HomeVendorSources } from './home-vendor-sources.ts';
 import { HomeContractRegisterSources } from './home-contract-register-sources.ts';
 import { HomeGov11Sources } from './home-gov11-sources.ts';
 import { HomeRiskCommitteeSources } from './home-risk-committee-sources.ts';
+import { HomePwfSources } from './home-pwf-sources.ts';
 import { HomeDirectiveSources } from './home-directive-sources.ts';
 import { HomeAlertFeedbackSources } from './home-alert-feedback-sources.ts';
 import { HomeGov10Sources } from './home-gov10-sources.ts';
@@ -158,6 +159,7 @@ export class HomeWorkStore {
   private readonly feedback = new HomeAlertFeedbackSources();
   private readonly gov11 = new HomeGov11Sources();
   private readonly riskCommittee = new HomeRiskCommitteeSources();
+  private readonly pwfTasks = new HomePwfSources();
   private readonly clocks = new HomeClockSources();
   private readonly actions = new HomeWorkActionStore();
   private readonly policies = new WorkPolicyReader();
@@ -224,6 +226,7 @@ export class HomeWorkStore {
       ['LESSONS_LEARNED', () => this.gov11.lessonsMissing(context)],
       ['PROJECT_RISK', () => this.riskCommittee.projectRisk(context)],
       ['COMMITTEE', () => this.riskCommittee.committee(context)],
+      ['PROJECT_TASK', () => this.pwfTasks.items(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];

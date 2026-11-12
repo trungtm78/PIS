@@ -93,6 +93,11 @@ export interface Reach {
    * gave it to the reader or the reader took it up. Absent: the item is the work of the person it is given to or of the one who answers for its project.
    */
   audience?: boolean;
+  /**
+   * What makes an item the reader's own in the view `mine`, when it is not the person it is given to or the one who answers for its project (the tasks of a workflow are the work of the people the ledger of assignments names, not of the leader
+   * of the whole project): a condition over the id of the reader (`me` is the typed parameter). It replaces the columns of `responsible` and the leader of the project.
+   */
+  mine?: (me: string) => string;
 }
 
 /**
@@ -110,7 +115,7 @@ export function reach(params: Params, context: SourceContext, spec: Reach): stri
   if (context.view === 'scope' && spec.audience === undefined) return visible;
   const me = `${params.add(context.membershipId)}::uuid`;
   const accountable = `exists (select 1 from machvon.project_accountability pa where pa.tenant_id = ${spec.tenant}.tenant_id and pa.project_id = p.id and pa.status = 'ACTIVE' and pa.leader_membership_id = ${me})`;
-  const mine = [...spec.responsible.map((column) => `${column} = ${me}`), accountable].join(' or ');
+  const mine = spec.mine === undefined ? [...spec.responsible.map((column) => `${column} = ${me}`), accountable].join(' or ') : spec.mine(me);
   const handed = `exists (select 1 from machvon.work_action h
       where h.tenant_id = ${spec.tenant}.tenant_id and h.source = '${spec.source}' and h.source_id = ${spec.id}::text and h.action in ('CLAIM', 'ASSIGN')
         and ${me} = (case h.action when 'ASSIGN' then h.assignee_membership_id else h.actor_membership_id end)
