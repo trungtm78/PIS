@@ -8,7 +8,7 @@ import '../core/l10n/string_table.dart';
 import '../core/theme/app_theme.dart';
 import 'session_services.dart';
 
-/// The application: Material app on the router, the theme of the tokens (and the tenant), the two languages.
+/// The application: Material app on the router, the theme of the tokens (and the tenant) in the light and the dark mode, the two languages.
 ///
 /// The text scale of the device is honoured as it is (no clamp): every shared widget scrolls, and the tests run the shell
 /// and the states at 200 percent (NFR-ACCESSIBILITY-02).
@@ -21,6 +21,8 @@ class MachvonApp extends ConsumerWidget {
       onGenerateTitle: (BuildContext context) => ref.read(editionProfileProvider).appTitle,
       debugShowCheckedModeBanner: false,
       theme: ref.watch(appThemeProvider),
+      darkTheme: ref.watch(darkAppThemeProvider),
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(routerProvider),
       locale: ref.watch(localeProvider),
       supportedLocales: <Locale>[for (final String language in kSupportedLanguages) Locale(language)],

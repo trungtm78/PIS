@@ -55,7 +55,9 @@ void main() {
         expect(account, contains("locationOf('$linked')"));
       }
       final String banners = _read('lib/core/state/status_banners.dart');
-      expect(banners, contains('InkWell'));
+      expect(banners, contains('StatusBanner'), reason: 'the strip is drawn by the shared banner');
+      expect(_read('lib/core/widgets/state_view.dart'), contains('TapTarget'), reason: 'a banner with onTap is one button');
+      expect(_read('lib/core/widgets/tap_target.dart'), contains('InkWell'));
       expect(banners, contains('onTap'));
       expect(banners, contains('context.go('));
       final List<String> openersOf43 = <String>[

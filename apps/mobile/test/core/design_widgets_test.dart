@@ -15,11 +15,13 @@ void main() {
   group('the theme "Xanh dầu điều hành"', () {
     final ThemeData theme = buildAppTheme(platform: TargetPlatform.android);
 
-    test('the app bar is navy with white 20 px titles, left aligned', () {
-      expect(theme.appBarTheme.backgroundColor, MachvonColors.sidebar);
-      expect(theme.appBarTheme.foregroundColor, MachvonColors.menuText);
+    // MUX-1: the app bar is the slim bar of the phone design (surface colour, ink text, no shadow); the dark navy anchor is the command band.
+    test('the app bar is the slim bar of the phone design: surface colour, ink 16 px titles, left aligned', () {
+      expect(theme.appBarTheme.backgroundColor, MachvonV2Colors.light.surface);
+      expect(theme.appBarTheme.foregroundColor, MachvonV2Colors.light.ink);
       expect(theme.appBarTheme.centerTitle, isFalse);
-      expect(theme.appBarTheme.titleTextStyle?.fontSize, 20);
+      expect(theme.appBarTheme.elevation, 0);
+      expect(theme.appBarTheme.titleTextStyle?.fontSize, MachvonV2Type.heading.size);
       expect(theme.appBarTheme.titleTextStyle?.fontWeight, FontWeight.w600);
     });
 
@@ -68,12 +70,15 @@ void main() {
       }
     });
 
-    test('a tenant theme changes the app bar and the selected colour, never the semantic colours', () {
+    test('a tenant theme changes the command band and the selected colour, never the semantic colours or the three deadline bands', () {
       final ThemeData tenant = buildAppTheme(
         platform: TargetPlatform.android,
         tenantOverlay: const <String, String>{'primary': '#0a4d8c', 'menu': '#0a2540'},
       );
-      expect(tenant.appBarTheme.backgroundColor, const Color(0xFF0A2540));
+      expect(tenant.extension<MachvonV2>()!.palette.header, const Color(0xFF0A2540));
+      expect(tenant.extension<MachvonV2>()!.palette.primary, const Color(0xFF0A4D8C));
+      expect(tenant.extension<MachvonV2>()!.palette.lateFg, MachvonV2Colors.light.lateFg);
+      expect(tenant.extension<MachvonV2>()!.palette.okMark, MachvonV2Colors.light.okMark);
       expect(tenant.filledButtonTheme.style!.backgroundColor!.resolve(<WidgetState>{}), const Color(0xFF0A4D8C));
       expect(tenant.extension<MachvonSemantic>()!.danger, MachvonColors.danger);
     });

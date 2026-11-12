@@ -6,6 +6,8 @@ import '../l10n/app_strings.dart';
 import '../theme/colors.dart';
 import '../theme/typography.dart';
 
+export '../theme/colors.dart' show DeadlineBand;
+
 /// The name of a band for a screen reader and for a group title: `Qua han`, `Sap den han`, `Con thoi gian`, `Da xong`.
 String deadlineBandName(BuildContext context, DeadlineBand band) {
   switch (band) {

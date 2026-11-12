@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../l10n/app_strings.dart';
 import '../state/status_banners.dart';
+import '../widgets/bottom_nav.dart';
 import 'route_catalogue.dart';
 import 'tab_badges.dart';
 
@@ -56,50 +56,21 @@ class AppShell extends ConsumerWidget {
             ],
           ),
         ),
-        // The bar itself is themed (white, teal selected, danger badges); the 1 px line above it is the only separator.
-        bottomNavigationBar: DecoratedBox(
-          decoration: const BoxDecoration(
-            border: Border(top: BorderSide(color: MachvonColors.border)),
-          ),
-          child: NavigationBar(
-            selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (int index) => navigationShell.goBranch(
-              index,
-              initialLocation: index == navigationShell.currentIndex,
-            ),
-            destinations: <Widget>[
-              for (final AppTab tab in AppTab.values)
-                NavigationDestination(
-                  icon: _badged(context, tab, badges[tab] ?? 0, _icons[tab]!),
-                  selectedIcon: _badged(
-                    context,
-                    tab,
-                    badges[tab] ?? 0,
-                    _selectedIcons[tab]!,
-                  ),
-                  label: _labelOf(context, tab),
-                ),
-            ],
-          ),
+        // The bottom navigation of the phone design: 64 high, the labels always shown, a bar at the top of the chosen tab, a count in a pill.
+        bottomNavigationBar: AppBottomNav(
+          selectedIndex: navigationShell.currentIndex,
+          onSelected: (int index) => navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex),
+          items: <NavItem>[
+            for (final AppTab tab in AppTab.values)
+              NavItem(
+                icon: _icons[tab]!,
+                selectedIcon: _selectedIcons[tab]!,
+                label: _labelOf(context, tab),
+                badge: badges[tab] ?? 0,
+                badgeHint: (badges[tab] ?? 0) > 0 ? context.t('mob.shell.badge.pending', <String, Object>{'count': badges[tab]!}) : null,
+              ),
+          ],
         ),
-      ),
-    );
-  }
-
-  Widget _badged(BuildContext context, AppTab tab, int count, IconData icon) {
-    if (count <= 0) return Icon(icon);
-    // The count is a hint of the tab, not a label: the bar merges the icon, the label and the position of the tab into one
-    // node, and a label on the icon came first in it ("10 mục cần xử lý, 10, Thông báo, Tab 4 trong tổng số 5"), so a screen
-    // reader and a UI test never met the name on the screen first. A hint is read after the label, and the badge drawn on
-    // the icon ("10") is left out of the semantics so the number is not said twice.
-    return Semantics(
-      hint: context.t('mob.shell.badge.pending', <String, Object>{
-        'count': count,
-      }),
-      excludeSemantics: true,
-      child: Badge(
-        label: Text(count > 99 ? '99+' : '$count'),
-        child: Icon(icon),
       ),
     );
   }

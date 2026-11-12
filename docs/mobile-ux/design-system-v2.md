@@ -6,6 +6,10 @@ Tên mã nội bộ (MACHVON, Mạch Vốn) không xuất hiện trong mockup v�
 
 Tệp liên quan: `docs/mobile-ux/findings.md` (khảo sát), `research.md` (nghiên cứu), `key-flows.md` (tám luồng vẽ lại), `mockups/direction-a.html`, `mockups/direction-b.html`, `mockups/direction-b-v1.html`, `before-after.html`, `mockups/measure.json` (số đo), `mockups/src/` (nguồn dựng).
 
+## 0. Trạng thái triển khai (MUX-1, 2026-11-13)
+
+Đã làm trong làn `mux1`: nhóm token `mobileV2` (sinh mã Dart riêng, đầu ra web không đổi), tách `core/theme` (`colors.dart`, `typography.dart`, `components.dart`, `theme_mode.dart`) và chế độ giao diện hệ thống, sáng, tối có lưu, bộ thành phần mục 5 ở `core/widgets` (mỗi cái có widget test và golden sáng, tối, chữ 200%), bộ định dạng duy nhất `core/format`, kiểm tĩnh R38 bánh cóc (`test/static/design_rules_test.dart` và `design_rules_baseline.json`), khung 5 tab và dải trạng thái dựng bằng thành phần mới. Chế độ tối mặc định tắt (mặc định là sáng) cho đến khi các đợt MUX-3 đưa hết màn sang màu của theme; chưa đo được khởi động nguội và thời gian khung hình (không có thiết bị trên máy này), ngân sách đã ghi ở `docs/qa/perf-budget.json`, mục `mobile`.
+
 ## 1. Hai hướng và lựa chọn
 
 **Hướng A, "Bảng điều hành".** Thanh tiêu đề tối và dải điều hành trên cùng, mọi thứ trong thẻ có dải hạn bên trái (đặc cho trễ, đứt nét cho sắp đến hạn, mờ cho còn thời gian), mỗi thẻ có một nút chính nằm ngay trên thẻ ("Phê duyệt", "Bổ sung chứng từ"). Mạnh về nhận diện và về số chạm duyệt (2 từ trang chủ), nhưng mỗi thẻ cao 150 đến 220 px nên màn đầu chỉ chứa 1 đến 3 mục, và khi nhân ra 77 màn thì thẻ, chip đặc, bóng và nút trong thẻ thành bốn mẫu riêng phải được quản.
@@ -154,11 +158,11 @@ Nguồn lỗi hiện hành: xem `findings.md` F-02. Quy tắc:
 
 | Chế độ | Quy tắc | Ví dụ |
 |---|---|---|
-| Rút gọn (ô chỉ số, hàng, tiêu đề dải) | chọn đơn vị lớn nhất có phần nguyên từ 1: đồng, nghìn đồng cho dưới 1 triệu chỉ khi cần, triệu đồng, tỷ đồng; tối đa 1 chữ số thập phân; dấu `.` ngăn nghìn, `,` thập phân | 1.000 đồng; 38 tỷ đồng; 928,8 tỷ đồng; 1.058,3 tỷ đồng; 2,4 tỷ đồng (từ 2.350.000.000: làm tròn, kèm số đầy đủ ở chi tiết) |
+| Rút gọn (ô chỉ số, hàng, tiêu đề dải) | chọn đơn vị lớn nhất có phần nguyên từ 1: đồng (dưới 1.000), nghìn đồng, triệu đồng, tỷ đồng; tối đa 1 chữ số thập phân; làm tròn lên đơn vị kế khi chạm 1.000 (999.960.000 là 1 tỷ đồng, không phải 1.000 triệu đồng); dấu `.` ngăn nghìn, `,` thập phân | 999 đồng; 1 nghìn đồng; 38 tỷ đồng; 928,8 tỷ đồng; 1.058,3 tỷ đồng; 2,4 tỷ đồng (từ 2.350.000.000: làm tròn, kèm số đầy đủ ở chi tiết) |
 | Đầy đủ (chi tiết, xác nhận phê duyệt, thanh toán) | đồng đầy đủ có dấu ngăn nghìn, kèm rút gọn trong ngoặc khi từ 1 triệu | 2.350.000.000 đồng (2,35 tỷ) |
 | Phần trăm | một chữ số thập phân, dấu phẩy | 58,1% |
 
-Không có đơn vị cố định "triệu đồng" cho mọi số; không bao giờ xuống 0,001 triệu. Hành vi cũ giữ cho số liệu báo cáo xuất tệp (không đổi hợp đồng API).
+Không có đơn vị cố định "triệu đồng" cho mọi số; không bao giờ xuống 0,001 triệu. Đã làm ở `apps/mobile/lib/core/format` (`moneyParts`, `moneyLabel`, `moneyExactLabel`, `moneyFullLabel`, `formatDay`, `formatMoment`, `formatDeadline`): một bộ duy nhất, giờ Việt Nam, ngày trước giờ sau. Hành vi cũ giữ cho số liệu báo cáo xuất tệp (không đổi hợp đồng API).
 Ngày: `dd/MM/yyyy`, ngày ngắn `dd/MM`, giờ 24 giờ `HH:mm`, thứ "Thứ Năm". Tương đối chỉ cho hạn: "Hôm nay", "Ngày mai", "Trễ N ngày", "Còn N ngày" kèm ngày thật; không dùng "N ngày trước" cho hạn chót.
 
 ## 7. Cấu trúc điều hướng

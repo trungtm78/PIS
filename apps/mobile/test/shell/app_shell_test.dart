@@ -9,6 +9,7 @@ import 'package:machvon_mobile/core/navigation/tab_badges.dart';
 import 'package:machvon_mobile/core/security/device_integrity.dart';
 import 'package:machvon_mobile/core/security/integrity_state.dart';
 import 'package:machvon_mobile/core/sync/sync_status.dart';
+import 'package:machvon_mobile/core/widgets/bottom_nav.dart';
 
 import '../support/harness.dart';
 import '../support/list_feature.dart';
@@ -21,7 +22,7 @@ const Map<AppTab, String> _viLabels = <AppTab, String>{
   AppTab.account: 'Cá nhân',
 };
 
-Finder _tab(AppTab tab) => find.descendant(of: find.byType(NavigationBar), matching: find.text(_viLabels[tab]!));
+Finder _tab(AppTab tab) => find.descendant(of: find.byType(AppBottomNav), matching: find.text(_viLabels[tab]!));
 
 double _scrollOffset(WidgetTester tester) => tester.state<ScrollableState>(find.descendant(of: find.byKey(const Key('project-list')), matching: find.byType(Scrollable))).position.pixels;
 
@@ -33,7 +34,7 @@ void main() {
           useDevice(tester, size, textScale: scale);
           await pumpApp(tester, features: const [listFeature]);
 
-          expect(find.byType(NavigationDestination), findsNWidgets(5));
+          expect(find.byType(AppBottomNavItem), findsNWidgets(5));
           for (final AppTab tab in AppTab.values) {
             await tester.tap(_tab(tab));
             await tester.pumpAndSettle();
@@ -90,7 +91,7 @@ void main() {
       await pressBack(tester);
 
       expect(currentLocation(container), '/home');
-      expect(tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex, AppTab.home.index);
+      expect(tester.widget<AppBottomNav>(find.byType(AppBottomNav)).selectedIndex, AppTab.home.index);
     });
 
     testWidgets('tapping the open tab again returns to its root', (WidgetTester tester) async {
@@ -112,7 +113,7 @@ void main() {
           await pumpApp(tester, features: const [listFeature], location: '/projects');
           final double minimum = platform == TargetPlatform.iOS ? 44 : 48;
 
-          for (final Element destination in find.byType(NavigationDestination).evaluate()) {
+          for (final Element destination in find.byType(AppBottomNavItem).evaluate()) {
             final Size size = tester.getSize(find.byElementPredicate((Element element) => element == destination));
             expect(size.width, greaterThanOrEqualTo(minimum));
             expect(size.height, greaterThanOrEqualTo(minimum));
@@ -135,7 +136,7 @@ void main() {
 
       expect(find.text('3'), findsOneWidget);
       final SemanticsHandle semantics = tester.ensureSemantics();
-      expect(tester.getSemantics(find.byType(NavigationDestination).at(AppTab.approval.index)).getSemanticsData().hint, '3 mục cần xử lý');
+      expect(tester.getSemantics(find.byType(AppBottomNavItem).at(AppTab.approval.index)).getSemanticsData().hint, '3 mục cần xử lý');
       semantics.dispose();
     });
 
@@ -148,7 +149,7 @@ void main() {
       container.read(tabBadgeProvider.notifier).set(AppTab.inbox, 10);
       await tester.pumpAndSettle();
 
-      final SemanticsData inbox = tester.getSemantics(find.byType(NavigationDestination).at(AppTab.inbox.index)).getSemanticsData();
+      final SemanticsData inbox = tester.getSemantics(find.byType(AppBottomNavItem).at(AppTab.inbox.index)).getSemanticsData();
       expect(inbox.label, startsWith(_viLabels[AppTab.inbox]!), reason: 'the visible label is the first thing a reader hears and the first thing a test can match');
       expect(inbox.label, matches(RegExp('^${_viLabels[AppTab.inbox]}.*', dotAll: true)));
       expect(inbox.label, isNot(contains('10')), reason: 'the number drawn on the badge is not read as a word of its own');
@@ -156,7 +157,7 @@ void main() {
       expect(inbox.hint, '10 mục cần xử lý');
 
       // A tab with no number says nothing more than its name and its place.
-      final SemanticsData projects = tester.getSemantics(find.byType(NavigationDestination).at(AppTab.projects.index)).getSemanticsData();
+      final SemanticsData projects = tester.getSemantics(find.byType(AppBottomNavItem).at(AppTab.projects.index)).getSemanticsData();
       expect(projects.label, startsWith(_viLabels[AppTab.projects]!));
       expect(projects.hint, isEmpty);
       semantics.dispose();
@@ -170,7 +171,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('99+'), findsOneWidget);
-      final SemanticsData approval = tester.getSemantics(find.byType(NavigationDestination).at(AppTab.approval.index)).getSemanticsData();
+      final SemanticsData approval = tester.getSemantics(find.byType(AppBottomNavItem).at(AppTab.approval.index)).getSemanticsData();
       expect(approval.label, startsWith(_viLabels[AppTab.approval]!));
       expect(approval.hint, '120 mục cần xử lý');
       semantics.dispose();

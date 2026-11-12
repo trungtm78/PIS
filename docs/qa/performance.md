@@ -58,3 +58,7 @@ These are measurements of the table and the code on a small sample tenant, not a
 ## What a run does not prove
 
 The budget is a contract about the customer hardware and data volume. A green run on a laptop with an empty tenant says only that the table and the runner work. The run that counts is the one on the customer servers with the data of the customer, and its `--out` file is the evidence for the acceptance record.
+
+## The phone application (R41)
+
+The `mobile` table of `perf-budget.json` carries the budget of the phone, which the API rows do not: a cold start to the first frame of the home content in 2.5 s at p75, no more than 1 percent of the frames over 16 ms and none over 700 ms while a list of 200 rows scrolls, no shadow and no gradient in a list, no illustration over 150 KB in a screen, a skeleton that does not animate. The static rules are enforced in `flutter test` (`apps/mobile/test/static/performance_rules_test.dart`: the shared widgets use no gradient, blur or nested opacity, and a shadow only in the action bar, the sheet and the floating button). The two measured figures are `null` until they are taken on a device: they are not claimed.

@@ -80,8 +80,9 @@ bool largeText(BuildContext context) => MediaQuery.textScalerOf(context).scale(1
 /// the ink colours of [theme] so the dark mode stays readable. A screen moves to context.v2text when its wave of MUX-3 comes; this
 /// function goes with the last screen.
 TextTheme legacyTextTheme(TextTheme base, MachvonV2 theme) {
-  final Color ink = theme.palette.ink;
-  final Color secondary = theme.palette.ink2;
+  // The light mode keeps the secondary ink the screens have always had; the dark mode takes the dark palette.
+  final Color ink = theme.isDark ? theme.palette.ink : MachvonColors.ink;
+  final Color secondary = theme.isDark ? theme.palette.ink2 : MachvonColors.textSecondary;
   TextStyle? sized(TextStyle? style, double size, FontWeight weight, {double? height, bool figures = false, double? letterSpacing}) {
     return style?.copyWith(
       fontSize: size,

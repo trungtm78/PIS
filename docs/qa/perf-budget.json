@@ -41,6 +41,12 @@
     "enterpriseSnapshotId": {"path": "/enterprise-snapshots", "query": {"status": "FROZEN", "limit": "1"}, "pick": "items.0.id"},
     "enterprisePeriodId": {"path": "/enterprise-snapshots", "query": {"limit": "1", "status": "FROZEN"}, "pick": "items.0.period_id"}
   },
+  "mobile": {
+    "source": "R41 of the engineering review of 2026-11-12 and docs/mobile-ux/design-system-v2.md section 10: the budget of the phone application, measured on a release build on a mid-range Android device. The operations above are the API; this is what the person feels on the screen.",
+    "coldStart": {"budgetMs": 2500, "stat": "p75", "to": "the first frame of the main content of the home screen", "measured": null, "status": "NOT_MEASURED: no device on the machine of the lane that set the budget (the UAT of run 6 saw more than 2.5 s on an emulator); measure on a device in MUX-3 wave A"},
+    "scrollFrames": {"list": "200 rows of WorkRow", "slowFramePercentMax": 1, "slowFrameOverMs": 16, "frozenFramesMax": 0, "frozenFrameOverMs": 700, "measured": null, "status": "NOT_MEASURED: needs a device or an emulator on a release or profile build"},
+    "staticRules": {"shadowsAndGradientsInLists": 0, "illustrationKbPerScreenMax": 150, "skeleton": "static, never animated", "enforcedBy": "apps/mobile/test/static/performance_rules_test.dart"}
+  },
   "operations": [
     {"id":"PB-F001","operationId":"getCommandCenter","method":"GET","path":"/home/command-center","permission":"home.read","class":"FUNCTION","area":"HOME"},
     {"id":"PB-F002","operationId":"getMyWork","method":"GET","path":"/home/my-work","permission":"home.read","class":"FUNCTION","area":"HOME"},

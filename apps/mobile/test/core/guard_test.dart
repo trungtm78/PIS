@@ -4,6 +4,7 @@ import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/navigation/deep_link_guard.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/session/session.dart';
+import 'package:machvon_mobile/core/widgets/bottom_nav.dart';
 
 import '../support/harness.dart';
 import '../support/list_feature.dart';
@@ -74,7 +75,7 @@ void main() {
 
       expect(Uri.parse(currentLocation(container)).path, '/mob-02');
       expect(Uri.parse(currentLocation(container)).queryParameters['return'], '/projects/mob-10/p1');
-      expect(find.byType(NavigationBar), findsNothing, reason: 'no tabs before sign-in');
+      expect(find.byType(AppBottomNav), findsNothing, reason: 'no tabs before sign-in');
       expect(find.textContaining('MOB-02'), findsOneWidget);
     });
 
@@ -82,13 +83,13 @@ void main() {
       useDevice(tester, kDeviceSizes[1]);
       final FakeSession session = FakeSession();
       final container = await pumpApp(tester, features: const <MobileFeature>[listFeature], session: session, location: '/projects');
-      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byType(AppBottomNav), findsOneWidget);
 
       session.change(const SessionSnapshot.signedOut());
       await tester.pumpAndSettle();
 
       expect(Uri.parse(currentLocation(container)).path, '/mob-02');
-      expect(find.byType(NavigationBar), findsNothing);
+      expect(find.byType(AppBottomNav), findsNothing);
     });
 
     testWidgets('a session that ended leads to the session-expired screen outside the tabs', (WidgetTester tester) async {
@@ -96,7 +97,7 @@ void main() {
       final container = await pumpApp(tester, session: FakeSession(_expired));
 
       expect(Uri.parse(currentLocation(container)).path, '/mob-44');
-      expect(find.byType(NavigationBar), findsNothing);
+      expect(find.byType(AppBottomNav), findsNothing);
     });
 
     testWidgets('a link of another tenant opens the access-denied screen', (WidgetTester tester) async {

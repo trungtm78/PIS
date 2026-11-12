@@ -275,8 +275,9 @@ class _RefreshingBar extends StatelessWidget {
 
 /// The context bar of a screen that reads (design.md "ContextBar"): the scope the figures describe, their closing date, where
 /// the data came from and the moment it describes. A copy kept on the device says so, says the amounts are reference data that
-/// cannot be edited, and says when it is out of date ("Stale figures"). Never says the data is the newest.
-class FreshnessBar extends StatelessWidget {
+/// cannot be edited, and says when it is out of date ("Stale figures"). Never says the data is the newest. It does not repeat the
+/// offline notice of the shell: with the shell strip up, the saved copy is named by its moment only.
+class FreshnessBar extends ConsumerWidget {
   const FreshnessBar({required this.data, required this.ttl, this.onRefresh, this.scope, this.closing, super.key});
 
   final Loaded<Object?> data;
@@ -286,13 +287,17 @@ class FreshnessBar extends StatelessWidget {
   final String? closing;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final String? asOf = data.asOf;
+    // While the strip of the shell already says the device is offline, this line does not say it again (one offline notice at a time).
+    final bool shellSaysOffline = ref.watch(reachabilityProvider) == Reachability.offline;
     final String line;
     if (data.fromCache) {
       line = asOf == null
           ? context.t('mob.read.saved.fetched', <String, Object>{'time': formatFetched(data.fetchedAt)})
-          : context.t('mob.read.saved.asOf', <String, Object>{'time': asOfLabel(asOf)});
+          : shellSaysOffline
+              ? context.t('mob.read.saved.short', <String, Object>{'time': asOfLabel(asOf)})
+              : context.t('mob.read.saved.asOf', <String, Object>{'time': asOfLabel(asOf)});
     } else {
       line = asOf == null
           ? context.t('mob.read.fetched.line', <String, Object>{'time': formatFetched(data.fetchedAt)})
