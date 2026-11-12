@@ -174,6 +174,13 @@ export class PublicationController {
     return commandResult(scope, decided.status, decided.version, decided.id);
   }
 
+  /** Who wrote what the request is about: the author of the version of a dashboard, of the metric or of the policy; null when the record does not say. */
+  private async authorOf(tx: CommandScope['tx'], request: { objectKind: string; objectId: string }, versionAuthor: string | null): Promise<string | null> {
+    if (request.objectKind === 'METRIC') return (await new BiMetricStore().find(tx, request.objectId))?.createdBy ?? null;
+    if (request.objectKind === 'ACCESS_POLICY') return (await new BiPolicyStore().find(tx, request.objectId))?.createdBy ?? null;
+    return versionAuthor;
+  }
+
   /**
    * The check step (BC.02): somebody who is not who asked and not who wrote the version looks at the request and says so, once, while it is pending. The request stays pending: the decision is another person's. The step is
    * optional, a request that is decided without it is the two-person flow of before and its block of signatures says the check was not taken.
@@ -194,7 +201,7 @@ export class PublicationController {
     if (request.version !== scope.expectedVersion) throw versionConflict(request.version);
     if (request.status !== 'PENDING' || request.checkedBy !== null) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
     const actor = scope.tenant.membershipId;
-    assertCheckerIsIndependent(actor, { requestedBy: request.requestedBy, preparedBy: held?.version.createdBy ?? null });
+    assertCheckerIsIndependent(actor, { requestedBy: request.requestedBy, preparedBy: await this.authorOf(scope.tx, request, held?.version.createdBy ?? null) });
     const comment = body.comment === undefined || body.comment.trim() === '' ? null : body.comment.trim().normalize('NFC');
     const checked = await this.publications.check(scope.tx, request.id, { checkedBy: actor, comment });
     await scope.audit({ action: 'bi.publication.check', resourceType: RESOURCE_TYPE, resourceId: checked.id, diff: { object_kind: checked.objectKind, object_id: checked.objectId, requested_by: checked.requestedBy, comment } });

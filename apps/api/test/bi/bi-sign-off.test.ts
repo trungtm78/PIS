@@ -112,6 +112,25 @@ describe('the check step of a publication and the three signatures of a dashboar
     expect(await check(request, 3)).toMatchObject({ status: 409, json: { code: 'STAGE_TRANSITION_DENIED' } });
   });
 
+  it('refuses the author of a metric as its checker, whoever asked for the publication', async () => {
+    const id = randomUUID();
+    sequence += 1;
+    await owner(
+      `insert into machvon.metric_definition (tenant_id, id, code, revision, grain, aggregation_type, expression_ast, unit, owner_id, status, origin, created_by, version)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, 1, 'project', 'additive', '{"op":"sum","args":[{"op":"field","name":"GIAI_NGAN"}]}'::jsonb, 'VND', $3::uuid, 'DRAFT', 'TENANT_UI', $3::uuid, 1)`,
+      [id, `t_so_author_${sequence}`, memberId(CHECKER)],
+    );
+    // The request is written as the submit would have left it: the checks of the submit are not what is tested here.
+    const request = randomUUID();
+    await owner(
+      `insert into machvon.bi_publication_request (tenant_id, id, object_kind, object_id, requested_by, checks_json, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, 'METRIC', $2::uuid, $3::uuid, '{}'::jsonb, $3::uuid, $3::uuid)`,
+      [request, id, memberId(REQUESTER)],
+    );
+    expect(await check(request, 1, {}, CHECKER)).toMatchObject({ status: 403, json: { code: 'SELF_APPROVAL_DENIED' } });
+    expect((await check(request, 1, {}, APPROVER)).status).toBe(200);
+  });
+
   it('refuses the checker as the approver, and lets a third person approve', async () => {
     const board = await dashboardWithVersion(await certifiedMetric());
     const request = (await submit(board.versionId)).json.resource_id as string;
