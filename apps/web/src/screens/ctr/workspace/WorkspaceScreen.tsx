@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard, StatusPill } from '../../../ui';
@@ -16,7 +17,7 @@ import { versionsLink } from '../revision/model';
 import { useSummary } from './hooks';
 import { statusText } from '../labels';
 import { checkLabel, checkState, closureCheckLabel, commandLabel, completionCheckLabel, gateLabel } from './labels';
-import { BEFORE_ACTIVATION, HALT_ACTIONS, checksOf, closureChecksOf, completionChecksOf, vietnamToday } from './model';
+import { BEFORE_ACTIVATION, COMMAND_PERMISSION, HALT_ACTIONS, checksOf, closureChecksOf, completionChecksOf, vietnamToday } from './model';
 import type { Command, Summary } from './model';
 import { ActivateDialog, CloseDialog, CompleteDialog, NoteDialog, SignDialog } from './WorkspaceDialogs';
 import '../ctr.css';
@@ -41,7 +42,7 @@ export default function WorkspaceScreen({ route }: ScreenProps) {
 
 function WorkspaceContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
   // Opened without a contract in the address (the menu), the largest contract in force is shown, and the selector stays to change it.
   const choice = useContractChoice('id');
   const contractId = choice.contractId;
@@ -71,7 +72,7 @@ function WorkspaceContent({ route }: ScreenProps) {
         </>
       ) : (
         <StateBoundary state={state} onRetry={() => void summary.refetch()}>
-          {summary.data === null || summary.data === undefined ? null : <Workspace summary={summary.data} locale={locale} readOnly={mode === 'READ_ONLY'} onOpen={setOpen} />}
+          {summary.data === null || summary.data === undefined ? null : <Workspace summary={summary.data} locale={locale} readOnly={mode === 'READ_ONLY'} permissions={permissions} onOpen={setOpen} />}
         </StateBoundary>
       )}
       {open === undefined || summary.data === null || summary.data === undefined ? null : open === 'sign' ? (
@@ -94,14 +95,15 @@ interface WorkspaceProps {
   summary: Summary;
   locale: string;
   readOnly: boolean;
+  permissions: readonly string[] | undefined;
   onOpen(command: Command): void;
 }
 
-function Workspace({ summary, locale, readOnly, onOpen }: WorkspaceProps) {
+function Workspace({ summary, locale, readOnly, permissions, onOpen }: WorkspaceProps) {
   const { t } = useTranslation();
   const { contract } = summary;
   const checks = summary.readiness !== undefined && BEFORE_ACTIVATION.includes(contract.status) ? checksOf(summary.readiness) : [];
-  const may = (command: Command): boolean => !readOnly && summary.actions?.[command] === true;
+  const may = (command: Command): boolean => !readOnly && summary.actions?.[command] === true && holds(permissions, COMMAND_PERMISSION[command]);
   const buttons = ORDER.filter(may);
   const gate = summary.readiness?.permitGate;
   const completionChecks = summary.completion !== undefined && contract.status === 'ACTIVE' ? completionChecksOf(summary.completion) : [];
