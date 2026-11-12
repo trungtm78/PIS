@@ -78,7 +78,7 @@ describe('the names of the product, from the edition manifests', () => {
   it('keep the enterprise identity in the enterprise files only', async () => {
     const files = await generatedFiles(REPO);
     const enterprise = files.filter((file) => file.path.includes('enterprise'));
-    assert.deepEqual(enterprise.map((file) => file.path).sort(), [ENTERPRISE_DART, 'apps/mobile/android/app/src/enterprise/res/values/strings.xml'].sort());
+    assert.deepEqual(enterprise.map((file) => file.path).sort(), [ENTERPRISE_DART, 'apps/mobile/android/app/src/enterprise/res/values/strings.xml', 'apps/mobile/android/app/src/enterprise/res/values-en/strings.xml'].sort());
     assert.match(enterprise.find((file) => file.path === ENTERPRISE_DART).text, /kEnterpriseLauncherNameVi = 'Mạch Vốn'/);
     for (const file of files.filter((entry) => !entry.path.includes('enterprise'))) assert.doesNotMatch(file.text, /Mạch Vốn|MACHVON/i, file.path);
   });
@@ -101,7 +101,7 @@ describe('a layout with its own manifests', () => {
     assert.match(readFileSync(join(root, 'apps/mobile/ios/Runner/Info.plist'), 'utf8'), /<string>Công<\/string>/);
     assert.match(readFileSync(join(root, PUBLIC_DART), 'utf8'), /kPublicTaglineEn = 'It\\'s the tagline'/);
     assert.ok(existsSync(join(root, 'apps/mobile/android/app/src/main/res/values-en/strings.xml')), 'the English launcher name differs, so it has its own resource');
-    assert.equal(existsSync(join(root, 'apps/mobile/android/app/src/enterprise/res/values-en/strings.xml')), false, 'the same name in both languages needs none');
+    assert.ok(existsSync(join(root, 'apps/mobile/android/app/src/enterprise/res/values-en/strings.xml')), 'the enterprise build overrides the English name of the main resources even when its two names are equal');
     assert.deepEqual(await writeBrand(root), [], 'a second write changes nothing');
   });
 

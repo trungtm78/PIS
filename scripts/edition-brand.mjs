@@ -82,12 +82,13 @@ export async function generatedFiles(root = DEFAULT_ROOT) {
   if (pub?.brand !== undefined) {
     files.push({ path: PUBLIC_DART, text: dartFile(PUBLIC_MANIFEST, 'public', pub.brand, pub.productName) });
     files.push({ path: `${ANDROID_PUBLIC}/values/strings.xml`, text: androidFile('The name of the application under its icon: the public edition. The enterprise build overrides it from src/enterprise/res.', pub.brand.launcherName.vi) });
-    if (pub.brand.launcherName.en !== pub.brand.launcherName.vi) files.push({ path: `${ANDROID_PUBLIC}/values-en/strings.xml`, text: androidFile('The name under the icon on a phone set to English: the public edition.', pub.brand.launcherName.en) });
+    files.push({ path: `${ANDROID_PUBLIC}/values-en/strings.xml`, text: androidFile('The name under the icon on a phone set to English: the public edition.', pub.brand.launcherName.en) });
   }
   if (enterprise?.brand !== undefined) {
     files.push({ path: ENTERPRISE_DART, text: dartFile(ENTERPRISE_MANIFEST, 'enterprise', enterprise.brand, undefined) });
     files.push({ path: `${ANDROID_ENTERPRISE}/values/strings.xml`, text: androidFile('The name of the application under its icon in a build made as the enterprise edition (MACHVON_EDITION=enterprise).', enterprise.brand.launcherName.vi) });
-    if (enterprise.brand.launcherName.en !== enterprise.brand.launcherName.vi) files.push({ path: `${ANDROID_ENTERPRISE}/values-en/strings.xml`, text: androidFile('The name under the icon on a phone set to English: the enterprise edition.', enterprise.brand.launcherName.en) });
+    // Always: the main resources carry an English name of their own, and Android picks a locale folder before the default of the enterprise build.
+    files.push({ path: `${ANDROID_ENTERPRISE}/values-en/strings.xml`, text: androidFile('The name under the icon on a phone set to English: the enterprise edition.', enterprise.brand.launcherName.en) });
   }
   return files;
 }
