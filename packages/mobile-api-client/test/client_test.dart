@@ -29,7 +29,7 @@ HttpResult problem(int status, String code, {Map<String, Object?> extra = const 
     HttpResult(
       status: status,
       headers: <String, String>{'content-type': 'application/problem+json', ...headers},
-      body: jsonEncode(<String, Object?>{'type': 'urn:x', 'title': 't', 'status': status, 'code': code, 'correlationId': 'srv-corr', ...extra}),
+      body: jsonEncode(<String, Object?>{'type': 'urn:x', 'title': 't', 'status': status, 'code': code, 'correlation_id': 'srv-corr', ...extra}),
     );
 
 MachvonApiClient clientFor(FakeTransport transport, {List<Duration>? waits, Future<String?> Function()? token}) {

@@ -5,7 +5,7 @@ const String networkErrorCode = 'NETWORK_ERROR';
 
 const String _internalErrorCode = 'INTERNAL_ERROR';
 const String _validationFailedCode = 'VALIDATION_FAILED';
-const Set<String> _standardMembers = <String>{'type', 'title', 'status', 'code', 'detail', 'correlationId'};
+const Set<String> _standardMembers = <String>{'type', 'title', 'status', 'code', 'detail', 'correlation_id'};
 const Map<int, String> _codeByStatus = <int, String>{
   401: 'SESSION_EXPIRED',
   403: 'SCOPE_DENIED',
@@ -58,7 +58,7 @@ final class ApiError implements Exception {
       return ApiError(status: status, code: _codeFor(status), correlationId: correlation, retryAfterSeconds: retryAfter);
     }
     final Object? detail = problem['detail'];
-    final Object? bodyCorrelation = problem['correlationId'];
+    final Object? bodyCorrelation = problem['correlation_id'];
     return ApiError(
       status: status,
       code: problem['code']! as String,
