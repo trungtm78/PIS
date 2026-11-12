@@ -47,6 +47,45 @@ export interface Widget {
   grid: { x: number; y: number; w: number; h: number };
 }
 
+/** One signature of a management report: who, with the name in the directory (null when it has none) and when. */
+export interface Signature {
+  id: string;
+  name: string | null;
+  at: string;
+}
+
+export const SIGN_OFF_STATES = ['UNSIGNED', 'PREPARED', 'CHECKED', 'APPROVED'] as const;
+export type SignOffState = (typeof SIGN_OFF_STATES)[number];
+
+/** The three signatures of a version of a dashboard (BC.02): prepared, checked, approved; a step nobody took is null, and `complete` says all three are in. */
+export interface SignOff {
+  versionId: string | null;
+  revision: number | null;
+  prepared: Signature | null;
+  checked: Signature | null;
+  approved: Signature | null;
+  state: SignOffState;
+  complete: boolean;
+}
+
+function signatureOf(raw: unknown): Signature | null {
+  return isRecord(raw) && typeof raw.id === 'string' && typeof raw.at === 'string' ? { id: raw.id, name: nullableText(raw.name), at: raw.at } : null;
+}
+
+/** The block of signatures as the server gives it; anything that is not a block is none, and a state it does not know is `UNSIGNED`. */
+export function toSignOff(raw: unknown): SignOff | null {
+  if (!isRecord(raw)) return null;
+  return {
+    versionId: nullableText(raw.version_id),
+    revision: typeof raw.revision === 'number' ? raw.revision : null,
+    prepared: signatureOf(raw.prepared_by),
+    checked: signatureOf(raw.checked_by),
+    approved: signatureOf(raw.approved_by),
+    state: oneOf(raw.state, SIGN_OFF_STATES, 'UNSIGNED'),
+    complete: raw.complete === true,
+  };
+}
+
 export interface DashboardVersion {
   id: string;
   revision: number;
@@ -61,6 +100,8 @@ export interface DashboardVersion {
   createdBy: string;
   createdAt: string;
   publishedAt: string | null;
+  /** The signatures of the version; null when the server gave none (a list of versions does not). */
+  signOff: SignOff | null;
 }
 
 export interface Dashboard {
@@ -77,6 +118,8 @@ export interface Dashboard {
   /** What the person may do with it: the owner, shared with them to change, or to see; none when it is in the library only. */
   permission: 'OWNER' | 'EDIT' | 'VIEW' | null;
   version: number;
+  /** The signatures of the version the dashboard points to; null when it has none. */
+  signOff: SignOff | null;
   versions: DashboardVersion[];
   /** Who it is shared with: told to the owner only. */
   shares: Share[];
@@ -118,6 +161,7 @@ export function toVersion(raw: unknown): DashboardVersion | undefined {
     createdBy: text(raw.created_by),
     createdAt: text(raw.created_at),
     publishedAt: nullableText(raw.published_at),
+    signOff: toSignOff(raw.sign_off),
   };
 }
 
@@ -141,6 +185,7 @@ export function toDashboard(raw: unknown): Dashboard | undefined {
     mayEdit: raw.may_edit === true,
     permission: raw.permission === 'OWNER' || raw.permission === 'EDIT' || raw.permission === 'VIEW' ? raw.permission : null,
     version: count(raw.version),
+    signOff: toSignOff(raw.sign_off),
     versions: Array.isArray(raw.versions) ? raw.versions.flatMap((version) => toVersion(version) ?? []) : [],
     shares: Array.isArray(raw.shares) ? raw.shares.flatMap((share) => toShare(share) ?? []) : [],
   };
