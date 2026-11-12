@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/di/providers.dart' show routerProvider;
 import 'package:machvon_mobile/core/l10n/string_table.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
 import 'package:machvon_mobile/core/navigation/tab_badges.dart';
+import 'package:machvon_mobile/core/widgets/work_row.dart' show GroupHeader;
 import 'package:machvon_mobile/features/notification_inbox/notification_inbox_feature.dart' as notifications;
 
 import '../../support/harness.dart';
@@ -77,9 +79,9 @@ void main() {
 
       expect(find.text('Kế hoạch bồi thường có cập nhật'), findsNWidgets(3), reason: 'the translated title of three of the notifications');
       expect(find.text('Nội dung không còn khả dụng'), findsOneWidget);
-      expect(find.text('Tất cả (4)'), findsOneWidget);
-      expect(find.text('Chưa đọc (3)'), findsOneWidget);
-      expect(find.text('Cần xác nhận (1)'), findsOneWidget);
+      expect(find.text('Tất cả 4'), findsOneWidget);
+      expect(find.text('Chưa đọc 3'), findsOneWidget);
+      expect(find.text('Cần xác nhận 1'), findsOneWidget);
       expect(container.read(tabBadgeProvider)[AppTab.inbox], 3);
       expect(server.calls.where((HttpCall call) => call.method == 'POST'), isEmpty, reason: 'a notification is read when it is opened, not when it is listed');
     });
@@ -89,24 +91,80 @@ void main() {
       final ScriptedServer server = _server();
       await _open(tester, server, '/inbox');
 
-      await tester.tap(find.text('Cần xác nhận (1)'));
+      await tester.ensureVisible(find.text('Cần xác nhận 1'));
+      await tester.tap(find.text('Cần xác nhận 1'));
       await tester.pumpAndSettle();
       expect(find.text('Hiển thị 1 trên 4 thông báo'), findsOneWidget);
 
-      await tester.tap(find.text('Tất cả (4)'));
+      await tester.ensureVisible(find.text('Tất cả 4'));
+      await tester.tap(find.text('Tất cả 4'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Mọi mức'));
+      // The priority and the type are in the filter sheet: the chips apply at once, "Xong" closes it.
+      await tester.tap(find.text('Lọc'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Thấp').last);
+      expect(find.text('Lọc thông báo'), findsOneWidget);
+      await tester.ensureVisible(find.text('Thấp'));
+      await tester.tap(find.text('Thấp'));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Xong'));
+      await tester.pumpAndSettle();
+      expect(find.text('Lọc (1)'), findsOneWidget, reason: 'the button says how many filters narrow the list');
       expect(find.text('Hiển thị 1 trên 4 thông báo'), findsOneWidget);
 
-      await tester.tap(find.text('Chưa đọc (3)'));
+      await tester.ensureVisible(find.text('Chưa đọc 3'));
+      await tester.tap(find.text('Chưa đọc 3'));
       await tester.pumpAndSettle();
       expect(find.text('Chưa có dữ liệu'), findsOneWidget);
       await tester.tap(find.text('Xóa bộ lọc'));
       await tester.pumpAndSettle();
       expect(find.text('Hiển thị 4 trên 4 thông báo'), findsOneWidget);
+    });
+
+    testWidgets('the notifications are grouped by what is asked of the person: waiting for an acknowledgement, unread, handled; the group says how many', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      await _open(tester, _server(), '/inbox');
+
+      expect(find.widgetWithText(GroupHeader, 'Cần xác nhận'), findsOneWidget);
+      expect(find.widgetWithText(GroupHeader, 'Chưa đọc'), findsOneWidget);
+      expect(find.bySemanticsLabel('Cần xác nhận, 1'), findsOneWidget);
+      expect(find.bySemanticsLabel('Chưa đọc, 2'), findsOneWidget);
+      final double action = tester.getTopLeft(find.widgetWithText(GroupHeader, 'Cần xác nhận')).dy;
+      final double unread = tester.getTopLeft(find.widgetWithText(GroupHeader, 'Chưa đọc')).dy;
+      expect(action, lessThan(unread), reason: 'what is asked of the person comes first');
+      semantics.dispose();
+    });
+
+    testWidgets('without a connection the inbox shows the copy kept on the phone, says when it is from and that it is a copy, and the shell tells the connection once', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _server();
+      final ProviderContainer container = await _open(tester, server, '/inbox');
+
+      server.offline = true;
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      expect(container.read(reachabilityProvider), Reachability.offline);
+      expect(find.text('Tất cả 4'), findsOneWidget, reason: 'the copy is on the screen, not an empty page');
+      expect(find.textContaining('Đang hiển thị dữ liệu đã lưu trên máy'), findsOneWidget);
+      expect(find.textContaining('Bạn đang ngoại tuyến'), findsOneWidget, reason: 'one offline notice: the strip of the shell');
+      expect(find.textContaining('mới nhất'), findsNothing);
+    });
+
+    testWidgets('a copy older than its time to live is marked as stale figures, and the screen still reads', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _server();
+      DateTime now = kNow;
+      await pumpWithServer(tester, features: <MobileFeature>[notifications.feature, _titles, _records], server: server, location: '/inbox', now: () => now);
+
+      server.offline = true;
+      now = now.add(const Duration(days: 3));
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Số liệu cũ'), findsOneWidget);
+      expect(find.textContaining('quá 12 giờ'), findsOneWidget);
+      expect(find.text('Tất cả 4'), findsOneWidget);
     });
 
     testWidgets('a row opens its detail, and the settings button opens the preferences', (WidgetTester tester) async {
@@ -128,7 +186,7 @@ void main() {
       await expectEveryState(
         tester,
         open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/inbox'),
-        script: StateScript(healthy: (ScriptedServer server) => server.on('GET', '/me/notifications', (_) => notificationsPage(standardNotifications())), content: find.text('Tất cả (4)'), empty: (ScriptedServer server) => server.on('GET', '/me/notifications', (_) => notificationsPage(<Map<String, Object?>>[]))),
+        script: StateScript(healthy: (ScriptedServer server) => server.on('GET', '/me/notifications', (_) => notificationsPage(standardNotifications())), content: find.text('Tất cả 4'), empty: (ScriptedServer server) => server.on('GET', '/me/notifications', (_) => notificationsPage(<Map<String, Object?>>[]))),
       );
       await expectScreenContract(tester, open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/inbox'), healthy: (ScriptedServer server) => server.on('GET', '/me/notifications', (_) => notificationsPage(standardNotifications())));
     });
@@ -226,7 +284,7 @@ void main() {
       expect(server.calls.where((HttpCall call) => call.method == 'POST'), isEmpty);
       await tester.tap(find.text('Về hộp thông báo'));
       await tester.pumpAndSettle();
-      expect(find.text('Tất cả (4)'), findsOneWidget);
+      expect(find.text('Tất cả 4'), findsOneWidget);
     });
 
     testWidgets('a notification older than the first thousand the inbox lists is found by reading on, and is read like any other', (WidgetTester tester) async {

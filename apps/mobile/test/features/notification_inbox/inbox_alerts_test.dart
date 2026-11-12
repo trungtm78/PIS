@@ -7,6 +7,7 @@ import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall;
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
 import 'package:machvon_mobile/core/navigation/tab_badges.dart';
+import 'package:machvon_mobile/core/widgets/underline_tabs.dart';
 import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
 import 'package:machvon_mobile/features/notification_inbox/notification_inbox_feature.dart' as notifications;
 
@@ -15,6 +16,12 @@ import '../dashboard/dashboard_fixtures.dart';
 import '../support/screen_contract.dart';
 import '../support/scripted_server.dart';
 import 'notification_fixtures.dart';
+
+/// The second tab of the inbox: the alerts of the person, which the home leads to with "See all".
+Future<void> _openWorkTab(WidgetTester tester) async {
+  await tester.tap(find.descendant(of: find.byType(UnderlineTabs), matching: find.textContaining('Việc cần xử lý')));
+  await tester.pumpAndSettle();
+}
 
 Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, String location) =>
     pumpWithServer(tester, features: <MobileFeature>[notifications.feature, dashboard.feature], server: server, location: location);
@@ -42,31 +49,36 @@ ScriptedServer _server({List<Map<String, Object?>>? alerts}) {
 
 void main() {
   group('MOB-32 shows the alerts and the notifications with the same words for the severity', () {
-    testWidgets('the alerts of the person come first, with the levels Khẩn and Theo dõi, then the notifications', (WidgetTester tester) async {
+    testWidgets('the events are the first tab and the alerts of the person the second, with the levels Khẩn and Theo dõi; the tab says how many are to act on', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = _server();
       await _open(tester, server, '/inbox');
 
-      expect(find.text('Việc cần xử lý'), findsOneWidget);
+      expect(find.text('Sự kiện'), findsOneWidget);
+      expect(find.text('Tất cả 4'), findsOneWidget, reason: 'the timeline of events is what the tab opens on');
+      expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsNothing, reason: 'the tasks are not stacked above the events any more: they are the other tab');
+      expect(find.text('Việc cần xử lý 1'), findsOneWidget, reason: 'one urgent alert is to be acted on, the watched one is not counted');
+
+      await _openWorkTab(tester);
       expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget);
       expect(find.text('Quá hạn 2 ngày'), findsOneWidget);
       expect(find.text('Khẩn 1'), findsOneWidget);
       expect(find.text('Theo dõi 1'), findsOneWidget);
-      final double alertTop = tester.getTopLeft(find.text('Việc cần xử lý')).dy;
-      final double notificationTop = tester.getTopLeft(find.text('Tất cả (4)')).dy;
-      expect(alertTop, lessThan(notificationTop));
+      expect(find.text('Tất cả 4'), findsNothing, reason: 'the events tab is out of sight, still mounted');
       expect(server.callsTo('GET', '/home/my-work').any((HttpCall call) => call.url.queryParameters['view'] == 'mine'), isTrue, reason: 'the inbox shows the alerts of the person');
     });
 
-    testWidgets('an inbox with no notification still shows the alerts of the person, above the empty message', (WidgetTester tester) async {
+    testWidgets('an inbox with no notification still has the alerts of the person in the other tab, and says it is empty', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = _server();
       server.on('GET', '/me/notifications', (_) => notificationsPage(<Map<String, Object?>>[]));
       await _open(tester, server, '/inbox');
 
+      expect(find.text('Tất cả 0'), findsOneWidget);
+      expect(find.text('Chưa có dữ liệu'), findsOneWidget);
+      await _openWorkTab(tester);
       expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget);
       expect(find.text('Khẩn 1'), findsOneWidget);
-      expect(find.text('Tất cả (0)'), findsOneWidget);
     });
 
     testWidgets('the number on the tab is the alerts to act on once the server has given it; the unread notifications stand in until then', (WidgetTester tester) async {
@@ -88,6 +100,7 @@ void main() {
         return FakeTransport.json(500, <String, Object?>{'type': 'about:blank', 'title': 'x', 'status': 500, 'code': 'INTERNAL_ERROR'});
       });
       await _open(tester, server, '/inbox');
+      await _openWorkTab(tester);
       expect(find.byTooltip('Thao tác với việc này'), findsNothing);
       expect(find.text('Khẩn 0'), findsNothing);
       expect(find.byWidgetPredicate((Widget widget) => widget.runtimeType.toString() == 'AlertListSkeleton'), findsOneWidget);
@@ -96,7 +109,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Chưa tải được việc cần xử lý'), findsOneWidget);
       expect(find.textContaining('INTERNAL_ERROR'), findsOneWidget);
-      expect(find.text('Tất cả (4)'), findsOneWidget, reason: 'the notifications are still there');
+      await tester.tap(find.text('Sự kiện'));
+      await tester.pumpAndSettle();
+      expect(find.text('Tất cả 4'), findsOneWidget, reason: 'the notifications are still there');
+      await _openWorkTab(tester);
 
       server.on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[alertItem('a-1', title: 'Tạm ứng quá hạn')], view: 'mine'));
       await tester.tap(find.widgetWithText(OutlinedButton, 'Thử lại'));
@@ -107,8 +123,9 @@ void main() {
     testWidgets('no alerts: the line says nothing urgent is left, and the notifications are unaffected', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await _open(tester, _server(alerts: <Map<String, Object?>>[]), '/inbox');
+      expect(find.text('Tất cả 4'), findsOneWidget);
+      await _openWorkTab(tester);
       expect(find.textContaining('Không còn việc khẩn · đã kiểm tra lúc'), findsOneWidget);
-      expect(find.text('Tất cả (4)'), findsOneWidget);
     });
 
     testWidgets('the screen holds at three sizes and 200 percent text', (WidgetTester tester) async {
