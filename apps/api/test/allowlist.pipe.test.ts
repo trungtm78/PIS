@@ -66,7 +66,7 @@ describe('AllowlistPipe and ProblemFilter in a Nest application', () => {
       type: 'urn:machvon:error:FIELD_NOT_ALLOWED',
       code: 'FIELD_NOT_ALLOWED',
       detail: 'status, tenant_id, role',
-      correlationId: '0b7f6c0e-2d52-4c41-9a7e-5d4c3b2a1f00',
+      correlation_id: '0b7f6c0e-2d52-4c41-9a7e-5d4c3b2a1f00',
     });
   });
 

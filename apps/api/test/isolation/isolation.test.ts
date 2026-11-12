@@ -21,7 +21,7 @@ import type { RunningApp } from './test-app';
 import { TENANT_HEADER } from './test-auth.guard';
 
 const SIGNING_KEY = randomBytes(32);
-const PROBLEM_KEYS = ['code', 'correlationId', 'detail', 'status', 'title', 'type'];
+const PROBLEM_KEYS = ['code', 'correlation_id', 'detail', 'status', 'title', 'type'];
 
 interface Reply {
   status: number;

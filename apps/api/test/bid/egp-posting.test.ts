@@ -262,7 +262,7 @@ describe('the duties of posting to the national procurement network, the reconci
       const planId = await seedApprovedPlan(subject.projectId, new Date(Date.now() - 2 * 86_400_000).toISOString());
       const old = await seedPackage();
       const oldPlan = await seedApprovedPlan(old.projectId, new Date(Date.now() - 200 * 86_400_000).toISOString());
-      expect((await call('POST', '/egp/obligations/sweep', { member: PREPARER, body: { since_on: day(1) } })).json.code).toBe('VALIDATION_FAILED');
+      expect((await call('POST', '/egp/obligations/sweep', { member: PREPARER, body: { since_on: day(2) } })).json.code).toBe('VALIDATION_FAILED');
       expect((await call('POST', '/egp/obligations/sweep', { member: PREPARER, body: { since_on: '2026-02-30' } })).json.code).toBe('VALIDATION_FAILED');
       expect((await call('POST', '/egp/obligations/sweep', { member: PREPARER, body: { kinds: ['NOPE'] } })).json.code).toBe('VALIDATION_FAILED');
       const swept = await call('POST', '/egp/obligations/sweep', { member: PREPARER, body: { since_on: day(-30), kinds: ['PLAN'] } });
