@@ -7,6 +7,9 @@ import '../../core/api/problem.dart';
 import '../../core/connectivity/reachability.dart';
 import '../../core/navigation/deep_link_guard.dart' show returnParameter;
 import '../../core/state/screen_state.dart';
+import '../../core/theme/colors.dart';
+import '../../core/theme/typography.dart';
+import '../../core/widgets/app_scaffold.dart';
 import 'auth/auth_service.dart';
 import 'auth/oidc_client.dart';
 
@@ -77,8 +80,8 @@ String _codeOf(OidcFailure failure) {
   return 'OIDC_$snake';
 }
 
-/// The page every sign-in screen is drawn on: a safe area, a column no wider than a phone in portrait needs, scrolling so
-/// that 200 percent text never overflows.
+/// The page every sign-in screen is drawn on: the frame of the phone design without a top bar (these screens carry their own heading), a column
+/// no wider than a phone in portrait needs, scrolling so that 200 percent text never overflows.
 class AuthPage extends StatelessWidget {
   const AuthPage({required this.child, super.key});
 
@@ -86,15 +89,37 @@ class AuthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16), child: child),
-          ),
+    return AppScaffold(
+      showTopBar: false,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16), child: child),
         ),
       ),
+    );
+  }
+}
+
+/// The heading of a sign-in screen and the sentence under it: the Title step (held at 1.3 times so it never takes the screen) and the body.
+class AuthHeading extends StatelessWidget {
+  const AuthHeading({required this.title, this.body, super.key});
+
+  final String title;
+  final String? body;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Semantics(header: true, child: Text(title, style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+        if (body != null) ...<Widget>[
+          const SizedBox(height: MachvonV2Space.s8),
+          Text(body!, style: text.body.copyWith(color: context.v2.palette.ink2)),
+        ],
+      ],
     );
   }
 }

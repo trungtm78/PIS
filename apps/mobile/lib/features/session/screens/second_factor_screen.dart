@@ -12,6 +12,7 @@ import '../../../core/navigation/router.dart' show homeLocation;
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/typography.dart';
 import '../auth/auth_service.dart';
 import '../flow.dart';
 import '../session_providers.dart';
@@ -67,19 +68,17 @@ class _Challenge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return ListView(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space24),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s24),
       children: <Widget>[
-        Semantics(header: true, child: Text(context.t('mob.mfa.title.text'), style: theme.textTheme.headlineSmall)),
-        const SizedBox(height: MachvonSpace.space12),
-        Text(context.t('mob.mfa.body.text')),
-        const SizedBox(height: MachvonSpace.space16),
-        Text(context.t('mob.mfa.field.label'), style: theme.textTheme.labelMedium),
-        Text(context.t('mob.mfa.field.hint'), style: theme.textTheme.bodySmall),
-        const SizedBox(height: MachvonSpace.space24),
+        AuthHeading(title: context.t('mob.mfa.title.text'), body: context.t('mob.mfa.body.text')),
+        const SizedBox(height: MachvonV2Space.s16),
+        Text(context.t('mob.mfa.field.label'), style: text.label),
+        Text(context.t('mob.mfa.field.hint'), style: text.caption),
+        const SizedBox(height: MachvonV2Space.s24),
         FilledButton(onPressed: onVerify, child: Text(context.t('mob.mfa.submit.action'))),
-        const SizedBox(height: MachvonSpace.space8),
+        const SizedBox(height: MachvonV2Space.s8),
         OutlinedButton(onPressed: onLater, child: Text(context.t('mob.mfa.cancel.action'))),
       ],
     );
@@ -93,14 +92,11 @@ class _NothingToDo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     return ListView(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space24),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s24),
       children: <Widget>[
-        Semantics(header: true, child: Text(context.t('mob.mfa.done.title'), style: theme.textTheme.headlineSmall)),
-        const SizedBox(height: MachvonSpace.space12),
-        Text(context.t('mob.mfa.done.body')),
-        const SizedBox(height: MachvonSpace.space24),
+        AuthHeading(title: context.t('mob.mfa.done.title'), body: context.t('mob.mfa.done.body')),
+        const SizedBox(height: MachvonV2Space.s24),
         FilledButton(onPressed: () => context.go(returnTo ?? homeLocation), child: Text(context.t('mob.mfa.done.action'))),
       ],
     );

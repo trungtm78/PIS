@@ -6,6 +6,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/deep_link_guard.dart';
 import '../../../core/navigation/feature.dart';
@@ -13,6 +14,8 @@ import '../../../core/navigation/router.dart' show homeLocation;
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../../core/state/state_card.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/section_panel.dart';
 import '../auth/auth_service.dart';
 import '../auth/identity_api.dart';
 import '../flow.dart';
@@ -83,12 +86,10 @@ class _ContextScreenState extends ConsumerState<ContextScreen> {
                 announcement: '${context.t('mob.context.empty.title')}. ${context.t('mob.context.empty.body')}',
               )
             : ListView(
-                padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space24),
+                padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s24),
                 children: <Widget>[
-                  Semantics(header: true, child: Text(context.t('mob.context.title.text'), style: Theme.of(context).textTheme.headlineSmall)),
-                  const SizedBox(height: MachvonSpace.space12),
-                  Text(context.t('mob.context.body.text')),
-                  const SizedBox(height: MachvonSpace.space16),
+                  AuthHeading(title: context.t('mob.context.title.text'), body: context.t('mob.context.body.text')),
+                  const SizedBox(height: MachvonV2Space.s16),
                   RadioGroup<MembershipChoice>(
                     groupValue: chosen,
                     onChanged: (MembershipChoice? value) => setState(() => _chosen = value),
@@ -97,7 +98,7 @@ class _ContextScreenState extends ConsumerState<ContextScreen> {
                       children: <Widget>[for (final MembershipChoice item in items) _MembershipCard(item: item)],
                     ),
                   ),
-                  const SizedBox(height: MachvonSpace.space16),
+                  const SizedBox(height: MachvonV2Space.s16),
                   FilledButton(
                     onPressed: chosen == null || state == ScreenState.loading ? null : () => _continue(chosen),
                     child: Text(context.t('mob.context.submit.action')),
@@ -116,32 +117,31 @@ class _MembershipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String role = '${context.t('mob.context.role.label')}: ${membershipTypeLabel(context, item.membershipType)}';
-    final String? until = item.validUntil == null ? null : context.t('mob.context.validUntil.label', <String, Object>{'date': _date(item.validUntil!)});
+    final String? until = item.validUntil == null ? null : context.t('mob.context.validUntil.label', <String, Object>{'date': formatDay(vietnamDayOf(item.validUntil!))});
     final String? unavailable = item.selectable ? null : context.t('mob.context.unavailable.label', <String, Object>{'status': _unavailableStatus(item)});
-    return Card(
-      child: RadioListTile<MembershipChoice>(
-        value: item,
-        enabled: item.selectable,
-        title: Text(item.tenantName),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(role),
-            if (until != null) Text(until),
-            if (item.preselected) Text(context.t('mob.context.preselected.label'), style: theme.textTheme.bodySmall),
-            if (unavailable != null) Text(unavailable, style: theme.textTheme.bodySmall),
-          ],
+    // One choice of a group: an outlined block (a hairline, no shadow) around the radio row, so each unit reads as one choice.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
+      child: OutlinedBlock(
+        child: RadioListTile<MembershipChoice>(
+          value: item,
+          enabled: item.selectable,
+          title: Text(item.tenantName, style: text.bodyStrong),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(role, style: text.caption),
+              if (until != null) Text(until, style: text.caption),
+              if (item.preselected) Text(context.t('mob.context.preselected.label'), style: text.caption),
+              if (unavailable != null) Text(unavailable, style: text.caption),
+            ],
+          ),
         ),
       ),
     );
   }
 
   static String _unavailableStatus(MembershipChoice item) => item.status == 'Active' ? item.tenantStatus : item.status;
-
-  static String _date(DateTime value) {
-    final DateTime local = value.toLocal();
-    return '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')}/${local.year}';
-  }
 }

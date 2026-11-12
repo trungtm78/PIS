@@ -3,11 +3,11 @@
   "totals": {
     "AppBar(": 13,
     "BoxDecoration(": 7,
-    "Card(": 16,
+    "Card(": 15,
     "Colors.": 2,
     "EdgeInsets-number": 24,
     "MachvonColors.": 44,
-    "Scaffold(": 22,
+    "Scaffold(": 21,
     "TextStyle(": 12,
     "toStringAsFixed(": 7
   },
@@ -189,12 +189,6 @@
     "lib/features/reporting/widgets/notices.dart": {
       "BoxDecoration(": 1,
       "MachvonColors.": 2
-    },
-    "lib/features/session/flow.dart": {
-      "Scaffold(": 1
-    },
-    "lib/features/session/screens/context_screen.dart": {
-      "Card(": 1
     },
     "lib/features/vendor_controls/screens/risk_list_screen.dart": {
       "MachvonColors.": 2

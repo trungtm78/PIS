@@ -137,7 +137,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     final FlowState flow = ref.watch(lookupFlowProvider);
-    final ThemeData theme = Theme.of(context);
     final String? message = _invalid
         ? context.t('mob.welcome.invalid.text')
         : _notFound
@@ -151,7 +150,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
         problem: flow.problem,
         onRetry: flow.state == ScreenState.loading ? null : _submit,
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space24),
+          padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s24),
           children: <Widget>[
             if (ref.watch(editionProfileProvider).edition == Edition.enterprise)
               const BrandHeader()
@@ -159,13 +158,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               Semantics(
                 label: context.t('mob.welcome.logo.label'),
                 image: true,
-                child: ExcludeSemantics(child: Icon(Icons.account_balance_outlined, size: MachvonSpace.space48, color: theme.colorScheme.primary)),
+                child: const Align(alignment: AlignmentDirectional.centerStart, child: ExcludeSemantics(child: BrandLogo(size: 64))),
               ),
-            const SizedBox(height: MachvonSpace.space16),
-            Semantics(header: true, child: Text(context.t('mob.welcome.title.text'), style: theme.textTheme.headlineSmall)),
-            const SizedBox(height: MachvonSpace.space12),
-            Text(context.t('mob.welcome.body.text')),
-            const SizedBox(height: MachvonSpace.space24),
+            const SizedBox(height: MachvonV2Space.s16),
+            AuthHeading(title: context.t('mob.welcome.title.text'), body: context.t('mob.welcome.body.text')),
+            const SizedBox(height: MachvonV2Space.s24),
             TextField(
               controller: _controller,
               keyboardType: TextInputType.url,
@@ -191,7 +188,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               ),
             ),
             if (_lastCode != null) ...<Widget>[
-              const SizedBox(height: MachvonSpace.space8),
+              const SizedBox(height: MachvonV2Space.s8),
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: ActionChip(
@@ -203,7 +200,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 ),
               ),
             ],
-            const SizedBox(height: MachvonSpace.space16),
+            const SizedBox(height: MachvonV2Space.s16),
             FilledButton(onPressed: _wait == null ? _submit : null, child: Text(context.t('mob.welcome.submit.action'))),
           ],
         ),
