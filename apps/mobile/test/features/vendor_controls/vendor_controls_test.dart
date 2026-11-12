@@ -18,6 +18,14 @@ const String _performance = '/vendor/contractors/c-1/performance';
 
 const Size _veryTall = Size(390, 6000);
 
+/// Opens a tab of the contractor screen: the row of tabs scrolls, so the tab is brought into view first.
+Future<void> _openTab(WidgetTester tester, Finder tab) async {
+  await tester.ensureVisible(tab);
+  await tester.pumpAndSettle();
+  await tester.tap(tab);
+  await tester.pumpAndSettle();
+}
+
 void _registerList(ScriptedServer server, [Map<String, Object?>? page]) => server.on('GET', _list, (_) => page ?? riskPage(<Map<String, Object?>>[riskItem('c-1', 'Công ty Xây dựng An Phát', 'HIGH', 52, overdue: true, pending: 'CRITICAL'), riskItem('c-2', 'Công ty Cơ khí Bình Minh', 'LOW', 8)]));
 
 void _registerDetail(ScriptedServer server, {Map<String, Object?>? risk, Map<String, Object?>? perf}) {
@@ -247,7 +255,9 @@ void main() {
 
       expect(find.text('Mức đề xuất đang chờ'), findsOneWidget);
       expect(find.text('Người thứ hai quyết định trên máy tính; điện thoại chỉ cho xem.'), findsOneWidget);
-      expect(find.text('Nghiêm trọng, 81 điểm, ngày 20/10/2026'), findsWidgets);
+      expect(find.text('Nghiêm trọng, 81 điểm, ngày 20/10/2026'), findsOneWidget, reason: 'the proposal waiting');
+      await _openTab(tester, find.textContaining('Lịch sử'));
+      expect(find.text('Cao, 52 điểm, ngày 20/10/2026'), findsNWidgets(2), reason: 'the confirmed assessment and its line in the history');
       expect(find.text('Người chấm: Trần Thị Bình'), findsWidgets);
       expect(find.text('Người quyết định: Lê Văn Cường'), findsWidgets);
       expect(find.text('Đã được thay bằng lần chấm mới'), findsOneWidget);
@@ -262,6 +272,8 @@ void main() {
       final ScriptedServer server = ScriptedServer();
       _registerDetail(server);
       await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
+      expect(find.text('Hợp đồng có xếp loại'), findsOneWidget, reason: 'the figures at the top carry the run of poor ratings and the rated contracts');
+      await _openTab(tester, find.text('Kết quả'));
 
       expect(find.text('Xếp loại kém liên tiếp: 2'), findsOneWidget);
       expect(find.textContaining('Gợi ý: yêu cầu kế hoạch khắc phục.'), findsOneWidget);
@@ -284,8 +296,10 @@ void main() {
       server.refuse('GET', _performance, 403, 'SCOPE_DENIED');
       await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
 
-      expect(find.textContaining('Chưa đọc được kết quả thực hiện (mã SCOPE_DENIED)'), findsOneWidget);
       expect(find.text('Mức đã xác nhận: Cao'), findsOneWidget);
+      expect(find.text('Hợp đồng có xếp loại'), findsNothing, reason: 'no figure of a read that failed');
+      await _openTab(tester, find.text('Kết quả'));
+      expect(find.textContaining('Chưa đọc được kết quả thực hiện (mã SCOPE_DENIED)'), findsOneWidget);
     });
 
     testWidgets('a contractor with no rating and no pending grade says so instead of showing empty blocks', (WidgetTester tester) async {
@@ -298,10 +312,12 @@ void main() {
       _registerDetail(server, risk: risk, perf: performance(lines: <Map<String, Object?>>[], suggestion: 'NONE', streak: 0));
       await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
 
+      expect(find.text('Mức đề xuất đang chờ'), findsNothing);
+      await _openTab(tester, find.textContaining('Lịch sử'));
       expect(find.text('Chưa có lần chấm nào được xác nhận.'), findsOneWidget);
       expect(find.text('Chưa có lần chấm nào.'), findsOneWidget);
+      await _openTab(tester, find.text('Kết quả'));
       expect(find.text('Chưa có xếp loại nào được chấp thuận.'), findsOneWidget);
-      expect(find.text('Mức đề xuất đang chờ'), findsNothing);
       expect(find.textContaining('Gợi ý:'), findsNothing);
     });
 
