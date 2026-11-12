@@ -333,7 +333,7 @@ const readJsonIfThere = (path, fallback) => (existsSync(path) ? JSON.parse(readF
 
 /**
  * The cases of the handoff files that name something that does not exist: a screen that is not in the screen catalogue, a story that the plan does not define, a case that the design catalogue (`test_cases.json`) does not hold
- * (the run store and the evidence document know a case by that id), a case twice, and a case that says it is automated whose script (or the table the script reads) never names it. A case that points nowhere cannot be run and a
+ * (the run store and the evidence document know a case by that id), a case twice, and a case that says it is automated whose script is missing or neither names it nor reads it from the table that the case names. A case that points nowhere cannot be run and a
  * case that claims a script that does not name it is a claim, not a proof.
  */
 export function handoffFailures({ root, plan }) {
@@ -364,7 +364,10 @@ export function handoffFailures({ root, plan }) {
       if (test.screen_id !== undefined && screens.size > 0 && !screens.has(test.screen_id)) failures.push({ code: 'HANDOFF_SCREEN_UNKNOWN', id: test.screen_id, where: place });
       for (const story of test.story_ids ?? []) if (!stories.has(story)) failures.push({ code: 'HANDOFF_STORY_UNKNOWN', id: story, where: place });
       if (test.automation?.state === 'AUTOMATED') {
-        const named = [test.automation.suite, test.automation.registry].filter((path) => typeof path === 'string').some((path) => sourceOf(path)?.includes(id));
+        // The script must exist; it names the case itself or reads it from the table that `registry` names.
+        const script = typeof test.automation.suite === 'string' ? sourceOf(test.automation.suite) : undefined;
+        const table = typeof test.automation.registry === 'string' ? sourceOf(test.automation.registry) : undefined;
+        const named = script !== undefined && (script.includes(id) || table?.includes(id) === true);
         if (!named) failures.push({ code: 'HANDOFF_AUTOMATION_MISSING', id: test.tc_id, where: `${place} names ${test.automation.suite ?? 'no suite'}` });
       }
     }

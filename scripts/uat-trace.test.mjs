@@ -389,6 +389,11 @@ test('a case that claims a script is reported when the script is missing or does
     'apps/api/test/uat/ops.json': '[{"id":"UAT-HPM-SEC-01"}]',
   });
   assert.deepEqual(codes(withTable), []);
+  // The table does not stand in for a script that is gone.
+  const withoutScript = handoffTree([{ tc_id: 'TC-UAT-HPM-SEC-01', automation: { state: 'AUTOMATED', suite: 'apps/api/test/uat/gone.test.ts', registry: 'apps/api/test/uat/ops.json' } }], { 'apps/api/test/uat/ops.json': '[{"id":"UAT-HPM-SEC-01"}]' });
+  assert.deepEqual(codes(withoutScript), ['HANDOFF_AUTOMATION_MISSING TC-UAT-HPM-SEC-01']);
+  const noSuiteAtAll = handoffTree([{ tc_id: 'TC-UAT-HPM-SEC-01', automation: { state: 'AUTOMATED', registry: 'apps/api/test/uat/ops.json' } }], { 'apps/api/test/uat/ops.json': '[{"id":"UAT-HPM-SEC-01"}]' });
+  assert.deepEqual(codes(noSuiteAtAll), ['HANDOFF_AUTOMATION_MISSING TC-UAT-HPM-SEC-01']);
 });
 
 test('the slice of critical cases may repeat the ids of the module folders, and a repository with no handoff files raises nothing', () => {
