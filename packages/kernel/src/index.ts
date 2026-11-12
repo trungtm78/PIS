@@ -1390,6 +1390,8 @@ export { BREAKPOINT_KEYS, DASHBOARD_CODE, DEFAULT_COLUMNS, MAX_GRID_ROWS, MAX_WI
 export type { DashboardDraft, DashboardWidget, DatasetVersionPolicy, DraftInput, WidgetGrid, WidgetKind } from './bi-dashboard.ts';
 export { CHECK_FORMULA, CHECK_FROZEN_VERSION, CHECK_GROUPS, CHECK_ROWS, PUBLICATION_DECISIONS, PUBLICATION_KINDS, assertDecisionReason, failedCheck, reproductionChecks } from './bi-publication.ts';
 export type { PublicationCheck, PublicationDecision, PublicationKind, Reproduction } from './bi-publication.ts';
+export { SIGN_OFF_STATES, assertApproverIsNotChecker, assertCheckerIsIndependent, signOffLines, signOffOf } from './bi-sign-off.ts';
+export type { SignOffBlock, SignOffEntry, SignOffLabels, SignOffLine, SignOffState } from './bi-sign-off.ts';
 export {
   BI_DIMENSION_LABELS,
   BI_EXPORT_FORMATS,
