@@ -1618,7 +1618,8 @@
     "test_ids": [
       "UI-BI-02",
       "UAT-AC31",
-      "UAT-AC34"
+      "UAT-AC34",
+      "UAT-ENT-BI-01"
     ]
   },
   {
@@ -13263,6 +13264,28 @@
       "UAT-RPT-SEC-25",
       "UAT-RPT-SEC-26",
       "UAT-RPT-SEC-27"
+    ]
+  },
+  {
+    "requirement": "FR-IPF-01",
+    "screen": "IPF-01",
+    "title": "Hồ sơ đầu tư của dự án",
+    "use_cases": [],
+    "source": "HSKT PVFCCo v0.3 MD.01, MD.02, CN.01; docs/plans/aud2.md, docs/plans/aud5.md",
+    "phase": "P2",
+    "design_status": "specified-m1",
+    "implementation_status": "built",
+    "verification": "Spec + UAT/API test definitions; NOT_RUN",
+    "backlog_id": "BL-IPF-01",
+    "test_ids": [
+      "UI-IPF-01",
+      "UAT-ENT-IPF-01",
+      "UAT-ENT-IPF-02",
+      "UAT-ENT-IPF-03",
+      "UAT-ENT-IPF-04",
+      "UAT-ENT-IPF-05",
+      "UAT-ENT-IPF-06",
+      "UAT-ENT-SEC-17"
     ]
   }
 ]

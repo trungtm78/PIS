@@ -14249,5 +14249,26 @@
     "platform": "web",
     "req": "CN.04",
     "source": "Làn ENT-4a; kế hoạch ENT-3 G4; HSKT PVFCCo v0.3, yêu cầu CN.04"
+  },
+  {
+    "id": "IPF-01",
+    "module": "IPF",
+    "moduleName": "Hồ sơ đầu tư dự án (enterprise)",
+    "title": "Hồ sơ đầu tư của dự án",
+    "kind": "detail",
+    "fields": [
+      "Dự án và năm kế hoạch",
+      "Loại dự án",
+      "Cờ khởi công mới hoặc chuyển tiếp theo năm kế hoạch, năm khởi công và căn cứ",
+      "Mốc vòng đời đầu tư so với danh mục (trạng thái, thứ tự, ngày kế hoạch, ngày thực tế, mốc bắt buộc bị bỏ qua)",
+      "Hồ sơ pháp lý theo loại của danh mục",
+      "Phần tách kế hoạch vốn theo nguồn (Nghị quyết PVN, Quyết định của Tổng công ty, khác) và văn bản căn cứ"
+    ],
+    "role": "Người có quyền xem dự án trong phạm vi của mình (Ban KHĐT, đơn vị chủ quản, lãnh đạo)",
+    "rule": "Chỉ đọc, chỉ bản enterprise. Mốc chưa có hiển thị là CHƯA CÓ, không hiển thị là đã xong; mốc đạt trước mốc đứng trước hoặc mốc bắt buộc bị bỏ qua được nêu thành cảnh báo. Hồ sơ pháp lý chỉ gồm hồ sơ còn hiệu lực người xem được đọc theo phạm vi; số tiền theo nguồn là số của bản kế hoạch đã phát hành (người soạn thấy thêm bản đang soạn).",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-IPF-01",
+    "source": "HSKT PVFCCo v0.3, yêu cầu MD.01, MD.02 và CN.01 (loại dự án, cờ khởi công, mốc vòng đời, hồ sơ pháp lý, nguồn kế hoạch vốn)"
   }
 ]
