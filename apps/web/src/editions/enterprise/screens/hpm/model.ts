@@ -13,6 +13,12 @@ export type PushStatus = Push['status'];
 export type CorrectionState = Correction['state'];
 
 export const CONNECTOR_CODE = 'hpm.reports';
+/** Permissions of the commands of the HPM screens (x-permission in openapi.json). */
+export const PUSH_PERMISSION = 'hpm.push';
+export const RECEIPT_PERMISSION = 'hpm.receipt';
+export const ADMIN_PERMISSION = 'hpm.admin';
+export const PROPOSE_PERMISSION = 'hpm.correction.propose';
+export const DECIDE_PERMISSION = 'hpm.correction.decide';
 export const PERIOD_PATTERN = /^\d{4}(-(M(0[1-9]|1[0-2])|Q[1-4]|H[12]|(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])))?$/;
 export const LAYOUT_PATTERN = /^[A-Z][A-Z0-9_-]{1,59}$/;
 export const SHA_PATTERN = /^[0-9a-f]{64}$/;

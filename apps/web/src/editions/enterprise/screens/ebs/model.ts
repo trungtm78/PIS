@@ -15,6 +15,8 @@ export type ResolutionKind = NonNullable<Difference['resolution']>['kind'];
 export type DifferenceState = Difference['state'];
 
 export const CONNECTOR_CODE = 'ebs.ledger';
+/** Permission of the commands of the differences screen (x-permission of reconcileEbs, resolveEbsDifference, reassignEbsDifference). */
+export const RECONCILE_PERMISSION = 'ebs.reconcile';
 export const PAGE_SIZE = 25;
 export const PERIOD_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 export const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

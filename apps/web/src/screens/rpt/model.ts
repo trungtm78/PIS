@@ -16,6 +16,8 @@ export type PeriodKind = Period['kind'];
 
 export const PERIOD_KINDS: readonly PeriodKind[] = ['MONTH', 'QUARTER', 'HALF_YEAR', 'YEAR', 'AS_OF'];
 export const DELIVERY_CHANNELS = ['MANUAL', 'DOWNLOAD', 'EMAIL', 'PORTAL'] as const;
+/** Permission of the command that starts a report from a form (x-permission of generateReport in openapi.json). */
+export const GENERATE_PERMISSION = 'rpt.generate';
 export const REASON_MIN = 10;
 export const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 

@@ -3,6 +3,7 @@ import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { useScreenState } from '../../../states/useScreenState';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
@@ -13,6 +14,7 @@ import type { BiReader, ExportDataset } from '../int-model';
 import { BiDialogs } from './BiDialogs';
 import type { BiDialog, BiOutcome } from './BiDialogs';
 import { datasetLabel, eventLabel, gateReasonLabel, readerStatusLabel } from './bi-labels';
+import { DATASET_PERMISSION, READER_PERMISSION } from './bi-model';
 import '../int.css';
 
 type T = Translator['t'];
@@ -34,14 +36,16 @@ export default function BiScreen({ route }: ScreenProps) {
 
 function BiContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
   const readers = useBiReaders();
   const datasets = useExportDatasets();
   const [dialog, setDialog] = useState<BiDialog | undefined>(undefined);
   const [receipt, setReceipt] = useState<string | undefined>(undefined);
   const [secret, setSecret] = useState<SecretOutcome | undefined>(undefined);
   const [selected, setSelected] = useState<string | undefined>(undefined);
-  const frozen = mode === 'READ_ONLY';
+  // A control that changes data is offered to who holds the permission of its command, in a tenant that is not read-only.
+  const mayManage = mode !== 'READ_ONLY' && holds(permissions, READER_PERMISSION);
+  const mayChangeDataset = mode !== 'READ_ONLY' && holds(permissions, DATASET_PERMISSION);
   const pages = readers.data?.pages;
   const first = pages?.[0];
   const rows = useMemo(() => (pages ?? []).flatMap((page) => page.items), [pages]);
@@ -56,7 +60,7 @@ function BiContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('int.bi.page.title')}</h1>
           <p>{t('int.bi.page.subtitle')}</p>
         </div>
-        {first?.can_create === true && !frozen && !denied && (
+        {first?.can_create === true && mayManage && !denied && (
           <div className="actions int-actions">
             <button type="button" className="ui-button ui-button--primary" onClick={() => setDialog({ kind: 'create' })}>
               {t('int.bi.action.create')}
@@ -99,7 +103,7 @@ function BiContent({ route }: ScreenProps) {
             ) : (
               <DataTable
                 caption={t('int.bi.dataset.caption')}
-                columns={datasetColumns(t, frozen, setDialog)}
+                columns={datasetColumns(t, mayChangeDataset, setDialog)}
                 rows={datasets.data?.items ?? []}
                 rowKey={(row) => row.dataset_code}
                 rowAttrs={(row) => ({ 'data-dataset': row.dataset_code, 'data-open': String(row.gate.open) })}
@@ -132,7 +136,7 @@ function BiContent({ route }: ScreenProps) {
               <>
                 <DataTable
                   caption={t('int.bi.table.caption')}
-                  columns={readerColumns(t, frozen, setDialog, setSelected)}
+                  columns={readerColumns(t, mayManage, setDialog, setSelected)}
                   rows={rows}
                   rowKey={(row) => row.id}
                   rowAttrs={(row) => ({ 'data-reader-id': row.id, 'data-status': row.status })}
@@ -216,7 +220,7 @@ function ReaderHistory({ id, onClose }: { id: string; onClose: () => void }) {
   );
 }
 
-function datasetColumns(t: T, frozen: boolean, open: (dialog: BiDialog) => void): Array<DataTableColumn<ExportDataset>> {
+function datasetColumns(t: T, may: boolean, open: (dialog: BiDialog) => void): Array<DataTableColumn<ExportDataset>> {
   const none = t('int.bi.cell.none');
   return [
     { key: 'dataset', header: t('int.bi.dataset.column.dataset'), pinned: true, render: (row) => <span className="int-cell"><span className="int-code">{datasetLabel(t, row.dataset_code)}</span><small>{row.dataset_code}</small></span> },
@@ -240,7 +244,7 @@ function datasetColumns(t: T, frozen: boolean, open: (dialog: BiDialog) => void)
       key: 'actions',
       header: t('int.bi.dataset.column.actions'),
       render: (row) =>
-        !frozen && row.can_set ? (
+        may && row.can_set ? (
           <span className="int-row-actions">
             <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('int.bi.datasetActionEnable.label', { name: datasetLabel(t, row.dataset_code) })} onClick={() => open({ kind: 'dataset', dataset: row, enable: true })}>
               {row.enabled ? t('int.bi.dataset.action.change') : t('int.bi.dataset.action.enable')}
@@ -258,7 +262,7 @@ function datasetColumns(t: T, frozen: boolean, open: (dialog: BiDialog) => void)
   ];
 }
 
-function readerColumns(t: T, frozen: boolean, open: (dialog: BiDialog) => void, select: (id: string) => void): Array<DataTableColumn<BiReader>> {
+function readerColumns(t: T, may: boolean, open: (dialog: BiDialog) => void, select: (id: string) => void): Array<DataTableColumn<BiReader>> {
   const none = t('int.bi.cell.none');
   return [
     { key: 'name', header: t('int.bi.column.name'), pinned: true, render: (row) => <span className="int-code">{row.name}</span> },
@@ -284,22 +288,22 @@ function readerColumns(t: T, frozen: boolean, open: (dialog: BiDialog) => void, 
           <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('int.bi.action.history.label', { name: row.name })} onClick={() => select(row.id)}>
             {t('int.bi.action.history')}
           </button>
-          {!frozen && row.actions.rotate && (
+          {may && row.actions.rotate && (
             <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('int.bi.action.rotate.label', { name: row.name })} onClick={() => open({ kind: 'rotate', reader: row })}>
               {t('int.bi.action.rotate')}
             </button>
           )}
-          {!frozen && row.actions.decide && row.status === 'ACTIVE' && (
+          {may && row.actions.decide && row.status === 'ACTIVE' && (
             <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('int.bi.action.suspend.label', { name: row.name })} onClick={() => open({ kind: 'decide', reader: row, decision: 'SUSPEND' })}>
               {t('int.bi.action.suspend')}
             </button>
           )}
-          {!frozen && row.actions.decide && row.status === 'SUSPENDED' && (
+          {may && row.actions.decide && row.status === 'SUSPENDED' && (
             <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('int.bi.action.reactivate.label', { name: row.name })} onClick={() => open({ kind: 'decide', reader: row, decision: 'REACTIVATE' })}>
               {t('int.bi.action.reactivate')}
             </button>
           )}
-          {!frozen && row.actions.decide && (
+          {may && row.actions.decide && (
             <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('int.bi.action.retire.label', { name: row.name })} onClick={() => open({ kind: 'decide', reader: row, decision: 'RETIRE' })}>
               {t('int.bi.action.retire')}
             </button>

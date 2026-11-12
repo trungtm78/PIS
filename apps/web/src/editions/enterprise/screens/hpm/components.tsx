@@ -216,12 +216,15 @@ export interface LogProps {
   loadingMore: boolean;
   onMore: () => void;
   onRetryLoad: () => void;
+  /** Whether the caller holds the permission of a retry and of a receipt: the server says of each row whether it may be tried or received, the session says whether the caller may at all. */
+  mayRetry: boolean;
+  mayReceipt: boolean;
   onRetry: (push: Push) => void;
   onReceipt: (push: Push) => void;
 }
 
 /** The push log: the key, the period and revision, the state, the tries, the last error and the receipt; retry and receipt only where the server says the caller may. */
-export function PushLog({ rows, state, filter, onFilter, hasMore, loadingMore, onMore, onRetryLoad, onRetry, onReceipt }: LogProps) {
+export function PushLog({ rows, state, filter, onFilter, hasMore, loadingMore, onMore, onRetryLoad, mayRetry, mayReceipt, onRetry, onReceipt }: LogProps) {
   const { t } = useTranslation();
   const filterId = useId();
   const attention = needsAttention(rows);
@@ -254,12 +257,12 @@ export function PushLog({ rows, state, filter, onFilter, hasMore, loadingMore, o
       header: t('hpm.log.column.actions'),
       render: (row) => (
         <span className="ent2-row-actions">
-          {row.actions.may_retry && (
+          {mayRetry && row.actions.may_retry && (
             <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`retry-${row.id}`} onClick={() => onRetry(row)}>
               {t('hpm.log.retry.action')}
             </button>
           )}
-          {row.actions.may_record_receipt && (
+          {mayReceipt && row.actions.may_record_receipt && (
             <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`receipt-${row.id}`} onClick={() => onReceipt(row)}>
               {t('hpm.log.receipt.action')}
             </button>

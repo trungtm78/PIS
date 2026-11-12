@@ -13,7 +13,7 @@ const route = routeFor('INT-04', 'FR-INT-04');
 const REASON = 'Đổi mật khẩu định kỳ hằng quý';
 const ONCE_VALUE = 'Zx9QpLmN2vBt7YcKd4WfRs8H';
 
-function mountWith(options: { readers?: unknown; datasets?: unknown; command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY' } = {}) {
+function mountWith(options: { readers?: unknown; datasets?: unknown; command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY'; permissions?: readonly string[] } = {}) {
   const h = clientFor(
     {
       listBiReaders: options.readers ?? readerPage([readerRow(1)]),
@@ -22,7 +22,7 @@ function mountWith(options: { readers?: unknown; datasets?: unknown; command?: (
     },
     options.command,
   );
-  mount(<BiScreen route={route} />, h, { permissions: undefined, ...(options.mode === undefined ? {} : { mode: options.mode }) });
+  mount(<BiScreen route={route} />, h, { permissions: options.permissions, ...(options.mode === undefined ? {} : { mode: options.mode }) });
   return h;
 }
 
@@ -72,6 +72,20 @@ describe('BiScreen (INT-04): certified datasets and the logins of BI tools', () 
     await readersShown();
     expect(screen.queryByRole('button', { name: t('int.bi.action.create') })).toBeNull();
     expect(within(readerEl(1)).queryByRole('button', { name: t('int.bi.action.rotate.label', { name: 'Power BI 1' }) })).toBeNull();
+  });
+
+  it('offers nothing to a person who holds the right to read only, a login to who manages the readers, a dataset switch to who manages the datasets', async () => {
+    mountWith({ permissions: ['int.bi.read', 'int.dataset.read'] });
+    await readersShown();
+    await waitFor(() => expect(document.querySelector('[data-dataset="DS-DISB"]')).not.toBeNull());
+    expect(screen.queryByRole('button', { name: t('int.bi.action.create') })).toBeNull();
+    expect(within(readerEl(1)).queryByRole('button', { name: t('int.bi.action.rotate.label', { name: 'Power BI 1' }) })).toBeNull();
+    expect(within(document.querySelector('[data-dataset="DS-DISB"]') as HTMLElement).queryByRole('button')).toBeNull();
+    cleanup();
+    mountWith({ permissions: ['int.bi.read', 'int.bi.manage'] });
+    await readersShown();
+    expect(screen.getByRole('button', { name: t('int.bi.action.create') })).toBeTruthy();
+    expect(within(document.querySelector('[data-dataset="DS-DISB"]') as HTMLElement).queryByRole('button')).toBeNull();
   });
 
   it('makes a login, shows the password once with its warning and forgets it when the dialog is closed', async () => {

@@ -79,6 +79,13 @@ describe('RPT-01, the catalogue and the generation of a report', () => {
     expect(screen.getByText(word('rpt.cat.action.noRight'))).toBeTruthy();
   });
 
+  it('offers no button to generate to a person who may only read, although the server says the tenant may', async () => {
+    mountCatalogue(() => catalogue([entry()], { can_generate: true }), undefined, READER);
+    await screen.findByTestId('form-DIS-WEEKLY');
+    expect(screen.queryByTestId('generate-DIS-WEEKLY')).toBeNull();
+    expect(screen.getByText(word('rpt.cat.action.noRight'))).toBeTruthy();
+  });
+
   it('asks for the period of the kind of the form, refuses an incomplete one, and sends the period the person typed', async () => {
     const h = mountCatalogue(
       () => catalogue([demoEntry({ issuable: true })], { demo_mode: true }),

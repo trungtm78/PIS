@@ -13,6 +13,10 @@ export type DifferenceKind = (typeof DIFFERENCE_KINDS)[number];
 /** The units a source writes an amount in, as the server knows them (empty: dong). */
 export const UNITS = ['', 'VND', 'THOUSAND_VND', 'MILLION_VND', 'BILLION_VND'] as const;
 /** The two sources and the basis the server compares: the only ones there are, shown and sent as they are. */
+/** Permissions of the commands the screens offer (x-permission in openapi.json). */
+export const RUN_PERMISSION = 'data.quality.run';
+export const PROPOSE_PERMISSION = 'data.mapping.manage';
+export const DECIDE_PERMISSION = 'data.mapping.approve';
 export const RECON_SOURCE_A = 'PAY.treasury_transaction';
 export const RECON_SOURCE_B = 'DIS.report_accepted';
 export const RECON_BASIS: string = reconBasis['recon.basis'];

@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { CommandFrame } from '../../qms/CommandFrame';
@@ -11,7 +12,7 @@ import { Field } from '../components';
 import { NO_FILTER, useCatalog } from '../hooks';
 import { useDecideMapping, useMappings, useProposeMapping } from './hooks';
 import { formProblemMessage, mappingStatusLabel, mappingStatusTone, problemMessage, unitLabel } from './labels';
-import { MAPPING_STATUSES, UNITS, decideBody, describeProblem, emptyDecide, emptyPropose, proposeBody, validatePropose } from './model';
+import { DECIDE_PERMISSION, MAPPING_STATUSES, PROPOSE_PERMISSION, UNITS, decideBody, describeProblem, emptyDecide, emptyPropose, proposeBody, validatePropose } from './model';
 import type { DecideForm, MappingView, ProposeForm } from './model';
 import '../dgv.css';
 import '../dgv-kit.css';
@@ -30,7 +31,7 @@ export default function MappingScreen({ route }: ScreenProps) {
 
 function MappingContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
   const [search] = useSearchParams();
   const [filter, setFilter] = useState({ datasetId: search.get('dataset') ?? '', status: '' });
   const list = useMappings(filter);
@@ -39,6 +40,8 @@ function MappingContent({ route }: ScreenProps) {
   const rows = (list.data?.pages ?? []).flatMap((entry) => entry.items);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
   const acting = mode !== 'READ_ONLY';
+  const mayPropose = acting && holds(permissions, PROPOSE_PERMISSION);
+  const mayDecide = acting && holds(permissions, DECIDE_PERMISSION);
   const moment = (iso: string): string => (iso === '' ? t('dgv.source.none') : new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(iso)));
 
   return (
@@ -48,7 +51,7 @@ function MappingContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('dgv.source.title')}</h1>
           <p>{t('dgv.source.subtitle')}</p>
         </div>
-        {acting ? (
+        {mayPropose ? (
           <button type="button" className="ui-button ui-button--primary" data-action="propose" onClick={() => setDialog({ kind: 'propose' })}>
             {t('dgv.source.propose.action')}
           </button>
@@ -119,7 +122,7 @@ function MappingContent({ route }: ScreenProps) {
                       </small>
                     </td>
                     <td>
-                      {acting && row.canDecide ? (
+                      {mayDecide && row.canDecide ? (
                         <>
                           <button type="button" className="ui-button ui-button--primary" data-action="confirm" onClick={() => setDialog({ kind: 'decide', mapping: row, decision: 'CONFIRMED' })}>
                             {t('dgv.source.confirm.action')}

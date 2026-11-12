@@ -5,6 +5,7 @@ import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { useScreenState } from '../../../states/useScreenState';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
@@ -15,7 +16,8 @@ import type { ProjectCode, SourceSystem } from '../int-model';
 import { CodeDialogs } from './CodeDialogs';
 import type { CodeDialog } from './CodeDialogs';
 import { codeStatusLabel, systemKindLabel } from './code-labels';
-import { CODE_FILTERS } from './code-model';
+import { APPROVE_PERMISSION, CODE_FILTERS, PROPOSE_PERMISSION, SYSTEM_PERMISSION } from './code-model';
+import type { CodeRights } from './code-model';
 import { CoverageStrip } from './CoverageStrip';
 import '../int.css';
 
@@ -37,7 +39,7 @@ export default function CodesScreen({ route }: ScreenProps) {
 
 function CodesContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
   const [search, setSearch] = useSearchParams();
   const filters = useMemo(() => filtersOf(search, CODE_FILTERS), [search]);
   const list = useProjectCodes(filters);
@@ -45,6 +47,7 @@ function CodesContent({ route }: ScreenProps) {
   const [dialog, setDialog] = useState<CodeDialog | undefined>(undefined);
   const [receipt, setReceipt] = useState<string | undefined>(undefined);
   const frozen = mode === 'READ_ONLY';
+  const rights: CodeRights = { propose: !frozen && holds(permissions, PROPOSE_PERMISSION), approve: !frozen && holds(permissions, APPROVE_PERMISSION), system: !frozen && holds(permissions, SYSTEM_PERMISSION) };
   const pages = list.data?.pages;
   const first = pages?.[0];
   const rows = useMemo(() => (pages ?? []).flatMap((page) => page.items), [pages]);
@@ -52,7 +55,7 @@ function CodesContent({ route }: ScreenProps) {
   const denied = state === 'denied';
   const applied = Object.keys(filters).length;
   const total = first === undefined ? 0 : CODE_STATUSES.reduce((sum, status) => sum + first.counts[status], 0);
-  const mayPropose = first?.can_propose === true && !frozen;
+  const mayPropose = first?.can_propose === true && rights.propose;
   const change = (next: Record<string, string | undefined>): void => setSearch(searchOf(next));
 
   return (
@@ -98,7 +101,7 @@ function CodesContent({ route }: ScreenProps) {
               )
             }
           >
-            {systems.data?.can_register === true && !frozen && (
+            {systems.data?.can_register === true && rights.system && (
               <div className="int-actions">
                 <button type="button" className="ui-button ui-button--outline" onClick={() => setDialog({ kind: 'register' })}>
                   {t('int.codes.system.action.register')}
@@ -110,7 +113,7 @@ function CodesContent({ route }: ScreenProps) {
             ) : (
               <DataTable
                 caption={t('int.codes.system.caption')}
-                columns={systemColumns(t, frozen, setDialog)}
+                columns={systemColumns(t, rights.system, setDialog)}
                 rows={systems.data?.items ?? []}
                 rowKey={(row) => row.id}
                 rowAttrs={(row) => ({ 'data-system': row.code, 'data-status': row.status })}
@@ -151,11 +154,11 @@ function CodesContent({ route }: ScreenProps) {
               <>
                 <DataTable
                   caption={t('int.codes.table.caption')}
-                  columns={codeColumns(t, frozen, setDialog)}
+                  columns={codeColumns(t, rights, setDialog)}
                   rows={rows}
                   rowKey={(row) => row.id}
                   rowAttrs={(row) => ({ 'data-code-id': row.id, 'data-status': row.status, 'data-external-code': row.external_code })}
-                  severity={(row) => (row.actions.decide && !frozen ? 'ACTION' : null)}
+                  severity={(row) => (row.actions.decide && rights.approve ? 'ACTION' : null)}
                   state={state === 'loading' ? 'loading' : 'ready'}
                   emptyKind={applied > 0 ? 'filtered' : 'none'}
                   onClearFilters={() => change({})}
@@ -204,7 +207,7 @@ function FilterBar({ filters, systems, onChange }: { filters: Record<string, str
   );
 }
 
-function systemColumns(t: T, frozen: boolean, open: (dialog: CodeDialog) => void): Array<DataTableColumn<SourceSystem>> {
+function systemColumns(t: T, mayRetire: boolean, open: (dialog: CodeDialog) => void): Array<DataTableColumn<SourceSystem>> {
   return [
     { key: 'code', header: t('int.codes.system.column.code'), pinned: true, render: (row) => <span className="int-code">{row.code}</span> },
     { key: 'name', header: t('int.codes.system.column.name'), render: (row) => row.name },
@@ -217,7 +220,7 @@ function systemColumns(t: T, frozen: boolean, open: (dialog: CodeDialog) => void
       key: 'actions',
       header: t('int.codes.system.column.actions'),
       render: (row) =>
-        !frozen && row.can_retire ? (
+        mayRetire && row.can_retire ? (
           <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('int.codes.systemActionRetire.label', { code: row.code })} onClick={() => open({ kind: 'retireSystem', system: row })}>
             {t('int.codes.system.action.retire')}
           </button>
@@ -228,7 +231,7 @@ function systemColumns(t: T, frozen: boolean, open: (dialog: CodeDialog) => void
   ];
 }
 
-function codeColumns(t: T, frozen: boolean, open: (dialog: CodeDialog) => void): Array<DataTableColumn<ProjectCode>> {
+function codeColumns(t: T, rights: CodeRights, open: (dialog: CodeDialog) => void): Array<DataTableColumn<ProjectCode>> {
   const none = t('int.codes.cell.none');
   const person = (name: string | null): string => name ?? none;
   return [
@@ -278,7 +281,7 @@ function codeColumns(t: T, frozen: boolean, open: (dialog: CodeDialog) => void):
         const labels = { code: row.project_code, external: row.external_code };
         return (
           <span className="int-row-actions">
-            {!frozen && row.actions.decide && (
+            {rights.approve && row.actions.decide && (
               <>
                 <button type="button" className="ui-button ui-button--primary ui-button--small" aria-label={t('int.codes.action.approve.label', labels)} onClick={() => open({ kind: 'decide', code: row, decision: 'APPROVE' })}>
                   {t('int.codes.action.approve')}
@@ -288,7 +291,7 @@ function codeColumns(t: T, frozen: boolean, open: (dialog: CodeDialog) => void):
                 </button>
               </>
             )}
-            {!frozen && row.actions.retire && (
+            {rights.propose && row.actions.retire && (
               <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('int.codes.action.retire.label', labels)} onClick={() => open({ kind: 'retire', code: row })}>
                 {t('int.codes.action.retire')}
               </button>

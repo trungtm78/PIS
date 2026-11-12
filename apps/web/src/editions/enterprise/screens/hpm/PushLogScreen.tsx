@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from '../../../../i18n';
 import type { ScreenProps } from '../../../../routes/types';
 import { useSession } from '../../../../session/SessionContext';
+import { holds } from '../../../../session/holds';
 import { StateBoundary } from '../../../../states/StateBoundary';
 import { useScreenState } from '../../../../states/useScreenState';
 import { ContextBar } from '../../../../ui';
@@ -9,7 +10,7 @@ import { switchBlock, vietnamStamp } from '../shared/format';
 import { HistorySection, PendingSection, ReadonlyNote, SwitchDialog } from '../shared/parts';
 import { AcceptedSection, ActionSection, FreshnessCard, PushDialog, PushLog, ReceiptDialog, ResultNote, RetryDialog, StatusCard } from './components';
 import { useHpmConnection, useHpmPushes, useSetHpmConnectionState } from './hooks';
-import { CONNECTOR_CODE } from './model';
+import { ADMIN_PERMISSION, CONNECTOR_CODE, PUSH_PERMISSION, RECEIPT_PERMISSION } from './model';
 import type { Push, PushResult, PushStatus } from './model';
 import '../shared/shared.css';
 
@@ -28,7 +29,7 @@ type Dialog = { kind: 'push' } | { kind: 'switch' } | { kind: 'retry'; push: Pus
 
 function PushLogContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { tenant, mode } = useSession();
+  const { tenant, mode, permissions } = useSession();
   const query = useHpmConnection();
   const [filter, setFilter] = useState<PushStatus | undefined>(undefined);
   const log = useHpmPushes(filter);
@@ -40,8 +41,8 @@ function PushLogContent({ route }: ScreenProps) {
   // A tenant that never used the connection is not an empty screen: it shows "never pushed" and the first-use hint.
   const state = useScreenState({ isLoading: query.isLoading, error: data === undefined ? query.error : undefined, data, isEmpty: () => false });
   const refreshFailed = query.isError && data !== undefined;
-  const block = data === undefined ? null : switchBlock(data.actions.may_switch, mode);
-  const mayPush = data !== undefined && mode !== 'READ_ONLY' && data.actions.may_push;
+  const block = data === undefined ? null : switchBlock(data.actions.may_switch && holds(permissions, ADMIN_PERMISSION), mode);
+  const mayPush = data !== undefined && mode !== 'READ_ONLY' && data.actions.may_push && holds(permissions, PUSH_PERMISSION);
   const stale = refreshFailed || data?.health.status === 'STALE';
   const asOf = data === undefined ? undefined : vietnamStamp(stale && !refreshFailed && data.health.last_delivery_at !== null ? data.health.last_delivery_at : data.as_of);
   const rows = log.data?.pages.flatMap((page) => page.items) ?? [];
@@ -108,6 +109,8 @@ function PushLogContent({ route }: ScreenProps) {
               state={logState}
               filter={filter}
               onFilter={setFilter}
+              mayRetry={mode !== 'READ_ONLY' && holds(permissions, PUSH_PERMISSION)}
+              mayReceipt={mode !== 'READ_ONLY' && holds(permissions, RECEIPT_PERMISSION)}
               hasMore={log.hasNextPage}
               loadingMore={log.isFetchingNextPage}
               onMore={() => void log.fetchNextPage()}

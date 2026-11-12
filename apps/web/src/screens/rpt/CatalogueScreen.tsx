@@ -4,13 +4,14 @@ import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
+import { holds } from '../../session/holds';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../ui';
 import type { DataTableColumn, Tone } from '../../ui';
 import { DemoBadge, needsReason, refusalText } from './components';
 import { useCatalogue, useGenerate } from './hooks';
-import { REASON_MIN, defaultPeriod, indexLimit, kindWord, periodBody, statusWord, vietnamDateTime } from './model';
+import { GENERATE_PERMISSION, REASON_MIN, defaultPeriod, indexLimit, kindWord, periodBody, statusWord, vietnamDateTime } from './model';
 import type { Entry, Generated, PeriodInput } from './model';
 import './rpt.css';
 
@@ -100,7 +101,7 @@ export default function CatalogueScreen({ route }: ScreenProps) {
 
 function CatalogueContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { tenant } = useSession();
+  const { tenant, permissions } = useSession();
   const navigate = useNavigate();
   // The catalogue is the one of the running edition: its enterprise build never labels a form it offers as public.
   const running = useEdition().manifest.edition;
@@ -136,7 +137,7 @@ function CatalogueContent({ route }: ScreenProps) {
       key: 'action',
       header: t('rpt.cat.col.action'),
       render: (entry) => {
-        if (data?.can_generate !== true) return <span className="rpt-muted">{t('rpt.cat.action.noRight')}</span>;
+        if (data?.can_generate !== true || !holds(permissions, GENERATE_PERMISSION)) return <span className="rpt-muted">{t('rpt.cat.action.noRight')}</span>;
         if (!entry.issuable) return <span className="rpt-muted" data-testid={`blocked-${entry.code}`}>{t('rpt.cat.action.demoOff')}</span>;
         return (
           <button type="button" className="ui-button ui-button--primary ui-button--small" data-testid={`generate-${entry.code}`} onClick={() => setChosen(entry)}>

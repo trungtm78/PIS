@@ -13,7 +13,7 @@ const route = routeFor('INT-03', 'FR-INT-03');
 const REASON = 'Khớp theo quyết định đầu tư';
 const SYSTEMS = { items: [systemRow(1)], kinds: ['ERP'], can_register: true, as_of: '2026-11-12T03:00:00.000Z' };
 
-function mountWith(options: { codes?: unknown; systems?: unknown; command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY' } = {}) {
+function mountWith(options: { codes?: unknown; systems?: unknown; command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY'; permissions?: readonly string[] } = {}) {
   const h = clientFor(
     {
       listProjectCodes: options.codes ?? codePage([codeRow(1), codeRow(2, { status: 'ACTIVE', approved_by_name: 'Trần Thị Bình', approved_at: '2026-11-02T03:00:00.000Z', actions: { decide: false, retire: true } })]),
@@ -21,7 +21,7 @@ function mountWith(options: { codes?: unknown; systems?: unknown; command?: (ope
     },
     options.command,
   );
-  mount(<CodesScreen route={route} />, h, { permissions: undefined, ...(options.mode === undefined ? {} : { mode: options.mode }) });
+  mount(<CodesScreen route={route} />, h, { permissions: options.permissions, ...(options.mode === undefined ? {} : { mode: options.mode }) });
   return h;
 }
 
@@ -70,6 +70,19 @@ describe('CodesScreen (INT-03): the codes of our projects in other systems', () 
     mountWith({ codes: codePage([codeRow(1, { actions: { decide: false, retire: false } })], { can_propose: false }) });
     expect(await screen.findByTestId('readonly-note')).toBeTruthy();
     expect(screen.queryByRole('button', { name: t('int.codes.action.propose') })).toBeNull();
+  });
+
+  it('offers nothing to a person who holds the right to read the codes only, whatever the server says of each row', async () => {
+    mountWith({ permissions: ['int.codes.read', 'int.system.read'] });
+    await rowsShown();
+    expect(screen.queryByRole('button', { name: t('int.codes.action.propose') })).toBeNull();
+    expect(screen.queryByRole('button', { name: t('int.codes.system.action.register') })).toBeNull();
+    expect(within(rowOf(1)).queryByRole('button')).toBeNull();
+    cleanup();
+    mountWith({ permissions: ['int.codes.read', 'int.codes.propose'] });
+    await rowsShown();
+    expect(screen.getByRole('button', { name: t('int.codes.action.propose') })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: t('int.codes.system.action.register') })).toBeNull();
   });
 
   it('offers nothing to a frozen session', async () => {

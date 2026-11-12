@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../../ui';
@@ -15,12 +16,9 @@ import { kindWord, statusWord, vietnamDateTime } from '../model';
 import type { Entry } from '../model';
 import '../rpt.css';
 import './layout.css';
-import { REASON_MIN, RULE_TYPE } from './model';
+import { APPROVE_PERMISSION, MAKE_PERMISSION, REASON_MIN, RULE_TYPE } from './model';
 
 const CODE_PREFIX = 'CFG_';
-const MAKE = 'adm.governance.manage';
-const APPROVE = 'adm.governance.approve';
-const holds = (permissions: readonly string[] | undefined, permission: string): boolean => permissions === undefined || permissions.includes(permission);
 const tone = (status: string): Tone => (status === 'APPROVED' ? 'success' : status === 'SUBMITTED' ? 'info' : status === 'RETIRED' ? 'neutral' : 'warning');
 
 type Step = { kind: 'submit' | 'approve' | 'withdraw'; version: RuleVersion };
@@ -65,9 +63,11 @@ function ListContent({ route }: ScreenProps) {
           <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`versions-${row.code}`} onClick={() => setSearch({ code: row.code })}>
             {t('rpt.layout.action.versions')}
           </button>
-          <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`edit-${row.code}`} onClick={() => navigate(`/rpt/rpt-08?code=${row.code}`)}>
-            {t('rpt.layout.action.edit')}
-          </button>
+          {holds(permissions, MAKE_PERMISSION) ? (
+            <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`edit-${row.code}`} onClick={() => navigate(`/rpt/rpt-08?code=${row.code}`)}>
+              {t('rpt.layout.action.edit')}
+            </button>
+          ) : null}
         </span>
       ),
     },
@@ -85,17 +85,17 @@ function ListContent({ route }: ScreenProps) {
       header: t('rpt.layout.col.actions'),
       render: (row) => (
         <span className="rpt-lay__actions">
-          {row.status === 'DRAFT' && holds(permissions, MAKE) ? (
+          {row.status === 'DRAFT' && holds(permissions, MAKE_PERMISSION) ? (
             <button type="button" className="ui-button ui-button--small" data-testid={`submit-${row.version}`} onClick={() => setStep({ kind: 'submit', version: row })}>
               {t('rpt.layout.action.submit')}
             </button>
           ) : null}
-          {row.status === 'SUBMITTED' && holds(permissions, APPROVE) ? (
+          {row.status === 'SUBMITTED' && holds(permissions, APPROVE_PERMISSION) ? (
             <button type="button" className="ui-button ui-button--small" data-testid={`approve-${row.version}`} onClick={() => setStep({ kind: 'approve', version: row })}>
               {t('rpt.layout.action.approve')}
             </button>
           ) : null}
-          {row.status === 'SUBMITTED' && holds(permissions, MAKE) ? (
+          {row.status === 'SUBMITTED' && holds(permissions, MAKE_PERMISSION) ? (
             <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`withdraw-${row.version}`} onClick={() => setStep({ kind: 'withdraw', version: row })}>
               {t('rpt.layout.action.withdraw')}
             </button>
@@ -112,9 +112,11 @@ function ListContent({ route }: ScreenProps) {
           <h1 id="screen-title">{t('rpt.layout.list.title')}</h1>
           <p>{t('rpt.layout.list.subtitle')}</p>
         </div>
-        <button type="button" className="ui-button" data-testid="new-layout" onClick={() => navigate('/rpt/rpt-08')}>
-          {t('rpt.layout.action.new')}
-        </button>
+        {holds(permissions, MAKE_PERMISSION) ? (
+          <button type="button" className="ui-button" data-testid="new-layout" onClick={() => navigate('/rpt/rpt-08')}>
+            {t('rpt.layout.action.new')}
+          </button>
+        ) : null}
       </div>
       <ContextBar items={[{ label: t('rpt.layout.context.scope'), value: tenant?.name ?? '–' }]} {...(catalogue.data === undefined ? {} : { asOf: vietnamDateTime(catalogue.data.as_of) })} stale={catalogue.isError && catalogue.data !== undefined} />
       <p className="callout" role="note">

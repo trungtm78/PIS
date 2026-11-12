@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { ContextBar, SectionCard } from '../../../ui';
 import { useCreateDraft, useEffective } from '../../adm/governance/hooks';
 import { GridIssues, PreviewTable, refusalText } from '../components';
@@ -11,7 +12,7 @@ import '../rpt.css';
 import './layout.css';
 import { usePreviewLayout } from './hooks';
 import type { LayoutPreview } from './hooks';
-import { BASES, COLUMN_KEYS, KINDS, LIMITS, PERIOD_KIND_LIST, RULE_TYPE, SCALES, SIGNATURES, draftProblem, emptyState, fromParams, moveItem, problemOf, quickProblem, toParams } from './model';
+import { BASES, COLUMN_KEYS, KINDS, LIMITS, MAKE_PERMISSION, PERIOD_KIND_LIST, RULE_TYPE, SCALES, SIGNATURES, draftProblem, emptyState, fromParams, moveItem, problemOf, quickProblem, toParams } from './model';
 import type { ColumnKey, EditorState, Signature } from './model';
 
 /** How long the form waits after the last keystroke before it asks for a new preview. */
@@ -27,17 +28,17 @@ export default function LayoutEditorScreen({ route }: ScreenProps) {
   return <EditorContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
 
-function Move<T>({ list, index, set, testId }: { list: T[]; index: number; set: (next: T[]) => void; testId: string }) {
+function Move<T>({ list, index, set, testId, may }: { list: T[]; index: number; set: (next: T[]) => void; testId: string; may: boolean }) {
   const { t } = useTranslation();
   return (
     <span className="rpt-lay__move">
-      <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.move.up')} disabled={index === 0} data-testid={`${testId}-up`} onClick={() => set(moveItem(list, index, -1))}>
+      <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.move.up')} disabled={!may || index === 0} data-testid={`${testId}-up`} onClick={() => set(moveItem(list, index, -1))}>
         {'↑'}
       </button>
-      <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.move.down')} disabled={index === list.length - 1} data-testid={`${testId}-down`} onClick={() => set(moveItem(list, index, 1))}>
+      <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.move.down')} disabled={!may || index === list.length - 1} data-testid={`${testId}-down`} onClick={() => set(moveItem(list, index, 1))}>
         {'↓'}
       </button>
-      <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.remove')} data-testid={`${testId}-remove`} onClick={() => set(list.filter((_, at) => at !== index))}>
+      <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('rpt.layout.remove')} disabled={!may} data-testid={`${testId}-remove`} onClick={() => set(list.filter((_, at) => at !== index))}>
         {'×'}
       </button>
     </span>
@@ -46,7 +47,9 @@ function Move<T>({ list, index, set, testId }: { list: T[]; index: number; set: 
 
 function EditorContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { tenant } = useSession();
+  const { tenant, permissions } = useSession();
+  // The editor writes a draft of the rule store: whoever may not is shown the form and its preview, and no control that changes it.
+  const may = holds(permissions, MAKE_PERMISSION);
   const navigate = useNavigate();
   const [search] = useSearchParams();
   const startCode = search.get('code') ?? undefined;
@@ -106,6 +109,11 @@ function EditorContent({ route }: ScreenProps) {
         </div>
       </div>
       <ContextBar items={[{ label: t('rpt.layout.context.scope'), value: tenant?.name ?? '–' }]} />
+      {may ? null : (
+        <p className="callout" role="note" data-testid="readonly-note">
+          {t('rpt.cat.action.noRight')}
+        </p>
+      )}
       <div className="rpt-lay">
         <div className="rpt-lay__form">
           <SectionCard title={t('rpt.layout.section.form')}>
@@ -193,11 +201,11 @@ function EditorContent({ route }: ScreenProps) {
                       </option>
                     ))}
                   </select>
-                  <Move list={state.indicators} index={index} set={(next) => set({ indicators: next })} testId={`indicator-${index}`} />
+                  <Move list={state.indicators} index={index} set={(next) => set({ indicators: next })} testId={`indicator-${index}`} may={may} />
                 </li>
               ))}
             </ol>
-            <button type="button" className="ui-button ui-button--outline" disabled={indicatorsFull} data-testid="indicator-add" onClick={() => set({ indicators: [...state.indicators, { code: '', title: '', basis: '' }] })}>
+            <button type="button" className="ui-button ui-button--outline" disabled={!may || indicatorsFull} data-testid="indicator-add" onClick={() => set({ indicators: [...state.indicators, { code: '', title: '', basis: '' }] })}>
               {t('rpt.layout.indicator.add')}
             </button>
           </SectionCard>
@@ -208,11 +216,11 @@ function EditorContent({ route }: ScreenProps) {
                 <li key={index} data-testid={`group-${index}`}>
                   <input type="text" aria-label={t('rpt.layout.group.key')} placeholder={t('rpt.layout.group.key')} maxLength={24} value={one.key} data-testid={`group-${index}-key`} onChange={(event) => set({ groups: state.groups.map((row, at) => (at === index ? { ...row, key: event.target.value.toLowerCase().trim() } : row)) })} />
                   <input type="text" aria-label={t('rpt.layout.group.title')} placeholder={t('rpt.layout.group.title')} maxLength={200} value={one.title} data-testid={`group-${index}-title`} onChange={(event) => set({ groups: state.groups.map((row, at) => (at === index ? { ...row, title: event.target.value } : row)) })} />
-                  <Move list={state.groups} index={index} set={(next) => set({ groups: next })} testId={`group-${index}`} />
+                  <Move list={state.groups} index={index} set={(next) => set({ groups: next })} testId={`group-${index}`} may={may} />
                 </li>
               ))}
             </ol>
-            <button type="button" className="ui-button ui-button--outline" disabled={state.groups.length >= LIMITS.groups} data-testid="group-add" onClick={() => set({ groups: [...state.groups, { key: `group_${state.groups.length + 1}`, title: '' }], columns: state.columns.length === 0 ? [{ key: 'project_code', title: '' }, { key: 'project_name', title: '' }] : state.columns })}>
+            <button type="button" className="ui-button ui-button--outline" disabled={!may || state.groups.length >= LIMITS.groups} data-testid="group-add" onClick={() => set({ groups: [...state.groups, { key: `group_${state.groups.length + 1}`, title: '' }], columns: state.columns.length === 0 ? [{ key: 'project_code', title: '' }, { key: 'project_name', title: '' }] : state.columns })}>
               {t('rpt.layout.group.add')}
             </button>
           </SectionCard>
@@ -224,7 +232,7 @@ function EditorContent({ route }: ScreenProps) {
                   <li key={one.key} data-testid={`column-${index}`}>
                     <strong>{t(`rpt.layout.column.${statusWord(one.key)}`)}</strong>
                     <input type="text" aria-label={t('rpt.layout.column.title')} placeholder={t('rpt.layout.column.title')} maxLength={120} value={one.title} data-testid={`column-${index}-title`} onChange={(event) => set({ columns: state.columns.map((row, at) => (at === index ? { ...row, title: event.target.value } : row)) })} />
-                    <Move list={state.columns} index={index} set={(next) => set({ columns: next })} testId={`column-${index}`} />
+                    <Move list={state.columns} index={index} set={(next) => set({ columns: next })} testId={`column-${index}`} may={may} />
                   </li>
                 ))}
               </ol>
@@ -280,7 +288,7 @@ function EditorContent({ route }: ScreenProps) {
                 {saveError}
               </p>
             )}
-            <button type="button" className="ui-button" disabled={create.isPending} data-testid="save" onClick={save}>
+            <button type="button" className="ui-button" disabled={!may || create.isPending} data-testid="save" onClick={save}>
               {t('rpt.layout.save')}
             </button>
             <p className="callout" role="note">

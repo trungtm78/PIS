@@ -104,6 +104,17 @@ describe('CorrectionScreen (HPM-02): the corrections that let an accepted period
     expect((await screen.findByTestId('correction-empty')).textContent).toBe(word('hpm.correction.empty.none'));
   });
 
+  it('hides the actions from a reader whatever the server says of the connection and of each correction', async () => {
+    mountWith({ permissions: HPM_READER });
+    await screen.findByRole('table');
+    expect(screen.queryByTestId('propose-button')).toBeNull();
+    expect(document.querySelector('[data-testid^="decide-"]')).toBeNull();
+    cleanup();
+    mountWith();
+    await screen.findByRole('table');
+    expect(screen.getByTestId('propose-button')).toBeTruthy();
+  });
+
   it('hides the actions from a reader and in a read-only workspace, and offers a retry when the read fails', async () => {
     mountWith({ permissions: HPM_READER, world: { connection: hpmConnection({}, { may_propose_correction: false, may_decide_correction: false }), corrections: [hpmCorrection(1, {}, { may_decide: false })] } });
     await screen.findByRole('table');

@@ -21,10 +21,10 @@ const detailOf = (n: number, overrides: Record<string, unknown> = {}) =>
     ...overrides,
   });
 
-function open(state: Partial<World> = {}, options: { mode?: 'FULL' | 'READ_ONLY'; command?: (operation: string, input: unknown) => unknown; path?: string } = {}): Harness & { state: World } {
+function open(state: Partial<World> = {}, options: { mode?: 'FULL' | 'READ_ONLY'; permissions?: readonly string[]; command?: (operation: string, input: unknown) => unknown; path?: string } = {}): Harness & { state: World } {
   const full = world(state);
   const h = client(full, options.command);
-  mountInSession(<ReconciliationScreen route={ROUTE} />, h, { permissions: PERMISSIONS, ...(options.mode === undefined ? {} : { mode: options.mode }) }, options.path ?? '/dgv/dgv-09');
+  mountInSession(<ReconciliationScreen route={ROUTE} />, h, { permissions: options.permissions ?? PERMISSIONS, ...(options.mode === undefined ? {} : { mode: options.mode }) }, options.path ?? '/dgv/dgv-09');
   return { ...h, state: full };
 }
 
@@ -149,6 +149,12 @@ describe('ReconciliationScreen (DGV-09): the Treasury against the accepted repor
     refusal = problem('SCOPE_DENIED', 403);
     fireEvent.click(within(dialog()).getByRole('button', { name: word('dgv.recon.run.submit') }));
     await waitFor(() => expect(screen.getByTestId('refusal').textContent).toBe(word('dgv.source.error.denied')));
+  });
+
+  it('shows no button to run to a person who may read the reconciliations and not run one', async () => {
+    open({ reconciliations: [recon(1)] }, { permissions: ['data.quality.read', 'data.catalog.read'] });
+    await screen.findByTestId('reconciliations');
+    expect(screen.queryByRole('button', { name: word('dgv.recon.run.action') })).toBeNull();
   });
 
   it('shows no button to run while the tenant is read-only', async () => {
