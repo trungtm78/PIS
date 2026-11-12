@@ -67,6 +67,10 @@ export class TenantDatabase {
 
   constructor(pool: Pool) {
     this.pool = pool;
+    // A pool whose idle connection is ended by the server (a restart, a failover, an administrator) emits 'error' for it; with no listener Node raises it as an uncaught exception and the process dies.
+    // The pool drops the dead connection by itself, and the next call takes a fresh one: the failure belongs to the call that was using it, never to the process. An owner that listens already keeps its handler.
+    // (A stand-in for a pool, in a test of the transaction code alone, has no event emitter to guard.)
+    if (typeof pool.listenerCount === 'function' && pool.listenerCount('error') === 0) pool.on('error', () => undefined);
   }
 
   async withTenant<T>(ctx: TenantContext, work: (tx: TenantTx) => Promise<T>): Promise<T> {
