@@ -366,6 +366,7 @@ export class PrjStageStore {
         where id = $1::uuid`,
       [locked.id, edge.to, request.actor, version, documents.investmentDecisionDocumentId ?? null],
     );
+    await this.gate.follow(tx, locked.id, edge.to);
     // A project cancelled while it is being appraised takes its open sheets with it: nobody decides on a sheet of a project that is gone.
     if (locked.status === 'APPRAISAL' && edge.to === 'CANCELLED') {
       await tx.query(

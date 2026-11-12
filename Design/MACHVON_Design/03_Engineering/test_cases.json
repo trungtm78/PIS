@@ -31171,5 +31171,201 @@
     "covers": [
       "FR-BI-02"
     ]
+  },
+  {
+    "id": "UAT-PWF-NEG-01",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Dự án P1 đã có workflow; dự án P2 chưa có, thiếu nhóm dự án và nguồn vốn",
+    "steps": [
+      "1. startProjectWorkflow cho P1 lần nữa với Idempotency-Key mới",
+      "2. startProjectWorkflow cho P2 với template_code không tồn tại",
+      "3. startProjectWorkflow cho P2 khi dữ kiện nhánh chưa biết"
+    ],
+    "expected": "Bước 1: 409 PWF_WORKFLOW_EXISTS và không đổi gì; bước 2: PWF_TEMPLATE_NOT_FOUND; bước 3: PWF_FACTS_REQUIRED (dữ kiện chưa biết không bao giờ làm điều kiện nhánh đúng); không có dòng project_task nào được tạo dở.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-NEG-03",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Việc B có tiền nhiệm A kiểu FS, A đang IN_PROGRESS; người thực hiện là người được giao của B",
+    "steps": [
+      "1. startProjectTask cho B",
+      "2. Quản lý cho phép bắt đầu sớm kèm lý do và thử lại",
+      "3. Người không được giao B gọi startProjectTask"
+    ],
+    "expected": "Bước 1: PWF_TASK_STATE_INVALID; bước 2: B IN_PROGRESS, ghi START kèm lý do bắt đầu sớm; bước 3: bị từ chối vì không có trong sổ phân công (404 hoặc SCOPE_DENIED theo scope).",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-NEG-04",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Việc quá hạn 4 ngày làm việc; người làm đề nghị PAUSE 3 ngày nhưng chưa ai duyệt; ngoại lệ WAIVE_REQUIREMENT khác đã được duyệt cho mục bằng chứng",
+    "steps": [
+      "1. Tính KPI PWF_TASK_DEVIATION_DAYS khi PAUSE còn REQUESTED",
+      "2. Người đề nghị tự quyết định ngoại lệ PAUSE của mình",
+      "3. Người duyệt khác duyệt PAUSE rồi tính lại KPI",
+      "4. Người làm tự duyệt hoàn thành việc dù đã có ngoại lệ WAIVE_REQUIREMENT"
+    ],
+    "expected": "Bước 1: độ lệch 4 ngày, không trừ; bước 2: SELF_APPROVAL_DENIED; bước 3: độ lệch 1 ngày (trừ 3 ngày được miễn, không dưới 0); bước 4: MAKER_IS_APPROVER, ngoại lệ không che được quy tắc người làm khác người duyệt.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-NEG-05",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Workflow có một đề nghị dời lịch PROPOSED",
+    "steps": [
+      "1. proposeProjectReschedule lần hai",
+      "2. Người duyệt từ chối đề nghị đầu rồi đề nghị lại",
+      "3. Đề nghị khi liên kết tạo vòng phụ thuộc (override ghi vòng)"
+    ],
+    "expected": "Bước 1: PWF_RESCHEDULE_PENDING_EXISTS (chỉ mục duy nhất một phần); bước 2: đề nghị cũ REJECTED, đề nghị mới được tạo; bước 3: PWF_DEPENDENCY_CYCLE hoặc PWF_SCHEDULE_INVALID, không lưu đề nghị.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-NEG-07",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Dự án đang chạy, chưa có workflow; việc quá khứ X chọn \"đã xong\" nhưng không đính bằng chứng",
+    "steps": [
+      "1. adoptProjectWorkflow dry_run=true với X đã xong thiếu bằng chứng",
+      "2. Áp dụng dry_run=false với cùng dữ liệu",
+      "3. Áp dụng cho dự án đã có workflow"
+    ],
+    "expected": "Bước 1: bản chạy thử nêu lỗi từng việc; bước 2: PWF_ADOPT_INVALID, không ghi gì; bước 3: PWF_WORKFLOW_EXISTS.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-CON-01",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Workflow ở schedule_version 3; hai đề nghị dời lịch lập từ cùng phiên bản (một PROPOSED, một lập sau khi bản thứ nhất bị thay); hai người duyệt khác nhau cùng giữ If-Match = 3",
+    "steps": [
+      "1. Hai người gọi decideProjectReschedule gần như đồng thời",
+      "2. Người sau tải lại bản mới và xem đề nghị",
+      "3. Đếm project_schedule_version và đọc đường cơ sở"
+    ],
+    "expected": "Đúng một lần phát hành thành công (schedule_version = 4, dưới pg_advisory_xact_lock của dự án); người sau 409 PWF_SCHEDULE_VERSION_CONFLICT (hoặc đề nghị SUPERSEDED), không ghi nửa chừng; đường cơ sở không đổi; chỉ một dòng project_schedule_version mới.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-REG-02",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Dự án chưa gắn workflow; các lệnh submitProjectForAppraisal, decideProjectAppraisal, startProjectImplementation, completeProject, closeProject và sự kiện capital.plan_published.v1, settlement.closed.v1",
+    "steps": [
+      "1. Chạy từng lệnh theo bảng chuyển cố định của PRJ",
+      "2. Phát hai sự kiện hệ thống",
+      "3. Chạy bộ kiểm thử PRJ hiện có"
+    ],
+    "expected": "Mọi lệnh và sự kiện cho cùng kết quả như trước khi có PWF; không có bản ghi project_task_log GATE_CHECKED nào; bộ kiểm thử PRJ hiện có xanh, không sửa assertion.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-SEC-06",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Việc AWAITING_APPROVAL có approver_role; người K vừa là người được giao vai duyệt vừa đã hoàn thành mục danh mục kiểm C1; có ngoại lệ WAIVE_REQUIREMENT đã duyệt cho mục thiếu khác",
+    "steps": [
+      "1. K gọi approveProjectTaskCompletion",
+      "2. Người làm (assignee R) gọi approveProjectTaskCompletion",
+      "3. Người duyệt thứ ba, chưa tham gia, gọi duyệt"
+    ],
+    "expected": "Bước 1 và 2: MAKER_IS_APPROVER hoặc SELF_APPROVAL_DENIED; bước 3: DONE; nhật ký ghi hai lần từ chối.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-IDM-01",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Dự án chưa có workflow; mạng chập chờn khiến client gửi lại",
+    "steps": [
+      "1. startProjectWorkflow với Idempotency-Key K",
+      "2. Gửi lại cùng K và cùng nội dung 5 lần song song",
+      "3. Gửi lại cùng K với nội dung khác",
+      "4. Gửi lệnh ghi khác không có Idempotency-Key"
+    ],
+    "expected": "Bước 2: mọi lần trả cùng kết quả bước 1; đúng một workflow, một bộ việc, một schedule_version 1, một sự kiện pwf.workflow.started.v1 trong outbox; bước 3: bị từ chối vì khóa dùng với nội dung khác; bước 4: bị từ chối thiếu khóa.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-SEC-01",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A có dự án với workflow và việc T; tenant B có quản trị đầy đủ quyền pwf.read và pwf.workflow.manage trên dự án của riêng nó",
+    "steps": [
+      "1. Tenant B gọi getProjectTask với id của T",
+      "2. Gọi getProjectWorkflow, getProjectSchedule, evaluateProjectGate bằng id dự án của tenant A và một id ngẫu nhiên",
+      "3. Gọi startProjectWorkflow cho dự án của tenant A",
+      "4. Đọc bảng deadline, lịch tháng và tải công việc của tenant B"
+    ],
+    "expected": "Bước 1 và 2: 404 cùng mã với id không tồn tại, không lộ nội dung; bước 3: 404; bước 4: không có dòng nào của tenant A (RLS tenant_access FORCE, rồi lọc cây đơn vị); chỉ mục và cache có tenant trong khóa.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-CON-04",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Người làm đọc việc ở version 7; trong lúc đó quản lý đổi thời lượng hoặc phân công và version thành 8",
+    "steps": [
+      "1. completeProjectTask với If-Match 7",
+      "2. Đọc lại việc rồi gửi lại với If-Match 8"
+    ],
+    "expected": "Bước 1: 409 VERSION_CONFLICT, không đổi gì; bước 2: thành công theo trạng thái mới.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-CON-02",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Dự án chưa có workflow; hai người quản lý có quyền; hai Idempotency-Key khác nhau",
+    "steps": [
+      "1. Hai người gọi startProjectWorkflow đồng thời",
+      "2. Đếm project_workflow, project_task, project_schedule_version của dự án"
+    ],
+    "expected": "Một lệnh thành công; lệnh kia PWF_WORKFLOW_EXISTS (khóa theo dự án, ràng buộc duy nhất project_id); đúng một bộ việc, một phiên bản lịch 1, một đường cơ sở 1.",
+    "status": "NOT_RUN",
+    "evidence": null
+  },
+  {
+    "id": "UAT-PWF-PERF-01",
+    "source": "UAT PWF (lane pwf1, 2026-11-13)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Dữ liệu synthetic 1.000 dự án x 200 việc; chỉ mục (tenant, trạng thái, hạn dự báo) và (tenant, người phụ trách, hạn); ngân sách 800 ms do đặc tả đặt (BR-PWF-29), con số hiện là ước tính chờ đo ở perf-budget",
+    "steps": [
+      "1. Gọi getDeadlineBoard 20 lần (3 lần khởi động) với bộ lọc màu đỏ",
+      "2. Đọc số đếm theo màu và cờ bị cắt",
+      "3. Đếm số truy vấn mỗi lời gọi"
+    ],
+    "expected": "p95 không quá 800 ms; tổng theo màu là truy vấn đếm chính xác riêng, đúng kể cả khi danh sách bị cắt (\"đang hiện N trên M\"); số truy vấn có trần; không quét toàn bảng.",
+    "status": "NOT_RUN",
+    "evidence": null
   }
 ]

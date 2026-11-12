@@ -1943,3 +1943,5 @@ export { logWorkflow, milestoneCodeOf, publishSchedule, resultHashOf, syncMilest
 export { loadPinnedCalendars, pinPublishedCalendars } from './pwf-schedule-support.ts';
 export { PwfDeadlineReads } from './pwf-deadline-reads.ts';
 export type { BoardFilter as PwfBoardFilter } from './pwf-deadline-reads.ts';
+export { SqlProjectScheduleReader } from './pwf-schedule-read.ts';
+export type { MilestoneFact as PwfMilestoneFact, MilestoneFigures, ProjectScheduleReadPort } from './pwf-schedule-read.ts';

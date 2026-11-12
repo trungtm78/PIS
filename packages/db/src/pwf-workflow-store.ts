@@ -5,7 +5,7 @@ import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { PrjBaselineStore } from './prj-baseline-store.ts';
 import { dateOf, lockProject } from './prj-stage-support.ts';
 import type { LockedProject, StageScopes } from './prj-stage-support.ts';
-import { inputHashOf, pinPublishedCalendars } from './pwf-schedule-support.ts';
+import { earliestYear, inputHashOf, pinPublishedCalendars } from './pwf-schedule-support.ts';
 import type { PinnedCalendar } from './pwf-schedule-support.ts';
 import { logWorkflow, publishSchedule } from './pwf-publish.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -255,7 +255,7 @@ export class PwfWorkflowStore {
   }
 
   private async plan(tx: TenantTx, resolved: ResolvedTemplate, facts: pwfWorkflow.ProjectFacts, plannedStart: string, progress: Record<string, pwfSchedule.TaskProgress>, statusDate: string | null): Promise<Plan> {
-    const calendars = await pinPublishedCalendars(tx, Number(plannedStart.slice(0, 4)));
+    const calendars = await pinPublishedCalendars(tx, earliestYear([plannedStart, statusDate, ...Object.values(progress).flatMap((one) => [one.actualStart, one.actualFinish])]));
     const tasks = pwfSchedule.tasksFromTemplate(resolved.template, facts, progress);
     const result = pwfSchedule.scheduleProject({ tasks, plannedStart, calendars, ...(statusDate === null ? {} : { statusDate }) });
     return { resolved, facts, tasks, excluded: pwfWorkflow.activeTasks(resolved.template, facts).excluded, calendars, result, inputHash: inputHashOf({ tasks, plannedStart, statusDate, calendars }), statusDate };

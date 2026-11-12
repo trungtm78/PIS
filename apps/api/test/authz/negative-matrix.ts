@@ -2288,6 +2288,71 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/profile`, ifMatch: '"1"', body: { name: 'Renamed by matrix' } }),
   },
+  // The commands of the project workflow (PWF-1): they name the project of tenant A or a task, exception or proposal that does not exist; a caller without the permission is refused before any lookup, and a caller of another tenant finds nothing.
+  startProjectWorkflow: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/workflow`, body: { template_code: 'PUBLIC_PROCUREMENT', planned_start_date: '2026-11-02' } }),
+  },
+  adoptProjectWorkflow: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/workflow/adopt`, body: { template_code: 'PUBLIC_PROCUREMENT', planned_start_date: '2026-09-01', effective_date: '2026-10-15', dry_run: true } }),
+  },
+  proposeProjectReschedule: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/projects/${t.projectId}/workflow/reschedules`, ifMatch: '"1"', body: { reason: 'The start of the project is moved by two weeks (matrix)' } }),
+  },
+  startProjectTask: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/start`, ifMatch: '"1"', body: {} }),
+  },
+  attachProjectTaskEvidence: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/evidence`, body: { evidence_kind: 'DOCUMENT', external_ref: 'matrix' } }),
+  },
+  completeProjectTaskChecklistItem: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/checklist/DOSSIER/complete`, ifMatch: '"1"', body: {} }),
+  },
+  completeProjectTask: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/complete`, ifMatch: '"1"', body: {} }),
+  },
+  approveProjectTaskCompletion: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/approve-completion`, ifMatch: '"1"', body: { decision: 'APPROVE' } }),
+  },
+  returnProjectTask: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/return`, ifMatch: '"1"', body: { reason: 'The dossier lacks the signature page (matrix)' } }),
+  },
+  requestProjectTaskException: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/exceptions`, body: { kind: 'PAUSE', reason: 'Waiting for the site to be handed over (matrix)' } }),
+  },
+  resumeProjectTask: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/resume`, ifMatch: '"1"', body: {} }),
+  },
+  assignProjectTask: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/project-tasks/00000000-0000-4000-8000-0000000000aa/assignments`, body: { membership_id: t.recipientMembershipId, role: 'RESPONSIBLE', valid_from: '2026-01-01', share_pct: 100, reason: 'Assigned by the matrix' } }),
+  },
+  decideProjectTaskException: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-task-exceptions/00000000-0000-4000-8000-0000000000ab/decide`, ifMatch: '"1"', body: { decision: 'APPROVE' } }),
+  },
+  decideProjectReschedule: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/project-reschedules/00000000-0000-4000-8000-0000000000ac/decide`, ifMatch: '"1"', body: { decision: 'APPROVE' } }),
+  },
+  validateProjectWorkflowTemplate: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/project-workflow/templates/validate', body: { name: 'Matrix', project_type: null, phases: [{ code: 'P1', name: 'One', gates: [] }], tasks: [{ code: 'TA', name: 'A', phase: 'P1', kind: 'TASK', duration_working_days: 1, required: true, responsible_role: 'ROLE_A', approver_role: null, priority: 'NORMAL', predecessors: [] }] } }),
+  },
+  previewProjectWorkflowTemplate: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: '/project-workflow/templates/preview', body: { planned_start_date: '2026-11-02', params: { name: 'Matrix', project_type: null, phases: [{ code: 'P1', name: 'One', gates: [] }], tasks: [{ code: 'TA', name: 'A', phase: 'P1', kind: 'TASK', duration_working_days: 1, required: true, responsible_role: 'ROLE_A', approver_role: null, priority: 'NORMAL', predecessors: [] }] } } }),
+  },
   // The stage commands name the CONCEPT project of tenant A and the decision document of the matrix: a caller without the permission is refused before
   // any lookup, and a caller of another tenant finds no such project; the project is never moved.
   startProjectImplementation: {

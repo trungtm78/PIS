@@ -350,3 +350,10 @@ export async function writeScheduleDays(tx: TenantTx, workflowId: string, result
     [workflowId, scheduleVersion, baseline, JSON.stringify(payload)],
   );
 }
+
+/** The first calendar year a schedule reaches: the line of working days starts at the earliest day it mentions (the planned start, the day of the status, the first baseline, the real dates), so the calendars are pinned from that year (a year without a calendar is never guessed). */
+export function earliestYear(days: ReadonlyArray<string | null | undefined>): number {
+  const years = days.filter((day): day is string => typeof day === 'string').map((day) => Number(day.slice(0, 4)));
+  if (years.length === 0) throw new DomainError('PWF_SCHEDULE_INVALID', 422, 'planned_start');
+  return Math.min(...years);
+}

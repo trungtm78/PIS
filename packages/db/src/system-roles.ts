@@ -23,9 +23,9 @@ const TENANT_PLANE_PREFIXES: readonly string[] = [
   'internal', 'invitation', 'invoice_line', 'issue', 'land', 'ledger', 'legal_hold', 'lesson', 'license_revision', 'llm', 'llm_attempt', 'lnd', 'look_ahead',
   'master', 'master_record_version', 'material', 'maturity_assessment', 'maturity_evidence', 'measurement', 'membership', 'metric_definition', 'mne',
   'model_profile_version', 'ncr', 'notification', 'notification_instance', 'notification_template_version', 'omni', 'open', 'organization_unit', 'outbox_event',
-  'payment', 'payment_request', 'period', 'permit', 'photo', 'plan', 'plan_version', 'procurement_package', 'profile', 'progress_snapshot', 'project', 'proposal',
+  'payment', 'payment_request', 'period', 'permit', 'photo', 'plan', 'plan_version', 'procurement_package', 'profile', 'progress_snapshot', 'project', 'proposal', 'pwf',
   'qacceptance', 'quality_exception', 'quality_incident', 'quality_nonconformance', 'quality_rule_version', 'quality_run', 'reconciliation', 'report',
-  'report_revision', 'reporting_period', 'retention', 'role_grant', 'rpt', 'search', 'session', 'settlement', 'settlement_revision', 'site_diary', 'snapshot',
+  'report_revision', 'reporting_period', 'retention', 'role_grant', 'rpt', 'search', 'session', 'settlement', 'settlement_revision', 'site_diary', 'snapshot', 'staff_score',
   'subscription', 'support', 'support_access_grant', 'sync', 'taskforce', 'tenant', 'treasury', 'treasury_transaction', 'usage_meter_event', 'vnd', 'warning',
   'warranty', 'workflow_instance', 'workflow_version',
 ];

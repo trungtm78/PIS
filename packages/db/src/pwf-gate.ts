@@ -20,7 +20,18 @@ export interface ProjectWorkflowGatePort {
   assess(tx: TenantTx, projectId: string, target: string): Promise<GateOutcome | undefined>;
   /** Refuses the target (422 `PWF_GATE_CLOSED` with the missing tasks) when the workflow of the project keeps it closed; does nothing otherwise. */
   assert(tx: TenantTx, projectId: string, target: string): Promise<void>;
+  /** The workflow of the project follows the legal stage it moved to (suspended: on hold; resumed: active again; closed: completed; cancelled or rejected: cancelled); nothing happens for a project without a workflow. */
+  follow(tx: TenantTx, projectId: string, stage: string): Promise<void>;
 }
+
+/** The status of the workflow for each legal stage that changes it, and the statuses it may come from. */
+const FOLLOW: Readonly<Record<string, { to: string; from: readonly string[] }>> = {
+  SUSPENDED: { to: 'ON_HOLD', from: ['ACTIVE'] },
+  IMPLEMENTATION: { to: 'ACTIVE', from: ['ON_HOLD'] },
+  CLOSED: { to: 'COMPLETED', from: ['ACTIVE', 'ON_HOLD'] },
+  CANCELLED: { to: 'CANCELLED', from: ['ACTIVE', 'ON_HOLD'] },
+  REJECTED: { to: 'CANCELLED', from: ['ACTIVE', 'ON_HOLD'] },
+};
 
 interface GateSql {
   workflow_id: string;
@@ -68,6 +79,12 @@ export class SqlProjectWorkflowGate implements ProjectWorkflowGatePort {
     }));
     const verdict = pwfWorkflow.gateFor(template, target, workflow.facts, states);
     return { workflowId: workflow.workflow_id, target, gated: verdict.gated, open: verdict.open, missing: verdict.missing.map((one) => ({ task: one.task, taskId: ids.get(one.task) ?? null, phase: one.phase, reason: one.reason })) };
+  }
+
+  async follow(tx: TenantTx, projectId: string, stage: string): Promise<void> {
+    const rule = FOLLOW[stage];
+    if (rule === undefined) return;
+    await tx.query('update machvon.project_workflow set status = $2, version = version + 1, updated_at = now() where project_id = $1::uuid and status = any($3::text[])', [projectId, rule.to, [...rule.from]]);
   }
 
   async assert(tx: TenantTx, projectId: string, target: string): Promise<void> {

@@ -4,7 +4,7 @@ import { PrjBaselineStore } from './prj-baseline-store.ts';
 import { dateOf, lockProject } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
 import { logWorkflow, publishSchedule, resultHashOf } from './pwf-publish.ts';
-import { baselineOfRows, inputHashOf, loadLinks, loadTasks, pinPublishedCalendars, resultOfRows, scheduleTasksOf } from './pwf-schedule-support.ts';
+import { baselineOfRows, earliestYear, inputHashOf, loadLinks, loadTasks, pinPublishedCalendars, resultOfRows, scheduleTasksOf } from './pwf-schedule-support.ts';
 import type { PinnedCalendar, TaskLink, TaskRow } from './pwf-schedule-support.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -169,7 +169,7 @@ export class PwfRescheduleStore {
     const template = pwfWorkflow.parseProjectWorkflowTemplate(workflow.template);
     const plannedStart = request.input.plannedStartDate === undefined ? workflow.planned_start_date : dateOf(request.input.plannedStartDate, 'planned_start_date');
     const statusDate = request.input.statusDate === undefined ? today : dateOf(request.input.statusDate, 'status_date');
-    const calendars = await pinPublishedCalendars(tx, Number(plannedStart.slice(0, 4)));
+    const calendars = await pinPublishedCalendars(tx, earliestYear([plannedStart, statusDate, ...rows.flatMap((row) => [row.baselineStart, row.actualStart, row.actualFinish])]));
     const tasks = proposedTasks(rows, links, request.input, template.phases.map((phase) => phase.code));
     const first = request.input.plannedStartDate === undefined ? undefined : plannedStart;
     const input = { tasks, plannedStart, calendars, statusDate };
@@ -225,7 +225,7 @@ export class PwfRescheduleStore {
     const linksBefore = await loadLinks(tx, workflow.id);
     const template = pwfWorkflow.parseProjectWorkflowTemplate(workflow.template);
     const plannedStart = stored.planned_start_date ?? workflow.planned_start_date;
-    const calendars = await pinPublishedCalendars(tx, Number(plannedStart.slice(0, 4)));
+    const calendars = await pinPublishedCalendars(tx, earliestYear([plannedStart, stored.status_date, ...rowsBefore.flatMap((row) => [row.baselineStart, row.actualStart, row.actualFinish])]));
     const wanted = proposedTasks(rowsBefore, linksBefore, stored.input, template.phases.map((phase) => phase.code));
     const check = pwfSchedule.scheduleProject({ tasks: wanted, plannedStart, calendars, statusDate: stored.status_date, baseline: baselineOfRows(rowsBefore) });
     if (inputHashOf({ tasks: wanted, plannedStart, calendars, statusDate: stored.status_date }) !== held.input_hash || resultHashOf(check) !== held.result_hash) throw conflict('INPUT_CHANGED');

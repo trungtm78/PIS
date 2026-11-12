@@ -240,7 +240,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await owner('select 1 from machvon.project_task_log where workflow_id = $1::uuid and kind = $2', [done.id, 'WORKFLOW_STARTED'])).length).toBe(1);
     });
 
-    it('is one workflow per project (409 PWF_WORKFLOW_EXISTS), needs a template (404) and a project in scope (404 outside, 403 when only readable)', async () => {
+    it('UAT-PWF-NEG-01: is one workflow per project (409 PWF_WORKFLOW_EXISTS), needs a template (404) and a project in scope (404 outside, 403 when only readable)', async () => {
       const p = await project();
       await start(p.id);
       expect((await refusal(start(p.id))).code).toBe('PWF_WORKFLOW_EXISTS');
@@ -295,7 +295,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await owner('select 1 from machvon.project_task_log where task_id is null and kind = $1 and workflow_id in (select id from machvon.project_workflow where project_id = $2::uuid)', ['ADOPTED', p.id])).length).toBe(0);
     });
 
-    it('refuses to apply while a past task is undecided (422 PWF_ADOPT_INVALID), then applies: not tracked, done with evidence, in progress', async () => {
+    it('UAT-PWF-NEG-07: refuses to apply while a past task is undecided (422 PWF_ADOPT_INVALID), then applies: not tracked, done with evidence, in progress', async () => {
       const p = await project({ status: 'IMPLEMENTATION' });
       expect(await refusal(adopt(p.id, {}, false))).toMatchObject({ code: 'PWF_ADOPT_INVALID', status: 422 });
       const paper = await document();
@@ -371,7 +371,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect(await taskOf(wf.id, 'TA')).toMatchObject({ status: 'IN_PROGRESS', return_count: 1 });
     });
 
-    it('pauses and cancels only by an exception that another person decides; a waiver covers what is missing but never the rule of the approver', async () => {
+    it('UAT-PWF-NEG-04: pauses and cancels only by an exception that another person decides; a waiver covers what is missing but never the rule of the approver', async () => {
       const wf = await start((await project()).id);
       const c = await taskOf(wf.id, 'TC');
       await assign(c.id as string, WORKER);
@@ -391,7 +391,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await refusal(as((tx) => tasks.requestException(tx, { taskId: c.id as string, actor: memberId(WORKER), scopes, today: TODAY, kind: 'PAUSE', reason: 'A pause of a task that is cancelled' }), WORKER))).code).toBe('PWF_TASK_STATE_INVALID');
     });
 
-    it('lets an approved waiver cover a missing document, and the waiver is used up', async () => {
+    it('UAT-PWF-SEC-06: lets an approved waiver cover a missing document, and the waiver is used up', async () => {
       const wf = await start((await project()).id);
       const a = await taskOf(wf.id, 'TA');
       await assign(a.id as string, WORKER);
@@ -406,7 +406,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await refusal(as((tx) => tasks.approveCompletion(tx, { taskId: a.id as string, expectedVersion: Number(waiting.version), actor: memberId(WORKER), scopes, today: TODAY }), WORKER))).code).toBe('SELF_APPROVAL_DENIED');
     });
 
-    it('starts a task whose predecessor is not done only with a reason of 20 characters, and records that it started early', async () => {
+    it('UAT-PWF-NEG-03: starts a task whose predecessor is not done only with a reason of 20 characters, and records that it started early', async () => {
       const wf = await start((await project()).id);
       const c = await taskOf(wf.id, 'TC');
       await assign(c.id as string, WORKER);
@@ -445,7 +445,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
     const stage = new PrjStageStore(undefined, { openObligations: async () => ({ committedVnd: '0', disbursedVnd: '0', activeReservations: 0 }) }, lessons);
     const appraisal = new PrjAppraisalStore();
 
-    it('keeps a project that has no workflow as it was (the gate says nothing)', async () => {
+    it('UAT-PWF-REG-02: keeps a project that has no workflow as it was (the gate says nothing)', async () => {
       const p = await project();
       expect(await as((tx) => gate.assess(tx, p.id, 'submitProjectForAppraisal'))).toBeUndefined();
       await as((tx) => gate.assert(tx, p.id, 'submitProjectForAppraisal'));
@@ -486,6 +486,27 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await complete()).to).toBe('COMPLETED');
     });
 
+    it('makes the workflow follow the legal stage: on hold while the project is suspended (and no task moves), active again on resume, cancelled with the project', async () => {
+      const p = await project({ status: 'IMPLEMENTATION' });
+      const wf = await start(p.id);
+      const decision = await document();
+      const move = (command: 'suspendProject' | 'resumeProject' | 'cancelProject', projectId: string, version: number) =>
+        as((tx) => stage.transition(tx, { command, projectId, expectedVersion: version, actor: memberId(MANAGER), scopes, input: { reason: 'Moved by the test', decisionDocumentId: decision }, today: TODAY }));
+      const statusOf = async (workflowId: string): Promise<string | undefined> => (await owner<{ status: string }>('select status from machvon.project_workflow where id = $1::uuid', [workflowId]))[0]?.status;
+      const a = await taskOf(wf.id, 'TA');
+      await assign(a.id as string, WORKER);
+      await move('suspendProject', p.id, 1);
+      expect(await statusOf(wf.id)).toBe('ON_HOLD');
+      expect(await refusal(begin(wf.id, 'TA'))).toMatchObject({ code: 'PWF_TASK_STATE_INVALID', status: 409 });
+      await move('resumeProject', p.id, 2);
+      expect(await statusOf(wf.id)).toBe('ACTIVE');
+      expect((await begin(wf.id, 'TA')).status).toBe('IN_PROGRESS');
+      const early = await project({ status: 'CONCEPT' });
+      const other = await start(early.id);
+      await move('cancelProject', early.id, 1);
+      expect(await statusOf(other.id)).toBe('CANCELLED');
+    });
+
     it('keeps the project in the pipeline when the event of the plan is gated, and reports the refusal with the missing tasks', async () => {
       const p = await project({ status: 'PIPELINE' });
       await start(p.id);
@@ -513,7 +534,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       as((tx) => reschedules.propose(tx, { projectId, expectedVersion: version, input: { reason: 'The start of the project is moved by two weeks', ...input } as never, actor: memberId(member), scopes, now: now() }), member);
     const decide = (proposalId: string, version: number, member: number, decision = 'APPROVE') => as((tx) => reschedules.decide(tx, { proposalId, expectedVersion: version, decision, actor: memberId(member), scopes, now: now() }), member);
 
-    it('previews on what is not done with the baseline untouched, is decided by another person, and publishes schedule 2 atomically', async () => {
+    it('UAT-PWF-NEG-05: previews on what is not done with the baseline untouched, is decided by another person, and publishes schedule 2 atomically', async () => {
       const p = await project();
       const wf = await start(p.id);
       const before = await taskOf(wf.id, 'TC');
@@ -537,7 +558,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await owner('select 1 from machvon.project_schedule_version where workflow_id = $1::uuid', [wf.id])).length).toBe(2);
     });
 
-    it('lets two approvers race for one proposal: one publishes, the other gets 409 PWF_SCHEDULE_VERSION_CONFLICT', async () => {
+    it('UAT-PWF-CON-01: lets two approvers race for one proposal: one publishes, the other gets 409 PWF_SCHEDULE_VERSION_CONFLICT', async () => {
       const p = await project();
       const wf = await start(p.id);
       const proposal = await propose(p.id, wf.version, { plannedStartDate: `${YEAR}-11-23` });

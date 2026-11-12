@@ -133,9 +133,9 @@ export class PwfDeadlineReads {
       parts.push(`(coalesce(t.planned_finish, ${bind(FAR_DAY)}::date), t.id) > (${bind(after.code)}::date, ${bind(after.id)}::uuid)`);
     }
     const rows = await tx.query<{ id: string; task_code: string; name: string; project_id: string; project_code: string; project_name: string; phase_code: string; kind: 'TASK' | 'MILESTONE'; priority: GroupSql['priority']; status: string; due_date: string | null; critical: boolean; sort_day: string }>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, p.name as project_name, t.phase_code, t.kind, t.priority, t.status, t.planned_finish::text as due_date, t.critical, coalesce(t.planned_finish, ${FAR_DAY}::date)::text as sort_day
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, p.name as project_name, t.phase_code, t.kind, t.priority, t.status, t.planned_finish::text as due_date, t.critical, coalesce(t.planned_finish, date '${FAR_DAY}')::text as sort_day
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${parts.join(' and ')} order by coalesce(t.planned_finish, ${FAR_DAY}::date), t.id limit ${bind(page.limit + 1)}`,
+        where ${parts.join(' and ')} order by coalesce(t.planned_finish, date '${FAR_DAY}'), t.id limit ${bind(page.limit + 1)}`,
       params,
     );
     const shown = rows.slice(0, page.limit);
@@ -263,9 +263,8 @@ export class PwfDeadlineReads {
     if (!DAY.test(given)) throw invalid('from');
     const monday = addDays(given, -((new Date(`${given}T00:00:00Z`).getUTCDay() + 6) % 7));
     const weeks = Array.from({ length: weeksCount }, (_, index) => addDays(monday, index * 7));
-    const end = addDays(weeks[weeks.length - 1] as string, 6);
     const where = conditionsOf(scope, filter);
-    const params = [...where.params, monday, end, today];
+    const params = [...where.params, today];
     const rows = await tx.query<{ membership_id: string; display_name: string | null; task_id: string; planned_start: string | null; planned_finish: string | null; share_pct: number }>(
       `select a.membership_id, u.display_name, t.id as task_id, t.planned_start::text as planned_start, t.planned_finish::text as planned_finish, a.share_pct
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id

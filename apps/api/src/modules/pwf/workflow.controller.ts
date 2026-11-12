@@ -104,21 +104,31 @@ export class ProjectWorkflowController {
   @Post('project-workflow/templates/validate')
   @HttpCode(200)
   @OperationId('validateProjectWorkflowTemplate')
-  validate(@Body() body: Schemas['PwfTemplateParams']): Schemas['PwfTemplateValidation'] {
-    return validateTemplate(body, new Date());
+  @Command({ operation: 'validateProjectWorkflowTemplate' })
+  async validate(@Scope() scope: CommandScope, @Body() body: Schemas['PwfTemplateParams']): Promise<Schemas['PwfTemplateValidation']> {
+    const checked = validateTemplate(body, new Date());
+    await this.record(scope, 'workflow.template_validated', checked);
+    return checked;
+  }
+
+  /** What a check of a template leaves: who checked which template (by its hash) and what came of it; the template itself is not copied. */
+  private async record(scope: CommandScope, action: string, checked: Schemas['PwfTemplateValidation']): Promise<void> {
+    await scope.audit({ action, resourceType: 'project_workflow_template', resourceId: scope.requestId, classification: 'INTERNAL', diff: { template_hash: checked.template_hash, valid: checked.valid, task_count: checked.task_count, findings: checked.findings.length } });
   }
 
   @Post('project-workflow/templates/preview')
   @HttpCode(200)
   @OperationId('previewProjectWorkflowTemplate')
-  async preview(@CurrentTenant() tenant: TenantContext, @Body() body: Schemas['PwfTemplatePreviewRequest']): Promise<Schemas['PwfSchedulePreview']> {
+  @Command({ operation: 'previewProjectWorkflowTemplate' })
+  async preview(@Scope() scope: CommandScope, @Body() body: Schemas['PwfTemplatePreviewRequest']): Promise<Schemas['PwfSchedulePreview']> {
     const now = new Date();
     const checked = validateTemplate(body.params, now);
+    await this.record(scope, 'workflow.template_previewed', checked);
     const failure = checked.findings[0];
     if (failure !== undefined) throw new DomainError(failure.code === 'PWF_DEPENDENCY_CYCLE' ? 'PWF_DEPENDENCY_CYCLE' : 'PROJECT_WORKFLOW_TEMPLATE_INVALID', 422, failure.path);
     const template = pwfWorkflow.parseProjectWorkflowTemplate(body.params);
     const facts = factsOf(body.facts);
-    const planned = await this.database.withTenant(tenant, (tx) => this.workflows.previewTemplate(tx, template, body.planned_start_date, facts));
+    const planned = await this.workflows.previewTemplate(scope.tx, template, body.planned_start_date, facts);
     return schedulePreviewOf(planned.result, { ...namesOf(template), plannedStart: body.planned_start_date, excluded: planned.excluded, now });
   }
 

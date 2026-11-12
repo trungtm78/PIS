@@ -5,7 +5,7 @@ import { PrjBaselineStore } from './prj-baseline-store.ts';
 import { dateOf } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
 import { logWorkflow, publishSchedule, resultHashOf, syncMilestones } from './pwf-publish.ts';
-import { TASK_COLUMNS, baselineOfRows, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
+import { TASK_COLUMNS, baselineOfRows, earliestYear, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow } from './pwf-schedule-support.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -489,7 +489,9 @@ export async function refreshSchedule(
   const rows = await loadTasks(tx, workflow.id);
   const links = await loadLinks(tx, workflow.id);
   const pins = pinsFromJson(workflow.calendarPins);
-  const calendars = pins.length > 0 ? await loadPinnedCalendars(tx, pins) : await pinPublishedCalendars(tx, Number(workflow.plannedStartDate.slice(0, 4)));
+  const fromYear = earliestYear([workflow.plannedStartDate, today, ...rows.flatMap((row) => [row.baselineStart, row.actualStart, row.actualFinish])]);
+  // The calendars the schedule was published on stay pinned while they reach back to the first day it mentions; otherwise the years are pinned again from there.
+  const calendars = pins.length > 0 && (pins[0] as { year: number }).year <= fromYear ? await loadPinnedCalendars(tx, pins) : await pinPublishedCalendars(tx, fromYear);
   const tasks = scheduleTasksOf(rows, links);
   const input = { tasks, plannedStart: workflow.plannedStartDate, calendars, statusDate: today };
   const result = pwfSchedule.scheduleProject({ ...input, baseline: baselineOfRows(rows) });

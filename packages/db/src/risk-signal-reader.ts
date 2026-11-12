@@ -1,6 +1,7 @@
 import { DomainError } from '@machvon/kernel';
 import type { IndicatorReadings } from '@machvon/kernel';
 import { PrjEvmStore } from './prj-evm-store.ts';
+import { SqlProjectScheduleReader } from './pwf-schedule-read.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
@@ -84,17 +85,11 @@ export class RiskSignalReader {
   }
 
   private async milestones(tx: TenantTx, ids: readonly string[], today: string, set: Setter): Promise<void> {
-    const rows = await tx.query<{ project_id: string; total: string; late: string; slip: string }>(
-      `select m.project_id, count(*)::text as total,
-              count(*) filter (where m.status in ('PLANNED', 'DELAYED') and m.actual_date is null and m.planned_date < $2::date)::text as late,
-              coalesce(max($2::date - m.planned_date) filter (where m.status in ('PLANNED', 'DELAYED') and m.actual_date is null and m.planned_date < $2::date), 0)::text as slip
-         from machvon.project_milestone m where m.project_id = any($1::uuid[]) and m.status <> 'CANCELLED' group by m.project_id`,
-      [[...ids], today],
-    );
+    const figures = await new SqlProjectScheduleReader().milestoneFigures(tx, ids, today);
     const seen = new Set<string>();
-    for (const row of rows) {
-      seen.add(row.project_id);
-      set(row.project_id, 'MILESTONE_SLIP_DAYS', Number(row.slip), { milestones: Number(row.total), milestones_late: Number(row.late) });
+    for (const row of figures) {
+      seen.add(row.projectId);
+      set(row.projectId, 'MILESTONE_SLIP_DAYS', row.slipDays, { milestones: row.total, milestones_late: row.late });
     }
     for (const id of ids) if (!seen.has(id)) set(id, 'MILESTONE_SLIP_DAYS', null, { milestones: 0 });
   }

@@ -425,6 +425,7 @@ export class PrjAppraisalStore {
         where id = $1::uuid`,
       [locked.id, to, request.actor, version, mean, group, decision === 'ADMIT' ? documentId : null],
     );
+    await this.gate.follow(tx, locked.id, to);
     await recordStageChange(tx, {
       projectId: locked.id,
       version,
