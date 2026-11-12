@@ -68,10 +68,22 @@ export interface LocalisedText {
   readonly en: string;
 }
 
-/** What a person sees as the name of the product. */
+/**
+ * What a person sees as the name of the product, in one place: every surface that names the product (the shell, the tab, the install prompt, the launcher
+ * of the phone, the logo label, the sign-in tagline, the properties of an exported file) reads it from here, directly or through a generated file
+ * (`scripts/edition-brand.mjs`), and `npm run edition:check` holds the generated files and the catalogues to it. The public edition shows no code name.
+ */
 export interface EditionBrand {
   /** The short mark in the corner of the shell (the letters of the logo) and on the home-screen icon. */
   readonly mark: LocalisedText;
+  /** The name under the icon of the web app on a home screen (the manifest of the PWA): at most `SHORT_NAME_LIMIT` characters. */
+  readonly shortName: LocalisedText;
+  /** The name under the icon of the phone application (the launcher of Android, the home screen of iOS); the wordmark of the logo is this name in capitals. */
+  readonly launcherName: LocalisedText;
+  /** The whole accessible label of the logo (the sign-in screens). */
+  readonly logoAlt: LocalisedText;
+  /** The line under the logo on the sign-in screens. */
+  readonly tagline: LocalisedText;
   /** The colour of the browser chrome and of the install prompt (a 6-digit hex, no alpha). */
   readonly themeColor: string;
 }
@@ -110,6 +122,8 @@ const SCREEN_ID = /^[A-Z]{2,6}-\d{2,3}$/;
 const TERM_KEY = /^[a-z][a-zA-Z0-9]*(\.[a-zA-Z][a-zA-Z0-9]*){2,4}$/;
 const RULE_PACK_ID = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 const HEX_COLOUR = /^#[0-9a-fA-F]{6}$/;
+/** The most characters the name under a home-screen icon may have. */
+export const SHORT_NAME_LIMIT = 12;
 
 function assertUnique(label: string, values: readonly string[]): void {
   if (new Set(values).size !== values.length) throw new EditionError(`${label} lists an id twice`);
@@ -128,8 +142,15 @@ export function defineEditionManifest(manifest: EditionManifest): EditionManifes
   for (const [label, text] of [
     ['productName', manifest.productName],
     ['brand.mark', manifest.brand.mark],
+    ['brand.shortName', manifest.brand.shortName],
+    ['brand.launcherName', manifest.brand.launcherName],
+    ['brand.logoAlt', manifest.brand.logoAlt],
+    ['brand.tagline', manifest.brand.tagline],
   ] as const) {
     if (text.vi.trim() === '' || text.en.trim() === '') throw new EditionError(`${label} needs a Vietnamese and an English text`);
+  }
+  for (const language of ['vi', 'en'] as const) {
+    if (manifest.brand.shortName[language].trim().length > SHORT_NAME_LIMIT) throw new EditionError(`brand.shortName must have at most ${SHORT_NAME_LIMIT} characters`);
   }
   if (!HEX_COLOUR.test(manifest.brand.themeColor)) throw new EditionError('brand.themeColor must be a 6-digit hex colour');
   assertList('modules', manifest.modules, MODULE_CODE);
@@ -156,7 +177,14 @@ export const ENTERPRISE_ONLY_MODULES: readonly string[] = ['EBS', 'EQP', 'HPM', 
 export const PUBLIC_EDITION_MANIFEST: EditionManifest = defineEditionManifest({
   edition: 'public',
   productName: { vi: TEXT.public_edition_manifest_product_name_vi, en: 'Public Investment Management System' },
-  brand: { mark: { vi: TEXT.brand_mark_vi, en: 'PI' }, themeColor: '#102E3B' },
+  brand: {
+    mark: { vi: TEXT.brand_mark_vi, en: 'PI' },
+    shortName: { vi: TEXT.public_short_name_vi, en: 'Public Inv.' },
+    launcherName: { vi: TEXT.public_launcher_name_vi, en: 'Public Investment' },
+    logoAlt: { vi: TEXT.public_logo_alt_vi, en: 'Public Investment Management System logo' },
+    tagline: { vi: TEXT.public_tagline_vi, en: 'Capital flowing freely, public investment in the open' },
+    themeColor: '#102E3B',
+  },
   modules: { allow: '*', deny: ENTERPRISE_ONLY_MODULES },
   screens: ALLOW_ALL,
   menu: ALLOW_ALL,
@@ -194,6 +222,21 @@ export function moduleInMenu(manifest: EditionManifest, code: string): boolean {
 export function productNameOf(manifest: EditionManifest, language: string): string {
   return language === 'en' ? manifest.productName.en : manifest.productName.vi;
 }
+
+/** The title of the open API document of an edition (the document handed to external readers and the one the API serves): the English name of the product and "open API". */
+export const openApiTitleOf = (manifest: EditionManifest): string => `${productNameOf(manifest, 'en')} open API`;
+
+/** The name under the icon of the home-screen app (the manifest of the PWA). */
+export const shortNameOf = (manifest: EditionManifest, language: string): string => (language === 'en' ? manifest.brand.shortName.en : manifest.brand.shortName.vi);
+
+/** The name under the icon of the phone application. */
+export const launcherNameOf = (manifest: EditionManifest, language: string): string => (language === 'en' ? manifest.brand.launcherName.en : manifest.brand.launcherName.vi);
+
+/** The accessible label of the logo. */
+export const logoAltOf = (manifest: EditionManifest, language: string): string => (language === 'en' ? manifest.brand.logoAlt.en : manifest.brand.logoAlt.vi);
+
+/** The line under the logo on the sign-in screens. */
+export const taglineOf = (manifest: EditionManifest, language: string): string => (language === 'en' ? manifest.brand.tagline.en : manifest.brand.tagline.vi);
 
 /**
  * What the edition and the base catalogue say about an overlay: the keys the overlay holds that the manifest does not list, the keys

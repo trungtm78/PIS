@@ -6,7 +6,7 @@ import type { Plugin } from 'vite';
 import { resolveBrand } from './src/pwa/brand';
 import type { EditionBrandSource } from './src/pwa/brand';
 import { buildManifest, MANIFEST_PATH } from './src/pwa/manifest';
-import { MANIFEST_DESCRIPTION, MANIFEST_SHORTCUTS, shortNameOfEdition } from './src/pwa/manifest-texts';
+import { MANIFEST_DESCRIPTION, MANIFEST_SHORTCUTS, FALLBACK_SHORT_NAME } from './src/pwa/manifest-texts';
 
 const WEB_ROOT = fileURLToPath(new URL('.', import.meta.url));
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url));
@@ -139,11 +139,11 @@ function colors(): { themeColor: string; backgroundColor: string } {
 
 async function manifestJson(warn: (message: string) => void): Promise<{ text: string; appName: string }> {
   const edition = await loadEditionManifest(warn);
-  const brand = resolveBrand(edition, readShellBrand());
+  const brand = resolveBrand(edition, readShellBrand(), FALLBACK_SHORT_NAME);
   const base = colors();
   const manifest = buildManifest({
     name: brand.name,
-    shortName: shortNameOfEdition(brand.from),
+    shortName: brand.shortName,
     description: MANIFEST_DESCRIPTION,
     shortcuts: MANIFEST_SHORTCUTS,
     colors: { themeColor: brand.themeColor ?? base.themeColor, backgroundColor: base.backgroundColor },

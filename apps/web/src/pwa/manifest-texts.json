@@ -1,8 +1,4 @@
 {
-  "shortNames": {
-    "public": "Đầu tư công",
-    "enterprise": "Đầu tư XD"
-  },
   "fallbackShortName": "Đầu tư",
   "description": "Phê duyệt số liệu kỳ, xem bảng điều hành và theo dõi chỉ đạo ngay trên điện thoại.",
   "shortcuts": [

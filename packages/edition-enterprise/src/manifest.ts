@@ -1,6 +1,6 @@
 import { ALLOW_ALL, defineEditionManifest } from '@machvon/kernel/src/edition.ts';
 import type { EditionManifest } from '@machvon/kernel/src/edition.ts';
-import { PRODUCT_NAME_VI } from './messages/manifest-texts.ts';
+import { LAUNCHER_NAME_VI, LOGO_ALT_VI, PRODUCT_NAME_VI, SHORT_NAME_VI, TAGLINE_VI } from './messages/manifest-texts.ts';
 
 /**
  * The manifest of the enterprise edition: "Construction Investment Management Software", the product of a state enterprise (its Vietnamese name is in `messages/manifest-texts.ts`).
@@ -14,7 +14,14 @@ import { PRODUCT_NAME_VI } from './messages/manifest-texts.ts';
 export const ENTERPRISE_EDITION_MANIFEST: EditionManifest = defineEditionManifest({
   edition: 'enterprise',
   productName: { vi: PRODUCT_NAME_VI, en: 'Construction Investment Management Software' },
-  brand: { mark: { vi: 'XD', en: 'CI' }, themeColor: '#0F3B57' },
+  brand: {
+    mark: { vi: 'XD', en: 'CI' },
+    shortName: { vi: SHORT_NAME_VI, en: 'Constr. Inv.' },
+    launcherName: { vi: LAUNCHER_NAME_VI, en: LAUNCHER_NAME_VI },
+    logoAlt: { vi: LOGO_ALT_VI, en: 'Mạch Vốn logo, Construction Investment Management Software' },
+    tagline: { vi: TAGLINE_VI, en: 'Capital to the right site, work on schedule' },
+    themeColor: '#0F3B57',
+  },
   modules: ALLOW_ALL,
   screens: ALLOW_ALL,
   menu: ALLOW_ALL,
@@ -38,6 +45,7 @@ export const ENTERPRISE_EDITION_MANIFEST: EditionManifest = defineEditionManifes
       'home.tile.metric.disbursed',
       'home.tile.metric.planPm',
       'home.tile.nullReason.treasuryNone',
+      'logo.mark.alt',
       'pay.payment.status.sentTreasury',
       'prj.create.nationalCode.label',
       'prj.guard.nationalCode.label',
@@ -74,6 +82,7 @@ export const ENTERPRISE_EDITION_MANIFEST: EditionManifest = defineEditionManifes
       'mob.home.tile.nullReason.treasuryNone',
       'mob.prj.list.work.treasury',
       'mob.release.upgrade.failed',
+      'mob.signIn.logo.label',
       'mob.signIn.unlock.reason',
       'mob.welcome.logo.label',
       'mob.welcome.title.text',

@@ -7,6 +7,7 @@
   "home.tile.metric.disbursed": "Cumulative disbursement",
   "home.tile.metric.planPm": "Capital plan assigned",
   "home.tile.nullReason.treasuryNone": "No disbursement booked",
+  "logo.mark.alt": "Mạch Vốn logo, {product}",
   "home.ov.hero.caption": "Per the figures closed on {date}",
   "home.ov.hero.noData": "There is no disbursement figure for this scope yet.",
   "home.ov.hero.ring": "Against the capital plan assigned",
