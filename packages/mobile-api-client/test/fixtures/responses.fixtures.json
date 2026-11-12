@@ -116,6 +116,7 @@
   "captureProjectBaseline": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "certifyDataProduct": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "changeSubscriptionPlan": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
+  "checkBiPublication": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},
   "checkPaymentIntegrity": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"PASSED","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001","run_id":"00000000-0000-4000-8000-000000000001","outcome":"PASSED","invariant_count":100,"signal_count":100,"excused_count":100,"unavailable":["DUPLICATES"]},
   "checkProjectDisbursement": {"project_id":"00000000-0000-4000-8000-000000000001","project_code":"sample","allowed":true,"refusal":"DISBURSEMENT_PROJECT_NOT_LISTED","fix":"sample","cause":{},"warnings":["sample"],"policy_version":"sample","as_of":"2026-01-01"},
   "checkReport": {"operation_id":"00000000-0000-4000-8000-000000000001","status":"sample","resource_version":100,"resource_id":"00000000-0000-4000-8000-000000000001"},

@@ -117,6 +117,7 @@ export const OPERATIONS = {
   "captureProjectBaseline": { method: "post", path: "/projects/{id}/baseline", versioned: false, stepUp: null, permission: "project.baseline.capture" },
   "certifyDataProduct": { method: "post", path: "/dgv/data-products/{id}/certification", versioned: true, stepUp: null, permission: "data.product.certify" },
   "changeSubscriptionPlan": { method: "post", path: "/system/subscriptions/{subscriptionId}/plan-change", versioned: true, stepUp: null, permission: "system.billing.manage" },
+  "checkBiPublication": { method: "post", path: "/bi/publication-requests/{id}/check", versioned: true, stepUp: null, permission: "bi.publish" },
   "checkPaymentIntegrity": { method: "post", path: "/payment-requests/{id}/integrity-checks", versioned: false, stepUp: null, permission: "payment.integrity.check" },
   "checkProjectDisbursement": { method: "get", path: "/projects/{id}/disbursement-check", versioned: false, stepUp: null, permission: "payment_request.read" },
   "checkReport": { method: "post", path: "/report-engine/drafts/{id}/check", versioned: true, stepUp: null, permission: "rpt.check" },
