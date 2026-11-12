@@ -8,6 +8,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field } from '../mne/components';
 import { audienceLabel, createProblemMessage, dashboardStatusLabel, refusalMessage, versionStateLabel } from './dashboard-labels';
+import { BOARD_DASHBOARD_PARAM, BOARD_PATH } from './board-model';
 import { BUILDER_PATH, CHART_PATH, EMPTY_CREATE, MANAGE_DASHBOARD_PERMISSION, describeDashboardProblem, validateCreate } from './dashboard-model';
 import type { CreateForm } from './dashboard-model';
 import { useCreateDashboard, useDashboards } from './hooks';
@@ -96,6 +97,12 @@ function LibraryContent({ route }: ScreenProps) {
                 </p>
               )}
               <Link to={`${BUILDER_PATH}?dashboard=${dashboard.id}`}>{dashboard.mayEdit && mayManage ? t('bi.dash.library.edit') : t('bi.dash.library.view')}</Link>
+              {dashboard.status === 'PUBLISHED' ? (
+                <>
+                  {' '}
+                  <Link to={`${BOARD_PATH}?${BOARD_DASHBOARD_PARAM}=${dashboard.id}`}>{t('bi.dash.library.board')}</Link>
+                </>
+              ) : null}
               {dashboard.mine ? (
                 <>
                   {' '}
