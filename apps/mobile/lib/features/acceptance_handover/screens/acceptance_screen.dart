@@ -497,7 +497,7 @@ class _RoleLine extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            ExcludeSemantics(child: Padding(padding: const EdgeInsets.only(top: 2), child: Icon(glyph, size: 20, color: mark))),
+            ExcludeSemantics(child: Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Icon(glyph, size: 20, color: mark))),
             const SizedBox(width: MachvonV2Space.s8),
             Expanded(child: Text(line, style: context.v2text.body)),
           ],

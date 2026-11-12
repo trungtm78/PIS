@@ -55,7 +55,7 @@ class _ReadOnlyNote extends StatelessWidget {
         if (warning != null) StatusBanner(text: warning!, tone: BannerTone.warning),
         for (final String line in extra)
           Padding(
-            padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s8, MachvonV2Space.s16, 0),
+            padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s8, right: MachvonV2Space.s16),
             child: Text(line, style: context.v2text.caption.copyWith(color: v2.palette.ink2)),
           ),
       ],
