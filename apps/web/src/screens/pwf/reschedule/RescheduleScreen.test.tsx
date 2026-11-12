@@ -157,7 +157,7 @@ describe('PWF-06: the decision of a second person', () => {
     expect(h.command.mock.calls[1]?.[0]).toBe('decideProjectReschedule');
     const input = h.command.mock.calls[1]?.[1] as { path: unknown; body: unknown; ifMatchVersion: number };
     expect(input.path).toEqual({ id: PROPOSAL_ID });
-    expect(input.ifMatchVersion).toBe(4);
+    expect(input.ifMatchVersion).toBe(3);
     expect(input.body).toEqual({ decision: 'APPROVE' });
     expect((await screen.findByTestId('decided')).textContent).toContain(text('pwf.resched.decided.approved.notice'));
     expect(screen.queryByTestId('decision-panel')).toBeNull();
@@ -207,7 +207,7 @@ describe('PWF-06: the decision of a second person', () => {
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
     const input = h.command.mock.calls[0]?.[1] as { path: unknown; ifMatchVersion: number };
     expect(input.path).toEqual({ id: PROPOSAL_ID });
-    expect(input.ifMatchVersion).toBe(4);
+    expect(input.ifMatchVersion).toBe(3);
   });
 
   it('shows no decision to a person who may only propose, and no form to a person who may only decide', async () => {
