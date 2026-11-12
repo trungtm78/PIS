@@ -11898,6 +11898,22 @@
       "req": "FR-PWF-08",
       "rule": "Thứ tự nghiêm ngặt xanh > vàng > đỏ ≥ -1. Quy tắc có phiên bản, người duyệt khác người soạn."
     },
+    "PWF-15": {
+      "title": "Nhắc hạn của tôi",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Mọi người dùng có công việc được giao",
+      "fields": [
+        "Ngưỡng cá nhân xanh, vàng, đỏ",
+        "Mốc nhắc",
+        "Xem trước màu",
+        "Cảnh báo khi ngưỡng bị nâng bằng mức chính thức"
+      ],
+      "req": "FR-PWF-15",
+      "rule": "Ngưỡng cá nhân chỉ được sớm hơn mức chính thức. Màu cá nhân có nhãn \"theo cài đặt của bạn\"."
+    },
     "DOC-24": {
       "title": "Kho hồ sơ dự án",
       "module": "DOC",

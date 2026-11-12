@@ -11,6 +11,7 @@ const failure = (status: number, code: string) => new ApiError({ status, code, c
 const session = (n: number, current: boolean) => ({ id: taskId(10 + n), current, assurance_level: current ? 'aal2' : 'aal1', user_agent_summary: current ? 'Chrome trên Android' : 'Safari trên iPhone', created_at: '2026-11-01T01:00:00.000Z', last_seen_at: '2026-11-08T02:30:00.000Z', device: { platform: current ? 'web' : 'ios' } });
 const device = (n: number, status = 'ACTIVE') => ({ id: taskId(20 + n), platform: n === 1 ? 'web' : 'android', device_public_id: `dev-${n}`, last_seen_at: '2026-11-08T02:30:00.000Z', status });
 const PROFILE = { id: taskId(1), display_name: 'Lãnh đạo', email_masked: 'l***@x.vn', phone_masked: null, locale: 'vi-VN', time_zone: 'Asia/Ho_Chi_Minh', version: 4 };
+const DEADLINE = { green_days: 7, yellow_days: 3, red_days: 1, reminder_days: [7, 3, 1], official: { green_days: 5, yellow_days: 2, red_days: 0 }, clamped: [], version: 3, as_of: '2026-11-12T03:00:00.000Z' };
 const PREFS = { version: 3, is_default: false, quiet_start: '22:00', quiet_end: '06:30', time_zone: 'Asia/Ho_Chi_Minh', items: [{ event_category: 'report', channel: 'PUSH', enabled: false, digest_mode: 'DAILY' }], locked: [{ event_category: 'approval', channel: 'IN_APP' }] };
 
 interface World {
@@ -18,6 +19,7 @@ interface World {
   devices?: unknown;
   profile?: unknown;
   prefs?: unknown;
+  deadline?: unknown;
   command?: (operation: string, input: unknown) => unknown;
 }
 
@@ -28,6 +30,7 @@ function open(world: World = {}, mode?: 'READ_ONLY') {
       if (operation === 'listMyDevices') return world.devices ?? { items: [device(1), device(2), device(3, 'REVOKED')] };
       if (operation === 'getMyProfile') return world.profile ?? PROFILE;
       if (operation === 'getMyNotificationPreferences') return world.prefs ?? PREFS;
+      if (operation === 'getDeadlinePreference') return world.deadline ?? DEADLINE;
       return new Error(`unexpected read ${operation}`);
     },
     command: world.command,
@@ -144,5 +147,62 @@ describe('SettingsScreen (PWA-07)', () => {
     await screen.findByTestId('preferences-form');
     expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
     for (const control of document.querySelectorAll('[data-action^="revoke"], [data-testid="pwa-back"], button[type="submit"]')) expect(control.className).toContain('pwa-touch');
+  });
+});
+
+describe('SettingsScreen (PWA-07): the personal deadline reminders (MOB-82, PWF-15)', () => {
+  it('shows the card after the notifications with the levels of the person, the official ones beside them and the owner sentence', async () => {
+    const h = open();
+    const form = await screen.findByTestId('deadline-form');
+    expect(within(form).getByTestId('field-green_days')).toHaveValue('7');
+    expect(within(form).getByTestId('hint-green_days').textContent).toBe(word('pwf.pref.official.text', { value: 5 }));
+    expect(within(form).getByTestId('sentence-personal').textContent).toBe('Còn 7 ngày làm việc: xanh, còn 3 ngày làm việc: vàng, dưới 2 ngày làm việc: đỏ');
+    expect(h.read).toHaveBeenCalledWith('getDeadlinePreference', {});
+    const cards = [...document.querySelectorAll('section.ui-section')].map((card) => card.querySelector('h2')?.textContent);
+    expect(cards.indexOf(word('pwf.pref.card.title'))).toBe(cards.indexOf(word('pwa2.settings.notifications.title')) + 1);
+    expect(screen.queryByTestId('link-full')).toBeNull();
+  });
+
+  it('saves a new level under the version it read and says so', async () => {
+    const h = open();
+    const field = await screen.findByTestId('field-yellow_days');
+    fireEvent.change(field, { target: { value: '4' } });
+    fireEvent.click(screen.getByRole('button', { name: word('pwf.pref.save.action') }));
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect(h.command.mock.calls[0]?.[0]).toBe('setDeadlinePreference');
+    expect(h.command.mock.calls[0]?.[1]).toMatchObject({ ifMatchVersion: 3, body: { green_days: 7, yellow_days: 4, red_days: 1, reminder_days: [7, 3, 1] } });
+    expect((await screen.findByTestId('notice')).textContent).toBe(word('pwf.pref.saved.text'));
+  });
+
+  it('keeps its touch targets, is read-only in a read-only session, and does not hide the other cards when it fails', async () => {
+    open({}, 'READ_ONLY');
+    await screen.findByTestId('field-green_days');
+    expect(screen.getByRole('button', { name: word('pwf.pref.save.action') }).className).toContain('pwa-touch');
+    expect(screen.getByRole('button', { name: word('pwf.pref.clear.action') })).toBeDisabled();
+    cleanup();
+    open({ deadline: failure(500, 'INTERNAL') });
+    expect(await screen.findByTestId('card-failed')).toBeInTheDocument();
+    expect(await screen.findByTestId('sessions')).toBeInTheDocument();
+  });
+
+  it('has nothing of the card for a person who may not set reminders of their own', async () => {
+    const h = pwaClient({ read: (operation) => (operation === 'getDeadlinePreference' ? DEADLINE : operation === 'getMyNotificationPreferences' ? PREFS : operation === 'getMyProfile' ? PROFILE : { items: [] }) });
+    mountPwa(<SettingsScreen />, h, { path: '/m/settings', permissions: ['notification.self'] });
+    await screen.findByTestId('preferences-form');
+    expect(screen.queryByText(word('pwf.pref.card.title'))).toBeNull();
+    expect(h.read).not.toHaveBeenCalledWith('getDeadlinePreference', {});
+  });
+
+  it('has no serious accessibility violation with the card set, with a problem and failed', async () => {
+    open();
+    const field = await screen.findByTestId('field-yellow_days');
+    expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
+    fireEvent.change(field, { target: { value: '1' } });
+    expect(await screen.findByTestId('error-yellow_days')).toBeInTheDocument();
+    expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
+    cleanup();
+    open({ deadline: failure(500, 'INTERNAL') });
+    await screen.findByTestId('card-failed');
+    expect(describeViolations(await seriousViolations(document.body))).toEqual([]);
   });
 });

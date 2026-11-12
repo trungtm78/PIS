@@ -110,6 +110,10 @@ export const WORK_KINDS = [
   'COMMITTEE_SECTOR_BEHIND',
   'COMMITTEE_UNIT_NOT_REPORTING',
   'COMMITTEE_DIRECTIVE_OVERDUE',
+  // The tasks of the project workflow (lane PWF-2): a task within the days of its three-colour policy, a task past its day, a milestone forecast past its baseline.
+  'PWF_TASK_DUE_SOON',
+  'PWF_TASK_OVERDUE',
+  'PWF_MILESTONE_AT_RISK',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;

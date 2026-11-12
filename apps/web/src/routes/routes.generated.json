@@ -523,6 +523,7 @@
     {"id":"PWF-16","path":"/pwf/pwf-16","title":"Sổ phân công","kind":"table","area":"investment","module":"PWF","group":"Workflow của dự án","role":"detail","parent":"PWF-04","req":"FR-PWF-16"},
     {"id":"PWF-07","path":"/pwf/pwf-07","title":"Bảng deadline toàn danh mục","kind":"dashboard","area":"investment","module":"PWF","group":"Hạn ba màu","role":"workspace","parent":null,"req":"FR-PWF-07"},
     {"id":"PWF-08","path":"/pwf/pwf-08","title":"Chính sách ba màu","kind":"form","area":"investment","module":"PWF","group":"Hạn ba màu","role":"detail","parent":"PWF-07","req":"FR-PWF-08"},
+    {"id":"PWF-15","path":"/pwf/pwf-15","title":"Nhắc hạn của tôi","kind":"form","area":"investment","module":"PWF","group":"Hạn ba màu","role":"workspace","parent":null,"req":"FR-PWF-15"},
     {"id":"DOC-24","path":"/doc/doc-24","title":"Kho hồ sơ dự án","kind":"table","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-24"},
     {"id":"DOC-25","path":"/doc/doc-25","title":"Hồ sơ và trình xem có dẫn nguồn","kind":"detail","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"detail","parent":"DOC-24","req":"FR-DOC-25"},
     {"id":"DOC-26","path":"/doc/doc-26","title":"Bảng luồng duyệt hồ sơ","kind":"approval","area":"overview","module":"DOC","group":"Hồ sơ dự án","role":"workspace","parent":null,"req":"FR-DOC-26"},

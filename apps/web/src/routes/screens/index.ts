@@ -613,5 +613,6 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PWF-06': () => import('../../screens/pwf/reschedule/RescheduleScreen'),
   'PWF-07': () => import('../../screens/pwf/board/DeadlineBoardScreen'),
   'PWF-08': () => import('../../screens/pwf/bands/BandPolicyScreen'),
+  'PWF-15': () => import('../../screens/pwf/preference/DeadlinePreferenceScreen'),
   'PWF-16': () => import('../../screens/pwf/assignments/AssignmentLedgerScreen'),
 };

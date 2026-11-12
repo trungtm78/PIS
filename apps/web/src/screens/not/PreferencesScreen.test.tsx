@@ -3,6 +3,8 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import { describeViolations, seriousViolations } from '../../test/axe';
+import { t as translate } from '../../i18n';
 import { failure, harness, mount, routeOf } from './delivery/test-support';
 import PreferencesScreen from './PreferencesScreen';
 import { bodyOf, draftOf, quietProblem, toPreferenceView } from './preferences/model';
@@ -219,5 +221,59 @@ describe('the model of the preferences', () => {
     ]);
     expect(quietProblem({ ...draft, quietStart: '25:00' })).toBe('clock');
     expect(quietProblem({ ...draft, quietOn: false, quietStart: '25:00' })).toBeUndefined();
+  });
+});
+
+describe('NOT-03 preferences: the personal deadline reminders (PWF-15)', () => {
+  const DEADLINE = { green_days: 7, yellow_days: 3, red_days: 1, reminder_days: [7, 3, 1], official: { green_days: 5, yellow_days: 2, red_days: 0 }, clamped: [], version: 3, as_of: '2026-11-12T03:00:00.000Z' };
+  const WITH_PWF = [...MEMBER, 'pwf.preference.own'];
+  const word = (key: string, params?: Record<string, string | number>) => translate(key, params);
+  const both = (deadline: unknown = DEADLINE) =>
+    harness(
+      (operation) => (operation === 'getMyNotificationPreferences' ? VIEW : operation === 'getDeadlinePreference' ? deadline : new Error(`unexpected read ${operation}`)),
+      () => ({ operation_id: 'op', status: 'Updated', resource_version: 4 }),
+    );
+
+  it('shows the card under the notification matrix with a link to the full screen PWF-15', async () => {
+    const h = both();
+    mount(<PreferencesScreen route={ROUTE} />, h, { permissions: WITH_PWF });
+    await waitFor(() => expect(rowOf('report')).not.toBeNull());
+    expect(await screen.findByTestId('field-green_days')).toHaveValue('7');
+    expect(screen.getByTestId('link-full')).toHaveAttribute('href', '/pwf/pwf-15');
+    expect(screen.getByTestId('sentence-official').textContent).toBe('Còn 5 ngày làm việc: xanh, còn 2 ngày làm việc: vàng, dưới 1 ngày làm việc: đỏ');
+    expect(h.read).toHaveBeenCalledWith('getDeadlinePreference', {});
+  });
+
+  it('saves the personal levels without touching the notification preferences', async () => {
+    const user = userEvent.setup();
+    const h = both();
+    mount(<PreferencesScreen route={ROUTE} />, h, { permissions: WITH_PWF });
+    const field = await screen.findByTestId('field-yellow_days');
+    await user.clear(field);
+    await user.type(field, '4');
+    await user.click(screen.getByRole('button', { name: word('pwf.pref.save.action') }));
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect(h.command.mock.calls[0]?.[0]).toBe('setDeadlinePreference');
+    expect(h.command.mock.calls[0]?.[1]).toMatchObject({ ifMatchVersion: 3, body: { green_days: 7, yellow_days: 4, red_days: 1, reminder_days: [7, 3, 1] } });
+    expect(await screen.findByTestId('notice')).toBeTruthy();
+  });
+
+  it('leaves the card out, and reads nothing for it, for a member who may not set reminders of their own', async () => {
+    const h = both();
+    mount(<PreferencesScreen route={ROUTE} />, h, { permissions: MEMBER });
+    await waitFor(() => expect(rowOf('report')).not.toBeNull());
+    expect(screen.queryByTestId('field-green_days')).toBeNull();
+    expect(h.read).not.toHaveBeenCalledWith('getDeadlinePreference', {});
+  });
+
+  it('keeps the matrix when the card fails, and has no serious accessibility violation with the card set or failed', async () => {
+    const view = mount(<PreferencesScreen route={ROUTE} />, both(), { permissions: WITH_PWF });
+    await screen.findByTestId('field-green_days');
+    expect(describeViolations(await seriousViolations(view.container))).toEqual([]);
+    cleanup();
+    const failed = mount(<PreferencesScreen route={ROUTE} />, both(failure(500, 'INTERNAL')), { permissions: WITH_PWF });
+    expect(await screen.findByTestId('card-failed')).toBeTruthy();
+    await waitFor(() => expect(rowOf('report')).not.toBeNull());
+    expect(describeViolations(await seriousViolations(failed.container))).toEqual([]);
   });
 });

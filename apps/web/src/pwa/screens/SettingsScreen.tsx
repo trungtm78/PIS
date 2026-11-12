@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from '../../i18n';
 import { useSession } from '../../session/SessionContext';
+import { DeadlinePreferenceCard } from '../../screens/pwf/preference/DeadlinePreferenceCard';
 import { useRevokeDevice, useRevokeSession } from '../../screens/iam/self/hooks';
 import { problemMessage } from '../../screens/iam/self/labels';
 import { MIN_REASON, describeProblem } from '../../screens/iam/self/model';
@@ -75,6 +76,7 @@ function SettingsContent() {
       <DevicesCard canAct={canAct} onRevoke={setTarget} />
       <LanguageCard canAct={canAct} />
       <NotificationsCard />
+      <DeadlinePreferenceCard />
       {target === undefined ? null : (
         <DecisionSheet
           title={target.kind === 'session' ? t('pwa2.settings.revoke.session.title') : t('pwa2.settings.revoke.device.title')}

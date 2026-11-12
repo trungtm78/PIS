@@ -2618,13 +2618,15 @@
         },
         {
           "title": "Hạn ba màu",
-          "description": "Bảng deadline toàn danh mục và chính sách ngưỡng xanh, vàng, đỏ",
+          "description": "Bảng deadline toàn danh mục, chính sách ngưỡng xanh, vàng, đỏ và nhắc hạn riêng của mỗi người",
           "ids": [
             7,
-            8
+            8,
+            15
           ],
           "primary": [
-            7
+            7,
+            15
           ],
           "parents": {
             "8": 7
@@ -8640,6 +8642,16 @@
       "group": "Hạn ba màu",
       "role": "detail",
       "parent": "PWF-07"
+    },
+    {
+      "id": "PWF-15",
+      "title": "Nhắc hạn của tôi",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Hạn ba màu",
+      "role": "workspace",
+      "parent": null
     },
     {
       "id": "DOC-24",
