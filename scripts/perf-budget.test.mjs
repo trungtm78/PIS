@@ -82,6 +82,15 @@ test('budgetProblems accepts a good table and names each way a table is wrong', 
   assert.deepEqual(budgetProblems({ classes: {}, operations: [] }), ['no classes', 'no operations']);
 });
 
+test('an operation may tighten the budget of its class with budgetMs, never loosen it', () => {
+  const row = (extra) => ({ ...budget, operations: [{ id: 'PB-F001', operationId: 'getHome', method: 'GET', path: '/home', class: 'FUNCTION', ...extra }] });
+  assert.deepEqual(budgetProblems(row({ budgetMs: 800 })), []);
+  assert.deepEqual(budgetProblems(row({ budgetMs: 5000 })), []);
+  assert.deepEqual(budgetProblems(row({ budgetMs: 5001 })), ['PB-F001 budgetMs 5001 is over the 5000 ms of its class FUNCTION']);
+  assert.deepEqual(budgetProblems(row({ budgetMs: 0 })), ['PB-F001 budgetMs must be a positive whole number of milliseconds']);
+  assert.deepEqual(budgetProblems(row({ budgetMs: '800' })), ['PB-F001 budgetMs must be a positive whole number of milliseconds']);
+});
+
 const discoveringBudget = {
   ...budget,
   discovery: {
@@ -193,6 +202,37 @@ test('evaluateEntry fails when the statistic is over the budget of the class and
   assert.equal(evaluateEntry(budget.operations[2], { ...good, p95: 20_001 }, budget, 'p95').status, 'FAIL');
   const failed = evaluateEntry(entry, { ...good, failed: 2, statuses: [403, 500] }, budget, 'p95');
   assert.deepEqual([failed.status, failed.reason], ['FAIL', '2 of 5 samples failed (status 403,500)']);
+});
+
+test('scale and edition of a row are checked: a whole number of at least 1, and a known edition', () => {
+  const row = (extra) => ({ ...budget, operations: [{ id: 'PB-F001', operationId: 'getHome', method: 'GET', path: '/home', class: 'FUNCTION', ...extra }] });
+  assert.deepEqual(budgetProblems(row({ scale: 20, edition: 'ENTERPRISE' })), []);
+  assert.deepEqual(budgetProblems(row({ scale: 0 })), ['PB-F001 scale must be a whole number of at least 1']);
+  assert.deepEqual(budgetProblems(row({ scale: 2.5 })), ['PB-F001 scale must be a whole number of at least 1']);
+  assert.deepEqual(budgetProblems(row({ edition: 'GOLD' })), ['PB-F001 has an unknown edition GOLD']);
+});
+
+test('evaluateEntry judges an operation by its own budgetMs when it has one, and says that figure', () => {
+  const entry = { ...budget.operations[0], budgetMs: 800 };
+  const stats = { samples: 5, failed: 0, statuses: [], p50: 100, p95: 800, max: 900 };
+  assert.deepEqual(evaluateEntry(entry, stats, budget, 'p95'), { status: 'PASS', reason: '', limit: 800 });
+  const slow = evaluateEntry(entry, { ...stats, p95: 801 }, budget, 'p95');
+  assert.deepEqual([slow.status, slow.limit, slow.reason], ['FAIL', 800, 'p95 801 ms is over the budget of 800 ms']);
+});
+
+test('a run times out an operation after twice its own budget and prints that budget in the list', async () => {
+  const tight = { ...budget, operations: [{ ...budget.operations[0], budgetMs: 800 }] };
+  const [result] = await runBudget({ budget: tight, baseUrl: 'https://h/v1', samples: 2, warmup: 0, fetchImpl: async () => answer(), now: clockOf([10]) });
+  assert.equal(result.limit, 800);
+  const lines = [];
+  const dir = mkdtempSync(join(tmpdir(), 'perf-list-'));
+  try {
+    writeFileSync(join(dir, 'budget.json'), JSON.stringify(tight));
+    assert.equal(await main(['--budget', join(dir, 'budget.json'), '--list'], { log: (line) => lines.push(line) }), 0);
+    assert.match(lines[0], /PB-F001\s+FUNCTION\s+800 ms\s+GET \/home/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('selectOperations matches id, operation, area and class without regard to case', () => {
@@ -367,6 +407,23 @@ test('the committed budget keeps the budgets of the customer: 5 seconds a functi
   assert.ok(committed.operations.filter((entry) => entry.class === 'REPORT').length >= 10);
 });
 
+test('the committed budget holds the enterprise frozen snapshot reads at 800 ms and the issued PDF of a report at 20 seconds (HT.05)', () => {
+  const byOperation = (operationId) => committed.operations.find((entry) => entry.operationId === operationId);
+  for (const operationId of ['getEnterpriseSnapshot', 'getLeaderRates']) {
+    const entry = byOperation(operationId);
+    assert.ok(entry !== undefined, `${operationId} is in the table`);
+    assert.equal(entry.class, 'FUNCTION');
+    assert.equal(entry.budgetMs, 800, operationId);
+    assert.equal(entry.scale, 20, `${operationId} is measured on a tenant 20 times the size of the demo`);
+    assert.equal(entry.edition, 'ENTERPRISE');
+  }
+  const pdf = byOperation('getReportIssueFile');
+  assert.equal(pdf.class, 'REPORT');
+  assert.equal(pdf.pathFixed.format, 'PDF');
+  assert.equal(pdf.budgetMs, undefined, 'the PDF keeps the 20 seconds of its class');
+  assert.ok(committed.variables.enterpriseSnapshotId !== undefined && committed.discovery.enterpriseSnapshotId !== undefined, 'the frozen snapshot is found by discovery, so a tenant without one skips the rows');
+});
+
 test('every operation of the committed budget is a read of the contract with the same path and permission, and its required parameters are given', () => {
   const contract = operationsOfContract();
   const problems = [];
@@ -458,6 +515,13 @@ test('the k6 library filters with ONLY, tags every request and sets a threshold 
   assert.deepEqual(thresholds['http_req_duration{cls:REPORT}'], ['p(95)<20000']);
   assert.deepEqual(thresholds.http_req_failed, ['rate<0.01']);
   assert.equal(Object.keys(thresholds).length, 3 + api.operations.length);
+});
+
+test('the k6 library holds an operation to its own budgetMs: its limit, its timeout and its threshold', async () => {
+  const { api } = await loadK6Lib({ BASE_URL: 'https://h/v1', TOKEN: 't', VARS: JSON.stringify({ enterpriseSnapshotId: 's-1' }), ONLY: 'PB-F068' });
+  assert.equal(api.operations.length, 1);
+  assert.equal(api.limitOf(api.operations[0].entry), 800);
+  assert.deepEqual(plain(api.thresholdsOf(api.operations))['http_req_duration{op:PB-F068}'], ['p(95)<800']);
 });
 
 test('both k6 scripts exist, import the library and fail the run when there is nothing to measure', () => {

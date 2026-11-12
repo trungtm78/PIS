@@ -452,5 +452,19 @@ describe('DisPeriodStore (reporting periods: generation, soft close and lock, ST
       expect(record.event).toMatchObject({ aggregateType: 'reporting_period', aggregateVersion: 3, type: 'period.locked.v1', eventKey: `reporting_period:${row.id}:3`, payload: { trigger: 'MANUAL', locked_at: row.lockedAt } });
       expect(periodMoveRecord('soft_close', { ...row, version: 2 }, 'Closed', 'AUTO').event.type).toBe('period.soft_closed.v1');
     });
+
+    it('keeps the whole period before and after the move for the full audit detail (HT.06): the status it left, the one it reached, the instants and the actor', () => {
+      const closed = { id: randomUUID(), code: 'W2026-40', calendarCode: 'DEFAULT', periodType: 'WEEK', fiscalYear: 2026, startDate: '2026-09-26', endDate: '2026-10-02', deadlineAt: '2026-10-02T03:00:00.000Z', calendarRevision: 1, calendarVersionId: randomUUID(), status: 'SOFT_CLOSED', softClosedAt: '2026-10-02T03:05:00.000Z', lockedAt: null, lockedBy: null, version: 2 } as PeriodRow;
+      const closing = periodMoveRecord('soft_close', closed, 'Deadline passed', 'AUTO').audit.detail;
+      expect(closing).toEqual({
+        before: { status: 'OPEN', soft_closed_at: null, locked_at: null, locked_by: null },
+        after: { status: 'SOFT_CLOSED', soft_closed_at: '2026-10-02T03:05:00.000Z', locked_at: null, locked_by: null, trigger: 'AUTO', reason: 'Deadline passed' },
+      });
+      const locked = { ...closed, status: 'LOCKED', lockedAt: '2026-10-03T03:00:00.000Z', lockedBy: memberId(ACTOR), version: 3 } as PeriodRow;
+      expect(periodMoveRecord('lock', locked, 'Locked after review', 'MANUAL').audit.detail).toEqual({
+        before: { status: 'SOFT_CLOSED', soft_closed_at: '2026-10-02T03:05:00.000Z', locked_at: null, locked_by: null },
+        after: { status: 'LOCKED', soft_closed_at: '2026-10-02T03:05:00.000Z', locked_at: '2026-10-03T03:00:00.000Z', locked_by: memberId(ACTOR), trigger: 'MANUAL', reason: 'Locked after review' },
+      });
+    });
   });
 });

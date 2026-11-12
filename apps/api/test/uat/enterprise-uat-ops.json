@@ -1,0 +1,1058 @@
+[
+ {
+  "id": "UAT-IND-SEC-01",
+  "module": "IND",
+  "operationId": "listIndicators",
+  "method": "GET",
+  "path": "/indicators",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-IND-SEC-02",
+  "module": "IND",
+  "operationId": "getIndicator",
+  "method": "GET",
+  "path": "/indicators/detail",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-IND-SEC-03",
+  "module": "IND",
+  "operationId": "listIndicatorEntryRules",
+  "method": "GET",
+  "path": "/indicator-entry-rules",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-IND-SEC-04",
+  "module": "IND",
+  "operationId": "evaluateIndicatorEntry",
+  "method": "POST",
+  "path": "/indicator-entry-rules/evaluate",
+  "permission": "ind.entry"
+ },
+ {
+  "id": "UAT-IND-SEC-05",
+  "module": "IND",
+  "operationId": "listIndicatorImportMappings",
+  "method": "GET",
+  "path": "/indicator-import-mappings",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-IND-SEC-06",
+  "module": "IND",
+  "operationId": "getIndicatorImportMapping",
+  "method": "GET",
+  "path": "/indicator-import-mappings/detail",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-IND-SEC-07",
+  "module": "IND",
+  "operationId": "enterIndicatorFigures",
+  "method": "POST",
+  "path": "/indicator-figures",
+  "permission": "ind.entry"
+ },
+ {
+  "id": "UAT-IND-SEC-08",
+  "module": "IND",
+  "operationId": "listIndicatorFigures",
+  "method": "GET",
+  "path": "/indicator-figures",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-IND-SEC-09",
+  "module": "IND",
+  "operationId": "listIndicatorFigureHistory",
+  "method": "GET",
+  "path": "/indicator-figures/history",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-IND-SEC-10",
+  "module": "IND",
+  "operationId": "uploadIndicatorFile",
+  "method": "POST",
+  "path": "/indicator-imports/files",
+  "permission": "ind.import.preview"
+ },
+ {
+  "id": "UAT-IND-SEC-11",
+  "module": "IND",
+  "operationId": "previewIndicatorImport",
+  "method": "POST",
+  "path": "/indicator-imports/preview",
+  "permission": "ind.import.preview"
+ },
+ {
+  "id": "UAT-IND-SEC-12",
+  "module": "IND",
+  "operationId": "importIndicatorFile",
+  "method": "POST",
+  "path": "/indicator-imports",
+  "permission": "ind.import"
+ },
+ {
+  "id": "UAT-IND-SEC-13",
+  "module": "IND",
+  "operationId": "listIndicatorImports",
+  "method": "GET",
+  "path": "/indicator-imports",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-IND-SEC-14",
+  "module": "IND",
+  "operationId": "listIndicatorImportRows",
+  "method": "GET",
+  "path": "/indicator-imports/rows",
+  "permission": "ind.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-01",
+  "module": "RPT",
+  "operationId": "listReportCatalogue",
+  "method": "GET",
+  "path": "/report-engine/catalogue",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-02",
+  "module": "RPT",
+  "operationId": "listReportDrafts",
+  "method": "GET",
+  "path": "/report-engine/drafts",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-03",
+  "module": "RPT",
+  "operationId": "generateReport",
+  "method": "POST",
+  "path": "/report-engine/drafts",
+  "permission": "rpt.generate"
+ },
+ {
+  "id": "UAT-RPT-SEC-04",
+  "module": "RPT",
+  "operationId": "getReportDraft",
+  "method": "GET",
+  "path": "/report-engine/drafts/{id}",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-05",
+  "module": "RPT",
+  "operationId": "getReportDraftFile",
+  "method": "GET",
+  "path": "/report-engine/drafts/{id}/files/{format}",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-06",
+  "module": "RPT",
+  "operationId": "checkReport",
+  "method": "POST",
+  "path": "/report-engine/drafts/{id}/check",
+  "permission": "rpt.check"
+ },
+ {
+  "id": "UAT-RPT-SEC-07",
+  "module": "RPT",
+  "operationId": "approveReport",
+  "method": "POST",
+  "path": "/report-engine/drafts/{id}/approve",
+  "permission": "rpt.approve"
+ },
+ {
+  "id": "UAT-RPT-SEC-08",
+  "module": "RPT",
+  "operationId": "issueReport",
+  "method": "POST",
+  "path": "/report-engine/drafts/{id}/issue",
+  "permission": "rpt.issue"
+ },
+ {
+  "id": "UAT-RPT-SEC-09",
+  "module": "RPT",
+  "operationId": "listReportIssues",
+  "method": "GET",
+  "path": "/report-engine/issues",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-10",
+  "module": "RPT",
+  "operationId": "getReportIssue",
+  "method": "GET",
+  "path": "/report-engine/issues/{id}",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-11",
+  "module": "RPT",
+  "operationId": "getReportIssueFile",
+  "method": "GET",
+  "path": "/report-engine/issues/{id}/files/{format}",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-12",
+  "module": "RPT",
+  "operationId": "deliverReport",
+  "method": "POST",
+  "path": "/report-engine/issues/{id}/deliveries",
+  "permission": "rpt.deliver"
+ },
+ {
+  "id": "UAT-RPT-SEC-13",
+  "module": "RPT",
+  "operationId": "answerReportDelivery",
+  "method": "POST",
+  "path": "/report-engine/issues/{id}/answers",
+  "permission": "rpt.answer"
+ },
+ {
+  "id": "UAT-RPT-SEC-14",
+  "module": "RPT",
+  "operationId": "listReportDeliveries",
+  "method": "GET",
+  "path": "/report-engine/deliveries",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-15",
+  "module": "RPT",
+  "operationId": "listReportPeriodLocks",
+  "method": "GET",
+  "path": "/report-engine/period-locks",
+  "permission": "rpt.lock.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-16",
+  "module": "RPT",
+  "operationId": "unlockReportPeriod",
+  "method": "POST",
+  "path": "/report-engine/period-locks/{id}/unlock",
+  "permission": "rpt.lock.unlock"
+ },
+ {
+  "id": "UAT-RPT-SEC-17",
+  "module": "RPT",
+  "operationId": "startReportSignature",
+  "method": "POST",
+  "path": "/report-engine/issues/{id}/signature",
+  "permission": "rpt.sign"
+ },
+ {
+  "id": "UAT-RPT-SEC-18",
+  "module": "RPT",
+  "operationId": "getReportSignature",
+  "method": "GET",
+  "path": "/report-engine/issues/{id}/signature",
+  "permission": "rpt.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-19",
+  "module": "RPT",
+  "operationId": "completeReportSignature",
+  "method": "POST",
+  "path": "/report-engine/signature-sessions/{id}/completion",
+  "permission": "rpt.sign"
+ },
+ {
+  "id": "UAT-RPT-SEC-20",
+  "module": "RPT",
+  "operationId": "previewReportLayout",
+  "method": "POST",
+  "path": "/report-engine/layout-previews",
+  "permission": "rpt.generate"
+ },
+ {
+  "id": "UAT-RPT-SEC-21",
+  "module": "RPT",
+  "operationId": "listReportMailSchedules",
+  "method": "GET",
+  "path": "/report-engine/mail-schedules",
+  "permission": "rpt.mail.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-22",
+  "module": "RPT",
+  "operationId": "createReportMailSchedule",
+  "method": "POST",
+  "path": "/report-engine/mail-schedules",
+  "permission": "rpt.mail.manage"
+ },
+ {
+  "id": "UAT-RPT-SEC-23",
+  "module": "RPT",
+  "operationId": "listReportMailings",
+  "method": "GET",
+  "path": "/report-engine/mailings",
+  "permission": "rpt.mail.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-24",
+  "module": "RPT",
+  "operationId": "retireReportMailSchedule",
+  "method": "POST",
+  "path": "/report-engine/mail-schedules/{id}/retire",
+  "permission": "rpt.mail.manage"
+ },
+ {
+  "id": "UAT-RPT-SEC-25",
+  "module": "RPT",
+  "operationId": "getReportCrosscheck",
+  "method": "GET",
+  "path": "/report-engine/crosscheck",
+  "permission": "rpt.crosscheck.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-26",
+  "module": "RPT",
+  "operationId": "listCrosscheckExplanations",
+  "method": "GET",
+  "path": "/report-engine/crosscheck/explanations",
+  "permission": "rpt.crosscheck.read"
+ },
+ {
+  "id": "UAT-RPT-SEC-27",
+  "module": "RPT",
+  "operationId": "explainCrosscheckFinding",
+  "method": "POST",
+  "path": "/report-engine/crosscheck/explanations",
+  "permission": "rpt.crosscheck.explain"
+ },
+ {
+  "id": "UAT-DIR-SEC-01",
+  "module": "DIR",
+  "operationId": "listSteeringMeetings",
+  "method": "GET",
+  "path": "/steering-meetings",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-02",
+  "module": "DIR",
+  "operationId": "createSteeringMeeting",
+  "method": "POST",
+  "path": "/steering-meetings",
+  "permission": "directive.meeting.manage"
+ },
+ {
+  "id": "UAT-DIR-SEC-03",
+  "module": "DIR",
+  "operationId": "getSteeringMeeting",
+  "method": "GET",
+  "path": "/steering-meetings/{id}",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-04",
+  "module": "DIR",
+  "operationId": "attachMeetingMinutes",
+  "method": "POST",
+  "path": "/steering-meetings/{id}/minutes",
+  "permission": "directive.meeting.manage"
+ },
+ {
+  "id": "UAT-DIR-SEC-05",
+  "module": "DIR",
+  "operationId": "addDirective",
+  "method": "POST",
+  "path": "/steering-meetings/{id}/directives",
+  "permission": "directive.manage"
+ },
+ {
+  "id": "UAT-DIR-SEC-06",
+  "module": "DIR",
+  "operationId": "listDirectives",
+  "method": "GET",
+  "path": "/directives",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-07",
+  "module": "DIR",
+  "operationId": "listOverdueDirectives",
+  "method": "GET",
+  "path": "/directives/overdue",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-08",
+  "module": "DIR",
+  "operationId": "getDirectiveSummary",
+  "method": "GET",
+  "path": "/directives/summary",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-09",
+  "module": "DIR",
+  "operationId": "getDirectivesForReport",
+  "method": "GET",
+  "path": "/directives/for-report",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-10",
+  "module": "DIR",
+  "operationId": "getDirectiveWidget",
+  "method": "GET",
+  "path": "/directives/widget",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-11",
+  "module": "DIR",
+  "operationId": "getDirective",
+  "method": "GET",
+  "path": "/directives/{id}",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-12",
+  "module": "DIR",
+  "operationId": "listProjectDirectives",
+  "method": "GET",
+  "path": "/projects/{id}/directives",
+  "permission": "directive.read"
+ },
+ {
+  "id": "UAT-DIR-SEC-13",
+  "module": "DIR",
+  "operationId": "assignDirective",
+  "method": "POST",
+  "path": "/directives/{id}/assignment",
+  "permission": "directive.manage"
+ },
+ {
+  "id": "UAT-DIR-SEC-14",
+  "module": "DIR",
+  "operationId": "recordDirectiveProgress",
+  "method": "POST",
+  "path": "/directives/{id}/progress",
+  "permission": "directive.progress"
+ },
+ {
+  "id": "UAT-DIR-SEC-15",
+  "module": "DIR",
+  "operationId": "requestDirectiveExtension",
+  "method": "POST",
+  "path": "/directives/{id}/extension-requests",
+  "permission": "directive.progress"
+ },
+ {
+  "id": "UAT-DIR-SEC-16",
+  "module": "DIR",
+  "operationId": "decideDirectiveExtension",
+  "method": "POST",
+  "path": "/directive-extensions/{id}/decision",
+  "permission": "directive.extension.decide"
+ },
+ {
+  "id": "UAT-DIR-SEC-17",
+  "module": "DIR",
+  "operationId": "closeDirective",
+  "method": "POST",
+  "path": "/directives/{id}/closure",
+  "permission": "directive.close"
+ },
+ {
+  "id": "UAT-DIR-SEC-18",
+  "module": "DIR",
+  "operationId": "cancelDirective",
+  "method": "POST",
+  "path": "/directives/{id}/cancellation",
+  "permission": "directive.manage"
+ },
+ {
+  "id": "UAT-DIR-SEC-19",
+  "module": "DIR",
+  "operationId": "reopenDirective",
+  "method": "POST",
+  "path": "/directives/{id}/reopening",
+  "permission": "directive.manage"
+ },
+ {
+  "id": "UAT-HPM-SEC-01",
+  "module": "HPM",
+  "operationId": "getHpmConnection",
+  "method": "GET",
+  "path": "/hpm/connection",
+  "permission": "hpm.read"
+ },
+ {
+  "id": "UAT-HPM-SEC-02",
+  "module": "HPM",
+  "operationId": "setHpmConnectionState",
+  "method": "POST",
+  "path": "/hpm/connection/state",
+  "permission": "hpm.admin"
+ },
+ {
+  "id": "UAT-HPM-SEC-03",
+  "module": "HPM",
+  "operationId": "listHpmPushes",
+  "method": "GET",
+  "path": "/hpm/pushes",
+  "permission": "hpm.read"
+ },
+ {
+  "id": "UAT-HPM-SEC-04",
+  "module": "HPM",
+  "operationId": "submitHpmPush",
+  "method": "POST",
+  "path": "/hpm/pushes",
+  "permission": "hpm.push"
+ },
+ {
+  "id": "UAT-HPM-SEC-05",
+  "module": "HPM",
+  "operationId": "retryHpmPush",
+  "method": "POST",
+  "path": "/hpm/pushes/{id}/retry",
+  "permission": "hpm.push"
+ },
+ {
+  "id": "UAT-HPM-SEC-06",
+  "module": "HPM",
+  "operationId": "recordHpmReceipt",
+  "method": "POST",
+  "path": "/hpm/pushes/{id}/receipt",
+  "permission": "hpm.receipt"
+ },
+ {
+  "id": "UAT-HPM-SEC-07",
+  "module": "HPM",
+  "operationId": "listHpmCorrections",
+  "method": "GET",
+  "path": "/hpm/corrections",
+  "permission": "hpm.read"
+ },
+ {
+  "id": "UAT-HPM-SEC-08",
+  "module": "HPM",
+  "operationId": "proposeHpmCorrection",
+  "method": "POST",
+  "path": "/hpm/corrections",
+  "permission": "hpm.correction.propose"
+ },
+ {
+  "id": "UAT-HPM-SEC-09",
+  "module": "HPM",
+  "operationId": "decideHpmCorrection",
+  "method": "POST",
+  "path": "/hpm/corrections/{id}/decision",
+  "permission": "hpm.correction.decide"
+ },
+ {
+  "id": "UAT-EBS-SEC-01",
+  "module": "EBS",
+  "operationId": "getEbsConnection",
+  "method": "GET",
+  "path": "/ebs/connection",
+  "permission": "ebs.read"
+ },
+ {
+  "id": "UAT-EBS-SEC-02",
+  "module": "EBS",
+  "operationId": "setEbsConnectionState",
+  "method": "POST",
+  "path": "/ebs/connection/state",
+  "permission": "ebs.admin"
+ },
+ {
+  "id": "UAT-EBS-SEC-03",
+  "module": "EBS",
+  "operationId": "uploadEbsFile",
+  "method": "POST",
+  "path": "/ebs/imports/files",
+  "permission": "ebs.import.preview"
+ },
+ {
+  "id": "UAT-EBS-SEC-04",
+  "module": "EBS",
+  "operationId": "previewEbsFile",
+  "method": "POST",
+  "path": "/ebs/imports/preview",
+  "permission": "ebs.import.preview"
+ },
+ {
+  "id": "UAT-EBS-SEC-05",
+  "module": "EBS",
+  "operationId": "importEbsFile",
+  "method": "POST",
+  "path": "/ebs/imports",
+  "permission": "ebs.import"
+ },
+ {
+  "id": "UAT-EBS-SEC-06",
+  "module": "EBS",
+  "operationId": "reconcileEbs",
+  "method": "POST",
+  "path": "/ebs/reconciliations",
+  "permission": "ebs.reconcile"
+ },
+ {
+  "id": "UAT-EBS-SEC-07",
+  "module": "EBS",
+  "operationId": "listEbsDifferences",
+  "method": "GET",
+  "path": "/ebs/differences",
+  "permission": "ebs.read"
+ },
+ {
+  "id": "UAT-EBS-SEC-08",
+  "module": "EBS",
+  "operationId": "resolveEbsDifference",
+  "method": "POST",
+  "path": "/ebs/differences/{id}/resolution",
+  "permission": "ebs.reconcile"
+ },
+ {
+  "id": "UAT-EBS-SEC-09",
+  "module": "EBS",
+  "operationId": "reassignEbsDifference",
+  "method": "POST",
+  "path": "/ebs/differences/{id}/owner",
+  "permission": "ebs.reconcile"
+ },
+ {
+  "id": "UAT-HUB-SEC-01",
+  "module": "HUB",
+  "operationId": "listHubConnectors",
+  "method": "GET",
+  "path": "/integration-hub/connectors",
+  "permission": "hub.read"
+ },
+ {
+  "id": "UAT-HUB-SEC-02",
+  "module": "HUB",
+  "operationId": "getHubConnector",
+  "method": "GET",
+  "path": "/integration-hub/connectors/{code}",
+  "permission": "hub.read"
+ },
+ {
+  "id": "UAT-HUB-SEC-03",
+  "module": "HUB",
+  "operationId": "listHubConnectorRuns",
+  "method": "GET",
+  "path": "/integration-hub/connectors/{code}/runs",
+  "permission": "hub.read"
+ },
+ {
+  "id": "UAT-HUB-SEC-04",
+  "module": "HUB",
+  "operationId": "recordHubRun",
+  "method": "POST",
+  "path": "/integration-hub/connectors/{code}/runs",
+  "permission": "hub.run.record"
+ },
+ {
+  "id": "UAT-HUB-SEC-05",
+  "module": "HUB",
+  "operationId": "listHubRejects",
+  "method": "GET",
+  "path": "/integration-hub/connectors/{code}/rejects",
+  "permission": "hub.read"
+ },
+ {
+  "id": "UAT-HUB-SEC-06",
+  "module": "HUB",
+  "operationId": "listHubIncidents",
+  "method": "GET",
+  "path": "/integration-hub/incidents",
+  "permission": "hub.read"
+ },
+ {
+  "id": "UAT-HUB-SEC-07",
+  "module": "HUB",
+  "operationId": "openHubIncident",
+  "method": "POST",
+  "path": "/integration-hub/incidents",
+  "permission": "hub.incident.manage"
+ },
+ {
+  "id": "UAT-HUB-SEC-08",
+  "module": "HUB",
+  "operationId": "getHubHealthSummary",
+  "method": "GET",
+  "path": "/integration-hub/health",
+  "permission": "hub.read"
+ },
+ {
+  "id": "UAT-HUB-SEC-09",
+  "module": "HUB",
+  "operationId": "listHubAgents",
+  "method": "GET",
+  "path": "/integration-hub/agents",
+  "permission": "hub.read"
+ },
+ {
+  "id": "UAT-HUB-SEC-10",
+  "module": "HUB",
+  "operationId": "registerHubAgent",
+  "method": "POST",
+  "path": "/integration-hub/agents",
+  "permission": "hub.agent.manage"
+ },
+ {
+  "id": "UAT-HUB-SEC-11",
+  "module": "HUB",
+  "operationId": "setHubConnectorState",
+  "method": "POST",
+  "path": "/integration-hub/connectors/{code}/state",
+  "permission": "hub.state.manage"
+ },
+ {
+  "id": "UAT-HUB-SEC-12",
+  "module": "HUB",
+  "operationId": "decideHubIncident",
+  "method": "POST",
+  "path": "/integration-hub/incidents/{id}/decision",
+  "permission": "hub.incident.manage"
+ },
+ {
+  "id": "UAT-HUB-SEC-13",
+  "module": "HUB",
+  "operationId": "captureHubSnapshot",
+  "method": "POST",
+  "path": "/integration-hub/snapshots",
+  "permission": "hub.snapshot.capture"
+ },
+ {
+  "id": "UAT-HUB-SEC-14",
+  "module": "HUB",
+  "operationId": "proposeHubMapping",
+  "method": "POST",
+  "path": "/integration-hub/connectors/{code}/mappings",
+  "permission": "hub.mapping.propose"
+ },
+ {
+  "id": "UAT-HUB-SEC-15",
+  "module": "HUB",
+  "operationId": "decideHubMapping",
+  "method": "POST",
+  "path": "/integration-hub/mappings/{id}/decision",
+  "permission": "hub.mapping.approve"
+ },
+ {
+  "id": "UAT-HUB-SEC-16",
+  "module": "HUB",
+  "operationId": "decideHubReject",
+  "method": "POST",
+  "path": "/integration-hub/rejects/{id}/decision",
+  "permission": "hub.reject.manage"
+ },
+ {
+  "id": "UAT-HUB-SEC-17",
+  "module": "HUB",
+  "operationId": "heartbeatHubAgent",
+  "method": "POST",
+  "path": "/integration-hub/agents/{code}/heartbeat",
+  "permission": "hub.agent.heartbeat"
+ },
+ {
+  "id": "UAT-INT-SEC-01",
+  "module": "INT",
+  "operationId": "listMachineAccounts",
+  "method": "GET",
+  "path": "/int/machine-accounts",
+  "permission": "int.account.read"
+ },
+ {
+  "id": "UAT-INT-SEC-02",
+  "module": "INT",
+  "operationId": "createMachineAccount",
+  "method": "POST",
+  "path": "/int/machine-accounts",
+  "permission": "int.account.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-03",
+  "module": "INT",
+  "operationId": "getMachineAccount",
+  "method": "GET",
+  "path": "/int/machine-accounts/{id}",
+  "permission": "int.account.read"
+ },
+ {
+  "id": "UAT-INT-SEC-04",
+  "module": "INT",
+  "operationId": "updateMachineAccount",
+  "method": "POST",
+  "path": "/int/machine-accounts/{id}/update",
+  "permission": "int.account.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-05",
+  "module": "INT",
+  "operationId": "decideMachineAccount",
+  "method": "POST",
+  "path": "/int/machine-accounts/{id}/decision",
+  "permission": "int.account.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-06",
+  "module": "INT",
+  "operationId": "rotateMachineCredential",
+  "method": "POST",
+  "path": "/int/machine-accounts/{id}/rotate",
+  "permission": "int.account.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-07",
+  "module": "INT",
+  "operationId": "listOpenAccessLog",
+  "method": "GET",
+  "path": "/int/access-log",
+  "permission": "int.access.read"
+ },
+ {
+  "id": "UAT-INT-SEC-08",
+  "module": "INT",
+  "operationId": "listExportDatasets",
+  "method": "GET",
+  "path": "/int/export-datasets",
+  "permission": "int.dataset.read"
+ },
+ {
+  "id": "UAT-INT-SEC-09",
+  "module": "INT",
+  "operationId": "setExportDataset",
+  "method": "POST",
+  "path": "/int/export-datasets/state",
+  "permission": "int.dataset.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-10",
+  "module": "INT",
+  "operationId": "listBiReaders",
+  "method": "GET",
+  "path": "/int/bi-readers",
+  "permission": "int.bi.read"
+ },
+ {
+  "id": "UAT-INT-SEC-11",
+  "module": "INT",
+  "operationId": "createBiReader",
+  "method": "POST",
+  "path": "/int/bi-readers",
+  "permission": "int.bi.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-12",
+  "module": "INT",
+  "operationId": "getBiReader",
+  "method": "GET",
+  "path": "/int/bi-readers/{id}",
+  "permission": "int.bi.read"
+ },
+ {
+  "id": "UAT-INT-SEC-13",
+  "module": "INT",
+  "operationId": "rotateBiReaderPassword",
+  "method": "POST",
+  "path": "/int/bi-readers/{id}/password",
+  "permission": "int.bi.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-14",
+  "module": "INT",
+  "operationId": "decideBiReader",
+  "method": "POST",
+  "path": "/int/bi-readers/{id}/decision",
+  "permission": "int.bi.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-15",
+  "module": "INT",
+  "operationId": "listSourceSystems",
+  "method": "GET",
+  "path": "/int/source-systems",
+  "permission": "int.codes.read"
+ },
+ {
+  "id": "UAT-INT-SEC-16",
+  "module": "INT",
+  "operationId": "registerSourceSystem",
+  "method": "POST",
+  "path": "/int/source-systems",
+  "permission": "int.system.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-17",
+  "module": "INT",
+  "operationId": "retireSourceSystem",
+  "method": "POST",
+  "path": "/int/source-systems/{id}/retire",
+  "permission": "int.system.manage"
+ },
+ {
+  "id": "UAT-INT-SEC-18",
+  "module": "INT",
+  "operationId": "listProjectCodes",
+  "method": "GET",
+  "path": "/int/project-codes",
+  "permission": "int.codes.read"
+ },
+ {
+  "id": "UAT-INT-SEC-19",
+  "module": "INT",
+  "operationId": "proposeProjectCode",
+  "method": "POST",
+  "path": "/int/project-codes",
+  "permission": "int.codes.propose"
+ },
+ {
+  "id": "UAT-INT-SEC-20",
+  "module": "INT",
+  "operationId": "decideProjectCode",
+  "method": "POST",
+  "path": "/int/project-codes/{id}/decision",
+  "permission": "int.codes.approve"
+ },
+ {
+  "id": "UAT-INT-SEC-21",
+  "module": "INT",
+  "operationId": "retireProjectCode",
+  "method": "POST",
+  "path": "/int/project-codes/{id}/retire",
+  "permission": "int.codes.propose"
+ },
+ {
+  "id": "UAT-ENT-SEC-01",
+  "module": "ENT",
+  "operationId": "getEnterpriseOrgPack",
+  "method": "GET",
+  "path": "/enterprise/org-pack",
+  "permission": "adm.migration.read"
+ },
+ {
+  "id": "UAT-ENT-SEC-02",
+  "module": "ENT",
+  "operationId": "materialiseEnterpriseOrgPack",
+  "method": "POST",
+  "path": "/enterprise/org-pack/materialisations",
+  "permission": "adm.migration.approve"
+ },
+ {
+  "id": "UAT-ENT-SEC-03",
+  "module": "ENT",
+  "operationId": "buildEnterpriseSnapshot",
+  "method": "POST",
+  "path": "/enterprise-snapshots",
+  "permission": "funding.snapshot.build"
+ },
+ {
+  "id": "UAT-ENT-SEC-04",
+  "module": "ENT",
+  "operationId": "listEnterpriseSnapshots",
+  "method": "GET",
+  "path": "/enterprise-snapshots",
+  "permission": "funding.snapshot.read"
+ },
+ {
+  "id": "UAT-ENT-SEC-05",
+  "module": "ENT",
+  "operationId": "freezeEnterpriseSnapshot",
+  "method": "POST",
+  "path": "/enterprise-snapshots/{id}/freeze",
+  "permission": "funding.snapshot.freeze"
+ },
+ {
+  "id": "UAT-ENT-SEC-06",
+  "module": "ENT",
+  "operationId": "getEnterpriseSnapshot",
+  "method": "GET",
+  "path": "/enterprise-snapshots/{id}",
+  "permission": "funding.snapshot.read"
+ },
+ {
+  "id": "UAT-ENT-SEC-07",
+  "module": "ENT",
+  "operationId": "getEnterpriseSnapshotReadiness",
+  "method": "GET",
+  "path": "/enterprise-snapshot-readiness",
+  "permission": "funding.snapshot.build"
+ },
+ {
+  "id": "UAT-ENT-SEC-08",
+  "module": "ENT",
+  "operationId": "getLeaderRates",
+  "method": "GET",
+  "path": "/leader/rates",
+  "permission": "home.read"
+ },
+ {
+  "id": "UAT-ENT-SEC-09",
+  "module": "ENT",
+  "operationId": "getBlockedProjects",
+  "method": "GET",
+  "path": "/leader/blocked-projects",
+  "permission": "home.read"
+ },
+ {
+  "id": "UAT-ENT-SEC-10",
+  "module": "ENT",
+  "operationId": "listEquipmentProcurement",
+  "method": "GET",
+  "path": "/equipment-procurement",
+  "permission": "bid.read"
+ },
+ {
+  "id": "UAT-ENT-SEC-11",
+  "module": "ENT",
+  "operationId": "createEquipmentProcurementItem",
+  "method": "POST",
+  "path": "/equipment-procurement",
+  "permission": "bid.plan.manage"
+ },
+ {
+  "id": "UAT-ENT-SEC-12",
+  "module": "ENT",
+  "operationId": "getEquipmentProcurement",
+  "method": "GET",
+  "path": "/equipment-procurement/{id}",
+  "permission": "bid.read"
+ },
+ {
+  "id": "UAT-ENT-SEC-13",
+  "module": "ENT",
+  "operationId": "updateEquipmentProcurementItem",
+  "method": "PATCH",
+  "path": "/equipment-procurement/{id}",
+  "permission": "bid.plan.manage"
+ },
+ {
+  "id": "UAT-ENT-SEC-14",
+  "module": "ENT",
+  "operationId": "getReportNarrativeContext",
+  "method": "GET",
+  "path": "/reports/{id}/narrative-context",
+  "permission": "report.read"
+ },
+ {
+  "id": "UAT-ENT-SEC-15",
+  "module": "ENT",
+  "operationId": "inheritReportNarrative",
+  "method": "POST",
+  "path": "/reports/{id}/narrative-inheritance",
+  "permission": "report.edit"
+ },
+ {
+  "id": "UAT-ENT-SEC-16",
+  "module": "ENT",
+  "operationId": "getReportNarrativeTemplate",
+  "method": "GET",
+  "path": "/report-narrative-template",
+  "permission": "report.import"
+ }
+]

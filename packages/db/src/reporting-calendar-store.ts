@@ -1,5 +1,5 @@
-import { REPORTABLE_PROJECT_STATUSES, SUBMITTED_STATUSES } from '@machvon/kernel';
-import type { ScheduleCode, ScheduleReminderKind, ScheduleStepKind, UnitPeriodFacts } from '@machvon/kernel';
+import { REPORTABLE_PROJECT_STATUSES, REPORT_WORKFLOW_RESOURCE, SUBMITTED_STATUSES, chainStepFact } from '@machvon/kernel';
+import type { PeriodStepFacts, ScheduleCode, ScheduleReminderKind, ScheduleStepKind, UnitPeriodFacts } from '@machvon/kernel';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -54,6 +54,16 @@ interface FactsSql {
   approved: number;
   approved_at: string | null;
 }
+
+interface ChainSql {
+  tag: string;
+  total: number;
+  passed: number;
+  done_at: string | null;
+}
+
+/** The kinds of step of the staged approval chain that the board of a period reports. */
+const CHAIN_STEP_TAGS = ['PLANNING_REVIEW', 'PUSH'];
 
 export interface ScheduleReminderRecord {
   itemKind: 'REPORT_PERIOD' | 'PLAN_ADJUSTMENT' | 'MEETING';
@@ -156,7 +166,45 @@ export class ReportingCalendarStore {
   }
 
   /**
-   * How far the records of a period went through the steps of the staged approval that are facts of the period as a whole (QT.02, ENT-4c, INT-2): the review of the planning board, the close of the period and the push to
+   * The facts of the period that the staged approval chain keeps (ENT-3c): the review of the planning board and the push. For each project the scope reaches, the newest report of the period that runs on a chain
+   * is looked at; a step counts as passed when its instance was approved to the end or has moved beyond the step, and it is done at the latest approving decision of the step (the PUSH step is decided only once
+   * its receipt is recorded). A kind with no report on a chain that has the step is left out of the answer: the platform has no fact about it, and the board says so.
+   */
+  async chainFacts(tx: TenantTx, scope: ScopeBuilder, period: CalendarPeriodRow): Promise<Pick<PeriodStepFacts, 'planningReviewAt' | 'pushedAt'>> {
+    const visible = scope(5);
+    const rows = await tx.query<ChainSql>(
+      `with latest as (
+         select distinct on (p.id) i.id as instance_id, i.workflow_version_id, i.outcome, i.current_step, i.ended_at
+           from ${SCOPE_FROM}
+           join machvon.report_revision r on r.tenant_id = p.tenant_id and r.project_id = p.id and r.period_id = $1::uuid and r.deleted_at is null
+           join machvon.workflow_instance i on i.tenant_id = r.tenant_id and i.resource_type = $2 and i.resource_id = r.id
+          where p.status = any($3::text[]) and ${visible.sql}
+          order by p.id, r.revision desc, i.started_at desc),
+       steps as (
+         select l.instance_id, l.ended_at, step.element ->> 'tag' as tag, (step.position - 1)::int as step_index,
+                (coalesce(l.outcome = 'APPROVED', false) or (step.position - 1) < l.current_step) as passed
+           from latest l
+           join machvon.workflow_version v on v.id = l.workflow_version_id
+           cross join lateral jsonb_array_elements(v.definition_json -> 'steps') with ordinality as step (element, position)
+          where step.element ->> 'tag' = any($4::text[]))
+       select s.tag, count(*)::int as total, (count(*) filter (where s.passed))::int as passed,
+              to_char(max(coalesce((select max(t.decided_at) from machvon.approval_task t
+                                      where t.workflow_instance_id = s.instance_id and t.step_index = s.step_index and t.status = 'Decided' and t.decision = 'approve'), s.ended_at)) filter (where s.passed) at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as done_at
+         from steps s
+        group by s.tag`,
+      [period.id, REPORT_WORKFLOW_RESOURCE, [...REPORTABLE_PROJECT_STATUSES], CHAIN_STEP_TAGS, ...visible.params],
+    );
+    const factOf = (tag: string): string | null | undefined => {
+      const row = rows.find((one) => one.tag === tag);
+      return row === undefined ? undefined : chainStepFact({ total: row.total, passed: row.passed, doneAt: row.done_at });
+    };
+    const planningReviewAt = factOf('PLANNING_REVIEW');
+    const pushedAt = factOf('PUSH');
+    return { ...(planningReviewAt === undefined ? {} : { planningReviewAt }), ...(pushedAt === undefined ? {} : { pushedAt }) };
+  }
+
+  /**
+   * How far the records of a period went through the steps of the staged approval that are facts of the period as a whole (QT.02, ENT-4c, INT-2; wider than `chainFacts`, which the board reads: this one also waits for the batches of actual figures and of indicator entries, so the lock of a period does not go ahead while any record of it is still in the staged approval): the review of the planning board, the close of the period and the push to
    * the group system. A record is a report revision, a batch of actual figures or a batch of indicator entries of the period whose approval is running or was approved (a returned, rejected or cancelled one is handed in
    * again as a new record, so it is not waited for); it passed a step when its instance went beyond it or ended approved, at the instant the last task of the step was decided. For each step the answer is the instant the
    * last record passed, `null` when some record has not, and `undefined` when no record runs the staged approval (the tenant runs the single decision, so the platform has no fact and says so).

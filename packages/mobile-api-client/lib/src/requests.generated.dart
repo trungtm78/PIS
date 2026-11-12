@@ -2163,6 +2163,19 @@ final class BiMetricSync implements RequestModel {
       };
 }
 
+final class BiPublicationCheck implements RequestModel {
+  const BiPublicationCheck({
+    this.comment,
+  });
+
+  final String? comment;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (comment != null) 'comment': comment,
+      };
+}
+
 final class BiPublicationDecision implements RequestModel {
   const BiPublicationDecision({
     required this.decision,

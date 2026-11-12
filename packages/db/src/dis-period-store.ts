@@ -431,6 +431,9 @@ export interface PeriodMoveRecord {
 export function periodMoveRecord(move: PeriodMove, row: PeriodRow, reason: string, trigger: PeriodTrigger): PeriodMoveRecord {
   const closed = move === 'soft_close';
   const type = closed ? 'period.soft_closed.v1' : 'period.locked.v1';
+  // HT.06: when the tenant opted in for the periods, the audit keeps the whole period before and after the move: what it left (a soft close comes from OPEN, a lock from SOFT_CLOSED) and what it now is.
+  const stamps = { soft_closed_at: row.softClosedAt, locked_at: row.lockedAt, locked_by: row.lockedBy };
+  const before = { status: closed ? 'OPEN' : 'SOFT_CLOSED', ...stamps, ...(closed ? { soft_closed_at: null } : { locked_at: null, locked_by: null }) };
   return {
     audit: {
       action: closed ? 'dis.period_soft_closed' : 'dis.period_locked',
@@ -438,6 +441,7 @@ export function periodMoveRecord(move: PeriodMove, row: PeriodRow, reason: strin
       resourceId: row.id,
       reason,
       diff: { code: row.code, calendar_code: row.calendarCode, period_type: row.periodType, status: row.status, deadline_at: row.deadlineAt, calendar_version_id: row.calendarVersionId, trigger },
+      detail: { before, after: { status: row.status, ...stamps, trigger, reason } },
     },
     event: {
       aggregateType: PERIOD_RESOURCE,

@@ -48,6 +48,8 @@ describe('TenantDatabase', () => {
 
   function appPool(max: number): Pool {
     const pool = new Pool({ connectionString: database.urlFor('machvon_app'), max });
+    // An idle connection that the server ends is reported by the pool as an error event; the test must not die of it (see TenantDatabase).
+    pool.on('error', () => undefined);
     pools.push(pool);
     return pool;
   }

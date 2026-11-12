@@ -1,6 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
-import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import { EffectiveAccessStore, InMemoryAuthzCache, MasterStore, TenantDatabase } from '@machvon/db';
+import type { TenantTx } from '@machvon/db';
 import { DEMO_MARK, REPORT_FORM_CATALOGUE, loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { enterpriseReportBundles, registerEnterpriseReportRules } from '@machvon/edition-enterprise/src/server.ts';
 import { hidePublicOnlyReportForms } from '../../src/editions/load-enterprise';
@@ -13,7 +14,7 @@ import { ReportReadsController } from '../../src/modules/reports/report-reads.co
 import { REPORT_CLOCK } from '../../src/modules/reports/tokens';
 import { readDocxHeaderFooter } from '../../src/modules/reports/docx-render';
 import { readXlsxMarks } from '../../src/modules/reports/xlsx-template';
-import { AuthzHarness, TENANT_A, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { AuthzHarness, TENANT_A, contextFor, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
@@ -135,6 +136,36 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     expect((await rows<{ n: string }>('select count(*)::text as n from machvon.report_draft'))[0]?.n).toBe('0');
   });
 
+  describe('the managed report catalogue (MD.03)', () => {
+    const masters = new MasterStore();
+    const DECISION = id(0x70, 1);
+    const as = <T>(member: number, work: (tx: TenantTx) => Promise<T>): Promise<T> => (harness.tenants as TenantDatabase).withTenant(contextFor(TENANT_A, memberId(member)), work);
+
+    /** An entry in force: proposed by the preparer, approved by the checker, published by the approver. */
+    async function publish(masterType: string, key: string, attributes: Record<string, unknown>): Promise<void> {
+      const content = { label: key, attributes, parentRecordId: null, validFrom: '2024-01-01', validUntil: null, legalBasis: null };
+      const created = await as(PREPARER, (tx) => masters.propose(tx, { masterType, businessKey: key, content, reason: 'Entry of the report catalogue' }, memberId(PREPARER)));
+      const submitted = await as(PREPARER, (tx) => masters.submit(tx, created.changeRequestId, 1, memberId(PREPARER)));
+      await as(CHECKER, (tx) => masters.decide(tx, created.changeRequestId, submitted.version, 'approve', memberId(CHECKER)));
+      const record = await as(APPROVER, (tx) => masters.findRecord(tx, created.recordId));
+      await as(APPROVER, (tx) => masters.publish(tx, created.recordId, record?.version ?? 0, DECISION, memberId(APPROVER)));
+    }
+
+    it('shows a form under the agency the tenant catalogue gives it, whenever the catalogue changes, and keeps the receiver of the code for the forms it does not mention', async () => {
+      process.env.DEMO_FORMS = 'true';
+      await rows(`insert into machvon.document (tenant_id, id, doc_kind, doc_type_code, title, classification, created_by, updated_by) values ($1, $2, 'INCOMING', 'CV', 'Decision', 'INTERNAL', $3, $3)`, [TENANT_A, DECISION, memberId(PREPARER)]);
+      await publish('REPORTING_PERIOD_KIND', 'MONTH', { grain: 'MONTH', months: 1, entry_deadline_working_days: 5 });
+      await publish('REPORT_TYPE', 'PLANT_PHU_MY', { period_kind_key: 'MONTH', audience: 'INTERNAL', form_code: 'PLANT-PHU-MY' });
+      await publish('RECEIVING_AGENCY', 'NMD_PM_2', { agency_kind: 'INTERNAL_MEETING', channel: 'FILE', report_type_keys: ['PLANT_PHU_MY'], receiver_code: 'NMD-PM-2' });
+      // The form is registered once and its layout row never changes; the receiver is read from the catalogue each time.
+      expect((await generate('PLANT-PHU-MY')).status).toBe(200);
+      expect((await rows<{ receiver: string }>(`select receiver from machvon.report_layout where code = 'PLANT-PHU-MY'`))[0]?.receiver).toBe('NMD-PM');
+      const listed = (await call('GET', '/report-engine/catalogue', { member: SENDER })).json.items as Array<{ code: string; receiver: string }>;
+      expect(listed.find((one) => one.code === 'PLANT-PHU-MY')?.receiver).toBe('NMD-PM-2');
+      expect(listed.find((one) => one.code === 'PVN-MONTHLY')?.receiver).toBe('PVN');
+    });
+  });
+
   it('generates each of the six forms while demo forms are on: the mark is in the print header and footer, the properties and the first cell, and the Word narrative carries it too', async () => {
     process.env.DEMO_FORMS = 'true';
     for (const entry of REPORT_FORM_CATALOGUE) {
@@ -210,5 +241,23 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     const refused = await generate('PLANT-PHU-MY');
     expect(refused.status).toBe(422);
     expect(refused.json.code).toBe('VALIDATION_FAILED');
+  });
+
+  it('logs a delivery or an answer of a form of the code only under a receiver of the tenant catalogue (MD.03)', async () => {
+    process.env.DEMO_FORMS = 'true';
+    const made = await generate('HPM-MONTHLY', { period: { kind: 'MONTH', year: 2026, index: 9 } });
+    const draftId = made.json.draft_id as string;
+    expect((await step(CHECKER, draftId, 1, 'check')).status).toBe(200);
+    expect((await step(APPROVER, draftId, 2, 'approve')).status).toBe(200);
+    const issueId = (await step(APPROVER, draftId, 3, 'issue')).json.resource_id as string;
+    const refused = await call('POST', `/report-engine/issues/${issueId}/deliveries`, { member: SENDER, body: { receiver: 'NOBODY', channel: 'MANUAL' } });
+    expect([refused.status, refused.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+    const answered = await call('POST', `/report-engine/issues/${issueId}/answers`, { member: SENDER, body: { receiver: 'NOBODY', outcome: 'REJECTED', note: 'The receiver is not in the catalogue' } });
+    // An answer is judged against the delivery on record, not against today's catalogue.
+    expect([answered.status, answered.json.code]).toEqual([409, 'REPORT_STATE_INVALID']);
+    expect((await call('POST', `/report-engine/issues/${issueId}/deliveries`, { member: SENDER, body: { receiver: 'HPM', channel: 'MANUAL' } })).status).toBe(200);
+    const rejected = await call('POST', `/report-engine/issues/${issueId}/answers`, { member: SENDER, body: { receiver: 'HPM', outcome: 'REJECTED', note: 'The demo form is not the official one' } });
+    expect(rejected.json).toMatchObject({ event: 'REJECTED' });
+    expect((await call('POST', `/report-engine/issues/${issueId}/deliveries`, { member: SENDER, body: { receiver: 'NMD-PM-2', channel: 'MANUAL' } })).status).toBe(200);
   });
 });

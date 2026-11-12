@@ -1,7 +1,7 @@
 import type { Translator } from '../../../../i18n';
 import { failureCode, failureExtension, failureList } from '../shared/format';
 import { commonErrorText } from '../shared/parts';
-import type { CorrectionState, PushStatus } from './model';
+import type { CorrectionMode, CorrectionState, PushStatus } from './model';
 
 type T = Translator['t'];
 
@@ -123,3 +123,6 @@ export function hpmErrorText(t: T, error: unknown): string {
       return commonErrorText(t, error);
   }
 }
+
+/** The way a correction is made, in the words of the person. */
+export const modeLabel = (t: T, mode: CorrectionMode): string => (mode === 'ADJUST_NEXT_PERIOD' ? t('hpm.correction.mode.adjust') : t('hpm.correction.mode.overwrite'));

@@ -1690,6 +1690,10 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/bi/publication-requests/${t.legalHoldId}/decision`, ifMatch: '"1"', body: { decision: 'APPROVED' } }),
   },
+  checkBiPublication: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: `/bi/publication-requests/${t.legalHoldId}/check`, ifMatch: '"1"', body: { comment: 'Matrix probe' } }),
+  },
   post_dashboards_id_publish: {
     referencesTenantIds: true,
     build: (t) => ({ method: 'POST', path: `/dashboards/${t.legalHoldId}/publish`, ifMatch: '"1"', body: { decision: 'approve', reason: 'Matrix probe', evidence_ids: [] } }),

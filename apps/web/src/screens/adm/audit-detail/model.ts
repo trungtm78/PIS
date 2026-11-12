@@ -14,7 +14,7 @@ const RESOURCE_TYPE = /^[a-z][a-z0-9_]{1,79}$/;
 const KEY_ENTRY = /^[A-Za-z][A-Za-z0-9_.-]{0,63}$/;
 
 /** Classes of business object the enterprise edition writes a full before and after for; the server accepts any class name, these are the choices offered. */
-export const SUGGESTED_CLASSES: readonly string[] = ['period_snapshot', 'plan_figure_revision', 'period_reopen', 'hpm_push', 'report_revision'];
+export const SUGGESTED_CLASSES: readonly string[] = ['period_snapshot', 'plan_figure_revision', 'period_reopen', 'reporting_period', 'hpm_push', 'report_revision'];
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 const text = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined);

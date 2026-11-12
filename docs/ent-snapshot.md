@@ -1,4 +1,4 @@
-# ENT-3a: the enterprise period snapshot (what is built)
+# The enterprise data path: the period snapshot, its one reader, the forms and narratives that stand on it, its BI dataset (ENT-3a, ENT-3b, INT-2)
 
 Status: implemented (lane ENT-3a, migration V2660; the lock rule of section 8 is INT-2). Requirements DL.03 (the figures a period closes with) and BC.01 (one source for the reports), eng-review decisions R17 (immutable after close, revision with lineage), R21 (one reader) and R23. The model it stands on is `docs/fnd-funding-model.md` (sections 5, 6.5 and 13); the plan is `docs/plans/ent3a.md`. This document describes the code as it is; where something is a working assumption it says so.
 
@@ -72,6 +72,27 @@ Anything that needs the official figure of an enterprise period calls `Enterpris
 
 The snapshot is built only on a `LOCKED` period, and an enterprise period that locks too early forces a reopening before the review of the planning board has finished. So in the enterprise edition the job `dis-period-autoclose` does not lock a month, a quarter or a year before the review step and the close step of its `REPORTING_SCHEDULE` have finished (`periodLockVerdict`, `packages/kernel/src/reporting-lock-gate.ts`; details in `docs/runbooks/jobs.md`). The public edition keeps its rule of three working days after the entry deadline.
 
-## 9. Tests
+## 9. The BI dataset DS-ENT (INT-2)
+
+Power BI and the Lakehouse read the frozen enterprise snapshot through the certified dataset `DS-ENT` of the BI reader schema (migration V2960): the views `v_enterprise_figures`, `v_enterprise_plan_actual`, `v_enterprise_funding_split` and `v_enterprise_by_unit` show the FROZEN snapshot in force of each period (a superseded revision is not shown), behind the same gate and row-level security as `DS-DISB` (switched on on INT-04, CERTIFIED product, tenant of the login from its binding, never `app.tenant_id`). The enterprise edition offers it; the public edition does not. See `docs/integration/power-bi-model.md` section 3.4 and `docs/open-api.md` section 4.
+
+## 10. The six PVFCCo forms stand on the snapshot
+
+Each form bundle (`packages/edition-enterprise/src/report-forms/bundles.ts`) stays `dataSource: 'ILLUSTRATIVE'` with its DEMO stamp until the customer sends the official layouts (PX-01, rule R18) and names a `snapshotProvider` (`ENT_SNAPSHOT`, `apps/api/src/editions/enterprise/snapshot-provider.ts`, registered by `load-enterprise.ts` only). Generating a form for a month or a quarter:
+
+- with a frozen snapshot of that period: the draft is filled from the latest revision through the reader, `data_source` is `LIVE`, `snapshot_ref` carries the snapshot id and revision, the stamp stays;
+- without one: the illustrative data, exactly as before.
+
+Issuing is the ordinary path (check, approve, issue; the cross-report gate of ENT-4a runs on the issue). A new revision of the snapshot (after a reopening) gives a new copy: a different package needs a reason, the issued copy of the first revision is never changed (`is_current` moves to the new one). End to end: `apps/api/test/reports/enterprise-snapshot-publication.enterprise.test.ts`.
+
+## 11. The structured narrative and its Word document (ENT-3b)
+
+The eight fields (status, schedule, disbursement, causes, difficulties, solutions, next plan, proposals) live in the pack columns of `report_narrative` (V2680, R27: one table, one row per report revision), with the picklist of standard causes (MDM-17), the directives rolled up (`getDirectivesForReport`) and the inheritance trace. The Word document of a form lays them out at the token `{{narrative:PROJECTS}}` of its skeleton. The words come from `EntNarrativeStore.acceptedForForm`: for each project of the snapshot, the latest report whose period lies inside the period of the form, that is ACCEPTED and still current (never a draft, a handed-in report, a taken-back or replaced one), with the names of the standard causes and one line for each directive that was rolled up, read from the register for the period of that report. Nothing is invented: a project with no accepted narrative keeps the square-bracket hint, and with none at all the token says there is none.
+
+## 12. What stays PENDING-EXTERNAL
+
+The official layouts of the six forms and the agency forms (PX-01, PX-15), the scope of the historical figures to load (PX-08) and the approved dictionary and estimate scope (PX-02). Until then every figure of a form is labelled DEMO, as in section 3.
+
+## 13. Tests
 
 `packages/kernel/test/enterprise-snapshot.test.ts` (completeness, rows to freeze, hash, the reader), `packages/db/test/enterprise-snapshot-store.test.ts` (build, stable hash, refusal with units, immutability, reopen rule, revision lineage, self-freeze refused, indicators carried), `apps/api/test/fnd/enterprise-snapshot.test.ts`, `apps/api/test/reports/report-engine.snapshot.enterprise.test.ts`, `apps/web/src/screens/dis/enterprise/EnterpriseScreens.test.tsx`, and the public golden test `fnd-public-golden` (a public figure is byte-identical).

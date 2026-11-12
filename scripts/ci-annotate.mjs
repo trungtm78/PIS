@@ -58,15 +58,20 @@ export function failureBlocks(log, kind) {
     .filter((block) => block.trim() !== '');
 }
 
+/** The last non-empty lines of a log, cut to a readable width. */
+function tailOf(log, count) {
+  return log.split(/\r?\n/).filter((line) => line.trim() !== '').slice(-count).map((line) => line.slice(0, 240)).join('\n');
+}
+
 /** The annotation text for a log: the failure blocks, the first ones kept when there are many, and a tail of the log when nothing matched. */
 export function annotationText(log, kind) {
   const blocks = failureBlocks(log, kind);
   if (blocks.length === 0) {
-    const tail = log.split(/\r?\n/).filter((line) => line.trim() !== '').slice(-25).map((line) => line.slice(0, 240));
-    return `no failure line matched the ${kind} patterns; last lines of the log:\n${tail.join('\n')}`;
+    return `no failure line matched the ${kind} patterns; last lines of the log:\n${tailOf(log, 25)}`;
   }
   const shown = blocks.slice(0, MAX_BLOCKS);
-  return `${blocks.length} failure block(s)${blocks.length > shown.length ? `, first ${shown.length} shown` : ''}:\n${shown.join('\n---\n')}`;
+  // The end of the log is always added: a step that was killed (memory, a dead server) leaves no failure line, only a log that stops.
+  return `${blocks.length} failure block(s)${blocks.length > shown.length ? `, first ${shown.length} shown` : ''}:\n${shown.join('\n---\n')}\n--- end of the log:\n${tailOf(log, 12)}`;
 }
 
 /** The text cut into the chunks of one annotation each, at line ends; what does not fit in MAX_CHUNKS is dropped with a marker. */

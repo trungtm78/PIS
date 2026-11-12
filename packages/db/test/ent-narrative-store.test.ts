@@ -3,6 +3,7 @@ import { Client } from 'pg';
 import { draftHash, enterpriseNarrativeOf, fieldHash, fundingCells, inheritNarrative, inheritanceHashes, narrativeOf, parseNarrativeImport } from '@machvon/kernel';
 import type { EffectiveAccess, NarrativeInput, RawFundingLine, Scope } from '@machvon/kernel';
 import { DisImportStore } from '../src/dis-import-store';
+import { DirDirectiveStore } from '../src/dir-directive-store';
 import { DisReportStore } from '../src/dis-report-store';
 import type { NewDraft } from '../src/dis-report-store';
 import { EntNarrativeStore } from '../src/ent-narrative-store';
@@ -276,6 +277,60 @@ describe('EntNarrativeStore (the structured narrative of a period, ENT-3b)', () 
       expect(read?.causeCodes).toEqual(['SITE_HANDOVER']);
       const hash = (await owner<{ payload_hash: string }>('select payload_hash from machvon.report_revision where id = $1', [feb]))[0]?.payload_hash;
       expect(hash).toMatch(/^[0-9a-f]{64}$/);
+    });
+  });
+  describe('the accepted narratives of a form (BC.01: the words of the units reach the Word document of the form)', () => {
+    const everything = (): { sql: string; params: unknown[] } => ({ sql: 'true', params: [] });
+    const accept = async (projectId: string, periodId: string): Promise<string> => {
+      const reportId = (await owner<{ id: string }>('select id from machvon.report_revision where project_id = $1 and period_id = $2', [projectId, periodId]))[0]?.id as string;
+      await seedReplica([[`update machvon.report_revision set status = 'ACCEPTED', submitted_at = now(), submitted_by = created_by, accepted_at = now(), accepted_by = $2::uuid, is_current = true where id = $1::uuid`, [reportId, memberId(3)]]]);
+      return reportId;
+    };
+    const range = (from: string, to: string) => ({ from, to });
+    let directiveId = '';
+
+    it('reads nothing while the reports are drafts or only handed in: a form never carries words nobody accepted', async () => {
+      expect(await as((tx) => store.acceptedForForm(tx, [project.a, project.b], range('2041-01-01', '2041-03-31')))).toEqual([]);
+    });
+
+    it('reads, per project, the words of the accepted report with the names of the standard causes and the lines of the directives that were rolled up', async () => {
+      const directives = new DirDirectiveStore();
+      const meeting = await as((tx) => directives.createMeeting(tx, { meetingDate: '2041-01-15', meetingType: 'WEEKLY', title: 'Steering meeting', unitId: unitId(ROOT) }, memberId(MAKER), everything, '2041-01-20'));
+      const given = await as((tx) =>
+        directives.addDirective(tx, meeting.id, { scopeKind: 'PROJECT', projectId: project.b, text: 'Hand the site over before the rainy season', assigneeUnitId: unitId(DEPARTMENT), dueOn: '2041-02-20' }, memberId(MAKER), { meeting: everything, project: everything, unit: everything }),
+      );
+      directiveId = given.id;
+      await owner(
+        `update machvon.report_narrative set pack_fields = $2::jsonb, cause_codes = ARRAY['SITE_HANDOVER'], directive_refs = $3::jsonb where report_revision_id = (select id from machvon.report_revision where project_id = $1 and period_id = $4)`,
+        [project.b, JSON.stringify({ status: 'The works follow the schedule', difficulties: 'The site is not yet handed over\nThe road is closed' }), JSON.stringify([{ id: directiveId, code: given.code, status_at_end: 'IN_PROGRESS' }]), month.jan],
+      );
+      await accept(project.b, month.jan);
+      const read = await as((tx) => store.acceptedForForm(tx, [project.a, project.b], range('2041-01-01', '2041-03-31')));
+      expect(read).toHaveLength(1);
+      expect(read[0]).toMatchObject({ projectCode: 'NA-B', projectName: 'Project B', causeLabels: ['Site handover'] });
+      expect(read[0]?.fields).toMatchObject({ status: 'The works follow the schedule', difficulties: 'The site is not yet handed over\nThe road is closed' });
+      expect(read[0]?.directiveLines).toHaveLength(1);
+      expect(read[0]?.directiveLines[0]).toContain(given.code);
+      expect(read[0]?.directiveLines[0]).toContain('Hand the site over before the rainy season');
+    });
+
+    it('keeps to the range of the form, to the projects it names and to the latest accepted report of each project', async () => {
+      expect(await as((tx) => store.acceptedForForm(tx, [project.b], range('2041-02-01', '2041-02-28')))).toEqual([]);
+      expect(await as((tx) => store.acceptedForForm(tx, [project.a], range('2041-01-01', '2041-03-31')))).toEqual([]);
+      expect(await as((tx) => store.acceptedForForm(tx, [], range('2041-01-01', '2041-03-31')))).toEqual([]);
+      await accept(project.b, month.feb);
+      const read = await as((tx) => store.acceptedForForm(tx, [project.b], range('2041-01-01', '2041-03-31')));
+      expect(read).toHaveLength(1);
+      expect(read[0]?.fields.status).toBe('x');
+      expect(read[0]?.directiveLines).toEqual([]);
+      const january = await as((tx) => store.acceptedForForm(tx, [project.b], range('2041-01-01', '2041-01-31')));
+      expect(january[0]?.fields.status).toBe('The works follow the schedule');
+    });
+
+    it('leaves out the reports that were replaced or taken back after they were accepted', async () => {
+      await seedReplica([[`update machvon.report_revision set status = 'SUPERSEDED', is_current = false where project_id = $1 and period_id = $2`, [project.b, month.feb]]]);
+      const read = await as((tx) => store.acceptedForForm(tx, [project.b], range('2041-01-01', '2041-03-31')));
+      expect(read[0]?.fields.status).toBe('The works follow the schedule');
     });
   });
 });

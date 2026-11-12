@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Qu
 import { PERMISSIONS } from '@machvon/contracts';
 import { BiDashboardStore, BiPolicyStore, BiMetricStore, BiPublicationStore, TenantDatabase } from '@machvon/db';
 import type { PublicationRow } from '@machvon/db';
-import { DomainError, PUBLICATION_KINDS, assertDecisionReason, asUuid, versionConflict } from '@machvon/kernel';
+import { DomainError, PUBLICATION_KINDS, assertApproverIsNotChecker, assertCheckerIsIndependent, assertDecisionReason, asUuid, versionConflict } from '@machvon/kernel';
 import type { EffectiveAccess, PublicationDecision, PublicationKind, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -33,6 +33,9 @@ export const publicationView = (row: PublicationRow): Record<string, unknown> =>
   decided_by: row.decidedBy === null ? null : { id: row.decidedBy, name: row.decidedByName },
   decided_at: row.decidedAt,
   comment: row.comment,
+  checked_by: row.checkedBy === null ? null : { id: row.checkedBy, name: row.checkedByName },
+  checked_at: row.checkedAt,
+  check_comment: row.checkComment,
   created_at: row.createdAt,
   version: row.version,
 });
@@ -86,6 +89,8 @@ async function settle(scope: CommandScope, seen: PublicationRow, decision: Publi
   if (expectedVersion !== undefined && request.version !== expectedVersion) throw versionConflict(request.version);
   if (request.status !== 'PENDING') throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
   if (request.requestedBy === actor) throw new DomainError('SELF_APPROVAL_DENIED', 403);
+  // Three people, not two: who checked the request does not decide it (the database holds the same rule).
+  assertApproverIsNotChecker(actor, request.checkedBy);
   const store = new BiPublicationStore();
   if (decision === 'APPROVED') await approve(scope, await new PublicationChecks().judge(scope.tx, request.objectKind, request.objectId), actor);
   const decided = await store.decide(scope.tx, request.id, { decision, decidedBy: actor, comment });
@@ -167,6 +172,40 @@ export class PublicationController {
     if (seen.objectKind === 'DASHBOARD') await this.dashboards.lockVersion(scope.tx, seen.objectId);
     const decided = await settle(scope, seen, decision, comment, scope.expectedVersion ?? undefined);
     return commandResult(scope, decided.status, decided.version, decided.id);
+  }
+
+  /** Who wrote what the request is about: the author of the version of a dashboard, of the metric or of the policy; null when the record does not say. */
+  private async authorOf(tx: CommandScope['tx'], request: { objectKind: string; objectId: string }, versionAuthor: string | null): Promise<string | null> {
+    if (request.objectKind === 'METRIC') return (await new BiMetricStore().find(tx, request.objectId))?.createdBy ?? null;
+    if (request.objectKind === 'ACCESS_POLICY') return (await new BiPolicyStore().find(tx, request.objectId))?.createdBy ?? null;
+    return versionAuthor;
+  }
+
+  /**
+   * The check step (BC.02): somebody who is not who asked and not who wrote the version looks at the request and says so, once, while it is pending. The request stays pending: the decision is another person's. The step is
+   * optional, a request that is decided without it is the two-person flow of before and its block of signatures says the check was not taken.
+   */
+  @Post('bi/publication-requests/:id/check')
+  @HttpCode(200)
+  @OperationId('checkBiPublication')
+  @Command({ operation: 'checkBiPublication', versioned: true })
+  async check(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string, @Body() body: Schemas['BiPublicationCheck']): Promise<CommandResult> {
+    if (!holdsOnWholeTenant(access, PERMISSIONS.checkBiPublication)) throw new DomainError('SCOPE_DENIED', 403);
+    const seen = await this.publications.find(scope.tx, id.toLowerCase());
+    if (seen === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (seen.version !== scope.expectedVersion) throw versionConflict(seen.version);
+    // The dashboard and its version are locked before the request, as a decision locks them.
+    const held = seen.objectKind === 'DASHBOARD' ? await this.dashboards.lockVersion(scope.tx, seen.objectId) : undefined;
+    const request = await this.publications.lock(scope.tx, seen.id);
+    if (request === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    if (request.version !== scope.expectedVersion) throw versionConflict(request.version);
+    if (request.status !== 'PENDING' || request.checkedBy !== null) throw new DomainError('STAGE_TRANSITION_DENIED', 409, 'status');
+    const actor = scope.tenant.membershipId;
+    assertCheckerIsIndependent(actor, { requestedBy: request.requestedBy, preparedBy: await this.authorOf(scope.tx, request, held?.version.createdBy ?? null) });
+    const comment = body.comment === undefined || body.comment.trim() === '' ? null : body.comment.trim().normalize('NFC');
+    const checked = await this.publications.check(scope.tx, request.id, { checkedBy: actor, comment });
+    await scope.audit({ action: 'bi.publication.check', resourceType: RESOURCE_TYPE, resourceId: checked.id, diff: { object_kind: checked.objectKind, object_id: checked.objectId, requested_by: checked.requestedBy, comment } });
+    return commandResult(scope, checked.status, checked.version, checked.id);
   }
 
   @Get('bi/publication-requests')

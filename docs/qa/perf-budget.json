@@ -26,7 +26,7 @@
     "mneReportId": "id of a monitoring and evaluation report",
     "evaluationReportId": "id of a bid evaluation report",
     "allocationLineId": "id of a line of the capital plan (the availability of a line is asked for one line)",
-    "enterpriseSnapshotId": "id of an enterprise period snapshot, frozen (ENT-3a: every figure of the period with its ratios, by class, unit and project)",
+    "enterpriseSnapshotId": "id of a frozen enterprise period snapshot (ENT-3a); a tenant of the public edition has none, so the rows that need it are skipped",
     "enterprisePeriodId": "id of the reporting period of that snapshot (the board of the calendar is read for one period)",
     "periodYear": "year of the enterprise period measured, such as 2026 (the calendar and the cross comparison are read for one year)",
     "periodMonth": "month, 1 to 12, of the enterprise period measured (the cross comparison of the reports of one month)"
@@ -36,7 +36,7 @@
     "allocationLineId": {"path": "/resources/allocation_line", "query": {"limit": "1"}, "pick": "items.0.id"},
     "reportDraftId": {"path": "/report-engine/drafts", "query": {"limit": "1"}, "pick": "items.0.id"},
     "reportIssueId": {"path": "/report-engine/issues", "query": {"limit": "1"}, "pick": "items.0.id"},
-    "enterpriseSnapshotId": {"path": "/enterprise-snapshots", "query": {"limit": "1", "status": "FROZEN"}, "pick": "items.0.id"},
+    "enterpriseSnapshotId": {"path": "/enterprise-snapshots", "query": {"status": "FROZEN", "limit": "1"}, "pick": "items.0.id"},
     "enterprisePeriodId": {"path": "/enterprise-snapshots", "query": {"limit": "1", "status": "FROZEN"}, "pick": "items.0.period_id"}
   },
   "operations": [
@@ -107,8 +107,10 @@
     {"id":"PB-F065","operationId":"getVendorFigures","method":"GET","path":"/vendor/figures","permission":"vnd.read","class":"FUNCTION","area":"VND"},
     {"id":"PB-F066","operationId":"listMneObligations","method":"GET","path":"/mne-obligations","permission":"mne.read","class":"FUNCTION","area":"MNE"},
     {"id":"PB-F067","operationId":"listAuditEngagements","method":"GET","path":"/audit-engagements","permission":"aud.read","class":"FUNCTION","area":"AUD"},
-    {"id":"PB-F068","operationId":"getReportingCalendar","method":"GET","path":"/reporting-calendar","permission":"report.read","class":"FUNCTION","area":"DIS","query":{"year":"$periodYear"}},
-    {"id":"PB-F069","operationId":"getReportingCalendarBoard","method":"GET","path":"/reporting-calendar/periods/{id}/board","permission":"report.read","class":"FUNCTION","area":"DIS","pathVars":{"id":"enterprisePeriodId"}},
+    {"id":"PB-F068","operationId":"getEnterpriseSnapshot","method":"GET","path":"/enterprise-snapshots/{id}","permission":"funding.snapshot.read","class":"FUNCTION","area":"FND","budgetMs":800,"scale":20,"edition":"ENTERPRISE","pathVars":{"id":"enterpriseSnapshotId"}},
+    {"id":"PB-F069","operationId":"getLeaderRates","method":"GET","path":"/leader/rates","permission":"home.read","class":"FUNCTION","area":"HOME","budgetMs":800,"scale":20,"edition":"ENTERPRISE","query":{"snapshot_id":"$enterpriseSnapshotId"}},
+    {"id":"PB-F070","operationId":"getReportingCalendar","method":"GET","path":"/reporting-calendar","permission":"report.read","class":"FUNCTION","area":"DIS","query":{"year":"$periodYear"}},
+    {"id":"PB-F071","operationId":"getReportingCalendarBoard","method":"GET","path":"/reporting-calendar/periods/{id}/board","permission":"report.read","class":"FUNCTION","area":"DIS","pathVars":{"id":"enterprisePeriodId"}},
     {"id":"PB-R001","operationId":"exportHomeFigures","method":"GET","path":"/home/command-center/export","permission":"home.read","class":"REPORT","area":"HOME"},
     {"id":"PB-R002","operationId":"exportPackageWorkflowReport","method":"GET","path":"/package-workflows/statistics/export","permission":"bid.read","class":"REPORT","area":"BID"},
     {"id":"PB-R003","operationId":"getContractScheduleSCurve","method":"GET","path":"/contracts/analytics/reports/schedule-delay/s-curve","permission":"contract.analytics.read","class":"REPORT","area":"CTR"},
@@ -124,7 +126,6 @@
     {"id":"PB-R013","operationId":"getAlertCoverageReport","method":"GET","path":"/home/alert-coverage","permission":"home.alert.health.read","class":"REPORT","area":"HOME"},
     {"id":"PB-R014","operationId":"exportPortalOc4ids","method":"GET","path":"/portal/oc4ids","permission":"project.portal.read","class":"REPORT","area":"PRJ"},
     {"id":"PB-R015","operationId":"exportVendorOcdsParties","method":"GET","path":"/vendor/ocds/parties","permission":"vnd.ocds.export","class":"REPORT","area":"VND"},
-    {"id":"PB-R016","operationId":"getEnterpriseSnapshot","method":"GET","path":"/enterprise-snapshots/{id}","permission":"funding.snapshot.read","class":"REPORT","area":"FND","pathVars":{"id":"enterpriseSnapshotId"}},
-    {"id":"PB-R017","operationId":"getReportCrosscheck","method":"GET","path":"/report-engine/crosscheck","permission":"rpt.crosscheck.read","class":"REPORT","area":"RPT","query":{"kind":"MONTH","year":"$periodYear","index":"$periodMonth"}}
+    {"id":"PB-R016","operationId":"getReportCrosscheck","method":"GET","path":"/report-engine/crosscheck","permission":"rpt.crosscheck.read","class":"REPORT","area":"RPT","query":{"kind":"MONTH","year":"$periodYear","index":"$periodMonth"}}
   ]
 }

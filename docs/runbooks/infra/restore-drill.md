@@ -57,6 +57,14 @@ Two people (one operates, one witnesses and signs), a **clean host** at the seco
 | does not match (exit 1) | `rows:`, `checksum:`, `money:`, `missing_table:`, `unexpected_table:`, `missing_tenant:`, `unexpected_tenant:`, `file_references` | the drill fails; the backup chain is not trustworthy until fixed; open an incident, take a new full backup, repeat |
 | a tenant in the restored cluster that is not in the source (`unexpected_tenant`) | wrong recovery point or a mixed-up host | stop, do not use the restored cluster |
 
+## Rehearsal on one machine
+
+Before the first drill with the second site, and after any change of the drill commands, rehearse the whole procedure on a laptop or a build machine: `npm run restore:rehearse` (the test `packages/db/test/restore-drill-rehearsal.test.ts`, one DB suite through the `db` lane of `scripts/lane.mjs`, so it waits its turn behind other database runs). It starts the embedded PostgreSQL of the test setup with every migration applied, puts known rows and money in two tenants, and then runs the real commands of steps 1, 5 and 6: `measure --role source`, a restore, `measure --role restored`, `compare`.
+
+- The restore is a file level copy of the database (`CREATE DATABASE ... TEMPLATE`), not pgBackRest: there is no repository, no second site and no point in time recovery on one machine. What is rehearsed is the manifests, the per-table checksums, the money totals, the file references, the RPO and RTO arithmetic, the verdict and the four exit codes.
+- Three cases run each time: a copy that matches within the targets (exit 0, the report and both manifests with their sha256 are left in `RESTORE_REHEARSAL_OUT`, default a temporary folder, with a `rehearsal-summary.json` that says `LOCAL_REHEARSAL` and `ledgerEligible: false`); a copy that lost a row, changed an amount and has missing files (exit 1, each difference named); a copy that is whole but started longer ago than the RTO (exit 3). A drill that cannot go red proves nothing, so the failing cases are part of the run.
+- A rehearsal is practice, not evidence. Its files never go into `docs/runbooks/infra/evidence/` and never into the ledger: `scripts/backup-verify.mjs` refuses a ledger entry whose `source` is not `repo1`, `repo2` or `offline-media`, so a rehearsal cannot be filed by mistake. The first real drill stays PENDING-EXTERNAL (the clean host at the second site).
+
 ## Limits
 
 The restore of the whole cluster needs the pgBackRest repository and a clean host: the lane that wrote this runbook could not run it (no PostgreSQL server of the product's version, no object store). The manifests and the comparison are tested against a real database (`packages/db/test/restore-drill.test.ts`); the restore step itself is proven at the first drill. A drill that used the MOCK engine or a copy of a development database is a rehearsal and says so in its minutes.

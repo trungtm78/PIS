@@ -87,4 +87,9 @@ export default tseslint.config(
     plugins: { 'react-hooks': reactHooks },
     rules: { ...reactHooks.configs['recommended-latest'].rules, 'no-console': ['error', { allow: ['warn', 'error'] }] },
   },
+  {
+    // The scripts the web app serves as they are (apps/web/public) run in the browser, before and outside the bundle.
+    files: ['apps/web/public/**/*.js'],
+    languageOptions: { globals: { ...globals.browser } },
+  },
 );

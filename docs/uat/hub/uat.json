@@ -1,0 +1,1964 @@
+{
+  "feature": "hub",
+  "generated_at": "2026-11-12T05:18:23.667Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/hub/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-HUB-01",
+      "title": "Danh mục bộ kết nối và sức khỏe tích hợp (HUB-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "hub-admin",
+      "journey_ref": "J-FR-HUB-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; kỳ vọng nguyên văn của ca thiết kế UI-HUB-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình HUB-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Danh mục bộ kết nối và sức khỏe tích hợp; user có quyền và user chỉ đọc; route HUB-01\n1. Mở HUB-01 từ menu và deep link; kiểm nhãn trường: Mã và tên bộ kết nối, Hướng (vào, ra, hai chiều), Giao thức, Trạng thái sức khỏe, Độ mới và tuổi dữ liệu, Lần chạy gần nhất, Trạng thái chờ bên ngoài, Bộ chỉ tiêu sức khỏe (tỷ lệ khỏe, tuổi cũ nhất, lỗi 7 ngày, chênh lệch tồn đọng, ánh xạ chờ duyệt), Quét sức khỏe\n2. Thực hiện thao tác chính theo quy tắc: Một danh mục cho mọi kết nối dữ liệu bên ngoài; trạng thái KHỎE, CŨ, LỖI, TẮT, CHỜ BÊN NGOÀI, CHƯA CHẠY; số liệu có biểu tượng i (công thức, nguồn, thời điểm); bộ kết nối chờ bên ngoài không tính vào tỷ lệ khỏe.\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HUB-01",
+      "expected": "Danh mục bộ kết nối và sức khỏe tích hợp: hiển thị đúng 9 trường, áp quy tắc \"Một danh mục cho mọi kết nối dữ liệu bên ngoài; trạng thái KHỎE, CŨ, LỖI, TẮT, CHỜ BÊN NGOÀI, CHƯA CHẠY; số liệu có biểu tượng i (công thức, nguồn, thời điểm); bộ kết nối chờ bên ngoài không tính vào tỷ lệ khỏe.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UI-HUB-02",
+      "title": "Chi tiết bộ kết nối (HUB-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "hub-admin",
+      "journey_ref": "J-FR-HUB-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; kỳ vọng nguyên văn của ca thiết kế UI-HUB-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình HUB-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Chi tiết bộ kết nối; user có quyền và user chỉ đọc; route HUB-02\n1. Mở HUB-02 từ menu và deep link; kiểm nhãn trường: Tổng quan và công tắc bật tắt, Lịch sử chạy, Quy trình ETL (trích xuất, kiểm tra, biến đổi, nạp), bản ghi bị loại, lịch chạy, Ánh xạ và phiên bản, Chênh lệch, Tài khoản và tác tử thu thập, Mẫu tệp và chính sách độ mới, Liên kết tới màn hình riêng của bộ kết nối\n2. Thực hiện thao tác chính theo quy tắc: Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng của bộ kết nối khi có); ánh xạ do người này đề xuất và người khác duyệt; bản ghi bị loại xử lý lại sau khi sửa; bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu kho khóa.\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HUB-02",
+      "expected": "Chi tiết bộ kết nối: hiển thị đúng 8 trường, áp quy tắc \"Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng của bộ kết nối khi có); ánh xạ do người này đề xuất và người khác duyệt; bản ghi bị loại xử lý lại sau khi sửa; bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu kho khóa.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UI-HUB-03",
+      "title": "Nhật ký sự cố tích hợp (HUB-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "hub-admin",
+      "journey_ref": "J-FR-HUB-03",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-03",
+      "oracle_source": "Claim → FR-HUB-03; kỳ vọng nguyên văn của ca thiết kế UI-HUB-03 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình HUB-03 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Nhật ký sự cố tích hợp; user có quyền và user chỉ đọc; route HUB-03\n1. Mở HUB-03 từ menu và deep link; kiểm nhãn trường: Bộ kết nối, Loại sự cố (lỗi, cũ, cũ toàn trung tâm, người báo), Mức, Trạng thái, Thời điểm mở, Người nhận xử lý, Lý do đóng\n2. Thực hiện thao tác chính theo quy tắc: Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại; điều kiện hết thì sự cố tự đóng; nhận xử lý và đóng cần lý do; nhật ký chỉ ghi thêm.\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên HUB-03",
+      "expected": "Nhật ký sự cố tích hợp: hiển thị đúng 7 trường, áp quy tắc \"Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại; điều kiện hết thì sự cố tự đóng; nhận xử lý và đóng cần lý do; nhật ký chỉ ghi thêm.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HUB-03",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UAT-HUB-001",
+      "title": "UAT-HUB-001: Open HUB-01",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-FR-HUB-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; kỳ vọng nguyên văn của ca thiết kế UAT-HUB-001 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-HUB-001 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Three connectors (healthy, waiting for the outside, failing); the figures of the hub.\n1. Open HUB-01\n2. Read the healthy share and the status of each connector\n3. Open the \"i\" of each figure",
+      "expected": "The healthy share is 50 percent (1 of 2); the waiting connector is not counted; the failing one shows CONNECTOR_FAILING; each figure shows formula, source, as-of and the unverified flag.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UAT-HUB-002",
+      "title": "UAT-HUB-002: Switch it off with a reason of ten characters",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-FR-HUB-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01, FR-HUB-02; kỳ vọng nguyên văn của ca thiết kế UAT-HUB-002 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-HUB-002 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-HUB-01",
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: The e-GP connection is on; a member with hub.state.manage.\n1. Switch it off with a reason of ten characters\n2. Repeat with the old version\n3. Read the history of the connection and of the hub",
+      "expected": "The switch and the history of the e-GP connection change through its own command; the old version is 409 VERSION_CONFLICT; the hub keeps its own line.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UAT-HUB-003",
+      "title": "UAT-HUB-003: Sweep the health twice",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-FR-HUB-03",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-03",
+      "oracle_source": "Claim → FR-HUB-03; kỳ vọng nguyên văn của ca thiết kế UAT-HUB-003 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-HUB-003 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A connector whose last run failed.\n1. Sweep the health twice\n2. Record a successful run and sweep again\n3. Acknowledge and resolve a reported incident with a reason",
+      "expected": "One incident is open after two sweeps; it closes itself after the success; acknowledge and resolve need a reason and a version; nothing is deleted.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HUB-03",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UAT-HUB-004",
+      "title": "UAT-HUB-004: The proposer approves the mapping",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-FR-HUB-02",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; kỳ vọng nguyên văn của ca thiết kế UAT-HUB-004 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-HUB-004 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A pipeline with a proposed mapping and a rejected record.\n1. The proposer approves the mapping\n2. Another person approves it\n3. Run the pipeline with a failing load, then with a good one\n4. Discard and reprocess the reject",
+      "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: the mapping is in use; step 3: the watermark moves only after the good load; step 4: the reject is closed once with a reason.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UAT-HUB-E2E-01",
+      "title": "Lượt chạy hỏng mở đúng một sự cố kèm kiểm toán và sự kiện, chạy lặp là ALREADY_RECORDED, lượt chạy tốt kế tiếp tự đóng sự cố",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-HUB-RUN-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01, FR-HUB-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Lượt chạy hỏng không mở sự cố, mở nhiều sự cố, hoặc sự cố không tự đóng khi điều kiện hết",
+      "coverage_ids": [
+        "COV-FR-HUB-01",
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bộ kết nối national.project_codes; người ghi lượt chạy có hub.run.record\n1. Ghi lượt chạy IMPORT FAILED với mã lỗi IMPORT_SCHEMA_INVALID\n2. Ghi lại đúng lượt đó\n3. Đọc sự cố OPEN và chi tiết bộ kết nối\n4. Ghi lượt chạy SUCCEEDED\n5. Đọc sự cố RESOLVED",
+      "expected": "Bước 1: RECORDED, kiểm toán hub.run_recorded có incidents_opened 1, sự kiện hub.run.recorded.v1. Bước 2: ALREADY_RECORDED cùng resource_id. Bước 3: một sự cố FAILING mức ACTION, cảnh báo CONNECTOR_FAILING, trạng thái bộ kết nối FAILING. Bước 5: RESOLVED, resolution CONDITION_CLEARED, resolved_by rỗng, một sự kiện hub.incident.auto_resolved.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hub.uat.test.ts"
+      },
+      "module": "HUB",
+      "audit_assert": {
+        "entity": "hub_run_log",
+        "entity_id": "<id lượt chạy>",
+        "action": "hub.run_recorded",
+        "fields": [
+          "actor_id",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-IDM-01",
+      "title": "Ghi cùng một lượt chạy hai lần chỉ giữ một lượt và một sự cố; cùng Idempotency-Key trả kết quả đầu",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-HUB-RUN-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Nhà thu thập gửi lại lượt chạy sinh dòng đôi và sự cố đôi",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; lượt chạy hỏng của treasury.statement với source_ref cố định\n1. Ghi lượt chạy với khóa k\n2. Ghi lại cùng khóa k\n3. Ghi lại với khóa mới\n4. Đếm hub_run_log và sự cố OPEN",
+      "expected": "Lần 2 cùng resource_id; lần 3 ALREADY_RECORDED; đúng một dòng hub_run_log của source_ref và một sự cố OPEN của bộ kết nối.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hub.uat.test.ts"
+      },
+      "module": "HUB",
+      "idempotency": {
+        "url": "/integration-hub/connectors/treasury.statement/runs",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "kind": "IMPORT",
+          "outcome": "FAILED",
+          "error_code": "IMPORT_SCHEMA_INVALID",
+          "source_ref": "sha:treasury-1"
+        },
+        "count_query": "SELECT count(*) FROM machvon.hub_run_log WHERE source_ref = 'sha:treasury-1'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-EDG-01",
+      "title": "Lượt chạy không nhất quán bị từ chối 422 (hỏng không mã lỗi, kết thúc trước bắt đầu, phiên bản bố cục lạ); bộ kết nối lạ 404; bộ lọc lạ 422",
+      "type": "EDGE",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-HUB-RUN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Nhật ký lượt chạy nhận dữ liệu mâu thuẫn",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A\n1. Ghi FAILED không error_code\n2. Ghi SUCCEEDED có finished_at trước started_at\n3. Ghi với layout_version 9.9\n4. Ghi cho bộ kết nối no.such.connector\n5. Đọc sự cố với state=NOPE",
+      "expected": "Ba bước đầu 422; bước 4: 404; bước 5: 422; không dòng hub_run_log mới.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hub.uat.test.ts"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UAT-HUB-DAT-01",
+      "title": "Tắt bộ kết nối cần lý do từ 10 ký tự và phiên bản hiện tại, có kiểm toán kèm lý do và sự kiện; phiên bản cũ, lý do ngắn và lặp trạng thái bị từ chối",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-HUB-CONN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tắt bộ kết nối không để lại lý do và sự kiện, hoặc cho tắt hai lần",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bộ kết nối treasury.statement đang bật\n1. Tắt với phiên bản + 6\n2. Tắt với lý do 5 ký tự\n3. Bật khi đang bật\n4. Tắt đúng\n5. Đọc chi tiết và bật lại",
+      "expected": "Bước 1: 409 VERSION_CONFLICT. Bước 2 và 3: 422. Bước 4: DISABLED, kiểm toán hub.connector_switched có reason, sự kiện hub.connector.state_changed.v1; chi tiết trạng thái DISABLED. Bước 5: ENABLED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hub.uat.test.ts"
+      },
+      "module": "HUB",
+      "audit_assert": {
+        "entity": "hub_connector",
+        "entity_id": "<id bộ kết nối>",
+        "action": "hub.connector_switched",
+        "fields": [
+          "actor_id",
+          "reason",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-STA-01",
+      "title": "Sự cố đi từ mở qua nhận xử lý đến đã giải quyết và không đi lùi: phiên bản cũ 409, nhận lần hai 409 HUB_INCIDENT_STATE_INVALID, lịch sử giữ ba bước",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-HUB-INCIDENT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-03",
+      "oracle_source": "Claim → FR-HUB-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Sự cố bị nhận hai lần hoặc mở lại sau khi đã giải quyết",
+      "coverage_ids": [
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; sự cố thủ công do quản trị báo\n1. Báo sự cố\n2. Nhận xử lý với phiên bản 4, lý do 5 ký tự, rồi đúng\n3. Nhận lần hai\n4. Giải quyết\n5. Nhận sau khi giải quyết\n6. Báo sự cố cho bộ kết nối lạ",
+      "expected": "Phiên bản 4: 409; lý do ngắn: 422; nhận đúng: ACKNOWLEDGED; lần hai: 409 HUB_INCIDENT_STATE_INVALID; giải quyết: RESOLVED phiên bản 3 kèm kiểm toán hub.incident_resolved có reason; sau đó 409; lịch sử OPENED, ACKNOWLEDGED, RESOLVED; bộ kết nối lạ 404.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HUB-03",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hub.uat.test.ts"
+      },
+      "module": "HUB",
+      "transition": {
+        "from": "RESOLVED",
+        "to": "ACKNOWLEDGED",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SOD-01",
+      "title": "Ánh xạ do một người đề xuất và người khác quyết định: người đề xuất dù có quyền duyệt cũng bị 403 SELF_APPROVAL_DENIED, quyết định lần hai 409 HUB_MAPPING_STATE_INVALID, một phiên bản không đề xuất hai lần",
+      "type": "RED",
+      "platform": "api",
+      "persona": "hub-both",
+      "journey_ref": "J-HUB-MAPPING-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Người đề xuất tự duyệt ánh xạ làm sai dữ liệu nạp từ hệ thống ngoài",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-both",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; hub-both giữ cả hub.mapping.propose và hub.mapping.approve, hub-proposer chỉ có hub.mapping.propose, người duyệt có hub.mapping.approve\n1. hub-both đề xuất ánh xạ M1\n2. Đề xuất lại M1 và M8 không trường\n3. hub-both duyệt chính ánh xạ mình đề xuất, rồi hub-proposer (không có quyền duyệt) duyệt\n4. Người duyệt APPROVE\n5. Người duyệt REJECT sau đó",
+      "expected": "Bước 2: 409 HUB_MAPPING_VERSION_TAKEN và 422. Bước 3: 403 SELF_APPROVAL_DENIED rồi 403 vì thiếu quyền, ánh xạ vẫn PROPOSED. Bước 4: APPROVED phiên bản 2, kiểm toán hub.mapping_approved. Bước 5: 409 HUB_MAPPING_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hub.uat.test.ts"
+      },
+      "module": "HUB",
+      "transition": {
+        "from": "APPROVED",
+        "to": "REJECTED",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-STA-02",
+      "title": "Dòng bị từ chối của đường ống đóng một lần: xử lý lại báo đường ống chưa nối (409 HUB_PIPELINE_NOT_WIRED), bỏ cần lý do, bỏ lần hai 409 HUB_REJECT_STATE_INVALID",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-HUB-REJECT-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Dòng từ chối được xử lý lại giả hoặc bỏ hai lần",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một dòng hub_pipeline_reject OPEN\n1. Xử lý lại\n2. Bỏ với lý do 2 ký tự\n3. Bỏ với lý do\n4. Bỏ lần hai",
+      "expected": "Bước 1: 409 HUB_PIPELINE_NOT_WIRED. Bước 2: 422. Bước 3: DISCARDED phiên bản 2 và sự kiện hub.reject.discarded.v1. Bước 4: 409 HUB_REJECT_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hub.uat.test.ts"
+      },
+      "module": "HUB",
+      "transition": {
+        "from": "DISCARDED",
+        "to": "OPEN",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-ISO-01",
+      "title": "Tenant khác không thấy lượt chạy, sự cố, dòng từ chối của tenant này và nhận 404 như id không tồn tại khi quyết định",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "hub-reader",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-03",
+      "oracle_source": "Claim → FR-HUB-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Lộ sự cố tích hợp hoặc quyết định được sự cố của tenant khác (IDOR)",
+      "coverage_ids": [
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có sự cố I; tenant B có quản trị hub\n1. Tenant B quyết định sự cố I\n2. Quyết định id ngẫu nhiên\n3. Đọc danh sách sự cố và lượt chạy",
+      "expected": "Bước 1 và 2 cùng 404 và cùng mã; bước 3 rỗng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-03",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hub.uat.test.ts"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/incidents/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "summary",
+          "connector_code"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-HLT-01",
+      "title": "Tỷ lệ khỏe bằng 50 phần trăm khi một trong hai bộ kết nối có dữ liệu khỏe; bộ kết nối chờ không được tính; mỗi số có công thức, nguồn và cờ chưa xác nhận",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "hub-reader",
+      "journey_ref": "J-HUB-HEALTH-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tính tỷ lệ khỏe cả những bộ kết nối chưa bao giờ chạy, hiển thị số không có công thức",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; hai bộ kết nối đã chạy (một khỏe, một hỏng) và các bộ còn lại chưa chạy\n1. Đọc GET /integration-hub/health\n2. Đọc danh sách bộ kết nối",
+      "expected": "Tỷ lệ khỏe 50 (1 trên 2); bộ chờ không có phần trăm; bộ hỏng CONNECTOR_FAILING; năm chỉ số có formula, source, as_of và unverified.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần dựng đúng hai bộ kết nối đã chạy trên tenant sạch; thứ tự các suite hiện làm tenant không sạch"
+      },
+      "module": "HUB",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.hub_run_log WHERE outcome = 'FAILED'",
+        "expect": {
+          "min_rows": 1
+        }
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-AGT-01",
+      "title": "Đăng ký tác tử thu thập với nền tảng, đánh giá theo nhịp tim, mã trùng và bộ kết nối lạ bị từ chối",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-HUB-AGENT-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tác tử không gửi nhịp tim vẫn được coi là khỏe",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A\n1. Đăng ký tác tử\n2. Đăng ký lại cùng mã\n3. Gửi nhịp tim, rồi dừng nhịp tim quá hạn\n4. Đăng ký cho bộ kết nối lạ",
+      "expected": "Mã trùng 409; trạng thái chuyển khỏe rồi cũ theo quy tắc nhịp tim; bộ kết nối lạ 404.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần đồng hồ giả để quá hạn nhịp tim; suite dùng đồng hồ thật"
+      },
+      "module": "HUB",
+      "transition": {
+        "from": "STALE",
+        "to": "HEALTHY_WITHOUT_HEARTBEAT",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-PRF-01",
+      "title": "Danh mục bộ kết nối và tổng hợp sức khỏe trả lời trong 5 giây ở phân vị 95",
+      "type": "PERFORMANCE",
+      "platform": "api",
+      "persona": "hub-reader",
+      "journey_ref": "J-HUB-HEALTH-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Yêu cầu của khách: mọi chức năng phản hồi dưới 5 giây, đo bằng phân vị 95 (docs/qa/perf-budget.json, lớp FUNCTION; HSKT HT.05; đo trên phần cứng khách là PX-10)",
+      "catches_bug": "Tổng hợp sức khỏe tính lại toàn bộ lịch sử mỗi lần đọc",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có 100.000 dòng lượt chạy\n1. Gọi GET /integration-hub/health và /integration-hub/connectors hai mươi lần sau ba lần khởi động",
+      "expected": "p95 không quá 5.000 ms, không lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bộ dữ liệu lớn; chưa có bộ sinh"
+      },
+      "module": "HUB",
+      "perf_budget": {
+        "url": "/integration-hub/health",
+        "method": "GET",
+        "p95_ms": 5000,
+        "sample": 20,
+        "warmup": 3,
+        "max_error_rate": 0
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-A11-01",
+      "title": "Ba màn HUB đạt WCAG 2.2 AA: trạng thái KHỎE, CŨ, LỖI có chữ chứ không chỉ màu, tab chi tiết điều khiển được bằng phím mũi tên",
+      "type": "A11Y",
+      "platform": "web",
+      "persona": "hub-admin",
+      "journey_ref": "J-HUB-CONN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01, FR-HUB-02, FR-HUB-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Trạng thái sức khỏe chỉ phân biệt bằng màu, tab chi tiết không có vai trò tablist",
+      "coverage_ids": [
+        "COV-FR-HUB-01",
+        "COV-FR-HUB-02",
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; có bộ kết nối ở đủ ba trạng thái\n1. Chạy axe ở 1280 px và 360 px\n2. Điều khiển các tab bằng bàn phím",
+      "expected": "Không lỗi axe nghiêm trọng hoặc cao; trạng thái có chữ; tab theo mẫu WAI-ARIA.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "accessibility",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+      },
+      "module": "HUB"
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-01",
+      "title": "listHubConnectors (GET /integration-hub/connectors): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; thao tác listHubConnectors yêu cầu quyền hub.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /integration-hub/connectors thiếu kiểm quyền hub.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.read gọi GET /integration-hub/connectors với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/connectors",
+        "method": "GET",
+        "allow": [
+          "hub-admin",
+          "hub-proposer",
+          "hub-both",
+          "hub-approver",
+          "hub-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-02",
+      "title": "getHubConnector (GET /integration-hub/connectors/{code}): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; thao tác getHubConnector yêu cầu quyền hub.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /integration-hub/connectors/{code} thiếu kiểm quyền hub.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.read gọi GET /integration-hub/connectors/{code} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/connectors/{code}",
+        "method": "GET",
+        "allow": [
+          "hub-admin",
+          "hub-proposer",
+          "hub-both",
+          "hub-approver",
+          "hub-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-03",
+      "title": "listHubConnectorRuns (GET /integration-hub/connectors/{code}/runs): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; thao tác listHubConnectorRuns yêu cầu quyền hub.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /integration-hub/connectors/{code}/runs thiếu kiểm quyền hub.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.read gọi GET /integration-hub/connectors/{code}/runs với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/connectors/{code}/runs",
+        "method": "GET",
+        "allow": [
+          "hub-admin",
+          "hub-proposer",
+          "hub-both",
+          "hub-approver",
+          "hub-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-04",
+      "title": "recordHubRun (POST /integration-hub/connectors/{code}/runs): chỉ người giữ quyền hub.run.record qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; thao tác recordHubRun yêu cầu quyền hub.run.record (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/connectors/{code}/runs thiếu kiểm quyền hub.run.record hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.run.record trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.run.record gọi POST /integration-hub/connectors/{code}/runs với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/connectors/{code}/runs",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-05",
+      "title": "listHubRejects (GET /integration-hub/connectors/{code}/rejects): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; thao tác listHubRejects yêu cầu quyền hub.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /integration-hub/connectors/{code}/rejects thiếu kiểm quyền hub.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.read gọi GET /integration-hub/connectors/{code}/rejects với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/connectors/{code}/rejects",
+        "method": "GET",
+        "allow": [
+          "hub-admin",
+          "hub-proposer",
+          "hub-both",
+          "hub-approver",
+          "hub-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-06",
+      "title": "listHubIncidents (GET /integration-hub/incidents): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-03",
+      "oracle_source": "Claim → FR-HUB-03; thao tác listHubIncidents yêu cầu quyền hub.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /integration-hub/incidents thiếu kiểm quyền hub.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.read gọi GET /integration-hub/incidents với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-03",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/incidents",
+        "method": "GET",
+        "allow": [
+          "hub-admin",
+          "hub-proposer",
+          "hub-both",
+          "hub-approver",
+          "hub-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-07",
+      "title": "openHubIncident (POST /integration-hub/incidents): chỉ người giữ quyền hub.incident.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-03",
+      "oracle_source": "Claim → FR-HUB-03; thao tác openHubIncident yêu cầu quyền hub.incident.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/incidents thiếu kiểm quyền hub.incident.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.incident.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.incident.manage gọi POST /integration-hub/incidents với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-03",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/incidents",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-08",
+      "title": "getHubHealthSummary (GET /integration-hub/health): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; thao tác getHubHealthSummary yêu cầu quyền hub.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /integration-hub/health thiếu kiểm quyền hub.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.read gọi GET /integration-hub/health với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/health",
+        "method": "GET",
+        "allow": [
+          "hub-admin",
+          "hub-proposer",
+          "hub-both",
+          "hub-approver",
+          "hub-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-09",
+      "title": "listHubAgents (GET /integration-hub/agents): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; thao tác listHubAgents yêu cầu quyền hub.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /integration-hub/agents thiếu kiểm quyền hub.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.read gọi GET /integration-hub/agents với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/agents",
+        "method": "GET",
+        "allow": [
+          "hub-admin",
+          "hub-proposer",
+          "hub-both",
+          "hub-approver",
+          "hub-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-10",
+      "title": "registerHubAgent (POST /integration-hub/agents): chỉ người giữ quyền hub.agent.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; thao tác registerHubAgent yêu cầu quyền hub.agent.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/agents thiếu kiểm quyền hub.agent.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.agent.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.agent.manage gọi POST /integration-hub/agents với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/agents",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-11",
+      "title": "setHubConnectorState (POST /integration-hub/connectors/{code}/state): chỉ người giữ quyền hub.state.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; thao tác setHubConnectorState yêu cầu quyền hub.state.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/connectors/{code}/state thiếu kiểm quyền hub.state.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.state.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.state.manage gọi POST /integration-hub/connectors/{code}/state với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/connectors/{code}/state",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-12",
+      "title": "decideHubIncident (POST /integration-hub/incidents/{id}/decision): chỉ người giữ quyền hub.incident.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-03",
+      "oracle_source": "Claim → FR-HUB-03; thao tác decideHubIncident yêu cầu quyền hub.incident.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/incidents/{id}/decision thiếu kiểm quyền hub.incident.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.incident.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.incident.manage gọi POST /integration-hub/incidents/{id}/decision với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-03",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/incidents/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-13",
+      "title": "captureHubSnapshot (POST /integration-hub/snapshots): chỉ người giữ quyền hub.snapshot.capture qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-01",
+      "oracle_source": "Claim → FR-HUB-01; thao tác captureHubSnapshot yêu cầu quyền hub.snapshot.capture (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/snapshots thiếu kiểm quyền hub.snapshot.capture hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.snapshot.capture trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.snapshot.capture gọi POST /integration-hub/snapshots với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-01",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/snapshots",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-14",
+      "title": "proposeHubMapping (POST /integration-hub/connectors/{code}/mappings): chỉ người giữ quyền hub.mapping.propose qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-proposer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; thao tác proposeHubMapping yêu cầu quyền hub.mapping.propose (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/connectors/{code}/mappings thiếu kiểm quyền hub.mapping.propose hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-proposer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.mapping.propose trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.mapping.propose gọi POST /integration-hub/connectors/{code}/mappings với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/connectors/{code}/mappings",
+        "method": "POST",
+        "allow": [
+          "hub-proposer",
+          "hub-both"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-15",
+      "title": "decideHubMapping (POST /integration-hub/mappings/{id}/decision): chỉ người giữ quyền hub.mapping.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-both",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; thao tác decideHubMapping yêu cầu quyền hub.mapping.approve (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/mappings/{id}/decision thiếu kiểm quyền hub.mapping.approve hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-both",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.mapping.approve trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.mapping.approve gọi POST /integration-hub/mappings/{id}/decision với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/mappings/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "hub-both",
+          "hub-approver"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-16",
+      "title": "decideHubReject (POST /integration-hub/rejects/{id}/decision): chỉ người giữ quyền hub.reject.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; thao tác decideHubReject yêu cầu quyền hub.reject.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/rejects/{id}/decision thiếu kiểm quyền hub.reject.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.reject.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.reject.manage gọi POST /integration-hub/rejects/{id}/decision với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/rejects/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-17",
+      "title": "heartbeatHubAgent (POST /integration-hub/agents/{code}/heartbeat): chỉ người giữ quyền hub.agent.heartbeat qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hub-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HUB-02",
+      "oracle_source": "Claim → FR-HUB-02; thao tác heartbeatHubAgent yêu cầu quyền hub.agent.heartbeat (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /integration-hub/agents/{code}/heartbeat thiếu kiểm quyền hub.agent.heartbeat hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HUB-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hub-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hub.agent.heartbeat trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hub.agent.heartbeat gọi POST /integration-hub/agents/{code}/heartbeat với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HUB-02",
+      "story_ids": [
+        "ST-HUB-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HUB",
+      "access": {
+        "url": "/integration-hub/agents/{code}/heartbeat",
+        "method": "POST",
+        "allow": [
+          "hub-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    }
+  ]
+}

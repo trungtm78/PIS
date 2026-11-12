@@ -37,6 +37,8 @@ const rawDirective = (n: number, over: Record<string, unknown> = {}) => ({
   escalates_on: null,
   closed_at: null,
   evidence_count: 0,
+  progress_percent: null,
+  progress_reported_at: null,
   open_extension: null,
   created_by: person,
   created_at: '2027-10-04T03:00:00.000Z',
@@ -77,14 +79,22 @@ describe('PWA-04 over the directive module: list, status, overdue, detail', () =
       status: 'OVERDUE',
       assigneeUnit: 'Ban Kỹ thuật',
       progressPercent: null,
-      progressKnown: false,
       lastUpdateAt: null,
       overdueDays: 9,
     });
   });
 
+  it('carries the progress the list of the API reports, and a list line without one is "not reported", never 0%', () => {
+    const worked = toDirective(rawDirective(2, { progress_percent: 80, progress_reported_at: '2027-10-08T03:00:00.000Z' }));
+    expect(toDirectiveItem(worked as NonNullable<typeof worked>)).toMatchObject({ progressPercent: 80, lastUpdateAt: '2027-10-08T03:00:00.000Z' });
+    const quiet = toDirective(rawDirective(3));
+    const item = toDirectiveItem(quiet as NonNullable<typeof quiet>);
+    expect(item.progressPercent).toBeNull();
+    expect(item.progressKnown).not.toBe(false);
+  });
+
   it('lists the directives of the scope, sends the status filter to the server, and links each card to its detail', async () => {
-    const { h } = openList({ read: (operation) => (operation === 'listDirectives' ? { items: [rawDirective(1), rawDirective(2, { status: 'OVERDUE', overdue_days: 3 })], next_cursor: null, as_of: '2027-10-12T03:00:00.000Z' } : undefined) });
+    const { h } = openList({ read: (operation) => (operation === 'listDirectives' ? { items: [rawDirective(1), rawDirective(2, { status: 'OVERDUE', overdue_days: 3, progress_percent: 80, progress_reported_at: '2027-10-08T03:00:00.000Z' })], next_cursor: null, as_of: '2027-10-12T03:00:00.000Z' } : undefined) });
     const first = await waitFor(() => {
       const found = document.querySelector(`[data-directive="${uuid(1)}"]`);
       expect(found).not.toBeNull();
@@ -93,8 +103,10 @@ describe('PWA-04 over the directive module: list, status, overdue, detail', () =
     expect(first.textContent).toContain('Hoàn thành báo cáo số 1');
     expect(first.textContent).toContain('GB-2027-014');
     expect(first.textContent).toContain('Ban Kỹ thuật');
-    expect(first.querySelector('[data-testid="progress-detail"]')?.textContent).toBe(word('pwa.directives.progress.inDetail'));
-    expect(first.querySelector('[data-testid="progress-none"]')).toBeNull();
+    expect(first.querySelector('[data-testid="progress-detail"]')).toBeNull();
+    expect(first.querySelector('[data-testid="progress-none"]')?.textContent).toBe(word('pwa.directives.progress.none'));
+    const second = document.querySelector(`[data-directive="${uuid(2)}"]`) as HTMLElement;
+    expect(second.querySelector('progress')?.getAttribute('value')).toBe('80');
     expect(first.querySelector('[data-testid="open-detail"]')?.getAttribute('href')).toBe(`/m/directives/${uuid(1)}`);
     fireEvent.change(screen.getByLabelText(word('pwa.directives.filter.status')), { target: { value: 'OVERDUE' } });
     await waitFor(() => expect(h.read.mock.calls.some(([operation, input]) => operation === 'listDirectives' && (input as { query: Record<string, unknown> }).query.status === 'OVERDUE')).toBe(true));

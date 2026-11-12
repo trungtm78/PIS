@@ -1,0 +1,2281 @@
+{
+  "feature": "int",
+  "generated_at": "2026-11-12T05:18:23.669Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/int/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-INT-01",
+      "title": "Tài khoản máy (INT-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "int-admin",
+      "journey_ref": "J-FR-INT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01; kỳ vọng nguyên văn của ca thiết kế UI-INT-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình INT-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-INT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Tài khoản máy; user có quyền và user chỉ đọc; route INT-01\n1. Mở INT-01 từ menu và deep link; kiểm nhãn trường: Tên, Trạng thái, Phạm vi, Giới hạn mỗi phút, Hết hạn, Thông tin xác thực, Lần dùng gần nhất\n2. Thực hiện thao tác chính theo quy tắc: Mỗi tài khoản máy đọc đúng phạm vi đã cấp và chỉ dữ liệu của tổ chức mình; bí mật hiện một lần rồi chỉ còn giá trị băm; tạm khóa có hiệu lực ngay cả với mã truy cập còn sống; thu hồi là cuối cùng và thu hồi mọi thông tin xác thực; mọi thao tác có lý do và vào nhật ký kiểm toán\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-01",
+      "expected": "Tài khoản máy: hiển thị đúng 7 trường, áp quy tắc \"Mỗi tài khoản máy đọc đúng phạm vi đã cấp và chỉ dữ liệu của tổ chức mình; bí mật hiện một lần rồi chỉ còn giá trị băm; tạm khóa có hiệu lực ngay cả với mã truy cập còn sống; thu hồi là cuối cùng và thu hồi mọi thông tin xác thực; mọi thao tác có lý do và vào nhật ký kiểm toán\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UI-INT-02",
+      "title": "Phạm vi và khóa (INT-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "int-admin",
+      "journey_ref": "J-FR-INT-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-02",
+      "oracle_source": "Claim → FR-INT-02; kỳ vọng nguyên văn của ca thiết kế UI-INT-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình INT-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-INT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Phạm vi và khóa; user có quyền và user chỉ đọc; route INT-02\n1. Mở INT-02 từ menu và deep link; kiểm nhãn trường: Mã phạm vi, Tập dữ liệu đứng sau, Tài khoản giữ phạm vi, Mã khách, Gợi ý bí mật, Trạng thái khóa, Hạn chuyển tiếp\n2. Thực hiện thao tác chính theo quy tắc: Phạm vi chỉ cho đọc, không có phạm vi ghi; đổi khóa giữ khóa cũ trong thời gian chuyển tiếp có hạn (tối đa 72 giờ) và không bao giờ quá hai khóa còn sống; bí mật mới chỉ hiện một lần, phát lại yêu cầu không trả lại bí mật\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-02",
+      "expected": "Phạm vi và khóa: hiển thị đúng 7 trường, áp quy tắc \"Phạm vi chỉ cho đọc, không có phạm vi ghi; đổi khóa giữ khóa cũ trong thời gian chuyển tiếp có hạn (tối đa 72 giờ) và không bao giờ quá hai khóa còn sống; bí mật mới chỉ hiện một lần, phát lại yêu cầu không trả lại bí mật\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "INT-02",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UI-INT-03",
+      "title": "Ánh xạ mã dự án đa hệ thống (INT-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "int-admin",
+      "journey_ref": "J-FR-INT-03",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; kỳ vọng nguyên văn của ca thiết kế UI-INT-03 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình INT-03 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Ánh xạ mã dự án đa hệ thống; user có quyền và user chỉ đọc; route INT-03\n1. Mở INT-03 từ menu và deep link; kiểm nhãn trường: Hệ thống, Mã dự án của ta, Mã trong hệ thống, Hiệu lực từ-đến, Trạng thái, Người đề xuất, Người duyệt, Khuôn dạng mã\n2. Thực hiện thao tác chính theo quy tắc: Mở rộng bảng master_crosswalk, không có bảng định danh mới; người đề xuất không tự duyệt (SELF_APPROVAL_DENIED); một mã ngoài chỉ thuộc một dự án và một dự án chỉ giữ một mã ACTIVE cho mỗi hệ thống; mã phải khớp khuôn dạng hệ thống khai báo; REJECTED và RETIRED là cuối cùng, mã sai thay bằng đề xuất mới\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-03",
+      "expected": "Ánh xạ mã dự án đa hệ thống: hiển thị đúng 8 trường, áp quy tắc \"Mở rộng bảng master_crosswalk, không có bảng định danh mới; người đề xuất không tự duyệt (SELF_APPROVAL_DENIED); một mã ngoài chỉ thuộc một dự án và một dự án chỉ giữ một mã ACTIVE cho mỗi hệ thống; mã phải khớp khuôn dạng hệ thống khai báo; REJECTED và RETIRED là cuối cùng, mã sai thay bằng đề xuất mới\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UI-INT-04",
+      "title": "Tài khoản BI và tập dữ liệu chứng nhận (INT-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "int-admin",
+      "journey_ref": "J-FR-INT-04",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; kỳ vọng nguyên văn của ca thiết kế UI-INT-04 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình INT-04 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Tài khoản BI và tập dữ liệu chứng nhận; user có quyền và user chỉ đọc; route INT-04\n1. Mở INT-04 từ menu và deep link; kiểm nhãn trường: Tên, Công cụ, Tên đăng nhập CSDL, Trạng thái, Số kết nối tối đa, Lần đổi mật khẩu gần nhất, Tập dữ liệu, Chứng nhận, Hết hạn chứng nhận\n2. Thực hiện thao tác chính theo quy tắc: Mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, chỉ đọc, gắn với tổ chức bằng chính tên đăng nhập, không bằng biến phiên app.tenant_id; view chỉ có dữ liệu đã chốt của tập dữ liệu đang CERTIFIED và đã bật; đổi app.tenant_id sang tổ chức khác không đọc được gì; mật khẩu hiện một lần và CSDL chỉ giữ giá trị SCRAM; ngừng tài khoản thì xóa tài khoản CSDL\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-04",
+      "expected": "Tài khoản BI và tập dữ liệu chứng nhận: hiển thị đúng 9 trường, áp quy tắc \"Mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, chỉ đọc, gắn với tổ chức bằng chính tên đăng nhập, không bằng biến phiên app.tenant_id; view chỉ có dữ liệu đã chốt của tập dữ liệu đang CERTIFIED và đã bật; đổi app.tenant_id sang tổ chức khác không đọc được gì; mật khẩu hiện một lần và CSDL chỉ giữ giá trị SCRAM; ngừng tài khoản thì xóa tài khoản CSDL\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UI-INT-05",
+      "title": "Nhật ký truy cập API mở (INT-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "int-admin",
+      "journey_ref": "J-FR-INT-05",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-05",
+      "oracle_source": "Claim → FR-INT-05; kỳ vọng nguyên văn của ca thiết kế UI-INT-05 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình INT-05 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-INT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Nhật ký truy cập API mở; user có quyền và user chỉ đọc; route INT-05\n1. Mở INT-05 từ menu và deep link; kiểm nhãn trường: Thời điểm, Tài khoản máy, Thao tác, Phạm vi, Đường dẫn, Tên tham số, Kết quả, Mã trạng thái, Số dòng, Mã tương quan\n2. Thực hiện thao tác chính theo quy tắc: Mỗi lần đọc là một dòng, không sửa và không xóa được; chỉ ghi tên tham số truy vấn, không ghi giá trị; lần bị từ chối vì phạm vi, vì tập dữ liệu chưa chứng nhận hoặc vì vượt giới hạn tần suất cũng có dòng; đọc qua tài khoản CSDL của công cụ BI ghi ở nhật ký máy chủ CSDL, không ở đây\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên INT-05",
+      "expected": "Nhật ký truy cập API mở: hiển thị đúng 10 trường, áp quy tắc \"Mỗi lần đọc là một dòng, không sửa và không xóa được; chỉ ghi tên tham số truy vấn, không ghi giá trị; lần bị từ chối vì phạm vi, vì tập dữ liệu chưa chứng nhận hoặc vì vượt giới hạn tần suất cũng có dòng; đọc qua tài khoản CSDL của công cụ BI ghi ở nhật ký máy chủ CSDL, không ở đây\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "INT-05",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UAT-INT-001",
+      "title": "UAT-INT-001: Read projects, then the contracts dataset without its scope",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-FR-INT-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01, FR-INT-02, FR-INT-05; kỳ vọng nguyên văn của ca thiết kế UAT-INT-001 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-INT-001 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-INT-01",
+        "COV-FR-INT-02",
+        "COV-FR-INT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Two tenants; a machine account of tenant A with scope open.projects.read, a token it was issued and a second account with a rate limit of 2 per minute.\n1. Read projects, then the contracts dataset without its scope\n2. Suspend the account while it holds the token and read again\n3. Rotate the secret, then look for the secret in the audit rows, the events and the stored answers\n4. Call the third time within a minute on the account limited to 2",
+      "expected": "Step 1: only tenant A projects, then 403 OPEN_SCOPE_DENIED; step 2: 401 OPEN_CLIENT_INVALID at once; step 3: the secret was shown once and is in none of them; step 4: 429 with Retry-After; every call has a row of the access log with parameter names and no values.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UAT-INT-002",
+      "title": "UAT-INT-002: Read the certified views with each login",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-FR-INT-04",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; kỳ vọng nguyên văn của ca thiết kế UAT-INT-002 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-INT-002 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Two tenants each with a BI login and a certified dataset switched on.\n1. Read the certified views with each login\n2. With the login of tenant A set app.tenant_id to tenant B and read again, from the views and from the tables\n3. Revoke the certification of the product behind the dataset and read again",
+      "expected": "Step 1: each login reads its own tenant only; step 2: no row from the views and none from the tables; step 3: the dataset is closed at once with the reason NOT_CERTIFIED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UAT-INT-003",
+      "title": "UAT-INT-003: Propose a code and approve it as the same person",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-FR-INT-03",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; kỳ vọng nguyên văn của ca thiết kế UAT-INT-003 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-INT-003 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A system registered with a code format and a project of ours without a code in it.\n1. Propose a code and approve it as the same person\n2. Approve it as another person\n3. Propose the same code for another project and a second code for the same project",
+      "expected": "Step 1: 403 SELF_APPROVAL_DENIED; step 2: ACTIVE on master_crosswalk; step 3: 409 CROSSWALK_DUPLICATE both times, and a code outside the format is refused with 422.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "story_ids": [],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UAT-INT-E2E-01",
+      "title": "Mở tài khoản máy, đổi lấy token, API mở trả đúng dự án của tenant mình và không tenant nào khác; thiếu phạm vi bị từ chối và ghi nhật ký",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01, FR-INT-05; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "API mở trả dự án của tenant khác, hoặc cho đọc khi thiếu phạm vi",
+      "coverage_ids": [
+        "COV-FR-INT-01",
+        "COV-FR-INT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có hai dự án, tenant B có một; tài khoản máy có phạm vi open.projects.read và open.disbursement.read\n1. Quản trị mở tài khoản máy và đổi client_id, client_secret lấy token\n2. Đọc GET /open/v1/projects?limit=200\n3. Đọc GET /open/v1/contract-lines (không có phạm vi)\n4. Tenant B mở tài khoản và đọc dự án",
+      "expected": "Bước 2: chỉ hai dự án của tenant A. Bước 3: 403 OPEN_SCOPE_DENIED, required_scope open.contracts.read, có dòng nhật ký DENIED_SCOPE. Bước 4: chỉ dự án của tenant B.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/int.uat.test.ts"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/open/v1/projects",
+        "method": "GET",
+        "allow": [
+          "may-doc-bi"
+        ],
+        "deny_status": [
+          401,
+          403
+        ],
+        "must_not_contain": [
+          "UAT-INT-B1"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-IDM-01",
+      "title": "Mở lại cùng tài khoản với cùng Idempotency-Key trả kết quả cũ không kèm bí mật; chỉ một tài khoản; bí mật không nằm trong bảng nào",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Bí mật máy lộ trong bảng, nhật ký kiểm toán, outbox, bản trả lời đã lưu; hoặc gửi lại tạo tài khoản thứ hai",
+      "coverage_ids": [
+        "COV-FR-INT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; quản trị có int.account.manage\n1. POST /int/machine-accounts với khóa k\n2. Gửi lại cùng nội dung và khóa\n3. Tìm chuỗi bí mật trong int_machine_credential, int_machine_account, idempotency_record, audit_event, outbox_event, int_access_log\n4. Tạo lại với tên khác chữ hoa",
+      "expected": "Lần 1: 201, shown_once true, client_secret dạng mvs_ 43 ký tự. Lần 2: 201, client_secret rỗng, cùng client_id và account_id. Không bảng nào chứa bí mật. Tên khác chữ hoa: 409 OPEN_ACCOUNT_NAME_TAKEN.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/int.uat.test.ts"
+      },
+      "module": "INT",
+      "idempotency": {
+        "url": "/int/machine-accounts",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "name": "Lakehouse of the ministry",
+          "scopes": [
+            "open.projects.read"
+          ]
+        },
+        "count_query": "SELECT count(*) FROM machvon.int_machine_account WHERE lower(name) = 'lakehouse of the ministry'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-TKN-01",
+      "title": "Mọi từ chối khi đổi token giống nhau (client lạ, sai bí mật) không cho biết phần nào sai; thứ không phải token máy không mở được gì",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "may-doc-bi",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01, FR-INT-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Phản hồi khác nhau cho phép dò client_id hợp lệ",
+      "coverage_ids": [
+        "COV-FR-INT-01",
+        "COV-FR-INT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "may-doc-bi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một tài khoản máy đang hoạt động\n1. Đổi token với client_id lạ\n2. Đổi với client_id đúng và bí mật sai\n3. Gọi /open/v1/projects không token, với token rác, với tiêu đề phiên của người\n4. Gọi /int/machine-accounts bằng token máy",
+      "expected": "Bước 1 và 2 cùng 401 OPEN_CLIENT_INVALID và cùng thân (trừ mã tương quan); các bước còn lại 401 hoặc 4xx; nhật ký ghi một dòng DENIED_CLIENT cho client đã biết.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/int.uat.test.ts"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/open/v1/projects",
+        "method": "GET",
+        "allow": [
+          "may-doc-bi"
+        ],
+        "deny_status": [
+          401
+        ],
+        "must_not_contain": [
+          "client_secret"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-STA-01",
+      "title": "Tạm dừng tài khoản chặn ngay lệnh gọi kế tiếp của token còn hạn, kích hoạt lại khôi phục, đã thu hồi thì không khôi phục được",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01, FR-INT-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Token đã cấp vẫn dùng được sau khi tạm dừng hoặc thu hồi tài khoản",
+      "coverage_ids": [
+        "COV-FR-INT-01",
+        "COV-FR-INT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tài khoản máy có token còn hạn\n1. Gọi API mở\n2. Tạm dừng với phiên bản sai, rồi đúng\n3. Gọi API mở và đổi token\n4. Kích hoạt lại và gọi\n5. Thu hồi, đổi token, rồi kích hoạt lại",
+      "expected": "Bước 2: 409 VERSION_CONFLICT rồi 200. Bước 3: 401 OPEN_CLIENT_INVALID. Bước 4: 200. Bước 5: 401; kích hoạt lại 409 OPEN_ACCOUNT_STATE_INVALID.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/int.uat.test.ts"
+      },
+      "module": "INT",
+      "transition": {
+        "from": "REVOKED",
+        "to": "ACTIVE",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-DAT-01",
+      "title": "Mỗi lần gọi API mở là một dòng nhật ký truy cập ghi tên tham số truy vấn và không bao giờ ghi giá trị; nhật ký đọc được qua API của tenant mình",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "int-reader",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-05",
+      "oracle_source": "Claim → FR-INT-05; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Giá trị lọc nhạy cảm lọt vào nhật ký truy cập, hoặc nhật ký thiếu dòng của lệnh gọi lỗi",
+      "coverage_ids": [
+        "COV-FR-INT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tài khoản máy có open.projects.read\n1. Gọi /open/v1/projects?status=SECRET-FILTER-VALUE&limit=3\n2. Gọi với cursor sai\n3. Đọc int_access_log và GET /int/access-log\n4. Tenant B đọc nhật ký của tài khoản đó",
+      "expected": "Có dòng listOpenProjects với query_keys gồm status và limit, status 200; không dòng nào chứa SECRET-FILTER-VALUE; có dòng INVALID_REQUEST 422; số dòng API bằng số dòng bảng; tenant B thấy 0 dòng; outcome lạ bị 422.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "INT-05",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/int.uat.test.ts"
+      },
+      "module": "INT",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.int_access_log WHERE operation = 'listOpenProjects'",
+        "expect": {
+          "min_rows": 1
+        }
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-EDG-01",
+      "title": "Hợp đồng từ chối phạm vi lạ, không phạm vi, tốc độ vượt 6.000/phút, trường lạ và ngày hết hạn trong quá khứ; không tạo tài khoản",
+      "type": "EDGE",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01, FR-INT-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tài khoản máy được mở với phạm vi ghi hoặc tốc độ vô hạn",
+      "coverage_ids": [
+        "COV-FR-INT-01",
+        "COV-FR-INT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A\n1. Mở tài khoản với phạm vi open.everything\n2. Không phạm vi\n3. rate_limit_per_minute 6001\n4. Trường is_admin\n5. expires_on 2020-01-01",
+      "expected": "Mọi bước 4xx (phạm vi lạ và ngày quá khứ là 422); số tài khoản không đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/int.uat.test.ts"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UAT-INT-SOD-01",
+      "title": "Mã dự án ở hệ thống khác cần người thứ hai duyệt: người đề xuất không duyệt được (403 SELF_APPROVAL_DENIED), API mở chỉ thấy sau khi duyệt, mã trùng bị 409 CROSSWALK_DUPLICATE",
+      "type": "RED",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-INT-CODES-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Một người vừa đề xuất vừa duyệt ánh xạ mã; API mở hiện mã chưa duyệt",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; hệ thống nguồn EBS có mẫu mã P-\\d{3}; người đề xuất, người duyệt và người đọc khác nhau\n1. Đăng ký hệ thống EBS\n2. Đề xuất mã sai mẫu\n3. Đề xuất mã P-100 cho dự án A1\n4. API mở đọc mã\n5. Người đề xuất duyệt; người đọc duyệt; người duyệt duyệt\n6. Đề xuất P-100 cho dự án khác\n7. Ngừng hệ thống khi còn mã dùng; ngừng mã",
+      "expected": "Bước 2: 422. Bước 4: rỗng. Bước 5: 403 SELF_APPROVAL_DENIED, 403, rồi 200 ACTIVE phiên bản 2; API mở thấy mã P-100 của A1. Bước 6: 409 CROSSWALK_DUPLICATE. Bước 7: 409 INT_SOURCE_SYSTEM_IN_USE; ngừng mã 200 và API mở không còn mã.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/int.uat.test.ts"
+      },
+      "module": "INT",
+      "transition": {
+        "from": "PROPOSED",
+        "to": "ACTIVE",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-ISO-01",
+      "title": "Thành viên tenant khác nhận 404 cho tài khoản máy của tenant này ở mọi lệnh (đọc, quyết định, xoay), không thấy trong danh sách",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "int-reader",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Thu hồi hoặc xoay khóa được tài khoản máy của tenant khác (IDOR)",
+      "coverage_ids": [
+        "COV-FR-INT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có tài khoản máy M; tenant B có quản trị\n1. Tenant B đọc GET /int/machine-accounts/{M}\n2. Gọi decision REVOKE\n3. Gọi rotate\n4. Đọc danh sách lọc theo tên\n5. Đọc mã dự án",
+      "expected": "Ba lệnh đầu 404; danh sách rỗng; mã dự án của tenant B rỗng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/int.uat.test.ts"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/machine-accounts/{id}",
+        "method": "GET",
+        "allow": [
+          "int-reader",
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "client_id",
+          "secret_hint"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-RTL-01",
+      "title": "Giới hạn tốc độ theo từng tài khoản: vượt trả 429 RATE_LIMIT kèm Retry-After và X-RateLimit-Limit, tài khoản khác không bị ảnh hưởng, từ chối được ghi nhật ký",
+      "type": "RED",
+      "platform": "api",
+      "persona": "may-doc-bi",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-02",
+      "oracle_source": "Claim → FR-INT-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Một tài khoản đọc quá nhiều làm nghẽn tài khoản khác, hoặc 429 không có Retry-After",
+      "coverage_ids": [
+        "COV-FR-INT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "may-doc-bi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tài khoản A giới hạn 2 lần mỗi phút, tài khoản B mặc định\n1. Tài khoản A gọi ba lần liên tiếp\n2. Tài khoản B gọi\n3. Đọc nhật ký của A",
+      "expected": "Lần 3: 429 RATE_LIMIT, Retry-After tối thiểu 1, X-RateLimit-Limit 2; tài khoản B 200; nhật ký A có một dòng RATE_LIMITED status 429.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "INT-02",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Phụ thuộc đồng hồ phút của bộ giới hạn; chưa viết trong suite để tránh ca chập chờn, đã có trong apps/api/test/int/int.test.ts"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UAT-INT-DST-01",
+      "title": "Bộ dữ liệu chứng nhận chỉ bật cho sản phẩm dữ liệu đã chứng nhận, tự đóng khi chứng nhận bị thu hồi, và chỉ mở lại khi tổ chức bật lại cho sản phẩm đã chứng nhận",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-INT-BI-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Bộ dữ liệu của sản phẩm chưa chứng nhận được phục vụ cho BI",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; sản phẩm dữ liệu CERTIFIED và PROVISIONAL\n1. Đọc danh sách bộ dữ liệu\n2. Bật bộ dữ liệu cho sản phẩm PROVISIONAL\n3. Bật cho sản phẩm CERTIFIED và đọc\n4. Thu hồi chứng nhận và đọc\n5. Bật lại",
+      "expected": "Ban đầu đóng kèm lý do; bước 2 bị từ chối; bước 3 phục vụ các dòng đã đóng băng; bước 4 tự đóng; bước 5 mở lại chỉ khi sản phẩm đã chứng nhận.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần sản phẩm dữ liệu và chứng nhận của DGV; suite UAT chưa dựng sản phẩm dữ liệu"
+      },
+      "module": "INT",
+      "transition": {
+        "from": "CLOSED_BY_REVOCATION",
+        "to": "SERVED",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-BI-01",
+      "title": "Tài khoản BI hiện mật khẩu một lần, chỉ đọc danh mục chứng nhận của tenant mình, không đọc được bảng gốc",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-INT-BI-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "HSKT TH.02 (đăng nhập BI chỉ đọc) và quy tắc của INT-04: mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, chỉ đọc, gắn với tổ chức",
+      "catches_bug": "Tài khoản BI đọc được bảng gốc hoặc dữ liệu tenant khác qua kết nối CSDL",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A và B, mỗi nơi có một tài khoản BI; kết nối CSDL bằng tài khoản đó\n1. Tạo tài khoản BI và ghi mật khẩu\n2. Đăng nhập CSDL bằng tài khoản đó\n3. Đọc các view danh mục và các bảng gốc\n4. Ghi một dòng",
+      "expected": "Mật khẩu hiện một lần, không nằm trong bảng nào; view chỉ trả dòng của tenant mình; bảng gốc bị từ chối; ghi bị từ chối.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần mở kết nối CSDL thật bằng tài khoản BI (cổng Postgres), suite UAT chỉ đi qua HTTP; đã có trong apps/api/test/int/int.test.ts"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/bi-readers/{id}",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "password"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-PRF-01",
+      "title": "API mở đọc dòng giải ngân trả lời trong 5 giây ở phân vị 95 với 100.000 dòng",
+      "type": "PERFORMANCE",
+      "platform": "api",
+      "persona": "may-doc-bi",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-INT-05",
+      "oracle_source": "Yêu cầu của khách: mọi chức năng phản hồi dưới 5 giây, đo bằng phân vị 95 (docs/qa/perf-budget.json, lớp FUNCTION; HSKT HT.05; đo trên phần cứng khách là PX-10)",
+      "catches_bug": "API mở quét toàn bảng cho một trang",
+      "coverage_ids": [
+        "COV-FR-INT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "may-doc-bi",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có 100.000 dòng giải ngân; tài khoản máy có open.disbursement.read\n1. Gọi GET /open/v1/disbursement-lines?limit=200 hai mươi lần sau ba lần khởi động",
+      "expected": "p95 không quá 5.000 ms, không lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "INT-05",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bộ dữ liệu lớn và đo trên phần cứng khách (PX-10)"
+      },
+      "module": "INT",
+      "perf_budget": {
+        "url": "/open/v1/disbursement-lines?limit=200",
+        "method": "GET",
+        "p95_ms": 5000,
+        "sample": 20,
+        "warmup": 3,
+        "max_error_rate": 0
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-A11-01",
+      "title": "Năm màn INT đạt WCAG 2.2 AA: hộp thoại hiện bí mật một lần có nút sao chép dùng được bằng bàn phím, bảng nhật ký có tiêu đề",
+      "type": "A11Y",
+      "platform": "web",
+      "persona": "int-admin",
+      "journey_ref": "J-INT-OPEN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01, FR-INT-02, FR-INT-03, FR-INT-04, FR-INT-05; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Hộp thoại bí mật đóng mất bí mật khi mất tiêu điểm, hoặc không đọc được bằng trình đọc màn hình",
+      "coverage_ids": [
+        "COV-FR-INT-01",
+        "COV-FR-INT-02",
+        "COV-FR-INT-03",
+        "COV-FR-INT-04",
+        "COV-FR-INT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; có tài khoản máy và tài khoản BI\n1. Chạy axe ở 1280 px và 360 px\n2. Tạo tài khoản và sao chép bí mật chỉ bằng bàn phím",
+      "expected": "Không lỗi axe nghiêm trọng hoặc cao; bí mật hiện một lần và đọc được; không đóng ngoài ý muốn.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "accessibility",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+      },
+      "module": "INT"
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-01",
+      "title": "listMachineAccounts (GET /int/machine-accounts): chỉ người giữ quyền int.account.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01; thao tác listMachineAccounts yêu cầu quyền int.account.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /int/machine-accounts thiếu kiểm quyền int.account.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.account.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.account.read gọi GET /int/machine-accounts với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/machine-accounts",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-02",
+      "title": "createMachineAccount (POST /int/machine-accounts): chỉ người giữ quyền int.account.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01; thao tác createMachineAccount yêu cầu quyền int.account.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/machine-accounts thiếu kiểm quyền int.account.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.account.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.account.manage gọi POST /int/machine-accounts với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/machine-accounts",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-03",
+      "title": "getMachineAccount (GET /int/machine-accounts/{id}): chỉ người giữ quyền int.account.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-01",
+      "oracle_source": "Claim → FR-INT-01; thao tác getMachineAccount yêu cầu quyền int.account.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /int/machine-accounts/{id} thiếu kiểm quyền int.account.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.account.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.account.read gọi GET /int/machine-accounts/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-01",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/machine-accounts/{id}",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-04",
+      "title": "updateMachineAccount (POST /int/machine-accounts/{id}/update): chỉ người giữ quyền int.account.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-02",
+      "oracle_source": "Claim → FR-INT-02; thao tác updateMachineAccount yêu cầu quyền int.account.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/machine-accounts/{id}/update thiếu kiểm quyền int.account.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.account.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.account.manage gọi POST /int/machine-accounts/{id}/update với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-02",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/machine-accounts/{id}/update",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-05",
+      "title": "decideMachineAccount (POST /int/machine-accounts/{id}/decision): chỉ người giữ quyền int.account.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-02",
+      "oracle_source": "Claim → FR-INT-02; thao tác decideMachineAccount yêu cầu quyền int.account.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/machine-accounts/{id}/decision thiếu kiểm quyền int.account.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.account.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.account.manage gọi POST /int/machine-accounts/{id}/decision với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-02",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/machine-accounts/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-06",
+      "title": "rotateMachineCredential (POST /int/machine-accounts/{id}/rotate): chỉ người giữ quyền int.account.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-02",
+      "oracle_source": "Claim → FR-INT-02; thao tác rotateMachineCredential yêu cầu quyền int.account.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/machine-accounts/{id}/rotate thiếu kiểm quyền int.account.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.account.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.account.manage gọi POST /int/machine-accounts/{id}/rotate với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-02",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/machine-accounts/{id}/rotate",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-07",
+      "title": "listOpenAccessLog (GET /int/access-log): chỉ người giữ quyền int.access.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-05",
+      "oracle_source": "Claim → FR-INT-05; thao tác listOpenAccessLog yêu cầu quyền int.access.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /int/access-log thiếu kiểm quyền int.access.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.access.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.access.read gọi GET /int/access-log với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-05",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/access-log",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-08",
+      "title": "listExportDatasets (GET /int/export-datasets): chỉ người giữ quyền int.dataset.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; thao tác listExportDatasets yêu cầu quyền int.dataset.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /int/export-datasets thiếu kiểm quyền int.dataset.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.dataset.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.dataset.read gọi GET /int/export-datasets với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/export-datasets",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-09",
+      "title": "setExportDataset (POST /int/export-datasets/state): chỉ người giữ quyền int.dataset.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; thao tác setExportDataset yêu cầu quyền int.dataset.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/export-datasets/state thiếu kiểm quyền int.dataset.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.dataset.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.dataset.manage gọi POST /int/export-datasets/state với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/export-datasets/state",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-10",
+      "title": "listBiReaders (GET /int/bi-readers): chỉ người giữ quyền int.bi.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; thao tác listBiReaders yêu cầu quyền int.bi.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /int/bi-readers thiếu kiểm quyền int.bi.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.bi.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.bi.read gọi GET /int/bi-readers với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/bi-readers",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-11",
+      "title": "createBiReader (POST /int/bi-readers): chỉ người giữ quyền int.bi.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; thao tác createBiReader yêu cầu quyền int.bi.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/bi-readers thiếu kiểm quyền int.bi.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.bi.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.bi.manage gọi POST /int/bi-readers với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/bi-readers",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-12",
+      "title": "getBiReader (GET /int/bi-readers/{id}): chỉ người giữ quyền int.bi.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; thao tác getBiReader yêu cầu quyền int.bi.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /int/bi-readers/{id} thiếu kiểm quyền int.bi.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.bi.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.bi.read gọi GET /int/bi-readers/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/bi-readers/{id}",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-13",
+      "title": "rotateBiReaderPassword (POST /int/bi-readers/{id}/password): chỉ người giữ quyền int.bi.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; thao tác rotateBiReaderPassword yêu cầu quyền int.bi.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/bi-readers/{id}/password thiếu kiểm quyền int.bi.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.bi.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.bi.manage gọi POST /int/bi-readers/{id}/password với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/bi-readers/{id}/password",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-14",
+      "title": "decideBiReader (POST /int/bi-readers/{id}/decision): chỉ người giữ quyền int.bi.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-04",
+      "oracle_source": "Claim → FR-INT-04; thao tác decideBiReader yêu cầu quyền int.bi.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/bi-readers/{id}/decision thiếu kiểm quyền int.bi.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.bi.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.bi.manage gọi POST /int/bi-readers/{id}/decision với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-04",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/bi-readers/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-15",
+      "title": "listSourceSystems (GET /int/source-systems): chỉ người giữ quyền int.codes.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; thao tác listSourceSystems yêu cầu quyền int.codes.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /int/source-systems thiếu kiểm quyền int.codes.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.codes.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.codes.read gọi GET /int/source-systems với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/source-systems",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-checker",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-16",
+      "title": "registerSourceSystem (POST /int/source-systems): chỉ người giữ quyền int.system.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; thao tác registerSourceSystem yêu cầu quyền int.system.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/source-systems thiếu kiểm quyền int.system.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.system.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.system.manage gọi POST /int/source-systems với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/source-systems",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-17",
+      "title": "retireSourceSystem (POST /int/source-systems/{id}/retire): chỉ người giữ quyền int.system.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; thao tác retireSourceSystem yêu cầu quyền int.system.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/source-systems/{id}/retire thiếu kiểm quyền int.system.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.system.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.system.manage gọi POST /int/source-systems/{id}/retire với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/source-systems/{id}/retire",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-18",
+      "title": "listProjectCodes (GET /int/project-codes): chỉ người giữ quyền int.codes.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; thao tác listProjectCodes yêu cầu quyền int.codes.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /int/project-codes thiếu kiểm quyền int.codes.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.codes.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.codes.read gọi GET /int/project-codes với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/project-codes",
+        "method": "GET",
+        "allow": [
+          "int-admin",
+          "int-checker",
+          "int-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-19",
+      "title": "proposeProjectCode (POST /int/project-codes): chỉ người giữ quyền int.codes.propose qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; thao tác proposeProjectCode yêu cầu quyền int.codes.propose (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/project-codes thiếu kiểm quyền int.codes.propose hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.codes.propose trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.codes.propose gọi POST /int/project-codes với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/project-codes",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-20",
+      "title": "decideProjectCode (POST /int/project-codes/{id}/decision): chỉ người giữ quyền int.codes.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; thao tác decideProjectCode yêu cầu quyền int.codes.approve (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/project-codes/{id}/decision thiếu kiểm quyền int.codes.approve hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.codes.approve trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.codes.approve gọi POST /int/project-codes/{id}/decision với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/project-codes/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "int-admin",
+          "int-checker"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-21",
+      "title": "retireProjectCode (POST /int/project-codes/{id}/retire): chỉ người giữ quyền int.codes.propose qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "int-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-INT-03",
+      "oracle_source": "Claim → FR-INT-03; thao tác retireProjectCode yêu cầu quyền int.codes.propose (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /int/project-codes/{id}/retire thiếu kiểm quyền int.codes.propose hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-INT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "int-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ int.codes.propose trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ int.codes.propose gọi POST /int/project-codes/{id}/retire với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "INT-03",
+      "story_ids": [
+        "ST-INT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "INT",
+      "access": {
+        "url": "/int/project-codes/{id}/retire",
+        "method": "POST",
+        "allow": [
+          "int-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    }
+  ]
+}

@@ -39,6 +39,16 @@ Audit: `bi.publication.request`, `bi.publication.decide` (the decision, the code
 - `metric_definition`: `guard_metric_definition` (code, revision and origin fixed; a metric that left DRAFT keeps its definition, 409 `VERSION_IMMUTABLE` at the application and 42501 here; the states only move forward; who certified is written once), a certified-by check for the metrics of a tenant, `DELETE` and `TRUNCATE` revoked.
 - V1583 holds the `SET NOT NULL` of V1581 on its own, as the expand-then-contract policy asks.
 
+## The check step and the three signatures (BC.02, lane AUD3)
+
+A management report that a person made themself carries three signatures, as the forms of the report engine do: who prepared it, who checked it, who approved it.
+
+- **The check** (`checkBiPublication`, `POST /bi/publication-requests/{id}/check`, permission `bi.publish` over the whole tenant, `If-Match`): somebody who is neither the one who asked nor the author of the version records the check once, while the request is pending, with an optional note. The request stays pending; the decision is a third person's (the checker is refused as the approver, 403 `SELF_APPROVAL_DENIED`). The step is optional: a request decided without it is the two-person flow of before.
+- **In the database** (V2920): `checked_by`, `checked_at`, `check_comment` on `bi_publication_request`; checks `checked_by <> requested_by`, `checked_by <> decided_by`, the person and the instant come together, a note needs a checker; the guard lets the three columns move once, from empty to written, while the request is pending.
+- **The block** (`sign_off` of `getDashboard`, for the version the dashboard points to and for each of its `versions`): `prepared_by` (the author of the version), `checked_by` (the check of the request that is pending for the version or approved it; the check of a rejected request is not carried to a later one), `approved_by` (who published it), each `{id, name, at}` or null, with `state` (UNSIGNED, PREPARED, CHECKED, APPROVED) and `complete` (all three). A publication that skipped the check is APPROVED and not complete; nobody is made up. The name is the one of the directory of the tenant, null when it has none (the screen then shows the identifier).
+- **The export files** (CSV, XLSX, PDF, DOCX): three lines after the usual header, "Người lập", "Người kiểm tra", "Người phê duyệt", with the name and the day, or "chưa có". An export is made for a person from a certified metric: the person it is made for prepared it, the check is the one of the request that certified the metric, the approval is its certification (a metric certified by the platform has no checker).
+- **Screens**: BI-11 shows who checked each request and gives the "record as checked" action (the checker and the one who asked do not see the decision); BI-03 shows the block of the version the dashboard points to and the furthest step of each version. Strings: i18n part `aud3`.
+
 ## Screens
 
 - **BI-11** `PublicationInboxScreen`: the requests by state (pending first), with the object, who asked and the checks; the approver reviews one, comments (required to reject) and approves or rejects; the one who asked sees that they cannot; the refusals of the server are told by their reason (the check that failed by name). A member who may ask has the form to ask for an object by its id.

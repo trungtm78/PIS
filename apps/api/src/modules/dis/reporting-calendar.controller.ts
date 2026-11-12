@@ -151,9 +151,8 @@ export class ReportingCalendarController {
       const reading = await this.schedules.get(tx, code, today);
       const deadlines = stepDeadlines(reading.policy, { endsOn: period.endDate }, localTimeOf(period.deadlineAt), undefined, period.deadlineAt);
       const facts = await this.store.unitFacts(tx, projectScope(access, READ_PERMISSION, now), period);
-      // The review of the planning board and the push to the group system are facts of the staged approval of the records of the period (INT-2): tracked when a record runs it, not tracked otherwise.
-      const progress = await this.store.stepProgress(tx, period);
-      const board = buildBoard(deadlines, facts, { planningReviewAt: progress.planningReviewAt, closedAt: period.status === 'LOCKED' ? period.lockedAt : null, pushedAt: progress.pushedAt }, now);
+      const chain = await this.store.chainFacts(tx, projectScope(access, READ_PERMISSION, now), period);
+      const board = buildBoard(deadlines, facts, { ...chain, closedAt: period.status === 'LOCKED' ? period.lockedAt : null }, now);
       const reminders = await this.store.recent(tx, period.id, REMINDER_LIMIT);
       const basis: ScheduleBasis = BASIS_OF[code];
       return {

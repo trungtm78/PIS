@@ -1,0 +1,1722 @@
+{
+  "feature": "hpm",
+  "generated_at": "2026-11-12T05:18:23.662Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/hpm/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-HPM-01",
+      "title": "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận (HPM-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-FR-HPM-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; kỳ vọng nguyên văn của ca thiết kế UI-HPM-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình HPM-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise, synthetic data of Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận; a user with the permission and a read-only user; route HPM-01\n1. Open HPM-01 from the menu and by deep link; check the labelled fields: Kết nối HPM (bật/tắt, lý do, người đổi); Bộ ghi tệp thay HPM, mẫu gói giả định (PENDING-EXTERNAL); Độ mới của lần giao gần nhất và quy tắc HPM_PUSH_POLICY; Nhật ký đẩy (khóa chống trùng, kỳ, phiên bản, trạng thái, số lần thử, lỗi); Các kỳ đã được HPM nhận; Đẩy báo cáo đã phát hành, đẩy lại, ghi biên nhận\n2. Do the main action under the rule: Mỗi lần đẩy có khóa chống trùng (tổ chức, kỳ, phiên bản báo cáo); đẩy lại gửi đúng khóa cũ; bản cũ hơn bản đã được nhận bị từ chối REPORT_OUT_OF_DATE; bản trùng nội dung là ALREADY_DELIVERED; người đẩy không ghi biên nhận của mình; bản dựng trên mẫu DEMO không bao giờ được ghi là đã nhận; bộ ghi tệp không gọi mạng nên PENDING-EXTERNAL\n3. Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on HPM-01",
+      "expected": "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận: all 6 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-169",
+      "title": "UAT-PLAN-169: ST-HPM-001 (submitHpmPush, retryHpmPush, recordHpmReceipt): Send the command",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-FR-HPM-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-169 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-169 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenant TNT-A with the connection on (story ST-HPM-001); an issued report and a file writer sink\n1. ST-HPM-001 (submitHpmPush, retryHpmPush, recordHpmReceipt): Send the command\n2. Send it again with the same key or file hash\n3. Send a stale or conflicting request\n4. Check the audit rows and the network log",
+      "expected": "Step 2 repeats the first answer without new rows; step 3 is refused with its code; audit rows name the actor; no outbound network call",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-170",
+      "title": "UAT-PLAN-170: ST-HPM-001 (submitHpmPush, retryHpmPush, recordHpmReceipt): The maker tries to receive, approve or settle their own work",
+      "type": "RED",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-FR-HPM-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-170 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-170 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenants TNT-A and TNT-B, a maker and a checker of story ST-HPM-001\n1. ST-HPM-001 (submitHpmPush, retryHpmPush, recordHpmReceipt): The maker tries to receive, approve or settle their own work\n2. A member of TNT-B uses a record id of TNT-A\n3. A reader sends a command",
+      "expected": "Step 1: 403 SELF_APPROVAL_DENIED or SCOPE_DENIED; step 2: 404 as for an id that does not exist; step 3: 403; nothing changes",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "design-case",
+        "security",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UI-HPM-02",
+      "title": "Đính chính kỳ báo cáo đã được HPM nhận (HPM-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-FR-HPM-02",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-02",
+      "oracle_source": "Claim → FR-HPM-02; kỳ vọng nguyên văn của ca thiết kế UI-HPM-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình HPM-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise, synthetic data of Đính chính kỳ báo cáo đã được HPM nhận; a user with the permission and a read-only user; route HPM-02\n1. Open HPM-02 from the menu and by deep link; check the labelled fields: Kỳ, mẫu và phiên bản đã được nhận; Kỳ đã mở lại (yêu cầu mở lại của DIS); Lý do đính chính; Người đề nghị, người duyệt, trạng thái; Lần đẩy đã dùng đính chính\n2. Do the main action under the rule: Thay kỳ đã được nhận cần kỳ đã mở lại và đính chính do người khác duyệt, ghi ADM-11; một đính chính chỉ dùng một lần; một đề nghị chờ cho một phiên bản tại một thời điểm\n3. Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on HPM-02",
+      "expected": "Đính chính kỳ báo cáo đã được HPM nhận: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "HPM-02",
+      "story_ids": [
+        "ST-HPM-002"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-171",
+      "title": "UAT-PLAN-171: ST-HPM-002 (proposeHpmCorrection, decideHpmCorrection): Send the command",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-FR-HPM-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-02",
+      "oracle_source": "Claim → FR-HPM-02; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-171 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-171 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenant TNT-A with the connection on (story ST-HPM-002); an issued report and a file writer sink\n1. ST-HPM-002 (proposeHpmCorrection, decideHpmCorrection): Send the command\n2. Send it again with the same key or file hash\n3. Send a stale or conflicting request\n4. Check the audit rows and the network log",
+      "expected": "Step 2 repeats the first answer without new rows; step 3 is refused with its code; audit rows name the actor; no outbound network call",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-02",
+      "story_ids": [
+        "ST-HPM-002"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-172",
+      "title": "UAT-PLAN-172: ST-HPM-002 (proposeHpmCorrection, decideHpmCorrection): The maker tries to receive, approve or settle their own work",
+      "type": "RED",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-FR-HPM-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-02",
+      "oracle_source": "Claim → FR-HPM-02; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-172 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-172 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Enterprise edition, tenants TNT-A and TNT-B, a maker and a checker of story ST-HPM-002\n1. ST-HPM-002 (proposeHpmCorrection, decideHpmCorrection): The maker tries to receive, approve or settle their own work\n2. A member of TNT-B uses a record id of TNT-A\n3. A reader sends a command",
+      "expected": "Step 1: 403 SELF_APPROVAL_DENIED or SCOPE_DENIED; step 2: 404 as for an id that does not exist; step 3: 403; nothing changes",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-02",
+      "story_ids": [
+        "ST-HPM-002"
+      ],
+      "tags": [
+        "design-case",
+        "security",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-HPM-E2E-01",
+      "title": "Người đẩy gửi báo cáo đã phát hành, người khác ghi biên nhận, nhật ký đẩy, nhật ký kiểm toán và outbox cùng ghi nhận",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Lệnh đẩy không ghi dòng kiểm toán hoặc sự kiện outbox, hoặc sự kiện mang cả nội dung báo cáo",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, edition enterprise, bộ ghi tệp thay HPM; một báo cáo CSV đã qua cổng tải tệp (CLEAN); người đẩy có hpm.push, người nhận có hpm.receipt; kỳ 2026-M10\n1. Người đẩy gọi POST /hpm/pushes với layout HPM-MONTHLY, kỳ 2026-M10, phiên bản 1, sha256 và khóa tệp\n2. Đọc dòng kiểm toán hpm.push_submitted và sự kiện hpm.push.sent.v1 của lượt đẩy\n3. Người nhận gọi POST /hpm/pushes/{id}/receipt với outcome ACCEPTED và tham chiếu\n4. Đọc GET /hpm/pushes?period=2026-M10 bằng người đọc",
+      "expected": "Bước 1: 200, status SENT, lượt đẩy WRITTEN, attempts 1, acceptance PENDING_EXTERNAL, pushed_by là người đẩy. Bước 2: đúng một dòng kiểm toán do người đẩy làm và một sự kiện có tenant_id, push_id, sha256, không chứa nội dung báo cáo. Bước 3: 200, ACCEPTED; có dòng kiểm toán hpm.receipt_accepted của người nhận và đúng một sự kiện hpm.push.receipt.recorded.v1. Bước 4: dòng ACCEPTED kèm tham chiếu và người ghi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M10' AND status = 'ACCEPTED'",
+        "expect": {
+          "value": "1"
+        }
+      },
+      "audit_assert": {
+        "entity": "hpm_push",
+        "entity_id": "<id lượt đẩy>",
+        "action": "hpm.push_submitted",
+        "fields": [
+          "actor_id",
+          "safe_diff",
+          "occurred_at"
+        ],
+        "expect_rows": 1
+      },
+      "idempotency": {
+        "url": "/hpm/pushes",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 1,
+        "body": {
+          "layout_code": "HPM-MONTHLY",
+          "period": "2026-M10",
+          "revision": 1
+        },
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M10'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-01",
+      "title": "Gửi lại cùng Idempotency-Key trả đúng kết quả lần đầu: một dòng, một lần thử",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Gửi lại do mất mạng tạo dòng đẩy thứ hai hoặc lần thử thứ hai",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một báo cáo đã tải lên; kỳ 2026-M09 chưa đẩy\n1. Gọi POST /hpm/pushes với khóa k1\n2. Gọi lại đúng yêu cầu đó với cùng khóa k1\n3. Đếm hpm_push và hpm_push_attempt của kỳ",
+      "expected": "Lần 2 trả 200 cùng resource_id với lần 1; đúng 1 dòng hpm_push và 1 dòng hpm_push_attempt của kỳ 2026-M09.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM",
+      "idempotency": {
+        "url": "/hpm/pushes",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "layout_code": "HPM-MONTHLY",
+          "period": "2026-M09",
+          "revision": 1
+        },
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M09'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-02",
+      "title": "Đẩy lại cùng nội dung bằng khóa Idempotency mới là ALREADY_DELIVERED, không có lần thử mới",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đẩy trùng nội dung tạo gói thứ hai hoặc tăng số lần thử",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; lượt đẩy kỳ 2026-M08 phiên bản 1 đã gửi\n1. Gọi lại POST /hpm/pushes với đúng nội dung nhưng khóa Idempotency khác",
+      "expected": "200, status ALREADY_DELIVERED, resource_id là lượt đẩy cũ, attempts vẫn 1; chỉ một dòng hpm_push của kỳ.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM",
+      "idempotency": {
+        "url": "/hpm/pushes",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 1,
+        "body": {
+          "layout_code": "HPM-MONTHLY",
+          "period": "2026-M08",
+          "revision": 1
+        },
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M08'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-03",
+      "title": "Cùng kỳ và phiên bản nhưng nội dung khác bị từ chối (409 HPM_KEY_REUSED), không ghi gì",
+      "type": "RED",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Khóa (tổ chức, kỳ, phiên bản) bị dùng lại cho nội dung khác làm báo cáo cũ bị thay âm thầm",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; kỳ 2026-M07 phiên bản 1 đã đẩy\n1. Đẩy kỳ 2026-M07 phiên bản 1 với tệp có sha256 khác",
+      "expected": "409 HPM_KEY_REUSED; vẫn một dòng hpm_push của kỳ; không gói mới.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-04",
+      "title": "Năm lệnh đẩy giống hệt gửi cùng lúc với một khóa chỉ tạo một dòng và một gói; người thua cuộc nhận kết quả của người thắng",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Hai lệnh đồng thời cùng thấy chưa có dòng và cùng ghi gói, làm đẩy đôi lên HPM",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một báo cáo đã tải lên; kỳ 2026-M11 chưa đẩy\n1. Gửi cùng lúc năm yêu cầu POST /hpm/pushes giống hệt, cùng Idempotency-Key\n2. Đếm hpm_push và hpm_push_attempt của kỳ",
+      "expected": "Mọi yêu cầu trả 200 hoặc 409 (không 5xx), ít nhất một 200; đúng 1 dòng hpm_push và 1 dòng hpm_push_attempt.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM",
+      "idempotency": {
+        "url": "/hpm/pushes",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "layout_code": "HPM-MONTHLY",
+          "period": "2026-M11",
+          "revision": 1
+        },
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M11'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-STA-01",
+      "title": "Lượt đẩy đã được nhận hoặc bị từ chối không đẩy lại được; lượt đã quyết định không nhận biên nhận thứ hai",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đẩy lại lượt ACCEPTED hoặc REJECTED làm lệch trạng thái giữa ta và HPM",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một lượt ACCEPTED (kỳ 2026-M06) và một lượt REJECTED (kỳ 2026-M05)\n1. Gọi POST /hpm/pushes/{id}/retry với phiên bản hiện tại cho lượt ACCEPTED\n2. Ghi biên nhận thứ hai cho lượt ACCEPTED\n3. Gọi retry cho lượt REJECTED",
+      "expected": "Cả ba lần: 409; hai lần retry mang HPM_PUSH_STATE_INVALID; không dòng thử mới.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM",
+      "db_assert": {
+        "query": "SELECT status FROM machvon.hpm_push WHERE period = '2026-M06'",
+        "expect": {
+          "value": "ACCEPTED"
+        }
+      },
+      "transition": {
+        "from": "ACCEPTED",
+        "to": "WRITTEN",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-STA-02",
+      "title": "Phiên bản cũ hơn bị từ chối sau phiên bản mới; phiên bản mới không thay kỳ đã nhận nếu không có kỳ mở lại và đính chính được duyệt",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Báo cáo cũ hơn ghi đè bản mới, hoặc kỳ đã được HPM nhận bị thay không qua đính chính",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; kỳ 2026-M04 đã đẩy phiên bản 2; kỳ 2026-M03 phiên bản 1 đã ACCEPTED\n1. Đẩy kỳ 2026-M04 phiên bản 1\n2. Đẩy kỳ 2026-M03 phiên bản 2 khi kỳ đã được nhận và chưa có kỳ mở lại",
+      "expected": "Bước 1: 409 REPORT_OUT_OF_DATE kèm current_revision 2; không có dòng phiên bản 1. Bước 2: 409 HPM_OVERWRITE_NOT_AUTHORISED, missing gồm PERIOD_REOPENED và APPROVED_CORRECTION, accepted_revision 1; không dòng phiên bản 2.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM",
+      "transition": {
+        "from": "ACCEPTED",
+        "to": "REPLACED_WITHOUT_CORRECTION",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SOD-01",
+      "title": "Người đã đẩy không ghi biên nhận của chính lượt đẩy đó dù có đủ hai quyền; từ chối cần ghi chú đủ 10 ký tự",
+      "type": "RED",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Một người vừa đẩy vừa xác nhận HPM đã nhận (hai tay không tách)",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; người dùng hpm-admin giữ hpm.push và hpm.receipt; lượt đẩy của chính người đó kỳ 2026-M02\n1. hpm-admin ghi biên nhận ACCEPTED cho lượt đẩy của mình\n2. Người nhận ghi REJECTED với ghi chú 5 ký tự",
+      "expected": "Bước 1: 403 SELF_APPROVAL_DENIED, không có dòng kiểm toán hpm.receipt_accepted. Bước 2: 422.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-HPM-DAT-01",
+      "title": "Tắt kết nối HPM cần lý do và phiên bản, có dòng kiểm toán kèm lý do; khi tắt, lệnh đẩy bị từ chối (409 HPM_CONNECTION_DISABLED)",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-HPM-CONN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tắt kết nối không ghi lý do, hoặc vẫn đẩy được khi đã tắt",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; kết nối đang bật; quản trị hpm-admin\n1. Gọi POST /hpm/connection/state với If-Match sai\n2. Gọi với lý do 2 ký tự\n3. Gọi tắt với lý do và phiên bản đúng\n4. Người đẩy đẩy một báo cáo\n5. Bật lại với lý do",
+      "expected": "Bước 1: 409 VERSION_CONFLICT. Bước 2: 422. Bước 3: 200 DISABLED kèm dòng kiểm toán hpm.connection_switched có reason. Bước 4: 409 HPM_CONNECTION_DISABLED, không dòng hpm_push. Bước 5: 200, đẩy được lại.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M01' AND revision = 1",
+        "expect": {
+          "value": "1"
+        }
+      },
+      "audit_assert": {
+        "entity": "ent_connection",
+        "entity_id": "<id kết nối>",
+        "action": "hpm.connection_switched",
+        "fields": [
+          "actor_id",
+          "reason",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-ISO-01",
+      "title": "Thành viên tenant khác nhận 404 như id không tồn tại cho lượt đẩy của tenant này, và thấy nhật ký rỗng",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Lộ lượt đẩy hoặc cho ghi biên nhận qua id của tenant khác (IDOR)",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có lượt đẩy P; tenant B có quản trị hpm\n1. Thành viên tenant B gọi POST /hpm/pushes/{P}/receipt\n2. Gọi cùng lệnh với id ngẫu nhiên\n3. Thành viên tenant B đọc GET /hpm/pushes",
+      "expected": "Bước 1 và 2 cùng 404 và cùng mã lỗi; bước 3: danh sách rỗng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/hpm.uat.test.ts"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/pushes/{id}/receipt",
+        "method": "POST",
+        "allow": [
+          "hpm-receiver"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "sha256",
+          "package_name"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-STA-03",
+      "title": "Thử lại tối đa theo quy tắc HPM_PUSH_POLICY: lần thứ sáu bị từ chối 409 HPM_RETRY_EXHAUSTED",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "hpm-pusher",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Thử lại không giới hạn làm đầy nhật ký và che sự cố thật",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-pusher",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bộ ghi tệp được giả lỗi đĩa đầy 6 lần liên tiếp\n1. Đẩy một báo cáo (lần thử 1 lỗi)\n2. Gọi retry bốn lần, mỗi lần lỗi\n3. Gọi retry lần thứ sáu",
+      "expected": "Năm lần thử đầu được ghi với HPM_DELIVERY_FAILED; lần sau cùng 409 HPM_RETRY_EXHAUSTED; chi tiết lỗi của bộ ghi (đường dẫn đĩa) không lộ ra trong phản hồi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bơm lỗi vào bộ ghi tệp (giả đĩa đầy), cổng tải bộ ghi chỉ có ở bài jest tích hợp apps/api/test/editions/hpm.enterprise.test.ts, không đạt được qua HTTP của bản đang chạy"
+      },
+      "module": "HPM",
+      "transition": {
+        "from": "FAILED",
+        "to": "WRITTEN",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-E2E-02",
+      "title": "Đính chính kỳ đã được HPM nhận: người đề xuất khác người duyệt, kỳ mở lại đúng kỳ, bản mới thay bản cũ một lần",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hpm-proposer",
+      "journey_ref": "J-HPM-CORR-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-02",
+      "oracle_source": "Claim → FR-HPM-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đính chính được duyệt bởi chính người đề xuất, dùng kỳ mở lại của kỳ khác hoặc dùng hai lần",
+      "coverage_ids": [
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-proposer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; kỳ 2025-M05 đã ACCEPTED; kỳ mở lại do DIS cấp cho 2025-M05; người đề xuất và người duyệt khác nhau\n1. Người duyệt đề xuất đính chính\n2. Người đề xuất đề xuất đính chính với period_reopen_id của kỳ khác\n3. Người đề xuất đề xuất với kỳ mở lại đúng\n4. Người đề xuất tự duyệt\n5. Người duyệt APPROVE\n6. Đẩy phiên bản 2\n7. Đẩy phiên bản 3 cùng đính chính",
+      "expected": "Bước 1: 403. Bước 2: từ chối vì kỳ mở lại không phải của kỳ này. Bước 4: 403. Bước 5: 200. Bước 6: 200 và đính chính ở trạng thái đã dùng. Bước 7: bị từ chối vì đính chính đã dùng một lần.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HPM-02",
+      "story_ids": [
+        "ST-HPM-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần kỳ mở lại thật của DIS (cổng HPM_PERIOD_REOPEN); jest tích hợp dùng bản giả của cổng, UAT cần chạy trên bản đã gộp có DIS thật"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-HPM-EDG-01",
+      "title": "Biên của ghi chú từ chối biên nhận: 9 ký tự bị 422, đúng 10 ký tự được nhận",
+      "type": "BOUNDARY",
+      "platform": "api",
+      "persona": "hpm-receiver",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Ngưỡng ghi chú sai một ký tự cho phép từ chối không lý do",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-receiver",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; hai lượt đẩy đã WRITTEN\n1. Ghi REJECTED với ghi chú 9 ký tự\n2. Ghi REJECTED với ghi chú đúng 10 ký tự cho lượt khác",
+      "expected": "Bước 1: 422, lượt vẫn WRITTEN. Bước 2: 200, REJECTED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa viết kịch bản; có thể thêm vào hpm.uat.test.ts, không đòi hỏi thêm hạ tầng"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-HPM-DEMO-01",
+      "title": "Bản phát hành trên biểu mẫu DEMO không bao giờ được ghi là đã nhận (409 TEMPLATE_UNCONFIRMED)",
+      "type": "RED",
+      "platform": "api",
+      "persona": "hpm-receiver",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Quy tắc R18 của kế hoạch ENT-3 (docs/delivery/11-pending-external-register.md): việc dựng trên giả định không được tính là đạt; màn HPM-01 nêu \"bản dựng trên mẫu DEMO không bao giờ được ghi là đã nhận\"",
+      "catches_bug": "Biên nhận ACCEPTED ghi cho bản dựng trên mẫu chưa được khách xác nhận, làm số liệu demo đi vào kỳ đã nhận",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-receiver",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một bản phát hành của biểu mẫu HPM-MONTHLY (DEMO) từ động cơ báo cáo; lượt đẩy WRITTEN\n1. Người nhận ghi biên nhận ACCEPTED cho lượt đẩy của bản DEMO",
+      "expected": "409 TEMPLATE_UNCONFIRMED; trạng thái lượt đẩy không đổi; nhật ký giao của động cơ báo cáo không có dòng ACCEPTED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần một bản phát hành từ động cơ báo cáo trên biểu mẫu DEMO (RPT làm trước); suite RPT chưa phát hành biểu mẫu DEMO"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-HPM-PRF-01",
+      "title": "Đọc nhật ký đẩy HPM trả lời trong ngân sách 5 giây ở phân vị 95",
+      "type": "PERFORMANCE",
+      "platform": "api",
+      "persona": "hpm-reader",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Yêu cầu của khách: mọi chức năng phản hồi dưới 5 giây, đo bằng phân vị 95 (docs/qa/perf-budget.json, lớp FUNCTION; HSKT HT.05)",
+      "catches_bug": "Truy vấn nhật ký đẩy chậm khi có hàng nghìn lượt đẩy",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có 1.000 lượt đẩy\n1. Gọi GET /hpm/pushes?limit=50 hai mươi lần sau ba lần khởi động",
+      "expected": "p95 không quá 5.000 ms, không lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bộ dữ liệu 1.000 lượt đẩy; chưa có bộ sinh dữ liệu cho HPM"
+      },
+      "module": "HPM",
+      "perf_budget": {
+        "url": "/hpm/pushes?limit=50",
+        "method": "GET",
+        "p95_ms": 5000,
+        "sample": 20,
+        "warmup": 3,
+        "max_error_rate": 0
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-A11-01",
+      "title": "Màn HPM-01 và HPM-02 đạt WCAG 2.2 AA: bàn phím, nhãn, tương phản, hộp thoại ghi biên nhận",
+      "type": "A11Y",
+      "platform": "web",
+      "persona": "hpm-admin",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01, FR-HPM-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Nút đẩy lại, ghi biên nhận hoặc hộp thoại đính chính không dùng được bằng bàn phím hoặc thiếu nhãn",
+      "coverage_ids": [
+        "COV-FR-HPM-01",
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; dữ liệu có lượt FAILED, WRITTEN, ACCEPTED\n1. Chạy axe trên HPM-01 và HPM-02 ở 1280 px và 360 px\n2. Đi hết các nút bằng phím Tab, mở và đóng hộp thoại bằng Esc\n3. Kiểm thông báo trạng thái đọc được bằng trình đọc màn hình",
+      "expected": "Không lỗi axe nghiêm trọng hoặc cao; thứ tự tab theo bố cục; tiêu điểm trả về nút đã mở hộp thoại; băng PENDING-EXTERNAL được đọc.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "accessibility",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001",
+        "ST-HPM-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Đã có quét axe 111 màn trong apps/web/e2e/a11y.spec.ts nhưng không đặt tên theo mã ca; chưa có đi bàn phím riêng cho hai màn này"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-HPM-PX-01",
+      "title": "PENDING-EXTERNAL PX-03: kết quả nhận của HPM thật chưa tính là đạt",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-HPM-PUSH-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Sổ việc phụ thuộc khách PX-03 (docs/delivery/11-pending-external-register.md)",
+      "catches_bug": "Báo cáo nghiệm thu tính đạt cho đường đẩy HPM khi giao diện kỹ thuật của HPM chưa có",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Việc phụ thuộc khách (PENDING-EXTERNAL, R18): giao diện kỹ thuật của HPM chưa biết nên bộ ghi tệp thay HPM, kết quả của HPM là biên nhận ghi tay\n1. Đẩy một báo cáo bằng bộ ghi tệp\n2. Mở HPM-01 và đọc băng trạng thái và cột acceptance",
+      "expected": "Mọi lượt đẩy mang acceptance PENDING_EXTERNAL; băng PENDING-EXTERNAL hiển thị; mục nghiệm thu với HPM thật ghi là chờ khách, không đạt.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chờ khách cung cấp giao diện kỹ thuật HPM (PX-03); không thể chạy trước khi có tài liệu"
+      },
+      "module": "HPM"
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-01",
+      "title": "getHpmConnection (GET /hpm/connection): chỉ người giữ quyền hpm.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; thao tác getHpmConnection yêu cầu quyền hpm.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /hpm/connection thiếu kiểm quyền hpm.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.read gọi GET /hpm/connection với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/connection",
+        "method": "GET",
+        "allow": [
+          "hpm-admin",
+          "hpm-pusher",
+          "hpm-receiver",
+          "hpm-proposer",
+          "hpm-decider",
+          "hpm-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-02",
+      "title": "setHpmConnectionState (POST /hpm/connection/state): chỉ người giữ quyền hpm.admin qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; thao tác setHpmConnectionState yêu cầu quyền hpm.admin (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /hpm/connection/state thiếu kiểm quyền hpm.admin hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.admin trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.admin gọi POST /hpm/connection/state với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/connection/state",
+        "method": "POST",
+        "allow": [
+          "hpm-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-03",
+      "title": "listHpmPushes (GET /hpm/pushes): chỉ người giữ quyền hpm.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; thao tác listHpmPushes yêu cầu quyền hpm.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /hpm/pushes thiếu kiểm quyền hpm.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.read gọi GET /hpm/pushes với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/pushes",
+        "method": "GET",
+        "allow": [
+          "hpm-admin",
+          "hpm-pusher",
+          "hpm-receiver",
+          "hpm-proposer",
+          "hpm-decider",
+          "hpm-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-04",
+      "title": "submitHpmPush (POST /hpm/pushes): chỉ người giữ quyền hpm.push qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; thao tác submitHpmPush yêu cầu quyền hpm.push (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /hpm/pushes thiếu kiểm quyền hpm.push hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.push trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.push gọi POST /hpm/pushes với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/pushes",
+        "method": "POST",
+        "allow": [
+          "hpm-admin",
+          "hpm-pusher"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-05",
+      "title": "retryHpmPush (POST /hpm/pushes/{id}/retry): chỉ người giữ quyền hpm.push qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; thao tác retryHpmPush yêu cầu quyền hpm.push (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /hpm/pushes/{id}/retry thiếu kiểm quyền hpm.push hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.push trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.push gọi POST /hpm/pushes/{id}/retry với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/pushes/{id}/retry",
+        "method": "POST",
+        "allow": [
+          "hpm-admin",
+          "hpm-pusher"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-06",
+      "title": "recordHpmReceipt (POST /hpm/pushes/{id}/receipt): chỉ người giữ quyền hpm.receipt qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-01",
+      "oracle_source": "Claim → FR-HPM-01; thao tác recordHpmReceipt yêu cầu quyền hpm.receipt (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /hpm/pushes/{id}/receipt thiếu kiểm quyền hpm.receipt hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.receipt trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.receipt gọi POST /hpm/pushes/{id}/receipt với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-01",
+      "story_ids": [
+        "ST-HPM-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/pushes/{id}/receipt",
+        "method": "POST",
+        "allow": [
+          "hpm-admin",
+          "hpm-receiver"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-07",
+      "title": "listHpmCorrections (GET /hpm/corrections): chỉ người giữ quyền hpm.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-02",
+      "oracle_source": "Claim → FR-HPM-02; thao tác listHpmCorrections yêu cầu quyền hpm.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /hpm/corrections thiếu kiểm quyền hpm.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.read gọi GET /hpm/corrections với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-02",
+      "story_ids": [
+        "ST-HPM-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/corrections",
+        "method": "GET",
+        "allow": [
+          "hpm-admin",
+          "hpm-pusher",
+          "hpm-receiver",
+          "hpm-proposer",
+          "hpm-decider",
+          "hpm-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-08",
+      "title": "proposeHpmCorrection (POST /hpm/corrections): chỉ người giữ quyền hpm.correction.propose qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-02",
+      "oracle_source": "Claim → FR-HPM-02; thao tác proposeHpmCorrection yêu cầu quyền hpm.correction.propose (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /hpm/corrections thiếu kiểm quyền hpm.correction.propose hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.correction.propose trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.correction.propose gọi POST /hpm/corrections với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-02",
+      "story_ids": [
+        "ST-HPM-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/corrections",
+        "method": "POST",
+        "allow": [
+          "hpm-admin",
+          "hpm-proposer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-09",
+      "title": "decideHpmCorrection (POST /hpm/corrections/{id}/decision): chỉ người giữ quyền hpm.correction.decide qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "hpm-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-02",
+      "oracle_source": "Claim → FR-HPM-02; thao tác decideHpmCorrection yêu cầu quyền hpm.correction.decide (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /hpm/corrections/{id}/decision thiếu kiểm quyền hpm.correction.decide hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "hpm-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ hpm.correction.decide trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ hpm.correction.decide gọi POST /hpm/corrections/{id}/decision với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "HPM-02",
+      "story_ids": [
+        "ST-HPM-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "HPM",
+      "access": {
+        "url": "/hpm/corrections/{id}/decision",
+        "method": "POST",
+        "allow": [
+          "hpm-admin",
+          "hpm-decider"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    }
+  ]
+}

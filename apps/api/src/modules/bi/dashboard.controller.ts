@@ -1,9 +1,9 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
-import { BiDashboardShareStore, BiDashboardStore, TenantDatabase } from '@machvon/db';
+import { BiDashboardShareStore, BiDashboardStore, BiPublicationStore, TenantDatabase } from '@machvon/db';
 import type { ShareRow } from '@machvon/db';
 import type { DashboardRecord, DashboardVersionRecord } from '@machvon/db';
 import { DomainError, parseDashboardDraft, versionConflict } from '@machvon/kernel';
-import type { TenantContext } from '@machvon/kernel';
+import type { SignOffBlock, SignOffEntry, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
@@ -50,7 +50,20 @@ export const shareView = (row: ShareRow): Record<string, unknown> => ({
   version: row.version,
 });
 
-export const versionView = (record: DashboardVersionRecord): Record<string, unknown> => ({
+const signatureView = (entry: SignOffEntry | null): Record<string, unknown> | null => (entry === null ? null : { id: entry.id, name: entry.name, at: entry.at });
+
+/** The block of three signatures of a version (BC.02): who prepared it, who checked it, who approved it; a step nobody took is null, and `complete` says all three signed. */
+export const signOffView = (block: SignOffBlock): Record<string, unknown> => ({
+  version_id: block.versionId,
+  revision: block.revision,
+  prepared_by: signatureView(block.prepared),
+  checked_by: signatureView(block.checked),
+  approved_by: signatureView(block.approved),
+  state: block.state,
+  complete: block.complete,
+});
+
+export const versionView = (record: DashboardVersionRecord, signOff?: SignOffBlock): Record<string, unknown> => ({
   id: record.id,
   dashboard_id: record.dashboardId,
   revision: record.revision,
@@ -65,6 +78,7 @@ export const versionView = (record: DashboardVersionRecord): Record<string, unkn
   created_at: record.createdAt,
   published_by: record.publishedBy,
   published_at: record.publishedAt,
+  ...(signOff === undefined ? {} : { sign_off: signOffView(signOff) }),
 });
 
 /**
@@ -146,6 +160,7 @@ export class DashboardController {
 export class DashboardReadsController {
   private readonly dashboards = new BiDashboardStore();
   private readonly shares = new BiDashboardShareStore();
+  private readonly publications = new BiPublicationStore();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
 
@@ -173,10 +188,18 @@ export class DashboardReadsController {
       if (record === undefined) return undefined;
       // The shares are the owner's to see: who a dashboard is shared with is not told to a person it is shared with.
       const shares = record.permission === 'OWNER' ? await this.shares.forDashboard(tx, record.id) : [];
-      return { record, versions: await this.dashboards.versions(tx, record.id), shares };
+      const versions = await this.dashboards.versions(tx, record.id);
+      return { record, versions, shares, signOffs: await this.publications.signOffsOfVersions(tx, versions.map((version) => version.id)) };
     });
     if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return { ...dashboardView(found.record, tenant.membershipId), versions: found.versions.map(versionView), shares: found.shares.map(shareView) };
+    const current = found.record.currentVersionId === null ? undefined : found.signOffs.get(found.record.currentVersionId);
+    // The signatures of the version the dashboard points to; a dashboard that has no version has nothing to sign.
+    return {
+      ...dashboardView(found.record, tenant.membershipId),
+      ...(current === undefined ? {} : { sign_off: signOffView(current) }),
+      versions: found.versions.map((version) => versionView(version, found.signOffs.get(version.id))),
+      shares: found.shares.map(shareView),
+    };
   }
 }
 
@@ -194,7 +217,7 @@ export class DashboardVersionReadsController {
     const found = await this.database.withTenant(tenant, (tx) =>
       this.dashboards.listVersions(tx, tenant.membershipId, { limit: request.limit, after: request.after === undefined ? undefined : { at: request.after.code, id: request.after.id } }),
     );
-    return { items: found.records.map(versionView), next_cursor: found.next === undefined ? null : encodeCursor({ code: found.next.at, id: found.next.id }) };
+    return { items: found.records.map((record) => versionView(record)), next_cursor: found.next === undefined ? null : encodeCursor({ code: found.next.at, id: found.next.id }) };
   }
 
   @Get(':id')

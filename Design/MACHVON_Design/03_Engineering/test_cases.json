@@ -26640,5 +26640,4372 @@
     "covers": [
       "FR-RPT-09"
     ]
+  },
+  {
+    "id": "UAT-IND-E2E-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A, edition enterprise; dự án P và kỳ mở; người nhập có ind.entry",
+    "steps": [
+      "Nhập PLAN_YEAR 1000 và PHYSICAL_PROGRESS_REPORTED 12,5",
+      "Nhập PLAN_YEAR 1200 không lý do",
+      "Nhập 1200 kèm lý do",
+      "Đọc lịch sử, kiểm toán ind.figure_revised và sự kiện ind.figure.entered.v1"
+    ],
+    "expected": "Bước 1: ENTERED, created 2. Bước 2: 422 VALIDATION_FAILED, detail reason. Bước 3: revised 1. Bước 4: lịch sử [[2,1200],[1,1000]]; safe_diff có revision 2, value 1200, with_reason true và không chứa chữ của lý do; các sự kiện có aggregate_version 1, 1, 2.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-IDM-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; PLAN_YEAR 1000 đã nhập",
+    "steps": [
+      "Nhập lại PLAN_YEAR 1000",
+      "Đọc số liệu hiện hành và sự kiện"
+    ],
+    "expected": "created 0, revised 0, unchanged 1; vẫn một bản và một sự kiện ind.figure.entered.v1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-EDG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; kỳ mở",
+    "steps": [
+      "Nhập RATE_YEAR_IN_FORCE",
+      "Nhập NO_SUCH_CODE",
+      "Nhập PLAN_YEAR hai lần",
+      "Nhập PLAN_YEAR 5,5 và \"1,5\"",
+      "Nhập danh sách rỗng"
+    ],
+    "expected": "Mọi bước 422; detail lần lượt figures[0].indicator_code, figures[0].indicator_code, figures[1].indicator_code, figures[0].value; không bản ghi nào được tạo.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-STA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; một kỳ LOCKED và một kỳ OPEN",
+    "steps": [
+      "Nhập vào kỳ khóa",
+      "Người chỉ đọc nhập vào kỳ mở"
+    ],
+    "expected": "Bước 1: 409 PERIOD_LOCKED. Bước 2: 403. Không số liệu nào của dự án.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-DAT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; quy tắc BLOCK vốn tự có cộng vay bằng tổng và quy tắc WARN tiến độ trên 90 phần trăm đã được hai người duyệt",
+    "steps": [
+      "Nhập vốn tự có 400, vay 500, tổng 1000",
+      "Nhập 400, 600, 1000 và tiến độ 95"
+    ],
+    "expected": "Bước 1: 422 IND_ENTRY_RULE_VIOLATED, detail EQUITY_PLUS_DEBT_EQUALS_TOTAL, nêu thông điệp của quy tắc, không số liệu. Bước 2: 200, warnings [PROGRESS_WARNING], kiểm toán ind.entry_warned.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-02"
+    ]
+  },
+  {
+    "id": "UAT-IND-E2E-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A; tệp CSV một dòng; ánh xạ MONTHLY_FORM được hai người duyệt sau khi thử lần đầu",
+    "steps": [
+      "Xem trước bằng ánh xạ mẫu SAMPLE_COLUMNS_FORM",
+      "Duyệt ánh xạ MONTHLY_FORM và tải tệp lên cổng",
+      "Chạy thử",
+      "Áp dụng",
+      "Áp dụng lần hai"
+    ],
+    "expected": "Bước 1: 409 IND_MAPPING_NOT_APPROVED. Bước 2: fitting_mappings [MONTHLY_FORM]. Bước 3: DRY_RUN, không số liệu. Bước 4: APPLIED, figures_written 4, mỗi số có source IMPORT, mapping_code, mapping_version, import_line. Bước 5: 409 IMPORT_FILE_ALREADY_APPLIED. Có dòng kiểm toán ind.import_applied.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UAT-IND-ISO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A có dự án P và kỳ K; tenant B có quản trị chỉ tiêu",
+    "steps": [
+      "Tenant B nhập số cho P",
+      "Tenant B đọc số liệu của P",
+      "Tenant B đọc từ điển"
+    ],
+    "expected": "Bước 1: 404. Bước 2: rỗng. Bước 3: 200 (từ điển của chính tenant B).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SCP-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A; người nhập UNIT_SUBTREE của phòng A; dự án của phòng A và phòng B",
+    "steps": [
+      "Nhập cho dự án phòng B",
+      "Nhập cho dự án phòng A",
+      "Đọc lịch sử dự án phòng B"
+    ],
+    "expected": "Bước 1: 404. Bước 2: 200. Bước 3: 404.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-BND-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P2",
+    "setup": "Tenant A; chỉ tiêu PHYSICAL_PROGRESS_REPORTED (phần trăm) và PLAN_YEAR (đồng)",
+    "steps": [
+      "Nhập từng giá trị biên",
+      "Đọc kết quả"
+    ],
+    "expected": "0 và 100 nhận; 100,01 và -0,01 bị 422 nêu trường value; số tiền lưu đúng đến đồng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-PRF-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "performance",
+    "priority": "P2",
+    "setup": "Tenant A có 22 dự án và 200 chỉ tiêu, mỗi số có 3 bản sửa",
+    "steps": [
+      "Gọi GET /indicator-figures?project_id=...&period_id=... hai mươi lần sau ba lần khởi động"
+    ],
+    "expected": "p95 không quá 5.000 ms, không lỗi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-A11-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "accessibility",
+    "priority": "P1",
+    "setup": "Bản enterprise; dữ liệu có chỉ tiêu dẫn xuất và quy tắc khuôn",
+    "steps": [
+      "Chạy axe ở 1280 px và 360 px",
+      "Nhập số sai và đọc lỗi bằng trình đọc màn hình"
+    ],
+    "expected": "Không lỗi axe nghiêm trọng hoặc cao; ô khóa có giải thích; lỗi gắn aria-describedby.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01",
+      "FR-IND-02",
+      "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UAT-IND-PX-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant A chưa duyệt quy tắc riêng",
+    "steps": [
+      "Mở IND-01 và IND-02",
+      "Đọc cột origin, unverified, active"
+    ],
+    "expected": "Chỉ tiêu và quy tắc khởi điểm ghi origin DEFAULT, unverified true; quy tắc khuôn active false; băng chưa xác nhận hiển thị.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01",
+      "FR-IND-02"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicators với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicators/detail với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicator-entry-rules với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-02"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.entry trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.entry gọi POST /indicator-entry-rules/evaluate với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-05",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicator-import-mappings với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-06",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicator-import-mappings/detail với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-07",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.entry trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.entry gọi POST /indicator-figures với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-08",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicator-figures với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-09",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicator-figures/history với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-10",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.import.preview trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.import.preview gọi POST /indicator-imports/files với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-11",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.import.preview trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.import.preview gọi POST /indicator-imports/preview với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-12",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.import trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.import gọi POST /indicator-imports với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-01"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-13",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicator-imports với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UAT-IND-SEC-14",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ind.read gọi GET /indicator-imports/rows với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-IND-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-E2E-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A, edition enterprise; một bản chốt đã đóng băng với một dự án (kế hoạch 1.000 tỷ, giải ngân 600 tỷ); người lập, người kiểm, người duyệt khác nhau",
+    "steps": [
+      "Người lập tạo bản nháp biểu mẫu DIS-WEEKLY cho kỳ hôm nay",
+      "Người kiểm kiểm",
+      "Người duyệt duyệt rồi phát hành",
+      "Đọc bản phát hành, tệp XLSX và PDF",
+      "Thử sửa và xóa bản phát hành trực tiếp trong cơ sở dữ liệu"
+    ],
+    "expected": "Bước 1: CREATED, bản nháp DRAFT, snapshot_id đúng bản chốt, kiểm toán rpt.report_generated và sự kiện rpt.report.generated.v1. Bước 3: ISSUED. Bước 4: revision 1, is_current true, counts_as_accepted true, sha256 64 hex, hai tệp XLSX và PDF, băm tệp khớp, kiểm toán rpt.report_issued, sự kiện rpt.report.issued.v1. Bước 5: cơ sở dữ liệu từ chối (never changes) cả với chủ sở hữu.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02",
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-IDM-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; bản phát hành 1 của DIS-WEEKLY; một bản nháp sửa đổi chưa phát hành",
+    "steps": [
+      "Lập lại báo cáo cùng số liệu",
+      "Đọc danh sách đầu chuỗi",
+      "Lập bản sửa đổi có lý do hai lần"
+    ],
+    "expected": "Bước 1: DUPLICATE, draft_id rỗng, revision 1. Bước 2: một đầu chuỗi và một dòng report_issue. Bước 3: lần 2 trả EXISTING cùng draft_id.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01",
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-STA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; bản nháp phiên bản 1",
+    "steps": [
+      "Duyệt khi chưa kiểm",
+      "Phát hành khi chưa duyệt",
+      "Kiểm, kiểm lần hai",
+      "Duyệt với phiên bản 99"
+    ],
+    "expected": "Bước 1: 409. Bước 2: 409 REPORT_STATE_INVALID. Bước 3: 200 rồi 409; trạng thái CHECKED. Bước 4: 409; trạng thái vẫn CHECKED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SOD-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; người rpt-all giữ mọi quyền của động cơ báo cáo",
+    "steps": [
+      "Người lập kiểm bản nháp của mình",
+      "rpt-all kiểm",
+      "rpt-all duyệt",
+      "Người lập duyệt",
+      "Người duyệt duyệt",
+      "rpt-all phát hành",
+      "Người duyệt phát hành"
+    ],
+    "expected": "Bước 1: 403. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: 403. Bước 6: 403 SELF_APPROVAL_DENIED. Các bước 2, 5, 7: 200; bản nháp qua CHECKED, APPROVED, ISSUED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-STA-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; số liệu đã đổi sau bản phát hành 1",
+    "steps": [
+      "Lập lại không lý do",
+      "Lập hai bản sửa đổi cùng chuỗi, kiểm và duyệt cả hai",
+      "Phát hành bản thứ hai",
+      "Phát hành bản thứ nhất"
+    ],
+    "expected": "Bước 1: 422 VALIDATION_FAILED. Bước 3: 200. Bước 4: 409 REPORT_OUT_OF_DATE kèm current_revision; bản phát hành 2 nêu supersedes_id là bản 1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-IDM-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; các bản phát hành 1 đến 3 của DIS-WEEKLY",
+    "steps": [
+      "Giao bản 1 (đã bị thay) cho KBNN",
+      "Giao bản mới nhất cho KBNN",
+      "Giao lại cùng bản cho KBNN",
+      "Người chỉ đọc giao",
+      "Sửa nhật ký giao trực tiếp"
+    ],
+    "expected": "Bước 1: 409 REPORT_OUT_OF_DATE kèm current_revision. Bước 2: DELIVERED. Bước 3: 409 ALREADY_DELIVERED; đúng 1 dòng report_delivery, 1 dòng kiểm toán rpt.report_delivered, 1 sự kiện. Bước 4: 403. Bước 5: cơ sở dữ liệu từ chối (append-only).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-04"
+    ]
+  },
+  {
+    "id": "UAT-RPT-EDG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; bản phát hành mới nhất",
+    "steps": [
+      "Lập với layout NO-SUCH",
+      "Lập với kỳ MONTH cho biểu mẫu AS_OF",
+      "Lập với năm không khớp ngày",
+      "Giao kênh HPM_PUSH",
+      "Giao bên nhận \"bad receiver\"",
+      "Trả lời REJECTED không ghi chú",
+      "Trả lời cho bên chưa giao",
+      "Trả lời ACCEPTED hai lần"
+    ],
+    "expected": "Bước 1: 404. Bước 2 và 3: 422. Bước 4 và 5: 422. Bước 6: 422. Bước 7: 409. Bước 8: 200 rồi 409.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01",
+      "FR-RPT-04"
+    ]
+  },
+  {
+    "id": "UAT-RPT-ISO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A có bản phát hành I và bản nháp D; tenant B có quản trị",
+    "steps": [
+      "Tenant B đọc bản phát hành I",
+      "Đọc id ngẫu nhiên",
+      "Tải tệp XLSX của I",
+      "Đọc bản nháp D"
+    ],
+    "expected": "Bước 1 và 2 cùng 404 và cùng mã; bước 3 và 4: 404.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-DEMO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A bản enterprise; sáu biểu mẫu DEMO (PVN-MONTHLY, HPM-MONTHLY, ...); quy tắc REPORT_FORM_MODE mặc định (demo tắt)",
+    "steps": [
+      "Lập PVN-MONTHLY khi demo tắt",
+      "Bật demo bằng quy tắc được hai người duyệt rồi lập, kiểm, duyệt và phát hành",
+      "Mở tệp Excel và đọc đầu trang in và dòng đầu",
+      "Giao và ghi là bên nhận đã nhận"
+    ],
+    "expected": "Bước 1: 409 TEMPLATE_UNCONFIRMED. Bước 3: mọi nơi mang nhãn \"MẪU DEMO — chờ mẫu chính thức\". Bước 4: giao được ghi nhận, việc ghi đã nhận bị 409 TEMPLATE_UNCONFIRMED và counts_as_accepted false.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01",
+      "FR-RPT-04"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SIG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; bản phát hành của biểu mẫu gửi Bộ Tài chính; cổng ký DOC; người ký và người mở khóa khác nhau",
+    "steps": [
+      "Bắt đầu phiên ký",
+      "Hoàn tất phiên ký",
+      "Đọc khóa kỳ",
+      "Mở khóa kỳ với lý do ngắn, rồi đủ"
+    ],
+    "expected": "Kỳ bị khóa sau khi ký; mở khóa với lý do ngắn bị 422; mở khóa đủ cần người thứ hai; có kiểm toán.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-06"
+    ]
+  },
+  {
+    "id": "UAT-RPT-RML-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant A bản enterprise; một bản phát hành; kênh email bản thử (SMTP thật là PX-11/PX-16)",
+    "steps": [
+      "Tạo lịch gửi",
+      "Phát hành bản mới",
+      "Chạy việc gửi hai lần",
+      "Ngừng lịch và phát hành tiếp"
+    ],
+    "expected": "Mỗi bản phát hành đi một lần mỗi người nhận; nhật ký gửi chỉ thêm; sau khi ngừng không gửi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RML-01"
+    ]
+  },
+  {
+    "id": "UAT-RPT-XCK-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A bản enterprise; hai biểu mẫu cùng kỳ có số tổng lệch",
+    "steps": [
+      "Phát hành khi có chênh lệch",
+      "Người lập giải trình",
+      "Người khác giải trình với lý do ngắn, rồi đủ",
+      "Phát hành lại"
+    ],
+    "expected": "Bước 1: 409 REPORT_CROSSCHECK_BLOCKED và có kiểm toán. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 422 rồi ghi lý do. Bước 4: phát hành được.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-09"
+    ]
+  },
+  {
+    "id": "UAT-RPT-PRF-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "performance",
+    "priority": "P1",
+    "setup": "Tenant A có bản phát hành có PDF; 500 bản phát hành",
+    "steps": [
+      "Gọi GET /report-engine/issues/{id}/files/PDF hai mươi lần sau ba lần khởi động",
+      "Gọi GET /report-engine/issues"
+    ],
+    "expected": "PDF p95 không quá 20.000 ms; danh sách p95 không quá 5.000 ms; không lỗi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-A11-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "accessibility",
+    "priority": "P1",
+    "setup": "Bản enterprise; dữ liệu có bản nháp, đã kiểm, đã duyệt, đã phát hành",
+    "steps": [
+      "Chạy axe ở 1280 px và 360 px",
+      "Lập, kiểm, duyệt và phát hành chỉ bằng bàn phím"
+    ],
+    "expected": "Không lỗi axe nghiêm trọng hoặc cao; mọi bước dùng được bằng bàn phím.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01",
+      "FR-RPT-02",
+      "FR-RPT-03",
+      "FR-RPT-04"
+    ]
+  },
+  {
+    "id": "UAT-RPT-PX-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Bản enterprise; chưa có mẫu chính thức",
+    "steps": [
+      "Mở RPT-01 và RPT-05",
+      "Đọc nhãn và trạng thái từng biểu mẫu"
+    ],
+    "expected": "Mọi biểu mẫu ở trạng thái chờ mẫu chính thức, mang nhãn MẪU DEMO; soạn và xem trước được, phát hành tính là chưa đạt.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01",
+      "FR-RPT-05"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/catalogue với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/drafts với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.generate trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.generate gọi POST /report-engine/drafts với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-01"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/drafts/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-05",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/drafts/{id}/files/{format} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-06",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.check trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.check gọi POST /report-engine/drafts/{id}/check với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-07",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.approve trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.approve gọi POST /report-engine/drafts/{id}/approve với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-08",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.issue trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.issue gọi POST /report-engine/drafts/{id}/issue với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-09",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/issues với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-10",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/issues/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-11",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/issues/{id}/files/{format} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-03"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-12",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.deliver trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.deliver gọi POST /report-engine/issues/{id}/deliveries với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-02"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-13",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.answer trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.answer gọi POST /report-engine/issues/{id}/answers với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-04"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-14",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/deliveries với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-04"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-15",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.lock.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.lock.read gọi GET /report-engine/period-locks với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-06"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-16",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.lock.unlock trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.lock.unlock gọi POST /report-engine/period-locks/{id}/unlock với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-06"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-17",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.sign trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.sign gọi POST /report-engine/issues/{id}/signature với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-06"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-18",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.read gọi GET /report-engine/issues/{id}/signature với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-06"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-19",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.sign trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.sign gọi POST /report-engine/signature-sessions/{id}/completion với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-06"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-20",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.generate trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.generate gọi POST /report-engine/layout-previews với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-08"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-21",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.mail.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.mail.read gọi GET /report-engine/mail-schedules với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RML-01"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-22",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.mail.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.mail.manage gọi POST /report-engine/mail-schedules với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RML-01"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-23",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.mail.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.mail.read gọi GET /report-engine/mailings với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RML-01"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-24",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.mail.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.mail.manage gọi POST /report-engine/mail-schedules/{id}/retire với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RML-01"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-25",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.crosscheck.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.crosscheck.read gọi GET /report-engine/crosscheck với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-09"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-26",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.crosscheck.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.crosscheck.read gọi GET /report-engine/crosscheck/explanations với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-09"
+    ]
+  },
+  {
+    "id": "UAT-RPT-SEC-27",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ rpt.crosscheck.explain trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ rpt.crosscheck.explain gọi POST /report-engine/crosscheck/explanations với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-RPT-09"
+    ]
+  },
+  {
+    "id": "UAT-DIR-E2E-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A, edition enterprise; dự án P; đơn vị thực hiện U; tệp biên bản và bằng chứng CLEAN; thư ký, người nhận, người quyết định, người đóng là bốn người khác nhau",
+    "steps": [
+      "Thư ký ghi cuộc họp và giao chỉ đạo hạn 5 ngày",
+      "Người nhận báo tiến độ 30 phần trăm kèm bằng chứng",
+      "Người nhận xin gia hạn đến 20 ngày",
+      "Người quyết định duyệt (If-Match là phiên bản của yêu cầu)",
+      "Người đóng đóng chỉ đạo kèm bằng chứng và ghi chú",
+      "Người đọc xem chi tiết chỉ đạo"
+    ],
+    "expected": "Chỉ đạo chuyển OPEN, IN_PROGRESS, EXTENSION_REQUESTED, hạn mới đến ngày 20 (APPROVED), DONE; có dòng kiểm toán directive.progress_recorded, directive.extension_approved, directive.closed với reason là ghi chú; sự kiện directive.extension_decided.v1 và directive.closed.v1; dòng thời gian CREATED, PROGRESS, EXTENSION_REQUESTED, EXTENSION_APPROVED, CLOSED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03",
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-IDM-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; thư ký có directive.meeting.manage",
+    "steps": [
+      "POST /steering-meetings với khóa k",
+      "Lặp lại cùng nội dung và khóa",
+      "Lặp lại cùng khóa với tiêu đề khác"
+    ],
+    "expected": "Lần 2: cùng resource_id và mã GB-năm-số; đúng 1 dòng steering_meeting và 1 dòng kiểm toán directive.meeting_created. Lần 3: 409.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01"
+    ]
+  },
+  {
+    "id": "UAT-DIR-IDM-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; thư ký có directive.meeting.manage",
+    "steps": [
+      "Gửi cùng lúc năm yêu cầu POST /steering-meetings giống hệt, cùng Idempotency-Key",
+      "Đếm steering_meeting"
+    ],
+    "expected": "Mọi yêu cầu trả 200 hoặc 409 (không 5xx), ít nhất một 200 và mọi 200 cùng resource_id; đúng một dòng steering_meeting.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01"
+    ]
+  },
+  {
+    "id": "UAT-DIR-EDG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; biên bản INFECTED; thư ký",
+    "steps": [
+      "Ghi cuộc họp ngày mai",
+      "Ghi với trường tenant_id",
+      "Ghi với biên bản INFECTED",
+      "Giao chỉ đạo hạn trước 31 ngày",
+      "Báo tiến độ 101"
+    ],
+    "expected": "Bước 1: 422 VALIDATION_FAILED. Bước 2: 400 FIELD_NOT_ALLOWED. Bước 3: 422 DECISION_DOCUMENT_REQUIRED. Bước 4: 422 VALIDATION_FAILED. Bước 5: 422. Số cuộc họp không đổi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01",
+      "FR-DIR-02"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SOD-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; chỉ đạo do thư ký ghi; người dual giữ directive.progress và directive.extension.decide",
+    "steps": [
+      "Thư ký đóng chỉ đạo",
+      "Người nhận và người đọc đóng chỉ đạo",
+      "dual xin gia hạn rồi tự duyệt"
+    ],
+    "expected": "Bước 1: 403 SELF_APPROVAL_DENIED. Bước 2: 403. Bước 3: 403 SELF_APPROVAL_DENIED, không dòng kiểm toán directive.extension_approved; chỉ đạo chưa DONE.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-STA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; chỉ đạo OPEN",
+    "steps": [
+      "Mở lại chỉ đạo đang OPEN",
+      "Xin gia hạn rồi xin lần hai",
+      "Quyết định với phiên bản 9, rồi đúng, rồi lần hai",
+      "Đóng, đóng lần hai, đóng với phiên bản 1"
+    ],
+    "expected": "Mở lại: 409. Xin lần hai: 409 DIRECTIVE_EXTENSION_PENDING. Phiên bản 9: 409 VERSION_CONFLICT; quyết định lần hai: 409 DIRECTIVE_EXTENSION_STATE_INVALID. Đóng lần hai: 409 DIRECTIVE_STATE_INVALID; phiên bản cũ: 409.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-STA-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; chỉ đạo OPEN phiên bản 1",
+    "steps": [
+      "Hủy với phiên bản 7",
+      "Hủy với lý do và phiên bản 1",
+      "Người nhận báo tiến độ",
+      "Thư ký mở lại với phiên bản 2"
+    ],
+    "expected": "Bước 1: 409 VERSION_CONFLICT. Bước 2: CANCELLED, phiên bản 2, kiểm toán directive.cancelled có reason. Bước 3: 409. Bước 4: OPEN, phiên bản 3, sự kiện directive.reopened.v1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-DAT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; hai chỉ đạo: một hạn trước 10 ngày, một hạn sau 2 ngày",
+    "steps": [
+      "Đọc GET /directives?meeting_id=...",
+      "Đọc cột status của bảng directive",
+      "Đọc GET /directives/summary và danh sách"
+    ],
+    "expected": "Chỉ đạo quá hạn đứng đầu với status OVERDUE, stored_status OPEN, overdue_days 10; bảng lưu OPEN; tổng by_status cộng bằng total và bằng số dòng danh sách; số OVERDUE khớp.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03",
+      "FR-DIR-05"
+    ]
+  },
+  {
+    "id": "UAT-DIR-ISO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A có chỉ đạo D và cuộc họp M; tenant B có thư ký",
+    "steps": [
+      "Tenant B đọc GET /directives/{D}",
+      "Đọc id ngẫu nhiên",
+      "Đọc GET /steering-meetings/{M}",
+      "Gọi POST /directives/{D}/cancellation",
+      "Đọc GET /directives"
+    ],
+    "expected": "Bước 1 và 2 cùng 404 và cùng mã; bước 3 và 4: 404; bước 5: rỗng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SCP-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A; người ngoài có directive.read trên đơn vị khác (UNIT_ONLY)",
+    "steps": [
+      "Đọc GET /directives",
+      "Đọc GET /directives/summary",
+      "Đọc chi tiết một chỉ đạo ngoài phạm vi"
+    ],
+    "expected": "Danh sách rỗng, total 0, chi tiết 404.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03"
+    ]
+  },
+  {
+    "id": "UAT-DIR-E2E-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant A; kỳ tuần đã khóa; chỉ đạo mở trong kỳ, đóng sau kỳ",
+    "steps": [
+      "Đọc GET /directives/for-report cho kỳ",
+      "So với danh sách",
+      "Đọc cho kỳ không có"
+    ],
+    "expected": "Chỉ đạo đóng sau kỳ vẫn là OPEN ở cuối kỳ; tổng cộng đúng; kỳ không có: 422 hoặc 404 theo hợp đồng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-05"
+    ]
+  },
+  {
+    "id": "UAT-DIR-PWA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Bản enterprise, PWA đã cài; người đọc có chỉ đạo giao cho mình và chỉ đạo quá hạn",
+    "steps": [
+      "Mở PWA-04 ở 360 x 780",
+      "Lọc \"giao cho tôi\" và \"quá hạn\"",
+      "Mở PWA-06",
+      "Đổi múi giờ máy sang UTC-12 và mở lại"
+    ],
+    "expected": "Danh sách một cột không cuộn ngang; không có nút ghi; số ngày quá hạn giữ nguyên khi đổi múi giờ; lịch sử không sửa được.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-06"
+    ]
+  },
+  {
+    "id": "UAT-DIR-PRF-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "performance",
+    "priority": "P2",
+    "setup": "Tenant A có 2.000 chỉ đạo",
+    "steps": [
+      "Gọi GET /directives?limit=50 hai mươi lần sau ba lần khởi động"
+    ],
+    "expected": "p95 không quá 5.000 ms, không lỗi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03"
+    ]
+  },
+  {
+    "id": "UAT-DIR-A11-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "accessibility",
+    "priority": "P1",
+    "setup": "Bản enterprise; dữ liệu có chỉ đạo quá hạn",
+    "steps": [
+      "Chạy axe ở 1280 px và 360 px",
+      "Giao chỉ đạo, xin gia hạn và đóng chỉ bằng bàn phím"
+    ],
+    "expected": "Không lỗi axe nghiêm trọng hoặc cao; trạng thái có chữ; tiêu điểm trả về nút gọi hộp thoại.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01",
+      "FR-DIR-03",
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /steering-meetings với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.meeting.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.meeting.manage gọi POST /steering-meetings với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /steering-meetings/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-02"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.meeting.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.meeting.manage gọi POST /steering-meetings/{id}/minutes với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-01"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-05",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.manage gọi POST /steering-meetings/{id}/directives với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-02"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-06",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /directives với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-07",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /directives/overdue với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-08",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /directives/summary với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-09",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /directives/for-report với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-05"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-10",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /directives/widget với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-03"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-11",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /directives/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-12",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.read gọi GET /projects/{id}/directives với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-13",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.manage gọi POST /directives/{id}/assignment với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-14",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.progress trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.progress gọi POST /directives/{id}/progress với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-15",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.progress trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.progress gọi POST /directives/{id}/extension-requests với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-16",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.extension.decide trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.extension.decide gọi POST /directive-extensions/{id}/decision với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-17",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.close trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.close gọi POST /directives/{id}/closure với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-18",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.manage gọi POST /directives/{id}/cancellation với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-DIR-SEC-19",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ directive.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ directive.manage gọi POST /directives/{id}/reopening với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIR-04"
+    ]
+  },
+  {
+    "id": "UAT-HPM-E2E-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A, edition enterprise, bộ ghi tệp thay HPM; một báo cáo CSV đã qua cổng tải tệp (CLEAN); người đẩy có hpm.push, người nhận có hpm.receipt; kỳ 2026-M10",
+    "steps": [
+      "Người đẩy gọi POST /hpm/pushes với layout HPM-MONTHLY, kỳ 2026-M10, phiên bản 1, sha256 và khóa tệp",
+      "Đọc dòng kiểm toán hpm.push_submitted và sự kiện hpm.push.sent.v1 của lượt đẩy",
+      "Người nhận gọi POST /hpm/pushes/{id}/receipt với outcome ACCEPTED và tham chiếu",
+      "Đọc GET /hpm/pushes?period=2026-M10 bằng người đọc"
+    ],
+    "expected": "Bước 1: 200, status SENT, lượt đẩy WRITTEN, attempts 1, acceptance PENDING_EXTERNAL, pushed_by là người đẩy. Bước 2: đúng một dòng kiểm toán do người đẩy làm và một sự kiện có tenant_id, push_id, sha256, không chứa nội dung báo cáo. Bước 3: 200, ACCEPTED; có dòng kiểm toán hpm.receipt_accepted của người nhận và đúng một sự kiện hpm.push.receipt.recorded.v1. Bước 4: dòng ACCEPTED kèm tham chiếu và người ghi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-IDM-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; một báo cáo đã tải lên; kỳ 2026-M09 chưa đẩy",
+    "steps": [
+      "Gọi POST /hpm/pushes với khóa k1",
+      "Gọi lại đúng yêu cầu đó với cùng khóa k1",
+      "Đếm hpm_push và hpm_push_attempt của kỳ"
+    ],
+    "expected": "Lần 2 trả 200 cùng resource_id với lần 1; đúng 1 dòng hpm_push và 1 dòng hpm_push_attempt của kỳ 2026-M09.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-IDM-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; lượt đẩy kỳ 2026-M08 phiên bản 1 đã gửi",
+    "steps": [
+      "Gọi lại POST /hpm/pushes với đúng nội dung nhưng khóa Idempotency khác"
+    ],
+    "expected": "200, status ALREADY_DELIVERED, resource_id là lượt đẩy cũ, attempts vẫn 1; chỉ một dòng hpm_push của kỳ.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-IDM-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; kỳ 2026-M07 phiên bản 1 đã đẩy",
+    "steps": [
+      "Đẩy kỳ 2026-M07 phiên bản 1 với tệp có sha256 khác"
+    ],
+    "expected": "409 HPM_KEY_REUSED; vẫn một dòng hpm_push của kỳ; không gói mới.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-IDM-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; một báo cáo đã tải lên; kỳ 2026-M11 chưa đẩy",
+    "steps": [
+      "Gửi cùng lúc năm yêu cầu POST /hpm/pushes giống hệt, cùng Idempotency-Key",
+      "Đếm hpm_push và hpm_push_attempt của kỳ"
+    ],
+    "expected": "Mọi yêu cầu trả 200 hoặc 409 (không 5xx), ít nhất một 200; đúng 1 dòng hpm_push và 1 dòng hpm_push_attempt.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-STA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; một lượt ACCEPTED (kỳ 2026-M06) và một lượt REJECTED (kỳ 2026-M05)",
+    "steps": [
+      "Gọi POST /hpm/pushes/{id}/retry với phiên bản hiện tại cho lượt ACCEPTED",
+      "Ghi biên nhận thứ hai cho lượt ACCEPTED",
+      "Gọi retry cho lượt REJECTED"
+    ],
+    "expected": "Cả ba lần: 409; hai lần retry mang HPM_PUSH_STATE_INVALID; không dòng thử mới.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-STA-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; kỳ 2026-M04 đã đẩy phiên bản 2; kỳ 2026-M03 phiên bản 1 đã ACCEPTED",
+    "steps": [
+      "Đẩy kỳ 2026-M04 phiên bản 1",
+      "Đẩy kỳ 2026-M03 phiên bản 2 khi kỳ đã được nhận và chưa có kỳ mở lại"
+    ],
+    "expected": "Bước 1: 409 REPORT_OUT_OF_DATE kèm current_revision 2; không có dòng phiên bản 1. Bước 2: 409 HPM_OVERWRITE_NOT_AUTHORISED, missing gồm PERIOD_REOPENED và APPROVED_CORRECTION, accepted_revision 1; không dòng phiên bản 2.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SOD-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; người dùng hpm-admin giữ hpm.push và hpm.receipt; lượt đẩy của chính người đó kỳ 2026-M02",
+    "steps": [
+      "hpm-admin ghi biên nhận ACCEPTED cho lượt đẩy của mình",
+      "Người nhận ghi REJECTED với ghi chú 5 ký tự"
+    ],
+    "expected": "Bước 1: 403 SELF_APPROVAL_DENIED, không có dòng kiểm toán hpm.receipt_accepted. Bước 2: 422.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-DAT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; kết nối đang bật; quản trị hpm-admin",
+    "steps": [
+      "Gọi POST /hpm/connection/state với If-Match sai",
+      "Gọi với lý do 2 ký tự",
+      "Gọi tắt với lý do và phiên bản đúng",
+      "Người đẩy đẩy một báo cáo",
+      "Bật lại với lý do"
+    ],
+    "expected": "Bước 1: 409 VERSION_CONFLICT. Bước 2: 422. Bước 3: 200 DISABLED kèm dòng kiểm toán hpm.connection_switched có reason. Bước 4: 409 HPM_CONNECTION_DISABLED, không dòng hpm_push. Bước 5: 200, đẩy được lại.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-ISO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A có lượt đẩy P; tenant B có quản trị hpm",
+    "steps": [
+      "Thành viên tenant B gọi POST /hpm/pushes/{P}/receipt",
+      "Gọi cùng lệnh với id ngẫu nhiên",
+      "Thành viên tenant B đọc GET /hpm/pushes"
+    ],
+    "expected": "Bước 1 và 2 cùng 404 và cùng mã lỗi; bước 3: danh sách rỗng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-STA-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; bộ ghi tệp được giả lỗi đĩa đầy 6 lần liên tiếp",
+    "steps": [
+      "Đẩy một báo cáo (lần thử 1 lỗi)",
+      "Gọi retry bốn lần, mỗi lần lỗi",
+      "Gọi retry lần thứ sáu"
+    ],
+    "expected": "Năm lần thử đầu được ghi với HPM_DELIVERY_FAILED; lần sau cùng 409 HPM_RETRY_EXHAUSTED; chi tiết lỗi của bộ ghi (đường dẫn đĩa) không lộ ra trong phản hồi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-E2E-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A; kỳ 2025-M05 đã ACCEPTED; kỳ mở lại do DIS cấp cho 2025-M05; người đề xuất và người duyệt khác nhau",
+    "steps": [
+      "Người duyệt đề xuất đính chính",
+      "Người đề xuất đề xuất đính chính với period_reopen_id của kỳ khác",
+      "Người đề xuất đề xuất với kỳ mở lại đúng",
+      "Người đề xuất tự duyệt",
+      "Người duyệt APPROVE",
+      "Đẩy phiên bản 2",
+      "Đẩy phiên bản 3 cùng đính chính"
+    ],
+    "expected": "Bước 1: 403. Bước 2: từ chối vì kỳ mở lại không phải của kỳ này. Bước 4: 403. Bước 5: 200. Bước 6: 200 và đính chính ở trạng thái đã dùng. Bước 7: bị từ chối vì đính chính đã dùng một lần.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-02"
+    ]
+  },
+  {
+    "id": "UAT-HPM-EDG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P2",
+    "setup": "Tenant A; hai lượt đẩy đã WRITTEN",
+    "steps": [
+      "Ghi REJECTED với ghi chú 9 ký tự",
+      "Ghi REJECTED với ghi chú đúng 10 ký tự cho lượt khác"
+    ],
+    "expected": "Bước 1: 422, lượt vẫn WRITTEN. Bước 2: 200, REJECTED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-DEMO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; một bản phát hành của biểu mẫu HPM-MONTHLY (DEMO) từ động cơ báo cáo; lượt đẩy WRITTEN",
+    "steps": [
+      "Người nhận ghi biên nhận ACCEPTED cho lượt đẩy của bản DEMO"
+    ],
+    "expected": "409 TEMPLATE_UNCONFIRMED; trạng thái lượt đẩy không đổi; nhật ký giao của động cơ báo cáo không có dòng ACCEPTED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-PRF-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "performance",
+    "priority": "P2",
+    "setup": "Tenant A có 1.000 lượt đẩy",
+    "steps": [
+      "Gọi GET /hpm/pushes?limit=50 hai mươi lần sau ba lần khởi động"
+    ],
+    "expected": "p95 không quá 5.000 ms, không lỗi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-A11-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "accessibility",
+    "priority": "P1",
+    "setup": "Tenant A bản enterprise; dữ liệu có lượt FAILED, WRITTEN, ACCEPTED",
+    "steps": [
+      "Chạy axe trên HPM-01 và HPM-02 ở 1280 px và 360 px",
+      "Đi hết các nút bằng phím Tab, mở và đóng hộp thoại bằng Esc",
+      "Kiểm thông báo trạng thái đọc được bằng trình đọc màn hình"
+    ],
+    "expected": "Không lỗi axe nghiêm trọng hoặc cao; thứ tự tab theo bố cục; tiêu điểm trả về nút đã mở hộp thoại; băng PENDING-EXTERNAL được đọc.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01",
+      "FR-HPM-02"
+    ]
+  },
+  {
+    "id": "UAT-HPM-PX-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Việc phụ thuộc khách (PENDING-EXTERNAL, R18): giao diện kỹ thuật của HPM chưa biết nên bộ ghi tệp thay HPM, kết quả của HPM là biên nhận ghi tay",
+    "steps": [
+      "Đẩy một báo cáo bằng bộ ghi tệp",
+      "Mở HPM-01 và đọc băng trạng thái và cột acceptance"
+    ],
+    "expected": "Mọi lượt đẩy mang acceptance PENDING_EXTERNAL; băng PENDING-EXTERNAL hiển thị; mục nghiệm thu với HPM thật ghi là chờ khách, không đạt.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.read gọi GET /hpm/connection với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.admin trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.admin gọi POST /hpm/connection/state với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.read gọi GET /hpm/pushes với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.push trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.push gọi POST /hpm/pushes với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-05",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.push trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.push gọi POST /hpm/pushes/{id}/retry với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-06",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.receipt trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.receipt gọi POST /hpm/pushes/{id}/receipt với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-01"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-07",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.read gọi GET /hpm/corrections với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-02"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-08",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.correction.propose trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.correction.propose gọi POST /hpm/corrections với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-02"
+    ]
+  },
+  {
+    "id": "UAT-HPM-SEC-09",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hpm.correction.decide trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hpm.correction.decide gọi POST /hpm/corrections/{id}/decision với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HPM-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-E2E-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A, edition enterprise; tệp CSV 3 dòng (1 dự án của ta, 1 dự án lạ, 1 dòng ngày sai); bố cục tệp là giả định (PENDING-EXTERNAL)",
+    "steps": [
+      "Người xem trước chạy POST /ebs/imports/preview",
+      "Đếm ebs_record của dự án",
+      "Quản trị gọi POST /ebs/imports",
+      "Đọc dòng kiểm toán ebs.import_applied, sự kiện ebs.import.applied.v1 và GET /ebs/connection"
+    ],
+    "expected": "Bước 1: 200 DRY_RUN, counts total 3, valid 2, errors 1. Bước 2: 0 bản ghi. Bước 3: 200 APPLIED, applied 2, quarantined 1, unknown_projects 1. Bước 4: kiểm toán có records_written 2 và file_sha256; sự kiện có rows_applied 2; kết nối registered true, sức khỏe FRESH.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-IDM-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; tệp đã áp dụng",
+    "steps": [
+      "Gọi lại POST /ebs/imports với cùng tệp (cùng sha256)"
+    ],
+    "expected": "409 IMPORT_FILE_ALREADY_APPLIED; số bản ghi của dự án không đổi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-IDM-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; tệp chưa áp dụng",
+    "steps": [
+      "Gọi POST /ebs/imports với khóa k",
+      "Gọi lại với cùng khóa k"
+    ],
+    "expected": "Lần 2: 200, cùng resource_id; đúng một bản ghi của dự án.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-IDM-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; tệp chưa áp dụng; quản trị có ebs.import",
+    "steps": [
+      "Gửi cùng lúc năm yêu cầu POST /ebs/imports với cùng tệp (khóa Idempotency khác nhau)",
+      "Đếm ebs_record của dự án"
+    ],
+    "expected": "Đúng một lệnh trả 200; bốn lệnh còn lại 409 IMPORT_FILE_ALREADY_APPLIED; đúng một bản ghi của dự án.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-EDG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; tệp hai dòng lỗi (kỳ 2026-99 và số tiền abc)",
+    "steps": [
+      "Áp dụng tệp",
+      "Áp dụng với băm của tệp khác"
+    ],
+    "expected": "Bước 1: 422 IMPORT_HAS_ERRORS, errors [[2, PERIOD_INVALID], [3, AMOUNT_INVALID]]. Bước 2: lỗi 4xx. Không bản ghi nào của các dự án trong tệp.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SOD-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; tệp hợp lệ; người xem trước có ebs.import.preview; người đọc có ebs.read",
+    "steps": [
+      "Người xem trước áp dụng",
+      "Người xem trước chạy thử",
+      "Người đọc chạy thử"
+    ],
+    "expected": "Bước 1: 403 và không bản ghi. Bước 2: 200. Bước 3: 403.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-DAT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; kết nối đang bật",
+    "steps": [
+      "Tắt kết nối với lý do và phiên bản",
+      "Chạy thử một tệp",
+      "Áp dụng tệp đó",
+      "Bật lại"
+    ],
+    "expected": "Bước 1: 200, kiểm toán ebs.connection_switched có reason. Bước 2: 200. Bước 3: 409 và không bản ghi. Bước 4: 200.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-E2E-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A; dự án của ta đã chi 600 (Kho bạc), sao kê EBS ghi 700; dự án thứ hai khớp 50 và 50; lịch làm việc đã công bố",
+    "steps": [
+      "Người chỉ đọc chạy đối chiếu",
+      "Người đối chiếu chạy POST /ebs/reconciliations kỳ 2026-10 với người phụ trách đã chỉ định",
+      "Chạy lại cùng kỳ"
+    ],
+    "expected": "Bước 1: 403. Bước 2: một mục AMOUNT_MISMATCH ours 600, theirs 700, delta 100, OPEN, owner đúng, không mục cho dự án khớp; owner không thuộc maker_ids; có dòng kiểm toán ebs.reconciliation_run và sự kiện ebs.reconciliation.run.v1. Bước 3: opened 0, refreshed 0; vẫn một mục OPEN.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-STA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; một mục OPEN với phiên bản v, người phụ trách là ebs-owner",
+    "steps": [
+      "Quản trị (người làm số liệu) đóng mục",
+      "Người đối chiếu khác đóng mục",
+      "Người phụ trách đóng với phiên bản sai",
+      "Người phụ trách đóng với lý do 5 ký tự",
+      "Người phụ trách đóng đúng",
+      "Đóng lần nữa"
+    ],
+    "expected": "Bước 1 và 2: 403. Bước 3: 409 VERSION_CONFLICT. Bước 4: 422. Bước 5: 200 RESOLVED, kiểm toán ebs.difference_resolved có reason và resolution_kind, một sự kiện. Bước 6: 409 EBS_ITEM_STATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-ISO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A có mục đã đóng; tenant B có quản trị EBS",
+    "steps": [
+      "Tenant B gọi POST /ebs/differences/{id}/resolution với id của tenant A",
+      "Gọi với id ngẫu nhiên",
+      "Tenant B đọc GET /ebs/differences"
+    ],
+    "expected": "Bước 1 và 2: cùng 404 và cùng mã; bước 3: rỗng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-E2E-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant A; ánh xạ EBS ACTIVE, ánh xạ PROPOSED, ánh xạ chưa đến ngày hiệu lực; tệp có ba mã tương ứng",
+    "steps": [
+      "Chạy thử tệp",
+      "Áp dụng và đối chiếu"
+    ],
+    "expected": "Chỉ mã có ánh xạ ACTIVE được gắn vào dự án của ta, giữ nguyên mã tệp khai; hai mã kia là dự án chưa biết.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-EDG-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P2",
+    "setup": "Tenant A; tệp CSV thử biên",
+    "steps": [
+      "Chạy thử tệp có từng giá trị biên",
+      "Đọc kết quả từng dòng"
+    ],
+    "expected": "Số tiền lưu đúng đến đồng và hai số lẻ theo bố cục; kỳ phải YYYY-MM hợp lệ; ngày không có thật bị DATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-PRF-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "performance",
+    "priority": "P2",
+    "setup": "Tenant A có 5.000 mục chênh lệch",
+    "steps": [
+      "Gọi GET /ebs/differences?limit=50 hai mươi lần sau ba lần khởi động"
+    ],
+    "expected": "p95 không quá 5.000 ms, không lỗi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-A11-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "accessibility",
+    "priority": "P1",
+    "setup": "Tenant A bản enterprise; dữ liệu có mục OPEN, quá hạn và đã đóng",
+    "steps": [
+      "Chạy axe ở 1280 px và 360 px",
+      "Tải tệp chỉ bằng bàn phím",
+      "Đọc trạng thái mục bằng trình đọc màn hình"
+    ],
+    "expected": "Không lỗi axe nghiêm trọng hoặc cao; mọi thao tác dùng được bằng bàn phím; trạng thái có chữ, không chỉ màu.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01",
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-PX-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Bố cục tệp là giả định WORKING-ASSUMPTION-2026.1 (PENDING-EXTERNAL)",
+    "steps": [
+      "Chạy thử và áp dụng một tệp theo bố cục giả định",
+      "Mở EBS-01 và đọc băng trạng thái"
+    ],
+    "expected": "Mọi kết quả mang acceptance PENDING_EXTERNAL và layout_version WORKING-ASSUMPTION-2026.1; băng PENDING-EXTERNAL hiển thị.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.read gọi GET /ebs/connection với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.admin trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.admin gọi POST /ebs/connection/state với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.import.preview trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.import.preview gọi POST /ebs/imports/files với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.import.preview trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.import.preview gọi POST /ebs/imports/preview với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-05",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.import trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.import gọi POST /ebs/imports với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-01"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-06",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.reconcile trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.reconcile gọi POST /ebs/reconciliations với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-07",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.read gọi GET /ebs/differences với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-08",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.reconcile trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.reconcile gọi POST /ebs/differences/{id}/resolution với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-EBS-SEC-09",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ ebs.reconcile trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ ebs.reconcile gọi POST /ebs/differences/{id}/owner với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EBS-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-E2E-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A; bộ kết nối national.project_codes; người ghi lượt chạy có hub.run.record",
+    "steps": [
+      "Ghi lượt chạy IMPORT FAILED với mã lỗi IMPORT_SCHEMA_INVALID",
+      "Ghi lại đúng lượt đó",
+      "Đọc sự cố OPEN và chi tiết bộ kết nối",
+      "Ghi lượt chạy SUCCEEDED",
+      "Đọc sự cố RESOLVED"
+    ],
+    "expected": "Bước 1: RECORDED, kiểm toán hub.run_recorded có incidents_opened 1, sự kiện hub.run.recorded.v1. Bước 2: ALREADY_RECORDED cùng resource_id. Bước 3: một sự cố FAILING mức ACTION, cảnh báo CONNECTOR_FAILING, trạng thái bộ kết nối FAILING. Bước 5: RESOLVED, resolution CONDITION_CLEARED, resolved_by rỗng, một sự kiện hub.incident.auto_resolved.v1.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01",
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-IDM-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; lượt chạy hỏng của treasury.statement với source_ref cố định",
+    "steps": [
+      "Ghi lượt chạy với khóa k",
+      "Ghi lại cùng khóa k",
+      "Ghi lại với khóa mới",
+      "Đếm hub_run_log và sự cố OPEN"
+    ],
+    "expected": "Lần 2 cùng resource_id; lần 3 ALREADY_RECORDED; đúng một dòng hub_run_log của source_ref và một sự cố OPEN của bộ kết nối.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-EDG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A",
+    "steps": [
+      "Ghi FAILED không error_code",
+      "Ghi SUCCEEDED có finished_at trước started_at",
+      "Ghi với layout_version 9.9",
+      "Ghi cho bộ kết nối no.such.connector",
+      "Đọc sự cố với state=NOPE"
+    ],
+    "expected": "Ba bước đầu 422; bước 4: 404; bước 5: 422; không dòng hub_run_log mới.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-DAT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; bộ kết nối treasury.statement đang bật",
+    "steps": [
+      "Tắt với phiên bản + 6",
+      "Tắt với lý do 5 ký tự",
+      "Bật khi đang bật",
+      "Tắt đúng",
+      "Đọc chi tiết và bật lại"
+    ],
+    "expected": "Bước 1: 409 VERSION_CONFLICT. Bước 2 và 3: 422. Bước 4: DISABLED, kiểm toán hub.connector_switched có reason, sự kiện hub.connector.state_changed.v1; chi tiết trạng thái DISABLED. Bước 5: ENABLED.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-STA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; sự cố thủ công do quản trị báo",
+    "steps": [
+      "Báo sự cố",
+      "Nhận xử lý với phiên bản 4, lý do 5 ký tự, rồi đúng",
+      "Nhận lần hai",
+      "Giải quyết",
+      "Nhận sau khi giải quyết",
+      "Báo sự cố cho bộ kết nối lạ"
+    ],
+    "expected": "Phiên bản 4: 409; lý do ngắn: 422; nhận đúng: ACKNOWLEDGED; lần hai: 409 HUB_INCIDENT_STATE_INVALID; giải quyết: RESOLVED phiên bản 3 kèm kiểm toán hub.incident_resolved có reason; sau đó 409; lịch sử OPENED, ACKNOWLEDGED, RESOLVED; bộ kết nối lạ 404.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SOD-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; hub-both giữ cả hub.mapping.propose và hub.mapping.approve, hub-proposer chỉ có hub.mapping.propose, người duyệt có hub.mapping.approve",
+    "steps": [
+      "hub-both đề xuất ánh xạ M1",
+      "Đề xuất lại M1 và M8 không trường",
+      "hub-both duyệt chính ánh xạ mình đề xuất, rồi hub-proposer (không có quyền duyệt) duyệt",
+      "Người duyệt APPROVE",
+      "Người duyệt REJECT sau đó"
+    ],
+    "expected": "Bước 2: 409 HUB_MAPPING_VERSION_TAKEN và 422. Bước 3: 403 SELF_APPROVAL_DENIED rồi 403 vì thiếu quyền, ánh xạ vẫn PROPOSED. Bước 4: APPROVED phiên bản 2, kiểm toán hub.mapping_approved. Bước 5: 409 HUB_MAPPING_STATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-STA-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; một dòng hub_pipeline_reject OPEN",
+    "steps": [
+      "Xử lý lại",
+      "Bỏ với lý do 2 ký tự",
+      "Bỏ với lý do",
+      "Bỏ lần hai"
+    ],
+    "expected": "Bước 1: 409 HUB_PIPELINE_NOT_WIRED. Bước 2: 422. Bước 3: DISCARDED phiên bản 2 và sự kiện hub.reject.discarded.v1. Bước 4: 409 HUB_REJECT_STATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-ISO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A có sự cố I; tenant B có quản trị hub",
+    "steps": [
+      "Tenant B quyết định sự cố I",
+      "Quyết định id ngẫu nhiên",
+      "Đọc danh sách sự cố và lượt chạy"
+    ],
+    "expected": "Bước 1 và 2 cùng 404 và cùng mã; bước 3 rỗng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-HLT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; hai bộ kết nối đã chạy (một khỏe, một hỏng) và các bộ còn lại chưa chạy",
+    "steps": [
+      "Đọc GET /integration-hub/health",
+      "Đọc danh sách bộ kết nối"
+    ],
+    "expected": "Tỷ lệ khỏe 50 (1 trên 2); bộ chờ không có phần trăm; bộ hỏng CONNECTOR_FAILING; năm chỉ số có formula, source, as_of và unverified.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-AGT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P2",
+    "setup": "Tenant A",
+    "steps": [
+      "Đăng ký tác tử",
+      "Đăng ký lại cùng mã",
+      "Gửi nhịp tim, rồi dừng nhịp tim quá hạn",
+      "Đăng ký cho bộ kết nối lạ"
+    ],
+    "expected": "Mã trùng 409; trạng thái chuyển khỏe rồi cũ theo quy tắc nhịp tim; bộ kết nối lạ 404.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-PRF-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "performance",
+    "priority": "P2",
+    "setup": "Tenant A có 100.000 dòng lượt chạy",
+    "steps": [
+      "Gọi GET /integration-hub/health và /integration-hub/connectors hai mươi lần sau ba lần khởi động"
+    ],
+    "expected": "p95 không quá 5.000 ms, không lỗi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-A11-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "accessibility",
+    "priority": "P1",
+    "setup": "Bản enterprise; có bộ kết nối ở đủ ba trạng thái",
+    "steps": [
+      "Chạy axe ở 1280 px và 360 px",
+      "Điều khiển các tab bằng bàn phím"
+    ],
+    "expected": "Không lỗi axe nghiêm trọng hoặc cao; trạng thái có chữ; tab theo mẫu WAI-ARIA.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01",
+      "FR-HUB-02",
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.read gọi GET /integration-hub/connectors với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.read gọi GET /integration-hub/connectors/{code} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.read gọi GET /integration-hub/connectors/{code}/runs với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.run.record trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.run.record gọi POST /integration-hub/connectors/{code}/runs với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-05",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.read gọi GET /integration-hub/connectors/{code}/rejects với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-06",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.read gọi GET /integration-hub/incidents với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-07",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.incident.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.incident.manage gọi POST /integration-hub/incidents với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-08",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.read gọi GET /integration-hub/health với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-09",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.read gọi GET /integration-hub/agents với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-10",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.agent.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.agent.manage gọi POST /integration-hub/agents với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-11",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.state.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.state.manage gọi POST /integration-hub/connectors/{code}/state với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-12",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.incident.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.incident.manage gọi POST /integration-hub/incidents/{id}/decision với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-03"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-13",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.snapshot.capture trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.snapshot.capture gọi POST /integration-hub/snapshots với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-01"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-14",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.mapping.propose trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.mapping.propose gọi POST /integration-hub/connectors/{code}/mappings với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-15",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.mapping.approve trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.mapping.approve gọi POST /integration-hub/mappings/{id}/decision với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-16",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.reject.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.reject.manage gọi POST /integration-hub/rejects/{id}/decision với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-HUB-SEC-17",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ hub.agent.heartbeat trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ hub.agent.heartbeat gọi POST /integration-hub/agents/{code}/heartbeat với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-HUB-02"
+    ]
+  },
+  {
+    "id": "UAT-INT-E2E-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A có hai dự án, tenant B có một; tài khoản máy có phạm vi open.projects.read và open.disbursement.read",
+    "steps": [
+      "Quản trị mở tài khoản máy và đổi client_id, client_secret lấy token",
+      "Đọc GET /open/v1/projects?limit=200",
+      "Đọc GET /open/v1/contract-lines (không có phạm vi)",
+      "Tenant B mở tài khoản và đọc dự án"
+    ],
+    "expected": "Bước 2: chỉ hai dự án của tenant A. Bước 3: 403 OPEN_SCOPE_DENIED, required_scope open.contracts.read, có dòng nhật ký DENIED_SCOPE. Bước 4: chỉ dự án của tenant B.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01",
+      "FR-INT-05"
+    ]
+  },
+  {
+    "id": "UAT-INT-IDM-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; quản trị có int.account.manage",
+    "steps": [
+      "POST /int/machine-accounts với khóa k",
+      "Gửi lại cùng nội dung và khóa",
+      "Tìm chuỗi bí mật trong int_machine_credential, int_machine_account, idempotency_record, audit_event, outbox_event, int_access_log",
+      "Tạo lại với tên khác chữ hoa"
+    ],
+    "expected": "Lần 1: 201, shown_once true, client_secret dạng mvs_ 43 ký tự. Lần 2: 201, client_secret rỗng, cùng client_id và account_id. Không bảng nào chứa bí mật. Tên khác chữ hoa: 409 OPEN_ACCOUNT_NAME_TAKEN.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01"
+    ]
+  },
+  {
+    "id": "UAT-INT-TKN-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A; một tài khoản máy đang hoạt động",
+    "steps": [
+      "Đổi token với client_id lạ",
+      "Đổi với client_id đúng và bí mật sai",
+      "Gọi /open/v1/projects không token, với token rác, với tiêu đề phiên của người",
+      "Gọi /int/machine-accounts bằng token máy"
+    ],
+    "expected": "Bước 1 và 2 cùng 401 OPEN_CLIENT_INVALID và cùng thân (trừ mã tương quan); các bước còn lại 401 hoặc 4xx; nhật ký ghi một dòng DENIED_CLIENT cho client đã biết.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01",
+      "FR-INT-02"
+    ]
+  },
+  {
+    "id": "UAT-INT-STA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; tài khoản máy có token còn hạn",
+    "steps": [
+      "Gọi API mở",
+      "Tạm dừng với phiên bản sai, rồi đúng",
+      "Gọi API mở và đổi token",
+      "Kích hoạt lại và gọi",
+      "Thu hồi, đổi token, rồi kích hoạt lại"
+    ],
+    "expected": "Bước 2: 409 VERSION_CONFLICT rồi 200. Bước 3: 401 OPEN_CLIENT_INVALID. Bước 4: 200. Bước 5: 401; kích hoạt lại 409 OPEN_ACCOUNT_STATE_INVALID.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01",
+      "FR-INT-02"
+    ]
+  },
+  {
+    "id": "UAT-INT-DAT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; tài khoản máy có open.projects.read",
+    "steps": [
+      "Gọi /open/v1/projects?status=SECRET-FILTER-VALUE&limit=3",
+      "Gọi với cursor sai",
+      "Đọc int_access_log và GET /int/access-log",
+      "Tenant B đọc nhật ký của tài khoản đó"
+    ],
+    "expected": "Có dòng listOpenProjects với query_keys gồm status và limit, status 200; không dòng nào chứa SECRET-FILTER-VALUE; có dòng INVALID_REQUEST 422; số dòng API bằng số dòng bảng; tenant B thấy 0 dòng; outcome lạ bị 422.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-05"
+    ]
+  },
+  {
+    "id": "UAT-INT-EDG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A",
+    "steps": [
+      "Mở tài khoản với phạm vi open.everything",
+      "Không phạm vi",
+      "rate_limit_per_minute 6001",
+      "Trường is_admin",
+      "expires_on 2020-01-01"
+    ],
+    "expected": "Mọi bước 4xx (phạm vi lạ và ngày quá khứ là 422); số tài khoản không đổi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01",
+      "FR-INT-02"
+    ]
+  },
+  {
+    "id": "UAT-INT-SOD-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; hệ thống nguồn EBS có mẫu mã P-\\d{3}; người đề xuất, người duyệt và người đọc khác nhau",
+    "steps": [
+      "Đăng ký hệ thống EBS",
+      "Đề xuất mã sai mẫu",
+      "Đề xuất mã P-100 cho dự án A1",
+      "API mở đọc mã",
+      "Người đề xuất duyệt; người đọc duyệt; người duyệt duyệt",
+      "Đề xuất P-100 cho dự án khác",
+      "Ngừng hệ thống khi còn mã dùng; ngừng mã"
+    ],
+    "expected": "Bước 2: 422. Bước 4: rỗng. Bước 5: 403 SELF_APPROVAL_DENIED, 403, rồi 200 ACTIVE phiên bản 2; API mở thấy mã P-100 của A1. Bước 6: 409 CROSSWALK_DUPLICATE. Bước 7: 409 INT_SOURCE_SYSTEM_IN_USE; ngừng mã 200 và API mở không còn mã.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UAT-INT-ISO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A có tài khoản máy M; tenant B có quản trị",
+    "steps": [
+      "Tenant B đọc GET /int/machine-accounts/{M}",
+      "Gọi decision REVOKE",
+      "Gọi rotate",
+      "Đọc danh sách lọc theo tên",
+      "Đọc mã dự án"
+    ],
+    "expected": "Ba lệnh đầu 404; danh sách rỗng; mã dự án của tenant B rỗng.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01"
+    ]
+  },
+  {
+    "id": "UAT-INT-RTL-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A; tài khoản A giới hạn 2 lần mỗi phút, tài khoản B mặc định",
+    "steps": [
+      "Tài khoản A gọi ba lần liên tiếp",
+      "Tài khoản B gọi",
+      "Đọc nhật ký của A"
+    ],
+    "expected": "Lần 3: 429 RATE_LIMIT, Retry-After tối thiểu 1, X-RateLimit-Limit 2; tài khoản B 200; nhật ký A có một dòng RATE_LIMITED status 429.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-02"
+    ]
+  },
+  {
+    "id": "UAT-INT-DST-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; sản phẩm dữ liệu CERTIFIED và PROVISIONAL",
+    "steps": [
+      "Đọc danh sách bộ dữ liệu",
+      "Bật bộ dữ liệu cho sản phẩm PROVISIONAL",
+      "Bật cho sản phẩm CERTIFIED và đọc",
+      "Thu hồi chứng nhận và đọc",
+      "Bật lại"
+    ],
+    "expected": "Ban đầu đóng kèm lý do; bước 2 bị từ chối; bước 3 phục vụ các dòng đã đóng băng; bước 4 tự đóng; bước 5 mở lại chỉ khi sản phẩm đã chứng nhận.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-BI-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A và B, mỗi nơi có một tài khoản BI; kết nối CSDL bằng tài khoản đó",
+    "steps": [
+      "Tạo tài khoản BI và ghi mật khẩu",
+      "Đăng nhập CSDL bằng tài khoản đó",
+      "Đọc các view danh mục và các bảng gốc",
+      "Ghi một dòng"
+    ],
+    "expected": "Mật khẩu hiện một lần, không nằm trong bảng nào; view chỉ trả dòng của tenant mình; bảng gốc bị từ chối; ghi bị từ chối.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-PRF-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "performance",
+    "priority": "P2",
+    "setup": "Tenant A có 100.000 dòng giải ngân; tài khoản máy có open.disbursement.read",
+    "steps": [
+      "Gọi GET /open/v1/disbursement-lines?limit=200 hai mươi lần sau ba lần khởi động"
+    ],
+    "expected": "p95 không quá 5.000 ms, không lỗi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-05"
+    ]
+  },
+  {
+    "id": "UAT-INT-A11-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "accessibility",
+    "priority": "P1",
+    "setup": "Bản enterprise; có tài khoản máy và tài khoản BI",
+    "steps": [
+      "Chạy axe ở 1280 px và 360 px",
+      "Tạo tài khoản và sao chép bí mật chỉ bằng bàn phím"
+    ],
+    "expected": "Không lỗi axe nghiêm trọng hoặc cao; bí mật hiện một lần và đọc được; không đóng ngoài ý muốn.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01",
+      "FR-INT-02",
+      "FR-INT-03",
+      "FR-INT-04",
+      "FR-INT-05"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.account.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.account.read gọi GET /int/machine-accounts với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.account.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.account.manage gọi POST /int/machine-accounts với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.account.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.account.read gọi GET /int/machine-accounts/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-01"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.account.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.account.manage gọi POST /int/machine-accounts/{id}/update với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-02"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-05",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.account.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.account.manage gọi POST /int/machine-accounts/{id}/decision với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-02"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-06",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.account.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.account.manage gọi POST /int/machine-accounts/{id}/rotate với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-02"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-07",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.access.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.access.read gọi GET /int/access-log với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-05"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-08",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.dataset.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.dataset.read gọi GET /int/export-datasets với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-09",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.dataset.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.dataset.manage gọi POST /int/export-datasets/state với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-10",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.bi.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.bi.read gọi GET /int/bi-readers với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-11",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.bi.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.bi.manage gọi POST /int/bi-readers với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-12",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.bi.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.bi.read gọi GET /int/bi-readers/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-13",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.bi.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.bi.manage gọi POST /int/bi-readers/{id}/password với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-14",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.bi.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.bi.manage gọi POST /int/bi-readers/{id}/decision với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-04"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-15",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.codes.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.codes.read gọi GET /int/source-systems với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-16",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.system.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.system.manage gọi POST /int/source-systems với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-17",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.system.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.system.manage gọi POST /int/source-systems/{id}/retire với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-18",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.codes.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.codes.read gọi GET /int/project-codes với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-19",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.codes.propose trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.codes.propose gọi POST /int/project-codes với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-20",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.codes.approve trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.codes.approve gọi POST /int/project-codes/{id}/decision với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UAT-INT-SEC-21",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ int.codes.propose trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ int.codes.propose gọi POST /int/project-codes/{id}/retire với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-INT-03"
+    ]
+  },
+  {
+    "id": "UAT-ENT-E2E-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Tenant A bản enterprise; kỳ tháng 3 đã khóa; hai dự án ở hai phòng; một ô kế hoạch chưa có số thực được duyệt",
+    "steps": [
+      "Lãnh đạo đọc GET /leader/rates",
+      "Người dựng đọc mức sẵn sàng",
+      "Người dựng dựng bản chốt khi thiếu",
+      "Nhập số thực được duyệt cho hai dự án rồi dựng lại"
+    ],
+    "expected": "Bước 1: 200 với snapshot null và lý do. Bước 2: complete false, hai đơn vị chưa nộp. Bước 3: 422 ENTERPRISE_SNAPSHOT_INCOMPLETE kèm danh sách đơn vị thiếu, không dòng period_snapshot. Bước 4: BUILDING phiên bản 1, kiểm toán enterprise.snapshot_built (chỉ số lượng, không số tiền), sự kiện enterprise.snapshot_built.v1; lãnh đạo vẫn chưa thấy bản chốt (chưa đóng băng).",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32",
+      "FR-DIS-33"
+    ]
+  },
+  {
+    "id": "UAT-ENT-IDM-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; kỳ đã khóa có bản chốt BUILDING",
+    "steps": [
+      "Dựng với khóa k",
+      "Dựng cho kỳ khác với cùng khóa k"
+    ],
+    "expected": "Bước 1: 200, vẫn một dòng period_snapshot ENTERPRISE_CLOSE của kỳ. Bước 2: 409 IDEMPOTENCY_CONFLICT.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UAT-ENT-STA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; một kỳ OPEN",
+    "steps": [
+      "Dựng cho kỳ OPEN",
+      "Dựng cho id lạ",
+      "Dựng không có period_id"
+    ],
+    "expected": "Bước 1: 409 PERIOD_STATE_INVALID. Bước 2: 404. Bước 3: 400. Không dòng period_snapshot của kỳ OPEN.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SOD-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; bản chốt BUILDING do người ent-both dựng; người đóng băng khác và người chỉ đọc",
+    "steps": [
+      "Người chỉ đóng băng và người chỉ đọc dựng",
+      "ent-both đóng băng",
+      "Người chỉ đọc đóng băng",
+      "Người đóng băng với phiên bản 9, rồi đúng",
+      "Đóng băng lần hai"
+    ],
+    "expected": "Bước 1: 403. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 403. Bước 4: 409 VERSION_CONFLICT rồi FROZEN phiên bản 2, kiểm toán enterprise.snapshot_frozen có payload_sha256 64 hex, sự kiện enterprise.snapshot_frozen.v1. Bước 5: 409 SNAPSHOT_FROZEN.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-33"
+    ]
+  },
+  {
+    "id": "UAT-ENT-DAT-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Tenant A; bản chốt đã đóng băng, kế hoạch 4.000, thực hiện 1.000 (hai dự án)",
+    "steps": [
+      "Đọc GET /enterprise-snapshots/{id}",
+      "Dựng lại cùng kỳ",
+      "Đọc tổng và tỷ lệ của bản chốt",
+      "Lãnh đạo đọc GET /leader/rates",
+      "Người không có home.read đọc, đọc với id bản chốt lạ và id sai khuôn"
+    ],
+    "expected": "Bước 1: hash_verified true, lineage 1 phần tử. Bước 2: 409 SNAPSHOT_FROZEN, reopen_required true. Bước 3: RATE_YEAR_IN_FORCE tử 1000, mẫu 4000, 25. Bước 4: plan_vnd 4000, disbursed_vnd 1000, rate 25, hai đơn vị, definition_status PROPOSED_PENDING_SIGNOFF. Bước 5: 403, 404, 422.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01",
+      "FR-DIS-33"
+    ]
+  },
+  {
+    "id": "UAT-ENT-ISO-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A có bản chốt S; tenant B có quản trị bản chốt",
+    "steps": [
+      "Tenant B đọc S",
+      "Đọc id ngẫu nhiên",
+      "Đọc danh sách",
+      "Đóng băng S"
+    ],
+    "expected": "Bước 1 và 2 cùng 404 và cùng mã; bước 3 rỗng; bước 4: 404.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-33"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SCP-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A; bản chốt BUILDING; người đọc UNIT_SUBTREE của phòng A",
+    "steps": [
+      "Đọc bản chốt",
+      "So tử số và mẫu số với tổng công ty"
+    ],
+    "expected": "partial true; một dự án; tỷ lệ chỉ của phòng A.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-33"
+    ]
+  },
+  {
+    "id": "UAT-ENT-ORG-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant A bản enterprise; gói PVFCCO-TEMPLATE; người quản trị có adm.migration.read và adm.migration.approve",
+    "steps": [
+      "Đọc GET /enterprise/org-pack",
+      "Nạp gói hỏng",
+      "Nạp gói đúng lần một",
+      "Nạp lại lần hai"
+    ],
+    "expected": "Gói hỏng dừng ở chạy thử và không tạo gì; lần một tạo đơn vị, vai trò và đề xuất cấp quyền chờ duyệt; lần hai không tạo gì; mọi cấp quyền cần người duyệt thứ hai.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-ENT3D"
+    ]
+  },
+  {
+    "id": "UAT-ENT-EQP-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Tenant A bản enterprise; dòng kế hoạch mua thiết bị, gói thầu, hợp đồng, thanh toán",
+    "steps": [
+      "Người đọc đầy đủ đọc dòng",
+      "Người đọc hạn chế đọc cùng dòng",
+      "Gắn liên kết thứ hai",
+      "Sửa dòng đã hủy"
+    ],
+    "expected": "Người đầy đủ thấy DISBURSING và tỷ lệ; người hạn chế thấy số bị che, không phải 0; liên kết thứ hai 422 EQUIPMENT_LINK_INVALID; dòng hủy không sửa được.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EQP-01",
+      "FR-EQP-02"
+    ]
+  },
+  {
+    "id": "UAT-ENT-PWA-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P0",
+    "setup": "Bản enterprise, PWA đã cài trên khổ 360 x 780; một việc duyệt số liệu kỳ chờ lãnh đạo",
+    "steps": [
+      "Mở PWA-01 và PWA-02",
+      "Mở PWA-05 và đọc sáu ô",
+      "Quyết định khi đang trực tuyến",
+      "Bấm quyết định lần hai và khi mất mạng",
+      "Đọc kho lưu của trình duyệt (CacheStorage, IndexedDB)"
+    ],
+    "expected": "Chỉ hiện số việc chờ duyệt; quyết định gửi với If-Match là phiên bản của việc; lần hai bị 409 và hiện lý do; mất mạng thì không gửi và báo; không có số liệu nghiệp vụ trong kho lưu của trình duyệt; tên đơn vị và dự án thay cho mã.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-PWA-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Bản enterprise; bản chốt đã đóng băng; một thẻ cố tình lỗi",
+    "steps": [
+      "Mở PWA-03 ở 360 px và 390 px",
+      "Mở PWA-08 từ một thẻ",
+      "So số với HOME-09",
+      "Ép một thẻ lỗi"
+    ],
+    "expected": "Không cuộn ngang; số giống HOME-09; thẻ lỗi nêu tên, các thẻ khác vẫn hiện; số không có ghi rõ là không có, không phải 0.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-PWA-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Bản enterprise; PWA đã cài; hai thiết bị đã đăng ký",
+    "steps": [
+      "Mở PWA-07",
+      "Thu hồi thiết bị khác với lý do ngắn rồi đủ",
+      "Gửi thông báo thử ở PWA-10",
+      "Đọc nội dung thông báo"
+    ],
+    "expected": "Phiên hiện tại không có hành động kết thúc; lý do ngắn không gửi; thiết bị bị thu hồi kèm lý do và kiểm toán; thông báo thử chỉ gửi cho chính người dùng và chỉ mang tiêu đề chung và đường dẫn.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-NAR-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "integration",
+    "priority": "P1",
+    "setup": "Tenant A bản enterprise; báo cáo kỳ trước có thuyết minh 8 trường; báo cáo kỳ này có một ô trống",
+    "steps": [
+      "Thừa kế lần một",
+      "Thừa kế lần hai",
+      "Thừa kế vào báo cáo đã chốt"
+    ],
+    "expected": "Lần một chỉ điền ô trống và ghi kỳ nguồn; lần hai 422 NARRATIVE_NOTHING_TO_INHERIT; báo cáo đã chốt 409 REVISION_IMMUTABLE.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-35"
+    ]
+  },
+  {
+    "id": "UAT-ENT-PRF-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "performance",
+    "priority": "P1",
+    "setup": "Tenant A có bản chốt đã đóng băng với 22 dự án",
+    "steps": [
+      "Gọi GET /leader/rates và GET /leader/blocked-projects hai mươi lần sau ba lần khởi động"
+    ],
+    "expected": "p95 không quá 5.000 ms, không lỗi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-A11-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "accessibility",
+    "priority": "P1",
+    "setup": "Bản enterprise; PWA ở khổ 360 x 780",
+    "steps": [
+      "Chạy axe trên từng màn",
+      "Đo mục tiêu chạm",
+      "Đọc bằng trình đọc màn hình của điện thoại"
+    ],
+    "expected": "Không lỗi axe nghiêm trọng hoặc cao; mọi mục tiêu chạm từ 44 px; mọi thao tác có phương án không dùng cử chỉ.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-PX-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "business",
+    "priority": "P1",
+    "setup": "Bản enterprise với gói PVFCCO-TEMPLATE",
+    "steps": [
+      "Mở ORG-01 và đọc ghi chú khuôn"
+    ],
+    "expected": "Ghi chú gói mẫu hiển thị; chế độ chỉ đọc không ghi gì; cấu hình thật chờ khách.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-ENT3D"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-01",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ adm.migration.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ adm.migration.read gọi GET /enterprise/org-pack với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-ENT3D"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-02",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ adm.migration.approve trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ adm.migration.approve gọi POST /enterprise/org-pack/materialisations với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-ADM-ENT3D"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-03",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.build trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ funding.snapshot.build gọi POST /enterprise-snapshots với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-04",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ funding.snapshot.read gọi GET /enterprise-snapshots với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-05",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.freeze trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ funding.snapshot.freeze gọi POST /enterprise-snapshots/{id}/freeze với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-06",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ funding.snapshot.read gọi GET /enterprise-snapshots/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-07",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ funding.snapshot.build trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ funding.snapshot.build gọi GET /enterprise-snapshot-readiness với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-32"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-08",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ home.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ home.read gọi GET /leader/rates với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-09",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ home.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ home.read gọi GET /leader/blocked-projects với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "YCK.01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-10",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ bid.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ bid.read gọi GET /equipment-procurement với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EQP-01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-11",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ bid.plan.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ bid.plan.manage gọi POST /equipment-procurement với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EQP-02"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-12",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ bid.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ bid.read gọi GET /equipment-procurement/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EQP-01"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-13",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ bid.plan.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ bid.plan.manage gọi PATCH /equipment-procurement/{id} với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-EQP-02"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-14",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ report.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ report.read gọi GET /reports/{id}/narrative-context với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-35"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-15",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P0",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ report.edit trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ report.edit gọi POST /reports/{id}/narrative-inheritance với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-35"
+    ]
+  },
+  {
+    "id": "UAT-ENT-SEC-16",
+    "source": "UAT enterprise (lane uatent, 2026-11-12)",
+    "type": "security",
+    "priority": "P1",
+    "setup": "Tenant A, bản enterprise; một người chỉ giữ report.import trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT",
+    "steps": [
+      "Người giữ report.import gọi GET /report-narrative-template với thân rỗng và id không tồn tại",
+      "Người giữ mọi quyền khác gọi cùng yêu cầu"
+    ],
+    "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-DIS-35"
+    ]
   }
 ]

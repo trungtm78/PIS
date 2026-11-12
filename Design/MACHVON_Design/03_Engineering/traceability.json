@@ -10272,7 +10272,14 @@
     "test_ids": [
       "UI-DIR-01",
       "UAT-PLAN-132",
-      "UAT-PLAN-133"
+      "UAT-PLAN-133",
+      "UAT-DIR-IDM-01",
+      "UAT-DIR-IDM-02",
+      "UAT-DIR-EDG-01",
+      "UAT-DIR-A11-01",
+      "UAT-DIR-SEC-01",
+      "UAT-DIR-SEC-02",
+      "UAT-DIR-SEC-04"
     ]
   },
   {
@@ -10291,7 +10298,10 @@
     "test_ids": [
       "UI-DIR-02",
       "UAT-PLAN-132",
-      "UAT-PLAN-133"
+      "UAT-PLAN-133",
+      "UAT-DIR-EDG-01",
+      "UAT-DIR-SEC-03",
+      "UAT-DIR-SEC-05"
     ]
   },
   {
@@ -10310,7 +10320,15 @@
     "test_ids": [
       "UI-DIR-03",
       "UAT-PLAN-134",
-      "UAT-PLAN-135"
+      "UAT-PLAN-135",
+      "UAT-DIR-E2E-01",
+      "UAT-DIR-DAT-01",
+      "UAT-DIR-SCP-01",
+      "UAT-DIR-PRF-01",
+      "UAT-DIR-A11-01",
+      "UAT-DIR-SEC-07",
+      "UAT-DIR-SEC-08",
+      "UAT-DIR-SEC-10"
     ]
   },
   {
@@ -10330,7 +10348,23 @@
       "UI-DIR-04",
       "UAT-PLAN-136",
       "UAT-PLAN-137",
-      "UAT-PLAN-138"
+      "UAT-PLAN-138",
+      "UAT-DIR-E2E-01",
+      "UAT-DIR-SOD-01",
+      "UAT-DIR-STA-01",
+      "UAT-DIR-STA-02",
+      "UAT-DIR-ISO-01",
+      "UAT-DIR-A11-01",
+      "UAT-DIR-SEC-06",
+      "UAT-DIR-SEC-11",
+      "UAT-DIR-SEC-12",
+      "UAT-DIR-SEC-13",
+      "UAT-DIR-SEC-14",
+      "UAT-DIR-SEC-15",
+      "UAT-DIR-SEC-16",
+      "UAT-DIR-SEC-17",
+      "UAT-DIR-SEC-18",
+      "UAT-DIR-SEC-19"
     ]
   },
   {
@@ -10348,7 +10382,10 @@
     "backlog_id": "BL-DIR-05",
     "test_ids": [
       "UI-DIR-05",
-      "UAT-PLAN-139"
+      "UAT-PLAN-139",
+      "UAT-DIR-DAT-01",
+      "UAT-DIR-E2E-02",
+      "UAT-DIR-SEC-09"
     ]
   },
   {
@@ -10366,7 +10403,8 @@
     "backlog_id": "BL-DIR-06",
     "test_ids": [
       "UI-DIR-06",
-      "UAT-PLAN-140"
+      "UAT-PLAN-140",
+      "UAT-DIR-PWA-01"
     ]
   },
   {
@@ -10385,7 +10423,14 @@
     "test_ids": [
       "UI-RPT-01",
       "UAT-RPT-001",
-      "UAT-RPT-003"
+      "UAT-RPT-003",
+      "UAT-RPT-IDM-01",
+      "UAT-RPT-EDG-01",
+      "UAT-RPT-DEMO-01",
+      "UAT-RPT-A11-01",
+      "UAT-RPT-PX-01",
+      "UAT-RPT-SEC-01",
+      "UAT-RPT-SEC-03"
     ]
   },
   {
@@ -10404,7 +10449,18 @@
     "test_ids": [
       "UI-RPT-02",
       "UAT-RPT-001",
-      "UAT-RPT-002"
+      "UAT-RPT-002",
+      "UAT-RPT-E2E-01",
+      "UAT-RPT-STA-01",
+      "UAT-RPT-SOD-01",
+      "UAT-RPT-A11-01",
+      "UAT-RPT-SEC-02",
+      "UAT-RPT-SEC-04",
+      "UAT-RPT-SEC-05",
+      "UAT-RPT-SEC-06",
+      "UAT-RPT-SEC-07",
+      "UAT-RPT-SEC-08",
+      "UAT-RPT-SEC-12"
     ]
   },
   {
@@ -10423,7 +10479,16 @@
     "test_ids": [
       "UI-RPT-03",
       "UAT-RPT-002",
-      "UAT-RPT-003"
+      "UAT-RPT-003",
+      "UAT-RPT-E2E-01",
+      "UAT-RPT-IDM-01",
+      "UAT-RPT-STA-02",
+      "UAT-RPT-ISO-01",
+      "UAT-RPT-PRF-01",
+      "UAT-RPT-A11-01",
+      "UAT-RPT-SEC-09",
+      "UAT-RPT-SEC-10",
+      "UAT-RPT-SEC-11"
     ]
   },
   {
@@ -10442,7 +10507,13 @@
     "test_ids": [
       "UI-RPT-04",
       "UAT-RPT-002",
-      "UAT-RPT-003"
+      "UAT-RPT-003",
+      "UAT-RPT-IDM-02",
+      "UAT-RPT-EDG-01",
+      "UAT-RPT-DEMO-01",
+      "UAT-RPT-A11-01",
+      "UAT-RPT-SEC-13",
+      "UAT-RPT-SEC-14"
     ]
   },
   {
@@ -10934,7 +11005,17 @@
     "verification": "05_modules/INT.md; docs/open-api.md",
     "backlog_id": "BL-INT-01",
     "test_ids": [
-      "UI-INT-01"
+      "UI-INT-01",
+      "UAT-INT-E2E-01",
+      "UAT-INT-IDM-01",
+      "UAT-INT-TKN-01",
+      "UAT-INT-STA-01",
+      "UAT-INT-EDG-01",
+      "UAT-INT-ISO-01",
+      "UAT-INT-A11-01",
+      "UAT-INT-SEC-01",
+      "UAT-INT-SEC-02",
+      "UAT-INT-SEC-03"
     ]
   },
   {
@@ -10951,7 +11032,15 @@
     "verification": "05_modules/INT.md; docs/open-api.md",
     "backlog_id": "BL-INT-02",
     "test_ids": [
-      "UI-INT-02"
+      "UI-INT-02",
+      "UAT-INT-TKN-01",
+      "UAT-INT-STA-01",
+      "UAT-INT-EDG-01",
+      "UAT-INT-RTL-01",
+      "UAT-INT-A11-01",
+      "UAT-INT-SEC-04",
+      "UAT-INT-SEC-05",
+      "UAT-INT-SEC-06"
     ]
   },
   {
@@ -10968,7 +11057,16 @@
     "verification": "05_modules/INT.md; docs/open-api.md",
     "backlog_id": "BL-INT-03",
     "test_ids": [
-      "UI-INT-03"
+      "UI-INT-03",
+      "UAT-INT-SOD-01",
+      "UAT-INT-A11-01",
+      "UAT-INT-SEC-15",
+      "UAT-INT-SEC-16",
+      "UAT-INT-SEC-17",
+      "UAT-INT-SEC-18",
+      "UAT-INT-SEC-19",
+      "UAT-INT-SEC-20",
+      "UAT-INT-SEC-21"
     ]
   },
   {
@@ -10985,7 +11083,17 @@
     "verification": "05_modules/INT.md; docs/open-api.md",
     "backlog_id": "BL-INT-04",
     "test_ids": [
-      "UI-INT-04"
+      "UI-INT-04",
+      "UAT-INT-DST-01",
+      "UAT-INT-BI-01",
+      "UAT-INT-A11-01",
+      "UAT-INT-SEC-08",
+      "UAT-INT-SEC-09",
+      "UAT-INT-SEC-10",
+      "UAT-INT-SEC-11",
+      "UAT-INT-SEC-12",
+      "UAT-INT-SEC-13",
+      "UAT-INT-SEC-14"
     ]
   },
   {
@@ -11002,7 +11110,12 @@
     "verification": "05_modules/INT.md; docs/open-api.md",
     "backlog_id": "BL-INT-05",
     "test_ids": [
-      "UI-INT-05"
+      "UI-INT-05",
+      "UAT-INT-E2E-01",
+      "UAT-INT-DAT-01",
+      "UAT-INT-PRF-01",
+      "UAT-INT-A11-01",
+      "UAT-INT-SEC-07"
     ]
   },
   {
@@ -11177,7 +11290,19 @@
     "test_ids": [
       "UI-HUB-01",
       "UAT-HUB-001",
-      "UAT-HUB-002"
+      "UAT-HUB-002",
+      "UAT-HUB-E2E-01",
+      "UAT-HUB-IDM-01",
+      "UAT-HUB-EDG-01",
+      "UAT-HUB-HLT-01",
+      "UAT-HUB-PRF-01",
+      "UAT-HUB-A11-01",
+      "UAT-HUB-SEC-01",
+      "UAT-HUB-SEC-02",
+      "UAT-HUB-SEC-03",
+      "UAT-HUB-SEC-04",
+      "UAT-HUB-SEC-08",
+      "UAT-HUB-SEC-13"
     ]
   },
   {
@@ -11196,7 +11321,20 @@
     "test_ids": [
       "UI-HUB-02",
       "UAT-HUB-002",
-      "UAT-HUB-004"
+      "UAT-HUB-004",
+      "UAT-HUB-DAT-01",
+      "UAT-HUB-SOD-01",
+      "UAT-HUB-STA-02",
+      "UAT-HUB-AGT-01",
+      "UAT-HUB-A11-01",
+      "UAT-HUB-SEC-05",
+      "UAT-HUB-SEC-09",
+      "UAT-HUB-SEC-10",
+      "UAT-HUB-SEC-11",
+      "UAT-HUB-SEC-14",
+      "UAT-HUB-SEC-15",
+      "UAT-HUB-SEC-16",
+      "UAT-HUB-SEC-17"
     ]
   },
   {
@@ -11214,7 +11352,14 @@
     "backlog_id": "BL-HUB-03",
     "test_ids": [
       "UI-HUB-03",
-      "UAT-HUB-003"
+      "UAT-HUB-003",
+      "UAT-HUB-E2E-01",
+      "UAT-HUB-STA-01",
+      "UAT-HUB-ISO-01",
+      "UAT-HUB-A11-01",
+      "UAT-HUB-SEC-06",
+      "UAT-HUB-SEC-07",
+      "UAT-HUB-SEC-12"
     ]
   },
   {
@@ -11366,7 +11511,29 @@
     "test_ids": [
       "UI-HPM-01",
       "UAT-PLAN-169",
-      "UAT-PLAN-170"
+      "UAT-PLAN-170",
+      "UAT-HPM-E2E-01",
+      "UAT-HPM-IDM-01",
+      "UAT-HPM-IDM-02",
+      "UAT-HPM-IDM-03",
+      "UAT-HPM-IDM-04",
+      "UAT-HPM-STA-01",
+      "UAT-HPM-STA-02",
+      "UAT-HPM-SOD-01",
+      "UAT-HPM-DAT-01",
+      "UAT-HPM-ISO-01",
+      "UAT-HPM-STA-03",
+      "UAT-HPM-EDG-01",
+      "UAT-HPM-DEMO-01",
+      "UAT-HPM-PRF-01",
+      "UAT-HPM-A11-01",
+      "UAT-HPM-PX-01",
+      "UAT-HPM-SEC-01",
+      "UAT-HPM-SEC-02",
+      "UAT-HPM-SEC-03",
+      "UAT-HPM-SEC-04",
+      "UAT-HPM-SEC-05",
+      "UAT-HPM-SEC-06"
     ]
   },
   {
@@ -11385,7 +11552,12 @@
     "test_ids": [
       "UI-HPM-02",
       "UAT-PLAN-171",
-      "UAT-PLAN-172"
+      "UAT-PLAN-172",
+      "UAT-HPM-E2E-02",
+      "UAT-HPM-A11-01",
+      "UAT-HPM-SEC-07",
+      "UAT-HPM-SEC-08",
+      "UAT-HPM-SEC-09"
     ]
   },
   {
@@ -11402,7 +11574,12 @@
     "verification": "05_modules/RML.md §10–§11",
     "backlog_id": "BL-RML-01",
     "test_ids": [
-      "UI-RML-01"
+      "UI-RML-01",
+      "UAT-RPT-RML-01",
+      "UAT-RPT-SEC-21",
+      "UAT-RPT-SEC-22",
+      "UAT-RPT-SEC-23",
+      "UAT-RPT-SEC-24"
     ]
   },
   {
@@ -11421,7 +11598,22 @@
     "test_ids": [
       "UI-EBS-01",
       "UAT-PLAN-173",
-      "UAT-PLAN-174"
+      "UAT-PLAN-174",
+      "UAT-EBS-E2E-01",
+      "UAT-EBS-IDM-01",
+      "UAT-EBS-IDM-02",
+      "UAT-EBS-IDM-03",
+      "UAT-EBS-EDG-01",
+      "UAT-EBS-SOD-01",
+      "UAT-EBS-DAT-01",
+      "UAT-EBS-EDG-02",
+      "UAT-EBS-A11-01",
+      "UAT-EBS-PX-01",
+      "UAT-EBS-SEC-01",
+      "UAT-EBS-SEC-02",
+      "UAT-EBS-SEC-03",
+      "UAT-EBS-SEC-04",
+      "UAT-EBS-SEC-05"
     ]
   },
   {
@@ -11440,7 +11632,17 @@
     "test_ids": [
       "UI-EBS-02",
       "UAT-PLAN-149",
-      "UAT-PLAN-150"
+      "UAT-PLAN-150",
+      "UAT-EBS-E2E-02",
+      "UAT-EBS-STA-01",
+      "UAT-EBS-ISO-01",
+      "UAT-EBS-E2E-03",
+      "UAT-EBS-PRF-01",
+      "UAT-EBS-A11-01",
+      "UAT-EBS-SEC-06",
+      "UAT-EBS-SEC-07",
+      "UAT-EBS-SEC-08",
+      "UAT-EBS-SEC-09"
     ]
   },
   {
@@ -11459,7 +11661,25 @@
     "test_ids": [
       "UI-IND-01",
       "UAT-PLAN-IND-1",
-      "UAT-PLAN-IND-2"
+      "UAT-PLAN-IND-2",
+      "UAT-IND-E2E-01",
+      "UAT-IND-IDM-01",
+      "UAT-IND-EDG-01",
+      "UAT-IND-STA-01",
+      "UAT-IND-ISO-01",
+      "UAT-IND-SCP-01",
+      "UAT-IND-BND-01",
+      "UAT-IND-PRF-01",
+      "UAT-IND-A11-01",
+      "UAT-IND-PX-01",
+      "UAT-IND-SEC-01",
+      "UAT-IND-SEC-02",
+      "UAT-IND-SEC-04",
+      "UAT-IND-SEC-07",
+      "UAT-IND-SEC-08",
+      "UAT-IND-SEC-09",
+      "UAT-IND-SEC-10",
+      "UAT-IND-SEC-12"
     ]
   },
   {
@@ -11478,7 +11698,11 @@
     "test_ids": [
       "UI-IND-02",
       "UAT-PLAN-IND-1",
-      "UAT-PLAN-IND-2"
+      "UAT-PLAN-IND-2",
+      "UAT-IND-DAT-01",
+      "UAT-IND-A11-01",
+      "UAT-IND-PX-01",
+      "UAT-IND-SEC-03"
     ]
   },
   {
@@ -11496,7 +11720,14 @@
     "backlog_id": "BL-IND-03",
     "test_ids": [
       "UI-IND-03",
-      "UAT-PLAN-IND-3"
+      "UAT-PLAN-IND-3",
+      "UAT-IND-E2E-02",
+      "UAT-IND-A11-01",
+      "UAT-IND-SEC-05",
+      "UAT-IND-SEC-06",
+      "UAT-IND-SEC-11",
+      "UAT-IND-SEC-13",
+      "UAT-IND-SEC-14"
     ]
   },
   {
@@ -12018,7 +12249,8 @@
     "backlog_id": "BL-RPT-05",
     "test_ids": [
       "UI-RPT-05",
-      "UAT-PLAN-3001"
+      "UAT-PLAN-3001",
+      "UAT-RPT-PX-01"
     ]
   },
   {
@@ -12036,7 +12268,13 @@
     "backlog_id": "BL-RPT-06",
     "test_ids": [
       "UI-RPT-06",
-      "UAT-PLAN-3001"
+      "UAT-PLAN-3001",
+      "UAT-RPT-SIG-01",
+      "UAT-RPT-SEC-15",
+      "UAT-RPT-SEC-16",
+      "UAT-RPT-SEC-17",
+      "UAT-RPT-SEC-18",
+      "UAT-RPT-SEC-19"
     ]
   },
   {
@@ -12072,7 +12310,8 @@
     "backlog_id": "BL-RPT-08",
     "test_ids": [
       "UI-RPT-08",
-      "UAT-PLAN-3410"
+      "UAT-PLAN-3410",
+      "UAT-RPT-SEC-20"
     ]
   },
   {
@@ -12623,7 +12862,11 @@
     "test_ids": [
       "UI-ORG-01",
       "UAT-PLAN-ORG-1",
-      "UAT-PLAN-ORG-2"
+      "UAT-PLAN-ORG-2",
+      "UAT-ENT-ORG-01",
+      "UAT-ENT-PX-01",
+      "UAT-ENT-SEC-01",
+      "UAT-ENT-SEC-02"
     ]
   },
   {
@@ -12687,7 +12930,15 @@
     "backlog_id": "BL-DIS-32",
     "test_ids": [
       "UI-DIS-32",
-      "UAT-DIS-ENT3A-1"
+      "UAT-DIS-ENT3A-1",
+      "UAT-ENT-E2E-01",
+      "UAT-ENT-IDM-01",
+      "UAT-ENT-STA-01",
+      "UAT-ENT-SEC-03",
+      "UAT-ENT-SEC-04",
+      "UAT-ENT-SEC-05",
+      "UAT-ENT-SEC-06",
+      "UAT-ENT-SEC-07"
     ]
   },
   {
@@ -12703,7 +12954,12 @@
     "backlog_id": "BL-DIS-33",
     "test_ids": [
       "UI-DIS-33",
-      "UAT-DIS-ENT3A-1"
+      "UAT-DIS-ENT3A-1",
+      "UAT-ENT-E2E-01",
+      "UAT-ENT-SOD-01",
+      "UAT-ENT-DAT-01",
+      "UAT-ENT-ISO-01",
+      "UAT-ENT-SCP-01"
     ]
   },
   {
@@ -12751,7 +13007,10 @@
     "backlog_id": "BL-EQP-01",
     "test_ids": [
       "UI-EQP-01",
-      "UAT-EQP-ENT4E-1"
+      "UAT-EQP-ENT4E-1",
+      "UAT-ENT-EQP-01",
+      "UAT-ENT-SEC-10",
+      "UAT-ENT-SEC-12"
     ]
   },
   {
@@ -12767,7 +13026,10 @@
     "backlog_id": "BL-EQP-02",
     "test_ids": [
       "UI-EQP-02",
-      "UAT-EQP-ENT4E-1"
+      "UAT-EQP-ENT4E-1",
+      "UAT-ENT-EQP-01",
+      "UAT-ENT-SEC-11",
+      "UAT-ENT-SEC-13"
     ]
   },
   {
@@ -12784,7 +13046,9 @@
     "verification": "05_modules/PWA.md section 10; vitest /m",
     "backlog_id": "BL-PWA-01",
     "test_ids": [
-      "UI-PWA-01"
+      "UI-PWA-01",
+      "UAT-ENT-PWA-01",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12801,7 +13065,9 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/approvals",
     "backlog_id": "BL-PWA-02",
     "test_ids": [
-      "UI-PWA-02"
+      "UI-PWA-02",
+      "UAT-ENT-PWA-01",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12818,7 +13084,13 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/dashboard",
     "backlog_id": "BL-PWA-03",
     "test_ids": [
-      "UI-PWA-03"
+      "UI-PWA-03",
+      "UAT-ENT-DAT-01",
+      "UAT-ENT-PWA-02",
+      "UAT-ENT-PRF-01",
+      "UAT-ENT-A11-01",
+      "UAT-ENT-SEC-08",
+      "UAT-ENT-SEC-09"
     ]
   },
   {
@@ -12835,7 +13107,8 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/directives",
     "backlog_id": "BL-PWA-04",
     "test_ids": [
-      "UI-PWA-04"
+      "UI-PWA-04",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12852,7 +13125,9 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/approvals/:taskId",
     "backlog_id": "BL-PWA-05",
     "test_ids": [
-      "UI-PWA-05"
+      "UI-PWA-05",
+      "UAT-ENT-PWA-01",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12869,7 +13144,8 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/directives/:id",
     "backlog_id": "BL-PWA-06",
     "test_ids": [
-      "UI-PWA-06"
+      "UI-PWA-06",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12886,7 +13162,9 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/settings",
     "backlog_id": "BL-PWA-07",
     "test_ids": [
-      "UI-PWA-07"
+      "UI-PWA-07",
+      "UAT-ENT-PWA-03",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12903,7 +13181,10 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/dashboard/detail",
     "backlog_id": "BL-PWA-08",
     "test_ids": [
-      "UI-PWA-08"
+      "UI-PWA-08",
+      "UAT-ENT-DAT-01",
+      "UAT-ENT-PWA-02",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12920,7 +13201,8 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/progress",
     "backlog_id": "BL-PWA-09",
     "test_ids": [
-      "UI-PWA-09"
+      "UI-PWA-09",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12937,7 +13219,9 @@
     "verification": "05_modules/PWA.md section 10; vitest /m/notifications",
     "backlog_id": "BL-PWA-10",
     "test_ids": [
-      "UI-PWA-10"
+      "UI-PWA-10",
+      "UAT-ENT-PWA-03",
+      "UAT-ENT-A11-01"
     ]
   },
   {
@@ -12953,7 +13237,11 @@
     "backlog_id": "BL-DIS-35",
     "test_ids": [
       "UI-DIS-35",
-      "UAT-DIS-ENT3B-1"
+      "UAT-DIS-ENT3B-1",
+      "UAT-ENT-NAR-01",
+      "UAT-ENT-SEC-14",
+      "UAT-ENT-SEC-15",
+      "UAT-ENT-SEC-16"
     ]
   },
   {
@@ -12970,7 +13258,11 @@
     "test_ids": [
       "UI-RPT-09",
       "UAT-RPT-ENT4A-1",
-      "UAT-RPT-ENT4A-2"
+      "UAT-RPT-ENT4A-2",
+      "UAT-RPT-XCK-01",
+      "UAT-RPT-SEC-25",
+      "UAT-RPT-SEC-26",
+      "UAT-RPT-SEC-27"
     ]
   }
 ]

@@ -376,6 +376,27 @@ describe('the directives of the steering meetings over HTTP (governance deepenin
       expect((await call('GET', '/directives/not-an-id', { member: READER })).status).toBeGreaterThanOrEqual(400);
     });
 
+    it('carries the latest progress that was reported on every line of the list, null when none was and never 0 (PWA-04, YCK.01)', async () => {
+      const held = await meeting();
+      const quiet = await directive(held.id);
+      const worked = await directive(held.id);
+      const listed = async (id: string): Promise<Record<string, unknown>> => {
+        const page = await call('GET', `/directives?meeting_id=${held.id}`, { member: READER });
+        return (page.json.items as Array<Record<string, unknown>>).find((item) => item.id === id) as Record<string, unknown>;
+      };
+      expect(await listed(worked.id)).toMatchObject({ progress_percent: null, progress_reported_at: null });
+      await call('POST', `/directives/${worked.id}/progress`, { member: ASSIGNEE, body: { note: 'Bat dau.', progress_pct: 30, evidence_document_version_ids: [version] } });
+      await call('POST', `/directives/${worked.id}/progress`, { member: ASSIGNEE, body: { note: 'Chi ghi chu, khong co ty le.' } });
+      await call('POST', `/directives/${worked.id}/progress`, { member: ASSIGNEE, body: { note: 'Gan xong.', progress_pct: 80 } });
+      const line = await listed(worked.id);
+      expect(line.progress_percent).toBe(80);
+      expect(typeof line.progress_reported_at).toBe('string');
+      expect(await listed(quiet.id)).toMatchObject({ progress_percent: null, progress_reported_at: null });
+      // The detail and the line of the meeting say the same thing as the list.
+      const detail = await call('GET', `/directives/${worked.id}`, { member: READER });
+      expect((detail.json.directive as Record<string, unknown>).progress_percent).toBe(80);
+    });
+
     it('counts by status with the formula of each number, due soon, escalated and by unit, and the numbers add up to the list', async () => {
       const summary = await call('GET', '/directives/summary', { member: READER });
       expect(summary.status).toBe(200);

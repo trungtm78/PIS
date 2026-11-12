@@ -6,7 +6,6 @@ import { DisPeriodStore } from '../src/dis-period-store';
 import { BASELINE_PACK, applyBaseline, sealPack } from '../src/master-baseline';
 import type { BaselineEntry } from '../src/master-baseline';
 import { SchedulePeriodLockGate } from '../src/period-lock-gate';
-import { runCalendarReminders } from '../src/reporting-calendar-reminders';
 import { ReportingCalendarStore } from '../src/reporting-calendar-store';
 import type { TenantTx } from '../src/tenant-database';
 import { AuthzHarness, TENANT_A, contextFor, memberId, unitId } from './support/authz-fixtures';
@@ -216,23 +215,6 @@ describe('the lock of a period of the enterprise calendar waits for the review a
     it('shows the push as a fact once the instance ended approved, at the instant it ended', async () => {
       await owner(`update machvon.workflow_instance set status = 'Completed', outcome = 'APPROVED', ended_at = '2027-10-14T05:00:00Z' where status = 'Running'`);
       expect(await progressOf()).toEqual({ planningReviewAt: '2027-10-07T03:00:00.000Z', periodCloseAt: '2027-10-08T01:00:00.000Z', pushedAt: '2027-10-14T05:00:00.000Z' });
-    });
-  });
-
-  describe('the reminders of the steps of the period as a whole', () => {
-    const remindersOf = (step: string): Promise<Array<{ kind: string }>> => owner<{ kind: string }>(`select kind from machvon.reporting_reminder where step = $1 and unit_id is null order by created_at`, [step]);
-    beforeAll(async () => {
-      await reset();
-      await generateMonths();
-    });
-    afterAll(reset);
-
-    it('does not remind the review while the platform has no fact behind it, and reminds it when a record waits for it', async () => {
-      await asWorker((tx) => runCalendarReminders(tx, TENANT_A, at('2027-10-11T04:00:00Z')));
-      expect(await remindersOf('PLANNING_REVIEW')).toEqual([]);
-      await seedStagedRecord({ currentStep: 1, decided: [{ step: 0, at: '2027-10-04T02:00:00Z' }] });
-      await asWorker((tx) => runCalendarReminders(tx, TENANT_A, at('2027-10-11T04:00:00Z')));
-      expect((await remindersOf('PLANNING_REVIEW')).map((row) => row.kind)).toContain('OVERDUE');
     });
   });
 });

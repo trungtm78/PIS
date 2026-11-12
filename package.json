@@ -35,6 +35,7 @@
     "native-deps:check": "node scripts/native-deps-check.mjs",
     "backup:verify": "node scripts/backup-verify.mjs",
     "restore:drill": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/restore-drill.mjs",
+    "restore:rehearse": "cd packages/db && node ../../scripts/lane.mjs db -- node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --testPathPatterns restore-drill-rehearsal --forceExit --coverage=false",
     "onprem:bundle": "node scripts/onprem-bundle.mjs",
     "alerts:check": "node scripts/alerts-check.mjs",
     "governance:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/governance-check.mjs",
