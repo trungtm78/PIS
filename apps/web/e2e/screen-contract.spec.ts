@@ -42,8 +42,40 @@ const AXE_SOURCE = createRequire(import.meta.url).resolve('axe-core');
 const PAGE_TIMEOUT_MS = 15_000;
 const WIDE = 1440;
 const NARROW = 390;
-/** The states a screen shows besides its data, forced with `?demoState=` in a development build. */
-const FORCED_STATES = ['loading', 'empty', 'error', 'denied', 'expired', 'offline'] as const;
+/** The states a screen shows besides its data, and the key of the title of its card; `loading` has no card, its skeleton says it is busy. */
+const FORCED_STATES = { loading: 'states.loading.label', empty: 'states.empty.title', error: 'states.error.title', denied: 'states.denied.title', expired: 'states.signedOut.title', offline: 'states.offline.title' } as const;
+type ForcedState = keyof typeof FORCED_STATES;
+const I18N = readJson<Record<string, string>>('../src/i18n/vi.json');
+const STATE_TITLES: Readonly<Record<string, string>> = Object.fromEntries(Object.entries(FORCED_STATES).map(([state, key]) => [state, I18N[key] ?? '']));
+
+const problemBody = (status: number, code: string): string => JSON.stringify({ type: `urn:machvon:error:${code}`, title: `error.${code}.title`, status, code, correlation_id: 'forced', correlationId: 'forced' });
+
+/**
+ * Forces a state on the screen itself, the way a person meets it: the API answers what makes the screen show that state (an empty page, a 500, a 403, a lapsed session, no network),
+ * or answers late. The requests of the shell (the alert counts) and every change are left alone. The screen's own hooks and its own state card decide what is shown.
+ */
+async function forceState(page: Page, state: ForcedState): Promise<void> {
+  // The address of the API only: the development server also serves modules of the application from /src/api/.
+  await page.route((url) => url.pathname.startsWith('/api/'), async (route) => {
+    const request = route.request();
+    if (request.method() !== 'GET' || new URL(request.url()).pathname.startsWith('/api/home/my-work')) return route.fallback();
+    switch (state) {
+      case 'loading':
+        await new Promise((done) => setTimeout(done, 8000));
+        return route.continue().catch(() => undefined);
+      case 'empty':
+        return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ items: [], next_cursor: null }) });
+      case 'error':
+        return route.fulfill({ status: 500, contentType: 'application/problem+json', body: problemBody(500, 'INTERNAL_ERROR') });
+      case 'denied':
+        return route.fulfill({ status: 403, contentType: 'application/problem+json', body: problemBody(403, 'SCOPE_DENIED') });
+      case 'expired':
+        return route.fulfill({ status: 401, contentType: 'application/problem+json', body: problemBody(401, 'SESSION_EXPIRED') });
+      case 'offline':
+        return route.abort('internetdisconnected');
+    }
+  });
+}
 
 /** The installed application of the manager (PWA-nn) is a route of its own at `/m`; the route table holds only the stand-in of each screen. PWA-05 and PWA-06 (one approval task, one directive) are no route without a record. */
 const PWA_PATHS: Readonly<Record<string, string>> = {
@@ -57,6 +89,14 @@ const PWA_PATHS: Readonly<Record<string, string>> = {
   'PWA-10': '/m/notifications',
 };
 type OpenPage = (page: Page) => Promise<void>;
+interface ObserveOptions {
+  user: string;
+  width: number;
+  open: OpenPage;
+  axe?: boolean;
+  /** Measure as soon as the shell stands, without waiting for the network to rest (the loading state: the network is held on purpose). */
+  immediate?: boolean;
+}
 
 /** The persona that only reads: the control plane screens (SAS) belong to a control-audience user, so theirs is the operator who holds one right to read. */
 const readerOf = (route: { module: string }): string => (route.module === 'SAS' ? 'operator' : READER_KEY);
@@ -75,12 +115,12 @@ async function axeViolations(page: Page): Promise<string[]> {
  * An opening that failed because the machine ran short of sockets or memory (the route walk's `failedByTheMachine`) is made once more in a fresh context; a screen that fails
  * for its own reasons is never retried away.
  */
-async function observe(browser: Browser, baseURL: string, options: { user: string; width: number; open: OpenPage; axe?: boolean }): Promise<Observation> {
+async function observe(browser: Browser, baseURL: string, options: ObserveOptions): Promise<Observation> {
   const first = await observeOnce(browser, baseURL, options);
   return failedByTheMachine(first.loadError, first.consoleErrors) ? observeOnce(browser, baseURL, options) : first;
 }
 
-async function observeOnce(browser: Browser, baseURL: string, options: { user: string; width: number; open: OpenPage; axe?: boolean }): Promise<Observation> {
+async function observeOnce(browser: Browser, baseURL: string, options: ObserveOptions): Promise<Observation> {
   const context = await browser.newContext({ viewport: { width: options.width, height: options.width >= 1000 ? 1000 : 844 }, baseURL, deviceScaleFactor: 1, locale: 'vi-VN' });
   const page = await context.newPage();
   const consoleErrors: string[] = [];
@@ -119,7 +159,8 @@ async function observeOnce(browser: Browser, baseURL: string, options: { user: s
   let loadError: string | undefined;
   try {
     await options.open(page);
-    await page.waitForLoadState('networkidle', { timeout: PAGE_TIMEOUT_MS });
+    if (options.immediate === true) await page.waitForTimeout(1500);
+    else await page.waitForLoadState('networkidle', { timeout: PAGE_TIMEOUT_MS });
     facts = await page.evaluate(factsInPage, MIN_TEXT_PX);
     if (options.axe === true) axe = await axeViolations(page);
   } catch (error) {
@@ -127,7 +168,7 @@ async function observeOnce(browser: Browser, baseURL: string, options: { user: s
   }
   await Promise.all(pending);
   await context.close();
-  const empty: ScreenFacts = { screenIds: [], notImplemented: false, crashed: false, breadcrumb: false, title: '', overflowPx: 0, stateCards: [], hasContent: false, dataRows: false, formFields: false, writeActions: [], screenText: '', tokens: { primaryDefined: false, bodyFont: '', textBelowFloor: [], italicHeadings: [] } };
+  const empty: ScreenFacts = { screenIds: [], notImplemented: false, crashed: false, busy: false, breadcrumb: false, title: '', overflowPx: 0, stateCards: [], hasContent: false, dataRows: false, formFields: false, writeActions: [], screenText: '', tokens: { primaryDefined: false, bodyFont: '', textBelowFloor: [], italicHeadings: [] } };
   return { user: options.user, width: options.width, facts: facts ?? empty, consoleErrors, pageErrors, calls, axe, ...(loadError === undefined ? {} : { loadError }) };
 }
 
@@ -168,7 +209,18 @@ test.describe('screen contract of the screens of the edition', () => {
       const denied = clauses.includes('denied') ? await observe(browser, baseURL, { user: 'nobody', width: WIDE, open: openRoute(path, 'nobody', extra) }) : undefined;
       const states = clauses.includes('states')
         ? await Promise.all(
-            FORCED_STATES.map(async (state) => ({ state, observation: await observe(browser, baseURL, { user, width: NARROW, open: openRoute(path, user, `${extra}&demoState=${state}`) }) })),
+            (Object.keys(FORCED_STATES) as ForcedState[]).map(async (state) => ({
+              state,
+              observation: await observe(browser, baseURL, {
+                user,
+                width: NARROW,
+                immediate: state === 'loading',
+                open: async (page) => {
+                  await forceState(page, state);
+                  await openRoute(path, user, extra)(page);
+                },
+              }),
+            })),
           )
         : undefined;
 
@@ -183,7 +235,7 @@ test.describe('screen contract of the screens of the edition', () => {
         narrow,
         ...(reader === undefined ? {} : { reader }),
         ...(denied === undefined ? {} : { denied }),
-        ...(states === undefined ? {} : { states }),
+        ...(states === undefined ? {} : { states, stateTitles: STATE_TITLES }),
         matchers: MATCHERS,
       };
       const findings: Finding[] = judgeScreen(contract);

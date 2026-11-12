@@ -104,6 +104,8 @@ export interface ScreenFacts {
   notImplemented: boolean;
   /** The crash card of the error boundary is shown. */
   crashed: boolean;
+  /** Something on the page says it is busy loading (`aria-busy="true"`): the skeleton of the loading state. */
+  busy: boolean;
   breadcrumb: boolean;
   title: string;
   /** document scrollWidth minus innerWidth, never negative. */
@@ -188,8 +190,8 @@ export const MIN_TEXT_PX = 12;
  *
  * A control "changes data" when it is enabled and visible, outside the shell (sidebar, top bar, navigation), outside a filter or a search form (they change what is shown, never the
  * data) and outside a state card (its retry button reloads), and it is a primary or a danger button of the design system (`ui-button--primary`, `ui-button--danger`, the plain
- * `primary` of the older screens), or a submit button, or names a change of data in its own words ("Thêm", "Lưu", "Gửi", "Duyệt", "Xóa"...). A link counts only by those words:
- * a link styled as a primary button still only navigates.
+ * `primary` of the older screens), or a submit button, or names a change of data in its own words ("Thêm", "Lưu", "Gửi", "Duyệt", "Xóa"...; a bare "Hủy" is a cancel, not a void).
+ * A link never counts: it navigates, whatever it is called and however it is drawn.
  */
 export function factsInPage(minTextPx: number): ScreenFacts {
   const visible = (element: Element): boolean => {
@@ -213,7 +215,7 @@ export function factsInPage(minTextPx: number): ScreenFacts {
       // What only shows or narrows the data is no change of it, in whatever style it is drawn ("Xem", "Lọc", "Áp dụng", "Tất cả", "Xóa bộ lọc").
       if (/^(?:Xem|Lọc|Tìm|Tra cứu|Áp dụng|Tất cả|Mở|Quay lại|Tải lại|Làm mới|Hiển thị|Đặt lại|Xóa lọc|Xóa bộ lọc|Chọn|So sánh|In|Tải về|Tải xuống)(?=\s|$|[:,.])/.test(name)) return false;
       // A button that names a change of data in its own words: the same control in an outline style is no less a write.
-      const verb = /^(?:\+\s*)?(?:Thêm|Tạo|Lập|Lưu|Gửi|Trình duyệt|Trình ký|Trình lên|Duyệt|Phê duyệt|Từ chối|Xóa|Hủy|Sửa|Chỉnh sửa|Cập nhật|Ghi nhận|Ghi|Xác nhận|Phát hành|Thu hồi|Khóa|Mở lại|Gia hạn)(?=\s|$|[:,.])/.test(name);
+      const verb = element.tagName !== 'A' && /^(?:\+\s*)?(?:Thêm|Tạo|Lập|Lưu|Gửi|Trình duyệt|Trình ký|Trình lên|Duyệt|Phê duyệt|Từ chối|Xóa|Hủy(?=\s+(?!bỏ)\S)|Sửa|Chỉnh sửa|Cập nhật|Ghi nhận|Ghi|Xác nhận|Phát hành|Thu hồi|Khóa|Mở lại|Gia hạn)(?=\s|$|[:,.])/.test(name);
       return primary || verb || element.matches('button[type="submit"], input[type="submit"]');
     })
     .map((element) => ({ tag: element.tagName.toLowerCase(), name: nameOf(element), classes: typeof element.className === 'string' ? element.className : '' }));
@@ -234,6 +236,7 @@ export function factsInPage(minTextPx: number): ScreenFacts {
     screenIds: all(document, '[data-screen-id]').map((element) => element.getAttribute('data-screen-id') ?? ''),
     notImplemented: document.querySelector('[data-not-implemented]') !== null,
     crashed: document.querySelector('[data-state="crash"]') !== null,
+    busy: document.querySelector('[aria-busy="true"]') !== null,
     breadcrumb: document.querySelector('.workspace-breadcrumb strong') !== null,
     title: textOf(root.querySelector('h1') ?? document.createElement('span')),
     overflowPx: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
@@ -352,8 +355,10 @@ export interface ContractInput {
   reader?: Observation;
   /** A member with no right. Absent when the clause `denied` is not asked for. */
   denied?: Observation;
-  /** The seven states of the screen, one observation each (clause `states`). */
+  /** The states of the screen besides its data, each forced on the screen itself by what the API answers (clause `states`). */
   states?: Array<{ state: string; observation: Observation }>;
+  /** The title of the card of each state (`states.<state>.title`), by the name of the state. */
+  stateTitles?: Readonly<Record<string, string>>;
   matchers: ReadonlyArray<{ method: string; pattern: RegExp }>;
 }
 
@@ -433,6 +438,7 @@ export function judgeScreen(input: ContractInput): Finding[] {
     const refused = denied.calls.filter((call) => call.status === 403 && !isShellCall(call));
     if (refused.length > 0 && !showsDenied(denied.facts, input.deniedTitle)) findings.push({ clause: 'denied', detail: `the API answered 403 to a member without the right (${refused.map((call) => `${call.method} ${call.path}`).join(', ')}) and the screen shows no denied state` });
     if (denied.facts.crashed) findings.push({ clause: 'denied', detail: 'the screen crashes for a member without the right' });
+    if (denied.loadError !== undefined) findings.push({ clause: 'denied', detail: `the screen did not load for a member without the right (${denied.loadError})` });
     findings.push(...denied.pageErrors.map((error) => ({ clause: 'denied' as const, detail: `uncaught error for a member without the right: ${error}` })));
   }
   if (wanted.has('problem')) {
@@ -463,8 +469,15 @@ export function judgeScreen(input: ContractInput): Finding[] {
       if (observation.facts.crashed) findings.push({ clause: 'states', detail: `state ${state}: the page crashes` });
       if (observation.facts.overflowPx > 0) findings.push({ clause: 'states', detail: `state ${state}: the page scrolls sideways by ${observation.facts.overflowPx} px at ${observation.width} px` });
       for (const error of observation.pageErrors) findings.push({ clause: 'states', detail: `state ${state}: uncaught error: ${error}` });
-      for (const error of observation.consoleErrors) findings.push({ clause: 'states', detail: `state ${state}: console error: ${error}` });
-      if (state !== 'default' && state !== 'loading' && observation.facts.stateCards.length === 0) findings.push({ clause: 'states', detail: `state ${state}: no state card is shown` });
+      if (observation.loadError !== undefined) findings.push({ clause: 'states', detail: `state ${state}: the page did not load (${observation.loadError})` });
+      if (state === 'loading') {
+        if (!observation.facts.busy) findings.push({ clause: 'states', detail: 'state loading: nothing on the screen says it is loading while the data is awaited' });
+        continue;
+      }
+      const title = input.stateTitles?.[state] ?? '';
+      if (title !== '' && !observation.facts.stateCards.some((card) => fold(card).includes(fold(title)))) {
+        findings.push({ clause: 'states', detail: `state ${state}: no state card titled "${title}" is shown (cards: ${observation.facts.stateCards.join(' | ') || 'none'})` });
+      }
     }
   }
   if (wanted.has('tokens')) {

@@ -322,7 +322,7 @@ What a case asks for is read from its own `expected` text (`support/screen-contr
 | denied state and 403 | the member without any right (`nobody`): where a request of the screen is refused with 403 the screen shows its denied state (or a notice that names the missing right) and no write; the error answers are Problem documents |
 | API binding | every request of the screen is an operation of `openapi.json` (method and path template) and none answers 5xx or an unspecified 4xx |
 | fields, their order | the fields of `screen_catalog.json` are on the screen (marks and capitals folded) and keep the catalogue order, when the screen shows its data |
-| seven states | the six forced states (`?demoState=`) at 390 px: no crash, no overflow, no error, a state card for each |
+| seven states | the six states forced on the screen itself by what the API answers (an empty page, a 500, a 403, a 401 SESSION_EXPIRED, no network, a late answer) at 390 px: no crash, no overflow, no uncaught error, the card of that state (the busy skeleton for loading); never `?demoState=`, which draws a card in the place of the screen |
 | design tokens | `--mv-color-primary` is defined, the body font is Be Vietnam Pro, no text under 12 px, no italic heading (design.md) |
 
 What the browser cannot decide (a business rule applied, a figure right, the wording of a business error, "data per the FRD") is listed with every verdict in the

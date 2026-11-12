@@ -14,6 +14,7 @@ const facts = (over: Partial<ScreenFacts> = {}): ScreenFacts => ({
   screenIds: ['ADM-01'],
   notImplemented: false,
   crashed: false,
+  busy: false,
   breadcrumb: true,
   title: 'Cây tổ chức',
   overflowPx: 0,
@@ -112,8 +113,8 @@ test('a path of the contract binds the calls that match its pattern and its meth
 test('a page that keeps the contract has no finding for any clause', () => {
   const owner = observation({ calls: [{ method: 'GET', path: '/resources/organization_unit', status: 200 }] });
   const denied = observation({ calls: [{ method: 'GET', path: '/resources/organization_unit', status: 403, problem: true }], user: 'nobody' }, { stateCards: ['Bạn chưa có quyền truy cậpLiên hệ quản trị'], hasContent: false });
-  const states = ['loading', 'empty', 'error', 'denied', 'expired', 'offline'].map((state) => ({ state, observation: observation({ width: 390 }, { stateCards: state === 'loading' ? [] : ['thẻ'] }) }));
-  assert.deepEqual(judgeScreen(input(ALL, { wide: owner, reader: observation(), denied, states })), []);
+  const states = ['loading', 'empty', 'error', 'denied', 'expired', 'offline'].map((state) => ({ state, observation: observation({ width: 390 }, state === 'loading' ? { busy: true } : { stateCards: [`thẻ ${state}`] }) }));
+  assert.deepEqual(judgeScreen(input(ALL, { wide: owner, reader: observation(), denied, states, stateTitles: { loading: 'đang tải', empty: 'empty', error: 'error', denied: 'denied', expired: 'expired', offline: 'offline' } })), []);
 });
 
 // Negative controls of the verdict: each mutation of the measure breaks one clause, and only the clauses that the case asks for are decided.
@@ -137,7 +138,12 @@ const MUTATIONS: Array<{ name: string; clause: Clause; build: () => ContractInpu
   { name: 'a call refused to the person the screen is walked with', clause: 'api', build: () => input(['api'], { wide: observation({ calls: [{ method: 'GET', path: '/resources/organization_unit', status: 403 }] }) }), detail: 'answered 403' },
   { name: 'a field of the catalogue is not on the screen', clause: 'fields', build: () => input(['fields'], { wide: observation({}, { screenText: 'đơn vị cấp cha' }) }), detail: 'Ngày hiệu lực' },
   { name: 'the fields are out of order', clause: 'order', build: () => input(['order'], { wide: observation({}, { screenText: 'cấp cha đơn vị ngày hiệu lực đơn vị kế thừa' }) }), detail: 'out of the order' },
-  { name: 'a state shows no card', clause: 'states', build: () => input(['states'], { states: [{ state: 'empty', observation: observation({ width: 390 }, { stateCards: [] }) }] }), detail: 'state empty: no state card' },
+  { name: 'a state shows no card', clause: 'states', build: () => input(['states'], { stateTitles: { empty: 'Chưa có dữ liệu' }, states: [{ state: 'empty', observation: observation({ width: 390 }, { stateCards: [] }) }] }), detail: 'state empty: no state card titled "Chưa có dữ liệu"' },
+  { name: 'a state shows the card of another state', clause: 'states', build: () => input(['states'], { stateTitles: { denied: 'Bạn chưa có quyền truy cập' }, states: [{ state: 'denied', observation: observation({ width: 390 }, { stateCards: ['Đã xảy ra lỗi'] }) }] }), detail: 'Đã xảy ra lỗi' },
+  { name: 'the loading state says nothing of loading', clause: 'states', build: () => input(['states'], { states: [{ state: 'loading', observation: observation({ width: 390 }) }] }), detail: 'nothing on the screen says it is loading' },
+  { name: 'a forced state crashes the screen', clause: 'states', build: () => input(['states'], { states: [{ state: 'error', observation: observation({ width: 390 }, { crashed: true }) }] }), detail: 'state error: the page crashes' },
+  { name: 'a forced state raises an uncaught error', clause: 'states', build: () => input(['states'], { states: [{ state: 'offline', observation: observation({ width: 390, pageErrors: ['x is undefined'] }) }] }), detail: 'x is undefined' },
+  { name: 'the opening for a member without the right did not load', clause: 'denied', build: () => input(['denied'], { denied: observation({ loadError: 'Timeout 15000ms exceeded.' }) }), detail: 'did not load for a member without the right' },
   { name: 'the tokens are missing', clause: 'tokens', build: () => input(['tokens'], { wide: observation({}, { tokens: { primaryDefined: false, bodyFont: 'Arial', textBelowFloor: [{ text: 'nhỏ', px: 10 }], italicHeadings: ['Chữ nghiêng'] } }) }), detail: `under ${MIN_TEXT_PX} px` },
 ];
 
