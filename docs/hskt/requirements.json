@@ -529,7 +529,9 @@
           "docs/dis-report-progress.md",
           "docs/adm-working-time.md",
           "docs/plans/ent4c.md",
-          "docs/teams-relay.md"
+          "docs/teams-relay.md",
+          "docs/runbooks/jobs.md",
+          "docs/ent-snapshot.md"
         ],
         "tests": [
           "apps/api/test/dis/reporting-period.test.ts",
@@ -537,10 +539,12 @@
           "packages/kernel/test/reporting-schedule.test.ts",
           "packages/kernel/test/reporting-board.test.ts",
           "packages/db/test/reporting-calendar.test.ts",
-          "apps/web/src/screens/dis/calendar/calendar-screens.test.tsx"
+          "apps/web/src/screens/dis/calendar/calendar-screens.test.tsx",
+          "packages/kernel/test/reporting-lock-gate.test.ts",
+          "packages/db/test/period-lock-gate.test.ts"
         ]
       },
-      "gap": "Đã có: lịch kỳ tháng, quý, năm, giao ban, điều chỉnh kế hoạch trong năm với hạn từng bước (quy tắc REPORTING_SCHEDULE, người đề xuất khác người duyệt), bảng trạng thái theo đầu mối, nhắc việc và báo lãnh đạo đơn vị; bước Ban KHĐT rà soát và bước đẩy hệ thống lấy dữ kiện thật từ chuỗi duyệt nhiều bước của ENT-3c (xong khi mọi báo cáo của kỳ đã qua bước; đẩy chỉ xong khi có biên nhận), có nhắc việc khi bước còn mở; tổ chức chạy một quyết định duy nhất vẫn hiển thị CHƯA THEO DÕI. Còn lại: các con số hạn là giá trị khởi đầu chưa được chủ nghiệp vụ xác nhận (D03); giao ban và điều chỉnh kế hoạch chưa có dữ kiện hoàn thành nên chưa nhắc việc; dữ kiện của lô FND/IND chưa tính vào hai bước trên; email và Teams thật chờ thử với bộ chuyển tiếp của khách (PX-16).",
+      "gap": "Đã có: lịch kỳ tháng, quý, năm, giao ban, điều chỉnh kế hoạch trong năm với hạn từng bước (quy tắc REPORTING_SCHEDULE, người đề xuất khác người duyệt), bảng trạng thái theo đầu mối, nhắc việc và báo lãnh đạo đơn vị; bước Ban KHĐT rà soát và bước đẩy hệ thống lấy dữ kiện thật từ chuỗi duyệt nhiều bước của ENT-3c (xong khi mọi báo cáo của kỳ đã qua bước; đẩy chỉ xong khi có biên nhận), có nhắc việc khi bước còn mở; tổ chức chạy một quyết định duy nhất vẫn hiển thị CHƯA THEO DÕI. Tự khóa kỳ: bản doanh nghiệp không tự khóa tháng, quý, năm trước khi bước Ban KHĐT rà soát và bước chốt kỳ xong (dữ kiện duyệt nhiều bước của mọi hồ sơ của kỳ, kể cả lô số thực và lô chỉ tiêu, hoặc hạn của bước trong REPORTING_SCHEDULE khi chưa có dữ kiện), ngoài ra vẫn qua 3 ngày làm việc sau hạn nhập; bản công khai giữ quy tắc cũ; kỳ bị giữ vẫn khóa tay được. Còn lại: các con số hạn là giá trị khởi đầu chưa được chủ nghiệp vụ xác nhận (D03); giao ban và điều chỉnh kế hoạch chưa có dữ kiện hoàn thành nên chưa nhắc việc; dữ kiện của lô FND/IND chưa tính vào hai bước trên; email và Teams thật chờ thử với bộ chuyển tiếp của khách (PX-16).",
       "owners": [
         "ENT-4c"
       ],
@@ -953,17 +957,40 @@
           "docs/integration/lakehouse-proposal.md",
           "docs/integration/power-bi/machvon-sample-model.tmdl",
           "docs/integration/power-bi-sample-queries.sql",
-          "docs/integration/machvon-bi.pbids"
+          "docs/integration/machvon-bi.pbids",
+          "docs/integration/power-bi/machvon-enterprise-model.tmdl",
+          "docs/runbooks/infra/bi-port.md",
+          "docs/ent-snapshot.md",
+          "metrics/ent_rate_in_force.metric.yaml",
+          "metrics/ent_rate_to_date.metric.yaml",
+          "metrics/ent_cumulative_ytd.metric.yaml",
+          "metrics/ent_plan_in_force.metric.yaml",
+          "metrics/ent_period_actual.metric.yaml",
+          "db/migrations/V2960__int21_enterprise_bi_datasets.sql",
+          "infra/onprem/compose/compose.bi.yaml",
+          "infra/onprem/config/bi-render.sh",
+          "infra/onprem/config/bi-firewall.sh",
+          "infra/onprem/config/bi-audit-setup.sql",
+          "infra/onprem/config/bi-audit-ship.sh",
+          "scripts/infra-bi-port.mjs"
+        ],
+        "tests": [
+          "packages/db/test/int-enterprise-bi.test.ts",
+          "apps/api/test/int/int-enterprise-datasets.test.ts",
+          "packages/kernel/test/open-api-enterprise.test.ts",
+          "packages/kernel/test/ent-metrics.test.ts",
+          "scripts/infra-bi-port.test.mjs"
         ]
       },
-      "gap": "Đã có: tài khoản BI chỉ-đọc gắn một tenant, hai tập chứng nhận DS-DISB và DS-CTR, API mở (INT-1); mô hình Power BI mẫu (power-bi-model.md, TMDL, truy vấn, pbids), hướng dẫn nối cho CN QLPTDA (power-bi-connection-guide.md), đề xuất cấp dữ liệu cho Lakehouse (lakehouse-proposal.md: tài khoản theo ứng dụng, RLS, nhịp làm mới, ba phương án đường mạng). Còn thiếu, do nhà cung cấp làm: (1) tập chứng nhận cho bản chốt ENTERPRISE_CLOSE (view v_disbursement_lines chỉ đọc PERIOD_CLOSE nên dữ liệu doanh nghiệp của PVFCCo chưa ra được qua BI) và view chiều đơn vị, nguồn vốn, nhà thầu; (2) gói cài ngoại tuyến chưa mở đường mạng tới CSDL cho tài khoản BI (chỉ cổng web công bố) và ảnh CSDL chưa có pgaudit; (3) mô hình TMDL chưa mở thử trong Power BI Desktop. Chờ khách: hạ tầng UAT, thông tin và quy định Lakehouse, địa chỉ nguồn tường lửa (PX-11).",
+      "gap": "Đã có: tài khoản BI chỉ-đọc gắn một tenant, hai tập chứng nhận DS-DISB và DS-CTR, API mở (INT-1); mô hình Power BI mẫu (power-bi-model.md, TMDL, truy vấn, pbids), hướng dẫn nối cho CN QLPTDA, đề xuất cấp dữ liệu cho Lakehouse (tài khoản theo ứng dụng, RLS, nhịp làm mới, ba phương án đường mạng). INT-2: (1) tập chứng nhận DS-ENT của bản doanh nghiệp (migration V2960): bốn view v_enterprise_figures, v_enterprise_plan_actual, v_enterprise_funding_split (vốn chủ sở hữu, vốn vay, khác) và v_enterprise_by_unit (đơn vị và toàn tenant) đọc bản chốt ENTERPRISE_CLOSE đang hiệu lực, security_invoker, ràng buộc bi_reader_boundary theo tài khoản, cùng cổng chứng nhận; chỉ bản doanh nghiệp bật được; ca ngược đổi app.tenant_id không đọc được dòng nào; năm chỉ tiêu metrics/ent_*, mô hình TMDL và truy vấn mẫu 12 đến 18 cho bản doanh nghiệp (packages/db/test/int-enterprise-bi.test.ts, 14 ca chạy trên PostgreSQL thật); (2) cổng CSDL chỉ-đọc tùy chọn, đóng theo mặc định, trong gói cài ngoại tuyến: compose.bi.yaml chỉ khi MACHVON_BI=on, một địa chỉ nghe (0.0.0.0 bị từ chối), danh sách địa chỉ nguồn trong pg_hba, TLS 1.2 trở lên, SCRAM, giới hạn kết nối theo tài khoản và theo nguồn, pgaudit trong ảnh CSDL kèm gửi nhật ký; luật BI_PORT của npm run infra:check và 27 kiểm thử scripts/infra-bi-port.test.mjs; runbook docs/runbooks/infra/bi-port.md. Còn thiếu, do nhà cung cấp làm: view chiều đơn vị, nguồn vốn, nhà thầu và tên dự án cho tài khoản BI; API mở và chạy chỉ tiêu ent_* trong BI nội bộ trên DS-ENT (cần bộ nối và nguồn đọc riêng); cổng tùy chọn chưa chạy thật trên máy Docker (danh mục G2 của lab-install-checklist.md); phương án A (máy dự phòng) chưa có compose riêng; hai mô hình TMDL chưa mở thử trong Power BI Desktop. Chờ khách: hạ tầng UAT, thông tin và quy định Lakehouse, địa chỉ nguồn tường lửa, chứng thư và nơi nhận nhật ký (PX-11), số đo hiệu năng trên phần cứng khách (PX-10).",
       "owners": [
         "INT-2",
         "INFRA-2",
         "DOC-3"
       ],
       "pending": [
-        "PX-11"
+        "PX-11",
+        "PX-10"
       ]
     },
     {
@@ -1201,7 +1228,7 @@
           "scripts/perf-budget.test.mjs"
         ]
       },
-      "gap": "Phần mềm đủ: bảng ngân sách có dòng đọc bản chốt enterprise (PB-F068, PB-F069: p95 không quá 800 ms ở quy mô gấp 20 lần, mỗi dòng có ngân sách riêng budgetMs) và dòng PDF biểu mẫu đã phát hành (PB-R008, 20 giây), đo bằng scripts/perf-budget.mjs; test quy mô gấp 20 lần cho phần mã đọc (khoảng 80 ms) chạy trong mỗi lần test. Còn lại: số đo trên phần cứng UAT/Production của khách (PX-10) là bằng chứng nghiệm thu.",
+      "gap": "Phần mềm đủ: bảng ngân sách có dòng đọc bản chốt enterprise (PB-F068, PB-F069: p95 không quá 800 ms ở quy mô gấp 20 lần, mỗi dòng có ngân sách riêng budgetMs) và dòng PDF biểu mẫu đã phát hành (PB-R008, 20 giây), so sánh chéo báo cáo (PB-R016), bảng lịch kỳ và bảng trạng thái nhập liệu (PB-F070, PB-F071), đã đo thật trên máy phát triển với bộ mẫu Đạm Phú Mỹ (p95 dưới 0,2 giây; docs/qa/performance.md), đo bằng scripts/perf-budget.mjs; test quy mô gấp 20 lần cho phần mã đọc (khoảng 80 ms) chạy trong mỗi lần test. Còn lại: số đo trên phần cứng UAT/Production của khách (PX-10) là bằng chứng nghiệm thu.",
       "owners": [
         "DOC-3"
       ],
