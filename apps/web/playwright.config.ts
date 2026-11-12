@@ -45,6 +45,9 @@ export default defineConfig({
   // One browser at a time: the machine runs real PostgreSQL servers and other builds alongside.
   workers: 1,
   fullyParallel: false,
+  // What a page says after a click is awaited for 5 seconds on a developer machine; a hosted runner (a shared virtual machine with its own API, database and browser) needs more than that for the same screen,
+  // and the cases that failed there each failed once on a different screen with the answer a moment late. A longer wait costs nothing when the page is right and only a failing case waits it out.
+  expect: { timeout: process.env.CI ? 20_000 : 5_000 },
   // A UAT run (scripts/uat-run.mjs) sets UAT_JOURNAL: the result of each test is then written to that file as well.
   reporter: process.env.UAT_JOURNAL ? [['list'], ['./e2e/support/uat-reporter.ts']] : [['list']],
   outputDir: './e2e/test-results',
