@@ -112,3 +112,20 @@ describe('tenant-theme.css derived tokens', () => {
     expect(withoutComments(TENANT)).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
   });
 });
+
+describe('app.css over the prototype sheets', () => {
+  const rules = withoutComments(APP).split('}').map((part) => part.trim());
+  const declaring = (selector: string, property: string): string | undefined => {
+    const rule = rules.find((part) => (part.split('{').at(-2) ?? '').split(',').map((name) => name.trim()).includes(selector) && part.includes(`${property}:`));
+    return rule?.split(`${property}:`)[1]?.split(';')[0]?.trim();
+  };
+
+  it('lifts the fine print of the prototype to the 12px floor of design.md, also where the workspace sheet repeats the footer note', () => {
+    for (const selector of ['.prototype-note', '.workspace-app .prototype-note', '.sub', '.tiny', 'small', '.pill', '.badge', '.eyebrow']) expect(declaring(selector, 'font-size'), selector).toBe('12px');
+  });
+
+  it('lets the one-column grids of a narrow page shrink to the page, so that a wide table scrolls in its own region', () => {
+    expect(declaring('.two', 'grid-template-columns')).toBe('minmax(0, 1fr)');
+    expect(declaring('.grid', 'grid-template-columns')).toBe('repeat(2, minmax(0, 1fr))');
+  });
+});

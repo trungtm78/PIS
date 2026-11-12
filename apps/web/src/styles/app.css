@@ -120,11 +120,32 @@
   padding: 6px 8px;
 }
 
-/* Fine print of the screens stays readable: nothing below 12px (design.md). */
+/* Fine print of the screens stays readable: nothing below 12px (design.md). The prototype sets these at 9 to 11px, and its workspace sheet
+   repeats the footer note under the .workspace-app wrapper, so the wrapper is named here too. */
 .prototype-note,
+.workspace-app .prototype-note,
 .sub,
-.tiny {
+.tiny,
+small,
+.field small,
+.pill,
+.badge,
+.eyebrow,
+.legend,
+.steps span,
+.metric .change {
   font-size: 12px;
+}
+
+/* A grid of one column that holds a wide table or card would grow with it and carry the whole page sideways; its track may shrink to the
+   page and the content scrolls in its own region (the prototype writes 1fr, which cannot go below the widest content). */
+@media (max-width: 900px) {
+  .two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* The body font is set on the page, controls inherit it. */

@@ -49,58 +49,60 @@ function TrackingContent({ route }: ScreenProps) {
                 {t('pay.track.empty')}
               </p>
             ) : (
-              <table className="table" data-testid="tracking">
-                <thead>
-                  <tr>
-                    <th scope="col">{t('pay.track.column.project')}</th>
-                    <th scope="col">{t('pay.track.column.code')}</th>
-                    <th scope="col" className="pay-amount">
-                      {t('pay.track.column.sent')}
-                    </th>
-                    <th scope="col" className="pay-amount">
-                      {t('pay.track.column.settled')}
-                    </th>
-                    <th scope="col" className="pay-amount">
-                      {t('pay.track.column.confirmed')}
-                    </th>
-                    <th scope="col" className="pay-amount">
-                      {t('pay.track.column.unmatched')}
-                    </th>
-                    <th scope="col" className="pay-amount">
-                      {t('pay.track.column.differences')}
-                    </th>
-                    <th scope="col">{t('pay.track.column.sync')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr key={row.projectId} data-project={row.projectId}>
-                      <td data-testid="project">{row.projectName}</td>
-                      <td data-testid="code">{row.projectCode}</td>
-                      <td className="pay-amount" data-testid="sent">
-                        {t('pay.track.count', { count: row.sent.count, amount: vndText(row.sent.amountVnd, locale) })}
-                      </td>
-                      <td className="pay-amount" data-testid="settled">
-                        {t('pay.track.count', { count: row.settled.count, amount: vndText(row.settled.amountVnd, locale) })}
-                      </td>
-                      <td className="pay-amount" data-testid="confirmed">
-                        {t('pay.track.count', { count: row.confirmed.count, amount: vndText(row.confirmed.amountVnd, locale) })}
-                      </td>
-                      <td className="pay-amount" data-testid="unmatched">
-                        {row.unmatched}
-                      </td>
-                      <td className="pay-amount" data-testid="differences">
-                        {row.differences.count === 0 ? (
-                          '0'
-                        ) : (
-                          <Link to={boardLink()}>{t('pay.track.count', { count: row.differences.count, amount: differenceText(row.differences.amountVnd, locale) })}</Link>
-                        )}
-                      </td>
-                      <td data-testid="sync">{row.lastImportAt === null ? t('pay.track.never') : instantText(row.lastImportAt, locale)}</td>
+              <div className="tablewrap" role="region" aria-label={t('pay.track.title')} tabIndex={0}>
+                <table className="table" data-testid="tracking">
+                  <thead>
+                    <tr>
+                      <th scope="col">{t('pay.track.column.project')}</th>
+                      <th scope="col">{t('pay.track.column.code')}</th>
+                      <th scope="col" className="pay-amount">
+                        {t('pay.track.column.sent')}
+                      </th>
+                      <th scope="col" className="pay-amount">
+                        {t('pay.track.column.settled')}
+                      </th>
+                      <th scope="col" className="pay-amount">
+                        {t('pay.track.column.confirmed')}
+                      </th>
+                      <th scope="col" className="pay-amount">
+                        {t('pay.track.column.unmatched')}
+                      </th>
+                      <th scope="col" className="pay-amount">
+                        {t('pay.track.column.differences')}
+                      </th>
+                      <th scope="col">{t('pay.track.column.sync')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr key={row.projectId} data-project={row.projectId}>
+                        <td data-testid="project">{row.projectName}</td>
+                        <td data-testid="code">{row.projectCode}</td>
+                        <td className="pay-amount" data-testid="sent">
+                          {t('pay.track.count', { count: row.sent.count, amount: vndText(row.sent.amountVnd, locale) })}
+                        </td>
+                        <td className="pay-amount" data-testid="settled">
+                          {t('pay.track.count', { count: row.settled.count, amount: vndText(row.settled.amountVnd, locale) })}
+                        </td>
+                        <td className="pay-amount" data-testid="confirmed">
+                          {t('pay.track.count', { count: row.confirmed.count, amount: vndText(row.confirmed.amountVnd, locale) })}
+                        </td>
+                        <td className="pay-amount" data-testid="unmatched">
+                          {row.unmatched}
+                        </td>
+                        <td className="pay-amount" data-testid="differences">
+                          {row.differences.count === 0 ? (
+                            '0'
+                          ) : (
+                            <Link to={boardLink()}>{t('pay.track.count', { count: row.differences.count, amount: differenceText(row.differences.amountVnd, locale) })}</Link>
+                          )}
+                        </td>
+                        <td data-testid="sync">{row.lastImportAt === null ? t('pay.track.never') : instantText(row.lastImportAt, locale)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </SectionCard>
         </StateBoundary>

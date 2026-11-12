@@ -45,24 +45,26 @@ function PromptsContent({ route }: ScreenProps) {
         <p className="callout" data-testid="prompts-immutable-note">
           {t('llm.prompts.immutableNote')}
         </p>
-        <table className="table" data-testid="prompt-table" aria-label={t('llm.prompts.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.prompts.column.task')}</th>
-              <th scope="col">{t('llm.prompts.column.name')}</th>
-              <th scope="col">{t('llm.prompts.column.revision')}</th>
-              <th scope="col">{t('llm.prompts.column.hash')}</th>
-              <th scope="col">{t('llm.prompts.column.label')}</th>
-              <th scope="col">{t('llm.prompts.column.status')}</th>
-              <th scope="col">{t('llm.prompts.column.action')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(prompts.data ?? []).map((prompt) => (
-              <PromptRow key={prompt.id} entry={prompt} mayManage={mayManage} mayApprove={mayApprove} />
-            ))}
-          </tbody>
-        </table>
+        <div className="tablewrap" role="region" aria-label={t('llm.prompts.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="prompt-table" aria-label={t('llm.prompts.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.prompts.column.task')}</th>
+                <th scope="col">{t('llm.prompts.column.name')}</th>
+                <th scope="col">{t('llm.prompts.column.revision')}</th>
+                <th scope="col">{t('llm.prompts.column.hash')}</th>
+                <th scope="col">{t('llm.prompts.column.label')}</th>
+                <th scope="col">{t('llm.prompts.column.status')}</th>
+                <th scope="col">{t('llm.prompts.column.action')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(prompts.data ?? []).map((prompt) => (
+                <PromptRow key={prompt.id} entry={prompt} mayManage={mayManage} mayApprove={mayApprove} />
+              ))}
+            </tbody>
+          </table>
+        </div>
         {(prompts.data ?? []).length === 0 ? <p data-testid="prompts-none">{t('llm.prompts.none')}</p> : null}
         {mayManage ? <PromptCreateForm /> : null}
       </StateBoundary>

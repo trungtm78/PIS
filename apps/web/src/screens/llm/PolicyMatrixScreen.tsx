@@ -51,23 +51,25 @@ function PolicyMatrixContent({ route }: ScreenProps) {
               {book.inForce === undefined ? t('llm.policy.baselineOnly') : t('llm.policy.inForce', { revision: book.inForce.revision })}
             </p>
             <MatrixTable matrix={matrix} testId="policy-matrix" label={t('llm.policy.matrix.aria')} />
-            <table className="table" data-testid="policy-revisions" aria-label={t('llm.policy.revisions.aria')}>
-              <thead>
-                <tr>
-                  <th scope="col">{t('llm.policy.column.revision')}</th>
-                  <th scope="col">{t('llm.policy.column.status')}</th>
-                  <th scope="col">{t('llm.policy.column.international')}</th>
-                  <th scope="col">{t('llm.policy.column.basis')}</th>
-                  <th scope="col">{t('llm.policy.column.effective')}</th>
-                  <th scope="col">{t('llm.policy.column.action')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {book.policies.map((policy) => (
-                  <PolicyRow key={policy.id} policy={policy} mayPublish={can(POLICY_APPROVE)} />
-                ))}
-              </tbody>
-            </table>
+            <div className="tablewrap" role="region" aria-label={t('llm.policy.revisions.aria')} tabIndex={0}>
+              <table className="table" data-testid="policy-revisions" aria-label={t('llm.policy.revisions.aria')}>
+                <thead>
+                  <tr>
+                    <th scope="col">{t('llm.policy.column.revision')}</th>
+                    <th scope="col">{t('llm.policy.column.status')}</th>
+                    <th scope="col">{t('llm.policy.column.international')}</th>
+                    <th scope="col">{t('llm.policy.column.basis')}</th>
+                    <th scope="col">{t('llm.policy.column.effective')}</th>
+                    <th scope="col">{t('llm.policy.column.action')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {book.policies.map((policy) => (
+                    <PolicyRow key={policy.id} policy={policy} mayPublish={can(POLICY_APPROVE)} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
             {book.policies.length === 0 ? <p data-testid="policy-none">{t('llm.policy.none')}</p> : null}
             {can(POLICY_MANAGE) ? <DraftForm matrix={matrix} /> : null}
           </>
@@ -80,33 +82,35 @@ function PolicyMatrixContent({ route }: ScreenProps) {
 function MatrixTable({ matrix, testId, label }: { matrix: Matrix; testId: string; label: string }) {
   const { t } = useTranslation();
   return (
-    <table className="table" data-testid={testId} aria-label={label}>
-      <thead>
-        <tr>
-          <th scope="col">{t('llm.policy.matrix.level')}</th>
-          {ROUTES.map((route) => (
-            <th key={route} scope="col">
-              {routeLabel(t, route)}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {CLASSIFICATIONS.map((level) => (
-          <tr key={level} data-level={level}>
-            <th scope="row">{classificationLabel(t, level)}</th>
-            {ROUTES.map((route) => {
-              const allowed = matrix[level].includes(route);
-              return (
-                <td key={route} data-route={route} data-allowed={allowed ? 'true' : 'false'}>
-                  {allowed ? t('llm.policy.matrix.allowed') : BASELINE[level].includes(route) ? t('llm.policy.matrix.closed') : t('llm.policy.matrix.never')}
-                </td>
-              );
-            })}
+    <div className="tablewrap" role="region" aria-label={label} tabIndex={0}>
+      <table className="table" data-testid={testId} aria-label={label}>
+        <thead>
+          <tr>
+            <th scope="col">{t('llm.policy.matrix.level')}</th>
+            {ROUTES.map((route) => (
+              <th key={route} scope="col">
+                {routeLabel(t, route)}
+              </th>
+            ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {CLASSIFICATIONS.map((level) => (
+            <tr key={level} data-level={level}>
+              <th scope="row">{classificationLabel(t, level)}</th>
+              {ROUTES.map((route) => {
+                const allowed = matrix[level].includes(route);
+                return (
+                  <td key={route} data-route={route} data-allowed={allowed ? 'true' : 'false'}>
+                    {allowed ? t('llm.policy.matrix.allowed') : BASELINE[level].includes(route) ? t('llm.policy.matrix.closed') : t('llm.policy.matrix.never')}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

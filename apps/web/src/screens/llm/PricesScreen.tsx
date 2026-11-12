@@ -46,25 +46,27 @@ function PricesContent({ route }: ScreenProps) {
         <p className="callout" data-testid="prices-note">
           {t('llm.prices.note')}
         </p>
-        <table className="table" data-testid="price-table" aria-label={t('llm.prices.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.prices.column.model')}</th>
-              <th scope="col">{t('llm.prices.column.input')}</th>
-              <th scope="col">{t('llm.prices.column.cached')}</th>
-              <th scope="col">{t('llm.prices.column.output')}</th>
-              <th scope="col">{t('llm.prices.column.semantics')}</th>
-              <th scope="col">{t('llm.prices.column.fx')}</th>
-              <th scope="col">{t('llm.prices.column.period')}</th>
-              <th scope="col">{t('llm.prices.column.source')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(prices.data ?? []).map((price) => (
-              <PriceRow key={price.id} price={price} />
-            ))}
-          </tbody>
-        </table>
+        <div className="tablewrap" role="region" aria-label={t('llm.prices.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="price-table" aria-label={t('llm.prices.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.prices.column.model')}</th>
+                <th scope="col">{t('llm.prices.column.input')}</th>
+                <th scope="col">{t('llm.prices.column.cached')}</th>
+                <th scope="col">{t('llm.prices.column.output')}</th>
+                <th scope="col">{t('llm.prices.column.semantics')}</th>
+                <th scope="col">{t('llm.prices.column.fx')}</th>
+                <th scope="col">{t('llm.prices.column.period')}</th>
+                <th scope="col">{t('llm.prices.column.source')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(prices.data ?? []).map((price) => (
+                <PriceRow key={price.id} price={price} />
+              ))}
+            </tbody>
+          </table>
+        </div>
         {(prices.data ?? []).length === 0 ? <p data-testid="prices-none">{t('llm.prices.none')}</p> : null}
         {may ? <PriceForm models={models.data ?? []} modelsError={models.error} /> : null}
       </StateBoundary>

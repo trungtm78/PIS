@@ -22,7 +22,7 @@
 .inv-edge { stroke: var(--mv-color-chart-plan); stroke-linecap: round; }
 .inv-edge--stale { stroke-dasharray: 6 4; }
 .inv-edge--on { stroke: var(--mv-color-primary); }
-.inv-edge__label { fill: var(--mv-color-ink); font-size: 11px; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--mv-color-surface2); stroke-width: 4px; }
+.inv-edge__label { fill: var(--mv-color-ink); font-size: 12px; font-variant-numeric: tabular-nums; paint-order: stroke; stroke: var(--mv-color-surface2); stroke-width: 4px; }
 .inv-node { cursor: pointer; }
 .inv-node:focus { outline: none; }
 .inv-node:focus-visible { outline: 3px solid var(--mv-color-focus); outline-offset: 2px; }
@@ -32,5 +32,5 @@
 .inv-node--selected circle { stroke-width: 4; }
 .inv-node:focus-visible circle { stroke: var(--mv-color-focus); stroke-width: 5; stroke-dasharray: none; }
 .inv-node__initial { fill: var(--mv-color-ink); font-size: 14px; font-weight: 600; }
-.inv-node__name { fill: var(--mv-color-ink); font-size: 11px; paint-order: stroke; stroke: var(--mv-color-surface2); stroke-width: 3px; }
-.inv-node__badge { fill: var(--mv-color-danger); font-size: 11px; font-weight: 600; }
+.inv-node__name { fill: var(--mv-color-ink); font-size: 12px; paint-order: stroke; stroke: var(--mv-color-surface2); stroke-width: 3px; }
+.inv-node__badge { fill: var(--mv-color-danger); font-size: 12px; font-weight: 600; }

@@ -181,6 +181,8 @@ code {
 
 /* SectionCard */
 .ui-section { background: var(--mv-color-surface); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); color: var(--mv-color-ink); }
+.ui-section__status { min-width: 0; max-width: 100%; }
+.ui-section__status .ui-pill { white-space: normal; }
 .ui-section__head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--mv-space-8) var(--mv-space-12); padding: var(--mv-space-16) var(--mv-space-20); border-bottom: 1px solid var(--mv-color-border); }
 .ui-section__title { margin: 0; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mv-color-text-secondary); font-weight: 700; }
 .ui-section__actions { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--mv-space-8); }
@@ -293,7 +295,7 @@ code {
 .ui-flow--message { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--mv-space-12); min-height: 160px; color: var(--mv-color-text-secondary); }
 .ui-flow__svg { width: 100%; height: auto; display: block; }
 .ui-flow__grid { stroke: var(--mv-color-border); stroke-width: 1; }
-.ui-flow__tick { fill: var(--mv-color-text-secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
+.ui-flow__tick { fill: var(--mv-color-text-secondary); font-size: 12px; font-variant-numeric: tabular-nums; }
 .ui-flow__line { stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
 .ui-flow__series--actual-0 { color: var(--mv-color-primary); }
 .ui-flow__series--actual-1 { color: var(--mv-color-info); }

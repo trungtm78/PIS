@@ -45,36 +45,38 @@ function ProfilesContent({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={state} onRetry={() => void profiles.refetch()}>
-        <table className="table" data-testid="profile-table" aria-label={t('llm.profiles.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.profiles.column.task')}</th>
-              <th scope="col">{t('llm.profiles.column.revision')}</th>
-              <th scope="col">{t('llm.profiles.column.model')}</th>
-              <th scope="col">{t('llm.profiles.column.routes')}</th>
-              <th scope="col">{t('llm.profiles.column.max')}</th>
-              <th scope="col">{t('llm.profiles.column.effort')}</th>
-              <th scope="col">{t('llm.profiles.column.status')}</th>
-              <th scope="col">{t('llm.profiles.column.action')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(profiles.data ?? []).map((profile) => (
-              <tr key={profile.id} data-profile-id={profile.id} data-status={profile.status}>
-                <td>{profile.taskType}</td>
-                <td>{profile.revision}</td>
-                <td>{profile.modelId}</td>
-                <td>{profile.routes.map((entry) => routeLabel(t, entry)).join(', ')}</td>
-                <td>{profile.maxClassification === null ? t('llm.profiles.none') : classificationLabel(t, profile.maxClassification)}</td>
-                <td>{profile.effort === null ? t('llm.profiles.none') : effortLabel(t, profile.effort)}</td>
-                <td>{profileStatusLabel(t, profile.status)}</td>
-                <td>
-                  <Link to={`${RELEASE_PATH}?profile=${profile.id}`}>{t('llm.profiles.release')}</Link>
-                </td>
+        <div className="tablewrap" role="region" aria-label={t('llm.profiles.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="profile-table" aria-label={t('llm.profiles.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.profiles.column.task')}</th>
+                <th scope="col">{t('llm.profiles.column.revision')}</th>
+                <th scope="col">{t('llm.profiles.column.model')}</th>
+                <th scope="col">{t('llm.profiles.column.routes')}</th>
+                <th scope="col">{t('llm.profiles.column.max')}</th>
+                <th scope="col">{t('llm.profiles.column.effort')}</th>
+                <th scope="col">{t('llm.profiles.column.status')}</th>
+                <th scope="col">{t('llm.profiles.column.action')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(profiles.data ?? []).map((profile) => (
+                <tr key={profile.id} data-profile-id={profile.id} data-status={profile.status}>
+                  <td>{profile.taskType}</td>
+                  <td>{profile.revision}</td>
+                  <td>{profile.modelId}</td>
+                  <td>{profile.routes.map((entry) => routeLabel(t, entry)).join(', ')}</td>
+                  <td>{profile.maxClassification === null ? t('llm.profiles.none') : classificationLabel(t, profile.maxClassification)}</td>
+                  <td>{profile.effort === null ? t('llm.profiles.none') : effortLabel(t, profile.effort)}</td>
+                  <td>{profileStatusLabel(t, profile.status)}</td>
+                  <td>
+                    <Link to={`${RELEASE_PATH}?profile=${profile.id}`}>{t('llm.profiles.release')}</Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {(profiles.data ?? []).length === 0 ? <p data-testid="profiles-none">{t('llm.profiles.empty')}</p> : null}
         {may ? (
           <ProfileForm

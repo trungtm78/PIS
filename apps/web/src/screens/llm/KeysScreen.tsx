@@ -46,24 +46,26 @@ function KeysContent({ route }: ScreenProps) {
         <p className="callout" data-testid="keys-vault-note">
           {t('llm.keys.vaultNote')}
         </p>
-        <table className="table" data-testid="key-table" aria-label={t('llm.keys.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.keys.column.alias')}</th>
-              <th scope="col">{t('llm.keys.column.scope')}</th>
-              <th scope="col">{t('llm.keys.column.models')}</th>
-              <th scope="col">{t('llm.keys.column.expires')}</th>
-              <th scope="col">{t('llm.keys.column.fingerprint')}</th>
-              <th scope="col">{t('llm.keys.column.status')}</th>
-              <th scope="col">{t('llm.keys.column.action')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(keys.data ?? []).map((key) => (
-              <KeyRow key={key.id} entry={key} may={may} />
-            ))}
-          </tbody>
-        </table>
+        <div className="tablewrap" role="region" aria-label={t('llm.keys.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="key-table" aria-label={t('llm.keys.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.keys.column.alias')}</th>
+                <th scope="col">{t('llm.keys.column.scope')}</th>
+                <th scope="col">{t('llm.keys.column.models')}</th>
+                <th scope="col">{t('llm.keys.column.expires')}</th>
+                <th scope="col">{t('llm.keys.column.fingerprint')}</th>
+                <th scope="col">{t('llm.keys.column.status')}</th>
+                <th scope="col">{t('llm.keys.column.action')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(keys.data ?? []).map((key) => (
+                <KeyRow key={key.id} entry={key} may={may} />
+              ))}
+            </tbody>
+          </table>
+        </div>
         {(keys.data ?? []).length === 0 ? <p data-testid="keys-none">{t('llm.keys.none')}</p> : null}
         {may ? (
           <KeyForm models={(models.data ?? []).filter((model) => model.status === 'APPROVED')} modelsLoading={models.isLoading} modelsError={models.error} onRetry={() => void models.refetch()} />

@@ -100,34 +100,36 @@ function Decision({ decision }: { decision: RouteDecision }) {
         </ul>
         {decision.basis.length === 0 ? <p className="sub">{t('llm.routing.noSources')}</p> : null}
       </div>
-      <table className="table" data-testid="attempt-table" aria-label={t('llm.routing.attempts.aria')}>
-        <thead>
-          <tr>
-            <th scope="col">{t('llm.routing.attempts.no')}</th>
-            <th scope="col">{t('llm.routing.attempts.kind')}</th>
-            <th scope="col">{t('llm.routing.attempts.route')}</th>
-            <th scope="col">{t('llm.routing.attempts.model')}</th>
-            <th scope="col">{t('llm.routing.attempts.outcome')}</th>
-            <th scope="col">{t('llm.routing.attempts.latency')}</th>
-            <th scope="col">{t('llm.routing.attempts.cost')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {decision.attempts.map((attempt) => (
-            <tr key={attempt.id} data-attempt-no={attempt.no} data-route={attempt.route}>
-              <td>{attempt.no}</td>
-              <td>{attemptKindLabel(t, attempt.kind)}</td>
-              <td>{routeLabel(t, attempt.route)}</td>
-              <td>
-                {attempt.modelId} <span className="sub">{attempt.providerCode ?? ''}</span>
-              </td>
-              <td>{outcomeLabel(t, attempt.outcome)}</td>
-              <td>{attempt.latencyMs === null ? '—' : t('llm.routing.attempts.ms', { value: attempt.latencyMs })}</td>
-              <td>{attempt.costVnd === null ? '—' : `${groupDigits(attempt.costVnd)} ₫`}</td>
+      <div className="tablewrap" role="region" aria-label={t('llm.routing.attempts.aria')} tabIndex={0}>
+        <table className="table" data-testid="attempt-table" aria-label={t('llm.routing.attempts.aria')}>
+          <thead>
+            <tr>
+              <th scope="col">{t('llm.routing.attempts.no')}</th>
+              <th scope="col">{t('llm.routing.attempts.kind')}</th>
+              <th scope="col">{t('llm.routing.attempts.route')}</th>
+              <th scope="col">{t('llm.routing.attempts.model')}</th>
+              <th scope="col">{t('llm.routing.attempts.outcome')}</th>
+              <th scope="col">{t('llm.routing.attempts.latency')}</th>
+              <th scope="col">{t('llm.routing.attempts.cost')}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {decision.attempts.map((attempt) => (
+              <tr key={attempt.id} data-attempt-no={attempt.no} data-route={attempt.route}>
+                <td>{attempt.no}</td>
+                <td>{attemptKindLabel(t, attempt.kind)}</td>
+                <td>{routeLabel(t, attempt.route)}</td>
+                <td>
+                  {attempt.modelId} <span className="sub">{attempt.providerCode ?? ''}</span>
+                </td>
+                <td>{outcomeLabel(t, attempt.outcome)}</td>
+                <td>{attempt.latencyMs === null ? '—' : t('llm.routing.attempts.ms', { value: attempt.latencyMs })}</td>
+                <td>{attempt.costVnd === null ? '—' : `${groupDigits(attempt.costVnd)} ₫`}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {decision.attempts.length === 0 ? <p data-testid="routing-no-attempts">{t('llm.routing.noAttempts')}</p> : null}
     </div>
   );
