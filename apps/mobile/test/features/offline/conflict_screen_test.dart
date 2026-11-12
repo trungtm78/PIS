@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
+import 'package:machvon_mobile/core/navigation/route_catalogue.dart' show AppTab;
 import 'package:machvon_mobile/core/offline/drafts/conflict_adapter.dart';
 import 'package:machvon_mobile/core/offline/drafts/draft_store.dart';
 import 'package:machvon_mobile/core/offline/drafts/local_draft.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
-import 'package:machvon_mobile/core/navigation/route_catalogue.dart' show AppTab;
 import 'package:machvon_mobile/core/state/state_card.dart';
 import 'package:machvon_mobile/core/widgets/bottom_nav.dart' show AppBottomNav;
 
