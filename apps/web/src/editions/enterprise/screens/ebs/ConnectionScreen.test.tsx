@@ -54,7 +54,7 @@ const chooseFile = (): void => {
 };
 
 describe('ConnectionScreen (EBS-01): the connection to Oracle EBS and the import of its files', () => {
-  it('UI-EBS-01: shows the connection as a file reader, PENDING-EXTERNAL, registered as a proposal, with the layout version and the columns it reads', async () => {
+  it('UI-EBS-01 UAT-EBS-PX-01: shows the connection as a file reader, PENDING-EXTERNAL, registered as a proposal, with the layout version and the columns it reads', async () => {
     mountWith();
     await loaded();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('ebs.connection.page.title'));

@@ -657,7 +657,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "AUD-07",
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Job aud.recommendation-overdue và sự kiện aud.recommendation.due_soon.v1 (nhắc 7/3/1 ngày), leo thang tới lãnh đạo đơn vị và dedupe theo khuyến nghị+ngày chưa có trong sản phẩm (không có job, consumer hay sự kiện nào trong apps/api/src/modules/aud, packages/db/src, workers); chỉ có cờ is_overdue khi đọc."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC439",

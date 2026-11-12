@@ -66,7 +66,7 @@ describe('PeriodCalendarScreen (DIS-14): the calendar of the reporting periods (
     expect(screen.getByTestId('count').textContent).toBe(text('dis.calendar.count.text', { total: 4, open: 2, softClosed: 1, locked: 1 }));
   });
 
-  it('offers a period manager the close and the lock, and a maker none, with the status in words in every state (AC-ST-DIS-001-4)', async () => {
+  it('UAT-PLAN-66 / AC-ST-DIS-001-4: offers a period manager the close and the lock, and a maker none, with the status in words in every state', async () => {
     mount(<PeriodCalendarScreen route={ROUTE} />, client(world({ periods: CALENDAR })), MANAGER, PATH);
     await ready();
     expect(moveButton(1, 'softClose')?.textContent).toBe(vi_['dis.calendar.softClose.action']);

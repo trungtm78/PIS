@@ -92,6 +92,38 @@ describe('the performance of the queries over a tenant of 5,000 projects (ST-BI-
     expect(percentile95(durations)).toBeLessThanOrEqual(P95_BUDGET_MS);
   });
 
+  it('UAT-NFR-PERFORMANCE-03 the dashboard of a period snapshot of the whole province opens in 5 seconds or less at the 95th percentile of 30 openings, the rows of the drill add up to the figure of the total, and the question over the whole detail is answered 202 with the id of its job', async () => {
+    const OPENINGS = 30;
+    const SLO_MS = 5000;
+    const durations: number[] = [];
+    for (let opening = 0; opening < OPENINGS; opening += 1) {
+      // Each opening asks a question of its own so that none is answered from the cache of the one before.
+      const filters = [{ field: 'unit', operator: 'in', value: [unitId(UNIT_A), randomUUID()] }];
+      const started = Date.now();
+      const reply = await app.call('POST', '/dashboard-queries', { member: ANALYST_ALL, body: { metric_version_id: metrics[0], snapshot_id: snapshotVersion, dimensions: ['unit'], filters } });
+      durations.push(Date.now() - started);
+      expect(reply.status).toBe(200);
+      expect(reply.json).toMatchObject({ served_from_cache: false, as_of_period: period });
+    }
+    expect(durations).toHaveLength(OPENINGS);
+    expect(percentile95(durations)).toBeLessThanOrEqual(SLO_MS);
+    // The drill into the unit: its rows add up to the total cell of the dashboard (5,000 projects of 1,000,000 dong).
+    const total = await app.call('POST', '/dashboard-queries', { member: ANALYST_ALL, body: { metric_version_id: metrics[0], snapshot_id: snapshotVersion, dimensions: [], filters: [] } });
+    const byUnit = await app.call('POST', '/dashboard-queries', { member: ANALYST_ALL, body: { metric_version_id: metrics[0], snapshot_id: snapshotVersion, dimensions: ['unit'], filters: [] } });
+    expect([total.status, byUnit.status]).toEqual([200, 200]);
+    const shown = byUnit.json.children as Array<{ value: string }>;
+    expect((total.json.total as { value: string }).value).toBe(String(PROJECTS * 1_000_000));
+    expect(shown.reduce((sum, row) => sum + Number(row.value), 0)).toBe(Number((total.json.total as { value: string }).value));
+    expect(byUnit.json).toMatchObject({ reconciles_to_parent: true });
+    // The question over every transaction of three years is not answered in the request: 202 with the id of the job to ask again.
+    const heavy = await app.call('POST', '/dashboard-queries', { member: ANALYST_ALL, body: { metric_version_id: metrics[0], snapshot_id: snapshotVersion, dimensions: ['project'], filters: [] } });
+    expect(heavy.status).toBe(202);
+    expect(heavy.json).toMatchObject({ status: 'ASYNC_JOB', mode: 'ASYNC_JOB' });
+    expect(typeof heavy.json.run_id).toBe('string');
+    // The negative control: a check that wants a budget no query can meet must fail on the measured time.
+    expect(() => expect(percentile95(durations)).toBeLessThanOrEqual(0)).toThrow();
+  });
+
   it('answers the same question again from the cache, much faster than it was first computed', async () => {
     const filters = [{ field: 'unit', operator: 'in', value: [unitId(UNIT_A), randomUUID()] }];
     const ask = () => app.call('POST', '/dashboard-queries', { member: ANALYST_ALL, body: { metric_version_id: metrics[0], snapshot_id: snapshotVersion, dimensions: ['unit'], filters } });

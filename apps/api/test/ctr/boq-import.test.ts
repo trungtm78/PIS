@@ -196,7 +196,7 @@ describe('importBoqLines and the reads of the BOQ (ST-CTR-002)', () => {
   });
 
   describe('importBoqLines from lines', () => {
-    it('rounds 3 x 1,234.5 to 3,704 half up and 3,703 down, and says whether the lines add up to the value of the revision (AC-ST-CTR-002-1)', async () => {
+    it('UAT-AC64: rounds 3 x 1,234.5 to 3,704 half up and 3,703 down, and says whether the lines add up to the value of the revision (AC-ST-CTR-002-1)', async () => {
       const contract = await draft('3704');
       const half = await replace(MAKER, contract.revisionId, 1, [line('B01', '3', '1234.5', { rounding_rule: 'HALF_UP' })]);
       expect(half.status).toBe(200);

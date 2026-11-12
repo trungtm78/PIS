@@ -89,7 +89,7 @@ describe('DIS-21 close and freeze the figures of a period', () => {
     expect(h.command).not.toHaveBeenCalled();
   });
 
-  it('AC-ST-DIS-009-7 / UI-DIS-21: lists the snapshots with status, cutoff and short hash, and says the formulas await the sign-off of D03 until they are signed', async () => {
+  it('UAT-PLAN-69 / AC-ST-DIS-009-7 / UI-DIS-21: lists the snapshots with status, cutoff and short hash, and says the formulas await the sign-off of D03 until they are signed', async () => {
     const user = userEvent.setup();
     open({ snapshots: listOf([snapshotRecord(FROZEN), buildingRecord({ definition_status: 'SIGNED' })]) });
     await choosePeriod(user);

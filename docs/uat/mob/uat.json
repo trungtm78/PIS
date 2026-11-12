@@ -2908,7 +2908,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The real server never answers 409 DRAFT_VERSION_CONFLICT: a stale report revision answers 409 VERSION_CONFLICT (DRAFT_VERSION_CONFLICT exists only in error_codes.json and in the conflict list of the phone and of packages/kernel/src/sync-command.ts). The MOB-42 content (130.000.000 against 120.000.000, the difference, nothing written) is proven by the Dart tests draft_conflict_test.dart and conflict_screen_test.dart against a fake server."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC505",
@@ -2942,7 +2949,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/mobile/test/features/account/account_test.dart"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC506",
@@ -3011,7 +3025,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The real server answers a submit or save into a locked period with 409 PERIOD_LOCKED (DomainError status 409 in packages/db/src/dis-period-store.ts; apps/api/test/dis/report.test.ts asserts 409) while the case and the canonical error registry say 422. The phone side (refusal, draft kept, sent again after the reopening) is proven by apps/mobile/test/core/offline/draft_conflict_test.dart. Needs a decision: 409 or 422."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-32",
@@ -3045,7 +3066,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/adm/approval.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-33",
@@ -3155,7 +3183,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/mobile/test/features/reporting/reporting_review_test.dart"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-36",
@@ -3190,7 +3225,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/mobile/test/features/approval_inbox/approval_test.dart"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-37",
@@ -3224,7 +3266,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/iss/iss-issue.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-38",
@@ -3258,7 +3307,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/mobile/test/features/field_evidence/photo_pipeline_test.dart"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-39",
@@ -3334,7 +3390,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pay/payment-form.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-41",
@@ -3410,7 +3473,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "MOB"
+      "module": "MOB",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/mobile/test/features/ai_review/ai_review_test.dart"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-43",

@@ -1,13 +1,13 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
-import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase } from '@machvon/db';
+import { EffectiveAccessStore, InMemoryAuthzCache, RetentionJob, RetentionPolicyStore, TenantDatabase } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { Client } from 'pg';
 import { CommandModule } from '../src/command.module';
 import { PolicyModule } from '../src/policy.module';
 import { ProblemFilter } from '../src/problem.filter';
 import { LegalHoldReadsController, LegalHoldsController } from '../src/modules/adm/legal-holds.controller';
-import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../packages/db/test/support/authz-fixtures';
+import { AuthzHarness, TENANT_A, TENANT_B, contextFor, id, memberId, unitId } from '../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from './isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from './isolation/test-app';
 import type { RunningApp } from './isolation/test-app';
@@ -271,6 +271,61 @@ describe('legal hold commands and reads (ST-ADM-003)', () => {
       expect(foreign.status).toBe(404);
       const list = await call('GET', '/resources/legal_hold', { member: 2, tenantId: TENANT_B });
       expect(list.json.items).toEqual([]);
+    });
+  });
+
+  describe('the retention job and a hold (ADM-12, UAT-AC141)', () => {
+    it('UAT-AC141 the job skips a dossier under a hold, the placer cannot release the hold (403 SELF_APPROVAL_DENIED), a second person releases it with a reason, and the next run puts the dossier on the review list without deleting it', async () => {
+      const admin = async (sql: string, params: unknown[] = []): Promise<void> => {
+        const client = new Client({ connectionString: harness.database.adminUrl });
+        await client.connect();
+        try {
+          await client.query('set session_replication_role = replica');
+          await client.query(sql, params);
+        } finally {
+          await client.end();
+        }
+      };
+      // The dossier of project P1 is a year and more old and its period of retention has ended (REVIEW_FOR_DESTRUCTION, one year from creation).
+      await admin("update machvon.project set created_at = '2024-03-15T03:00:00Z', status_changed_at = '2024-03-15T03:00:00Z' where id = $1", [PROJECT]);
+      const policies = new RetentionPolicyStore();
+      const today = new Date().toISOString().slice(0, 10);
+      const draftRow = (
+        await harness.tenants.withTenant(contextFor(TENANT_A, memberId(OFFICER)), (tx) =>
+          policies.createDraft(tx, { record_class: 'project_dossier', retention_years: 1, retention_basis: 'FROM_CREATED', legal_basis_ref: 'Placeholder until CXN-RET-03 is confirmed', end_action: 'REVIEW_FOR_DESTRUCTION', effective_from: '2026-01-01' }, memberId(OFFICER)),
+        )
+      ).row;
+      await harness.tenants.withTenant(contextFor(TENANT_A, memberId(SECOND_OFFICER)), async (tx) => policies.publish(tx, await policies.lockDraft(tx, draftRow.id, draftRow.version), memberId(SECOND_OFFICER), today));
+      const job = new RetentionJob(harness.tenants as TenantDatabase);
+      const worker = { tenantId: TENANT_A, membershipId: '00000000-0000-4000-8000-000000000000', scopeVersion: 0 };
+      const reviewItems = (): Promise<Array<{ resource_id: string; status: string; end_action: string }>> =>
+        harness.owner(TENANT_A, [["select resource_id, status, end_action from machvon.retention_review_item where resource_id = $1", [PROJECT]]]);
+      const projects = (): Promise<Array<{ n: string }>> => harness.owner(TENANT_A, [['select count(*) as n from machvon.project where id = $1', [PROJECT]]]);
+
+      // The owner of the hold places it on the project (an audit hold, with its authority).
+      const placed = await place(OFFICER, { hold_kind: 'AUDIT', resource_scope: { kind: 'PROJECT', ids: [PROJECT] }, authority_reference: 'Kết luận Thanh tra số 12/KL-TTT', reason: 'The inspection holds the project dossier' });
+      expect(placed.status).toBe(201);
+      const holdId = idOf(placed);
+      // Run 1: the dossier is skipped because of the hold: nothing is listed and nothing is deleted.
+      const first = await job.run(worker, new Date());
+      expect(first).toMatchObject({ listed: {}, skippedHeld: { project_dossier: 1 } });
+      expect(await reviewItems()).toEqual([]);
+      // Step 2: the person who placed the hold cannot release it.
+      const own = await release(OFFICER, holdId, { reason: 'I close my own hold now' });
+      expect([own.status, own.json.code]).toEqual([403, 'SELF_APPROVAL_DENIED']);
+      expect(await countOf("select count(*) as n from machvon.legal_hold where id = $1 and status = 'Active'", [holdId])).toBe(1);
+      // Step 3: the second person releases it with the reason.
+      const released = await release(SECOND_OFFICER, holdId, { reason: 'Đã có kết luận khắc phục' });
+      expect(released).toMatchObject({ status: 200, json: { status: 'RELEASED' } });
+      expect(await countOf("select count(*) as n from machvon.legal_hold where id = $1 and status = 'Released' and release_reason = 'Đã có kết luận khắc phục'", [holdId])).toBe(1);
+      // Run 2: the dossier goes to the list of the council that decides on destruction; the job does not delete it.
+      const second = await job.run(worker, new Date());
+      expect(second).toMatchObject({ listed: { project_dossier: 1 }, skippedHeld: {} });
+      expect(await reviewItems()).toEqual([{ resource_id: PROJECT, status: 'PENDING_REVIEW', end_action: 'REVIEW_FOR_DESTRUCTION' }]);
+      const remaining = await projects();
+      expect(remaining).toEqual([{ n: '1' }]);
+      // The negative control: a check that wants the dossier deleted after the release must fail on what was read.
+      expect(() => expect(Number(remaining[0]?.n)).toBe(0)).toThrow();
     });
   });
 });

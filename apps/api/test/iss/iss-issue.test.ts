@@ -236,7 +236,7 @@ describe('createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit 
       for (const secret of ['Quarry', '0901234567', 'compensation', '10.812345', '106.712345']) expect(everything).not.toContain(secret);
     });
 
-    it('answers a create sent twice from an offline phone with one issue, under the same key or under a new one (AC-ST-ISS-002-2, UAT-AC355)', async () => {
+    it('answers a create sent twice from an offline phone with one issue, under the same key or under a new one, and the follow-up reads the status and the deadline the server counted (AC-ST-ISS-002-2, UAT-AC355, UAT-PLAN-37)', async () => {
       const body = createBody({ geo_consent: true, geo_lat: '10.8', geo_lng: '106.7', geo_accuracy_m: '12' });
       const first = await post('/issues', { member: REPORTER, body, key: 'offline-key-0000000001' });
       const sameKey = await post('/issues', { member: REPORTER, body, key: 'offline-key-0000000001' });
@@ -249,6 +249,12 @@ describe('createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit 
       expect((await audits(idOf(first))).map((entry) => entry.action)).toEqual(['iss.issue_opened', 'iss.issue_open_replayed']);
       expect(await outbox(idOf(first))).toHaveLength(1);
       expect(await timeline(idOf(first))).toHaveLength(1);
+      // The follow-up screen reads the one issue: its status and the deadlines the server counted from the policy, not from the phone.
+      const [counted] = await rows<{ status: string; due_at: Date; response_due_at: Date }>('select status, due_at, response_due_at from machvon.issue where id = $1::uuid', [idOf(first)]);
+      const followUp = await get(`/resources/issue/${idOf(first)}`, { member: READER_ALL });
+      expect(followUp.status).toBe(200);
+      expect(followUp.json).toMatchObject({ id: idOf(first), status: 'OPEN', due_at: counted?.due_at.toISOString(), response_due_at: counted?.response_due_at.toISOString() });
+      expect(new Date(followUp.json.due_at as string).getTime()).toBeGreaterThan(new Date(followUp.json.response_due_at as string).getTime());
       expect(await rows('select geo_lat::text as geo_lat, geo_consent from machvon.issue where id = $1::uuid', [idOf(first)])).toEqual([{ geo_lat: '10.800000', geo_consent: true }]);
       // The same operation id with another request is not a retry.
       const other = await post('/issues', { member: REPORTER, body: { ...body, title: 'Something else entirely' }, key: 'offline-key-0000000003' });

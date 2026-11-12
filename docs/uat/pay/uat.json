@@ -41,7 +41,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PAY-04",
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Product differs from the case: a Treasury callback (receiveTreasuryCallback) only records an UNMATCHED treasury_transaction; the payment request becomes SETTLED, contract.paid_total_vnd moves and pay.payment.settled.v1 is written only by the separate matchTreasuryTransaction command (no auto-match consumer exists), and the same voucher under another event id with identical content answers 200 duplicate, not 409 TREASURY_TRANSACTION_DUPLICATE (409 only for other content)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC11",
@@ -78,7 +85,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PAY-05",
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pay/treasury-import.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC12",
@@ -865,7 +879,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "PAY-12",
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/pay-advance-overdue-uat.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC329",
@@ -1060,9 +1081,14 @@
       "design_type": "concurrency",
       "screen_id": "PAY-13",
       "tags": [
-        "concurrency"
+        "concurrency",
+        "automated"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pay/treasury-import.test.ts"
+      }
     },
     {
       "tc_id": "TC-UAT-AC334",
@@ -1099,7 +1125,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "PAY-06",
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Product differs from the case: a row without so_chung_tu is quarantined with error code DOCUMENT_NO_INVALID (uniform <FIELD>_INVALID scheme, pay-treasury-statement-format.ts) not MISSING_DOCUMENT_NO, and raw_masked shows the account as ***+last 3 characters, not last 4; the other facts (DUPLICATE/CONFLICT/NEW, DUPLICATE_CONFLICT item, PARTIALLY_APPLIED counts) are proven by AC-ST-PAY-006-2 but not under this id."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC335",
@@ -1531,7 +1564,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "PAY-02",
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pay/payment-claim.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC396",

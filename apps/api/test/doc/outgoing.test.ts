@@ -1,6 +1,7 @@
 import { X509Certificate, createHash, randomUUID } from 'node:crypto';
 import { DocumentStore } from '@machvon/db';
 import { fingerprintOf } from '../../src/modules/doc/cms-verification';
+import { readNumberFields } from '../../src/modules/doc/external-signature';
 import { PdfLibRenderer } from '../../src/modules/doc/pdf-renderer';
 import { MockSigningPort } from '../../src/modules/doc/signing-port';
 import { ACTOR, ADMIN, CLERK, DRAFTER, DocApp, LEADER, NOBODY, NOW, TENANT_A, TENANT_B, memberId, unitId } from './doc-app';
@@ -225,6 +226,57 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
       ]);
       const [document] = await owner<{ current_version_id: string; document_number: number; symbol: string }>('select current_version_id, document_number, symbol from machvon.document where id = $1', [created.documentId]);
       expect(document).toMatchObject({ current_version_id: stored[3]?.id, document_number: 1, symbol: `01/QD-R${registerCounter}` });
+    });
+
+    it('UAT-AC403 each step of the signing adds one revision to the locked file and never changes the bytes before it: the leader signature (2 revisions, one VALID signature), the number 42 as a later revision (3 revisions, the leader signature still VALID with only allowed changes) and the organisation seal over the whole file, with the number, the symbol and the date in the fields', async () => {
+      const issuedAt = new Date('2026-10-22T03:00:00Z');
+      app.now = issuedAt;
+      world.setTime(issuedAt);
+      const register = await openRegister({ register_code: 'UBND' });
+      await owner('update machvon.document_number_register set last_number = 41 where id = $1', [register]);
+      const created = await seedOutgoing();
+      const locked = await versions(created.documentId);
+      const lockedFile = await bytesOf(locked[0]?.object_key as string);
+      const h0 = sha256(lockedFile);
+      const l0 = lockedFile.length;
+      const reportOf = async (stage: string): Promise<Array<Record<string, unknown>>> => {
+        const stored = await versions(created.documentId);
+        const version = stored.find((row) => row.stage === stage);
+        const report = await app.call('GET', `/document-versions/${version?.id}/signature-report`, { member: ADMIN });
+        expect(report.status).toBe(200);
+        return report.json.signatures as Array<Record<string, unknown>>;
+      };
+      // Step 1: the leader signs.
+      const started = await startLeader(created.id, LEADER);
+      await approve(started.json.resource_id as string);
+      expect((await complete(started.json.resource_id as string, LEADER)).status).toBe(200);
+      let stored = await versions(created.documentId);
+      expect(stored.map((row) => [row.stage, row.pdf_revision_count])).toEqual([['RENDERED_FINAL', null], ['LEADER_SIGNED', 2]]);
+      expect((await reportOf('LEADER_SIGNED')).map((row) => [row.role, row.status])).toEqual([['LEADER', 'VALID']]);
+      // Step 2: the clerk numbers it: the number 42 comes in a later revision, and the bytes of the locked file are untouched.
+      const numbered = await number(created.id, CLERK, 2, { register_id: register });
+      expect(numbered.json).toMatchObject({ status: 'NUMBERED', number: 42, display_number: '42', symbol: '42/QD-UBND', issued_on: '2026-10-22' });
+      stored = await versions(created.documentId);
+      expect(stored.map((row) => [row.stage, row.pdf_revision_count])).toEqual([['RENDERED_FINAL', null], ['LEADER_SIGNED', 2], ['NUMBERED', 3]]);
+      const numberedFile = await bytesOf(stored[2]?.object_key as string);
+      expect(sha256(numberedFile.subarray(0, l0))).toBe(h0);
+      expect(stored[1]?.prefix_sha256).toBe(h0);
+      expect(stored[2]?.prefix_sha256).toBe(sha256(await bytesOf(stored[1]?.object_key as string)));
+      expect((await reportOf('NUMBERED')).map((row) => [row.role, row.status, row.incremental_changes_allowed])).toEqual([['LEADER', 'VALID', true]]);
+      // Step 3: the clerk seals it for the organisation; the seal covers the whole file.
+      const sealStarted = await startSeal(created.id, CLERK, { version: 3 });
+      await approve(sealStarted.json.resource_id as string);
+      expect((await complete(sealStarted.json.resource_id as string, CLERK)).status).toBe(200);
+      stored = await versions(created.documentId);
+      expect(stored.map((row) => row.stage)).toEqual(['RENDERED_FINAL', 'LEADER_SIGNED', 'NUMBERED', 'ORG_SEALED']);
+      const sealedFile = await bytesOf(stored[3]?.object_key as string);
+      expect(sha256(sealedFile.subarray(0, l0))).toBe(h0);
+      const sealedReport = await reportOf('ORG_SEALED');
+      expect(sealedReport.map((row) => [row.role, row.status])).toEqual([['LEADER', 'VALID'], ['ORGANIZATION', 'VALID']]);
+      expect(sealedReport.find((row) => row.role === 'ORGANIZATION')?.covers_end_offset).toBe(sealedFile.length);
+      expect(readNumberFields(sealedFile)).toEqual({ doc_number: '42', doc_symbol: '42/QD-UBND', doc_date: '22/10/2026' });
+      // The negative control: a check that wants the prefix of the sealed file to differ from the locked file must fail.
+      expect(() => expect(sha256(sealedFile.subarray(0, l0))).not.toBe(h0)).toThrow();
     });
 
     it('audits and announces every step', async () => {
@@ -476,6 +528,31 @@ describe('outgoing documents: leader signing, numbering and the organisation sea
       expect((await number(second.id, CLERK, 2, { register_id: register })).json).toMatchObject({ number: 2, display_number: '02' });
       expect(await count('select count(*) as n from machvon.document_number_allocation where register_id = $1', [register])).toBe(2);
       expect(await documentRow(first.id)).toMatchObject({ status: 'NUMBERED' });
+    });
+
+    it('UAT-AC401 the numbering of a signed decision answers 200 with the next number (42) and the status NUMBERED, the same command with the same key answers the first answer without a new number, and a new key on the numbered document is 409 DOCUMENT_STATE_INVALID with the counter still 42 and one allocation', async () => {
+      const register = await openRegister();
+      await owner('update machvon.document_number_register set last_number = 41 where id = $1', [register]);
+      const signed = await signAsLeader();
+      const send = (key: string, version: number) => app.call('POST', `/outgoing-documents/${signed.id}/numbering`, { member: CLERK, ifMatch: `"${version}"`, key, body: { register_id: register } });
+      const lastNumber = async (): Promise<number> => (await owner<{ last_number: number }>('select last_number from machvon.document_number_register where id = $1', [register]))[0]?.last_number as number;
+      const first = await send('k-401-0000000001', 2);
+      expect(first.status).toBe(200);
+      expect(first.json).toMatchObject({ number: 42, display_number: '42' });
+      expect(await documentRow(signed.id)).toMatchObject({ status: 'NUMBERED' });
+      expect(await lastNumber()).toBe(42);
+      // The same command again, with the same key and body: the first answer, and no new number.
+      const replay = await send('k-401-0000000001', 2);
+      expect(replay.status).toBe(200);
+      expect(replay.json).toEqual(first.json);
+      expect(await lastNumber()).toBe(42);
+      // A new command, with a new key, for the same document that is NUMBERED: refused, the counter does not move, one allocation exists for the document.
+      const again = await send('k-401-0000000002', 3);
+      expect([again.status, again.json.code]).toEqual([409, 'DOCUMENT_STATE_INVALID']);
+      expect(await lastNumber()).toBe(42);
+      expect(await count('select count(*) as n from machvon.document_number_allocation where register_id = $1', [register])).toBe(1);
+      // The negative control: a check that wants a second number must fail on the counter.
+      expect(() => expect(first.json).toMatchObject({ number: 43 })).toThrow();
     });
 
     it('refuses a document that is not signed yet, one that is numbered already, and keeps the counter (AC-ST-DOC-005-5)', async () => {

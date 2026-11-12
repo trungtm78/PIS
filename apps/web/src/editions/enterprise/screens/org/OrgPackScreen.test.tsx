@@ -65,7 +65,7 @@ function mountWith(options: { reply?: (input: unknown) => unknown; command?: (op
 }
 
 describe('OrgPackScreen (ORG-01): the organisation and the roles of the enterprise edition', () => {
-  it('shows the template as illustrative data: units, roles, seats with their directory groups, the steps with their deadlines, the delegation defaults and the catalogue', async () => {
+  it('UAT-ENT-PX-01: shows the template as illustrative data: units, roles, seats with their directory groups, the steps with their deadlines, the delegation defaults and the catalogue', async () => {
     mountWith();
     await screen.findByTestId('template-note');
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('org.page.title'));
@@ -150,7 +150,7 @@ describe('OrgPackScreen (ORG-01): the organisation and the roles of the enterpri
     expect((await screen.findByTestId('load-error')).textContent).toBe(word('org.load.error.text', { code: 'MIGRATION_STATE_INVALID' }));
   });
 
-  it('is read only in the read-only mode, and has an English text for everything it says', async () => {
+  it('UAT-ENT-PX-01: is read only in the read-only mode, and has an English text for everything it says', async () => {
     mountWith({ mode: 'READ_ONLY', reply: () => pack({ source: 'BATCH', batch_id: BATCH, file_csv: null }) });
     fireEvent.change(await screen.findByTestId('batch-input'), { target: { value: BATCH } });
     fireEvent.click(screen.getByTestId('batch-show'));

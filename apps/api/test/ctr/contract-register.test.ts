@@ -205,7 +205,7 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
   });
 
   describe('createContract', () => {
-    it('refuses a value above the price of the package naming the ceiling, creates the DRAFT at the price, and refuses a project whose plan is not approved without creating a row (AC-ST-CTR-001-1)', async () => {
+    it('UAT-AC57: refuses a value above the price of the package naming the ceiling, creates the DRAFT at the price, and refuses a project whose plan is not approved without creating a row (AC-ST-CTR-001-1)', async () => {
       const above = await create(MAKER, { code: 'HD-CEIL-1', contract_value_vnd: '10300000000' });
       expect([above.status, above.json.code, above.json.ceiling_vnd]).toEqual([422, 'CONTRACT_VALUE_EXCEEDS_CEILING', '10200000000']);
       expect(await rows('select 1 from machvon.contract where code = $1', ['HD-CEIL-1'])).toEqual([]);
@@ -222,7 +222,7 @@ describe('contract register commands and reads (ST-CTR-001)', () => {
       expect(await rows('select 1 from machvon.contract where code = $1', ['HD-PLAN-1'])).toEqual([]);
     });
 
-    it('answers a replay with the first body, refuses the same key with another body and a new key with the same code, and leaves one contract and one event (AC-ST-CTR-001-2)', async () => {
+    it('UAT-AC316: answers a replay with the first body, refuses the same key with another body and a new key with the same code, and leaves one contract and one event (AC-ST-CTR-001-2)', async () => {
       const body = contractBody({ code: 'HD-A-300' });
       const first = await call('POST', '/contracts', { member: MAKER, body, key: 'K-AC316-A-0123456789' });
       const second = await call('POST', '/contracts', { member: MAKER, body, key: 'K-AC316-A-0123456789' });

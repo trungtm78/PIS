@@ -547,7 +547,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PRJ-02",
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/prj/project-register.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC201",
@@ -630,7 +637,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PRJ-09",
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/prj/project-appraisal.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC203",
@@ -790,7 +804,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PRJ-14",
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Phần WARN chưa khớp thiết kế: implementation-start dưới rule mode=WARN trả warnings=['NATIONAL_CODE_REQUIRED'] (mảng chuỗi, apps/api/src/modules/prj/stage.controller.ts NATIONAL_CODE_WARNING), không phải warnings[0].code=NATIONAL_CODE_MISSING như ca; bước 422 và 200 sau gán mã đã được chứng minh trong national-code.test.ts nhưng ca chưa thể đóng khi kỳ vọng WARN chưa đúng."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC207",
@@ -826,7 +847,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "PRJ-21",
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/prj/national-code.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC208",
@@ -863,7 +891,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PRJ-02",
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/prj/project-appraisal.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC209",
@@ -935,7 +970,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PRJ-17",
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/prj/accountability.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC211",
@@ -1160,7 +1202,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "PRJ-12",
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Sản phẩm chưa có bộ tiêu thụ sự kiện settlement.closed cho PRJ: bảng chuyển trạng thái có COMPLETED->SETTLED do hệ thống (packages/db/src/prj-stage-machine.ts) nhưng không có consumer/inbox nào gọi nó (tìm settlement.closed trong apps/api/src/modules/prj và packages/db/src/prj-*.ts: không có; PAY phát pay.settlement.closed.v1, PRJ chỉ có consumer capital.plan_published), nên bước chuyển SETTLED và dedupe inbox của event không thể chạy."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC217",

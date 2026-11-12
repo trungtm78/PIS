@@ -91,11 +91,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/org-pack.enterprise.test.ts"
       },
       "module": "ENT"
     },
@@ -137,11 +137,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/org-pack.enterprise.test.ts"
       },
       "module": "ENT"
     },
@@ -181,11 +181,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-dis.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -224,11 +224,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/reporting-calendar.test.ts"
       },
       "module": "ENT"
     },
@@ -268,11 +268,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/screens/dis/calendar/calendar-states.test.tsx"
       },
       "module": "ENT"
     },
@@ -409,11 +409,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-dis.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -455,11 +455,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-dis.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -501,11 +501,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-ent.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -548,11 +548,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-ent.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -1108,11 +1108,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/pwa/screens/ApprovalDetailScreen.test.tsx"
       },
       "module": "ENT"
     },
@@ -1151,11 +1151,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/pwa/screens/DrillDowns.test.tsx"
       },
       "module": "ENT"
     },
@@ -1198,7 +1198,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "reason": "FINDING: the directive detail of the phone (DirectiveDetailScreen) lists the timeline in the order the API returns it (oldest first, packages/db dir-directive-store orders by occurred_at ascending) and shows no list of the extension request or of the evidence (only the extension count), where the design (implementation_plan AC-ST-PWA-003-2) says the timeline newest first with the request and the evidence. Steps 1 and 2 are proven by DirectiveFilters.test.tsx and directives-api.test.tsx."
       },
       "module": "ENT"
     },
@@ -1237,11 +1237,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/pwa/screens/SettingsScreen.test.tsx"
       },
       "module": "ENT"
     },
@@ -1283,11 +1283,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dis/report-decision.test.ts"
       },
       "module": "ENT"
     },
@@ -1727,11 +1727,11 @@
         "ST-ORG-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần lô nạp (applied batch) của tệp gói; ca tích hợp đã có ở apps/api/test/editions/org-pack.enterprise.test.ts, chưa dựng trong suite UAT; danh sách 09 đầu mối thật là PX-05"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/org-pack.enterprise.test.ts"
       },
       "module": "ENT"
     },
@@ -1773,11 +1773,11 @@
         "ST-EQP-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần chuỗi kế hoạch, gói thầu, hợp đồng, thanh toán ở BID, CTR, PAY; chưa dựng trong suite; layout nhập tệp là PX-06"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-ent.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -1823,7 +1823,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần PWA trên bản enterprise trong trình duyệt di động; có sẵn apps/web/e2e/pwa-flows.spec.ts (không đặt tên theo mã ca) nhưng chưa có ca mất mạng khi duyệt"
+        "reason": "Chua co kich ban Playwright xanh: ban nhap tren stack enterprise (hang doi duyet, ten thay cho ma, If-Match, 409 o thiet bi thu hai) chay qua buoc dang nhap/MFA nhung do o buoc mat mang (khung quyet dinh khong hien loi sau khi mat mang), nen chua duoc dua vao repo. Ngoai ra phan CacheStorage khi service worker dang kiem soat trang khong phu duoc tren dev server (SW chi dang ky o ban production, ban production khong co phien dev de dang nhap); phan nay moi co don vi test cache-policy/sw-core."
       },
       "module": "ENT"
     },
@@ -2123,11 +2123,11 @@
         "ST-ORG-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ khách cung cấp danh sách 09 đầu mối (PX-05)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/org-pack.enterprise.test.ts"
       },
       "module": "ENT"
     },

@@ -70,7 +70,7 @@ describe('obligation rules and the filing calendar API (ST-MNE-001, MNE F1, F2)'
   });
 
   describe('AC-ST-MNE-001-1: the calendar is generated from rules that are data', () => {
-    it('AC-ST-MNE-001-1: gives every investor H1-2026 due 2026-07-10 and YEAR-2026 due 2027-02-10 with the legal basis and the CXN label, and a second run adds nothing', async () => {
+    it('AC-ST-MNE-001-1 UAT-AC285: gives every investor H1-2026 due 2026-07-10 and YEAR-2026 due 2027-02-10 with the legal basis and the CXN label, and a second run adds nothing', async () => {
       await publishDesignRules();
       const first = await generate({ report_year: 2026 });
       expect(first.status).toBe(200);

@@ -84,7 +84,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MDM-26",
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/mdm/master-data.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC47",
@@ -121,7 +128,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MDM-03",
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The product has no report that stores an AGENCY master version: MASTER_REFERENCES (packages/db/src/master-store.ts) lists no report table, so DIS-07, the PDF DIS-17 and DIS-12 cannot show the agency name by master_record_version at the business date, and no R47 exists to open. Retire with a successor, RETIRED-not-deleted and the FKs kept are proven by the UAT-AC280 test (apps/api/test/mdm/master-data.test.ts)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC48",
@@ -157,7 +171,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "MDM-29",
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The product reports an import row error as {row, field: 'parent_key', code: 'INVALID_VALUE'} (packages/db/src/master-import-store.ts), not {field: 'parent_code', code: 'FK_NOT_FOUND'} as the case expects; FK_NOT_FOUND does not exist in the product. The flow (stage, 422 IMPORT_HAS_ERRORS, fix, apply) is proven with those other codes and 3 rows by apps/api/test/mdm/master-import.test.ts (AC-ST-MDM-006-1). Needs a decision: rename the code or change the case."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC49",
@@ -195,7 +216,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MDM-27",
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The impact preview of the product is keyed by table.column of MASTER_REFERENCES (e.g. allocation_line.fund_source_version_id) and has no report_revision or dashboards counter, because no report or dashboard table refers to fund source versions; the audit actions are named master.change_submitted and master.published, not master.change.submitted. The case cannot be proven as written."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UI-MDM-01",
@@ -1519,7 +1547,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MDM-24",
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/mdm/master-crosswalk.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC274",
@@ -1790,7 +1825,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MDM-31",
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/mdm/master-data.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC281",
@@ -1871,7 +1913,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MDM-04",
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "MDM-04 labels a SUBSET_OF source 'Nam trong nguon cha' (vi key mdm.value.relation.subsetOf), not 'Trong do (khong cong)' as the case expects; the 422 SUBSET_SOURCE_NOT_ADDITIVE refusal itself is proven only at store level (packages/db/test/master-catalogue.test.ts). Needs a decision on the label."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC283",
@@ -1908,7 +1957,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "DIS-14",
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dis/reporting-period.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC284",

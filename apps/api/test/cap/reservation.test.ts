@@ -128,6 +128,31 @@ describe('the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227)'
     expect(await rows('select 1 from machvon.fund_reservation where allocation_line_id = $1::uuid', [line.lineId])).toHaveLength(1);
   });
 
+  it('UAT-AC226: with 800 of 1,000 million committed, 150 million is 422 AVC_WARNING_ACK_REQUIRED at 95 percent, the same acknowledged is 200 ACTIVE with the audit naming who acknowledged, and 60 million more is 422 AVC_BLOCKED at 101 percent', async () => {
+    const line = await world.publishedLine({ allocated: millions(1000) });
+    await world.setFigures(line.balanceId, { committed: millions(800) });
+    // Step 1: no acknowledgement. 800 + 150 = 950 of 1,000 is 95 percent, past the warning (90) and under the block (100).
+    const first = await reserve(INVESTOR, line, millions(150));
+    expect(first).toMatchObject({ status: 422, json: { code: 'AVC_WARNING_ACK_REQUIRED', consumption_pct: '95.00', warn_pct: '90.00', block_pct: '100.00' } });
+    expect(await rows('select 1 from machvon.fund_reservation where allocation_line_id = $1::uuid', [line.lineId])).toHaveLength(0);
+    // Step 2: the same request with the acknowledgement.
+    const second = await reserve(INVESTOR, line, millions(150), { avc_acknowledged: true });
+    expect(second.status).toBe(200);
+    expect(second.json).toMatchObject({ status: 'ACTIVE', avc_state: 'WARN', consumption_pct: '95.00' });
+    const id = second.json.resource_id as string;
+    expect(await stored(id)).toMatchObject({ status: 'ACTIVE', avc_warning_acknowledged: true });
+    const audit = await rows<{ actor_id: string; safe_diff: Record<string, unknown> }>(`select actor_id, safe_diff from machvon.audit_event where action = 'capital.reservation_created' and resource_id = $1`, [id]);
+    expect(audit).toHaveLength(1);
+    expect(audit[0]?.actor_id).toBe(memberId(INVESTOR));
+    expect(audit[0]?.safe_diff).toMatchObject({ warning_acknowledged: true, avc_state: 'WARN', consumption_pct: '95.00', amount_vnd: millions(150) });
+    // Step 3: 800 + 150 + 60 = 1,010 of 1,000 is 101 percent, above the block.
+    const third = await reserve(INVESTOR, line, millions(60));
+    expect(third).toMatchObject({ status: 422, json: { code: 'AVC_BLOCKED', consumption_pct: '101.00' } });
+    expect((await world.balanceOf(line.balanceId)).reserved).toBe(millions(150));
+    // A wrong expectation makes the check fail: the block does not come at 95 percent.
+    expect(first.json.code).not.toBe('AVC_BLOCKED');
+  });
+
   it('writes one audit row and one event for a reservation, with the share, and none for a refusal', async () => {
     const line = await world.publishedLine({ allocated: millions(100) });
     expect((await reserve(INVESTOR, line, millions(200))).status).toBe(422);

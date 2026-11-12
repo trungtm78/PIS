@@ -363,7 +363,9 @@ export class MemberStore {
     const [limits, used] = [await this.seatLimits(tx), await this.seatsInUse(tx)];
     const guest = membershipType === 'GUEST_CONTRACTOR';
     const limit = guest ? limits.guestSeats : limits.seats;
-    if (limit !== null && (guest ? used.guests : used.staff) + 1 > limit) throw new DomainError('QUOTA_EXCEEDED', 403);
+    const inUse = guest ? used.guests : used.staff;
+    // The refusal names the meter, how many seats are used and the limit, so the screen can tell the administrator what to buy (UAT-AC114).
+    if (limit !== null && inUse + 1 > limit) throw new DomainError('QUOTA_EXCEEDED', 403, undefined, { extensions: { feature: guest ? 'guest_seats' : 'seats', used: inUse, limit } });
   }
 
   /**

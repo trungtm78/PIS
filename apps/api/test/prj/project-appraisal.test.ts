@@ -298,7 +298,7 @@ describe('the appraisal and the admission to the project bank (ST-PRJ-003)', () 
   });
 
   describe('sending to appraisal and deciding', () => {
-    it('AC-ST-PRJ-003-2: P-A-010 is sent, scored 72.50 by two sheets and ADMITted with a document: PIPELINE, group B, two stage_changed events', async () => {
+    it('AC-ST-PRJ-003-2, UAT-AC202: P-A-010 is sent, scored 72.50 by two sheets and ADMITted with a document: PIPELINE, group B, two stage_changed events', async () => {
       const target = await project();
       const proposal = await document();
       const sent = await submit(target, PROPOSER, { policy_proposal_document_id: proposal });
@@ -319,6 +319,10 @@ describe('the appraisal and the admission to the project bank (ST-PRJ-003)', () 
       const audit = await audits('project.appraisal_decided', first.json.resource_id as string);
       expect(audit).toHaveLength(1);
       expect(audit[0]).toMatchObject({ outcome: 'SUCCESS', reason: 'Decided after the appraisal', safe_diff: { decision: 'ADMIT', mean_score: '72.50', sheet_count: 2, against_recommendation: false, project_group: 'B', decision_document_id: decision } });
+      // PRJ-14 shows the project in the column of the project bank (the PIPELINE stage), with the group and the score it was admitted with.
+      const bank = await call('GET', '/project-pipeline?stage=PIPELINE&project_group=B&limit=200', { member: READER });
+      expect(bank.status).toBe(200);
+      expect((bank.json.items as Array<Record<string, unknown>>).find((card) => card.id === target.id)).toMatchObject({ status: 'PIPELINE', project_group: 'B', appraisal_score: '72.50' });
       expect(increments).toContainEqual({ name: 'prj_stage_transition_total', labels: { to: 'PIPELINE' } });
       expect(increments).toContainEqual({ name: 'prj_stage_transition_total', labels: { to: 'APPRAISAL' } });
       expect((await sheetRows(target.id)).map((sheet) => [sheet.status, sheet.decision, sheet.decided_by])).toEqual([
@@ -355,18 +359,20 @@ describe('the appraisal and the admission to the project bank (ST-PRJ-003)', () 
       expect([stale.status, stale.json.code]).toEqual([409, 'VERSION_CONFLICT']);
     });
 
-    it('AC-ST-PRJ-003-4: ADMIT without a group is 422 PROJECT_GROUP_REQUIRED, with a group that does not exist 422, with the right group 200', async () => {
+    it('AC-ST-PRJ-003-4, UAT-AC208: ADMIT without a group is 422 PROJECT_GROUP_REQUIRED, with a group that does not exist 422, with the right group 200', async () => {
       const { target, sheets } = await appraised([[4, 3, 5, 2, 4]]);
       const sheet = sheets[0] as { id: string; version: number };
       const decision = await document();
       const without = await decide(sheet, DECIDER, { decision_document_id: decision });
       expect([without.status, without.json.code]).toEqual([422, 'PROJECT_GROUP_REQUIRED']);
-      const wrong = await decide(sheet, DECIDER, { decision_document_id: decision, project_group: 'Z' });
-      expect(wrong.status).toBe(422);
+      const wrong = await decide(sheet, DECIDER, { decision_document_id: decision, project_group: 'D' });
+      expect([wrong.status, wrong.json.code, wrong.json.detail]).toEqual([422, 'VALIDATION_FAILED', 'project_group']);
       expect((await projectRow(target.id)).status).toBe('APPRAISAL');
-      const right = await decide(sheet, DECIDER, { decision_document_id: decision, project_group: 'A' });
+      const right = await decide(sheet, DECIDER, { decision_document_id: decision, project_group: 'QTQG' });
       expect(right.status).toBe(200);
-      expect(await projectRow(target.id)).toMatchObject({ status: 'PIPELINE', project_group: 'A' });
+      expect(await projectRow(target.id)).toMatchObject({ status: 'PIPELINE', project_group: 'QTQG' });
+      // The table keeps the rule too: a project in the bank holds a group, so the row satisfies project_group_required_chk, which is in force.
+      expect(await rows('select conname from pg_constraint where conname = $1', ['project_group_required_chk'])).toEqual([{ conname: 'project_group_required_chk' }]);
     });
 
     it('AC-ST-PRJ-003-4: REJECT ends the project, RETURN sends it back, and each leaves the group alone', async () => {

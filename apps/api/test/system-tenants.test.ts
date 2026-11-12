@@ -14,7 +14,7 @@ import { CLAIMS_HEADER, TENANT_HEADER } from './isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from './isolation/test-app';
 import type { RunningApp } from './isolation/test-app';
 import { CONTROL_OPERATIONS, controlCasesFor } from './authz/control-matrix';
-import { PLAN_DRAFT, PLAN_PUBLISHED, ProvisioningHarness } from './provisioning/provisioning-fixtures';
+import { FaultyPorts, PLAN_DRAFT, PLAN_PUBLISHED, ProvisioningHarness } from './provisioning/provisioning-fixtures';
 
 const SIGNING_KEY = randomBytes(32);
 const RELAY_KEY = randomBytes(32);
@@ -139,6 +139,41 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
       expect(await harness.count('select count(*) as n from machvon.tenant where code = $1', [payload.code])).toBe(1);
     });
 
+    it('UAT-AC145 the request of a new province tenant by the platform administrator answers 202 Requested with the first attempt Running, and writes the audit row tenant.requested and one sas.tenant.requested.v1 event that starts the saga', async () => {
+      const payload = body({ code: 'minh-ha', name: 'UBND tỉnh Minh Hà', administrative_code: '99', platform_subdomain: 'minhha', root_unit_name: 'UBND tỉnh Minh Hà', initial_owner_email: 'owner@minhha.gov.vn' });
+      const reply = await request(payload);
+      expect(reply.status).toBe(202);
+      expect(reply.json).toMatchObject({ status: 'Requested', version: 1 });
+      const tenantId = reply.json.tenant_id as string;
+      // The detail the administrator polls shows the tenant as Requested with the run of attempt 1.
+      const detail = await call('GET', `/system/tenants/${tenantId}`, {});
+      expect(detail.status).toBe(200);
+      expect(detail.json).toMatchObject({ status: 'Requested', code: 'minh-ha' });
+      expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and action = 'tenant.requested' and outcome = 'SUCCESS'", [tenantId])).toBe(1);
+      expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.tenant.requested.v1'", [tenantId])).toBe(1);
+      // The negative control: a check that wants the tenant Active straight after the request must fail on this answer.
+      expect(() => expect(reply.json).toMatchObject({ status: 'Active' })).toThrow();
+    });
+
+    it('UAT-AC147 the same request again with the same key answers 202 with the same tenant, the same code under another key is 409 TENANT_CODE_TAKEN, and there is one tenant, one run and one event that starts the saga', async () => {
+      const payload = body({ code: 'minh-ha-dup', platform_subdomain: 'minhha-dup' });
+      const key = `key-${randomUUID()}`;
+      const first = await request(payload, { key });
+      expect(first.status).toBe(202);
+      const replay = await request(payload, { key });
+      expect(replay.status).toBe(202);
+      expect(replay.json.tenant_id).toBe(first.json.tenant_id);
+      expect(replay.headers.get('idempotency-replayed')).toBe('true');
+      const taken = await request(payload, { key: `key-${randomUUID()}` });
+      expect([taken.status, taken.json.code]).toEqual([409, 'TENANT_CODE_TAKEN']);
+      expect(await harness.count('select count(*) as n from machvon.tenant where code = $1', ['minh-ha-dup'])).toBe(1);
+      const tenantId = first.json.tenant_id as string;
+      expect(await harness.count('select count(*) as n from machvon.tenant_provisioning_run where tenant_id = $1', [tenantId])).toBe(1);
+      expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.tenant.requested.v1'", [tenantId])).toBe(1);
+      // The negative control: a check that wants the repeated code accepted must fail on the second answer.
+      expect(() => expect(taken.status).toBe(202)).toThrow();
+    });
+
     it('answers 409 TENANT_CODE_TAKEN for the same code under another key and creates no second tenant (AC-ST-SAS-001-1)', async () => {
       const payload = body();
       await request(payload);
@@ -236,6 +271,35 @@ describe('control-plane tenant registry over HTTP (ST-SAS-001)', () => {
       expect(await harness.count('select count(*) as n from machvon.tenant_provisioning_run where tenant_id = $1 and attempt = 2', [tenantId])).toBe(1);
       expect(await harness.count("select count(*) as n from machvon.outbox_event where tenant_id = $1 and type = 'sas.tenant.requested.v1' and (payload->>'attempt')::int = 2", [tenantId])).toBe(1);
       expect(await harness.count("select count(*) as n from machvon.audit_event where tenant_id = $1 and action = 'tenant.provisioning_retry' and reason is not null", [tenantId])).toBe(1);
+    });
+
+    it('UAT-PLAN-47 the timeline of a run that failed at the third of the five infrastructure steps lists every step with its state, the tries and the error code of the failed one, and the retry resumes at that step only', async () => {
+      const created = await harness.request({ platformSubdomain: 'plan-47' });
+      const down = new FaultyPorts();
+      down.failAlways('storage.ensurePrefix');
+      expect(await new ProvisioningSaga(harness.registry, down, { delay: () => Promise.resolve() }).run(created.tenantId, 1)).toBe('Failed');
+      const timeline = async (): Promise<Array<{ step: string; status: string; attempts: number; error_code?: string }>> => {
+        const detail = await call('GET', `/system/tenants/${created.tenantId}`, { roles: ['PlatformOperator'] });
+        return (detail.json.provisioning as { steps: Array<{ step: string; status: string; attempts: number; error_code?: string }> }).steps;
+      };
+      const failed = await timeline();
+      expect(failed.slice(0, 5).map((entry) => [entry.step, entry.status])).toEqual([['IDP_ORG', 'DONE'], ['DNS_SUBDOMAIN', 'DONE'], ['STORAGE_PREFIX', 'FAILED'], ['DB_PLACEMENT', 'PENDING'], ['RLS_SEED', 'PENDING']]);
+      expect(failed[2]).toMatchObject({ attempts: 4, error_code: 'PORT_UNAVAILABLE' });
+      // The retry: attempt 2 of the run, started from the version the operator read.
+      const version = (await harness.registry.getTenant(created.tenantId))?.version ?? 0;
+      const retried = await retry(created.tenantId, { ifMatch: `"${version}"` });
+      expect(retried.status).toBe(202);
+      const healed = new FaultyPorts();
+      expect(await new ProvisioningSaga(harness.registry, healed, { delay: () => Promise.resolve() }).run(created.tenantId, 2)).toBe('Completed');
+      // Steps 1 and 2 are not repeated; the run goes on from step 3.
+      expect(healed.callsTo('idp.ensureOrganization')).toBe(0);
+      expect(healed.callsTo('dns.ensureRecord')).toBe(0);
+      expect(healed.callsTo('storage.ensurePrefix')).toBe(1);
+      const second = await harness.registry.loadRun(created.tenantId, 2);
+      expect(PROVISIONING_STEPS.slice(0, 5).map((step) => [step, second?.steps[step].status])).toEqual([['IDP_ORG', 'DONE'], ['DNS_SUBDOMAIN', 'DONE'], ['STORAGE_PREFIX', 'DONE'], ['DB_PLACEMENT', 'DONE'], ['RLS_SEED', 'DONE']]);
+      expect(second?.steps.STORAGE_PREFIX.attempts).toBe(1);
+      // The negative control: a check that wants the retry to have started over must fail on the calls of the identity provider.
+      expect(() => expect(healed.callsTo('idp.ensureOrganization')).toBe(1)).toThrow();
     });
 
     it('answers 428 without If-Match, 409 VERSION_CONFLICT with the current version, 409 TENANT_STATE_INVALID for a tenant that is not Failed and 404 for an unknown tenant', async () => {

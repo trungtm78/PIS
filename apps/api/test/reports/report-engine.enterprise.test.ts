@@ -107,7 +107,7 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     await harness.stop();
   }, 60_000);
 
-  it('lists the six demo forms with their mark, official acceptance pending, and not issuable while demo forms are off', async () => {
+  it('UAT-RPT-PX-01: lists the six demo forms with their mark, official acceptance pending, and not issuable while demo forms are off', async () => {
     delete process.env.DEMO_FORMS;
     const reply = await call('GET', '/report-engine/catalogue', { member: SENDER });
     expect(reply.status).toBe(200);
@@ -166,7 +166,7 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     });
   });
 
-  it('generates each of the six forms while demo forms are on: the mark is in the print header and footer, the properties and the first cell, and the Word narrative carries it too', async () => {
+  it('UAT-RPT-PX-01: generates each of the six forms while demo forms are on: the mark is in the print header and footer, the properties and the first cell, and the Word narrative carries it too', async () => {
     process.env.DEMO_FORMS = 'true';
     for (const entry of REPORT_FORM_CATALOGUE) {
       const made = await generate(entry.code);
@@ -195,7 +195,7 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     }
   });
 
-  it('AC-ST-RPT-001-3 / UAT-RPT-003: issues a demo copy with its mark, never counts it as accepted, delivers it, and refuses the receiver acceptance of it, in the database as well', async () => {
+  it('UAT-RPT-PX-01 / AC-ST-RPT-001-3 / UAT-RPT-003: issues a demo copy with its mark, never counts it as accepted, delivers it, and refuses the receiver acceptance of it, in the database as well', async () => {
     process.env.DEMO_FORMS = 'true';
     const draftId = await approvedDraft('HPM-MONTHLY');
     const issued = await step(APPROVER, draftId, 3, 'issue');

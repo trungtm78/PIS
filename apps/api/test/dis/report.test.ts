@@ -300,6 +300,40 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
       expect(await create(draft(projectId, period, planId))).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID', report_id: idOf(first) } });
     });
 
+    it('UAT-AC09: a weekly report stays on the plan version it was made on: when a revision supersedes that plan version the report still reads 5,000,000,000 allocated and names revision 1, while the next report takes the new revision', async () => {
+      const { projectId, planId } = await seedProject();
+      // The plan version of the week gave the project 5,000,000,000 (the fixture's 500,000,000 raised to the figure of the case).
+      await seedReplica([['update machvon.allocation_line set amount_vnd = 5000000000 where plan_version_id = $1', [planId]]]);
+      const weekOfReport = week();
+      const made = await create(draft(projectId, weekOfReport, planId));
+      expect(made.status).toBe(200);
+      expect((await read(idOf(made))).json).toMatchObject({ plan_version: { id: planId, revision: 1, status: 'PUBLISHED' }, totals: { allocated_vnd: '5000000000' } });
+
+      // Revision 2 of the plan is published with 4,200,000,000 and revision 1 is SUPERSEDED.
+      const revisionTwo = randomUUID();
+      await seedReplica([
+        ["update machvon.plan_version set status = 'SUPERSEDED' where id = $1", [planId]],
+        [`insert into machvon.plan_version (tenant_id, id, project_id, fiscal_year, revision, decision_id, status, effective_at) values ($1, $2, $3, 2027, 2, $4, 'PUBLISHED', timestamptz '2027-01-05T01:00:00Z')`, [TENANT_A, revisionTwo, projectId, DECISION]],
+        [
+          `insert into machvon.allocation_line (tenant_id, id, plan_version_id, fund_source_version_id, bucket, source_year, amount_vnd, ctmtqg_subset_vnd, project_id, budget_level)
+           values ($1, gen_random_uuid(), $2, $3, 'CURRENT_YEAR', 2027, 4200000000, 0, $4, 'CENTRAL')`,
+          [TENANT_A, revisionTwo, FUND_SOURCE, projectId],
+        ],
+      ]);
+      // The report of the week, opened again: the plan version it captured, with its 5,000,000,000, although that version is now SUPERSEDED.
+      const again = await read(idOf(made));
+      expect(again.status).toBe(200);
+      expect(again.json).toMatchObject({ plan_version: { id: planId, revision: 1, status: 'SUPERSEDED' }, totals: { allocated_vnd: '5000000000' } });
+      // A later week takes the revision in force then: 4,200,000,000.
+      const body = draft(projectId, week(), planId);
+      delete body.plan_version_id;
+      const next = await create(body);
+      expect(next.status).toBe(200);
+      expect((await read(idOf(next))).json).toMatchObject({ plan_version: { id: revisionTwo, revision: 2 }, totals: { allocated_vnd: '4200000000' } });
+      // A wrong expectation makes the check fail: the report of the week did not move to the 4,200,000,000.
+      expect((again.json as { totals: { allocated_vnd: string } }).totals.allocated_vnd).not.toBe('4200000000');
+    });
+
     it('finds the plan version itself when the request names none: the one in force at the end of the period is captured with the draft, and a client operation sent again finds the same report', async () => {
       const { projectId, planId } = await seedProject();
       const period = week();

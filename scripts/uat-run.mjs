@@ -50,7 +50,7 @@ export function testsOfRun(lines, root = REPO_ROOT) {
   }
   return [...last.values()].map((line) => {
     const mine =
-      line.suite === 'jest'
+      line.suite === 'jest' || line.suite === 'vitest' || line.suite === 'dart'
         ? requests.filter((request) => request.file !== '' && slash(request.file) === slash(line.file) && request.test === line.name)
         : requests.filter((request) => request.file === '' && request.at >= line.at && request.at <= (line.endedAt ?? line.at));
     return {

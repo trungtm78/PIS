@@ -364,7 +364,7 @@ describe('quality rules, runs and scorecards over HTTP (ST-DGV-002)', () => {
       expect(runDetail.json).toMatchObject({ id: idOf(requested), certified_blocked: true, hard_fail: true, snapshot_id: snap.id });
     });
 
-    it('shows NOT_ASSESSED with a null score for a dataset with no run, STALE with its age for an old run, and the executive average leaves out the unassessed dataset (AC-ST-DGV-002-2)', async () => {
+    it('UAT-AC486: shows NOT_ASSESSED with a null score for a dataset with no run, STALE with its age for an old run, and the executive average leaves out the unassessed dataset (AC-ST-DGV-002-2)', async () => {
       const domain = `AC2${randomUUID().slice(0, 5).toUpperCase()}`;
       const never = await newWorld({ domain });
       const stale = await newWorld({ domain });

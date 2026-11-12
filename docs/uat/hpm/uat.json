@@ -91,11 +91,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-hpm.uat.test.ts"
       },
       "module": "HPM"
     },
@@ -231,11 +231,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-hpm.uat.test.ts"
       },
       "module": "HPM"
     },
@@ -975,11 +975,11 @@
         "ST-HPM-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần kỳ mở lại thật của DIS (cổng HPM_PERIOD_REOPEN); jest tích hợp dùng bản giả của cổng, UAT cần chạy trên bản đã gộp có DIS thật"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-hpm.uat.test.ts"
       },
       "module": "HPM"
     },
@@ -1211,11 +1211,11 @@
         "ST-HPM-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ khách cung cấp giao diện kỹ thuật HPM (PX-03); không thể chạy trước khi có tài liệu"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-hpm.uat.test.ts"
       },
       "module": "HPM"
     },

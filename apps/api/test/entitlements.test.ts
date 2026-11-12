@@ -280,4 +280,33 @@ describe('entitlements through the API (ST-SAS-002)', () => {
     expect(((await refused.json()) as { code: string }).code).toBe('RATE_LIMIT');
     expect((await hit(TENANT_B)).status).toBe(200);
   });
+
+  it('UAT-PLAN-46 a change of the plan records entitlement version 3 and its sas.entitlement.changed.v1 event in one transaction, the cache entry of the tenant is cleared once the event is consumed, and /me/entitlements gives the new hash that the clients holding the old one are told about', async () => {
+    const heldBefore = await call('GET', '/me/entitlements');
+    expect(cache.keys().filter((key) => key.includes(TENANT_A))).toHaveLength(1);
+    const pushedBefore = pushed.length;
+    const changed = STANDARD_FEATURES.map((entry) => (entry.featureCode === 'member.invite' ? { ...entry, limitValue: 5 } : entry));
+    const next = await record(TENANT_A, changed, 'OVERRIDE');
+    expect(next.hash).not.toBe(heldBefore.json.entitlements_hash);
+    // The version and the event are written by one transaction: the same transaction id on both rows.
+    const [pair] = await harness.owner<{ version_tx: string; event_tx: string }>(TENANT_A, [
+      [
+        `select v.xmin::text as version_tx, e.xmin::text as event_tx
+           from machvon.entitlement_version v, machvon.outbox_event e
+          where v.version_no = $1 and e.type = 'sas.entitlement.changed.v1' and (e.payload->>'version_no')::int = $1`,
+        [next.versionNo],
+      ],
+    ]);
+    expect(pair?.version_tx).toBeDefined();
+    expect(pair?.event_tx).toBe(pair?.version_tx);
+    // The event is consumed: the cache entry of the tenant is gone (the cache of the other tenant is left alone) and the clients are told the new hash.
+    expect(await consumer.handle(await deliveryOf(TENANT_A, next.versionNo))).toBe('processed');
+    expect(cache.keys().filter((key) => key.includes(TENANT_A))).toHaveLength(0);
+    expect(pushed.slice(pushedBefore)).toEqual([[TENANT_A, next.hash]]);
+    const after = await call('GET', '/me/entitlements');
+    expect(after.json).toMatchObject({ version_no: next.versionNo, entitlements_hash: next.hash });
+    expect(after.json.entitlements_hash).not.toBe(heldBefore.json.entitlements_hash);
+    // The negative control: a check that wants the old hash after the change must fail on this answer.
+    expect(() => expect(after.json.entitlements_hash).toBe(heldBefore.json.entitlements_hash)).toThrow();
+  });
 });

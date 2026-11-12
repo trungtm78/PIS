@@ -1777,7 +1777,14 @@
       ],
       "design_evidence": "Bản ghi rule_version_id + output gate",
       "design_type": "integration",
-      "module": "NFR"
+      "module": "NFR",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Đề nghị thanh toán không gắn phiên bản quy tắc thu hồi tạm ứng (pay-claim-store/pay-ledger-store không lưu rule_version_id; chỉ hạn mức tạm ứng gắn cap_rule_version_id), nên bước mở lại PAY-REQ-A-0003 và xem rule_version_id không chứng minh được. Chọn quy tắc theo ngày và cổng CXN đã có test riêng (packages/kernel/test/rule-resolver.test.ts, scripts/cxn-gate.test.mjs)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-NFR-LEGAL-03",
@@ -2011,9 +2018,14 @@
       "design_type": "performance",
       "tags": [
         "performance",
-        "budget-not-set"
+        "budget-not-set",
+        "manual"
       ],
-      "module": "NFR"
+      "module": "NFR",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần staging nạp dữ liệu synthetic theo mô hình BRD, công cụ tải chạy từ cùng vùng, 5.000 người dùng ảo (ramp 30 phút, giữ 60 phút): không chạy được trong tiến trình và ngân sách chưa được khách đặt (tag budget-not-set). Test scope-performance.test.ts gắn mã này đo quyết định của PDP chứ không phải API đọc, nên không chứng minh ca."
+      }
     },
     {
       "tc_id": "TC-UAT-NFR-PERFORMANCE-02",
@@ -2087,9 +2099,14 @@
       "design_type": "performance/integration",
       "tags": [
         "performance",
-        "budget-not-set"
+        "budget-not-set",
+        "automated"
       ],
-      "module": "NFR"
+      "module": "NFR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/bi/bi-query-performance.test.ts"
+      }
     },
     {
       "tc_id": "TC-UAT-NFR-PERFORMANCE-04",
@@ -2236,7 +2253,14 @@
       ],
       "design_evidence": "Output dry-run + biên bản + truy vấn dữ liệu",
       "design_type": "integration",
-      "module": "NFR"
+      "module": "NFR",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Job lưu giữ chỉ có nguồn lớp project_dossier và audit_event (retention-sources.ts): không có lớp nhật ký hội thoại OMNI và không có chế độ dry-run hay biên bản số lượng, nên không thể liệt kê/ẩn danh 3 hội thoại 2024."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-NFR-RETENTION-02",
@@ -2270,7 +2294,14 @@
       ],
       "design_evidence": "Biên bản job + audit hold",
       "design_type": "integration",
-      "module": "NFR"
+      "module": "NFR",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Phụ thuộc lớp hội thoại OMNI của job lưu giữ chưa tồn tại (xem NFR-RETENTION-01); ngoài ra gỡ hold bởi chính người đặt trả 403 SELF_APPROVAL_DENIED chứ không phải SCOPE_DENIED như ca ghi (apps/api/test/legal-holds.test.ts)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-NFR-RETENTION-03",

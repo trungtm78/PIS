@@ -10,7 +10,7 @@ import { disagreements, writeAll } from './three-writers';
 const ISSUED_AT = new Date(Date.UTC(2026, 10, 8, 0, 0, 0));
 
 describe('the weekly report of the public edition in three files', () => {
-  it('agrees across the workbook and the PDF, and the header words are written by the grid (WRITE)', async () => {
+  it('UAT-PLAN-3410: agrees across the workbook and the PDF, and the header words are written by the grid (WRITE)', async () => {
     const data: ReportFillData = {
       period: { kind: 'AS_OF', year: 2026, day: '2026-11-08' },
       meta: { ORG_NAME: 'Organisation', SNAPSHOT_LINE: 'Snapshot line' },

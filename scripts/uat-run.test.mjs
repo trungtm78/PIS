@@ -34,6 +34,15 @@ test('a Jest test gets the requests it made, matched by its file and its name; a
   ]);
 });
 
+test('a Vitest or a Flutter test is a unit test like a Jest one: it gets no request of the browser stack', () => {
+  const lines = [
+    request('r-3', '', '', { at: '2026-11-04T10:00:02.000Z' }),
+    result('vitest', join(ROOT, 'apps', 'web', 'src', 'a.test.tsx'), 'screen UAT-AC01', 'passed', { endedAt: '2026-11-04T10:00:03.000Z' }),
+    result('dart', join(ROOT, 'apps', 'mobile', 'test', 'a_test.dart'), 'phone UAT-AC02', 'passed', { endedAt: '2026-11-04T10:00:03.000Z' }),
+  ];
+  assert.deepEqual(testsOfRun(lines, ROOT).map((item) => [item.suite, item.file, item.requests]), [['vitest', 'apps/web/src/a.test.tsx', []], ['dart', 'apps/mobile/test/a_test.dart', []]]);
+});
+
 test('a test that ran again keeps its last attempt', () => {
   const lines = [
     result('playwright', '/r/e2e/b.spec.ts', 'flow UAT-AC02', 'failed', { retry: 0 }),
