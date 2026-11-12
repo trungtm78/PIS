@@ -5,7 +5,7 @@ import { PrjBaselineStore } from './prj-baseline-store.ts';
 import { dateOf } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
 import { logWorkflow, publishSchedule, resultHashOf, syncMilestones } from './pwf-publish.ts';
-import { DEFAULT_ASSIGNMENT_REASON, TASK_COLUMNS, baselineOfRows, earliestYear, ownTaskDefinition, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
+import { TASK_COLUMNS, baselineOfRows, earliestYear, ownTaskDefinition, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow } from './pwf-schedule-support.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -199,10 +199,11 @@ export class PwfTaskStore {
     const awaiting = definition.approverRole !== null;
     const status = awaiting ? 'AWAITING_APPROVAL' : 'DONE';
     await this.update(tx, task, { status, actual_finish: finish, ...(actualVnd === null ? {} : { actual_vnd: actualVnd }), completion_requested_by: request.actor, completion_requested_at: new Date().toISOString() }, request.actor);
+    let version = task.version + 1;
     if (waiver !== null) await tx.query(`update machvon.project_task_exception set status = 'USED', version = version + 1 where id = $1::uuid`, [waiver.id]);
     await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: awaiting ? 'COMPLETE_REQUESTED' : 'COMPLETED', actor: request.actor, subject: { task_code: task.code, actual_finish: finish, waived: waiver !== null } });
-    if (!awaiting) await this.afterDone(tx, locked, request.actor, request.today);
-    return this.result(locked, 'IN_PROGRESS', status, task.version + 1, { actual_finish: finish, waived: waiver !== null });
+    if (!awaiting) version = await this.afterDone(tx, locked, request.actor, request.today);
+    return this.result(locked, 'IN_PROGRESS', status, version, { actual_finish: finish, waived: waiver !== null });
   }
 
   async approveCompletion(tx: TenantTx, request: TaskCommand & { note?: string | undefined }): Promise<TaskResult> {
@@ -213,8 +214,8 @@ export class PwfTaskStore {
     await this.assertNotMaker(tx, task, request.actor);
     await this.update(tx, task, { status: 'DONE', approved_by: request.actor, approved_at: new Date().toISOString() }, request.actor);
     await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: 'APPROVED', actor: request.actor, reason: request.note ?? null, subject: { task_code: task.code } });
-    await this.afterDone(tx, locked, request.actor, request.today);
-    return this.result(locked, 'AWAITING_APPROVAL', 'DONE', task.version + 1, {});
+    const version = await this.afterDone(tx, locked, request.actor, request.today);
+    return this.result(locked, 'AWAITING_APPROVAL', 'DONE', version, {});
   }
 
   async returnTask(tx: TenantTx, request: TaskCommand & { reason: string }): Promise<TaskResult> {
@@ -290,7 +291,8 @@ export class PwfTaskStore {
       await refreshSchedule(tx, locked.workflow, task.projectId, request.actor, request.today, this.baseline);
     }
     const changed = status !== task.status;
-    return { ...this.result(locked, task.status, status, changed ? task.version + 1 : task.version, { exception_id: id, exception_kind: held.kind, decision: request.decision }), exceptionId: id, exceptionKind: held.kind, exceptionStatus: approve ? 'APPROVED' : 'REJECTED' };
+    const version = status === 'CANCELLED' ? await this.currentVersion(tx, task.id) : changed ? task.version + 1 : task.version;
+    return { ...this.result(locked, task.status, status, version, { exception_id: id, exception_kind: held.kind, decision: request.decision }), exceptionId: id, exceptionKind: held.kind, exceptionStatus: approve ? 'APPROVED' : 'REJECTED' };
   }
 
   async resume(tx: TenantTx, request: TaskCommand): Promise<TaskResult> {
@@ -321,18 +323,18 @@ export class PwfTaskStore {
     const reason = textOf(input.reason, 'reason', 5, 500);
     const member = await tx.query<{ id: string }>('select id from machvon.membership where id = $1::uuid', [membershipId]);
     if (member[0] === undefined) throw new DomainError('PWF_ASSIGNMENT_INVALID', 422, 'membership_id');
-    // The line that the workflow wrote for the leader in charge is handed over by the next person of the role: its open period ends the day before (the ledger closes a period, it never edits one).
-    if (input.role === 'RESPONSIBLE') {
-      await tx.query(
-        `update machvon.project_task_assignment set valid_to = $2::date - 1 where task_id = $1::uuid and role = 'RESPONSIBLE' and valid_to is null and reason = $3 and valid_from < $2::date and membership_id <> $4::uuid`,
-        [task.id, from, DEFAULT_ASSIGNMENT_REASON, membershipId],
+    const overlapping = (): Promise<Array<{ valid_from: string; valid_to: string | null; share_pct: number }>> =>
+      tx.query<{ valid_from: string; valid_to: string | null; share_pct: number }>(
+        `select valid_from::text as valid_from, valid_to::text as valid_to, share_pct from machvon.project_task_assignment
+          where task_id = $1::uuid and role = $2 and daterange(valid_from, valid_to, '[]') && daterange($3::date, $4::date, '[]')`,
+        [task.id, input.role, from, to],
       );
+    let others = await overlapping();
+    if (peakShare(others, { from, to, share: input.sharePct }) > 100 && input.role === 'RESPONSIBLE') {
+      // A handover: the people who hold the task without an end day, from before this line starts, hand it over the day before (the ledger closes their period, it never edits one); the shares are judged again.
+      await tx.query(`update machvon.project_task_assignment set valid_to = $2::date - 1 where task_id = $1::uuid and role = 'RESPONSIBLE' and valid_to is null and valid_from < $2::date and membership_id <> $3::uuid`, [task.id, from, membershipId]);
+      others = await overlapping();
     }
-    const others = await tx.query<{ valid_from: string; valid_to: string | null; share_pct: number }>(
-      `select valid_from::text as valid_from, valid_to::text as valid_to, share_pct from machvon.project_task_assignment
-        where task_id = $1::uuid and role = $2 and daterange(valid_from, valid_to, '[]') && daterange($3::date, $4::date, '[]')`,
-      [task.id, input.role, from, to],
-    );
     if (peakShare(others, { from, to, share: input.sharePct }) > 100) throw new DomainError('PWF_ASSIGNMENT_INVALID', 422, 'share_pct', { extensions: { reason: 'SHARE_OVER_100' } });
     const id = randomUUID();
     try {
@@ -469,8 +471,15 @@ export class PwfTaskStore {
   }
 
   /** A task that is done closes its milestone and moves the schedule (BR-PWF-06): the days of what is left are computed again from the progress, and a new version is published when anything moved. */
-  private async afterDone(tx: TenantTx, locked: Locked, actor: string, today: string): Promise<void> {
+  private async afterDone(tx: TenantTx, locked: Locked, actor: string, today: string): Promise<number> {
     await refreshSchedule(tx, locked.workflow, locked.task.projectId, actor, today, this.baseline);
+    return this.currentVersion(tx, locked.task.id);
+  }
+
+  /** The version of the task as it is now, after a schedule that was published has written its days on it. */
+  private async currentVersion(tx: TenantTx, taskId: string): Promise<number> {
+    const rows = await tx.query<{ version: number }>('select version from machvon.project_task where id = $1::uuid', [taskId]);
+    return Number((rows[0] as { version: number }).version);
   }
 }
 

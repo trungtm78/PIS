@@ -68,13 +68,13 @@ describe('PWF-06: what if the start day moves', () => {
     expect(h.command).not.toHaveBeenCalled();
   });
 
-  it('proposes with the schedule version as If-Match and shows before and after in working days, float, critical path and the variance against the first baseline', async () => {
+  it('proposes with the version of the workflow as If-Match and shows before and after in working days, float, critical path and the variance against the first baseline', async () => {
     const h = open();
     const result = await propose();
     expect(h.command.mock.calls[0]?.[0]).toBe('proposeProjectReschedule');
     const input = h.command.mock.calls[0]?.[1] as { path: unknown; body: unknown; ifMatchVersion: number };
     expect(input.path).toEqual({ project_id: PROJECT_ID });
-    expect(input.ifMatchVersion).toBe(3);
+    expect(input.ifMatchVersion).toBe(4);
     expect(input.body).toEqual({ planned_start_date: '2027-01-04', reason: REASON });
     expect(within(result).getByTestId('finish-shift').textContent).toContain(text('pwf.resched.result.shiftDays.text', { shift: '+10' }));
     const t1 = within(result).getByTestId('change-T1');
@@ -157,7 +157,7 @@ describe('PWF-06: the decision of a second person', () => {
     expect(h.command.mock.calls[1]?.[0]).toBe('decideProjectReschedule');
     const input = h.command.mock.calls[1]?.[1] as { path: unknown; body: unknown; ifMatchVersion: number };
     expect(input.path).toEqual({ id: PROPOSAL_ID });
-    expect(input.ifMatchVersion).toBe(3);
+    expect(input.ifMatchVersion).toBe(4);
     expect(input.body).toEqual({ decision: 'APPROVE' });
     expect((await screen.findByTestId('decided')).textContent).toContain(text('pwf.resched.decided.approved.notice'));
     expect(screen.queryByTestId('decision-panel')).toBeNull();
@@ -207,7 +207,7 @@ describe('PWF-06: the decision of a second person', () => {
     await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
     const input = h.command.mock.calls[0]?.[1] as { path: unknown; ifMatchVersion: number };
     expect(input.path).toEqual({ id: PROPOSAL_ID });
-    expect(input.ifMatchVersion).toBe(3);
+    expect(input.ifMatchVersion).toBe(4);
   });
 
   it('shows no decision to a person who may only propose, and no form to a person who may only decide', async () => {

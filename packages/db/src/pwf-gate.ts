@@ -74,7 +74,8 @@ export class SqlProjectWorkflowGate implements ProjectWorkflowGatePort {
       code: row.task_code,
       status: row.status === 'DONE' || row.status === 'CANCELLED' || row.status === 'NOT_STARTED' ? row.status : 'IN_PROGRESS',
       completionApproved: !row.tracked || row.approver_role === null || row.approved_by !== null,
-      waived: row.waived,
+      // A task that an approved override of the project removed stays a node of zero length: it holds no gate.
+      waived: row.waived || row.excluded,
       cancelApproved: row.cancelled_by !== null,
     }));
     const verdict = pwfWorkflow.gateFor(template, target, workflow.facts, states);

@@ -110,7 +110,7 @@ function ReschedulePanel({ projectId, workflow, schedule }: PanelProps) {
     setAttempted(true);
     if (hasFormErrors(validateForm(form))) return;
     try {
-      const preview = await propose.mutateAsync({ id: projectId, version: workflow.schedule_version, body: proposeBody(form) });
+      const preview = await propose.mutateAsync({ id: projectId, version: workflow.version, body: proposeBody(form) });
       setHeld(heldFromPreview(preview));
       setDecided(undefined);
       setProblem(undefined);

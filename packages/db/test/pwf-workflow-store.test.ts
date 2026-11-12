@@ -451,6 +451,9 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await lines()).map((one) => [one.membership_id, one.valid_to])).toEqual([[memberId(OTHER), null]]);
       await assign(a.id as string, WORKER, 'RESPONSIBLE', { validFrom: TODAY });
       expect((await lines()).map((one) => [one.membership_id, one.valid_to === null])).toEqual([[memberId(OTHER), false], [memberId(WORKER), true]]);
+      // A line that a manager wrote is handed over in the same way: the next person closes its open period the day before.
+      await assign(a.id as string, CHECKER, 'RESPONSIBLE', { validFrom: `${YEAR + 1}-06-01` });
+      expect((await lines()).map((one) => [one.membership_id, one.valid_to])).toEqual([[memberId(OTHER), expect.any(String)], [memberId(WORKER), `${YEAR + 1}-05-31`], [memberId(CHECKER), null]]);
       // The person who held it before is no longer the one who works on it.
       expect(await refusal(begin(wf.id, 'TA', OTHER))).toMatchObject({ code: 'SCOPE_DENIED' });
       expect((await begin(wf.id, 'TA', WORKER)).status).toBe('IN_PROGRESS');
@@ -647,8 +650,20 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       const results = await Promise.allSettled([finish(wf.id, 'OWN_BB'), finish(wf.id, 'OWN_CC')]);
       expect(results.map((one) => one.status)).toEqual(['fulfilled', 'fulfilled']);
       expect((await taskOf(wf.id, 'OWN_BB')).status).toBe('DONE');
+      // The answer carries the version the task has after the schedule it published wrote its days on it.
+      for (const [code, result] of [['OWN_BB', results[0]], ['OWN_CC', results[1]]] as const) expect((result as PromiseFulfilledResult<{ version: number }>).value.version).toBe(Number((await taskOf(wf.id, code)).version));
       const versions = await owner<{ version: number }>('select version from machvon.project_schedule_version where workflow_id = $1::uuid order by version', [wf.id]);
       expect(versions.map((one) => one.version)).toEqual(versions.map((_, index) => index + 1));
+    });
+
+    it('does not keep a gate closed for a required task that an approved override removed', async () => {
+      const p = await project();
+      const wf = await start(p.id);
+      const before = await as((tx) => gate.assess(tx, p.id, 'completeProject'));
+      expect(before).toMatchObject({ gated: true, open: false });
+      const proposal = await propose(p.id, wf.version, { overrides: { remove: ['TC'] } });
+      await decide(proposal.id, wf.version, CHECKER);
+      expect(await as((tx) => gate.assess(tx, p.id, 'completeProject'))).toMatchObject({ gated: true, open: true, missing: [] });
     });
 
     it('adds a task of the project and changes a duration through the overrides, written only when the proposal is approved', async () => {
