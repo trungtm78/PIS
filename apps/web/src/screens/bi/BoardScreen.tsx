@@ -16,7 +16,7 @@ import { useDashboard, useDashboards, useDatasetVersions, useDatasetVersionsOf, 
 import type { Metric } from './bi-model';
 import type { Dataset, DatasetVersion } from './dataset-model';
 import type { SignOff } from './dashboard-model';
-import { BOARD_DASHBOARD_PARAM, boardDashboards, boardMetricsOf, datasetIdsOf, pinnedSnapshotOf, publishedVersionOf } from './board-model';
+import { BOARD_DASHBOARD_PARAM, boardDashboards, boardMetricsOf, datasetIdsOf, pinnedSnapshotOf, publishedVersionOf, readsDataset } from './board-model';
 import { queryProblemMessage } from './labels';
 import { WORKBENCH_PATH, describeQueryProblem, formatFigure } from './query-model';
 import { ResultLabels } from './QueryResultView';
@@ -86,7 +86,7 @@ function BoardContent({ route }: ScreenProps) {
         <>
           <KpiStrip label={t('bi.board.strip.label')}>
             {page.map((metric) => (
-              <Tile key={`${metric.id}:${snapshotOf(metric)?.id ?? ''}`} metric={metric} snapshotId={snapshotOf(metric)?.id} dataset={disbursement} />
+              <Tile key={`${metric.id}:${snapshotOf(metric)?.id ?? ''}`} metric={metric} snapshotId={snapshotOf(metric)?.id} dataset={disbursement} elsewhere={!pinned && !readsDataset(metric, disbursement)} />
             ))}
           </KpiStrip>
           {/* A projected board is never unsigned: every page carries the three signatures, or says it has none. */}
@@ -172,7 +172,7 @@ function BoardContent({ route }: ScreenProps) {
           <div data-testid="board">
             <KpiStrip label={t('bi.board.strip.label')}>
               {certified.map((metric) => (
-                <Tile key={`${metric.id}:${snapshotOf(metric)?.id ?? ''}`} metric={metric} snapshotId={snapshotOf(metric)?.id} dataset={disbursement} />
+                <Tile key={`${metric.id}:${snapshotOf(metric)?.id ?? ''}`} metric={metric} snapshotId={snapshotOf(metric)?.id} dataset={disbursement} elsewhere={!pinned && !readsDataset(metric, disbursement)} />
               ))}
             </KpiStrip>
           </div>
@@ -203,13 +203,16 @@ const NO_FIGURE = '—';
 const PRESENT_PAGE = 6;
 
 /** One certified metric: the figure of the snapshot in a KPI tile, and under it the labels every number of BI carries and the way to the workbench. A tile that cannot be given says why and shows a dash, never 0. */
-function Tile({ metric, snapshotId, dataset }: { metric: Metric; snapshotId: string | undefined; dataset: Dataset | undefined }) {
+function Tile({ metric, snapshotId, dataset, elsewhere }: { metric: Metric; snapshotId: string | undefined; dataset: Dataset | undefined; elsewhere: boolean }) {
   const { t, locale } = useTranslation();
-  const tile = useTile(metric.id, snapshotId);
+  // A metric of another dataset is not asked of this snapshot (the API refuses it): nothing is sent, and the tile says why it has no figure here.
+  const tile = useTile(metric.id, elsewhere ? undefined : snapshotId);
   const words = { noData: t('bi.query.noData'), notApplicable: t('bi.query.notApplicable') };
   const problem = tile.error === null ? undefined : describeQueryProblem(tile.error);
   let body: ReactNode;
-  if (snapshotId === undefined) {
+  if (elsewhere) {
+    body = <KpiTile label={metric.code} value={NO_FIGURE} sub={t('bi.board.tile.elsewhere')} />;
+  } else if (snapshotId === undefined) {
     body = <KpiTile label={metric.code} value={NO_FIGURE} sub={t('bi.board.noPeriod')} />;
   } else if (tile.isLoading) {
     body = <KpiTile label={metric.code} value={NO_FIGURE} state="loading" />;

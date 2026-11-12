@@ -1,4 +1,5 @@
 import type { Metric } from './bi-model';
+import type { Dataset } from './dataset-model';
 import type { Dashboard, DashboardVersion } from './dashboard-model';
 
 export const BOARD_PATH = '/bi/bi-02';
@@ -27,6 +28,16 @@ export function boardMetricsOf(version: Pick<DashboardVersion, 'metricVersionIds
     const metric = byId.get(id);
     return metric !== undefined && metric.status === 'CERTIFIED' ? [metric] : [];
   });
+}
+
+/**
+ * Whether a metric belongs to the dataset whose snapshot the board reads. A metric that names its dataset belongs to that one; a metric of the platform (it names none) belongs to the dataset of its own grain.
+ * The API refuses a metric over the snapshot of a dataset that is not its own (422 VALIDATION_FAILED), so the board does not ask: 27 of the 28 certified metrics of the public demo are of other datasets (contracts,
+ * enterprise classes, project EVM). With no dataset to judge by, the server decides.
+ */
+export function readsDataset(metric: Pick<Metric, 'datasetId' | 'grain'>, dataset: Pick<Dataset, 'id' | 'grain'> | undefined): boolean {
+  if (dataset === undefined) return true;
+  return metric.datasetId === null ? metric.grain === dataset.grain : metric.datasetId === dataset.id;
 }
 
 /** The snapshot a version can be read at when it pins its dataset versions: frozen, or since superseded by a newer build (the query store serves both). */
