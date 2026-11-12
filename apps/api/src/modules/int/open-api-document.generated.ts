@@ -2,7 +2,7 @@
 export const OPEN_API_DOCUMENT: Readonly<Record<string, unknown>> = {
   "openapi": "3.1.0",
   "info": {
-    "title": "MACHVON open API",
+    "title": "Public Investment Management System open API",
     "version": "1.0.0",
     "description": "Read-only access for machines. Exchange a client id and secret for a short-lived token at /open/v1/token (OAuth 2 client credentials), then call the operations below with it as a Bearer token. Every call is limited by the rate of the account, needs the scope the operation names, and is written to the access log of the organization. The datasets are read from frozen snapshots and only while the organization has switched them on and their data product is certified."
   },

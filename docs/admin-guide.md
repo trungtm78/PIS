@@ -1,4 +1,4 @@
-# Hướng dẫn quản trị hệ thống MACHVON
+# Hướng dẫn quản trị hệ thống
 
 Tài liệu giao nhận theo yêu cầu TK.02 của hồ sơ kỹ thuật "Phần mềm quản lý ĐTXD" v0.3 (hướng dẫn quản trị), dành cho cán bộ quản trị của Ban CĐS&CNTT và quản trị tổ chức. Tài liệu tổng hợp lại từ các sổ tay vận hành đã có trong kho mã (đường dẫn ghi ở cuối mỗi mục) để người quản trị có một nơi bắt đầu; khi cần từng lệnh chi tiết, mở sổ tay được dẫn.
 

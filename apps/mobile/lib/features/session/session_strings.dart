@@ -1,3 +1,4 @@
+import '../../core/edition/edition_brand.g.dart';
 import '../../core/l10n/string_table.dart';
 
 /// The strings of the sign-in screens: MOB-02 (sign-in), MOB-03 (second factor), MOB-04 (unit and role), MOB-44 (session
@@ -5,8 +6,8 @@ import '../../core/l10n/string_table.dart';
 const StringTable sessionStrings = StringTable(
   vi: <String, String>{
     'mob.signIn.title.text': 'Đăng nhập',
-    'mob.signIn.logo.label': 'Biểu tượng Mạch Vốn',
-    'mob.signIn.tagline.public.text': 'Mạch vốn thông suốt, đầu tư công minh bạch',
+    'mob.signIn.logo.label': kPublicLogoAltVi,
+    'mob.signIn.tagline.public.text': kPublicTaglineVi,
     'mob.signIn.tagline.enterprise.text': 'Vốn đến đúng công trình, việc đúng tiến độ',
     'mob.signIn.body.text': 'Bạn đăng nhập trong trình duyệt của hệ thống. Ứng dụng không bao giờ nhìn thấy mật khẩu của bạn.',
     'mob.signIn.tenant.label': 'Tổ chức',
@@ -16,7 +17,7 @@ const StringTable sessionStrings = StringTable(
     'mob.signIn.unlock.title': 'Mở khóa ứng dụng',
     'mob.signIn.unlock.body': 'Dùng sinh trắc học để mở khóa phiên đã lưu trên máy. Sinh trắc học không thay cho đăng nhập hay chữ ký.',
     'mob.signIn.unlock.action': 'Mở khóa bằng sinh trắc học',
-    'mob.signIn.unlock.reason': 'Mở khóa Hệ thống quản lý đầu tư công',
+    'mob.signIn.unlock.reason': 'Mở khóa $kPublicProductNameVi',
     'mob.signIn.unlock.failed': 'Chưa mở khóa được. Thử lại hoặc đăng nhập bằng SSO.',
     'mob.signIn.cancelled.hint': 'Bạn đã đóng trình duyệt trước khi hoàn tất. Chạm “Đăng nhập bằng SSO” để thử lại.',
     'mob.mfa.title.text': 'Xác thực hai yếu tố',
@@ -46,8 +47,8 @@ const StringTable sessionStrings = StringTable(
   },
   en: <String, String>{
     'mob.signIn.title.text': 'Sign in',
-    'mob.signIn.logo.label': 'Mạch Vốn logo',
-    'mob.signIn.tagline.public.text': 'Capital flowing freely, public investment in the open',
+    'mob.signIn.logo.label': kPublicLogoAltEn,
+    'mob.signIn.tagline.public.text': kPublicTaglineEn,
     'mob.signIn.tagline.enterprise.text': 'Capital to the right site, work on schedule',
     'mob.signIn.body.text': 'You sign in in the system browser. The app never sees your password.',
     'mob.signIn.tenant.label': 'Organisation',
@@ -57,7 +58,7 @@ const StringTable sessionStrings = StringTable(
     'mob.signIn.unlock.title': 'Unlock the app',
     'mob.signIn.unlock.body': 'Use biometrics to unlock the session stored on this phone. Biometrics replace neither sign-in nor a signature.',
     'mob.signIn.unlock.action': 'Unlock with biometrics',
-    'mob.signIn.unlock.reason': 'Unlock the Public Investment Management System',
+    'mob.signIn.unlock.reason': 'Unlock the $kPublicProductNameEn',
     'mob.signIn.unlock.failed': 'Could not unlock. Try again or sign in with SSO.',
     'mob.signIn.cancelled.hint': 'You closed the browser before finishing. Tap “Sign in with SSO” to try again.',
     'mob.mfa.title.text': 'Two-factor authentication',

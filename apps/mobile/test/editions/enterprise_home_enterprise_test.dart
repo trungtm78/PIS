@@ -15,6 +15,7 @@ import 'package:machvon_mobile/core/l10n/string_table.dart';
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/theme/app_theme.dart';
 import 'package:machvon_mobile/core/widgets/brand_logo.dart';
+import 'package:machvon_mobile/editions/enterprise/enterprise_brand.g.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_home.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_home_strings.dart';
 import 'package:machvon_mobile/editions/enterprise/enterprise_profile.dart';
@@ -64,6 +65,13 @@ Future<void> _open(WidgetTester tester, ScriptedServer server, EditionProfile pr
 }
 
 String _today() => vietnamTodayText();
+
+/// The part of an edition overlay that replaces keys of [base]: the test loads only the tables of the sign-in head, and an overlay never adds a key.
+StringTable? _overlayOn(StringTable? overlay, StringTable base) {
+  if (overlay == null) return null;
+  Map<String, String> only(Map<String, String> from, Map<String, String> keys) => <String, String>{for (final MapEntry<String, String> entry in from.entries) if (keys.containsKey(entry.key)) entry.key: entry.value};
+  return StringTable(vi: only(overlay.vi, base.vi), en: only(overlay.en, base.en));
+}
 
 void main() {
   group('TK-MOB-001-5 the enterprise home string table', () {
@@ -237,7 +245,7 @@ void main() {
             locale: const Locale('vi'),
             supportedLocales: const <Locale>[Locale('vi'), Locale('en')],
             localizationsDelegates: <LocalizationsDelegate<Object?>>[
-              AppStringsDelegate(StringCatalogue(<StringTable>[kCoreStrings, sessionStrings, if (profile.homeStrings != null) profile.homeStrings!])),
+              AppStringsDelegate(StringCatalogue(<StringTable>[kCoreStrings, sessionStrings, if (profile.homeStrings != null) profile.homeStrings!], overlay: _overlayOn(profile.overlay, sessionStrings))),
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
@@ -250,7 +258,12 @@ void main() {
     }
 
     testWidgets('the enterprise edition shows Mạch Vốn, what the product is and the tagline; the public edition keeps its tagline alone', (WidgetTester tester) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
       await pumpHeader(tester, kEnterpriseEditionProfile);
+      // The logo is named by the enterprise brand of its manifest, not by the public one.
+      expect(find.bySemanticsLabel(kEnterpriseLogoAltVi), findsOneWidget);
+      expect(find.text(kEnterpriseLauncherNameVi), findsOneWidget);
+      expect(find.text(kEnterpriseTaglineVi), findsOneWidget);
       expect(find.text('Mạch Vốn'), findsOneWidget);
       expect(find.text('Phần mềm quản lý đầu tư xây dựng'), findsOneWidget);
       expect(find.text('Vốn đến đúng công trình, việc đúng tiến độ'), findsOneWidget);
@@ -258,7 +271,9 @@ void main() {
       await pumpHeader(tester, kPublicEditionProfile);
       expect(find.text('Mạch Vốn'), findsNothing);
       expect(find.text('Phần mềm quản lý đầu tư xây dựng'), findsNothing);
-      expect(find.text('Mạch vốn thông suốt, đầu tư công minh bạch'), findsOneWidget);
+      expect(find.bySemanticsLabel(kEnterpriseLogoAltVi), findsNothing);
+      expect(find.text('Vốn thông suốt, đầu tư công minh bạch'), findsOneWidget);
+      semantics.dispose();
     });
   });
 }

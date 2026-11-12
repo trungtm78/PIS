@@ -1,6 +1,6 @@
-# MẠCH VỐN brand
+# Brand of the two editions
 
-The product mark of the platform (code name MACHVON). "Mạch vốn" is the flow of capital: from the plan, through the contract and the payment, to the work.
+The product marks of the platform. The public edition shows no code name: its wordmark is its launcher name (ĐẦU TƯ CÔNG) and its product name is Hệ thống quản lý đầu tư công. The enterprise edition keeps its own identity (wordmark MẠCH VỐN, product name Phần mềm quản lý đầu tư xây dựng). The words are not kept in this folder: each edition manifest says them (`brand` of `packages/kernel/src/edition.ts` and of `packages/edition-enterprise/src/manifest.ts`), `build.mjs` reads them from there, and `node scripts/edition-brand.mjs` holds the phone and the static web files to them.
 
 ## The mark
 
@@ -9,7 +9,8 @@ One master shape for both editions: an **M built from rising bars** over a **gol
 | | Public edition | Enterprise edition |
 |---|---|---|
 | Product | Hệ thống quản lý đầu tư công | Phần mềm quản lý đầu tư xây dựng |
-| Tagline | Mạch vốn thông suốt, đầu tư công minh bạch | Vốn đến đúng công trình, việc đúng tiến độ |
+| Wordmark | ĐẦU TƯ CÔNG | MẠCH VỐN |
+| Tagline | Vốn thông suốt, đầu tư công minh bạch | Vốn đến đúng công trình, việc đúng tiến độ |
 | Tile gradient | `#1B4A5B` to `#0A2029` (flat `#102E3B` in PWA icons) | `#16507A` to `#061826` (flat `#0F3B57`) |
 | Pillars | `#C4D5DC`, `#FFFFFF` | `#B9CFE0`, `#FFFFFF` |
 | Chevron | `#2FB5A8` (teal) | `#27B7CF` (cyan) |

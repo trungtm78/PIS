@@ -20,7 +20,7 @@ const manifestOf = (patch: Partial<EditionManifest> = {}): EditionManifest =>
   defineEditionManifest({
     edition: 'enterprise',
     productName: { vi: 'Sản phẩm thử', en: 'Test product' },
-    brand: { mark: { vi: 'TH', en: 'TP' }, themeColor: '#0F3B57' },
+    brand: { mark: { vi: 'TH', en: 'TP' }, shortName: { vi: 'Thử', en: 'Test' }, launcherName: { vi: 'Thử', en: 'Test' }, logoAlt: { vi: 'Biểu tượng Thử', en: 'Test logo' }, tagline: { vi: 'Khẩu hiệu thử', en: 'Test tagline' }, themeColor: '#0F3B57' },
     modules: ALLOW_ALL,
     screens: ALLOW_ALL,
     menu: ALLOW_ALL,

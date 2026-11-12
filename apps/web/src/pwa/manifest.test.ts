@@ -1,18 +1,19 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { TOKENS } from '@machvon/design-tokens';
+import { PUBLIC_EDITION_MANIFEST, SHORT_NAME_LIMIT } from '@machvon/kernel/src/edition.ts';
 import { PNG } from 'pngjs';
 import { describe, expect, it } from 'vitest';
 import { resolveBrand } from './brand';
 import { CANVAS, iconRgba, iconSvg, markReach } from './icon-art';
 import { ICON_FILES, colorsFromTokens } from './icons-cli';
 import { APP_ID, MANIFEST_ICONS, MANIFEST_PATH, START_URL, buildManifest, shortNameOf } from './manifest';
-import { MANIFEST_DESCRIPTION, MANIFEST_SHORTCUTS, shortNameOfEdition } from './manifest-texts';
+import { FALLBACK_SHORT_NAME, MANIFEST_DESCRIPTION, MANIFEST_SHORTCUTS } from './manifest-texts';
 
 const WEB = join(__dirname, '..', '..');
 const PUBLIC_DIR = join(WEB, 'public');
 const COLORS = { themeColor: TOKENS.color.sidebar as string, backgroundColor: TOKENS.color.background as string };
-const manifest = buildManifest({ name: 'Hệ thống quản lý đầu tư công', shortName: shortNameOfEdition('public'), description: MANIFEST_DESCRIPTION, shortcuts: MANIFEST_SHORTCUTS, colors: COLORS });
+const manifest = buildManifest({ name: 'Hệ thống quản lý đầu tư công', shortName: PUBLIC_EDITION_MANIFEST.brand.shortName.vi, description: MANIFEST_DESCRIPTION, shortcuts: MANIFEST_SHORTCUTS, colors: COLORS });
 
 describe('the web app manifest: installability (YCK.01)', () => {
   it('meets the criteria of the browsers: a name, a start URL inside the scope, standalone display and icons of 192 and 512 px', () => {
@@ -43,9 +44,8 @@ describe('the web app manifest: installability (YCK.01)', () => {
     expect(shortNameOf('Đầu tư công')).toBe('Đầu tư công');
     expect(shortNameOf('Phần mềm quản lý đầu tư xây dựng')).toBe('Phần mềm');
     expect(shortNameOf('Supercalifragilistic')).toBe('Supercalifra');
-    expect(shortNameOfEdition('enterprise').length).toBeLessThanOrEqual(12);
-    expect(shortNameOfEdition('public').length).toBeLessThanOrEqual(12);
-    expect(shortNameOfEdition('shell')).toBe(shortNameOfEdition('public'));
+    expect(PUBLIC_EDITION_MANIFEST.brand.shortName.vi.length).toBeLessThanOrEqual(SHORT_NAME_LIMIT);
+    expect(FALLBACK_SHORT_NAME.length).toBeLessThanOrEqual(SHORT_NAME_LIMIT);
   });
 
   it('is linked from the page with the colour of the sidebar and the icon of the home screen', () => {
@@ -95,9 +95,10 @@ describe('the icons', () => {
 
 describe('the name of the product in the manifest', () => {
   it('is the name of the edition, or the shell brand key when no edition manifest could be loaded', () => {
-    const edition = { edition: 'enterprise', productName: { vi: 'Phần mềm quản lý đầu tư xây dựng' }, brand: { themeColor: '#0F3B57' } };
-    expect(resolveBrand(edition, 'Hệ thống quản lý đầu tư công')).toEqual({ name: 'Phần mềm quản lý đầu tư xây dựng', themeColor: '#0F3B57', from: 'enterprise' });
-    expect(resolveBrand(undefined, 'Hệ thống quản lý đầu tư công')).toEqual({ name: 'Hệ thống quản lý đầu tư công', themeColor: undefined, from: 'shell' });
-    expect(resolveBrand({ ...edition, productName: { vi: '  ' } }, 'Shell').from).toBe('shell');
+    const edition = { edition: 'enterprise', productName: { vi: 'Phần mềm quản lý đầu tư xây dựng' }, brand: { themeColor: '#0F3B57', shortName: { vi: 'Đầu tư XD' } } };
+    expect(resolveBrand(edition, 'Hệ thống quản lý đầu tư công', 'Đầu tư')).toEqual({ name: 'Phần mềm quản lý đầu tư xây dựng', shortName: 'Đầu tư XD', themeColor: '#0F3B57', from: 'enterprise' });
+    expect(resolveBrand(undefined, 'Hệ thống quản lý đầu tư công', 'Đầu tư')).toEqual({ name: 'Hệ thống quản lý đầu tư công', shortName: 'Đầu tư', themeColor: undefined, from: 'shell' });
+    expect(resolveBrand({ ...edition, productName: { vi: '  ' } }, 'Shell', 'Đầu tư').from).toBe('shell');
+    expect(resolveBrand({ ...edition, brand: { ...edition.brand, shortName: { vi: ' ' } } }, 'Shell', 'Đầu tư').shortName).toBe('Đầu tư');
   });
 });

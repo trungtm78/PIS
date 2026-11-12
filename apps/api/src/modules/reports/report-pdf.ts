@@ -4,6 +4,7 @@ import type { PDFFont, PDFPage } from 'pdf-lib';
 import { ENT4B_TEXT, documentSheetOf, periodCode } from '@machvon/kernel';
 import type { DocumentSheet, ReportDocument, SheetCell, SheetRow } from '@machvon/kernel';
 import { broken, fontsOf, wrapped } from '../dis/export-pdf';
+import { documentProducer } from '../../editions/product-identity';
 
 /**
  * The PDF writer of the report engine (ENT-4b, R26). It is the third writer of the one `ReportDocument`: the Excel writer keeps the grid in the template of the customer, the Word writer lays the narrative out, and this one
@@ -115,8 +116,8 @@ export async function reportPdfOf(document: ReportDocument, options: PdfReportOp
   const regular = await pdf.embedFont(fonts.regular, { subset: true });
   const bold = await pdf.embedFont(fonts.bold, { subset: true });
   pdf.setTitle(document.name);
-  pdf.setProducer('MACHVON');
-  pdf.setCreator(options.creator ?? 'MACHVON');
+  pdf.setProducer(documentProducer());
+  pdf.setCreator(options.creator ?? documentProducer());
   pdf.setSubject(`${document.layoutCode} ${document.layoutVersion} ${periodCode(document.period)}`);
   if (document.stamp !== null) pdf.setKeywords([document.stamp]);
   pdf.setCreationDate(options.issuedAt);

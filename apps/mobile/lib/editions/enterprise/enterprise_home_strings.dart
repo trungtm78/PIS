@@ -1,10 +1,11 @@
 import '../../core/l10n/string_table.dart';
+import 'enterprise_brand.g.dart';
 
 /// The words of the enterprise cards on the phone home screens: the period status, the HPM push status and the EBS reconciliation status.
 /// New keys of the edition (the overlay in `enterprise_strings.dart` only replaces keys of the base).
 const StringTable kEnterpriseHomeStrings = StringTable(
   vi: <String, String>{
-    'mob.ent.brand.name': 'Mạch Vốn',
+    'mob.ent.brand.name': kEnterpriseLauncherNameVi,
     'mob.ent.brand.product': 'Phần mềm quản lý đầu tư xây dựng',
     'mob.ent.brand.role': '{organisation}, {role}',
     'mob.ent.card.unavailable': 'Chưa đọc được phần này.',
@@ -28,7 +29,7 @@ const StringTable kEnterpriseHomeStrings = StringTable(
     'mob.ent.ebs.none': 'Không có chênh lệch đang mở.',
   },
   en: <String, String>{
-    'mob.ent.brand.name': 'Mạch Vốn',
+    'mob.ent.brand.name': kEnterpriseLauncherNameEn,
     'mob.ent.brand.product': 'Construction Investment Management Software',
     'mob.ent.brand.role': '{organisation}, {role}',
     'mob.ent.card.unavailable': 'This part could not be read.',

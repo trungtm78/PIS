@@ -23,6 +23,7 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
+import { documentProducer } from '../../editions/product-identity';
 import { holdsOnWholeTenant } from '../adm/tenant-authority';
 import { configuredFormOf } from './configured-forms';
 import { assertCatalogueReceiver } from './report-catalogue';
@@ -36,7 +37,6 @@ import { REPORT_CLOCK } from './tokens';
 const DRAFT_RESOURCE = 'report_draft';
 const ISSUE_RESOURCE = 'report_issue';
 const CLASSIFICATION = 'INTERNAL';
-const CREATOR = 'MACHVON';
 /** Reserved for the adapter of the group's system (ENT-2): a person cannot write that a push happened. */
 const RESERVED_CHANNEL = 'HPM_PUSH';
 
@@ -151,7 +151,7 @@ export class ReportController {
     }
     const xlsxTemplate = await reportStore.templateBytes(tx, layout.templateSha256);
     if (xlsxTemplate === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404, 'template');
-    const rendered = await renderReport({ layout: layout.layout, narrative: layout.narrative, xlsxTemplate, data, creator: CREATOR });
+    const rendered = await renderReport({ layout: layout.layout, narrative: layout.narrative, xlsxTemplate, data, creator: documentProducer() });
 
     const xlsxSha = await reportStore.putOutput(tx, 'XLSX', rendered.xlsx, by);
     const docxSha = rendered.docx === null ? null : await reportStore.putOutput(tx, 'DOCX', rendered.docx, by);

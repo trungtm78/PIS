@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
 import { NARRATIVE_IMPORT_COLUMNS, message } from '@machvon/kernel';
+import { documentProducer } from '../../editions/product-identity';
 
 const FIXED_DATE = new Date(Date.UTC(2026, 10, 9, 0, 0, 0));
 const FONT = 'Times New Roman';
@@ -20,8 +21,8 @@ export interface NarrativeTemplateInput {
  */
 export async function buildNarrativeTemplate(input: NarrativeTemplateInput): Promise<Uint8Array> {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'MACHVON';
-  workbook.lastModifiedBy = 'MACHVON';
+  workbook.creator = documentProducer();
+  workbook.lastModifiedBy = documentProducer();
   workbook.created = FIXED_DATE;
   workbook.modified = FIXED_DATE;
   const sheet = workbook.addWorksheet(message('ent.narrative.template.sheet'), { views: [{ state: 'frozen', ySplit: 1 }] });

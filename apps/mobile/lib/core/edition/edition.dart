@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../l10n/string_table.dart';
-import 'edition_strings.dart';
+import 'edition_brand.g.dart';
 
 /// The product edition of this build (ENT-0, R20): the public investment system or the enterprise construction investment software.
 /// The same code line builds both; `--dart-define=MACHVON_EDITION=enterprise` selects the second, nothing set means public.

@@ -4,6 +4,7 @@ import type { PDFFont, PDFPage } from 'pdf-lib';
 import type { ExportDocument } from '@machvon/kernel';
 import { loadRendererResources } from '../doc/pdf-renderer';
 import type { FontSet } from '../doc/pdf-renderer';
+import { documentProducer } from '../../editions/product-identity';
 
 /** A4 landscape in points, as the pdf-lib sizes round it. */
 const WIDTH = 841.89;
@@ -86,7 +87,7 @@ export async function pdfOf(document: ExportDocument, options: PdfOptions = {}):
   const regular = await pdf.embedFont(fonts.regular, { subset: true });
   const bold = await pdf.embedFont(fonts.bold, { subset: true });
   pdf.setTitle(document.title);
-  pdf.setProducer('MACHVON');
+  pdf.setProducer(documentProducer());
   // The same content gives the same bytes when the caller names the day (a file is told apart by its hash); without it the file carries the time it was made.
   if (stamp !== undefined) {
     pdf.setCreationDate(stamp);

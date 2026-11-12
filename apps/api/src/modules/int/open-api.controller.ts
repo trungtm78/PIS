@@ -3,6 +3,7 @@ import { Body, Controller, Get, HttpCode, Inject, Post, Query, Req, UseGuards } 
 import { ExportDatasetStore, OpenReads } from '@machvon/db';
 import type { OpenPage } from '@machvon/db';
 import { DomainError, OPEN_DATASET_DEFINITIONS, OPEN_DATASETS, asUuid } from '@machvon/kernel';
+import { openApiTitle } from '../../editions/product-identity';
 import { IdentityCommand } from '../../session/identity.guard';
 import { OperationId } from '../../operation-id.decorator';
 import { Public } from '../../public.decorator';
@@ -58,7 +59,8 @@ export class OpenApiController {
   @Public()
   @OperationId('getOpenApiDocument')
   document(): Readonly<Record<string, unknown>> {
-    return OPEN_API_DOCUMENT;
+    // The title names the product of the edition this process serves; the rest is the published document.
+    return { ...OPEN_API_DOCUMENT, info: { ...(OPEN_API_DOCUMENT.info as Record<string, unknown>), title: openApiTitle() } };
   }
 
   @Get('open/v1/projects')

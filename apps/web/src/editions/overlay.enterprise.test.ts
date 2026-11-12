@@ -32,6 +32,14 @@ describe('the enterprise web overlay', () => {
     }
   });
 
+  it('says the logo label and the tagline of the manifest: the enterprise keeps its own identity under the icon and in the logo', () => {
+    const { brand, productName } = enterpriseBundle.manifest;
+    expect((viOverlay as Record<string, string>)['logo.mark.alt']?.replace('{product}', productName.vi)).toBe(brand.logoAlt.vi);
+    expect((enOverlay as Record<string, string>)['logo.mark.alt']?.replace('{product}', productName.en)).toBe(brand.logoAlt.en);
+    expect((vi as Record<string, string>)['logo.tagline.enterprise']).toBe(brand.tagline.vi);
+    expect((en as Record<string, string>)['logo.tagline.enterprise']).toBe(brand.tagline.en);
+  });
+
   it('says the product name of the manifest where the shell and the tab say it', () => {
     expect(viOverlay['shell.brand.name.text']).toBe(enterpriseBundle.manifest.productName.vi);
     expect(viOverlay['shell.app.name.title']).toBe(enterpriseBundle.manifest.productName.vi);

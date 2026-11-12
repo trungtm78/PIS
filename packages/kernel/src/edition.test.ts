@@ -9,6 +9,8 @@ import {
   defineEditionManifest,
   filterAllowed,
   isEdition,
+  launcherNameOf,
+  logoAltOf,
   moduleInEdition,
   moduleInMenu,
   overlayProblems,
@@ -16,13 +18,16 @@ import {
   resolveEdition,
   resolveManifest,
   screenInEdition,
+  shortNameOf,
+  SHORT_NAME_LIMIT,
+  taglineOf,
 } from './edition.ts';
 import type { EditionManifest } from './edition.ts';
 
 const ENTERPRISE_FIXTURE: EditionManifest = defineEditionManifest({
   edition: 'enterprise',
   productName: { vi: 'Sản phẩm thử', en: 'Test product' },
-  brand: { mark: { vi: 'XD', en: 'XD' }, themeColor: '#0A3D62' },
+  brand: { mark: { vi: 'XD', en: 'XD' }, shortName: { vi: 'Thử', en: 'Test' }, launcherName: { vi: 'Thử', en: 'Test' }, logoAlt: { vi: 'Biểu tượng Thử', en: 'Test logo' }, tagline: { vi: 'Khẩu hiệu thử', en: 'Test tagline' }, themeColor: '#0A3D62' },
   modules: { allow: ['ADM', 'CAP', 'PRJ'], deny: ['PRJ'] },
   screens: { allow: '*', deny: ['CAP-02'] },
   menu: { allow: ['ADM'], deny: [] },
@@ -102,6 +107,10 @@ describe('the public manifest', () => {
     expect(PUBLIC_EDITION_MANIFEST.edition).toBe('public');
     expect(PUBLIC_EDITION_MANIFEST.productName).toEqual({ vi: 'Hệ thống quản lý đầu tư công', en: 'Public Investment Management System' });
     expect(PUBLIC_EDITION_MANIFEST.brand.mark).toEqual({ vi: 'ĐT', en: 'PI' });
+    expect(PUBLIC_EDITION_MANIFEST.brand.launcherName).toEqual({ vi: 'Đầu tư công', en: 'Public Investment' });
+    expect(PUBLIC_EDITION_MANIFEST.brand.shortName.vi).toBe('Đầu tư công');
+    expect(PUBLIC_EDITION_MANIFEST.brand.logoAlt.vi).toBe('Biểu tượng Hệ thống quản lý đầu tư công');
+    expect(PUBLIC_EDITION_MANIFEST.brand.logoAlt.en).toBe('Public Investment Management System logo');
     expect(PUBLIC_EDITION_MANIFEST.modules).toEqual({ allow: '*', deny: ['EBS', 'EQP', 'HPM', 'IPF', 'LDR', 'ORG', 'RML'] });
     expect(ENTERPRISE_ONLY_MODULES).toEqual(['EBS', 'EQP', 'HPM', 'IPF', 'LDR', 'ORG', 'RML']);
     expect(PUBLIC_EDITION_MANIFEST.screens).toEqual(ALLOW_ALL);
@@ -156,6 +165,14 @@ describe('what an edition lets through', () => {
     expect(productNameOf(ENTERPRISE_FIXTURE, 'en')).toBe('Test product');
     expect(productNameOf(ENTERPRISE_FIXTURE, 'vi')).toBe('Sản phẩm thử');
     expect(productNameOf(ENTERPRISE_FIXTURE, 'fr')).toBe('Sản phẩm thử');
+    expect(shortNameOf(ENTERPRISE_FIXTURE, 'en')).toBe('Test');
+    expect(shortNameOf(ENTERPRISE_FIXTURE, 'fr')).toBe('Thử');
+    expect(launcherNameOf(ENTERPRISE_FIXTURE, 'en')).toBe('Test');
+    expect(launcherNameOf(ENTERPRISE_FIXTURE, 'vi')).toBe('Thử');
+    expect(logoAltOf(ENTERPRISE_FIXTURE, 'en')).toBe('Test logo');
+    expect(logoAltOf(ENTERPRISE_FIXTURE, 'fr')).toBe('Biểu tượng Thử');
+    expect(taglineOf(ENTERPRISE_FIXTURE, 'en')).toBe('Test tagline');
+    expect(taglineOf(ENTERPRISE_FIXTURE, 'fr')).toBe('Khẩu hiệu thử');
   });
 });
 
@@ -171,11 +188,22 @@ describe('defineEditionManifest', () => {
     expect(broken({ edition: 'other' as never })).toBeInstanceOf(EditionError);
     expect(broken({ productName: { vi: ' ', en: 'x' } })).toBeInstanceOf(EditionError);
     expect(broken({ productName: { vi: 'x', en: '' } })).toBeInstanceOf(EditionError);
-    expect(broken({ brand: { mark: { vi: '', en: 'X' }, themeColor: '#102E3B' } })).toBeInstanceOf(EditionError);
+    expect(broken({ brand: { ...valid.brand, mark: { vi: '', en: 'X' } } })).toBeInstanceOf(EditionError);
+  });
+
+  it('refuses an empty short name, launcher name, logo label or tagline, and a short name longer than the home screen allows', () => {
+    for (const field of ['shortName', 'launcherName', 'logoAlt', 'tagline'] as const) {
+      expect(broken({ brand: { ...valid.brand, [field]: { vi: ' ', en: 'x' } } })).toBeInstanceOf(EditionError);
+      expect(broken({ brand: { ...valid.brand, [field]: { vi: 'x', en: '' } } })).toBeInstanceOf(EditionError);
+    }
+    const tooLong = 'x'.repeat(SHORT_NAME_LIMIT + 1);
+    expect(broken({ brand: { ...valid.brand, shortName: { vi: tooLong, en: 'x' } } })).toBeInstanceOf(EditionError);
+    expect(broken({ brand: { ...valid.brand, shortName: { vi: 'x', en: tooLong } } })).toBeInstanceOf(EditionError);
+    expect(broken({ brand: { ...valid.brand, shortName: { vi: 'x'.repeat(SHORT_NAME_LIMIT), en: 'x' } } })).toBeUndefined();
   });
 
   it('refuses a theme colour that is not a 6-digit hex', () => {
-    for (const colour of ['red', '#fff', '102E3B', '#102E3B80']) expect(broken({ brand: { mark: valid.brand.mark, themeColor: colour } })).toBeInstanceOf(EditionError);
+    for (const colour of ['red', '#fff', '102E3B', '#102E3B80']) expect(broken({ brand: { ...valid.brand, themeColor: colour } })).toBeInstanceOf(EditionError);
   });
 
   it('refuses malformed or repeated module codes, screen ids and menu codes', () => {

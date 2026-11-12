@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import type { ReportLayout } from '@machvon/kernel';
 import { normalizeZip } from './zip-normalize';
+import { documentProducer } from '../../editions/product-identity';
 
 const FIXED_DATE = new Date(Date.UTC(2026, 10, 8, 0, 0, 0));
 const FONT = 'Times New Roman';
@@ -12,8 +13,8 @@ const FONT = 'Times New Roman';
  */
 export async function buildBlankTemplate(layout: ReportLayout, options: { landscape?: boolean | undefined } = {}): Promise<Uint8Array> {
   const workbook = new ExcelJS.Workbook();
-  workbook.creator = 'MACHVON';
-  workbook.lastModifiedBy = 'MACHVON';
+  workbook.creator = documentProducer();
+  workbook.lastModifiedBy = documentProducer();
   workbook.created = FIXED_DATE;
   workbook.modified = FIXED_DATE;
   workbook.title = layout.name;

@@ -7,6 +7,7 @@
   "home.tile.metric.disbursed": "Giải ngân lũy kế",
   "home.tile.metric.planPm": "Kế hoạch vốn được giao",
   "home.tile.nullReason.treasuryNone": "Chưa ghi nhận giải ngân",
+  "logo.mark.alt": "Biểu tượng Mạch Vốn, {product}",
   "home.ov.hero.caption": "Theo số liệu đã chốt đến {date}",
   "home.ov.hero.noData": "Chưa có số liệu giải ngân cho phạm vi này.",
   "home.ov.hero.ring": "Theo kế hoạch vốn được giao",

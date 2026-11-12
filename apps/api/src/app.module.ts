@@ -33,6 +33,7 @@ import { RoleDefinitionsController } from './role-definitions.controller';
 import { RoleGrantReadsController, RoleGrantsController } from './role-grants.controller';
 import { RolesController } from './roles.controller';
 import { MembershipsController } from './session/memberships.controller';
+import { serveEdition } from './editions/product-identity';
 import { IDENTITY_LOGOUT, NoIdentityLogout, SESSION_REVOCATION, SelfServiceController } from './session/self.controller';
 import type { TenantRuntimeSource } from './session/tenant-runtime';
 import { SessionModule } from './session/session.module';
@@ -92,6 +93,8 @@ function machineSignerOf(issuer: TenantTokenIssuer | undefined): MachineSigner |
 @Module({})
 export class AppModule {
   static register(options: AppModuleOptions): DynamicModule {
+    // What the process writes into the files it produces and into the open API document is the name of its edition.
+    serveEdition(options.edition);
     const control = options.control?.database ?? options.entitlements?.control;
     return {
       module: AppModule,

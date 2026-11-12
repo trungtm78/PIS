@@ -10,6 +10,15 @@ describe('the enterprise manifest', () => {
     expect(ENTERPRISE_EDITION_MANIFEST.rulePacks).toEqual(['enterprise-investment']);
   });
 
+  it('keeps its own identity under the icon and in the logo: the code name is the enterprise product only', () => {
+    const { brand } = ENTERPRISE_EDITION_MANIFEST;
+    expect(brand.launcherName).toEqual({ vi: 'Mạch Vốn', en: 'Mạch Vốn' });
+    expect(brand.shortName).toEqual({ vi: 'Đầu tư XD', en: 'Constr. Inv.' });
+    expect(brand.logoAlt.vi).toBe('Biểu tượng Mạch Vốn, Phần mềm quản lý đầu tư xây dựng');
+    expect(brand.tagline.vi).toBe('Vốn đến đúng công trình, việc đúng tiến độ');
+    expect(brand.launcherName.vi).not.toBe(PUBLIC_EDITION_MANIFEST.brand.launcherName.vi);
+  });
+
   it('is what the kernel hands out for the enterprise edition', () => {
     expect(resolveManifest('enterprise', ENTERPRISE_EDITION.manifest)).toBe(ENTERPRISE_EDITION_MANIFEST);
   });
