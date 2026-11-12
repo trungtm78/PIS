@@ -240,7 +240,7 @@ export function factsInPage(minTextPx: number): ScreenFacts {
       const primary = element.tagName !== 'A' && /(?:^|\s)(?:ui-button--primary|ui-button--danger|primary)(?:\s|$)/.test(classes);
       const name = nameOf(element);
       // What only shows or narrows the data is no change of it, in whatever style it is drawn ("Xem", "Lọc", "Áp dụng", "Tất cả", "Xóa bộ lọc").
-      if (/^(?:Xem|Lọc|Tìm|Tra cứu|Áp dụng|Tất cả|Mở|Quay lại|Tải lại|Làm mới|Hiển thị|Đặt lại|Xóa lọc|Xóa bộ lọc|Chọn|So sánh|In|Tải về|Tải xuống)(?=\s|$|[:,.])/.test(name)) return false;
+      if (/^(?:Xem|Lọc|Tìm|Tra cứu|Áp dụng|Tất cả|Mở(?!\s+lại)|Quay lại|Tải lại|Làm mới|Hiển thị|Đặt lại|Xóa lọc|Xóa bộ lọc|Chọn|So sánh|In|Tải về|Tải xuống)(?=\s|$|[:,.])/.test(name)) return false;
       // A button that names a change of data in its own words: the same control in an outline style is no less a write.
       const verb = element.tagName !== 'A' && /^(?:\+\s*)?(?:Thêm|Tạo|Lập|Lưu|Gửi|Trình duyệt|Trình ký|Trình lên|Duyệt|Phê duyệt|Từ chối|Xóa|Hủy(?=\s+(?!bỏ)\S)|Sửa|Chỉnh sửa|Cập nhật|Ghi nhận|Ghi|Xác nhận|Phát hành|Thu hồi|Khóa|Mở lại|Gia hạn)(?=\s|$|[:,.])/.test(name);
       return primary || verb || element.matches('button[type="submit"], input[type="submit"]');

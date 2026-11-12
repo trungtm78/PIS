@@ -57,6 +57,7 @@ Phần vỏ ứng dụng (thanh bên 9-10 px, vết dẫn `.workspace-breadcrumb
 ### O1. Oracle: nút trong `<fieldset disabled>` bị tính là nút đang bật (sửa oracle)
 
 `element.disabled` của một nút trong fieldset bị khóa là `false` dù nút không bấm được (DOC-02). Oracle dùng `:disabled`. Chứng âm: trang mẫu sạch có một nút "Lưu bản nháp" trong fieldset khóa và vẫn không có finding.
+Codex review vòng cuối bắt thêm một chỗ hở của oracle: nhóm tên "Mở" (chỉ mở trang) loại luôn cả "Mở lại" (mở lại hồ sơ, là ghi dữ liệu), nên nút này không bao giờ bị báo cho người chỉ xem. Đã thu hẹp thành "Mở" không đi kèm "lại"; chứng âm: trang cố ý hỏng có nút "Mở lại" và finding phải nêu nó. Chạy lại 157 ca của 11 phân hệ có nút "Mở lại" (AST, CAP, SAS, ISS, QMS, DGV, OMNI, DIR, DOC, INT, PRJ) ở cả hai bản: không có finding quyền mới.
 
 ### O2. Oracle: 57 ca "trường của danh mục không thấy trên màn hình" (chờ chủ sở hữu, không sửa sản phẩm)
 

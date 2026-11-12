@@ -286,7 +286,7 @@ test.describe('screen contract of the screens of the edition', () => {
 const FIXTURE_HEAD = '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>fixture</title><style>:root{--mv-color-primary:#007d77}body{font-family:"Be Vietnam Pro",sans-serif;font-size:14px}</style></head><body>';
 const CLEAN_PAGE = `${FIXTURE_HEAD}<div class="workspace-breadcrumb"><strong>Mẫu</strong></div><section data-screen-id="NEG-01" aria-labelledby="screen-title"><h1 id="screen-title">Màn mẫu</h1><label for="name">Tên</label><input id="name"><button type="button" class="ui-button ui-button--outline">Xem</button><fieldset disabled><legend>Khóa</legend><button type="button" class="ui-button ui-button--primary">Lưu bản nháp</button></fieldset></section></body></html>`;
 const BROKEN_HEAD = '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>fixture</title></head><body>';
-const BROKEN_PAGE = `${BROKEN_HEAD}<section><h1></h1><h2 style="font-style:italic">Chữ nghiêng</h2><p style="font-size:10px">chữ quá nhỏ</p><input type="text"><button type="button"></button><button type="button" class="ui-button ui-button--primary">Lưu</button><div class="card"><header><h2>Phần</h2><button type="button" class="ui-button ui-button--outline">Duyệt kỳ báo cáo</button></header></div><nav aria-label="phân trang"><button type="button" class="ui-button ui-button--primary">Lưu trong thanh điều hướng</button></nav><div style="width:2400px;height:10px"></div><script>console.error('fixture console error');setTimeout(function(){throw new Error('fixture uncaught error')},0)</script></section></body></html>`;
+const BROKEN_PAGE = `${BROKEN_HEAD}<section><h1></h1><h2 style="font-style:italic">Chữ nghiêng</h2><p style="font-size:10px">chữ quá nhỏ</p><input type="text"><button type="button"></button><button type="button" class="ui-button ui-button--primary">Lưu</button><div class="card"><header><h2>Phần</h2><button type="button" class="ui-button ui-button--outline">Duyệt kỳ báo cáo</button><button type="button" class="ui-button ui-button--outline">Mở lại</button></header></div><nav aria-label="phân trang"><button type="button" class="ui-button ui-button--primary">Lưu trong thanh điều hướng</button></nav><div style="width:2400px;height:10px"></div><script>console.error('fixture console error');setTimeout(function(){throw new Error('fixture uncaught error')},0)</script></section></body></html>`;
 
 const NEGATIVE_CLAUSES = ['render', 'console', 'overflow', 'labels', 'permission', 'fields', 'order', 'tokens'] as const;
 
@@ -318,6 +318,8 @@ test.describe('screen contract negative controls', () => {
     expect(text).toContain('is offered "Lưu"');
     // A write in the header of a section card of the screen is no shell control; the one in a navigation landmark is left out on purpose.
     expect(text).toContain('is offered "Duyệt kỳ báo cáo"');
+    // Reopening is a change of data although "Mở" alone only opens a page.
+    expect(text).toContain('is offered "Mở lại"');
     expect(text).not.toContain('Lưu trong thanh điều hướng');
     expect(text).toContain('Mã');
     expect(text).toContain('Be Vietnam Pro');
