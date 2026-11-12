@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/colors.dart';
+import '../../core/theme/typography.dart';
+import '../../core/widgets/section_panel.dart';
 import '../read_support/widgets.dart';
 import 'ai_models.dart';
 
@@ -12,14 +15,16 @@ class AiNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      color: MachvonColors.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space12),
-        child: Semantics(
-          container: true,
-          child: Text(context.t('mob.ai.notice.text'), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: MachvonColors.ink)),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+      child: OutlinedBlock(
+        fill: context.v2.palette.primarySoft,
+        child: Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s12),
+          child: Semantics(
+            container: true,
+            child: Text(context.t('mob.ai.notice.text'), style: context.v2text.body),
+          ),
         ),
       ),
     );
@@ -97,5 +102,5 @@ class Pills extends StatelessWidget {
   final List<StatusPill> pills;
 
   @override
-  Widget build(BuildContext context) => Wrap(spacing: MachvonSpace.space8, runSpacing: MachvonSpace.space4, children: pills);
+  Widget build(BuildContext context) => Wrap(spacing: MachvonV2Space.s8, runSpacing: MachvonV2Space.s4, children: pills);
 }

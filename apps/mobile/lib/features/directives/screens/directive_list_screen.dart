@@ -5,6 +5,9 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/filter_chips.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/paged.dart';
@@ -86,23 +89,15 @@ class _Filters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
+      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
       child: Semantics(
         container: true,
         label: context.t('mob.dir.list.filter.label'),
-        child: Wrap(
-          spacing: MachvonSpace.space8,
-          runSpacing: MachvonSpace.space4,
-          children: <Widget>[
-            for (final DirectiveFilter option in DirectiveFilter.values)
-              ChoiceChip(
-                label: Text(directiveFilterLabel(context, option)),
-                selected: option == filter,
-                onSelected: (bool selected) {
-                  if (selected) onChanged(option);
-                },
-              ),
-          ],
+        child: FilterChips<DirectiveFilter>(
+          padding: EdgeInsets.zero,
+          options: <ChipOption<DirectiveFilter>>[for (final DirectiveFilter option in DirectiveFilter.values) ChipOption<DirectiveFilter>(value: option, label: directiveFilterLabel(context, option))],
+          selected: filter,
+          onChanged: onChanged,
         ),
       ),
     );
@@ -116,22 +111,22 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         _Summary(list: list),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-          child: Text(context.t('mob.dir.list.count', <String, Object>{'shown': list.lines.length}), style: theme.textTheme.bodySmall),
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16),
+          child: Text(context.t('mob.dir.list.count', <String, Object>{'shown': list.lines.length}), style: text.caption),
         ),
         if (list.more)
-          Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16), child: Text(context.t('mob.dir.list.more'), style: theme.textTheme.bodySmall)),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16), child: Text(context.t('mob.dir.list.more'), style: text.caption)),
         for (final DirectiveLine line in list.lines) _Row(line: line),
         Padding(
-          padding: const EdgeInsets.all(MachvonSpace.space16),
-          child: Text(context.t('mob.dir.list.readOnly'), style: theme.textTheme.bodySmall),
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Text(context.t('mob.dir.list.readOnly'), style: text.caption),
         ),
       ],
     );
@@ -145,13 +140,13 @@ class _Summary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final DirectiveSummary? summary = list.summary;
     if (summary == null) {
       return SectionCard(
         title: context.t('mob.dir.list.summary.title'),
         children: <Widget>[
-          Semantics(liveRegion: true, child: Text(context.t('mob.dir.list.summary.failed'), style: theme.textTheme.bodyMedium)),
+          Semantics(liveRegion: true, child: Text(context.t('mob.dir.list.summary.failed'), style: text.body)),
         ],
       );
     }
@@ -167,10 +162,10 @@ class _Summary extends StatelessWidget {
             KpiTile(label: context.t('mob.dir.list.summary.open'), value: '${summary.open}', unit: unit),
           ],
         ),
-        if (summary.truncated) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space8), child: Text(context.t('mob.dir.list.summary.truncated'), style: theme.textTheme.bodySmall)),
-        if (list.asOf != null) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space8), child: Text(context.t('mob.read.asOf.line', <String, Object>{'time': asOfLabel(list.asOf!)}), style: theme.textTheme.bodySmall)),
+        if (summary.truncated) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.dir.list.summary.truncated'), style: text.caption)),
+        if (list.asOf != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.read.asOf.line', <String, Object>{'time': asOfLabel(list.asOf!)}), style: text.caption)),
         Theme(
-          data: theme.copyWith(dividerColor: Colors.transparent),
+          data: Theme.of(context).copyWith(dividerColor: context.v2.palette.line),
           child: ExpansionTile(
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.zero,
@@ -195,8 +190,8 @@ class _How extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: MachvonSpace.space8),
-        child: Align(alignment: Alignment.centerLeft, child: Text(text, style: Theme.of(context).textTheme.bodySmall)),
+        padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
+        child: Align(alignment: Alignment.centerLeft, child: Text(text, style: context.v2text.caption)),
       );
 }
 
@@ -207,7 +202,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String status = directiveStatusLabel(context, line.status);
     final String? clock = directiveClockLabel(context, line);
     return TappableRow(
@@ -219,22 +214,22 @@ class _Row extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(line.code, style: theme.textTheme.titleSmall),
-                Text(line.text, style: theme.textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: MachvonSpace.space4),
+                Text(line.code, style: text.label),
+                Text(line.text, style: text.bodyStrong, maxLines: 2, overflow: TextOverflow.ellipsis),
+                const SizedBox(height: MachvonV2Space.s4),
                 Wrap(
-                  spacing: MachvonSpace.space8,
-                  runSpacing: MachvonSpace.space4,
+                  spacing: MachvonV2Space.s8,
+                  runSpacing: MachvonV2Space.s4,
                   children: <Widget>[
                     StatusPill(label: status, tone: directiveStatusTone(line.status)),
                     if (clock != null) StatusPill(label: clock, tone: directiveClockTone(line.phase), icon: line.escalated ? Icons.priority_high : null),
                   ],
                 ),
-                Text(context.t('mob.dir.row.due', <String, Object>{'due': formatDay(line.dueOn)}), style: theme.textTheme.bodySmall),
-                Text(context.t('mob.dir.row.unit', <String, Object>{'unit': line.assigneeUnit}), style: theme.textTheme.bodySmall),
-                Text(line.assignee == null ? context.t('mob.dir.row.personNone') : context.t('mob.dir.row.person', <String, Object>{'name': line.assignee!}), style: theme.textTheme.bodySmall),
-                if (line.projectCode != null) Text(context.t('mob.dir.row.project', <String, Object>{'code': line.projectCode!}), style: theme.textTheme.bodySmall),
-                if (line.extensionPending) Text(context.t('mob.dir.row.extension'), style: theme.textTheme.bodySmall),
+                Text(context.t('mob.dir.row.due', <String, Object>{'due': formatDay(line.dueOn)}), style: text.caption),
+                Text(context.t('mob.dir.row.unit', <String, Object>{'unit': line.assigneeUnit}), style: text.caption),
+                Text(line.assignee == null ? context.t('mob.dir.row.personNone') : context.t('mob.dir.row.person', <String, Object>{'name': line.assignee!}), style: text.caption),
+                if (line.projectCode != null) Text(context.t('mob.dir.row.project', <String, Object>{'code': line.projectCode!}), style: text.caption),
+                if (line.extensionPending) Text(context.t('mob.dir.row.extension'), style: text.caption),
               ],
             ),
           ),

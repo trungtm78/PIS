@@ -5,6 +5,9 @@ import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/navigation/mobile_routes.generated.dart';
 import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
+import 'package:machvon_mobile/core/widgets/filter_chips.dart';
+import 'package:machvon_mobile/core/widgets/tap_target.dart';
+import 'package:machvon_mobile/features/directives/directive_models.dart' show DirectiveFilter;
 import 'package:machvon_mobile/features/directives/directives_feature.dart' as directives;
 import 'package:machvon_mobile/features/directives/directives_strings.dart';
 
@@ -22,7 +25,16 @@ void _register(ScriptedServer server, {List<Map<String, Object?>>? items, Map<St
     ..on('GET', '/directives/summary', (_) => summary ?? directiveSummary());
 }
 
-Finder _chip(String label) => find.widgetWithText(ChoiceChip, label);
+Finder _chip(String label) => find.descendant(of: find.byType(FilterChips<DirectiveFilter>), matching: find.text(label));
+
+/// The chips scroll sideways when they do not fit: bring one into view, then tap it.
+Future<void> _tapChip(WidgetTester tester, String label) async {
+  await tester.ensureVisible(_chip(label));
+  await tester.tap(_chip(label));
+}
+
+/// Whether the chip of [label] is the chosen one (the chips are tap targets that say `selected`).
+bool _selected(WidgetTester tester, String label) => tester.widget<TapTarget>(find.ancestor(of: _chip(label), matching: find.byType(TapTarget))).selected ?? false;
 
 void main() {
   group('DIR-06 is a screen of the Projects tab that the catalogue and the feature agree on', () {
@@ -113,14 +125,14 @@ void main() {
       _register(server);
       await _open(tester, server);
 
-      await tester.tap(_chip('Quá hạn'));
+      await _tapChip(tester, 'Quá hạn');
       await tester.pumpAndSettle();
       expect(server.callsTo('GET', '/directives').last.url.queryParameters, <String, String>{'limit': '50', 'overdue': 'true'});
-      await tester.tap(_chip('Tất cả'));
+      await _tapChip(tester, 'Tất cả');
       await tester.pumpAndSettle();
       expect(server.callsTo('GET', '/directives').last.url.queryParameters, <String, String>{'limit': '50'});
-      expect(tester.widget<ChoiceChip>(_chip('Tất cả')).selected, isTrue);
-      expect(tester.widget<ChoiceChip>(_chip('Giao cho tôi')).selected, isFalse);
+      expect(_selected(tester, 'Tất cả'), isTrue);
+      expect(_selected(tester, 'Giao cho tôi'), isFalse);
     });
 
     testWidgets('reads the pages by cursor until the end and shows one list', (WidgetTester tester) async {

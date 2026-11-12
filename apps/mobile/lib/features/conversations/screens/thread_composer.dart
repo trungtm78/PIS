@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/nav_row.dart' show SwitchRow;
+import '../../../core/widgets/section_panel.dart';
 import '../../command_support/command_flow.dart';
 import '../conversation_labels.dart';
 import '../conversation_models.dart';
@@ -68,70 +72,67 @@ class _ThreadComposerState extends State<ThreadComposer> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final ConversationItem conversation = widget.conversation;
     if (widget.gate == ExternalGate.closed) {
-      return Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: GateNote(text: gateText(context, widget.gate)));
+      return Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: GateNote(text: gateText(context, widget.gate)));
     }
     final String channel = channelLabel(context, conversation.channel);
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      color: _external ? null : MachvonColors.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Semantics(
-          container: true,
-          label: _external ? context.t('mob.conv.composer.send.aria') : context.t('mob.conv.composer.note.aria'),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Semantics(header: true, child: Text(_external ? context.t('mob.conv.composer.send.title') : context.t('mob.conv.composer.note.title'), style: theme.textTheme.titleMedium)),
-              if (widget.gate == ExternalGate.open)
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(context.t('mob.conv.composer.note.switch')),
-                  value: _note,
-                  onChanged: widget.sending ? null : (bool value) => setState(() => _note = value),
-                )
-              else
-                GateNote(text: gateText(context, widget.gate)),
-              Text(
-                _external ? context.t('mob.conv.composer.send.hint', <String, Object>{'contact': conversation.contactName, 'channel': channel}) : context.t('mob.conv.composer.note.hint'),
-                style: theme.textTheme.bodySmall,
-              ),
-              if (_external) ...<Widget>[
-                const SizedBox(height: MachvonSpace.space12),
-                DropdownButtonFormField<String>(
-                  initialValue: _purpose,
-                  isExpanded: true,
-                  decoration: InputDecoration(labelText: context.t('mob.conv.composer.purpose.label')),
-                  items: <DropdownMenuItem<String>>[for (final String purpose in purposes) DropdownMenuItem<String>(value: purpose, child: Text(purposeLabel(context, purpose)))],
-                  onChanged: widget.sending ? null : (String? value) => setState(() => _purpose = value ?? defaultPurpose),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+      child: OutlinedBlock(
+        fill: _external ? null : context.v2.palette.primarySoft,
+        child: Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Semantics(
+            container: true,
+            label: _external ? context.t('mob.conv.composer.send.aria') : context.t('mob.conv.composer.note.aria'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Semantics(header: true, child: Text(_external ? context.t('mob.conv.composer.send.title') : context.t('mob.conv.composer.note.title'), style: text.heading)),
+                if (widget.gate == ExternalGate.open)
+                  SwitchRow(label: context.t('mob.conv.composer.note.switch'), value: _note, onChanged: widget.sending ? null : (bool value) => setState(() => _note = value))
+                else
+                  GateNote(text: gateText(context, widget.gate)),
+                Text(
+                  _external ? context.t('mob.conv.composer.send.hint', <String, Object>{'contact': conversation.contactName, 'channel': channel}) : context.t('mob.conv.composer.note.hint'),
+                  style: text.caption,
+                ),
+                if (_external) ...<Widget>[
+                  const SizedBox(height: MachvonV2Space.s12),
+                  DropdownButtonFormField<String>(
+                    initialValue: _purpose,
+                    isExpanded: true,
+                    decoration: InputDecoration(labelText: context.t('mob.conv.composer.purpose.label')),
+                    items: <DropdownMenuItem<String>>[for (final String purpose in purposes) DropdownMenuItem<String>(value: purpose, child: Text(purposeLabel(context, purpose)))],
+                    onChanged: widget.sending ? null : (String? value) => setState(() => _purpose = value ?? defaultPurpose),
+                  ),
+                ],
+                const SizedBox(height: MachvonV2Space.s12),
+                TextField(
+                  controller: _text,
+                  maxLines: 5,
+                  readOnly: widget.sending,
+                  decoration: InputDecoration(
+                    labelText: context.t('mob.conv.composer.text.label'),
+                    errorText: _invalid ? context.t('mob.conv.composer.text.invalid', <String, Object>{'max': messageTextMax}) : null,
+                  ),
+                ),
+                const SizedBox(height: MachvonV2Space.s12),
+                if (widget.blocked != null) GateNote(text: widget.blocked!),
+                FilledButton(
+                  onPressed: widget.sending || widget.blocked != null ? null : _submit,
+                  child: Text(
+                    widget.sending
+                        ? context.t('mob.conv.composer.sending.label')
+                        : _external
+                            ? context.t('mob.conv.composer.send.action', <String, Object>{'contact': conversation.contactName, 'channel': channel})
+                            : context.t('mob.conv.composer.note.action'),
+                  ),
                 ),
               ],
-              const SizedBox(height: MachvonSpace.space12),
-              TextField(
-                controller: _text,
-                maxLines: 5,
-                readOnly: widget.sending,
-                decoration: InputDecoration(
-                  labelText: context.t('mob.conv.composer.text.label'),
-                  errorText: _invalid ? context.t('mob.conv.composer.text.invalid', <String, Object>{'max': messageTextMax}) : null,
-                ),
-              ),
-              const SizedBox(height: MachvonSpace.space12),
-              if (widget.blocked != null) GateNote(text: widget.blocked!),
-              FilledButton(
-                onPressed: widget.sending || widget.blocked != null ? null : _submit,
-                child: Text(
-                  widget.sending
-                      ? context.t('mob.conv.composer.sending.label')
-                      : _external
-                          ? context.t('mob.conv.composer.send.action', <String, Object>{'contact': conversation.contactName, 'channel': channel})
-                          : context.t('mob.conv.composer.note.action'),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

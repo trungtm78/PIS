@@ -3,6 +3,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/theme/typography.dart';
 import '../../../core/widgets/figure_info.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
@@ -50,7 +51,7 @@ class DirectiveWidgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final DirectiveWidgetData? read = data;
     if (read == null) {
       return SectionCard(
@@ -63,7 +64,7 @@ class DirectiveWidgetCard extends StatelessWidget {
                 errorCode == 'PERMISSION_DENIED' || errorCode == 'SCOPE_DENIED'
                 ? Text(
                     context.t('mob.dir.widget.denied.text'),
-                    style: theme.textTheme.bodyMedium,
+                    style: text.body,
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,9 +73,9 @@ class DirectiveWidgetCard extends StatelessWidget {
                         context.t('mob.dir.widget.error.text', <String, Object>{
                           'code': errorCode ?? 'UNKNOWN',
                         }),
-                        style: theme.textTheme.bodyMedium,
+                        style: text.body,
                       ),
-                      const SizedBox(height: MachvonSpace.space8),
+                      const SizedBox(height: MachvonV2Space.s8),
                       OutlinedButton(
                         onPressed: onRetry,
                         child: Text(context.t('mob.dir.widget.retry.action')),
@@ -138,45 +139,45 @@ class DirectiveWidgetCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: MachvonSpace.space8),
+        const SizedBox(height: MachvonV2Space.s8),
         if (read.items.isEmpty)
           Text(
             context.t('mob.dir.widget.none.text'),
-            style: theme.textTheme.bodyMedium,
+            style: text.body,
           )
         else ...<Widget>[
           Semantics(
             header: true,
             child: Text(
               context.t('mob.dir.widget.items.label'),
-              style: theme.textTheme.titleSmall,
+              style: text.label,
             ),
           ),
           for (final DirectiveLine line in read.items) _WidgetRow(line: line),
         ],
         if (read.truncated)
           Padding(
-            padding: const EdgeInsets.only(top: MachvonSpace.space8),
+            padding: const EdgeInsets.only(top: MachvonV2Space.s8),
             child: Text(
               context.t('mob.dir.list.summary.truncated'),
-              style: theme.textTheme.bodySmall,
+              style: text.caption,
             ),
           ),
         if (read.policy.unverified)
           Padding(
-            padding: const EdgeInsets.only(top: MachvonSpace.space8),
+            padding: const EdgeInsets.only(top: MachvonV2Space.s8),
             child: Text(
               context.t('mob.dir.list.policy.unverified'),
-              style: theme.textTheme.bodySmall,
+              style: text.caption,
             ),
           ),
         Padding(
-          padding: const EdgeInsets.only(top: MachvonSpace.space8),
+          padding: const EdgeInsets.only(top: MachvonV2Space.s8),
           child: Text(
             context.t('mob.read.asOf.line', <String, Object>{
               'time': asOfLabel(read.asOf),
             }),
-            style: theme.textTheme.bodySmall,
+            style: text.caption,
           ),
         ),
         TappableRow(
@@ -187,7 +188,7 @@ class DirectiveWidgetCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   context.t('mob.dir.widget.all.action'),
-                  style: theme.textTheme.bodyLarge,
+                  style: text.bodyStrong,
                 ),
               ),
               const ExcludeSemantics(child: Icon(Icons.chevron_right)),
@@ -206,7 +207,7 @@ class _WidgetRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String? clock = directiveClockLabel(context, line);
     final String status = directiveStatusLabel(context, line.status);
     return TappableRow(
@@ -223,28 +224,28 @@ class _WidgetRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(line.code, style: theme.textTheme.titleSmall),
+                Text(line.code, style: text.label),
                 Text(
                   line.text,
-                  style: theme.textTheme.bodyMedium,
+                  style: text.body,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Wrap(
-                  spacing: MachvonSpace.space8,
-                  runSpacing: MachvonSpace.space4,
+                  spacing: MachvonV2Space.s8,
+                  runSpacing: MachvonV2Space.s4,
                   children: <Widget>[
                     Text(
                       context.t('mob.dir.row.unit', <String, Object>{
                         'unit': line.assigneeUnit,
                       }),
-                      style: theme.textTheme.bodySmall,
+                      style: text.caption,
                     ),
                     Text(
                       context.t('mob.dir.row.due', <String, Object>{
                         'due': formatDay(line.dueOn),
                       }),
-                      style: theme.textTheme.bodySmall,
+                      style: text.caption,
                     ),
                     if (clock != null)
                       StatusPill(

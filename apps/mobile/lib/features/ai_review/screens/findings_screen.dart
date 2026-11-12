@@ -5,6 +5,9 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/section_panel.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/paged.dart';
 import '../../read_support/widgets.dart';
@@ -41,8 +44,8 @@ class _RunList extends StatelessWidget {
             for (final Run run in list.runs) _RunRow(run: run),
             if (list.more)
               Padding(
-                padding: const EdgeInsets.all(MachvonSpace.space16),
-                child: Text(context.t('mob.ai.runs.more'), style: Theme.of(context).textTheme.bodySmall),
+                padding: const EdgeInsets.all(MachvonV2Space.s16),
+                child: Text(context.t('mob.ai.runs.more'), style: context.v2text.caption),
               ),
           ],
         ),
@@ -58,7 +61,7 @@ class _RunRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String facts = context.t('mob.ai.runs.row.facts', <String, Object>{'status': runStatusLabel(context, run.status), 'findings': run.findingCount, 'reviewed': run.reviewedCount});
     return TappableRow(
       semanticLabel: context.t('mob.ai.runs.row.aria', <String, Object>{'package': run.packageCode, 'contractor': run.contractorName, 'facts': facts}),
@@ -69,9 +72,9 @@ class _RunRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(run.packageCode, style: theme.textTheme.bodyLarge),
-                Text(run.contractorName, style: theme.textTheme.bodyMedium),
-                Text(facts, style: theme.textTheme.bodySmall),
+                Text(run.packageCode, style: text.bodyStrong),
+                Text(run.contractorName, style: text.body),
+                Text(facts, style: text.caption),
               ],
             ),
           ),
@@ -124,9 +127,9 @@ class _FindingsState extends State<_Findings> {
   Widget build(BuildContext context) {
     final Run run = widget.list.run;
     final List<Finding> shown = _shown;
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         const AiNotice(),
         SectionCard(
@@ -137,57 +140,32 @@ class _FindingsState extends State<_Findings> {
             FactLine(label: context.t('mob.ai.findings.run.status'), value: runStatusLabel(context, run.status)),
             FactLine(label: context.t('mob.ai.findings.run.counts'), value: context.t('mob.ai.findings.run.countsValue', <String, Object>{'findings': run.findingCount, 'reviewed': run.reviewedCount, 'missing': run.missingSourceCount})),
             if (run.failureCode != null) ...<Widget>[
-              Text(context.t('mob.ai.findings.run.failed'), style: theme.textTheme.bodyMedium),
-              Text(run.failureCode!, style: theme.textTheme.bodySmall),
+              Text(context.t('mob.ai.findings.run.failed'), style: text.body),
+              Text(run.failureCode!, style: text.caption),
             ],
-            if (widget.list.asOf != null) Text(context.t('mob.ai.findings.asOf', <String, Object>{'time': formatMoment(widget.list.asOf!)}), style: theme.textTheme.bodySmall),
+            if (widget.list.asOf != null) Text(context.t('mob.ai.findings.asOf', <String, Object>{'time': formatMoment(widget.list.asOf!)}), style: text.caption),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-          child: Wrap(
-            spacing: MachvonSpace.space8,
-            runSpacing: MachvonSpace.space8,
-            children: <Widget>[
-              _ViewChip(label: context.t('mob.ai.findings.view.all'), selected: _view == _View.all, onTap: () => setState(() => _view = _View.all)),
-              _ViewChip(label: context.t('mob.ai.findings.view.awaiting'), selected: _view == _View.awaiting, onTap: () => setState(() => _view = _View.awaiting)),
-              _ViewChip(label: context.t('mob.ai.findings.view.missing'), selected: _view == _View.missingSource, onTap: () => setState(() => _view = _View.missingSource)),
-            ],
-          ),
+        FilterChips<_View>(
+          options: <ChipOption<_View>>[
+            ChipOption<_View>(value: _View.all, label: context.t('mob.ai.findings.view.all')),
+            ChipOption<_View>(value: _View.awaiting, label: context.t('mob.ai.findings.view.awaiting')),
+            ChipOption<_View>(value: _View.missingSource, label: context.t('mob.ai.findings.view.missing')),
+          ],
+          selected: _view,
+          onChanged: (_View view) => setState(() => _view = view),
         ),
         if (widget.list.findings.isEmpty)
-          Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.ai.findings.none'), style: theme.textTheme.bodyMedium))
+          Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.ai.findings.none'), style: text.body))
         else if (shown.isEmpty)
-          Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.ai.findings.noneInView'), style: theme.textTheme.bodyMedium)),
+          Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.ai.findings.noneInView'), style: text.body)),
         for (final Finding finding in shown) FindingCard(finding: finding),
         if (widget.list.more)
           Padding(
-            padding: const EdgeInsets.all(MachvonSpace.space16),
-            child: Text(context.t('mob.ai.findings.more'), style: theme.textTheme.bodySmall),
+            padding: const EdgeInsets.all(MachvonV2Space.s16),
+            child: Text(context.t('mob.ai.findings.more'), style: text.caption),
           ),
       ],
-    );
-  }
-}
-
-class _ViewChip extends StatelessWidget {
-  const _ViewChip({required this.label, required this.selected, required this.onTap});
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: label,
-      excludeSemantics: true,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
-        child: ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onTap(), materialTapTargetSize: MaterialTapTargetSize.padded),
-      ),
     );
   }
 }
@@ -200,38 +178,40 @@ class FindingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String? decided = finding.finalStatus;
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Semantics(
-          container: true,
-          label: context.t('mob.ai.finding.aria', <String, Object>{'criterion': finding.criterionId}),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Semantics(header: true, child: Text(context.t('mob.ai.finding.heading', <String, Object>{'criterion': finding.criterionId}), style: theme.textTheme.titleMedium)),
-              const SizedBox(height: MachvonSpace.space8),
-              Pills(
-                pills: <StatusPill>[
-                  StatusPill(label: context.t('mob.ai.finding.aiLabel')),
-                  if (finding.awaitsVerification) StatusPill(label: context.t('mob.ai.finding.needsVerification'), warn: true),
-                  if (finding.missingSource) StatusPill(label: context.t('mob.ai.finding.missingSource'), warn: true),
-                ],
-              ),
-              const SizedBox(height: MachvonSpace.space8),
-              FactLine(label: context.t('mob.ai.finding.proposed'), value: findingStatusLabel(context, finding.status)),
-              if (decided != null) FactLine(label: context.t('mob.ai.finding.decided'), value: findingStatusLabel(context, decided)),
-              if (finding.text.isNotEmpty) Text(finding.text, style: theme.textTheme.bodyMedium),
-              const SizedBox(height: MachvonSpace.space4),
-              Text(context.t('mob.ai.finding.signal', <String, Object>{'signal': confidenceLabel(context, finding.confidenceType)}), style: theme.textTheme.bodySmall),
-              Text(context.t('mob.ai.finding.evidenceCount', <String, Object>{'verified': finding.verifiedCount, 'total': finding.evidence.length}), style: theme.textTheme.bodySmall),
-              if (finding.evidence.isEmpty) Text(context.t('mob.ai.finding.noEvidence'), style: theme.textTheme.bodyMedium),
-              for (final Evidence evidence in finding.evidence) _EvidenceRow(finding: finding, evidence: evidence),
-              if (finding.awaitsVerification) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space8), child: Text(context.t('mob.ai.finding.webOnly'), style: theme.textTheme.bodySmall)),
-            ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+      child: OutlinedBlock(
+        child: Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Semantics(
+            container: true,
+            label: context.t('mob.ai.finding.aria', <String, Object>{'criterion': finding.criterionId}),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Semantics(header: true, child: Text(context.t('mob.ai.finding.heading', <String, Object>{'criterion': finding.criterionId}), style: text.heading)),
+                const SizedBox(height: MachvonV2Space.s8),
+                Pills(
+                  pills: <StatusPill>[
+                    StatusPill(label: context.t('mob.ai.finding.aiLabel')),
+                    if (finding.awaitsVerification) StatusPill(label: context.t('mob.ai.finding.needsVerification'), warn: true),
+                    if (finding.missingSource) StatusPill(label: context.t('mob.ai.finding.missingSource'), warn: true),
+                  ],
+                ),
+                const SizedBox(height: MachvonV2Space.s8),
+                FactLine(label: context.t('mob.ai.finding.proposed'), value: findingStatusLabel(context, finding.status)),
+                if (decided != null) FactLine(label: context.t('mob.ai.finding.decided'), value: findingStatusLabel(context, decided)),
+                if (finding.text.isNotEmpty) Text(finding.text, style: text.body),
+                const SizedBox(height: MachvonV2Space.s4),
+                Text(context.t('mob.ai.finding.signal', <String, Object>{'signal': confidenceLabel(context, finding.confidenceType)}), style: text.caption),
+                Text(context.t('mob.ai.finding.evidenceCount', <String, Object>{'verified': finding.verifiedCount, 'total': finding.evidence.length}), style: text.caption),
+                if (finding.evidence.isEmpty) Text(context.t('mob.ai.finding.noEvidence'), style: text.body),
+                for (final Evidence evidence in finding.evidence) _EvidenceRow(finding: finding, evidence: evidence),
+                if (finding.awaitsVerification) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.ai.finding.webOnly'), style: text.caption)),
+              ],
+            ),
           ),
         ),
       ),
@@ -247,19 +227,19 @@ class _EvidenceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String where = evidenceWhere(context, evidence);
     final String verdict = evidence.verified ? context.t('mob.ai.evidence.verified') : context.t('mob.ai.evidence.notFound');
     final Widget body = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(where, style: theme.textTheme.titleSmall),
-        Text(verdict, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
-        if (evidence.quote != null) Text('“${evidence.quote}”', style: theme.textTheme.bodyMedium, maxLines: 4, overflow: TextOverflow.ellipsis),
+        Text(where, style: text.label),
+        Text(verdict, style: text.captionStrong),
+        if (evidence.quote != null) Text('“${evidence.quote}”', style: text.body, maxLines: 4, overflow: TextOverflow.ellipsis),
       ],
     );
     if (!evidence.hasSource) {
-      return Padding(padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8), child: MergeSemantics(child: body));
+      return Padding(padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8), child: MergeSemantics(child: body));
     }
     return TappableRow(
       semanticLabel: context.t('mob.ai.evidence.aria', <String, Object>{'where': where, 'verdict': verdict}),

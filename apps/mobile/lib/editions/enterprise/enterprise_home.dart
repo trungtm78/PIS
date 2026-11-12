@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/di/providers.dart';
 import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
+import '../../core/theme/colors.dart';
+import '../../core/theme/typography.dart';
+import '../../core/widgets/brand_logo.dart';
 import '../../features/account/account_providers.dart';
 import '../../features/read_support/widgets.dart';
 import '../../features/read_support/wire.dart';
@@ -54,12 +58,11 @@ class _ReadCardState extends ConsumerState<_ReadCard> {
       builder: (BuildContext context, AsyncSnapshot<(_Outcome, Map<String, Object?>)> snapshot) {
         final (_Outcome, Map<String, Object?>)? result = snapshot.data;
         if (result == null || result.$1 == _Outcome.refused) return const SizedBox.shrink();
-        final ThemeData theme = Theme.of(context);
         final List<String> lines = result.$1 == _Outcome.ok ? widget.lines(context, result.$2) : <String>[context.t('mob.ent.card.unavailable')];
         return SectionCard(
           title: widget.title(context),
           semanticLabel: '${widget.title(context)}. ${lines.join('. ')}',
-          children: <Widget>[for (final String line in lines) Text(line, style: theme.textTheme.bodyMedium)],
+          children: <Widget>[for (final String line in lines) Text(line, style: context.v2text.body)],
         );
       },
     );
@@ -157,24 +160,35 @@ class _EnterpriseHomeHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final SessionSnapshot session = ref.watch(sessionProvider);
     final MembershipChoice? current = ref.watch(myMembershipsProvider).asData?.value.where((MembershipChoice m) => isCurrentMembership(m, session)).firstOrNull;
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String name = context.t('mob.ent.brand.name');
     final String product = context.t('mob.ent.brand.product');
     final String? line = current == null
         ? null
         : context.t('mob.ent.brand.role', <String, Object>{'organisation': current.tenantName, 'role': membershipTypeLabel(context, current.membershipType)});
+    // The identity of the edition keeps its own words (the name, the product, the organisation and the role); it is drawn with the logo of the
+    // edition and the type of the phone design, so it reads the same in the light and the dark mode.
     return Semantics(
       container: true,
       label: line == null ? '$name. $product' : '$name. $product. $line',
       child: ExcludeSemantics(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          child: Column(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s12, MachvonV2Space.s16, MachvonV2Space.s4),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(name, style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w700)),
-              Text(product, style: theme.textTheme.labelLarge),
-              if (line != null) Text(line, style: theme.textTheme.titleMedium),
+              const BrandLogo(size: MachvonV2Size.glyph),
+              const SizedBox(width: MachvonV2Space.s12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(name, style: text.heading.copyWith(color: context.v2.palette.primaryStrong)),
+                    Text(product, style: text.label),
+                    if (line != null) Text(line, style: text.caption),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

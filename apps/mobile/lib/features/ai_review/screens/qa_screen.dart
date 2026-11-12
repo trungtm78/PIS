@@ -10,6 +10,8 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/section_panel.dart';
 import '../../command_support/command_flow.dart' show GateNote;
 import '../../read_support/navigate.dart';
 import '../../read_support/offline.dart';
@@ -48,8 +50,8 @@ class _PackagePicker extends StatelessWidget {
           children: <Widget>[
             const AiNotice(),
             Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
-              child: Text(context.t('mob.ai.qa.scope.intro'), style: Theme.of(context).textTheme.bodyMedium),
+              padding: const EdgeInsets.all(MachvonV2Space.s16),
+              child: Text(context.t('mob.ai.qa.scope.intro'), style: context.v2text.body),
             ),
             for (final PackageChoice choice in list.packages)
               TappableRow(
@@ -61,8 +63,8 @@ class _PackagePicker extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(choice.code, style: Theme.of(context).textTheme.bodyLarge),
-                          Text(choice.title, style: Theme.of(context).textTheme.bodyMedium),
+                          Text(choice.code, style: context.v2text.bodyStrong),
+                          Text(choice.title, style: context.v2text.body),
                         ],
                       ),
                     ),
@@ -72,8 +74,8 @@ class _PackagePicker extends StatelessWidget {
               ),
             if (list.more)
               Padding(
-                padding: const EdgeInsets.all(MachvonSpace.space16),
-                child: Text(context.t('mob.ai.qa.scope.more'), style: Theme.of(context).textTheme.bodySmall),
+                padding: const EdgeInsets.all(MachvonV2Space.s16),
+                child: Text(context.t('mob.ai.qa.scope.more'), style: context.v2text.caption),
               ),
           ],
         ),
@@ -151,11 +153,11 @@ class _ThreadState extends ConsumerState<_Thread> {
   Widget build(BuildContext context) {
     ref.listen<SessionSnapshot>(sessionProvider, _sessionChanged);
     final bool offline = isOffline(ref);
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return ScreenFrame(
       title: context.t('mob.ai.qa.title'),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+        padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
         children: <Widget>[
           const AiNotice(),
           SectionCard(
@@ -175,7 +177,7 @@ class _ThreadState extends ConsumerState<_Thread> {
                 ),
               ),
               if (offline) GateNote(text: context.t('mob.ai.qa.gate.offline')),
-              const SizedBox(height: MachvonSpace.space8),
+              const SizedBox(height: MachvonV2Space.s8),
               FilledButton(
                 onPressed: offline || _busy ? null : _submit,
                 child: Text(_busy ? context.t('mob.ai.qa.ask.pending') : context.t('mob.ai.qa.ask.action')),
@@ -184,8 +186,8 @@ class _ThreadState extends ConsumerState<_Thread> {
           ),
           if (_turns.isEmpty)
             Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
-              child: Text(context.t('mob.ai.qa.thread.empty'), style: theme.textTheme.bodyMedium),
+              padding: const EdgeInsets.all(MachvonV2Space.s16),
+              child: Text(context.t('mob.ai.qa.thread.empty'), style: text.body),
             ),
           for (final _Turn turn in _turns) _TurnCard(turn: turn, packageId: widget.packageId, offline: offline, onRetry: () => _retry(turn)),
         ],
@@ -212,15 +214,15 @@ class _TurnCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final QaResult? result = turn.result;
     return SectionCard(
       title: context.t('mob.ai.qa.turn.title'),
       children: <Widget>[
-        Text(turn.question, style: theme.textTheme.bodyLarge),
-        const SizedBox(height: MachvonSpace.space8),
+        Text(turn.question, style: text.bodyStrong),
+        const SizedBox(height: MachvonV2Space.s8),
         if (result == null)
-          Semantics(liveRegion: true, child: Text(context.t('mob.ai.qa.turn.searching'), style: theme.textTheme.bodyMedium))
+          Semantics(liveRegion: true, child: Text(context.t('mob.ai.qa.turn.searching'), style: text.body))
         else
           switch (result) {
             QaPassages() => _Passages(passages: result.passages, packageId: packageId),
@@ -241,18 +243,17 @@ class _Passages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Semantics(header: true, child: Text(context.t('mob.ai.qa.answer.title', <String, Object>{'count': passages.length}), style: theme.textTheme.titleSmall)),
-        Text(context.t('mob.ai.qa.answer.note'), style: theme.textTheme.bodySmall),
-        const SizedBox(height: MachvonSpace.space8),
+        Semantics(header: true, child: Text(context.t('mob.ai.qa.answer.title', <String, Object>{'count': passages.length}), style: text.label)),
+        Text(context.t('mob.ai.qa.answer.note'), style: text.caption),
+        const SizedBox(height: MachvonV2Space.s8),
         for (final Passage passage in passages)
           Padding(
-            padding: const EdgeInsets.only(bottom: MachvonSpace.space8),
-            child: DecoratedBox(
-              decoration: BoxDecoration(border: Border.all(color: MachvonColors.border), borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control))),
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
+            child: OutlinedBlock(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
@@ -262,15 +263,15 @@ class _Passages extends StatelessWidget {
                     child: Row(
                       children: <Widget>[
                         const ExcludeSemantics(child: Icon(Icons.description_outlined)),
-                        const SizedBox(width: MachvonSpace.space8),
-                        Expanded(child: Text(context.t('mob.ai.qa.chip.label', <String, Object>{'file': shortId(passage.documentVersionId), 'page': passage.pageIndex + 1}), style: theme.textTheme.titleSmall)),
+                        const SizedBox(width: MachvonV2Space.s8),
+                        Expanded(child: Text(context.t('mob.ai.qa.chip.label', <String, Object>{'file': shortId(passage.documentVersionId), 'page': passage.pageIndex + 1}), style: text.label)),
                         const ExcludeSemantics(child: Icon(Icons.chevron_right)),
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, 0, MachvonSpace.space16, MachvonSpace.space12),
-                    child: Text(passage.text, maxLines: 8, style: theme.textTheme.bodyMedium),
+                    padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
+                    child: Text(passage.text, maxLines: 8, style: text.body),
                   ),
                 ],
               ),
@@ -290,16 +291,16 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return Semantics(
       liveRegion: true,
       container: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(title, style: theme.textTheme.titleSmall),
-          Text(body, style: theme.textTheme.bodyMedium),
-          Text(code, style: theme.textTheme.bodySmall),
+          Text(title, style: text.label),
+          Text(body, style: text.body),
+          Text(code, style: text.caption),
         ],
       ),
     );
@@ -331,9 +332,9 @@ class _Failure extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _Message(title: context.t('mob.ai.qa.failed.title'), body: body, code: problem.code),
-        if (problem.correlationId != null && problem.correlationId!.isNotEmpty) Text(problem.correlationId!, style: Theme.of(context).textTheme.bodySmall),
+        if (problem.correlationId != null && problem.correlationId!.isNotEmpty) Text(problem.correlationId!, style: context.v2text.caption),
         if (retryable) ...<Widget>[
-          const SizedBox(height: MachvonSpace.space8),
+          const SizedBox(height: MachvonV2Space.s8),
           OutlinedButton(onPressed: offline ? null : onRetry, child: Text(context.t('mob.ai.qa.failed.retry'))),
         ],
       ],

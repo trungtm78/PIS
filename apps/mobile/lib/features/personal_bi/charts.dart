@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../core/theme/colors.dart';
 import 'query_models.dart';
 
 /// The numbers a chart is drawn from. A group with no figure is left out and never drawn as zero; the list under the chart says so.
@@ -27,12 +28,12 @@ class ProportionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExcludeSemantics(
       child: ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control)),
+        borderRadius: const BorderRadius.all(Radius.circular(MachvonV2Radius.chip)),
         child: Container(
           height: 8,
-          color: MachvonColors.border,
+          color: context.v2.palette.sunken,
           alignment: AlignmentDirectional.centerStart,
-          child: FractionallySizedBox(widthFactor: fraction, child: ColoredBox(color: negative ? MachvonColors.danger : MachvonColors.primary, child: const SizedBox(height: 8))),
+          child: FractionallySizedBox(widthFactor: fraction, child: ColoredBox(color: negative ? context.v2.palette.lateMark : context.v2.palette.primary, child: const SizedBox(height: 8))),
         ),
       ),
     );
@@ -50,15 +51,16 @@ class LineSketch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (values.length < 2) return const SizedBox.shrink();
-    return ExcludeSemantics(child: SizedBox(height: 96, child: CustomPaint(size: const Size(double.infinity, 96), painter: _LinePainter(values, area))));
+    return ExcludeSemantics(child: SizedBox(height: 96, child: CustomPaint(size: const Size(double.infinity, 96), painter: _LinePainter(values, area, context.v2.palette.primary))));
   }
 }
 
 class _LinePainter extends CustomPainter {
-  const _LinePainter(this.values, this.area);
+  const _LinePainter(this.values, this.area, this.color);
 
   final List<double> values;
   final bool area;
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -78,14 +80,14 @@ class _LinePainter extends CustomPainter {
         ..lineTo(point(values.length - 1).dx, base)
         ..lineTo(point(0).dx, base)
         ..close();
-      canvas.drawPath(fill, Paint()..color = MachvonColors.primary.withValues(alpha: 0.2));
+      canvas.drawPath(fill, Paint()..color = color.withValues(alpha: 0.2));
     }
     canvas.drawPath(line, Paint()
-      ..color = MachvonColors.primary
+      ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2);
   }
 
   @override
-  bool shouldRepaint(_LinePainter oldDelegate) => oldDelegate.values != values || oldDelegate.area != area;
+  bool shouldRepaint(_LinePainter oldDelegate) => oldDelegate.values != values || oldDelegate.area != area || oldDelegate.color != color;
 }

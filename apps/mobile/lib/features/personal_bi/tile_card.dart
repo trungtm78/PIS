@@ -8,7 +8,10 @@ import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/offline/drafts/decimal.dart';
 import '../../core/session/session.dart';
+import '../../core/theme/colors.dart';
+import '../../core/theme/typography.dart';
 import '../../core/widgets/kpi_tile.dart';
+import '../../core/widgets/section_panel.dart';
 import '../read_support/clock.dart';
 import '../read_support/data_view.dart' show defaultCacheTtl;
 import '../read_support/read_cache.dart';
@@ -213,25 +216,16 @@ class _TileCardState extends ConsumerState<TileCard> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final String title = widget.tile.title ?? _base?.metricCode ?? '';
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Semantics(
-          container: true,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              if (title.isNotEmpty) Semantics(header: true, child: Text(title, style: theme.textTheme.titleMedium)),
-              const SizedBox(height: MachvonSpace.space8),
-              ..._content(context),
-            ],
-          ),
-        ),
-      ),
-    );
+    final List<Widget> content = _content(context);
+    // A tile is a titled block of the dashboard: its heading and a hairline, not a card. Without a title it is the content alone.
+    if (title.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: content),
+      );
+    }
+    return SectionPanel(title: title, children: content);
   }
 
   List<Widget> _content(BuildContext context) {
@@ -239,8 +233,8 @@ class _TileCardState extends ConsumerState<TileCard> {
       case _Phase.loading:
         return <Widget>[
           // A bar that does not move: a tile that waits is a skeleton, and a screen that never stops animating cannot rest.
-          const ExcludeSemantics(child: SizedBox(height: 3, child: ColoredBox(color: MachvonColors.border))),
-          Semantics(liveRegion: true, child: Text(context.t('mob.pbi.tile.loading.label'))),
+          ExcludeSemantics(child: SizedBox(height: 3, child: ColoredBox(color: context.v2.palette.sunken))),
+          Semantics(liveRegion: true, child: Text(context.t('mob.pbi.tile.loading.label'), style: context.v2text.body)),
         ];
       case _Phase.failed:
         final Object failure = _failure!;
@@ -252,8 +246,8 @@ class _TileCardState extends ConsumerState<TileCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(offline ? context.t('mob.pbi.tile.offline.label') : queryProblemText(context, problemOfFailure(failure))),
-                if (problemCodeOf(failure) != null) Text(problemCodeOf(failure)!, style: Theme.of(context).textTheme.bodySmall),
+                Text(offline ? context.t('mob.pbi.tile.offline.label') : queryProblemText(context, problemOfFailure(failure)), style: context.v2text.body),
+                if (problemCodeOf(failure) != null) Text(problemCodeOf(failure)!, style: context.v2text.caption),
               ],
             ),
           ),
@@ -265,7 +259,7 @@ class _TileCardState extends ConsumerState<TileCard> {
   }
 
   List<Widget> _ready(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final QueryResult base = _base!;
     final QueryResult current = _steps.isEmpty ? base : _steps.last.result;
     final String unit = current.shownUnit;
@@ -281,11 +275,11 @@ class _TileCardState extends ConsumerState<TileCard> {
       if (_steps.isNotEmpty) _CheckLine(step: _steps.last),
       KpiTile(key: const ValueKey<String>('total'), label: context.t('mob.pbi.tile.total.label'), value: figureLabel(context, current.total, unit)),
       if (ratio && current.total.numerator != null && current.total.denominator != null)
-        Padding(padding: const EdgeInsets.only(top: MachvonSpace.space4), child: Text(context.t('mob.pbi.tile.ratio.parts', <String, Object>{'numerator': _number(context, current.total.numerator!), 'denominator': _number(context, current.total.denominator!)}), style: theme.textTheme.bodySmall)),
+        Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(context.t('mob.pbi.tile.ratio.parts', <String, Object>{'numerator': _number(context, current.total.numerator!), 'denominator': _number(context, current.total.denominator!)}), style: text.caption)),
       if (line) LineSketch(values: values, area: widget.tile.kind == WidgetKind.area),
       if (current.children.isNotEmpty && widget.tile.kind != WidgetKind.kpi) ...<Widget>[
-        const SizedBox(height: MachvonSpace.space12),
-        if (current.dimension != null) Semantics(header: true, child: Text(dimensionLabel(context, current.dimension!), style: theme.textTheme.labelLarge)),
+        const SizedBox(height: MachvonV2Space.s12),
+        if (current.dimension != null) Semantics(header: true, child: Text(dimensionLabel(context, current.dimension!), style: text.label)),
         for (final Group group in shown) _GroupRow(group: group, unit: unit, fraction: bars ? fractionOf(double.tryParse(group.figure.value ?? '') ?? 0, widest) : null, negative: (double.tryParse(group.figure.value ?? '') ?? 0) < 0, onDrill: _fromCopy || group.drillToken == null || _explaining ? null : () => setState(() => _choosing = group)),
         if (current.children.length > tileRowsShown)
           Align(
@@ -298,7 +292,7 @@ class _TileCardState extends ConsumerState<TileCard> {
       ],
       if (_choosing != null) _DimensionChooser(group: _choosing!, taken: _pathDimensions(), busy: _explaining, onPick: (String dimension) => _explain(_choosing!, current, dimension), onCancel: () => setState(() => _choosing = null)),
       if (_drillFailure != null) _DrillFailure(failure: _drillFailure!, onRenew: () => widget.onRenew(base.drillToken)),
-      const SizedBox(height: MachvonSpace.space8),
+      const SizedBox(height: MachvonV2Space.s8),
       _Meta(result: current),
     ];
   }
@@ -324,13 +318,13 @@ class _CopyNote extends StatelessWidget {
       liveRegion: true,
       container: true,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: MachvonSpace.space8),
+        padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(context.t('mob.pbi.copy.line', <String, Object>{'period': result.asOfPeriod, 'time': formatMoment(result.builtAt)}), style: Theme.of(context).textTheme.bodySmall),
-            Text(context.t('mob.read.saved.readOnly'), style: Theme.of(context).textTheme.bodySmall),
-            if (stale) Text(context.t('mob.read.stale.line', <String, Object>{'hours': defaultCacheTtl.inHours}), style: Theme.of(context).textTheme.bodySmall),
+            Text(context.t('mob.pbi.copy.line', <String, Object>{'period': result.asOfPeriod, 'time': formatMoment(result.builtAt)}), style: context.v2text.caption),
+            Text(context.t('mob.read.saved.readOnly'), style: context.v2text.caption),
+            if (stale) Text(context.t('mob.read.stale.line', <String, Object>{'hours': defaultCacheTtl.inHours}), style: context.v2text.caption),
           ],
         ),
       ),
@@ -352,7 +346,7 @@ class _GroupRow extends StatelessWidget {
     final String label = group.unclassified ? context.t('mob.pbi.group.unclassified') : group.label;
     final String value = figureLabel(context, group.figure, unit);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -361,8 +355,8 @@ class _GroupRow extends StatelessWidget {
               Expanded(
                 child: MergeSemantics(
                   child: Wrap(
-                    spacing: MachvonSpace.space8,
-                    children: <Widget>[Text(label), Text(value, key: ValueKey<String>('value-${group.key ?? 'unclassified'}'), style: const TextStyle(fontWeight: FontWeight.w600))],
+                    spacing: MachvonV2Space.s8,
+                    children: <Widget>[Text(label, style: context.v2text.body), Text(value, key: ValueKey<String>('value-${group.key ?? 'unclassified'}'), style: context.v2text.bodyStrong)],
                   ),
                 ),
               ),
@@ -391,7 +385,7 @@ class _Breadcrumb extends StatelessWidget {
     ].join(' › ');
     return Row(
       children: <Widget>[
-        Expanded(child: Text(path, style: Theme.of(context).textTheme.bodySmall)),
+        Expanded(child: Text(path, style: context.v2text.caption)),
         TextButton(onPressed: onBack, child: Text(context.t('mob.pbi.drill.back.action'))),
       ],
     );
@@ -414,8 +408,8 @@ class _CheckLine extends StatelessWidget {
       liveRegion: true,
       container: true,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
-        child: Text(text, key: ValueKey<String>('check-${check.name}'), style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: check == DrillCheck.agrees ? FontWeight.w400 : FontWeight.w700)),
+        padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4),
+        child: Text(text, key: ValueKey<String>('check-${check.name}'), style: context.v2text.caption.copyWith(fontWeight: check == DrillCheck.agrees ? FontWeight.w400 : FontWeight.w600)),
       ),
     );
   }
@@ -436,16 +430,16 @@ class _DimensionChooser extends StatelessWidget {
     return Semantics(
       container: true,
       child: Padding(
-        padding: const EdgeInsets.only(top: MachvonSpace.space8),
+        padding: const EdgeInsets.only(top: MachvonV2Space.s8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(context.t('mob.pbi.drill.choose.label', <String, Object>{'label': group.unclassified ? context.t('mob.pbi.group.unclassified') : group.label}), style: Theme.of(context).textTheme.labelLarge),
+            Text(context.t('mob.pbi.drill.choose.label', <String, Object>{'label': group.unclassified ? context.t('mob.pbi.group.unclassified') : group.label}), style: context.v2text.label),
             Wrap(
-              spacing: MachvonSpace.space8,
+              spacing: MachvonV2Space.s8,
               children: <Widget>[for (final String dimension in free) ActionChip(label: Text(dimensionLabel(context, dimension)), onPressed: busy ? null : () => onPick(dimension))],
             ),
-            if (busy) Semantics(liveRegion: true, child: Text(context.t('mob.pbi.tile.loading.label'))),
+            if (busy) Semantics(liveRegion: true, child: Text(context.t('mob.pbi.tile.loading.label'), style: context.v2text.body)),
             TextButton(onPressed: busy ? null : onCancel, child: Text(context.t('mob.pbi.drill.cancel.action'))),
           ],
         ),
@@ -468,12 +462,12 @@ class _DrillFailure extends StatelessWidget {
       liveRegion: true,
       container: true,
       child: Padding(
-        padding: const EdgeInsets.only(top: MachvonSpace.space8),
+        padding: const EdgeInsets.only(top: MachvonV2Space.s8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(queryProblemText(context, problem)),
-            if (code != null) Text(code, style: Theme.of(context).textTheme.bodySmall),
+            Text(queryProblemText(context, problem), style: context.v2text.body),
+            if (code != null) Text(code, style: context.v2text.caption),
             if (problem == QueryProblem.expired || problem == QueryProblem.token) TextButton(onPressed: onRenew, child: Text(context.t('mob.pbi.renew.action'))),
           ],
         ),
@@ -491,7 +485,7 @@ class _Meta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? small = Theme.of(context).textTheme.bodySmall;
+    final TextStyle small = context.v2text.caption;
     final bool grouped = result.dimension != null && result.children.isNotEmpty;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
