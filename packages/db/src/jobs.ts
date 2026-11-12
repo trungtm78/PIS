@@ -74,6 +74,8 @@ export const JOB_INTERVAL_SECONDS = {
   'delegation-lifecycle': 60,
   // Every minute: an approved support access grant whose first instant has come is put in force, one whose window ended is Expired and a request nobody decided on within a week lapses (ST-SAS-015); the pass is idempotent.
   'support-access-lifecycle': 60,
+  // Hourly: the KPI results of the tasks that were closed, the periods of scores whose window ended, the personal data whose retention ended (PWF-3); the pass is incremental and idempotent.
+  'pwf-score-maintenance': 3600,
   // Every 5 minutes: a Verified domain gets its certificate and becomes Active, an Active custom domain is looked at again every week (the proof gone makes it Failed) and a certificate with 14 days left is renewed (ST-SAS-017); the pass is idempotent.
   'tenant-domain': 300,
   // Every minute: a promotion of a tenant to a silo is carried a step on - the copy begins at its window, is compared with the original and kept in step while the cutover waits, the last difference is sent and compared again once the cutover is approved, the routing is switched or the migration rolled back when the freeze ran out, a switched one is Completed after 24 hours, the copy of an ended one is destroyed and the old data of a completed one is deleted after 30 days unless a legal hold is in force (ST-SAS-018); every step is idempotent.
@@ -190,8 +192,6 @@ export const JOB_INTERVAL_SECONDS = {
   // Every 15 minutes: the reminders of the steps of the reporting schedule (QT.02): before a deadline, after it, and the escalation to the leader of the unit; each is recorded once with its event (ENT-4c).
   'calendar-reminder': 900,
   'access-cache-expiry': 60,
-  // Hourly: the KPI results of the tasks that were closed, the periods of scores whose window ended, the personal data whose retention ended (PWF-3); the pass is incremental and idempotent.
-  'pwf-score-maintenance': 3600,
 } as const;
 
 export type JobName = keyof typeof JOB_INTERVAL_SECONDS;

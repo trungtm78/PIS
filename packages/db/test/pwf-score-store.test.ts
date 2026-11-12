@@ -5,6 +5,8 @@ import { PrjProjectStore } from '../src/prj-project-store';
 import { PwfKpiStore } from '../src/pwf-kpi-store';
 import { verifySnapshot } from '../src/pwf-score-compute';
 import { PwfScoreAdjustmentStore } from '../src/pwf-score-adjustment-store';
+import { PwfScoreMaintenanceJob } from '../src/pwf-score-job';
+import { AuditWriter } from '../src/audit-writer';
 import { PwfScoreReads } from '../src/pwf-score-reads';
 import type { Viewer } from '../src/pwf-score-reads';
 import { PwfScoreStore } from '../src/pwf-score-store';
@@ -647,6 +649,34 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(await sqlState(as((tx) => tx.query("update machvon.staff_score_period set status = 'DRAFT' where id = $1::uuid", [preview.period.id])))).toBe('42501');
       const current = Number((await owner<{ version: number }>('select version from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]?.version);
       expect(await refusal(as((tx) => scores.lock(tx, { periodId: preview.period.id, expectedVersion: current, actor: memberId(MANAGER), units: '*', now: new Date() })))).toMatchObject({ code: 'STAFF_SCORE_PERIOD_LOCKED' });
+    });
+  });
+
+  describe('the maintenance job (PWF 9: incremental, idempotent)', () => {
+    it('writes the results of the tasks that closed, makes official the period whose window ended, anonymises the one whose retention ended, and does nothing the second time', async () => {
+      const wf = await workflow();
+      const task = await seedTask(wf, 'J1', { baselineFinish: `${Y - 3}-05-13`, actualFinish: `${Y - 3}-05-13` });
+      await hold(task, WORKER);
+      const job = new PwfScoreMaintenanceJob(new AuditWriter(harness.tenants));
+      const run = () => as((tx) => job.run(tx, memberId(HR), new Date()), HR);
+      const first = await run();
+      expect(first.tasks).toBeGreaterThanOrEqual(1);
+      expect(first.results).toBeGreaterThanOrEqual(6);
+      expect(await run()).toMatchObject({ tasks: 0, results: 0, officialized: 0, expired: 0 });
+      const preview = await compute({ from: `${Y - 3}-04-01`, to: `${Y - 3}-06-30` });
+      await lockIt(preview.period.id, preview.period.version);
+      // Inside the window nothing happens; once the window has ended the period is official and its event and audit row are written.
+      expect((await run()).officialized).toBe(0);
+      await owner("update machvon.staff_score_period set locked_at = now() - interval '30 days' where id = $1::uuid", [preview.period.id]);
+      const ended = await run();
+      expect(ended.officialized).toBe(1);
+      expect((await owner<{ status: string }>('select status from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]?.status).toBe('OFFICIAL');
+      expect((await owner('select 1 from machvon.audit_event where action = $1 and resource_id = $2::uuid', ['score.period_officialized', preview.period.id])).length).toBe(1);
+      expect((await owner('select 1 from machvon.outbox_event where aggregate_id = $1::uuid and type = $2', [preview.period.id, 'pwf.score.period.officialized.v1'])).length).toBe(1);
+      await owner("update machvon.staff_score_period set snapshot = jsonb_set(snapshot, '{policy,params,retention_months}', '12'::jsonb) where id = $1::uuid", [preview.period.id]);
+      expect((await run()).expired).toBe(1);
+      expect((await owner<{ erased_at: string | null }>('select erased_at::text from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]?.erased_at).not.toBeNull();
+      expect(await run()).toMatchObject({ officialized: 0, expired: 0 });
     });
   });
 
