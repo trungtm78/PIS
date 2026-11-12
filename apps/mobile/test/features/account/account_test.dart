@@ -9,9 +9,16 @@ import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/core/navigation/route_catalogue.dart' show AppTab;
 import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/core/state/state_card.dart';
+import 'package:machvon_mobile/core/theme/colors.dart' show DeadlineBand;
+import 'package:machvon_mobile/core/theme/theme_mode.dart';
+import 'package:machvon_mobile/core/widgets/app_scaffold.dart' show LargeTitleHeader;
+import 'package:machvon_mobile/core/widgets/bottom_nav.dart' show AppBottomNav;
+import 'package:machvon_mobile/core/widgets/nav_row.dart' show SwitchRow;
 import 'package:machvon_mobile/features/account/account_feature.dart' as account;
+import 'package:machvon_mobile/features/account/deadline_thresholds.dart';
 import 'package:machvon_mobile/features/permissions/permission_providers.dart';
 import 'package:machvon_mobile/features/permissions/permission_service.dart';
 import 'package:machvon_mobile/features/phone_search/phone_search_feature.dart' as phone_search;
@@ -646,7 +653,7 @@ void main() {
       await tester.tap(find.text('English'));
       await tester.pumpAndSettle();
       expect(container.read(localeProvider).languageCode, 'en');
-      expect(find.text('Account'), findsOneWidget);
+      expect(find.descendant(of: find.byType(LargeTitleHeader), matching: find.text('Profile')), findsOneWidget, reason: 'the large title of the tab says it in English too');
       expect(find.text('App version: 1.4.0+27'), findsOneWidget);
     });
 
@@ -684,12 +691,9 @@ void main() {
         await tester.tap(find.text(row.label));
         await tester.pumpAndSettle();
         expect(currentLocation(container), row.path);
-        if (row.path.startsWith('/projects')) {
-          await tester.tap(find.text('Cá nhân'));
-          await tester.pumpAndSettle();
-        } else {
-          await pressBack(tester);
-        }
+        expect(tester.widget<AppBottomNav>(find.byType(AppBottomNav)).selectedIndex, AppTab.account.index, reason: '${row.label} opens inside the Cá nhân tab and does not jump to another one');
+        await pressBack(tester);
+        expect(currentLocation(container), '/account');
       }
       await tester.ensureVisible(find.text('Thông báo đẩy'));
       await tester.tap(find.text('Thông báo đẩy'));
@@ -721,7 +725,7 @@ void main() {
       await tester.tap(find.byType(Switch).first);
       await tester.pumpAndSettle();
       expect(await world.vault.biometricUnlock(), isTrue);
-      expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isTrue);
+      expect(tester.widget<SwitchRow>(find.byType(SwitchRow)).value, isTrue);
 
       await tester.tap(find.byType(Switch).first);
       await tester.pumpAndSettle();
@@ -783,6 +787,74 @@ void main() {
     });
   });
 
+  group('MUX-3 UI-MOB-47 the look of the app and the place of the personal deadline thresholds', () {
+    testWidgets('the mode of the look is chosen here: dark redraws the screen at once, and the choice is written to the store of the phone', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      world = World();
+      final MemoryThemePreferenceStore store = MemoryThemePreferenceStore();
+      final ProviderContainer container = await _signedIn(tester, world, location: '/account', overrides: <Override>[themePreferenceStoreProvider.overrideWithValue(store)]);
+      expect(Theme.of(tester.element(find.byType(LargeTitleHeader))).brightness, Brightness.light, reason: 'light until the person chooses');
+
+      await tester.ensureVisible(find.text('Tối'));
+      await tester.tap(find.text('Tối'));
+      await tester.pumpAndSettle();
+      expect(container.read(themeModeProvider), ThemeMode.dark);
+      expect(Theme.of(tester.element(find.byType(LargeTitleHeader))).brightness, Brightness.dark);
+      expect(await store.read(), 'dark', reason: 'the choice survives a restart');
+
+      await tester.tap(find.text('Theo máy'));
+      await tester.pumpAndSettle();
+      expect(container.read(themeModeProvider), ThemeMode.system);
+      expect(await store.read(), 'system');
+    });
+
+    testWidgets('the three deadline bands are previewed with their shapes, words and rules, and the note says they are personal and not official', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      world = World();
+      await _signedIn(tester, world, location: '/account');
+      await tester.ensureVisible(find.text('Nhắc hạn việc'));
+      expect(find.text('Nhắc hạn việc'), findsOneWidget);
+      expect(find.text('Hôm nay'), findsOneWidget);
+      expect(find.text('Còn 2 ngày'), findsOneWidget);
+      expect(find.text('Còn 5 ngày'), findsOneWidget);
+      expect(find.text('Còn dưới 1 ngày hoặc đã trễ'), findsOneWidget);
+      expect(find.text('Còn từ 1 đến 3 ngày'), findsOneWidget);
+      expect(find.text('Còn trên 3 ngày'), findsOneWidget);
+      expect(find.byIcon(Icons.report_outlined), findsWidgets, reason: 'the late shape');
+      expect(find.byIcon(Icons.warning_amber_rounded), findsWidgets, reason: 'the soon shape');
+      expect(find.byIcon(Icons.schedule), findsWidgets, reason: 'the ok shape');
+      expect(find.textContaining('cảnh báo chính thức và KPI theo quy định của đơn vị'), findsOneWidget);
+    });
+
+    testWidgets('the preview follows the thresholds in force, so a personal profile fills it without a change to the screen', (WidgetTester tester) async {
+      useDevice(tester, kDeviceSizes[1]);
+      world = World();
+      await _signedIn(tester, world, location: '/account', overrides: <Override>[deadlineThresholdsProvider.overrideWith(_EarlyThresholds.new)]);
+      await tester.ensureVisible(find.text('Nhắc hạn việc'));
+      expect(find.text('Còn dưới 2 ngày hoặc đã trễ'), findsOneWidget);
+      expect(find.text('Còn từ 2 đến 5 ngày'), findsOneWidget);
+      expect(find.text('Còn trên 5 ngày'), findsOneWidget);
+      expect(find.text('Còn 3 ngày'), findsOneWidget, reason: 'a sample of the yellow band');
+      expect(find.text('Còn 7 ngày'), findsOneWidget, reason: 'a sample of the green band');
+    });
+
+    test('the system thresholds put under one day in red, one to three days in yellow and more in green; a personal one only widens the early bands', () {
+      const DeadlineThresholds system = DeadlineThresholds.system;
+      expect(<int>[-3, 0, 1, 3, 4].map((int days) => system.bandOf(days).name), <String>['late', 'late', 'soon', 'soon', 'ok']);
+      for (final DeadlineBand band in <DeadlineBand>[DeadlineBand.late, DeadlineBand.soon, DeadlineBand.ok]) {
+        expect(system.bandOf(system.sampleDays(band)), band, reason: 'the sample of a band falls in it');
+      }
+      const DeadlineThresholds early = DeadlineThresholds(lateBelow: 2, soonUpTo: 5);
+      for (final DeadlineBand band in <DeadlineBand>[DeadlineBand.late, DeadlineBand.soon, DeadlineBand.ok]) {
+        expect(early.bandOf(early.sampleDays(band)), band);
+      }
+      expect(early.bandOf(2), DeadlineBand.soon);
+      expect(early.bandOf(5), DeadlineBand.soon);
+      expect(early.bandOf(6), DeadlineBand.ok);
+      expect(system == const DeadlineThresholds(), isTrue);
+    });
+  });
+
   group('TK-MOB-027-2 UI-MOB-47 the account leads to the search on the phone (MOB-51)', () {
     testWidgets('a row of the account opens the search, which the story ST-MOB-027 implements', (WidgetTester tester) async {
       useDevice(tester, kDeviceSizes[1]);
@@ -797,6 +869,11 @@ void main() {
   });
 }
 
+class _EarlyThresholds extends DeadlineThresholdsNotifier {
+  @override
+  DeadlineThresholds build() => const DeadlineThresholds(lateBelow: 2, soonUpTo: 5);
+}
+
 /// The application with a person already signed in to tenant A (the stored session is restored at start).
 Future<ProviderContainer> _signedIn(
   WidgetTester tester,
@@ -806,6 +883,7 @@ Future<ProviderContainer> _signedIn(
   FakePermissions? phone,
   void Function(World world)? afterSeed,
   String tenantId = 'tenant-a',
+  List<Override> overrides = const <Override>[],
 }) async {
   final AuthService seed = world.service();
   await seed.signIn(kOidcConfig);
@@ -813,7 +891,7 @@ Future<ProviderContainer> _signedIn(
     await seed.selectContext((await seed.candidates()).firstWhere((MembershipChoice c) => c.tenantId == tenantId));
   }
   afterSeed?.call(world);
-  return _pumpAccount(tester, world, location: location, pending: pending, phone: phone);
+  return _pumpAccount(tester, world, location: location, pending: pending, phone: phone, overrides: overrides);
 }
 
 /// Scripts the list of memberships of the fake API from the calls made so far on: what the application asks next fails or waits.

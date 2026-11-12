@@ -7,7 +7,9 @@ import 'package:machvon_mobile/core/offline/drafts/draft_store.dart';
 import 'package:machvon_mobile/core/offline/drafts/local_draft.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
+import 'package:machvon_mobile/core/navigation/route_catalogue.dart' show AppTab;
 import 'package:machvon_mobile/core/state/state_card.dart';
+import 'package:machvon_mobile/core/widgets/bottom_nav.dart' show AppBottomNav;
 
 import '../../support/fake_sync_server.dart';
 import '../../support/harness.dart';
@@ -82,6 +84,7 @@ void main() {
       final ProviderContainer container = await openOfflineApp(tester, setup.rig, location: '/account/mob-41');
       await press(tester, find.text('Xem và chọn'));
       expect(currentLocation(container), '/account/mob-42/${setup.command.id}');
+      expect(tester.widget<AppBottomNav>(find.byType(AppBottomNav)).selectedIndex, AppTab.account.index, reason: 'the conflict opens in the Cá nhân tab, where the queue is');
       await press(tester, find.byKey(const ValueKey<String>('construction_vnd:server')));
       await press(tester, find.byKey(const ValueKey<String>('funding_lines[CARRYOVER|LOCAL|].cumulative_vnd:mine')));
       await press(tester, find.text('Giữ bản máy cho các mục không phải tiền'));
@@ -99,6 +102,7 @@ void main() {
       expect(sent['construction_vnd'], '120000000', reason: 'the amount the person took from the server');
       expect(((sent['funding_lines']! as List<Object?>).cast<Map<String, Object?>>().firstWhere((Map<String, Object?> l) => l['bucket'] == 'CARRYOVER'))['cumulative_vnd'], '65000000');
       expect(currentLocation(container), '/account/mob-41', reason: 'the person is back on the queue');
+      expect(tester.widget<AppBottomNav>(find.byType(AppBottomNav)).selectedIndex, AppTab.account.index, reason: 'and the tab did not change on the way back');
       expect(find.text('Đã gửi'), findsOneWidget);
     });
 
