@@ -298191,6 +298191,14 @@
               "null"
             ],
             "maxLength": 2000
+          },
+          "legal_doc_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$",
+            "description": "The type of legal document, a code of the catalogue ENT_LEGAL_DOC_TYPE (enterprise edition only: the public edition refuses a value other than null with 422 reason NOT_AVAILABLE; an unknown code is 422 reason UNKNOWN_TYPE). On a change, null clears the type."
           }
         }
       },
@@ -298272,6 +298280,14 @@
               "null"
             ],
             "maxLength": 2000
+          },
+          "legal_doc_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$",
+            "description": "The type of legal document, a code of the catalogue ENT_LEGAL_DOC_TYPE (enterprise edition only: the public edition refuses a value other than null with 422 reason NOT_AVAILABLE; an unknown code is 422 reason UNKNOWN_TYPE). On a change, null clears the type."
           }
         }
       },
@@ -317839,7 +317855,8 @@
           "plans",
           "milestones",
           "findings",
-          "origin_split"
+          "origin_split",
+          "legal_documents"
         ],
         "properties": {
           "project_id": {
@@ -318025,6 +318042,118 @@
                             ]
                           }
                         }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "legal_documents": {
+            "type": "array",
+            "description": "The legal documents of the project by type of the catalogue ENT_LEGAL_DOC_TYPE: one group per type with at least one active document of the project that the caller may read, in the order of the catalogue then by code; the documents newest first, at most 20 per group (count is the whole number).",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "legal_doc_type",
+                "label",
+                "issuer",
+                "purpose",
+                "count",
+                "documents"
+              ],
+              "properties": {
+                "legal_doc_type": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "issuer": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "GROUP",
+                    "COMPANY",
+                    "STATE",
+                    "OTHER",
+                    null
+                  ]
+                },
+                "purpose": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "CAPITAL_ASSIGNMENT",
+                    "LIFECYCLE_EVIDENCE",
+                    null
+                  ]
+                },
+                "count": {
+                  "type": "integer"
+                },
+                "documents": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "title",
+                      "reference",
+                      "effective_from",
+                      "effective_to",
+                      "effective_state",
+                      "status"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "reference": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "effective_from": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date"
+                      },
+                      "effective_to": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date"
+                      },
+                      "effective_state": {
+                        "type": "string",
+                        "enum": [
+                          "UNDATED",
+                          "NOT_YET",
+                          "IN_FORCE",
+                          "EXPIRED"
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "ACTIVE",
+                          "ARCHIVED"
+                        ]
                       }
                     }
                   }
