@@ -302,7 +302,7 @@ Decision (2026-11-12, UAT run r6, R6-ENT-03): a baseline is the pixels of one ed
 home and replaces words through its terminology overlay, so its screens never match the committed baselines, which are the public edition's: the 203 visual cases of the enterprise
 stack went red in run r6 for that reason alone (the same 203 pass in the public edition). Comparing with the wrong edition's pixels is not a defect of the product and loosening the 0.1
 percent target is not the answer, so the folder is chosen by edition (`apps/web/e2e/support/visual-baselines.ts`, the edition is read as the stack and the build read it:
-`MACHVON_EDITION`, then `VITE_EDITION`):
+`MACHVON_EDITION`, then `VITE_EDITION`; an enterprise run sets BOTH, `MACHVON_EDITION=enterprise` for the API stack and `VITE_EDITION=enterprise` for the browser build, because the web reads only `VITE_EDITION`: with one of them the spec expects the enterprise words from a public screen):
 
 | Edition and OS | Folder of the baselines |
 |---|---|
