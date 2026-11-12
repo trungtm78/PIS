@@ -55,6 +55,9 @@ import { CALENDAR_DEFAULTS, EFFECT_ANCHORS, EFFECT_CALENDAR_RULE_TYPE, EFFECT_EV
 import { gov12RuleTypes } from './gov12-rule-types.ts';
 import { ENT4C_ALERT_SEEDS, ent4cScheduleType } from './ent4c-rule-types.ts';
 import { ent4aCrosscheckType } from './ent4a-rule-types.ts';
+import { registerDeadlineBandRules } from './deadline-band.ts';
+import { registerProjectWorkflowRules } from './project-workflow.ts';
+import { registerWorkflowKpiRules } from './workflow-kpi.ts';
 import { ENT4C_TEXT } from './messages/ent4c-texts.ts';
 import { VND3_TEXT } from './messages/vnd3-texts.ts';
 import { INVESTIGATION_POLICY_DEFAULTS, investigationPolicyOf } from './vnd-investigation.ts';
@@ -335,6 +338,12 @@ export function registerRuleDefaults(type: string, defaults: Readonly<Record<str
     if (entry.defaults[code] !== undefined) throw flawOf(`${type}/${code} already has a default`);
     entry.defaults[code] = completeDefault(type, code, one, entry.definition);
   }
+}
+
+/** What a lane's own file needs to register its types without importing the registry's values (a module that the registry itself imports cannot import it back): the kernel passes these two functions in. */
+export interface RuleRegistry {
+  registerRuleType(input: RuleTypeInput): void;
+  registerRuleDefaults(type: string, defaults: Readonly<Record<string, DefaultInput>>): void;
 }
 
 const view = (entry: { definition: Omit<RuleTypeDefinition, 'defaults'>; defaults: Record<string, BuiltInDefault> }): RuleTypeDefinition => ({ ...entry.definition, defaults: entry.defaults });
@@ -2537,6 +2546,16 @@ export const registerEnt4aRules = (): void =>
     registerRuleType(ent4aCrosscheckType());
   });
 
+/** The project workflow (lane PWF; project-workflow.ts, deadline-band.ts, workflow-kpi.ts): the template of a workflow, the three-colour policy of deadlines, the KPI set of a workflow and the policy that scores staff, with their alert types and KPI codes. */
+export const registerProjectWorkflowModuleRules = (): void =>
+  once('project-workflow', () => {
+    registerCoreRules();
+    const registry: RuleRegistry = { registerRuleType, registerRuleDefaults };
+    registerProjectWorkflowRules(registry);
+    registerDeadlineBandRules(registry);
+    registerWorkflowKpiRules(registry);
+  });
+
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */
 export function registerAllGovernanceRules(): void {
   registerCoreRules();
@@ -2573,6 +2592,7 @@ export function registerAllGovernanceRules(): void {
   registerGov12Rules();
   registerEnt4cRules();
   registerEnt4aRules();
+  registerProjectWorkflowModuleRules();
 }
 
 registerAllGovernanceRules();

@@ -26595,6 +26595,747 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/project-workflow/templates/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Kiểm một mẫu workflow dự án: lỗi, vòng lặp phụ thuộc, tham chiếu, giới hạn và gợi ý chất lượng lịch kiểu DCMA (không ghi dữ liệu) (PWF-02) */
+        post: operations["validateProjectWorkflowTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-workflow/templates/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lập lịch thử một mẫu workflow với ngày bắt đầu và nhóm dự án chọn tạm (không ghi dữ liệu) (PWF-02) */
+        post: operations["previewProjectWorkflowTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}/workflow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Workflow của một dự án: giai đoạn, việc, màu chính thức, cổng (PWF-03) */
+        get: operations["getProjectWorkflow"];
+        put?: never;
+        /** Khởi tạo workflow của dự án: đóng băng mẫu, tạo việc, sổ phân công mặc định và lịch phiên bản 1 (PWF-05) */
+        post: operations["startProjectWorkflow"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}/workflow/adopt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tiếp nhận dự án đang chạy vào workflow với ngày hiệu lực; dry_run=true chỉ trả bản chạy thử (PWF-05) */
+        post: operations["adoptProjectWorkflow"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}/workflow/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách việc của workflow, lọc theo giai đoạn, màu, người, trạng thái; phân trang theo con trỏ (PWF-03) */
+        get: operations["listProjectTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}/workflow/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lịch hiện hành của workflow: ngày, độ trễ cho phép, đường găng, phiên bản lịch làm việc, cờ (PWF-03) */
+        get: operations["getProjectSchedule"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}/workflow/gates/{target}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Xem trước một lệnh PRJ (hoặc sự kiện hệ thống) có qua được cổng giai đoạn không, kèm việc còn thiếu (PWF-03) */
+        get: operations["evaluateProjectGate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Chi tiết một công việc: chứng từ, biểu mẫu, danh mục kiểm, lịch sử, ngoại lệ, sổ phân công, KPI nếu có quyền (PWF-04) */
+        get: operations["getProjectTask"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bắt đầu công việc (người được giao); đặt ngày bắt đầu thực (PWF-04) */
+        post: operations["startProjectTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đính bằng chứng, chứng từ pháp lý hoặc biểu mẫu vào công việc (chỉ thêm) (PWF-04) */
+        post: operations["attachProjectTaskEvidence"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/checklist/{item_code}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hoàn thành một mục danh mục kiểm của công việc (PWF-04) */
+        post: operations["completeProjectTaskChecklistItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Hoàn thành công việc: kiểm danh mục kiểm, bằng chứng, chứng từ, biểu mẫu; chuyển chờ duyệt hoặc xong (PWF-04) */
+        post: operations["completeProjectTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/approve-completion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duyệt hoàn thành công việc (người duyệt khác mọi người làm) (PWF-04) */
+        post: operations["approveProjectTaskCompletion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trả lại công việc chờ duyệt kèm lý do (từ 20 ký tự) (PWF-04) */
+        post: operations["returnProjectTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/exceptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đề nghị ngoại lệ cho công việc: miễn yêu cầu, hủy việc, tạm dừng hoặc trì hoãn bên ngoài (PWF-04) */
+        post: operations["requestProjectTaskException"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-task-exceptions/{id}/decide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Quyết định đề nghị ngoại lệ (người quyết định khác người đề nghị); PAUSE duyệt chuyển việc ON_HOLD, CANCEL_TASK duyệt chuyển CANCELLED (PWF-04) */
+        post: operations["decideProjectTaskException"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Tiếp tục công việc đang tạm dừng; đóng khoảng tạm dừng (PWF-04) */
+        post: operations["resumeProjectTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sổ phân công của một công việc (PWF-16) */
+        get: operations["listProjectTaskAssignments"];
+        put?: never;
+        /** Thêm một phân công vào sổ phân công của công việc: người, vai, khoảng, tỷ lệ (chỉ thêm) (PWF-16) */
+        post: operations["assignProjectTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}/workflow/reschedules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đề nghị dời lịch: tính xem trước phần chưa làm, giữ đường cơ sở, lưu thành đề nghị chờ duyệt (PWF-06) */
+        post: operations["proposeProjectReschedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-reschedules/{id}/decide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duyệt hoặc từ chối đề nghị dời lịch (người duyệt khác người đề nghị); duyệt thì phát hành phiên bản lịch mới nguyên tử (PWF-06) */
+        post: operations["decideProjectReschedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pwf/deadlines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bảng deadline toàn danh mục: hàng, tổng chính xác theo màu, đang hiện N trên M; chỉ màu chính thức (PWF-07) */
+        get: operations["getDeadlineBoard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pwf/deadlines/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lịch tháng của các hạn công việc (PWF-07) */
+        get: operations["getDeadlineCalendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pwf/milestones/upcoming": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Mốc trong 30 ngày tới (PWF-07) */
+        get: operations["getUpcomingMilestones"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pwf/workload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tải công việc theo người và theo tuần (chỉ hiển thị) (PWF-07) */
+        get: operations["getProjectWorkload"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/project-tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Việc của tôi theo hạn: màu chính thức và màu cá nhân kèm ngày hạn thật (MOB-80) */
+        get: operations["getMyTasks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/deadline-preference": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tùy chọn nhắc hạn cá nhân (chỉ được sớm hơn mức chính thức) (PWF-15) */
+        get: operations["getDeadlinePreference"];
+        /** Lưu tùy chọn nhắc hạn cá nhân; ngưỡng muộn hơn mức chính thức bị từ chối (PWF-15) */
+        put: operations["setDeadlinePreference"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pwf/deadline-band/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Xem trước màu theo ngưỡng (ví dụ "còn 5 ngày: xanh") (PWF-08, PWF-15) */
+        get: operations["previewDeadlineBand"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pwf/kpi-operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh mục phép tính KPI an toàn: đơn vị, hướng tốt, dữ kiện cần (PWF-09) */
+        get: operations["getKpiOperations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/project-tasks/{task_id}/kpi-results": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kết quả KPI bất biến của một công việc kèm công thức, nguồn, dữ kiện (nút "i") (PWF-04) */
+        get: operations["listTaskKpiResults"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-periods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Danh sách kỳ chấm điểm trong scope (PWF-14) */
+        get: operations["listStaffScorePeriods"];
+        put?: never;
+        /** Tính bản nháp kỳ chấm điểm cho một đơn vị và chính sách (tính lại được) (PWF-14) */
+        post: operations["computeStaffScorePeriod"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-periods/{id}/lock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Chốt kỳ chấm điểm: chụp phân công, tỷ lệ, chính sách, lịch, đường cơ sở, mốc cắt sự kiện; mở cửa sổ phản hồi (PWF-14) */
+        post: operations["lockStaffScorePeriod"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-periods/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Một kỳ chấm điểm (PWF-14) */
+        get: operations["getStaffScorePeriod"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-periods/{id}/lines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bảng điểm của kỳ, chỉ trong scope; mọi lần xem của người khác ghi ADM-11 (PWF-12) */
+        get: operations["listStaffScoreLines"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/staff-scores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Điểm của tôi: điểm, phân rã, điều chỉnh, phản hồi; chỉ của chính mình (PWF-11, MOB-81) */
+        get: operations["getMyStaffScore"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-lines/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Chi tiết điểm của một người tới từng việc và dữ kiện; ghi ADM-11 khi người khác xem (PWF-13)
+         * @description Quyền: staff_score.read_own (điểm của chính mình), staff_score.read_unit (đơn vị tại thời điểm của kỳ) hoặc staff_score.read_hr (toàn tenant); người ngoài quyền nhận 404
+         */
+        get: operations["getStaffScoreLine"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-lines/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * So sánh các kỳ của cùng một người; không xếp hạng chéo mẫu chênh (PWF-11)
+         * @description Quyền: staff_score.read_own hoặc staff_score.read_unit; người ngoài quyền nhận 404
+         */
+        get: operations["compareStaffScoreLines"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-periods/{id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Xuất bảng điểm của kỳ ra tệp Excel; kiểm lại quyền trên tài liệu nguồn; ghi ADM-11 (PWF-12) */
+        get: operations["exportStaffScorePeriod"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-periods/{id}/signals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cờ bất thường (thao túng) của kỳ cho người rà soát; cờ không tự đổi điểm (PWF-14) */
+        get: operations["listStaffScoreSignals"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-lines/{id}/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Đề nghị điều chỉnh điểm trong biên độ chính sách, kèm lý do và bằng chứng (PWF-13) */
+        post: operations["requestStaffScoreAdjustment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-adjustments/{id}/decide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duyệt hoặc từ chối điều chỉnh điểm (người duyệt khác người đề nghị và khác người được chấm) (PWF-13) */
+        post: operations["decideStaffScoreAdjustment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-lines/{id}/responses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Người được chấm gửi phản hồi về điểm trong cửa sổ phản hồi (nội dung từ 20 ký tự) (PWF-11) */
+        post: operations["submitStaffScoreResponse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-responses/{id}/handle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Xử lý phản hồi về điểm: kết luận, giữ hay điều chỉnh (PWF-14) */
+        post: operations["handleStaffScoreResponse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-score-periods/{id}/officialize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Chính thức hóa kỳ chấm điểm khi hết cửa sổ phản hồi và không còn phản hồi mở, hoặc mọi phản hồi đã xử lý (PWF-14) */
+        post: operations["officializeStaffScorePeriod"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -48098,6 +48839,1323 @@ export interface components {
             planned_on: string | null;
             /** Format: date */
             actual_on: string | null;
+        };
+        /** @description Tham số của quy tắc PROJECT_WORKFLOW_TEMPLATE: tối đa 400 việc, 12 giai đoạn, 20 liên kết mỗi việc, chuỗi dài nhất 100 (BR-PWF-12) */
+        PwfTemplateParams: {
+            name: string;
+            project_type: string | null;
+            phases: {
+                code: string;
+                name: string;
+                gates: ("submitProjectForAppraisal" | "decideProjectAppraisal" | "capital.plan_published.v1" | "startProjectImplementation" | "suspendProject" | "resumeProject" | "completeProject" | "settlement.closed.v1" | "closeProject")[];
+            }[];
+            tasks: {
+                code: string;
+                name: string;
+                phase: string;
+                /** @enum {string} */
+                kind: "TASK" | "MILESTONE";
+                duration_working_days: number;
+                required: boolean;
+                responsible_role: string;
+                approver_role: string | null;
+                /** @enum {string} */
+                priority: "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
+                predecessors: {
+                    task: string;
+                    /** @enum {string} */
+                    kind: "FS" | "SS" | "FF" | "SF";
+                    lag_working_days: number;
+                }[];
+                constraint?: {
+                    /** @enum {string} */
+                    kind: "SNET" | "SNLT" | "FNET" | "FNLT" | "MSO" | "MFO";
+                    offset_working_days: number;
+                } | null;
+                legal_doc_types?: string[];
+                form_templates?: string[];
+                checklist?: {
+                    code: string;
+                    name: string;
+                    required: boolean;
+                    evidence_kinds: string[];
+                }[];
+                kpi_codes?: string[];
+                when?: {
+                    /** @enum {string} */
+                    field: "project_group" | "funding_source" | "project_type";
+                    in: string[];
+                }[];
+            }[];
+        };
+        PwfTemplateValidation: {
+            valid: boolean;
+            findings: {
+                code: string;
+                path: string;
+                /** @enum {string} */
+                severity: "ERROR" | "WARNING";
+                detail?: string | null;
+            }[];
+            quality_flags: {
+                /** @description MISSING_PREDECESSOR, MISSING_SUCCESSOR, LEAD, HARD_CONSTRAINT, LONG_TASK, NEGATIVE_FLOAT (BR-PWF-19, không chặn) */
+                code: string;
+                task?: string | null;
+                detail?: string | null;
+            }[];
+            task_count: number;
+            phase_count: number;
+            longest_chain: number;
+            template_hash: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfTemplatePreviewRequest: {
+            params: components["schemas"]["PwfTemplateParams"];
+            /** Format: date */
+            planned_start_date: string;
+            facts?: {
+                project_group?: string;
+                funding_source?: string;
+                project_type?: string;
+            };
+        };
+        PwfSchedulePreview: {
+            /** Format: date */
+            planned_start_date: string;
+            /** Format: date */
+            project_start: string | null;
+            /** Format: date */
+            project_finish: string | null;
+            critical_path: string[];
+            longest_path: string[];
+            calendar_versions: {
+                year: number;
+                version: number;
+            }[];
+            tasks: {
+                /** Format: uuid */
+                task_id?: string | null;
+                task_code: string;
+                name: string;
+                phase_code: string;
+                /** @enum {string} */
+                kind: "TASK" | "MILESTONE";
+                /** @enum {string} */
+                state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
+                /** Format: date */
+                start: string | null;
+                /** Format: date */
+                finish: string | null;
+                /** Format: date */
+                late_start: string | null;
+                /** Format: date */
+                late_finish: string | null;
+                total_float: number | null;
+                free_float: number | null;
+                critical: boolean;
+                driving_predecessor: string | null;
+                missing_year: number | null;
+                start_variance_days: number | null;
+                finish_variance_days: number | null;
+                findings: {
+                    /** @enum {string} */
+                    code: "CONSTRAINT_CONFLICT" | "CONSTRAINT_VIOLATED" | "ACTUAL_DATES_MISSING" | "CALENDAR_UNAVAILABLE";
+                    task: string | null;
+                    year?: number | null;
+                }[];
+            }[];
+            excluded_tasks: string[];
+            findings: {
+                /** @enum {string} */
+                code: "CONSTRAINT_CONFLICT" | "CONSTRAINT_VIOLATED" | "ACTUAL_DATES_MISSING" | "CALENDAR_UNAVAILABLE";
+                task: string | null;
+                year?: number | null;
+            }[];
+            result_hash: string;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfWorkflowStart: {
+            template_code: string;
+            /** @description Bỏ trống: phiên bản đang hiệu lực của mẫu */
+            template_version?: number;
+            /** Format: date */
+            planned_start_date: string;
+            facts?: {
+                project_group?: string;
+                funding_source?: string;
+                project_type?: string;
+            };
+        };
+        PwfWorkflowAdopt: {
+            template_code: string;
+            template_version?: number;
+            /** Format: date */
+            planned_start_date: string;
+            /** Format: date */
+            effective_date: string;
+            dry_run: boolean;
+            facts?: {
+                project_group?: string;
+                funding_source?: string;
+                project_type?: string;
+            };
+            /** @description Việc kết thúc trước ngày hiệu lực: NOT_TRACKED hoặc đã xong kèm bằng chứng đúng loại (BR-PWF-17) */
+            past_tasks?: {
+                task_code: string;
+                /** @enum {string} */
+                treatment: "NOT_TRACKED" | "DONE";
+                /** Format: date */
+                actual_start?: string | null;
+                /** Format: date */
+                actual_finish?: string | null;
+                evidence?: components["schemas"]["PwfEvidenceInput"][];
+            }[];
+            /** @description Việc đang dở: ngày bắt đầu thực và thời lượng còn lại */
+            in_progress_tasks?: {
+                task_code: string;
+                /** Format: date */
+                actual_start: string;
+                remaining_working_days: number;
+                percent_complete?: number;
+            }[];
+        };
+        PwfAdoptResult: {
+            dry_run: boolean;
+            applied: boolean;
+            /** Format: uuid */
+            workflow_id: string | null;
+            template_code: string;
+            template_hash: string;
+            /** Format: date */
+            effective_date: string;
+            tasks: {
+                task_code: string;
+                name: string;
+                /** @enum {string} */
+                treatment: "TRACKED" | "NOT_TRACKED" | "DONE" | "IN_PROGRESS" | "EXCLUDED";
+                /** Format: date */
+                planned_start: string | null;
+                /** Format: date */
+                planned_finish: string | null;
+                needs_decision: boolean;
+            }[];
+            schedule: components["schemas"]["PwfSchedulePreview"];
+            findings: {
+                code: string;
+                task: string | null;
+            }[];
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfWorkflowDetail: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            project_id: string;
+            template_code: string;
+            template_rule_version: number;
+            template_hash: string;
+            unverified: boolean;
+            /** @enum {string} */
+            status: "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
+            /** Format: date */
+            planned_start_date: string;
+            schedule_version: number;
+            /** Format: date */
+            adopted_on: string | null;
+            open_phase: string | null;
+            phases: {
+                code: string;
+                name: string;
+                order: number;
+                gates: ("submitProjectForAppraisal" | "decideProjectAppraisal" | "capital.plan_published.v1" | "startProjectImplementation" | "suspendProject" | "resumeProject" | "completeProject" | "settlement.closed.v1" | "closeProject")[];
+                required_total: number;
+                required_done: number;
+                open: boolean;
+            }[];
+            tasks: {
+                /** Format: uuid */
+                id: string;
+                task_code: string;
+                name: string;
+                phase_code: string;
+                /** @enum {string} */
+                kind: "TASK" | "MILESTONE";
+                required: boolean;
+                /** @enum {string} */
+                priority: "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
+                /** @enum {string} */
+                status: "NOT_STARTED" | "IN_PROGRESS" | "AWAITING_APPROVAL" | "DONE" | "ON_HOLD" | "CANCELLED";
+                excluded: boolean;
+                tracked: boolean;
+                /** @enum {string} */
+                state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
+                /** Format: date */
+                planned_start: string | null;
+                /** Format: date */
+                planned_finish: string | null;
+                /** Format: date */
+                baseline_finish: string | null;
+                missing_year: number | null;
+                total_float: number | null;
+                critical: boolean;
+                band: {
+                    /** @enum {string} */
+                    band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                    remaining_days: number | null;
+                    /** @enum {string} */
+                    unit: "CALENDAR" | "WORKING";
+                    overdue: boolean;
+                    /** @enum {string|null} */
+                    reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                };
+                assignee: {
+                    /** Format: uuid */
+                    membership_id: string;
+                    display_name: string;
+                } | null;
+                return_count: number;
+                version: number;
+            }[];
+            gates: {
+                /** @enum {string} */
+                target: "submitProjectForAppraisal" | "decideProjectAppraisal" | "capital.plan_published.v1" | "startProjectImplementation" | "suspendProject" | "resumeProject" | "completeProject" | "settlement.closed.v1" | "closeProject";
+                open: boolean;
+                missing_count: number;
+            }[];
+            counts_by_band: {
+                NONE: number;
+                GREEN: number;
+                YELLOW: number;
+                RED: number;
+                UNKNOWN: number;
+            };
+            can_manage: boolean;
+            can_propose_reschedule: boolean;
+            version: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfTaskPage: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                task_code: string;
+                name: string;
+                phase_code: string;
+                /** @enum {string} */
+                kind: "TASK" | "MILESTONE";
+                required: boolean;
+                /** @enum {string} */
+                priority: "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
+                /** @enum {string} */
+                status: "NOT_STARTED" | "IN_PROGRESS" | "AWAITING_APPROVAL" | "DONE" | "ON_HOLD" | "CANCELLED";
+                excluded: boolean;
+                tracked: boolean;
+                /** @enum {string} */
+                state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
+                /** Format: date */
+                planned_start: string | null;
+                /** Format: date */
+                planned_finish: string | null;
+                /** Format: date */
+                baseline_finish: string | null;
+                missing_year: number | null;
+                total_float: number | null;
+                critical: boolean;
+                band: {
+                    /** @enum {string} */
+                    band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                    remaining_days: number | null;
+                    /** @enum {string} */
+                    unit: "CALENDAR" | "WORKING";
+                    overdue: boolean;
+                    /** @enum {string|null} */
+                    reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                };
+                assignee: {
+                    /** Format: uuid */
+                    membership_id: string;
+                    display_name: string;
+                } | null;
+                return_count: number;
+                version: number;
+            }[];
+            next_cursor: string | null;
+            total: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfSchedule: {
+            /** Format: uuid */
+            workflow_id: string;
+            schedule_version: number;
+            /** Format: date */
+            planned_start_date: string;
+            /** Format: date-time */
+            published_at: string | null;
+            /** Format: date */
+            project_start: string | null;
+            /** Format: date */
+            project_finish: string | null;
+            critical_path: string[];
+            longest_path: string[];
+            calendar_versions: {
+                year: number;
+                version: number;
+            }[];
+            tasks: {
+                /** Format: uuid */
+                task_id?: string | null;
+                task_code: string;
+                name: string;
+                phase_code: string;
+                /** @enum {string} */
+                kind: "TASK" | "MILESTONE";
+                /** @enum {string} */
+                state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
+                /** Format: date */
+                start: string | null;
+                /** Format: date */
+                finish: string | null;
+                /** Format: date */
+                late_start: string | null;
+                /** Format: date */
+                late_finish: string | null;
+                total_float: number | null;
+                free_float: number | null;
+                critical: boolean;
+                driving_predecessor: string | null;
+                missing_year: number | null;
+                start_variance_days: number | null;
+                finish_variance_days: number | null;
+                findings: {
+                    /** @enum {string} */
+                    code: "CONSTRAINT_CONFLICT" | "CONSTRAINT_VIOLATED" | "ACTUAL_DATES_MISSING" | "CALENDAR_UNAVAILABLE";
+                    task: string | null;
+                    year?: number | null;
+                }[];
+            }[];
+            excluded_tasks: string[];
+            findings: {
+                /** @enum {string} */
+                code: "CONSTRAINT_CONFLICT" | "CONSTRAINT_VIOLATED" | "ACTUAL_DATES_MISSING" | "CALENDAR_UNAVAILABLE";
+                task: string | null;
+                year?: number | null;
+            }[];
+            result_hash: string;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfGateAssessment: {
+            /** @enum {string} */
+            target: "submitProjectForAppraisal" | "decideProjectAppraisal" | "capital.plan_published.v1" | "startProjectImplementation" | "suspendProject" | "resumeProject" | "completeProject" | "settlement.closed.v1" | "closeProject";
+            gated: boolean;
+            open: boolean;
+            missing: {
+                task: string;
+                /** Format: uuid */
+                task_id: string | null;
+                phase: string;
+                /** @enum {string} */
+                reason: "NO_STATE" | "NOT_DONE" | "COMPLETION_NOT_APPROVED" | "CANCELLED_WITHOUT_APPROVAL";
+            }[];
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfTaskDetail: {
+            /** Format: uuid */
+            id: string;
+            task_code: string;
+            name: string;
+            phase_code: string;
+            /** @enum {string} */
+            kind: "TASK" | "MILESTONE";
+            required: boolean;
+            /** @enum {string} */
+            priority: "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
+            /** @enum {string} */
+            status: "NOT_STARTED" | "IN_PROGRESS" | "AWAITING_APPROVAL" | "DONE" | "ON_HOLD" | "CANCELLED";
+            excluded: boolean;
+            tracked: boolean;
+            /** @enum {string} */
+            state: "SCHEDULED" | "COMPLETED" | "PASS_THROUGH" | "CALENDAR_UNAVAILABLE";
+            /** Format: date */
+            planned_start: string | null;
+            /** Format: date */
+            planned_finish: string | null;
+            /** Format: date */
+            baseline_finish: string | null;
+            missing_year: number | null;
+            total_float: number | null;
+            critical: boolean;
+            band: {
+                /** @enum {string} */
+                band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                remaining_days: number | null;
+                /** @enum {string} */
+                unit: "CALENDAR" | "WORKING";
+                overdue: boolean;
+                /** @enum {string|null} */
+                reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+            };
+            assignee: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+            } | null;
+            return_count: number;
+            version: number;
+            responsible_role: string;
+            approver_role: string | null;
+            duration_working_days: number;
+            /** Format: date */
+            baseline_start: string | null;
+            finish_variance_days: number | null;
+            /** Format: date */
+            late_start: string | null;
+            /** Format: date */
+            late_finish: string | null;
+            free_float: number | null;
+            /** Format: date */
+            actual_start: string | null;
+            /** Format: date */
+            actual_finish: string | null;
+            remaining_working_days: number | null;
+            percent_complete: number | null;
+            reschedule_count: number;
+            estimate_vnd: components["schemas"]["Money"] | null;
+            actual_vnd: components["schemas"]["Money"] | null;
+            /** Format: uuid */
+            milestone_id: string | null;
+            predecessors: {
+                task: string;
+                /** @enum {string} */
+                kind: "FS" | "SS" | "FF" | "SF";
+                lag_working_days: number;
+            }[];
+            checklist: {
+                item_code: string;
+                name: string;
+                required: boolean;
+                evidence_kinds: string[];
+                done: boolean;
+                /** Format: uuid */
+                done_by: string | null;
+                /** Format: date-time */
+                done_at: string | null;
+            }[];
+            legal_doc_types: {
+                code: string;
+                satisfied: boolean;
+            }[];
+            form_templates: {
+                code: string;
+                satisfied: boolean;
+                /** Format: uuid */
+                document_id: string | null;
+            }[];
+            evidence: {
+                /** Format: uuid */
+                id: string;
+                item_code: string | null;
+                evidence_kind: string;
+                /** Format: uuid */
+                document_id: string | null;
+                legal_doc_type: string | null;
+                form_template_code: string | null;
+                external_ref: string | null;
+                note: string | null;
+                /** Format: uuid */
+                attached_by: string;
+                /** Format: date-time */
+                attached_at: string;
+            }[];
+            completion: {
+                ok: boolean;
+                blockers: {
+                    /** @enum {string} */
+                    code: "CHECKLIST_ITEM_OPEN" | "EVIDENCE_MISSING" | "LEGAL_DOC_MISSING" | "FORM_MISSING" | "APPROVER_REQUIRED" | "MAKER_IS_APPROVER";
+                    subject: string;
+                }[];
+                coverable: {
+                    /** @enum {string} */
+                    code: "CHECKLIST_ITEM_OPEN" | "EVIDENCE_MISSING" | "LEGAL_DOC_MISSING" | "FORM_MISSING" | "APPROVER_REQUIRED" | "MAKER_IS_APPROVER";
+                    subject: string;
+                }[];
+            };
+            exceptions: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                task_id: string;
+                /** @enum {string} */
+                kind: "WAIVE_REQUIREMENT" | "CANCEL_TASK" | "PAUSE" | "EXTERNAL_DELAY";
+                items: string[];
+                /** Format: date */
+                valid_from: string | null;
+                /** Format: date */
+                valid_to: string | null;
+                reason: string;
+                evidence_ref: string | null;
+                /** @enum {string} */
+                status: "REQUESTED" | "APPROVED" | "REJECTED" | "USED";
+                /** Format: uuid */
+                requested_by: string;
+                /** Format: uuid */
+                decided_by: string | null;
+                /** Format: date-time */
+                decided_at: string | null;
+                decision_note: string | null;
+                version: number;
+            }[];
+            assignments: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                task_id: string;
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+                /** @enum {string} */
+                role: "RESPONSIBLE" | "ACCOUNTABLE" | "CONSULTED" | "INFORMED";
+                /** Format: date */
+                valid_from: string;
+                /** Format: date */
+                valid_to: string | null;
+                share_pct: number;
+                reason: string;
+                /** Format: uuid */
+                assigned_by: string;
+                /** Format: uuid */
+                approved_by: string | null;
+            }[];
+            history: {
+                /** Format: uuid */
+                id: string;
+                kind: string;
+                /** Format: date-time */
+                at: string;
+                /** Format: uuid */
+                actor: string | null;
+                reason: string | null;
+            }[];
+            /** @description Chỉ có khi người xem có quyền xem KPI của việc */
+            kpi_results?: {
+                /** Format: uuid */
+                id: string;
+                kpi_code: string;
+                /** @enum {string} */
+                operation: "DAYS_DEVIATION" | "ON_TIME_RATE" | "AMOUNT_VARIANCE_PCT" | "RETURN_COUNT" | "EVIDENCE_COMPLETENESS" | "RESCHEDULE_COUNT";
+                /** Format: uuid */
+                kpi_set_rule_id: string | null;
+                kpi_set_version: number;
+                /** @enum {string} */
+                state: "OK" | "NOT_APPLICABLE" | "EXCLUDED" | "MISSING_FACT";
+                value: number | null;
+                score: number | null;
+                weight: number;
+                inputs_hash: string;
+                /** @description Dữ kiện nguồn của phép tính (nút "i": công thức, nguồn, dữ kiện) */
+                inputs: {
+                    [key: string]: unknown;
+                };
+                /** Format: date-time */
+                computed_at: string;
+                /** Format: uuid */
+                supersedes_id: string | null;
+            }[];
+            can_start: boolean;
+            can_complete: boolean;
+            can_approve: boolean;
+            can_return: boolean;
+            can_request_exception: boolean;
+            can_resume: boolean;
+            can_assign: boolean;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfTaskStart: {
+            /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */
+            early_start_reason?: string;
+            /** Format: date */
+            actual_start?: string;
+            note?: string;
+        };
+        PwfEvidenceInput: {
+            evidence_kind: string;
+            /** @description Mục danh mục kiểm mà bằng chứng thuộc về */
+            item_code?: string;
+            /** Format: uuid */
+            document_id?: string;
+            /** @description Mã loại chứng từ, phân giải theo bản (resolveLegalDocType); mã lạ: LEGAL_DOC_TYPE_UNKNOWN */
+            legal_doc_type?: string;
+            form_template_code?: string;
+            external_ref?: string;
+            note?: string;
+        };
+        PwfChecklistComplete: {
+            /** Format: uuid */
+            evidence_id?: string;
+            note?: string;
+        };
+        PwfTaskComplete: {
+            /** Format: date */
+            actual_finish?: string;
+            actual_vnd?: components["schemas"]["Money"];
+            /**
+             * Format: uuid
+             * @description Ngoại lệ WAIVE_REQUIREMENT đã duyệt che phần còn thiếu (không che quy tắc người làm khác người duyệt)
+             */
+            exception_id?: string;
+            note?: string;
+        };
+        /** @description approveProjectTaskCompletion chỉ nhận APPROVE (trả lại việc dùng returnProjectTask); các lệnh duyệt khác nhận APPROVE hoặc REJECT */
+        PwfDecisionInput: {
+            /** @enum {string} */
+            decision: "APPROVE" | "REJECT";
+            note?: string;
+        };
+        PwfReturnInput: {
+            reason: string;
+        };
+        PwfExceptionRequest: {
+            /** @enum {string} */
+            kind: "WAIVE_REQUIREMENT" | "CANCEL_TASK" | "PAUSE" | "EXTERNAL_DELAY";
+            /** @description WAIVE_REQUIREMENT: mã mục, bằng chứng, chứng từ hoặc biểu mẫu được miễn */
+            items?: string[];
+            /** Format: date */
+            valid_from?: string;
+            /** Format: date */
+            valid_to?: string | null;
+            reason: string;
+            evidence_ref?: string;
+        };
+        PwfAssignmentInput: {
+            /** Format: uuid */
+            membership_id: string;
+            /** @enum {string} */
+            role: "RESPONSIBLE" | "ACCOUNTABLE" | "CONSULTED" | "INFORMED";
+            /** Format: date */
+            valid_from: string;
+            /** Format: date */
+            valid_to?: string | null;
+            share_pct: number;
+            reason: string;
+        };
+        PwfAssignmentPage: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                task_id: string;
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+                /** @enum {string} */
+                role: "RESPONSIBLE" | "ACCOUNTABLE" | "CONSULTED" | "INFORMED";
+                /** Format: date */
+                valid_from: string;
+                /** Format: date */
+                valid_to: string | null;
+                share_pct: number;
+                reason: string;
+                /** Format: uuid */
+                assigned_by: string;
+                /** Format: uuid */
+                approved_by: string | null;
+            }[];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfRescheduleRequest: {
+            /** Format: date */
+            planned_start_date?: string;
+            /**
+             * Format: date
+             * @description Ngày tính tiến độ; mặc định hôm nay (giờ Việt Nam)
+             */
+            status_date?: string;
+            progress?: {
+                task_code: string;
+                /** Format: date */
+                actual_start?: string | null;
+                /** Format: date */
+                actual_finish?: string | null;
+                remaining_working_days?: number | null;
+                percent_complete?: number | null;
+            }[];
+            /** @description Ghi đè của riêng dự án có lý do (applyOverrides) */
+            overrides?: {
+                add?: {
+                    code: string;
+                    name: string;
+                    phase: string;
+                    /** @enum {string} */
+                    kind: "TASK" | "MILESTONE";
+                    duration_working_days: number;
+                    predecessors?: {
+                        task: string;
+                        /** @enum {string} */
+                        kind: "FS" | "SS" | "FF" | "SF";
+                        lag_working_days: number;
+                    }[];
+                }[];
+                change?: {
+                    task_code: string;
+                    duration_working_days?: number;
+                    predecessors?: {
+                        task: string;
+                        /** @enum {string} */
+                        kind: "FS" | "SS" | "FF" | "SF";
+                        lag_working_days: number;
+                    }[];
+                }[];
+                remove?: string[];
+            };
+            reason: string;
+        };
+        PwfReschedulePreview: {
+            /** Format: uuid */
+            proposal_id: string;
+            /** @enum {string} */
+            status: "PROPOSED" | "APPROVED" | "REJECTED" | "SUPERSEDED";
+            base_version: number;
+            schedule: components["schemas"]["PwfSchedulePreview"];
+            changes: {
+                task_code: string;
+                start_shift_days: number | null;
+                finish_shift_days: number | null;
+                float_change: number | null;
+                became_critical: boolean;
+                became_non_critical: boolean;
+                state_changed: boolean;
+            }[];
+            project_finish_shift_days: number | null;
+            input_hash: string;
+            result_hash: string;
+            reason: string;
+            /** Format: uuid */
+            proposed_by: string;
+            version: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfDeadlineBoard: {
+            items: {
+                /** Format: uuid */
+                task_id: string;
+                task_code: string;
+                name: string;
+                /** Format: uuid */
+                project_id: string;
+                project_code: string;
+                project_name: string;
+                phase_code: string;
+                /** @enum {string} */
+                kind: "TASK" | "MILESTONE";
+                /** @enum {string} */
+                status: "NOT_STARTED" | "IN_PROGRESS" | "AWAITING_APPROVAL" | "DONE" | "ON_HOLD" | "CANCELLED";
+                /** Format: date */
+                due_date: string | null;
+                band: {
+                    /** @enum {string} */
+                    band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                    remaining_days: number | null;
+                    /** @enum {string} */
+                    unit: "CALENDAR" | "WORKING";
+                    overdue: boolean;
+                    /** @enum {string|null} */
+                    reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                };
+                critical: boolean;
+                assignee: {
+                    /** Format: uuid */
+                    membership_id: string;
+                    display_name: string;
+                } | null;
+            }[];
+            next_cursor: string | null;
+            shown: number;
+            total: number;
+            truncated: boolean;
+            counts_by_band: {
+                NONE: number;
+                GREEN: number;
+                YELLOW: number;
+                RED: number;
+                UNKNOWN: number;
+            };
+            /**
+             * @description Màn chung chỉ hiện màu chính thức (BR-PWF-23)
+             * @enum {boolean}
+             */
+            official_only: true;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfDeadlineCalendar: {
+            month: string;
+            days: {
+                /** Format: date */
+                date: string;
+                total: number;
+                counts_by_band: {
+                    NONE: number;
+                    GREEN: number;
+                    YELLOW: number;
+                    RED: number;
+                    UNKNOWN: number;
+                };
+                tasks: {
+                    /** Format: uuid */
+                    task_id: string;
+                    task_code: string;
+                    name: string;
+                    /** Format: uuid */
+                    project_id: string;
+                    project_code: string;
+                    /** @enum {string} */
+                    band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                }[];
+            }[];
+            shown: number;
+            total: number;
+            truncated: boolean;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfMilestoneList: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            items: {
+                /** Format: uuid */
+                task_id: string;
+                /** Format: uuid */
+                milestone_id: string | null;
+                task_code: string;
+                name: string;
+                /** Format: uuid */
+                project_id: string;
+                project_code: string;
+                /** Format: date */
+                planned_date: string | null;
+                /** Format: date */
+                baseline_date: string | null;
+                forecast_slip_days: number | null;
+                at_risk: boolean;
+                band: {
+                    /** @enum {string} */
+                    band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                    remaining_days: number | null;
+                    /** @enum {string} */
+                    unit: "CALENDAR" | "WORKING";
+                    overdue: boolean;
+                    /** @enum {string|null} */
+                    reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                };
+            }[];
+            total: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfWorkload: {
+            /** @description Ngày đầu của từng tuần trong khoảng xem */
+            weeks: string[];
+            people: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+                open_tasks: number;
+                /** @description Số ngày làm việc kế hoạch còn lại mỗi tuần, chia theo tỷ lệ phân công (BR-PWF-18) */
+                weekly_planned_working_days: number[];
+            }[];
+            /**
+             * @description Chỉ hiển thị, không cân bằng tự động
+             * @enum {boolean}
+             */
+            display_only: true;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfMyTaskPage: {
+            items: {
+                /** Format: uuid */
+                task_id: string;
+                task_code: string;
+                name: string;
+                /** Format: uuid */
+                project_id: string;
+                project_code: string;
+                /** @enum {string} */
+                status: "NOT_STARTED" | "IN_PROGRESS" | "AWAITING_APPROVAL" | "DONE" | "ON_HOLD" | "CANCELLED";
+                /** Format: date */
+                due_date: string | null;
+                official_band: {
+                    /** @enum {string} */
+                    band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                    remaining_days: number | null;
+                    /** @enum {string} */
+                    unit: "CALENDAR" | "WORKING";
+                    overdue: boolean;
+                    /** @enum {string|null} */
+                    reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                };
+                personal_band: {
+                    /** @enum {string} */
+                    band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+                    remaining_days: number | null;
+                    /** @enum {string} */
+                    unit: "CALENDAR" | "WORKING";
+                    overdue: boolean;
+                    /** @enum {string|null} */
+                    reason?: "NO_DUE" | "FAR" | "CALENDAR_UNAVAILABLE" | null;
+                } | null;
+                critical: boolean;
+                version: number;
+            }[];
+            next_cursor: string | null;
+            total: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfDeadlinePreference: {
+            green_days?: number | null;
+            yellow_days?: number | null;
+            red_days?: number | null;
+            /** @description Giảm dần, ví dụ 5, 2, 0, -1 */
+            reminder_days?: number[];
+            /** @description Ngưỡng chính thức đang hiệu lực (nguồn PROJECT_TASK) */
+            readonly official?: {
+                green_days: number | null;
+                yellow_days: number;
+                red_days: number;
+            };
+            /** @description Mức cá nhân muộn hơn chính thức bị nâng bằng mức chính thức khi đọc */
+            readonly clamped?: ("green_days" | "yellow_days" | "red_days")[];
+            readonly version?: number;
+            /** Format: date-time */
+            readonly as_of?: string;
+        };
+        PwfBandPreview: {
+            /** @enum {string} */
+            unit: "CALENDAR" | "WORKING";
+            thresholds: {
+                green_days: number | null;
+                yellow_days: number;
+                red_days: number;
+            };
+            examples: {
+                remaining_days: number;
+                /** @enum {string} */
+                band: "NONE" | "GREEN" | "YELLOW" | "RED" | "UNKNOWN";
+            }[];
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfKpiOperationList: {
+            items: {
+                /** @enum {string} */
+                code: "DAYS_DEVIATION" | "ON_TIME_RATE" | "AMOUNT_VARIANCE_PCT" | "RETURN_COUNT" | "EVIDENCE_COMPLETENESS" | "RESCHEDULE_COUNT";
+                /** @enum {string} */
+                unit: "PERCENT" | "VND" | "COUNT" | "DAYS" | "RATIO";
+                /** @enum {string} */
+                good_direction: "LOWER_IS_BETTER" | "HIGHER_IS_BETTER";
+                required_facts: string[];
+                params: {
+                    name: string;
+                    type: string;
+                    required: boolean;
+                }[];
+            }[];
+            /** Format: date-time */
+            as_of: string;
+        };
+        PwfKpiResultPage: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                kpi_code: string;
+                /** @enum {string} */
+                operation: "DAYS_DEVIATION" | "ON_TIME_RATE" | "AMOUNT_VARIANCE_PCT" | "RETURN_COUNT" | "EVIDENCE_COMPLETENESS" | "RESCHEDULE_COUNT";
+                /** Format: uuid */
+                kpi_set_rule_id: string | null;
+                kpi_set_version: number;
+                /** @enum {string} */
+                state: "OK" | "NOT_APPLICABLE" | "EXCLUDED" | "MISSING_FACT";
+                value: number | null;
+                score: number | null;
+                weight: number;
+                inputs_hash: string;
+                /** @description Dữ kiện nguồn của phép tính (nút "i": công thức, nguồn, dữ kiện) */
+                inputs: {
+                    [key: string]: unknown;
+                };
+                /** Format: date-time */
+                computed_at: string;
+                /** Format: uuid */
+                supersedes_id: string | null;
+            }[];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        StaffScorePeriodRequest: {
+            /** Format: uuid */
+            scope_unit_id: string;
+            /** Format: date */
+            period_from: string;
+            /** Format: date */
+            period_to: string;
+            policy_code: string;
+        };
+        StaffScorePeriod: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            scope_unit_id: string;
+            /** @enum {string} */
+            period_kind: "MONTH" | "QUARTER" | "YEAR";
+            /** Format: date */
+            period_from: string;
+            /** Format: date */
+            period_to: string;
+            /** @enum {string} */
+            status: "DRAFT" | "LOCKED" | "OFFICIAL";
+            policy_code: string;
+            /** Format: uuid */
+            policy_rule_id: string;
+            policy_version: number;
+            snapshot_hash: string | null;
+            /** Format: uuid */
+            locked_by: string | null;
+            /** Format: date-time */
+            locked_at: string | null;
+            /** Format: date */
+            response_until: string | null;
+            /** Format: date-time */
+            official_at: string | null;
+            /** Format: uuid */
+            supersedes_period_id: string | null;
+            line_count: number;
+            open_response_count: number;
+            version: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        StaffScorePeriodPreview: {
+            period: components["schemas"]["StaffScorePeriod"];
+            rated_count: number;
+            small_sample_count: number;
+            not_rated_count: number;
+            signal_count: number;
+            excluded_task_count: number;
+            preview_hash: string;
+            /** Format: date-time */
+            as_of: string;
+        };
+        StaffScorePeriodPage: {
+            items: components["schemas"]["StaffScorePeriod"][];
+            next_cursor: string | null;
+            total: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        StaffScoreLine: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            period_id: string;
+            /** Format: uuid */
+            membership_id: string;
+            display_name: string;
+            /** Format: uuid */
+            unit_id_at_period: string;
+            score_computed: number | null;
+            score_adjusted: number | null;
+            rating: string | null;
+            /** @enum {string} */
+            state: "RATED" | "NOT_RATED" | "SMALL_SAMPLE";
+            rated_task_count: number;
+            effective_weight: number;
+            /** @enum {string} */
+            period_status: "DRAFT" | "LOCKED" | "OFFICIAL";
+            contributions: {
+                task_code: string;
+                /** Format: uuid */
+                task_id: string | null;
+                name: string;
+                fraction: number;
+                weight: number;
+                score: number;
+                spans: {
+                    /** @enum {string} */
+                    role: "RESPONSIBLE" | "ACCOUNTABLE" | "CONSULTED" | "INFORMED";
+                    /** Format: date */
+                    valid_from: string;
+                    /** Format: date */
+                    valid_to: string | null;
+                    share_pct: number;
+                }[];
+            }[];
+            excluded: {
+                task_code: string;
+                reason: string;
+            }[];
+            /** @description Cờ dành cho người rà soát; không bao giờ đổi điểm */
+            flags?: ("CANCELLED_SHARE_HIGH" | "TASKS_SPLIT_AFTER_BASELINE" | "BASELINE_REVISED_IN_PERIOD" | "ASSIGNEE_CHANGED_NEAR_DUE")[];
+            adjustments: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                line_id: string;
+                points: number;
+                reason: string;
+                evidence_ref: string | null;
+                /** @enum {string} */
+                status: "REQUESTED" | "APPROVED" | "REJECTED";
+                /** Format: uuid */
+                requested_by: string;
+                /** Format: uuid */
+                decided_by: string | null;
+                /** Format: date-time */
+                decided_at: string | null;
+                version: number;
+            }[];
+            responses: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                line_id: string;
+                body: string;
+                /** @enum {string} */
+                status: "OPEN" | "HANDLED";
+                /** Format: date-time */
+                submitted_at: string;
+                /** Format: uuid */
+                handled_by: string | null;
+                /** Format: date-time */
+                handled_at: string | null;
+                conclusion: string | null;
+                /** Format: uuid */
+                approval_instance_id: string | null;
+            }[];
+            basis: {
+                policy_code: string;
+                policy_version: number;
+                snapshot_hash: string | null;
+            };
+            can_request_adjustment: boolean;
+            can_respond: boolean;
+            version: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        StaffScoreLinePage: {
+            items: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                period_id: string;
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+                /** Format: uuid */
+                unit_id_at_period: string;
+                score_computed: number | null;
+                score_adjusted: number | null;
+                rating: string | null;
+                /** @enum {string} */
+                state: "RATED" | "NOT_RATED" | "SMALL_SAMPLE";
+                rated_task_count: number;
+                effective_weight: number;
+                has_adjustment: boolean;
+                has_open_response: boolean;
+            }[];
+            next_cursor: string | null;
+            total: number;
+            /** Format: date-time */
+            as_of: string;
+        };
+        MyStaffScorePage: {
+            items: {
+                period: components["schemas"]["StaffScorePeriod"];
+                line: components["schemas"]["StaffScoreLine"];
+            }[];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        StaffScoreComparison: {
+            /** Format: uuid */
+            membership_id: string;
+            points: {
+                /** Format: uuid */
+                period_id: string;
+                /** Format: date */
+                period_from: string;
+                /** Format: date */
+                period_to: string;
+                /** @enum {string} */
+                period_status: "DRAFT" | "LOCKED" | "OFFICIAL";
+                score_computed: number | null;
+                score_adjusted: number | null;
+                rating: string | null;
+                /** @enum {string} */
+                state: "RATED" | "NOT_RATED" | "SMALL_SAMPLE";
+                rated_task_count: number;
+                effective_weight: number;
+            }[];
+            /** @description Mẫu của các kỳ chênh nhau: không xếp hạng chéo */
+            sample_sizes_differ: boolean;
+            /** Format: date-time */
+            as_of: string;
+        };
+        StaffScoreSignalPage: {
+            items: {
+                /** Format: uuid */
+                membership_id: string;
+                display_name: string;
+                flags: {
+                    /** @enum {string} */
+                    code: "CANCELLED_SHARE_HIGH" | "TASKS_SPLIT_AFTER_BASELINE" | "BASELINE_REVISED_IN_PERIOD" | "ASSIGNEE_CHANGED_NEAR_DUE";
+                    task_codes: string[];
+                }[];
+            }[];
+            next_cursor: string | null;
+            /** Format: date-time */
+            as_of: string;
+        };
+        StaffScoreAdjustmentRequest: {
+            /** @description Trong biên độ max_adjustment_points của chính sách */
+            points: number;
+            reason: string;
+            evidence_ref?: string;
+        };
+        StaffScoreResponseInput: {
+            body: string;
+        };
+        StaffScoreResponseHandle: {
+            /** @enum {string} */
+            outcome: "KEEP" | "ADJUST";
+            conclusion: string;
+            /** @description Chỉ khi outcome = ADJUST */
+            adjustment_points?: number;
+            adjustment_reason?: string;
+        };
+        StaffScorePeriodExport: {
+            file_name: string;
+            content_type: string;
+            size_bytes: number;
+            sha256: string;
+            content_base64: string;
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -211807,6 +213865,4624 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProjectInvestmentProfile"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    validateProjectWorkflowTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfTemplateParams"];
+            };
+        };
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfTemplateValidation"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    previewProjectWorkflowTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfTemplatePreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfSchedulePreview"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getProjectWorkflow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfWorkflowDetail"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    startProjectWorkflow: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfWorkflowStart"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    adoptProjectWorkflow: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfWorkflowAdopt"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfAdoptResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProjectTasks: {
+        parameters: {
+            query?: {
+                phase?: string;
+                /** @description NONE, GREEN, YELLOW, RED hoặc UNKNOWN (màu chính thức) */
+                band?: string;
+                assignee_id?: string;
+                status?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfTaskPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getProjectSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfSchedule"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    evaluateProjectGate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                target: "submitProjectForAppraisal" | "decideProjectAppraisal" | "capital.plan_published.v1" | "startProjectImplementation" | "suspendProject" | "resumeProject" | "completeProject" | "settlement.closed.v1" | "closeProject";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfGateAssessment"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getProjectTask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfTaskDetail"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    startProjectTask: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfTaskStart"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    attachProjectTaskEvidence: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfEvidenceInput"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    completeProjectTaskChecklistItem: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                task_id: string;
+                item_code: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfChecklistComplete"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    completeProjectTask: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfTaskComplete"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    approveProjectTaskCompletion: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfDecisionInput"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    returnProjectTask: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfReturnInput"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    requestProjectTaskException: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfExceptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    decideProjectTaskException: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfDecisionInput"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    resumeProjectTask: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listProjectTaskAssignments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfAssignmentPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    assignProjectTask: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfAssignmentInput"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    proposeProjectReschedule: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfRescheduleRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfReschedulePreview"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    decideProjectReschedule: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfDecisionInput"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getDeadlineBoard: {
+        parameters: {
+            query?: {
+                unit_id?: string;
+                project_id?: string;
+                band?: string;
+                phase?: string;
+                assignee_id?: string;
+                status?: string;
+                due_from?: string;
+                due_to?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfDeadlineBoard"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getDeadlineCalendar: {
+        parameters: {
+            query?: {
+                /** @description YYYY-MM; mặc định tháng hiện tại */
+                month?: string;
+                unit_id?: string;
+                project_id?: string;
+                assignee_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfDeadlineCalendar"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getUpcomingMilestones: {
+        parameters: {
+            query?: {
+                unit_id?: string;
+                project_id?: string;
+                /** @description Mặc định 30 */
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfMilestoneList"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getProjectWorkload: {
+        parameters: {
+            query?: {
+                unit_id?: string;
+                from?: string;
+                weeks?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfWorkload"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getMyTasks: {
+        parameters: {
+            query?: {
+                band?: string;
+                status?: string;
+                due_before?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfMyTaskPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getDeadlinePreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfDeadlinePreference"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    setDeadlinePreference: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfDeadlinePreference"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    previewDeadlineBand: {
+        parameters: {
+            query: {
+                yellow_days: number;
+                red_days: number;
+                green_days?: number;
+                unit?: string;
+                remaining_days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfBandPreview"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getKpiOperations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfKpiOperationList"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listTaskKpiResults: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfKpiResultPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listStaffScorePeriods: {
+        parameters: {
+            query?: {
+                scope_unit_id?: string;
+                status?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScorePeriodPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    computeStaffScorePeriod: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffScorePeriodRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScorePeriodPreview"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    lockStaffScorePeriod: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getStaffScorePeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScorePeriod"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listStaffScoreLines: {
+        parameters: {
+            query?: {
+                state?: string;
+                unit_id?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScoreLinePage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getMyStaffScore: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyStaffScorePage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getStaffScoreLine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScoreLine"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    compareStaffScoreLines: {
+        parameters: {
+            query?: {
+                membership_id?: string;
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScoreComparison"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    exportStaffScorePeriod: {
+        parameters: {
+            query?: {
+                /** @description xlsx (mặc định) */
+                format?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScorePeriodExport"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listStaffScoreSignals: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScoreSignalPage"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    requestStaffScoreAdjustment: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffScoreAdjustmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    decideStaffScoreAdjustment: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PwfDecisionInput"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    submitStaffScoreResponse: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffScoreResponseInput"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    handleStaffScoreResponse: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffScoreResponseHandle"];
+            };
+        };
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    officializeStaffScorePeriod: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                /** @description Strong ETag of the current resource version; required for changes to versioned records. */
+                "If-Match": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Command accepted; returns resource id/version/status */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandResult"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

@@ -14270,5 +14270,438 @@
     "platform": "web",
     "req": "FR-IPF-01",
     "source": "HSKT PVFCCo v0.3, yêu cầu MD.01, MD.02 và CN.01 (loại dự án, cờ khởi công, mốc vòng đời, hồ sơ pháp lý, nguồn kế hoạch vốn)"
+  },
+  {
+    "id": "PWF-01",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Thư viện mẫu workflow",
+    "kind": "table",
+    "fields": [
+      "Mã mẫu và tên",
+      "Loại dự án",
+      "Phiên bản và trạng thái duyệt",
+      "Hiệu lực từ ngày",
+      "Số giai đoạn và số việc",
+      "Cờ \"mặc định, chưa xác nhận\"",
+      "So sánh hai phiên bản"
+    ],
+    "role": "Quản trị quy trình dự án (soạn), người duyệt quy tắc (duyệt), người đọc có quyền pwf.read",
+    "rule": "Mẫu là quy tắc có phiên bản; người duyệt khác người soạn; dự án đang chạy giữ bản đã đóng băng; mẫu chưa kiểm chứng ghi nhãn",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-01",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-02",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Soạn mẫu workflow",
+    "kind": "form",
+    "fields": [
+      "Giai đoạn và cổng chặn lệnh PRJ",
+      "Cây công việc: thời lượng ngày làm việc, bắt buộc, vai phụ trách, người duyệt hoàn thành",
+      "Liên kết FS, SS, FF, SF và độ trễ",
+      "Nhánh theo nhóm dự án và nguồn vốn",
+      "Loại chứng từ pháp lý và biểu mẫu",
+      "Danh mục kiểm",
+      "Mã KPI",
+      "Lỗi kiểm trực tiếp và gợi ý chất lượng lịch",
+      "Xem trước lịch"
+    ],
+    "role": "Quản trị quy trình dự án (soạn và trình)",
+    "rule": "Kiểm lỗi trực tiếp (vòng lặp, tham chiếu, giới hạn 400 việc, 12 giai đoạn); cảnh báo chất lượng lịch không chặn; trình duyệt qua kho quy tắc, người duyệt khác người soạn",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-02",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-03",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Workflow của dự án",
+    "kind": "detail",
+    "fields": [
+      "Cây tiến trình theo giai đoạn",
+      "Gantt có đường găng và đường cơ sở",
+      "Bảng việc theo giai đoạn với màu hạn chính thức",
+      "Cổng của lệnh PRJ và danh sách việc còn thiếu",
+      "Mô phỏng \"nếu dời ngày bắt đầu\"",
+      "Việc chưa tính được hạn: thiếu lịch năm N"
+    ],
+    "role": "Chủ đầu tư, Ban QLDA, lãnh đạo và giám sát trong scope (tab của chi tiết dự án PRJ-03)",
+    "rule": "Giai đoạn workflow là dẫn xuất từ công việc, không phải trạng thái pháp định; việc thiếu lịch không có ngày đoán và không bao giờ xanh; nhánh bị loại không hiện",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-03",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-04",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Chi tiết công việc",
+    "kind": "detail",
+    "fields": [
+      "Chứng từ pháp lý và biểu mẫu sinh từ mẫu",
+      "Danh mục kiểm và bằng chứng",
+      "Ngoại lệ, tạm dừng, hủy, trì hoãn bên ngoài",
+      "Sổ phân công",
+      "Lịch sử và số lần trả lại",
+      "KPI của việc kèm nút \"i\""
+    ],
+    "role": "Người thực hiện, người duyệt hoàn thành, quản lý dự án trong scope",
+    "rule": "Nút theo quyền và trạng thái do máy chủ trả; hoàn thành thiếu điều kiện hiện danh sách blockers; người duyệt khác mọi người làm, không ngoại lệ nào che được",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-04",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-05",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Khởi tạo và tiếp nhận workflow",
+    "kind": "form",
+    "fields": [
+      "Chọn mẫu theo loại dự án",
+      "Ngày dự định bắt đầu",
+      "Dữ kiện nhánh: nhóm dự án, nguồn vốn, loại dự án",
+      "Ngày hiệu lực khi tiếp nhận",
+      "Chạy thử và kết quả từng việc",
+      "Việc quá khứ: NOT_TRACKED hoặc đã xong kèm bằng chứng",
+      "Nhập hàng loạt theo danh mục dự án"
+    ],
+    "role": "Chủ đầu tư, Ban QLDA (quyền pwf.workflow.manage hoặc pwf.workflow.adopt)",
+    "rule": "Mỗi dự án một workflow; chạy thử không ghi dữ liệu; áp dụng là một giao dịch; việc NOT_TRACKED không vào mẫu số KPI",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-05",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-06",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Xem trước và duyệt dời lịch",
+    "kind": "detail",
+    "fields": [
+      "So sánh lịch trước và sau theo ngày làm việc",
+      "Thay đổi độ trễ cho phép và đường găng",
+      "Độ lệch so với đường cơ sở đầu",
+      "Lý do dời lịch",
+      "Duyệt hoặc trả"
+    ],
+    "role": "Quản lý dự án (đề nghị), người duyệt dời lịch khác người đề nghị",
+    "rule": "Một đề nghị chờ duyệt mỗi workflow; đường cơ sở không đổi khi dời lịch; duyệt kèm phiên bản workflow, người sau nhận xung đột",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-06",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-07",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Bảng deadline toàn danh mục",
+    "kind": "dashboard",
+    "fields": [
+      "Lọc theo màu, giai đoạn, người, đơn vị",
+      "Số việc theo màu: đỏ, vàng, xanh",
+      "Hàng việc có hạn, màu và biểu tượng",
+      "Lịch tháng",
+      "Mốc 30 ngày tới",
+      "Tải công việc theo người và tuần",
+      "\"Đang hiện N trên M\""
+    ],
+    "role": "Lãnh đạo, giám sát, quản lý dự án trong scope (chỉ đọc)",
+    "rule": "Chỉ màu chính thức; tổng theo màu chính xác kể cả khi danh sách bị cắt; màu luôn kèm chữ và biểu tượng; tải công việc chỉ hiển thị",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-07",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-08",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Chính sách ba màu",
+    "kind": "form",
+    "fields": [
+      "Nguồn cảnh báo: HOME_WORK, REPORT_SCHEDULE, PROJECT_TASK",
+      "Đơn vị: ngày lịch hoặc ngày làm việc",
+      "Ngưỡng xanh, vàng, đỏ",
+      "Ghi đè theo loại việc, mức ưu tiên, giai đoạn",
+      "Mốc nhắc và ngày leo thang",
+      "Xem trước \"còn 5 ngày: xanh, còn 2 ngày: vàng, dưới 1 ngày: đỏ\""
+    ],
+    "role": "Quản trị quy trình dự án (soạn), người duyệt quy tắc (duyệt)",
+    "rule": "Thứ tự nghiêm ngặt xanh > vàng > đỏ ≥ -1; đơn vị phải khớp nguồn (DEADLINE_BAND_UNIT_MISMATCH); quy tắc có phiên bản, người duyệt khác người soạn",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-08",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-09",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Bộ KPI workflow",
+    "kind": "form",
+    "fields": [
+      "Mã bộ và mẫu workflow áp dụng",
+      "Phép tính chọn từ danh mục kernel",
+      "Tham số phép tính và phạm vi áp dụng",
+      "Thang điểm tuyến tính hoặc bậc thang có xem trước đường quy đổi",
+      "Trọng số",
+      "Tham chiếu mã KPI_DEFINITION và RAG_THRESHOLDS"
+    ],
+    "role": "Quản trị quy trình dự án (soạn), người duyệt quy tắc (duyệt)",
+    "rule": "Chỉ tham chiếu, không định nghĩa công thức lần hai; danh mục phép tính đóng, không biểu thức tự do; tổng trọng số dương; hai KPI cùng mã bị từ chối",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-PWF-09",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-10",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Chính sách chấm điểm",
+    "kind": "form",
+    "fields": [
+      "Kỳ: tháng, quý hoặc năm",
+      "Hệ số vai R, A, C, I",
+      "Trọng số ưu tiên",
+      "Mẫu nhỏ: số việc và tổng trọng số tối thiểu",
+      "Dải xếp loại",
+      "Biên độ điều chỉnh và độ dài lý do tối thiểu",
+      "Cửa sổ phản hồi",
+      "Thời hạn lưu trữ"
+    ],
+    "role": "Quản trị quy trình dự án (soạn), người duyệt quy tắc (duyệt), pháp chế rà soát",
+    "rule": "Điểm là căn cứ hỗ trợ, không tự dẫn tới thưởng, kỷ luật hay chấm dứt hợp đồng; giá trị mặc định chưa kiểm chứng ghi nhãn; đánh giá tác động dữ liệu cá nhân trước khi bật",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-PWF-10",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-11",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Bảng điểm của tôi",
+    "kind": "dashboard",
+    "fields": [
+      "Điểm kỳ và xếp loại hoặc \"chưa đủ dữ liệu\"",
+      "Phân rã tới từng việc và dữ kiện",
+      "Nút \"i\" công thức, nguồn, phiên bản quy tắc",
+      "So sánh các kỳ",
+      "Điều chỉnh làm đổi điểm",
+      "Phản hồi và trạng thái xử lý"
+    ],
+    "role": "Người được đánh giá (chỉ của chính mình)",
+    "rule": "Chỉ điểm của mình; thấy mọi điều chỉnh; phản hồi trong cửa sổ, nội dung từ 20 ký tự; ghi \"căn cứ hỗ trợ, quyết định thuộc người có thẩm quyền\"",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-PWF-11",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-12",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Bảng điểm đơn vị",
+    "kind": "table",
+    "fields": [
+      "Người được chấm",
+      "Điểm tính và điểm điều chỉnh",
+      "Xếp loại hoặc mẫu nhỏ",
+      "Số việc xếp loại và tổng trọng số",
+      "Có điều chỉnh, có phản hồi mở",
+      "Xuất Excel"
+    ],
+    "role": "Quản lý trực tiếp (đơn vị tại thời điểm của kỳ), bộ phận nhân sự (toàn tenant)",
+    "rule": "Không xếp hạng chéo giữa người có mẫu chênh nhau; mọi lần xem và xuất ghi nhật ký xem ADM-11; quản lý cũ mất quyền với kỳ sau khi chuyển đơn vị",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-PWF-12",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-13",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Chi tiết điểm",
+    "kind": "detail",
+    "fields": [
+      "Việc đóng góp: phần của người, trọng số, điểm việc",
+      "Khoảng phân công, tỷ lệ và hệ số vai",
+      "Phép loại trừ và lý do",
+      "Cờ bất thường",
+      "Điều chỉnh đã có và đề nghị điều chỉnh"
+    ],
+    "role": "Người được đánh giá, quản lý trực tiếp, bộ phận nhân sự trong quyền",
+    "rule": "Điều chỉnh trong biên độ, lý do tối thiểu; người duyệt khác người đề nghị và khác người được chấm; giữ cả điểm tính và điểm điều chỉnh",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-PWF-13",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-14",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Kỳ chấm điểm",
+    "kind": "detail",
+    "fields": [
+      "Tính nháp kỳ cho đơn vị và chính sách",
+      "Chốt kỳ và mã băm ảnh chụp",
+      "Cửa sổ phản hồi",
+      "Phản hồi chờ xử lý",
+      "Chính thức hóa kỳ",
+      "Tín hiệu thao túng cho người rà soát"
+    ],
+    "role": "Bộ phận nhân sự (quyền staff_score.manage), người rà soát tín hiệu (staff_score.review)",
+    "rule": "DRAFT tính lại được, LOCKED có băm, OFFICIAL khi hết cửa sổ và không còn phản hồi mở; không có đường quay lại; cờ không đổi điểm",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-PWF-14",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-15",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Nhắc hạn của tôi",
+    "kind": "form",
+    "fields": [
+      "Ngưỡng cá nhân xanh, vàng, đỏ",
+      "Mốc nhắc",
+      "Xem trước màu",
+      "Cảnh báo khi ngưỡng bị nâng bằng mức chính thức"
+    ],
+    "role": "Mọi người dùng có công việc được giao (quyền pwf.preference.own)",
+    "rule": "Ngưỡng cá nhân chỉ được sớm hơn mức chính thức; cảnh báo chính thức, leo thang và KPI không đổi theo tùy chọn cá nhân; màu cá nhân có nhãn \"theo cài đặt của bạn\"",
+    "phase": "P1",
+    "platform": "web",
+    "req": "FR-PWF-15",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "PWF-16",
+    "module": "PWF",
+    "moduleName": "Workflow dự án, hạn ba màu và KPI",
+    "title": "Sổ phân công",
+    "kind": "table",
+    "fields": [
+      "Người",
+      "Vai R, A, C, I",
+      "Khoảng từ ngày đến ngày",
+      "Tỷ lệ đóng góp",
+      "Lý do và người phân công",
+      "Thêm phân công"
+    ],
+    "role": "Quản lý dự án trong scope (quyền pwf.task.assign)",
+    "rule": "Chỉ thêm, không sửa; tổng tỷ lệ cùng vai không quá 100; khoảng chồng nhau bị chặn; đổi người chia theo khoảng",
+    "phase": "P2",
+    "platform": "web",
+    "req": "FR-PWF-16",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "MOB-78",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Workflow dự án trên điện thoại",
+    "kind": "list",
+    "fields": [
+      "Dải giai đoạn",
+      "Danh sách việc theo màu hạn",
+      "Giờ đồng bộ của dữ liệu"
+    ],
+    "role": "Người dùng có quyền pwf.read",
+    "rule": "Chỉ đọc màu chính thức; dữ liệu cũ ghi giờ đồng bộ; không soạn mẫu hay quy tắc trên điện thoại",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-78",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "MOB-79",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Chi tiết việc trên điện thoại",
+    "kind": "detail",
+    "fields": [
+      "Trạng thái, hạn và màu",
+      "Nộp chứng từ",
+      "Hoàn thành việc",
+      "Xin dời hạn"
+    ],
+    "role": "Người thực hiện việc (quyền pwf.task.work)",
+    "rule": "Lệnh gửi lại ngoại tuyến kiểm phiên bản; việc đã đổi trả \"công việc đã thay đổi\", không ghi đè",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-79",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "MOB-80",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Việc của tôi theo hạn",
+    "kind": "list",
+    "fields": [
+      "Việc theo hạn gần nhất",
+      "Màu chính thức",
+      "Màu cá nhân kèm nhãn \"theo cài đặt của bạn\"",
+      "Ngày hạn thật"
+    ],
+    "role": "Người thực hiện việc (quyền pwf.task.work)",
+    "rule": "Màu cá nhân chỉ ở màn này và thông báo của chính người đó, luôn kèm ngày hạn thật; chỉ sớm hơn mức chính thức",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-80",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "MOB-81",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Điểm KPI của tôi",
+    "kind": "dashboard",
+    "fields": [
+      "Điểm kỳ và xếp loại hoặc \"chưa đủ dữ liệu\"",
+      "Phân rã theo việc",
+      "Điều chỉnh và phản hồi",
+      "Ghi chú căn cứ hỗ trợ"
+    ],
+    "role": "Người được đánh giá (chỉ của chính mình)",
+    "rule": "Không lưu đệm bảng điểm của người khác; xóa đệm khi phiên bản quyền đổi; căn cứ hỗ trợ, quyết định thuộc người có thẩm quyền",
+    "phase": "P2",
+    "platform": "mobile",
+    "req": "FR-MOB-81",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
+  },
+  {
+    "id": "MOB-82",
+    "module": "MOB",
+    "moduleName": "Ứng dụng iOS và Android",
+    "title": "Cài đặt nhắc hạn cá nhân",
+    "kind": "form",
+    "fields": [
+      "Ngưỡng cá nhân xanh, vàng, đỏ",
+      "Mốc nhắc",
+      "Xem trước màu"
+    ],
+    "role": "Mọi người dùng có công việc được giao (quyền pwf.preference.own)",
+    "rule": "Ngưỡng cá nhân chỉ được sớm hơn mức chính thức; lệnh ngoại tuyến kiểm phiên bản",
+    "phase": "P1",
+    "platform": "mobile",
+    "req": "FR-MOB-82",
+    "source": "Làn pwfspec, docs/pwf-research.md, PWF.md"
   }
 ]

@@ -138,6 +138,33 @@ describe('governance:check findings', () => {
     assert.deepEqual(found.findings.map((finding) => finding.code), ['GOV_ALERT_TYPE_MISSING', 'GOV_ALERT_TYPE_MISSING']);
   });
 
+  it('finds a KPI set or a workflow template that refers to a code the other type does not have (R37)', async () => {
+    const kpiSet = (kpiCode, ragCode = 'PWF_SCORE', templateCode = 'PUBLIC_INVESTMENT') => alert({ params: { template_code: templateCode, items: [{ kpi_code: kpiCode, rag_code: ragCode }] } });
+    const kernel = (setDefaults, templateDefaults) => ({
+      RULE_TYPE_PATTERN: /^[A-Z][A-Z0-9_]{2,63}$/,
+      validateRuleParams: () => ({}),
+      ruleTypeDefinitions: () => [
+        { ...kernelWith().ruleTypeDefinitions()[0], type: 'KPI_DEFINITION', defaults: { PWF_ON_TIME_RATE: alert() } },
+        { ...kernelWith().ruleTypeDefinitions()[0], type: 'RAG_THRESHOLDS', defaults: { PWF_SCORE: alert() } },
+        { ...kernelWith().ruleTypeDefinitions()[0], type: 'PROJECT_WORKFLOW_TEMPLATE', defaults: templateDefaults },
+        { ...kernelWith().ruleTypeDefinitions()[0], type: 'WORKFLOW_KPI_SET', defaults: setDefaults },
+      ],
+    });
+    const template = { PUBLIC_INVESTMENT: alert({ params: { tasks: [{ kpi_codes: ['PWF_ON_TIME_RATE'] }, { kpi_codes: [] }, {}] } }) };
+    assert.deepEqual(await codes({ kernel: kernel({ DEFAULT: kpiSet('PWF_ON_TIME_RATE') }, template), root: tree() }), []);
+    const missing = await checkGovernance({ kernel: kernel({ DEFAULT: kpiSet('PWF_NO_SUCH', 'NO_RAG', 'NO_TEMPLATE') }, { PUBLIC_INVESTMENT: alert({ params: { tasks: [{ kpi_codes: ['NOPE'] }] } }) }), today: TODAY, root: tree() });
+    assert.deepEqual(
+      missing.findings.map((finding) => finding.code),
+      ['GOV_REFERENCE_MISSING', 'GOV_REFERENCE_MISSING', 'GOV_REFERENCE_MISSING', 'GOV_REFERENCE_MISSING'],
+    );
+    assert.ok(missing.findings.some((finding) => finding.message.includes('refers to NOPE at tasks[].kpi_codes[]')));
+  });
+
+  it('holds the built-in project workflow data of the repository to its references', async () => {
+    const found = await checkGovernance({ today: '2026-11-12', root: REPO });
+    assert.deepEqual(found.findings.filter((finding) => finding.code === 'GOV_REFERENCE_MISSING'), []);
+  });
+
   it('says so when the registry cannot be read', async () => {
     assert.deepEqual(await codes({ kernel: {}, root: tree() }), ['GOV_REGISTRY_UNREADABLE']);
     assert.deepEqual(await codes({ root: tree() }), ['GOV_REGISTRY_UNREADABLE']);

@@ -7523,6 +7523,198 @@
       "module": "RPT",
       "statusBasis": "spec",
       "source": "spec:RPT"
+    },
+    "PWF_DEPENDENCY_CYCLE": {
+      "status": 422,
+      "title": "Workflow dependency cycle",
+      "meaning": "Các liên kết phụ thuộc của công việc tạo thành vòng lặp nên không lập lịch được; sửa liên kết (PWF, BR-PWF-03).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_SCHEDULE_INVALID": {
+      "status": 422,
+      "title": "Schedule input invalid",
+      "meaning": "Dữ liệu lập lịch không hợp lệ: ngày, thời lượng, liên kết, ràng buộc hoặc ghi đè không đúng (PWF, BR-PWF-03, 04).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PROJECT_WORKFLOW_TEMPLATE_INVALID": {
+      "status": 422,
+      "title": "Project workflow template invalid",
+      "meaning": "Mẫu workflow dự án không hợp lệ: thiếu trường, tham chiếu không tồn tại hoặc vượt giới hạn 400 việc, 12 giai đoạn, 20 liên kết mỗi việc (PWF, BR-PWF-12).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_WORKFLOW_EXISTS": {
+      "status": 409,
+      "title": "The project already has a workflow",
+      "meaning": "Dự án đã có workflow (hoặc người khác vừa tạo trước); mỗi dự án chỉ có một workflow (PWF, F2).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_TEMPLATE_NOT_FOUND": {
+      "status": 404,
+      "title": "No such workflow template in force",
+      "meaning": "Không có mẫu workflow đang hiệu lực với mã đã chọn (PWF, F2).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_FACTS_REQUIRED": {
+      "status": 422,
+      "title": "Project facts are required for the branches",
+      "meaning": "Thiếu dữ kiện nhánh (nhóm dự án, nguồn vốn, loại dự án) để xác định việc thuộc dự án; bổ sung trước khi tạo (PWF, BR-PWF-16).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_ADOPT_INVALID": {
+      "status": 422,
+      "title": "Adoption input invalid",
+      "meaning": "Dữ liệu tiếp nhận dự án đang chạy không hợp lệ: việc quá khứ chưa chọn NOT_TRACKED hoặc đã xong kèm bằng chứng đúng loại (PWF, BR-PWF-17).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_TASK_STATE_INVALID": {
+      "status": 409,
+      "title": "The task state does not allow this",
+      "meaning": "Trạng thái của công việc hoặc của workflow (đã hủy, đã đóng) không cho phép thao tác này (PWF, mục 4).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_TASK_COMPLETION_BLOCKED": {
+      "status": 422,
+      "title": "The task cannot be completed yet",
+      "meaning": "Chưa hoàn thành được: còn mục danh mục kiểm, bằng chứng, chứng từ hoặc biểu mẫu chưa đủ; danh sách blockers kèm theo (PWF, BR-PWF-14).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_GATE_CLOSED": {
+      "status": 422,
+      "title": "The stage gate is closed",
+      "meaning": "Cổng giai đoạn của workflow đang đóng: còn việc bắt buộc chưa xong nên lệnh của dự án chưa chạy được; danh sách việc còn thiếu kèm theo (PWF, BR-PWF-13).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_SCHEDULE_VERSION_CONFLICT": {
+      "status": 409,
+      "title": "The schedule changed meanwhile",
+      "meaning": "Lịch của workflow đã đổi trước khi duyệt (người khác dời lịch cùng lúc); xem lại bản mới (PWF, BR-PWF-28).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_RESCHEDULE_PENDING_EXISTS": {
+      "status": 409,
+      "title": "A reschedule proposal is already pending",
+      "meaning": "Workflow đã có một đề nghị dời lịch chờ duyệt; mỗi workflow tối đa một đề nghị (PWF, mục 4).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_EXCEPTION_INVALID": {
+      "status": 422,
+      "title": "The exception request is invalid",
+      "meaning": "Đề nghị hoặc quyết định ngoại lệ không hợp lệ: loại, lý do dưới 20 ký tự, khoảng ngày hoặc trạng thái không đúng (PWF, F5).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_ASSIGNMENT_INVALID": {
+      "status": 422,
+      "title": "The assignment is invalid",
+      "meaning": "Phân công không hợp lệ: tổng tỷ lệ cùng vai quá 100, khoảng thời gian chồng nhau hoặc người không thuộc scope (PWF, BR-PWF-34).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "LEGAL_DOC_TYPE_UNKNOWN": {
+      "status": 422,
+      "title": "Unknown legal document type",
+      "meaning": "Mã loại chứng từ pháp lý không phân giải được theo bản đang chạy (PWF, BR-PWF-15).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "DEADLINE_BAND_THRESHOLDS_INVALID": {
+      "status": 422,
+      "title": "Deadline band thresholds invalid",
+      "meaning": "Ngưỡng ba màu không hợp lệ: phải đủ green_days > yellow_days > red_days và red_days không nhỏ hơn -1 (PWF, BR-PWF-20).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "DEADLINE_BAND_UNIT_MISMATCH": {
+      "status": 422,
+      "title": "Deadline band unit mismatch",
+      "meaning": "Đơn vị của quy tắc ba màu (ngày lịch hoặc ngày làm việc) khác đơn vị mà nguồn cảnh báo khai (PWF, BR-PWF-21).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "DEADLINE_PERSONAL_NOT_EARLIER": {
+      "status": 422,
+      "title": "Personal threshold must not be later than the official one",
+      "meaning": "Ngưỡng nhắc cá nhân phải sớm hơn hoặc bằng ngưỡng chính thức ở từng mức (PWF, BR-PWF-23).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "STAFF_SCORE_SHARE_INVALID": {
+      "status": 422,
+      "title": "Assignment shares invalid for scoring",
+      "meaning": "Tỷ lệ hoặc khoảng phân công không hợp lệ để chấm điểm: tỷ lệ ngoài 1 đến 100 hoặc tổng cùng vai quá 100 (PWF, BR-PWF-34).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "STAFF_SCORE_ADJUSTMENT_INVALID": {
+      "status": 422,
+      "title": "Score adjustment invalid",
+      "meaning": "Điều chỉnh điểm vượt biên độ, thiếu lý do, hoặc người đề nghị hoặc người duyệt trùng người được chấm (PWF, BR-PWF-38).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "STAFF_SCORE_PERIOD_LOCKED": {
+      "status": 409,
+      "title": "The scoring period is locked",
+      "meaning": "Kỳ chấm điểm đã chốt hoặc chưa ở trạng thái cho phép thao tác này (PWF, mục 4).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "STAFF_SCORE_PERIOD_OVERLAP": {
+      "status": 409,
+      "title": "The scoring period overlaps another",
+      "meaning": "Kỳ chấm điểm chồng lên một kỳ khác của cùng đơn vị (PWF, mục 6).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "STAFF_SCORE_RESPONSE_WINDOW_CLOSED": {
+      "status": 409,
+      "title": "The response window is closed",
+      "meaning": "Cửa sổ phản hồi về điểm của kỳ đã đóng hoặc chưa mở (PWF, BR-PWF-39).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "MAKER_IS_APPROVER": {
+      "status": 403,
+      "title": "The maker cannot be the approver",
+      "meaning": "Người duyệt hoàn thành là người làm hoặc đã hoàn thành mục danh mục kiểm của việc; không ngoại lệ nào che được (PWF, BR-PWF-14).",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
     }
   }
 }

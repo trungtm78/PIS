@@ -1,7 +1,7 @@
 import { DomainError } from './errors.ts';
 import { MILESTONE_KINDS } from './procurement-file.ts';
 import type { MilestoneKind } from './procurement-file.ts';
-import { isWorkingDay } from './working-time.ts';
+import { addWorkingDays, isWorkflowDay, workflowAddDays, workflowDaysBetween, workingDaysBetween } from './process-core.ts';
 import type { WorkCalendarSource } from './working-time.ts';
 import { message } from './messages.ts';
 
@@ -33,28 +33,13 @@ export type ExceptionKind = (typeof EXCEPTION_KINDS)[number];
 export const EXCEPTION_STATUSES = ['REQUESTED', 'APPROVED', 'REJECTED', 'USED'] as const;
 export type ExceptionStatus = (typeof EXCEPTION_STATUSES)[number];
 
-const DAY_MS = 86_400_000;
-const DAY = /^(\d{4})-(\d{2})-(\d{2})$/;
 const CODE = /^[A-Z][A-Z0-9_]{1,39}$/;
-/** A scan never runs further than this many days (an empty calendar must not loop for ever). */
-const MAX_SCAN_DAYS = 3 * 366;
 
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/** Whether `value` is a real calendar day written `YYYY-MM-DD`. */
-export function isWorkflowDay(value: unknown): value is string {
-  if (typeof value !== 'string') return false;
-  const match = DAY.exec(value);
-  if (match === null) return false;
-  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
-  return date.toISOString().slice(0, 10) === value;
-}
-const dayNumber = (day: string): number => Math.floor(Date.parse(`${day}T00:00:00Z`) / DAY_MS);
-const dayText = (number: number): string => new Date(number * DAY_MS).toISOString().slice(0, 10);
-export const workflowAddDays = (day: string, days: number): string => dayText(dayNumber(day) + days);
-/** Whole calendar days from `from` to `to` (negative when `to` is earlier). */
-export const workflowDaysBetween = (from: string, to: string): number => dayNumber(to) - dayNumber(from);
+// The arithmetic of days and of working days is shared with the project workflow (process-core.ts) and re-exported here under the names PRC-1 always had.
+export { isWorkflowDay, workflowAddDays, workflowDaysBetween };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Evidence kinds: an open registry, so that another lane (EGP-1 part 2: the receipt of a posting on the national network) adds its own kind without touching the definitions.
@@ -600,42 +585,7 @@ export const defaultWorkflowParams = (method: WorkflowMethod): Record<string, un
 // Working days.
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-/**
- * The day on which `days` working days, counted from `from`, have passed (the day of entry is day 0): `from` itself for 0, else the day on which the count of working days after `from` reaches `days`.
- * A year without a published calendar gives `undefined` (a deadline is never guessed with a weekly pattern, as in the clocks of the alert centre).
- */
-export function addWorkingDays(calendars: WorkCalendarSource | undefined, from: string, days: number): string | undefined {
-  if (!isWorkflowDay(from) || !Number.isInteger(days) || days < 0) throw invalid('days');
-  if (days === 0) return from;
-  if (calendars === undefined) return undefined;
-  let counted = 0;
-  const start = dayNumber(from);
-  for (let offset = 1; offset <= MAX_SCAN_DAYS; offset += 1) {
-    const day = dayText(start + offset);
-    const calendar = calendars.forYear(Number(day.slice(0, 4)));
-    if (calendar === undefined) return undefined;
-    if (!isWorkingDay(calendar, day)) continue;
-    counted += 1;
-    if (counted === days) return day;
-  }
-  return undefined;
-}
-
-/** The working days that lie after `from` up to and including `to` (0 when `to` is not later); `undefined` when a year in between has no calendar. */
-export function workingDaysBetween(calendars: WorkCalendarSource | undefined, from: string, to: string): number | undefined {
-  if (!isWorkflowDay(from) || !isWorkflowDay(to)) throw invalid('days');
-  if (dayNumber(to) <= dayNumber(from)) return 0;
-  if (calendars === undefined) return undefined;
-  if (dayNumber(to) - dayNumber(from) > MAX_SCAN_DAYS) return undefined;
-  let counted = 0;
-  for (let number = dayNumber(from) + 1; number <= dayNumber(to); number += 1) {
-    const day = dayText(number);
-    const calendar = calendars.forYear(Number(day.slice(0, 4)));
-    if (calendar === undefined) return undefined;
-    if (isWorkingDay(calendar, day)) counted += 1;
-  }
-  return counted;
-}
+export { addWorkingDays, workingDaysBetween };
 
 export interface DaysInStep {
   calendarDays: number;

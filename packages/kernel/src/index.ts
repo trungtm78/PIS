@@ -3322,3 +3322,10 @@ export type { DirectiveForNarrative, DirectiveRef, EnterpriseNarrative, Inherite
 export { CROSSCHECK_DEFAULT_CODE, CROSSCHECK_ROLES, CROSSCHECK_SCALES, CROSSCHECK_RULE_IDS, CROSSCHECK_RULE_TYPE, CROSSCHECK_SEVERITIES, EXPLANATION_REASON_MAX, EXPLANATION_REASON_MIN, ROLE_PERIOD_KIND, SNAPSHOT_ROLE, assertExplanationAllowed, compareReports, crosscheckDefaults, crosscheckDefect, crosscheckFamily, crosscheckPolicyOf, crosscheckRuleName, figureSetOf, gateOf, isCrosscheckRole, isCrosscheckRuleId, roleOfLayout } from './report-crosscheck.ts';
 export type { CrosscheckFinding, CrosscheckPolicy, CrosscheckReport, CrosscheckResult, CrosscheckRole, CrosscheckRow, CrosscheckRuleId, CrosscheckSeverity, CrosscheckSkip, FigureEntry, FigureSet, FillSource, FindingTerm, GateDecision, PathStep, RateDefinition, ReportRefKind, RolePair, RowColumn, RuleSetting, SkipReason } from './report-crosscheck.ts';
 export { ENT4A_TEXT, fillCrosscheckText } from './messages/ent4a-texts.ts';
+
+// PWF (project workflow, schedule, deadline bands, KPIs and staff scores): exported as namespaces because the names of the lane (TaskStatus, TASK_PRIORITIES, ...) are common words.
+export * as pwfWorkflow from './project-workflow.ts';
+export * as pwfSchedule from './project-schedule.ts';
+export * as pwfDeadlineBand from './deadline-band.ts';
+export * as pwfKpi from './workflow-kpi.ts';
+export * as processCore from './process-core.ts';

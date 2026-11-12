@@ -1,0 +1,23 @@
+/** The Vietnamese words of the three-colour deadline policy (PWF, deadline-band.ts): a module (not the JSON catalogue) so that the web build never reads a file. */
+export const PWF_BAND_TEXT = {
+  rule_formula: 'Số ngày còn lại đến hạn (ngày lịch hoặc ngày làm việc theo nguồn) so với ba ngưỡng: màu xanh bắt đầu khi còn không quá green_days ngày, màu vàng khi còn không quá yellow_days ngày, màu đỏ khi còn không quá red_days ngày; quá hạn là còn dưới 0 ngày.',
+  rule_source: 'Mặc định của hệ thống theo khảo sát Asana, Smartsheet, MS Project và nhắc hạn theo ngưỡng của PRINCE2; ngưỡng do chủ sở hữu quy trình duyệt, chưa kiểm chứng với khách hàng.',
+  home_work_formula: 'Việc đến hạn trong tối đa 7 ngày lịch là màu vàng, quá hạn là màu đỏ, còn lại màu xanh (hằng số NEAR_DAYS cũ của trung tâm việc).',
+  report_schedule_formula: 'Bước báo cáo đến hạn trong tối đa 3 ngày lịch là màu vàng, quá hạn là màu đỏ, còn lại màu xanh (hằng số SCHEDULE_DUE_SOON_DAYS cũ của lịch báo cáo).',
+  project_task_formula: 'Công việc dự án: xanh khi còn không quá 5 ngày làm việc, vàng khi còn không quá 2 ngày, đỏ khi còn dưới 1 ngày hoặc quá hạn; nhắc ở các mốc 5, 2, 0 ngày và 1 ngày sau hạn.',
+  default_source_legacy: 'Hằng số trong mã trước đây của trung tâm việc và lịch báo cáo, nay là dữ liệu quy tắc có phiên bản.',
+  default_source_project_task: 'Ví dụ của chủ sở hữu (5 ngày xanh, 2 ngày vàng, dưới 1 ngày đỏ), cần xác nhận với khách hàng.',
+  alert_source: 'Mặc định của hệ thống cho công việc dự án theo workflow (PWF).',
+  source_home_work: 'Việc trong trung tâm việc của tôi',
+  source_report_schedule: 'Bước của lịch báo cáo',
+  source_project_task: 'Công việc của workflow dự án',
+  due_soon_action: 'Hoàn thành công việc hoặc xin dời hạn có lý do trước khi hạn đến.',
+  due_soon_consequence: 'Công việc quá hạn sẽ chuyển màu đỏ, ảnh hưởng điểm KPI và các công việc phía sau.',
+  due_soon_why: 'Người làm cần thấy sớm công việc sắp đến hạn theo ngưỡng của đơn vị.',
+  overdue_action: 'Hoàn thành công việc, hoặc xin dời hạn có lý do để người duyệt quyết định.',
+  overdue_consequence: 'Công việc trễ kéo theo các công việc phụ thuộc và có thể làm trễ mốc của dự án.',
+  overdue_why: 'Công việc quá hạn phải có người xử lý và người quản lý biết.',
+  milestone_action: 'Xem công việc phía trước mốc, xử lý điểm nghẽn hoặc đề nghị dời mốc có lý do.',
+  milestone_consequence: 'Mốc trễ làm trễ giai đoạn kế tiếp và có thể chặn lệnh chuyển giai đoạn của dự án.',
+  milestone_why: 'Mốc của dự án cần người quản lý theo dõi trước khi trễ.',
+} as const;

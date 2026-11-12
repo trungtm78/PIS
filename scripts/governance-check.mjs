@@ -26,6 +26,7 @@ export const FINDING_CODES = [
   'GOV_DEFAULT_PARAMS_INVALID',
   'GOV_TABLE_PATTERN_MISMATCH',
   'GOV_ALERT_TYPE_MISSING',
+  'GOV_REFERENCE_MISSING',
 ];
 
 const isDay = (value) => {
@@ -75,6 +76,35 @@ function alertCentreNames(root) {
  * Runs the checks and returns `{ findings, warnings, summary }`. `kernel` may be given (a module with `ruleTypeDefinitions`, `validateRuleParams`, `RULE_TYPE_PATTERN`); `today` is the day an as-of is
  * compared with. A warning does not fail the check (an alert type whose review day has passed is for a person to look at; it must not stop an unrelated change).
  */
+/**
+ * What a built-in default of one rule type may refer to in another (R37): a KPI set refers to codes of KPI_DEFINITION and RAG_THRESHOLDS and to a workflow template, and a template refers to the KPI codes it measures. A set defines no formula of its own,
+ * so a code that is not in the other type is a defect of the built-in data. Each reference is the path in the params to a code (or a list of codes) and the type that must have it.
+ */
+const REFERENCES = [
+  { from: 'WORKFLOW_KPI_SET', paths: ['items[].kpi_code'], to: 'KPI_DEFINITION' },
+  { from: 'WORKFLOW_KPI_SET', paths: ['items[].rag_code'], to: 'RAG_THRESHOLDS' },
+  { from: 'WORKFLOW_KPI_SET', paths: ['template_code'], to: 'PROJECT_WORKFLOW_TEMPLATE' },
+  { from: 'PROJECT_WORKFLOW_TEMPLATE', paths: ['tasks[].kpi_codes[]'], to: 'KPI_DEFINITION' },
+];
+
+/** The values at a path such as `items[].kpi_code` (an `[]` walks a list); a missing member gives nothing. */
+function valuesAt(params, path) {
+  let current = [params];
+  for (const step of path.split('.')) {
+    const walks = step.endsWith('[]');
+    const key = walks ? step.slice(0, -2) : step;
+    const next = [];
+    for (const value of current) {
+      const member = key === '' ? value : value?.[key];
+      if (walks) {
+        if (Array.isArray(member)) next.push(...member);
+      } else if (member !== undefined) next.push(member);
+    }
+    current = next;
+  }
+  return current;
+}
+
 export async function checkGovernance({ root = DEFAULT_ROOT, kernel, today = vietnamToday() } = {}) {
   const findings = [];
   const warnings = [];
@@ -130,6 +160,21 @@ export async function checkGovernance({ root = DEFAULT_ROOT, kernel, today = vie
         alertCodes.add(code);
         if (typeof one.params?.source === 'string') alertSources.add(one.params.source);
         if (typeof one.params?.review_on === 'string' && one.params.review_on < today) warnings.push({ code: 'GOV_ALERT_REVIEW_OVERDUE', subject, message: `${subject} was due for review on ${one.params.review_on}` });
+      }
+    }
+  }
+
+  const definitions = new Map(rules.ruleTypeDefinitions().map((definition) => [String(definition.type), definition]));
+  for (const reference of REFERENCES) {
+    const origin = definitions.get(reference.from);
+    const target = definitions.get(reference.to);
+    if (origin === undefined) continue;
+    const known = new Set(Object.keys(target?.defaults ?? {}));
+    for (const [code, one] of Object.entries(origin.defaults ?? {})) {
+      for (const path of reference.paths) {
+        for (const value of valuesAt(one.params, path)) {
+          if (typeof value === 'string' && !known.has(value)) add('GOV_REFERENCE_MISSING', `${reference.from}/${code}`, `${reference.from}/${code} refers to ${value} at ${path}, but ${reference.to} has no built-in code ${value}`);
+        }
       }
     }
   }
