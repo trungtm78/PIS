@@ -10,8 +10,11 @@
 /** The budget on a machine of the reference speed (NFR-PERFORMANCE: what a screen asks, at the p95). */
 export const REFERENCE_BUDGET_MS = 800;
 
-/** A machine slower than this many times the reference is not judged: the result would say more about the machine than about the code, so the run fails and says so. */
-export const MAX_SLOWDOWN = 3;
+/**
+ * A machine slower than this many times the reference is not judged: the result would say more about the machine than about the code, so the run fails and says so. A shared runner of GitHub Actions measured 3.3 times
+ * the reference of the contract fact test (328 ms against 100 ms, 2026-11-12), so the limit is 5: past it the machine is not a fit place to measure at all.
+ */
+export const MAX_SLOWDOWN = 5;
 
 export interface BudgetDecision {
   /** How many times slower than the reference machine this one measured (at least 1: a faster machine keeps the reference budget). */

@@ -11,10 +11,11 @@ describe('the budget of a measured read, stretched by the speed of the machine',
     expect(budgetFor(250, 100).budgetMs).toBe(2000);
   });
 
-  it('does not judge a machine more than three times slower than the reference', () => {
-    expect(MAX_SLOWDOWN).toBe(3);
-    expect(budgetFor(300, 100)).toEqual({ factor: 3, budgetMs: 2400, tooSlow: false });
-    expect(budgetFor(301, 100)).toEqual({ factor: 3, budgetMs: 2400, tooSlow: true });
+  it('does not judge a machine more than five times slower than the reference', () => {
+    expect(MAX_SLOWDOWN).toBe(5);
+    expect(budgetFor(328, 100).tooSlow).toBe(false);
+    expect(budgetFor(500, 100)).toEqual({ factor: 5, budgetMs: 4000, tooSlow: false });
+    expect(budgetFor(501, 100)).toEqual({ factor: 5, budgetMs: 4000, tooSlow: true });
   });
 
   it('refuses a calibration that is not a positive finite timing', () => {

@@ -20,6 +20,7 @@ import { MockScanPort } from '../../src/modules/files/mock-scan';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { AuthzHarness, TENANT_A, TENANT_B, id, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { budgetFor } from '../../../../packages/db/test/support/perf-budget';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
@@ -642,6 +643,18 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
     const PROJECTS = 1000;
     const BUILD_BUDGET_SECONDS = 300;
     const READ_P95_BUDGET_MS = 2000;
+    /** How long the calibration workload of `machineMs` takes on the reference machine, in milliseconds (median of 5 runs on an idle development machine, 359 ms on 2026-11-12). */
+    const REFERENCE_MACHINE_MS = 360;
+    /** The speed of this machine today: a count over generated rows, which touches nothing of what is under test, so a slower read is not excused by it (see packages/db/test/support/perf-budget.ts). */
+    const machineMs = async (): Promise<number> => {
+      const timings: number[] = [];
+      for (let run = 0; run <= 5; run += 1) {
+        const started = performance.now();
+        await rows('select count(*)::int as n from generate_series(1, 3000000)');
+        if (run > 0) timings.push(performance.now() - started);
+      }
+      return [...timings].sort((a, b) => a - b)[Math.floor((timings.length - 1) / 2)] as number;
+    };
     const p95 = (values: number[]): number => [...values].sort((a, b) => a - b)[Math.ceil(0.95 * values.length) - 1] as number;
 
     /** A thousand projects of the department, each with its plan of the year in force and a payment of the Treasury, written in one statement. */
@@ -665,6 +678,7 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
       ]);
 
     it('builds within 300 seconds, keeps every project, and serves the reads of the figures with a p95 of 2 seconds or less (the read replica itself is an environment check)', async () => {
+      const before = await machineMs();
       const period = week();
       await seedThousand(`${period.start}T09:00:00+07:00`);
       await softClose(period.id);
@@ -701,7 +715,13 @@ describe('the period snapshot over HTTP (ST-DIS-009)', () => {
       for (const { project_id: projectId } of some) expect((await timed(() => lines(snapshotId, READER, `?project_id=${projectId}`))).status).toBe(200);
       for (let n = 0; n < 5; n += 1) expect((await timed(() => call('GET', `/disbursement-rates?snapshot_id=${snapshotId}`, { member: READER }))).status).toBe(200);
       expect(samples.length).toBeGreaterThanOrEqual(30);
-      expect(p95(samples)).toBeLessThanOrEqual(READ_P95_BUDGET_MS);
+      // The budget of 2 seconds is stated for a machine of the reference speed: a slower machine gets it in proportion to how much slower it measured in this run, and never less (a shared runner is not the box the claim is about).
+      const after = await machineMs();
+      const decision = budgetFor(Math.max(before, after), REFERENCE_MACHINE_MS, READ_P95_BUDGET_MS);
+      process.stdout.write(`DIS-009-5 reads: p95 ${p95(samples).toFixed(0)} ms, budget ${decision.budgetMs.toFixed(0)} ms (machine ${decision.factor.toFixed(2)}x the reference: ${before.toFixed(0)}/${after.toFixed(0)} ms against ${REFERENCE_MACHINE_MS} ms)
+`);
+      expect(decision.tooSlow).toBe(false);
+      expect(p95(samples)).toBeLessThanOrEqual(decision.budgetMs);
     }, 600_000);
   });
 });
