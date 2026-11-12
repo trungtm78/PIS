@@ -211,6 +211,8 @@ test.describe('the acceptance of work under a contract', () => {
     await page.locator(`[data-measurement="${seeded.measurements[0]}"]`).check();
     await page.locator('#acceptance-document').fill(seeded.paper);
     await page.getByRole('dialog').getByRole('button', { name: vi['ctr.acceptance.draft.submit'] }).click();
+    // The row of the database is read only once the page says the draft was made: the click only sends the command, and a runner slower than a laptop reads the table before it is written.
+    await expect(page.getByTestId('done')).toHaveText(vi['ctr.acceptance.done.drafted']);
     const [drafted] = await acceptancesOf(seeded.contractId);
     const line = page.locator(`tr[data-acceptance="${drafted?.id}"]`);
     await expect(line.getByTestId('quality')).toHaveText(vi['ctr.acceptance.quality.missing']);
