@@ -1,0 +1,95 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-BI02",
+      "name": "Recheck quyền hiện tại",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-SEC01",
+      "name": "403/404 theo policy",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-NOT02",
+      "name": "Không đánh dấu đã đọc",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-01",
+      "name": "Mọi request trả 404 code RESOURCE_NOT_FOUND, body không chứa tên/mã dự án B",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-03",
+      "name": "A nhận 1.000.000.000, B nhận 2.000.000.000",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-04",
+      "name": "Kết quả chỉ chứa tài liệu tenant_id=TNT-A",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-05",
+      "name": "Tệp B → 404",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-06",
+      "name": "Tệp chứa đúng 5 dự án của Sở X",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-09",
+      "name": "User Sở NN chỉ thấy dự án Sở NN, dự án Ban QLDA GT trả 404",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    }
+  ],
+  "roles": []
+}

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="guide" tests="1" failures="0" time="17.206" timestamp="2026-11-12T16:26:32">
+    <testcase id="10_core_tabs_traversal" name="10_core_tabs_traversal" classname="10_core_tabs_traversal" file="apps\mobile\qa\device\flows\10_core_tabs_traversal.yaml" time="17.193" timestamp="2026-11-12T16:26:32" status="SUCCESS"/>
+  </testsuite>
+</testsuites>

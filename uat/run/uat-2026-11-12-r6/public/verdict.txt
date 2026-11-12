@@ -1,0 +1,49 @@
+## Kết quả UAT
+VERDICT: FAIL
+KẾT LUẬN: NO-GO
+TỔNG: 1097 | PASS: 487 | FAIL: 1 | KHÔNG CHẠY: 609
+BUILD: 0748687af1 · URL: http://127.0.0.1:3999/__e2e/health · Playwright 1.62.1 · spec-hash 55d304a9d1f6 · rào: git · monkey: web×1 + android×1
+FILE: uat/run/uat-2026-11-12-r6/public/report.md
+KHUYẾT PHÉP ĐO: G12 (Bằng chứng đủ), G14 (Ma trận quyền · IDOR) — không đo được nên KHÔNG được coi là đạt; cần người xác nhận.
+FINDINGS:
+  - TC-UI-ADM-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC103 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC104 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC105 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC106 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC108 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC110 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC113 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC126 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC127 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC130 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC132 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC134 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC141 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-15 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-16 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-17 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-18 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-PLAN-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-BI01 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC445 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC09 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-CAP-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-CAP-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-CAP-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-CAP-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-CAP-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - … và 572 phát hiện khác trong report.md

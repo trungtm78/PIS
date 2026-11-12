@@ -1,0 +1,26 @@
+{
+  "run_id": "public",
+  "at": "2026-11-12T18:13:50+07:00",
+  "build": "0748687af1",
+  "findings": [
+    {
+      "tc_id": "TC-UAT-NFR-PERFORMANCE-02",
+      "run_id": "public",
+      "at": "2026-11-12T18:13:50+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Staging mô hình BRD; trình duyệt Chromium throttling \"Fast 3G\" + CPU 4x\nĐầu vào: 10 màn hình lõi: HOME-01, PRJ-01, CAP-01, DIS-01, DIS-02, PAY-01, CTR-01, ISS-01, BI-02, ADM-01\n1. Mở mỗi màn",
+      "action": "Chuẩn bị: Staging mô hình BRD; trình duyệt Chromium throttling \"Fast 3G\" + CPU 4x\nĐầu vào: 10 màn hình lõi: HOME-01, PRJ-01, CAP-01, DIS-01, DIS-02, PAY-01, CTR-01, ISS-01, BI-02, ADM-01\n1. Mở mỗi màn hình 30 lần, đo LCP\n2. Gửi 500 lệnh submit báo cáo song song 50, đo thời gian",
+      "expected": "LCP p95 mỗi màn hình ≤ 2,5 s; command submit p95 ≤ 1 s",
+      "actual": "1 run(s): FAIL. The heading of the loaded home was not visible within 2500 ms after a cold start on a debug build with software graphics; the flow itself says the emulator gives no verdict for a phone.",
+      "evidence": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-public-20_cold_start_main_content.log"
+      ],
+      "repro": null,
+      "regression_hint": [
+        "COV-NFR-PERFORMANCE-02"
+      ]
+    }
+  ]
+}

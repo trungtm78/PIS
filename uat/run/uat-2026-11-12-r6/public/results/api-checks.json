@@ -1,0 +1,2867 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-AI02",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-5: AI02 keeps a timed out request held, takes its late usage once, and never overspends by the race of two requests at the end of a budget",
+      "duration_ms": 405,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-BI02",
+      "name": "exports and the per-recipient schedules (ST-BI-008, BI 3 F7) AC-ST-BI-008-3: BI02 judges the right again when the file is asked for: a person whose scope changed gets no link to data they may no longer read, and a new export is cut to the scope they have now",
+      "duration_ms": 735,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-DQ01",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) the bulk import of weekly reports (ST-DIS-008) AC-ST-DIS-008-2 / DQ01: a project named twice, an amount that is not the total and a project that is not there go to the error report; the rows that are in order are counted apar",
+      "duration_ms": 319,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-MOB01",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) web and mobile file the same report, and a phone that replays its queue (ST-DIS-017) AC-ST-DIS-017-2 / MOB01: a draft made offline and sent twice after the reconnect is one revision, and a queued save that was written against",
+      "duration_ms": 211,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-MOB02",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) web and mobile file the same report, and a phone that replays its queue (ST-DIS-017) AC-ST-DIS-017-3 / MOB02: a command that was queued under one tenant and sent under another reaches nothing: the report is not found and is n",
+      "duration_ms": 166,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-NOT01",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-NOT-002-4 (NOT01): provider receipts that are unsigned, stale, repeated or late are judged by the signature first and by the reducer after",
+      "duration_ms": 1217,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-NOT02",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-NOT-007-3 NOT02: a push the provider accepted does not mark the notification read, and its link names the notification and nothing else | the push channels (ST-NOT-007, NOT 9) the silent push when entitlements or acce",
+      "duration_ms": 1182,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-OPS01",
+      "name": "the restore of one tenant over HTTP (ST-SAS-019, SAS-21) AC-ST-SAS-019-2 OPS01: the drill measures rows, checksums and money totals against the backup, RPO and RTO against the targets, and leaves a record: the report, its sha256, the audit rows and the event | the restore of one tenant over HTTP (ST",
+      "duration_ms": 2570,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-SEC02",
+      "name": "tenant themes over HTTP (ST-SAS-005) who may call it (SEC02) lists the six system theme operations of the matrix | tenant themes over HTTP (ST-SAS-005) who may call it (SEC02) getSystemTenantThemeDraft:SystemAdmin | tenant themes over HTTP (ST-SAS-005) who may call it (SEC02) getSystemTenantThemeDra",
+      "duration_ms": 5607,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-SEC04",
+      "name": "tenant themes over HTTP (ST-SAS-005) review and publish rejects a review used twice, expired, issued to another person or to another tenant, or never issued, and creates no version (SEC04) (AC-ST-SAS-005-9)",
+      "duration_ms": 515,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TH01",
+      "name": "tenant themes over HTTP (ST-SAS-005) the draft persists for this tenant only and leaves the published theme and the members alone (TH01) (AC-ST-SAS-005-1)",
+      "duration_ms": 237,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TH02",
+      "name": "tenant themes over HTTP (ST-SAS-005) review and publish publishes the reviewed draft as version 2, moves the pointer, audits it and emits the event without the token (TH02) (AC-ST-SAS-005-2) | tenant themes over HTTP (ST-SAS-005) review and publish restores an old version as a new one and keeps the ",
+      "duration_ms": 646,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TH03",
+      "name": "tenant themes over HTTP (ST-SAS-005) review and publish lets one of two publishers on the same base win; the other must review again (TH03) (AC-ST-SAS-005-3)",
+      "duration_ms": 208,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TH04",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) the files (AC-ST-DIS-004-4, TH04) takes a clean file through the upload door and shows what it kept, and leaves a trail of the hash and the size, never the name | the",
+      "duration_ms": 1343,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TX01",
+      "name": "capital.plan_published.v1: the producer and the consumer of the project register agree (AC-ST-PRJ-002-3) moves the projects that have a funded line in the published plan to BUDGETED once, in the name of the system, and leaves the others (AC-ST-CAP-002-3 chain, TX01)",
+      "duration_ms": 703,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TX02",
+      "name": "the guarded lifecycle transitions and the project bank (ST-PRJ-002) capital.plan_published.v1 (AC-ST-PRJ-002-3) makes the project BUDGETED once with one stage_changed event, however often the event is delivered, in the name of the system (TX02)",
+      "duration_ms": 445,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC01",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-1 / UAT-AC01 / AC-ST-DIS-005-6: hands in FX-DIS-001 at version 3 once, however often the same key is sent: SUBMITTED, one audit row, one report.submitted.v1 with is_late and the hash, one count",
+      "duration_ms": 296,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC02",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports AC-ST-DIS-003-2 / UAT-AC02 / FX-DIS-006: a CTMTQG of 120 million against a cell of 100 million is 422 SUBSET_EXCEEDS_PARENT on the CTMTQG field, and nothing is written",
+      "duration_ms": 111,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC03",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-2 / UAT-AC03: refuses a period that was locked with no reopening (409 PERIOD_LOCKED) and leaves the draft as it was; takes it for the project a reopening names",
+      "duration_ms": 463,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC04",
+      "name": "the period snapshot over HTTP (ST-DIS-009) getDisbursementRates AC-ST-DIS-010-3 / UAT-AC04: a project with no plan says ZERO_DENOMINATOR (never 0% and never infinite), one with a plan and no Treasury payment says TREASURY_COVERAGE_NONE, and each is counted once by its reason | the warnings and the r",
+      "duration_ms": 664,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC05",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) post_reports_id_decision AC-ST-DIS-006-1 / UAT-AC05: the maker who also holds report.review is 403 SELF_APPROVAL_DENIED with the attempt on the trail and the report still SUBMITTED; the reviewer gets ACCEPTED, and accepted_by",
+      "duration_ms": 491,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC06",
+      "name": "the command center over HTTP (ST-HOME-001) AC-ST-HOME-001-2 / UAT-AC06: keeps the figures of the frozen snapshot until a newer one is frozen, whatever happens to the data after it",
+      "duration_ms": 342,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC07",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) UAT-AC07: judges the lateness by the calendar of the period to the second: on time up to the deadline, late after it | the submission progress board over HTTP (ST-DIS-015) AC-ST-DIS-015-3 / UAT-AC07: counts the latene",
+      "duration_ms": 533,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC08",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation lets exactly one of two planners who draft 800 million at the same moment win when 9 of 10 billion are taken, and tells the other what is available (AC-ST-CAP-002-1, UAT-AC08)",
+      "duration_ms": 2526,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC107",
+      "name": "the project register: create, profile update, list and workspace (ST-PRJ-001) the register and the workspace AC-ST-IAM-005-1 / UAT-AC107: a reader on the subtree of a unit reads the project inside it (200) and gets 404 for one outside, in the read and in the list",
+      "duration_ms": 201,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC109",
+      "name": "guest access follows the contract (AC-ST-ADM-007-2) AC-ST-ADM-007-2 / UAT-AC109: expires the grants of a guest when their contract closes, ends the guest with their sessions, and tells the access to be judged again",
+      "duration_ms": 583,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC111",
+      "name": "the reorganisation of organisation units over HTTP (ST-ADM-015) AC-ST-ADM-015-1, UAT-AC111: proposed, the proposer cannot approve (403 SELF_APPROVAL_DENIED); the owner approves (202), the job applies it: members and grants on the successor, old grants Expired, projects moved, names kept",
+      "duration_ms": 647,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC112",
+      "name": "the reorganisation of organisation units over HTTP (ST-ADM-015) AC-ST-ADM-015-2, UAT-AC112: a district with 6 projects and a mapping that covers 5 is 422 REORG_MAPPING_INCOMPLETE listing the missing project; nothing is stored",
+      "duration_ms": 124,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC116",
+      "name": "the delegation of approval authority over HTTP (ST-ADM-014) AC-ST-ADM-014-1, UAT-AC116: a 7-day delegation lets the delegate approve with on_behalf_of recorded; the delegate cannot delegate it on (403 DELEGATION_CHAIN_DENIED); 91 days is 422",
+      "duration_ms": 238,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC117",
+      "name": "the delegation of approval authority over HTTP (ST-ADM-014) AC-ST-ADM-014-2, UAT-AC117: a delegate who is the maker of the record is refused (403 SELF_APPROVAL_DENIED) and the task stays with the delegator",
+      "duration_ms": 141,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC119",
+      "name": "revocation lag through the real application (UAT-AC119, BR-IAM-13) refuses a token with the old scope_version right after each of 100 revocations, p95 well within 60 seconds",
+      "duration_ms": 4990,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC12",
+      "name": "matching a Treasury transaction and working on a difference over HTTP (ST-PAY-007) an amount that is not the net opens a difference and answers 422 (UAT-AC12, AC-ST-PAY-007-2) commits the difference with both figures and the signed difference, keeps the request with the Treasury, and answers the sam",
+      "duration_ms": 2893,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC120",
+      "name": "the profile, the sessions and the devices of a person over HTTP (ST-IAM-006) AC-ST-IAM-006-1, UAT-AC120: S1 revokes S2: S2 is refused by the deny-list at once and from the database for any process, S1 is not, and the identity provider is told",
+      "duration_ms": 407,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC121",
+      "name": "the approval workflows over HTTP (ST-ADM-012) AC-ST-ADM-012-3, AC-ST-IAM-002-4, UAT-AC121: a leader on a first factor only is refused with MFA_REQUIRED until the second factor, then decides",
+      "duration_ms": 333,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC122",
+      "name": "the profile, the sessions and the devices of a person over HTTP (ST-IAM-006) AC-ST-IAM-006-2, UAT-AC122: reads the profile masked, then updates it: no If-Match is 428, a stale one is 409 with what the profile says now, the right one is 200",
+      "duration_ms": 313,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC125",
+      "name": "controlled support access over HTTP (ST-SAS-015) AC-ST-SAS-015-3 UAT-AC125: an operator who holds only a ticket reads no tenant data: 403 SCOPE_DENIED",
+      "duration_ms": 320,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC129",
+      "name": "the approval workflows over HTTP (ST-ADM-012) AC-ST-ADM-012-1, UAT-AC129: a maker who holds the task is refused with SELF_APPROVAL_DENIED, and the task is given to another eligible person",
+      "duration_ms": 258,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC13",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-2, UAT-AC13: a finding that claims is kept only with a citation that is on its page AC-ST-BID-009-2, UAT-AC13: keeps four findings with a verified citation, takes the one without a source back",
+      "duration_ms": 4647,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC131",
+      "name": "cancelWorkflowInstance, reassignApprovalTask and the monitor reads over HTTP (ST-ADM-013) the decision re-sent, and the reads of the monitor AC-ST-ADM-013-4, UAT-AC131: a decision re-sent with the same key replays the first result and leaves one audit row",
+      "duration_ms": 165,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC137",
+      "name": "integration connectors and the replay of the inbox (ST-ADM-018, ADM-09, ADM-10) createIntegrationConnector and updateIntegrationConnector refuses a PROPOSED connector set to Active with 422 CONNECTOR_NOT_ACTIVATABLE, and a MISSING one (AC-ST-ADM-018-1, UAT-AC137)",
+      "duration_ms": 114,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC138",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-OMNI-004-2 UAT-AC138: a message event that failed because the account was not Active is replayed to PROCESSED once, and a second replay is 409 INBOX_STATE_INVALID | integration connectors and the replay of the inbox (ST-ADM-018, ADM-09, ",
+      "duration_ms": 765,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC139",
+      "name": "the audit viewer reads and the sealed export (ST-ADM-016, ADM-11) exportAuditLog rejects 367 days with 422 EXPORT_RANGE_TOO_LARGE and keeps no file and no audit row, and a 366-day export holds the seal list (AC-ST-ADM-016-1, UAT-AC139) | audit reads (ST-ADM-002, ADM-11) filters, seals and the verdic",
+      "duration_ms": 410,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC14",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-5, UAT-AC14: retrieval is restricted to the proposals the caller may see AC-ST-BID-009-5, UAT-AC14: answers a question from the passages of the permitted proposals only, and page 12 of the pro",
+      "duration_ms": 16038,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC140",
+      "name": "the audit viewer reads and the sealed export (ST-ADM-016, ADM-11) exportAuditLog lets the auditor find the refusal of a guest by the outcome DENIED, with the diff redacted (AC-ST-ADM-016-2, UAT-AC140)",
+      "duration_ms": 60,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC142",
+      "name": "retention policy versions (ST-ADM-017, ADM-12) createRetentionPolicyVersion rejects AUTO_PURGE_TECHNICAL for a business class and PERMANENT with ten years with 422 RETENTION_POLICY_INVALID, naming the field (AC-ST-ADM-017-1, UAT-AC142)",
+      "duration_ms": 198,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC143",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) is registered in the module of ADM | conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) takes t",
+      "duration_ms": 3865,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC15",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-3, UAT-AC15: a run is immutable; a new input is a new run AC-ST-BID-009-3, UAT-AC15: makes a new run that supersedes the old with another input hash, returns the old run for a repeat of its in",
+      "duration_ms": 2765,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC150",
+      "name": "the promotion of a tenant to a silo over HTTP (ST-SAS-018) AC-ST-SAS-018-1 UAT-AC150: a copy with one row different is 422 MIGRATION_VERIFICATION_FAILED, the one who started is 403 SELF_APPROVAL_DENIED, and once the copy agrees the cutover is approved and the migration Completed with matching totals",
+      "duration_ms": 5262,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC151",
+      "name": "the promotion of a tenant to a silo over HTTP (ST-SAS-018) AC-ST-SAS-018-2 UAT-AC151: a migration in CutoverFrozen that is aborted is RolledBack, and writes work again",
+      "duration_ms": 2123,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC152",
+      "name": "the domains of a tenant over HTTP (ST-SAS-017) AC-ST-SAS-017-1 UAT-AC152: a custom domain is proved by a TXT record, then Verified with a certificate; a hostname of another tenant, or one released lately, is DOMAIN_TAKEN",
+      "duration_ms": 382,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC153",
+      "name": "selectTenantContext, session binding and revocation (ST-IAM-003) the domain the sign-in is opened on chooses the tenant (ST-SAS-017) AC-ST-SAS-017-2 UAT-AC153: a person of tenant A who signs in on the verified domain of tenant B is refused tenant A with 403 TENANT_SELECTION_INVALID, and only tenant ",
+      "duration_ms": 93,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC154",
+      "name": "plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) publishes a draft: 200 PUBLISHED at version 2, who published it recorded, audit with the reason and the event of the platform | plan catalogue over HTTP (ST-SAS-007) publishPlanVersion (UAT-AC154) answers 409 PLAN_VERSION_IMMUTABLE",
+      "duration_ms": 675,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC155",
+      "name": "subscriptions over HTTP (ST-SAS-008) previewPlanChange (UAT-AC155) charges the proration of an upgrade on day 46 of the period, in whole VND rounded down, and lists no quota violation | subscriptions over HTTP (ST-SAS-008) previewPlanChange (UAT-AC155) charges nothing for a change at the next cycle,",
+      "duration_ms": 4325,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC156",
+      "name": "members and invitations (ST-ADM-006 backend) inviteMember AC-ST-KERNEL-074-2: refuses an invitation when no seat is free (403 QUOTA_EXCEEDED), writes nothing, and invites once a seat is free (UAT-AC156) | subscriptions over HTTP (ST-SAS-008) changeSubscriptionPlan (UAT-AC155, UAT-AC156) applies an u",
+      "duration_ms": 2965,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC157",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) puts the override in force once a second administrator approves it: the entitlement gate denies the feature at once and the tenant gets a new version (AC-ST-SAS-009-1) | entitlement overrides over HTTP (ST-",
+      "duration_ms": 1167,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC158",
+      "name": "entitlement overrides over HTTP (ST-SAS-009) decideEntitlementOverride (UAT-AC157, UAT-AC158) puts the override in force once a second administrator approves it: the entitlement gate denies the feature at once and the tenant gets a new version (AC-ST-SAS-009-1) | entitlement overrides over HTTP (ST-",
+      "duration_ms": 1167,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC16",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-1, UAT-AC16: an expert changes a finding with a reason, and the award is not theirs to decide AC-ST-BID-010-1, UAT-AC16: refuses a short reason with 422 REASON_REQUIRED, records 4 to 2 w",
+      "duration_ms": 4438,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC160",
+      "name": "license commands over HTTP (ST-SAS-003) renewLicense (ST-SAS-014) AC-ST-SAS-014-1, UAT-AC160: revision 2 supersedes revision 1, which becomes Superseded, and both signatures verify",
+      "duration_ms": 265,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC163",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) AC-ST-SAS-011-1 UAT-AC163: three subscriptions due and the billing run executed twice leave exactly three original invoices",
+      "duration_ms": 886,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC164",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) AC-ST-SAS-011-2 UAT-AC164: issues a Draft once (Issued), refuses the second issue with 409 EINVOICE_STATE_INVALID, and the API has no operation that cancels an invoice",
+      "duration_ms": 545,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC165",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) the correction of an issued invoice (ST-SAS-013) AC-ST-SAS-013-1 UAT-AC165: an issued invoice of 365,000,000 VND adjusted by -36,500,000 becomes Adjusted and the receivable is 328,500,000; the second replacement is 409 EINVOICE_ALREADY_REPLACE",
+      "duration_ms": 403,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC166",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) AC-ST-SAS-011-3 UAT-AC166: a provider that answers 503 twice leaves one invoice at the provider after the retries, and the retries are the schedule of the job",
+      "duration_ms": 298,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC167",
+      "name": "the payment and e-invoice webhooks and the reconciliation over HTTP (ST-SAS-012) AC-ST-SAS-012-2 UAT-AC167: an Unmatched payment matched with an invoice of another amount is 422 AMOUNT_MISMATCH, and with the right invoice it is Matched",
+      "duration_ms": 537,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC168",
+      "name": "usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) answers 201 for the event that was recorded and says what it is | usage metering over HTTP (ST-SAS-010) recordUsageEvent (UAT-AC168) records the same external_event_key once: 200 with the id of the first event, the counter 101 and no",
+      "duration_ms": 2154,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC169",
+      "name": "controlled support access over HTTP (ST-SAS-015) AC-ST-SAS-015-2 UAT-AC169: a request for 600 minutes is 400, a write with one approver is refused 403, and the grant is Active once the second approver acts",
+      "duration_ms": 297,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC17",
+      "name": "the review of the findings of an analysis by an expert and the comparison of proposals (ST-BID-010) AC-ST-BID-010-2, UAT-AC17: the proposals of a package on one version of the criteria AC-ST-BID-010-2, UAT-AC17: compares only the runs on CV-2, excludes the one on CV-1 as CRITERIA_VERSION_MISMATCH an",
+      "duration_ms": 1407,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC170",
+      "name": "release flags over HTTP (ST-SAS-020, SAS 3.11, SAS-20) UAT-AC170: after a rollout to the pilot cohort tenant A sees the feature and tenant B does not; a stale If-Match is 409 and changes nothing | the release flags a tenant has on (ST-SAS-020, getMyFeatureFlags) UAT-AC170: tells a tenant which flags",
+      "duration_ms": 455,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC171",
+      "name": "the restore of one tenant over HTTP (ST-SAS-019, SAS-21) AC-ST-SAS-019-1 UAT-AC171: a sandbox restore is requested by one System Admin, approved by another and Completed with its verification report; an in-place request on an Active tenant is 409 TENANT_STATE_INVALID",
+      "duration_ms": 1201,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC172",
+      "name": "the export of the data of a tenant and its offboarding over HTTP (ST-SAS-016) AC-ST-SAS-016-2 UAT-AC172: archiving an Offboarding tenant is 409 EXPORT_NOT_CONFIRMED until an export is Delivered, then it is Archived and its people are out",
+      "duration_ms": 21048,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC175",
+      "name": "tenant themes over HTTP (ST-SAS-005) review and publish answers VERSION_CONFLICT for a base version that is not the published one, and REVIEW_INVALID for the expired review (UAT-AC175, AC-ST-SAS-005-6)",
+      "duration_ms": 142,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC176",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-MOB-031-1 UAT-AC176: one event for a person with two devices, delivered twice, is one notification and one push, to the device the person used last",
+      "duration_ms": 353,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC179",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-NOT-007-1 UAT-AC179, AC-ST-MOB-031-1: the token of the owner device is one the provider no longer knows: it is revoked with its token and the next device in line, now the owner, is served in the same send | the push c",
+      "duration_ms": 484,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC18",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-1: UAT-AC18 lets exactly one of two concurrent 400,000 jobs through a limit of 1,000,000 with 300,000 settled, refuses a third of 350,000, settles the held one at 180,000 and keeps a timed out one p",
+      "duration_ms": 583,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC180",
+      "name": "replay, cancel and the reads of the delivery attempts (ST-NOT-002, NOT-11, NOT-12, NOT-13) post_notifications_id_replay (NOT-13) AC-ST-NOT-002-5 (UAT-AC180): refuses 409 RECONCILE_REQUIRED while a send of unknown result is within its day, and sends nothing",
+      "duration_ms": 306,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC183",
+      "name": "the dispatcher honours consent, preferences and quiet hours (ST-NOT-003) AC-ST-NOT-003-1 (UAT-AC183): the first attempt is Suppressed NO_CONSENT, and once the person consented the second is sent",
+      "duration_ms": 189,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC184",
+      "name": "the dispatcher honours consent, preferences and quiet hours (ST-NOT-003) AC-ST-NOT-003-2 (UAT-AC184): a scheduled attempt is Suppressed with zero adapter calls when the consent is withdrawn before its time",
+      "duration_ms": 134,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC185",
+      "name": "the dispatcher honours consent, preferences and quiet hours (ST-NOT-003) AC-ST-NOT-003-4 (UAT-AC185): one event at 13:30Z is sent now to the person in Vietnam and held until 22:00Z for the person in Tokyo",
+      "duration_ms": 106,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC188",
+      "name": "the templates of the messages, their review and the test sends (ST-NOT-005, NOT-07, NOT-08) writing a revision (NOT-07) AC-ST-NOT-005-2 UAT-AC188: refuses a confidential variable in a ZNS template with 422, and the database refuses a push template that is not lock-screen safe",
+      "duration_ms": 71,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC189",
+      "name": "the templates of the messages, their review and the test sends (ST-NOT-005, NOT-07, NOT-08) the test sends (NOT-08) AC-ST-NOT-005-3 UAT-AC189: refuses a recipient outside the list with 422 TEST_RECIPIENT_NOT_ALLOWED, then sends to one inside it with the [TEST] prefix, and nothing is counted",
+      "duration_ms": 426,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC19",
+      "name": "the fallback of a request (ST-LLM-005) AC-ST-LLM-005-2: UAT-AC19 makes two attempts only for a confidential file whose domestic and self-hosted models fail, ends FAILED with AI_ROUTE_EXHAUSTED, calls no international model, and explains the class and the policy | the AI analysis of a proposal with v",
+      "duration_ms": 7058,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC190",
+      "name": "broadcast campaigns with preview and maker-checker (ST-NOT-009, NOT-09, NOT-10, NOT-16) AC-ST-NOT-009-2 UAT-AC190: a person who opts out between the preview and the submit makes the preview stale (409 PREVIEW_STALE) until it is made again, and the same holds between the submit and the decision",
+      "duration_ms": 659,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC191",
+      "name": "the cap and the budget of a channel account at the moment of sending (ST-NOT-010, BR-NOT-13) AC-ST-NOT-010-1 UAT-AC191: a budget at 999,900 of 1,000,000: an ordinary message is held until next month and a CRITICAL one is sent",
+      "duration_ms": 462,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC192",
+      "name": "the push devices of the members (ST-NOT-006, NOT-14) registering a device (NOT-14, MOB-05) AC-ST-NOT-006-1 UAT-AC192: a device that registers twice is one registration, and after the member removes it the registration is revoked and its token is gone from the vault | the profile, the sessions and th",
+      "duration_ms": 667,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC193",
+      "name": "the limits of the channels and the overview of the delivery (ST-NOT-010, NOT-04, NOT-15) the overview of the delivery (NOT-04) AC-ST-NOT-010-2 UAT-AC193: 100 attempts with 5 suppressed and 11 unknown give 84.21 % over a denominator of 95, with the unknown shown apart",
+      "duration_ms": 6109,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC194",
+      "name": "the event catalogue and the notification workflows (ST-NOT-004, NOT-05, NOT-06) writing a draft (NOT-06) AC-ST-NOT-004-1 UAT-AC194: an event type that is not registered, or no longer accepted, is refused with 422 EVENT_TYPE_UNKNOWN and nothing is written",
+      "duration_ms": 87,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC195",
+      "name": "what an agent says in a conversation (ST-OMNI-005, OMNI-02, OMNI.md 3.3) the checks of a message to the person AC-ST-OMNI-005-4 UAT-AC195: with the window of 24 hours closed, a free text is 422 CHANNEL_WINDOW_CLOSED, an approved template is 202, and a WhatsApp contact that never opted in is 422 OPT_",
+      "duration_ms": 1186,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC196",
+      "name": "the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMNI.md 3.1, 3.2) a message that comes in AC-ST-OMNI-004-1 UAT-AC196: is one message when the provider sends it twice, and the second message of a thread goes into the same conversation, the later of the two deciding the window | the",
+      "duration_ms": 1806,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC197",
+      "name": "the contact directory, verified identities and the safe merge (ST-OMNI-002, OMNI-03, BR-OMNI-05) AC-ST-OMNI-002-1 UAT-AC197: two contacts with the same name are not merged without a verified identity they share (422 RECIPIENT_AMBIGUOUS), and are merged with one, with the audit trail, the event and t",
+      "duration_ms": 706,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC198",
+      "name": "the links of a conversation and its conversion into an issue (ST-OMNI-007, OMNI-09, OMNI.md 3.4) the conversion into an issue AC-ST-OMNI-007-1 UAT-AC198: an agent scoped to the project P-01 is 403 SCOPE_DENIED for P-09, and for P-01 the issue is made and the conversation points to it",
+      "duration_ms": 521,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC199",
+      "name": "the routing, the SLA in working time and the canned replies of the omnichannel center (ST-OMNI-006, OMNI-07, OMNI-08) a conversation that begins AC-ST-OMNI-006-1 UAT-AC199: a message on Friday 16:50 with a first answer in 30 minutes is due on Monday 08:20, and the resolution in working hours too",
+      "duration_ms": 135,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC20",
+      "name": "the virtual keys of the AI gateway (ST-LLM-002, LLM F5, BR-LLM-09, LLM-06) AC-ST-LLM-002-1: UAT-AC20 makes a key whose secret is in the vault and nowhere else: the answer, the list, the rows, the audit and the events carry only the alias and the fingerprint | the virtual keys of the AI gateway (ST-L",
+      "duration_ms": 1793,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC205",
+      "name": "the guarded lifecycle transitions and the project bank (ST-PRJ-002) the transition table over HTTP refuses every command from every stage the table does not give it, the closed, rejected and cancelled stages included, and emits nothing (AC-ST-PRJ-002-2, UAT-AC205)",
+      "duration_ms": 4698,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC209",
+      "name": "the risks of a project (ST-PRJ-010, BR-PRJ-07, PRJ-16) registering a risk (AC-ST-PRJ-010-1) UAT-AC209: a risk of likelihood 4 and impact 5 scores 20, is critical, and is announced once as CRITICAL for the executive warnings",
+      "duration_ms": 245,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC21",
+      "name": "the emergency stop of the gateway (ST-LLM-006, LLM F7, LLM-18) AC-ST-LLM-006-1: UAT-AC21 stops a profile at once: new requests are refused, what waited is cancelled, a request that was sent is cancelled when the provider can and otherwise has its answer thrown away, and the one who engaged cannot re",
+      "duration_ms": 3773,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC212",
+      "name": "the explanation requests (ST-PRJ-006) the life of a request (AC-ST-PRJ-006-1 / UAT-AC212) AC-ST-PRJ-006-1: EW-01 is open, the leader asks, it passes its due date and becomes OVERDUE, the person asked answers late and it is told late, they cannot conclude their own answer, and another person accepts ",
+      "duration_ms": 1782,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC213",
+      "name": "the transfer of a project between units (ST-PRJ-007) AC-ST-PRJ-007-1 / UAT-AC213: asking, deciding and the day AC-ST-PRJ-007-1: P-A-003 is owned by the department, a report was accepted before; the request is made, the one who asked cannot approve it (403 SELF_APPROVAL_DENIED), another person approv",
+      "duration_ms": 3020,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC214",
+      "name": "the revisions of a project (ST-PRJ-008, PRJ 3.1 F6, PRJ-06) deciding (AC-ST-PRJ-008-1) UAT-AC214: approving without a decision document is 422 DECISION_REQUIRED; with one the revision is APPROVED, the one approved before is SUPERSEDED and the total of the project follows",
+      "duration_ms": 419,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC215",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish answers 409 OPEN_OBLIGATIONS_EXIST to the cancellation of a project whose balance, written by the publication, holds committed capital (AC-ST-CAP-003-5, UAT-AC215)",
+      "duration_ms": 606,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC218",
+      "name": "the work breakdown and the milestones of a project (ST-PRJ-009, BR-PRJ-08, PRJ-05, PRJ-07) the work breakdown UAT-AC218: a component that takes the first level to 48 billion of 45 is accepted and answered with the warning WBS_EXCEEDS_TOTAL; the figures stay what they were | the work breakdown and th",
+      "duration_ms": 684,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC219",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish writes capital.plan_published.v1 once, and the project register moves the funded project of the pipeline to BUDGETED in the name of the system (AC-ST-CAP-003-4, UAT-AC219)",
+      "duration_ms": 449,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC22",
+      "name": "what an agent says in a conversation (ST-OMNI-005, OMNI-02, OMNI.md 3.3) the checks of a message to the person AC-ST-OMNI-005-3 UAT-AC22: with the consent for support withdrawn and the one for reminders kept, a message for support is 422 CONSENT_DENIED and one for a reminder is 202 with one adapter ",
+      "duration_ms": 847,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC220",
+      "name": "appropriation register commands and reads (ST-CAP-001) registerAppropriation and decideAppropriation registers a Prime Minister assigned and a local added appropriation, publishes them and lists them separately by origin with Con lai (AC-ST-CAP-001-1, UAT-AC220)",
+      "duration_ms": 297,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC221",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation answers 422 APPROPRIATION_EXCEEDED with available_vnd to a line larger than what is left (AC-ST-CAP-002-2, UAT-AC221)",
+      "duration_ms": 247,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC222",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation drafts lines, moves the allocated total with them and audits each change with where the ceiling stood (AC-ST-CAP-002-3, UAT-AC222) | capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation refuses a CTM",
+      "duration_ms": 464,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC223",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) decideCapitalPlan and the four-eyes rule refuses the person who drafted the plan, whatever else they may do (403 SELF_APPROVAL_DENIED), then lets an approver approve it (AC-ST-CAP-003-1, UAT-AC223) | approval and publication of the ",
+      "duration_ms": 4619,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC225",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish refuses the revision below what is committed and disbursed, lists the line, and accepts it at the floor (AC-ST-CAP-003-2, UAT-AC225, FX-CAP-003)",
+      "duration_ms": 1357,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC227",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) is registered in the module of CAP | the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) AC-ST-CAP-011-1, UAT-PLAN-10: with 450 of 600 million used, 150 million asks for the acknowledgement of the warning, and th",
+      "duration_ms": 12855,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC228",
+      "name": "the reallocation of capital (ST-CAP-010) AC-ST-CAP-010-1 / UAT-AC228: from a frozen snapshot to a new published revision AC-ST-CAP-010-1: a transfer of 2 billion from A to B is drafted, submitted, approved by another user and applied: a new PUBLISHED revision, TRANSFER_OUT and TRANSFER_IN with one s",
+      "duration_ms": 3608,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC229",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) decideAllocationExtension (UAT-AC229, UAT-AC239) carries the capital over: a CARRYOVER line of the next year with its source year and last day, the plan year not increased, two ledger entries of one extension and the event (AC-ST-CA",
+      "duration_ms": 3791,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC23",
+      "name": "what an agent says in a conversation (ST-OMNI-005, OMNI-02, OMNI.md 3.3) a note for the colleagues AC-ST-OMNI-005-1 UAT-AC23: is kept in the conversation and reaches no adapter, and the database refuses a note that has a provider id or a status",
+      "duration_ms": 479,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC230",
+      "name": "the closing, the lapse and the reopening of a fiscal year over HTTP (ST-CAP-008) closeFiscalYear soft-closes a year: the adjustment period, with the audit row and the event; the plan commands of the year are refused with the state (UAT-AC230) | the closing, the lapse and the reopening of a fiscal ye",
+      "duration_ms": 2001,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC233",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-AC233: a scenario is created, run and read without touching the ledger keeps the assumptions and the limits, and writes only the scenario: the ledger, the lines, the balances, the plans and the reservations are as they were | the simulation of an allo",
+      "duration_ms": 4305,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC234",
+      "name": "approval and publication of the capital plan over HTTP (ST-CAP-003) post_plans_id_publish cannot update or delete a ledger entry with the application role; a correction is a REVERSAL entry (AC-ST-CAP-003-3, UAT-AC234) | appropriation register commands and reads (ST-CAP-001) registerAppropriation and",
+      "duration_ms": 669,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC235",
+      "name": "appropriation register commands and reads (ST-CAP-001) registerAppropriation and decideAppropriation keeps central support and revenue increase as groups of their own beside the Prime Minister assigned capital (AC-ST-CAP-001-2, UAT-AC235)",
+      "duration_ms": 317,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC237",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation reads the lines of the projects in the scope of the reader and refuses to write a project outside the scope of the writer with 404 (AC-ST-CAP-002-5, UAT-AC237) | appropriation register commands and reads (ST-CAP-001) regist",
+      "duration_ms": 815,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC238",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation answers a repeated Idempotency-Key with the first result and the same key with another payload with 409 IDEMPOTENCY_CONFLICT (AC-ST-CAP-002-4, UAT-AC238) | appropriation register commands and reads (ST-CAP-001) registerAppr",
+      "duration_ms": 473,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC239",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) decideAllocationExtension (UAT-AC229, UAT-AC239) carries the capital over: a CARRYOVER line of the next year with its source year and last day, the plan year not increased, two ledger entries of one extension and the event (AC-ST-CA",
+      "duration_ms": 3791,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC24",
+      "name": "what an agent says in a conversation (ST-OMNI-005, OMNI-02, OMNI.md 3.3) the checks of a message to the person AC-ST-OMNI-005-2 UAT-AC24: an account of another tenant is 422 CHANNEL_ACCOUNT_MISMATCH, a disabled account is 422 CHANNEL_UNVERIFIED, and the right account is 202 with one adapter call",
+      "duration_ms": 702,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC240",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports AC-ST-DIS-003-1 / UAT-AC240 / FX-DIS-001: six cells of 100/200/30/70/0/20 million are 420 million (not 460), the CTMTQG of 40 million is shown apart, and the money is text | [CHỜ KÝ D03] golden fixtures FX-DIS-001..007 (ST-DIS-011) [CHỜ KÝ ",
+      "duration_ms": 207,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC241",
+      "name": "[CHỜ KÝ D03] golden fixtures FX-DIS-001..007 (ST-DIS-011) [CHỜ KÝ D03] FX-DIS-002 / UAT-AC241: the cumulative is that of the accepted report of the period (150 million), never the two periods added (250), and the change is 50 million",
+      "duration_ms": 0,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC242",
+      "name": "the period snapshot over HTTP (ST-DIS-009) getDisbursementRates AC-ST-DIS-010-2 / FX-DIS-003 / UAT-AC242: the rate of a unit is 140 over 1,000 million = 14%, the sum of the numerators over the sum of the denominators, and its two projects are 50% and 10% | [CHỜ KÝ D03] golden fixtures FX-DIS-001..00",
+      "duration_ms": 550,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC243",
+      "name": "the period snapshot over HTTP (ST-DIS-009) getDisbursementRates AC-ST-DIS-010-1 / FX-DIS-004 / UAT-AC243: answers the two rates together over one numerator: 600 million is 60.0000% of the plan of the Prime Minister and 48.0000% of the plan with the province addition, with the formulas marked as awai",
+      "duration_ms": 438,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC244",
+      "name": "the period snapshot over HTTP (ST-DIS-009) buildPeriodSnapshot AC-ST-DIS-009-1 / UAT-AC244: builds the lines from the accepted report, the plan in force and the Treasury net of its refund, with the two rates and the formulas it was made with, and freezes nothing | [CHỜ KÝ D03] golden fixtures FX-DIS",
+      "duration_ms": 346,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC246",
+      "name": "reopening of a locked period (ST-DIS-002, DIS-22) request, approval and window (AC-ST-DIS-002-1, UAT-AC246) refuses a short reason and a self-approval, then opens P-A-001 for 48 hours and closes it again after 49 (AC-ST-DIS-002-1) | reopening of a locked period (ST-DIS-002, DIS-22) request, approval",
+      "duration_ms": 965,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC247",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) post_reports_id_corrections AC-ST-DIS-006-2 / UAT-AC247: a submitted revision is not edited (409 REVISION_IMMUTABLE); after the return a correction without its reason is 422 CORRECTION_REASON_REQUIRED, then rev2 is a DRAFT th",
+      "duration_ms": 898,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC248",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-3 / UAT-AC248: of two makers at version 3 at once, one hands in (version 4) and the other is 409 VERSION_CONFLICT naming the version that won; one event",
+      "duration_ms": 258,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC249",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-4 / UAT-AC249: answers the same key with the same answer, refuses the same key with another request (409 IDEMPOTENCY_CONFLICT) and a new key for a report that was handed in (409)",
+      "duration_ms": 468,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC25",
+      "name": "what an agent says in a conversation (ST-OMNI-005, OMNI-02, OMNI.md 3.3) the checks of a message to the person AC-ST-OMNI-005-5 UAT-AC25: a confidential document is 422 CONTENT_CLASSIFICATION_BLOCKED as an attachment, and goes as an opaque link that asks the person to sign in",
+      "duration_ms": 661,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC250",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-5 / UAT-AC250: refuses a cumulative that fell from 150 million to 120 million until it is explained (422), then hands it in with the warning and the change of -30 million",
+      "duration_ms": 468,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC251",
+      "name": "the period snapshot over HTTP (ST-DIS-009) freezePeriodSnapshot AC-ST-DIS-009-4 / UAT-AC251: freezes under the version shown with the hash, who and when, keeps one audit row and one snapshot.frozen.v1, and a second freeze is 409 SNAPSHOT_FROZEN",
+      "duration_ms": 563,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC252",
+      "name": "the early-warning rules and warnings over HTTP (ST-DIS-012) the evaluation after a snapshot is frozen AC-ST-DIS-012-1 / UAT-AC252: opens one warning for a slow project with its rule, severity, project and the figures seen and expected, tells it by an event, and the second snapshot updates it without",
+      "duration_ms": 545,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC253",
+      "name": "the explanation requests (ST-PRJ-006) the request that a warning asks for by itself (AC-ST-PRJ-006-2 / UAT-AC253) AC-ST-PRJ-006-2: EW-02 has auto_explanation and the weekly report is missing: warning.opened.v1 makes one request to the leader in charge, due in three working days, and none again on a ",
+      "duration_ms": 2371,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC254",
+      "name": "the ranking job over the outbox (ST-DIS-013) AC-ST-DIS-013-1 / UAT-AC254: ranks the units of the group when the snapshot is frozen, once however often the event is delivered, with one audit row without any amount | [CHỜ KÝ D03] golden fixtures FX-DIS-001..007 (ST-DIS-011) [CHỜ KÝ D03] FX-DIS-007 / U",
+      "duration_ms": 501,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC255",
+      "name": "the disbursement forecast over HTTP (ST-DIS-018) AC-ST-DIS-018-1 / UAT-AC255: P-A-002 disbursed 400 million with forecasts of 100 million for November and 150 million for December is estimated at 650 million, 350 million under a plan of a billion, and is a candidate for reallocation",
+      "duration_ms": 350,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC256",
+      "name": "the weekly plan against the Treasury actuals over HTTP (ST-DIS-014) AC-ST-DIS-014-1 / UAT-AC256: shows the commitments of 200 and 250 million against the Treasury actuals of 120 and 100 million, the differences -80 and -150 million, the plan not added to the disbursed, and the leader in charge",
+      "duration_ms": 652,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC257",
+      "name": "the report export over HTTP (ST-DIS-016) AC-ST-DIS-016-3 / UAT-AC257: a PDF is made while the definitions are not signed, with the sign-off notice, and a signed snapshot carries no notice | the definitions of the disbursement metrics over HTTP (ST-DIS-011) AC-ST-DIS-011-1 / UAT-AC257: the definition",
+      "duration_ms": 1658,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC258",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) the bulk import of weekly reports (ST-DIS-008) AC-ST-DIS-008-1 / UAT-AC258: a workbook of 20 rows with an unknown project (row 5) and a CTMTQG above its cell (row 9) is a dry run with 2 error rows; apply is 422 IMPORT_HAS_ERR",
+      "duration_ms": 2254,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC259",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) withdrawReport AC-ST-DIS-007-3 / UAT-AC259: a reason under 20 characters is 422 on reason, then a valid one makes the report WITHDRAWN, with the audit row, one event and the count after commit | the decision on a weekly repor",
+      "duration_ms": 839,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC26",
+      "name": "the event catalogue and the notification workflows (ST-NOT-004, NOT-05, NOT-06) the notifications follow the workflow in force (AC-ST-NOT-004-2, UAT-AC26) writes new notifications from the revision published last, keeps the older ones on theirs, and still blocks a duplicate",
+      "duration_ms": 484,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC260",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) post_reports_id_decision AC-ST-DIS-006-3 / UAT-AC260: a return without its items is 422 on return_items, then with the items and the day it is RETURNED and the notification event names them",
+      "duration_ms": 269,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC261",
+      "name": "the report export over HTTP (ST-DIS-016) AC-ST-DIS-016-1 / UAT-AC261: a maker of the unit HERE exports the snapshot to CSV whose header names the scope, the period, the snapshot, the unit VND, the time and the definition status, with only the lines of their projects; once their scope is revoked the ",
+      "duration_ms": 420,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC262",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-015-2 / UAT-AC262: a monthly report of September without the causes of its narrative is refused (422 VALIDATION_FAILED naming narrative.causes_text), and once they are written it is SUBMITTED and the monthly",
+      "duration_ms": 482,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC263",
+      "name": "the submission progress board over HTTP (ST-DIS-015) AC-ST-DIS-015-1 / UAT-AC263: shows 10 that must report, 7 submitted (1 of them late), 2 drafts, 1 not started and 3 overdue after the deadline, and every number drills to its exact projects",
+      "duration_ms": 289,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC264",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) AC-ST-DIS-004-1 / UAT-AC264: saves the four volumes and the percent with the date of the period and the basis of the report, reads them back, and keeps them when a sa",
+      "duration_ms": 1350,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC265",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-8 / UAT-AC265: is for the maker who acts on the project: a reader and a person with no right are 403, another branch and another tenant are 404 and learn nothing | the period snapshot over HTTP (ST-DIS-0",
+      "duration_ms": 1216,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC266",
+      "name": "the drill of a figure over HTTP (ST-HOME-002) AC-ST-HOME-002-1 / UAT-AC266: goes from the tile to the units, the project, its cell and its sources, each step of the snapshot with its day and formula, and the children of money add up to the parent to the dong | the command center over HTTP (ST-HOME-0",
+      "duration_ms": 736,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC267",
+      "name": "the drill of a figure over HTTP (ST-HOME-002) AC-ST-HOME-002-2 / UAT-AC267: refuses a unit the reader may not read any more (403 SCOPE_DENIED) without naming anything, records the refusal, and says the token was made under another scope",
+      "duration_ms": 483,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC268",
+      "name": "the command center over HTTP (ST-HOME-001) AC-ST-HOME-001-3 / UAT-AC268: shows no figure, with NO_DATA, for a project that has a plan and no Treasury data, never 0, and counts it as one project without data",
+      "duration_ms": 235,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC27",
+      "name": "the dispatcher honours consent, preferences and quiet hours (ST-NOT-003) AC-ST-NOT-003-3 (UAT-AC27): at 22:30 the ordinary message waits for 07:00 while the urgent one is sent and leaves an override audit row",
+      "duration_ms": 232,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC270",
+      "name": "the command center over HTTP (ST-HOME-001) AC-ST-HOME-001-4 / UAT-AC270: loads without data governance and says the quality is not assessed, with the freshness taken from the snapshot",
+      "duration_ms": 147,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC271",
+      "name": "the warnings and the ranking of the command center over HTTP (ST-HOME-003) warnings (HOME-03, HOME-06) AC-ST-HOME-003-1: UAT-AC271 lists the open warning of a project with its rule, severity, the 22% observed against the 45% expected, its leader and the explanation that is open | the warnings and th",
+      "duration_ms": 532,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC272",
+      "name": "my work over HTTP (ST-HOME-004) AC-ST-HOME-004-1: UAT-AC272 gives the maker the 3 explanations (2 asked for, 1 late with the day it was first asked for), the late one first, and the way to PRJ-19 | my work over HTTP (ST-HOME-004) AC-ST-HOME-004-2: UAT-AC272 gives a report that came back and an appro",
+      "duration_ms": 1430,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC274",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) is registered in the module of MDM | the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, M",
+      "duration_ms": 21119,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC275",
+      "name": "the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, MDM-36, UAT-AC274, UAT-AC275) is registered in the module of MDM | the merge of master records and its undoing, and the rules of survivorship (ST-MDM-010, MDM 3.1 F5, MDM-30, MDM-35, M",
+      "duration_ms": 21119,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC277",
+      "name": "administrative succession commands and reads (ST-MDM-009) the district abolished and two communes merged (FX-MDM-001) reads the old structure before 2025-07-01 and the merged commune after it, over the API (AC-ST-MDM-009-1, UAT-AC277)",
+      "duration_ms": 1322,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC278",
+      "name": "administrative succession commands and reads (ST-MDM-009) two provinces merged into one keeps the two provinces apart before the date and combines them after it, each tagged with its structure date (AC-ST-MDM-009-2, UAT-AC278)",
+      "duration_ms": 788,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC28",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-NOT-007-2, AC-ST-KERNEL-061-1 (payload clause) UAT-AC28, UAT-NFR-PRIVACY-02: the provider receives a neutral sentence and an opaque link, nothing of the event, and a figure in the event reaches no lock screen | the pu",
+      "duration_ms": 230,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC286",
+      "name": "the periodic overall report API (ST-MNE-002, MNE F3, MNE-03) AC-ST-MNE-002-2: the form revision in force on the last day of the period UAT-AC286: gives YEAR-2026 revision 1 and H1-2027 revision 2 of the same code, and leaves a report alone when the revision is closed",
+      "duration_ms": 384,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC287",
+      "name": "the periodic overall report API (ST-MNE-002, MNE F3, MNE-03) AC-ST-MNE-002-1: the financial cells come from a frozen snapshot and are locked UAT-AC287: refuses a report without a snapshot, fills the cells from the snapshot with the two rates of DIS, and locks them",
+      "duration_ms": 380,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC289",
+      "name": "review, approval and issuance of the monitoring report (ST-MNE-003, MNE-05) AC-ST-MNE-003-1: approval, the request to DOC and the answer of DOC UAT-AC289: refuses the approval of who wrote or handed in the report, then approves, asks DOC to issue it, and marks it ISSUED only when DOC says so",
+      "duration_ms": 952,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC29",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-NOT-002-6 (UAT-AC29): a business command answers at once while the e-mail provider is down, and the message goes out later",
+      "duration_ms": 1333,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC290",
+      "name": "the export package and the receipt of the filing (ST-MNE-004, MNE-06) AC-ST-MNE-004-1: the packages and the receipt UAT-AC290: makes an XLSX and a PDF package labelled with the adapter, calls nothing outside, refuses a receipt without its reference, then files the report",
+      "duration_ms": 1655,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC292",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) is registered in the module of MNE | the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) AC-ST-MNE-009-1, UAT-AC292: plans a midterm evaluation of a project in implementation, asks",
+      "duration_ms": 5869,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC294",
+      "name": "the correction of an issued report (ST-MNE-007, MNE F3) AC-ST-MNE-007-1, UAT-AC294: refuses a correction without its reason, starts revision 2 as a draft that supersedes the filed revision 1, and supersedes it only when DOC issues the new one",
+      "duration_ms": 1541,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC295",
+      "name": "the periodic overall report API (ST-MNE-002, MNE F3, MNE-03) AC-ST-MNE-002-4: tenants and units UAT-AC295: a report of tenant A is not there for a user of tenant B (404 RESOURCE_NOT_FOUND)",
+      "duration_ms": 276,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC296",
+      "name": "the periodic overall report API (ST-MNE-002, MNE F3, MNE-03) AC-ST-MNE-002-3: a form that is not in force UAT-AC296: refuses a 2025 report of a form that takes effect in 2026, naming the day (422 FORM_NOT_EFFECTIVE)",
+      "duration_ms": 333,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC297",
+      "name": "the export package and the receipt of the filing (ST-MNE-004, MNE-06) AC-ST-MNE-004-2: the same content is the same package UAT-AC297: answers a replay with the first answer and an asking with a new key and the same content with the same packages",
+      "duration_ms": 1181,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC298",
+      "name": "review, approval and issuance of the monitoring report (ST-MNE-003, MNE-05) AC-ST-MNE-003-2: a template that DOC does not have UAT-AC298: refuses the request (422 DOC_TEMPLATE_MISSING), keeps the report APPROVED and tells the administrator of the forms",
+      "duration_ms": 662,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC299",
+      "name": "obligation rules and the filing calendar API (ST-MNE-001, MNE F1, F2) rules: maker and checker, effectivity UAT-AC299: a rule revision that takes over on 2027-01-01 gives the 2027 report its own deadline, 2026 keeps the first",
+      "duration_ms": 225,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC30",
+      "name": "broadcast campaigns with preview and maker-checker (ST-NOT-009, NOT-09, NOT-10, NOT-16) AC-ST-NOT-009-1 UAT-AC30: a segment of 130 people with ten opt-outs is previewed as 120 with the reasons, the self-approval is 403 and the approval by the approver makes 120 notifications",
+      "duration_ms": 806,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC300",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) the table of the states (AC-ST-CTR-004-4, UAT-AC300) lets exactly the valid pairs through (eight commands over nine statuses) with a leader who holds every right, answers every other pair 409 CONTRACT_STATE_INVALID without a change, and write",
+      "duration_ms": 16650,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC302",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) activateContract AC-ST-CTR-004-2, UAT-AC302: judges the guarantee, then the permits, then the funds; each refusal leaves the contract SIGNED; the last one posts one commitment and one pair of events",
+      "duration_ms": 1958,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC303",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) suspendContract and resumeContract (ST-CTR-005) AC-ST-CTR-005-1, UAT-AC303: refuses a suspension without the decision document (422 DECISION_DOCUMENT_REQUIRED), suspends with it, then resumes with an extension that does not move the due date",
+      "duration_ms": 1340,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC304",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) terminateContract (ST-CTR-005) AC-ST-CTR-005-2, UAT-AC304: refuses the proposer and a leader below the band, then the approver ends the contract, calls the guarantee and suggests a violation; nothing brings it back and the advance stays",
+      "duration_ms": 1411,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC305",
+      "name": "the completion of a contract over HTTP (ST-CTR-011) completeContract (AC-ST-CTR-011-1, UAT-AC305) refuses while a serious non-conformance is open and while a measurement waits, then completes with its audit row and its event, and answers the same key once | the completion of a contract over HTTP (ST",
+      "duration_ms": 2278,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC307",
+      "name": "the chain of changes over HTTP (ST-CTR-006) setChangeChainTiers (AC-ST-CTR-006-1, UAT-AC307) sets the tiers of a project until its first request, audits and tells the world, and refuses a number that is not 1, 2 or 3 | the chain of changes over HTTP (ST-CTR-006) setChangeChainTiers (AC-ST-CTR-006-1,",
+      "duration_ms": 2514,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC308",
+      "name": "the chain of changes over HTTP (ST-CTR-006) promoteChangeRequest and evaluateChangeRequest (AC-ST-CTR-006-2, UAT-AC308) takes CE-001 to PCO-001 to CO-001 and evaluates CO-001, and each move is audited and told | the chain of changes over HTTP (ST-CTR-006) promoteChangeRequest and evaluateChangeReque",
+      "duration_ms": 11917,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC309",
+      "name": "the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) is registered in the module of CTR | the release of the retention over HTTP (ST-CTR-010, AC-ST-CTR-010-1, AC-ST-CTR-010-2, UAT-AC309, UAT-AC397) releaseRetention (AC-ST-CTR-010-1, UAT-AC309) A",
+      "duration_ms": 11863,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC31",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) a query over a snapshot AC-ST-BI-004-1: UAT-AC31 keeps the snapshot SV-10a through unit, funding source and project with the same total of 12,450,000,000 dong, and raises the banner because SV-10b came after",
+      "duration_ms": 351,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC311",
+      "name": "the measurements over HTTP (ST-CTR-008) recordMeasurement (AC-ST-CTR-008-1, UAT-AC311) records a draft with its audit row and its event, and answers the same key once | the measurements over HTTP (ST-CTR-008) recordMeasurement (AC-ST-CTR-008-1, UAT-AC311) refuses a negative period, a zero or malform",
+      "duration_ms": 6769,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC313",
+      "name": "the acceptance of work over HTTP (ST-CTR-009) AC-ST-CTR-009-2, UAT-AC313: waits for approved minutes of quality and for the serious non-conformance on the work to be closed",
+      "duration_ms": 869,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC314",
+      "name": "the acceptance of work over HTTP (ST-CTR-009) AC-ST-CTR-009-3, UAT-AC314: approves exactly one of two acceptances of the same measurement approved at the same moment, over thirty rounds",
+      "duration_ms": 11895,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC315",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) is registered in the module of CTR | the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-A",
+      "duration_ms": 6437,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC317",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) returnContractDraft UAT-AC317: refuses the one who drafted it (403 SELF_APPROVAL_DENIED) | the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) recordContractSigning AC-ST-CTR-004-3, UAT-AC317: refuses the drafter (403 SELF_APPROVAL_DENI",
+      "duration_ms": 1794,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC32",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) a query over a snapshot AC-ST-BI-004-2: UAT-AC32 adds the children and Unclassified to 10.5 billion, makes the ratio 10.5/30 = 35.00% from the sums, is NOT_APPLICABLE over a plan of zero, and leaves the unit out of the scope out with ",
+      "duration_ms": 370,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC320",
+      "name": "the draft of a payment request over HTTP (ST-PAY-002) serialises thirty requests for one number at once over HTTP: exactly one is drawn up (UAT-AC320 spirit) | sending, checking and returning a payment request over HTTP (ST-PAY-003) AC-ST-PAY-003-1, UAT-AC320: of two requests for one acceptance sent",
+      "duration_ms": 1610,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC322",
+      "name": "the cumulative ledger over HTTP and the consumer of the acceptance events (ST-PAY-001) the consumer of the acceptance events AC-ST-PAY-001-1, UAT-AC322: an approval delivered twice, and told again by another event, leaves exactly one entry for each line, worth the sum of the lines | sending, checkin",
+      "duration_ms": 2320,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC323",
+      "name": "the draft of a payment request over HTTP (ST-PAY-002) AC-ST-PAY-002-1, UAT-AC323: the server computes gross, recovery, retention and net; the client cannot send them; the draft is audited and told to PAY once | the draft of a payment request over HTTP (ST-PAY-002) keeps the people apart: who may dra",
+      "duration_ms": 1961,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC325",
+      "name": "the advance of a contract over HTTP (ST-PAY-004) AC-ST-PAY-004-1, UAT-AC325: plans the advance of a contract in force under a guarantee; the same key answers the same, audited and told once | the advance of a contract over HTTP (ST-PAY-004) keeps the people apart: who may ask, who may cancel, who ma",
+      "duration_ms": 965,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC329",
+      "name": "the advance of a contract over HTTP (ST-PAY-004) the alert of an advance that is overdue (ST-PAY-011, UAT-AC329) AC-ST-PAY-011-2: stores a plan and its day for an advance that is overdue and nothing else, audited and told without the words of the person | the advance of a contract over HTTP (ST-PAY-",
+      "duration_ms": 2100,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC33",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) the drill AC-ST-BI-004-3: UAT-AC33 refuses with 400 DRILL_TOKEN_INVALID, and records it as denied, a token that was altered, one of another tenant, one of another member and one that is gone, saying nothing of what exists",
+      "duration_ms": 314,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC331",
+      "name": "reversing a settled payment over HTTP (ST-PAY-008) UAT-AC331: asks for the reason, the refund and the document in that order, refuses the person who matched the payment, and reverses it with every effect undone by new entries",
+      "duration_ms": 1877,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC332",
+      "name": "sending, checking and returning a payment request over HTTP (ST-PAY-003) AC-ST-PAY-003-5, UAT-AC332: the one who drew a request up or sent it does not check it; another with the right does, and the checking is audited",
+      "duration_ms": 1757,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC335",
+      "name": "matching a Treasury transaction and working on a difference over HTTP (ST-PAY-007) an amount that is the net settles the request (UAT-AC335, AC-ST-PAY-007-1) answers the settlement, moves the books once and tells CAP, DIS and MNE once with the minimum they need; the same key answers the same | match",
+      "duration_ms": 3572,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC336",
+      "name": "matching a Treasury transaction and working on a difference over HTTP (ST-PAY-007) giving an item to an owner and writing it off (UAT-AC336, AC-ST-PAY-007-3) gives the item to an owner with a day, tells ISS-facing consumers once, and refuses a day that is past, an owner who is not a member and a sta",
+      "duration_ms": 2984,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC337",
+      "name": "the Treasury forms of a payment request over HTTP (ST-PAY-005) AC-ST-PAY-005-1, UAT-AC337: draws a form from the template in force that is confirmed, keeps its proof, refuses a template that waits for its confirmation or is out of force, and a new form supersedes the old",
+      "duration_ms": 2325,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC339",
+      "name": "the settlement of a project over HTTP (ST-PAY-009) UAT-AC339: gives the deadline of the group of the project from the day of the submission, refuses a rule that is not in force, and keeps the deadline it gave",
+      "duration_ms": 5699,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC34",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) the drill AC-ST-BI-004-1: UAT-AC34 refreshes a context onto the newest snapshot of the period with the old one as its parent, and keeps serving the old token until it expires",
+      "duration_ms": 352,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC340",
+      "name": "the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) is registered in the module of PAY | the forms of a settlement over HTTP (ST-PAY-012, UAT-AC340) AC-ST-PAY-012-1, UAT-AC340: draws the forms of a completed project from the templates that are confirmed, keeps the proof of each, and refuses ",
+      "duration_ms": 14496,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC341",
+      "name": "the cumulative ledger over HTTP and the consumer of the acceptance events (ST-PAY-001) reading the ledger AC-ST-PAY-001-4, UAT-AC341: gives the staff with the right the balances, entries and totals; a guest of the contractor, a member without the right and a member of another branch get nothing",
+      "duration_ms": 506,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC343",
+      "name": "the cumulative ledger over HTTP and the consumer of the acceptance events (ST-PAY-001) reading the ledger AC-ST-PAY-001-3, UAT-AC343: reads a ledger of thousands of rows within the budget, cold and warm, and the warm read comes from the cache",
+      "duration_ms": 2237,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC35",
+      "name": "sharing a dashboard without data access (ST-BI-007, BI 3 F6) AC-ST-BI-007-1: UAT-AC35 shows the layout of D-2 to a staff member of one unit with their own figures and the label of their scope, and is 404 for them once the share is revoked | sharing a dashboard without data access (ST-BI-007, BI 3 F6",
+      "duration_ms": 1100,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC350",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) assignIssue, startIssue, commentIssue and transferIssueUnit moves an issue overdue for days to another unit without moving its deadline or the days it has been overdue (AC-ST-ISS-002-1, UAT-AC350)",
+      "duration_ms": 203,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC351",
+      "name": "requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadline (ST-ISS-003) verification and closure (UAT-AC351) AC-ST-ISS-003-1: the handler cannot close what they worked; a different verifier closes it only with evidence, and the trail holds no notes | requestIssueVerification, closeIss",
+      "duration_ms": 1192,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC352",
+      "name": "escalateIssue, acceptIssueEscalation and listIssueSlaBreaches (ST-ISS-004) acceptIssueEscalation (UAT-AC352, UAT-PLAN-24) AC-ST-ISS-004-1: the job escalates to the unit and the task force once each; a member of the task force accepts and the issue goes back to work",
+      "duration_ms": 668,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC353",
+      "name": "requestIssueVerification, closeIssue, reopenIssue and extendIssueDeadline (ST-ISS-003) extending the deadline (UAT-AC353) AC-ST-ISS-003-2: the handler cannot approve their own extension; an independent person extends twice, the third is refused, and the trail names the approver | requestIssueVerific",
+      "duration_ms": 549,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC354",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) hides what a land complaint says from those who may not read the household (UAT-AC354) | the intake of automatic issues from the events of PMT, PAY, LND, CT",
+      "duration_ms": 145,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC355",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) createIssue answers a create sent twice from an offline phone with one issue, under the same key or under a new one (AC-ST-ISS-002-2, UAT-AC355) | createIssue, assignIssue, startIssue, commentIssue",
+      "duration_ms": 362,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC356",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) AC-ST-QMS-001-1, UAT-AC356: goes from the draft through the three signatures to the lock, blocks every edit after a signature, and replaces a locked diary only by a correction with a reason",
+      "duration_ms": 2311,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC357",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) AC-ST-QMS-001-2, UAT-AC357: keeps the method of a signature, takes a certificate only with its serial, and says on every diary that the legal value of an in-app signature is not settled (CXN-EXE-05)",
+      "duration_ms": 920,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC358",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) ST-QMS-002: two devices, the conflict between them, and the place AC-ST-QMS-002-2: UAT-AC358 delivers the same operation twice and creates one revision, for the first save, for an update and for a copy that was kept | the commands a phone queued offli",
+      "duration_ms": 1353,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC359",
+      "name": "the site photo register over HTTP (ST-QMS-003) AC-ST-QMS-003-1: UAT-AC359 registers photos with matching, old, out of zone, inexact, stripped and repeated EXIF as review flags, never as rejections, and the same operation again as the photo it made",
+      "duration_ms": 750,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC36",
+      "name": "the payment and e-invoice webhooks and the reconciliation over HTTP (ST-SAS-012) AC-ST-SAS-012-1 UAT-AC36: the same payment webhook sent four times answers 200 duplicate false and then three times duplicate true, with one inbox row and one payment",
+      "duration_ms": 302,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC360",
+      "name": "the quality acceptance minutes over HTTP (ST-QMS-005) AC-ST-QMS-005-1, UAT-AC360: is refused with two signatures, and with all three the owner approves it and CTR receives one event | the inspections over HTTP (ST-QMS-004) scheduleInspection and recordInspectionResult (AC-ST-QMS-004-3, UAT-AC360) sc",
+      "duration_ms": 3932,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC361",
+      "name": "the non-conformances over HTTP (ST-QMS-006) raiseNonconformance (AC-ST-QMS-006-1, UAT-AC361) raises a non-conformance with its audit row and its event, answers the same key once, and holds the acceptance back when it is critical | the non-conformances over HTTP (ST-QMS-006) raiseNonconformance (AC-S",
+      "duration_ms": 3332,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC362",
+      "name": "the testing of materials over HTTP (ST-QMS-007, UAT-AC362) is registered in the module of QMS | the testing of materials over HTTP (ST-QMS-007, UAT-AC362) registerMaterialTest registers a sample against a contract being performed, with its audit row and its event, answering the same key once | the t",
+      "duration_ms": 14834,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC363",
+      "name": "the inspections over HTTP (ST-QMS-004) requestInspection (AC-ST-QMS-004-1, UAT-AC363) requests an inspection with the regime of its day, its audit row and its event, and answers the same key once | the inspections over HTTP (ST-QMS-004) requestInspection (AC-ST-QMS-004-1, UAT-AC363) gives the day af",
+      "duration_ms": 4405,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC364",
+      "name": "the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) is registered in the module of QMS | the coverage of the site diary of a contract over HTTP (ST-QMS-008, UAT-AC364) AC-ST-QMS-008-1, UAT-AC364: the 22 working days of June split into 15 signed, 3 DRAFT and 4 missing, the ",
+      "duration_ms": 11002,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC365",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) AC-ST-QMS-001-3, UAT-AC365: refuses a guest on a foreign contract (404), a signature for another role (403) and a right that is not the side of the signer",
+      "duration_ms": 1858,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC366",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) AC-ST-QMS-001-4, UAT-AC366: refuses the second of two supervisors who write with the same If-Match, and tells them to reload; nothing is overwritten",
+      "duration_ms": 759,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC367",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) ST-QMS-002: two devices, the conflict between them, and the place AC-ST-QMS-002-3: UAT-AC367 does not keep a place without the consent to it, and keeps one with it | the site photo register over HTTP (ST-QMS-003) AC-ST-QMS-003-2: UAT-AC367 keeps no pl",
+      "duration_ms": 1215,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC369",
+      "name": "the measurements over HTTP (ST-CTR-008) recordMeasurement (AC-ST-CTR-008-1, UAT-AC311) AC-ST-CTR-008-3, UAT-AC369: is blocked while the permits of the start of construction are missing, and names the gate | the inspections over HTTP (ST-QMS-004) requestInspection (AC-ST-QMS-004-1, UAT-AC363) AC-ST-Q",
+      "duration_ms": 1280,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC37",
+      "name": "the billing run and the e-invoice over HTTP (ST-SAS-011) AC-ST-SAS-011-4 UAT-AC37: an overdue subscription is PastDue while the tenant and the license stay as they are, and a suspension is only proposed after thirty days",
+      "duration_ms": 575,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC370",
+      "name": "permit dossier commands (ST-PMT-002) renewPermit and revokePermit renews an issued permit by a replacement: the old one is SUPERSEDED, there is one current permit, and the renewal is audited and announced (UAT-AC370, AC-ST-PMT-002-1)",
+      "duration_ms": 293,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC371",
+      "name": "permit type commands (ST-PMT-001) publishPermitType rejects a version whose legal basis is absent with 422 LEGAL_BASIS_REQUIRED and stores nothing (UAT-AC371, AC-ST-PMT-001-1) | permit type commands (ST-PMT-001) publishPermitType rejects a version whose legal basis is empty with 422 LEGAL_BASIS_REQU",
+      "duration_ms": 667,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC372",
+      "name": "permit dossier commands (ST-PMT-002) declarePermitExemption (ST-PMT-003) exempts a permit on its basis and decision by someone other than the proposer, and it counts as covering the type; audited and announced once (AC-ST-PMT-003-1, UAT-AC372) | permit dossier commands (ST-PMT-002) declarePermitExem",
+      "duration_ms": 714,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC374",
+      "name": "permit dossier commands (ST-PMT-002) addPermit does not reach the dossier of another tenant: 404 for the id of the other tenant and for one that does not exist, and no permit is created there (AC-ST-PMT-002-2, UAT-AC374) | permit dossier commands (ST-PMT-002) tenants stay apart (AC-ST-PMT-002-2, UAT",
+      "duration_ms": 662,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC375",
+      "name": "permit dossier commands (ST-PMT-002) addPermit adds an optional permit written under the type version in force, and refuses a second of the type (UAT-AC375, AC-ST-PMT-002-1) | permit dossier commands (ST-PMT-002) the milestones and the decision issues a permit with its number, days and scan; the per",
+      "duration_ms": 1299,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC376",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordRecoveryNotice (AC-ST-LND-001-1, UAT-AC376) AC-ST-LND-001-1: starts 90 days for agricultural land and 180 for the rest from the same notice date, and tells the rule it stands on | la",
+      "duration_ms": 899,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC377",
+      "name": "the posting of a plan to the households, the opinions on it and its approval (ST-LND-006) postCompensationPlan AC-ST-LND-006-1, UAT-AC377: posts a draft for the days of the rule, audits it and tells the world with ids and dates only | the posting of a plan to the households, the opinions on it and i",
+      "duration_ms": 1756,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC378",
+      "name": "the payments of a plan of compensation to its households (ST-LND-007) scheduleCompensationPayments AC-ST-LND-007-1, UAT-AC378: schedules a payment for each household inside the 30 days of the approval, audits it and tells the world with the id, the plan and the amount and nothing of the household or",
+      "duration_ms": 1145,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC379",
+      "name": "the households affected by a land recovery: sealed personal data, masked views and the scope of the unit (ST-LND-002) registerAffectedHousehold AC-ST-LND-002-1, UAT-AC379: registers a household with its personal data sealed and masked, and keeps no personal value in the trail, the event or the store",
+      "duration_ms": 488,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC38",
+      "name": "controlled support access over HTTP (ST-SAS-015) AC-ST-SAS-015-1 UAT-AC38: an operator without a grant is refused 403 SCOPE_DENIED with an audit row; once a grant is approved and used the read is 200 and audited with the impersonator",
+      "duration_ms": 470,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC380",
+      "name": "the households affected by a land recovery: sealed personal data, masked views and the scope of the unit (ST-LND-002) registerAffectedHousehold AC-ST-LND-002-2, UAT-AC380: wants the legal basis for the processing and the reference to it: 422 LEGAL_BASIS_REQUIRED, nothing stored",
+      "duration_ms": 152,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC381",
+      "name": "the households affected by a land recovery: sealed personal data, masked views and the scope of the unit (ST-LND-002) handleHouseholdDataRequest AC-ST-LND-003-1, UAT-AC381: holds an erasure back while the household was paid, meets it in part with the reason, and anonymises a household that was not p",
+      "duration_ms": 659,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC382",
+      "name": "the plan of compensation, support and resettlement: drafting, composing it from confirmed inventory and revising it (ST-LND-005) addCompensationPlanItems AC-ST-LND-005-1, UAT-AC382: composes a plan from a confirmed record and a policy amount, keeps the price decision, and the plan totals are the sum",
+      "duration_ms": 467,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC383",
+      "name": "the payments of a plan of compensation to its households (ST-LND-007) confirmCompensationPayment and depositCompensationPayment AC-ST-LND-007-2, UAT-AC383: recovers the advance through PAY with the payment that names it, leaves the trail of PAY, and refuses a payment beyond what is owed, which stays",
+      "duration_ms": 932,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC384",
+      "name": "the complaints of the households about the clearance of their land (ST-LND-008) fileLandComplaint AC-ST-LND-008-1, UAT-AC384: files a complaint with the number, the days of the rule from the day it was filed and a timer, holds the parcels, and asks the intake of ISS for an issue with the number and ",
+      "duration_ms": 601,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC385",
+      "name": "the enforcement of a land recovery (ST-LND-011, UAT-AC385) is registered in the module of LND | the enforcement of a land recovery (ST-LND-011, UAT-AC385) startEnforcement (AC-ST-LND-011-1, UAT-AC385) refuses a case for a parcel that the plan does not compensate for the household, although the house",
+      "duration_ms": 20679,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC386",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) recordSectionHandover (AC-ST-LND-009-1, UAT-AC386) hands the land over in steps for a contract that is active: PARTIAL, then HANDED_OVER, with the audit row and the event the contracts rea",
+      "duration_ms": 1285,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC387",
+      "name": "the progress of land clearance by stage, tracked from outside (ST-LND-010) reportLandStageProgress (AC-ST-LND-010-1, UAT-AC387) lets the project give a stage to the external centre, and the centre report on it with evidence: stored, audited and told with ids only | the progress of land clearance by ",
+      "duration_ms": 1593,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC388",
+      "name": "the handover and its punch list over HTTP (ST-AST-001) the punch list and the decision (AC-ST-AST-001-1, UAT-AC388) AC-ST-AST-001-1, UAT-AC388: refuses to accept while a critical item is open and never waives it, then accepts once the contractor has put it right and somebody else verified it | the h",
+      "duration_ms": 3117,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC389",
+      "name": "the assets of a work over HTTP (ST-AST-002) registerAsset (AC-ST-AST-002-1, UAT-AC389) AC-ST-AST-002-1, UAT-AC389: registers an asset of an accepted handover with its audit row and its event, answers the same key once, and refuses a value above the contract and a code that is used | the assets of a ",
+      "duration_ms": 3317,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC39",
+      "name": "the export of the data of a tenant and its offboarding over HTTP (ST-SAS-016) AC-ST-SAS-016-1 UAT-AC39: an Active tenant exports its data: the manifest lists every table and file with a sha256 that matches 100% of the files, the row counts agree with the tables, and the link lasts 72 hours",
+      "duration_ms": 41029,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC390",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) is registered in the module of AST | the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) fileWarrantyClaim (AC-ST-AST-004-1, UAT-AC390) UAT-AC390: takes a claim reported the day before the warranty ends",
+      "duration_ms": 24754,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC391",
+      "name": "the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) is registered in the module of AST | the claims against a warranty over HTTP (ST-AST-004, UAT-AC390, UAT-AC391) fileWarrantyClaim (AC-ST-AST-004-1, UAT-AC390) UAT-AC390: takes a claim reported the day before the warranty ends",
+      "duration_ms": 21181,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC392",
+      "name": "the warranty of a work over HTTP (ST-AST-003) closeWarrantyObligation (AC-ST-AST-003-2, UAT-AC392) AC-ST-AST-003-2, UAT-AC392: refuses while a claim is open, then closes it and announces the closure that lets the retention be released | the warranty of a work over HTTP (ST-AST-003) closeWarrantyObli",
+      "duration_ms": 2894,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC393",
+      "name": "the assets of a work over HTTP (ST-AST-002) linkOmPlan (AC-ST-AST-005-1, UAT-AC393) AC-ST-AST-005-1 UAT-AC393: an asset that was not transferred is 422 ASSET_NOT_TRANSFERRED, a transferred one is linked, and a second link is 409 OM_LINK_EXISTS | the assets of a work over HTTP (ST-AST-002) linkOmPlan",
+      "duration_ms": 5365,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC394",
+      "name": "the trigger of the evaluation after the investment over HTTP (ST-AST-006, UC-AST-04, UAT-AC394) is registered in the module of AST | the trigger of the evaluation after the investment over HTTP (ST-AST-006, UC-AST-04, UAT-AC394) UAT-AC394: sets the trigger 12 months after the acceptance, refuses a s",
+      "duration_ms": 23829,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC395",
+      "name": "the assets of a work over HTTP (ST-AST-002) another tenant (UAT-AC395) does not see or transfer an asset of the first tenant, whatever its rights in its own | the handover and its punch list over HTTP (ST-AST-001) another tenant (AC-ST-AST-001-3, UAT-AC395) AC-ST-AST-001-3, UAT-AC395: does not see, ",
+      "duration_ms": 4070,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC397",
+      "name": "the payments of a plan of compensation to its households (ST-LND-007) scheduleCompensationPayments AC-ST-LND-007-3, UAT-AC397: answers a repeated request with the first answer and schedules once | the payments of a plan of compensation to its households (ST-LND-007) confirmCompensationPayment and de",
+      "duration_ms": 15322,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC399",
+      "name": "sending, checking and returning a payment request over HTTP (ST-PAY-003) AC-ST-PAY-003-6, UAT-AC399: sends the request, takes the claim and puts it on the books; the same key answers the same, audited and told once",
+      "duration_ms": 1292,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC400",
+      "name": "the overview of the documents over HTTP (ST-DOC-014) AC-ST-DOC-014-1: UAT-AC400 counts each queue over what the viewer may read, with the moment it was counted, and nothing of another unit or tenant",
+      "duration_ms": 161,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC404",
+      "name": "issueOutgoingDocument: the verify-and-issue gate (ST-DOC-010) the signatures are verified again, from the stored file refuses a sealed document with a tampered byte: the document stays SEALED and nothing is announced (AC-ST-DOC-010-3, UAT-AC404) | issueOutgoingDocument: the verify-and-issue gate (ST",
+      "duration_ms": 2733,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC406",
+      "name": "documents signed outside the system (ST-DOC-009) uploadLeaderSignedDocument takes the file the leader signed with their own tool when the signing time is proven, and refuses the one whose time nobody proved: the document stays SUBMITTED (AC-ST-DOC-009-2, UAT-AC406)",
+      "duration_ms": 986,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC407",
+      "name": "issue requests and document references for source modules (ST-DOC-008) the chain from a source module to ISSUED renders an issue request on a template that waits for legal confirmation with the watermark on every page (AC-ST-DOC-006-3, UAT-AC407) | issueOutgoingDocument: the verify-and-issue gate (S",
+      "duration_ms": 2299,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC408",
+      "name": "issue requests and document references for source modules (ST-DOC-008) requestDocumentIssue rejects a payload whose hash is not the one declared: 422 PAYLOAD_HASH_MISMATCH, the request REJECTED and doc.rejected.v1 with the source reference (AC-ST-DOC-008-1, UAT-AC408)",
+      "duration_ms": 219,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC409",
+      "name": "issue requests and document references for source modules (ST-DOC-008) requestDocumentIssue answers a second request for the same content with 409 ISSUE_REQUEST_ALREADY_OPEN and the request that is open (AC-ST-DOC-008-2, UAT-AC409) | issue requests and document references for source modules (ST-DOC-",
+      "duration_ms": 331,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC410",
+      "name": "issue requests and document references for source modules (ST-DOC-008) the chain from a source module to ISSUED keeps the module waiting until doc.issued.v1: draft, review, signature, number, seal and issue, with the event once (AC-ST-DOC-008-3, UAT-AC410) | distributing an issued document and track",
+      "duration_ms": 3575,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC411",
+      "name": "recalling an issued document and voiding a number (ST-DOC-012) recallOutgoingDocument (AC-ST-DOC-012-1, UAT-AC411) recalls a delivered document: RECALLED with the reason, the recipients noticed, one event with the reference and the hash, and the number stays in the ledger as recalled | recalling an ",
+      "duration_ms": 10061,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC412",
+      "name": "replacing and correcting an issued document (ST-DOC-015) AC-ST-DOC-015-1 / UAT-AC412: a replacement and a correction makes a draft that carries the relation REPLACES and changes nothing in the issued document until the draft is issued; then the old one is REPLACED and no longer in force, its number ",
+      "duration_ms": 17081,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC414",
+      "name": "outgoing documents: compose, review and submit for signature (ST-DOC-007) submitOutgoingDocumentForReview and decideOutgoingDocumentReview refuses a self-approval, a signer without the authority, a clerk who starts signing and a leader who numbers: four DENIED rows (AC-ST-DOC-007-1, UAT-AC414)",
+      "duration_ms": 211,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC415",
+      "name": "layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of Appendix I drafts a revision of the default profile, with the values of BR-DOC-13, as revision 1 of its code, and shows it | layout profile governance (ST-DOC-016) AC-ST-DOC-016-1 / UAT-AC415: the legal ranges of",
+      "duration_ms": 1111,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC416",
+      "name": "the seal over the signature of the leader in the PDF (BR-DOC-13, AC-ST-DOC-016-2, UAT-AC416) lays the seal over a third of the width of the leader signature, on its left, as the boxes of the profile say | the seal over the signature of the leader in the PDF (BR-DOC-13, AC-ST-DOC-016-2, UAT-AC416) wr",
+      "duration_ms": 970,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC417",
+      "name": "documents signed outside the system (ST-DOC-009) registerExternallySignedDocument enters a document numbered elsewhere in a mirrored register, refuses the number a second time and a tampered file, and announces the issue once (AC-ST-DOC-009-1, UAT-AC417)",
+      "duration_ms": 1041,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC418",
+      "name": "outgoing documents: compose, review and submit for signature (ST-DOC-007) submitOutgoingDocumentForReview and decideOutgoingDocumentReview treats a delegated signature like a signature of the delegator for the band, and refuses a delegation that is not good (AC-ST-DOC-007-3, UAT-AC418)",
+      "duration_ms": 836,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC419",
+      "name": "dossiers over HTTP (ST-DOC-013) AC-ST-DOC-013-3: UAT-AC419 files a resolved incoming letter into an open dossier, once, and tells the chain | incoming documents over HTTP (ST-DOC-011) AC-ST-DOC-011-1: UAT-AC419 receives a letter, refuses the same letter again unless a reason is given, numbers it 10 ",
+      "duration_ms": 1971,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC420",
+      "name": "incoming documents over HTTP (ST-DOC-011) AC-ST-DOC-011-2: UAT-AC420 marks a letter overdue once after its deadline, tells NOT how late it is, and lets the handler resolve it late with the lateness recorded",
+      "duration_ms": 374,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC421",
+      "name": "dossiers over HTTP (ST-DOC-013) AC-ST-DOC-013-1: UAT-AC421 closes a dossier while no rule is confirmed, keeps it for ever provisionally, and names the blocker of a disposal; a confirmed rule gives the second dossier its class and its handover | dossiers over HTTP (ST-DOC-013) AC-ST-DOC-017-2: UAT-AC",
+      "duration_ms": 1394,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC422",
+      "name": "dossiers over HTTP (ST-DOC-013) AC-ST-DOC-013-2: UAT-AC422 gives each dossier the rule in force on the day it is closed, and does not let two published rules of one set and category overlap | dossiers over HTTP (ST-DOC-013) AC-ST-DOC-017-1: UAT-AC422 drafts, publishes and confirms the retention rule",
+      "duration_ms": 1339,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC425",
+      "name": "document interoperability through the LGSP (ST-DOC-021) the job that sends goes QUEUED, SENT after attempt 5 and ACKED when the gateway answers 503 four times first, waiting longer each time (AC-ST-DOC-021-1, UAT-AC425) | document interoperability through the LGSP (ST-DOC-021) the job that sends end",
+      "duration_ms": 13063,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC427",
+      "name": "recalling an issued document and voiding a number (ST-DOC-012) voidOutgoingDocumentNumber (AC-ST-DOC-012-2, UAT-AC427) refuses the clerk who allocated the number and then voids it with a second person: allocation VOIDED, document CANCELLED, one event, the next number follows and the audit lists it a",
+      "duration_ms": 7311,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC428",
+      "name": "outgoing documents: compose, review and submit for signature (ST-DOC-007) submitOutgoingDocumentForReview and decideOutgoingDocumentReview takes a draft missing recipients and signer through the checks in steps, then locks the final PDF with its SHA-256 (AC-ST-DOC-007-2, UAT-AC428)",
+      "duration_ms": 751,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC429",
+      "name": "incoming documents over HTTP (ST-DOC-011) AC-ST-DOC-011-3: UAT-AC429 takes in no letter that declares a level of state secret, creates nothing, and audits the refusal as DENIED | outgoing documents: compose, review and submit for signature (ST-DOC-007) createOutgoingDocument declares a state secret ",
+      "duration_ms": 676,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC433",
+      "name": "audit and inspection engagements over HTTP (ST-AUD-001, AUD-02, AUD-03) createAuditEngagement and startAuditEngagement AC-ST-AUD-001-1 / UAT-AC433: registers the engagement with two scope items, starts it ONGOING with an Active INSPECTION hold on the scope, and refuses a duplicate code",
+      "duration_ms": 543,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC434",
+      "name": "conclusions, findings and recommendations over HTTP (ST-AUD-002, AUD-04, AUD-05) recordAuditConclusion AC-ST-AUD-002-2 / UAT-AC434: records the conclusion of an ONGOING engagement with an effective document, moves it to FOLLOW_UP and emits aud.conclusion.recorded.v1 | conclusions, findings and recom",
+      "duration_ms": 395,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC435",
+      "name": "assignment, remediation, dispute and verification over HTTP (ST-AUD-003, AUD-06, AUD-07) assignAuditRecommendation (AC-ST-AUD-003-1) AC-ST-AUD-003-1 / UAT-AC435: 200 ASSIGNED for an owner in scope, 422 OWNER_OUT_OF_SCOPE for a unit outside it, 404 for a unit of another tenant and 422 DUE_AFTER_CONCL",
+      "duration_ms": 910,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC436",
+      "name": "assignment, remediation, dispute and verification over HTTP (ST-AUD-003, AUD-06, AUD-07) the owner does the work (AC-ST-AUD-003-2) AC-ST-AUD-003-2 / UAT-AC436: 422 EVIDENCE_REQUIRED without evidence in force, DONE with it, PENDING_VERIFICATION, 403 SELF_APPROVAL_DENIED for the owner and CLOSED with ",
+      "duration_ms": 632,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC437",
+      "name": "the ledger of recoveries over HTTP (ST-AUD-004, AUD-08, AUD-01) linkAuditRecovery AC-ST-AUD-004-1 / UAT-AC437: 500,000,000 from PAY and 300,000,000 linked by hand make 800,000,000; the summary shows nothing left to recover and the rate with its numerator and denominator | the recoveries of PAY on th",
+      "duration_ms": 935,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC439",
+      "name": "the ledger of recoveries over HTTP (ST-AUD-004, AUD-08, AUD-01) linkAuditRecovery AC-ST-AUD-004-2 / UAT-AC439: 80,000,000 posted by two accountants at once on 400,000,000 with 300,000,000 recovered: exactly one is 409 RECOVERY_EXCEEDS_RECOMMENDATION with the figures | the ledger of recoveries over H",
+      "duration_ms": 1066,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC440",
+      "name": "the follow-up report and the closure over HTTP (ST-AUD-005, AUD-10) requestAuditFollowUpReport AC-ST-AUD-005-1 / UAT-AC440: R1 and R3 closed and R2 in progress give a report ISSUE_REQUESTED with closed 2, in progress 1, 1,200,000,000 recommended and 1,100,000,000 recovered, and a hash of the payload",
+      "duration_ms": 2899,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC441",
+      "name": "assignment, remediation, dispute and verification over HTTP (ST-AUD-003, AUD-06, AUD-07) disputing (AC-ST-AUD-003-3) AC-ST-AUD-003-3 / UAT-AC441: a financial recommendation of 400,000,000 with 300,000,000 recovered closes once the authority accepted the dispute; the decision without a document of th",
+      "duration_ms": 795,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC442",
+      "name": "conclusions, findings and recommendations over HTTP (ST-AUD-002, AUD-04, AUD-05) who may record, and who finds what (AUD 2, BR-IAM-01) AC-ST-AUD-001-2 / UAT-AC442: answers 404 to a recorder of another branch and to a coordinator of another tenant, for the commands and for the reads, and reveals noth",
+      "duration_ms": 314,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC443",
+      "name": "audit and inspection engagements over HTTP (ST-AUD-001, AUD-02, AUD-03) endAuditFieldwork and cancelAuditEngagement AC-ST-AUD-001-3 / UAT-AC443: cancels a started engagement, releases its hold, and a start after the cancellation is 409 ENGAGEMENT_STATE_INVALID",
+      "duration_ms": 253,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC444",
+      "name": "the recoveries of PAY on the ledger of AUD (AC-ST-AUD-004-1, AC-ST-AUD-004-3) AC-ST-AUD-004-3 / UAT-AC444: a reversal of PAY delivered twice adds one negative line, recovered falls to 500,000,000, and the closed recommendation goes back to IN_PROGRESS with an alert",
+      "duration_ms": 506,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC446",
+      "name": "the result of the selection of a contractor over HTTP (ST-BID-006) submitProcurementResult and decideProcurementResult AC-ST-BID-006-2, UAT-AC446: refuses a winner under a restriction in force (422 CONTRACTOR_RESTRICTED) and one nobody verified, and stores nothing | the history of a contractor for t",
+      "duration_ms": 3593,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC448",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) receiveProposal receives the proposal sealed, audits it and tells the world who sent it and how many files, never the price or a file (UAT-AC448 step 0) | the sealed proposal and the declaration of conflict of interest (ST-",
+      "duration_ms": 2359,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC449",
+      "name": "the OCR of the pages of a proposal and its review (ST-BID-008) AC-ST-BID-008-1 / UAT-AC449: a page under the threshold stops the financial analysis until the expert corrects it sends page 23 at 0.71 to review, holds the gate, and opens it when the expert corrects the page | the OCR of the pages of a",
+      "duration_ms": 984,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC450",
+      "name": "the sealed proposal and the declaration of conflict of interest (ST-BID-004) the declaration of conflict of interest (AC-ST-BID-004-2, UAT-AC450) records a declaration, audits it and tells the world that it was made, without the words of the relation | the sealed proposal and the declaration of conf",
+      "duration_ms": 2296,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC451",
+      "name": "the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) is registered in the module of BID | the history of a contractor for the evaluators (ST-BID-013, UAT-AC451, UAT-AC446) AC-ST-BID-013-1, UAT-AC451: only the approved scorecards that stand are history: CP-7 (83.00) is th",
+      "duration_ms": 3356,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC452",
+      "name": "the clarification requests to contractors over HTTP (ST-BID-011) recordClarificationAnswer (AC-ST-BID-011-1, UAT-AC452) AC-ST-BID-011-1, UAT-AC452: NT-2 gets 404 for reading and answering; NT-1 answers in time and it is ANSWERED with the document; the second answer after the deadline is 409 CLARIFIC",
+      "duration_ms": 3281,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC453",
+      "name": "the evaluation report and its sign-off over HTTP (ST-BID-012, BID-13) AC-ST-BID-012-1, UAT-AC453: from the unreviewed finding to the minutes DOC issued AC-ST-BID-012-1, UAT-AC453: answers 422 UNREVIEWED_FINDINGS first, a DRAFT after the review, ISSUE_REQUESTED after the third signature and ISSUED wi",
+      "duration_ms": 6960,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC454",
+      "name": "the milestones of a package and the file of the national bidding system (ST-BID-005) importProcurementFile (AC-ST-BID-005-1, UAT-AC454) AC-ST-BID-005-1, UAT-AC454: a dry run says rows_ok=2 rows_error=1 PACKAGE_NOT_FOUND and writes nothing; the apply writes 2 IMPORT milestones with IN_SYNC links; the",
+      "duration_ms": 1220,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC455",
+      "name": "the result of the selection of a contractor over HTTP (ST-BID-006) submitProcurementResult and decideProcurementResult AC-ST-BID-006-1, UAT-AC455: refuses 18,500,000,000 (422 PRICE_EXCEEDS_PACKAGE_BUDGET), takes 17,650,000,000, refuses the proposer who approves it (403 SELF_APPROVAL_DENIED), and an ",
+      "duration_ms": 871,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC456",
+      "name": "the petitions of contractors over HTTP (ST-BID-007) resolveProcurementPetition AC-ST-BID-007-1, UAT-AC456: shows a petition overdue once its last day has passed, refuses an answer without a document (422), and with one the petition is RESOLVED",
+      "duration_ms": 482,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC457",
+      "name": "the registry of providers and models and the classification policy (ST-LLM-001, LLM F2) providers AC-ST-LLM-001-1: UAT-AC457 refuses an international provider that takes more than public data, the activation without D07, and the policy that turns international on without it",
+      "duration_ms": 509,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC458",
+      "name": "the classification and the route of a request (ST-LLM-005, LLM F1) AC-ST-LLM-005-1: UAT-AC458 gives a request the highest class of its sources and sends it only over the routes of that class: public may use any route that is on, internal and personal only the domestic and the self-hosted | the class",
+      "duration_ms": 2693,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC459",
+      "name": "the evaluation of a route and its signature (ST-LLM-004, LLM-13, LLM-17) AC-ST-LLM-004-1: UAT-AC459 lets an expert sign a pass only over metrics that passed, refuses the person who started the run, and refuses a stale version and a second signature | the release of a profile (ST-LLM-004, LLM-17, LLM",
+      "duration_ms": 3946,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC460",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-2: UAT-AC460 holds one of 20 simultaneous 50,000 jobs against a unit with 80,000 available, refuses 19 naming the UNIT, and finishes without a deadlock | the reservation, the settlement and the reco",
+      "duration_ms": 888,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC461",
+      "name": "the price versions of the models (ST-LLM-003, LLM BR-LLM-13) AC-ST-LLM-003-3: UAT-AC461 costs an attempt of 120,000 input of which 100,000 cached, and 10,000 output, at 2.00, 0.50 and 8.00 per million and 25,400 dong to the dollar, as 0.17 USD and 4,318 VND | the price versions of the models (ST-LLM",
+      "duration_ms": 559,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC462",
+      "name": "the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) is registered in the module of LLM | the reconciliation of the invoice of a provider with the attempts (ST-LLM-008, LLM.md F3, UAT-AC462) UAT-AC462: a variance of 60,000 that lists the 3 attempts wai",
+      "duration_ms": 6446,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC463",
+      "name": "the prompts (ST-LLM-004, LLM-10, LLM BR-LLM-10) AC-ST-LLM-004-2: UAT-AC463 refuses the author as the approver, approves by another as the PRODUCTION revision, and then no longer edits it: 409 PROMPT_IMMUTABLE with the hash unchanged | the prompts (ST-LLM-004, LLM-10, LLM BR-LLM-10) AC-ST-LLM-004-2: ",
+      "duration_ms": 800,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC464",
+      "name": "the records of the gateway (ST-LLM-005, LLM-01, LLM-05) AC-ST-LLM-005-5: UAT-AC464 reads 50 of 1,000 requests as international and 30 as blocked for the month, and every international request is public",
+      "duration_ms": 940,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC465",
+      "name": "what is kept and what is not (ST-LLM-005) AC-ST-LLM-005-3: UAT-AC465 keeps only the hash of the input and of the answer: a national id and a phone number that a model repeats are in no table, no audit row, no event and no log",
+      "duration_ms": 1141,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC466",
+      "name": "the checks after the answer (ST-LLM-005) AC-ST-LLM-005-4: UAT-AC466 does not use an answer that cites nothing or is not JSON: it asks the same model once more, then ends REJECTED_NO_CITATION or FAILED INVALID_JSON, and gives the model only tools that read | the checks after the answer (ST-LLM-005) A",
+      "duration_ms": 2879,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC467",
+      "name": "knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) is registered in the module of LLM | knowledge collections: indexing and retrieval filtered by tenant and access list (ST-LLM-007, LLM.md F6, UAT-AC467, UAT-AC14) builds the ",
+      "duration_ms": 12282,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC468",
+      "name": "the decisions of people about what an AI answered (ST-LLM-006, LLM F8, LLM-20) AC-ST-LLM-006-2: UAT-AC468 asks the command that uses an answer for a decision of a person: none is 422 AI_DECISION_REQUIRED, one about another answer 422 AI_OUTPUT_HASH_MISMATCH, then it succeeds and says what it did, on",
+      "duration_ms": 1225,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC469",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-6, AC-ST-KERNEL-046-3: UAT-AC469, UAT-NFR-AI-03 sends the event of the soft threshold once when a settlement crosses 80 percent, refuses a 250,000 estimate above 190,000, and asks for an approval wh",
+      "duration_ms": 634,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC470",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-4: UAT-AC470 settles a provider request once: a second delivery, also one at the same moment, changes nothing and gives the first answer",
+      "duration_ms": 468,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC471",
+      "name": "certification and publication approval (ST-BI-006, BI 3 F5) AC-ST-BI-006-2: UAT-AC471 refuses a metric whose rerun on the latest snapshot differs from what the snapshot stores, names the check that failed and makes no request | the registry of metrics (ST-BI-001, BI F1) the sync of the metrics of th",
+      "duration_ms": 710,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC472",
+      "name": "the registry of metrics (ST-BI-001, BI F1) the metrics a tenant drafts AC-ST-BI-001-2: UAT-AC472 refuses a ratio without a denominator and an expression with a raw_sql node, and drafts a valid metric under the t_ prefix",
+      "duration_ms": 263,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC473",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) closed by default, and what a policy hides AC-ST-BI-003-1: UAT-AC473 refuses (403 ACCESS_POLICY_MISSING) a reader no active policy covers, keeps the refusal as a record and gives it again to the same key | the queries of BI and the dr",
+      "duration_ms": 606,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC474",
+      "name": "certification and publication approval (ST-BI-006, BI 3 F5) AC-ST-BI-006-1: UAT-AC474 publishes the version of dashboard D-3 when someone other than who asked approves, after a refused self-approval, and keeps the earlier revision intact | dashboards and their versions (ST-BI-005, BI 3 F5) AC-ST-BI-",
+      "duration_ms": 1944,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC475",
+      "name": "exports and the per-recipient schedules (ST-BI-008, BI 3 F7) AC-ST-BI-008-1: UAT-AC475 makes two separate jobs for a weekly schedule, the leader's with a header that states scope, period and snapshot, the staff member's DENIED with no file once their scope is revoked | exports and the per-recipient ",
+      "duration_ms": 43017,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC476",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) closed by default, and what a policy hides AC-ST-BI-003-2: UAT-AC476 refuses a query with a sql field (400 FIELD_NOT_ALLOWED) and a dimension the dataset does not offer (422 DIMENSION_NOT_IN_DATASET) | the access policies of BI (ST-BI",
+      "duration_ms": 295,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC477",
+      "name": "the performance of the queries over a tenant of 5,000 projects (ST-BI-009, UAT-AC477, NFR-PERFORMANCE-03) answers a province-wide query of 12 metrics in 2 seconds or less at the 95th percentile of 20 runs | the performance of the queries over a tenant of 5,000 projects (ST-BI-009, UAT-AC477, NFR-PER",
+      "duration_ms": 15029,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC478",
+      "name": "the versions of the datasets by period (ST-BI-002, BI F2) the build of a period AC-ST-BI-002-1, AC-ST-DGV-004-3: UAT-AC478, UAT-AC51 builds NOT_ASSESSED with no row excluded before DGV has run, then links the run with its 12 quarantined rows, supersedes the first and keeps it | the versions of the d",
+      "duration_ms": 675,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC479",
+      "name": "exports and the per-recipient schedules (ST-BI-008, BI 3 F7) AC-ST-BI-008-2: UAT-AC479 is 404 for a user of another tenant, and the list is the person's own",
+      "duration_ms": 645,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC480",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) a query over a snapshot AC-ST-BI-004-6: UAT-AC480 counts a project of two units in each of them and once in the total, and says the children do not add up and why",
+      "duration_ms": 172,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC481",
+      "name": "the queries of BI and the drill under them (ST-BI-004, BI F3, F4) the drill AC-ST-BI-004-4: UAT-AC481 refuses a unit whose scope was revoked mid-session (403 SCOPE_DENIED, no name) and still serves the other unit on the same snapshot",
+      "duration_ms": 354,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC482",
+      "name": "the versions of the datasets by period (ST-BI-002, BI F2) the build of a period AC-ST-BI-002-2: UAT-AC482 builds nothing new when the content is the same, however often it is asked, and keeps one frozen version per dataset and period | the versions of the datasets by period (ST-BI-002, BI F2) the bu",
+      "duration_ms": 967,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC487",
+      "name": "quality incidents and exceptions over HTTP (ST-DGV-003) AC-ST-DGV-003-1: UAT-AC487 takes a HIGH incident from OPEN to CLOSED: no resolution without the cause, no verification by the handler, none before a rerun that passes, one event per step",
+      "duration_ms": 1601,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC489",
+      "name": "the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV-05) AC-ST-DGV-006-2: UAT-AC489 records the edges of a batch once however often it is posted, and refuses a node of another tenant with 422 LINEAGE_NODE_INVALID",
+      "duration_ms": 432,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC490",
+      "name": "the glossary bound to the datasets (ST-DGV-007, DGV 3.1, DGV-02) UAT-AC490: binding a revision that is IN_REVIEW is 422 GLOSSARY_TERM_NOT_PUBLISHED, binding the PUBLISHED one succeeds, and once the newer revision publishes the read warns of the deprecated binding and offers it",
+      "duration_ms": 300,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC492",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) is registered in the module of DGV | the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8,",
+      "duration_ms": 10425,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC493",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) the rubric (UAT-AC493) refuses weights of the pillars that add up to 90 (422 RUBRIC_WEIGHTS_INVALID), then is drafted, published by somebod",
+      "duration_ms": 1267,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC494",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) is registered in the module of DGV | the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8,",
+      "duration_ms": 10425,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC495",
+      "name": "the certification of data products (ST-DGV-009, DGV 3.1 F9, DGV-18) UAT-AC495: the owner cannot certify (403), a run that failed is 422 QUALITY_NOT_PASSED, and after a run that passed the product is CERTIFIED with the day it runs out",
+      "duration_ms": 497,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC496",
+      "name": "the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV-05) AC-ST-DGV-006-3: UAT-AC496 is 404 for tenant B asking for a node of tenant A, and tenant B sees only its own graph",
+      "duration_ms": 35,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC50",
+      "name": "the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) is registered in the module of DGV | the data contracts with the approval of the consumers for a breaking change (ST-DGV-005, DGV 3.1 F2, DGV-13, DGV-19, UAT-AC50) UAT-AC50:",
+      "duration_ms": 9385,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC500",
+      "name": "the replication role machvon_sync (ST-KERNEL-045) AC-ST-KERNEL-045-3 UAT-AC500: has REPLICATION, is neither a superuser nor able to bypass row-level security, and inherits nothing from another role | the replication role machvon_sync (ST-KERNEL-045) AC-ST-KERNEL-045-3 UAT-AC500: has SELECT on every ",
+      "duration_ms": 82,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC502",
+      "name": "the commands a phone queued offline (ST-MOB-005, MOB-41) a batch AC-ST-MOB-005-1 UAT-AC502: after the response was lost, the lookup by key says ACCEPTED, and sending the batch again carries nothing out a second time",
+      "duration_ms": 141,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC503",
+      "name": "the commands a phone queued offline (ST-MOB-005, MOB-41) a batch AC-ST-MOB-005-2 UAT-AC503: the same batch key with another body is 409 IDEMPOTENCY_CONFLICT and the first answer stands; the same command key with another command is refused, not carried out",
+      "duration_ms": 119,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC506",
+      "name": "the attachments a phone uploads in chunks (ST-MOB-009, MOB-19) AC-ST-MOB-009-2 UAT-AC506: an infected file is INFECTED with the reason, is not linked to a record, and a new upload is the way to try again",
+      "duration_ms": 186,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC51",
+      "name": "the versions of the datasets by period (ST-BI-002, BI F2) the build of a period AC-ST-BI-002-1, AC-ST-DGV-004-3: UAT-AC478, UAT-AC51 builds NOT_ASSESSED with no row excluded before DGV has run, then links the run with its 12 quarantined rows, supersedes the first and keeps it",
+      "duration_ms": 324,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC52",
+      "name": "the lineage graph with a check on each node (ST-DGV-006, DGV 3 F5, DGV-05) AC-ST-DGV-006-1: UAT-AC52 tells everything of the chain to the person who may read it, run and transform on each edge, and shows the others restricted nodes with no name, id or kind",
+      "duration_ms": 98,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC53",
+      "name": "the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8, DGV-16, DGV-17, DGV-21, UAT-AC53, UAT-AC492 to UAT-AC494) is registered in the module of DGV | the maturity of data governance: rubric, assessment, evidence, score, roadmap (ST-DGV-008, DGV 3.1 F8,",
+      "duration_ms": 10425,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC54",
+      "name": "quality incidents and exceptions over HTTP (ST-DGV-003) AC-ST-DGV-003-2: UAT-AC54 opens a new exception when a waiver ends, reopens the closed incident once, tells the handler, and a second run changes nothing",
+      "duration_ms": 622,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC55",
+      "name": "quality incidents and exceptions over HTTP (ST-DGV-003) AC-ST-DGV-003-3: UAT-AC55 hides the values of the record of an exception from whoever may not see the dataset, and the incident with it",
+      "duration_ms": 540,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC56",
+      "name": "the life of a contract over HTTP (ST-CTR-004, ST-CTR-005) recordContractSigning AC-ST-CTR-004-1, UAT-AC56: blocks a reviewer and a signer in conflict with the contractor and keeps every blocked attempt in the audit trail; someone free of it signs with the decision on the record",
+      "duration_ms": 868,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC58",
+      "name": "the retroactive adjustment of a change order over HTTP (ST-CTR-016) approveRetroactiveAdjustment (AC-ST-CTR-016-1, UAT-AC58) AC-ST-CTR-016-1, UAT-AC58: answers 200, posts the adjustment on the ledger, leaves the acceptance as it was approved and records the decision and the affected acceptances | th",
+      "duration_ms": 7731,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC60",
+      "name": "the draft of a payment request over HTTP (ST-PAY-002) AC-ST-PAY-002-4, UAT-AC60: an invoice used in the contract is blocked; an approver who did not draw the request up lets it through with a reason, which is audited; in another contract it is only a warning",
+      "duration_ms": 1552,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC61",
+      "name": "the advance of a contract over HTTP (ST-PAY-004) AC-ST-PAY-004-4, UAT-AC61: records a recovery outside the payments up to what is owed; the figures, the audit row and the event follow",
+      "duration_ms": 980,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC62",
+      "name": "the electronic site diary over HTTP (ST-QMS-001) ST-QMS-002: two devices, the conflict between them, and the place AC-ST-QMS-002-1: UAT-AC62 keeps the copy of a device that wrote over a draft it had not read, shows it, and does not touch the diary of the day | the electronic site diary over HTTP (ST",
+      "duration_ms": 2132,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC63",
+      "name": "the acceptance of work over HTTP (ST-CTR-009) AC-ST-CTR-009-1, UAT-AC63: refuses measurements that are not approved by name, drafts the rest priced from the revision, and tells PAY nothing until it is approved",
+      "duration_ms": 1508,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC65",
+      "name": "the handover and its punch list over HTTP (ST-AST-001) reading (AC-ST-AST-001-2, UAT-AC65) AC-ST-AST-001-2, UAT-AC65: traces a handover, its items, assets, minutes and receiving unit, and shows each person what they may do | the handover and its punch list over HTTP (ST-AST-001) reading (AC-ST-AST-0",
+      "duration_ms": 2280,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC66",
+      "name": "the settlement of a project over HTTP (ST-PAY-009) UAT-AC66: closes a settlement that owes only after an exception approved by someone else, and the figures stay as they were",
+      "duration_ms": 1650,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC67",
+      "name": "the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67) is registered in the module of PAY | the trace of a payment over HTTP (ST-PAY-010, AC-ST-PAY-010-1, PAY-17, UAT-AC67) UAT-AC67: gives the whole chain with the version of each node, and nothing that names a person | the ",
+      "duration_ms": 4028,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AI-02",
+      "name": "the AI analysis of a proposal with verified citations and classification routing (ST-BID-009) AC-ST-BID-009-4, UAT-NFR-AI-02: the content of a bid is data, and an answer without citations is rejected AC-ST-BID-009-4, UAT-NFR-AI-02: wraps a page with an injection as untrusted data, rejects an answer ",
+      "duration_ms": 4758,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AI-03",
+      "name": "the reservation, the settlement and the reconciliation of a budget (ST-LLM-003, LLM F3) AC-ST-LLM-003-6, AC-ST-KERNEL-046-3: UAT-AC469, UAT-NFR-AI-03 sends the event of the soft threshold once when a settlement crosses 80 percent, refuses a 250,000 estimate above 190,000, and asks for an approval wh",
+      "duration_ms": 634,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AI-04",
+      "name": "the release of a profile (ST-LLM-004, LLM-17, LLM BR-LLM-08) AC-ST-LLM-004-3: UAT-NFR-AI-04 asks for an evaluation when there is none, and publishes after one, with the id of the run in the audit",
+      "duration_ms": 505,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AVAILABILITY-04",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-KERNEL-073-1 (UAT-NFR-AVAILABILITY-04): a provider that fails every call does not touch the business commands: 20 of 20 succeed, every delivery waits for its retry, and the breaker of the account opens within 30 seconds and stops the cal",
+      "duration_ms": 3082,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-03",
+      "name": "a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-KERNEL-014-3 (UAT-NFR-OPERABILITY-03) answers unavailable while the flag is off, and serves the route once it is on, with no schema change between | a route behind a release flag (ST-KERNEL-014 AC-3, FeatureFlagGuard) AC-ST-K",
+      "duration_ms": 1845,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-04",
+      "name": "the reallocation of capital (ST-CAP-010) AC-ST-CAP-010-2 / UAT-NFR-OPERABILITY-04: the approval workflow of the proposal follows the version it started on, and the domain guard still checks the four-eyes keeps the instance on version 3 when version 4 is registered, while an instance started after it",
+      "duration_ms": 3395,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-05",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports_id_submit (ST-DIS-005) AC-ST-DIS-005-7 / UAT-NFR-OPERABILITY-05: leaves one logical event under one key for the consumers to take once: the relay and the inbox of the kernel make the redelivery harmless",
+      "duration_ms": 158,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-06",
+      "name": "conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) is registered in the module of ADM | conversion batches: register, dry run, apply and roll back (ST-ADM-020, ADM 3.10, BR-ADM-12, UAT-AC143, UAT-NFR-OPERABILITY-06) takes t",
+      "duration_ms": 3865,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-PERFORMANCE-04",
+      "name": "one tenant at ten times its quota does not slow another down (ST-KERNEL-074) AC-ST-KERNEL-074-1, UAT-NFR-PERFORMANCE-04: with tenant A at ten times its quota the p95 of tenant B rises 10 percent or less and stays at 800 ms or less, and the excess of A is answered 429 RATE_LIMIT",
+      "duration_ms": 13895,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-PRIVACY-01",
+      "name": "the dispatcher honours consent, preferences and quiet hours (ST-NOT-003) AC-ST-KERNEL-061-2 (UAT-NFR-PRIVACY-01): a Zalo consent withdrawn between two events suppresses the second recipient decision with CONSENT_WITHDRAWN, and the adapter is called 0 times for it",
+      "duration_ms": 192,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-PRIVACY-02",
+      "name": "the push channels (ST-NOT-007, NOT 9) a push to the devices of the recipient AC-ST-NOT-007-2, AC-ST-KERNEL-061-1 (payload clause) UAT-AC28, UAT-NFR-PRIVACY-02: the provider receives a neutral sentence and an opaque link, nothing of the event, and a figure in the event reaches no lock screen",
+      "duration_ms": 159,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-05",
+      "name": "capital plan drafting commands and reads (ST-CAP-002) draftCapitalAllocation lets only one of two planners who save with the same If-Match win and tells the other 409 VERSION_CONFLICT with a safe diff (AC-ST-CAP-002-6, UAT-NFR-SECURITY-05)",
+      "duration_ms": 431,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-12",
+      "name": "the attachments a phone uploads in chunks (ST-MOB-009, MOB-19) AC-ST-MOB-009-4 UAT-NFR-SECURITY-12: a script renamed to .jpg is refused when the upload is completed, by its bytes, and the chunks are dropped",
+      "duration_ms": 83,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-05",
+      "name": "the attachments a phone uploads in chunks (ST-MOB-009, MOB-19) AC-ST-MOB-009-3 UAT-NFR-TENANCY-05: a link of one tenant used for the key of another, and an expired link, are both refused, and the storage key is always under the tenant prefix",
+      "duration_ms": 595,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-07",
+      "name": "the sync rules of the weekly report for the phone (ST-DIS-017) UAT-NFR-TENANCY-07 / AC-ST-DIS-017-4: the token of another tenant reaches nothing of the first, a scope row that names a project of another tenant reaches nothing, and the same member in the other tenant gets only that tenant | the sync ",
+      "duration_ms": 21,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-08",
+      "name": "the approval workflow of the capital plan (AC-ST-CAP-003-6, UAT-NFR-TENANCY-08) moves a plan from drafting to published, every activity under the signed context of its signal and the plan, audit, ledger and event written like the commands do | the approval workflow of the capital plan (AC-ST-CAP-003",
+      "duration_ms": 1702,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-09",
+      "name": "contract register commands and reads (ST-CTR-001) reads AC-ST-KERNEL-026-2 / UAT-NFR-TENANCY-09: a department user, a user of another branch and a contractor guest each list only their own projects and contracts, and every out-of-scope id is 404",
+      "duration_ms": 288,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-01",
+      "name": "the consumer of the payment events on the capital ledger (ST-CAP-006) posts the sending, the payment and the reversal of one request, once each however often the events are delivered (UAT-PLAN-01)",
+      "duration_ms": 729,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-10",
+      "name": "the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) is registered in the module of CAP | the earmark of capital over HTTP (ST-CAP-011, UAT-PLAN-10, UAT-AC227) AC-ST-CAP-011-1, UAT-PLAN-10: with 450 of 600 million used, 150 million asks for the acknowledgement of the warning, and th",
+      "duration_ms": 12775,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-11",
+      "name": "the period snapshot over HTTP (ST-DIS-009) AC-ST-DIS-009-5 / UAT-PLAN-11: a snapshot of 1000 projects builds within 300 seconds, keeps every project, and serves the reads of the figures with a p95 of 2 seconds or less (the read replica itself is an environment check)",
+      "duration_ms": 50824,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-15",
+      "name": "importBoqLines and the reads of the BOQ (ST-CTR-002) importBoqLines from a file (AC-ST-CTR-002-3) imports a spreadsheet saved as XLSX the same way, and answers the first import for the same file (UAT-PLAN-15)",
+      "duration_ms": 280,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-16",
+      "name": "importBoqLines and the reads of the BOQ (ST-CTR-002) importBoqLines from a file (AC-ST-CTR-002-3) rejects an executable renamed boq.xlsx before the parser runs, and a file with a virus signature, writing nothing (AC-ST-CTR-002-3, UAT-PLAN-16)",
+      "duration_ms": 342,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-17",
+      "name": "the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-AC315, UAT-PLAN-17) is registered in the module of CTR | the scorecard of a contractor and the log of its violations over HTTP (ST-CTR-014, AC-ST-CTR-014-1, AC-ST-CTR-014-2, UAT-A",
+      "duration_ms": 4029,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-18",
+      "name": "the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) is registered in the module of CTR | the export of the records of the contractors over HTTP (ST-CTR-015, AC-ST-CTR-015-1, AC-ST-CTR-015-2, UAT-AC315, UAT-PLAN-18) AC-ST-CTR-0",
+      "duration_ms": 2408,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-20",
+      "name": "the Treasury forms of a payment request over HTTP (ST-PAY-005) AC-ST-PAY-005-2, UAT-PLAN-20: refuses to send the file without a form of each of the four kinds, and with them records the day and the number that were entered, calling no one",
+      "duration_ms": 2200,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-23",
+      "name": "createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) the reads (AC-ST-ISS-002-3, UAT-PLAN-23) shows each caller only the issues in their scope | createIssue, assignIssue, startIssue, commentIssue, transferIssueUnit and the issue reads (ST-ISS-002) th",
+      "duration_ms": 527,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-24",
+      "name": "escalateIssue, acceptIssueEscalation and listIssueSlaBreaches (ST-ISS-004) acceptIssueEscalation (UAT-AC352, UAT-PLAN-24) AC-ST-ISS-004-1: the job escalates to the unit and the task force once each; a member of the task force accepts and the issue goes back to work",
+      "duration_ms": 668,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-25",
+      "name": "the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) is registered in the module of ISS | the weekly matrix of the issues by unit and group (ST-ISS-006, ISS-06, ISS-08, BR-ISS-08, UAT-PLAN-25) UAT-PLAN-25: every count of the matrix equals the count o",
+      "duration_ms": 2304,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-27",
+      "name": "the quality acceptance minutes over HTTP (ST-QMS-005) AC-ST-QMS-005-2, UAT-PLAN-27: revoking approved minutes emits the event once, and is refused while an approved acceptance holds them",
+      "duration_ms": 1126,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-28",
+      "name": "land clearance: sections, parcels without owners, the parcel import and the recovery notice timers (ST-LND-001) importLandParcels (AC-ST-LND-001-2, UAT-PLAN-28) AC-ST-LND-001-2: imports a parcel list once; the same file a second time creates nothing and answers ALREADY_IMPORTED | land clearance: sec",
+      "duration_ms": 749,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-29",
+      "name": "the inventory of the assets of the affected households: counting at a price decision in force and the answer of the household (ST-LND-004) recordInventory AC-ST-LND-004-1, UAT-PLAN-29: counts a DRAFT at the price decision of the day of the survey, audits it and tells the world with ids and amounts o",
+      "duration_ms": 606,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-30",
+      "name": "the plan of compensation, support and resettlement: drafting, composing it from confirmed inventory and revising it (ST-LND-005) revisePlan AC-ST-LND-005-2, UAT-PLAN-30: replaces a plan that was posted by a new revision, leaving the earlier one readable and marked as replaced",
+      "duration_ms": 432,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-31",
+      "name": "the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) is registered in the module of LND | the allocation of resettlement to the households (ST-LND-012, UAT-PLAN-31) AC-ST-LND-012-1, UAT-PLAN-31: allocates a plot on an item of an approved plan, and refuses a second allocation of",
+      "duration_ms": 9957,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-34",
+      "name": "the attachments a phone uploads in chunks (ST-MOB-009, MOB-19) AC-ST-MOB-009-1 UAT-PLAN-34: a file of 12 MiB with the network cut at chunk 7 goes on from the chunk it stopped at, and the whole matches: UPLOADING, then CLEAN",
+      "duration_ms": 1466,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-45",
+      "name": "the approval workflows over HTTP (ST-ADM-012) AC-ST-ADM-012-4, UAT-PLAN-45: an invalid definition is 422 with the path of each defect, and the stored definition is unchanged",
+      "duration_ms": 188,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-50",
+      "name": "the delivery engine in the real API process (ST-NOT-002) AC-ST-OMNI-001-3 UAT-PLAN-50: once the supervisor disables the account, a webhook for it is 404 CHANNEL_ACCOUNT_UNKNOWN | only a verified channel account sends (ST-OMNI-001, BR-OMNI-02) AC-ST-OMNI-001-3 UAT-PLAN-50: the attempts that wait on a",
+      "duration_ms": 839,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-51",
+      "name": "the conversations of the omnichannel center (ST-OMNI-004, OMNI-01, OMNI.md 3.1, 3.2) the assignment AC-ST-OMNI-004-3 UAT-PLAN-51: is 422 ASSIGNEE_NOT_ELIGIBLE for a member who may not answer, or answers elsewhere, and is a queue of a unit: only the members whose scope holds it",
+      "duration_ms": 482,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-52",
+      "name": "the routing, the SLA in working time and the canned replies of the omnichannel center (ST-OMNI-006, OMNI-07, OMNI-08) a canned reply AC-ST-OMNI-006-3 UAT-PLAN-52: a text with a variable, or a class that is confidential, is refused with 422 on the field and is not stored",
+      "duration_ms": 149,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-55",
+      "name": "administrative succession commands and reads (ST-MDM-009) a cycle and the shares of a split answers 422 SUCCESSION_CYCLE for a ring, and refuses a split that does not add up to 100 (AC-ST-MDM-009-3, UAT-PLAN-55)",
+      "duration_ms": 1584,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-57",
+      "name": "the revisions of a project (ST-PRJ-008, PRJ 3.1 F6, PRJ-06) proposing (AC-ST-PRJ-008-2) AC-ST-PRJ-008-2, UAT-PLAN-57: another revision is 409 REVISION_PENDING_EXISTS while one waits, and may be proposed once it is decided; two at once are one 200 and one 409",
+      "duration_ms": 304,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-58",
+      "name": "the work breakdown and the milestones of a project (ST-PRJ-009, BR-PRJ-08, PRJ-05, PRJ-07) the milestones UAT-PLAN-58: a dependency that would form a loop is 409 DEPENDENCY_CYCLE and the dependencies stay as they were; others are saved, and can be cleared",
+      "duration_ms": 333,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-59",
+      "name": "appropriation register commands and reads (ST-CAP-001) registerAppropriation and decideAppropriation answers 422 APPROPRIATION_BELOW_ALLOCATED to a revision below the allocated total and leaves the appropriation unchanged (AC-ST-CAP-001-3, UAT-PLAN-59)",
+      "duration_ms": 297,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-61",
+      "name": "the extension of the disbursement of capital over HTTP (ST-CAP-007) requestAllocationExtension refuses more than what is left with 422 AMOUNT_EXCEEDS_UNDISBURSED, and a bad form with 422 VALIDATION_FAILED naming the field (AC-ST-CAP-007-3, UAT-PLAN-61)",
+      "duration_ms": 620,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-62",
+      "name": "the closing, the lapse and the reopening of a fiscal year over HTTP (ST-CAP-008) closeFiscalYear refuses to close a year with a plan in review or approved and not yet published: 409 YEAR_STATE_INVALID naming the plans (AC-ST-CAP-008-2, UAT-PLAN-62)",
+      "duration_ms": 610,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-64",
+      "name": "the reallocation of capital (ST-CAP-010) AC-ST-CAP-010-3 / UAT-PLAN-64: the plan changed since the proposal AC-ST-CAP-010-3: the source plan received a new revision after the proposal was drafted: apply is 409 PLAN_CHANGED_SINCE_PROPOSAL and nothing is applied | the reallocation of capital (ST-CAP-0",
+      "duration_ms": 2573,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-65",
+      "name": "the simulation of an allocation (ST-CAP-013) UAT-PLAN-65: promoted to a DRAFT reallocation proposal once it has been run is 409 SCENARIO_NOT_RUN before it has a result; after it, the proposal is a DRAFT with the moves as its lines and the scenario is PROMOTED, with nothing written to the ledger | th",
+      "duration_ms": 3716,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-67",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) post_reports AC-ST-DIS-003-3 / UAT-PLAN-67: a second draft of the project in the period is 409 DRAFT_EXISTS with the first, and no second draft is written",
+      "duration_ms": 293,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-68",
+      "name": "the decision on a weekly report and its corrections over HTTP (ST-DIS-006) deleteDraftReport and restoreDraftReport AC-ST-DIS-007-2 / UAT-PLAN-68: after 30 days the restore is 422 RESTORE_WINDOW_EXPIRED and the draft stays deleted; on the last day it is restored",
+      "duration_ms": 386,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-70",
+      "name": "the early-warning rules and warnings over HTTP (ST-DIS-012) the rules AC-ST-DIS-012-3 / UAT-PLAN-70: a metric nobody computes is 422 METRIC_UNKNOWN and every other fault is 422 on its field; a person without warning.rule.manage is 403; another tenant has its own rules",
+      "duration_ms": 136,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-71",
+      "name": "the report export over HTTP (ST-DIS-016) AC-ST-DIS-016-2 / UAT-PLAN-71: refuses a snapshot that is not frozen with 422 SNAPSHOT_NOT_FROZEN, one that does not exist with 404, and writes no file",
+      "duration_ms": 97,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-74",
+      "name": "the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) is registered in the module of MNE | the investment evaluation of a project over HTTP (ST-MNE-009, UAT-AC292, UAT-PLAN-74) AC-ST-MNE-009-1, UAT-AC292: plans a midterm evaluation of a project in implementation, asks",
+      "duration_ms": 5869,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CAP-21",
+      "name": "the capital ledger (ST-CAP-014, CAP 3.4, CAP-21) AC-ST-CAP-014-2, UI-CAP-21: an auditor with a limited scope reads only the entries of the projects in it, and the balance follows; the entries of no project need the whole tenant",
+      "duration_ms": 43,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-DIS-01",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the reads AC-ST-DIS-003-4 / UI-DIS-01: lists the reports newest first with their totals, a page at a time, and carries the figures of the filter apart from the figures of the whole scope",
+      "duration_ms": 180,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-DIS-06",
+      "name": "the weekly report draft over HTTP (ST-DIS-003) the volumes, the registration for next month, the narrative and the files (ST-DIS-004) AC-ST-DIS-004-2 / UI-DIS-06: tells every error and every warning at once: a volume of 203.8% of the capital allocated, a gap above 5% with the Treasury and no registr",
+      "duration_ms": 220,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-NOT-14",
+      "name": "the push devices of the members (ST-NOT-006, NOT-14) reading the devices (NOT-14) AC-ST-NOT-006-3 UI-NOT-14: shows the operator the devices without a token, a reference, a fingerprint or the whole public id",
+      "duration_ms": 46,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-OMNI-05",
+      "name": "the channel accounts (ST-OMNI-001, OMNI-05, OMNI-06) connecting (OMNI-05) AC-ST-OMNI-001-2 UI-OMNI-05: connects an account as pending verification, and no answer, audit row or event holds a reference to a secret",
+      "duration_ms": 200,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-OMNI-06",
+      "name": "the channel accounts (ST-OMNI-001, OMNI-05, OMNI-06) changing and closing (OMNI-06) AC-ST-OMNI-001-4 UI-OMNI-06: closes an account for good, with the audit row and the event, and a closed account is neither verified nor closed again",
+      "duration_ms": 232,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-17",
+      "name": "the reads of the assignments and of the task forces (ST-PRJ-005, PRJ-17 and PRJ-18) the register of assignments (PRJ-17) UI-PRJ-17: lists the assignments of the projects in the scope, a project first and its latest period first, with the names and the history",
+      "duration_ms": 30,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-18",
+      "name": "the reads of the assignments and of the task forces (ST-PRJ-005, PRJ-17 and PRJ-18) the task forces (PRJ-18) UI-PRJ-18: lists the task forces whose unit is in the scope with the lead, the scope unit and the terms, the open ones first",
+      "duration_ms": 20,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-20",
+      "name": "the transfer of a project between units (ST-PRJ-007) the preview (PRJ-20) AC-ST-PRJ-007-2 / UI-PRJ-20: counts the reports, the lines of snapshots and the plan lines of the project and the members who gain or lose sight of it, and the counts are what the data holds before the transfer",
+      "duration_ms": 302,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-21",
+      "name": "the national project code: assignment by hand, reconciliation file and block rule (ST-PRJ-004) what the screen of the reconciliation reads UI-PRJ-21: the register tells which projects have no national code (the list read), and the adapter of the file is PROPOSED in every answer",
+      "duration_ms": 122,
+      "status": "PASS",
+      "reasons": []
+    }
+  ]
+}

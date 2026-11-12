@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "blocking": [],
+  "problems": [],
+  "checks": {
+    "app": true,
+    "node": true,
+    "browser": true,
+    "browser_dir": "C:\\Users\\PNE_AI_01\\AppData\\Local\\ms-playwright",
+    "bash": true
+  },
+  "http": {
+    "reachable": true,
+    "status": 200,
+    "ms": 15,
+    "error": "",
+    "url": "http://127.0.0.1:3999/__e2e/health",
+    "families": [
+      "IPv4"
+    ]
+  },
+  "host_os": "Windows"
+}

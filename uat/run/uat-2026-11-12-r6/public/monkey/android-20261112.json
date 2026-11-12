@@ -1,0 +1,12 @@
+{
+  "seed": 20261112,
+  "app_id": "vn.machvon.app",
+  "device": "emulator-5554",
+  "events_requested": 600,
+  "events_injected": 600,
+  "finished": true,
+  "duration_s": 21,
+  "anomalies": [],
+  "blocking": 0,
+  "replay": "shell monkey -p vn.machvon.app -s 20261112 --throttle 150 --pct-syskeys 0 --pct-appswitch 0 -v -v 600"
+}

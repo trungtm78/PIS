@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="guide" tests="1" failures="1" time="30.161" timestamp="2026-11-12T18:06:41">
+    <testcase id="10_core_tabs_traversal" name="10_core_tabs_traversal" classname="10_core_tabs_traversal" file="apps\mobile\qa\device\flows\10_core_tabs_traversal.yaml" time="30.145" timestamp="2026-11-12T18:06:41" status="ERROR">
+      <failure>Element not found: Text matching regex: Thông báo.*</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

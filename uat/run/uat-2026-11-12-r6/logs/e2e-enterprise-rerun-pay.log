@@ -1,0 +1,76 @@
+(node:3820) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] (node:27468) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/PIS-uat6/packages/db/src/test-hygiene.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to \\?\D:\PIS-uat6\packages\db\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:27468) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+
+Running 5 tests using 1 worker
+
+  ok 1 e2e\pay-payment-flows.spec.ts:241:3 › the payment request › the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60) (5.3s)
+  ok 2 e2e\pay-payment-flows.spec.ts:346:3 › the payment request › a reader sees the requests and their detail and no command; a person without the right to draw up is told so (UI-PAY-01) (1.9s)
+[WebServer] (node:27468) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ok 3 e2e\pay-payment-flows.spec.ts:364:3 › the payment request › the accountant sends a request, another request for the same acceptance is turned away, the approver checks it and gives it back, and the ledger follows (UI-PAY-03, AC-ST-PAY-003-1, AC-ST-PAY-003-3, AC-ST-PAY-003-5, UAT-AC320, UAT-AC322, UAT-AC332) (4.5s)
+  x  4 e2e\pay-payment-flows.spec.ts:424:3 › the payment request › the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337) (10.3s)
+  x  5 e2e\pay-payment-flows.spec.ts:500:3 › the payment request › the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) (412ms)
+[WebServer]  PASS  test/e2e-stack/serve.stack.ts (41.145 s)
+[WebServer]   e2e API stack
+[WebServer]     √ serves the application on E2E_API_PORT until the stop file appears (38054 ms)
+[WebServer] 
+[WebServer] Test Suites: 1 passed, 1 total
+[WebServer] Tests:       1 passed, 1 total
+[WebServer] Snapshots:   0 total
+[WebServer] Time:        41.194 s, estimated 1973 s
+[WebServer] Ran all test suites.
+[WebServer] Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
+
+
+  1) e2e\pay-payment-flows.spec.ts:424:3 › the payment request › the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337) 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('status')
+    Expected: "Đã gửi Kho bạc"
+    Received: "Đã gửi thanh toán"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('status') with timeout 5000ms
+      - waiting for getByTestId('status')
+        14 × locator resolved to <span class="pay-badge" data-testid="status">Đã gửi thanh toán</span>
+           - unexpected value "Đã gửi thanh toán"
+
+
+      483 |     await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.send.submit'] }).click();
+      484 |     await expect(page.getByTestId('done')).toHaveText(vi['pay.forms.done.sent']);
+    > 485 |     await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.sentTreasury']);
+          |                                              ^
+      486 |     await expect(page.getByTestId('sent-on')).toHaveText('2026-07-24');
+      487 |     await expect(page.getByTestId('ref')).toHaveText('KB-2026-0001');
+      488 |     expect(await sql<{ status: string; treasury_ref: string; treasury_sent_by: string }>('select status, treasury_ref, treasury_sent_by from machvon.payment_request where id = $1', [made!.id])).toEqual([
+        at D:\PIS-uat6\apps\web\e2e\pay-payment-flows.spec.ts:485:46
+
+    Error Context: e2e\test-results\pay-payment-flows-the-paym-b73dd--AC-ST-PAY-005-2-UAT-AC337-\error-context.md
+
+  2) e2e\pay-payment-flows.spec.ts:500:3 › the payment request › the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) 
+
+    error: duplicate key value violates unique constraint "appropriation_decision_line_uq"
+
+      76 |       [tenant, version, projectId, paper.document_id, capitalPlan, OWNER],
+      77 |     );
+    > 78 |     await client.query(
+         |     ^
+      79 |       `insert into machvon.appropriation (tenant_id, id, capital_plan_id, fund_source_version_id, plan_year, origin, budget_level, amount_vnd, allocated_total_vnd, decision_document_id, issuing_authority, source_year, revision,
+      80 |                                           status, approved_by, created_by, updated_by, version)
+      81 |        values ($1, $2, $3, $4, 2099, $8, $9, 30000000000, 30000000000, $5, 'Thủ tướng Chính phủ', 2099, 1, 'PUBLISHED', $6, $7, $7, 1)`,
+        at D:\PIS\node_modules\pg\lib\client.js:694:17
+        at seed (D:\PIS-uat6\apps\web\e2e\pay-payment-flows.spec.ts:78:5)
+        at D:\PIS-uat6\apps\web\e2e\pay-payment-flows.spec.ts:502:20
+
+    Error Context: e2e\test-results\pay-payment-flows-the-paym-2d014-T-AC12-UAT-AC336-UAT-AC331-\error-context.md
+
+  2 failed
+    e2e\pay-payment-flows.spec.ts:424:3 › the payment request › the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337) 
+    e2e\pay-payment-flows.spec.ts:500:3 › the payment request › the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) 
+  3 passed (52.2s)

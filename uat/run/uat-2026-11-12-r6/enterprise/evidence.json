@@ -1,0 +1,6441 @@
+{
+  "ok": false,
+  "profile": "ci",
+  "degrade": true,
+  "checked": 678,
+  "missing": [
+    {
+      "tc_id": "TC-UAT-AC107",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC107",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC109",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC109",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC111",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC111",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC112",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC112",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC116",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC116",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC117",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC117",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC129",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC129",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC131",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC131",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC137",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC137",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC138",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC138",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC139",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC139",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC140",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC140",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC142",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC142",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC143",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC143",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-45",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC388",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC388",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC389",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC389",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC390",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC390",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC391",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC391",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC392",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC392",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC393",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC393",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC394",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC394",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC395",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC395",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AST-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AST-01",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AST-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AST-02",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AST-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AST-03",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AST-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AST-04",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-01",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-02",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-03",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-04",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-05",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-06",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-07",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-07",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-08",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-08",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-10",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-10",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC433",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC433",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC434",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC434",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC435",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC435",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC436",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC436",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC437",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC437",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC439",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC439",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC440",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC440",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC441",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC441",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC442",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC442",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC443",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC444",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC31",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC31",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC32",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC32",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC33",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC33",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC34",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC34",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC35",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC35",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-BI02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC471",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC471",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC472",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC472",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC473",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC473",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC474",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC474",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC475",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC475",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC476",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC476",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC477",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC477",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC478",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC478",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC479",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC480",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC481",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC482",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC13",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC13",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC14",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC14",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC15",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC15",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC16",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC16",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC17",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC17",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-05",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-17",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-17",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-18",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-18",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-19",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-19",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-20",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-BID-20",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC446",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC446",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC448",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC448",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC449",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC449",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC450",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC450",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC451",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC451",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC452",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC452",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC453",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC453",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC454",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC454",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC455",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC455",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC456",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC456",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC08",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC08",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC220",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC220",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC221",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC221",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC222",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC222",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC223",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC223",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC225",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC225",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC227",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC227",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC228",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC228",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC229",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC229",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC230",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC230",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC233",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC233",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC234",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC234",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC235",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC235",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC237",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC237",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC238",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC238",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC239",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC239",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CAP-21",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CAP-21",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-10",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-59",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-61",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-62",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-64",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-65",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC56",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC56",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC58",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC58",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC60",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC60",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC61",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC61",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC63",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC63",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC65",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC65",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC66",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC66",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-03",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-04",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-05",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-06",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-06",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-07",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-08",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-08",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-10",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-10",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-12",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-12",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-13",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-13",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC300",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC300",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC302",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC302",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC303",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC303",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC304",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC304",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC305",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC305",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC307",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC307",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC308",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC308",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC309",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC309",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC311",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC311",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC312",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC312",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC313",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC313",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC314",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC314",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC315",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC315",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC317",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC317",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC397",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC397",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-19",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-19",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-20",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-20",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-21",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-21",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-22",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-22",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-26",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-26",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-15",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-16",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-17",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-18",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC50",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC50",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC51",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC51",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC52",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC52",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC53",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC53",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC54",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC55",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC55",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC487",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC487",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC489",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC490",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC490",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC492",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC492",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC493",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC493",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC494",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC494",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC495",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC495",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC496",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-E2E-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-EDG-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SOD-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-STA-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-STA-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-DAT-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-ISO-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-PRF-01",
+      "need": "trace",
+      "priority": "P2",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-06",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-08",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-09",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-10",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-11",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-12",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-13",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-14",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-15",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-16",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-17",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-18",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-19",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC01",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC02",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC03",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC04",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC05",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC06",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC07",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC07",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-DIS-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-DIS-01",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-DIS-06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-DIS-06",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC240",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC240",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC241",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC241",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC242",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC242",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC243",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC243",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC244",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC244",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC246",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC246",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC247",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC247",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC248",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC248",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC249",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC249",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC250",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC250",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC251",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC251",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC252",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC252",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC253",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC253",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC255",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC255",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC256",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC256",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC257",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC257",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC258",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC258",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC259",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC259",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC260",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC260",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC261",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC261",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC262",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC262",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC263",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC263",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC264",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC264",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC265",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC265",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-67",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-68",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-70",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-71",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC400",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC400",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC404",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC404",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC406",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC406",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC407",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC407",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC408",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC409",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC410",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC410",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC411",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC411",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC412",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC412",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC414",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC414",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC415",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC415",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC416",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC416",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC417",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC417",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC418",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC418",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC419",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC419",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC420",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC420",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC421",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC421",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC422",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC422",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC425",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC425",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC427",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC427",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC428",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC428",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC429",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC429",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-E2E-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-EDG-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SOD-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-DAT-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-STA-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-ISO-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-PRF-01",
+      "need": "trace",
+      "priority": "P2",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-08",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-09",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-E2E-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-STA-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SOD-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-DAT-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-ISO-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-PRF-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-06",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-08",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-09",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-10",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-11",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-12",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-13",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-14",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-15",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-16",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-17",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC254",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC254",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC266",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC266",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC267",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC267",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC268",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC268",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC270",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC270",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC271",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC271",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC272",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC272",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-E2E-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-STA-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SOD-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-DAT-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-ISO-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-PRF-01",
+      "need": "trace",
+      "priority": "P2",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-08",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-09",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-001",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-002",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-003",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-004",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-E2E-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-EDG-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-DAT-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-STA-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SOD-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-STA-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-ISO-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-HLT-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-PRF-01",
+      "need": "trace",
+      "priority": "P2",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-06",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-07",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-08",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-09",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-10",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-11",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-12",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-13",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-14",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-15",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-16",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-17",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC119",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC119",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC120",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC120",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC121",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC121",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC122",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC122",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC125",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC125",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-E2E-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-EDG-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-STA-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-DAT-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-E2E-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-ISO-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-06",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-07",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-08",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-09",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-10",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-11",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-12",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-13",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-14",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-E2E-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-TKN-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-STA-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-DAT-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-EDG-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SOD-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-ISO-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-08",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-09",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-10",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-11",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-12",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-13",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-14",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-15",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-16",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-17",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-18",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-19",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-20",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-21",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC350",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC350",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC351",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC351",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC352",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC352",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC353",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC353",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC354",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC354",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC355",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC355",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-23",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-24",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-25",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC18",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC18",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC19",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC19",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC20",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC20",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC21",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC21",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC457",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC457",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC458",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC458",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC459",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC459",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC460",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC460",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC461",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC461",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC462",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC462",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC463",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC463",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC464",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC464",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC465",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC465",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC466",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC466",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC467",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC467",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC468",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC468",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC469",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC470",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC376",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC376",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC377",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC377",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC378",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC378",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC379",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC379",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC380",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC380",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC381",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC381",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC382",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC382",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC383",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC383",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC384",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC384",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC385",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC385",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC386",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC386",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC387",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC387",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-01",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-02",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-03",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-04",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-05",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-06",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-06",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-07",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-08",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-08",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-10",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-10",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-11",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-11",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-13",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-LND-13",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-28",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-29",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-30",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-31",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC274",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC274",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC275",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC275",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC277",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC277",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC278",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC278",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-55",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC286",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC286",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC287",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC287",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC289",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC289",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC290",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC290",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC292",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC292",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC294",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC294",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC295",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC295",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC296",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC296",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC297",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC297",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC298",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC298",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC299",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC299",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-74",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-MOB-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-MOB-02",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-MOB-03",
+      "need": "trace",
+      "priority": "P0",
+      "have": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-MOB-03",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-MOB-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-MOB-04",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-MOB-07",
+      "need": "trace",
+      "priority": "P0",
+      "have": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-MOB-07",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-AC500",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC503",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC506",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-34",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-SEC01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TX01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TX02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TX03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-NOT01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-NOT02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-NOT02",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-AI02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-MOB01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-MOB02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-DQ01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-07",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-08",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-09",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-09",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-10",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-12",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-PRIVACY-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-PRIVACY-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AVAILABILITY-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-PERFORMANCE-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-ACCESSIBILITY-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-OPERABILITY-06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AI-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AI-03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-AI-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-11",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC26",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC26",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC27",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC27",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC28",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC28",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC29",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC29",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC30",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC30",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-NOT-14",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-NOT-14",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC176",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC176",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC179",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC179",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC180",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC180",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC183",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC183",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC184",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC184",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC185",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC185",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC188",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC188",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC189",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC189",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC190",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC190",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC191",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC191",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC192",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC192",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC193",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC193",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC194",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC194",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC22",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC22",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC23",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC23",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC24",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC24",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC25",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC25",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-OMNI-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-OMNI-05",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-OMNI-06",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-OMNI-06",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC195",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC195",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC196",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC196",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC197",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC197",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC198",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC198",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC199",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC199",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-50",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-51",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-52",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC67",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC67",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-01",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-02",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-03",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-03",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-07",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC320",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC320",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC322",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC322",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC323",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC323",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC325",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC325",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC329",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC329",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC332",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC332",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC339",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC339",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC340",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC340",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC341",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC341",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC343",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC343",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC399",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC399",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-10",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-10",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-13",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-13",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-20",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC369",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC369",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC370",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC370",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC371",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC371",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC372",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC372",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC374",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC374",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC375",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC375",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-09",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-09",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-10",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-10",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC205",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC205",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC209",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC209",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC212",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC212",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC213",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC213",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC214",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC214",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC215",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC215",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC218",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC218",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC219",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC219",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-14",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-14",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-15",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-15",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-17",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-17",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-18",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-18",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-20",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-20",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-21",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-21",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-57",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-58",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC62",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC62",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC356",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC356",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC357",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC357",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC358",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC358",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC359",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC359",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC360",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC360",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC361",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC361",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC362",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC362",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC363",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC363",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC364",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC364",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC365",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC365",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC366",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC366",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC367",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC367",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-04",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-05",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-07",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-07",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-27",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-001",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-002",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-003",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-E2E-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-STA-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SOD-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-STA-02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-EDG-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-ISO-01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-01",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-02",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-04",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-05",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-06",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-07",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-08",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-09",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-10",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-11",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-12",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-13",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-14",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-15",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-16",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-17",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-18",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-19",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-20",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-21",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-22",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-23",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-24",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-25",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-26",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-27",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC36",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC36",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC37",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC37",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC38",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC38",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC39",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC39",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-SEC02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-SEC02",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-SEC04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-SEC04",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH01",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH02",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH02",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH03",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH03",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH04",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH04",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH05",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-TH05",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-OPS01",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-SAS-14",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-SAS-14",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-SAS-16",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UI-SAS-16",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC150",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC150",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC151",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC151",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC152",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC152",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC153",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC153",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC154",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC154",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC155",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC155",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC156",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC156",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC157",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC157",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC158",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC158",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC160",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC160",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC163",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC163",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC164",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC164",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC165",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC165",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC166",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC166",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC167",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC167",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC168",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC168",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC169",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC169",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC170",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC170",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC171",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC171",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC172",
+      "need": "trace",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC172",
+      "need": "screenshot-final",
+      "priority": "P1",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC175",
+      "need": "trace",
+      "priority": "P0",
+      "have": []
+    },
+    {
+      "tc_id": "TC-UAT-AC175",
+      "need": "screenshot-final",
+      "priority": "P0",
+      "have": []
+    }
+  ],
+  "unknown_kinds": [
+    "response-bodies"
+  ]
+}

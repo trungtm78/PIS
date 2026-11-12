@@ -1,0 +1,366 @@
+[demo] 1. API + PostgreSQL nhung: npm run e2e:stack -w @machvon/api (cong 3999, IdP thu 3998)
+       2. Nap du lieu mau Dam Phu My: node scripts/clip-seed.mjs apply --dataset enterprise
+       3. Web (vite dev, VITE_EDITION=enterprise): npm run dev -w @machvon/web (cong 5173)
+[demo] Khoi dong API + PostgreSQL nhung (lan dau mat 1-3 phut)...
+(node:8744) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[demo] API san sang tren cong 3999.
+[demo] Nap du lieu mau Dam Phu My (khoang 2-5 phut, dung tat cua so)...
+applying dataset enterprise (digest ee40918dc511c141) to http://127.0.0.1:3999: [clock 0 days: clip-ent-projects, clip-ent-capital, clip-ent-funding, clip-ent-directives, clip-ent-ebs, clip-ent-reports, clip-ent-documents, clip-ent-procurement, clip-ent-contracts] [clock 0 days: clip-ent-alerts, clip-ent-equipment] [clock -70 days: clip-ent-workflow] [clock -45 days: clip-ent-workflow] [clock -25 days: clip-ent-workflow] [clock -12 days: clip-ent-workflow] [clock -6 days: clip-ent-workflow] [clock -3 days: clip-ent-workflow] [clock -1 days: clip-ent-workflow] [clock 0 days: clip-ent-disbursement, clip-ent-snapshot, clip-ent-capital-prior, clip-ent-snapshot-prior, clip-ent-crosscheck, clip-ent-bi] [clock 0 days: clip-ent-alert-triage] [clock 0 days: clip-ent-capital-adjust] [clock 0 days: clip-ent-appraisal, clip-ent-project-docs, clip-ent-narrative, clip-ent-contractor-portal]
+seed group clip-ent-projects
+  [clip-ent-projects/DOC] decision type (38 ms)
+  [clip-ent-projects/MDM] find the root area (31 ms)
+  [clip-ent-projects/MDM] area PM-KCN-PHU-MY (198 ms)
+  [clip-ent-projects/MDM] area PM-NHA-MAY-DAM (166 ms)
+  [clip-ent-projects/MDM] area PM-KHO-CANG (203 ms)
+  [clip-ent-projects/PRJ] register DA-PMDT105 (96 ms)
+  [clip-ent-projects/PRJ] register DA-PMDT114 (94 ms)
+  [clip-ent-projects/PRJ] register DA-PMDT120 (82 ms)
+  [clip-ent-projects/PRJ] register DA-PMDT130 (92 ms)
+  [clip-ent-projects/PRJ] register DA-PMDT137 (91 ms)
+  [clip-ent-projects/PRJ] register DA-PMDT154 (83 ms)
+  [clip-ent-projects/PRJ] register DA-PMTB164 (82 ms)
+  [clip-ent-projects/PRJ] register DA-PMTB168 (68 ms)
+  [clip-ent-projects/PRJ] register DA-PMTB172 (58 ms)
+  [clip-ent-projects/PRJ] register DA-PMTB180 (75 ms)
+  [clip-ent-projects/PRJ] register DA-PMTB191 (85 ms)
+  [clip-ent-projects/PRJ] register DA-PMTB204 (64 ms)
+seed group clip-ent-capital
+  [clip-ent-capital/MDM] wards and communes of the portfolio (573 ms)
+  [clip-ent-capital/PRJ] register DA-PMDT105 (63 ms)
+  [clip-ent-capital/PRJ] register DA-PMDT114 (56 ms)
+  [clip-ent-capital/PRJ] register DA-PMDT120 (65 ms)
+  [clip-ent-capital/PRJ] register DA-PMDT130 (68 ms)
+  [clip-ent-capital/PRJ] register DA-PMDT137 (49 ms)
+  [clip-ent-capital/PRJ] register DA-PMDT154 (67 ms)
+  [clip-ent-capital/PRJ] register DA-PMTB164 (49 ms)
+  [clip-ent-capital/PRJ] register DA-PMTB168 (66 ms)
+  [clip-ent-capital/PRJ] register DA-PMTB172 (70 ms)
+  [clip-ent-capital/PRJ] register DA-PMTB180 (64 ms)
+  [clip-ent-capital/PRJ] register DA-PMTB191 (65 ms)
+  [clip-ent-capital/PRJ] register DA-PMTB204 (64 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMDT105 (214 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMDT114 (197 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMDT120 (180 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMDT130 (191 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMDT137 (174 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMDT154 (184 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMTB164 (184 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMTB168 (203 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMTB172 (195 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMTB180 (185 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMTB191 (201 ms)
+  [clip-ent-capital/PRJ] appraise DA-PMTB204 (176 ms)
+  [clip-ent-capital/CAP] assignments of capital (appropriations) (209 ms)
+  [clip-ent-capital/CAP] capital plan of the year (403 ms)
+  [clip-ent-capital/PRJ] projects funded by the plan become BUDGETED (1125 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMDT105 (97 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMDT114 (65 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMDT120 (64 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMDT130 (5 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMDT137 (11 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMDT154 (5 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMTB164 (76 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMTB168 (73 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMTB172 (85 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMTB180 (15 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMTB191 (16 ms)
+  [clip-ent-capital/PRJ] stage of DA-PMTB204 (16 ms)
+  [clip-ent-capital/CAP] monthly schedule DA-PMDT105 (75 ms)
+  [clip-ent-capital/CAP] monthly schedule DA-PMDT114 (95 ms)
+  [clip-ent-capital/CAP] monthly schedule DA-PMDT120 (64 ms)
+  [clip-ent-capital/CAP] monthly schedule DA-PMDT130 (85 ms)
+  [clip-ent-capital/CAP] monthly schedule DA-PMDT137 (81 ms)
+  [clip-ent-capital/CAP] monthly schedule DA-PMTB164 (67 ms)
+  [clip-ent-capital/CAP] monthly schedule DA-PMTB168 (83 ms)
+  [clip-ent-capital/CAP] monthly schedule DA-PMTB172 (82 ms)
+  [clip-ent-capital/CAP] monthly schedules of disbursement (783 ms)
+seed group clip-ent-funding
+  [clip-ent-funding/FND] plan DA-PMDT105 equity 170 loan 169 (102 ms)
+  [clip-ent-funding/FND] plan DA-PMDT114 equity 100 loan 52 (102 ms)
+  [clip-ent-funding/FND] plan DA-PMDT120 equity 111 loan 116 (111 ms)
+  [clip-ent-funding/FND] plan DA-PMDT130 equity 154 loan 188 (104 ms)
+  [clip-ent-funding/FND] plan DA-PMDT137 equity 98 loan 125 (106 ms)
+  [clip-ent-funding/FND] plan DA-PMDT154 equity 46 loan 43 (106 ms)
+  [clip-ent-funding/FND] plan DA-PMTB164 equity 18 loan 15 (105 ms)
+  [clip-ent-funding/FND] plan DA-PMTB168 equity 24 loan 54 (103 ms)
+  [clip-ent-funding/FND] plan DA-PMTB172 equity 29 loan 32 (94 ms)
+  [clip-ent-funding/FND] plan DA-PMTB180 equity 21 loan 44 (113 ms)
+  [clip-ent-funding/FND] plan DA-PMTB191 equity 8 loan 6 (119 ms)
+  [clip-ent-funding/FND] plan DA-PMTB204 equity 20 loan 9 (89 ms)
+seed group clip-ent-directives
+seed group clip-ent-ebs
+  [ebs] preview counts {"total":16,"valid":16,"errors":0,"duplicate":0,"conflict":0}
+  [ebs] import counts {"total":16,"applied":16,"duplicate":0,"conflict":0,"quarantined":0,"differences_opened":0}
+  [ebs] reconciliation examined 16 differences 32
+seed group clip-ent-reports
+  [clip-ent-reports/RPT] PVN-MONTHLY 2026-M10 (2722 ms)
+  [clip-ent-reports/RPT] PVN-QUARTERLY-F2 2026-Q3 (2767 ms)
+  [clip-ent-reports/RPT] HPM-MONTHLY 2026-M09 (1865 ms)
+  [clip-ent-reports/RPT] HPM-MONTHLY 2026-M10 (1859 ms)
+  [clip-ent-reports/RPT] INVEST-STEERING 2026-M10 (2711 ms)
+  [clip-ent-reports/RPT] PLANT-PHU-MY 2026-M10 (1642 ms)
+seed group clip-ent-documents
+  [clip-ent-documents/ADM] delegation of authority matrix (117 ms)
+  [clip-ent-documents/DOC] layout profile of Decree 30/2020 (32 ms)
+  [clip-ent-documents/DOC] layout profile of the demo payment forms (115 ms)
+  [clip-ent-documents/DOC] document types (116 ms)
+  [clip-ent-documents/DOC] number registers (147 ms)
+  [clip-ent-documents/DOC] template library (platform pack) (1521 ms)
+  [clip-ent-documents/DOC] retention rules (296 ms)
+  ! [clip-ent-documents/DOC] POST /document-versions/906848c3-a6b2-41ef-830a-547d9d5b891e/signature-verifications -> HTTP 403 {"type":"urn:machvon:error:SCOPE_DENIED","title":"error.SCOPE_DENIED.title","status":403,"code":"SCOPE_DENIED","correlationId":"9ed25b25-b467-4c3c-b9d8-bc39752691c3"}
+  [clip-ent-documents/DOC] outgoing documents (8844 ms)
+  [clip-ent-documents/DOC] dossiers opened (151 ms)
+  [clip-ent-documents/DOC] incoming letters (1402 ms)
+  ! [clip-ent-documents/DOC] POST /dossiers/1f6b297b-3d2e-46a1-a2d0-9b3adf39e22e/handover -> HTTP 422 {"type":"urn:machvon:error:VALIDATION_FAILED","title":"error.VALIDATION_FAILED.title","status":422,"code":"VALIDATION_FAILED","detail":"handed_over_at","correlationId":"a567c5f8-0a83-4659-88d4-c65f99169a1a"}
+  [clip-ent-documents/DOC] dossiers filled, closed and handed over (199 ms)
+seed group clip-ent-procurement
+  [clip-ent-procurement/ADM] working calendar (3 ms)
+  [clip-ent-procurement/DOC] document types of the papers (45 ms)
+  [clip-ent-procurement/BID] contractors (2370 ms)
+  [clip-ent-procurement/BID] procurement plan of DA-PMDT120 (195 ms)
+  [clip-ent-procurement/BID] procurement plan of DA-PMDT130 (188 ms)
+  [clip-ent-procurement/BID] procurement plan of DA-PMDT137 (187 ms)
+  [clip-ent-procurement/BID] procurement plan of DA-PMTB172 (195 ms)
+  [clip-ent-procurement/BID] procurement plan of DA-PMTB180 (160 ms)
+  [clip-ent-procurement/BID] procurement plan of DA-PMTB191 (193 ms)
+seed group clip-ent-contracts
+  [clip-ent-contracts/BID] procurement plan of DA-PMDT105 (199 ms)
+  [clip-ent-contracts/BID] procurement plan of DA-PMDT114 (199 ms)
+  [clip-ent-contracts/BID] procurement plan of DA-PMTB164 (201 ms)
+  [clip-ent-contracts/BID] procurement plan of DA-PMTB168 (183 ms)
+  [clip-ent-contracts/BID] procurement plans of the guide projects (783 ms)
+  [clip-ent-contracts/BID] tender of PMDT105-XL01 (AWARDED) (905 ms)
+  [clip-ent-contracts/BID] tender of PMDT105-XL02 (AWARDED) (758 ms)
+  [clip-ent-contracts/BID] tender of PMDT105-TV01 (AWARDED) (766 ms)
+  [clip-ent-contracts/BID] tender of PMDT105-TB01 (RESULT_PENDING) (633 ms)
+  [clip-ent-contracts/BID] tender of PMDT105-KS01 (AWARDED) (718 ms)
+  [clip-ent-contracts/BID] tender of PMDT114-XL01 (AWARDED) (834 ms)
+  [clip-ent-contracts/BID] tender of PMDT114-XL02 (AWARDED) (666 ms)
+  [clip-ent-contracts/BID] tender of PMDT114-TV01 (AWARDED) (781 ms)
+  [clip-ent-contracts/BID] tender of PMDT114-TB01 (RESULT_PENDING) (635 ms)
+  [clip-ent-contracts/BID] tender of PMDT114-KS01 (AWARDED) (697 ms)
+  [clip-ent-contracts/BID] tender of PMTB164-TB01 (AWARDED) (700 ms)
+  [clip-ent-contracts/BID] tender of PMTB164-TB02 (EVALUATING) (552 ms)
+  [clip-ent-contracts/BID] tender of PMTB164-TV01 (SEALED) (391 ms)
+  [clip-ent-contracts/BID] tender of PMTB168-TB01 (AWARDED) (695 ms)
+  [clip-ent-contracts/BID] tender of PMTB168-TB02 (EVALUATING) (564 ms)
+  [clip-ent-contracts/BID] tender of PMTB168-TV01 (SEALED) (376 ms)
+  [clip-ent-contracts/BID] tenders (10671 ms)
+  [clip-ent-contracts/CTR] contract of PMDT105-XL01 (443 ms)
+  [clip-ent-contracts/CTR] contract of PMDT105-XL02 (461 ms)
+  [clip-ent-contracts/CTR] contract of PMDT105-TV01 (320 ms)
+  [clip-ent-contracts/CTR] contract of PMDT114-XL01 (427 ms)
+  [clip-ent-contracts/CTR] contract of PMDT114-XL02 (416 ms)
+  [clip-ent-contracts/CTR] contract of PMDT114-TV01 (340 ms)
+  [clip-ent-contracts/CTR] contract of PMTB164-TB01 (430 ms)
+  [clip-ent-contracts/CTR] contract of PMTB168-TB01 (435 ms)
+  [clip-ent-contracts/CTR] claim and evaluation (51 ms)
+
+seed done in 55.4 s, 2056 calls
+  clip-ent-projects: 1.7 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-projects.json
+  clip-ent-capital: 6.9 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-capital.json
+  clip-ent-funding: 1.4 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-funding.json
+  clip-ent-directives: 0.2 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-directives.json
+  clip-ent-ebs: 0.3 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-ebs.json
+  clip-ent-reports: 13.7 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-reports.json
+  clip-ent-documents: 13.0 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-documents.json
+  clip-ent-procurement: 3.5 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-procurement.json
+  clip-ent-contracts: 14.8 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-contracts.json
+2 refusals the seeds tolerated:
+  [clip-ent-documents/DOC] POST /document-versions/906848c3-a6b2-41ef-830a-547d9d5b891e/signature-verifications -> HTTP 403 {"type":"urn:machvon:error:SCOPE_DENIED","title":"error.SCOPE_DENIED.title","status":403,"code":"SCOPE_DENIED","correlationId":"9ed25b25-b467-4c3c-b9d8-bc39752691c3"}
+  [clip-ent-documents/DOC] POST /dossiers/1f6b297b-3d2e-46a1-a2d0-9b3adf39e22e/handover -> HTTP 422 {"type":"urn:machvon:error:VALIDATION_FAILED","title":"error.VALIDATION_FAILED.title","status":422,"code":"VALIDATION_FAILED","detail":"handed_over_at","correlationId":"a567c5f8-0a83-4659-88d4-c65f99169a1a"}
+seed group clip-ent-alerts
+  [clip-ent-alerts/DIS] rule EW-DN-01 published (18 ms)
+  [clip-ent-alerts/DIS] rule EW-DN-02 published (18 ms)
+  [clip-ent-alerts/DIS] rule EW-DN-03 published (17 ms)
+seed group clip-ent-equipment
+  [eqp] 8 lines on the register, stages: CONTRACTED, CONTRACTED, PACKAGED, PACKAGED, PACKAGED, PACKAGED, PLANNED, PLANNED
+  [clip-ent-equipment/EQP] equipment procurement lines (697 ms)
+
+seed done in 0.8 s, 52 calls
+  clip-ent-alerts: 0.1 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-alerts.json
+  clip-ent-equipment: 0.7 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-equipment.json
+seed group clip-ent-workflow
+  [clip-ent-workflow/ADM] working calendar (6 ms)
+  [clip-ent-workflow/BID] workflow of PMDT120-TB01 to DOC_APPROVE (354 ms)
+  [clip-ent-workflow/BID] workflow of PMTB172-XL01 to EVALUATE (1160 ms)
+  [clip-ent-workflow/BID] workflow of PMTB191-TV01 to BID_CLOSING (910 ms)
+
+seed done in 2.6 s, 149 calls
+  clip-ent-workflow: 2.6 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-workflow.json
+seed group clip-ent-workflow
+  [clip-ent-workflow/ADM] working calendar (6 ms)
+  [clip-ent-workflow/BID] workflow of PMDT137-XL01 to RETURN:DOC_APPROVE (415 ms)
+  [clip-ent-workflow/BID] workflow of PMTB180-TV01 to BID_OPENING (1011 ms)
+
+seed done in 1.5 s, 92 calls
+  clip-ent-workflow: 1.5 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-workflow.json
+seed group clip-ent-workflow
+  [clip-ent-workflow/ADM] working calendar (6 ms)
+  [clip-ent-workflow/BID] workflow of PMDT120-XL01 to BID_CLOSING (906 ms)
+  [clip-ent-workflow/BID] workflow of PMDT137-TV01 to NOT_STARTED (0 ms)
+  [clip-ent-workflow/BID] workflow of PMTB180-TB01 to DOC_APPRAISE (1559 ms)
+
+seed done in 2.6 s, 155 calls
+  clip-ent-workflow: 2.6 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-workflow.json
+seed group clip-ent-workflow
+  [clip-ent-workflow/ADM] working calendar (5 ms)
+  [clip-ent-workflow/BID] workflow of PMDT130-TB01 to RESULT_APPROVE (974 ms)
+  [clip-ent-workflow/BID] workflow of PMTB180-XL01 to RESULT_POST (1526 ms)
+
+seed done in 2.6 s, 155 calls
+  clip-ent-workflow: 2.6 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-workflow.json
+seed group clip-ent-workflow
+  [clip-ent-workflow/ADM] working calendar (5 ms)
+  [clip-ent-workflow/BID] workflow of PMDT130-XL01 to PLAN_SELECTION (39 ms)
+  [clip-ent-workflow/BID] workflow of PMTB172-TV01 to CONTRACT_SIGN (1709 ms)
+  [clip-ent-workflow/BID] workflow of PMTB191-TB01 to EVALUATE (827 ms)
+
+seed done in 2.7 s, 164 calls
+  clip-ent-workflow: 2.7 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-workflow.json
+seed group clip-ent-workflow
+  [clip-ent-workflow/ADM] working calendar (6 ms)
+  [clip-ent-workflow/BID] workflow of PMDT120-TV01 to EVALUATE (1127 ms)
+  [clip-ent-workflow/BID] workflow of PMDT137-TB01 to NOTICE_POST (436 ms)
+  [clip-ent-workflow/BID] workflow of PMTB191-XL01 to NOTICE_POST (556 ms)
+
+seed done in 2.2 s, 133 calls
+  clip-ent-workflow: 2.2 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-workflow.json
+seed group clip-ent-workflow
+  [clip-ent-workflow/ADM] working calendar (5 ms)
+  [clip-ent-workflow/BID] workflow of PMDT130-TV01 to DOC_PREPARE (174 ms)
+  [clip-ent-workflow/BID] workflow of PMTB172-TB01 to HOLD:EVALUATE (855 ms)
+
+seed done in 1.1 s, 65 calls
+  clip-ent-workflow: 1.1 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-workflow.json
+seed group clip-ent-disbursement
+  [clip-ent-disbursement/MDM] Treasury office in force (196 ms)
+  [clip-ent-disbursement/MDM] Treasury code mapping (40 ms)
+  [dis] statement file {"file_object_id":"726071af-ef2c-4c4c-8d76-b4d5702d1870","file_sha256":"a6d73a39ef5bbfe8dcb7bc0888727a01165b65db8e8a1e7e6b984666a7529ad6","size_bytes":2081,"file_name":"treasury-statement.csv","format":"CSV","columns":["document_no","document_date","project_code","treasury_office_code","amount_vnd",
+  [dis] statement import {"operation_id":"019e0c65-0ffe-41fa-a460-386157f51719","status":"APPLIED","resource_version":1,"resource_id":"b1a47e1a-d59e-4f07-8622-0f1de7078299","result":"APPLIED","duplicate":false,"row_total":32,"row_new":32,"row_duplicate":0,"row_conflict":0,"row_error":0,"differences_opened":0}
+  [clip-ent-disbursement/PAY] Treasury statement (101 ms)
+  [dis] 12 monthly periods, first {"id":"1e98bb16-79fb-46b3-ad1f-2bfdcc8fe146","code":"M2026-01","calendar_code":"DEFAULT","period_type":"MONTH","fiscal_year":2026,"start_date":"2026-01-01","end_date":"2026-01-31","deadline_at":"2026-02-05T03:00:00.000Z","calendar_version":
+  [clip-ent-disbursement/DIS] periods and snapshots (341 ms)
+  [dis] 52 weekly periods, 45 past their deadline
+  [clip-ent-disbursement/DIS] weekly periods and snapshots (910 ms)
+seed group clip-ent-snapshot
+  [clip-ent-snapshot/DIS] months of the enterprise calendar 2026 (42 ms)
+  [snapshot] round 1: 44 cells missing, 44 batches accepted
+  [clip-ent-snapshot/FND] actuals up to ENT-M2026-10 (3795 ms)
+  [clip-ent-snapshot/DIS] lock ENT-M2026-10 (51 ms)
+seed group clip-ent-capital-prior
+  [clip-ent-capital-prior/CAP] assignments of capital of 2025 (159 ms)
+seed group clip-ent-snapshot-prior
+  [clip-ent-snapshot-prior/DIS] months of the enterprise calendar 2026 (6 ms)
+  [clip-ent-snapshot-prior/DIS] months of the enterprise calendar 2025 (48 ms)
+  [clip-ent-snapshot-prior/FND] plan of 2025 (1372 ms)
+  [snapshot] round 1: 44 cells missing, 44 batches accepted
+  [clip-ent-snapshot-prior/FND] actuals up to ENT-M2025-10 (3696 ms)
+  [clip-ent-snapshot-prior/DIS] lock ENT-M2025-10 (57 ms)
+  [clip-ent-snapshot-prior/DIS] snapshot of ENT-M2025-10 (3842 ms)
+seed group clip-ent-crosscheck
+  [clip-ent-crosscheck/DIS] months of the enterprise calendar 2026 (20 ms)
+  [clip-ent-crosscheck/FND] actuals up to ENT-M2026-05 (41 ms)
+  [clip-ent-crosscheck/DIS] lock ENT-M2026-05 (66 ms)
+  [clip-ent-crosscheck/DIS] snapshot of ENT-M2026-05 (212 ms)
+  [clip-ent-crosscheck/RPT] PVN-MONTHLY 2026-M05 drafted and checked (1387 ms)
+  [crosscheck] DA-PMDT105 EQUITY month 3 of 2025 reported again: 5476000000 -> 7476000000
+  [clip-ent-crosscheck/FND] books of 2025 corrected (89 ms)
+  [clip-ent-crosscheck/DIS] reopen ENT-M2026-05 (38 ms)
+  [clip-ent-crosscheck/DIS] revision 2 of ENT-M2026-05 (96 ms)
+seed group clip-ent-bi
+  [clip-ent-bi/IAM] roles of the BI board (117 ms)
+  [clip-ent-bi/BI] bundle of the metric files (28 ms)
+(node:13984) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/PIS-uat6/packages/kernel/src/bi-metric.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\PIS-uat6\packages\kernel\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  [clip-ent-bi/BI] sync of the registry (inline bundle) (23 ms)
+  [bi] registry APPLIED added 28 revised 0
+  ! [clip-ent-bi/BI] POST /dashboards/4c2800e4-a82b-4d74-89b9-77265284235b/publish -> HTTP 409 {"type":"urn:machvon:error:STAGE_TRANSITION_DENIED","title":"error.STAGE_TRANSITION_DENIED.title","status":409,"code":"STAGE_TRANSITION_DENIED","detail":"status","correlationId":"7746df80-8805-4b57-b0d8-4bb76c5f7e22"}
+  [clip-ent-bi/BI] dashboard BD-LANH-DAO (248 ms)
+  ! [clip-ent-bi/BI] POST /dashboards/b1b376be-3a63-49a3-a946-604f0910d250/publish -> HTTP 409 {"type":"urn:machvon:error:STAGE_TRANSITION_DENIED","title":"error.STAGE_TRANSITION_DENIED.title","status":409,"code":"STAGE_TRANSITION_DENIED","detail":"status","correlationId":"510ef5e0-b5e7-456e-97aa-3f1bd54a1487"}
+  [clip-ent-bi/BI] dashboard BD-HOP-DONG (186 ms)
+
+seed done in 14.1 s, 564 calls
+  clip-ent-disbursement: 1.7 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-disbursement.json
+  clip-ent-snapshot: 4.0 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-snapshot.json
+  clip-ent-capital-prior: 0.6 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-capital-prior.json
+  clip-ent-snapshot-prior: 5.3 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-snapshot-prior.json
+  clip-ent-crosscheck: 1.9 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-crosscheck.json
+  clip-ent-bi: 0.6 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-bi.json
+2 refusals the seeds tolerated:
+  [clip-ent-bi/BI] POST /dashboards/4c2800e4-a82b-4d74-89b9-77265284235b/publish -> HTTP 409 {"type":"urn:machvon:error:STAGE_TRANSITION_DENIED","title":"error.STAGE_TRANSITION_DENIED.title","status":409,"code":"STAGE_TRANSITION_DENIED","detail":"status","correlationId":"7746df80-8805-4b57-b0d8-4bb76c5f7e22"}
+  [clip-ent-bi/BI] POST /dashboards/b1b376be-3a63-49a3-a946-604f0910d250/publish -> HTTP 409 {"type":"urn:machvon:error:STAGE_TRANSITION_DENIED","title":"error.STAGE_TRANSITION_DENIED.title","status":409,"code":"STAGE_TRANSITION_DENIED","detail":"status","correlationId":"510ef5e0-b5e7-456e-97aa-3f1bd54a1487"}
+seed group clip-ent-alert-triage
+  [alerts] 30 warnings opened by the job, 7 kept to be handled
+  [clip-ent-alert-triage/DIS] early warnings handled by the officer (401 ms)
+
+seed done in 0.4 s, 25 calls
+  clip-ent-alert-triage: 0.4 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-alert-triage.json
+seed group clip-ent-capital-adjust
+  [clip-ent-capital-adjust/CAP] adjustment of the plan of the year (392 ms)
+
+seed done in 0.4 s, 11 calls
+  clip-ent-capital-adjust: 0.4 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-capital-adjust.json
+seed group clip-ent-appraisal
+  [clip-ent-appraisal/PRJ] register DA-PMDT431 (65 ms)
+  [clip-ent-appraisal/PRJ] send DA-PMDT431 to appraisal (145 ms)
+  [clip-ent-appraisal/PRJ] register DA-PMDT437 (87 ms)
+  [clip-ent-appraisal/PRJ] send DA-PMDT437 to appraisal (89 ms)
+  [clip-ent-appraisal/PRJ] score sheet of DA-PMDT437 (53 ms)
+  [clip-ent-appraisal/PRJ] register DA-PMTB433 (74 ms)
+  [clip-ent-appraisal/PRJ] send DA-PMTB433 to appraisal (77 ms)
+  [clip-ent-appraisal/PRJ] effectiveness appraisal npk (SUBMITTED) (191 ms)
+  [clip-ent-appraisal/PRJ] effectiveness appraisal heat (DRAFT) (125 ms)
+  [clip-ent-appraisal/PRJ] effectiveness appraisal dcs (APPROVED) (232 ms)
+  [clip-ent-appraisal/PRJ] work breakdown of DA-PMDT105 (70 ms)
+  [clip-ent-appraisal/PRJ] milestones of DA-PMDT105 (118 ms)
+  [clip-ent-appraisal/PRJ] baseline version 0 of DA-PMDT105 (20 ms)
+  [clip-ent-appraisal/PRJ] each package of DA-PMDT105 is carried by a contract (49 ms)
+  ! [clip-ent-appraisal/CTR] POST /reporting-periods/generate -> HTTP 409 {"type":"urn:machvon:error:PERIOD_OVERLAP","title":"error.PERIOD_OVERLAP.title","status":409,"code":"PERIOD_OVERLAP","detail":"fiscal_year","correlationId":"c8ce4912-59e9-4412-b95b-a2f9f6f5c82c"}
+  [clip-ent-appraisal/CTR] measurement and acceptance of HD-PMDT105-XL01 (371 ms)
+seed group clip-ent-project-docs
+  [clip-ent-project-docs/DOC] comments on the versions (82 ms)
+seed group clip-ent-narrative
+  [clip-ent-narrative/DIS] structured narratives of the period (318 ms)
+seed group clip-ent-contractor-portal
+  [clip-ent-contractor-portal/VND] portal invitation for Công ty Cổ phần Tư vấn Đầu tư Xây dựng Việt Đông (42 ms)
+  [clip-ent-contractor-portal/VND] the contractor answers the first request through the portal (18 ms)
+
+seed done in 3.1 s, 152 calls
+  clip-ent-appraisal: 1.8 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-appraisal.json
+  clip-ent-project-docs: 0.8 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-project-docs.json
+  clip-ent-narrative: 0.3 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-narrative.json
+  clip-ent-contractor-portal: 0.2 s, ledger D:\tmp\machvon-demo\seed-ledger.clip-ent-contractor-portal.json
+1 refusals the seeds tolerated:
+  [clip-ent-appraisal/CTR] POST /reporting-periods/generate -> HTTP 409 {"type":"urn:machvon:error:PERIOD_OVERLAP","title":"error.PERIOD_OVERLAP.title","status":409,"code":"PERIOD_OVERLAP","detail":"fiscal_year","correlationId":"c8ce4912-59e9-4412-b95b-a2f9f6f5c82c"}
+[demo] Da nap du lieu mau.
+[demo] Khoi dong web (vite)...
+[demo] =================================================================
+[demo] SAN SANG. Mo bang Google Chrome:  http://127.0.0.1:5173/home/home-09?devUser=owner
+[demo] =================================================================
+[demo] Dang nhap = mo dia chi co ?devUser=<khoa> (khong co mat khau, chi o may demo):
+  owner           http://127.0.0.1:5173/home/home-09?devUser=owner
+                  Nguyen Van An - chu tenant: Trung tam dieu hanh (HOME-09), co cau von, giao ban/chi dao, dau tu, tat ca man hinh doc
+  capApprover     http://127.0.0.1:5173/home/home-01?devUser=capApprover
+                  Tran Thi Bich - lanh dao: Duyet ke hoach von, ky bao cao, chot so lieu ky (vai tro LANH_DAO_SO + LEADER)
+  projectManager  http://127.0.0.1:5173/prj/prj-01?devUser=projectManager
+                  Pham Quoc Dung - can bo ban QLDA: Du an, mua sam thiet bi, ho so nha thau, tro ly AI
+  docHead         http://127.0.0.1:5173/rpt/rpt-01?devUser=docHead
+                  Tran Van Hung - truong phong soan thao: Bieu mau bao cao, so sanh cheo RPT-09, phat hanh, day HPM
+  unitAdmin       http://127.0.0.1:5173/home/home-01?devUser=unitAdmin
+                  Le Minh Cuong - quan tri don vi: Quan tri don vi, lich nhac, thanh vien
+  treasuryMaker   http://127.0.0.1:5173/home/home-01?devUser=treasuryMaker
+                  Hoang Thi Lan - ke toan: Thanh toan, doi chieu ke toan
+  auditor         http://127.0.0.1:5173/home/home-01?devUser=auditor
+                  Vu Duc Minh - kiem toan: Chi doc: kiem toan, nhat ky
+  securityAdmin   http://127.0.0.1:5173/adm/adm-25?devUser=securityAdmin
+                  Ngo Thanh Son - quan tri bao mat: Chi doc: uy quyen vinh vien ADM-25, lam thay ADM-26, pham vi theo ky ADM-27
+  nobody          http://127.0.0.1:5173/home/home-02?devUser=nobody
+                  Do Thi Ha - thanh vien thuong: Quyen toi thieu: de minh hoa man hinh tu choi quyen
+Sau khi tai lai trang (F5) nho giu ?devUser=... tren dia chi, neu khong phien se tro ve nguoi dung mac dinh va bi tu choi quyen.
+[demo] Dung demo: nhan Ctrl+C trong cua so nay.
+[demo] Dang dung moi thu...
+[demo] Da dung. Co the dong cua so nay.

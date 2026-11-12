@@ -1,0 +1,84 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-UAT-DIR-PRF-01",
+      "name": "Bảng theo dõi chỉ đạo trả lời trong 5 giây ở phân vị 95 với 2.000 chỉ đạo",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "p50 6 · p95 26 · p99 31 ms trong ngân sách 5000 ms (20 mẫu)"
+      ],
+      "p50_ms": 5.7,
+      "p95_ms": 25.9,
+      "p99_ms": 31.2,
+      "samples": 20,
+      "error_rate": 0.0,
+      "duration_ms": 308,
+      "http_status_probe": 200
+    },
+    {
+      "tc_id": "TC-UAT-EBS-PRF-01",
+      "name": "Đọc danh sách chênh lệch EBS trong ngân sách 5 giây ở phân vị 95",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "p50 4 · p95 28 · p99 30 ms trong ngân sách 5000 ms (20 mẫu)"
+      ],
+      "p50_ms": 4.2,
+      "p95_ms": 27.9,
+      "p99_ms": 29.8,
+      "samples": 20,
+      "error_rate": 0.0,
+      "duration_ms": 231,
+      "http_status_probe": 200
+    },
+    {
+      "tc_id": "TC-UAT-ENT-PRF-01",
+      "name": "Đọc tỷ lệ lãnh đạo và dự án vướng thủ tục trả lời trong 5 giây ở phân vị 95 với 22 dự án và bản chốt đủ",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "p50 30 · p95 38 · p99 39 ms trong ngân sách 5000 ms (20 mẫu)"
+      ],
+      "p50_ms": 30.5,
+      "p95_ms": 38.0,
+      "p99_ms": 38.6,
+      "samples": 20,
+      "error_rate": 0.0,
+      "duration_ms": 603,
+      "http_status_probe": 200
+    },
+    {
+      "tc_id": "TC-UAT-HPM-PRF-01",
+      "name": "Đọc nhật ký đẩy HPM trả lời trong ngân sách 5 giây ở phân vị 95",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "p50 16 · p95 29 · p99 29 ms trong ngân sách 5000 ms (20 mẫu)"
+      ],
+      "p50_ms": 15.8,
+      "p95_ms": 28.8,
+      "p99_ms": 28.8,
+      "samples": 20,
+      "error_rate": 0.0,
+      "duration_ms": 309,
+      "http_status_probe": 200
+    },
+    {
+      "tc_id": "TC-UAT-HUB-PRF-01",
+      "name": "Danh mục bộ kết nối và tổng hợp sức khỏe trả lời trong 5 giây ở phân vị 95",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "p50 23 · p95 47 · p99 49 ms trong ngân sách 5000 ms (20 mẫu)"
+      ],
+      "p50_ms": 23.0,
+      "p95_ms": 46.8,
+      "p99_ms": 49.0,
+      "samples": 20,
+      "error_rate": 0.0,
+      "duration_ms": 670,
+      "http_status_probe": 200
+    }
+  ]
+}

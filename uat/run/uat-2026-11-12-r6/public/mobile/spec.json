@@ -1,0 +1,5 @@
+[
+ {"tc_ids":["TC-UI-MOB-02","TC-UI-MOB-03","TC-UI-MOB-04","TC-UI-MOB-07"],"flows":["06_sign_in_test_idp"],"logs":["uat/run/uat-2026-11-12-r6/logs/maestro-public-06.log"],"note":"Android 15 emulator guide, debug APK of the public edition, test identity provider of the stack. One run (two earlier attempts were lost to emulator crashes and a hung adb under memory pressure). Not a phone of the device matrix."},
+ {"tc_ids":["TC-UAT-NFR-PERFORMANCE-02"],"flows":["20_cold_start_main_content"],"logs":["uat/run/uat-2026-11-12-r6/logs/maestro-public-20_cold_start_main_content.log"],"note":"The heading of the loaded home was not visible within 2500 ms after a cold start on a debug build with software graphics; the flow itself says the emulator gives no verdict for a phone."},
+ {"tc_ids":["TC-UAT-AC502"],"flows":["30_flapping_and_kill_during_submit"],"not_run":"thieu-du-lieu-seed","note":"The flow needs the push registration of the device, which a build without Firebase only gets from a local edit of the product (push_port.dart); product code may not be edited in this run."}
+]

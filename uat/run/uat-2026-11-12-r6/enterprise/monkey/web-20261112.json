@@ -1,0 +1,11 @@
+{
+  "seed": 20261112,
+  "url": "http://127.0.0.1:4173/home/home-09?devUser=owner",
+  "actions_done": 300,
+  "ended": "du-so-thao-tac",
+  "duration_s": 347,
+  "console_errors": 0,
+  "anomalies": [],
+  "blocking": 0,
+  "replay": "node <skill>/scripts/monkey_web.mjs --url http://127.0.0.1:4173/home/home-09?devUser=owner --seed 20261112 --actions <bước>"
+}

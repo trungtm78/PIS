@@ -1,0 +1,29 @@
+(node:26128) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/PIS-uat6/packages/db/src/test-hygiene.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\PIS-uat6\packages\db\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27208) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15132) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:23224) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21408) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/uat/ebs.uat.test.ts (8.433 s)
+PASS test/uat/dir.uat.test.ts (8.717 s)
+PASS test/uat/rpt.uat.test.ts (12.239 s)
+(node:21408) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/uat/int.uat.test.ts (6.386 s)
+PASS test/uat/hub.uat.test.ts (6.625 s)
+PASS test/uat/ent.uat.test.ts (6.593 s)
+PASS test/uat/ind.uat.test.ts (5.919 s)
+PASS test/uat/enterprise-authz.uat.test.ts (21.244 s)
+PASS test/uat/hpm.uat.test.ts (6.144 s)
+
+Test Suites: 9 passed, 9 total
+Tests:       209 passed, 209 total
+Snapshots:   0 total
+Time:        21.806 s, estimated 29 s
+Ran all test suites matching apps/api/test/uat.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

@@ -1,0 +1,1575 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-BI02",
+      "name": "Recheck quyền hiện tại",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-ISO-01",
+      "name": "Thành viên tenant khác nhận 404 như id không tồn tại cho chỉ đạo và cuộc họp của tenant này, không hủy được, và đọc danh sách rỗng",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SCP-01",
+      "name": "Người đọc chỉ có quyền trên một đơn vị khác không thấy chỉ đạo nào và tổng hợp bằng 0",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-01",
+      "name": "listSteeringMeetings (GET /steering-meetings): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-02",
+      "name": "createSteeringMeeting (POST /steering-meetings): chỉ người giữ quyền directive.meeting.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-03",
+      "name": "getSteeringMeeting (GET /steering-meetings/{id}): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-04",
+      "name": "attachMeetingMinutes (POST /steering-meetings/{id}/minutes): chỉ người giữ quyền directive.meeting.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-05",
+      "name": "addDirective (POST /steering-meetings/{id}/directives): chỉ người giữ quyền directive.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-06",
+      "name": "listDirectives (GET /directives): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-07",
+      "name": "listOverdueDirectives (GET /directives/overdue): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-08",
+      "name": "getDirectiveSummary (GET /directives/summary): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-09",
+      "name": "getDirectivesForReport (GET /directives/for-report): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-10",
+      "name": "getDirectiveWidget (GET /directives/widget): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-11",
+      "name": "getDirective (GET /directives/{id}): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-12",
+      "name": "listProjectDirectives (GET /projects/{id}/directives): chỉ người giữ quyền directive.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-13",
+      "name": "assignDirective (POST /directives/{id}/assignment): chỉ người giữ quyền directive.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-14",
+      "name": "recordDirectiveProgress (POST /directives/{id}/progress): chỉ người giữ quyền directive.progress qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-15",
+      "name": "requestDirectiveExtension (POST /directives/{id}/extension-requests): chỉ người giữ quyền directive.progress qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-16",
+      "name": "decideDirectiveExtension (POST /directive-extensions/{id}/decision): chỉ người giữ quyền directive.extension.decide qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-17",
+      "name": "closeDirective (POST /directives/{id}/closure): chỉ người giữ quyền directive.close qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-18",
+      "name": "cancelDirective (POST /directives/{id}/cancellation): chỉ người giữ quyền directive.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-DIR-SEC-19",
+      "name": "reopenDirective (POST /directives/{id}/reopening): chỉ người giữ quyền directive.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-ISO-01",
+      "name": "Thành viên tenant khác nhận 404 như id không tồn tại cho mục chênh lệch của tenant này và không thấy dữ liệu",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-01",
+      "name": "getEbsConnection (GET /ebs/connection): chỉ người giữ quyền ebs.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-02",
+      "name": "setEbsConnectionState (POST /ebs/connection/state): chỉ người giữ quyền ebs.admin qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-03",
+      "name": "uploadEbsFile (POST /ebs/imports/files): chỉ người giữ quyền ebs.import.preview qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-04",
+      "name": "previewEbsFile (POST /ebs/imports/preview): chỉ người giữ quyền ebs.import.preview qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-05",
+      "name": "importEbsFile (POST /ebs/imports): chỉ người giữ quyền ebs.import qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-06",
+      "name": "reconcileEbs (POST /ebs/reconciliations): chỉ người giữ quyền ebs.reconcile qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-07",
+      "name": "listEbsDifferences (GET /ebs/differences): chỉ người giữ quyền ebs.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-08",
+      "name": "resolveEbsDifference (POST /ebs/differences/{id}/resolution): chỉ người giữ quyền ebs.reconcile qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-EBS-SEC-09",
+      "name": "reassignEbsDifference (POST /ebs/differences/{id}/owner): chỉ người giữ quyền ebs.reconcile qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-ISO-01",
+      "name": "Tenant khác không thấy bản chốt của enterprise: không trong danh sách, không theo id (404 như id không tồn tại), không đóng băng được",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SCP-01",
+      "name": "Người đọc chỉ có quyền trên một cây đơn vị thấy riêng đơn vị đó và tổng của phần mình thấy (partial true)",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-PWA-03",
+      "name": "Cài đặt ứng dụng: phiên hiện tại không có nút kết thúc, lý do ngắn bị từ chối trước khi gửi, thu hồi thiết bị kèm lý do, thông báo đẩy chỉ mang tiêu đề chung và đường dẫn",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-01",
+      "name": "getEnterpriseOrgPack (GET /enterprise/org-pack): chỉ người giữ quyền adm.migration.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-02",
+      "name": "materialiseEnterpriseOrgPack (POST /enterprise/org-pack/materialisations): chỉ người giữ quyền adm.migration.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-03",
+      "name": "buildEnterpriseSnapshot (POST /enterprise-snapshots): chỉ người giữ quyền funding.snapshot.build qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-04",
+      "name": "listEnterpriseSnapshots (GET /enterprise-snapshots): chỉ người giữ quyền funding.snapshot.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-05",
+      "name": "freezeEnterpriseSnapshot (POST /enterprise-snapshots/{id}/freeze): chỉ người giữ quyền funding.snapshot.freeze qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-06",
+      "name": "getEnterpriseSnapshot (GET /enterprise-snapshots/{id}): chỉ người giữ quyền funding.snapshot.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-07",
+      "name": "getEnterpriseSnapshotReadiness (GET /enterprise-snapshot-readiness): chỉ người giữ quyền funding.snapshot.build qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-08",
+      "name": "getLeaderRates (GET /leader/rates): chỉ người giữ quyền home.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-09",
+      "name": "getBlockedProjects (GET /leader/blocked-projects): chỉ người giữ quyền home.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-10",
+      "name": "listEquipmentProcurement (GET /equipment-procurement): chỉ người giữ quyền bid.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-11",
+      "name": "createEquipmentProcurementItem (POST /equipment-procurement): chỉ người giữ quyền bid.plan.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-12",
+      "name": "getEquipmentProcurement (GET /equipment-procurement/{id}): chỉ người giữ quyền bid.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-13",
+      "name": "updateEquipmentProcurementItem (PATCH /equipment-procurement/{id}): chỉ người giữ quyền bid.plan.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-14",
+      "name": "getReportNarrativeContext (GET /reports/{id}/narrative-context): chỉ người giữ quyền report.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-15",
+      "name": "inheritReportNarrative (POST /reports/{id}/narrative-inheritance): chỉ người giữ quyền report.edit qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-16",
+      "name": "getReportNarrativeTemplate (GET /report-narrative-template): chỉ người giữ quyền report.import qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-17",
+      "name": "getProjectInvestmentProfile (GET /projects/{id}/investment-profile): chỉ người giữ quyền project.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-ISO-01",
+      "name": "Thành viên tenant khác nhận 404 như id không tồn tại cho lượt đẩy của tenant này, và thấy nhật ký rỗng",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-01",
+      "name": "getHpmConnection (GET /hpm/connection): chỉ người giữ quyền hpm.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-02",
+      "name": "setHpmConnectionState (POST /hpm/connection/state): chỉ người giữ quyền hpm.admin qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-03",
+      "name": "listHpmPushes (GET /hpm/pushes): chỉ người giữ quyền hpm.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-04",
+      "name": "submitHpmPush (POST /hpm/pushes): chỉ người giữ quyền hpm.push qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-05",
+      "name": "retryHpmPush (POST /hpm/pushes/{id}/retry): chỉ người giữ quyền hpm.push qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-06",
+      "name": "recordHpmReceipt (POST /hpm/pushes/{id}/receipt): chỉ người giữ quyền hpm.receipt qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-07",
+      "name": "listHpmCorrections (GET /hpm/corrections): chỉ người giữ quyền hpm.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-08",
+      "name": "proposeHpmCorrection (POST /hpm/corrections): chỉ người giữ quyền hpm.correction.propose qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-SEC-09",
+      "name": "decideHpmCorrection (POST /hpm/corrections/{id}/decision): chỉ người giữ quyền hpm.correction.decide qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-ISO-01",
+      "name": "Tenant khác không thấy lượt chạy, sự cố, dòng từ chối của tenant này và nhận 404 như id không tồn tại khi quyết định",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-01",
+      "name": "listHubConnectors (GET /integration-hub/connectors): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-02",
+      "name": "getHubConnector (GET /integration-hub/connectors/{code}): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-03",
+      "name": "listHubConnectorRuns (GET /integration-hub/connectors/{code}/runs): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-04",
+      "name": "recordHubRun (POST /integration-hub/connectors/{code}/runs): chỉ người giữ quyền hub.run.record qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-05",
+      "name": "listHubRejects (GET /integration-hub/connectors/{code}/rejects): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-06",
+      "name": "listHubIncidents (GET /integration-hub/incidents): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-07",
+      "name": "openHubIncident (POST /integration-hub/incidents): chỉ người giữ quyền hub.incident.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-08",
+      "name": "getHubHealthSummary (GET /integration-hub/health): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-09",
+      "name": "listHubAgents (GET /integration-hub/agents): chỉ người giữ quyền hub.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-10",
+      "name": "registerHubAgent (POST /integration-hub/agents): chỉ người giữ quyền hub.agent.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-11",
+      "name": "setHubConnectorState (POST /integration-hub/connectors/{code}/state): chỉ người giữ quyền hub.state.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-12",
+      "name": "decideHubIncident (POST /integration-hub/incidents/{id}/decision): chỉ người giữ quyền hub.incident.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-13",
+      "name": "captureHubSnapshot (POST /integration-hub/snapshots): chỉ người giữ quyền hub.snapshot.capture qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-14",
+      "name": "proposeHubMapping (POST /integration-hub/connectors/{code}/mappings): chỉ người giữ quyền hub.mapping.propose qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-15",
+      "name": "decideHubMapping (POST /integration-hub/mappings/{id}/decision): chỉ người giữ quyền hub.mapping.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-16",
+      "name": "decideHubReject (POST /integration-hub/rejects/{id}/decision): chỉ người giữ quyền hub.reject.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HUB-SEC-17",
+      "name": "heartbeatHubAgent (POST /integration-hub/agents/{code}/heartbeat): chỉ người giữ quyền hub.agent.heartbeat qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-ISO-01",
+      "name": "Thành viên tenant khác không nhập được số liệu cho dự án của tenant này (404) và đọc danh sách số liệu rỗng",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SCP-01",
+      "name": "Người nhập có quyền trên một đơn vị chỉ nhập cho dự án của đơn vị đó; dự án đơn vị khác 404 và danh sách rỗng",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-01",
+      "name": "listIndicators (GET /indicators): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-02",
+      "name": "getIndicator (GET /indicators/detail): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-03",
+      "name": "listIndicatorEntryRules (GET /indicator-entry-rules): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-04",
+      "name": "evaluateIndicatorEntry (POST /indicator-entry-rules/evaluate): chỉ người giữ quyền ind.entry qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-05",
+      "name": "listIndicatorImportMappings (GET /indicator-import-mappings): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-06",
+      "name": "getIndicatorImportMapping (GET /indicator-import-mappings/detail): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-07",
+      "name": "enterIndicatorFigures (POST /indicator-figures): chỉ người giữ quyền ind.entry qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-08",
+      "name": "listIndicatorFigures (GET /indicator-figures): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-09",
+      "name": "listIndicatorFigureHistory (GET /indicator-figures/history): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-10",
+      "name": "uploadIndicatorFile (POST /indicator-imports/files): chỉ người giữ quyền ind.import.preview qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-11",
+      "name": "previewIndicatorImport (POST /indicator-imports/preview): chỉ người giữ quyền ind.import.preview qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-12",
+      "name": "importIndicatorFile (POST /indicator-imports): chỉ người giữ quyền ind.import qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-13",
+      "name": "listIndicatorImports (GET /indicator-imports): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-14",
+      "name": "listIndicatorImportRows (GET /indicator-imports/rows): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-E2E-01",
+      "name": "Mở tài khoản máy, đổi lấy token, API mở trả đúng dự án của tenant mình và không tenant nào khác; thiếu phạm vi bị từ chối và ghi nhật ký",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-TKN-01",
+      "name": "Mọi từ chối khi đổi token giống nhau (client lạ, sai bí mật) không cho biết phần nào sai; thứ không phải token máy không mở được gì",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-ISO-01",
+      "name": "Thành viên tenant khác nhận 404 cho tài khoản máy của tenant này ở mọi lệnh (đọc, quyết định, xoay), không thấy trong danh sách",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-BI-01",
+      "name": "Tài khoản BI hiện mật khẩu một lần, chỉ đọc danh mục chứng nhận của tenant mình, không đọc được bảng gốc",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-01",
+      "name": "listMachineAccounts (GET /int/machine-accounts): chỉ người giữ quyền int.account.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-02",
+      "name": "createMachineAccount (POST /int/machine-accounts): chỉ người giữ quyền int.account.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-03",
+      "name": "getMachineAccount (GET /int/machine-accounts/{id}): chỉ người giữ quyền int.account.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-04",
+      "name": "updateMachineAccount (POST /int/machine-accounts/{id}/update): chỉ người giữ quyền int.account.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-05",
+      "name": "decideMachineAccount (POST /int/machine-accounts/{id}/decision): chỉ người giữ quyền int.account.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-06",
+      "name": "rotateMachineCredential (POST /int/machine-accounts/{id}/rotate): chỉ người giữ quyền int.account.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-07",
+      "name": "listOpenAccessLog (GET /int/access-log): chỉ người giữ quyền int.access.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-08",
+      "name": "listExportDatasets (GET /int/export-datasets): chỉ người giữ quyền int.dataset.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-09",
+      "name": "setExportDataset (POST /int/export-datasets/state): chỉ người giữ quyền int.dataset.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-10",
+      "name": "listBiReaders (GET /int/bi-readers): chỉ người giữ quyền int.bi.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-11",
+      "name": "createBiReader (POST /int/bi-readers): chỉ người giữ quyền int.bi.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-12",
+      "name": "getBiReader (GET /int/bi-readers/{id}): chỉ người giữ quyền int.bi.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-13",
+      "name": "rotateBiReaderPassword (POST /int/bi-readers/{id}/password): chỉ người giữ quyền int.bi.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-14",
+      "name": "decideBiReader (POST /int/bi-readers/{id}/decision): chỉ người giữ quyền int.bi.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-15",
+      "name": "listSourceSystems (GET /int/source-systems): chỉ người giữ quyền int.codes.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-16",
+      "name": "registerSourceSystem (POST /int/source-systems): chỉ người giữ quyền int.system.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-17",
+      "name": "retireSourceSystem (POST /int/source-systems/{id}/retire): chỉ người giữ quyền int.system.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-18",
+      "name": "listProjectCodes (GET /int/project-codes): chỉ người giữ quyền int.codes.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-19",
+      "name": "proposeProjectCode (POST /int/project-codes): chỉ người giữ quyền int.codes.propose qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-20",
+      "name": "decideProjectCode (POST /int/project-codes/{id}/decision): chỉ người giữ quyền int.codes.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-INT-SEC-21",
+      "name": "retireProjectCode (POST /int/project-codes/{id}/retire): chỉ người giữ quyền int.codes.propose qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-SEC01",
+      "name": "403/404 theo policy",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-NOT02",
+      "name": "Không đánh dấu đã đọc",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-01",
+      "name": "Mọi request trả 404 code RESOURCE_NOT_FOUND, body không chứa tên/mã dự án B",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-03",
+      "name": "A nhận 1.000.000.000, B nhận 2.000.000.000",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-04",
+      "name": "Kết quả chỉ chứa tài liệu tenant_id=TNT-A",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-05",
+      "name": "Tệp B → 404",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-06",
+      "name": "Tệp chứa đúng 5 dự án của Sở X",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-09",
+      "name": "User Sở NN chỉ thấy dự án Sở NN, dự án Ban QLDA GT trả 404",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-ISO-01",
+      "name": "Thành viên tenant khác nhận 404 cho bản phát hành, tệp và bản nháp của tenant này như id không tồn tại",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-01",
+      "name": "listReportCatalogue (GET /report-engine/catalogue): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-02",
+      "name": "listReportDrafts (GET /report-engine/drafts): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-03",
+      "name": "generateReport (POST /report-engine/drafts): chỉ người giữ quyền rpt.generate qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-04",
+      "name": "getReportDraft (GET /report-engine/drafts/{id}): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-05",
+      "name": "getReportDraftFile (GET /report-engine/drafts/{id}/files/{format}): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-06",
+      "name": "checkReport (POST /report-engine/drafts/{id}/check): chỉ người giữ quyền rpt.check qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-07",
+      "name": "approveReport (POST /report-engine/drafts/{id}/approve): chỉ người giữ quyền rpt.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-08",
+      "name": "issueReport (POST /report-engine/drafts/{id}/issue): chỉ người giữ quyền rpt.issue qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-09",
+      "name": "listReportIssues (GET /report-engine/issues): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-10",
+      "name": "getReportIssue (GET /report-engine/issues/{id}): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-11",
+      "name": "getReportIssueFile (GET /report-engine/issues/{id}/files/{format}): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-12",
+      "name": "deliverReport (POST /report-engine/issues/{id}/deliveries): chỉ người giữ quyền rpt.deliver qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-13",
+      "name": "answerReportDelivery (POST /report-engine/issues/{id}/answers): chỉ người giữ quyền rpt.answer qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-14",
+      "name": "listReportDeliveries (GET /report-engine/deliveries): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-15",
+      "name": "listReportPeriodLocks (GET /report-engine/period-locks): chỉ người giữ quyền rpt.lock.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-16",
+      "name": "unlockReportPeriod (POST /report-engine/period-locks/{id}/unlock): chỉ người giữ quyền rpt.lock.unlock qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-17",
+      "name": "startReportSignature (POST /report-engine/issues/{id}/signature): chỉ người giữ quyền rpt.sign qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-18",
+      "name": "getReportSignature (GET /report-engine/issues/{id}/signature): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-19",
+      "name": "completeReportSignature (POST /report-engine/signature-sessions/{id}/completion): chỉ người giữ quyền rpt.sign qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-20",
+      "name": "previewReportLayout (POST /report-engine/layout-previews): chỉ người giữ quyền rpt.generate qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-21",
+      "name": "listReportMailSchedules (GET /report-engine/mail-schedules): chỉ người giữ quyền rpt.mail.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-22",
+      "name": "createReportMailSchedule (POST /report-engine/mail-schedules): chỉ người giữ quyền rpt.mail.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-23",
+      "name": "listReportMailings (GET /report-engine/mailings): chỉ người giữ quyền rpt.mail.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-24",
+      "name": "retireReportMailSchedule (POST /report-engine/mail-schedules/{id}/retire): chỉ người giữ quyền rpt.mail.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-25",
+      "name": "getReportCrosscheck (GET /report-engine/crosscheck): chỉ người giữ quyền rpt.crosscheck.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-26",
+      "name": "listCrosscheckExplanations (GET /report-engine/crosscheck/explanations): chỉ người giữ quyền rpt.crosscheck.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-27",
+      "name": "explainCrosscheckFinding (POST /report-engine/crosscheck/explanations): chỉ người giữ quyền rpt.crosscheck.explain qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-vai",
+      "reasons": [
+        "không có token vai nào (đặt UAT_TOKEN_<ROLE> hoặc UAT_TOKEN_FILE) — tuyệt đối không tự chế tài khoản"
+      ],
+      "duration_ms": 0
+    }
+  ],
+  "roles": []
+}

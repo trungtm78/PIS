@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="guide" tests="1" failures="0" time="29.11" timestamp="2026-11-12T16:25:51">
+    <testcase id="06_sign_in_test_idp" name="06_sign_in_test_idp" classname="06_sign_in_test_idp" file="apps\mobile\qa\device\flows\06_sign_in_test_idp.yaml" time="29.087" timestamp="2026-11-12T16:25:51" status="SUCCESS"/>
+  </testsuite>
+</testsuites>

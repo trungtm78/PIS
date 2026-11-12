@@ -1,0 +1,106 @@
+{
+  "not_run": false,
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "scanned": [
+    "http://127.0.0.1:4173/uat-negative-a11y.html"
+  ],
+  "failed_to_scan": [],
+  "violations": [
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "html-has-lang",
+      "impact": "serious",
+      "help": "<html> element must have a lang attribute",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/html-has-lang?application=playwright",
+      "nodes": 1,
+      "sample": "html"
+    },
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "image-alt",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/image-alt?application=playwright",
+      "nodes": 1,
+      "sample": "img"
+    },
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "label",
+      "impact": "critical",
+      "help": "Form elements must have labels",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/label?application=playwright",
+      "nodes": 1,
+      "sample": "input"
+    },
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "link-name",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/link-name?application=playwright",
+      "nodes": 1,
+      "sample": "a"
+    }
+  ],
+  "incomplete": [
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "bypass",
+      "help": "Page must have means to bypass repeated blocks",
+      "nodes": 1
+    },
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "color-contrast",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "nodes": 1
+    }
+  ],
+  "ceiling": "axe-core bắt ~57% lỗi a11y theo số lượng; chỉ 29,5% tiêu chí WCAG 2.2 tự động hoá được, 60,2% buộc kiểm thủ công. G16 xanh KHÔNG phải là tuyên bố tuân thủ WCAG 2.2 AA.",
+  "blocking": [
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "html-has-lang",
+      "impact": "serious",
+      "help": "<html> element must have a lang attribute",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/html-has-lang?application=playwright",
+      "nodes": 1,
+      "sample": "html"
+    },
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "image-alt",
+      "impact": "critical",
+      "help": "Images must have alternative text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/image-alt?application=playwright",
+      "nodes": 1,
+      "sample": "img"
+    },
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "label",
+      "impact": "critical",
+      "help": "Form elements must have labels",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/label?application=playwright",
+      "nodes": 1,
+      "sample": "input"
+    },
+    {
+      "url": "http://127.0.0.1:4173/uat-negative-a11y.html",
+      "id": "link-name",
+      "impact": "serious",
+      "help": "Links must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/link-name?application=playwright",
+      "nodes": 1,
+      "sample": "a"
+    }
+  ],
+  "ok": false
+}

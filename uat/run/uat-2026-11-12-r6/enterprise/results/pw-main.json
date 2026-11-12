@@ -1,0 +1,367 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\playwright.config.ts",
+    "rootDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "setup",
+        "name": "setup",
+        "testDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/auth\\.setup\\.ts$/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "canary",
+        "name": "canary",
+        "testDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/_canary\\.spec\\.ts$/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "api-smoke",
+        "name": "api-smoke",
+        "testDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.api\\.spec\\.ts$/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "e2e",
+        "name": "e2e",
+        "testDir": "D:/PIS-uat6/uat/run/uat-2026-11-12-r6/enterprise/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.e2e\\.spec\\.ts$/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "results/pw-main.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "./report-html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "_canary.spec.ts",
+      "file": "_canary.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "CANARY-TITLE tieu de trang khong the bang nonce",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "canary",
+              "projectName": "canary",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3968,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: \u001b[32m\"0c5206690688220bc9d3952ece45057d\"\u001b[39m\nReceived: \u001b[31m\"Phần mềm quản lý đầu tư xây dựng\"\u001b[39m\nTimeout:  3000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 3000ms\u001b[22m\n\u001b[2m    10 × locator resolved to <html lang=\"vi\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"Phần mềm quản lý đầu tư xây dựng\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: \u001b[32m\"0c5206690688220bc9d3952ece45057d\"\u001b[39m\nReceived: \u001b[31m\"Phần mềm quản lý đầu tư xây dựng\"\u001b[39m\nTimeout:  3000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 3000ms\u001b[22m\n\u001b[2m    10 × locator resolved to <html lang=\"vi\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"Phần mềm quản lý đầu tư xây dựng\"\u001b[22m\n\n    at D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts:15:22",
+                    "location": {
+                      "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                      "column": 22,
+                      "line": 15
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m test(\u001b[32m'CANARY-TITLE tieu de trang khong the bang nonce'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 14 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page)\u001b[33m.\u001b[39mtoHaveTitle(\u001b[33mNONCE\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m3000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m\n \u001b[90m 18 |\u001b[39m test(\u001b[32m'CANARY-HTTP khong may chu nao tra ma 599'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                        "column": 22,
+                        "line": 15
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveTitle\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected: \u001b[32m\"0c5206690688220bc9d3952ece45057d\"\u001b[39m\nReceived: \u001b[31m\"Phần mềm quản lý đầu tư xây dựng\"\u001b[39m\nTimeout:  3000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveTitle\" with timeout 3000ms\u001b[22m\n\u001b[2m    10 × locator resolved to <html lang=\"vi\">…</html>\u001b[22m\n\u001b[2m       - unexpected value \"Phần mềm quản lý đầu tư xây dựng\"\u001b[22m\n\n\n  13 | test('CANARY-TITLE tieu de trang khong the bang nonce', async ({ page }) => {\n  14 |   await page.goto('/');\n> 15 |   await expect(page).toHaveTitle(NONCE, { timeout: 3000 });\n     |                      ^\n  16 | });\n  17 |\n  18 | test('CANARY-HTTP khong may chu nao tra ma 599', async ({ request }) => {\n    at D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts:15:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T08:56:30.778Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-TITLE-tieu-de-trang-khong-the-bang-nonce-canary\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-TITLE-tieu-de-trang-khong-the-bang-nonce-canary\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-TITLE-tieu-de-trang-khong-the-bang-nonce-canary\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-TITLE-tieu-de-trang-khong-the-bang-nonce-canary\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                    "column": 22,
+                    "line": 15
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "df66c5b7a302286b428a-cbd7e138336e4d916045",
+          "file": "_canary.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "CANARY-HTTP khong may chu nao tra ma 599",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "canary",
+              "projectName": "canary",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 37,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m599\u001b[39m\nReceived: \u001b[31m200\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m599\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n    at D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts:20:22",
+                    "location": {
+                      "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                      "column": 22,
+                      "line": 20
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 18 |\u001b[39m test(\u001b[32m'CANARY-HTTP khong may chu nao tra ma 599'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ request }) \u001b[33m=>\u001b[39m {\n \u001b[90m 19 |\u001b[39m   \u001b[36mconst\u001b[39m r \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m request\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 20 |\u001b[39m   expect(r\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m599\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 21 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\n \u001b[90m 23 |\u001b[39m test(\u001b[32m'CANARY-DOM testid ngau nhien khong the ton tai'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                        "column": 22,
+                        "line": 20
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m599\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n\n  18 | test('CANARY-HTTP khong may chu nao tra ma 599', async ({ request }) => {\n  19 |   const r = await request.get('/');\n> 20 |   expect(r.status()).toBe(599);\n     |                      ^\n  21 | });\n  22 |\n  23 | test('CANARY-DOM testid ngau nhien khong the ton tai', async ({ page }) => {\n    at D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts:20:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T08:56:35.326Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-HTTP-khong-may-chu-nao-tra-ma-599-canary\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-HTTP-khong-may-chu-nao-tra-ma-599-canary\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                    "column": 22,
+                    "line": 20
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "df66c5b7a302286b428a-6360458bc8efad7e2569",
+          "file": "_canary.spec.ts",
+          "line": 18,
+          "column": 5
+        },
+        {
+          "title": "CANARY-DOM testid ngau nhien khong the ton tai",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "canary",
+              "projectName": "canary",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3965,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('0c5206690688220bc9d3952ece45057d')\nExpected: visible\nTimeout: 3000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('0c5206690688220bc9d3952ece45057d')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('0c5206690688220bc9d3952ece45057d')\nExpected: visible\nTimeout: 3000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('0c5206690688220bc9d3952ece45057d')\u001b[22m\n\n    at D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts:25:41",
+                    "location": {
+                      "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                      "column": 41,
+                      "line": 25
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 23 |\u001b[39m test(\u001b[32m'CANARY-DOM testid ngau nhien khong the ton tai'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }) \u001b[33m=>\u001b[39m {\n \u001b[90m 24 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 25 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mNONCE\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m3000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 26 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 27 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                        "column": 41,
+                        "line": 25
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('0c5206690688220bc9d3952ece45057d')\nExpected: visible\nTimeout: 3000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 3000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('0c5206690688220bc9d3952ece45057d')\u001b[22m\n\n\n  23 | test('CANARY-DOM testid ngau nhien khong the ton tai', async ({ page }) => {\n  24 |   await page.goto('/');\n> 25 |   await expect(page.getByTestId(NONCE)).toBeVisible({ timeout: 3000 });\n     |                                         ^\n  26 | });\n  27 |\n    at D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts:25:41"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T08:56:35.766Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-DOM-testid-ngau-nhien-khong-the-ton-tai-canary\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-DOM-testid-ngau-nhien-khong-the-ton-tai-canary\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-DOM-testid-ngau-nhien-khong-the-ton-tai-canary\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\artifacts\\_canary-CANARY-DOM-testid-ngau-nhien-khong-the-ton-tai-canary\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts",
+                    "column": 41,
+                    "line": 25
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "df66c5b7a302286b428a-98f83ec77fe820064aed",
+          "file": "_canary.spec.ts",
+          "line": 23,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-12T08:56:30.406Z",
+    "duration": 9564.035,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-02",
+      "name": "Catalog: 0 bảng thiếu RLS/FORCE/policy",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 15
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-08",
+      "name": "Workflow hợp lệ ghi đúng TNT-A",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 4
+    }
+  ],
+  "dsn_kind": "postgresql"
+}

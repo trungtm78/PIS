@@ -1,0 +1,27 @@
+{
+  "repo": "D:\\PIS-uat6",
+  "mode": "git",
+  "head": "0748687af1e72fc615ad764ebce4b1b1f0f5548e",
+  "allow": [
+    "uat/run/uat-2026-11-12-r6",
+    "uat/_registry",
+    "docs/evidence",
+    "docs/uat-run-results.json",
+    "docs/UAT-EVIDENCE.md",
+    "docs/uat/RUN-2026-11-12-r6.md",
+    "test-results",
+    "apps/web/test-results",
+    "apps/web/playwright-report",
+    "apps/web/e2e/report.json",
+    "apps/web/e2e/__diff__"
+  ],
+  "dirty_before": {
+    ".test-locks/": "<xoa>"
+  },
+  "frozen": {
+    "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\tests\\_canary.spec.ts": "e0d9c2e45cd2270eb72b0456405410f5c3160fb438abf6eb552b3f5ec7401917",
+    "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\enterprise\\a11y-specs\\screens.spec.ts": "0f36a797fda9a1433233089382fab7b7078acde00712b1b24167987a6a1c6e6b",
+    "D:\\PIS-uat6\\uat\\run\\uat-2026-11-12-r6\\tools\\journal-to-checks.mjs": "c6a799e2e9e02930ca1ab7cd316a241782f181534901876f79207ac36ee0f548"
+  },
+  "spec_hash": "37846a572793"
+}

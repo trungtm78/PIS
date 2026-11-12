@@ -1,0 +1,49 @@
+## Kết quả UAT
+VERDICT: FAIL
+KẾT LUẬN: NO-GO
+TỔNG: 1445 | PASS: 678 | FAIL: 27 | KHÔNG CHẠY: 740
+BUILD: 0748687af1 · URL: http://127.0.0.1:5173 · Playwright 1.62.1 · spec-hash 37846a572793 · rào: git · monkey: web×1 + android×1
+FILE: uat/run/uat-2026-11-12-r6/enterprise/report.md
+KHUYẾT PHÉP ĐO: G12 (Bằng chứng đủ), G14 (Ma trận quyền · IDOR), G17 (Hiệu năng (ngân sách người đặt)) — không đo được nên KHÔNG được coi là đạt; cần người xác nhận.
+FINDINGS:
+  - TC-UAT-DIR-IDM-01 [P0][S1] Ghi cùng cuộc họp hai lần với cùng Idempotency-Key trả đúng kết quả lầ: mong đợi «Lần 2: cùng resource_id và mã GB-năm-số; đúng 1 dòng steering_meeting và 1 dòng kiểm toán directive.meeting_created. Lần 3: 409.» (nguồn: FR-DIR-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-DIR-IDM-02 [P0][S1] Năm cuộc họp giống hệt gửi cùng lúc với một khóa chỉ tạo một cuộc họp : mong đợi «Mọi yêu cầu trả 200 hoặc 409 (không 5xx), ít nhất một 200 và mọi 200 cùng resource_id; đúng một dòng steering_meeting.» (nguồn: FR-DIR-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-EBS-IDM-01 [P0][S1] Cùng một tệp áp dụng lần hai bị từ chối (409 IMPORT_FILE_ALREADY_APPLI: mong đợi «409 IMPORT_FILE_ALREADY_APPLIED; số bản ghi của dự án không đổi.» (nguồn: FR-EBS-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-EBS-IDM-03 [P0][S1] Năm lệnh áp dụng cùng một tệp gửi cùng lúc chỉ ghi bản ghi một lần: mộ: mong đợi «Đúng một lệnh trả 200; bốn lệnh còn lại 409 IMPORT_FILE_ALREADY_APPLIED; đúng một bản ghi của dự án.» (nguồn: FR-EBS-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-EBS-E2E-02 [P0][S1] Đối chiếu theo mã dự án mở một mục chênh lệch với người phụ trách khôn: mong đợi «Bước 1: 403. Bước 2: một mục AMOUNT_MISMATCH ours 600, theirs 700, delta 100, OPEN, owner đúng, không mục cho dự án khớp; owner không thuộc » (nguồn: FR-EBS-02) — thực tế: ô đầu tiên: mong đợi «1», thực tế «0»
+  - TC-UAT-ENT-IDM-01 [P0][S1] Dựng lại bản chốt với cùng Idempotency-Key trả đúng bản đã dựng và khô: mong đợi «Bước 1: 200, vẫn một dòng period_snapshot ENTERPRISE_CLOSE của kỳ. Bước 2: 409 IDEMPOTENCY_CONFLICT.» (nguồn: FR-DIS-32) — thực tế: duplicate-on-retry: 5 request đồng thời cùng khoá idempotency tạo 4 bản ghi, mong đợi tối đa 1 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-HPM-IDM-04 [P0][S1] Năm lệnh đẩy giống hệt gửi cùng lúc với một khóa chỉ tạo một dòng và m: mong đợi «Mọi yêu cầu trả 200 hoặc 409 (không 5xx), ít nhất một 200; đúng 1 dòng hpm_push và 1 dòng hpm_push_attempt.» (nguồn: FR-HPM-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-HPM-STA-01 [P0][S1] Lượt đẩy đã được nhận hoặc bị từ chối không đẩy lại được; lượt đã quyế: mong đợi «Cả ba lần: 409; hai lần retry mang HPM_PUSH_STATE_INVALID; không dòng thử mới.» (nguồn: FR-HPM-01) — thực tế: ô đầu tiên: mong đợi «ACCEPTED», thực tế «None»
+  - TC-UAT-HUB-IDM-01 [P0][S1] Ghi cùng một lượt chạy hai lần chỉ giữ một lượt và một sự cố; cùng Ide: mong đợi «Lần 2 cùng resource_id; lần 3 ALREADY_RECORDED; đúng một dòng hub_run_log của source_ref và một sự cố OPEN của bộ kết nối.» (nguồn: FR-HUB-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-IND-IDM-01 [P0][S1] Nhập lại đúng số cũ không đổi gì: không bản mới, không sự kiện, kết qu: mong đợi «created 0, revised 0, unchanged 1; vẫn một bản và một sự kiện ind.figure.entered.v1.» (nguồn: FR-IND-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-INT-IDM-01 [P0][S1] Mở lại cùng tài khoản với cùng Idempotency-Key trả kết quả cũ không kè: mong đợi «Lần 1: 201, shown_once true, client_secret dạng mvs_ 43 ký tự. Lần 2: 201, client_secret rỗng, cùng client_id và account_id. Không bảng nào » (nguồn: FR-INT-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-AC12 [P0][S2] số nội bộ khác số xác nhận hiển thị hai cột và sai lệch, không tự chọn: mong đợi «số nội bộ khác số xác nhận hiển thị hai cột và sai lệch, không tự chọn số lớn hơn. Cụ thể: Tạo 1 reconciliation_item AMOUNT_MISMATCH: intern» (nguồn: FR-PAY-05) — thực tế: apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-P
+  - TC-UAT-AC331 [P0][S2] Bước 1: 422 VALIDATION_FAILED: mong đợi «Bước 1: 422 VALIDATION_FAILED. Bước 2: 422 REFUND_NOT_CONFIRMED. Bước 3: 200, status REVERSED, bút toán đảo: PAYMENT_REVERSAL (paid −3.000.0» (nguồn: FR-PAY-08) — thực tế: apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-P
+  - TC-UAT-AC335 [P0][S2] PR-A-001 SETTLED: mong đợi «PR-A-001 SETTLED; cumulative_ledger.paid_vnd B01 2.000.000.000, B02 1.000.000.000; contract.paid_total_vnd 3.000.000.000; contract_advance.r» (nguồn: FR-PAY-04) — thực tế: apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-P
+  - TC-UAT-RPT-IDM-01 [P0][S1] Lập lại đúng báo cáo đã phát hành là DUPLICATE, lập lại bản nháp chưa : mong đợi «Bước 1: DUPLICATE, draft_id rỗng, revision 1. Bước 2: một đầu chuỗi và một dòng report_issue. Bước 3: lần 2 trả EXISTING cùng draft_id.» (nguồn: FR-RPT-01) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UAT-RPT-IDM-02 [P0][S1] Giao một bản phát hành cho một bên nhận chỉ một lần (lần hai 409 ALREA: mong đợi «Bước 1: 409 REPORT_OUT_OF_DATE kèm current_revision. Bước 2: DELIVERED. Bước 3: 409 ALREADY_DELIVERED; đúng 1 dòng report_delivery, 1 dòng k» (nguồn: FR-RPT-04) — thực tế: mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])
+  - TC-UI-ADM-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UI-ADM-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC103 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC104 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC105 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC106 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC108 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC110 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC113 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC126 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC127 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - TC-UAT-AC130 [P0] KHÔNG CHẠY (khong-co-kich-ban)
+  - … và 727 phát hiện khác trong report.md

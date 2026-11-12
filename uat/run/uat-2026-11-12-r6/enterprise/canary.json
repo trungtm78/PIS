@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "found": {
+    "CANARY-TITLE": "failed",
+    "CANARY-HTTP": "failed",
+    "CANARY-DOM": "failed"
+  },
+  "green": [],
+  "missing": [],
+  "reason": ""
+}
