@@ -80,7 +80,7 @@ void main() {
       useDevice(tester, kTall);
       final FieldWorld world = await _open(tester, date: _day);
       await world.typeInto(tester, 'Công việc trong ngày', 'Đào móng trụ T3');
-      await world.go(tester, '/projects/mob-41');
+      await world.go(tester, '/account/mob-41');
       await world.go(tester, '/projects/mob-62/c-1?date=$_day');
       expect(find.text('Đào móng trụ T3'), findsOneWidget);
     });
@@ -220,7 +220,7 @@ void main() {
 
       // Typed after the save: the draft still carries the command that the server took.
       await world.typeInto(tester, 'Ghi chú', 'Thêm sau khi lưu');
-      await world.go(tester, '/projects/mob-41');
+      await world.go(tester, '/account/mob-41');
       await world.go(tester, '/projects/mob-62/c-1?date=$_day');
       await waitUntil(tester, () async => find.widgetWithText(TextField, 'Công việc trong ngày').evaluate().isNotEmpty);
       expect(find.text('Thêm sau khi lưu'), findsOneWidget, reason: 'the newer unsent edit is not replaced by the server form');
@@ -294,7 +294,7 @@ void main() {
       expect(find.text('Chọn phiên bản'), findsOneWidget, reason: 'shown beside the diary, with the way to MOB-42');
 
       await tapText(tester, 'Chọn phiên bản');
-      expect(currentLocation(world.container), '/projects/mob-42/${command.id}');
+      expect(currentLocation(world.container), '/account/mob-42/${command.id}');
       expect(find.text('content.summary'), findsOneWidget);
       expect(find.text('Bản trên máy: Bản của tôi trên máy'), findsOneWidget);
       expect(find.text('Bản trên server: Bản của người sửa trước'), findsOneWidget);

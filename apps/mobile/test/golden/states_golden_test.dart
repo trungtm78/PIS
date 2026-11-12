@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
@@ -9,29 +6,16 @@ import 'package:machvon_mobile/core/state/empty_state_view.dart';
 import 'package:machvon_mobile/core/state/problem_state_view.dart';
 
 import '../support/harness.dart';
+import '../support/v2_support.dart';
 import '../support/widget_host.dart';
-
-/// Goldens are drawn with the test font, so they do not depend on the fonts of the machine; the antialiasing of the
-/// shapes still differs a little between operating systems, so a difference up to this share of the pixels is accepted.
-const double _tolerance = 0.005;
-
-class _TolerantComparator extends LocalFileComparator {
-  _TolerantComparator(super.testFile);
-
-  @override
-  Future<bool> compare(Uint8List imageBytes, Uri golden) async {
-    final ComparisonResult result = await GoldenFileComparator.compareLists(imageBytes, await getGoldenBytes(golden));
-    if (result.passed || result.diffPercent <= _tolerance) return true;
-    throw FlutterError(await generateFailureOutput(result, golden, basedir));
-  }
-}
 
 ProblemView _problem() => ProblemView.from(
       const ApiError(status: 500, code: 'INTERNAL_ERROR', correlationId: '3f2b6c1e-0000-4000-8000-000000000003'),
     );
 
 void main() {
-  goldenFileComparator = _TolerantComparator(Uri.file('${Directory.current.path}/test/golden/states_golden_test.dart'));
+  // The states are full of text, which Windows and Linux draw with different hinting: the tolerance of the text-heavy goldens.
+  useTolerantGoldens('test/golden/states_golden_test.dart', tolerance: kTextGoldenTolerance);
 
   group('TK-MOB-001-7 UI-MOB-52 UI-MOB-53 golden images of the empty and error states', () {
     for (final Size size in kDeviceSizes) {

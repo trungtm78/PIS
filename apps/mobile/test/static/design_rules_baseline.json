@@ -1,13 +1,13 @@
 {
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
-    "AppBar(": 17,
-    "BoxDecoration(": 14,
-    "Card(": 23,
+    "AppBar(": 16,
+    "BoxDecoration(": 13,
+    "Card(": 22,
     "Colors.": 3,
     "EdgeInsets-number": 29,
-    "MachvonColors.": 85,
-    "Scaffold(": 26,
+    "MachvonColors.": 82,
+    "Scaffold(": 25,
     "TextStyle(": 15,
     "fontSize:": 1,
     "toStringAsFixed(": 9
@@ -199,13 +199,6 @@
     },
     "lib/features/project_views/screens/project_list_screen.dart": {
       "Colors.": 1
-    },
-    "lib/features/read_support/widgets.dart": {
-      "AppBar(": 1,
-      "BoxDecoration(": 1,
-      "Card(": 1,
-      "MachvonColors.": 3,
-      "Scaffold(": 1
     },
     "lib/features/release/screens/help_screen.dart": {
       "AppBar(": 1,

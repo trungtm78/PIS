@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../l10n/app_strings.dart';
+import '../widgets/section_panel.dart';
 import 'state_card.dart';
 
 /// The empty state (MOB-52): there is nothing to show. It names the filters that are in use, because an empty list with
@@ -34,7 +35,7 @@ class EmptyStateView extends StatelessWidget {
             alignment: WrapAlignment.center,
             spacing: MachvonSpace.space8,
             runSpacing: MachvonSpace.space8,
-            children: <Widget>[for (final String filter in activeFilters) Chip(label: Text(filter))],
+            children: <Widget>[for (final String filter in activeFilters) NoteChip(label: filter)],
           ),
       ],
       actions: <Widget>[

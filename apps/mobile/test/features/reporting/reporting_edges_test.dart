@@ -277,7 +277,7 @@ void main() {
         ..on('GET', '/reports/:id', (HttpCall call) => serverReport(status: 'SUBMITTED', submittedAt: '2026-11-03T03:20:00.000Z', form: completeForm()));
       final ProviderContainer container = await pumpWithServer(tester, features: <MobileFeature>[reporting.feature], server: server, location: '/projects/mob-21/$reportId');
       await press(tester, 'Xem hàng đợi gửi');
-      expect(currentLocation(container), '/projects/mob-41');
+      expect(currentLocation(container), '/account/mob-41');
       await pressBack(tester);
       await press(tester, 'Về danh sách dự án');
       expect(currentLocation(container), '/projects');

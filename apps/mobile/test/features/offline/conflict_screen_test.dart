@@ -42,7 +42,7 @@ void main() {
     testWidgets('both amounts, the difference, the money mark; the server keeps its figure until the person has decided every item', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ({QueueRig rig, QueuedCommand command, LocalDraft draft}) setup = await conflictRig();
-      await openOfflineApp(tester, setup.rig, location: '/projects/mob-42/${setup.command.id}');
+      await openOfflineApp(tester, setup.rig, location: '/account/mob-42/${setup.command.id}');
 
       expect(find.text('Giá trị xây lắp'), findsOneWidget);
       expect(find.text('Bản trên máy: 130.000.000'), findsOneWidget);
@@ -65,7 +65,7 @@ void main() {
     testWidgets('the buttons that choose for many never choose an amount', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ({QueueRig rig, QueuedCommand command, LocalDraft draft}) setup = await conflictRig();
-      await openOfflineApp(tester, setup.rig, location: '/projects/mob-42/${setup.command.id}');
+      await openOfflineApp(tester, setup.rig, location: '/account/mob-42/${setup.command.id}');
       await press(tester, find.text('Giữ bản máy cho các mục không phải tiền'));
       expect(find.text('Còn 2 mục chưa chọn'), findsOneWidget, reason: 'the two amounts are still to be decided');
       await press(tester, find.text('Lấy bản server cho các mục không phải tiền'));
@@ -79,9 +79,9 @@ void main() {
       useDevice(tester, kTallDevice);
       final ({QueueRig rig, QueuedCommand command, LocalDraft draft}) setup = await conflictRig();
       // the person comes from the queue, where the conflict is listed
-      final ProviderContainer container = await openOfflineApp(tester, setup.rig, location: '/projects/mob-41');
+      final ProviderContainer container = await openOfflineApp(tester, setup.rig, location: '/account/mob-41');
       await press(tester, find.text('Xem và chọn'));
-      expect(currentLocation(container), '/projects/mob-42/${setup.command.id}');
+      expect(currentLocation(container), '/account/mob-42/${setup.command.id}');
       await press(tester, find.byKey(const ValueKey<String>('construction_vnd:server')));
       await press(tester, find.byKey(const ValueKey<String>('funding_lines[CARRYOVER|LOCAL|].cumulative_vnd:mine')));
       await press(tester, find.text('Giữ bản máy cho các mục không phải tiền'));
@@ -98,7 +98,7 @@ void main() {
       final Map<String, Object?> sent = setup.rig.store.drafts.byId(setup.draft.id)!.fields;
       expect(sent['construction_vnd'], '120000000', reason: 'the amount the person took from the server');
       expect(((sent['funding_lines']! as List<Object?>).cast<Map<String, Object?>>().firstWhere((Map<String, Object?> l) => l['bucket'] == 'CARRYOVER'))['cumulative_vnd'], '65000000');
-      expect(currentLocation(container), '/projects/mob-41', reason: 'the person is back on the queue');
+      expect(currentLocation(container), '/account/mob-41', reason: 'the person is back on the queue');
       expect(find.text('Đã gửi'), findsOneWidget);
     });
 
@@ -109,7 +109,7 @@ void main() {
       final QueueRig rig = await realClockRig(server: server);
       final QueuedCommand command = rig.queue.enqueue(commandType: 'report.submit', payload: <String, Object?>{'report_id': reportId}, baseServerVersion: 3);
       await rig.queue.flush();
-      await openOfflineApp(tester, rig, location: '/projects/mob-42/${command.id}');
+      await openOfflineApp(tester, rig, location: '/account/mob-42/${command.id}');
       expect(find.textContaining('không khác nhau'), findsOneWidget);
       expect(tester.widget<FilledButton>(find.byType(FilledButton)).onPressed, isNotNull);
       await press(tester, find.text('Lưu lựa chọn và gửi lại'));
@@ -134,7 +134,7 @@ void main() {
           ignore: reportConflictAdapter.ignore,
         ),
       });
-      await openOfflineApp(tester, setup.rig, location: '/projects/mob-42/${setup.command.id}', overrides: [conflictAdaptersProvider.overrideWithValue(slow)]);
+      await openOfflineApp(tester, setup.rig, location: '/account/mob-42/${setup.command.id}', overrides: [conflictAdaptersProvider.overrideWithValue(slow)]);
       expect(find.byType(LoadingView), findsOneWidget, reason: 'loading');
       gate.open();
       await tester.pumpAndSettle();
@@ -150,7 +150,7 @@ void main() {
       for (final ({String name, int status, String code, String title}) refusal in refusals) {
         setup = await conflictRig();
         setup.rig.server.failNext = (status: refusal.status, code: refusal.code);
-        await openOfflineApp(tester, setup.rig, location: '/projects/mob-42/${setup.command.id}');
+        await openOfflineApp(tester, setup.rig, location: '/account/mob-42/${setup.command.id}');
         expect(find.text(refusal.title), findsOneWidget, reason: refusal.name);
         expect(find.text(refusal.code), findsOneWidget, reason: refusal.name);
         expect(find.text('Thử lại'), findsOneWidget);
@@ -159,7 +159,7 @@ void main() {
       // offline: the copy of the server cannot be read, and the person is told so with a retry
       setup = await conflictRig();
       setup.rig.server.offline = true;
-      final ProviderContainer container = await openOfflineApp(tester, setup.rig, location: '/projects/mob-42/${setup.command.id}');
+      final ProviderContainer container = await openOfflineApp(tester, setup.rig, location: '/account/mob-42/${setup.command.id}');
       container.read(reachabilityProvider.notifier).report(Reachability.offline);
       await tester.pumpAndSettle();
       expect(find.text('Bạn đang ngoại tuyến'), findsWidgets, reason: 'offline');
@@ -171,9 +171,9 @@ void main() {
       // not in conflict (or no longer in the queue)
       final QueueRig plain = await realClockRig();
       final QueuedCommand queued = plain.queue.enqueue(commandType: 'report.submit', payload: <String, Object?>{'report_id': reportId});
-      await openOfflineApp(tester, plain, location: '/projects/mob-42/${queued.id}');
+      await openOfflineApp(tester, plain, location: '/account/mob-42/${queued.id}');
       expect(find.text('Chưa có dữ liệu'), findsOneWidget, reason: 'empty');
-      await openOfflineApp(tester, plain, location: '/projects/mob-42/not-a-command');
+      await openOfflineApp(tester, plain, location: '/account/mob-42/not-a-command');
       expect(find.text('Chưa có dữ liệu'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
@@ -181,7 +181,7 @@ void main() {
     testWidgets('UI-MOB-42 contract: three devices, text at 200 percent, tap targets, labels and contrast', (WidgetTester tester) async {
       await expectScreenContract(tester, (WidgetTester t) async {
         final ({QueueRig rig, QueuedCommand command, LocalDraft draft}) setup = await conflictRig();
-        await openOfflineApp(t, setup.rig, location: '/projects/mob-42/${setup.command.id}');
+        await openOfflineApp(t, setup.rig, location: '/account/mob-42/${setup.command.id}');
         expect(find.text('So sánh hai bản'), findsOneWidget);
       });
     });

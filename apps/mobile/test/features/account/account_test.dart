@@ -676,8 +676,8 @@ void main() {
       for (final ({String label, String path}) row in <({String label, String path})>[
         (label: 'Đổi tổ chức hoặc vai trò', path: '/account/mob-48'),
         (label: 'Thiết bị và đăng xuất', path: '/account/mob-49'),
-        (label: 'Hàng đợi gửi', path: '/projects/mob-41'),
-        (label: 'Làm việc ngoại tuyến', path: '/projects/mob-43'),
+        (label: 'Hàng đợi gửi', path: '/account/mob-41'),
+        (label: 'Làm việc ngoại tuyến', path: '/account/mob-43'),
         (label: 'Trợ giúp và phản hồi', path: '/account/mob-50'),
       ]) {
         await tester.ensureVisible(find.text(row.label));

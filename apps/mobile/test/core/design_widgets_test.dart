@@ -125,9 +125,8 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('SectionCard shows the ĐVT chip and, on request, the uppercase section label', (WidgetTester tester) async {
-      await tester.pumpWidget(hostWidget(const SectionCard(title: 'Cơ cấu vốn', unit: 'tỷ đồng', uppercase: true, children: <Widget>[Text('nội dung')])));
-      expect(find.text('CƠ CẤU VỐN'), findsOneWidget);
+    testWidgets('SectionCard shows the ĐVT chip next to its heading', (WidgetTester tester) async {
+      await tester.pumpWidget(hostWidget(const SectionCard(title: 'Cơ cấu vốn', unit: 'tỷ đồng', children: <Widget>[Text('nội dung')])));
       expect(find.text('ĐVT: tỷ đồng'), findsOneWidget);
       await tester.pumpWidget(hostWidget(const SectionCard(title: 'Cơ cấu vốn', children: <Widget>[Text('nội dung')])));
       expect(find.text('Cơ cấu vốn'), findsOneWidget);
