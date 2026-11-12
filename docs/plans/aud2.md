@@ -26,7 +26,7 @@ Branch `lane/aud2`, worktree `D:\PIS-aud2`. The lanes ENT-3d, ENT-3e and ENT-4e 
 
 - The receiver of a form is an agency of the managed catalogue; the code stays the default, and a disagreement (`NO_AGENCY`, `AGENCY_NOT_UNIQUE`, `PERIOD_UNKNOWN`, `PERIOD_MISMATCH`) is reported by `reportCatalogueView`, never settled silently. The period of a form stays owned by the code because the layout is built for it.
 - Only the forms of the code are judged for the receiver; configured layouts and the public forms keep their own receiver.
-- The profile reads the published plan version of the year, else the newest that is still alive; start year: groundbreaking milestone (actual, else planned), else the start year of the project record; a cancelled groundbreaking gives no start.
+- The profile reads every annual plan of the project in the year, one revision per plan history: the published revision, and for a caller who drafts or approves plans also the newest revision still in work (the visibility rule of the plan reads); a medium-term plan is not an annual plan; start year: groundbreaking milestone (actual, else planned), else the start year of the project record; a cancelled groundbreaking gives no start.
 - No migration was needed (every object has a table or a view); no block was registered.
 
 ## Not built, and why
