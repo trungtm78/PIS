@@ -16,7 +16,7 @@ Nguyên tắc của hồ sơ kỹ thuật: các giai đoạn thực hiện tuầ
 | 4 | Kiểm nghiệm | Biên bản kiểm thử UAT; danh sách lỗi và kết quả khắc phục | [05](05-sit-uat-scripts.md), [09](09-acceptance-minutes-template.md) | Có | GD.4, SP.05 |
 | 5 | Chuyển đổi dữ liệu, đào tạo | Biên bản xác nhận chuyển đổi dữ liệu; biên bản đào tạo; tài liệu và video hướng dẫn | [06](06-data-conversion-plan.md), [07](07-training-plan.md) | Có | GD.5, SP.04, SP.06, SP.07 |
 | 6 | Vận hành thử, nghiệm thu | Biên bản vận hành thử; biên bản nghiệm thu; bộ tài liệu bàn giao | [08](08-parallel-run-plan.md), [09](09-acceptance-minutes-template.md), [10](10-handover-checklist.md) | Có | GD.6, SP.08, SP.09, SP.10 |
-| 7 | Bảo hành, bảo trì | Báo cáo bảo trì định kỳ (II.5 không liệt kê thành sản phẩm đánh số) | [10](10-handover-checklist.md) (mục bảo hành), `docs/runbooks/release-checklist.md` | không áp dụng | GD.7 |
+| 7 | Bảo hành, bảo trì | Báo cáo bảo trì định kỳ (II.5 không liệt kê thành sản phẩm đánh số) | [12](12-maintenance-and-hypercare.md) (hỗ trợ, hypercare, lịch kỳ chốt, mẫu báo cáo bảo trì), [10](10-handover-checklist.md) (mục bảo hành), `docs/runbooks/release-checklist.md` | không áp dụng | GD.7 |
 
 Kế hoạch chi tiết bảy giai đoạn phải được nhà cung cấp trình PVFCCo trong vòng 10 ngày sau khi ký hợp đồng (mục II.4); tệp này là khung của kế hoạch đó, không thay thế nó.
 
@@ -35,6 +35,22 @@ Kế hoạch chi tiết bảy giai đoạn phải được nhà cung cấp trìn
 | 9 | Biên bản vận hành thử và biên bản nghiệm thu | Có | 08, 09 |
 | 10 | Bộ tài liệu bàn giao: cài đặt, vận hành, quản trị; mã nguồn hoặc gói cài đặt và cấu hình; tài liệu API | không ghi | 10 |
 | 11 | Sản phẩm khác theo Điều lệ dự án | không ghi | chờ Điều lệ dự án |
+
+## Tình trạng bộ hồ sơ (rà soát 2026-11-12, lane aud4)
+
+Các tệp 01 đến 10 đã được điền lại đến v0.2 từ thiết kế và mã nguồn sau khi các làn ENT-3, ENT-4, INFRA-2, DOC-3 gộp; tệp 12 (bảo hành, hypercare, lịch hỗ trợ kỳ chốt, mẫu báo cáo bảo trì) là tệp mới. Ma trận truy vết: 3 dòng DONE, 29 PARTIAL, 21 PENDING-EXTERNAL (cập nhật bằng `node scripts/hskt-trace.mjs generate`).
+
+| Dòng | Tình trạng | Việc còn lại và bên làm |
+|---|---|---|
+| GD.1, SP.01 | PENDING-EXTERNAL | Khảo sát tại 09 đầu mối và phê duyệt: PX-05, PX-12 |
+| GD.2, SP.02, SP.03 | PENDING-EXTERNAL | Chốt hạn từng bước, cấu trúc HPM, phê duyệt: PX-03, PX-12 |
+| GD.3, GD.4, SP.05 | PARTIAL | Nhà cung cấp: sinh nốt 399 ca UAT và các phân hệ chưa có thư mục, chạy UAT ký được; khách: môi trường UAT, ký (PX-11, PX-12) |
+| GD.5, SP.04, SP.06, SP.07, TK.01, TK.03 | PENDING-EXTERNAL | Tệp Excel, danh mục dự án, từ điển chỉ tiêu, danh sách người học: PX-02, PX-05, PX-08, PX-14 |
+| GD.6, SP.08, SP.09, TK.04 | PENDING-EXTERNAL | Hai kỳ báo cáo thực, giao diện HPM, pentest độc lập: PX-13, PX-03, PX-09 |
+| GD.7 | PENDING-EXTERNAL | Bắt đầu sau nghiệm thu; đường liên hệ, người trực, thời hạn phản hồi (D10), PX-12 |
+| SP.10 | PENDING-EXTERNAL | Gói cài với tên máy chủ chính thức, biên bản bàn giao ký: PX-11, PX-12 |
+| SP.11 | PENDING-EXTERNAL | Điều lệ dự án |
+| TK.02 | PARTIAL | Video hướng dẫn (đã dừng, cần quyết định với PVFCCo) và bản cứng |
 
 ## Phiếu phê duyệt giai đoạn (mẫu dùng chung)
 

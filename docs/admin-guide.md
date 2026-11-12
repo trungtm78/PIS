@@ -2,7 +2,9 @@
 
 Tài liệu giao nhận theo yêu cầu TK.02 của hồ sơ kỹ thuật "Phần mềm quản lý ĐTXD" v0.3 (hướng dẫn quản trị), dành cho cán bộ quản trị của Ban CĐS&CNTT và quản trị tổ chức. Tài liệu tổng hợp lại từ các sổ tay vận hành đã có trong kho mã (đường dẫn ghi ở cuối mỗi mục) để người quản trị có một nơi bắt đầu; khi cần từng lệnh chi tiết, mở sổ tay được dẫn.
 
-Hướng dẫn cho người dùng cuối nằm ở `docs/hdsd` (có video) và ở nút dấu hỏi (phím `?`) trên mỗi màn hình. Tích hợp với HPM: `docs/integration/hpm-proposal.md`. Kết nối Power BI: `docs/integration/power-bi-model.md`.
+Hướng dẫn cho người dùng cuối nằm ở bộ hướng dẫn sử dụng theo chương (`scripts/hdsd/chapters.json`, dựng bởi `scripts/hdsd/build-docs.mjs`) và ở nút dấu hỏi (phím `?`) trên mỗi màn hình (594 màn hình). Tích hợp với HPM: `docs/integration/hpm-proposal.md`. Kết nối Power BI: `docs/integration/power-bi-model.md`, `docs/integration/power-bi-connection-guide.md`. Cấp dữ liệu cho Data Lakehouse: `docs/integration/lakehouse-proposal.md`. Cấu hình máy chủ khuyến nghị: `docs/runbooks/infra/sizing-uat-prod.md`. Hỗ trợ, trực và báo cáo bảo trì: `docs/delivery/12-maintenance-and-hypercare.md`.
+
+Mục lục: 0 các lớp quản trị; 1 vai trò và quyền; 2 quy tắc; 3 lịch; 4 danh mục; 5 trung tâm tích hợp; 6 sao lưu và khôi phục; 7 nhật ký kiểm toán và giới hạn log; 8 nâng cấp và quay lui; 9 vận hành thường ngày; 10 bảng tra cứu; 11 việc chờ thông tin bên ngoài; 12 cài đặt và cấu hình ban đầu; 13 giám sát; 14 xử lý sự cố.
 
 ## 0. Phân biệt các lớp quản trị
 
@@ -21,10 +23,10 @@ Màn hình: ADM-01 Cây tổ chức, ADM-02 Người dùng và mời thành viê
 **Vai trò có sẵn.** Chủ sở hữu tổ chức (toàn quyền trong tổ chức, thao tác nhạy cảm cần xác thực lần hai), Quản trị tổ chức, Quản trị an ninh, Quản trị đơn vị, Lãnh đạo (phê duyệt hồ sơ thuộc thẩm quyền, xem bảng điều hành), Quản trị thông báo, Chuyên viên (làm nghiệp vụ theo các vai trò nghiệp vụ cấp thêm), Cán bộ chủ đầu tư, Kiểm toán viên (chỉ đọc nhật ký), Người xem thuê bao, Nhà thầu (khách, chỉ xem hợp đồng của mình), Thành viên (quyền cơ bản). Bảng đầy đủ và lời diễn giải: `scripts/hdsd/content.json`.
 
 **Cấp quyền.**
-1. Tạo cây đơn vị ở ADM-01 (hồ sơ kỹ thuật TK.01 nêu 09 đầu mối; cách chia 07 Ban/Đơn vị và 02 Tổ dự án là theo kế hoạch ENT-3 và chờ danh sách chính thức của PVFCCo; danh sách đầu mối và người nhập, người duyệt sẽ được đưa vào bằng gói cấu hình PVFCCo, không lấy dữ liệu thật của khách vào mã nguồn).
+1. Tạo cây đơn vị ở ADM-01. Hồ sơ kỹ thuật nêu 09 đầu mối nhập liệu (07 Ban/Đơn vị và 02 Tổ dự án) cùng Ban KHĐT tổng hợp và lãnh đạo. Với PVFCCo không nhập tay từng đơn vị mà nạp **gói cấu hình mẫu `PVFCCO-TEMPLATE`** (ENT-3d): đăng ký lô chuyển đổi dữ liệu ở ADM-13 với bộ ánh xạ `ORG-PACK-1`, chạy thử, người khác người đăng ký áp dụng, rồi thao tác `materialiseEnterpriseOrgPack` tạo đơn vị, vai trò theo phạm vi, quy trình duyệt nhiều bước, chính sách vắng mặt, ma trận thẩm quyền và các danh mục (người duyệt các bản nháp quy tắc và ma trận là người khác). Màn ORG-01 hiển thị tổ chức, vai trò và kết quả đối chiếu (đủ, thiếu, lệch) ở chế độ chỉ đọc. Gói chỉ là dữ liệu mẫu: tên hai Tổ dự án để `[tên 02 Tổ dự án]`, không có người dùng hay tài khoản thật; thay bằng danh sách thật của PVFCCo khi có (PX-05). Một tenant, các đơn vị là cây con; vai trò nhập và duyệt đơn vị có phạm vi `UNIT_ONLY`, rà soát kế hoạch, chốt kỳ, xem lãnh đạo và quản trị có phạm vi toàn tenant.
 2. Mời hoặc tạo thành viên ở ADM-02, gán vai trò ở ADM-03. Một vai trò được cấp theo đơn vị: quyền chỉ có hiệu lực trong đơn vị đó và các đơn vị con. Quyền "trên toàn tenant" (ví dụ xuất nhật ký kiểm toán) không cấp theo cây con.
 3. Thành viên khách của nhà thầu (ADM-17) chỉ thấy cổng nhà thầu.
-4. Đăng nhập một lần (SSO), LDAP/Active Directory và xác thực đa yếu tố (MFA) do Keycloak đảm nhiệm; mục 9 nêu cách vận hành Keycloak. Ánh xạ nhóm AD hiện có (`ad-group-role-map.json`) chỉ áp cho vai trò của nền tảng (quản trị hệ thống, vận hành nền tảng, thanh toán dịch vụ, hỗ trợ); ánh xạ sang vai trò nghiệp vụ của tenant là việc của gói cấu hình PVFCCo (ENT-3d).
+4. Đăng nhập một lần (SSO), LDAP/Active Directory và xác thực đa yếu tố (MFA) do Keycloak đảm nhiệm; mục 9 nêu cách vận hành Keycloak. Ánh xạ nhóm AD (`infra/keycloak/onprem/ad-group-role-map.json`) có hai phần: vai trò của nền tảng (quản trị hệ thống, vận hành nền tảng, thanh toán dịch vụ, hỗ trợ) và `tenantMappings` cho vai trò nghiệp vụ của tenant, sinh từ gói PVFCCO-TEMPLATE theo dạng `MACHVON-PVFCCO-<ĐƠN VỊ>-<VAI TRÒ>`; `npm run infra:check` kiểm hai phần khớp gói. Tên nhóm AD thật do đội thư mục của PVFCCo tạo (PX-16).
 
 **Thẩm quyền phê duyệt (DoA).** ADM-15 là bảng dữ liệu "loại hồ sơ, khoảng số tiền, đơn vị, vai trò người duyệt, số cấp duyệt". Hồ sơ đang chạy giữ phiên bản ma trận lúc bắt đầu; ma trận công bố sau chỉ áp cho hồ sơ bắt đầu sau. Đơn vị gần nhất với hồ sơ thắng; ô "cần người duyệt khác nhau" buộc các cấp là những người khác nhau. Chi tiết: `docs/adm-doa-resolver.md`.
 
@@ -92,10 +94,15 @@ Mục tiêu: RPO 15 phút, RTO 4 giờ, khôi phục về thời điểm bất k
 | Việc | Lịch |
 |---|---|
 | Lưu WAL liên tục | tối đa 60 giây một đoạn |
-| Sao lưu đầy đủ | hằng ngày 01:30 |
-| Sao lưu gia tăng | 05:30, 09:30, 13:30, 17:30, 21:30 |
+| Sao lưu đầy đủ (chu kỳ ngày) | hằng ngày 01:30 |
+| Sao lưu gia tăng (chu kỳ ngày) | 05:30, 09:30, 13:30, 17:30, 21:30 |
+| Sao lưu khác biệt, differential (chu kỳ tuần) | Chủ nhật 12:30; giữ năm bản gần nhất |
+| Sao lưu đầy đủ vào kho lưu trữ (chu kỳ tháng) | ngày 1 hằng tháng 03:00, vào kho thứ hai (`repo2`) với khóa mã hóa riêng; giữ mười hai bản |
 | Kiểm tra kho sao lưu | Chủ nhật 03:30 |
+| Sao lưu thủ công | Yêu cầu ở ADM-32 (đầy đủ, khác biệt hoặc gia tăng), người khác người yêu cầu duyệt, máy chủ chạy; giao diện không tự chạy sao lưu |
 | Diễn tập khôi phục | mỗi quý và khi thêm thành phần giữ dữ liệu tenant |
+
+Chính sách giữ tối thiểu ba bản sao lưu gần nhất (`retention.minimumBackups`): kiểm tra từ chối cấu hình giữ ít hơn ba. Bản sao lưu đầy đủ hằng ngày phủ 35 ngày; ngoài ra mỗi tháng một bản ngoại tuyến do hai người giữ khóa (không phải quản trị hệ thống máy chủ sản xuất) chép ra phương tiện ghi một lần hoặc ngắt kết nối, để một bản sao sống sót cả khi kẻ tấn công nắm quyền quản trị (yêu cầu YCK.07): `docs/runbooks/infra/backup-immutable.md`. Biên bản diễn tập khôi phục đầu tiên chưa có: sổ `infra/backup/restore-drill-ledger.json` còn trống, hạn diễn tập đầu là 2027-01-31 (chạy trên máy chủ của PVFCCo, PX-11).
 
 Bản sao nằm ở địa điểm thứ hai, khóa đối tượng chế độ COMPLIANCE giữ 36 ngày (không ai kể cả quản trị kho xóa được), mã hóa hai lớp, danh tính ghi và danh tính quản trị kho là hai người khác nhau. Đây là lớp chống mã độc tống tiền: kẻ chiếm quyền quản trị cũng không xóa được bản sao.
 
@@ -105,9 +112,19 @@ Diễn tập khôi phục (`docs/runbooks/infra/restore-drill.md`): đóng băng
 
 Sổ tay: `docs/runbooks/infra/backup-immutable.md`, `docs/runbooks/infra/postgres.md`.
 
-## 7. Xuất nhật ký kiểm toán
+## 7. Nhật ký kiểm toán và giới hạn log
 
-Màn hình ADM-11 Nhật ký kiểm toán (xem, lọc, xuất); ADM-12 Chính sách lưu trữ.
+Màn hình ADM-11 Nhật ký kiểm toán (xem, lọc, xuất); ADM-12 Chính sách lưu trữ; ADM-29 Nhật ký đủ trước và sau theo loại đối tượng; ADM-30 Giới hạn số lượng và dung lượng log.
+
+**Giá trị trước và sau (ADM-29).** Mặc định nhật ký chỉ lưu bản khác biệt đã làm sạch (`safe_diff`). Quản trị bật theo từng loại đối tượng nghiệp vụ (kỳ báo cáo mở lại, đẩy HPM, bản chốt, số liệu kỳ...) thì lệnh nào truyền `detail: { before, after }` sẽ được ghi giá trị đủ trước và sau vào bản ghi chỉ thêm `audit_event_detail`; dòng nhật ký có chữ ký giữ băm SHA-256 và kích thước của chi tiết nên sửa chi tiết về sau sẽ bị phát hiện. Quyền `adm.audit_detail.manage` trên toàn tenant, phải nêu lý do, bản thân thay đổi cũng được ghi nhật ký; mỗi loại có hạn mức byte cho một dòng, vượt thì chi tiết bị cắt bớt và đánh dấu `truncated`. Giá trị nhạy cảm (mật khẩu, mã thông báo, số giống số thẻ, trường cá nhân) bị che. Mặc định tắt: bật khi cần truy vết chi tiết, vì chi phí dung lượng. Chi tiết: `docs/runbooks/audit-export.md`.
+
+**Giới hạn log (ADM-30).** Mỗi loại log có hạn mức số dòng, số byte và tỷ lệ cảnh báo `warn_pct` (mặc định 80). Quyền `adm.log_capacity.read` và `adm.log_capacity.manage` trên toàn tenant. Quy tắc không bao giờ xóa bằng chứng nghiệp vụ:
+- loại kỹ thuật (hộp thư gửi, hộp sự kiện, phiên, lần gửi) vượt hạn mức thì ban đêm hệ thống chép các dòng cũ nhất vượt hạn mức ra tệp JSON lines có băm (`log_archive_batch`) rồi mới xóa đúng các dòng đã chép; không bao giờ xóa dòng trẻ hơn thời hạn lưu tối thiểu của nền tảng hay dòng đang bị giữ pháp lý;
+- nhật ký kiểm toán và chi tiết của nó chỉ được giám sát (cảnh báo, không bao giờ xóa);
+- hạn mức không được thấp hơn số dòng mà thời hạn lưu tối thiểu bắt buộc giữ (bị từ chối khi đặt), nên không dùng được để rút ngắn thời hạn lưu.
+Cảnh báo `LOG_CAPACITY_NEAR` (tới `warn_pct`) và `LOG_CAPACITY_EXCEEDED` (nghiêm trọng, vượt hạn mức mà chưa dọn được) có sổ tay ở `docs/runbooks/alerts/`. Khi vượt hạn mức: mở ADM-30 xem "dòng đủ điều kiện" và "dòng được bảo vệ"; nâng hạn mức kèm lý do, không rút ngắn thời hạn lưu. Chi tiết: `docs/runbooks/retention.md`.
+
+### Xuất nhật ký kiểm toán
 
 - Quyền `audit.export` cấp trên toàn tenant (không cấp theo cây con), kỳ xuất tối đa 366 ngày, định dạng CSV (để đọc) hoặc JSONL (để kiểm chứng), tệp tối đa 64 MiB. Lệnh idempotent: gửi lại không tạo tệp thứ hai.
 - Tệp xuất gồm bản kê (MANIFEST), các dấu niêm (SEAL: gốc Merkle, băm liên kết), các dòng sự kiện (EVENT) và lá băm (LEAF). Người nhận kiểm chứng tính toàn vẹn mà không cần cơ sở dữ liệu và không cần tin người gửi (`verifyAuditExport`).
@@ -130,7 +147,7 @@ Nâng cấp:
 
 Quay lui (đích 15 phút): nếu thay đổi nằm sau cờ tính năng thì tắt cờ trước; còn lại chạy `rollback.sh` của gói cũ. Cơ sở dữ liệu không bao giờ bị quay lui: các migration theo kiểu mở rộng rồi thu hẹp, bản N-1 chạy được với lược đồ của bản N. Lỗi dữ liệu thì dùng khôi phục (mục 6), không dùng quay lui. Không sửa migration đã chạy; sửa tiếp bằng bản phát hành mới.
 
-Khuyến nghị cho PVFCCo: cài UAT trước, sau đó mới nâng cấp Production trong khung giờ bảo trì; UAT có cấu hình tương đương Production (đây cũng là điều kiện của kiểm thử xâm nhập, yêu cầu HT.02).
+Khuyến nghị cho PVFCCo: cài UAT trước, sau đó mới nâng cấp Production trong khung giờ bảo trì; UAT có cấu hình tương đương Production (đây cũng là điều kiện của kiểm thử xâm nhập, yêu cầu YCK.07). Không nâng cấp trong cửa sổ kỳ chốt: xem lịch hỗ trợ kỳ chốt và quy tắc đóng băng ở `docs/delivery/12-maintenance-and-hypercare.md`.
 
 ## 9. Vận hành thường ngày
 
@@ -161,3 +178,87 @@ Khuyến nghị cho PVFCCo: cài UAT trước, sau đó mới nâng cấp Produc
 ## 11. Việc chờ thông tin bên ngoài (nhắc lại cho quản trị)
 
 Chưa thể nghiệm thu khi chưa có: cấu trúc dữ liệu và giao diện kỹ thuật của HPM; mẫu tệp và quyền đọc Oracle EBS; bố cục chính thức của sáu biểu mẫu; từ điển chỉ tiêu và bộ nguyên tắc nhập liệu; danh sách 09 đầu mối và nhân sự; đặc tả eProcurement và văn thư; kết quả kiểm thử xâm nhập của đơn vị độc lập; số đo hiệu năng trên phần cứng của PVFCCo.
+
+## 12. Cài đặt và cấu hình ban đầu
+
+Cấu hình máy chủ khuyến nghị cho UAT và Production: `docs/runbooks/infra/sizing-uat-prod.md` (con số xuất phát, đo lại trên phần cứng của PVFCCo trong đợt UAT). Thứ tự khuyến nghị: UAT trước, Production sau, cùng một gói cài đặt.
+
+**Phần A. Cài hạ tầng** (Ban CĐS&CNTT; chi tiết `docs/runbooks/infra/onprem-install.md`, danh mục kiểm tra phòng thí nghiệm `docs/runbooks/infra/lab-install-checklist.md`).
+
+| Bước | Việc | Kiểm tra |
+|---|---|---|
+| A1 | Nhận gói ngoại tuyến; kiểm chữ ký và `sha256sum --check SHA256SUMS` | Không có tệp lệch |
+| A2 | Chuẩn bị máy chủ theo yêu cầu: Linux amd64 hoặc arm64, Docker Engine 28 trở lên, Compose v2.24 trở lên, NTP, DNS và chứng thư cho `PUBLIC_HOST` và `CONTROL_HOST`, LDAPS tới thư mục, kho đối tượng có khóa đối tượng ở địa điểm thứ hai | Bảng "Host requirements" của runbook |
+| A3 | Sao chép `infra/onprem/compose/env.template` thành `.env` và điền (tên máy chủ, thư mục, kho sao lưu, kích thước) | Không còn giá trị mẫu |
+| A4 | Tạo các tệp bí mật theo `infra/onprem/secrets.json` (chủ root, nhóm `machvon-secrets`, quyền 0440); giữ hộ hai người khóa mã hóa sao lưu `pgbackrest_cipher_pass` ngoại tuyến | `install.sh` từ chối nếu quyền sai |
+| A5 | Áp quy tắc tường lửa đường ra (`egress-firewall.sh`): chỉ cơ sở dữ liệu (WAL và sao lưu), tác vụ sao lưu và Keycloak có đường ra, tới kho đối tượng và thư mục | Ứng dụng và dữ liệu không có đường ra |
+| A6 | Tạo kho sao lưu bất biến (`infra/backup/bucket/create-bucket.sh`) và danh tính ghi | `node scripts/backup-verify.mjs live ... --probe` |
+| A7 | Chạy `sh install.sh`; cài và bật các bộ hẹn giờ systemd (`machvon-backup-*.timer`) | `docker compose ps` mọi dịch vụ khỏe; `/api/health/ready` trả 200 |
+| A8 | Keycloak: đăng nhập quản trị khởi tạo một lần, tạo quản trị có tên với WebAuthn, tắt tài khoản khởi tạo; nhập thử realm, kiểm tra liên kết thư mục và đồng bộ đầy đủ | `docs/security/identity-test-plan.md` |
+| A9 | Sao lưu đầu tiên và diễn tập khôi phục đầu tiên trước khi nhập dữ liệu thật | `restore-drill.md`; biên bản vào `infra/backup/restore-drill-ledger.json` |
+| A10 | TLS và tiêu đề an toàn | `docs/runbooks/infra/tls-headers.md` cuối tài liệu |
+
+**Phần B. Cấu hình ứng dụng** (quản trị tổ chức; mỗi thay đổi tạo phiên bản mới, người công bố khác người soạn).
+
+| Bước | Việc | Màn hình | Ghi chú |
+|---|---|---|---|
+| B1 | Nạp gói cấu hình PVFCCO-TEMPLATE: đơn vị, vai trò theo phạm vi, quy trình duyệt, ma trận thẩm quyền, danh mục | ADM-13, ORG-01 | Mục 1; thay bằng danh sách thật khi có (PX-05) |
+| B2 | Đăng ký nhóm AD cho vai trò nghiệp vụ; mời người dùng, gán vai trò | ADM-02, ADM-03 | Tên nhóm AD thật: PX-16 |
+| B3 | Lịch làm việc và ngày nghỉ của năm; năm ngân sách và lịch kỳ báo cáo | ADM-07, MDM-11 | Nhập ngày nghỉ năm sau trước khi năm đó bắt đầu |
+| B4 | Hạn từng bước của lịch kỳ (tháng, quý, năm, giao ban) | ADM-31, kho quy tắc ADM-19 | Giá trị mặc định là của nhà cung cấp, chưa kiểm chứng; Ban KHĐT chốt |
+| B5 | Từ điển chỉ tiêu, quy tắc nhập liệu, bảng ánh xạ Excel | IND-01, IND-02, IND-03, ADM-19 | Bộ khởi điểm đánh dấu chưa kiểm chứng (PX-02) |
+| B6 | Danh mục dùng chung: nguồn vốn, đơn vị tính, tỷ giá, loại báo cáo, cơ quan nhận, nguyên nhân chậm | MDM-01 và các màn theo loại | Mục 4 |
+| B7 | Bố cục biểu mẫu nội bộ; sáu biểu mẫu của PVN giữ nhãn DEMO tới khi có mẫu chính thức | RPT-07, RPT-08 | PX-01, PX-15 |
+| B8 | Kết nối ngoài: HPM, EBS, eProcurement, văn thư; ánh xạ mã dự án | HUB-01, HPM-01, EBS-01, INT-03 | Nhãn PENDING-EXTERNAL cho tới khi có đặc tả (PX-03, PX-04, PX-06, PX-07) |
+| B9 | Nhật ký trước và sau theo loại đối tượng; giới hạn log | ADM-29, ADM-30 | Mục 7 |
+| B10 | Tài khoản máy và tài khoản BI; bật và chứng nhận tập dữ liệu | INT-01, INT-04, DGV-18 | `docs/integration/lakehouse-proposal.md` |
+| B11 | Gửi biểu mẫu theo lịch bằng email; nhắc việc qua Teams | RML-01; kênh thông báo theo `docs/teams-relay.md` và `docs/runbooks/notification-delivery.md` | Cần SMTP và địa chỉ Teams (PX-16) |
+| B12 | Chính sách an toàn, lưu trữ | ADM-12, ADM-14 | |
+
+**Phần C. Nghiệm thu cấu hình**: chạy các việc của danh mục kiểm tra `docs/delivery/10-handover-checklist.md` mục 1 và 2; chạy lượt UAT trên UAT (`docs/delivery/05-sit-uat-scripts.md`); ghi các điểm lệch vào sổ nợ.
+
+## 13. Giám sát
+
+Nguyên tắc: đường cảnh báo vận hành độc lập với sản phẩm (cảnh báo đi tới kênh trực `ops-pager`, không qua mô-đun thông báo), nên vẫn tới người trực khi sản phẩm ngừng. Quy tắc cảnh báo của hạ tầng ở `infra/alerts/`, của ứng dụng ở `alerts/rules/`; mỗi quy tắc có chủ và sổ tay ở `docs/runbooks/alerts/` (hơn 50 tệp), `npm run alerts:check` bảo đảm không quy tắc nào thiếu. Mục tiêu dịch vụ: 99,9 phần trăm yêu cầu hợp lệ được trả lời trong 30 ngày cho năm dịch vụ lõi (DIS, CAP, PAY, PRJ, IAM), tức ngân sách lỗi 43,2 phút; hai cảnh báo tốc độ tiêu ngân sách (`SLO_FAST_BURN`, `SLO_SLOW_BURN`) và `SLO_BUDGET_EXHAUSTED` (`docs/slo-error-budget.md`). Chưa phải cam kết thương mại: điều khoản của nó thuộc hợp đồng (D10).
+
+| Cần theo dõi | Ở đâu | Tần suất | Ngưỡng hành động |
+|---|---|---|---|
+| Sức khỏe dịch vụ, ngân sách lỗi | Bảng điều khiển hạ tầng; `docs/runbooks/infra/observability.md`; SAS-18 (nhà cung cấp) | Hằng ngày | Cảnh báo SLO; `collector-down` (không có số liệu trong 5 phút thì mọi cảnh báo khác bị che) |
+| Thời gian phản hồi dưới 5 giây, báo cáo dưới 20 giây (HT.05) | BI-13 Nhật ký truy vấn và hiệu năng; `node scripts/perf-budget.mjs`; ngân sách `docs/qa/perf-budget.json` (82 thao tác: 67 chức năng, 15 báo cáo) | Hằng tuần, và sau mỗi bản phát hành | p95 vượt ngân sách ở lượt đo; số đo trên phần cứng của PVFCCo chờ PX-10 |
+| Sao lưu | Cảnh báo `pg-wal-archive-failure`, `pg-backup-age` (quá 26 giờ); trạng thái trên ADM-32 | Hằng ngày | Bản đầy đủ gần nhất cũ hơn 26 giờ; lưu WAL lỗi |
+| Hàng đợi sự kiện và thông báo | Cảnh báo `OUTBOX_LAG`, `OUTBOX_EVENT_DEAD`, `NOTIFICATION_DLQ_BACKLOG`, `CHANNEL_CIRCUIT_OPEN`, `JOB_FAILED` | Hằng ngày | Theo sổ tay từng cảnh báo; `docs/runbooks/outbox-relay-lag.md`, `notification-delivery.md`, `jobs.md` |
+| Kết nối ngoài | HUB-01 (`FRESH`, `AGING`, `STALE`, `NEVER_PUSHED`), HUB-03 sự cố, HPM-01 nhật ký đẩy; cảnh báo `CONNECTOR_FAILING`, `CONNECTOR_STALE`, `HPM_PUSH_FAILED`, `HPM_PUSH_STALE`; INT-05 nhật ký truy cập API mở | Hằng ngày; dày hơn trong cửa sổ kỳ chốt | Có sự cố mở; lần giao thành công gần nhất quá cũ |
+| Tiến độ nhập liệu kỳ báo cáo | DIS-34 (trạng thái nhập liệu theo đầu mối, hạn từng bước), thông báo quá hạn của quy trình duyệt (`ADM_APPROVAL_OVERDUE`) | Hằng ngày trong kỳ chốt | Đầu mối quá hạn |
+| Dung lượng log và nhật ký | ADM-30; cảnh báo `LOG_CAPACITY_NEAR`, `LOG_CAPACITY_EXCEEDED` | Hằng tuần | Tới `warn_pct` |
+| Toàn vẹn nhật ký kiểm toán | `AUDIT_CHAIN_BROKEN` (nghiêm trọng) | Liên tục | Chuỗi niêm đứt: `docs/runbooks/audit-tamper-drill.md` |
+| Truy cập bất thường | `AUTHZ_DENY_SPIKE`, `ACCESS_REVOCATION_LAG`; đăng nhập thất bại hàng loạt ở Keycloak | Hằng ngày | Mục 9 (danh tính) |
+| Bản vá và chuỗi cung ứng | `npm run supply-chain:check -- --audit`, SBOM; `docs/runbooks/supply-chain.md` | Hằng tháng và khi có thông báo lỗ hổng | Lỗ hổng mức nghiêm trọng hoặc cao: vá theo cam kết hợp đồng |
+| Hạn giấy phép, chứng nhận tập dữ liệu | `LICENSE_EXPIRING`; cột `certified_until` của `v_dataset_catalogue` | Hằng tuần | Còn dưới 14 ngày |
+
+Tổng hợp theo tháng vào báo cáo bảo trì định kỳ: mẫu và nguồn từng ô ở `docs/delivery/12-maintenance-and-hypercare.md`.
+
+## 14. Xử lý sự cố
+
+Mức độ và thời hạn phản hồi, đường chuyển cấp, danh bạ trực: `docs/delivery/12-maintenance-and-hypercare.md` (mô hình P0 đến P3 theo thiết kế ST-KERNEL-105; cam kết khắc phục sự cố trong vòng 24 giờ là cam kết hợp đồng; thời hạn phản hồi từng mức do hai bên chốt, quyết định D10).
+
+Quy trình chung cho quản trị:
+1. **Nhận biết**: cảnh báo từ kênh trực, báo của người dùng, hoặc bất thường ở bảng giám sát (mục 13). Ghi giờ phát hiện, ai báo, hiện tượng; không sửa gì trước khi ghi.
+2. **Phân loại**: mất toàn bộ dịch vụ hoặc nghi lộ dữ liệu là mức cao nhất (P0, gọi người trực ngay); sự cố một phân hệ hoặc một kết nối ngoài thấp hơn. Mọi nghi ngờ lộ dữ liệu hoặc xâm nhập báo cho Ban CĐS&CNTT và cán bộ an toàn thông tin ngay.
+3. **Cô lập và giảm thiểu**: thay đổi nằm sau cờ tính năng thì nhờ nhà cung cấp tắt cờ (SAS-20); kết nối ngoài lỗi thì tạm dừng đúng kết nối đó (ví dụ trạng thái kết nối HPM ở HPM-01) và xem HUB-02, HUB-03, không ảnh hưởng phần còn lại; nghi lộ bí mật thì xoay bí mật theo mục "A leaked secret" của `docs/runbooks/infra/secrets-rotation.md`; tài khoản BI hoặc tài khoản máy nghi lộ thì thu hồi ở INT-04 hoặc INT-01.
+4. **Chẩn đoán** theo sổ tay của đúng cảnh báo (`docs/runbooks/alerts/<MÃ>.md`); nhật ký kiểm toán (ADM-11) cho biết ai làm gì và khi nào; nhật ký truy cập API mở (INT-05).
+5. **Khắc phục**: sự cố do bản phát hành mới thì quay lui bằng `rollback.sh` của gói cũ (đích 15 phút, mục 8); lỗi dữ liệu thì khôi phục (mục 6), không quay lui bản; sự cố đẩy HPM thì theo bảng ở `docs/integration/hpm-proposal.md` mục 6 (đẩy lại cùng khóa, tăng `max_attempts`, đính chính).
+6. **Xác nhận và đóng**: kiểm tra lại bằng cùng phép đo đã phát hiện (kênh cảnh báo yên lặng 15 phút, `/api/health/ready` trả 200, một màn hình mỗi mô-đun đang dùng); ghi nguyên nhân gốc, hành động đã làm, thời gian khắc phục vào hồ sơ sự cố; việc sửa gốc đi vào bản phát hành kế tiếp và vào báo cáo bảo trì.
+
+Các tình huống thường gặp:
+
+| Tình huống | Làm gì | Tài liệu |
+|---|---|---|
+| Dịch vụ không lên sau nâng cấp | Quay lui; không sửa migration đã chạy | `onprem-upgrade-rollback.md`, `rollback.md` |
+| Mất dữ liệu hoặc hỏng cơ sở dữ liệu | Khôi phục về thời điểm bất kỳ trong 35 ngày (RPO 15 phút, RTO 4 giờ) | `restore-drill.md`; dữ liệu riêng một tenant: `docs/sas-tenant-restore.md` |
+| Nghi mã độc tống tiền | Dựa vào bản sao khóa đối tượng COMPLIANCE và bản ngoại tuyến hằng tháng; không dùng tài khoản quản trị nghi bị chiếm | `backup-immutable.md`, `docs/runbooks/infra/malware-scan.md` |
+| Chuỗi niêm nhật ký kiểm toán đứt | Cảnh báo nghiêm trọng; không xóa; đối chiếu bằng `verifyAuditExport` | `audit-tamper-drill.md` |
+| Hàng đợi thông báo hoặc sự kiện tồn | Kiểm tra độ trễ, kênh đang mở mạch, thử lại | `outbox-relay-lag.md`, `notification-delivery.md` |
+| HPM không nhận hoặc nhận lỗi | Xem lỗi ở HPM-01; đẩy lại cùng khóa hoặc sửa dữ liệu rồi phát hành bản mới | `docs/integration/hpm-proposal.md` mục 6 |
+| Người dùng bị khóa hoặc không đăng nhập được | Kiểm tra Keycloak, nhóm AD, MFA; không tắt MFA | `docs/runbooks/infra/keycloak.md` |
+| Kỳ báo cáo cần mở lại để sửa | Đề nghị mở lại có lý do, người thứ hai duyệt | DIS-22; `docs/dis-snapshot.md` |
+| Lỗi số liệu phát hiện sau khi chốt | Mở lại kỳ rồi chốt phiên bản mới, hoặc điều chỉnh ở kỳ sau nếu đã gửi HPM | `docs/integration/hpm-proposal.md` mục 6.2 |

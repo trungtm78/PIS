@@ -70,7 +70,7 @@
       "id": "PX-05",
       "what": "Danh sách 09 đầu mối (07 Ban/Đơn vị và 02 Tổ dự án, kèm tên 02 Tổ dự án), người nhập liệu và người phê duyệt của từng đầu mối, nhân sự Ban KHĐT và lãnh đạo",
       "provider": "Tổ chuẩn hóa dữ liệu",
-      "assumption": "Chưa có; gói cấu hình mẫu PVFCCO-TEMPLATE sẽ do ENT-3d dựng, không dùng tên thật"
+      "assumption": "Gói cấu hình mẫu PVFCCO-TEMPLATE đã dựng (ENT-3d, bộ ánh xạ ORG-PACK-1, màn ORG-01), không dùng tên thật; hai Tổ dự án để [tên 02 Tổ dự án]"
     },
     {
       "id": "PX-06",
@@ -744,7 +744,7 @@
     {
       "code": "TH.01",
       "title": "Tích hợp HPM: đẩy số liệu tháng đã chốt theo cấu trúc HPM, ghi kết quả, cảnh báo lỗi, đẩy lại, điều chỉnh sau khi đã đẩy",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "screens": [
           "HPM-01",
@@ -768,16 +768,22 @@
         ],
         "docs": [
           "docs/hpm-ebs-connectors.md",
-          "Design/MACHVON_Design/01_Documents/05_modules/HPM.md"
+          "Design/MACHVON_Design/01_Documents/05_modules/HPM.md",
+          "docs/integration/hpm-proposal.md",
+          "docs/adm-approval-workflow.md"
         ],
         "tests": [
-          "apps/api/test/editions/hpm.enterprise.test.ts"
+          "apps/api/test/editions/hpm.enterprise.test.ts",
+          "packages/edition-enterprise/src/integration/hpm-port.test.ts",
+          "packages/edition-enterprise/src/integration/hpm-rules.test.ts",
+          "packages/edition-enterprise/src/integration/hpm-adjust-rules.test.ts",
+          "packages/edition-enterprise/src/integration/hpm-project-codes.test.ts"
         ]
       },
-      "gap": "G3, G18: bộ ghi HPM là tệp (HPM-FILE-WORKING-ASSUMPTION), bước PUSH của quy trình chưa gọi đẩy; thiếu chế độ điều chỉnh \"ở kỳ sau\"; thiếu tài liệu đề xuất phương thức tích hợp (API, DB trung gian, tệp chuẩn).",
+      "gap": "Phía MACHVON đủ: bộ ghi tệp theo giả định HPM-FILE-WORKING-ASSUMPTION-2026.1, khóa chống trùng, đẩy lại cùng khóa, bước PUSH của quy trình duyệt gọi đẩy và giữ AWAITING_RECEIPT tới khi người khác ghi biên nhận (ENT-3c), ghi đè kỳ và điều chỉnh ở kỳ sau, mã dự án HPM qua master_crosswalk trong bản kê (ENT-3e); đề xuất phương thức (API, CSDL trung gian, tệp chuẩn), cấu trúc thông điệp, quy tắc lỗi và điều chỉnh ở docs/integration/hpm-proposal.md. Chưa nghiệm thu được: cấu trúc dữ liệu và giao diện kỹ thuật thật của HPM (PX-03: nền tảng, API hay tệp hay CSDL, cấu trúc nhận, cách báo biên nhận, cách xử lý trùng và ghi đè); sau đó thay bộ ghi tệp bằng bộ chuyển tiếp API nếu HPM có API (không đổi sổ đẩy, quy tắc, màn hình).",
       "owners": [
-        "ENT-3c",
-        "DOC-3"
+        "DOC-3",
+        "ENT-3c"
       ],
       "pending": [
         "PX-03"
@@ -813,11 +819,19 @@
         "docs": [
           "docs/open-api.md",
           "docs/open-api/openapi.json",
-          "docs/integration-hub.md"
+          "docs/integration-hub.md",
+          "docs/integration/power-bi-model.md",
+          "docs/integration/power-bi-connection-guide.md",
+          "docs/integration/lakehouse-proposal.md",
+          "docs/integration/power-bi/machvon-sample-model.tmdl",
+          "docs/integration/power-bi-sample-queries.sql",
+          "docs/integration/machvon-bi.pbids"
         ]
       },
-      "gap": "G18: chưa có mô hình Power BI mẫu và hướng dẫn nối cho CN QLPTDA; chưa có tài liệu đề xuất cách cấp dữ liệu cho Data Lakehouse.",
+      "gap": "Đã có: tài khoản BI chỉ-đọc gắn một tenant, hai tập chứng nhận DS-DISB và DS-CTR, API mở (INT-1); mô hình Power BI mẫu (power-bi-model.md, TMDL, truy vấn, pbids), hướng dẫn nối cho CN QLPTDA (power-bi-connection-guide.md), đề xuất cấp dữ liệu cho Lakehouse (lakehouse-proposal.md: tài khoản theo ứng dụng, RLS, nhịp làm mới, ba phương án đường mạng). Còn thiếu, do nhà cung cấp làm: (1) tập chứng nhận cho bản chốt ENTERPRISE_CLOSE (view v_disbursement_lines chỉ đọc PERIOD_CLOSE nên dữ liệu doanh nghiệp của PVFCCo chưa ra được qua BI) và view chiều đơn vị, nguồn vốn, nhà thầu; (2) gói cài ngoại tuyến chưa mở đường mạng tới CSDL cho tài khoản BI (chỉ cổng web công bố) và ảnh CSDL chưa có pgaudit; (3) mô hình TMDL chưa mở thử trong Power BI Desktop. Chờ khách: hạ tầng UAT, thông tin và quy định Lakehouse, địa chỉ nguồn tường lửa (PX-11).",
       "owners": [
+        "INT-2",
+        "INFRA-2",
         "DOC-3"
       ],
       "pending": [
@@ -1118,7 +1132,7 @@
     {
       "code": "YCK.02",
       "title": "Hai môi trường UAT và Production trên hạ tầng của Tổng công ty; nhà cung cấp nêu cấu hình hạ tầng khuyến nghị",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "stories": [
           "ST-KERNEL-011",
@@ -1127,14 +1141,18 @@
         "docs": [
           "docs/runbooks/infra/environments.md",
           "docs/runbooks/infra/onprem-install.md",
-          "docs/runbooks/infra/onprem-upgrade-rollback.md"
+          "docs/runbooks/infra/onprem-upgrade-rollback.md",
+          "docs/runbooks/infra/sizing-uat-prod.md",
+          "docs/qa/perf-budget.json",
+          "docs/qa/performance.md"
         ]
       },
-      "gap": "G17: chưa có tài liệu cấu hình khuyến nghị riêng cho UAT và Production của PVFCCo (CPU, RAM, đĩa, mạng theo số người dùng).",
+      "gap": "Đã có tài liệu cấu hình khuyến nghị cho UAT (một máy chủ) và Production (hai máy ứng dụng, CSDL chính và standby đồng bộ, kho bất biến ở site 2) kèm kịch bản S, M, L, XL theo số người dùng, băng thông, sao lưu và căn cứ ngân sách hiệu năng (sizing-uat-prod.md); đây là khuyến nghị xuất phát, chưa đo. Chờ khách: số người dùng thực (PX-17), cấu hình phần cứng thực và lượt đo hiệu năng trên đó (PX-10), hạ tầng hai môi trường (PX-11).",
       "owners": [
         "DOC-3"
       ],
       "pending": [
+        "PX-10",
         "PX-11",
         "PX-17"
       ]
@@ -1298,7 +1316,7 @@
     {
       "code": "YCK.08",
       "title": "Nhập liệu và trải nghiệm: trường bắt buộc, kiểm tra ngay khi nhập, giao diện tiếng Việt, hướng dẫn trực tuyến trên màn hình",
-      "status": "PARTIAL",
+      "status": "DONE",
       "evidence": {
         "screens": [
           "IAM-08",
@@ -1315,19 +1333,27 @@
         ],
         "docs": [
           "scripts/hdsd/chapters.json",
-          "docs/runbooks/uat-evidence.md"
+          "docs/runbooks/uat-evidence.md",
+          "scripts/help-index.mjs",
+          "apps/web/src/help/help.vi.json",
+          "apps/web/src/editions/enterprise/help.overlay.vi.json",
+          "docs/plans/doc3.md"
+        ],
+        "tests": [
+          "apps/web/src/help/help-index.test.ts",
+          "apps/web/src/shell/HelpDrawer.test.tsx",
+          "apps/web/src/editions/help.enterprise.test.ts",
+          "scripts/help-index.test.mjs"
         ]
       },
-      "gap": "G17: chưa có hướng dẫn trực tuyến trên màn hình (nút trợ giúp theo màn hình dùng bộ hdsd); trường bắt buộc và kiểm tra ngay khi nhập đã có (IND-02).",
-      "owners": [
-        "DOC-3"
-      ],
+      "gap": "",
+      "owners": [],
       "pending": []
     },
     {
       "code": "TK.01",
       "title": "Đào tạo người dùng cuối tại 09 đầu mối và Ban KHĐT, lãnh đạo khai thác dashboard, quản trị cho Ban CĐS&CNTT",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "stories": [
           "ST-KERNEL-104",
@@ -1336,10 +1362,12 @@
         "docs": [
           "docs/delivery/07-training-plan.md",
           "scripts/hdsd/chapters.json",
-          "docs/clips/enterprise-phu-my.script.md"
+          "docs/clips/enterprise-phu-my.script.md",
+          "docs/admin-guide.md",
+          "apps/web/src/help/help.vi.json"
         ]
       },
-      "gap": "Có kế hoạch, giáo trình theo bộ hdsd và mẫu biên bản; chưa tổ chức buổi đào tạo nào (cần danh sách 09 đầu mối, PX-05, và môi trường UAT).",
+      "gap": "Đã có: kế hoạch đào tạo bốn nhóm (07), giáo trình theo 90 chương hướng dẫn sử dụng, hướng dẫn trên màn hình (594 màn), hướng dẫn quản trị, bài tập thực hành, mẫu biên bản xác nhận đào tạo; video không nằm trong đợt này (chủ sở hữu dừng việc dựng video). Chưa tổ chức buổi đào tạo nào: cần danh sách 09 đầu mối và người học (PX-05) và môi trường UAT hoặc đào tạo (PX-11).",
       "owners": [
         "DELIVERY-1",
         "DOC-3"
@@ -1361,13 +1389,22 @@
           "docs/delivery/README.md",
           "docs/delivery/10-handover-checklist.md",
           "scripts/hdsd/chapters.json",
-          "docs/clips/public-investment.script.md",
-          "docs/open-api.md"
+          "docs/open-api.md",
+          "docs/admin-guide.md",
+          "docs/integration/hpm-proposal.md",
+          "docs/integration/power-bi-model.md",
+          "docs/integration/power-bi-connection-guide.md",
+          "docs/integration/lakehouse-proposal.md",
+          "docs/runbooks/infra/sizing-uat-prod.md",
+          "apps/web/src/help/help.vi.json",
+          "docs/delivery/12-maintenance-and-hypercare.md"
+        ],
+        "tests": [
+          "apps/web/src/help/help-index.test.ts"
         ]
       },
-      "gap": "G17: hướng dẫn quản trị và tài liệu đề xuất tích hợp HPM (DOC-3) chưa viết; video tiếng Việt đã dựng một phần, còn thiếu giọng đọc và nhạc được duyệt.",
+      "gap": "Đã có: hướng dẫn sử dụng theo chương (90 chương web, 13 chương điện thoại), hướng dẫn trực tuyến trên màn hình (594 màn), hướng dẫn quản trị bằng tiếng Việt (docs/admin-guide.md: cài đặt, cấu hình, người dùng và vai trò, sao lưu, giới hạn log, giám sát, nâng cấp, xử lý sự cố), tài liệu thiết kế và tích hợp (hpm-proposal, power-bi-model, power-bi-connection-guide, lakehouse-proposal, open-api), cấu hình máy chủ khuyến nghị. Còn thiếu: video hướng dẫn tiếng Việt (chủ sở hữu dừng việc dựng video ngày 2026-11-11: cần thống nhất với PVFCCo bỏ hay giữ yêu cầu video) và bản cứng in khi bàn giao.",
       "owners": [
-        "DOC-3",
         "DELIVERY-1"
       ],
       "pending": []
@@ -1446,15 +1483,16 @@
     {
       "code": "GD.1",
       "title": "Giai đoạn 1. Khảo sát hiện trạng, phân tích yêu cầu: Báo cáo khảo sát As-Is; URD",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/01-as-is-survey-and-urd.md",
           "Design/MACHVON_Design/01_Documents/02_BRD.md",
-          "Design/MACHVON_Design/01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md"
+          "Design/MACHVON_Design/01_Documents/01_Nghien_cuu_va_phan_tich_nguon.md",
+          "docs/delivery/12-maintenance-and-hypercare.md"
         ]
       },
-      "gap": "Khung đã điền từ hồ sơ kỹ thuật và thiết kế; các trường [khách điền] cần khảo sát 09 đầu mối; PVFCCo phê duyệt (PX-12).",
+      "gap": "Khung As-Is và URD (38 yêu cầu UR-01 đến UR-38, truy vết tới màn hình, thao tác và tài liệu) đã điền từ hồ sơ kỹ thuật, thiết kế và mã nguồn (01 v0.2). Còn: khảo sát tại chỗ 09 đầu mối (mục A.5 để [khách điền]) và phê duyệt giai đoạn của PVFCCo (phiếu ở README): danh sách đầu mối và người cung cấp thông tin (PX-05), PX-12.",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1466,17 +1504,19 @@
     {
       "code": "GD.2",
       "title": "Giai đoạn 2. Thiết kế tương lai: quy trình To-Be, SRS, thiết kế hệ thống, thiết kế tích hợp HPM/ERP/Lakehouse",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/02-to-be-process.md",
           "docs/delivery/03-srs-mapping.md",
           "docs/delivery/04-system-and-integration-design.md",
           "Design/MACHVON_Design/01_Documents/03_FRD.md",
-          "Design/MACHVON_Design/01_Documents/04_Thiet_ke_co_ban.md"
+          "Design/MACHVON_Design/01_Documents/04_Thiet_ke_co_ban.md",
+          "docs/integration/hpm-proposal.md",
+          "docs/integration/lakehouse-proposal.md"
         ]
       },
-      "gap": "Thiết kế đã có trong 01_Documents; thiết kế tích hợp HPM cần đặc tả của HPM (PX-03); PVFCCo phê duyệt quy trình To-Be và SRS (PX-12).",
+      "gap": "To-Be (02), SRS (03) và thiết kế hệ thống, tích hợp (04) đã điền đủ ở v0.2 theo mã nguồn sau ENT-3, ENT-4 (bước PUSH giữ chờ biên nhận, bản chốt, thuyết minh, lịch kỳ, so sánh chéo). Chờ khách: Tổ chuẩn hóa dữ liệu chốt hạn từng bước và các điểm quyết định ở mục 4 của sổ 11, cấu trúc và giao diện HPM để chốt thiết kế tích hợp (PX-03), phê duyệt của PVFCCo (PX-12).",
       "owners": [
         "DELIVERY-1",
         "DOC-3"
@@ -1494,14 +1534,15 @@
         "docs": [
           "docs/delivery/05-sit-uat-scripts.md",
           "docs/uat/INDEX.md",
-          "docs/UAT-COVERAGE.md"
+          "docs/UAT-COVERAGE.md",
+          "docs/uat/RUN-2026-11-09-r2.md"
         ],
         "stories": [
           "ST-KERNEL-090",
           "ST-KERNEL-091"
         ]
       },
-      "gap": "Kịch bản có theo phân hệ (bộ ca thiết kế 1449 ca; 1125 ca trong các tệp docs/uat/<phân hệ>/uat.json), nhưng IND, RPT, DIR, HPM, EBS, HUB, INT chưa có thư mục uat.json; phần mềm lên môi trường UAT của khách chờ hạ tầng (PX-11).",
+      "gap": "Kịch bản SIT theo từng mã yêu cầu có tệp kiểm thử thật (05 v0.2). UAT: 1097 trong 1496 ca thiết kế đã thành ca UAT (docs/uat/<phân hệ>/uat.json, 26 thư mục); còn 399 ca (133 UAT-PLAN, 266 ca UI của màn mới) và các phân hệ chưa có thư mục (VND, RPT, PWA, BAN, INT, FEED, HUB, DIR, PORTAL, IND, EQP, HPM, EBS, ORG, RML) do nhà cung cấp sinh tiếp; chỉ 2 trong 26 phân hệ đạt sàn TC_min. Chưa có bản trên môi trường UAT của PVFCCo (PX-11) và kịch bản chưa được PVFCCo duyệt (PX-12).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1519,13 +1560,14 @@
           "docs/delivery/05-sit-uat-scripts.md",
           "docs/delivery/09-acceptance-minutes-template.md",
           "docs/UAT-EVIDENCE.md",
-          "docs/runbooks/uat-evidence.md"
+          "docs/runbooks/uat-evidence.md",
+          "docs/uat/RUN-2026-11-09-r2.md"
         ],
         "stories": [
           "ST-KERNEL-095"
         ]
       },
-      "gap": "Chưa chạy UAT bản enterprise sau khi gộp các làn ENT-3 và ENT-4; mục dựng trên giả định ghi PENDING-EXTERNAL, không tính đạt (R18).",
+      "gap": "Đã có lượt chạy UAT phát triển r2 trên bản đã gồm các làn ENT-3, ENT-4 (docs/uat/RUN-2026-11-09-r2.md) và bằng chứng sinh tự động (docs/UAT-EVIDENCE.md: 63 trong 676 dòng yêu cầu PASS, 611 NOT_RUN); không tính vào nghiệm thu. Còn: lượt UAT ký được trên bản đã gộp, chạy trên UAT của PVFCCo cùng các đầu mối (PX-11), biên bản UAT mẫu (09) ký (PX-12).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1536,7 +1578,7 @@
     {
       "code": "GD.5",
       "title": "Giai đoạn 5. Chuyển đổi dữ liệu, đào tạo: nạp danh mục, kế hoạch năm, lũy kế; đào tạo; biên bản và video hướng dẫn",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/06-data-conversion-plan.md",
@@ -1547,7 +1589,7 @@
           "ST-KERNEL-104"
         ]
       },
-      "gap": "Kế hoạch và mẫu biên bản sẵn sàng; chờ tệp Excel hiện hành và danh sách người học (PX-05, PX-08, PX-14).",
+      "gap": "Kế hoạch chuyển đổi (06 v0.2: ánh xạ biểu mẫu Excel vào từ điển chỉ tiêu, gói ORG-PACK-1, crosswalk, thứ tự nạp, đối soát), công cụ chạy thử, áp dụng, quay lui (ADM-13, IND-03), kế hoạch và bài tập đào tạo (07) đã sẵn. Chưa chạy được: cần tệp Excel hiện hành và phạm vi lịch sử (PX-08), danh mục dự án chính thức (PX-14), từ điển chỉ tiêu đã chuẩn hóa (PX-02), danh sách người học (PX-05).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1560,7 +1602,7 @@
     {
       "code": "GD.6",
       "title": "Giai đoạn 6. Vận hành thử, nghiệm thu: song song 02 kỳ, đẩy HPM chính thức, biên bản vận hành thử và nghiệm thu, bộ tài liệu bàn giao",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/08-parallel-run-plan.md",
@@ -1572,7 +1614,7 @@
           "ST-KERNEL-107"
         ]
       },
-      "gap": "Chờ hai kỳ báo cáo thực tế (PX-13), giao diện HPM chính thức (PX-03) và pentest độc lập đạt (PX-09).",
+      "gap": "Kế hoạch vận hành thử song song (08 v0.2, gồm so sánh chéo RPT-09 và đẩy HPM có biên nhận), mẫu biên bản nghiệm thu (09) và danh mục bàn giao (10) đã sẵn. Chờ: hai kỳ báo cáo thực (PX-13), giao diện HPM chính thức (PX-03), pentest độc lập đạt (PX-09).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1585,18 +1627,19 @@
     {
       "code": "GD.7",
       "title": "Giai đoạn 7. Bảo hành, bảo trì: hỗ trợ sau nghiệm thu, hỗ trợ kỳ chốt, điều chỉnh biểu mẫu; báo cáo bảo trì định kỳ",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/runbooks/release-checklist.md",
           "docs/runbooks/infra/onprem-upgrade-rollback.md",
-          "docs/delivery/README.md"
+          "docs/delivery/README.md",
+          "docs/delivery/12-maintenance-and-hypercare.md"
         ],
         "stories": [
           "ST-KERNEL-105"
         ]
       },
-      "gap": "Mô hình hỗ trợ và hypercare có trong thiết kế (ST-KERNEL-105); mẫu báo cáo bảo trì định kỳ và lịch hỗ trợ kỳ chốt chưa lập, chỉ bắt đầu sau nghiệm thu.",
+      "gap": "Đã lập: mô hình hỗ trợ P0 đến P3 và trực, kế hoạch hypercare, lịch hỗ trợ kỳ chốt theo từng loại kỳ, quy tắc đóng băng thay đổi và mẫu báo cáo bảo trì định kỳ có nguồn từng ô (docs/delivery/12-maintenance-and-hypercare.md). Giai đoạn bắt đầu sau nghiệm thu. Chờ: thời hạn bảo hành theo hợp đồng, đường liên hệ và người trực của PVFCCo, thời hạn phản hồi từng mức do hai bên chốt (quyết định D10), phê duyệt (PX-12).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1607,13 +1650,13 @@
     {
       "code": "SP.01",
       "title": "Sản phẩm 1. Báo cáo khảo sát hiện trạng và Tài liệu yêu cầu người dùng (URD)",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/01-as-is-survey-and-urd.md"
         ]
       },
-      "gap": "Khung và URD điền từ hồ sơ kỹ thuật; phần khảo sát tại 09 đầu mối để trống [khách điền].",
+      "gap": "Khung báo cáo khảo sát và URD đã điền (38 yêu cầu); phần khảo sát tại 09 đầu mối để [khách điền], cần đầu mối cung cấp thông tin (PX-05) và phê duyệt (PX-12).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1625,14 +1668,14 @@
     {
       "code": "SP.02",
       "title": "Sản phẩm 2. Quy trình quản lý To-Be áp dụng trên phần mềm",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/02-to-be-process.md",
           "docs/adm-approval-workflow.md"
         ]
       },
-      "gap": "Quy trình To-Be dựng từ quy trình duyệt có bước; cần Tổ chuẩn hóa dữ liệu chốt hạn từng bước và PVFCCo phê duyệt; bước PUSH chờ ENT-3c.",
+      "gap": "Quy trình To-Be (02 v0.2) dựng từ quy trình duyệt có bước, gồm PUSH giữ chờ biên nhận, lịch kỳ và RACI; cần Tổ chuẩn hóa dữ liệu chốt hạn từng bước và điểm quyết định, rồi PVFCCo phê duyệt (PX-12).",
       "owners": [
         "DELIVERY-1",
         "ENT-3c"
@@ -1644,14 +1687,17 @@
     {
       "code": "SP.03",
       "title": "Sản phẩm 3. SRS, tài liệu thiết kế hệ thống, thiết kế tích hợp",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/03-srs-mapping.md",
-          "docs/delivery/04-system-and-integration-design.md"
+          "docs/delivery/04-system-and-integration-design.md",
+          "docs/integration/hpm-proposal.md",
+          "docs/integration/power-bi-model.md",
+          "docs/integration/lakehouse-proposal.md"
         ]
       },
-      "gap": "Bảng đối chiếu mã yêu cầu tới BRD, FRD và thiết kế đã có; thiết kế tích hợp HPM chờ đặc tả (PX-03).",
+      "gap": "SRS (03) và thiết kế hệ thống, tích hợp (04) đã điền đủ ở v0.2; thiết kế tích hợp HPM có phương án đề xuất và cấu trúc thông điệp (hpm-proposal.md), tích hợp BI có mô hình và đề xuất Lakehouse. Chờ cấu trúc và khả năng của HPM để chốt (PX-03) và phê duyệt của PVFCCo (PX-12).",
       "owners": [
         "DELIVERY-1",
         "DOC-3"
@@ -1694,10 +1740,11 @@
         "docs": [
           "docs/delivery/05-sit-uat-scripts.md",
           "docs/delivery/09-acceptance-minutes-template.md",
-          "docs/uat/INDEX.md"
+          "docs/uat/INDEX.md",
+          "docs/uat/RUN-2026-11-09-r2.md"
         ]
       },
-      "gap": "Kịch bản và mẫu biên bản có; biên bản UAT thật cần chạy UAT trên bản đã gộp.",
+      "gap": "Kịch bản SIT và UAT cùng mẫu biên bản có (05, 09 v0.2); còn 399 ca thiết kế chưa thành uat.json và các phân hệ chưa có thư mục UAT (xem GD.3); biên bản UAT thật cần lượt chạy ký được trên bản đã gộp, tại UAT của PVFCCo, rồi PVFCCo ký (PX-12).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1708,13 +1755,13 @@
     {
       "code": "SP.06",
       "title": "Sản phẩm 6. Biên bản xác nhận chuyển đổi dữ liệu",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/06-data-conversion-plan.md"
         ]
       },
-      "gap": "Mẫu biên bản có trong tài liệu 06; ký sau khi chuyển đổi thật và Ban KHĐT xác nhận.",
+      "gap": "Mẫu biên bản xác nhận chuyển đổi có trong 06 v0.2; ký sau chuyển đổi thật: cần tệp Excel và phạm vi lịch sử (PX-08), phê duyệt (PX-12) và Ban KHĐT xác nhận.",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1726,15 +1773,15 @@
     {
       "code": "SP.07",
       "title": "Sản phẩm 7. Biên bản xác nhận đào tạo; tài liệu và video hướng dẫn",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/07-training-plan.md",
-          "docs/clips/enterprise-phu-my.script.md",
-          "docs/clips/public-investment.script.md"
+          "docs/admin-guide.md",
+          "apps/web/src/help/help.vi.json"
         ]
       },
-      "gap": "Mẫu biên bản và giáo trình có; video tiếng Việt chờ giọng đọc và nhạc được duyệt; biên bản ký sau buổi đào tạo.",
+      "gap": "Mẫu biên bản đào tạo, giáo trình (90 chương), hướng dẫn trên màn hình và hướng dẫn quản trị có; video hướng dẫn không nằm trong đợt này (chủ sở hữu dừng việc dựng video). Biên bản ký sau buổi đào tạo: cần danh sách người học (PX-05) và phê duyệt (PX-12).",
       "owners": [
         "DELIVERY-1",
         "DOC-3"
@@ -1766,14 +1813,14 @@
     {
       "code": "SP.09",
       "title": "Sản phẩm 9. Biên bản vận hành thử và Biên bản nghiệm thu đưa vào sử dụng",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/08-parallel-run-plan.md",
           "docs/delivery/09-acceptance-minutes-template.md"
         ]
       },
-      "gap": "Mẫu biên bản có; ký sau hai kỳ chạy song song và pentest đạt.",
+      "gap": "Mẫu biên bản vận hành thử và nghiệm thu có (08, 09 v0.2); ký sau hai kỳ chạy song song (PX-13) và phê duyệt (PX-12); điều kiện nghiệm thu còn pentest độc lập (PX-09) và giao diện HPM chính thức (PX-03).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1785,24 +1832,30 @@
     {
       "code": "SP.10",
       "title": "Sản phẩm 10. Bộ tài liệu bàn giao: cài đặt, vận hành, quản trị; mã nguồn hoặc gói cài đặt và cấu hình; tài liệu API",
-      "status": "PARTIAL",
+      "status": "PENDING-EXTERNAL",
       "evidence": {
         "docs": [
           "docs/delivery/10-handover-checklist.md",
           "docs/runbooks/infra/onprem-install.md",
           "docs/open-api/openapi.json",
-          "docs/runbooks/release-checklist.md"
+          "docs/runbooks/release-checklist.md",
+          "docs/admin-guide.md",
+          "docs/delivery/12-maintenance-and-hypercare.md",
+          "docs/runbooks/infra/sizing-uat-prod.md",
+          "docs/integration/lakehouse-proposal.md",
+          "docs/integration/hpm-proposal.md"
         ],
         "stories": [
           "ST-KERNEL-107"
         ]
       },
-      "gap": "Danh mục bàn giao và liên kết có; hướng dẫn quản trị (DOC-3) chưa viết.",
+      "gap": "Bộ tài liệu bàn giao có đủ trên kho mã (10 v0.2: cài đặt, vận hành, hướng dẫn quản trị, API, thiết kế, bảo trì 12). Còn: gói cài ngoại tuyến dựng với tên máy chủ chính thức (PX-11), thẻ phát hành khi bàn giao, biên bản bàn giao do PVFCCo ký (PX-12).",
       "owners": [
         "DELIVERY-1",
         "DOC-3"
       ],
       "pending": [
+        "PX-11",
         "PX-12"
       ]
     },
