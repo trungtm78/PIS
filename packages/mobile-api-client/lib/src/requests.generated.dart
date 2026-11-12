@@ -13808,6 +13808,721 @@ final class PushReceipt implements RequestModel {
       };
 }
 
+final class PwfAssignmentInput implements RequestModel {
+  const PwfAssignmentInput({
+    required this.membershipId,
+    required this.role,
+    required this.validFrom,
+    required this.sharePct,
+    required this.reason,
+    this.validTo,
+  });
+
+  final String membershipId;
+  final String role;
+  final String validFrom;
+  final Object? validTo;
+  final int sharePct;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'membership_id': membershipId,
+        'role': role,
+        'valid_from': validFrom,
+        if (validTo != null) 'valid_to': validTo,
+        'share_pct': sharePct,
+        'reason': reason,
+      };
+}
+
+final class PwfChecklistComplete implements RequestModel {
+  const PwfChecklistComplete({
+    this.evidenceId,
+    this.note,
+  });
+
+  final String? evidenceId;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (evidenceId != null) 'evidence_id': evidenceId,
+        if (note != null) 'note': note,
+      };
+}
+
+final class PwfDeadlinePreference implements RequestModel {
+  const PwfDeadlinePreference({
+    this.greenDays,
+    this.yellowDays,
+    this.redDays,
+    this.reminderDays,
+    this.official,
+    this.clamped,
+    this.version,
+    this.asOf,
+  });
+
+  final Object? greenDays;
+  final Object? yellowDays;
+  final Object? redDays;
+  final List<int>? reminderDays;
+  final PwfDeadlinePreferenceOfficial? official;
+  final List<String>? clamped;
+  final int? version;
+  final String? asOf;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (greenDays != null) 'green_days': greenDays,
+        if (yellowDays != null) 'yellow_days': yellowDays,
+        if (redDays != null) 'red_days': redDays,
+        if (reminderDays != null) 'reminder_days': reminderDays,
+        if (official != null) 'official': official,
+        if (clamped != null) 'clamped': clamped,
+        if (version != null) 'version': version,
+        if (asOf != null) 'as_of': asOf,
+      };
+}
+
+final class PwfDeadlinePreferenceOfficial implements RequestModel {
+  const PwfDeadlinePreferenceOfficial({
+    required this.greenDays,
+    required this.yellowDays,
+    required this.redDays,
+  });
+
+  final Object? greenDays;
+  final int yellowDays;
+  final int redDays;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'green_days': greenDays,
+        'yellow_days': yellowDays,
+        'red_days': redDays,
+      };
+}
+
+final class PwfDecisionInput implements RequestModel {
+  const PwfDecisionInput({
+    required this.decision,
+    this.note,
+  });
+
+  final String decision;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'decision': decision,
+        if (note != null) 'note': note,
+      };
+}
+
+final class PwfEvidenceInput implements RequestModel {
+  const PwfEvidenceInput({
+    required this.evidenceKind,
+    this.itemCode,
+    this.documentId,
+    this.legalDocType,
+    this.formTemplateCode,
+    this.externalRef,
+    this.note,
+  });
+
+  final String evidenceKind;
+  final String? itemCode;
+  final String? documentId;
+  final String? legalDocType;
+  final String? formTemplateCode;
+  final String? externalRef;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'evidence_kind': evidenceKind,
+        if (itemCode != null) 'item_code': itemCode,
+        if (documentId != null) 'document_id': documentId,
+        if (legalDocType != null) 'legal_doc_type': legalDocType,
+        if (formTemplateCode != null) 'form_template_code': formTemplateCode,
+        if (externalRef != null) 'external_ref': externalRef,
+        if (note != null) 'note': note,
+      };
+}
+
+final class PwfExceptionRequest implements RequestModel {
+  const PwfExceptionRequest({
+    required this.kind,
+    required this.reason,
+    this.items,
+    this.validFrom,
+    this.validTo,
+    this.evidenceRef,
+  });
+
+  final String kind;
+  final List<String>? items;
+  final String? validFrom;
+  final Object? validTo;
+  final String reason;
+  final String? evidenceRef;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'kind': kind,
+        if (items != null) 'items': items,
+        if (validFrom != null) 'valid_from': validFrom,
+        if (validTo != null) 'valid_to': validTo,
+        'reason': reason,
+        if (evidenceRef != null) 'evidence_ref': evidenceRef,
+      };
+}
+
+final class PwfRescheduleRequest implements RequestModel {
+  const PwfRescheduleRequest({
+    required this.reason,
+    this.plannedStartDate,
+    this.statusDate,
+    this.progress,
+    this.overrides,
+  });
+
+  final String? plannedStartDate;
+  final String? statusDate;
+  final List<PwfRescheduleRequestProgressItem>? progress;
+  final PwfRescheduleRequestOverrides? overrides;
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (plannedStartDate != null) 'planned_start_date': plannedStartDate,
+        if (statusDate != null) 'status_date': statusDate,
+        if (progress != null) 'progress': progress,
+        if (overrides != null) 'overrides': overrides,
+        'reason': reason,
+      };
+}
+
+final class PwfRescheduleRequestOverrides implements RequestModel {
+  const PwfRescheduleRequestOverrides({
+    this.add,
+    this.change,
+    this.remove,
+  });
+
+  final List<PwfRescheduleRequestOverridesAddItem>? add;
+  final List<PwfRescheduleRequestOverridesChangeItem>? change;
+  final List<String>? remove;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (add != null) 'add': add,
+        if (change != null) 'change': change,
+        if (remove != null) 'remove': remove,
+      };
+}
+
+final class PwfRescheduleRequestOverridesAddItem implements RequestModel {
+  const PwfRescheduleRequestOverridesAddItem({
+    required this.code,
+    required this.name,
+    required this.phase,
+    required this.kind,
+    required this.durationWorkingDays,
+    this.predecessors,
+  });
+
+  final String code;
+  final String name;
+  final String phase;
+  final String kind;
+  final int durationWorkingDays;
+  final List<PwfRescheduleRequestOverridesAddItemPredecessorsItem>? predecessors;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'phase': phase,
+        'kind': kind,
+        'duration_working_days': durationWorkingDays,
+        if (predecessors != null) 'predecessors': predecessors,
+      };
+}
+
+final class PwfRescheduleRequestOverridesAddItemPredecessorsItem implements RequestModel {
+  const PwfRescheduleRequestOverridesAddItemPredecessorsItem({
+    required this.task,
+    required this.kind,
+    required this.lagWorkingDays,
+  });
+
+  final String task;
+  final String kind;
+  final int lagWorkingDays;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task': task,
+        'kind': kind,
+        'lag_working_days': lagWorkingDays,
+      };
+}
+
+final class PwfRescheduleRequestOverridesChangeItem implements RequestModel {
+  const PwfRescheduleRequestOverridesChangeItem({
+    required this.taskCode,
+    this.durationWorkingDays,
+    this.predecessors,
+  });
+
+  final String taskCode;
+  final int? durationWorkingDays;
+  final List<PwfRescheduleRequestOverridesChangeItemPredecessorsItem>? predecessors;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task_code': taskCode,
+        if (durationWorkingDays != null) 'duration_working_days': durationWorkingDays,
+        if (predecessors != null) 'predecessors': predecessors,
+      };
+}
+
+final class PwfRescheduleRequestOverridesChangeItemPredecessorsItem implements RequestModel {
+  const PwfRescheduleRequestOverridesChangeItemPredecessorsItem({
+    required this.task,
+    required this.kind,
+    required this.lagWorkingDays,
+  });
+
+  final String task;
+  final String kind;
+  final int lagWorkingDays;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task': task,
+        'kind': kind,
+        'lag_working_days': lagWorkingDays,
+      };
+}
+
+final class PwfRescheduleRequestProgressItem implements RequestModel {
+  const PwfRescheduleRequestProgressItem({
+    required this.taskCode,
+    this.actualStart,
+    this.actualFinish,
+    this.remainingWorkingDays,
+    this.percentComplete,
+  });
+
+  final String taskCode;
+  final Object? actualStart;
+  final Object? actualFinish;
+  final Object? remainingWorkingDays;
+  final Object? percentComplete;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task_code': taskCode,
+        if (actualStart != null) 'actual_start': actualStart,
+        if (actualFinish != null) 'actual_finish': actualFinish,
+        if (remainingWorkingDays != null) 'remaining_working_days': remainingWorkingDays,
+        if (percentComplete != null) 'percent_complete': percentComplete,
+      };
+}
+
+final class PwfReturnInput implements RequestModel {
+  const PwfReturnInput({
+    required this.reason,
+  });
+
+  final String reason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'reason': reason,
+      };
+}
+
+final class PwfTaskComplete implements RequestModel {
+  const PwfTaskComplete({
+    this.actualFinish,
+    this.actualVnd,
+    this.exceptionId,
+    this.note,
+  });
+
+  final String? actualFinish;
+  final String? actualVnd;
+  final String? exceptionId;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (actualFinish != null) 'actual_finish': actualFinish,
+        if (actualVnd != null) 'actual_vnd': actualVnd,
+        if (exceptionId != null) 'exception_id': exceptionId,
+        if (note != null) 'note': note,
+      };
+}
+
+final class PwfTaskStart implements RequestModel {
+  const PwfTaskStart({
+    this.earlyStartReason,
+    this.actualStart,
+    this.note,
+  });
+
+  final String? earlyStartReason;
+  final String? actualStart;
+  final String? note;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (earlyStartReason != null) 'early_start_reason': earlyStartReason,
+        if (actualStart != null) 'actual_start': actualStart,
+        if (note != null) 'note': note,
+      };
+}
+
+final class PwfTemplateParams implements RequestModel {
+  const PwfTemplateParams({
+    required this.name,
+    required this.projectType,
+    required this.phases,
+    required this.tasks,
+  });
+
+  final String name;
+  final Object? projectType;
+  final List<PwfTemplateParamsPhasesItem> phases;
+  final List<PwfTemplateParamsTasksItem> tasks;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'name': name,
+        'project_type': projectType,
+        'phases': phases,
+        'tasks': tasks,
+      };
+}
+
+final class PwfTemplateParamsPhasesItem implements RequestModel {
+  const PwfTemplateParamsPhasesItem({
+    required this.code,
+    required this.name,
+    required this.gates,
+  });
+
+  final String code;
+  final String name;
+  final List<String> gates;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'gates': gates,
+      };
+}
+
+final class PwfTemplateParamsTasksItem implements RequestModel {
+  const PwfTemplateParamsTasksItem({
+    required this.code,
+    required this.name,
+    required this.phase,
+    required this.kind,
+    required this.durationWorkingDays,
+    required this.required_,
+    required this.responsibleRole,
+    required this.approverRole,
+    required this.priority,
+    required this.predecessors,
+    this.constraint,
+    this.legalDocTypes,
+    this.formTemplates,
+    this.checklist,
+    this.kpiCodes,
+    this.when_,
+  });
+
+  final String code;
+  final String name;
+  final String phase;
+  final String kind;
+  final int durationWorkingDays;
+  final bool required_;
+  final String responsibleRole;
+  final Object? approverRole;
+  final String priority;
+  final List<PwfTemplateParamsTasksItemPredecessorsItem> predecessors;
+  final Object? constraint;
+  final List<String>? legalDocTypes;
+  final List<String>? formTemplates;
+  final List<PwfTemplateParamsTasksItemChecklistItem>? checklist;
+  final List<String>? kpiCodes;
+  final List<PwfTemplateParamsTasksItemWhenItem>? when_;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'phase': phase,
+        'kind': kind,
+        'duration_working_days': durationWorkingDays,
+        'required': required_,
+        'responsible_role': responsibleRole,
+        'approver_role': approverRole,
+        'priority': priority,
+        'predecessors': predecessors,
+        if (constraint != null) 'constraint': constraint,
+        if (legalDocTypes != null) 'legal_doc_types': legalDocTypes,
+        if (formTemplates != null) 'form_templates': formTemplates,
+        if (checklist != null) 'checklist': checklist,
+        if (kpiCodes != null) 'kpi_codes': kpiCodes,
+        if (when_ != null) 'when': when_,
+      };
+}
+
+final class PwfTemplateParamsTasksItemChecklistItem implements RequestModel {
+  const PwfTemplateParamsTasksItemChecklistItem({
+    required this.code,
+    required this.name,
+    required this.required_,
+    required this.evidenceKinds,
+  });
+
+  final String code;
+  final String name;
+  final bool required_;
+  final List<String> evidenceKinds;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'required': required_,
+        'evidence_kinds': evidenceKinds,
+      };
+}
+
+final class PwfTemplateParamsTasksItemPredecessorsItem implements RequestModel {
+  const PwfTemplateParamsTasksItemPredecessorsItem({
+    required this.task,
+    required this.kind,
+    required this.lagWorkingDays,
+  });
+
+  final String task;
+  final String kind;
+  final int lagWorkingDays;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task': task,
+        'kind': kind,
+        'lag_working_days': lagWorkingDays,
+      };
+}
+
+final class PwfTemplateParamsTasksItemWhenItem implements RequestModel {
+  const PwfTemplateParamsTasksItemWhenItem({
+    required this.field,
+    required this.in_,
+  });
+
+  final String field;
+  final List<String> in_;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'field': field,
+        'in': in_,
+      };
+}
+
+final class PwfTemplatePreviewRequest implements RequestModel {
+  const PwfTemplatePreviewRequest({
+    required this.params,
+    required this.plannedStartDate,
+    this.facts,
+  });
+
+  final PwfTemplateParams params;
+  final String plannedStartDate;
+  final PwfTemplatePreviewRequestFacts? facts;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'params': params,
+        'planned_start_date': plannedStartDate,
+        if (facts != null) 'facts': facts,
+      };
+}
+
+final class PwfTemplatePreviewRequestFacts implements RequestModel {
+  const PwfTemplatePreviewRequestFacts({
+    this.projectGroup,
+    this.fundingSource,
+    this.projectType,
+  });
+
+  final String? projectGroup;
+  final String? fundingSource;
+  final String? projectType;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (projectGroup != null) 'project_group': projectGroup,
+        if (fundingSource != null) 'funding_source': fundingSource,
+        if (projectType != null) 'project_type': projectType,
+      };
+}
+
+final class PwfWorkflowAdopt implements RequestModel {
+  const PwfWorkflowAdopt({
+    required this.templateCode,
+    required this.plannedStartDate,
+    required this.effectiveDate,
+    required this.dryRun,
+    this.templateVersion,
+    this.facts,
+    this.pastTasks,
+    this.inProgressTasks,
+  });
+
+  final String templateCode;
+  final int? templateVersion;
+  final String plannedStartDate;
+  final String effectiveDate;
+  final bool dryRun;
+  final PwfWorkflowAdoptFacts? facts;
+  final List<PwfWorkflowAdoptPastTasksItem>? pastTasks;
+  final List<PwfWorkflowAdoptInProgressTasksItem>? inProgressTasks;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'template_code': templateCode,
+        if (templateVersion != null) 'template_version': templateVersion,
+        'planned_start_date': plannedStartDate,
+        'effective_date': effectiveDate,
+        'dry_run': dryRun,
+        if (facts != null) 'facts': facts,
+        if (pastTasks != null) 'past_tasks': pastTasks,
+        if (inProgressTasks != null) 'in_progress_tasks': inProgressTasks,
+      };
+}
+
+final class PwfWorkflowAdoptFacts implements RequestModel {
+  const PwfWorkflowAdoptFacts({
+    this.projectGroup,
+    this.fundingSource,
+    this.projectType,
+  });
+
+  final String? projectGroup;
+  final String? fundingSource;
+  final String? projectType;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (projectGroup != null) 'project_group': projectGroup,
+        if (fundingSource != null) 'funding_source': fundingSource,
+        if (projectType != null) 'project_type': projectType,
+      };
+}
+
+final class PwfWorkflowAdoptInProgressTasksItem implements RequestModel {
+  const PwfWorkflowAdoptInProgressTasksItem({
+    required this.taskCode,
+    required this.actualStart,
+    required this.remainingWorkingDays,
+    this.percentComplete,
+  });
+
+  final String taskCode;
+  final String actualStart;
+  final int remainingWorkingDays;
+  final int? percentComplete;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task_code': taskCode,
+        'actual_start': actualStart,
+        'remaining_working_days': remainingWorkingDays,
+        if (percentComplete != null) 'percent_complete': percentComplete,
+      };
+}
+
+final class PwfWorkflowAdoptPastTasksItem implements RequestModel {
+  const PwfWorkflowAdoptPastTasksItem({
+    required this.taskCode,
+    required this.treatment,
+    this.actualStart,
+    this.actualFinish,
+    this.evidence,
+  });
+
+  final String taskCode;
+  final String treatment;
+  final Object? actualStart;
+  final Object? actualFinish;
+  final List<PwfEvidenceInput>? evidence;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'task_code': taskCode,
+        'treatment': treatment,
+        if (actualStart != null) 'actual_start': actualStart,
+        if (actualFinish != null) 'actual_finish': actualFinish,
+        if (evidence != null) 'evidence': evidence,
+      };
+}
+
+final class PwfWorkflowStart implements RequestModel {
+  const PwfWorkflowStart({
+    required this.templateCode,
+    required this.plannedStartDate,
+    this.templateVersion,
+    this.facts,
+  });
+
+  final String templateCode;
+  final int? templateVersion;
+  final String plannedStartDate;
+  final PwfWorkflowStartFacts? facts;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'template_code': templateCode,
+        if (templateVersion != null) 'template_version': templateVersion,
+        'planned_start_date': plannedStartDate,
+        if (facts != null) 'facts': facts,
+      };
+}
+
+final class PwfWorkflowStartFacts implements RequestModel {
+  const PwfWorkflowStartFacts({
+    this.projectGroup,
+    this.fundingSource,
+    this.projectType,
+  });
+
+  final String? projectGroup;
+  final String? fundingSource;
+  final String? projectType;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (projectGroup != null) 'project_group': projectGroup,
+        if (fundingSource != null) 'funding_source': fundingSource,
+        if (projectType != null) 'project_type': projectType,
+      };
+}
+
 final class QmsAddSupervisorRemark implements RequestModel {
   const QmsAddSupervisorRemark({
     required this.remark,
@@ -15528,6 +16243,82 @@ final class SourceSystemRetire implements RequestModel {
   @override
   Map<String, Object?> toJson() => <String, Object?>{
         'reason': reason,
+      };
+}
+
+final class StaffScoreAdjustmentRequest implements RequestModel {
+  const StaffScoreAdjustmentRequest({
+    required this.points,
+    required this.reason,
+    this.evidenceRef,
+  });
+
+  final num points;
+  final String reason;
+  final String? evidenceRef;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'points': points,
+        'reason': reason,
+        if (evidenceRef != null) 'evidence_ref': evidenceRef,
+      };
+}
+
+final class StaffScorePeriodRequest implements RequestModel {
+  const StaffScorePeriodRequest({
+    required this.scopeUnitId,
+    required this.periodFrom,
+    required this.periodTo,
+    required this.policyCode,
+  });
+
+  final String scopeUnitId;
+  final String periodFrom;
+  final String periodTo;
+  final String policyCode;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'scope_unit_id': scopeUnitId,
+        'period_from': periodFrom,
+        'period_to': periodTo,
+        'policy_code': policyCode,
+      };
+}
+
+final class StaffScoreResponseHandle implements RequestModel {
+  const StaffScoreResponseHandle({
+    required this.outcome,
+    required this.conclusion,
+    this.adjustmentPoints,
+    this.adjustmentReason,
+  });
+
+  final String outcome;
+  final String conclusion;
+  final num? adjustmentPoints;
+  final String? adjustmentReason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'outcome': outcome,
+        'conclusion': conclusion,
+        if (adjustmentPoints != null) 'adjustment_points': adjustmentPoints,
+        if (adjustmentReason != null) 'adjustment_reason': adjustmentReason,
+      };
+}
+
+final class StaffScoreResponseInput implements RequestModel {
+  const StaffScoreResponseInput({
+    required this.body,
+  });
+
+  final String body;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'body': body,
       };
 }
 
