@@ -134,7 +134,7 @@ Màn hình: INT-01 đến INT-05. Không phát sinh phí bản quyền khi tích
 
 ## 4. Hiệu năng, năng lực và môi trường (HT.05, YCK.02)
 
-- Ngân sách hiệu năng: `docs/qa/perf-budget.json`, cách chạy `docs/qa/performance.md`; HSKT yêu cầu phản hồi dưới 5 giây, xem báo cáo dưới 20 giây. Đo trên phần cứng của khách: PX-10. Tệp ngân sách chưa có dòng riêng cho đọc bản chốt doanh nghiệp, so sánh chéo, bảng lịch kỳ và PDF biểu mẫu (kế hoạch ENT-4b ghi dòng `PB-R016` nhưng tệp chưa có).
+- Ngân sách hiệu năng: `docs/qa/perf-budget.json`, cách chạy `docs/qa/performance.md`; HSKT yêu cầu phản hồi dưới 5 giây, xem báo cáo dưới 20 giây. Đo trên phần cứng của khách: PX-10. Tệp ngân sách có dòng riêng cho đọc bản chốt doanh nghiệp (`PB-R016`), so sánh chéo (`PB-R017`), bảng lịch kỳ và bảng trạng thái nhập liệu (`PB-F068`, `PB-F069`) và PDF biểu mẫu (`PB-R008`); đã đo trên máy phát triển với bộ dữ liệu mẫu nhỏ (`docs/qa/performance.md`), chưa phải số đo nghiệm thu.
 - Hai môi trường UAT và Production: `docs/runbooks/infra/environments.md`; cấu hình khuyến nghị cho PVFCCo ở `docs/runbooks/infra/sizing-uat-prod.md` (tóm tắt dưới đây).
 
 | Hạng mục | UAT | Production |

@@ -35,6 +35,20 @@ k6 run -e BASE_URL=https://host/v1 -e TOKEN="$TOKEN" -e VARS="$(cat vars.json)" 
 
 `tests/k6/budget.js` is the single user run of the table (`SAMPLES` per operation, default 20); `tests/k6/load.js` is a random mix of the operations for `VUS` users with think time. Both set a threshold per class and per operation (`p(95)` under the budget of the class) and a failure rate under 1 percent, so k6 exits non-zero when the budget is exceeded. `ONLY` filters like `--only`. `tests/k6/budget-lib.js` builds the requests; a node test checks that it builds the same URLs as the node runner.
 
+## Measured rows of the enterprise edition (INT-2)
+
+The rows `PB-R016` (`getEnterpriseSnapshot`, the frozen enterprise period snapshot with every ratio, by class, unit and project, `REPORT`), `PB-R017` (`getReportCrosscheck`, the cross comparison of the reports of a month, `REPORT`), `PB-F068` (`getReportingCalendar`, the table of the periods and their step deadlines) and `PB-F069` (`getReportingCalendarBoard`, the status board by input point) were added with the enterprise edition; the issued PDF of a form is `PB-R008` (`format=PDF`). They were measured on 2026-11-12 against the enterprise demo stack (`npm run demo:enterprise`: API in the enterprise edition, embedded PostgreSQL, sample data of Đạm Phú Mỹ with a frozen snapshot of 2026-05: 12 projects, 496 figures, a 116 KB answer), one request after the other, 20 samples after 2 warm-up requests, on a laptop (Intel Core i7-13620H, 16 threads, 16 GB, Windows 11), with `node scripts/perf-budget.mjs --discover --var periodYear=2026 --var periodMonth=5`:
+
+| Row | p50 | p95 | max | Budget |
+|---|---|---|---|---|
+| PB-F068 getReportingCalendar | 31.1 ms | 34.8 ms | 35.1 ms | 5000 ms |
+| PB-F069 getReportingCalendarBoard | 16.7 ms | 31.5 ms | 31.9 ms | 5000 ms |
+| PB-R008 getReportIssueFile (PDF) | 15.6 ms | 23.6 ms | 27.7 ms | 20000 ms |
+| PB-R016 getEnterpriseSnapshot | 50.5 ms | 100.4 ms | 136 ms | 20000 ms |
+| PB-R017 getReportCrosscheck (person of the drafting office) | 37.1 ms | 55.1 ms | 101 ms | 20000 ms |
+
+These are measurements of the table and the code on a small sample tenant, not an acceptance result: the volume of the customer (about 31 projects, three classes, two measures, twelve months of figures) is larger and the run that counts is the one on the customer servers (PX-10). The new variables are `enterpriseSnapshotId` and `enterprisePeriodId` (found by `--discover` from the list of the frozen snapshots), `periodYear` and `periodMonth` (given with `--var`).
+
 ## What a run does not prove
 
 The budget is a contract about the customer hardware and data volume. A green run on a laptop with an empty tenant says only that the table and the runner work. The run that counts is the one on the customer servers with the data of the customer, and its `--out` file is the evidence for the acceptance record.
