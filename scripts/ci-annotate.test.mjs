@@ -29,6 +29,13 @@ test('jest: the failing suite and its first error lines are one block, the passi
   assert.doesNotMatch(blocks[0], /PASS src\/a/);
 });
 
+test('jest kind: failures of the node test runner (TAP) and of a coverage floor in the same log are found', () => {
+  const log = ['ok 1 - a', 'not ok 2 - the script test that fails', '  ---', '  error: boom', '  ...', 'Error: 82.00% line coverage does not meet threshold 90%'].join('\n');
+  const text = annotationText(log, 'jest');
+  assert.match(text, /not ok 2 - the script test that fails/);
+  assert.match(text, /does not meet threshold/);
+});
+
 test('dart: the [E] line and the lines after it are kept, colours are removed', () => {
   const log = ['00:01 +3: ok', '\u001b[31m00:02 +3 -1: test/x_test.dart: moment in the zone [E]\u001b[0m', '  Expected: \'07:00\'', '    Actual: \'00:00\'', '00:03 +4 -1: Some tests failed.'].join('\n');
   const blocks = failureBlocks(log, 'dart');

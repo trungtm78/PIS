@@ -16,7 +16,7 @@ const MAX_BLOCKS = 60;
 
 /** Line patterns that start a block worth reporting, and how many lines after it belong to the block. */
 export const KINDS = {
-  jest: { start: /^\s*(FAIL |● .+ › |● .+$)|^\s*[✕×]\s|Tests:\s+\d+ failed|Test Suites:\s+\d+ failed|^\s*(ERR!|npm error)\s|error TS\d+/, after: 6 },
+  jest: { start: /^\s*(FAIL |● .+ › |● .+$)|^\s*[✕×]\s|Tests:\s+\d+ failed|Test Suites:\s+\d+ failed|^\s*(ERR!|npm error)\s|error TS\d+|^\s*not ok \d+|^\s*✖ |coverage threshold|does not meet threshold/, after: 6 },
   dart: { start: /\[E\]|Some tests failed|^\s*Failed to load|^\s*Error: |FAILED:/, after: 8 },
   playwright: { start: /^\s*(\d+\)\s|[✘x]\s)|\d+ failed|\d+ flaky|Error: |Timeout of \d+ms exceeded/, after: 8 },
   gates: { start: /\bFAIL(ED)?\b|✗|✘|\bERROR\b|exit code [1-9]|not ok /, after: 4 },
