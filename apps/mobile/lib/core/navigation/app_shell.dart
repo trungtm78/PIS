@@ -88,10 +88,15 @@ class AppShell extends ConsumerWidget {
 
   Widget _badged(BuildContext context, AppTab tab, int count, IconData icon) {
     if (count <= 0) return Icon(icon);
+    // The count is a hint of the tab, not a label: the bar merges the icon, the label and the position of the tab into one
+    // node, and a label on the icon came first in it ("10 mục cần xử lý, 10, Thông báo, Tab 4 trong tổng số 5"), so a screen
+    // reader and a UI test never met the name on the screen first. A hint is read after the label, and the badge drawn on
+    // the icon ("10") is left out of the semantics so the number is not said twice.
     return Semantics(
-      label: context.t('mob.shell.badge.pending', <String, Object>{
+      hint: context.t('mob.shell.badge.pending', <String, Object>{
         'count': count,
       }),
+      excludeSemantics: true,
       child: Badge(
         label: Text(count > 99 ? '99+' : '$count'),
         child: Icon(icon),

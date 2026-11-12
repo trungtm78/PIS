@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
@@ -133,7 +134,46 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('3'), findsOneWidget);
-      expect(find.bySemanticsLabel(RegExp('3 mục cần xử lý')), findsOneWidget);
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      expect(tester.getSemantics(find.byType(NavigationDestination).at(AppTab.approval.index)).getSemanticsData().hint, '3 mục cần xử lý');
+      semantics.dispose();
+    });
+
+    // UAT run r6, R6-PUB-03 (AC-ST-MOB-040-1, UAT-NFR-ACCESSIBILITY-02): the name of a tab with a badge began with the badge ("10 mục cần xử lý, 10, Thông báo, Tab 4 trong tổng số 5"), so the tab
+    // could not be found by the name it shows (Maestro flow 10 looks for "Thông báo.*") and a screen reader said the number twice before the name.
+    testWidgets('the name of a tab with a badge starts with the label on the screen and says the count once, after it', (WidgetTester tester) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      useDevice(tester, kDeviceSizes[1]);
+      final container = await pumpApp(tester);
+      container.read(tabBadgeProvider.notifier).set(AppTab.inbox, 10);
+      await tester.pumpAndSettle();
+
+      final SemanticsData inbox = tester.getSemantics(find.byType(NavigationDestination).at(AppTab.inbox.index)).getSemanticsData();
+      expect(inbox.label, startsWith(_viLabels[AppTab.inbox]!), reason: 'the visible label is the first thing a reader hears and the first thing a test can match');
+      expect(inbox.label, matches(RegExp('^${_viLabels[AppTab.inbox]}.*', dotAll: true)));
+      expect(inbox.label, isNot(contains('10')), reason: 'the number drawn on the badge is not read as a word of its own');
+      expect(inbox.label, isNot(contains('mục cần xử lý')), reason: 'what the count means is the hint, read after the name');
+      expect(inbox.hint, '10 mục cần xử lý');
+
+      // A tab with no number says nothing more than its name and its place.
+      final SemanticsData projects = tester.getSemantics(find.byType(NavigationDestination).at(AppTab.projects.index)).getSemanticsData();
+      expect(projects.label, startsWith(_viLabels[AppTab.projects]!));
+      expect(projects.hint, isEmpty);
+      semantics.dispose();
+    });
+
+    testWidgets('a count above 99 is drawn as 99+ and said in full', (WidgetTester tester) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      useDevice(tester, kDeviceSizes[1]);
+      final container = await pumpApp(tester);
+      container.read(tabBadgeProvider.notifier).set(AppTab.approval, 120);
+      await tester.pumpAndSettle();
+
+      expect(find.text('99+'), findsOneWidget);
+      final SemanticsData approval = tester.getSemantics(find.byType(NavigationDestination).at(AppTab.approval.index)).getSemanticsData();
+      expect(approval.label, startsWith(_viLabels[AppTab.approval]!));
+      expect(approval.hint, '120 mục cần xử lý');
+      semantics.dispose();
     });
 
     testWidgets('the offline banner appears while the device is offline and disappears when it is back', (WidgetTester tester) async {
