@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { checkBackupPolicy } from './backup-verify.mjs';
 import { checkNativeDeps } from './native-deps-check.mjs';
+import { checkBiPort } from './infra-bi-port.mjs';
 import { checkEgressScript, checkMalwareScan, checkRansomwareCatalogue, checkRealmImport } from './infra-security.mjs';
 
 const POLICY_FILE = 'infra/policies/artefacts.json';
@@ -44,6 +45,7 @@ export const ARTEFACT_FINDING_CODES = [
   'EGRESS_RULES',
   'RANSOMWARE_CATALOGUE',
   'REALM_IMPORT',
+  'BI_PORT',
 ];
 
 const finding = (code, file, detail = '') => ({ code, file, detail });
@@ -576,5 +578,6 @@ export function checkArtefacts(root, options = {}) {
   }
   checkWorkflows(root, policy, yaml, findings);
   checkSecurityEvidence(root, policy, yaml, findings);
+  if (policy.biPort !== undefined) for (const detail of checkBiPort(root, policy.biPort, yaml === undefined ? undefined : (text) => parseYaml(yaml, text))) findings.push(finding('BI_PORT', policy.biPort.override, detail));
   return { checked: true, yamlSkipped: yaml === undefined, findings };
 }

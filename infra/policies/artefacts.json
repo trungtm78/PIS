@@ -39,7 +39,18 @@
     "docs/security/ransomware-scenarios.json",
     "docs/runbooks/infra/malware-scan.md",
     "docs/runbooks/infra/lab-install-checklist.md",
-    "docs/runbooks/infra/sizing-uat-prod.md"
+    "docs/runbooks/infra/sizing-uat-prod.md",
+    "infra/onprem/secrets-bi.json",
+    "infra/onprem/compose/compose.bi.yaml",
+    "infra/onprem/docker/bi-tls-prepare.sh",
+    "infra/onprem/config/pg_hba-bi.conf.template",
+    "infra/onprem/config/bi-render.sh",
+    "infra/onprem/config/bi-firewall.sh",
+    "infra/onprem/config/bi-audit-setup.sql",
+    "infra/onprem/config/bi-audit-ship.sh",
+    "infra/onprem/systemd/machvon-bi-audit-ship.service",
+    "infra/onprem/systemd/machvon-bi-audit-ship.timer",
+    "docs/runbooks/infra/bi-port.md"
   ],
   "repositoryRequired": [
     ".github/workflows/security.yml",
@@ -285,6 +296,40 @@
         "direct-db-backup-access",
         "egress-exfiltration"
       ]
+    }
+  },
+  "biPort": {
+    "base": "infra/onprem/compose/compose.yaml",
+    "override": "infra/onprem/compose/compose.bi.yaml",
+    "secrets": "infra/onprem/secrets-bi.json",
+    "env": "infra/onprem/compose/env.template",
+    "hba": "infra/onprem/config/pg_hba-bi.conf.template",
+    "firewall": "infra/onprem/config/bi-firewall.sh",
+    "setup": "infra/onprem/config/bi-audit-setup.sql",
+    "ship": "infra/onprem/config/bi-audit-ship.sh",
+    "install": "infra/onprem/bundle/install.sh",
+    "dockerfile": "infra/onprem/docker/db.Dockerfile",
+    "group": "machvon_bi_reader",
+    "auditRole": "machvon_bi_auditor",
+    "pgauditPackage": "postgresql-18-pgaudit",
+    "minRetentionDays": 365,
+    "requiredSettings": {
+      "shared_preload_libraries": "pgaudit",
+      "hba_file": "/etc/machvon-bi/pg_hba.conf",
+      "password_encryption": "scram-sha-256",
+      "ssl": "on",
+      "ssl_min_protocol_version": [
+        "TLSv1.2",
+        "TLSv1.3"
+      ],
+      "ssl_prefer_server_ciphers": "on",
+      "authentication_timeout": "10s",
+      "pgaudit.role": "machvon_bi_auditor",
+      "log_connections": "on",
+      "log_disconnections": "on",
+      "logging_collector": "on",
+      "log_directory": "/var/log/machvon-audit",
+      "log_rotation_age": "1d"
     }
   }
 }

@@ -15,7 +15,7 @@ const HOST_NAME = /^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-
 const EDITIONS = new Set(['public', 'enterprise']);
 const BLOCK = 512;
 /** What the bundle carries of the repository, at the same relative paths, so that the compose file finds its neighbours unchanged. */
-export const BUNDLE_TREES = ['infra/onprem/compose', 'infra/onprem/config', 'infra/onprem/docker/secret-env.sh', 'infra/onprem/systemd', 'infra/onprem/images.json', 'infra/onprem/secrets.json', 'infra/keycloak/onprem', 'infra/backup', 'docs/runbooks/infra'];
+export const BUNDLE_TREES = ['infra/onprem/compose', 'infra/onprem/config', 'infra/onprem/docker/secret-env.sh', 'infra/onprem/systemd', 'infra/onprem/images.json', 'infra/onprem/secrets.json', 'infra/onprem/secrets-bi.json', 'infra/keycloak/onprem', 'infra/backup', 'docs/runbooks/infra'];
 export const BUNDLE_SCRIPTS = ['install.sh', 'rollback.sh'];
 
 export const FINDING_CODES = [

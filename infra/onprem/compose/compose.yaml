@@ -5,7 +5,9 @@
 #   - every secret is a file under ${MACHVON_SECRETS_DIR} mounted at /run/secrets (compose `secrets`), read through NAME_FILE variables; no secret value is written here;
 #   - every long-running service has a health check, resource limits, no-new-privileges and dropped capabilities;
 #   - only the web edge publishes ports (80 and 443); the app and data networks have no route out; the database, the backup runs and Keycloak also join the `egress`
-#     network (fixed subnet) that the host firewall limits to the object store and the directory.
+#     network (fixed subnet) that the host firewall limits to the object store and the directory;
+#   - the database publishes NOTHING here. The read-only port for BI tools (Power BI, Lakehouse) exists only when the operator adds compose.bi.yaml (install.sh --with-bi):
+#     docs/runbooks/infra/bi-port.md. The image carries pgaudit and preloads it, so that the audit of that port needs no rebuild.
 # Multi-arch: all images are built and exported for linux/amd64 and linux/arm64 (infra/onprem/images.json); docker pulls the platform of the host from the loaded index.
 name: machvon
 
@@ -108,6 +110,8 @@ services:
       - shared_buffers=${DB_SHARED_BUFFERS}
       - -c
       - max_connections=${DB_MAX_CONNECTIONS}
+      - -c
+      - shared_preload_libraries=pgaudit
     volumes:
       - pgdata:/var/lib/postgresql
       - pgsocket:/var/run/postgresql
