@@ -622,7 +622,7 @@ void main() {
     test('it opens the bytes, draws a page at the width asked on a white ground, one page at a time, and closes the document', () async {
       final _Platform platform = _Platform();
       PdfxPlatform.instance = platform;
-      final PdfDoc doc = await const PdfxEngine().open(pdfBytes('x'));
+      final PdfDoc doc = await PdfxEngine(opener: platform.openData).open(pdfBytes('x'));
       expect(doc.pageCount, 3);
 
       final List<RenderedPage> pages = await Future.wait(<Future<RenderedPage>>[doc.render(0, width: 300), doc.render(1, width: 300), doc.render(2, width: 150)]);
@@ -640,12 +640,12 @@ void main() {
     test('bytes the renderer cannot read are a PdfOpenException, and a page it cannot draw fails that page only', () async {
       final _Platform platform = _Platform(failOpen: true);
       PdfxPlatform.instance = platform;
-      await expectLater(const PdfxEngine().open(pdfBytes('x')), throwsA(isA<PdfOpenException>()));
+      await expectLater(PdfxEngine(opener: platform.openData).open(pdfBytes('x')), throwsA(isA<PdfOpenException>()));
       expect(const PdfOpenException().toString(), 'PdfOpenException');
 
       final _Platform blank = _Platform(blankPage: 0);
       PdfxPlatform.instance = blank;
-      final PdfDoc doc = await const PdfxEngine().open(pdfBytes('x'));
+      final PdfDoc doc = await PdfxEngine(opener: blank.openData).open(pdfBytes('x'));
       await expectLater(doc.render(0, width: 100), throwsA(isA<PdfOpenException>()));
       expect((await doc.render(1, width: 100)).width, 100);
       expect(blank.document.pagesClosed, 2, reason: 'a page is closed even when it could not be drawn');

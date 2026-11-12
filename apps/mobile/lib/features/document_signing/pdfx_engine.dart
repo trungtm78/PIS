@@ -9,13 +9,21 @@ import 'pdf_engine.dart';
 /// on iOS), so the phone needs no PDF engine of its own, nothing is downloaded at build time and the app does not grow by a rendering
 /// library; its channel to the platform is what a test cannot reach on the host, which is why everything else speaks to [PdfEngine].
 /// Whether it draws a real signed PDF on both systems is proved on a device.
+/// Opens the bytes of a PDF with the renderer of the system.
+typedef PdfOpener = Future<pdfx.PdfDocument> Function(Uint8List bytes);
+
+Future<pdfx.PdfDocument> _openWithPdfx(Uint8List bytes) => pdfx.PdfDocument.openData(bytes);
+
 final class PdfxEngine implements PdfEngine {
-  const PdfxEngine();
+  /// [opener] is how the bytes are opened; it is `pdfx` itself, which refuses a host without a system renderer (Linux, for one), so a test of this adapter hands in the platform of `pdfx` it has faked.
+  const PdfxEngine({this.opener = _openWithPdfx});
+
+  final PdfOpener opener;
 
   @override
   Future<PdfDoc> open(Uint8List bytes) async {
     try {
-      return _PdfxDoc(await pdfx.PdfDocument.openData(bytes));
+      return _PdfxDoc(await opener(bytes));
     } on Object {
       throw const PdfOpenException();
     }
