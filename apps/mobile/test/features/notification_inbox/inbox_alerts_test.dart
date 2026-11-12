@@ -67,6 +67,19 @@ void main() {
       expect(server.callsTo('GET', '/home/my-work').any((HttpCall call) => call.url.queryParameters['view'] == 'mine'), isTrue, reason: 'the inbox shows the alerts of the person');
     });
 
+    testWidgets('the "Xem tất cả" of the alerts on the home opens the inbox on the tab of the alerts, not on the events', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _server();
+      server.on('GET', '/home/command-center', (_) => commandCenter());
+      final ProviderContainer container = await _open(tester, server, '/home');
+
+      await tester.tap(find.text('Xem tất cả'));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/inbox?tab=work');
+      expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget, reason: 'the full list of the alerts is what was asked for');
+      expect(find.text('Tất cả 4'), findsNothing, reason: 'the events are the other tab');
+    });
+
     testWidgets('an inbox with no notification still has the alerts of the person in the other tab, and says it is empty', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = _server();

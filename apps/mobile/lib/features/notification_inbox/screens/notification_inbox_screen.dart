@@ -40,10 +40,17 @@ const int inboxPageSize = 50;
 /// "Việc cần xử lý" (the alerts of the person, the full list that the home leads to with "See all"). Opening a row opens its detail (MOB-33);
 /// a push that was only delivered marks nothing read. The number unread is the badge of the Notifications tab. The screen also registers
 /// this device for push (a device without a token is simply not registered and keeps its inbox).
-Widget buildNotificationInboxScreen(BuildContext context, ScreenContext screen) => const NotificationInboxScreen();
+Widget buildNotificationInboxScreen(BuildContext context, ScreenContext screen) => NotificationInboxScreen(initialTab: screen.queryParameters[inboxTabParameter] == inboxTabWork ? 1 : 0);
+
+/// The query parameter that opens the inbox on its second tab, the alerts of the person: the "See all" of the home leads there.
+const String inboxTabParameter = 'tab';
+const String inboxTabWork = 'work';
 
 class NotificationInboxScreen extends ConsumerStatefulWidget {
-  const NotificationInboxScreen({super.key});
+  const NotificationInboxScreen({this.initialTab = 0, super.key});
+
+  /// 0 the events, 1 the alerts of the person.
+  final int initialTab;
 
   @override
   ConsumerState<NotificationInboxScreen> createState() => _NotificationInboxScreenState();
@@ -51,7 +58,7 @@ class NotificationInboxScreen extends ConsumerStatefulWidget {
 
 class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScreen> {
   NotificationFilter _filter = const NotificationFilter();
-  int _tab = 0;
+  late int _tab = widget.initialTab;
 
   @override
   void initState() {

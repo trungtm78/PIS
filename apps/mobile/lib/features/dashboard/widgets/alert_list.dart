@@ -251,7 +251,7 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
               children: <Widget>[
                 Expanded(child: Semantics(header: true, child: Text(widget.title ?? context.t('mob.alert.list.title.label'), style: text.heading))),
                 if (counted && widget.showSeeAll && !feed.isEmpty)
-                  TextButton(onPressed: () => openScreen(context, 'MOB-32'), child: Text(context.t('mob.alert.list.seeAll.action'))),
+                  TextButton(onPressed: () => openScreen(context, 'MOB-32', query: const <String, String>{'tab': 'work'}), child: Text(context.t('mob.alert.list.seeAll.action'))),
               ],
             ),
           ),

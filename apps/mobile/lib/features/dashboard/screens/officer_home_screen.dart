@@ -115,7 +115,8 @@ class _WorkBody extends StatelessWidget {
         AlertsPanel(
           feed: home.alerts,
           onReload: onRetry,
-          limit: workPageSize,
+          // Every alert that was read is shown: the page size of the read is not a limit of the display.
+          limit: home.alerts.items.isEmpty ? 1 : home.alerts.items.length,
           groupByDeadline: true,
           title: context.t('mob.alert.list.titleDue.label'),
           allowAssign: false,

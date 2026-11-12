@@ -35,8 +35,9 @@ final class AlertDeadline {
       case AlertDueKind.remainingDays:
       case AlertDueKind.today:
       case AlertDueKind.overdueDays:
-      case AlertDueKind.overdue:
         return formatDeadline(context, days);
+      // Late with no count of days (the sort key is -1 only to put it among the late ones): the words of the server's flag, no invented duration.
+      case AlertDueKind.overdue:
       case AlertDueKind.remainingHours:
       case AlertDueKind.overdueHours:
       case AlertDueKind.none:

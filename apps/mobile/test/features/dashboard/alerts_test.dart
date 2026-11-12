@@ -190,6 +190,32 @@ void main() {
       expect(inCard(find.text('Đang xử lý')), findsOneWidget);
     });
 
+    testWidgets('an alert that is late with no count of days says "Quá hạn", not an invented one day, and still sorts among the late ones', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _healthy(server, alerts: <Map<String, Object?>>[
+        alertItem('a-soon', title: 'Còn hai ngày'),
+        alertItem('a-late', title: 'Trễ không rõ ngày', dueOn: null, overdue: true, daysLate: 0),
+      ]);
+      await _open(tester, server, '/home');
+
+      expect(find.descendant(of: find.byType(AlertRow), matching: find.text('Quá hạn')), findsOneWidget);
+      expect(find.text('Trễ 1 ngày'), findsNothing);
+      final double late = tester.getTopLeft(find.text('Trễ không rõ ngày')).dy;
+      final double soon = tester.getTopLeft(find.text('Còn hai ngày')).dy;
+      expect(late, lessThan(soon), reason: 'the severity order puts the late one first as before');
+    });
+
+    testWidgets('every alert that was read is on the day list of an officer, not only the first page of the read', (WidgetTester tester) async {
+      useDevice(tester, const Size(390, 20000));
+      final ScriptedServer server = ScriptedServer();
+      _healthy(server, alerts: <Map<String, Object?>>[for (int index = 0; index < 55; index += 1) alertItem('a-$index', title: 'Việc số $index', dueOn: '2026-11-0${5 + index % 4}')]);
+      await _open(tester, server, '/home/mob-08');
+
+      expect(find.text('Việc số 54', skipOffstage: false), findsOneWidget, reason: 'the last of the 55 is on the list');
+      expect(find.text('Việc số 0', skipOffstage: false), findsWidgets);
+    });
+
     testWidgets('the primary action opens the record when the phone has a screen for it, and every act is also a button in the sheet (no gesture alone)', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
