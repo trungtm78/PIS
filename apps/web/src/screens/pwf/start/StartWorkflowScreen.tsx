@@ -2,6 +2,7 @@ import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
@@ -21,11 +22,17 @@ import './start.css';
 import '../pwf.css';
 
 const NEVER_EMPTY = (): boolean => false;
-const FACT_LABEL: Readonly<Record<FactField, 'pwf.start.fact.group.label' | 'pwf.start.fact.funding.label' | 'pwf.start.fact.type.label'>> = {
-  project_group: 'pwf.start.fact.group.label',
-  funding_source: 'pwf.start.fact.funding.label',
-  project_type: 'pwf.start.fact.type.label',
-};
+/** The label of a fact of the branch (each key is written out so that the i18n check sees it is in use). */
+function factLabel(t: Translator['t'], field: FactField): string {
+  switch (field) {
+    case 'project_group':
+      return t('pwf.start.fact.group.label');
+    case 'funding_source':
+      return t('pwf.start.fact.funding.label');
+    case 'project_type':
+      return t('pwf.start.fact.type.label');
+  }
+}
 
 /** PWF-05: start the workflow of a project from a template, or adopt the workflow of a project that is already running. */
 export default function StartWorkflowScreen({ route }: ScreenProps) {
@@ -281,7 +288,7 @@ function StartPanel({ project }: { project: ProjectView }) {
             <p className="pwf-hint">{t('pwf.start.facts.hint')}</p>
             <div className="pwf-filters">
               {FACT_FIELDS.map((field) => (
-                <LabelledField key={field} label={t(FACT_LABEL[field])} testId={field} error={fieldError(field)}>
+                <LabelledField key={field} label={factLabel(t, field)} testId={field} error={fieldError(field)}>
                   {({ id, invalid, describedBy }) => <input id={id} type="text" data-testid={`fact-${field}`} value={form.facts[field]} aria-invalid={invalid} aria-describedby={describedBy} onChange={(event) => edit({ facts: { ...form.facts, [field]: event.target.value } })} />}
                 </LabelledField>
               ))}
