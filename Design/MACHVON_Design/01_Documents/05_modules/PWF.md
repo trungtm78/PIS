@@ -391,7 +391,7 @@ Không có câu hỏi nào chờ chủ sở hữu: mọi lựa chọn mở đã 
 | ST-PWF-019 | Là cán bộ, tôi theo dõi việc trên điện thoại | MOB-78 đến 80 | BR-PWF-23, 26 | AC-ST-PWF-019-1 |
 | ST-PWF-020 | Là lãnh đạo, tôi xem tải công việc theo người | PWF-07 | BR-PWF-18 | AC-ST-PWF-020-1 |
 
-Đăng ký câu chuyện vào `implementation_plan.json`, `traceability.json` và `test_cases.json` do làn tích hợp thực hiện sau khi hợp đồng JSON đã gộp (các tệp đó không nằm trong công cụ `contract-patch`); các ID trên là khóa cho việc đó.
+Đã đăng ký (làn `pwfreg`, 2026-11-13) vào `implementation_plan.json` (epic EP-PWF, tám feature FT-PWF-01..08, 20 câu chuyện), `test_cases.json` (T-PWF-01..21, UAT-PWF, UI-PWF-01..16, UI-MOB-78..82), `traceability.json` (FR-PWF-01..16, FR-MOB-78..82), `implementation_backlog.json` (BL-PWF-01..16, BL-MOB-78..82) và `navigation_architecture.json`, bằng `node scripts/contract-patch.mjs apply --spec docs/plans/pwf-register.json` (công cụ `contract-patch` có thêm các lệnh `add-epic`, `add-feature`, `add-story`, `add-test-case`, `add-trace`, `add-backlog`, `add-route`, `add-nav-group`); các ID trên là khóa của việc đó.
 
 ## 15. Kiểm chứng đã thực hiện trong làn này
 
