@@ -62,7 +62,7 @@ class CommandBand extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, 0, MachvonV2Space.s16, MachvonV2Space.s24),
             child: Semantics(
               container: true,
-              label: '$label: $figure $unit. $progressLabel',
+              label: '$label: $figure $unit. $progressLabel. $footStart. $footEnd',
               excludeSemantics: true,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

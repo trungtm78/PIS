@@ -157,7 +157,7 @@ void main() {
   });
 
   group('the summary widgets: command band, stat strip, stage strip, progress, mini chart', () {
-    testWidgets('the command band reads label, figure, unit and the bar as one node', (WidgetTester tester) async {
+    testWidgets('the command band reads label, figure, unit, the bar and both notes as one node', (WidgetTester tester) async {
       final SemanticsHandle semantics = tester.ensureSemantics();
       await pumpV2(
         tester,
@@ -175,7 +175,7 @@ void main() {
         ),
       );
       expect(find.text('1.058,3'), findsOneWidget);
-      expect(find.bySemanticsLabel('Giải ngân lũy kế 2026: 1.058,3 tỷ đồng. Đã giải ngân 58,1% kế hoạch vốn'), findsOneWidget);
+      expect(find.bySemanticsLabel('Giải ngân lũy kế 2026: 1.058,3 tỷ đồng. Đã giải ngân 58,1% kế hoạch vốn. 58,1% kế hoạch vốn năm. Kế hoạch 1.820 tỷ đồng'), findsOneWidget);
       final ColoredBox header = tester.widgetList<ColoredBox>(find.byType(ColoredBox)).firstWhere((ColoredBox box) => box.color == MachvonV2Colors.light.header);
       expect(header.color, MachvonV2Colors.light.header);
       semantics.dispose();
