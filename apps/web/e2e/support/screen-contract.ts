@@ -431,6 +431,10 @@ export function judgeScreen(input: ContractInput): Finding[] {
   if (wanted.has('permission') && input.reader !== undefined && !isOpenToEveryone(input.role)) {
     const { reader } = input;
     if (reader.loadError !== undefined) findings.push({ clause: 'permission', detail: `the screen did not load for the person who only reads (${reader.loadError})` });
+    // A screen that crashed, or never rendered, under the rights of the reader offers no write because it offers nothing: that is no evidence of a screen without a write.
+    if (reader.facts.crashed) findings.push({ clause: 'permission', detail: 'the screen crashes for the person who only reads' });
+    if (reader.loadError === undefined && !reader.facts.screenIds.includes(input.screen)) findings.push({ clause: 'permission', detail: `the person who only reads does not see the screen ${input.screen} (found: ${reader.facts.screenIds.join(', ') || 'none'})` });
+    for (const error of reader.pageErrors) findings.push({ clause: 'permission', detail: `uncaught error for the person who only reads: ${error}` });
     for (const action of reader.facts.writeActions) findings.push({ clause: 'permission', detail: `a person who may only read is offered "${action.name}" (${action.tag}.${action.classes.trim().replace(/\s+/g, '.')})` });
   }
   if (wanted.has('denied') && input.denied !== undefined) {

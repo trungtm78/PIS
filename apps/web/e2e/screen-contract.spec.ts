@@ -180,6 +180,26 @@ function openRoute(path: string, user: string, extra = ''): OpenPage {
   };
 }
 
+/** The screens of one record whose route is a list's link: the address names the record (a connector code), so the test opens the list and follows its first link; the record comes from the seeded stack. */
+const RECORD_SCREENS: Readonly<Record<string, { list: string; link: string }>> = {
+  'HUB-02': { list: '/hub/hub-01', link: 'a[href^="/hub/hub-02?code="]' },
+};
+
+/** The address of a screen: its route (the installed application's for a PWA screen), or the first record of the list that leads to it. */
+async function addressOf(browser: Browser, baseURL: string, route: { id: string; path: string }, user: string): Promise<string | undefined> {
+  const record = RECORD_SCREENS[route.id];
+  if (record === undefined) return PWA_PATHS[route.id] ?? route.path;
+  const context = await browser.newContext({ baseURL, locale: 'vi-VN' });
+  try {
+    const page = await context.newPage();
+    await openRoute(record.list, user)(page);
+    await page.waitForLoadState('networkidle', { timeout: PAGE_TIMEOUT_MS });
+    return (await page.locator(record.link).first().getAttribute('href', { timeout: 3000 }).catch(() => null)) ?? undefined;
+  } finally {
+    await context.close();
+  }
+}
+
 const journalOf = (value: object): void => {
   const out = process.env.SCREEN_CONTRACT_OUT;
   if (out !== undefined && out !== '') appendFileSync(out, `${JSON.stringify(value)}\n`);
@@ -200,9 +220,11 @@ test.describe('screen contract of the screens of the edition', () => {
       test.setTimeout(240_000);
       if (baseURL === undefined) throw new Error('the Playwright config has no baseURL');
       const user = devUserFor(route);
-      // The route of the table; the installed application of the manager has routes of its own.
-      const path = PWA_PATHS[route.id] ?? route.path;
-      const extra = '';
+      // The route of the table; the installed application of the manager has routes of its own; a screen of one record opens the first record of its list.
+      const address = await addressOf(browser, baseURL, route, user);
+      if (address === undefined) throw new Error(`${row.screen}: the list that leads to the record (${RECORD_SCREENS[route.id]?.list ?? ''}) holds none in the seeded stack`);
+      const [path = address, query] = address.split('?');
+      const extra = query === undefined ? '' : `&${query}`;
       const wide = await observe(browser, baseURL, { user, width: WIDE, open: openRoute(path, user, extra), axe: clauses.includes('labels') });
       const narrow = await observe(browser, baseURL, { user, width: NARROW, open: openRoute(path, user, extra) });
       const reader = clauses.includes('permission') ? await observe(browser, baseURL, { user: readerOf(route), width: WIDE, open: openRoute(path, readerOf(route), extra) }) : undefined;
