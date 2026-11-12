@@ -1,0 +1,3586 @@
+[
+  {
+    "id": "UI-ADM-01",
+    "tc": "TC-UI-ADM-01",
+    "screen": "ADM-01",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-02",
+    "tc": "TC-UI-ADM-02",
+    "screen": "ADM-02",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-03",
+    "tc": "TC-UI-ADM-03",
+    "screen": "ADM-03",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-04",
+    "tc": "TC-UI-ADM-04",
+    "screen": "ADM-04",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-05",
+    "tc": "TC-UI-ADM-05",
+    "screen": "ADM-05",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-06",
+    "tc": "TC-UI-ADM-06",
+    "screen": "ADM-06",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-07",
+    "tc": "TC-UI-ADM-07",
+    "screen": "ADM-07",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-08",
+    "tc": "TC-UI-ADM-08",
+    "screen": "ADM-08",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-09",
+    "tc": "TC-UI-ADM-09",
+    "screen": "ADM-09",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-10",
+    "tc": "TC-UI-ADM-10",
+    "screen": "ADM-10",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-11",
+    "tc": "TC-UI-ADM-11",
+    "screen": "ADM-11",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-12",
+    "tc": "TC-UI-ADM-12",
+    "screen": "ADM-12",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-13",
+    "tc": "TC-UI-ADM-13",
+    "screen": "ADM-13",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-14",
+    "tc": "TC-UI-ADM-14",
+    "screen": "ADM-14",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ADM-15",
+    "tc": "TC-UI-ADM-15",
+    "screen": "ADM-15",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (DOA_MATRIX_INVALID (GAP/OVERLAP), SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-ADM-16",
+    "tc": "TC-UI-ADM-16",
+    "screen": "ADM-16",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (REORG_MAPPING_INCOMPLETE, SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-ADM-17",
+    "tc": "TC-UI-ADM-17",
+    "screen": "ADM-17",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (GUEST_SCOPE_INVALID, CONTRACT_NOT_ACTIVE, QUOTA_EXCEEDED) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-ADM-18",
+    "tc": "TC-UI-ADM-18",
+    "screen": "ADM-18",
+    "module": "ADM",
+    "priority": "P0",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (APPROVER_NOT_AUTHORIZED, TASK_ALREADY_DECIDED) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-AST-01",
+    "tc": "TC-UI-AST-01",
+    "screen": "AST-01",
+    "module": "AST",
+    "priority": "P1",
+    "expected": "Danh sách bàn giao: hiển thị đúng 6 trường; áp quy tắc \"Hiển thị số tồn tại trọng yếu chưa đóng\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-AST-02",
+    "tc": "TC-UI-AST-02",
+    "screen": "AST-02",
+    "module": "AST",
+    "priority": "P1",
+    "expected": "Biên bản bàn giao và tồn tại: hiển thị đúng 7 trường; áp quy tắc \"Không nhận khi còn tồn tại CRITICAL; CRITICAL không được miễn; người xác nhận khác nhà thầu\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-AST-03",
+    "tc": "TC-UI-AST-03",
+    "screen": "AST-03",
+    "module": "AST",
+    "priority": "P1",
+    "expected": "Hồ sơ tài sản: hiển thị đúng 7 trường; áp quy tắc \"Tổng giá trị tài sản không vượt giá trị hợp đồng; mã ngoài nhập tay (adapter MISSING)\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-AST-04",
+    "tc": "TC-UI-AST-04",
+    "screen": "AST-04",
+    "module": "AST",
+    "priority": "P1",
+    "expected": "Bảo hành và giữ lại: hiển thị đúng 6 trường; áp quy tắc \"Thời hạn tối thiểu theo rule [CXN-EXE-04]; hết hạn và hết yêu cầu mở mới đóng và cho giải tỏa\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-AST-05",
+    "tc": "TC-UI-AST-05",
+    "screen": "AST-05",
+    "module": "AST",
+    "priority": "P1",
+    "expected": "Yêu cầu bảo hành: hiển thị đúng 7 trường; áp quy tắc \"Quá hạn phản hồi tạo vướng mắc; xác nhận độc lập\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-AST-06",
+    "tc": "TC-UI-AST-06",
+    "screen": "AST-06",
+    "module": "AST",
+    "priority": "P1",
+    "expected": "Liên kết vận hành bảo trì: hiển thị đúng 6 trường; áp quy tắc \"Chỉ liên kết tài sản đã chuyển giao\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-AST-07",
+    "tc": "TC-UI-AST-07",
+    "screen": "AST-07",
+    "module": "AST",
+    "priority": "P1",
+    "expected": "Kích hoạt đánh giá sau đầu tư: hiển thị đúng 6 trường; áp quy tắc \"Chỉ đặt kích hoạt; việc đánh giá do MNE thực hiện\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-AUD-01",
+    "tc": "TC-UI-AUD-01",
+    "screen": "AUD-01",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Tổng quan thanh tra, kiểm toán: hiển thị đúng 6 trường, áp quy tắc \"Tỷ lệ = Σ đã thu hồi / Σ kiến nghị tài chính trong scope, hiển thị tử và mẫu; quá hạn bằng chữ + số ngày\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-02",
+    "tc": "TC-UI-AUD-02",
+    "screen": "AUD-02",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Danh sách cuộc thanh tra, kiểm toán: hiển thị đúng 7 trường, áp quy tắc \"Chỉ thấy cuộc có phạm vi giao với scope của mình; dữ liệu CONFIDENTIAL\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-03",
+    "tc": "TC-UI-AUD-03",
+    "screen": "AUD-03",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Hồ sơ cuộc thanh tra, kiểm toán: hiển thị đúng 6 trường, áp quy tắc \"Bắt đầu cuộc đặt legal hold trên phạm vi; quyết định phải là văn bản EFFECTIVE ở DOC\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-04",
+    "tc": "TC-UI-AUD-04",
+    "screen": "AUD-04",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Tiếp nhận kết luận, báo cáo kiểm toán: hiển thị đúng 7 trường, áp quy tắc \"Kết luận sửa đổi tạo revision mới; Σ kiến nghị tài chính phải bằng tổng ghi trong kết luận\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-05",
+    "tc": "TC-UI-AUD-05",
+    "screen": "AUD-05",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Phát hiện: hiển thị đúng 7 trường, áp quy tắc \"Dự án/hợp đồng phải cùng tenant và trong phạm vi cuộc\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-06",
+    "tc": "TC-UI-AUD-06",
+    "screen": "AUD-06",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Kiến nghị và phân công: hiển thị đúng 7 trường, áp quy tắc \"Kiến nghị tài chính bắt buộc số tiền; owner trong scope người giao; hạn không sau hạn kết luận trừ khi có lý do\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-07",
+    "tc": "TC-UI-AUD-07",
+    "screen": "AUD-07",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Theo dõi thực hiện kiến nghị: hiển thị đúng 5 trường, áp quy tắc \"Kéo-thả không đổi trạng thái; chuyển qua nút command có guard; người kiểm tra khác người báo hoàn thành\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-08",
+    "tc": "TC-UI-AUD-08",
+    "screen": "AUD-08",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Thu hồi tài chính và đối chiếu PAY: hiển thị đúng 7 trường, áp quy tắc \"Σ thu hồi ≤ số kiến nghị (khóa hàng); một khoản PAY chỉ gắn một lần; sửa sai bằng dòng đảo\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-09",
+    "tc": "TC-UI-AUD-09",
+    "screen": "AUD-09",
+    "module": "AUD",
+    "priority": "P1",
+    "expected": "Bằng chứng khắc phục: hiển thị đúng 5 trường, áp quy tắc \"Chỉ gắn văn bản EFFECTIVE hoặc tệp ATTACHMENT đã quét sạch; xem theo quyền tài liệu\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-10",
+    "tc": "TC-UI-AUD-10",
+    "screen": "AUD-10",
+    "module": "AUD",
+    "priority": "P0",
+    "expected": "Báo cáo kết quả thực hiện kiến nghị: hiển thị đúng 5 trường, áp quy tắc \"Số liệu chốt as-of và băm; phát hành qua DOC (mẫu AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI); chỉ ISSUED khi nhận doc.issued\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-AUD-11",
+    "tc": "TC-UI-AUD-11",
+    "screen": "AUD-11",
+    "module": "AUD",
+    "priority": "P1",
+    "expected": "Cảnh báo quá hạn và leo thang: hiển thị đúng 6 trường, áp quy tắc \"Nhắc 7/3/1 ngày trước hạn; quá hạn leo thang lên lãnh đạo đơn vị owner qua NOT\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-BI-01",
+    "tc": "TC-UI-BI-01",
+    "screen": "BI-01",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-02",
+    "tc": "TC-UI-BI-02",
+    "screen": "BI-02",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-03",
+    "tc": "TC-UI-BI-03",
+    "screen": "BI-03",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-04",
+    "tc": "TC-UI-BI-04",
+    "screen": "BI-04",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-05",
+    "tc": "TC-UI-BI-05",
+    "screen": "BI-05",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-06",
+    "tc": "TC-UI-BI-06",
+    "screen": "BI-06",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-07",
+    "tc": "TC-UI-BI-07",
+    "screen": "BI-07",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-08",
+    "tc": "TC-UI-BI-08",
+    "screen": "BI-08",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-09",
+    "tc": "TC-UI-BI-09",
+    "screen": "BI-09",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-10",
+    "tc": "TC-UI-BI-10",
+    "screen": "BI-10",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-11",
+    "tc": "TC-UI-BI-11",
+    "screen": "BI-11",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-12",
+    "tc": "TC-UI-BI-12",
+    "screen": "BI-12",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-13",
+    "tc": "TC-UI-BI-13",
+    "screen": "BI-13",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-14",
+    "tc": "TC-UI-BI-14",
+    "screen": "BI-14",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BI-15",
+    "tc": "TC-UI-BI-15",
+    "screen": "BI-15",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Đăng ký chỉ tiêu từ mã nguồn: hiển thị đúng 7 trường, áp quy tắc \"Đồng bộ chỉ từ CI/deploy; cùng băm gói không áp dụng lại; đổi nghĩa chỉ tiêu cần mã mới\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-BI-16",
+    "tc": "TC-UI-BI-16",
+    "screen": "BI-16",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Xuất dữ liệu và phạm vi: hiển thị đúng 7 trường, áp quy tắc \"Kiểm quyền lại khi chạy và khi tải; tệp ghi phạm vi, as_of, snapshot; vượt trần dòng → yêu cầu thu hẹp\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-BI-17",
+    "tc": "TC-UI-BI-17",
+    "screen": "BI-17",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Chia sẻ dashboard: hiển thị đúng 4 trường, áp quy tắc \"Chia sẻ chỉ cấp quyền xem đối tượng; dữ liệu hiển thị theo quyền của người xem\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-BI-18",
+    "tc": "TC-UI-BI-18",
+    "screen": "BI-18",
+    "module": "BI",
+    "priority": "P1",
+    "expected": "Bộ dữ liệu và ảnh chụp kỳ: hiển thị đúng 7 trường, áp quy tắc \"Một snapshot FROZEN mỗi dataset × kỳ; dựng lại tạo bản mới SUPERSEDED bản cũ, không sửa bản đã dùng\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-BID-01",
+    "tc": "TC-UI-BID-01",
+    "screen": "BID-01",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-02",
+    "tc": "TC-UI-BID-02",
+    "screen": "BID-02",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-03",
+    "tc": "TC-UI-BID-03",
+    "screen": "BID-03",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-04",
+    "tc": "TC-UI-BID-04",
+    "screen": "BID-04",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-05",
+    "tc": "TC-UI-BID-05",
+    "screen": "BID-05",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-06",
+    "tc": "TC-UI-BID-06",
+    "screen": "BID-06",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-07",
+    "tc": "TC-UI-BID-07",
+    "screen": "BID-07",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-08",
+    "tc": "TC-UI-BID-08",
+    "screen": "BID-08",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-09",
+    "tc": "TC-UI-BID-09",
+    "screen": "BID-09",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-10",
+    "tc": "TC-UI-BID-10",
+    "screen": "BID-10",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-11",
+    "tc": "TC-UI-BID-11",
+    "screen": "BID-11",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-12",
+    "tc": "TC-UI-BID-12",
+    "screen": "BID-12",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-13",
+    "tc": "TC-UI-BID-13",
+    "screen": "BID-13",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-14",
+    "tc": "TC-UI-BID-14",
+    "screen": "BID-14",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-15",
+    "tc": "TC-UI-BID-15",
+    "screen": "BID-15",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-16",
+    "tc": "TC-UI-BID-16",
+    "screen": "BID-16",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-17",
+    "tc": "TC-UI-BID-17",
+    "screen": "BID-17",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-18",
+    "tc": "TC-UI-BID-18",
+    "screen": "BID-18",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-19",
+    "tc": "TC-UI-BID-19",
+    "screen": "BID-19",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-20",
+    "tc": "TC-UI-BID-20",
+    "screen": "BID-20",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-BID-21",
+    "tc": "TC-UI-BID-21",
+    "screen": "BID-21",
+    "module": "BID",
+    "priority": "P1",
+    "expected": "Hạn chế tham gia lựa chọn nhà thầu: hiển thị đúng 5 trường, áp quy tắc \"Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trình kết quả (CONTRACTOR_RESTRICTED)\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-CAP-01",
+    "tc": "TC-UI-CAP-01",
+    "screen": "CAP-01",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-02",
+    "tc": "TC-UI-CAP-02",
+    "screen": "CAP-02",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-03",
+    "tc": "TC-UI-CAP-03",
+    "screen": "CAP-03",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-04",
+    "tc": "TC-UI-CAP-04",
+    "screen": "CAP-04",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-05",
+    "tc": "TC-UI-CAP-05",
+    "screen": "CAP-05",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-06",
+    "tc": "TC-UI-CAP-06",
+    "screen": "CAP-06",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-07",
+    "tc": "TC-UI-CAP-07",
+    "screen": "CAP-07",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-08",
+    "tc": "TC-UI-CAP-08",
+    "screen": "CAP-08",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-09",
+    "tc": "TC-UI-CAP-09",
+    "screen": "CAP-09",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-10",
+    "tc": "TC-UI-CAP-10",
+    "screen": "CAP-10",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-11",
+    "tc": "TC-UI-CAP-11",
+    "screen": "CAP-11",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-12",
+    "tc": "TC-UI-CAP-12",
+    "screen": "CAP-12",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-13",
+    "tc": "TC-UI-CAP-13",
+    "screen": "CAP-13",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-14",
+    "tc": "TC-UI-CAP-14",
+    "screen": "CAP-14",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-15",
+    "tc": "TC-UI-CAP-15",
+    "screen": "CAP-15",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CAP-16",
+    "tc": "TC-UI-CAP-16",
+    "screen": "CAP-16",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Sổ dự toán và nguồn được giao: hiển thị đúng 8 trường, áp quy tắc \"Mỗi appropriation có văn bản giao; tổng phân bổ ≤ giá trị giao (CHECK DB); CTMTQG là tập con, không cộng thêm\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-CAP-17",
+    "tc": "TC-UI-CAP-17",
+    "screen": "CAP-17",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Kiểm soát hạn mức khả dụng (AVC): hiển thị đúng 6 trường, áp quy tắc \"warn_pct ≤ block_pct ≤ 100; tiêu dùng = (giữ vốn + cam kết + đã giải ngân)/vốn giao; vượt warn cần xác nhận, vượt block bị chặn\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-CAP-18",
+    "tc": "TC-UI-CAP-18",
+    "screen": "CAP-18",
+    "module": "CAP",
+    "priority": "P1",
+    "expected": "Giữ vốn trước cam kết: hiển thị đúng 6 trường, áp quy tắc \"Giữ vốn giảm số dư khả dụng; hết hạn tự giải phóng bằng bút toán RELEASE; không xóa\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-CAP-19",
+    "tc": "TC-UI-CAP-19",
+    "screen": "CAP-19",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Đề xuất điều chuyển vốn chậm sang nhanh: hiển thị đúng 7 trường, áp quy tắc \"Chỉ điều chuyển cùng nguồn và cấp ngân sách; dòng giảm không xuống dưới đã cam kết; áp dụng tạo revision kế hoạch mới có văn bản\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-CAP-20",
+    "tc": "TC-UI-CAP-20",
+    "screen": "CAP-20",
+    "module": "CAP",
+    "priority": "P0",
+    "expected": "Kéo dài thời gian giải ngân vốn: hiển thị đúng 6 trường, áp quy tắc \"Kéo dài cần văn bản cho phép; tạo dòng CARRYOVER is_extended ở năm sau, giữ source_year gốc; không cộng vào vốn năm\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-CAP-21",
+    "tc": "TC-UI-CAP-21",
+    "screen": "CAP-21",
+    "module": "CAP",
+    "priority": "P1",
+    "expected": "Sổ cái vốn và tra cứu theo thời điểm: hiển thị đúng 6 trường, áp quy tắc \"Sổ cái append-only; sửa sai bằng REVERSAL; tra cứu kế hoạch tại thời điểm bất kỳ\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-CTR-01",
+    "tc": "TC-UI-CTR-01",
+    "screen": "CTR-01",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-02",
+    "tc": "TC-UI-CTR-02",
+    "screen": "CTR-02",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-03",
+    "tc": "TC-UI-CTR-03",
+    "screen": "CTR-03",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-04",
+    "tc": "TC-UI-CTR-04",
+    "screen": "CTR-04",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-05",
+    "tc": "TC-UI-CTR-05",
+    "screen": "CTR-05",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-06",
+    "tc": "TC-UI-CTR-06",
+    "screen": "CTR-06",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-07",
+    "tc": "TC-UI-CTR-07",
+    "screen": "CTR-07",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-08",
+    "tc": "TC-UI-CTR-08",
+    "screen": "CTR-08",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-09",
+    "tc": "TC-UI-CTR-09",
+    "screen": "CTR-09",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-10",
+    "tc": "TC-UI-CTR-10",
+    "screen": "CTR-10",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-11",
+    "tc": "TC-UI-CTR-11",
+    "screen": "CTR-11",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-12",
+    "tc": "TC-UI-CTR-12",
+    "screen": "CTR-12",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-13",
+    "tc": "TC-UI-CTR-13",
+    "screen": "CTR-13",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-14",
+    "tc": "TC-UI-CTR-14",
+    "screen": "CTR-14",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-15",
+    "tc": "TC-UI-CTR-15",
+    "screen": "CTR-15",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-16",
+    "tc": "TC-UI-CTR-16",
+    "screen": "CTR-16",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-17",
+    "tc": "TC-UI-CTR-17",
+    "screen": "CTR-17",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-18",
+    "tc": "TC-UI-CTR-18",
+    "screen": "CTR-18",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-CTR-19",
+    "tc": "TC-UI-CTR-19",
+    "screen": "CTR-19",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Chuỗi thay đổi ChangeEvent → PCO → CO: hiển thị đúng 8 trường; áp quy tắc \"Số tầng cố định theo dự án sau lần dùng đầu; chỉ CO APPROVED tạo phiên bản hợp đồng; duyệt khác người lập; phiên bản chưa hiệu lực không đổi BOQ thanh toán\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-CTR-20",
+    "tc": "TC-UI-CTR-20",
+    "screen": "CTR-20",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Cấu hình số tầng thay đổi của dự án: hiển thị đúng 5 trường; áp quy tắc \"Đặt được trước lần dùng đầu; sau đó khóa (CHANGE_TIERS_LOCKED), kể cả bằng SQL trực tiếp\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-CTR-21",
+    "tc": "TC-UI-CTR-21",
+    "screen": "CTR-21",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Giữ lại theo dòng BOQ và giải tỏa: hiển thị đúng 7 trường; áp quy tắc \"Giải tỏa cần quyền retention.release, điều kiện đạt và người duyệt khác người đề xuất; không vượt số đang giữ\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-CTR-22",
+    "tc": "TC-UI-CTR-22",
+    "screen": "CTR-22",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Tạm dừng, tiếp tục và chấm dứt hợp đồng: hiển thị đúng 7 trường; áp quy tắc \"Mọi chuyển Suspended/Terminated cần lý do, văn bản và người duyệt; Terminated không đảo ngược\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-CTR-23",
+    "tc": "TC-UI-CTR-23",
+    "screen": "CTR-23",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Bảng điểm nhà thầu và nhật ký vi phạm: hiển thị đúng 10 trường; áp quy tắc \"Điểm theo trọng số rule version; người duyệt khác người lập; vi phạm cần văn bản mới được xác nhận\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-CTR-24",
+    "tc": "TC-UI-CTR-24",
+    "screen": "CTR-24",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Xuất hồ sơ nhà thầu cho cơ sở dữ liệu quốc gia: hiển thị đúng 7 trường; áp quy tắc \"Tệp xuất idempotent theo mã băm; nộp ra ngoài thực hiện thủ công, mã biên nhận nhập tay (adapter PROPOSED, API MISSING)\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-CTR-25",
+    "tc": "TC-UI-CTR-25",
+    "screen": "CTR-25",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Thành viên liên danh và phạm vi: hiển thị đúng 7 trường; áp quy tắc \"Tổng tỷ lệ phải bằng 100; ngưỡng thu hồi 80% áp theo từng thành viên\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-CTR-26",
+    "tc": "TC-UI-CTR-26",
+    "screen": "CTR-26",
+    "module": "CTR",
+    "priority": "P1",
+    "expected": "Phiên bản hợp đồng và hiệu lực: hiển thị đúng 7 trường; áp quy tắc \"Chỉ phiên bản EFFECTIVE dùng cho BOQ thanh toán; phiên bản PENDING_EFFECTIVE hiển thị nhưng không tính; hồi tố qua quy trình riêng\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-DGV-01",
+    "tc": "TC-UI-DGV-01",
+    "screen": "DGV-01",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-02",
+    "tc": "TC-UI-DGV-02",
+    "screen": "DGV-02",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-03",
+    "tc": "TC-UI-DGV-03",
+    "screen": "DGV-03",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-04",
+    "tc": "TC-UI-DGV-04",
+    "screen": "DGV-04",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-05",
+    "tc": "TC-UI-DGV-05",
+    "screen": "DGV-05",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-06",
+    "tc": "TC-UI-DGV-06",
+    "screen": "DGV-06",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-07",
+    "tc": "TC-UI-DGV-07",
+    "screen": "DGV-07",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-08",
+    "tc": "TC-UI-DGV-08",
+    "screen": "DGV-08",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-09",
+    "tc": "TC-UI-DGV-09",
+    "screen": "DGV-09",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-10",
+    "tc": "TC-UI-DGV-10",
+    "screen": "DGV-10",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-11",
+    "tc": "TC-UI-DGV-11",
+    "screen": "DGV-11",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-12",
+    "tc": "TC-UI-DGV-12",
+    "screen": "DGV-12",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-13",
+    "tc": "TC-UI-DGV-13",
+    "screen": "DGV-13",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-14",
+    "tc": "TC-UI-DGV-14",
+    "screen": "DGV-14",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-15",
+    "tc": "TC-UI-DGV-15",
+    "screen": "DGV-15",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-16",
+    "tc": "TC-UI-DGV-16",
+    "screen": "DGV-16",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-17",
+    "tc": "TC-UI-DGV-17",
+    "screen": "DGV-17",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-18",
+    "tc": "TC-UI-DGV-18",
+    "screen": "DGV-18",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DGV-19",
+    "tc": "TC-UI-DGV-19",
+    "screen": "DGV-19",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Chấp thuận thay đổi hợp đồng dữ liệu: hiển thị đúng 6 trường, áp quy tắc \"BREAKING chỉ phát hành khi mọi consumer APPROVED và có cửa sổ dual-run\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DGV-20",
+    "tc": "TC-UI-DGV-20",
+    "screen": "DGV-20",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Mapping trường nguồn (D04): hiển thị đúng 7 trường, áp quy tắc \"Data owner xác nhận (khác người đề xuất); chỉ mapping CONFIRMED được pipeline dùng\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DGV-21",
+    "tc": "TC-UI-DGV-21",
+    "screen": "DGV-21",
+    "module": "DGV",
+    "priority": "P1",
+    "expected": "Rubric trưởng thành dữ liệu: hiển thị đúng 7 trường, áp quy tắc \"Rubric riêng tham chiếu DCAM/DMM, không tuyên bố chứng nhận; người công bố khác người soạn\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIR-01",
+    "tc": "TC-UI-DIR-01",
+    "screen": "DIR-01",
+    "module": "DIR",
+    "priority": "P0",
+    "expected": "Các cuộc giao ban đầu tư: hiển thị đúng 7 trường, áp quy tắc \"Ngày giao ban không ở tương lai; mã GB-năm-số đánh theo năm; biên bản là phiên bản tệp của tenant không nhiễm mã độc\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIR-02",
+    "tc": "TC-UI-DIR-02",
+    "screen": "DIR-02",
+    "module": "DIR",
+    "priority": "P0",
+    "expected": "Chi tiết cuộc giao ban và các chỉ đạo đã giao: hiển thị đúng 8 trường, áp quy tắc \"Mỗi chỉ đạo về đúng một dự án hoặc một đơn vị, có đơn vị thực hiện và hạn không trước ngày họp; chỉ đạo ghi lại không sửa nội dung\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIR-03",
+    "tc": "TC-UI-DIR-03",
+    "screen": "DIR-03",
+    "module": "DIR",
+    "priority": "P0",
+    "expected": "Bảng theo dõi chỉ đạo: hiển thị đúng 8 trường, áp quy tắc \"Quá hạn là chỉ đạo chưa đóng quá ngày hạn, tính theo đồng hồ trong ngày, không lưu; số liệu có công thức, nguồn và thời điểm\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIR-04",
+    "tc": "TC-UI-DIR-04",
+    "screen": "DIR-04",
+    "module": "DIR",
+    "priority": "P0",
+    "expected": "Chi tiết chỉ đạo, dòng thời gian, gia hạn và đóng: hiển thị đúng 8 trường, áp quy tắc \"Đóng cần bằng chứng và người đóng khác người ghi chỉ đạo và người thực hiện; gia hạn có lý do, người duyệt khác người đề nghị, trong số ngày và số lần chính sách cho phép; lịch sử không sửa\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIR-05",
+    "tc": "TC-UI-DIR-05",
+    "screen": "DIR-05",
+    "module": "DIR",
+    "priority": "P0",
+    "expected": "Chỉ đạo của kỳ làm đầu vào báo cáo kỳ sau: hiển thị đúng 8 trường, áp quy tắc \"Trạng thái cuối kỳ dựng lại từ dòng thời gian; chỉ đạo đến hạn đúng ngày cuối kỳ mà chưa đóng tính là quá hạn cuối ngày; số liệu cộng khớp với danh sách\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIS-01",
+    "tc": "TC-UI-DIS-01",
+    "screen": "DIS-01",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-02",
+    "tc": "TC-UI-DIS-02",
+    "screen": "DIS-02",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-03",
+    "tc": "TC-UI-DIS-03",
+    "screen": "DIS-03",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-04",
+    "tc": "TC-UI-DIS-04",
+    "screen": "DIS-04",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-05",
+    "tc": "TC-UI-DIS-05",
+    "screen": "DIS-05",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-06",
+    "tc": "TC-UI-DIS-06",
+    "screen": "DIS-06",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-07",
+    "tc": "TC-UI-DIS-07",
+    "screen": "DIS-07",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-08",
+    "tc": "TC-UI-DIS-08",
+    "screen": "DIS-08",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-09",
+    "tc": "TC-UI-DIS-09",
+    "screen": "DIS-09",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-10",
+    "tc": "TC-UI-DIS-10",
+    "screen": "DIS-10",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-11",
+    "tc": "TC-UI-DIS-11",
+    "screen": "DIS-11",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-12",
+    "tc": "TC-UI-DIS-12",
+    "screen": "DIS-12",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-13",
+    "tc": "TC-UI-DIS-13",
+    "screen": "DIS-13",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-14",
+    "tc": "TC-UI-DIS-14",
+    "screen": "DIS-14",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-15",
+    "tc": "TC-UI-DIS-15",
+    "screen": "DIS-15",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-16",
+    "tc": "TC-UI-DIS-16",
+    "screen": "DIS-16",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-17",
+    "tc": "TC-UI-DIS-17",
+    "screen": "DIS-17",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-18",
+    "tc": "TC-UI-DIS-18",
+    "screen": "DIS-18",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-DIS-19",
+    "tc": "TC-UI-DIS-19",
+    "screen": "DIS-19",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Hai tỷ lệ giải ngân song song: hiển thị đúng 7 trường, áp quy tắc \"Luôn hiển thị song song hai tỷ lệ cùng tử số; tử số tính theo ngày Kho bạc thanh toán; mẫu số 0 → null + lý do [CXN-03]\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIS-20",
+    "tc": "TC-UI-DIS-20",
+    "screen": "DIS-20",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Quy tắc cảnh báo sớm: hiển thị đúng 6 trường, áp quy tắc \"Quy tắc là dữ liệu có phiên bản, legal_basis và hiệu lực; người duyệt khác người soạn; cảnh báo dedupe theo rule+đối tượng+kỳ\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIS-21",
+    "tc": "TC-UI-DIS-21",
+    "screen": "DIS-21",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Chốt và đóng băng số liệu kỳ: hiển thị đúng 6 trường, áp quy tắc \"Snapshot FROZEN bất biến; sửa sau chốt tạo snapshot mới supersede; mọi số HOME/MNE đọc từ snapshot có as_of\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIS-22",
+    "tc": "TC-UI-DIS-22",
+    "screen": "DIS-22",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Mở lại kỳ có lý do: hiển thị đúng 5 trường, áp quy tắc \"Mở lại cần lý do ≥20 ký tự, phạm vi, thời hạn và người duyệt khác người đề nghị; hết hạn tự khóa lại\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIS-23",
+    "tc": "TC-UI-DIS-23",
+    "screen": "DIS-23",
+    "module": "DIS",
+    "priority": "P1",
+    "expected": "Dự báo dòng tiền và ước cuối năm (EAC): hiển thị đúng 6 trường, áp quy tắc \"EAC = đã giải ngân theo ngày Kho bạc + Σ dự báo các tháng còn lại hiện hành; nêu phương pháp và giả định\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIS-24",
+    "tc": "TC-UI-DIS-24",
+    "screen": "DIS-24",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Kế hoạch giải ngân tuần theo dự án: hiển thị đúng 6 trường, áp quy tắc \"Kế hoạch tuần là cam kết, không phải actual; chênh lệch âm hai tuần liên tiếp sinh cảnh báo EW-09 [CXN-33]\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DIS-25",
+    "tc": "TC-UI-DIS-25",
+    "screen": "DIS-25",
+    "module": "DIS",
+    "priority": "P0",
+    "expected": "Định nghĩa chỉ tiêu kỳ/YTD/lũy kế và bộ số golden: hiển thị đúng 5 trường, áp quy tắc \"Định nghĩa đề xuất ở trạng thái CHỜ KÝ; snapshot và tệp xuất ghi definition_status; chỉ Chủ nghiệp vụ vốn ký\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-01",
+    "tc": "TC-UI-DOC-01",
+    "screen": "DOC-01",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Tổng quan văn bản: hiển thị đúng 7 trường, áp quy tắc \"Mỗi ô là MetricTile có as_of; số đếm theo scope đơn vị của người xem; ô \"Mẫu chờ xác nhận pháp lý\" hiển thị nhãn [CXN] và dẫn tới DOC-14\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-02",
+    "tc": "TC-UI-DOC-02",
+    "screen": "DOC-02",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Soạn thảo văn bản đi: hiển thị đúng 7 trường, áp quy tắc \"Chỉ chọn được mẫu PUBLISHED còn hiệu lực tại ngày soạn; payload sai schema bị chặn; mẫu chưa xác nhận pháp lý luôn có watermark; văn bản độ mật nhà nước bị từ chối (STATE_SECRET_NOT_SUPPORTED)\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-03",
+    "tc": "TC-UI-DOC-03",
+    "screen": "DOC-03",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Danh sách văn bản đi: hiển thị đúng 8 trường, áp quy tắc \"Lọc theo scope cây đơn vị; trạng thái RECALLED/REPLACED/CORRECTED hiển thị bằng chữ + icon; không lộ văn bản ngoài scope\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-04",
+    "tc": "TC-UI-DOC-04",
+    "screen": "DOC-04",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Rà soát và trình ký: hiển thị đúng 6 trường, áp quy tắc \"Người duyệt khác người soạn; PDF cuối bị khóa khi chuyển SUBMITTED; người ký phải đạt thẩm quyền DoA theo loại văn bản và số tiền; ký thay/ủy quyền cần delegation đang hiệu lực\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-05",
+    "tc": "TC-UI-DOC-05",
+    "screen": "DOC-05",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Ký số lãnh đạo: hiển thị đúng 6 trường, áp quy tắc \"Lãnh đạo ký PAdES trên đúng PDF đã khóa (revision n); chứng thư phải Active ở ADM và chưa bị thu hồi; phiên hết hạn sau 15 phút; trạng thái adapter hiển thị VERIFIED/PROPOSED/MOCK/MISSING\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-06",
+    "tc": "TC-UI-DOC-06",
+    "screen": "DOC-06",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Cấp số và ký số cơ quan: hiển thị đúng 7 trường, áp quy tắc \"Số cấp sau khi lãnh đạo ký, trong transaction khóa hàng sổ; không hậu tố a/b; thất bại ở bước đóng dấu giữ nguyên số (NUMBERED) cho tới khi thử lại hoặc hủy số có người duyệt khác\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-07",
+    "tc": "TC-UI-DOC-07",
+    "screen": "DOC-07",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Xác minh chữ ký và chứng thư: hiển thị đúng 6 trường, áp quy tắc \"Hiển thị đủ lý do mã hóa (failure_codes); INDETERMINATE chặn phát hành trừ khi chính sách tenant cho phép; xác minh lại không ghi đè kết quả cũ\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-08",
+    "tc": "TC-UI-DOC-08",
+    "screen": "DOC-08",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Phát hành và phân phối: hiển thị đúng 7 trường, áp quy tắc \"Chỉ phát hành khi cả hai chữ ký VALID; doc.issued phát một lần; gửi lại không tạo phân phối trùng\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-09",
+    "tc": "TC-UI-DOC-09",
+    "screen": "DOC-09",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Tải lên văn bản đã ký bên ngoài: hiển thị đúng 6 trường, áp quy tắc \"Đường (ii): xác minh chữ ký và chuỗi chứng thư trước khi đăng ký số; trùng số trong sổ → 409; chữ ký không hợp lệ → không đăng ký\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-10",
+    "tc": "TC-UI-DOC-10",
+    "screen": "DOC-10",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Sổ đăng ký văn bản đi: hiển thị đúng 8 trường, áp quy tắc \"Số liên tục từ 01 mỗi năm, số hủy vẫn hiện trong sổ; xuất sổ có chữ ký số và băm; auditor chỉ đọc\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-11",
+    "tc": "TC-UI-DOC-11",
+    "screen": "DOC-11",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Tiếp nhận văn bản đến: hiển thị đúng 7 trường, áp quy tắc \"Tệp quét virus trước khi liên kết; trùng (cơ quan + ký hiệu + ngày) bị chặn trừ khi có lý do; văn bản độ mật nhà nước không nhận\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-12",
+    "tc": "TC-UI-DOC-12",
+    "screen": "DOC-12",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Sổ văn bản đến và phân công: hiển thị đúng 8 trường, áp quy tắc \"Số đến cấp theo sổ năm; phân công trong scope của người giao; quá hạn đánh dấu bằng chữ và ngày hạn gốc\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-13",
+    "tc": "TC-UI-DOC-13",
+    "screen": "DOC-13",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Xử lý văn bản đến: hiển thị đúng 6 trường, áp quy tắc \"Chỉ người được giao xử lý; văn bản trả lời liên kết phải đã ISSUED; giải quyết sau hạn đánh dấu trễ\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-14",
+    "tc": "TC-UI-DOC-14",
+    "screen": "DOC-14",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Thư viện mẫu văn bản: hiển thị đúng 7 trường, áp quy tắc \"Mẫu chưa xác nhận hiển thị nhãn \"Chờ xác nhận [CXN]\"; lọc theo ngày hiệu lực; mẫu của TT 44/2026 M02–M10 có watermark tới khi pháp chế ghi xác nhận\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-15",
+    "tc": "TC-UI-DOC-15",
+    "screen": "DOC-15",
+    "module": "DOC",
+    "priority": "P1",
+    "expected": "Chi tiết và phiên bản mẫu: hiển thị đúng 7 trường, áp quy tắc \"Người duyệt khác người soạn; hiệu lực các revision cùng mã không chồng lấn; chỉ pháp chế ghi xác nhận pháp lý\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-16",
+    "tc": "TC-UI-DOC-16",
+    "screen": "DOC-16",
+    "module": "DOC",
+    "priority": "P1",
+    "expected": "Thể thức và bố cục theo Phụ lục I NĐ 30/2020: hiển thị đúng 7 trường, áp quy tắc \"Giá trị ngoài khoảng cho phép bị từ chối (LAYOUT_OUT_OF_LEGAL_RANGE); dựng lại cùng đầu vào cho PDF cùng băm; phông thay thế được ghi rõ\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-17",
+    "tc": "TC-UI-DOC-17",
+    "screen": "DOC-17",
+    "module": "DOC",
+    "priority": "P1",
+    "expected": "Hồ sơ và lưu trữ: hiển thị đúng 7 trường, áp quy tắc \"Đóng hồ sơ chốt quy tắc bảo quản đang hiệu lực; chưa có quy tắc xác nhận → giữ vĩnh viễn tạm thời; legal hold chặn đề nghị hủy\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-18",
+    "tc": "TC-UI-DOC-18",
+    "screen": "DOC-18",
+    "module": "DOC",
+    "priority": "P1",
+    "expected": "Quy tắc bảo quản tài liệu: hiển thị đúng 7 trường, áp quy tắc \"Quy tắc là dữ liệu có hiệu lực; hai bộ quy tắc khác nhau cùng nhóm cần pháp chế chọn precedence; người duyệt khác người soạn\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-19",
+    "tc": "TC-UI-DOC-19",
+    "screen": "DOC-19",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Thu hồi, thay thế và đính chính: hiển thị đúng 6 trường, áp quy tắc \"Thu hồi cần lý do và căn cứ; số đã cấp không tái sử dụng; module nguồn nhận doc.recalled kèm source_ref và băm\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-20",
+    "tc": "TC-UI-DOC-20",
+    "screen": "DOC-20",
+    "module": "DOC",
+    "priority": "P1",
+    "expected": "Liên thông văn bản qua LGSP: hiển thị đúng 7 trường, áp quy tắc \"Adapter PROPOSED [CXN-06]; không có lời gọi ra ngoài ngoài allowlist của tenant; trùng envelope bị bỏ qua; DEAD sau 20 lần có cảnh báo và owner\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-DOC-21",
+    "tc": "TC-UI-DOC-21",
+    "screen": "DOC-21",
+    "module": "DOC",
+    "priority": "P0",
+    "expected": "Cấu hình sổ cấp số và loại văn bản: hiển thị đúng 7 trường, áp quy tắc \"Mỗi (sổ, tổ chức, năm) duy nhất; mở sổ năm mới tự động 00:00 01/01 giờ VN; khóa sổ năm cũ chỉ khi không còn văn bản NUMBERED\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-EBS-01",
+    "tc": "TC-UI-EBS-01",
+    "screen": "EBS-01",
+    "module": "EBS",
+    "priority": "P1",
+    "expected": "Kết nối Oracle EBS: trạng thái, chạy thử và nhập tệp: all 6 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission"
+  },
+  {
+    "id": "UI-EBS-02",
+    "tc": "TC-UI-EBS-02",
+    "screen": "EBS-02",
+    "module": "EBS",
+    "priority": "P1",
+    "expected": "Đối chiếu Oracle EBS theo mã dự án và giải trình chênh lệch: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission"
+  },
+  {
+    "id": "UI-EQP-01",
+    "tc": "TC-UI-EQP-01",
+    "screen": "EQP-01",
+    "module": "ENT",
+    "priority": "P1",
+    "expected": "All twelve fields shown, a masked figure reads as no permission and never as 0, the public build has no such screen"
+  },
+  {
+    "id": "UI-EQP-02",
+    "tc": "TC-UI-EQP-02",
+    "screen": "EQP-02",
+    "module": "ENT",
+    "priority": "P1",
+    "expected": "All eleven fields shown, a second link is refused, a cancelled line offers no change"
+  },
+  {
+    "id": "UI-HOME-01",
+    "tc": "TC-UI-HOME-01",
+    "screen": "HOME-01",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-HOME-02",
+    "tc": "TC-UI-HOME-02",
+    "screen": "HOME-02",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-HOME-03",
+    "tc": "TC-UI-HOME-03",
+    "screen": "HOME-03",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-HOME-04",
+    "tc": "TC-UI-HOME-04",
+    "screen": "HOME-04",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-HOME-05",
+    "tc": "TC-UI-HOME-05",
+    "screen": "HOME-05",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-HOME-06",
+    "tc": "TC-UI-HOME-06",
+    "screen": "HOME-06",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-HOME-07",
+    "tc": "TC-UI-HOME-07",
+    "screen": "HOME-07",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-HOME-08",
+    "tc": "TC-UI-HOME-08",
+    "screen": "HOME-08",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-HOME-09",
+    "tc": "TC-UI-HOME-09",
+    "screen": "HOME-09",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Trung tâm điều hành giải ngân: hiển thị đúng 6 trường, áp quy tắc \"Mọi ô số mang scope, as_of, snapshot, công thức; drill giữ ngữ cảnh và kiểm lại quyền ở đích\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-HOME-10",
+    "tc": "TC-UI-HOME-10",
+    "screen": "HOME-10",
+    "module": "HOME",
+    "priority": "P0",
+    "expected": "Ngữ cảnh số liệu và truy nguồn: hiển thị đúng 7 trường, áp quy tắc \"Tử số/mẫu số trả riêng; tổng con khớp tổng cha hoặc nêu lý do không cộng được; thiếu dữ liệu không thành 0\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-HPM-01",
+    "tc": "TC-UI-HPM-01",
+    "screen": "HPM-01",
+    "module": "HPM",
+    "priority": "P1",
+    "expected": "Đẩy báo cáo lên HPM: kết nối, nhật ký đẩy, đẩy lại và biên nhận: all 6 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission"
+  },
+  {
+    "id": "UI-HPM-02",
+    "tc": "TC-UI-HPM-02",
+    "screen": "HPM-02",
+    "module": "HPM",
+    "priority": "P1",
+    "expected": "Đính chính kỳ báo cáo đã được HPM nhận: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission"
+  },
+  {
+    "id": "UI-HUB-01",
+    "tc": "TC-UI-HUB-01",
+    "screen": "HUB-01",
+    "module": "HUB",
+    "priority": "P0",
+    "expected": "Danh mục bộ kết nối và sức khỏe tích hợp: hiển thị đúng 9 trường, áp quy tắc \"Một danh mục cho mọi kết nối dữ liệu bên ngoài; trạng thái KHỎE, CŨ, LỖI, TẮT, CHỜ BÊN NGOÀI, CHƯA CHẠY; số liệu có biểu tượng i (công thức, nguồn, thời điểm); bộ kết nối chờ bên ngoài không tính vào tỷ lệ khỏe.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px"
+  },
+  {
+    "id": "UI-HUB-02",
+    "tc": "TC-UI-HUB-02",
+    "screen": "HUB-02",
+    "module": "HUB",
+    "priority": "P0",
+    "expected": "Chi tiết bộ kết nối: hiển thị đúng 8 trường, áp quy tắc \"Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng của bộ kết nối khi có); ánh xạ do người này đề xuất và người khác duyệt; bản ghi bị loại xử lý lại sau khi sửa; bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu kho khóa.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px"
+  },
+  {
+    "id": "UI-HUB-03",
+    "tc": "TC-UI-HUB-03",
+    "screen": "HUB-03",
+    "module": "HUB",
+    "priority": "P0",
+    "expected": "Nhật ký sự cố tích hợp: hiển thị đúng 7 trường, áp quy tắc \"Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại; điều kiện hết thì sự cố tự đóng; nhận xử lý và đóng cần lý do; nhật ký chỉ ghi thêm.\", 7 trạng thái hiển thị đúng, không lỗi console, không tràn ngang ở 390 px"
+  },
+  {
+    "id": "UI-IAM-01",
+    "tc": "TC-UI-IAM-01",
+    "screen": "IAM-01",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-IAM-02",
+    "tc": "TC-UI-IAM-02",
+    "screen": "IAM-02",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-IAM-03",
+    "tc": "TC-UI-IAM-03",
+    "screen": "IAM-03",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-IAM-04",
+    "tc": "TC-UI-IAM-04",
+    "screen": "IAM-04",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-IAM-05",
+    "tc": "TC-UI-IAM-05",
+    "screen": "IAM-05",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-IAM-06",
+    "tc": "TC-UI-IAM-06",
+    "screen": "IAM-06",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-IAM-07",
+    "tc": "TC-UI-IAM-07",
+    "screen": "IAM-07",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-IAM-08",
+    "tc": "TC-UI-IAM-08",
+    "screen": "IAM-08",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-IAM-09",
+    "tc": "TC-UI-IAM-09",
+    "screen": "IAM-09",
+    "module": "IAM",
+    "priority": "P0",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (SESSION_EXPIRED; trạng thái stale khi scope_version tăng) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-IND-01",
+    "tc": "TC-UI-IND-01",
+    "screen": "IND-01",
+    "module": "IND",
+    "priority": "P0",
+    "expected": "Từ điển chỉ tiêu: hiển thị đúng 9 trường, giá trị khởi điểm ghi rõ chưa xác nhận, chỉ tiêu do hệ thống tính không có ô nhập; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-IND-02",
+    "tc": "TC-UI-IND-02",
+    "screen": "IND-02",
+    "module": "IND",
+    "priority": "P0",
+    "expected": "Quy tắc nhập liệu: hiển thị đúng 8 trường, quy tắc khởi điểm ghi là khuôn chưa áp dụng, kết quả chạy thử nêu từng quy tắc và lý do; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-IND-03",
+    "tc": "TC-UI-IND-03",
+    "screen": "IND-03",
+    "module": "IND",
+    "priority": "P0",
+    "expected": "Bảng ánh xạ nhập Excel: hiển thị đúng 9 trường, bảng mẫu ghi là khuôn chưa dùng được để đọc tệp, chạy thử không ghi gì, dòng bị từ chối nêu dòng, trường và mã; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-INT-01",
+    "tc": "TC-UI-INT-01",
+    "screen": "INT-01",
+    "module": "INT",
+    "priority": "P0",
+    "expected": "Tài khoản máy: hiển thị đúng 7 trường, áp quy tắc \"Mỗi tài khoản máy đọc đúng phạm vi đã cấp và chỉ dữ liệu của tổ chức mình; bí mật hiện một lần rồi chỉ còn giá trị băm; tạm khóa có hiệu lực ngay cả với mã truy cập còn sống; thu hồi là cuối cùng và thu hồi mọi thông tin xác thực; mọi thao tác có lý do và vào nhật ký kiểm toán\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-INT-02",
+    "tc": "TC-UI-INT-02",
+    "screen": "INT-02",
+    "module": "INT",
+    "priority": "P0",
+    "expected": "Phạm vi và khóa: hiển thị đúng 7 trường, áp quy tắc \"Phạm vi chỉ cho đọc, không có phạm vi ghi; đổi khóa giữ khóa cũ trong thời gian chuyển tiếp có hạn (tối đa 72 giờ) và không bao giờ quá hai khóa còn sống; bí mật mới chỉ hiện một lần, phát lại yêu cầu không trả lại bí mật\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-INT-03",
+    "tc": "TC-UI-INT-03",
+    "screen": "INT-03",
+    "module": "INT",
+    "priority": "P0",
+    "expected": "Ánh xạ mã dự án đa hệ thống: hiển thị đúng 8 trường, áp quy tắc \"Mở rộng bảng master_crosswalk, không có bảng định danh mới; người đề xuất không tự duyệt (SELF_APPROVAL_DENIED); một mã ngoài chỉ thuộc một dự án và một dự án chỉ giữ một mã ACTIVE cho mỗi hệ thống; mã phải khớp khuôn dạng hệ thống khai báo; REJECTED và RETIRED là cuối cùng, mã sai thay bằng đề xuất mới\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-INT-04",
+    "tc": "TC-UI-INT-04",
+    "screen": "INT-04",
+    "module": "INT",
+    "priority": "P0",
+    "expected": "Tài khoản BI và tập dữ liệu chứng nhận: hiển thị đúng 9 trường, áp quy tắc \"Mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, chỉ đọc, gắn với tổ chức bằng chính tên đăng nhập, không bằng biến phiên app.tenant_id; view chỉ có dữ liệu đã chốt của tập dữ liệu đang CERTIFIED và đã bật; đổi app.tenant_id sang tổ chức khác không đọc được gì; mật khẩu hiện một lần và CSDL chỉ giữ giá trị SCRAM; ngừng tài khoản thì xóa tài khoản CSDL\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-INT-05",
+    "tc": "TC-UI-INT-05",
+    "screen": "INT-05",
+    "module": "INT",
+    "priority": "P0",
+    "expected": "Nhật ký truy cập API mở: hiển thị đúng 10 trường, áp quy tắc \"Mỗi lần đọc là một dòng, không sửa và không xóa được; chỉ ghi tên tham số truy vấn, không ghi giá trị; lần bị từ chối vì phạm vi, vì tập dữ liệu chưa chứng nhận hoặc vì vượt giới hạn tần suất cũng có dòng; đọc qua tài khoản CSDL của công cụ BI ghi ở nhật ký máy chủ CSDL, không ở đây\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-IPF-01",
+    "tc": "TC-UI-IPF-01",
+    "screen": "IPF-01",
+    "module": "ENT",
+    "priority": "P1",
+    "expected": "Every labelled field is present, a milestone the project does not hold reads as not held and never as done, an empty split says so and is never 0, a project outside the scope is not found, and the public build has no such screen"
+  },
+  {
+    "id": "UI-ISS-01",
+    "tc": "TC-UI-ISS-01",
+    "screen": "ISS-01",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ISS-02",
+    "tc": "TC-UI-ISS-02",
+    "screen": "ISS-02",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ISS-03",
+    "tc": "TC-UI-ISS-03",
+    "screen": "ISS-03",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ISS-04",
+    "tc": "TC-UI-ISS-04",
+    "screen": "ISS-04",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ISS-05",
+    "tc": "TC-UI-ISS-05",
+    "screen": "ISS-05",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ISS-06",
+    "tc": "TC-UI-ISS-06",
+    "screen": "ISS-06",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ISS-07",
+    "tc": "TC-UI-ISS-07",
+    "screen": "ISS-07",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ISS-08",
+    "tc": "TC-UI-ISS-08",
+    "screen": "ISS-08",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-ISS-09",
+    "tc": "TC-UI-ISS-09",
+    "screen": "ISS-09",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Chính sách SLA theo loại và đơn vị: hiển thị đúng 8 trường; áp quy tắc \"Mỗi thay đổi tạo phiên bản mới; vướng mắc giữ SLA đã áp tại thời điểm tạo\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-ISS-10",
+    "tc": "TC-UI-ISS-10",
+    "screen": "ISS-10",
+    "module": "ISS",
+    "priority": "P0",
+    "expected": "Leo thang và tổ công tác: hiển thị đúng 6 trường; áp quy tắc \"Leo thang không đóng vướng mắc gốc; cấp 3 phải đến tổ công tác đang hoạt động\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-ISS-11",
+    "tc": "TC-UI-ISS-11",
+    "screen": "ISS-11",
+    "module": "ISS",
+    "priority": "P1",
+    "expected": "Vướng mắc phát sinh từ GPMB, giấy phép, chất lượng: hiển thị đúng 6 trường; áp quy tắc \"Nội dung liên quan dữ liệu cá nhân không đưa vào vướng mắc; không tạo trùng cho cùng nguồn đang mở\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LLM-01",
+    "tc": "TC-UI-LLM-01",
+    "screen": "LLM-01",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-02",
+    "tc": "TC-UI-LLM-02",
+    "screen": "LLM-02",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-03",
+    "tc": "TC-UI-LLM-03",
+    "screen": "LLM-03",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-04",
+    "tc": "TC-UI-LLM-04",
+    "screen": "LLM-04",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-05",
+    "tc": "TC-UI-LLM-05",
+    "screen": "LLM-05",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-06",
+    "tc": "TC-UI-LLM-06",
+    "screen": "LLM-06",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-07",
+    "tc": "TC-UI-LLM-07",
+    "screen": "LLM-07",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-08",
+    "tc": "TC-UI-LLM-08",
+    "screen": "LLM-08",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-09",
+    "tc": "TC-UI-LLM-09",
+    "screen": "LLM-09",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-10",
+    "tc": "TC-UI-LLM-10",
+    "screen": "LLM-10",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-11",
+    "tc": "TC-UI-LLM-11",
+    "screen": "LLM-11",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-12",
+    "tc": "TC-UI-LLM-12",
+    "screen": "LLM-12",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-13",
+    "tc": "TC-UI-LLM-13",
+    "screen": "LLM-13",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-14",
+    "tc": "TC-UI-LLM-14",
+    "screen": "LLM-14",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-15",
+    "tc": "TC-UI-LLM-15",
+    "screen": "LLM-15",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-16",
+    "tc": "TC-UI-LLM-16",
+    "screen": "LLM-16",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-17",
+    "tc": "TC-UI-LLM-17",
+    "screen": "LLM-17",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-18",
+    "tc": "TC-UI-LLM-18",
+    "screen": "LLM-18",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-LLM-19",
+    "tc": "TC-UI-LLM-19",
+    "screen": "LLM-19",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Chính sách phân loại dữ liệu và định tuyến AI: hiển thị đúng 7 trường, áp quy tắc \"Ma trận là dữ liệu có hiệu lực; INTERNAL trở lên không bao giờ tới tuyến quốc tế; bật quốc tế cần d07_approval_ref; người duyệt khác người soạn\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-LLM-20",
+    "tc": "TC-UI-LLM-20",
+    "screen": "LLM-20",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Bản ghi quyết định của con người: hiển thị đúng 7 trường, áp quy tắc \"Mọi lệnh ghi/tiền/quyết định dựa trên đầu ra AI phải có bản ghi; thiếu bản ghi → command bị từ chối\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-LLM-21",
+    "tc": "TC-UI-LLM-21",
+    "screen": "LLM-21",
+    "module": "LLM",
+    "priority": "P1",
+    "expected": "Nhật ký định tuyến AI: hiển thị đúng 7 trường, áp quy tắc \"Audit ghi tuyến đã dùng cho từng request; không chứa nội dung prompt; drill tới attempt và chi phí\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-LND-01",
+    "tc": "TC-UI-LND-01",
+    "screen": "LND-01",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Tổng quan GPMB theo dự án: hiển thị đúng 7 trường; áp quy tắc \"Số liệu theo snapshot; tiến độ hiển thị kể cả khi Trung tâm quỹ đất thực hiện\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-02",
+    "tc": "TC-UI-LND-02",
+    "screen": "LND-02",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Thửa đất và ranh giới: hiển thị đúng 7 trường; áp quy tắc \"Không hiển thị chủ sử dụng; nhóm đất quyết định bộ đếm 90/180 ngày\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-03",
+    "tc": "TC-UI-LND-03",
+    "screen": "LND-03",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Hộ bị ảnh hưởng: hiển thị đúng 6 trường; áp quy tắc \"Dữ liệu PERSONAL: mã hóa, che khi hiển thị, giới hạn theo đơn vị; cần căn cứ xử lý và thời hạn lưu\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-04",
+    "tc": "TC-UI-LND-04",
+    "screen": "LND-04",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Kiểm đếm: hiển thị đúng 7 trường; áp quy tắc \"Đơn giá phải theo quyết định giá còn hiệu lực; hộ phản đối chuyển DISPUTED\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-05",
+    "tc": "TC-UI-LND-05",
+    "screen": "LND-05",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Phương án bồi thường, hỗ trợ, tái định cư: hiển thị đúng 7 trường; áp quy tắc \"Chỉ dựa trên kiểm đếm đã xác nhận; duyệt sau niêm yết đủ ngày và xử lý ý kiến; duyệt khác người lập\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-06",
+    "tc": "TC-UI-LND-06",
+    "screen": "LND-06",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Niêm yết 30 ngày và ý kiến: hiển thị đúng 6 trường; áp quy tắc \"Bộ đếm theo rule hiệu lực; không đóng niêm yết sớm\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-07",
+    "tc": "TC-UI-LND-07",
+    "screen": "LND-07",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Chi trả bồi thường: hiển thị đúng 7 trường; áp quy tắc \"Chi trong 30 ngày kể từ phê duyệt; trễ phải có lý do; gửi tiền khi hộ không nhận\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-08",
+    "tc": "TC-UI-LND-08",
+    "screen": "LND-08",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Khiếu nại: hiển thị đúng 6 trường; áp quy tắc \"Vướng mắc ISS chỉ chứa mã, không chứa nội dung khiếu nại\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-09",
+    "tc": "TC-UI-LND-09",
+    "screen": "LND-09",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Cưỡng chế: hiển thị đúng 6 trường; áp quy tắc \"Cần điều kiện tiên quyết và quyết định cho bước thực hiện; người chuyển bước khác người lập\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-10",
+    "tc": "TC-UI-LND-10",
+    "screen": "LND-10",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Bàn giao mặt bằng theo đoạn/km: hiển thị đúng 7 trường; áp quy tắc \"Chỉ bàn giao cho hợp đồng ACTIVE; không vượt diện tích cần\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-11",
+    "tc": "TC-UI-LND-11",
+    "screen": "LND-11",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Theo dõi tiến độ khi Trung tâm quỹ đất thực hiện: hiển thị đúng 7 trường; áp quy tắc \"Chế độ theo dõi ngoài nhận báo cáo có bằng chứng; trễ hạn tạo vướng mắc\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-12",
+    "tc": "TC-UI-LND-12",
+    "screen": "LND-12",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Tái định cư: hiển thị đúng 6 trường; áp quy tắc \"Một lô/căn chỉ gán cho một hộ tại một thời điểm\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-LND-13",
+    "tc": "TC-UI-LND-13",
+    "screen": "LND-13",
+    "module": "LND",
+    "priority": "P1",
+    "expected": "Yêu cầu của chủ thể dữ liệu: hiển thị đúng 5 trường; áp quy tắc \"Không xóa dữ liệu đang là chứng từ chi trả; ghi lý do từ chối một phần\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-MDM-01",
+    "tc": "TC-UI-MDM-01",
+    "screen": "MDM-01",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-02",
+    "tc": "TC-UI-MDM-02",
+    "screen": "MDM-02",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-03",
+    "tc": "TC-UI-MDM-03",
+    "screen": "MDM-03",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-04",
+    "tc": "TC-UI-MDM-04",
+    "screen": "MDM-04",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-05",
+    "tc": "TC-UI-MDM-05",
+    "screen": "MDM-05",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-06",
+    "tc": "TC-UI-MDM-06",
+    "screen": "MDM-06",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-07",
+    "tc": "TC-UI-MDM-07",
+    "screen": "MDM-07",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-08",
+    "tc": "TC-UI-MDM-08",
+    "screen": "MDM-08",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-09",
+    "tc": "TC-UI-MDM-09",
+    "screen": "MDM-09",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-10",
+    "tc": "TC-UI-MDM-10",
+    "screen": "MDM-10",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-11",
+    "tc": "TC-UI-MDM-11",
+    "screen": "MDM-11",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-12",
+    "tc": "TC-UI-MDM-12",
+    "screen": "MDM-12",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-13",
+    "tc": "TC-UI-MDM-13",
+    "screen": "MDM-13",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-14",
+    "tc": "TC-UI-MDM-14",
+    "screen": "MDM-14",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-15",
+    "tc": "TC-UI-MDM-15",
+    "screen": "MDM-15",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-16",
+    "tc": "TC-UI-MDM-16",
+    "screen": "MDM-16",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-17",
+    "tc": "TC-UI-MDM-17",
+    "screen": "MDM-17",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-18",
+    "tc": "TC-UI-MDM-18",
+    "screen": "MDM-18",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-19",
+    "tc": "TC-UI-MDM-19",
+    "screen": "MDM-19",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-20",
+    "tc": "TC-UI-MDM-20",
+    "screen": "MDM-20",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-21",
+    "tc": "TC-UI-MDM-21",
+    "screen": "MDM-21",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-22",
+    "tc": "TC-UI-MDM-22",
+    "screen": "MDM-22",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-23",
+    "tc": "TC-UI-MDM-23",
+    "screen": "MDM-23",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-24",
+    "tc": "TC-UI-MDM-24",
+    "screen": "MDM-24",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-25",
+    "tc": "TC-UI-MDM-25",
+    "screen": "MDM-25",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-26",
+    "tc": "TC-UI-MDM-26",
+    "screen": "MDM-26",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-27",
+    "tc": "TC-UI-MDM-27",
+    "screen": "MDM-27",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-28",
+    "tc": "TC-UI-MDM-28",
+    "screen": "MDM-28",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-29",
+    "tc": "TC-UI-MDM-29",
+    "screen": "MDM-29",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-30",
+    "tc": "TC-UI-MDM-30",
+    "screen": "MDM-30",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-31",
+    "tc": "TC-UI-MDM-31",
+    "screen": "MDM-31",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-32",
+    "tc": "TC-UI-MDM-32",
+    "screen": "MDM-32",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-33",
+    "tc": "TC-UI-MDM-33",
+    "screen": "MDM-33",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-MDM-34",
+    "tc": "TC-UI-MDM-34",
+    "screen": "MDM-34",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Thuật ngữ nghiệp vụ và phê duyệt: hiển thị đúng 7 trường, áp quy tắc \"Thuật ngữ có vòng duyệt; người đề xuất không tự duyệt; chỉ một phiên bản PUBLISHED mỗi mã\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MDM-35",
+    "tc": "TC-UI-MDM-35",
+    "screen": "MDM-35",
+    "module": "MDM",
+    "priority": "P1",
+    "expected": "Bản ghi chủ, crosswalk và tách/hợp nhất: hiển thị đúng 6 trường, áp quy tắc \"Merge giữ alias và danh sách tham chiếu đã trỏ lại để unmerge đảo được; mã ngoài ACTIVE duy nhất theo hệ thống nguồn\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MDM-36",
+    "tc": "TC-UI-MDM-36",
+    "screen": "MDM-36",
+    "module": "MDM",
+    "priority": "P1",
+    "expected": "Quy tắc survivorship theo thuộc tính: hiển thị đúng 5 trường, áp quy tắc \"Mỗi thuộc tính một chiến lược có phiên bản; SOURCE_PRIORITY cần danh sách nguồn; thiếu quy tắc thì steward quyết định\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MDM-37",
+    "tc": "TC-UI-MDM-37",
+    "screen": "MDM-37",
+    "module": "MDM",
+    "priority": "P0",
+    "expected": "Kế thừa đơn vị hành chính và cơ quan 2025: hiển thị đúng 6 trường, áp quy tắc \"Sáp nhập tỉnh/xã, bỏ cấp huyện, hợp nhất sở theo cải cách 2025 ghi bằng succession có hiệu lực; báo cáo lịch sử giữ tên tại ngày nghiệp vụ [CXN-34]\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-01",
+    "tc": "TC-UI-MNE-01",
+    "screen": "MNE-01",
+    "module": "MNE",
+    "priority": "P0",
+    "expected": "Lịch nghĩa vụ báo cáo giám sát: hiển thị đúng 6 trường, áp quy tắc \"Nghĩa vụ là dữ liệu có legal_basis + hiệu lực; hạn tính từ due_rule của phiên bản hiệu lực tại kỳ [CXN-10]\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-02",
+    "tc": "TC-UI-MNE-02",
+    "screen": "MNE-02",
+    "module": "MNE",
+    "priority": "P0",
+    "expected": "Danh mục mẫu biểu giám sát: hiển thị đúng 6 trường, áp quy tắc \"Mẫu biểu là dữ liệu có phiên bản; báo cáo dùng phiên bản hiệu lực tại ngày cuối kỳ; mã mẫu 02–10 chờ xác nhận [CXN-10]\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-03",
+    "tc": "TC-UI-MNE-03",
+    "screen": "MNE-03",
+    "module": "MNE",
+    "priority": "P0",
+    "expected": "Lập báo cáo giám sát tổng thể định kỳ: hiển thị đúng 6 trường, áp quy tắc \"Số liệu lấy từ PeriodSnapshot FROZEN; không nhập tay chỉ tiêu tài chính đã có nguồn; thuyết minh bắt buộc\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-04",
+    "tc": "TC-UI-MNE-04",
+    "screen": "MNE-04",
+    "module": "MNE",
+    "priority": "P1",
+    "expected": "Báo cáo giám sát theo dự án: hiển thị đúng 5 trường, áp quy tắc \"Sự kiện khởi công/điều chỉnh/hoàn thành của PRJ tạo nghĩa vụ báo cáo dự án theo quy tắc EVENT\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-05",
+    "tc": "TC-UI-MNE-05",
+    "screen": "MNE-05",
+    "module": "MNE",
+    "priority": "P0",
+    "expected": "Rà soát, phê duyệt và phát hành: hiển thị đúng 5 trường, áp quy tắc \"Người duyệt khác người lập; phát hành qua DOC (soạn→ký→cấp số→phát hành); MNE chỉ ISSUED khi DOC phát sự kiện ISSUED\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-06",
+    "tc": "TC-UI-MNE-06",
+    "screen": "MNE-06",
+    "module": "MNE",
+    "priority": "P0",
+    "expected": "Xuất tệp và xác nhận nộp Hệ thống TTQG: hiển thị đúng 5 trường, áp quy tắc \"Không gọi API hệ thống quốc gia; xuất tệp theo mẫu, người dùng nộp và ghi số tiếp nhận; adapter_status PROPOSED/MOCK hiển thị rõ\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-07",
+    "tc": "TC-UI-MNE-07",
+    "screen": "MNE-07",
+    "module": "MNE",
+    "priority": "P0",
+    "expected": "Báo cáo nhanh tuần: hiển thị đúng 5 trường, áp quy tắc \"Sinh từ snapshot tuần FROZEN theo CV 3665/BTC-PTHT (2026) [CXN-11]; cùng tử số/mẫu số với DIS-19\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-08",
+    "tc": "TC-UI-MNE-08",
+    "screen": "MNE-08",
+    "module": "MNE",
+    "priority": "P1",
+    "expected": "Đánh giá đầu tư: hiển thị đúng 6 trường, áp quy tắc \"Đánh giá ban đầu/giữa kỳ/kết thúc/tác động/đột xuất; nộp cần kết luận và ngày hoàn thành; người duyệt khác người lập\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-09",
+    "tc": "TC-UI-MNE-09",
+    "screen": "MNE-09",
+    "module": "MNE",
+    "priority": "P0",
+    "expected": "Tiến độ nộp báo cáo giám sát: hiển thị đúng 5 trường, áp quy tắc \"Trễ = thời điểm SUBMITTED_EXTERNAL (hoặc hiện tại nếu chưa nộp) > hạn theo phiên bản nghĩa vụ; không tính trễ cho nghĩa vụ đã hết hiệu lực\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-MNE-10",
+    "tc": "TC-UI-MNE-10",
+    "screen": "MNE-10",
+    "module": "MNE",
+    "priority": "P1",
+    "expected": "Lịch sử phiên bản và đính chính báo cáo: hiển thị đúng 4 trường, áp quy tắc \"Báo cáo đã phát hành bất biến; đính chính tạo revision mới có lý do, phát hành lại qua DOC, bản cũ SUPERSEDED\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-NOT-01",
+    "tc": "TC-UI-NOT-01",
+    "screen": "NOT-01",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-02",
+    "tc": "TC-UI-NOT-02",
+    "screen": "NOT-02",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-03",
+    "tc": "TC-UI-NOT-03",
+    "screen": "NOT-03",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-04",
+    "tc": "TC-UI-NOT-04",
+    "screen": "NOT-04",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-05",
+    "tc": "TC-UI-NOT-05",
+    "screen": "NOT-05",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-06",
+    "tc": "TC-UI-NOT-06",
+    "screen": "NOT-06",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-07",
+    "tc": "TC-UI-NOT-07",
+    "screen": "NOT-07",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-08",
+    "tc": "TC-UI-NOT-08",
+    "screen": "NOT-08",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-09",
+    "tc": "TC-UI-NOT-09",
+    "screen": "NOT-09",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-10",
+    "tc": "TC-UI-NOT-10",
+    "screen": "NOT-10",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-11",
+    "tc": "TC-UI-NOT-11",
+    "screen": "NOT-11",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-12",
+    "tc": "TC-UI-NOT-12",
+    "screen": "NOT-12",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-13",
+    "tc": "TC-UI-NOT-13",
+    "screen": "NOT-13",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-14",
+    "tc": "TC-UI-NOT-14",
+    "screen": "NOT-14",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-15",
+    "tc": "TC-UI-NOT-15",
+    "screen": "NOT-15",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-16",
+    "tc": "TC-UI-NOT-16",
+    "screen": "NOT-16",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-NOT-17",
+    "tc": "TC-UI-NOT-17",
+    "screen": "NOT-17",
+    "module": "NOT",
+    "priority": "P0",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (CHANNEL_IDENTITY_UNVERIFIED, CONSENT_STATE_INVALID) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-OMNI-01",
+    "tc": "TC-UI-OMNI-01",
+    "screen": "OMNI-01",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-02",
+    "tc": "TC-UI-OMNI-02",
+    "screen": "OMNI-02",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-03",
+    "tc": "TC-UI-OMNI-03",
+    "screen": "OMNI-03",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-04",
+    "tc": "TC-UI-OMNI-04",
+    "screen": "OMNI-04",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-05",
+    "tc": "TC-UI-OMNI-05",
+    "screen": "OMNI-05",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-06",
+    "tc": "TC-UI-OMNI-06",
+    "screen": "OMNI-06",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-07",
+    "tc": "TC-UI-OMNI-07",
+    "screen": "OMNI-07",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-08",
+    "tc": "TC-UI-OMNI-08",
+    "screen": "OMNI-08",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-09",
+    "tc": "TC-UI-OMNI-09",
+    "screen": "OMNI-09",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-10",
+    "tc": "TC-UI-OMNI-10",
+    "screen": "OMNI-10",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-OMNI-11",
+    "tc": "TC-UI-OMNI-11",
+    "screen": "OMNI-11",
+    "module": "OMNI",
+    "priority": "P1",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (INBOX_STATE_INVALID) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-ORG-01",
+    "tc": "TC-UI-ORG-01",
+    "screen": "ORG-01",
+    "module": "ENT",
+    "priority": "P1",
+    "expected": "All sections shown, the template note visible, no write in the read-only mode"
+  },
+  {
+    "id": "UI-PAY-01",
+    "tc": "TC-UI-PAY-01",
+    "screen": "PAY-01",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-02",
+    "tc": "TC-UI-PAY-02",
+    "screen": "PAY-02",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-03",
+    "tc": "TC-UI-PAY-03",
+    "screen": "PAY-03",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-04",
+    "tc": "TC-UI-PAY-04",
+    "screen": "PAY-04",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-05",
+    "tc": "TC-UI-PAY-05",
+    "screen": "PAY-05",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-06",
+    "tc": "TC-UI-PAY-06",
+    "screen": "PAY-06",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-07",
+    "tc": "TC-UI-PAY-07",
+    "screen": "PAY-07",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-08",
+    "tc": "TC-UI-PAY-08",
+    "screen": "PAY-08",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-09",
+    "tc": "TC-UI-PAY-09",
+    "screen": "PAY-09",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PAY-10",
+    "tc": "TC-UI-PAY-10",
+    "screen": "PAY-10",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Sổ lũy kế hợp đồng × dòng BOQ × nghiệm thu: hiển thị đúng 8 trường; áp quy tắc \"Tổng đề nghị ≤ giá trị nghiệm thu ≤ giá trị hợp đồng (CHECK DB); sửa sai bằng bút toán đảo, không xóa\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PAY-11",
+    "tc": "TC-UI-PAY-11",
+    "screen": "PAY-11",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Đề nghị tạm ứng: hiển thị đúng 7 trường; áp quy tắc \"Chỉ sau khi hợp đồng có hiệu lực và có bảo lãnh tạm ứng hợp lệ; không vượt trần theo loại hợp đồng\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PAY-12",
+    "tc": "TC-UI-PAY-12",
+    "screen": "PAY-12",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Cảnh báo tạm ứng quá hạn và thu hồi: hiển thị đúng 7 trường; áp quy tắc \"Tạm ứng GPMB thu hồi trong 30 ngày; cảnh báo T-7, đến hạn, quá hạn, leo thang; không tự đánh dấu đã thu hồi\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PAY-13",
+    "tc": "TC-UI-PAY-13",
+    "screen": "PAY-13",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Nhập sao kê Kho bạc: hiển thị đúng 8 trường; áp quy tắc \"Idempotent theo mã băm tệp + khóa nghiệp vụ từng dòng; nạp lại báo đã nạp; dòng lỗi vào quarantine\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PAY-14",
+    "tc": "TC-UI-PAY-14",
+    "screen": "PAY-14",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Biểu mẫu thanh toán Kho bạc: hiển thị đúng 6 trường; áp quy tắc \"Mẫu sinh từ DOC theo phiên bản có hiệu lực; mẫu chưa xác nhận [CXN-08] không cho gửi\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PAY-15",
+    "tc": "TC-UI-PAY-15",
+    "screen": "PAY-15",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Quyết toán niên độ và dự án hoàn thành: hiển thị đúng 8 trường; áp quy tắc \"Đóng khi còn công nợ/tạm ứng cần phê duyệt ngoại lệ; hạn thẩm tra theo nhóm dự án\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PAY-16",
+    "tc": "TC-UI-PAY-16",
+    "screen": "PAY-16",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Biểu mẫu quyết toán và hạn thẩm tra: hiển thị đúng 6 trường; áp quy tắc \"Hạn tính theo nhóm dự án tại ngày nộp bằng rule có hiệu lực; mẫu chưa xác nhận không sinh\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PAY-17",
+    "tc": "TC-UI-PAY-17",
+    "screen": "PAY-17",
+    "module": "PAY",
+    "priority": "P1",
+    "expected": "Truy vết chuỗi thanh toán: hiển thị đúng 7 trường; áp quy tắc \"Chuỗi truy vết theo tenant và phiên bản, chỉ đọc\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PMT-01",
+    "tc": "TC-UI-PMT-01",
+    "screen": "PMT-01",
+    "module": "PMT",
+    "priority": "P1",
+    "expected": "Hồ sơ pháp lý dự án: hiển thị đúng 6 trường; áp quy tắc \"Danh mục bắt buộc sinh theo loại giấy phép áp dụng; mục [CXN] chưa xác nhận có cờ cảnh báo\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PMT-02",
+    "tc": "TC-UI-PMT-02",
+    "screen": "PMT-02",
+    "module": "PMT",
+    "priority": "P1",
+    "expected": "Chi tiết giấy phép và mốc xử lý: hiển thị đúng 6 trường; áp quy tắc \"Một giấy phép hiện hành mỗi loại; cấp lại tạo bản mới thay thế\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PMT-03",
+    "tc": "TC-UI-PMT-03",
+    "screen": "PMT-03",
+    "module": "PMT",
+    "priority": "P1",
+    "expected": "Danh mục loại giấy phép: hiển thị đúng 7 trường; áp quy tắc \"Dữ liệu có legal_basis và hiệu lực; không sửa bản đang dùng\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PMT-04",
+    "tc": "TC-UI-PMT-04",
+    "screen": "PMT-04",
+    "module": "PMT",
+    "priority": "P1",
+    "expected": "Quy tắc cổng chặn mốc: hiển thị đúng 6 trường; áp quy tắc \"Cổng đánh giá theo quy tắc hiệu lực tại ngày; miễn trừ có thời hạn và văn bản\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PMT-05",
+    "tc": "TC-UI-PMT-05",
+    "screen": "PMT-05",
+    "module": "PMT",
+    "priority": "P1",
+    "expected": "Cảnh báo hết hạn giấy phép: hiển thị đúng 6 trường; áp quy tắc \"Cảnh báo 60/30/15/0 ngày khử trùng; hết hạn tự tạo vướng mắc; không tự gia hạn\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PMT-06",
+    "tc": "TC-UI-PMT-06",
+    "screen": "PMT-06",
+    "module": "PMT",
+    "priority": "P1",
+    "expected": "Miễn giấy phép và miễn trừ cổng: hiển thị đúng 5 trường; áp quy tắc \"Người duyệt khác người đề xuất; miễn trừ tối đa theo rule\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-PRJ-01",
+    "tc": "TC-UI-PRJ-01",
+    "screen": "PRJ-01",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-02",
+    "tc": "TC-UI-PRJ-02",
+    "screen": "PRJ-02",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-03",
+    "tc": "TC-UI-PRJ-03",
+    "screen": "PRJ-03",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-04",
+    "tc": "TC-UI-PRJ-04",
+    "screen": "PRJ-04",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-05",
+    "tc": "TC-UI-PRJ-05",
+    "screen": "PRJ-05",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-06",
+    "tc": "TC-UI-PRJ-06",
+    "screen": "PRJ-06",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-07",
+    "tc": "TC-UI-PRJ-07",
+    "screen": "PRJ-07",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-08",
+    "tc": "TC-UI-PRJ-08",
+    "screen": "PRJ-08",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-09",
+    "tc": "TC-UI-PRJ-09",
+    "screen": "PRJ-09",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-10",
+    "tc": "TC-UI-PRJ-10",
+    "screen": "PRJ-10",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-11",
+    "tc": "TC-UI-PRJ-11",
+    "screen": "PRJ-11",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-12",
+    "tc": "TC-UI-PRJ-12",
+    "screen": "PRJ-12",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-13",
+    "tc": "TC-UI-PRJ-13",
+    "screen": "PRJ-13",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-PRJ-14",
+    "tc": "TC-UI-PRJ-14",
+    "screen": "PRJ-14",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Ngân hàng dự án và vòng đời PIMA: hiển thị đúng 6 trường, áp quy tắc \"Chuyển giai đoạn chỉ qua command có guard (bảng transition), căn cứ quyết định và người duyệt khác người đề xuất\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-PRJ-15",
+    "tc": "TC-UI-PRJ-15",
+    "screen": "PRJ-15",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Chấm điểm thẩm định: hiển thị đúng 6 trường, áp quy tắc \"Tổng điểm = Σ(điểm × trọng số)/5, làm tròn 2 chữ số; người thẩm định khác người đề xuất; ngưỡng vào ngân hàng dự án là dữ liệu có hiệu lực\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-PRJ-16",
+    "tc": "TC-UI-PRJ-16",
+    "screen": "PRJ-16",
+    "module": "PRJ",
+    "priority": "P1",
+    "expected": "Sổ đăng ký rủi ro dự án: hiển thị đúng 8 trường, áp quy tắc \"Điểm = khả năng × tác động (1–25); điểm ≥15 là CRITICAL và sinh cảnh báo HOME-03; đóng rủi ro phải có lý do\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-PRJ-17",
+    "tc": "TC-UI-PRJ-17",
+    "screen": "PRJ-17",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Phân công lãnh đạo phụ trách: hiển thị đúng 5 trường, áp quy tắc \"Mỗi dự án tối đa một LEADER_IN_CHARGE ACTIVE; kết thúc phân công phải có ngày và lý do; lịch sử không bị ghi đè\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-PRJ-18",
+    "tc": "TC-UI-PRJ-18",
+    "screen": "PRJ-18",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Tổ công tác đôn đốc giải ngân: hiển thị đúng 6 trường, áp quy tắc \"Thành viên phải có membership trong tenant và scope giao với phạm vi tổ; giải thể tổ kết thúc mọi thành viên cùng transaction\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-PRJ-19",
+    "tc": "TC-UI-PRJ-19",
+    "screen": "PRJ-19",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Yêu cầu và phản hồi giải trình: hiển thị đúng 7 trường, áp quy tắc \"Giải trình gắn cảnh báo/kỳ; quá hạn chuyển OVERDUE nhưng vẫn nhận phản hồi có cờ trễ; người kết luận khác người phản hồi\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-PRJ-20",
+    "tc": "TC-UI-PRJ-20",
+    "screen": "PRJ-20",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Chuyển dự án giữa đơn vị: hiển thị đúng 6 trường, áp quy tắc \"Chỉ chuyển trong cùng tenant; báo cáo trước ngày hiệu lực giữ đơn vị cũ; người duyệt khác người đề nghị\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-PRJ-21",
+    "tc": "TC-UI-PRJ-21",
+    "screen": "PRJ-21",
+    "module": "PRJ",
+    "priority": "P0",
+    "expected": "Mã dự án trên Hệ thống TTQG về ĐTC: hiển thị đúng 5 trường, áp quy tắc \"Mã TTQG duy nhất trong tenant; nhập bằng tệp có hash chống nạp lại; dự án có vốn mà thiếu mã bị chặn theo quy tắc dữ liệu [CXN-01]\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-PWA-01",
+    "tc": "TC-UI-PWA-01",
+    "screen": "PWA-01",
+    "module": "ENT",
+    "priority": "P0",
+    "expected": "Trang chủ ứng dụng cài đặt: hiển thị đúng 4 nhóm trường, áp quy tắc \"Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
+  },
+  {
+    "id": "UI-PWA-02",
+    "tc": "TC-UI-PWA-02",
+    "screen": "PWA-02",
+    "module": "ENT",
+    "priority": "P0",
+    "expected": "Hàng đợi phê duyệt số liệu kỳ: hiển thị đúng 8 nhóm trường, áp quy tắc \"Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
+  },
+  {
+    "id": "UI-PWA-03",
+    "tc": "TC-UI-PWA-03",
+    "screen": "PWA-03",
+    "module": "ENT",
+    "priority": "P0",
+    "expected": "Bảng điều hành của lãnh đạo: hiển thị đúng 6 nhóm trường, áp quy tắc \"Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
+  },
+  {
+    "id": "UI-PWA-04",
+    "tc": "TC-UI-PWA-04",
+    "screen": "PWA-04",
+    "module": "ENT",
+    "priority": "P0",
+    "expected": "Theo dõi chỉ đạo: hiển thị đúng 4 nhóm trường, áp quy tắc \"Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
+  },
+  {
+    "id": "UI-PWA-07",
+    "tc": "TC-UI-PWA-07",
+    "screen": "PWA-07",
+    "module": "ENT",
+    "priority": "P0",
+    "expected": "Cài đặt ứng dụng cài đặt: hiển thị đúng 4 nhóm trường, áp quy tắc \"Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
+  },
+  {
+    "id": "UI-PWA-08",
+    "tc": "TC-UI-PWA-08",
+    "screen": "PWA-08",
+    "module": "ENT",
+    "priority": "P0",
+    "expected": "Chi tiết số liệu bảng điều hành: hiển thị đúng 6 nhóm trường, áp quy tắc \"Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
+  },
+  {
+    "id": "UI-PWA-09",
+    "tc": "TC-UI-PWA-09",
+    "screen": "PWA-09",
+    "module": "ENT",
+    "priority": "P0",
+    "expected": "Tiến độ đấu thầu trên điện thoại: hiển thị đúng 3 nhóm trường, áp quy tắc \"Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
+  },
+  {
+    "id": "UI-PWA-10",
+    "tc": "TC-UI-PWA-10",
+    "screen": "PWA-10",
+    "module": "ENT",
+    "priority": "P0",
+    "expected": "Cài đặt thông báo đẩy: hiển thị đúng 3 nhóm trường, áp quy tắc \"Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng\"; không có hành động ngoài quyền; không hiện số 0 khi chưa đọc được số liệu"
+  },
+  {
+    "id": "UI-QMS-01",
+    "tc": "TC-UI-QMS-01",
+    "screen": "QMS-01",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Danh mục nhật ký thi công điện tử: hiển thị đúng 6 trường; áp quy tắc \"Một nhật ký chính mỗi hợp đồng mỗi ngày; điều chỉnh sau khóa bằng bản điều chỉnh\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-QMS-02",
+    "tc": "TC-UI-QMS-02",
+    "screen": "QMS-02",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Lập và ký nhật ký ngày: hiển thị đúng 8 trường; áp quy tắc \"Ký băm nội dung; sửa sau khi ký bị chặn; phân biệt xác nhận nội bộ và chữ ký số\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-QMS-03",
+    "tc": "TC-UI-QMS-03",
+    "screen": "QMS-03",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Ý kiến giám sát và xác nhận chủ đầu tư: hiển thị đúng 5 trường; áp quy tắc \"Mỗi vai trò ký đúng một lần theo hash nội dung; If-Match chống ghi đè\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-QMS-04",
+    "tc": "TC-UI-QMS-04",
+    "screen": "QMS-04",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Đề nghị kiểm tra, nghiệm thu: hiển thị đúng 6 trường; áp quy tắc \"Hợp đồng ACTIVE và cổng giấy phép đạt; quy chế áp dụng theo ngày đề nghị\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-QMS-05",
+    "tc": "TC-UI-QMS-05",
+    "screen": "QMS-05",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Biên bản nghiệm thu chất lượng: hiển thị đúng 6 trường; áp quy tắc \"Duyệt cần đủ chữ ký theo quy chế và không còn NCR nghiêm trọng; duyệt phát sự kiện cho CTR\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-QMS-06",
+    "tc": "TC-UI-QMS-06",
+    "screen": "QMS-06",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Thí nghiệm vật liệu: hiển thị đúng 7 trường; áp quy tắc \"Không đạt tự tạo NCR; kết quả cần báo cáo đính kèm\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-QMS-07",
+    "tc": "TC-UI-QMS-07",
+    "screen": "QMS-07",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Không phù hợp và hành động khắc phục: hiển thị đúng 7 trường; áp quy tắc \"NCR CRITICAL chặn nghiệm thu; xác nhận khác người khắc phục\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-QMS-08",
+    "tc": "TC-UI-QMS-08",
+    "screen": "QMS-08",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Kho ảnh hiện trường có định vị: hiển thị đúng 7 trường; áp quy tắc \"Cờ EXIF/GPS/thời gian/trùng lặp chỉ để rà soát, không kết luận xác thực; vị trí chỉ khi có đồng ý\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-QMS-11",
+    "tc": "TC-UI-QMS-11",
+    "screen": "QMS-11",
+    "module": "QMS",
+    "priority": "P1",
+    "expected": "Độ phủ nhật ký và cảnh báo thiếu nhật ký: hiển thị đúng 6 trường; áp quy tắc \"Tính theo lịch làm việc; ký bù hiển thị số ngày muộn\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  },
+  {
+    "id": "UI-RML-01",
+    "tc": "TC-UI-RML-01",
+    "screen": "RML-01",
+    "module": "RPT",
+    "priority": "P1",
+    "expected": "Đính chính kỳ báo cáo đã được HPM nhận: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission"
+  },
+  {
+    "id": "UI-RPT-01",
+    "tc": "TC-UI-RPT-01",
+    "screen": "RPT-01",
+    "module": "RPT",
+    "priority": "P0",
+    "expected": "Danh mục biểu mẫu báo cáo và lập báo cáo: hiển thị đúng 10 trường, áp quy tắc \"Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu chính thức' và chỉ lập được khi chế độ demo bật (R18); bản công khai không có biểu mẫu của bản doanh nghiệp; lập lại cùng số liệu không tạo bản nháp thứ hai; số khác bản đã phát hành phải có lý do (R17)\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-RPT-02",
+    "tc": "TC-UI-RPT-02",
+    "screen": "RPT-02",
+    "module": "RPT",
+    "priority": "P0",
+    "expected": "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành: hiển thị đúng 9 trường, áp quy tắc \"Ba người khác nhau: người kiểm khác người lập, người duyệt khác cả hai, người phát hành là người duyệt; đúng thứ tự; bản nháp lập trước khi chuỗi bản tiến lên bị từ chối (REPORT_OUT_OF_DATE); biểu mẫu demo bị tắt chế độ demo thì không phát hành được; ô không có số để trống kèm lý do, không bao giờ là 0\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-RPT-03",
+    "tc": "TC-UI-RPT-03",
+    "screen": "RPT-03",
+    "module": "RPT",
+    "priority": "P0",
+    "expected": "Các bản báo cáo đã phát hành: hiển thị đúng 9 trường, áp quy tắc \"Bản đã phát hành không sửa và không xóa; bản sửa là phiên bản mới nêu bản bị thay và lý do; giao bản đã bị thay là REPORT_OUT_OF_DATE, giao lại cùng nội dung cho cùng bên nhận là ALREADY_DELIVERED; bản mẫu demo không bao giờ được ghi là đã nhận (R18); tải tệp luôn kiểm lại mã băm\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-RPT-04",
+    "tc": "TC-UI-RPT-04",
+    "screen": "RPT-04",
+    "module": "RPT",
+    "priority": "P0",
+    "expected": "Nhật ký giao báo cáo cho bên nhận: hiển thị đúng 8 trường, áp quy tắc \"Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy của hệ thống tập đoàn chỉ do bộ nối ENT-2 ghi; lần giao của bản mẫu demo luôn hiện là chưa tính đã nhận\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-RPT-05",
+    "tc": "TC-UI-RPT-05",
+    "screen": "RPT-05",
+    "module": "RPT",
+    "priority": "P1",
+    "expected": "Biểu mẫu báo cáo gửi Bộ Tài chính: hiển thị đúng các trường, áp quy tắc \"Bốn mẫu gửi Bộ Tài chính ở trạng thái chờ biểu mẫu chính thức: soạn và xem được nhưng không phát hành được; bản gửi người nhận cần chữ ký số thật khớp mã băm của bản phát hành; chữ ký thử không được tính.\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-RPT-06",
+    "tc": "TC-UI-RPT-06",
+    "screen": "RPT-06",
+    "module": "RPT",
+    "priority": "P1",
+    "expected": "Khóa kỳ và chữ ký số báo cáo: hiển thị đúng các trường, áp quy tắc \"Người duyệt ký số mã băm của bản phát hành qua cổng ký của DOC; kỳ bị khóa khi bản được ký (hoặc được nhận); kỳ khóa không nhận bản mới; mở khóa cần người thứ hai và lý do đủ dài, quy tắc ghi chưa kiểm chứng.\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-RPT-07",
+    "tc": "TC-UI-RPT-07",
+    "screen": "RPT-07",
+    "module": "RPT",
+    "priority": "P1",
+    "expected": "Bố cục biểu mẫu cấu hình: hiển thị đúng các trường, áp quy tắc \"Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-RPT-08",
+    "tc": "TC-UI-RPT-08",
+    "screen": "RPT-08",
+    "module": "RPT",
+    "priority": "P1",
+    "expected": "Soạn bố cục biểu mẫu: hiển thị đúng các trường, áp quy tắc \"Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.\"; không action ngoài quyền; token/component theo mockup (D-B11)"
+  },
+  {
+    "id": "UI-RPT-09",
+    "tc": "TC-UI-RPT-09",
+    "screen": "RPT-09",
+    "module": "RPT",
+    "priority": "P1",
+    "expected": "All fields shown; a comparison that made no comparison says so and never reads as agreeing; the short reason is refused on the screen and sends nothing; the explanation goes with the fingerprint and the period; no write in the read-only mode"
+  },
+  {
+    "id": "UI-SAS-01",
+    "tc": "TC-UI-SAS-01",
+    "screen": "SAS-01",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-02",
+    "tc": "TC-UI-SAS-02",
+    "screen": "SAS-02",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-03",
+    "tc": "TC-UI-SAS-03",
+    "screen": "SAS-03",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-04",
+    "tc": "TC-UI-SAS-04",
+    "screen": "SAS-04",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-05",
+    "tc": "TC-UI-SAS-05",
+    "screen": "SAS-05",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-06",
+    "tc": "TC-UI-SAS-06",
+    "screen": "SAS-06",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-07",
+    "tc": "TC-UI-SAS-07",
+    "screen": "SAS-07",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-08",
+    "tc": "TC-UI-SAS-08",
+    "screen": "SAS-08",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-09",
+    "tc": "TC-UI-SAS-09",
+    "screen": "SAS-09",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-10",
+    "tc": "TC-UI-SAS-10",
+    "screen": "SAS-10",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-11",
+    "tc": "TC-UI-SAS-11",
+    "screen": "SAS-11",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-12",
+    "tc": "TC-UI-SAS-12",
+    "screen": "SAS-12",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-13",
+    "tc": "TC-UI-SAS-13",
+    "screen": "SAS-13",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-14",
+    "tc": "TC-UI-SAS-14",
+    "screen": "SAS-14",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-15",
+    "tc": "TC-UI-SAS-15",
+    "screen": "SAS-15",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-16",
+    "tc": "TC-UI-SAS-16",
+    "screen": "SAS-16",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-17",
+    "tc": "TC-UI-SAS-17",
+    "screen": "SAS-17",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-18",
+    "tc": "TC-UI-SAS-18",
+    "screen": "SAS-18",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-19",
+    "tc": "TC-UI-SAS-19",
+    "screen": "SAS-19",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-20",
+    "tc": "TC-UI-SAS-20",
+    "screen": "SAS-20",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-21",
+    "tc": "TC-UI-SAS-21",
+    "screen": "SAS-21",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy"
+  },
+  {
+    "id": "UI-SAS-22",
+    "tc": "TC-UI-SAS-22",
+    "screen": "SAS-22",
+    "module": "SAS",
+    "priority": "P0",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (TENANT_STATE_INVALID; bước FAILED hiển thị error_code) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-SAS-23",
+    "tc": "TC-UI-SAS-23",
+    "screen": "SAS-23",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (MIGRATION_VERIFICATION_FAILED, SELF_APPROVAL_DENIED) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-SAS-24",
+    "tc": "TC-UI-SAS-24",
+    "screen": "SAS-24",
+    "module": "SAS",
+    "priority": "P1",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (EINVOICE_ADJUSTMENT_INVALID, EINVOICE_ALREADY_REPLACED) với correlation_id; không mất dữ liệu nhập khi 409"
+  },
+  {
+    "id": "UI-SAS-25",
+    "tc": "TC-UI-SAS-25",
+    "screen": "SAS-25",
+    "module": "SAS",
+    "priority": "P0",
+    "expected": "Trường hiển thị đúng thứ tự mockup; người thiếu quyền thấy trạng thái denied và API trả 403; lỗi hiển thị theo Problem.code (SELF_APPROVAL_DENIED, FEATURE_UNKNOWN) với correlation_id; không mất dữ liệu nhập khi 409"
+  }
+]

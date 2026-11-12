@@ -5,6 +5,7 @@ import type { AddressInfo } from 'node:net';
 import { defineConfig } from '@playwright/test';
 import { browserChannel } from './e2e/support/browser-channel.ts';
 import { browserProjects } from './e2e/support/browsers.ts';
+import { withReaderPersona } from './e2e/support/screen-personas.ts';
 import { STACK_INFO_PATH } from './e2e/support/stack-paths.ts';
 
 function freePort(): Promise<number> {
@@ -34,7 +35,8 @@ process.env.E2E_IDP_PORT = String(idpPort);
 const sessionKey = process.env.E2E_SESSION_KEY ?? randomBytes(32).toString('base64');
 process.env.E2E_SESSION_KEY = sessionKey;
 process.env.E2E_STACK_INFO = STACK_INFO_PATH;
-const fixtureUsers: unknown = (JSON.parse(readFileSync(new URL('./e2e/support/e2e-fixtures.json', import.meta.url), 'utf8')) as { users: unknown }).users;
+// The users of the stack, and the persona that only reads (screen-contract.spec.ts): the browser knows it, the API stack does not need to.
+const fixtureUsers: unknown = withReaderPersona((JSON.parse(readFileSync(new URL('./e2e/support/e2e-fixtures.json', import.meta.url), 'utf8')) as { users: Array<{ key: string; membershipId: string; displayName: string }> }).users);
 const channel = browserChannel();
 // E2E_BROWSERS (chromium, firefox, webkit) makes one project per engine; without it there are none and the run is the single default one.
 const projects = browserProjects(process.env, channel);
