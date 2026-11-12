@@ -57,11 +57,32 @@ export function workingDaysBetween(calendars: WorkCalendarSource | undefined, fr
   if (calendars === undefined) return undefined;
   if (dayNumber(to) - dayNumber(from) > MAX_SCAN_DAYS) return undefined;
   let counted = 0;
-  for (let number = dayNumber(from) + 1; number <= dayNumber(to); number += 1) {
-    const day = dayText(number);
-    const calendar = calendars.forYear(Number(day.slice(0, 4)));
+  const end = dayNumber(to);
+  let number = dayNumber(from) + 1;
+  while (number <= end) {
+    // The calendar is asked once for each year the count passes through, and a day already judged on a calendar is not judged again (a period of thousands of tasks counts the same days over and over).
+    const year = new Date(number * DAY_MS).getUTCFullYear();
+    const calendar = calendars.forYear(year);
     if (calendar === undefined) return undefined;
-    if (isWorkingDay(calendar, day)) counted += 1;
+    const last = Math.min(end, Date.UTC(year + 1, 0, 1) / DAY_MS - 1);
+    for (; number <= last; number += 1) if (workingOn(calendar, number)) counted += 1;
   }
   return counted;
+}
+
+const JUDGED = new WeakMap<object, Map<number, boolean>>();
+
+/** Whether the day (by number) is a working day of the calendar, remembered per calendar version object. */
+function workingOn(calendar: Parameters<typeof isWorkingDay>[0], number: number): boolean {
+  let memo = JUDGED.get(calendar);
+  if (memo === undefined) {
+    memo = new Map();
+    JUDGED.set(calendar, memo);
+  }
+  let judged = memo.get(number);
+  if (judged === undefined) {
+    judged = isWorkingDay(calendar, dayText(number));
+    memo.set(number, judged);
+  }
+  return judged;
 }

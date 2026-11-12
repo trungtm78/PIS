@@ -177,9 +177,13 @@ export class PwfScoreStore {
     const ordered = [...bundles.values()].sort((left, right) => (left.row.id < right.row.id ? -1 : 1));
     const readings = new Map(ordered.map((bundle) => [bundle.row.id, readingOf(bundle.row, request.to)] as const));
     const finals = ordered.filter((bundle) => readings.get(bundle.row.id)?.final === true).map((bundle) => bundle.row.id);
-    // A task closed by the end of the period has its results recorded (idempotently) before the period reads them.
-    await this.kpis.record(tx, finals, now);
-    const heads = await this.kpis.heads(tx, finals);
+    // A task closed by the end of the period has its results recorded (idempotently) before the period reads them; one whose results were evaluated at its present version is not read again (the job keeps them current).
+    const behind = finals.filter((id) => {
+      const row = (bundles.get(id) as TaskBundle).row;
+      return row.kpiRecordedVersion !== row.version;
+    });
+    await this.kpis.record(tx, behind, now);
+    const heads = await this.kpis.heads(tx, finals, false);
     const span = yearSpanOf(
       ordered.flatMap((bundle) => [bundle.row.baselineFirst, bundle.row.baselineCurrent, bundle.row.baselineStart, bundle.row.plannedStart, bundle.row.actualStart, bundle.row.actualFinish, bundle.row.cancelledOn]),
       request.to,

@@ -59,7 +59,7 @@ export class ScoreFixtures {
   constructor(private readonly options: FixtureOptions) {}
 
   private owner<R extends object = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<R[]> {
-    return this.options.harness.owner<R>(TENANT_A, [[sql, params]]);
+    return this.options.harness.owner<R>(TENANT_A, [["select set_config('app.scope_units', '*', false)"], [sql, params]]);
   }
 
   /** The calendars, the master data of the area, the template and the scoring policy every test of the scores needs. */

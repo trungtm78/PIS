@@ -50,7 +50,7 @@ const scopes = { act: everything, read: everything };
 const DEPT = unitId(DEPARTMENT);
 
 const as = <T>(work: (tx: TenantTx) => Promise<T>, member = MANAGER, tenant = TENANT_A): Promise<T> => harness.tenants.withTenant(contextFor(tenant, memberId(member)), work);
-const owner = <R extends object = Record<string, unknown>>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
+const owner = <R extends object = Record<string, unknown>>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [["select set_config('app.scope_units', '*', false)"], [sql, params]]);
 
 async function refusal(work: Promise<unknown>): Promise<{ code: string; status: number; detail?: string; extensions?: Record<string, unknown> }> {
   try {
@@ -239,8 +239,8 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(
         await sqlState(
           owner(
-            `insert into machvon.task_kpi_result (tenant_id, task_id, workflow_id, kpi_code, operation, kpi_set_code, kpi_set_version, state, weight, as_of, inputs_hash, inputs, supersedes_id)
-             select tenant_id, task_id, workflow_id, kpi_code, operation, kpi_set_code, kpi_set_version, state, weight, as_of, inputs_hash, inputs, id from machvon.task_kpi_result where id = $1::uuid`,
+            `insert into machvon.task_kpi_result (tenant_id, task_id, workflow_id, kpi_code, operation, kpi_set_code, kpi_set_version, state, value, score, weight, as_of, inputs_hash, inputs, supersedes_id)
+             select tenant_id, task_id, workflow_id, kpi_code, operation, kpi_set_code, kpi_set_version, state, value, score, weight, as_of, inputs_hash, inputs, id from machvon.task_kpi_result where id = $1::uuid`,
             [before?.id],
           ),
         ),
@@ -331,7 +331,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       workerLine = (await lineOf(periodId, WORKER)).id;
       otherLine = (await lineOf(periodId, OTHER)).id;
       expect(await lineOf(periodId, WORKER)).toMatchObject({ score_computed: '71.88', state: 'RATED' });
-      expect(await lineOf(periodId, OTHER)).toMatchObject({ score_computed: '97.5' });
+      expect(await lineOf(periodId, OTHER)).toMatchObject({ score_computed: '97.50' });
       expect(await refusal(lockIt(periodId, version))).toMatchObject({ code: 'STAFF_SCORE_PERIOD_LOCKED', status: 409 });
       expect(await refusal(compute(Q.LOCK))).toMatchObject({ code: 'STAFF_SCORE_PERIOD_LOCKED', status: 409 });
     });
@@ -530,7 +530,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
         // An official period still takes an adjustment that was asked for (the second approver is neither maker nor subject).
         const [open] = await owner<{ id: string }>("select id from machvon.staff_score_adjustment where line_id = $1::uuid and status = 'REQUESTED'", [otherLine]);
         expect((await as((tx) => adjustments.decide(tx, { adjustmentId: open?.id as string, expectedVersion: 1, decision: 'APPROVE', actor: memberId(MANAGER), units: DEPT }), MANAGER)).status).toBe('APPROVED');
-        expect(await lineOf(periodId, OTHER)).toMatchObject({ score_computed: '97.5', score_adjusted: '99.5' });
+        expect(await lineOf(periodId, OTHER)).toMatchObject({ score_computed: '97.50', score_adjusted: '99.50' });
       });
 
       it('applies the end of a workflow of the approval engine: upheld, returned or kept, with the reason; never for the person scored and never twice', async () => {
@@ -582,7 +582,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
   });
 
   describe('the edges of a period (BR-PWF-36, 38, 39, UAT-PWF-14, BND-13, NEG-09, NEG-10)', () => {
-    it('UAT-PWF-14: has a score and the raw numbers for a small sample and no rating, and a person with nothing to score is NOT_RATED, never NaN', async () => {
+    it('UAT-PWF-14, UAT-PWF-BND-13: has a score and the raw numbers for a small sample and no rating, and a person with nothing to score is NOT_RATED, never NaN', async () => {
       const wf = await workflow();
       const small = await seedTask(wf, 'M1', { baselineFinish: `${Y - 2}-05-15`, actualFinish: `${Y - 2}-05-15` });
       await hold(small, WORKER);
@@ -645,7 +645,8 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       await owner("update machvon.staff_score_period set status = 'OFFICIAL', official_at = now(), official_by = $2::uuid where id = $1::uuid", [preview.period.id, memberId(HR)]);
       expect(await sqlState(as((tx) => tx.query("update machvon.staff_score_period set status = 'LOCKED', official_at = null, official_by = null where id = $1::uuid", [preview.period.id])))).toBe('42501');
       expect(await sqlState(as((tx) => tx.query("update machvon.staff_score_period set status = 'DRAFT' where id = $1::uuid", [preview.period.id])))).toBe('42501');
-      expect(await refusal(as((tx) => scores.lock(tx, { periodId: preview.period.id, expectedVersion: preview.period.version + 2, actor: memberId(MANAGER), units: '*', now: new Date() })))).toMatchObject({ code: 'STAFF_SCORE_PERIOD_LOCKED' });
+      const current = Number((await owner<{ version: number }>('select version from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]?.version);
+      expect(await refusal(as((tx) => scores.lock(tx, { periodId: preview.period.id, expectedVersion: current, actor: memberId(MANAGER), units: '*', now: new Date() })))).toMatchObject({ code: 'STAFF_SCORE_PERIOD_LOCKED' });
     });
   });
 
@@ -665,6 +666,8 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       const approvedCancel = await seedTask(wf, 'G5', { status: 'CANCELLED', baselineFinish: `${Y}-11-13`, actualFinish: null, cancelledBy: CHECKER, cancelledAt: `${Y}-11-13T03:00:00Z`, ...base });
       await hold(approvedCancel, WORKER, { from: `${Y}-10-01` });
       // A task handed over three days before its due day and finished late by the next holder.
+      const selfCancelledToo = await seedTask(wf, 'G7', { status: 'CANCELLED', baselineFinish: `${Y}-11-14`, actualFinish: null, cancelledBy: WORKER, cancelledAt: `${Y}-11-14T03:00:00Z`, ...base });
+      await hold(selfCancelledToo, WORKER, { from: `${Y}-10-01` });
       const handed = await seedTask(wf, 'G6', { baselineFinish: `${Y}-11-20`, actualFinish: `${Y}-11-28`, ...base });
       await hold(handed, OTHER, { from: `${Y}-10-01`, to: `${Y}-11-17` });
       await hold(handed, WORKER, { from: `${Y}-11-18` });

@@ -41,6 +41,8 @@ export interface TaskFactsRow {
   estimateVnd: string | null;
   actualVnd: string | null;
   version: number;
+  /** The version of the task when its KPI results were last evaluated (null: never). */
+  kpiRecordedVersion: number | null;
 }
 
 interface TaskSql {
@@ -71,6 +73,7 @@ interface TaskSql {
   estimate_vnd: string | null;
   actual_vnd: string | null;
   version: number;
+  kpi_recorded_version: number | null;
 }
 
 const TASK_SELECT = `t.id, t.workflow_id, t.project_id, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.duration_working_days, t.status, t.own_task, ${VIETNAM_DAY('t.created_at')} as created_on,
@@ -79,7 +82,7 @@ const TASK_SELECT = `t.id, t.workflow_id, t.project_id, t.task_code, t.name, t.p
                   where b.tenant_id = t.tenant_id and b.task_id = t.id and b.finish_day is not null order by wb.version desc limit 1), t.baseline_finish::text) as baseline_current,
        t.baseline_start::text as baseline_start, t.planned_start::text as planned_start, t.planned_finish::text as planned_finish, t.actual_start::text as actual_start, t.actual_finish::text as actual_finish,
        ${VIETNAM_DAY('t.completion_requested_at')} as requested_on, ${VIETNAM_DAY('t.cancelled_at')} as cancelled_on, t.cancelled_by, t.return_count, t.reschedule_count,
-       t.estimate_vnd::text as estimate_vnd, t.actual_vnd::text as actual_vnd, t.version`;
+       t.estimate_vnd::text as estimate_vnd, t.actual_vnd::text as actual_vnd, t.version, t.kpi_recorded_version`;
 
 const toRow = (row: TaskSql): TaskFactsRow => ({
   id: row.id,
@@ -109,6 +112,7 @@ const toRow = (row: TaskSql): TaskFactsRow => ({
   estimateVnd: row.estimate_vnd,
   actualVnd: row.actual_vnd,
   version: row.version,
+  kpiRecordedVersion: row.kpi_recorded_version,
 });
 
 /** One line of the ledger of assignments, with the id of the row. */
@@ -209,14 +213,12 @@ export async function loadCalendars(tx: TenantTx, fromYear: number, toYear: numb
     [fromYear, toYear],
   );
   if (rows.length === 0) return { source: undefined, versions: [] };
-  const byYear = new Map(rows.map((row) => [row.year, row] as const));
+  // One content object for each year: the counts of days remember what they judged on it.
+  const byYear = new Map(
+    rows.map((row) => [row.year, { calendar_code: 'WORKDAY_VN', year: row.year, working_days: row.working_days, holidays: row.holidays as never, compensated_workdays: row.compensated_workdays ?? [], legal_basis_ref: row.legal_basis_ref }] as const),
+  );
   return {
-    source: {
-      forYear: (year) => {
-        const row = byYear.get(year);
-        return row === undefined ? undefined : { calendar_code: 'WORKDAY_VN', year: row.year, working_days: row.working_days, holidays: row.holidays as never, compensated_workdays: row.compensated_workdays ?? [], legal_basis_ref: row.legal_basis_ref };
-      },
-    },
+    source: { forYear: (year) => byYear.get(year) },
     versions: rows.map((row) => ({ year: row.year, version: row.revision })),
   };
 }

@@ -224,11 +224,11 @@ export class PwfKpiStore {
   }
 
   /** The head result of every KPI of the tasks given (the row nobody supersedes). */
-  async heads(tx: TenantTx, taskIds: readonly string[]): Promise<Map<string, KpiResultRow[]>> {
+  async heads(tx: TenantTx, taskIds: readonly string[], withInputs = true): Promise<Map<string, KpiResultRow[]>> {
     const map = new Map<string, KpiResultRow[]>();
     if (taskIds.length === 0) return map;
     const rows = await tx.query<ResultSql>(
-      `select ${RESULT_COLUMNS} from machvon.task_kpi_result r where r.task_id = any($1::uuid[]) and not exists (select 1 from machvon.task_kpi_result n where n.tenant_id = r.tenant_id and n.supersedes_id = r.id) order by r.kpi_code`,
+      `select ${withInputs ? RESULT_COLUMNS : RESULT_COLUMNS.replace(' inputs,', " '{}'::jsonb as inputs,")} from machvon.task_kpi_result r where r.task_id = any($1::uuid[]) and not exists (select 1 from machvon.task_kpi_result n where n.tenant_id = r.tenant_id and n.supersedes_id = r.id) order by r.kpi_code`,
       [[...taskIds]],
     );
     for (const row of rows) map.set(row.task_id, [...(map.get(row.task_id) ?? []), toResult(row)]);

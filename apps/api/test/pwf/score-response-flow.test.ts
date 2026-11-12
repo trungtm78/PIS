@@ -30,6 +30,7 @@ describe('the response to a score handled by the approval engine of ADM (R43, R1
   const flow = new ScoreResponseFlow(registry);
   const audit = new AuditWriter(harness.tenants);
   let lineId = '';
+  let openResponse = '';
 
   const as = <T>(member: number, work: (tx: TenantTx) => Promise<T>): Promise<T> => harness.tenants.withTenant(contextFor(TENANT_A, memberId(member)), work);
   const effectsOf = (tx: TenantTx, actor: number): ApprovalEffects => ({
@@ -37,7 +38,7 @@ describe('the response to a score handled by the approval engine of ADM (R43, R1
     audit: (entry) => audit.recordInTx(tx, memberId(actor), { ...entry, correlationId: randomUUID(), requestId: randomUUID() }),
     emit: (event) => enqueueOutbox(tx, { ...event, correlationId: randomUUID() }),
   });
-  const rows = <R extends object>(sql: string, params: unknown[] = []): Promise<R[]> => harness.owner<R>(TENANT_A, [[sql, params]]);
+  const rows = <R extends object>(sql: string, params: unknown[] = []): Promise<R[]> => harness.owner<R>(TENANT_A, [["select set_config('app.scope_units', '*', false)"], [sql, params]]);
 
   /** Sends a response of the person scored and starts what handles it, in one transaction, as the command does. */
   const respond = (body = 'The delay came from the agency; here is the letter I sent on the due day.') =>
@@ -57,6 +58,8 @@ describe('the response to a score handled by the approval engine of ADM (R43, R1
     await harness.start();
     await harness.seedUnits(TENANT_A, [{ n: ROOT, path: `/${unitId(ROOT)}/` }]);
     for (const n of [MAKER, WORKER, REVIEWER, AUTHOR]) await harness.seedMembership(TENANT_A, n, ROOT);
+    await harness.seedRole(TENANT_A, 1, 'SCORE_REVIEWER', ['approval.decide', 'approval_task.read'], 30);
+    await harness.seedGrants(TENANT_A, [{ n: 1, member: REVIEWER, role: 1, kind: 'TENANT' }]);
     await harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: SYSTEM, scopeVersion: 0 }, (tx) => applyBaseline(tx, BASELINE_PACK, SYSTEM, TODAY));
     await fixtures.seed({ maker: MAKER, submitter: AUTHOR, checker: REVIEWER }, { ...pwfKpi.DEFAULT_STAFF_SCORING_PARAMS, min_rated_tasks: 1, min_effective_weight: 0.5 });
     const wf = await fixtures.workflow();
@@ -97,6 +100,7 @@ describe('the response to a score handled by the approval engine of ADM (R43, R1
 
     it('starts an instance for the response, pinned to the unit of the person at the period, and keeps its reference on the response; nobody handles it by hand while it runs', async () => {
       const sent = await respond();
+      openResponse = sent.result.id;
       expect(sent.instanceId).toBeDefined();
       const task = await pendingTask(sent.instanceId as string);
       expect(task.assignee_id).toBe(memberId(REVIEWER));
@@ -136,7 +140,7 @@ describe('the response to a score handled by the approval engine of ADM (R43, R1
           const finish = registry.asFinalCommand();
           return finish({ tx, instance: { businessType: 'score.response', resourceType: 'staff_score_response', resourceId: instanceResource, id: randomUUID(), decisionSeq: 0 } as never, outcome: 'APPROVED', command: 'upholdStaffScoreResponse', idempotencyKey: 'k', effects: effectsOf(tx, actor) });
         }).then((answer) => ({ answer: answer as string }));
-      const sent = await respond('A fourth response: please look at the table again, line by line.');
+      const sent = { result: { id: openResponse } };
       expect(await call(sent.result.id, WORKER)).toEqual({ answer: 'GUARD_REJECTED' });
       expect(await responseOf(sent.result.id)).toMatchObject({ status: 'OPEN' });
       expect(await call(randomUUID(), REVIEWER)).toEqual({ answer: 'GUARD_REJECTED' });

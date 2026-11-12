@@ -38,11 +38,10 @@ export async function enterScoreScope(tx: TenantTx, scope: ScoreScope): Promise<
 export async function withScoreScope<T>(tx: TenantTx, scope: ScoreScope, work: () => Promise<T>): Promise<T> {
   const previous = (await tx.query<{ units: string | null; subject: string | null }>("select current_setting('app.scope_units', true) as units, current_setting('app.score_subject', true) as subject"))[0];
   await enterScoreScope(tx, scope);
-  try {
-    return await work();
-  } finally {
-    await enterScoreScope(tx, { units: previous?.units ?? '', subject: previous?.subject ?? '' });
-  }
+  // A failure leaves the transaction to roll back (its settings go with it): the reach is put back only after work that succeeded, so that the failure is the one the caller sees.
+  const done = await work();
+  await enterScoreScope(tx, { units: previous?.units ?? '', subject: previous?.subject ?? '' });
+  return done;
 }
 
 /**

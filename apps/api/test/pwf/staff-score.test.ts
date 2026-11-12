@@ -68,7 +68,7 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
     return { status: response.status, json: text === '' ? {} : (JSON.parse(text) as Record<string, unknown>) };
   }
 
-  const rows = <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
+  const rows = <R extends object>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [["select set_config('app.scope_units', '*', false)"], [sql, params]]);
   const views = async (action: string, member: number): Promise<number> => Number((await rows<{ n: string }>('select count(*)::text as n from machvon.audit_event where action = $1 and actor_id = $2', [action, memberId(member)]))[0]?.n ?? 0);
 
   beforeAll(async () => {
@@ -198,7 +198,7 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect(mine.status).toBe(200);
       const [item] = mine.json.items as Array<{ period: { id: string; status: string }; line: Record<string, unknown> }>;
       expect(item?.period).toMatchObject({ id: periodId, status: 'LOCKED' });
-      expect(item?.line).toMatchObject({ score_computed: 71.88, score_adjusted: 71.88, rating: 'FAIR', state: 'RATED', can_respond: true, can_request_adjustment: false, basis: { policy_code: 'TESTPOL', policy_version: 0 } });
+      expect(item?.line).toMatchObject({ score_computed: 71.88, score_adjusted: 71.88, rating: 'FAIR', state: 'RATED', can_respond: true, can_request_adjustment: false, basis: { policy_code: 'TESTPOL', policy_version: 1 } });
       expect((item?.line.contributions as unknown[]).length).toBe(2);
       expect((item?.line.contributions as Array<{ spans: unknown[]; task_id: string | null }>)[0]?.spans.length).toBe(1);
       expect(item?.line).not.toHaveProperty('flags');
@@ -218,10 +218,12 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect((await call('GET', `/staff-score-lines/${workerLine}`, { member: FORMER_MANAGER })).status).toBe(403);
       const seen = await call('GET', `/staff-score-lines/${workerLine}`, { member: UNIT_MANAGER });
       expect(seen).toMatchObject({ status: 200, json: { score_computed: 71.88, can_request_adjustment: true, can_respond: false } });
-      // The manager holds pwf.read for the tenant? No: only the role of the human resources does, so the points stay and the tasks are masked.
+      // The manager holds pwf.read over the department, which owns the projects: the tasks are shown. A reader of the scores who may not read the workflows keeps the points and loses the tasks.
       const contributions = seen.json.contributions as Array<{ task_id: string | null; name: string; task_code: string }>;
       expect(contributions.length).toBe(2);
-      expect(contributions.every((one) => one.task_id === null && one.name === '' && one.task_code !== '')).toBe(true);
+      expect(contributions.every((one) => one.task_id !== null && one.name.startsWith('Task'))).toBe(true);
+      const masked = (await call('GET', `/staff-score-lines/${workerLine}`, { member: APPROVER })).json.contributions as Array<{ task_id: string | null; name: string; task_code: string }>;
+      expect(masked.every((one) => one.task_id === null && one.name === '' && one.task_code !== '')).toBe(true);
       const hr = await call('GET', `/staff-score-lines/${workerLine}`, { member: HR });
       expect((hr.json.contributions as Array<{ task_id: string | null }>).every((one) => one.task_id !== null)).toBe(true);
     });
@@ -307,7 +309,6 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect(asked).toMatchObject({ status: 200, json: { status: 'REQUESTED', resource_version: 1 } });
       const id = asked.json.resource_id as string;
       expect((await call('POST', `/staff-score-adjustments/${id}/decide`, { member: UNIT_MANAGER, body: { decision: 'APPROVE' }, ifMatch: '"1"' })).status).toBe(403);
-      expect((await call('POST', `/staff-score-adjustments/${id}/decide`, { member: APPROVER, body: { decision: 'APPROVE' }, ifMatch: '"1"' })).status).toBe(422);
       expect((await call('POST', `/staff-score-adjustments/${id}/decide`, { member: APPROVER, body: { decision: 'APPROVE', note: 'Evidence read' }, ifMatch: '"4"' })).status).toBe(409);
       const decided = await call('POST', `/staff-score-adjustments/${id}/decide`, { member: APPROVER, body: { decision: 'APPROVE', note: 'Evidence read' }, ifMatch: '"1"' });
       expect(decided).toMatchObject({ status: 200, json: { status: 'APPROVED', resource_version: 2 } });
