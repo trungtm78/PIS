@@ -140,6 +140,23 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
     return found;
   };
 
+  /**
+   * Two weeks that follow one another in ONE calendar. The weeks are handed out in the order of both calendars (52 of the first, then 52 of the second), so which week a test gets depends on how many the
+   * tests before it took: a case that needs "the period before" must not take the last week of the first calendar and the first week of the second, which are not neighbours in time.
+   */
+  const consecutiveWeeks = async (): Promise<[string, string]> => {
+    let before = week();
+    for (;;) {
+      const after = week();
+      const [adjacent] = await rows<{ ok: boolean }>(
+        "select (b.calendar_code = a.calendar_code and b.start_date = a.start_date + 7) as ok from machvon.reporting_period a, machvon.reporting_period b where a.id = $1 and b.id = $2",
+        [before, after],
+      );
+      if (adjacent?.ok === true) return [before, after];
+      before = after;
+    }
+  };
+
   const draft = (projectId: string, periodId: string, planId: string, extra: Record<string, unknown> = {}): Record<string, unknown> => ({
     project_id: projectId,
     period_id: periodId,
@@ -1088,11 +1105,11 @@ describe('the weekly report draft over HTTP (ST-DIS-003)', () => {
     it('AC-ST-DIS-005-5 / UAT-AC250: refuses a cumulative that fell from 150 million to 120 million until it is explained (422), then hands it in with the warning and the change of -30 million', async () => {
       const { projectId, planId } = await seedProject();
       const cell = (amount: string) => [{ bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', cumulative_vnd: amount, next_month_vnd: '10' }];
-      const earlier = await create(draft(projectId, week(), planId, { funding_lines: cell('150000000') }));
+      const [earlierWeek, period] = await consecutiveWeeks();
+      const earlier = await create(draft(projectId, earlierWeek, planId, { funding_lines: cell('150000000') }));
       // A report is handed in before it is accepted: the table lets it move along the graph only.
       await rows("update machvon.report_revision set status = 'SUBMITTED', submitted_by = $2, submitted_at = now() where id = $1", [idOf(earlier), memberId(MAKER)]);
       await rows("update machvon.report_revision set status = 'ACCEPTED', is_current = true, accepted_by = $2, accepted_at = now() where id = $1", [idOf(earlier), memberId(READER)]);
-      const period = week();
       const made = await create(draft(projectId, period, planId, { ...PROGRESS, funding_lines: cell('120000000') }));
       const reportId = idOf(made);
       const refused = await submit(reportId, 1);
