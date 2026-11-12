@@ -1926,3 +1926,20 @@ export type { BackupDecision, BackupRequestRow } from './backup-request-store.ts
 export { EntNarrativeStore } from './ent-narrative-store.ts';
 export type { CauseEntry, NarrativeImportContext, NarrativeImportTarget, NarrativeJudgement, PreviousNarrative } from './ent-narrative-store.ts';
 export { enterpriseBlockOf } from './ent-narrative-codec.ts';
+
+// PWF-1 and the publication of the schedule of PWF-2 (project workflow, tasks, gate of the stage commands, reschedule, reads).
+export { SqlProjectWorkflowGate, gateRefusal } from './pwf-gate.ts';
+export type { GateOutcome, ProjectWorkflowGatePort } from './pwf-gate.ts';
+export { PwfWorkflowStore, factsOf } from './pwf-workflow-store.ts';
+export type { AdoptOutcome, AdoptRequest, AdoptTaskView, EvidenceDraft, ResolvedTemplate, StartRequest, Treatment, WorkflowResult as PwfWorkflowResult } from './pwf-workflow-store.ts';
+export { PwfTaskStore, peakShare, refreshSchedule } from './pwf-task-store.ts';
+export type { AssignInput as PwfAssignInput, AssignmentRole, EvidenceInput as PwfEvidenceInput, ExceptionKind as PwfExceptionKind, TaskCommand, TaskResult as PwfTaskResult } from './pwf-task-store.ts';
+export { PwfRescheduleStore, proposedTasks } from './pwf-reschedule-store.ts';
+export type { LinkInput, ProposalView, RescheduleInput } from './pwf-reschedule-store.ts';
+export { PwfWorkflowReads, bandResolver, taskItemOf } from './pwf-workflow-reads.ts';
+export type { BandResolver, BandView, Can as PwfCan, TaskFilter, TaskListItem } from './pwf-workflow-reads.ts';
+export { PwfTaskReads } from './pwf-task-reads.ts';
+export { logWorkflow, milestoneCodeOf, publishSchedule, resultHashOf, syncMilestones } from './pwf-publish.ts';
+export { loadPinnedCalendars, pinPublishedCalendars } from './pwf-schedule-support.ts';
+export { PwfDeadlineReads } from './pwf-deadline-reads.ts';
+export type { BoardFilter as PwfBoardFilter } from './pwf-deadline-reads.ts';

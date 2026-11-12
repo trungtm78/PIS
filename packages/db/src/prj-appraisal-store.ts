@@ -6,6 +6,8 @@ import type { ProjectClassification, ProjectStatus } from './prj-project-store.t
 import { isTransitionAllowed, edgeBy } from './prj-stage-machine.ts';
 import { PROJECT_GROUPS } from './prj-stage-store.ts';
 import type { StageChange } from './prj-stage-store.ts';
+import { SqlProjectWorkflowGate } from './pwf-gate.ts';
+import type { ProjectWorkflowGatePort } from './pwf-gate.ts';
 import { effectiveDateOf, invalid, lockProject, reasonOf, recordStageChange, usableDocumentId } from './prj-stage-support.ts';
 import type { LockedProject, StageScopes } from './prj-stage-support.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -213,9 +215,11 @@ function noteOf(value: string | undefined): string | null {
 
 export class PrjAppraisalStore {
   private readonly rules: MasterRules;
+  private readonly gate: ProjectWorkflowGatePort;
 
-  constructor(rules: MasterRules = new MasterRules()) {
+  constructor(rules: MasterRules = new MasterRules(), gate: ProjectWorkflowGatePort = new SqlProjectWorkflowGate()) {
     this.rules = rules;
+    this.gate = gate;
   }
 
   /**
@@ -227,6 +231,8 @@ export class PrjAppraisalStore {
     if (locked.version !== request.expectedVersion) throw versionConflict(locked.version);
     const edge = edgeBy(SUBMIT_OPERATION, locked.status);
     if (edge === undefined) throw new DomainError('STAGE_TRANSITION_DENIED', 409);
+    // The workflow of the project, when it has one, may keep the command closed (PWF-1, R29); the same transaction and lock.
+    await this.gate.assert(tx, locked.id, SUBMIT_OPERATION);
     const { input } = request;
     // A document sent to the wrong command is refused by name, so it is not stored as if it counted.
     if (input.decisionDocumentId !== undefined) throw invalid('decision_document_id');
@@ -381,6 +387,7 @@ export class PrjAppraisalStore {
     if (!isRecommendation(request.decision)) throw invalid('decision');
     const decision = request.decision;
     const to = DECISION_TARGET[decision];
+    await this.gate.assert(tx, locked.id, DECIDE_OPERATION);
     if (!isTransitionAllowed(locked.status, to)) throw new DomainError('STAGE_TRANSITION_DENIED', 409);
     const reason = reasonOf(request.reason);
     const submitted = sheets.filter((sheet) => sheet.status === 'SUBMITTED');

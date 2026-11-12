@@ -3326,6 +3326,7 @@ export { ENT4A_TEXT, fillCrosscheckText } from './messages/ent4a-texts.ts';
 // PWF (project workflow, schedule, deadline bands, KPIs and staff scores): exported as namespaces because the names of the lane (TaskStatus, TASK_PRIORITIES, ...) are common words.
 export * as pwfWorkflow from './project-workflow.ts';
 export * as pwfSchedule from './project-schedule.ts';
+export * as pwfQuality from './project-workflow-quality.ts';
 export * as pwfDeadlineBand from './deadline-band.ts';
 export * as pwfKpi from './workflow-kpi.ts';
 export * as processCore from './process-core.ts';
