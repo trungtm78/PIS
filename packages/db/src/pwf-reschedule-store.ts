@@ -286,6 +286,7 @@ export class PwfRescheduleStore {
     if (overrides === undefined) return;
     await tx.query("select set_config('pwf.override', 'on', true)");
     try {
+      // Every added task is written before any link: an added task may follow another that is added later in the same list.
       for (const added of overrides.add ?? []) {
         await tx.query(
           `insert into machvon.project_task (tenant_id, id, workflow_id, project_id, task_code, name, phase_code, sort_order, kind, required, responsible_role, priority, duration_working_days, own_task, created_by, updated_by)
@@ -293,8 +294,8 @@ export class PwfRescheduleStore {
              from machvon.project_task where workflow_id = $1::uuid`,
           [workflowId, projectId, added.code, added.name, added.phase, added.kind, OWN_ROLE, added.durationWorkingDays, actor],
         );
-        await this.writeLinks(tx, workflowId, added.code, added.predecessors ?? []);
       }
+      for (const added of overrides.add ?? []) await this.writeLinks(tx, workflowId, added.code, added.predecessors ?? []);
       for (const change of overrides.change ?? []) {
         if (change.durationWorkingDays !== undefined) await tx.query('update machvon.project_task set duration_working_days = $3::int, updated_at = now(), updated_by = $4::uuid, version = version + 1 where workflow_id = $1::uuid and task_code = $2', [workflowId, change.taskCode, change.durationWorkingDays, actor]);
         if (change.predecessors !== undefined) {

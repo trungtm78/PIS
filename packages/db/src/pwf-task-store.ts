@@ -5,7 +5,7 @@ import { PrjBaselineStore } from './prj-baseline-store.ts';
 import { dateOf } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
 import { logWorkflow, publishSchedule, resultHashOf, syncMilestones } from './pwf-publish.ts';
-import { TASK_COLUMNS, baselineOfRows, earliestYear, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
+import { TASK_COLUMNS, baselineOfRows, earliestYear, ownTaskDefinition, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow } from './pwf-schedule-support.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -187,9 +187,10 @@ export class PwfTaskStore {
     await this.assertAssignee(tx, task, request.actor, request.today, ['RESPONSIBLE', 'ACCOUNTABLE']);
     const waiver = request.exceptionId === undefined ? null : await this.waiverOf(tx, task, idOf(request.exceptionId, 'exception_id'));
     const makers = await this.makersOf(tx, task, request.actor);
-    const assessment = pwfWorkflow.assessTaskCompletion(definition, { ...(await this.completionState(tx, task, request.actor, makers)), exceptionApproved: waiver !== null });
-    // The approver is not known until someone approves: who may approve is judged then (approveCompletion), never here.
-    const blockers = assessment.blockers.filter((one) => one.code !== 'APPROVER_REQUIRED' && one.code !== 'MAKER_IS_APPROVER');
+    const assessment = pwfWorkflow.assessTaskCompletion(definition, { ...(await this.completionState(tx, task, request.actor, makers)), exceptionApproved: false });
+    // The approver is not known until someone approves: who may approve is judged then (approveCompletion), never here. A waiver covers only what it names: the item, the type of document or the form (BR-PWF-14).
+    const waived = new Set(waiver?.items ?? []);
+    const blockers = assessment.blockers.filter((one) => one.code !== 'APPROVER_REQUIRED' && one.code !== 'MAKER_IS_APPROVER' && !(waived.has(one.subject) && assessment.coverable.some((covered) => covered.code === one.code && covered.subject === one.subject)));
     if (blockers.length > 0) throw new DomainError('PWF_TASK_COMPLETION_BLOCKED', 422, 'status', { extensions: { blockers, coverable: assessment.coverable } });
     const finish = request.actualFinish === undefined ? request.today : dateOf(request.actualFinish, 'actual_finish');
     if (finish > request.today || (task.actualStart !== null && finish < task.actualStart)) throw invalid('actual_finish');
@@ -198,7 +199,7 @@ export class PwfTaskStore {
     const awaiting = definition.approverRole !== null;
     const status = awaiting ? 'AWAITING_APPROVAL' : 'DONE';
     await this.update(tx, task, { status, actual_finish: finish, ...(actualVnd === null ? {} : { actual_vnd: actualVnd }), completion_requested_by: request.actor, completion_requested_at: new Date().toISOString() }, request.actor);
-    if (waiver !== null) await tx.query(`update machvon.project_task_exception set status = 'USED', version = version + 1 where id = $1::uuid`, [waiver]);
+    if (waiver !== null) await tx.query(`update machvon.project_task_exception set status = 'USED', version = version + 1 where id = $1::uuid`, [waiver.id]);
     await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: awaiting ? 'COMPLETE_REQUESTED' : 'COMPLETED', actor: request.actor, subject: { task_code: task.code, actual_finish: finish, waived: waiver !== null } });
     if (!awaiting) await this.afterDone(tx, locked, request.actor, request.today);
     return this.result(locked, 'IN_PROGRESS', status, task.version + 1, { actual_finish: finish, waived: waiver !== null });
@@ -349,6 +350,9 @@ export class PwfTaskStore {
   /** The task locked inside the scope of the command: readable but not actionable is 403, out of sight 404. */
   private async lock(tx: TenantTx, taskId: string, scopes: StageScopes, field: string): Promise<Locked> {
     const id = idOf(taskId, field);
+    // The commands that publish the schedule of a workflow (a completion, a decision on a proposal) are one at a time per project: the same lock, taken before any row of the workflow is read (BR-PWF-28).
+    const owning = await tx.query<{ project_id: string }>('select project_id from machvon.project_task where id = $1::uuid', [id]);
+    if (owning[0] !== undefined) await tx.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [`pwf:${owning[0].project_id}`]);
     const act = scopes.act(2);
     const rows = await tx.query<LockSql & Record<string, unknown>>(
       `select ${TASK_COLUMNS}, w.status as workflow_status, w.template, w.planned_start_date::text as planned_start_date, w.schedule_version, w.version as workflow_version, w.calendar_pins, w.facts, p.code as project_code
@@ -364,7 +368,7 @@ export class PwfTaskStore {
     }
     const template = pwfWorkflow.parseProjectWorkflowTemplate(row.template);
     const task = toTaskRow(row as never);
-    const definition = template.tasks.find((one) => one.code === task.code);
+    const definition = template.tasks.find((one) => one.code === task.code) ?? (task.ownTask ? ownTaskDefinition(task) : undefined);
     return { task, workflow: { id: task.workflowId, status: row.workflow_status, template, plannedStartDate: row.planned_start_date, scheduleVersion: row.schedule_version, version: row.workflow_version, calendarPins: row.calendar_pins, facts: row.facts }, projectCode: row.project_code, definition };
   }
 
@@ -426,10 +430,10 @@ export class PwfTaskStore {
   }
 
   /** The approved waiver the caller names, for this task: 422 `PWF_EXCEPTION_INVALID` when it is not one. */
-  private async waiverOf(tx: TenantTx, task: TaskRow, exceptionId: string): Promise<string> {
-    const rows = await tx.query<{ id: string }>(`select id from machvon.project_task_exception where id = $1::uuid and task_id = $2::uuid and kind = 'WAIVE_REQUIREMENT' and status = 'APPROVED' for update`, [exceptionId, task.id]);
+  private async waiverOf(tx: TenantTx, task: TaskRow, exceptionId: string): Promise<{ id: string; items: string[] }> {
+    const rows = await tx.query<{ id: string; items: string[] }>(`select id, items from machvon.project_task_exception where id = $1::uuid and task_id = $2::uuid and kind = 'WAIVE_REQUIREMENT' and status = 'APPROVED' for update`, [exceptionId, task.id]);
     if (rows[0] === undefined) throw new DomainError('PWF_EXCEPTION_INVALID', 422, 'exception_id');
-    return rows[0].id;
+    return rows[0];
   }
 
   /** The predecessors that stop this task from starting by the kind of their link: a finish-to-start link waits for the predecessor to be done (or cancelled, or left out), a start-to-start link for it to have started. */

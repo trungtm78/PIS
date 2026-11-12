@@ -1,5 +1,5 @@
 import { DomainError, canonicalJson, sha256Hex } from '@machvon/kernel';
-import type { pwfSchedule } from '@machvon/kernel';
+import type { pwfSchedule, pwfWorkflow } from '@machvon/kernel';
 import { WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -356,4 +356,26 @@ export function earliestYear(days: ReadonlyArray<string | null | undefined>): nu
   const years = days.filter((day): day is string => typeof day === 'string').map((day) => Number(day.slice(0, 4)));
   if (years.length === 0) throw new DomainError('PWF_SCHEDULE_INVALID', 422, 'planned_start');
   return Math.min(...years);
+}
+
+/** What a task of the project's own (added by an approved override, never in the frozen template) asks of its completion: nothing but being done and, when its role says so, approved. */
+export function ownTaskDefinition(row: TaskRow): pwfWorkflow.TemplateTask {
+  return {
+    code: row.code,
+    name: row.name,
+    phase: row.phaseCode,
+    kind: row.kind,
+    durationWorkingDays: row.durationWorkingDays,
+    required: row.required,
+    responsibleRole: row.responsibleRole,
+    approverRole: row.approverRole,
+    priority: row.priority,
+    predecessors: [],
+    constraint: null,
+    legalDocTypes: [],
+    formTemplates: [],
+    checklist: [],
+    kpiCodes: [],
+    when: [],
+  };
 }

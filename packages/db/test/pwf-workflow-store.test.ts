@@ -406,6 +406,18 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect((await refusal(as((tx) => tasks.approveCompletion(tx, { taskId: a.id as string, expectedVersion: Number(waiting.version), actor: memberId(WORKER), scopes, today: TODAY }), WORKER))).code).toBe('SELF_APPROVAL_DENIED');
     });
 
+    it('a waiver covers only the requirements it names: the missing document still blocks the completion', async () => {
+      const wf = await start((await project()).id);
+      const a = await taskOf(wf.id, 'TA');
+      await assign(a.id as string, WORKER);
+      await begin(wf.id, 'TA');
+      const asked = await as((tx) => tasks.requestException(tx, { taskId: a.id as string, actor: memberId(WORKER), scopes, today: TODAY, kind: 'WAIVE_REQUIREMENT', items: ['DOSSIER'], reason: 'The dossier is kept by the investor and is not scanned yet' }), WORKER);
+      await as((tx) => tasks.decideException(tx, { exceptionId: asked.exceptionId, expectedVersion: 1, decision: 'APPROVE', actor: memberId(CHECKER), scopes, today: TODAY }), CHECKER);
+      const blocked = await refusal(finish(wf.id, 'TA', { exceptionId: asked.exceptionId }));
+      expect(blocked).toMatchObject({ code: 'PWF_TASK_COMPLETION_BLOCKED' });
+      expect((blocked.extensions?.blockers as Array<{ code: string; subject: string }>).map((one) => one.subject)).toEqual(['FEASIBILITY_REPORT']);
+    });
+
     it('UAT-PWF-NEG-03: starts a task whose predecessor is not done only with a reason of 20 characters, and records that it started early', async () => {
       const wf = await start((await project()).id);
       const c = await taskOf(wf.id, 'TC');
@@ -585,6 +597,31 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       const waiting = await propose(p.id, Number(fresh[0]?.version), { plannedStartDate: `${YEAR}-12-07` });
       await doneA(wf.id);
       expect((await refusal(decide(waiting.id, Number(fresh[0]?.version), OTHER))).code).toBe('PWF_SCHEDULE_VERSION_CONFLICT');
+    });
+
+    it('writes the links of the added tasks after all of them (a task may follow one added later), lets the added tasks be completed, and serializes completions that publish the schedule', async () => {
+      const p = await project();
+      const wf = await start(p.id);
+      const proposal = await propose(p.id, wf.version, {
+        overrides: {
+          add: [
+            { code: 'OWN_AA', name: 'Added first', phase: 'P1', kind: 'TASK', durationWorkingDays: 2, predecessors: [{ task: 'OWN_BB', kind: 'FS', lagWorkingDays: 0 }] },
+            { code: 'OWN_BB', name: 'Added second', phase: 'P1', kind: 'TASK', durationWorkingDays: 2 },
+            { code: 'OWN_CC', name: 'Added third', phase: 'P1', kind: 'TASK', durationWorkingDays: 1 },
+          ],
+        },
+      });
+      await decide(proposal.id, wf.version, CHECKER);
+      expect((await owner('select 1 from machvon.project_task_dependency where workflow_id = $1::uuid and task_id = $2::uuid', [wf.id, (await taskOf(wf.id, 'OWN_AA')).id])).length).toBe(1);
+      for (const code of ['OWN_BB', 'OWN_CC']) {
+        await assign((await taskOf(wf.id, code)).id as string, WORKER);
+        await begin(wf.id, code);
+      }
+      const results = await Promise.allSettled([finish(wf.id, 'OWN_BB'), finish(wf.id, 'OWN_CC')]);
+      expect(results.map((one) => one.status)).toEqual(['fulfilled', 'fulfilled']);
+      expect((await taskOf(wf.id, 'OWN_BB')).status).toBe('DONE');
+      const versions = await owner<{ version: number }>('select version from machvon.project_schedule_version where workflow_id = $1::uuid order by version', [wf.id]);
+      expect(versions.map((one) => one.version)).toEqual(versions.map((_, index) => index + 1));
     });
 
     it('adds a task of the project and changes a duration through the overrides, written only when the proposal is approved', async () => {
