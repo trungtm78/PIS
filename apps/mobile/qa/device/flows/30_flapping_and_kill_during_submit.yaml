@@ -26,7 +26,8 @@ appId: vn.machvon.app
 ---
 - launchApp
 - tapOn: 'Dự án.*'
-- tapOn: 'Báo cáo và công việc hiện trường.*'
+# The shortcuts of the Projects tab are the button "Lối tắt" of the top bar, which opens a sheet (the list of projects is first on the tab).
+- tapOn: 'Lối tắt'
 - tapOn: 'Báo cáo tháng.*'
 - tapOn: 'Báo cáo tuần'
 - tapOn: 'Kỳ báo cáo.*'

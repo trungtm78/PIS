@@ -11,8 +11,8 @@ import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/widgets/figure_info.dart';
 import 'package:machvon_mobile/features/dashboard/committee_workspace.dart';
 import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
-import 'package:machvon_mobile/features/dashboard/widgets/committee_card.dart' show CommitteeCard;
 import 'package:machvon_mobile/features/dashboard/dashboard_strings.dart';
+import 'package:machvon_mobile/features/dashboard/widgets/committee_card.dart' show CommitteeCard;
 
 import '../../support/harness.dart';
 import '../support/scripted_server.dart';

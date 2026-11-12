@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall;
 import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/core/widgets/bottom_nav.dart' show AppBottomNav;
 import 'package:machvon_mobile/core/widgets/work_row.dart' show GroupHeader;
 import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
 import 'package:machvon_mobile/features/dashboard/screens/leader_home_screen.dart';
@@ -237,6 +238,71 @@ void main() {
 
     testWidgets('three devices, 200 percent text: no overflow, tap targets, labels and contrast', (WidgetTester tester) async {
       await expectScreenContract(tester, open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/home'), healthy: _healthyCenter);
+    });
+  });
+
+  group('R39 the home between the tabs and without a connection', () {
+    testWidgets('the home keeps its place when another tab is opened and the home is chosen again; the other tab is a screen of its own', (WidgetTester tester) async {
+      useDevice(tester, const Size(390, 600));
+      final ScriptedServer server = ScriptedServer();
+      _healthyCenter(server);
+      server
+        ..on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[alertItem('a-1', title: 'Việc một'), alertItem('a-2', title: 'Việc hai'), alertItem('a-3', title: 'Việc ba')]))
+        ..on('GET', '/home/my-work/counts', (_) => alertCounts(urgent: 0, action: 3));
+      final ProviderContainer container = await _open(tester, server, '/home');
+      final Finder list = find.byType(Scrollable).first;
+      await tester.drag(list, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      final double before = tester.state<ScrollableState>(list).position.pixels;
+      expect(before, greaterThan(0));
+
+      await tester.tap(find.descendant(of: find.byType(AppBottomNav), matching: find.text('Dự án')));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/projects');
+      await tester.tap(find.descendant(of: find.byType(AppBottomNav), matching: find.text('Trang chủ')));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/home');
+      expect(tester.state<ScrollableState>(find.byType(Scrollable).first).position.pixels, before, reason: 'a tab keeps its scroll while another is open');
+      expect(server.callsTo('GET', '/home/command-center'), hasLength(1), reason: 'going back to a tab reads nothing again');
+    });
+
+    testWidgets('offline with a copy: the connection is told once, by the strip of the shell; the line of context says it is a saved copy and stays', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      DateTime now = kNow;
+      final ScriptedServer server = ScriptedServer();
+      _healthyCenter(server);
+      server
+        ..on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[alertItem('a-1', title: 'Việc một')]))
+        ..on('GET', '/home/my-work/counts', (_) => alertCounts(action: 1));
+      await pumpWithServer(tester, features: <MobileFeature>[dashboard.feature], server: server, location: '/home', now: () => now);
+
+      server.offline = true;
+      now = kNow.add(const Duration(hours: 2));
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Bạn đang ngoại tuyến'), findsOneWidget, reason: 'one strip, not one per screen');
+      expect(find.textContaining('ngoại tuyến'), findsOneWidget, reason: 'no other line says "offline" again');
+      expect(find.textContaining('dữ liệu đã lưu'), findsWidgets, reason: 'the copy says it is a copy');
+      expect(find.text('14,0000%'), findsOneWidget, reason: 'the copy of the figures is still readable');
+      expect(find.widgetWithText(FilledButton, 'Xử lý'), findsNothing, reason: 'a copy offers no act');
+    });
+
+    testWidgets('stale: a copy older than its time to live is marked out of date in the one line of context', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      DateTime now = kNow;
+      final ScriptedServer server = ScriptedServer();
+      _healthyCenter(server);
+      server.on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[]));
+      await pumpWithServer(tester, features: <MobileFeature>[dashboard.feature], server: server, location: '/home', now: () => now);
+
+      server.offline = true;
+      now = kNow.add(const Duration(days: 3));
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Số liệu cũ'), findsOneWidget, reason: 'the stale badge of the line of context');
+      expect(find.textContaining('Bản lưu đã quá 12 giờ'), findsOneWidget);
     });
   });
 

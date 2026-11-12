@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/theme/app_theme.dart';
 import 'package:machvon_mobile/core/theme/machvon_semantic.dart';
 import 'package:machvon_mobile/core/widgets/command_hero.dart';
-import 'package:machvon_mobile/core/widgets/context_bar.dart';
+import 'package:machvon_mobile/core/widgets/context_line.dart';
 import 'package:machvon_mobile/core/widgets/kpi_tile.dart';
 import 'package:machvon_mobile/core/widgets/status_pill.dart';
 import 'package:machvon_mobile/features/read_support/widgets.dart' show SectionCard;
@@ -133,12 +133,6 @@ void main() {
       expect(find.textContaining('ĐVT'), findsNothing);
     });
 
-    testWidgets('ContextBar joins scope, closing date and freshness, and flags stale figures with a pill', (WidgetTester tester) async {
-      await tester.pumpWidget(hostWidget(const ContextBar(scope: 'Toàn công ty · Năm 2026', closing: '30/10/2026', freshness: 'Số liệu tại 07/11 08:00', stale: true)));
-      expect(find.text('Toàn công ty · Năm 2026 · Chốt số liệu 30/10/2026 · Số liệu tại 07/11 08:00'), findsOneWidget);
-      expect(find.text('Số liệu cũ'), findsOneWidget);
-    });
-
     for (final double scale in <double>[1.0, 2.0]) {
       testWidgets('the shared widgets keep contrast and touch targets, and do not overflow at text scale $scale', (WidgetTester tester) async {
         final SemanticsHandle handle = tester.ensureSemantics();
@@ -153,7 +147,7 @@ void main() {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  ContextBar(scope: 'Toàn công ty · Năm 2026', closing: '30/10/2026', freshness: 'Số liệu tại 07/11/2026 08:00', stale: true, onRefresh: () {}, refreshTooltip: 'Làm mới'),
+                  ContextLine(parts: const <String>['Toàn công ty · Năm 2026', 'Chốt số liệu 30/10/2026', 'Số liệu tại 07/11/2026 08:00'], stale: true, onRefresh: () {}, refreshLabel: 'Làm mới'),
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: CommandHero(

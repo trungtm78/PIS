@@ -105,7 +105,7 @@ class _HomeBody extends StatelessWidget {
           _HomeBand(center: center, pair: pair)
         else ...<Widget>[
           const AppTopBar(showBack: false),
-          LargeTitleHeader(title: context.t('mob.home.leader.band.title')),
+          LargeTitleHeader(title: context.t('mob.home.leader.title')),
         ],
         contextLine,
         if (center != null) _StatRow(center: center),
@@ -170,7 +170,7 @@ class _HomeBand extends StatelessWidget {
     final double? rate = totalValue == null ? null : double.tryParse(totalValue);
     final String total = totalValue == null ? _nullReasonText(context, pair?.total.nullReason) : context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(pair!.total.displayValue ?? totalValue, language)});
     return CommandBand(
-      title: context.t('mob.home.leader.band.title'),
+      title: context.t('mob.home.leader.title'),
       label: context.t('mob.home.tile.metric.disbursed'),
       figure: split.figure,
       unit: split.unit,
