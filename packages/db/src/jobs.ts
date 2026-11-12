@@ -190,6 +190,8 @@ export const JOB_INTERVAL_SECONDS = {
   // Every 15 minutes: the reminders of the steps of the reporting schedule (QT.02): before a deadline, after it, and the escalation to the leader of the unit; each is recorded once with its event (ENT-4c).
   'calendar-reminder': 900,
   'access-cache-expiry': 60,
+  // Hourly: the KPI results of the tasks that were closed, the periods of scores whose window ended, the personal data whose retention ended (PWF-3); the pass is incremental and idempotent.
+  'pwf-score-maintenance': 3600,
 } as const;
 
 export type JobName = keyof typeof JOB_INTERVAL_SECONDS;
@@ -326,6 +328,8 @@ export interface StandardJobDeps {
   delegationLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DelegationPassResult> };
   /** The pass over the support access grants of a tenant (ST-SAS-015): puts the approved ones in force, ends the ones whose window is over, lapses the requests nobody decided on; tells how many are in force, for the gauge. */
   supportAccessLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SupportPassResult> };
+  /** The maintenance of the KPI results and the scoring periods (PWF-3). */
+  pwfScoreMaintenance?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the exports of a tenant (ST-SAS-016): makes the ones that wait, ends the links that are over; tells how many wait or run, for the gauge. */
   /** The pass over the domains of a tenant (ST-SAS-017), through the control role acting as the tenant; tells how many are failing, for the gauge. */
   tenantDomain?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DomainPassResult> };
@@ -752,6 +756,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
           metrics.gauge(SUPPORT_ACCESS_ACTIVE_GAUGE, active);
         }
+      },
+    });
+  }
+  const pwfScores = deps.pwfScoreMaintenance;
+  if (pwfScores !== undefined) {
+    handlers.push({
+      name: 'pwf-score-maintenance',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await pwfScores.run(workerContext(tenantId), now)));
       },
     });
   }
