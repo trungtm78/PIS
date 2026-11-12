@@ -45,7 +45,9 @@ export function useProjectFigures(projectId: string) {
     queryKey: ['leader', tenant?.id, tenant?.membershipId, 'rates'],
     queryFn: async () => {
       try {
-        return (await client.read('getLeaderRates')) as LeaderRates;
+        const raw = await client.read('getLeaderRates');
+        // Nothing frozen yet is a 200 with `snapshot: null` (the shape the leader panel caches under this same key): a state, never rates.
+        return typeof raw === 'object' && raw !== null && 'snapshot' in raw && (raw as { snapshot: unknown }).snapshot === null ? null : (raw as LeaderRates);
       } catch (error) {
         if (isNotFound(error)) return null;
         throw error;

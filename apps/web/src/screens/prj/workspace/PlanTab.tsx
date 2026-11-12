@@ -23,6 +23,7 @@ const COMPONENTS_PATH = '/prj/prj-05';
 const CAPITAL_PATH = '/cap/cap-03';
 const PACKAGES_PATH = '/bid/bid-03';
 const CONTRACTS_PATH = '/ctr/ctr-01';
+const CONTRACT_WORKSPACE_PATH = '/ctr/ctr-03';
 
 const withProject = (path: string, id: string): string => `${path}?id=${encodeURIComponent(id)}`;
 
@@ -218,7 +219,7 @@ function ContractsSection({ projectId }: { projectId: string }) {
       header: t('ctr.list.column.code'),
       render: (item) => (
         <>
-          <Link to={`${CONTRACTS_PATH}?id=${encodeURIComponent(item.id)}`}>
+          <Link to={`${CONTRACT_WORKSPACE_PATH}?contract=${encodeURIComponent(item.id)}`}>
             <code>{item.code}</code>
           </Link>
           {item.title === null ? null : <> {item.title}</>}

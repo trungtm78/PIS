@@ -232,8 +232,8 @@ code {
 .ui-pager__button[aria-current='page'] { background: var(--mv-color-primary); border-color: var(--mv-color-primary); color: var(--mv-color-surface); }
 .ui-pager__button:disabled { cursor: not-allowed; opacity: 0.5; }
 
-/* A card that holds a bare table scrolls it sideways instead of widening the page (phone width). */
-.card:has(> table) { overflow-x: auto; }
+/* A card that holds a bare table scrolls it sideways instead of widening the page (phone width only: an overflow box elsewhere would stop a sticky header from pinning to the page). */
+@media (max-width: 640px) { .card:has(> table) { overflow-x: auto; } }
 /* A section, a context bar and a table frame may shrink inside a grid / flex parent; otherwise their widest child sets the track and the page scrolls sideways. */
 .ui-section, .ui-context, .ui-table-wrap { min-width: 0; }
 

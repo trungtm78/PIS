@@ -47,7 +47,7 @@ function ContractPartiesContent({ route }: ScreenProps) {
         </>
       ) : (
         <StateBoundary state={state} onRetry={() => void contract.refetch()}>
-          {contract.data === undefined || contract.data === null ? null : <Parties key={contract.data.version} contract={contract.data} />}
+          {contract.data === undefined || contract.data === null ? null : <Parties key={`${contract.data.id}:${contract.data.version}`} contract={contract.data} />}
         </StateBoundary>
       )}
       <p className="prototype-note">{t('ctr.parties.footer.reference', { id: route.id, req: route.req ?? '' })}</p>

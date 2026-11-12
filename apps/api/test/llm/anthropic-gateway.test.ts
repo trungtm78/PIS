@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { GatewayFailure } from '@machvon/kernel';
 import type { GatewayCall } from '@machvon/kernel';
 import { AnthropicGateway, PdfFallbackTextPort, extractJsonObject } from '../e2e-stack/anthropic-gateway';
@@ -48,6 +49,38 @@ describe('AnthropicGateway (demo adapter)', () => {
     expect(await failure(reply(504, {}))).toBe('TIMEOUT');
     expect(await failure(reply(200, { stop_reason: 'refusal', content: [] }))).toBe('REFUSAL');
     expect(await failure((async () => Promise.reject(Object.assign(new Error('x'), { name: 'AbortError' }))) as unknown as typeof fetch)).toBe('TIMEOUT');
+  });
+
+  it('refuses a call that is not the international Anthropic route before it reads or sends anything', async () => {
+    let sent = 0;
+    const fetchImpl = (async () => {
+      sent += 1;
+      return new Response('{}');
+    }) as typeof fetch;
+    const gateway = new AnthropicGateway({ apiKey: 'k', files, fetchImpl });
+    await expect(gateway.complete({ ...CALL, route: 'DOMESTIC_HOSTED' })).rejects.toBeInstanceOf(GatewayFailure);
+    await expect(gateway.complete({ ...CALL, providerCode: 'OTHER' })).rejects.toBeInstanceOf(GatewayFailure);
+    expect(sent).toBe(0);
+  });
+
+  it('sends the stored input only when its hash is the one the caller recorded', async () => {
+    const stored = new TextEncoder().encode('{"task":"real"}');
+    const bodies: string[] = [];
+    const fetchImpl = (async (_url: unknown, init?: RequestInit) => {
+      bodies.push(String(init?.body));
+      return new Response(JSON.stringify({ content: [{ type: 'text', text: '{}' }] }));
+    }) as typeof fetch;
+    const key = 'tenants/22222222-2222-4222-8222-222222222222/kind/33333333-3333-4333-8333-333333333333';
+    const gateway = new AnthropicGateway({ apiKey: 'k', files: { readStored: async () => ({ object: {} as never, bytes: stored }) }, fetchImpl });
+    await gateway.complete({ ...CALL, inputRef: key, inputSha256: createHash('sha256').update(stored).digest('hex') });
+    await gateway.complete({ ...CALL, inputRef: key, inputSha256: 'f'.repeat(64) });
+    expect(bodies[0]).toContain('real');
+    expect(bodies[1]).not.toContain('real');
+  });
+
+  it('stops reading a body that is larger than the cap', async () => {
+    const huge = (async () => new Response(new Uint8Array(2_500_000))) as typeof fetch;
+    await expect(new AnthropicGateway({ apiKey: 'k', files, fetchImpl: huge }).complete(CALL)).rejects.toMatchObject({ kind: 'PROVIDER_ERROR' });
   });
 
   it('extracts the first balanced JSON object, also from a fenced reply', () => {
