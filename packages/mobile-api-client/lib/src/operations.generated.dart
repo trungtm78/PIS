@@ -637,6 +637,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getSodException': OperationDescriptor(method: 'GET', path: '/sod-exceptions/{id}', versioned: false, stepUp: null, permission: 'adm.sod.read'),
   'getSodMatrix': OperationDescriptor(method: 'GET', path: '/sod-matrix', versioned: false, stepUp: null, permission: 'adm.sod.read'),
   'getStaffScoreLine': OperationDescriptor(method: 'GET', path: '/staff-score-lines/{id}', versioned: false, stepUp: null, permission: 'staff_score.read_own'),
+  'getStaffScoreOverview': OperationDescriptor(method: 'GET', path: '/staff-score-periods/{id}/overview', versioned: false, stepUp: null, permission: 'staff_score.read_hr'),
   'getStaffScorePeriod': OperationDescriptor(method: 'GET', path: '/staff-score-periods/{id}', versioned: false, stepUp: null, permission: 'staff_score.read_unit'),
   'getSteeringMeeting': OperationDescriptor(method: 'GET', path: '/steering-meetings/{id}', versioned: false, stepUp: null, permission: 'directive.read'),
   'getSubmissionProgress': OperationDescriptor(method: 'GET', path: '/reporting-periods/{id}/submission-progress', versioned: false, stepUp: null, permission: 'report.read'),

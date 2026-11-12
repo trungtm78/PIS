@@ -1909,6 +1909,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getStaffScoreLine({required String id, Map<String, Object?>? query}) =>
       execute('getStaffScoreLine', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getStaffScoreOverview({required String id, Map<String, Object?>? query}) =>
+      execute('getStaffScoreOverview', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getStaffScorePeriod({required String id, Map<String, Object?>? query}) =>
       execute('getStaffScorePeriod', path: <String, Object?>{'id': id}, query: query);
 
