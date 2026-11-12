@@ -1,4 +1,5 @@
 import type { OutboxDelivery } from '@machvon/db';
+import { InMemorySpanExporter, Tracer } from '@machvon/kernel';
 import { RegisteredEventConsumer, createOutboxPublisher } from './outbox-publisher';
 import type { OutboxConsumer } from './outbox-publisher';
 
@@ -48,6 +49,18 @@ describe('createOutboxPublisher', () => {
 
   it('succeeds with no consumer at all', async () => {
     await expect(createOutboxPublisher([])(delivery('widget.created.v1'))).resolves.toBeUndefined();
+  });
+
+  it('handles a delivery inside a span of the trace of the request that wrote the event, with the tenant, and ends the span as an error when a consumer fails', async () => {
+    const exporter = new InMemorySpanExporter();
+    const tracer = new Tracer({ exporter });
+    const request = { ...delivery('widget.created.v1'), correlationId: '0af76519-16cd-43dd-8448-eb211c80319c' };
+    await createOutboxPublisher([new Recording('first')], tracer)(request);
+    await expect(createOutboxPublisher([new Recording('broken', new TypeError('boom'))], tracer)(request)).rejects.toThrow(TypeError);
+    expect(exporter.spans.map((span) => [span.name, span.traceId, span.status, span.attributes.tenant_id])).toEqual([
+      ['outbox consume', '0af7651916cd43dd8448eb211c80319c', 'OK', request.tenantId],
+      ['outbox consume', '0af7651916cd43dd8448eb211c80319c', 'ERROR', request.tenantId],
+    ]);
   });
 });
 
