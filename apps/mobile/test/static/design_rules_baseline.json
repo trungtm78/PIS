@@ -1,14 +1,14 @@
 {
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
-    "AppBar(": 13,
+    "AppBar(": 12,
     "BoxDecoration(": 7,
-    "Card(": 15,
+    "Card(": 14,
     "Colors.": 2,
     "EdgeInsets-number": 24,
     "MachvonColors.": 44,
-    "Scaffold(": 21,
-    "TextStyle(": 12,
+    "Scaffold(": 12,
+    "TextStyle(": 11,
     "toStringAsFixed(": 7
   },
   "files": {
@@ -81,12 +81,6 @@
     "lib/features/field_quantities/screens/inspection_screen.dart": {
       "TextStyle(": 3
     },
-    "lib/features/foundation/screens/empty_state_screen.dart": {
-      "Scaffold(": 1
-    },
-    "lib/features/foundation/screens/error_state_screen.dart": {
-      "Scaffold(": 1
-    },
     "lib/features/offline/screens/conflict_screen.dart": {
       "AppBar(": 1,
       "Card(": 1,
@@ -106,13 +100,6 @@
       "EdgeInsets-number": 4,
       "Scaffold(": 1,
       "TextStyle(": 2
-    },
-    "lib/features/permissions/screens/error_screens.dart": {
-      "Scaffold(": 2
-    },
-    "lib/features/permissions/screens/permission_screen.dart": {
-      "Card(": 1,
-      "Scaffold(": 1
     },
     "lib/features/personal_bi/charts.dart": {
       "MachvonColors.": 5
@@ -146,14 +133,6 @@
     },
     "lib/features/procurement_workflow/widgets.dart": {
       "MachvonColors.": 3
-    },
-    "lib/features/release/screens/help_screen.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1,
-      "TextStyle(": 1
-    },
-    "lib/features/release/screens/release_notice_screen.dart": {
-      "Scaffold(": 3
     },
     "lib/features/reporting/screens/drafts_screen.dart": {
       "AppBar(": 1,

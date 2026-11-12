@@ -11,6 +11,10 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/router.dart' show homeLocation;
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/filter_chips.dart';
 import '../../session/flow.dart';
 import '../app_info.dart';
 
@@ -122,79 +126,74 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
     final FlowState flow = ref.watch(helpFlowProvider);
     final AppInfo? app = ref.watch(appInfoProvider).asData?.value;
     final bool pending = flow.state == ScreenState.loading;
-    final ThemeData theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t('mob.help.title.text'))),
-      body: SafeArea(
-        child: StateBoundary(
-          state: flow.state,
-          problem: flow.problem,
-          onRetry: pending ? null : _send,
-          child: _sentReference != null
-              ? _Sent(reference: _sentReference!, onAnother: () => setState(() => _sentReference = null))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(MachvonSpace.space16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Text(context.t('mob.help.body.text')),
-                      if (_refusal != null) ...<Widget>[
-                        const SizedBox(height: MachvonSpace.space12),
-                        Semantics(liveRegion: true, child: Text(context.t('mob.help.refused.text', <String, Object>{'code': _refusal!}), style: TextStyle(color: theme.colorScheme.error))),
-                      ],
-                      const SizedBox(height: MachvonSpace.space16),
-                      Semantics(header: true, child: Text(context.t('mob.help.topic.label'), style: theme.textTheme.labelLarge)),
-                      const SizedBox(height: MachvonSpace.space8),
-                      Wrap(
-                        spacing: MachvonSpace.space8,
-                        runSpacing: MachvonSpace.space8,
-                        children: <Widget>[
-                          for (final String topic in kHelpTopics)
-                            ChoiceChip(
-                              label: Text(_topicLabel(context, topic)),
-                              selected: _topic == topic,
-                              onSelected: pending ? null : (bool _) => setState(() => _topic = topic),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: MachvonSpace.space12),
-                      TextField(
-                        controller: _subject,
-                        readOnly: pending,
-                        maxLength: 200,
-                        textInputAction: TextInputAction.next,
-                        onChanged: (String _) => setState(() {}),
-                        decoration: InputDecoration(
-                          labelText: context.t('mob.help.subject.label'),
-                          errorText: _showErrors && !_subjectValid ? context.t('mob.help.subject.invalid') : null,
-                        ),
-                      ),
-                      const SizedBox(height: MachvonSpace.space12),
-                      TextField(
-                        controller: _description,
-                        readOnly: pending,
-                        maxLength: 10000,
-                        minLines: 4,
-                        maxLines: 8,
-                        keyboardType: TextInputType.multiline,
-                        onChanged: (String _) => setState(() {}),
-                        decoration: InputDecoration(
-                          labelText: context.t('mob.help.description.label'),
-                          helperText: context.t('mob.help.description.hint'),
-                          helperMaxLines: 2,
-                          errorText: _showErrors && !_descriptionValid ? context.t('mob.help.description.invalid') : null,
-                        ),
-                      ),
-                      if (app != null) ...<Widget>[
-                        const SizedBox(height: MachvonSpace.space8),
-                        Text(context.t('mob.help.attached.label', <String, Object>{'info': app.summary}), style: theme.textTheme.bodySmall),
-                      ],
-                      const SizedBox(height: MachvonSpace.space16),
-                      FilledButton(onPressed: pending ? null : _send, child: Text(context.t('mob.help.submit.action'))),
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2Palette p = context.v2.palette;
+    return AppScaffold(
+      title: context.t('mob.help.title.text'),
+      body: StateBoundary(
+        state: flow.state,
+        problem: flow.problem,
+        onRetry: pending ? null : _send,
+        child: _sentReference != null
+            ? _Sent(reference: _sentReference!, onAnother: () => setState(() => _sentReference = null))
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(MachvonV2Space.s16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Text(context.t('mob.help.body.text'), style: text.body),
+                    if (_refusal != null) ...<Widget>[
+                      const SizedBox(height: MachvonV2Space.s12),
+                      Semantics(liveRegion: true, child: Text(context.t('mob.help.refused.text', <String, Object>{'code': _refusal!}), style: text.body.copyWith(color: p.lateFg))),
                     ],
-                  ),
+                    const SizedBox(height: MachvonV2Space.s16),
+                    Semantics(header: true, child: Text(context.t('mob.help.topic.label'), style: text.label)),
+                    // The topics scroll sideways like every row of chips; while a ticket is being sent a tap changes nothing.
+                    FilterChips<String>(
+                      padding: EdgeInsets.zero,
+                      options: <ChipOption<String>>[for (final String topic in kHelpTopics) ChipOption<String>(value: topic, label: _topicLabel(context, topic))],
+                      selected: _topic,
+                      onChanged: (String topic) {
+                        if (!pending) setState(() => _topic = topic);
+                      },
+                    ),
+                    const SizedBox(height: MachvonV2Space.s12),
+                    TextField(
+                      controller: _subject,
+                      readOnly: pending,
+                      maxLength: 200,
+                      textInputAction: TextInputAction.next,
+                      onChanged: (String _) => setState(() {}),
+                      decoration: InputDecoration(
+                        labelText: context.t('mob.help.subject.label'),
+                        errorText: _showErrors && !_subjectValid ? context.t('mob.help.subject.invalid') : null,
+                      ),
+                    ),
+                    const SizedBox(height: MachvonV2Space.s12),
+                    TextField(
+                      controller: _description,
+                      readOnly: pending,
+                      maxLength: 10000,
+                      minLines: 4,
+                      maxLines: 8,
+                      keyboardType: TextInputType.multiline,
+                      onChanged: (String _) => setState(() {}),
+                      decoration: InputDecoration(
+                        labelText: context.t('mob.help.description.label'),
+                        helperText: context.t('mob.help.description.hint'),
+                        helperMaxLines: 2,
+                        errorText: _showErrors && !_descriptionValid ? context.t('mob.help.description.invalid') : null,
+                      ),
+                    ),
+                    if (app != null) ...<Widget>[
+                      const SizedBox(height: MachvonV2Space.s8),
+                      Text(context.t('mob.help.attached.label', <String, Object>{'info': app.summary}), style: text.caption),
+                    ],
+                    const SizedBox(height: MachvonV2Space.s16),
+                    FilledButton(onPressed: pending ? null : _send, child: Text(context.t('mob.help.submit.action'))),
+                  ],
                 ),
-        ),
+              ),
       ),
     );
   }
@@ -208,20 +207,20 @@ class _Sent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return Padding(
-      padding: const EdgeInsets.all(MachvonSpace.space16),
+      padding: const EdgeInsets.all(MachvonV2Space.s16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Semantics(header: true, liveRegion: true, child: Text(context.t('mob.help.sent.title'), style: theme.textTheme.headlineSmall)),
-          const SizedBox(height: MachvonSpace.space8),
-          Text(context.t('mob.help.sent.body')),
-          const SizedBox(height: MachvonSpace.space8),
-          SelectableText(context.t('mob.help.sent.reference', <String, Object>{'id': reference})),
-          const SizedBox(height: MachvonSpace.space16),
+          Semantics(header: true, liveRegion: true, child: Text(context.t('mob.help.sent.title'), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+          const SizedBox(height: MachvonV2Space.s8),
+          Text(context.t('mob.help.sent.body'), style: text.body),
+          const SizedBox(height: MachvonV2Space.s8),
+          SelectableText(context.t('mob.help.sent.reference', <String, Object>{'id': reference}), style: text.bodyStrong),
+          const SizedBox(height: MachvonV2Space.s16),
           FilledButton(onPressed: () => context.canPop() ? context.pop() : context.go(homeLocation), child: Text(context.t('mob.help.sent.back.action'))),
-          const SizedBox(height: MachvonSpace.space8),
+          const SizedBox(height: MachvonV2Space.s8),
           OutlinedButton(onPressed: onAnother, child: Text(context.t('mob.help.sent.again.action'))),
         ],
       ),
