@@ -159,7 +159,7 @@ export function useRotateAccount() {
 
 export function useSetDataset() {
   const client = useApiClient();
-  return useIntCommand((input: { version: number; datasetCode: 'DS-DISB' | 'DS-CTR'; enabled: boolean; productId: string | undefined; reason: string }, attempt) =>
+  return useIntCommand((input: { version: number; datasetCode: 'DS-DISB' | 'DS-CTR' | 'DS-ENT'; enabled: boolean; productId: string | undefined; reason: string }, attempt) =>
     client.command('setExportDataset', {
       body: { dataset_code: input.datasetCode, enabled: input.enabled, ...(input.productId === undefined ? {} : { product_id: input.productId }), reason: input.reason },
       ifMatchVersion: input.version,

@@ -8,6 +8,8 @@ export function datasetLabel(t: T, code: string): string {
       return t('int.bi.dataset.name.disbursement');
     case 'DS-CTR':
       return t('int.bi.dataset.name.contracts');
+    case 'DS-ENT':
+      return t('int.bi.dataset.name.enterprise');
     default:
       return code;
   }

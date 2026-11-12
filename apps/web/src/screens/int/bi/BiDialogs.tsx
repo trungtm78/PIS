@@ -146,7 +146,7 @@ function DatasetDialog({ dataset, enable, datasets, onClose, onDone }: { dataset
       confirmLabel={enable ? t('int.bi.datasetEnableConfirm.action') : t('int.bi.datasetDisableConfirm.action')}
       effect={enable ? t('int.bi.dataset.enable.effect') : t('int.bi.dataset.disable.effect')}
       valid={() => !enable || productId !== ''}
-      run={(reason) => set.mutateAsync({ version: dataset.version, datasetCode: dataset.dataset_code as 'DS-DISB' | 'DS-CTR', enabled: enable, productId: productId === '' ? undefined : productId, reason })}
+      run={(reason) => set.mutateAsync({ version: dataset.version, datasetCode: dataset.dataset_code as 'DS-DISB' | 'DS-CTR' | 'DS-ENT', enabled: enable, productId: productId === '' ? undefined : productId, reason })}
       onDone={() => onDone({ kind: 'receipt', text: enable ? t('int.bi.success.datasetOn', { name }) : t('int.bi.success.datasetOff', { name }) })}
       onClose={onClose}
     >

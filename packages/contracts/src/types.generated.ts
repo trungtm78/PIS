@@ -42382,7 +42382,7 @@ export interface components {
         };
         ExportDatasetSet: {
             /** @enum {string} */
-            dataset_code: "DS-DISB" | "DS-CTR";
+            dataset_code: "DS-DISB" | "DS-CTR" | "DS-ENT";
             enabled: boolean;
             /** Format: uuid */
             product_id?: string;
