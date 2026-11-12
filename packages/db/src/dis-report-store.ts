@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, FUNDING_CELLS, RESTORE_WINDOW_DAYS, assertFourEyes, decisionOutcome, deleteRefusal, deltaOf, draftHash, fundingTotals, restoreRefusal, versionConflict, withdrawRefusal } from '@machvon/kernel';
 import type { AttachmentRef, DecisionInput, BudgetLevel, FundingBucket, FundingInput, FundingTotals, MeasurementBasis, NarrativeInput, ProgressInput, ReportType, RevisionStatus } from '@machvon/kernel';
+import { reportFiguresDetail } from './dis-report-detail.ts';
+import type { ReportFiguresDetail } from './dis-report-detail.ts';
 import { PACK_SELECT, enterpriseBlockOf, packParams } from './ent-narrative-codec.ts';
 import type { PackColumns } from './ent-narrative-codec.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
@@ -589,6 +591,21 @@ export class DisReportStore {
     if (content.narrative !== undefined) await this.writeNarrative(tx, head.id, content.narrative, actor);
     if (content.attachments !== undefined) await this.writeAttachments(tx, head.id, content.attachments, actor);
     return { version: Number((updated as { version: string }).version), payloadHash: hash };
+  }
+
+  /** The figures of a report as they stand now (HT.06): its measurement basis and its funding lines, in the shape the audit detail keeps before and after a change; read back from the rows so both sides are written the same way. */
+  async figuresOf(tx: TenantTx, reportId: string): Promise<ReportFiguresDetail> {
+    const [head] = await tx.query<{ basis: string }>('select measurement_basis as basis from machvon.report_revision where id = $1::uuid', [reportId]);
+    const lines = await tx.query<{ bucket: string; level: string; cumulative: string; ctmtqg: string | null; next_month: string; next_month_ctmtqg: string | null; source_year: number | null }>(
+      `select bucket, budget_level as level, disbursed_cumulative_vnd::text as cumulative, ctmtqg_subset_vnd::text as ctmtqg, next_month_registered_vnd::text as next_month,
+              next_month_ctmtqg_subset_vnd::text as next_month_ctmtqg, source_year
+         from machvon.funding_snapshot_line where report_revision_id = $1::uuid`,
+      [reportId],
+    );
+    return reportFiguresDetail(
+      head?.basis ?? '',
+      lines.map((one) => ({ bucket: one.bucket, budgetLevel: one.level, cumulativeVnd: one.cumulative, ctmtqgVnd: one.ctmtqg, nextMonthVnd: one.next_month, nextMonthCtmtqgVnd: one.next_month_ctmtqg, sourceYear: one.source_year })),
+    );
   }
 
   /** The volumes of a report with the date and the basis they are kept with; undefined when none were entered. */
