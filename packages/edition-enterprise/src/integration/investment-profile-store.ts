@@ -18,6 +18,7 @@ interface MilestoneSql {
 
 interface PlanSql {
   id: string;
+  plan_code: string | null;
   status: string;
   revision: number;
 }
@@ -52,18 +53,18 @@ export class InvestmentProfileStore {
   }
 
   /**
-   * The plan version of the year the split is read from: the published one of an ANNUAL plan (a medium-term plan has a first year too, and its lines are not the capital of that year), else, for a caller who drafts or approves,
-   * the newest revision still in work (a rejected or superseded version is no plan of the project).
+   * The plan versions of the year the split is read from, one per ANNUAL plan of the project (a plan code has its own history of revisions, and a project may be in several plans of one year; a medium-term plan has a first
+   * year too, and its lines are not the capital of that year): in each history the published revision, else, for a caller who drafts or approves, the newest revision still in work. A rejected or superseded revision is no plan.
    */
-  private async planOf(tx: TenantTx, projectId: string, planYear: number, drafts: boolean): Promise<PlanSql | undefined> {
+  private async plansOf(tx: TenantTx, projectId: string, planYear: number, drafts: boolean): Promise<PlanSql[]> {
     const statuses = drafts ? ['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED'] : ['PUBLISHED'];
-    const [row] = await tx.query<PlanSql>(
-      `select pv.id, pv.status, pv.revision from machvon.plan_version pv left join machvon.capital_plan cp on cp.tenant_id = pv.tenant_id and cp.id = pv.capital_plan_id
+    return tx.query<PlanSql>(
+      `select distinct on (coalesce(pv.capital_plan_id, pv.id)) pv.id, cp.plan_code, pv.status, pv.revision
+         from machvon.plan_version pv left join machvon.capital_plan cp on cp.tenant_id = pv.tenant_id and cp.id = pv.capital_plan_id
         where pv.project_id = $1::uuid and pv.fiscal_year = $2 and pv.status = any($3::text[]) and (pv.capital_plan_id is null or cp.plan_kind = 'ANNUAL')
-        order by (pv.status = 'PUBLISHED') desc, pv.revision desc limit 1`,
+        order by coalesce(pv.capital_plan_id, pv.id), (pv.status = 'PUBLISHED') desc, pv.revision desc`,
       [projectId, planYear, statuses],
     );
-    return row;
   }
 
   async read(tx: TenantTx, request: ProfileRequest): Promise<InvestmentProfile> {
@@ -72,21 +73,21 @@ export class InvestmentProfileStore {
       `select code, planned_date::text as planned_on, actual_date::text as actual_on, status from machvon.project_milestone where project_id = $1::uuid order by planned_date, code`,
       [request.projectId],
     );
-    const plan = await this.planOf(tx, request.projectId, request.planYear, request.drafts);
+    const plans = await this.plansOf(tx, request.projectId, request.planYear, request.drafts);
     const origins =
-      plan === undefined
+      plans.length === 0
         ? []
         : await tx.query<OriginSql>(
             `select origin, decision_kind, decision_symbol, decision_issued_on::text as decision_issued_on, issuing_authority, amount_vnd::text as amount_vnd
-               from machvon.v_project_origin_decision where project_id = $1::uuid and plan_version_id = $2::uuid order by origin, decision_symbol, allocation_line_id`,
-            [request.projectId, plan.id],
+               from machvon.v_project_origin_decision where project_id = $1::uuid and plan_version_id = any($2::uuid[]) order by origin, decision_symbol, allocation_line_id`,
+            [request.projectId, plans.map((one) => one.id)],
           );
     return investmentProfileOf({
       catalogue: milestonesOfResolved(resolved),
       projectType: await this.projectTypeOf(tx, request.projectType),
       projectStartYear: request.projectStartYear,
       held: held.map((one): HeldMilestone => ({ code: one.code, plannedOn: one.planned_on, actualOn: one.actual_on, status: one.status })),
-      plan: plan === undefined ? null : { status: plan.status, revision: plan.revision },
+      plans: plans.map((one) => ({ planCode: one.plan_code, status: one.status, revision: one.revision })).sort((left, right) => (left.planCode ?? '').localeCompare(right.planCode ?? '')),
       origins: origins.map((one): OriginLine => ({ origin: one.origin, decisionKind: one.decision_kind, decisionSymbol: one.decision_symbol, decisionIssuedOn: one.decision_issued_on, issuingAuthority: one.issuing_authority, amountVnd: one.amount_vnd })),
       planYear: request.planYear,
     });

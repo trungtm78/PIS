@@ -57923,7 +57923,7 @@ final class ProjectInvestmentProfileResponse implements ResponseModel {
     required this.startFlag,
     required this.startYear,
     required this.startYearBasis,
-    required this.plan,
+    required this.plans,
     required this.milestones,
     required this.findings,
     required this.originSplit,
@@ -57940,11 +57940,11 @@ final class ProjectInvestmentProfileResponse implements ResponseModel {
       startFlag: requiredField(map, path, 'start_flag', nullable(asString)),
       startYear: requiredField(map, path, 'start_year', nullable(asInt)),
       startYearBasis: requiredField(map, path, 'start_year_basis', nullable(asString)),
-      plan: requiredField(map, path, 'plan', nullable(ProjectInvestmentProfileResponsePlan.fromJson)),
+      plans: requiredField(map, path, 'plans', asList(ProjectInvestmentProfileResponsePlansItem.fromJson)),
       milestones: requiredField(map, path, 'milestones', asList(ProjectInvestmentMilestoneResponse.fromJson)),
       findings: requiredField(map, path, 'findings', asList(asString)),
       originSplit: requiredField(map, path, 'origin_split', ProjectInvestmentProfileResponseOriginSplit.fromJson),
-      extra: unknownFields(map, path, const <String>{'project_id', 'plan_year', 'as_of', 'project_type', 'start_flag', 'start_year', 'start_year_basis', 'plan', 'milestones', 'findings', 'origin_split'}, strict: true),
+      extra: unknownFields(map, path, const <String>{'project_id', 'plan_year', 'as_of', 'project_type', 'start_flag', 'start_year', 'start_year_basis', 'plans', 'milestones', 'findings', 'origin_split'}, strict: true),
     );
   }
 
@@ -57955,7 +57955,7 @@ final class ProjectInvestmentProfileResponse implements ResponseModel {
   final String? startFlag;
   final int? startYear;
   final String? startYearBasis;
-  final ProjectInvestmentProfileResponsePlan? plan;
+  final List<ProjectInvestmentProfileResponsePlansItem> plans;
   final List<ProjectInvestmentMilestoneResponse> milestones;
   final List<String> findings;
   final ProjectInvestmentProfileResponseOriginSplit originSplit;
@@ -57972,7 +57972,7 @@ final class ProjectInvestmentProfileResponse implements ResponseModel {
         'start_flag': startFlag,
         'start_year': startYear,
         'start_year_basis': startYearBasis,
-        'plan': (plan == null ? null : plan!.toJson()),
+        'plans': plans.map((e0) => e0.toJson()).toList(),
         'milestones': milestones.map((e0) => e0.toJson()).toList(),
         'findings': findings,
         'origin_split': originSplit.toJson(),
@@ -58098,22 +58098,25 @@ final class ProjectInvestmentProfileResponseOriginSplitOriginsItemDecisionsItem 
       };
 }
 
-final class ProjectInvestmentProfileResponsePlan implements ResponseModel {
-  const ProjectInvestmentProfileResponsePlan({
+final class ProjectInvestmentProfileResponsePlansItem implements ResponseModel {
+  const ProjectInvestmentProfileResponsePlansItem({
+    required this.planCode,
     required this.status,
     required this.revision,
     this.extra = const <String, Object?>{},
   });
 
-  factory ProjectInvestmentProfileResponsePlan.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponsePlan']) {
+  factory ProjectInvestmentProfileResponsePlansItem.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponsePlansItem']) {
     final Map<String, Object?> map = asObject(json, path);
-    return ProjectInvestmentProfileResponsePlan(
+    return ProjectInvestmentProfileResponsePlansItem(
+      planCode: requiredField(map, path, 'plan_code', nullable(asString)),
       status: requiredField(map, path, 'status', asString),
       revision: requiredField(map, path, 'revision', asInt),
-      extra: unknownFields(map, path, const <String>{'status', 'revision'}, strict: true),
+      extra: unknownFields(map, path, const <String>{'plan_code', 'status', 'revision'}, strict: true),
     );
   }
 
+  final String? planCode;
   final String status;
   final int revision;
 
@@ -58122,6 +58125,7 @@ final class ProjectInvestmentProfileResponsePlan implements ResponseModel {
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
+        'plan_code': planCode,
         'status': status,
         'revision': revision,
         ...extra,

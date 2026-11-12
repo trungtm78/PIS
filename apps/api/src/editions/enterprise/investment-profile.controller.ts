@@ -30,7 +30,7 @@ export function investmentProfileView(projectId: string, asOf: string, profile: 
     start_flag: profile.startFlag,
     start_year: profile.startYear,
     start_year_basis: profile.startYearBasis,
-    plan: profile.plan,
+    plans: profile.plans.map((one) => ({ plan_code: one.planCode, status: one.status, revision: one.revision })),
     milestones: profile.milestones.map((one) => ({
       code: one.code,
       label: one.label,

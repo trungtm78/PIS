@@ -129,12 +129,14 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
       { appropriationId: group, bucket: 'EQUITY', amount: money(3) },
       { appropriationId: company, bucket: 'LOAN', amount: money(2) },
     ]);
+    // A project may be in more than one annual plan of a year: each plan code keeps its own history and all of them count.
+    await draftPlan(year, projectId, [{ appropriationId: company, bucket: 'OTHER', amount: money(1) }]);
     // A medium-term plan that starts in the same year is not the capital of that year.
     await draftPlan(year, projectId, [{ appropriationId: group, bucket: 'OTHER', amount: money(1) }], 'MEDIUM_TERM');
 
     // A plan that is not published yet is seen by who drafts or approves plans, and by nobody else.
     const plain = await get(`/projects/${projectId}/investment-profile?plan_year=${year}`);
-    expect(plain.json).toMatchObject({ plan: null, origin_split: { total_vnd: '0', origins: [] } });
+    expect(plain.json).toMatchObject({ plans: [], origin_split: { total_vnd: '0', origins: [] } });
     const reply = await get(`/projects/${projectId}/investment-profile?plan_year=${year}`, PLANNER);
     expect(reply.status).toBe(200);
     expect(reply.json).toMatchObject({
@@ -145,7 +147,10 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
       start_flag: 'CONTINUING',
       start_year: year - 1,
       start_year_basis: 'PROJECT',
-      plan: { status: 'DRAFT', revision: 1 },
+      plans: [
+        { plan_code: expect.stringMatching(/^ENT-/u), status: 'DRAFT', revision: 1 },
+        { plan_code: expect.stringMatching(/^ENT-/u), status: 'DRAFT', revision: 1 },
+      ],
       findings: ['MILESTONE_ORDER:TMDT_APPROVAL'],
     });
     const milestones = reply.json.milestones as Array<{ code: string; state: string; actual_on: string | null }>;
@@ -154,7 +159,7 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
     expect(milestones.find((one) => one.code === 'CONTRACTOR_SELECTION_PLAN')).toMatchObject({ state: 'PLANNED', actual_on: null });
     expect(milestones.find((one) => one.code === 'ACCEPTANCE')).toMatchObject({ state: 'NOT_HELD' });
     const split = reply.json.origin_split as { total_vnd: string; group_assigned_vnd: string; board_approved_vnd: string; other_vnd: string; origins: Array<{ origin: string; decisions: Array<{ kind: string; symbol: string }> }> };
-    expect(split).toMatchObject({ total_vnd: money(5), group_assigned_vnd: money(3), board_approved_vnd: money(2), other_vnd: '0' });
+    expect(split).toMatchObject({ total_vnd: money(6), group_assigned_vnd: money(3), board_approved_vnd: money(3), other_vnd: '0' });
     expect(split.origins.map((one) => [one.origin, one.decisions.map((decision) => decision.kind)])).toEqual([
       ['BOARD_APPROVED', ['COMPANY_DECISION']],
       ['GROUP_ASSIGNED', ['GROUP_RESOLUTION']],
@@ -166,7 +171,7 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
     const projectId = await world.project({ unitNumber: BQL1 });
     const reply = await get(`/projects/${projectId}/investment-profile`);
     expect(reply.status).toBe(200);
-    expect(reply.json).toMatchObject({ plan_year: Number(TODAY.slice(0, 4)), project_type: null, start_flag: null, start_year: null, start_year_basis: null, plan: null, findings: [] });
+    expect(reply.json).toMatchObject({ plan_year: Number(TODAY.slice(0, 4)), project_type: null, start_flag: null, start_year: null, start_year_basis: null, plans: [], findings: [] });
     expect((reply.json.milestones as Array<{ state: string }>).every((one) => one.state === 'NOT_HELD')).toBe(true);
     expect(reply.json.origin_split).toMatchObject({ total_vnd: '0', origins: [] });
   });

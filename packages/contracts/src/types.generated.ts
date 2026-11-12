@@ -48009,10 +48009,11 @@ export interface components {
             start_year: number | null;
             /** @enum {string|null} */
             start_year_basis: "ACTUAL" | "PLANNED" | "PROJECT" | null;
-            plan: {
+            plans: {
+                plan_code: string | null;
                 status: string;
                 revision: number;
-            } | null;
+            }[];
             milestones: components["schemas"]["ProjectInvestmentMilestone"][];
             findings: string[];
             origin_split: {

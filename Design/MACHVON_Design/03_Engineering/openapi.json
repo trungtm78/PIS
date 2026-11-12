@@ -317674,7 +317674,7 @@
           "start_flag",
           "start_year",
           "start_year_basis",
-          "plan",
+          "plans",
           "milestones",
           "findings",
           "origin_split"
@@ -317746,22 +317746,29 @@
               null
             ]
           },
-          "plan": {
-            "type": [
-              "object",
-              "null"
-            ],
-            "additionalProperties": false,
-            "required": [
-              "status",
-              "revision"
-            ],
-            "properties": {
-              "status": {
-                "type": "string"
-              },
-              "revision": {
-                "type": "integer"
+          "plans": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "plan_code",
+                "status",
+                "revision"
+              ],
+              "properties": {
+                "plan_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "status": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "integer"
+                }
               }
             }
           },

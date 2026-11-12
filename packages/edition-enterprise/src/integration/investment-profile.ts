@@ -68,8 +68,8 @@ export interface OriginSplit {
 export interface InvestmentProfile {
   projectType: { code: string; label: string; kind: string | null } | null;
   planYear: number;
-  /** The plan version the split is read from: the published one of the year, else the latest that is still alive; null when the project has no plan in the year. */
-  plan: { status: string; revision: number } | null;
+  /** The plan versions the split is read from, one per annual plan of the year (a plan code has its own history of revisions): the published revision, else, for a caller who drafts, the newest still in work. Empty when the project has no plan in the year. */
+  plans: Array<{ planCode: string | null; status: string; revision: number }>;
   startFlag: StartFlag | null;
   startYear: number | null;
   /** Where the start year comes from: the day the groundbreaking happened, the day it is planned for, or the start year written on the project when the project holds no such milestone. */
@@ -86,7 +86,7 @@ export interface ProfileInput {
   /** The start year written on the project (the register's own field), used while the project holds no groundbreaking milestone. */
   projectStartYear: number | null;
   held: readonly HeldMilestone[];
-  plan: InvestmentProfile['plan'];
+  plans: InvestmentProfile['plans'];
   origins: readonly OriginLine[];
   planYear: number;
 }
@@ -164,7 +164,7 @@ export function investmentProfileOf(input: ProfileInput): InvestmentProfile {
   return {
     projectType: input.projectType,
     planYear: input.planYear,
-    plan: input.plan,
+    plans: input.plans,
     startFlag: start.year === null ? null : startFlagOf({ startYear: start.year, planYear: input.planYear }),
     startYear: start.year,
     startYearBasis: start.basis,

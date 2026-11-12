@@ -15,7 +15,7 @@ const PROJECT_TYPE = { code: 'ENT_MAJOR_REPAIR', label: 'Sua chua lon', kind: 'M
 
 const held = (code: string, plannedOn: string, actualOn: string | null = null, status: HeldMilestone['status'] = actualOn === null ? 'PLANNED' : 'DONE'): HeldMilestone => ({ code, plannedOn, actualOn, status });
 const line = (origin: string, amountVnd: string, symbol: string | null, kind: string | null = null): OriginLine => ({ origin, decisionKind: kind, decisionSymbol: symbol, decisionIssuedOn: symbol === null ? null : '2026-01-15', issuingAuthority: symbol === null ? null : 'AUTH', amountVnd });
-const profile = (patch: Partial<Parameters<typeof investmentProfileOf>[0]> = {}) => investmentProfileOf({ catalogue: CATALOGUE, projectType: PROJECT_TYPE, projectStartYear: null, held: [], plan: null, origins: [], planYear: 2026, ...patch });
+const profile = (patch: Partial<Parameters<typeof investmentProfileOf>[0]> = {}) => investmentProfileOf({ catalogue: CATALOGUE, projectType: PROJECT_TYPE, projectStartYear: null, held: [], plans: [], origins: [], planYear: 2026, ...patch });
 
 describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
   it('lists every milestone of the catalogue in its order, and says which the project has not got', () => {
@@ -23,7 +23,7 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
     expect(result.milestones.map((one) => one.code)).toEqual(CATALOGUE.map((one) => one.code));
     expect(result.milestones.every((one) => one.state === 'NOT_HELD' && one.plannedOn === null && one.actualOn === null)).toBe(true);
     expect(result.projectType).toEqual(PROJECT_TYPE);
-    expect(result).toMatchObject({ planYear: 2026, plan: null });
+    expect(result).toMatchObject({ planYear: 2026, plans: [] });
     expect(result.startFlag).toBeNull();
     expect(result.startYear).toBeNull();
     expect(result.startYearBasis).toBeNull();
