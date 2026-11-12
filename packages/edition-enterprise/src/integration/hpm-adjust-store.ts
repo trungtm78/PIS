@@ -197,18 +197,31 @@ export class HpmAdjustmentStore {
   }
   /**
    * The receiver rejected the push: what it carried is given back (APPLIED to APPROVED, the link to the push cleared, one journal entry RELEASED by the person who recorded the receipt), so the next push of the target
-   * period carries it again and no figure is lost. A push that was accepted releases nothing. Returns the adjustments given back.
+   * period carries it again and no figure is lost. A push that was accepted releases nothing. An adjustment whose subject of the period already has another open one (data from before the proposal check existed)
+   * cannot come back without breaking the single open adjustment of a subject: it stays APPLIED and is returned as `blocked`, for the caller to put on record, so the receipt of the rejection is still written.
    */
-  async release(tx: TenantTx, pushId: string, actor: string, now: Date): Promise<HpmAdjustmentRow[]> {
+  async release(tx: TenantTx, pushId: string, actor: string, now: Date): Promise<{ released: HpmAdjustmentRow[]; blocked: HpmAdjustmentRow[] }> {
     const carried = await tx.query<AdjustmentSql>(`${SELECT} where a.applied_push_id = $1::uuid and a.state = 'APPLIED' order by a.created_at, a.id for update of a`, [pushId]);
+    const blocked: string[] = [];
+    const released: string[] = [];
     for (const row of carried) {
       await this.serialise(tx, row.layout_code, row.source_period, row.subject_code);
+      const [open] = await tx.query<{ found: boolean }>(
+        `select exists (select 1 from machvon.hpm_adjustment where layout_code = $1 and source_period = $2 and subject_code = $3 and state in ('PROPOSED', 'APPROVED')) as found`,
+        [row.layout_code, row.source_period, row.subject_code],
+      );
+      if (open?.found === true) {
+        blocked.push(row.id);
+        continue;
+      }
+      released.push(row.id);
       await tx.query(
         `update machvon.hpm_adjustment set state = 'APPROVED', applied_push_id = null, applied_at = null, version = version + 1, updated_at = $2::timestamptz where id = $1::uuid and state = 'APPLIED'`,
         [row.id, now.toISOString()],
       );
       await this.journal(tx, row.id, 'RELEASED', actor, null, now);
     }
-    return Promise.all(carried.map(async (row) => (await this.find(tx, row.id)) as HpmAdjustmentRow));
+    const again = async (ids: readonly string[]): Promise<HpmAdjustmentRow[]> => Promise.all(ids.map(async (one) => (await this.find(tx, one)) as HpmAdjustmentRow));
+    return { released: await again(released), blocked: await again(blocked) };
   }
 }

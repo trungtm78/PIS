@@ -418,8 +418,9 @@ export class HpmPushController {
     await this.holds?.receive(scope, { pushId: row.id, outcome: row.status as 'ACCEPTED' | 'REJECTED', reference: row.receiptReference as string, now });
     // A rejected package gives back the adjustments in the next period it carried (TH.01): the receiver did not take them, so the next push of the period carries them again.
     if (row.status === 'REJECTED') {
-      for (const released of await this.adjustments.release(scope.tx, row.id, scope.tenant.membershipId, now)) {
-        await scope.audit({ action: 'hpm.adjustment_released', resourceType: ADJUSTMENT_RESOURCE, resourceId: released.id, classification: CLASSIFICATION, diff: { push_id: row.id, layout_code: released.layoutCode, target_period: released.targetPeriod, subject_code: released.subjectCode } });
+      const given = await this.adjustments.release(scope.tx, row.id, scope.tenant.membershipId, now);
+      for (const [action, list] of [['hpm.adjustment_released', given.released], ['hpm.adjustment_release_blocked', given.blocked]] as const) {
+        for (const one of list) await scope.audit({ action, resourceType: ADJUSTMENT_RESOURCE, resourceId: one.id, classification: CLASSIFICATION, diff: { push_id: row.id, layout_code: one.layoutCode, target_period: one.targetPeriod, subject_code: one.subjectCode } });
       }
     }
     // The answer of HPM is also the answer in the delivery log of the report engine, for the copy the push delivered.

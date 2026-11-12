@@ -263,4 +263,22 @@ describe('the adjustment in the next period (ENT-3c, TH.01)', () => {
     expect((await receipt(RECEIVER, pushOf(second).id as string, pushOf(second).version as number, { outcome: 'ACCEPTED', reference: 'HPM-2026-M08-R2' })).status).toBe(200);
     expect((await stateOf(id))[0]).toMatchObject({ state: 'APPLIED', applied_push_id: pushOf(second).id });
   });
+  it('does not let a rejection fail on data from before the proposal check: an adjustment that cannot come back (another one is open for the subject) stays applied and is put on record', async () => {
+    await accepted('2026-M05', 1);
+    const proposed = await adjust(PROPOSER, { period: '2026-M05', subject_code: 'BLOCKED_SUBJECT', amount_vnd: '700' });
+    expect((await decide(DECIDER, proposed.json.id as string, proposed.json.version as number, 'APPROVE')).status).toBe(200);
+    const sent = await push(PUSHER, await report('jun,first'), '2026-M06', 1);
+    expect((await stateOf(proposed.json.id as string))[0]).toMatchObject({ state: 'APPLIED' });
+    // What an earlier version allowed: a second open adjustment for the subject while the first rides on a push.
+    await rows(
+      `insert into machvon.hpm_adjustment (tenant_id, id, layout_code, source_period, source_revision, target_period, subject_code, amount_vnd, reason, state, proposed_by)
+       select tenant_id, gen_random_uuid(), layout_code, source_period, source_revision, target_period, subject_code, 900, reason, 'PROPOSED', proposed_by from machvon.hpm_adjustment where id = $1`,
+      [proposed.json.id],
+    );
+    const rejected = await receipt(RECEIVER, pushOf(sent).id as string, pushOf(sent).version as number, { outcome: 'REJECTED', reference: 'HPM-2026-M06-R1', note: 'The package does not match the layout' });
+    expect(rejected).toMatchObject({ status: 200, json: { status: 'REJECTED' } });
+    expect((await stateOf(proposed.json.id as string))[0]).toMatchObject({ state: 'APPLIED' });
+    expect((await audits(proposed.json.id as string, 'hpm.adjustment_release_blocked'))[0]).toMatchObject({ actor_id: memberId(RECEIVER) });
+    expect(await audits(proposed.json.id as string, 'hpm.adjustment_released')).toEqual([]);
+  });
 });
