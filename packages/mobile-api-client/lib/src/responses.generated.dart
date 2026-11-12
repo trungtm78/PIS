@@ -57928,6 +57928,7 @@ final class ProjectInvestmentProfileResponse implements ResponseModel {
     required this.milestones,
     required this.findings,
     required this.originSplit,
+    required this.legalDocuments,
     this.extra = const <String, Object?>{},
   });
 
@@ -57945,7 +57946,8 @@ final class ProjectInvestmentProfileResponse implements ResponseModel {
       milestones: requiredField(map, path, 'milestones', asList(ProjectInvestmentMilestoneResponse.fromJson)),
       findings: requiredField(map, path, 'findings', asList(asString)),
       originSplit: requiredField(map, path, 'origin_split', ProjectInvestmentProfileResponseOriginSplit.fromJson),
-      extra: unknownFields(map, path, const <String>{'project_id', 'plan_year', 'as_of', 'project_type', 'start_flag', 'start_year', 'start_year_basis', 'plans', 'milestones', 'findings', 'origin_split'}, strict: true),
+      legalDocuments: requiredField(map, path, 'legal_documents', asList(ProjectInvestmentProfileResponseLegalDocumentsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'project_id', 'plan_year', 'as_of', 'project_type', 'start_flag', 'start_year', 'start_year_basis', 'plans', 'milestones', 'findings', 'origin_split', 'legal_documents'}, strict: true),
     );
   }
 
@@ -57960,6 +57962,7 @@ final class ProjectInvestmentProfileResponse implements ResponseModel {
   final List<ProjectInvestmentMilestoneResponse> milestones;
   final List<String> findings;
   final ProjectInvestmentProfileResponseOriginSplit originSplit;
+  final List<ProjectInvestmentProfileResponseLegalDocumentsItem> legalDocuments;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -57977,6 +57980,103 @@ final class ProjectInvestmentProfileResponse implements ResponseModel {
         'milestones': milestones.map((e0) => e0.toJson()).toList(),
         'findings': findings,
         'origin_split': originSplit.toJson(),
+        'legal_documents': legalDocuments.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentProfileResponseLegalDocumentsItem implements ResponseModel {
+  const ProjectInvestmentProfileResponseLegalDocumentsItem({
+    required this.legalDocType,
+    required this.label,
+    required this.issuer,
+    required this.purpose,
+    required this.count,
+    required this.documents,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentProfileResponseLegalDocumentsItem.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponseLegalDocumentsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentProfileResponseLegalDocumentsItem(
+      legalDocType: requiredField(map, path, 'legal_doc_type', asString),
+      label: requiredField(map, path, 'label', asString),
+      issuer: requiredField(map, path, 'issuer', nullable(asString)),
+      purpose: requiredField(map, path, 'purpose', nullable(asString)),
+      count: requiredField(map, path, 'count', asInt),
+      documents: requiredField(map, path, 'documents', asList(ProjectInvestmentProfileResponseLegalDocumentsItemDocumentsItem.fromJson)),
+      extra: unknownFields(map, path, const <String>{'legal_doc_type', 'label', 'issuer', 'purpose', 'count', 'documents'}, strict: true),
+    );
+  }
+
+  final String legalDocType;
+  final String label;
+  final String? issuer;
+  final String? purpose;
+  final int count;
+  final List<ProjectInvestmentProfileResponseLegalDocumentsItemDocumentsItem> documents;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'legal_doc_type': legalDocType,
+        'label': label,
+        'issuer': issuer,
+        'purpose': purpose,
+        'count': count,
+        'documents': documents.map((e0) => e0.toJson()).toList(),
+        ...extra,
+      };
+}
+
+final class ProjectInvestmentProfileResponseLegalDocumentsItemDocumentsItem implements ResponseModel {
+  const ProjectInvestmentProfileResponseLegalDocumentsItemDocumentsItem({
+    required this.id,
+    required this.title,
+    required this.reference,
+    required this.effectiveFrom,
+    required this.effectiveTo,
+    required this.effectiveState,
+    required this.status,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory ProjectInvestmentProfileResponseLegalDocumentsItemDocumentsItem.fromJson(Object? json, [String path = 'ProjectInvestmentProfileResponseLegalDocumentsItemDocumentsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return ProjectInvestmentProfileResponseLegalDocumentsItemDocumentsItem(
+      id: requiredField(map, path, 'id', asString),
+      title: requiredField(map, path, 'title', asString),
+      reference: requiredField(map, path, 'reference', nullable(asString)),
+      effectiveFrom: requiredField(map, path, 'effective_from', nullable(asString)),
+      effectiveTo: requiredField(map, path, 'effective_to', nullable(asString)),
+      effectiveState: requiredField(map, path, 'effective_state', asString),
+      status: requiredField(map, path, 'status', asString),
+      extra: unknownFields(map, path, const <String>{'id', 'title', 'reference', 'effective_from', 'effective_to', 'effective_state', 'status'}, strict: true),
+    );
+  }
+
+  final String id;
+  final String title;
+  final String? reference;
+  final String? effectiveFrom;
+  final String? effectiveTo;
+  final String effectiveState;
+  final String status;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'id': id,
+        'title': title,
+        'reference': reference,
+        'effective_from': effectiveFrom,
+        'effective_to': effectiveTo,
+        'effective_state': effectiveState,
+        'status': status,
         ...extra,
       };
 }

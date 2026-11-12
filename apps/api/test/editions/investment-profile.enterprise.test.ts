@@ -114,7 +114,7 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
     await world.stop();
   }, 60_000);
 
-  it('reads the type, the flag of the stage, the milestones against the catalogue and the split of the plan by the origin of the capital', async () => {
+  it('UAT-ENT-IPF-01 reads the type, the flag of the stage, the milestones against the catalogue and the split of the plan by the origin of the capital', async () => {
     const year = world.freshYear();
     const projectId = await world.project({ unitNumber: BQL1 });
     const typeVersion = await world.master('ENT_MAJOR_REPAIR', 'PROJECT_TYPE', { kind: 'MAJOR_REPAIR' });
@@ -176,7 +176,7 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
     expect(reply.json.origin_split).toMatchObject({ total_vnd: '0', origins: [] });
   });
 
-  it('refuses a year that is not a year (422), a project that does not exist (404) and a caller without the permission (403)', async () => {
+  it('UAT-ENT-IPF-02 refuses a year that is not a year (422), a project that does not exist (404) and a caller without the permission (403)', async () => {
     const projectId = await world.project({ unitNumber: BQL1 });
     for (const bad of ['abc', '1999', '2101', '20260', '']) {
       const reply = await get(`/projects/${projectId}/investment-profile?plan_year=${bad}`);

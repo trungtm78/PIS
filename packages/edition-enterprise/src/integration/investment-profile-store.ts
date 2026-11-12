@@ -1,12 +1,13 @@
-import { GovernancePolicyPort } from '@machvon/db';
-import type { MasterLabel, TenantTx } from '@machvon/db';
-import { MILESTONE_RULE, milestonesOfResolved } from './ent-catalogue.ts';
+import { GovernancePolicyPort, PROJECT_DOCUMENT_SCOPE_JOINS } from '@machvon/db';
+import type { MasterLabel, ScopeBuilder, TenantTx } from '@machvon/db';
+import { effectiveStateOn } from '@machvon/kernel';
+import { LEGAL_DOC_TYPE_RULE, MILESTONE_RULE, legalDocTypesOfResolved, milestonesOfResolved } from './ent-catalogue.ts';
 import { investmentProfileOf, planRevisionsOf } from './investment-profile.ts';
-import type { HeldMilestone, InvestmentProfile, OriginLine, PlanRevision } from './investment-profile.ts';
+import type { HeldMilestone, InvestmentProfile, LegalDocumentRow, OriginLine, PlanRevision } from './investment-profile.ts';
 
 /**
  * The database half of the investment profile (MD.01, MD.02, CN.01): the milestones a project holds, the plan version the split is read from and the plan lines of that version with their origin and decision document
- * (`v_project_origin_decision`), and the milestone catalogue in force (governance rules of the tenant, else the built-in entries). It reads inside the transaction of the caller, so row-level security keeps the tenants
+ * (`v_project_origin_decision`), the legal documents of the project that carry a type of the catalogue (`project_document_legal_type`, read in the document scope of the caller), and the milestone catalogue in force (governance rules of the tenant, else the built-in entries). It reads inside the transaction of the caller, so row-level security keeps the tenants
  * apart, and it writes nothing. The caller has already judged that the project is in the scope of the reader.
  */
 interface MilestoneSql {
@@ -34,6 +35,16 @@ interface OriginSql {
   amount_vnd: string;
 }
 
+interface LegalDocumentSql {
+  id: string;
+  legal_doc_type: string;
+  title: string;
+  reference: string | null;
+  effective_from: string | null;
+  effective_to: string | null;
+  status: 'ACTIVE' | 'ARCHIVED';
+}
+
 export interface ProfileRequest {
   projectId: string;
   projectType: MasterLabel | null;
@@ -43,6 +54,8 @@ export interface ProfileRequest {
   today: string;
   /** Whether the caller drafts or approves plans: only then may the split be read from a revision that is not yet published (the visibility rule of the plan reads, CAP 3.1 section 7). */
   drafts: boolean;
+  /** The scope of the caller over the documents of a project (the one the document reads apply, `doc.repo.read`): a document of a project outside it is not listed, whatever the profile may show of the project. */
+  documentScope: ScopeBuilder;
 }
 
 export class InvestmentProfileStore {
@@ -68,6 +81,30 @@ export class InvestmentProfileStore {
     return planRevisionsOf(rows.map(planOf), drafts);
   }
 
+  /** The active documents of the project that carry a legal type and that the caller may read, newest first. */
+  private async legalDocumentsOf(tx: TenantTx, request: ProfileRequest): Promise<LegalDocumentRow[]> {
+    const predicate = request.documentScope(2);
+    const rows = await tx.query<LegalDocumentSql>(
+      `select d.id, lt.legal_doc_type, d.title, d.reference, d.effective_from::text as effective_from, d.effective_to::text as effective_to, d.status
+         from machvon.project_document_legal_type lt
+         join machvon.project_document d on d.tenant_id = lt.tenant_id and d.id = lt.document_id
+         ${PROJECT_DOCUMENT_SCOPE_JOINS}
+        where d.project_id = $1::uuid and d.status = 'ACTIVE' and ${predicate.sql}
+        order by d.created_at desc, d.id desc`,
+      [request.projectId, ...predicate.params],
+    );
+    return rows.map((one) => ({
+      id: one.id,
+      legalDocType: one.legal_doc_type,
+      title: one.title,
+      reference: one.reference,
+      effectiveFrom: one.effective_from,
+      effectiveTo: one.effective_to,
+      effectiveState: effectiveStateOn({ effectiveFrom: one.effective_from, effectiveTo: one.effective_to }, request.today),
+      status: one.status,
+    }));
+  }
+
   async read(tx: TenantTx, request: ProfileRequest): Promise<InvestmentProfile> {
     const resolved = await this.rules.getAll(tx, MILESTONE_RULE, request.today);
     const held = await tx.query<MilestoneSql>(
@@ -91,6 +128,8 @@ export class InvestmentProfileStore {
       plans: plans.map((one) => ({ planCode: one.planCode, status: one.status, revision: one.revision })),
       origins: origins.map((one): OriginLine => ({ origin: one.origin, decisionKind: one.decision_kind, decisionSymbol: one.decision_symbol, decisionIssuedOn: one.decision_issued_on, issuingAuthority: one.issuing_authority, amountVnd: one.amount_vnd })),
       planYear: request.planYear,
+      legalTypes: legalDocTypesOfResolved(await this.rules.getAll(tx, LEGAL_DOC_TYPE_RULE, request.today)),
+      legalDocuments: await this.legalDocumentsOf(tx, request),
     });
   }
 }

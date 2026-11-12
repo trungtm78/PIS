@@ -16,6 +16,11 @@
 .bi-tile-actions { margin-top: var(--mv-space-12); }
 .bi-tile-labels { margin-top: var(--mv-space-8); }
 .bi-board-filter { max-width: 320px; }
+/* The three signatures on one line of a page of the presentation. */
+.bi-sign-strip { display: flex; flex-wrap: wrap; gap: var(--mv-space-16); margin: 0; }
+.bi-sign-strip > div { display: flex; gap: var(--mv-space-8); }
+.bi-sign-strip dt,
+.bi-sign-strip dd { margin: 0; }
 .bi-num { font-variant-numeric: tabular-nums; }
 
 /* BI-02: a tile of the board is a KPI tile with the labels of its figure under it. */

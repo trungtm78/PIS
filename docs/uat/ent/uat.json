@@ -1027,6 +1027,53 @@
       "module": "ENT"
     },
     {
+      "tc_id": "TC-UI-IPF-01",
+      "title": "Hồ sơ đầu tư của dự án (IPF-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-leader",
+      "journey_ref": "J-FR-IPF-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IPF-01",
+      "oracle_source": "Claim → FR-IPF-01; kỳ vọng nguyên văn của ca thiết kế UI-IPF-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình IPF-01 sập hoặc tràn, có control thiếu nhãn, mốc chưa có hiện là đã xong, hoặc bản công khai mở được màn",
+      "coverage_ids": [
+        "COV-FR-IPF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-leader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise; a user with project.read; a project with milestones, plan lines of both origins and typed legal documents; route IPF-01\n1. Open IPF-01 from the menu with no project, and by deep link with ?project= and ?plan_year=; check the labelled fields: project and plan year, project type, new start or carry-over flag with the start year, annual plans read, milestones with state, order and evidence, findings, legal documents by type, plan by origin with the documents behind it\n2. Type a plan year that is not a year, then a valid one; open a project outside the scope\n3. Force the 7 states; open the same address in the public edition",
+      "expected": "Every labelled field is present, a milestone the project does not hold reads as not held and never as done, an empty split says so and is never 0, a project outside the scope is not found, and the public build has no such screen",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "IPF-01",
+      "story_ids": [
+        "ST-IPF-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "ENT"
+    },
+    {
       "tc_id": "TC-UAT-PWA-01",
       "title": "UAT-PWA-01: Open a pending report.accept task from the queue and read the project, period, unit, the cells against the plan and the period bef",
       "type": "E2E",
@@ -3007,6 +3054,378 @@
           403
         ]
       }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-01",
+      "title": "Hồ sơ đầu tư của dự án: loại dự án, cờ khởi công mới hoặc chuyển tiếp theo năm kế hoạch, mốc vòng đời so với danh mục (trạng thái, thứ tự, mốc bắt buộc bị bỏ qua) và phần tách kế hoạch vốn theo Nghị quyết PVN và Quyết định của Tổng công ty kèm văn bản căn cứ",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-investment",
+      "journey_ref": "J-ENT-IPF-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "MD.01",
+      "oracle_source": "Claim → MD.01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Cờ khởi công tính theo năm sai, mốc chưa có hiện là đã xong, hoặc hai nguồn vốn bị cộng lẫn",
+      "coverage_ids": [
+        "COV-FR-IPF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-investment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; dự án có loại dự án, mốc khởi công đã đạt, một mốc đạt trước mốc đứng trước và một mốc bắt buộc bị bỏ qua; kế hoạch vốn năm có dòng GROUP_ASSIGNED và BOARD_APPROVED kèm văn bản căn cứ\n1. Người có quyền xem dự án đọc hồ sơ đầu tư của năm kế hoạch\n2. Đọc lại với năm sau năm khởi công\n3. Đọc dự án không có kế hoạch, mốc hay loại",
+      "expected": "Cờ NEW_START trong năm khởi công và CONTINUING sau đó; mốc theo thứ tự danh mục, mốc chưa có là NOT_HELD; findings nêu MILESTONE_ORDER và REQUIRED_SKIPPED; hai tổng group_assigned_vnd và board_approved_vnd tách đúng nguồn kèm loại, số hiệu và cơ quan ban hành văn bản; dự án trống không có số 0 bịa ra.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "IPF-01",
+      "story_ids": [
+        "ST-IPF-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/investment-profile.enterprise.test.ts"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-02",
+      "title": "Hồ sơ đầu tư của dự án: năm không phải năm bị từ chối 422, dự án không tồn tại hoặc ngoài phạm vi là 404, người không có quyền xem dự án là 403",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "ent-investment",
+      "journey_ref": "J-ENT-IPF-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "MD.01",
+      "oracle_source": "Claim → MD.01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Dự án của đơn vị khác đọc được, hoặc 404 tiết lộ dự án có tồn tại",
+      "coverage_ids": [
+        "COV-FR-IPF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-investment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; một người đọc trong phạm vi, một người đọc ngoài phạm vi, một người không có quyền project.read\n1. Gọi với plan_year không phải năm\n2. Gọi với dự án không tồn tại và dự án ngoài phạm vi\n3. Gọi bằng người không có quyền",
+      "expected": "422 VALIDATION_FAILED cho năm; 404 RESOURCE_NOT_FOUND giống hệt cho dự án không tồn tại và ngoài phạm vi; 403 cho người không có quyền.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "IPF-01",
+      "story_ids": [
+        "ST-IPF-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/investment-profile.enterprise.test.ts"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-03",
+      "title": "Hồ sơ dự án của bản công khai không đổi: tạo hồ sơ không có loại văn bản pháp lý như cũ, loại văn bản nêu tên bị từ chối 422 NOT_AVAILABLE và không ghi gì",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-investment",
+      "journey_ref": "J-ENT-IPF-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "MD.02",
+      "oracle_source": "Claim → MD.02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Bản công khai nhận hoặc lưu loại văn bản của danh mục enterprise, hoặc dấu vết tạo hồ sơ đổi dạng",
+      "coverage_ids": [
+        "COV-FR-IPF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-investment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản công khai; một tệp đã tải lên\n1. Tạo hồ sơ dự án không có legal_doc_type\n2. Tạo với legal_doc_type nêu tên\n3. Sửa hồ sơ với legal_doc_type",
+      "expected": "Hồ sơ không có loại được tạo với cùng dấu vết như trước; loại nêu tên bị 422 trên legal_doc_type, lý do NOT_AVAILABLE, không ghi hồ sơ; sửa chỉ có null là thay đổi rỗng như trước.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DOC-24",
+      "story_ids": [
+        "ST-IPF-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/project-document-legal-type.enterprise.test.ts"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-04",
+      "title": "Hồ sơ dự án của bản enterprise: loại văn bản pháp lý được kiểm theo danh mục ENT_LEGAL_DOC_TYPE khi tạo và khi sửa, giữ cùng giao dịch, mã do tenant thêm được nhận, mã hết hiệu lực hoặc không có bị từ chối",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ent-investment",
+      "journey_ref": "J-ENT-IPF-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "MD.02",
+      "oracle_source": "Claim → MD.02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Loại văn bản tùy ý được lưu, hoặc mã hết hiệu lực vẫn được nhận, hoặc sửa loại không đổi phiên bản",
+      "coverage_ids": [
+        "COV-FR-IPF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-investment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; danh mục có mã gốc và một mã tenant thêm qua quy tắc đã duyệt; một mã hết hiệu lực\n1. Tạo hồ sơ với mã của danh mục\n2. Tạo với mã không có trong danh mục và mã sai dạng\n3. Tạo với mã tenant thêm và mã hết hiệu lực\n4. Đổi, xóa loại đúng phiên bản đã đọc",
+      "expected": "Mã của danh mục được lưu cùng hồ sơ và ghi dấu vết; mã lạ hoặc hết hiệu lực là 422 trên legal_doc_type và không ghi gì; đổi loại làm phiên bản tăng, xóa bằng null; sửa trường khác không đụng loại.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "DOC-24",
+      "story_ids": [
+        "ST-IPF-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/project-document-legal-type.enterprise.test.ts"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-05",
+      "title": "Hồ sơ đầu tư của dự án: hồ sơ pháp lý theo loại chỉ gồm hồ sơ còn dùng mà người xem được đọc theo phạm vi, người không có quyền đọc hồ sơ thấy danh sách rỗng",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-investment",
+      "journey_ref": "J-ENT-IPF-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "MD.02",
+      "oracle_source": "Claim → MD.02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Hồ sơ ngoài phạm vi hoặc đã lưu trữ lọt vào hồ sơ đầu tư",
+      "coverage_ids": [
+        "COV-FR-IPF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-investment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; hồ sơ có loại ở hai dự án, một hồ sơ đã lưu trữ; người đọc có doc.repo.read và người đọc không có\n1. Người đọc có quyền đọc hồ sơ đầu tư\n2. Người đọc không có quyền đọc hồ sơ đọc cùng dự án",
+      "expected": "Nhóm theo loại theo thứ tự danh mục, hồ sơ mới nhất trước, số đếm đủ; hồ sơ đã lưu trữ và hồ sơ ngoài phạm vi vắng mặt; người không có quyền thấy legal_documents rỗng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "IPF-01",
+      "story_ids": [
+        "ST-IPF-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/project-document-legal-type.enterprise.test.ts"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IPF-06",
+      "title": "Màn IPF-01 trên trình duyệt: chưa chọn dự án, không tìm thấy, lỗi và từ chối đều có lời; mốc và hồ sơ pháp lý đối chiếu nhau; bản công khai không có màn",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-investment",
+      "journey_ref": "J-ENT-IPF-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "MD.01",
+      "oracle_source": "Claim → MD.01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Màn trống không lời, mốc đã đạt mà không hồ sơ chứng minh không được nêu, hoặc bản công khai mở được màn enterprise",
+      "coverage_ids": [
+        "COV-FR-IPF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-investment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise và một tenant bản công khai; người dùng có quyền xem dự án\n1. Mở màn không có dự án trong địa chỉ\n2. Chọn dự án, gõ năm sai, rồi năm đúng\n3. Mở dự án ngoài phạm vi\n4. Ép từng trạng thái chuẩn\n5. Mở địa chỉ /ipf/ipf-01 ở bản công khai",
+      "expected": "Mỗi trạng thái có lời riêng; năm sai có lỗi cạnh ô; mốc đạt mà thiếu hồ sơ chứng minh có dòng cảnh báo; không tràn ngang ở 1440 px; bản công khai trả trang không tìm thấy.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "IPF-01",
+      "story_ids": [
+        "ST-IPF-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần trình duyệt trên bản enterprise và bản công khai; vitest apps/web/src/editions/enterprise/screens/ipf/ProfileScreen.test.tsx và every-route.enterprise.test.tsx đã kiểm trạng thái, năm và hai bản, lượt chạy trình duyệt chưa làm"
+      },
+      "module": "ENT"
+    },
+    {
+      "tc_id": "TC-UAT-ENT-SEC-17",
+      "title": "getProjectInvestmentProfile (GET /projects/{id}/investment-profile): chỉ người giữ quyền project.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ent-investment-profile",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IPF-01",
+      "oracle_source": "Claim → FR-IPF-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /projects/{id}/investment-profile thiếu kiểm quyền project.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IPF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-investment-profile",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ project.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ project.read gọi GET /projects/{id}/investment-profile với id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 404 vì id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IPF-01",
+      "story_ids": [
+        "ST-IPF-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "ENT",
+      "access": {
+        "url": "/projects/{id}/investment-profile",
+        "method": "GET",
+        "allow": [
+          "ent-investment-profile"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-ENT-BI-01",
+      "title": "Bảng chỉ tiêu BI-02 gắn với phiên bản đã phát hành của một bảng điều khiển: ba dòng người lập, người kiểm tra, người phê duyệt hiện trên trang và trên mọi trang trình chiếu; bảng không gắn nêu rõ chưa có chữ ký",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ent-investment",
+      "journey_ref": "J-ENT-IPF-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "BC.02",
+      "oracle_source": "Claim → BC.02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Trình chiếu bảng chỉ tiêu mà không có chữ ký, hoặc lấy chữ ký của bản nháp mới hơn thay cho bản đã phát hành",
+      "coverage_ids": [
+        "COV-FR-BI-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ent-investment",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; một bảng điều khiển có phiên bản đã phát hành (người lập, người kiểm tra và người duyệt khác nhau) và một bản nháp lưu sau đó\n1. Mở BI-02 từ thẻ của thư viện BI-01\n2. Mở chế độ trình chiếu và lật từng trang\n3. Bỏ chọn bảng điều khiển rồi trình chiếu\n4. Mở bảng điều khiển chỉ có bản nháp",
+      "expected": "Ba dòng chữ ký của phiên bản đã phát hành (không phải của bản nháp) hiện dưới thanh ngữ cảnh và trên mọi trang trình chiếu; phiên bản bỏ qua bước kiểm tra nói rõ chưa đủ chữ ký; bảng không gắn nêu chưa có chữ ký; bảng điều khiển chỉ có bản nháp không được chọn.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "BI-02",
+      "story_ids": [
+        "ST-BI-004"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần trình duyệt và một bảng điều khiển đã qua bước đề nghị, kiểm tra và duyệt; vitest apps/web/src/screens/bi/BoardSignOff.test.tsx đã kiểm trang, trình chiếu và các trạng thái, lượt chạy trình duyệt chưa làm"
+      },
+      "module": "ENT"
     }
   ]
 }

@@ -300,7 +300,7 @@ test('the ARM leg: a job on ubuntu-24.04-arm that checks native dependencies and
   found(scratch((s) => s.text('.github/workflows/ci.yml', (t) => t.replace('runs-on: ubuntu-24.04-arm', 'runs-on: ubuntu-latest'))), 'ARM_LEG_MISSING', /ubuntu-24\.04-arm/);
   found(scratch((s) => s.text('.github/workflows/ci.yml', (t) => t.replace('arm64:\n    name: ARM64 build and unit tests', 'arm64-removed:\n    name: ARM64 build and unit tests'))), 'ARM_LEG_MISSING', /job arm64/);
   found(scratch((s) => s.text('.github/workflows/ci.yml', (t) => t.replace('npm run native-deps:check -- --list --locale en', 'echo skipped'))), 'ARM_LEG_MISSING', /native-deps:check/);
-  found(scratch((s) => s.text('.github/workflows/ci.yml', (t) => t.replace('          npm run typecheck\n          npm test\n\n      - name: Web build', '          npm run typecheck\n\n      - name: Web build'))), 'ARM_LEG_MISSING', /npm test/);
+  found(scratch((s) => s.text('.github/workflows/ci.yml', (t) => t.replace('{ npm run typecheck && npm test; } 2>&1 | tee "$RUNNER_TEMP/arm64-tests.log"', '{ npm run typecheck; } 2>&1 | tee "$RUNNER_TEMP/arm64-tests.log"'))), 'ARM_LEG_MISSING', /npm test/);
 });
 
 test('infra:check reports the artefact findings in both languages, and every code has a message', () => {

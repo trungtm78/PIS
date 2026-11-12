@@ -42,6 +42,7 @@ export interface AuditHarness {
 export async function startAuditHarness(): Promise<AuditHarness> {
   const database = await startMigratedTestDatabase(REPO_ROOT);
   const pool = new Pool({ connectionString: database.urlFor('machvon_app'), max: 8 });
+  pool.on('error', () => undefined); // a backend the test ends on purpose is reported by the pool as an error event
   const tenantDatabase = new TenantDatabase(pool);
   return {
     database,

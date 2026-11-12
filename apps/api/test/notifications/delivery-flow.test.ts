@@ -95,12 +95,16 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
     );
 
   /** Fires the five-second jobs (the outbox relay and the dispatcher) until the condition holds. */
-  async function pump(condition: () => Promise<boolean>, what: string): Promise<void> {
-    await until(async () => {
-      timers.fire(TICK);
-      await new Promise((wait) => setTimeout(wait, 150));
-      return await condition();
-    }, what);
+  async function pump(condition: () => Promise<boolean>, what: string, timeoutMs?: number): Promise<void> {
+    await until(
+      async () => {
+        timers.fire(TICK);
+        await new Promise((wait) => setTimeout(wait, 150));
+        return await condition();
+      },
+      what,
+      timeoutMs,
+    );
   }
 
   const createUnit = async (api: RunningApi): Promise<Response> =>
@@ -225,10 +229,13 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
   it('AC-ST-KERNEL-073-1 (UAT-NFR-AVAILABILITY-04): a provider that fails every call does not touch the business commands: 20 of 20 succeed, every delivery waits for its retry, and the breaker of the account opens within 30 seconds and stops the calls', async () => {
     const { api, adapter } = await start();
     if (adapter === undefined) throw new Error('no e-mail adapter');
+    // The breaker counts the failures of the last minute, and the case before this one (a provider that was down) leaves its own: with one of them still in the minute the 20th call is never made, because the
+    // breaker opens at the 19th. The count starts from nothing here, as it does for a real account that was quiet.
+    await rows('delete from machvon.channel_account_circuit where channel_account_id = $1', [ACCOUNT]);
+    await rows("update machvon.delivery_attempt set failed_at = now() - interval '2 hours' where status = 'Failed' and failed_at > now() - interval '5 minutes'");
     // The provider fails every call (more refusals than there will be calls).
     adapter.enqueue(...Array.from({ length: 30 }, () => ({ kind: 'FAILED', failureClass: 'RETRYABLE', errorCode: 'HTTP_503' }) as const));
     try {
-      const started = Date.now();
       // The business commands (a unit is created here: the commands of the reports need a world this fixture does not have) are answered at once and none of them reaches the provider.
       const events: string[] = [];
       for (let n = 0; n < 20; n += 1) {
@@ -237,8 +244,10 @@ describe('the delivery engine in the real API process (ST-NOT-002)', () => {
         events.push(await plantEvent(`Report ${n}`));
       }
       expect(adapter.requests).toHaveLength(0);
+      // The claim is about the breaker, so the clock starts when the provider can first be called, not when the fixture began to make its twenty events (a slow runner needs a quarter of a minute for them alone).
+      const started = Date.now();
       const circuit = async (): Promise<string | undefined> => (await rows<{ state: string }>('select state from machvon.channel_account_circuit where channel_account_id = $1', [ACCOUNT]))[0]?.state;
-      await pump(async () => (await circuit()) === 'OPEN', 'the breaker of the account to open');
+      await pump(async () => (await circuit()) === 'OPEN', 'the breaker of the account to open', 60_000);
       expect(Date.now() - started).toBeLessThan(30_000);
       // 20 failures opened it: 20 calls were made, one for each delivery, and each of them waits for a retry that is scheduled.
       expect(adapter.requests).toHaveLength(20);

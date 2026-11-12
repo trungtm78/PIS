@@ -43211,6 +43211,8 @@ export interface components {
             file_object_key: string;
             file_sha256: string;
             change_note?: string | null;
+            /** @description The type of legal document, a code of the catalogue ENT_LEGAL_DOC_TYPE (enterprise edition only: the public edition refuses a value other than null with 422 reason NOT_AVAILABLE; an unknown code is 422 reason UNKNOWN_TYPE). On a change, null clears the type. */
+            legal_doc_type?: string | null;
         };
         ProjectDocumentUpdate: {
             /** @enum {string} */
@@ -43228,6 +43230,8 @@ export interface components {
             /** Format: uuid */
             package_id?: string | null;
             note?: string | null;
+            /** @description The type of legal document, a code of the catalogue ENT_LEGAL_DOC_TYPE (enterprise edition only: the public edition refuses a value other than null with 422 reason NOT_AVAILABLE; an unknown code is 422 reason UNKNOWN_TYPE). On a change, null clears the type. */
+            legal_doc_type?: string | null;
         };
         ProjectDocumentVersionCreate: {
             file_object_key: string;
@@ -48055,6 +48059,30 @@ export interface components {
                     }[];
                 }[];
             };
+            /** @description The legal documents of the project by type of the catalogue ENT_LEGAL_DOC_TYPE: one group per type with at least one active document of the project that the caller may read, in the order of the catalogue then by code; the documents newest first, at most 20 per group (count is the whole number). */
+            legal_documents: {
+                legal_doc_type: string;
+                label: string;
+                /** @enum {string|null} */
+                issuer: "GROUP" | "COMPANY" | "STATE" | "OTHER" | null;
+                /** @enum {string|null} */
+                purpose: "CAPITAL_ASSIGNMENT" | "LIFECYCLE_EVIDENCE" | null;
+                count: number;
+                documents: {
+                    /** Format: uuid */
+                    id: string;
+                    title: string;
+                    reference: string | null;
+                    /** Format: date */
+                    effective_from: string | null;
+                    /** Format: date */
+                    effective_to: string | null;
+                    /** @enum {string} */
+                    effective_state: "UNDATED" | "NOT_YET" | "IN_FORCE" | "EXPIRED";
+                    /** @enum {string} */
+                    status: "ACTIVE" | "ARCHIVED";
+                }[];
+            }[];
         };
         ProjectInvestmentMilestone: {
             code: string;

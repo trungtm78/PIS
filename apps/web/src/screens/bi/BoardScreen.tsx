@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -12,22 +12,25 @@ import { Field } from '../mne/components';
 import '../dis/dis.css';
 import './bi.css';
 import { FigureInfo } from './FigureInfo';
-import { useDatasets, useDatasetsVersions, useMetrics, useTile } from './hooks';
+import { useDashboard, useDashboards, useDatasetVersions, useDatasetVersionsOf, useDatasets, useMetrics, useTile } from './hooks';
 import type { Metric } from './bi-model';
 import type { Dataset, DatasetVersion } from './dataset-model';
+import type { SignOff } from './dashboard-model';
+import { BOARD_DASHBOARD_PARAM, boardDashboards, boardMetricsOf, datasetIdsOf, pinnedSnapshotOf, publishedVersionOf } from './board-model';
 import { queryProblemMessage } from './labels';
 import { WORKBENCH_PATH, describeQueryProblem, formatFigure } from './query-model';
 import { ResultLabels } from './QueryResultView';
-import { metricName } from './metric-names';
-import { servingDataset, tileDimensionOf } from './serving';
+import { SignOffBlock } from './SignOffBlock';
 import './bi-kit.css';
 
 /**
  * BI-02: the board of the certified metrics (ST-BI-004, BI F3): for the period chosen, a tile for each certified metric with its figure from the snapshot of that period, and under it what every number of BI carries:
  * the period, the snapshot, the quality of the data, whether it came from the cache and whose scope it is. A tile that cannot be given says why (no data, a dataset no policy opens), and is never 0. A tile opens the
- * workbench (BI-09) on the same metric and snapshot. Dashboards a person builds come with the dashboard builder; this board is the certified metrics themselves.
- * Each metric is asked on a snapshot of the dataset that serves it (the one with every field it reads): the server plans a query by the fields of the dataset the snapshot belongs to. A metric that no dataset serves is
- * left off the board and counted in a note.
+ * workbench (BI-09) on the same metric and snapshot. Dashboards a person builds come with the dashboard builder.
+ *
+ * The board can be read as a published dashboard (BC.02): the person chooses a dashboard with a published version (or the address names it), the tiles are the certified metrics of that version, and the three signatures of that
+ * version (prepared, checked, approved) stand on the page and on every board of the presentation. The version is the published one, never the current one, which a later save makes a draft. Without a dashboard the board is
+ * every certified metric and says in words that it is not a signed report.
  */
 export default function BoardScreen({ route }: ScreenProps) {
   const tenant = useSession().tenant;
@@ -35,85 +38,70 @@ export default function BoardScreen({ route }: ScreenProps) {
   return <BoardContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
 
-interface Served {
-  metric: Metric;
-  dataset: Dataset;
-}
-
 function BoardContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const metrics = useMetrics();
   const datasets = useDatasets();
-  const certified = useMemo(() => (metrics.data ?? []).filter((metric) => metric.status === 'CERTIFIED'), [metrics.data]);
-  const plan = useMemo(
-    () =>
-      certified.map((metric) => ({
-        metric,
-        dataset: servingDataset(metric, datasets.data ?? []),
-      })),
-    [certified, datasets.data],
+  const disbursement = (datasets.data ?? []).find((dataset) => dataset.sourceKind === 'PERIOD_SNAPSHOT');
+  const versions = useDatasetVersions(disbursement?.id);
+  const [params] = useSearchParams();
+  const [dashboardId, setDashboardId] = useState(params.get(BOARD_DASHBOARD_PARAM) ?? '');
+  const tied = dashboardId !== '';
+  // The list only offers the choice: a person who cannot read dashboards still has the board of the certified metrics.
+  const library = useDashboards();
+  const offered = useMemo(() => boardDashboards(library.data ?? []), [library.data]);
+  const dashboard = useDashboard(tied ? dashboardId : undefined);
+  const published = dashboard.data === undefined ? undefined : publishedVersionOf(dashboard.data);
+  const certified = useMemo(
+    () => (tied ? (published === undefined ? [] : boardMetricsOf(published, metrics.data ?? [])) : (metrics.data ?? []).filter((metric) => metric.status === 'CERTIFIED')),
+    [tied, published, metrics.data],
   );
-  const tiles = useMemo<Served[]>(() => plan.flatMap((entry) => (entry.dataset === undefined ? [] : [{ metric: entry.metric, dataset: entry.dataset }])), [plan]);
-  const unserved = useMemo(() => plan.flatMap((entry) => (entry.dataset === undefined ? [entry.metric] : [])), [plan]);
-  const needed = useMemo(() => [...new Map(tiles.map((tile) => [tile.dataset.id, tile.dataset])).values()], [tiles]);
-  const versionQueries = useDatasetsVersions(needed.map((dataset) => dataset.id));
-  const versionsLoading = versionQueries.some((query) => query.isLoading);
-  const versionsError = versionQueries.find((query) => query.error !== null)?.error;
-  const frozen = new Map<string, DatasetVersion[]>();
-  needed.forEach((dataset, index) =>
-    frozen.set(
-      dataset.id,
-      (versionQueries[index]?.data ?? []).filter((version) => version.status === 'FROZEN'),
-    ),
-  );
-  // The periods on offer are those of the datasets present; the empty choice is the newest version of each dataset.
-  const periods = [...new Set(needed.flatMap((dataset) => (frozen.get(dataset.id) ?? []).map((version) => version.asOfPeriod)))];
+  const signOff = tied ? (published?.signOff ?? null) : null;
+  const served = useMemo(() => (versions.data ?? []).filter((version) => version.status === 'FROZEN'), [versions.data]);
   const [asked, setAsked] = useState('');
-  const period = periods.includes(asked) ? asked : '';
-  const versionOf = (dataset: Dataset): DatasetVersion | undefined => {
-    const list = frozen.get(dataset.id) ?? [];
-    return period === '' ? list[0] : list.find((version) => version.asOfPeriod === period);
-  };
-  const chosen = needed.flatMap((dataset) => versionOf(dataset) ?? []);
-  const chosenPeriods = [...new Set(chosen.map((version) => version.asOfPeriod))];
+  const chosen = served.find((version) => version.id === asked) ?? served[0];
+  // A published version that pins its dataset versions was signed on those figures: each metric is read at the pinned version of its own dataset, whatever period is chosen for an unpinned board.
+  const pinned = tied && published?.policy === 'PINNED';
+  const pinnedVersions = useDatasetVersionsOf(useMemo(() => (pinned ? datasetIdsOf(certified, disbursement?.id) : []), [pinned, certified, disbursement?.id]));
+  const snapshotOf = (metric: Metric): DatasetVersion | undefined => (pinned ? pinnedSnapshotOf(metric, disbursement?.id, published?.pinnedDatasetVersionIds ?? [], pinnedVersions.data) : chosen);
+  const readAt = pinned ? [...new Map(certified.flatMap((metric) => snapshotOf(metric) ?? []).map((one) => [one.id, one])).values()] : chosen === undefined ? [] : [chosen];
+  const periods = [...new Set(readAt.map((one) => one.asOfPeriod))].join(', ');
+  // A board tied to a dashboard is never "empty" as a whole: the choice of the dashboard stays reachable and the reason is said in the page.
   const state = useScreenState({
-    isLoading: metrics.isLoading || datasets.isLoading || versionsLoading,
-    error: metrics.error ?? datasets.error ?? versionsError ?? null,
-    data: metrics.data === undefined ? undefined : certified,
+    isLoading: metrics.isLoading || datasets.isLoading || (disbursement !== undefined && versions.isLoading) || (tied && dashboard.isLoading) || (pinned && pinnedVersions.isLoading),
+    error: metrics.error ?? datasets.error ?? versions.error ?? (tied ? dashboard.error : undefined) ?? (pinned ? pinnedVersions.error : undefined),
+    data: metrics.data === undefined || (tied && dashboard.data === undefined) ? undefined : certified,
+    isEmpty: (data) => !tied && Array.isArray(data) && data.length === 0,
   });
   const { tenant } = useSession();
   const [presenting, setPresenting] = useState(false);
-  const tileOf = (entry: Served): ReactNode => {
-    const version = versionOf(entry.dataset);
-    return (
-      <Tile
-        key={`${entry.metric.id}:${version?.id ?? ''}`}
-        metric={entry.metric}
-        snapshotId={version?.id}
-        dataset={entry.dataset}
-        noSnapshot={version === undefined && (frozen.get(entry.dataset.id)?.length ?? 0) > 0}
-      />
-    );
-  };
   // The presentation shows the same tiles a few at a time (a projector reads six figures, not thirty), the filter and the links left behind.
   const boards: PresentationBoard[] = [];
-  for (let from = 0; from < tiles.length; from += PRESENT_PAGE) {
-    const page = tiles.slice(from, from + PRESENT_PAGE);
+  for (let from = 0; from < certified.length; from += PRESENT_PAGE) {
+    const page = certified.slice(from, from + PRESENT_PAGE);
     boards.push({
       id: `page-${from}`,
-      title: t('bi.present.page.text', {
-        from: from + 1,
-        to: from + page.length,
-      }),
-      content: <KpiStrip label={t('bi.board.strip.label')}>{page.map(tileOf)}</KpiStrip>,
+      title: t('bi.present.page.text', { from: from + 1, to: from + page.length }),
+      content: (
+        <>
+          <KpiStrip label={t('bi.board.strip.label')}>
+            {page.map((metric) => (
+              <Tile key={`${metric.id}:${snapshotOf(metric)?.id ?? ''}`} metric={metric} snapshotId={snapshotOf(metric)?.id} dataset={disbursement} />
+            ))}
+          </KpiStrip>
+          {/* A projected board is never unsigned: every page carries the three signatures, or says it has none. */}
+          <BoardSignOff tied={tied} signOff={signOff} compact />
+        </>
+      ),
     });
   }
+  const presentationTitle = tied && dashboard.data !== undefined ? t('bi.present.title.dashboard', { dashboard: dashboard.data.title, period: periods }) : t('bi.present.title.text', { period: periods });
   const retry = (): void => {
     void metrics.refetch();
     void datasets.refetch();
-    versionQueries.forEach((query) => void query.refetch());
+    void versions.refetch();
+    if (pinned) void pinnedVersions.refetch();
   };
-  const updatedAt = Math.max(0, ...versionQueries.map((query) => query.dataUpdatedAt));
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
@@ -122,60 +110,71 @@ function BoardContent({ route }: ScreenProps) {
           <p>{t('bi.board.page.subtitle')}</p>
         </div>
         <PresentButton onOpen={() => setPresenting(true)} disabled={boards.length === 0} />
-        {presenting && boards.length > 0 ? (
-          <PresentationMode
-            title={t('bi.present.title.text', {
-              period: chosenPeriods.join(', '),
-            })}
-            boards={boards}
-            onExit={() => setPresenting(false)}
-          />
-        ) : null}
+        {presenting && boards.length > 0 ? <PresentationMode title={presentationTitle} boards={boards} onExit={() => setPresenting(false)} /> : null}
       </div>
       <ContextBar
         items={[
-          {
-            label: t('bi.board.ctx.scope'),
-            value: tenant?.name ?? t('bi.board.ctx.scope.all'),
-          },
-          {
-            label: t('bi.board.ctx.period'),
-            value: chosenPeriods.length === 0 ? t('bi.board.ctx.none') : chosenPeriods.join(', '),
-          },
-          {
-            label: t('bi.board.ctx.snapshot'),
-            value: chosen.length === 0 ? t('bi.board.ctx.none') : chosen.map((version) => version.id.slice(0, 8)).join(', '),
-          },
+          { label: t('bi.board.ctx.scope'), value: tenant?.name ?? t('bi.board.ctx.scope.all') },
+          { label: t('bi.board.ctx.period'), value: periods === '' ? t('bi.board.ctx.none') : periods },
+          { label: t('bi.board.ctx.snapshot'), value: readAt.length === 0 ? t('bi.board.ctx.none') : readAt.map((one) => one.id.slice(0, 8)).join(', ') },
         ]}
-        {...(updatedAt > 0 ? { asOf: new Date(updatedAt).toLocaleString('vi-VN') } : {})}
+        {...(versions.dataUpdatedAt > 0 ? { asOf: new Date(versions.dataUpdatedAt).toLocaleString('vi-VN') } : {})}
       />
-      <StateBoundary state={state} onRetry={retry}>
-        <FilterPanel applied={period === '' ? 0 : 1}>
+      {offered.length > 0 || tied ? (
+        <div className="bi-board-filter" data-testid="board-dashboard">
+          <Field id="board-dashboard" label={t('bi.board.dashboard')} error={undefined}>
+            <select id="board-dashboard" value={dashboardId} onChange={(event) => setDashboardId(event.target.value)}>
+              <option value="">{t('bi.board.dashboard.none')}</option>
+              {tied && !offered.some((one) => one.id === dashboardId) ? <option value={dashboardId}>{dashboard.data?.title ?? dashboardId}</option> : null}
+              {offered.map((one) => (
+                <option key={one.id} value={one.id}>
+                  {one.title}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+      ) : null}
+      <StateBoundary
+        state={state}
+        onRetry={() => {
+          retry();
+          if (tied) void dashboard.refetch();
+        }}
+      >
+        <BoardSignOff tied={tied} signOff={signOff} />
+        {tied && certified.length === 0 ? (
+          <p className="callout warning" role="status" data-testid="board-dashboard-empty">
+            {published === undefined ? t('bi.board.dashboard.unpublished') : t('bi.board.dashboard.noMetrics')}
+          </p>
+        ) : null}
+        <FilterPanel applied={asked === '' ? 0 : 1}>
           <div className="bi-board-filter">
-            <Field id="board-period" label={t('bi.board.period')} error={undefined}>
-              <select id="board-period" value={period} onChange={(event) => setAsked(event.target.value)}>
-                <option value="">{t('bi.board.period.latest')}</option>
-                {periods.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            {periods.length === 0 ? <p data-testid="board-no-period">{t('bi.board.noPeriod')}</p> : null}
+            {pinned ? (
+              <p className="sub" data-testid="board-pinned">
+                {t('bi.board.dashboard.pinned')}
+              </p>
+            ) : (
+              <Field id="board-period" label={t('bi.board.period')} error={undefined}>
+                <select id="board-period" value={chosen?.id ?? ''} onChange={(event) => setAsked(event.target.value)}>
+                  {served.map((version) => (
+                    <option key={version.id} value={version.id}>
+                      {version.asOfPeriod}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
+            {readAt.length === 0 ? <p data-testid="board-no-period">{t('bi.board.noPeriod')}</p> : null}
           </div>
         </FilterPanel>
         <SectionCard title={t('bi.board.section.title')}>
           <div data-testid="board">
-            <KpiStrip label={t('bi.board.strip.label')}>{tiles.map(tileOf)}</KpiStrip>
-            {unserved.length > 0 ? (
-              <p className="bi-board-unserved" data-testid="board-unserved">
-                {t('bi.board.unserved.note', {
-                  count: unserved.length,
-                  codes: unserved.map((metric) => metric.code).join(', '),
-                })}
-              </p>
-            ) : null}
+            <KpiStrip label={t('bi.board.strip.label')}>
+              {certified.map((metric) => (
+                <Tile key={`${metric.id}:${snapshotOf(metric)?.id ?? ''}`} metric={metric} snapshotId={snapshotOf(metric)?.id} dataset={disbursement} />
+              ))}
+            </KpiStrip>
           </div>
         </SectionCard>
       </StateBoundary>
@@ -183,29 +182,41 @@ function BoardContent({ route }: ScreenProps) {
   );
 }
 
+/**
+ * The signatures a board stands on: the three lines of the published version of the dashboard it is read as, or, when it is the board of all the certified metrics, the words that it is not tied to a published dashboard version
+ * and so carries no signature (a name is never made up). `compact` is the strip on a page of the presentation.
+ */
+function BoardSignOff({ tied, signOff, compact = false }: { tied: boolean; signOff: SignOff | null; compact?: boolean }) {
+  const { t } = useTranslation();
+  if (!tied) {
+    return (
+      <p className={compact ? 'sub' : 'callout'} data-testid="sign-unbound">
+        {t('bi.board.sign.unbound')}
+      </p>
+    );
+  }
+  return <SignOffBlock signOff={signOff} compact={compact} />;
+}
+
 const NO_FIGURE = '—';
 /** How many tiles one board of the presentation holds. */
 const PRESENT_PAGE = 6;
 
 /** One certified metric: the figure of the snapshot in a KPI tile, and under it the labels every number of BI carries and the way to the workbench. A tile that cannot be given says why and shows a dash, never 0. */
-function Tile({ metric, snapshotId, dataset, noSnapshot }: { metric: Metric; snapshotId: string | undefined; dataset: Dataset; noSnapshot: boolean }) {
+function Tile({ metric, snapshotId, dataset }: { metric: Metric; snapshotId: string | undefined; dataset: Dataset | undefined }) {
   const { t, locale } = useTranslation();
-  const tile = useTile(metric.id, snapshotId, tileDimensionOf(metric));
-  const name = metricName(t, metric.code);
-  const words = {
-    noData: t('bi.query.noData'),
-    notApplicable: t('bi.query.notApplicable'),
-  };
+  const tile = useTile(metric.id, snapshotId);
+  const words = { noData: t('bi.query.noData'), notApplicable: t('bi.query.notApplicable') };
   const problem = tile.error === null ? undefined : describeQueryProblem(tile.error);
   let body: ReactNode;
   if (snapshotId === undefined) {
-    body = <KpiTile label={name} value={NO_FIGURE} sub={noSnapshot ? t('bi.board.noSnapshot.text') : t('bi.board.noPeriod')} />;
+    body = <KpiTile label={metric.code} value={NO_FIGURE} sub={t('bi.board.noPeriod')} />;
   } else if (tile.isLoading) {
-    body = <KpiTile label={name} value={NO_FIGURE} state="loading" />;
+    body = <KpiTile label={metric.code} value={NO_FIGURE} state="loading" />;
   } else if (problem !== undefined) {
     body = (
       <KpiTile
-        label={name}
+        label={metric.code}
         value={NO_FIGURE}
         tone="warning"
         sub={
@@ -220,15 +231,11 @@ function Tile({ metric, snapshotId, dataset, noSnapshot }: { metric: Metric; sna
   } else {
     body = (
       <>
-        <KpiTile label={name} value={formatFigure(tile.data.total, tile.data.aggregationType === 'ratio' && tile.data.unit !== 'index' ? 'percent' : tile.data.unit, locale, words)} tone="info" />
+        <KpiTile label={metric.code} value={formatFigure(tile.data.total, tile.data.aggregationType === 'ratio' ? 'percent' : tile.data.unit, locale, words)} tone="info" />
         <div className="bi-tile__more">
-          <FigureInfo metric={metric} datasetId={dataset.id} datasetCode={dataset.code} period={tile.data.asOfPeriod} />
+          <FigureInfo metric={metric} datasetId={metric.datasetId ?? dataset?.id} datasetCode={metric.datasetId === null ? dataset?.code : undefined} period={tile.data.asOfPeriod} />
           <ResultLabels result={tile.data} />
-          <Link
-            className="ui-button ui-button--outline ui-button--small"
-            to={`${WORKBENCH_PATH}?metric=${metric.id}&snapshot=${tile.data.snapshotId}`}
-            aria-label={t('bi.board.open.aria', { code: metric.code })}
-          >
+          <Link className="ui-button ui-button--outline ui-button--small" to={`${WORKBENCH_PATH}?metric=${metric.id}&snapshot=${tile.data.snapshotId}`} aria-label={t('bi.board.open.aria', { code: metric.code })}>
             {t('bi.board.open')}
           </Link>
         </div>
@@ -238,7 +245,6 @@ function Tile({ metric, snapshotId, dataset, noSnapshot }: { metric: Metric; sna
   return (
     <div className="bi-tile" data-metric-id={metric.id}>
       {body}
-      {name === metric.code ? null : <p className="sub bi-tile__code">{metric.code}</p>}
     </div>
   );
 }

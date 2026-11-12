@@ -100,6 +100,7 @@ describe('OutboxRelay', () => {
   beforeAll(async () => {
     database = await startMigratedTestDatabase(REPO_ROOT);
     appPool = new Pool({ connectionString: database.urlFor('machvon_app'), max: 4 });
+    appPool.on('error', () => undefined); // a backend the test ends on purpose is reported by the pool as an error event
     tenants = new TenantDatabase(appPool);
   }, 180_000);
 

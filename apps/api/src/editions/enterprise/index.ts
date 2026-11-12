@@ -1,8 +1,9 @@
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DisPeriodReopenPort, HpmFileWriter, ReportStoreIssuedReports } from '@machvon/edition-enterprise/src/server.ts';
+import { DisPeriodReopenPort, EnterpriseProjectDocumentExtension, HpmFileWriter, ReportStoreIssuedReports } from '@machvon/edition-enterprise/src/server.ts';
 import type { HpmFileSink, HpmPort, PeriodReopenPort } from '@machvon/edition-enterprise/src/server.ts';
 import { APPROVAL_PUSH_PORT } from '../../modules/adm/approval-hold.service';
+import { PROJECT_DOCUMENT_EXTENSION } from '../../modules/doc/tokens';
 import { defineModule } from '../../modules/module-descriptor';
 import { HpmApprovalPush } from './approval-push';
 import { EbsImportController, EbsReadsController, EbsReconciliationController } from './ebs.controller';
@@ -76,7 +77,13 @@ export const eqpModule = defineModule({
  * The investment profile of a project (MD.01, MD.02, CN.01): the type and the flag of the stage, the milestones of the investment life against the catalogue of the edition, and the split of the plan between the resolution of the group and
  * the decision of the company. A read over what the register holds. The module exists in the enterprise edition only.
  */
-export const investmentProfileModule = defineModule({ code: 'IPF', editions: ['enterprise'], controllers: [InvestmentProfileController] });
+export const investmentProfileModule = defineModule({
+  code: 'IPF',
+  editions: ['enterprise'],
+  controllers: [InvestmentProfileController],
+  // The legal-document type of a project document (MD.02): the repository commands of DOC ask this extension, which judges the code against the catalogue ENT_LEGAL_DOC_TYPE and keeps it; the public edition binds none.
+  providers: [{ provide: PROJECT_DOCUMENT_EXTENSION, useValue: new EnterpriseProjectDocumentExtension() }],
+});
 
 /** The modules of the enterprise edition, in the order the registry mounts them after its own. */
 export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, orgPackModule, leaderModule, reportMailModule, eqpModule, investmentProfileModule];

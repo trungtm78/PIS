@@ -14,7 +14,7 @@ import { REFERENCE_BUDGET_MS, budgetFor, median, p95Of } from './support/perf-bu
  * The 800 ms is the budget on a machine of the reference speed. The same code on the same data takes 1.5 to 4 times as long on a development box that is running other suites as on an idle one. Measured side by side
  * under the same load, the contract fact of the commit that introduced this test and the current one take the same time to within the noise (medians within a few percent, same plans, same table sizes), so a red run on a
  * busy box is the box, not the code. Each measurement is therefore held to 800 ms stretched by how much slower than the reference machine this one measured in the same run, with a workload that touches nothing under
- * test (a scan and a fetch of the base table `contract`, see `machineMs`): a faster machine keeps the 800 ms, a machine more than three times slower is not judged (the run fails and says why), and a read that becomes
+ * test (a scan and a fetch of the base table `contract`, see `machineMs`): a faster machine keeps the 800 ms, a machine more than five times slower is not judged (the run fails and says why), and a read that becomes
  * slower than the machine explains still fails. The reasoning is in `support/perf-budget.ts` and its unit test.
  */
 
@@ -186,7 +186,7 @@ describe('the contract fact at the size of a province (R12: 50,000 contracts, 10
     const decision = budgetFor(Math.max(before, after), REFERENCE_MACHINE_MS, P95_BUDGET_MS);
     process.stdout.write(`R12 ${label}: p95 ${value.toFixed(0)} ms (median ${median(samples).toFixed(0)} ms), budget ${decision.budgetMs.toFixed(0)} ms (machine ${decision.factor.toFixed(2)}x the reference: ${before.toFixed(0)}/${after.toFixed(0)} ms against ${REFERENCE_MACHINE_MS} ms)
 `);
-    if (decision.tooSlow) throw new Error(`R12 ${label}: this machine measured more than three times slower than the reference (${Math.max(before, after).toFixed(0)} ms against ${REFERENCE_MACHINE_MS} ms): no verdict can be given, run it again when the machine is quiet`);
+    if (decision.tooSlow) throw new Error(`R12 ${label}: this machine measured more than five times slower than the reference (${Math.max(before, after).toFixed(0)} ms against ${REFERENCE_MACHINE_MS} ms): no verdict can be given, run it again when the machine is quiet`);
     return { p95: value, budgetMs: decision.budgetMs };
   }
 

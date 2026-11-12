@@ -35,6 +35,7 @@ describe('JobRunner', () => {
 
   const newPool = (): Pool => {
     const pool = new Pool({ connectionString: harness.database.urlFor('machvon_app'), max: 2 });
+    pool.on('error', () => undefined); // a backend the test ends on purpose is reported by the pool as an error event
     pools.push(pool);
     return pool;
   };
@@ -158,6 +159,7 @@ describe('JobRunner', () => {
   it('fails the run with an alert when the database cannot be reached', async () => {
     const seen = recorder();
     const unreachable = new Pool({ connectionString: 'postgres://nobody@127.0.0.1:1/none', max: 1, connectionTimeoutMillis: 2000 });
+    unreachable.on('error', () => undefined); // a backend the test ends on purpose is reported by the pool as an error event
     pools.push(unreachable);
     const runner = new JobRunner(unreachable, seen.sinks);
     runner.register({ name: 'offline', run: async () => undefined });

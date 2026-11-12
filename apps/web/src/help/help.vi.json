@@ -11713,6 +11713,24 @@
       "req": "FR-ADM-ENT3D",
       "rule": "Chỉ đọc. Không ghi đè khác biệt."
     },
+    "IPF-01": {
+      "title": "Hồ sơ đầu tư của dự án",
+      "module": "IPF",
+      "moduleName": "Hồ sơ đầu tư dự án (enterprise)",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Người có quyền xem dự án trong phạm vi của mình",
+      "fields": [
+        "Dự án và năm kế hoạch",
+        "Loại dự án",
+        "Cờ khởi công mới hoặc chuyển tiếp theo năm kế hoạch, năm khởi công và căn cứ",
+        "Mốc vòng đời đầu tư so với danh mục",
+        "Hồ sơ pháp lý theo loại của danh mục",
+        "Phần tách kế hoạch vốn theo nguồn và văn bản căn cứ"
+      ],
+      "req": "FR-IPF-01",
+      "rule": "Chỉ đọc, chỉ bản enterprise. Mốc chưa có hiển thị là CHƯA CÓ, không hiển thị là đã xong. Mốc đạt trước mốc đứng trước hoặc mốc bắt buộc bị bỏ qua được nêu thành cảnh báo. Hồ sơ pháp lý chỉ gồm hồ sơ còn hiệu lực người xem được đọc theo phạm vi. Số tiền theo nguồn là số của bản kế hoạch đã phát hành (người soạn thấy thêm bản đang soạn)."
+    },
     "DOC-24": {
       "title": "Kho hồ sơ dự án",
       "module": "DOC",
