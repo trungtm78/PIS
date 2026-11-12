@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PrjProjectStore, TenantDatabase, projectScope } from '@machvon/db';
+import { PrjProjectStore, TenantDatabase, planReadScope, projectScope } from '@machvon/db';
 import { InvestmentProfileStore } from '@machvon/edition-enterprise/src/server.ts';
 import type { InvestmentProfile } from '@machvon/edition-enterprise/src/server.ts';
 import { DomainError, vietnamDateOf } from '@machvon/kernel';
@@ -87,7 +87,9 @@ export class InvestmentProfileController {
     const profile = await this.database.withTenant(tenant, async (tx) => {
       const project = await this.projects.find(tx, id, projectScope(access, PERMISSIONS.getProjectInvestmentProfile, now));
       if (project === undefined) return undefined;
-      return this.profiles.read(tx, { projectId: project.id, projectType: project.projectType, projectStartYear: project.startYear, planYear: year, today });
+      // The revisions of a plan that are still in work are seen by who drafts or approves plans, as everywhere else in CAP.
+      const { drafts } = planReadScope(access, PERMISSIONS.getProjectInvestmentProfile, now);
+      return this.profiles.read(tx, { projectId: project.id, projectType: project.projectType, projectStartYear: project.startYear, planYear: year, today, drafts });
     });
     if (profile === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return investmentProfileView(id, today, profile);

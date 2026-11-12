@@ -94,6 +94,13 @@ describe('the eProcurement port and its fake', () => {
     expect(page).toMatchObject({ layout: EPROCUREMENT_LAYOUT, acceptance: 'PENDING_EXTERNAL', workingAssumption: true, asOf: AS_OF });
   });
 
+  it('compares the change time as an instant: a record with a fraction of a second is not left out by a filter without one', async () => {
+    const port = new FakeEProcurementPort([pack('EP-001', { updatedAt: '2026-01-01T00:00:00.500Z' }), pack('EP-002', { updatedAt: '2025-12-31T23:59:59Z' })], AS_OF);
+    expect((await port.fetchPackages({ updatedSince: '2026-01-01T00:00:00Z' })).records.map((one) => one.externalCode)).toEqual(['EP-001']);
+    expect((await port.fetchPackages({ updatedSince: '2026-01-01T00:00:00.500Z' })).records.map((one) => one.externalCode)).toEqual(['EP-001']);
+    expect((await port.fetchPackages({ updatedSince: '2026-01-01T00:00:00.501Z' })).records).toEqual([]);
+  });
+
   it('refuses a record that breaks the layout when it is built, so no test can feed the readers what a real adapter would not hand over', () => {
     expect(() => new FakeEProcurementPort([pack('EP-001', { stage: 'AWARDED' })], AS_OF)).toThrow(expect.objectContaining({ detail: 'award_price_vnd' }));
     expect(() => new FakeEProcurementPort([pack('EP-001'), pack('EP-001')], AS_OF)).toThrow(expect.objectContaining({ detail: 'external_code' }));

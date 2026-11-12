@@ -253,8 +253,11 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
     const refused = await call('POST', `/report-engine/issues/${issueId}/deliveries`, { member: SENDER, body: { receiver: 'NOBODY', channel: 'MANUAL' } });
     expect([refused.status, refused.json.code]).toEqual([422, 'VALIDATION_FAILED']);
     const answered = await call('POST', `/report-engine/issues/${issueId}/answers`, { member: SENDER, body: { receiver: 'NOBODY', outcome: 'REJECTED', note: 'The receiver is not in the catalogue' } });
-    expect([answered.status, answered.json.code]).toEqual([422, 'VALIDATION_FAILED']);
+    // An answer is judged against the delivery on record, not against today's catalogue.
+    expect([answered.status, answered.json.code]).toEqual([409, 'REPORT_STATE_INVALID']);
     expect((await call('POST', `/report-engine/issues/${issueId}/deliveries`, { member: SENDER, body: { receiver: 'HPM', channel: 'MANUAL' } })).status).toBe(200);
+    const rejected = await call('POST', `/report-engine/issues/${issueId}/answers`, { member: SENDER, body: { receiver: 'HPM', outcome: 'REJECTED', note: 'The demo form is not the official one' } });
+    expect(rejected.json).toMatchObject({ event: 'REJECTED' });
     expect((await call('POST', `/report-engine/issues/${issueId}/deliveries`, { member: SENDER, body: { receiver: 'NMD-PM-2', channel: 'MANUAL' } })).status).toBe(200);
   });
 });

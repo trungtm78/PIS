@@ -23,6 +23,7 @@ jest.setTimeout(300_000);
 const SIGNING_KEY = randomBytes(32);
 const READER = 4;
 const OUTSIDER = 5;
+const PLANNER = 6;
 const TODAY = vietnamDateOf(new Date());
 
 interface Reply {
@@ -60,9 +61,9 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
   }
 
   /** A draft plan of the year with one line per origin for the project. */
-  async function draftPlan(year: number, projectId: string, lines: Array<{ appropriationId: string; bucket: 'EQUITY' | 'LOAN'; amount: string }>): Promise<void> {
+  async function draftPlan(year: number, projectId: string, lines: Array<{ appropriationId: string; bucket: 'EQUITY' | 'LOAN' | 'OTHER'; amount: string }>, planKind: 'ANNUAL' | 'MEDIUM_TERM' = 'ANNUAL'): Promise<void> {
     const everything = () => ({ sql: 'true', params: [] });
-    const created = await world.as((tx) => plans.createPlan(tx, { planCode: `ENT-${randomUUID().slice(0, 8)}`, planKind: 'ANNUAL', planYear: year, periodFromYear: year, periodToYear: year, scopeUnitId: unitId(ROOT) }, memberId(MAKER), () => undefined));
+    const created = await world.as((tx) => plans.createPlan(tx, { planCode: `ENT-${randomUUID().slice(0, 8)}`, planKind, ...(planKind === 'ANNUAL' ? { planYear: year } : {}), periodFromYear: year, periodToYear: planKind === 'ANNUAL' ? year : year + 1, scopeUnitId: unitId(ROOT) }, memberId(MAKER), () => undefined));
     const [row] = await world.owner<{ version: string }>('select version::text as version from machvon.capital_plan where id = $1::uuid', [created.id]);
     await world.as((tx) =>
       plans.draft(
@@ -89,8 +90,13 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
     registerEnterpriseCatalogueRules();
     await world.harness.seedMembership(TENANT_A, READER, ROOT);
     await world.harness.seedMembership(TENANT_A, OUTSIDER, ROOT);
+    await world.harness.seedMembership(TENANT_A, PLANNER, ROOT);
     await world.harness.seedRole(TENANT_A, 1, 'PROJECT_READER', ['project.read'], 30);
-    await world.harness.seedGrants(TENANT_A, [{ n: 1, member: READER, role: 1, kind: 'TENANT' }]);
+    await world.harness.seedRole(TENANT_A, 2, 'PROJECT_PLANNER', ['project.read', 'capital.plan.draft'], 30);
+    await world.harness.seedGrants(TENANT_A, [
+      { n: 1, member: READER, role: 1, kind: 'TENANT' },
+      { n: 2, member: PLANNER, role: 2, kind: 'TENANT' },
+    ]);
     const tenants = world.harness.tenants as TenantDatabase;
     app = await startTestApp({
       signingKey: SIGNING_KEY,
@@ -123,8 +129,13 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
       { appropriationId: group, bucket: 'EQUITY', amount: money(3) },
       { appropriationId: company, bucket: 'LOAN', amount: money(2) },
     ]);
+    // A medium-term plan that starts in the same year is not the capital of that year.
+    await draftPlan(year, projectId, [{ appropriationId: group, bucket: 'OTHER', amount: money(1) }], 'MEDIUM_TERM');
 
-    const reply = await get(`/projects/${projectId}/investment-profile?plan_year=${year}`);
+    // A plan that is not published yet is seen by who drafts or approves plans, and by nobody else.
+    const plain = await get(`/projects/${projectId}/investment-profile?plan_year=${year}`);
+    expect(plain.json).toMatchObject({ plan: null, origin_split: { total_vnd: '0', origins: [] } });
+    const reply = await get(`/projects/${projectId}/investment-profile?plan_year=${year}`, PLANNER);
     expect(reply.status).toBe(200);
     expect(reply.json).toMatchObject({
       project_id: projectId,

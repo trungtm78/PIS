@@ -99,7 +99,7 @@ export class FakeEProcurementPort implements EProcurementPort {
 
   fetchPackages(query: EProcurementQuery): Promise<EProcurementPage> {
     const asked = eprocurementQueryOf(query);
-    const matching = this.records.filter((record) => (asked.projectCode === undefined || record.projectCode === asked.projectCode) && (asked.updatedSince === undefined || record.updatedAt >= asked.updatedSince));
+    const matching = this.records.filter((record) => (asked.projectCode === undefined || record.projectCode === asked.projectCode) && (asked.updatedSince === undefined || Date.parse(record.updatedAt) >= Date.parse(asked.updatedSince)));
     const page = pageOf(matching, (record) => record.externalCode, asked);
     return Promise.resolve({ ...page, layout: this.layoutVersion, acceptance: externalAcceptance(this.layoutVersion), workingAssumption: true, asOf: this.asOf });
   }

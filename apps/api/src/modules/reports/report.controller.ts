@@ -399,7 +399,7 @@ export class ReportController {
     const copy = await reportStore.findIssue(scope.tx, id);
     if (copy === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     assertLayoutAccess(access, copy.layoutCode);
-    await assertCatalogueReceiver(scope.tx, copy.layoutCode, body.receiver, vietnamDateOf(this.clock()));
+    // An answer is judged against the delivery that was recorded (the store refuses a receiver the copy was never delivered to), not against today's catalogue: an agency that was retired since still answers.
     const row = await reportStore.answer(scope.tx, copy, body.outcome, { receiver: body.receiver, channel: 'MANUAL', reference: body.reference ?? null, note: body.note ?? null, by: scope.tenant.membershipId });
     await this.announceDelivery(scope, copy, row, 'rpt.report_answered', 'rpt.report.answered.v1');
     if (body.outcome === 'ACCEPTED' && row.countsAsAccepted) await this.lockOnAcceptance(scope, copy.id);

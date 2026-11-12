@@ -38,6 +38,8 @@ export interface ProfileRequest {
   planYear: number;
   /** The business day (Vietnam time) the catalogue is read for. */
   today: string;
+  /** Whether the caller drafts or approves plans: only then may the split be read from a revision that is not yet published (the visibility rule of the plan reads, CAP 3.1 section 7). */
+  drafts: boolean;
 }
 
 export class InvestmentProfileStore {
@@ -49,13 +51,17 @@ export class InvestmentProfileStore {
     return { code: projectType.businessKey, label: projectType.label, kind: row?.kind ?? null };
   }
 
-  /** The plan version of the year the split is read from: the published one, else the newest that is still alive (a rejected or superseded version is no plan of the project). */
-  private async planOf(tx: TenantTx, projectId: string, planYear: number): Promise<PlanSql | undefined> {
+  /**
+   * The plan version of the year the split is read from: the published one of an ANNUAL plan (a medium-term plan has a first year too, and its lines are not the capital of that year), else, for a caller who drafts or approves,
+   * the newest revision still in work (a rejected or superseded version is no plan of the project).
+   */
+  private async planOf(tx: TenantTx, projectId: string, planYear: number, drafts: boolean): Promise<PlanSql | undefined> {
+    const statuses = drafts ? ['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED'] : ['PUBLISHED'];
     const [row] = await tx.query<PlanSql>(
-      `select id, status, revision from machvon.plan_version
-        where project_id = $1::uuid and fiscal_year = $2 and status in ('DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED')
-        order by (status = 'PUBLISHED') desc, revision desc limit 1`,
-      [projectId, planYear],
+      `select pv.id, pv.status, pv.revision from machvon.plan_version pv left join machvon.capital_plan cp on cp.tenant_id = pv.tenant_id and cp.id = pv.capital_plan_id
+        where pv.project_id = $1::uuid and pv.fiscal_year = $2 and pv.status = any($3::text[]) and (pv.capital_plan_id is null or cp.plan_kind = 'ANNUAL')
+        order by (pv.status = 'PUBLISHED') desc, pv.revision desc limit 1`,
+      [projectId, planYear, statuses],
     );
     return row;
   }
@@ -66,7 +72,7 @@ export class InvestmentProfileStore {
       `select code, planned_date::text as planned_on, actual_date::text as actual_on, status from machvon.project_milestone where project_id = $1::uuid order by planned_date, code`,
       [request.projectId],
     );
-    const plan = await this.planOf(tx, request.projectId, request.planYear);
+    const plan = await this.planOf(tx, request.projectId, request.planYear, request.drafts);
     const origins =
       plan === undefined
         ? []
