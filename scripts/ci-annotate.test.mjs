@@ -75,7 +75,7 @@ test('a log with no matching line reports its last lines instead of nothing', ()
 });
 
 test('many blocks are limited and the message is cut into chunks under the 4 KB an annotation shows', () => {
-  const many = Array.from({ length: 200 }, (_, index) => `FAIL src/f${index}.test.ts\n${['a', 'b', 'c', 'd', 'e', 'f'].map((letter) => letter.repeat(230)).join('\n')}`).join('\n');
+  const many = Array.from({ length: 200 }, (_, index) => `FAIL src/f${index}.test.ts\n${['a', 'b', 'c', 'd', 'e', 'f'].map((letter) => letter.repeat(230)).join('\n')}\n${'pad\n'.repeat(20)}`).join('\n');
   const text = annotationText(many, 'jest');
   assert.match(text, /first 80 shown/);
   const chunks = chunksOf(text);
