@@ -42,6 +42,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "PMT-01",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/pmt-gates.test.ts"
+      },
       "module": "PMT"
     },
     {
@@ -226,8 +233,13 @@
       "design_type": "security",
       "screen_id": "PMT-04",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/pmt-gates.test.ts"
+      },
       "module": "PMT"
     },
     {

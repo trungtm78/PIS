@@ -692,6 +692,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-iss-sla-policy.test.ts"
+      },
       "module": "ISS"
     },
     {

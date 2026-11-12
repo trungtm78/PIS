@@ -587,8 +587,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-grants.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -626,8 +631,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-grants.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -665,8 +675,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/roles-and-grants.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -704,8 +719,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-grants.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -783,8 +803,13 @@
       "design_type": "security",
       "screen_id": "ADM-17",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the project list of a guest contractor is refused, not a list with P-01 only"
+      },
       "module": "ADM"
     },
     {
@@ -857,6 +882,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-01",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/org-units-commands.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -967,8 +999,13 @@
       "design_type": "security",
       "screen_id": "ADM-02",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-members.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1043,8 +1080,13 @@
       "design_type": "security",
       "screen_id": "ADM-02",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/members.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1160,6 +1202,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-02",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-members.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1197,6 +1246,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-06",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-doa-approval.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1233,6 +1289,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-15",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doa-matrices.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1269,6 +1332,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-15",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: no warning on HOME for the Tenant Admin when a DoA rule is missing"
+      },
       "module": "ADM"
     },
     {
@@ -1492,6 +1562,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-06",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-doa-approval.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1528,6 +1605,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-07",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/work-calendars.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1565,8 +1649,13 @@
       "design_type": "security",
       "screen_id": "ADM-08",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-certificates.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -2053,8 +2142,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the inbox events show neither payload hash nor size"
+      },
       "module": "ADM"
     },
     {

@@ -95,8 +95,13 @@
       "design_type": "integration/security/UAT",
       "screen_id": "SAS-04",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-grants.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -364,8 +369,13 @@
       "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
       "design_type": "integration/security/UAT",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ai-assist-injection.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -552,8 +562,13 @@
       "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
       "design_type": "integration/security/UAT",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ops-rollback.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -589,8 +604,13 @@
       "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
       "design_type": "integration/security/UAT",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-core.spec.ts"
+      },
       "module": "NFR"
     },
     {
@@ -719,8 +739,13 @@
       "design_evidence": "Response JSON hai lần gọi + danh sách khóa Redis (đã che giá trị)",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "needs a running Redis to SCAN and a metric query endpoint: GET /api/v1/metrics/BI-MET-001/query is not in openapi.json and no cache of metric results exists in the code; the tenant key builder is only unit-tested (packages/kernel/test/tenant-keys.test.ts)"
+      },
       "module": "NFR",
       "access": {
         "url": "/api/theme",
@@ -770,8 +795,13 @@
       "design_evidence": "Danh sách id kết quả + tenant_id, log truy vấn có điều kiện tenant",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/search.test.ts"
+      },
       "module": "NFR",
       "access": {
         "url": "/api/search/documents",
@@ -1054,8 +1084,13 @@
       "design_evidence": "Response + audit_entry các lần từ chối",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the three commands are refused with three different codes, none is SCOPE_DENIED"
+      },
       "module": "NFR"
     },
     {
@@ -1091,8 +1126,13 @@
       "design_evidence": "Response + bảng theme_version trước/sau + audit",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: no step-up (WebAuthn/aal2) is required to publish a theme on the control plane"
+      },
       "module": "NFR"
     },
     {
@@ -1128,8 +1168,13 @@
       "design_evidence": "Log Keycloak + timestamp request/response",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "MFA at login, the 30 minute idle timeout, refresh token rotation with reuse detection and the account lock belong to Keycloak (realm values in infra/keycloak/onprem/machvon-realm.json, never imported into a running Keycloak); needs a running Keycloak and clock control"
+      },
       "module": "NFR"
     },
     {
@@ -1241,8 +1286,13 @@
       "design_evidence": "Báo cáo quét CI + mẫu log đã che",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The secret scan of the pipeline (gitleaks in .github/workflows/security.yml, run in Docker) and the image scan (Trivy with the secret scanner, images.yml) run only in GitHub Actions on a pushed branch and a built image; neither is runnable here. The local push gate (ci/src/scan.mjs + rules.mjs) does report file and line without echoing the secret, but it is only one of the three parts. The product masks logged credentials as [redacted] / [REDACTED] (alert-sinks.ts, audit-detail.ts), not as ***, and there is no provider-call log test with a key. Needs a CI run on a test branch with a fake AKIA string and PEM, plus an image scan."
+      },
       "module": "NFR"
     },
     {
@@ -1278,8 +1328,13 @@
       "design_evidence": "Log pipeline + tệp SBOM",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ops-gates.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -1315,8 +1370,13 @@
       "design_evidence": "Response + báo cáo kiểm OpenAPI",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: no PATCH /projects/{id} route and the refusal code is FIELD_NOT_ALLOWED, not INVALID_REQUEST"
+      },
       "module": "NFR"
     },
     {
@@ -1444,8 +1504,13 @@
       "design_evidence": "Log SQL + kết quả job + cảnh báo",
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/security-audit-chain.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -1592,8 +1657,13 @@
       "design_evidence": "Lịch sử workflow + audit + dữ liệu trước/sau",
       "design_type": "E2E/privacy",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: no deletion-request workflow for contacts of OMNI/LND with the states RECEIVED, IN_PROGRESS, COMPLETED_PARTIAL"
+      },
       "module": "NFR"
     },
     {
@@ -1629,8 +1699,13 @@
       "design_evidence": "Response + egress log",
       "design_type": "security/privacy",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the international route without approval is refused with D07_APPROVAL_REQUIRED, TRANSFER_ASSESSMENT_REQUIRED is never raised"
+      },
       "module": "NFR"
     },
     {
@@ -1665,6 +1740,13 @@
       ],
       "design_evidence": "Báo cáo kiểm IaC + inventory",
       "design_type": "compliance",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ops-gates.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -1733,6 +1815,13 @@
       ],
       "design_evidence": "Biên bản diễn tập + log an ninh",
       "design_type": "operational",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "A staging incident drill with the on-call team following a runbook, every step signed by a person and a drill record kept. The repo has no personal-data-breach runbook (only outbox-relay-lag, audit-tamper-drill, tenant-restore-drill) and no tool that records detection/containment/report timestamps or signatures. Needs the incident runbook and a signed rehearsal record from the operations team."
+      },
       "module": "NFR"
     },
     {
@@ -1767,6 +1856,13 @@
       ],
       "design_evidence": "Ảnh dashboard + log cảnh báo + log pipeline",
       "design_type": "operational",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ops-gates.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -1801,6 +1897,13 @@
       ],
       "design_evidence": "Biên bản DR có mốc thời gian + truy vấn sequence",
       "design_type": "operational/DR",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "A real DR drill: switch off the main site at T0, restore the database from backup + WAL and object storage in an isolated dr environment under continuous write load, and measure RPO 15 minutes / RTO 4 hours with a smoke test. Needs pgBackRest backups, a second site and the DR environment. The repo only has the one-machine rehearsal (npm run restore:rehearse), which its own docs say is not evidence."
+      },
       "module": "NFR"
     },
     {
@@ -1835,6 +1938,13 @@
       ],
       "design_evidence": "Biên bản diễn tập + báo cáo so sánh",
       "design_type": "operational",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Step 1 needs an isolated copy built from a real staging backup at T-1 day (pgBackRest). The verification logic exists (kernel verifyRestore, restore-drill measure/compare, packages/db tenant-restore and restore-drill tests: checksums, row counts, exact money totals, file references, rows of other tenants) but the restore engine is a port with only a template-database rehearsal behind it, which would not prove the backup restore."
+      },
       "module": "NFR"
     },
     {
@@ -2089,6 +2199,13 @@
       ],
       "design_evidence": "Ảnh golden + báo cáo scanner",
       "design_type": "accessibility",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Needs Android 14 with TalkBack, iOS 18 with VoiceOver and the accessibility scanner on a staging build of the phone application: the reading of each control's name and role by a screen reader and the measured touch areas on a real device are what the expected text asks for; no port in the repo can stand in for a device."
+      },
       "module": "NFR"
     },
     {
@@ -2191,6 +2308,13 @@
       ],
       "design_evidence": "Manifest + truy vấn đếm + chứng nhận",
       "design_type": "E2E/operational",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the product has no operation that purges a tenant and no deletion certificate; docs/sas-offboarding.md states the purge after archive is a manual procedure in R1 (certificate signed by System Admin and DPO). The export half (manifest with files and sha256) exists (packages/db tenant-export tests) but the expected 0 rows / 0 files after deletion and the generated certificate cannot be produced."
+      },
       "module": "NFR"
     },
     {
@@ -2225,6 +2349,13 @@
       ],
       "design_evidence": "Export trace + kết quả quét",
       "design_type": "observability",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ops-trace.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -2259,6 +2390,13 @@
       ],
       "design_evidence": "Log cảnh báo + output lint",
       "design_type": "observability/operational",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: OUTBOX_LAG is raised by the relay itself after each batch (packages/db/src/outbox-relay.ts:138) and AlertEvaluator is not wired into the API process, so with the relay stopped (the case input) nothing evaluates outbox_oldest_pending_seconds in product code; delivery to the on-call channel then depends on an external monitoring stack. Needs staging with the collector/alert manager. The lint half (alerts-check ALERT_OWNER_MISSING / ALERT_RUNBOOK_MISSING, operations alerts independent of notifications by dependency-cruiser rule) exists but does not prove the whole expected text."
+      },
       "module": "NFR"
     },
     {
@@ -2293,6 +2431,13 @@
       ],
       "design_evidence": "Output gate + biên bản restore",
       "design_type": "operational",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ops-gates.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -2327,6 +2472,13 @@
       ],
       "design_evidence": "Log pipeline từng PR",
       "design_type": "operational",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: no architecture rule forbids a module importing another module's domain (cap -> pay/domain). The other two parts exist (contracts compat/mobile-pack checks, review:money label gate in ci/review-rules.json) but the first PR would not go red."
+      },
       "module": "NFR"
     },
     {
@@ -2498,8 +2650,13 @@
       "design_evidence": "Bảng AiRequest + log LiteLLM",
       "design_type": "security/EVAL",
       "tags": [
-        "ai-eval"
+        "ai-eval",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ai-gateway-routes.test.ts"
+      },
       "module": "NFR"
     },
     {
@@ -2683,6 +2840,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ops-gates.test.ts"
+      },
       "module": "NFR"
     }
   ],

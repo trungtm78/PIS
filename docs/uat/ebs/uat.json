@@ -138,11 +138,11 @@
       "tags": [
         "design-case",
         "security",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ebs-extra.test.ts"
       },
       "module": "EBS"
     },
@@ -278,11 +278,11 @@
       "tags": [
         "design-case",
         "security",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ebs-extra.test.ts"
       },
       "module": "EBS"
     },
@@ -919,11 +919,11 @@
         "ST-EBS-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa viết bảng giá trị biên; bố cục tệp là giả định nên biên cần được chốt với khách trước (PX-04)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ebs-extra.test.ts"
       },
       "module": "EBS"
     },
@@ -1020,11 +1020,11 @@
         "ST-EBS-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa có đi bàn phím riêng cho hai màn này; quét axe chung nằm ở apps/web/e2e/a11y.spec.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-ebs.spec.ts"
       },
       "module": "EBS"
     },

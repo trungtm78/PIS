@@ -225,8 +225,13 @@
       "design_evidence": "Response/status, dữ liệu trước-sau, audit_entry và outbox_event liên quan, log có correlation_id",
       "design_type": "integration/security/UAT",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/bi-snapshot-cases.test.ts"
+      },
       "module": "BI"
     },
     {

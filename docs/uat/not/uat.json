@@ -1217,6 +1217,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "NOT-03",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the daily digest of notifications is not implemented, so there is nothing to automate against. The digest_mode preference (IMMEDIATE/HOURLY/DAILY) is only stored (notification-preference-store.ts, preferences.controller.ts); no code reads it when a notification is created or delivered, the column notification_instance.digest_bucket_key exists only in db/migrations/V002__schema.sql:9334 and is written nowhere, no job creates a digest notification at 07:30, and no REPORT_REMINDER event type exists in the product."
+      },
       "module": "NOT"
     },
     {
