@@ -119,7 +119,10 @@ if [ "${WITH_BI}" -eq 1 ]; then
 fi
 
 say "5/8 starting the database"
-${COMPOSE} up --detach --wait --wait-timeout "${WAIT_SECONDS}" db
+# The rendered pg_hba.conf is a single-file bind mount: replacing the file leaves a running container on the old inode, so with the BI port the container is recreated and always reads the file it was just given.
+RECREATE=""
+if [ "${WITH_BI}" -eq 1 ]; then RECREATE="--force-recreate"; fi
+${COMPOSE} up --detach --wait --wait-timeout "${WAIT_SECONDS}" ${RECREATE} db
 if [ "${UPGRADE}" -eq 0 ]; then
   ${COMPOSE} --profile tools run --rm backup stanza-create
 fi

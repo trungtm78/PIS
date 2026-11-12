@@ -24,6 +24,7 @@ const ENTERPRISE = biDatasetsOfEdition('enterprise');
 const PERIOD_A = randomUUID();
 const PERIOD_A_OTHER = randomUUID();
 const PERIOD_B = randomUUID();
+const PERIOD_B_YEAR = randomUUID();
 
 const as = <T>(work: (tx: TenantTx) => Promise<T>, tenant = TENANT_A): Promise<T> => harness.tenants.withTenant(contextFor(tenant, memberId(MAKER)), work);
 const owner = <R extends object = Record<string, unknown>>(sql: string, params: unknown[] = [], tenant = TENANT_A): Promise<R[]> => harness.owner<R>(tenant, [[sql, params]]);
@@ -61,12 +62,14 @@ interface Figure {
 }
 
 /** The figures of one cell as the figure engine freezes them for a month: the plan of the year, of the month and to date, the actual of the month and the cumulative of the year. */
-function cell(project: string, unit: string, klass: string, figures: { planInForce: string | null; planToDate: string | null; actual: string | null; cumulative: string | null; planMonth?: string | null }): Figure[] {
-  const row = (kind: string, amount: string | null, grain = 'MONTH', ordinal = 10): Figure => ({ project, unit, klass, kind, amount, grain, ordinal });
+function cell(project: string, unit: string, klass: string, figures: { planInForce: string | null; planToDate: string | null; actual: string | null; cumulative: string | null; planMonth?: string | null }, period: 'MONTH' | 'YEAR' = 'MONTH'): Figure[] {
+  const year = period === 'YEAR';
+  const row = (kind: string, amount: string | null, grain = year ? 'YEAR' : 'MONTH', ordinal = year ? 0 : 10): Figure => ({ project, unit, klass, kind, amount, grain, ordinal });
   return [
     row('PLAN_YEAR', figures.planInForce, 'YEAR', 0),
     row('PLAN_IN_FORCE', figures.planInForce, 'YEAR', 0),
-    row('PLAN_MONTH', figures.planMonth ?? null),
+    // The figure engine writes no plan row of its own for a year: the plan of a year period is the plan in force.
+    ...(year ? [] : [row('PLAN_MONTH', figures.planMonth ?? null)]),
     row('PLAN_TO_DATE', figures.planToDate),
     row('ACTUAL', figures.actual),
     row('CUMULATIVE_YTD', figures.cumulative),
@@ -168,6 +171,7 @@ describe('the certified dataset DS-ENT for BI logins of an enterprise tenant (IN
     await owner("update machvon.period_snapshot set status = 'FROZEN', payload_sha256 = $2, frozen_by = $3, frozen_at = now() where id = $1", [publicBuilding.id, 'd'.repeat(64), memberId(CHECKER)]);
     // Tenant B: one official snapshot with figures of its own.
     await seedEnterpriseSnapshot(TENANT_B, PERIOD_B, 1, 'FROZEN', cell(randomUUID(), unit1, 'EQUITY', { planInForce: '777', planToDate: '700', actual: '7', cumulative: '77' }));
+    await seedEnterpriseSnapshot(TENANT_B, PERIOD_B_YEAR, 1, 'FROZEN', cell(randomUUID(), unit1, 'LOAN', { planInForce: '600', planToDate: '600', actual: '5', cumulative: '55' }, 'YEAR'));
     productA = await seedProduct(TENANT_A, 'DP-ENT-A');
     productB = await seedProduct(TENANT_B, 'DP-ENT-B');
     readerA = await provision(TENANT_A, 'Power BI A');
@@ -192,6 +196,11 @@ describe('the certified dataset DS-ENT for BI logins of an enterprise tenant (IN
     expect((await rowsOf(client, 'select dataset_code from v_dataset_catalogue order by dataset_code')).map((row) => row.dataset_code)).toEqual(['DS-CTR', 'DS-DISB']);
     // The granted columns of the tables are closed with the dataset: the gate is not a thing a login walks around by reading the tables.
     for (const sql of ['select tenant_id, id from machvon.period_snapshot', 'select tenant_id, snapshot_id from machvon.period_snapshot_figure']) expect([sql, await rowsOf(client, sql)]).toEqual([sql, []]);
+  });
+
+  it('audits every read of a login as a session, so a direct read of the granted columns is in the log as well (V2961)', async () => {
+    const settings = await owner<{ setconfig: string[] }>('select s.setconfig from pg_db_role_setting s join pg_roles r on r.oid = s.setrole where r.rolname = $1', [readerA.loginName]);
+    expect(settings[0]?.setconfig).toEqual(expect.arrayContaining(['pgaudit.log=read', 'default_transaction_read_only=on']));
   });
 
   it('is offered by the enterprise edition only: the public list has no way to switch it on', async () => {
@@ -242,7 +251,7 @@ describe('the certified dataset DS-ENT for BI logins of an enterprise tenant (IN
       // A figure nobody has is a row without an amount and with its reason, never a zero.
       const missing = await rowsOf(a, "select amount_vnd, null_reason from v_enterprise_figures where figure_kind = 'PLAN_MONTH' and project_id = '" + p2 + "'");
       expect(missing).toEqual([{ amount_vnd: null, null_reason: 'NO_DATA' }]);
-      expect(await rowsOf(await connect(readerB), 'select amount_vnd from v_enterprise_figures where figure_kind = \'CUMULATIVE_YTD\'')).toEqual([{ amount_vnd: '77' }]);
+      expect(await rowsOf(await connect(readerB), 'select amount_vnd from v_enterprise_figures where figure_kind = \'CUMULATIVE_YTD\' and period_id = \'' + PERIOD_B + '\'')).toEqual([{ amount_vnd: '77' }]);
     });
 
     it('v_enterprise_plan_actual: plan, actual and cumulative side by side, the rate sum over sum and null on a zero plan', async () => {
@@ -259,6 +268,14 @@ describe('the certified dataset DS-ENT for BI logins of an enterprise tenant (IN
       expect(byKey.get(`${p2}:EQUITY`)).toMatchObject({ plan_in_force_vnd: '0', cumulative_ytd_vnd: '0', rate_in_force_pct: null, rate_to_date_pct: null });
       expect(byKey.get(`${p3}:OTHER`)).toMatchObject({ rate_in_force_pct: '20.0000', rate_to_date_pct: '40.0000' });
       expect(rows.some((row) => row.class_code === 'TOTAL')).toBe(false);
+    });
+
+    it('v_enterprise_plan_actual: the plan of a year period is the plan of the year in force, and the plan of a month stays the plan of the month', async () => {
+      const b = await connect(readerB);
+      const year = await rowsOf(b, `select period_grain, period_ordinal, plan_in_force_vnd::text, plan_period_vnd::text, rate_in_force_pct::text from v_enterprise_plan_actual where period_id = '${PERIOD_B_YEAR}'`);
+      expect(year).toEqual([{ period_grain: 'YEAR', period_ordinal: 0, plan_in_force_vnd: '600', plan_period_vnd: '600', rate_in_force_pct: '9.1667' }]);
+      const month = await rowsOf(b, `select period_grain, plan_period_vnd::text from v_enterprise_plan_actual where period_id = '${PERIOD_B}'`);
+      expect(month).toEqual([{ period_grain: 'MONTH', plan_period_vnd: null }]);
     });
 
     it('v_enterprise_funding_split: equity, loan and other side by side with their share of the cumulative', async () => {

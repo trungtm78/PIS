@@ -19,6 +19,16 @@ BEGIN
   LOOP
     EXECUTE format('GRANT SELECT ON machvon_bi.%I TO machvon_bi_auditor', one.relname);
   END LOOP;
+  -- A BI login may also read the granted columns of the snapshot tables directly, which the object audit above does not see. Every login is therefore audited as a session as well (pgaudit.log = read); a login made
+  -- after V2961 has the setting from the moment it is made, and this loop gives it to the logins made before.
+  FOR one IN
+    SELECT m.rolname
+      FROM pg_auth_members a
+      JOIN pg_roles g ON g.oid = a.roleid AND g.rolname = 'machvon_bi_reader'
+      JOIN pg_roles m ON m.oid = a.member
+  LOOP
+    EXECUTE format('ALTER ROLE %I SET pgaudit.log = %L', one.rolname, 'read');
+  END LOOP;
 END
 $audit$;
 

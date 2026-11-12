@@ -88,7 +88,8 @@ SELECT
   c.plan_year_vnd,
   c.plan_adjusted_vnd,
   c.plan_in_force_vnd,
-  c.plan_period_vnd,
+  -- The plan of the period: the plan of the month or of the quarter; for a year the plan of the period is the plan of the year in force (the figure engine writes no separate row for it).
+  CASE WHEN c.period_grain = 'YEAR' THEN c.plan_in_force_vnd ELSE c.plan_month_quarter_vnd END AS plan_period_vnd,
   c.plan_to_date_vnd,
   c.estimate_vnd,
   c.estimate_as_reported_vnd,
@@ -114,7 +115,7 @@ CROSS JOIN LATERAL (
     max(f.amount_vnd) FILTER (WHERE f.figure_kind = 'PLAN_YEAR') AS plan_year_vnd,
     max(f.amount_vnd) FILTER (WHERE f.figure_kind = 'PLAN_ADJUSTED') AS plan_adjusted_vnd,
     max(f.amount_vnd) FILTER (WHERE f.figure_kind = 'PLAN_IN_FORCE') AS plan_in_force_vnd,
-    max(f.amount_vnd) FILTER (WHERE f.figure_kind IN ('PLAN_MONTH', 'PLAN_QUARTER')) AS plan_period_vnd,
+    max(f.amount_vnd) FILTER (WHERE f.figure_kind IN ('PLAN_MONTH', 'PLAN_QUARTER')) AS plan_month_quarter_vnd,
     max(f.amount_vnd) FILTER (WHERE f.figure_kind = 'PLAN_TO_DATE') AS plan_to_date_vnd,
     max(f.amount_vnd) FILTER (WHERE f.figure_kind = 'ESTIMATE') AS estimate_vnd,
     max(f.amount_vnd) FILTER (WHERE f.figure_kind = 'ESTIMATE_AS_REPORTED') AS estimate_as_reported_vnd,
