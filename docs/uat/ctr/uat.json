@@ -76,7 +76,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CTR-02",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/ctr/contract-register.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC58",
@@ -150,7 +157,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CTR-05",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/ctr/uat-case-ac59-guarantee-expiry.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC60",
@@ -299,7 +313,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PAY-02",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/uat-case-ac64-payment-net.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC65",
@@ -1708,7 +1729,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "CTR-02",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/ctr/contract-register.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC317",
@@ -1823,7 +1851,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "CTR-03",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/rls-catalog.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UI-CTR-19",

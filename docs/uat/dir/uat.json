@@ -45,11 +45,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -92,11 +92,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -232,11 +232,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -278,11 +278,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -418,11 +418,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -464,11 +464,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -557,11 +557,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -654,7 +654,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "reason": "Cần thiết bị đã đồng bộ rồi mất mạng (DIR-06 ngoại tuyến, nhãn dữ liệu không phải mới nhất, không có nút thao tác). Chứng minh tương ứng là widget test Flutter apps/mobile/test/features/directives/directives_test.dart, không đặt tên theo mã ca và không chạy được trên máy này (Smart App Control chặn sqlite3mc.dll), nên chưa có lượt xanh để ghi AUTOMATED."
       },
       "module": "DIR"
     },
@@ -1297,11 +1297,11 @@
         "ST-DIR-004"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần kỳ báo cáo và đồng hồ giả; suite hiện chưa dựng kỳ báo cáo cho DIR"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },

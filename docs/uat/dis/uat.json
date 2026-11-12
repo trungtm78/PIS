@@ -1187,7 +1187,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "DIS-14",
-      "module": "DIS"
+      "module": "DIS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-dis.uat.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC246",
@@ -2264,7 +2271,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "DIS"
+      "module": "DIS",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Pilot exit review: totals filed on web and mobile over two parallel periods are compared per project with the legacy workbook of the pilot tenant and each difference is classified and given an owner. It needs the customer's legacy workbook and a pilot tenant with 10 or more users, and the classification is a human judgement; the product has no engine that reads a legacy workbook or classifies differences (searched apps/api/src, packages/db/src, packages/kernel/src: no route, store or rule type for it)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-07",
@@ -2298,7 +2312,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "DIS"
+      "module": "DIS",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Pilot exit report of differences between the legacy system and the product over two periods, each classed as definition, timing or data error with an owner, unexplained money differences at exit = 0. Needs the legacy system's figures and the pilot tenant; the classification is a human judgement and the product has no feature that holds such a report (no route, store or rule type found)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-08",
@@ -2366,7 +2387,14 @@
       ],
       "design_evidence": null,
       "design_type": "e2e",
-      "module": "DIS"
+      "module": "DIS",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Pilot exit review of the defect list (open P0 and P1 = 0) and of the pilot figures against the source within the signed tolerance. The defect list is the project's own (the UAT run ledger, not a product object) and the source is the customer's legacy data under a tolerance not yet signed; nothing in the product can be asserted."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-66",
@@ -2400,7 +2428,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "DIS"
+      "module": "DIS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/screens/dis/PeriodCalendarScreen.test.tsx"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-67",
@@ -2502,7 +2537,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "DIS"
+      "module": "DIS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dis/definitions.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-70",

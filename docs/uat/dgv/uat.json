@@ -1190,7 +1190,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "DGV-01",
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dgv/dgv-quality.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC487",

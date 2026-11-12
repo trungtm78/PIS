@@ -46,11 +46,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ind.uat.test.ts"
       },
       "module": "IND"
     },
@@ -94,11 +94,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ind.uat.test.ts"
       },
       "module": "IND"
     },
@@ -140,11 +140,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ind.uat.test.ts"
       },
       "module": "IND"
     },
@@ -934,11 +934,11 @@
         "ST-IND-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ Tổ chuẩn hóa dữ liệu của khách thống nhất từ điển chỉ tiêu (PX-02)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ind.uat.test.ts"
       },
       "module": "IND"
     },

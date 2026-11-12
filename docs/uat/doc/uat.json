@@ -980,9 +980,14 @@
       "design_type": "integration (idempotency)",
       "screen_id": "DOC-06",
       "tags": [
-        "concurrency"
+        "concurrency",
+        "automated"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doc/outgoing.test.ts"
+      }
     },
     {
       "tc_id": "TC-UAT-AC402",
@@ -1057,7 +1062,14 @@
       "design_evidence": null,
       "design_type": "integration (byte-level)",
       "screen_id": "DOC-05",
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doc/outgoing.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC404",
@@ -2073,7 +2085,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration (spike R0)",
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần môi trường sandbox CA thật (nhà cung cấp do D05 chọn), hai chứng thư kiểm thử và công cụ xác minh độc lập pdfsig/DSS; adapter REMOTE_CA đang PROPOSED, không chạy được trong tiến trình. Đây là spike R0 ghi lại năng lực của CA."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC431",

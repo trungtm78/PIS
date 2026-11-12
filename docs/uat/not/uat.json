@@ -890,7 +890,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "NOT-11",
-      "module": "NOT"
+      "module": "NOT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/delivery-engine.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC178",
@@ -926,7 +933,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "NOT-11",
-      "module": "NOT"
+      "module": "NOT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/delivery-engine.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC179",
@@ -1035,7 +1049,14 @@
       "design_evidence": null,
       "design_type": "E2E",
       "screen_id": "NOT-01",
-      "module": "NOT"
+      "module": "NOT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/notifications/notifications.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC182",
@@ -1071,7 +1092,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "NOT-12",
-      "module": "NOT"
+      "module": "NOT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/delivery-engine.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC183",
@@ -1253,7 +1281,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "NOT-07",
-      "module": "NOT"
+      "module": "NOT",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Bước 4 cần lệnh nhận callback APPROVED của nhà cung cấp ZNS (đặt provider_status=PROVIDER_APPROVED và provider_template_id 23045): sản phẩm không có route hay lệnh nào làm việc này, hai cột chỉ được ghi bằng SQL (grep apps/api/src và packages/db/src). Bước 1 sửa nội dung qua API cũng không có route (bảng chặn sửa), bước 2 và 3 đã có test ở apps/api/test/notifications/templates.test.ts."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC188",
@@ -1583,7 +1618,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "NOT"
+      "module": "NOT",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Đọc mẫu NOT-07 chỉ trả provider_status, không trả provider template id (987654): trường provider_template_id không có trong view của templates.controller.ts và màn hình NOT-07 không hiển thị nó; vì vậy không thể chứng minh T-1 hiện APPROVED kèm mã 987654."
+      },
+      "tags": [
+        "manual"
+      ]
     }
   ],
   "data_fixtures": [],

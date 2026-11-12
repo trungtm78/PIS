@@ -504,7 +504,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "HOME-07",
-      "module": "HOME"
+      "module": "HOME",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/screens/home/FundingScreen.test.tsx"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC270",
@@ -726,7 +733,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "HOME"
+      "module": "HOME",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/home/drill.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     }
   ],
   "data_fixtures": [],

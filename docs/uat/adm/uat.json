@@ -1006,7 +1006,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-02",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/guest-contractors.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC115",
@@ -1345,7 +1352,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-18",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/adm/approval-operations.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC131",
@@ -1418,7 +1432,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-06",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/adm/approval.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC133",
@@ -1455,7 +1476,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-06",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dis/report-staged-approval.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC134",
@@ -1754,7 +1782,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-12",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/legal-holds.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC142",
@@ -1862,7 +1897,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-14",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Bước 2 đòi Keycloak required action được đồng bộ sau khi công bố chính sách bảo mật: API không có cổng hay bộ chuyển đổi nào đẩy required action sang Keycloak (apps/api/src/modules/adm và src/session không có mã đó) và Keycloak không chạy trong tiến trình. Bước 1 (403 SELF_APPROVAL_DENIED), công bố và MFA khi chọn tenant đã có test (apps/api/test/security-policies.test.ts, session/select-tenant.test.ts)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UI-ADM-15",

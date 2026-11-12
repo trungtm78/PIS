@@ -518,11 +518,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-rpt.uat.test.ts"
       },
       "module": "RPT"
     },
@@ -659,11 +659,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-rpt.uat.test.ts"
       },
       "module": "RPT"
     },
@@ -706,11 +706,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-rpt.uat.test.ts"
       },
       "module": "RPT"
     },
@@ -799,11 +799,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/reports/crosscheck.enterprise.test.ts"
       },
       "module": "RPT"
     },
@@ -845,11 +845,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/reports/crosscheck.enterprise.test.ts"
       },
       "module": "RPT"
     },
@@ -1421,7 +1421,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần việc gửi email của bản enterprise và nhà cung cấp email giả; SMTP/Teams thật chờ khách (PX-16)"
+        "reason": "The mail runner is proven only against in-memory fakes of its store (packages/edition-enterprise delivery-runner.test.ts) and its store alone; no suite runs it over the database with the real e-mail channel port. The world lacks the wiring: an active EMAIL channel_account, an address of the recipient in tenant_user_directory, the in-memory e-mail adapter in a ChannelAdapterRegistry and the job createReportMailJob. Not built in this lane; a real SMTP is PX-16."
       },
       "module": "RPT"
     },
@@ -1611,11 +1611,11 @@
         "ST-RPT-121"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ khách cung cấp bố cục chính thức (PX-01, PX-15)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/reports/report-engine.enterprise.test.ts"
       },
       "module": "RPT"
     },

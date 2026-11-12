@@ -91,11 +91,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ebs.uat.test.ts"
       },
       "module": "EBS"
     },
@@ -231,11 +231,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ebs.uat.test.ts"
       },
       "module": "EBS"
     },
@@ -874,11 +874,11 @@
         "ST-EBS-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần ánh xạ mã của INT-03 (cần hai người duyệt); chưa nối hai suite INT và EBS với nhau"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ebs.uat.test.ts"
       },
       "module": "EBS"
     },
@@ -1065,11 +1065,11 @@
         "ST-EBS-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ khách cung cấp mẫu tệp sao kê EBS thật (PX-04)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ebs.uat.test.ts"
       },
       "module": "EBS"
     },
