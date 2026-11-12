@@ -576,6 +576,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'getProjectEacControl': OperationDescriptor(method: 'GET', path: '/projects/{id}/eac-control', versioned: false, stepUp: null, permission: 'capital.read'),
   'getProjectEffectiveness': OperationDescriptor(method: 'GET', path: '/projects/{id}/effectiveness', versioned: false, stepUp: null, permission: 'project.read'),
   'getProjectEvm': OperationDescriptor(method: 'GET', path: '/projects/{id}/evm', versioned: false, stepUp: null, permission: 'project.evm.read'),
+  'getProjectInvestmentProfile': OperationDescriptor(method: 'GET', path: '/projects/{id}/investment-profile', versioned: false, stepUp: null, permission: 'project.read'),
   'getProjectLifecycle': OperationDescriptor(method: 'GET', path: '/projects/{id}/lifecycle', versioned: false, stepUp: null, permission: 'project.read'),
   'getProjectReserve': OperationDescriptor(method: 'GET', path: '/projects/{id}/reserve', versioned: false, stepUp: null, permission: 'project.reserve.read'),
   'getProjectRiskSignals': OperationDescriptor(method: 'GET', path: '/projects/{id}/risk-signals', versioned: false, stepUp: null, permission: 'project.read'),

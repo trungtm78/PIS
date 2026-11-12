@@ -15,3 +15,5 @@ export { ENTERPRISE_CONNECTORS, EBS_DESCRIPTOR, HPM_DESCRIPTOR, HPM_FRESHNESS_RU
 export * from './project-codes.ts';
 export * from './project-code-resolver.ts';
 export * from './ent-catalogue.ts';
+export * from './investment-profile.ts';
+export * from './investment-profile-store.ts';

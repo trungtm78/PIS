@@ -167,18 +167,20 @@ function codesOf(rules: readonly GovernanceRuleVersion[], type: string, asOf: st
 }
 
 export function milestonesOf(rules: readonly GovernanceRuleVersion[], asOf: string): MilestoneEntry[] {
-  return codesOf(rules, MILESTONE_RULE, asOf)
-    .map((one) => {
-      const params = (resolveGovernanceRule(rules, MILESTONE_RULE, one, asOf) as { params: RuleParams }).params;
-      return {
-        code: one,
-        label: params.label as string,
-        sequence: params.sequence as number,
-        phase: params.phase as MilestoneEntry['phase'],
-        evidenceKinds: params.evidence_kinds as string[],
-        required: params.required as boolean,
-      };
-    })
+  return milestonesOfResolved(codesOf(rules, MILESTONE_RULE, asOf).map((one) => ({ code: one, params: (resolveGovernanceRule(rules, MILESTONE_RULE, one, asOf) as { params: RuleParams }).params })));
+}
+
+/** The milestones as the resolver of the governance rules hands them (a rule of the tenant in force, else the built-in default), in the order of the catalogue. */
+export function milestonesOfResolved(resolved: ReadonlyArray<{ code: string; params: RuleParams }>): MilestoneEntry[] {
+  return resolved
+    .map((one) => ({
+      code: one.code,
+      label: one.params.label as string,
+      sequence: one.params.sequence as number,
+      phase: one.params.phase as MilestoneEntry['phase'],
+      evidenceKinds: one.params.evidence_kinds as string[],
+      required: one.params.required as boolean,
+    }))
     .sort((left, right) => left.sequence - right.sequence || left.code.localeCompare(right.code));
 }
 

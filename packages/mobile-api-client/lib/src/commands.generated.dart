@@ -1726,6 +1726,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getProjectEvm({required String id, Map<String, Object?>? query}) =>
       execute('getProjectEvm', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getProjectInvestmentProfile({required String id, Map<String, Object?>? query}) =>
+      execute('getProjectInvestmentProfile', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getProjectLifecycle({required String id, Map<String, Object?>? query}) =>
       execute('getProjectLifecycle', path: <String, Object?>{'id': id}, query: query);
 
