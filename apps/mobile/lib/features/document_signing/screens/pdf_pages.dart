@@ -2,16 +2,21 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/security/secure_screen.dart';
-import '../../read_support/widgets.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/state_view.dart';
+import '../document_fetcher.dart';
 import '../pdf_engine.dart';
 import '../pdf_loading.dart';
 import '../signing_models.dart';
 import '../signing_support.dart';
+import 'signing_notice.dart';
 
 /// The width a page is drawn at for reading: the width of the screen in device pixels, within what a phone can hold in memory.
 int _readingWidth(BuildContext context) {
@@ -65,21 +70,25 @@ mixin _OpensPdf<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   }
 }
 
+/// Why a file could not be opened, with the action that follows: a lost connection is the offline state, anything else the error state, and
+/// both end in "try again".
 class _FailureView extends StatelessWidget {
   const _FailureView({required this.failure, required this.onRetry});
 
   final Object failure;
   final VoidCallback onRetry;
 
+  bool get _unreachable =>
+      (failure is DocumentFetchException && (failure as DocumentFetchException).failure == FetchFailure.unreachable) || (failure is ApiError && (failure as ApiError).code == networkErrorCode);
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(MachvonSpace.space16),
-      children: <Widget>[
-        Semantics(liveRegion: true, child: Text(viewerFailureText(context, failure), style: Theme.of(context).textTheme.bodyLarge)),
-        const SizedBox(height: MachvonSpace.space12),
-        FilledButton(onPressed: onRetry, child: Text(context.t('mob.signing.viewer.retry.action'))),
-      ],
+    return StateView(
+      kind: _unreachable ? StateKind.offline : StateKind.error,
+      title: context.t(_unreachable ? 'mob.signing.viewer.offline.title' : 'mob.signing.viewer.failed.title'),
+      body: viewerFailureText(context, failure),
+      actionLabel: context.t('mob.signing.viewer.retry.action'),
+      onAction: onRetry,
     );
   }
 }
@@ -126,8 +135,8 @@ class _PdfViewerPageState extends ConsumerState<PdfViewerPage> with _OpensPdf<Pd
   @override
   Widget build(BuildContext context) {
     final Object? problem = failure;
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t('mob.signing.viewer.title'))),
+    return AppScaffold(
+      title: context.t('mob.signing.viewer.title'),
       body: loading
           ? const _LoadingView()
           : problem != null
@@ -144,8 +153,8 @@ class _PdfViewerPageState extends ConsumerState<PdfViewerPage> with _OpensPdf<Pd
       itemBuilder: (BuildContext context, int index) {
         if (index == 0) {
           return Padding(
-            padding: const EdgeInsets.all(MachvonSpace.space16),
-            child: Text(context.t('mob.signing.viewer.summary', <String, Object>{'title': widget.title, 'version': widget.file.version, 'pages': doc.pageCount}), style: Theme.of(context).textTheme.titleMedium),
+            padding: const EdgeInsets.all(MachvonV2Space.s16),
+            child: Text(context.t('mob.signing.viewer.summary', <String, Object>{'title': widget.title, 'version': widget.file.version, 'pages': doc.pageCount}), style: context.v2text.heading),
           );
         }
         final int page = index - 1;
@@ -168,22 +177,25 @@ class _PageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MachvonV2 v2 = context.v2;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
+      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
       child: FutureBuilder<RenderedPage>(
         future: render,
         builder: (BuildContext context, AsyncSnapshot<RenderedPage> snapshot) {
           final RenderedPage? page = snapshot.data;
-          if (snapshot.hasError) return Text(context.t('mob.signing.viewer.pageFailed', <String, Object>{'label': label}));
+          if (snapshot.hasError) return Text(context.t('mob.signing.viewer.pageFailed', <String, Object>{'label': label}), style: context.v2text.body.copyWith(color: v2.palette.lateFg));
           if (page == null) return AspectRatio(aspectRatio: 0.707, child: Center(child: Semantics(label: label, child: const CircularProgressIndicator())));
           return Semantics(
             button: true,
             label: context.t('mob.signing.viewer.page.open', <String, Object>{'label': label}),
             excludeSemantics: true,
-            child: InkWell(
-              onTap: zoom,
-              child: DecoratedBox(
-                decoration: BoxDecoration(border: Border.all(color: MachvonColors.border)),
+            child: Material(
+              color: v2.palette.surface,
+              clipBehavior: Clip.hardEdge,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(MachvonV2Radius.chip), side: BorderSide(color: v2.palette.lineStrong)),
+              child: InkWell(
+                onTap: zoom,
                 // The shape of the page is known before the image is decoded, so the list does not jump while the pages arrive.
                 child: AspectRatio(aspectRatio: page.width / page.height, child: Image.memory(page.png, fit: BoxFit.fill, gaplessPlayback: true)),
               ),
@@ -205,13 +217,13 @@ class ZoomPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(label)),
+    return AppScaffold(
+      title: label,
       body: FutureBuilder<RenderedPage>(
         future: doc.render(index, width: _readingWidth(context) * 2),
         builder: (BuildContext context, AsyncSnapshot<RenderedPage> snapshot) {
           final RenderedPage? page = snapshot.data;
-          if (snapshot.hasError) return Center(child: Text(context.t('mob.signing.viewer.pageFailed', <String, Object>{'label': label})));
+          if (snapshot.hasError) return Center(child: Text(context.t('mob.signing.viewer.pageFailed', <String, Object>{'label': label}), style: context.v2text.body));
           if (page == null) return const _LoadingView();
           return InteractiveViewer(minScale: 1, maxScale: 6, child: Center(child: Semantics(label: label, image: true, child: Image.memory(page.png, fit: BoxFit.contain))));
         },
@@ -254,8 +266,8 @@ class _PdfComparePageState extends ConsumerState<PdfComparePage> with _OpensPdf<
   Widget build(BuildContext context) {
     final Object? problem = failure;
     final VersionComparison? comparison = _comparison;
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t('mob.signing.compare.title'))),
+    return AppScaffold(
+      title: context.t('mob.signing.compare.title'),
       body: loading
           ? const _LoadingView()
           : problem != null || comparison == null
@@ -265,27 +277,32 @@ class _PdfComparePageState extends ConsumerState<PdfComparePage> with _OpensPdf<
   }
 
   Widget _comparisonView(BuildContext context, VersionComparison comparison) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final bool sameFile = widget.previous.checksum == widget.current.checksum;
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
-        SectionCard(
+        SigningSection(
           title: context.t('mob.signing.compare.versions.title'),
+          padded: true,
           children: <Widget>[
             _versionLine(context, context.t('mob.signing.compare.previous'), widget.previous),
             _versionLine(context, context.t('mob.signing.compare.current'), widget.current),
-            Text(sameFile ? context.t('mob.signing.compare.sameFile') : context.t('mob.signing.compare.otherFile'), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+            Padding(
+              padding: const EdgeInsets.only(top: MachvonV2Space.s8),
+              child: Text(sameFile ? context.t('mob.signing.compare.sameFile') : context.t('mob.signing.compare.otherFile'), style: text.bodyStrong),
+            ),
           ],
         ),
-        SectionCard(
+        SigningSection(
           title: context.t('mob.signing.compare.pages.title'),
+          padded: true,
           children: <Widget>[
             Text(
               comparison.identical
                   ? context.t('mob.signing.compare.summary.identical', <String, Object>{'pages': comparison.pages.length})
                   : context.t('mob.signing.compare.summary.changed', <String, Object>{'changed': comparison.changedPages, 'pages': comparison.pages.length}),
-              style: theme.textTheme.bodyMedium,
+              style: text.body,
             ),
             for (final PageComparison page in comparison.pages) _comparedPage(context, page),
           ],
@@ -296,7 +313,7 @@ class _PdfComparePageState extends ConsumerState<PdfComparePage> with _OpensPdf<
 
   Widget _versionLine(BuildContext context, String label, FileVersion file) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4),
       child: MergeSemantics(
         child: Text(
           context.t('mob.signing.compare.version', <String, Object>{
@@ -307,6 +324,7 @@ class _PdfComparePageState extends ConsumerState<PdfComparePage> with _OpensPdf<
             'time': file.createdAt == null ? '' : formatMoment(file.createdAt!),
             'hash': file.checksum.substring(0, math.min(12, file.checksum.length)),
           }),
+          style: context.v2text.body,
         ),
       ),
     );
@@ -317,17 +335,25 @@ class _PdfComparePageState extends ConsumerState<PdfComparePage> with _OpensPdf<
     final String change = changeLabel(context, page.change);
     final bool inPrevious = page.change != PageChange.added;
     final bool inCurrent = page.change != PageChange.removed;
+    final MachvonV2Palette p = context.v2.palette;
     void zoom(FileVersion file, String label) => Navigator.of(context).push(
           secureRoute<void>((_) => ZoomPage(label: context.t('mob.signing.compare.page.zoom', <String, Object>{'page': number, 'which': label}), doc: docOf(file), index: page.index)),
         );
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          MergeSemantics(child: Text(context.t('mob.signing.compare.page', <String, Object>{'page': number, 'change': change}), style: Theme.of(context).textTheme.bodyMedium)),
+          MergeSemantics(
+            child: Text(
+              context.t('mob.signing.compare.page', <String, Object>{'page': number, 'change': change}),
+              style: page.change == PageChange.same ? context.v2text.body : context.v2text.bodyStrong.copyWith(color: p.soonFg),
+            ),
+          ),
+          const SizedBox(height: MachvonV2Space.s8),
           Wrap(
-            spacing: MachvonSpace.space8,
+            spacing: MachvonV2Space.s8,
+            runSpacing: MachvonV2Space.s8,
             children: <Widget>[
               if (inPrevious) OutlinedButton(onPressed: () => zoom(widget.previous, context.t('mob.signing.compare.previous')), child: Text(context.t('mob.signing.compare.openPrevious.action', <String, Object>{'page': number}))),
               if (inCurrent) OutlinedButton(onPressed: () => zoom(widget.current, context.t('mob.signing.compare.current')), child: Text(context.t('mob.signing.compare.openCurrent.action', <String, Object>{'page': number}))),

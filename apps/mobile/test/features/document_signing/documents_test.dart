@@ -114,7 +114,7 @@ void main() {
       expect(engine.opened.single.rendered, <int>[0, 1, 2]);
       expect(server.calls.where((HttpCall call) => call.method != 'GET'), isEmpty, reason: 'reading signs nothing');
 
-      await tester.tap(find.descendant(of: find.byType(PdfViewerPage), matching: find.byType(InkWell)).first);
+      await tester.tap(find.descendant(of: find.byType(PdfViewerPage), matching: find.byType(Image)).first);
       await tester.pumpAndSettle();
       expect(find.text('Trang 1/3'), findsOneWidget);
       expect(find.byType(InteractiveViewer), findsOneWidget);
@@ -206,7 +206,7 @@ void main() {
       server.on('GET', '/outgoing-documents/d-1', (_) => outgoing(versions: <Map<String, Object?>>[fileVersion('v-2', 2, 'RENDERED_FINAL', 'final', scan: 'PENDING'), fileVersion('v-1', 1, 'DRAFT', 'draft')]));
       await _open(tester, server);
       expect(find.text('Tệp chưa được quét xong nên chưa xem được.'), findsOneWidget);
-      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Xem PDF')).onPressed, isNull);
+      expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Xem PDF')).onPressed, isNull);
       expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'So sánh với bản 1')).onPressed, isNull);
     });
 
@@ -259,7 +259,7 @@ void main() {
 
       await tester.tap(find.text('Xem PDF'));
       await expectProtected('the viewer');
-      await tester.tap(find.descendant(of: find.byType(PdfViewerPage), matching: find.byType(InkWell)).first);
+      await tester.tap(find.descendant(of: find.byType(PdfViewerPage), matching: find.byType(Image)).first);
       await expectProtected('the enlarged page of the viewer');
       await pressBack(tester);
       await expectProtected('the viewer again');
