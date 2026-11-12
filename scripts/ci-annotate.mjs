@@ -22,6 +22,7 @@ export const KINDS = {
   jest: { start: /^\s*(FAIL |● .+ › |● .+$)|^\s*[✕×]\s|Tests:\s+\d+ failed|Test Suites:\s+\d+ failed|^\s*(ERR!|npm error)\s|error TS\d+|^\s*not ok \d+|^\s*✖ |coverage threshold|does not meet threshold/, after: 16 },
   dart: { start: /\[E\]|❌|\d+ failed|Some tests failed|^\s*Failed to load|^\s*Error: |FAILED:/, after: 6 },
   playwright: { start: /^\s*(\d+\)\s|[✘x]\s)|\d+ failed|\d+ flaky|Error: |Timeout of \d+ms exceeded/, after: 8 },
+  build: { start: /FAILURE:|What went wrong|BUILD FAILED|error:|Error: |Execution failed/, after: 6 },
   gates: { start: /\bFAIL(ED)?\b|✗|✘|\bERROR\b|exit code [1-9]|not ok /, after: 4 },
 };
 

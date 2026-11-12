@@ -114,7 +114,13 @@ jobs:
       # train with its own signing key (android/key.properties, never committed).
       - name: Build the APK
         working-directory: apps/mobile
-        run: flutter build apk --debug
+        shell: bash
+        run: |
+          flutter build apk --debug 2>&1 | tee "$RUNNER_TEMP/apk-build.log"; exit "${PIPESTATUS[0]}"
+
+      - name: Name the failures (APK build)
+        if: failure()
+        run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/apk-build.log" build --title "APK build"
 
   ios:
     name: Build iOS

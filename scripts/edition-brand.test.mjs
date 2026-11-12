@@ -143,4 +143,12 @@ describe('a layout with its own manifests', () => {
     assert.equal(await main(['--write'], (line) => lines.push(line), root), 0);
     assert.match(lines.join('\n'), /current/);
   });
+  it('writes no XML comment that holds a double dash: Android refuses such a resource file and the APK does not build', async () => {
+    const files = await generatedFiles();
+    const xml = files.filter((file) => file.path.endsWith('.xml'));
+    assert.ok(xml.length > 0);
+    for (const file of xml) {
+      for (const comment of file.text.matchAll(/<!--([sS]*?)-->/g)) assert.equal(comment[1].includes('--'), false, file.path);
+    }
+  });
 });
