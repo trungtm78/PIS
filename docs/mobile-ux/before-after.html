@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trước và sau: ứng dụng điện thoại Hệ thống quản lý đầu tư công (mockup, dữ liệu minh họa)</title>
+<style>
+@font-face{font-family:'Be Vietnam Pro';font-weight:400;src:url('../../apps/mobile/assets/fonts/BeVietnamPro-Regular.ttf') format('truetype')}
+@font-face{font-family:'Be Vietnam Pro';font-weight:600;src:url('../../apps/mobile/assets/fonts/BeVietnamPro-SemiBold.ttf') format('truetype')}
+*{box-sizing:border-box}
+body{margin:0;background:#F3F6F5;color:#122D3B;font:400 15px/22px 'Be Vietnam Pro',Arial,sans-serif}
+header{padding:24px 32px 8px}
+h1{font:600 24px/32px 'Be Vietnam Pro',Arial,sans-serif;margin:0}
+header p{margin:4px 0 0;color:#4A5E68;max-width:900px}
+section{padding:16px 32px 8px;border-top:1px solid #DDE6E7;margin-top:16px}
+h2{font:600 17px/24px 'Be Vietnam Pro',Arial,sans-serif;margin:0 0 4px}
+.cap{color:#4A5E68;max-width:980px;margin:0 0 12px}
+.pair{display:flex;gap:32px;flex-wrap:wrap}
+figure{margin:0;width:300px}
+figure img{width:300px;height:auto;display:block;border:1px solid #B9C8CC;border-radius:16px;background:#fff}
+figcaption{font:600 13px/20px 'Be Vietnam Pro',Arial,sans-serif;margin-top:6px;color:#33505C}
+.note{padding:16px;border:1.5px solid #7A8F99;border-radius:12px;width:300px;min-height:200px;background:#fff;font:400 13px/20px 'Be Vietnam Pro',Arial,sans-serif;color:#33505C}
+</style></head><body>
+<header>
+<h1>Trước và sau</h1>
+<p>Bên trái là ảnh chụp ứng dụng đang chạy trên emulator (bản công, dữ liệu mẫu, 2026-11-12 đến 13), bên phải là mockup hướng B v2 (khung 390 x 844, dữ liệu minh họa). Hai bên cùng tỷ lệ. Ảnh gốc nằm ở <code>docs/mobile-ux/audit/</code> và <code>docs/mobile-ux/mockups/png/</code>.</p>
+</header>
+
+<section><h2>1. Trang chủ lãnh đạo</h2>
+<p class="cap">Trước: hai dòng ngữ cảnh lặp nhau, thẻ việc 10 dòng chữ cùng cỡ với nút dưới nếp gấp, không thấy số liệu giải ngân. Sau: một dải điều hành tối với một số lớn và một thanh, ba ô chỉ số, danh sách "Cần bạn quyết định" có hạn ba màu (biểu tượng và chữ).</p>
+<div class="pair"><figure><img src="audit/public/mob-07-home-top.png" alt="Hiện tại: trang chủ lãnh đạo"><figcaption>Hiện tại (bản công)</figcaption></figure>
+<figure><img src="mockups/png/direction-b-1.png" alt="v2: trang chủ lãnh đạo"><figcaption>v2: Tổng quan</figcaption></figure></div></section>
+
+<section><h2>2. Việc hôm nay (trang chủ cán bộ)</h2>
+<p class="cap">Trước: không có màn "việc hôm nay"; việc nằm trong thẻ xếp theo mức khẩn, trùng với tab Thông báo (ảnh bên trái là tab Thông báo). Sau: danh sách theo hạn với ba nhóm, ba dải màu có hình khác nhau, nút "Báo cáo" cho hiện trường.</p>
+<div class="pair"><figure><img src="audit/public/mob-32-notifications.png" alt="Hiện tại: tab Thông báo hiện danh sách việc"><figcaption>Hiện tại (tab Thông báo)</figcaption></figure>
+<figure><img src="mockups/png/direction-b-2.png" alt="v2: Việc hôm nay"><figcaption>v2: Việc hôm nay</figcaption></figure></div></section>
+
+<section><h2>3. Chi tiết dự án</h2>
+<p class="cap">Trước: bảng "nhãn: giá trị" với "Chưa có", số tiền sai đơn vị ("38.000 triệu đồng"), không có tiến độ nhìn được. Sau: tiêu đề dự án, giai đoạn và tiến độ ngay đầu màn, bốn tab, danh sách việc theo hạn.</p>
+<div class="pair"><figure><img src="audit/public/mob-10-project-detail.png" alt="Hiện tại: chi tiết dự án"><figcaption>Hiện tại</figcaption></figure>
+<figure><img src="mockups/png/direction-b-3.png" alt="v2: chi tiết dự án, tab Tiến độ"><figcaption>v2: tab Tiến độ</figcaption></figure></div></section>
+
+<section><h2>4. Danh sách dự án</h2>
+<p class="cap">Trước: bốn hàng lối tắt và một nhóm thu gọn chứa mười hàng nữa nằm trên danh sách, dự án đầu tiên ở cuối màn. Sau: chỉ có dự án, mỗi hàng có tiến độ, giai đoạn và hạn ba màu; công cụ chuyển vào dự án và vào Cá nhân.</p>
+<div class="pair"><figure><img src="audit/public/mob-09-projects.png" alt="Hiện tại: tab Dự án"><figcaption>Hiện tại</figcaption></figure>
+<figure><img src="mockups/png/direction-b-8.png" alt="v2: danh sách dự án"><figcaption>v2: Dự án</figcaption></figure></div></section>
+
+<section><h2>5. Hộp phê duyệt và xác nhận</h2>
+<p class="cap">Trước: màn bị chặn chụp ảnh (cố ý, bảo mật), nên chỉ có bản mô tả từ cây điều khiển: bản doanh nghiệp hiện ba hàng giống hệt, bản công hiện "Chưa có dữ liệu. Điều chỉnh bộ lọc hoặc tạo bản ghi đầu tiên." Sau: hàng đủ dữ kiện để quyết (loại, tiêu đề, số tiền, người gửi, kết quả kiểm tra chứng từ, hạn) và xác nhận bằng bottom sheet có tóm tắt hậu quả.</p>
+<div class="pair"><div class="note"><b>Hiện tại (không chụp được)</b><br>Tab Phê duyệt trong bản đang chạy dùng cờ chặn chụp màn hình. Bản dump cấu trúc: <code>audit/public/mob-23-approvals-uidump.txt</code> và <code>audit/enterprise/mob-23-approvals-uidump.txt</code>. Ảnh đen: <code>audit/enterprise/mob-23-approvals-BLACK-secure-screen.png</code>.</div>
+<figure><img src="mockups/png/direction-b-4.png" alt="v2: hộp phê duyệt"><figcaption>v2: Hộp phê duyệt</figcaption></figure>
+<figure><img src="mockups/png/direction-b-7.png" alt="v2: xác nhận phê duyệt"><figcaption>v2: xác nhận bằng sheet</figcaption></figure></div></section>
+
+<section><h2>6. Chi tiết việc (chức năng mới của kế hoạch workflow)</h2>
+<p class="cap">Chưa có màn tương ứng trong ứng dụng hiện tại (việc dự án thuộc module PWF sẽ xây sau). Mockup cho thấy chứng từ bắt buộc, khóa "Hoàn thành" khi còn thiếu chứng từ kèm lý do, và "Xin dời hạn".</p>
+<div class="pair"><figure><img src="mockups/png/direction-b-5.png" alt="v2: chi tiết việc"><figcaption>v2: Chi tiết việc</figcaption></figure></div></section>
+
+<section><h2>7. Thông báo</h2>
+<p class="cap">Trước: tab Thông báo là cùng danh sách việc với Trang chủ. Sau: dòng thời gian sự kiện nhóm Hôm nay, Hôm qua, có chấm chưa đọc và nhãn loại.</p>
+<div class="pair"><figure><img src="audit/public/mob-32-notifications.png" alt="Hiện tại: tab Thông báo"><figcaption>Hiện tại</figcaption></figure>
+<figure><img src="mockups/png/direction-b-6.png" alt="v2: thông báo"><figcaption>v2: Thông báo</figcaption></figure></div></section>
+
+<section><h2>8. Trạng thái rỗng</h2>
+<p class="cap">Trước: một câu chung cho mọi màn, màn "Ghi nhận vướng mắc" không có nút ghi nhận. Sau: câu theo ngữ cảnh và một hành động.</p>
+<div class="pair"><figure><img src="audit/public/mob-28-field-issue-form.png" alt="Hiện tại: trạng thái rỗng"><figcaption>Hiện tại</figcaption></figure>
+<figure><img src="mockups/png/direction-b-9.png" alt="v2: trạng thái rỗng"><figcaption>v2: hết việc</figcaption></figure></div></section>
+
+<section><h2>9. Ngoại tuyến</h2>
+<p class="cap">Trước (bản doanh nghiệp): hai dải báo cùng nói một điều chiếm 40% màn đầu. Sau: một dải, nói điều gì không làm được, có "Thử lại".</p>
+<div class="pair"><figure><img src="audit/enterprise/state-offline-home-refresh-failed.png" alt="Hiện tại: ngoại tuyến"><figcaption>Hiện tại (bản doanh nghiệp)</figcaption></figure>
+<figure><img src="mockups/png/direction-b-10.png" alt="v2: ngoại tuyến"><figcaption>v2: một dải báo</figcaption></figure></div></section>
+
+<section><h2>10. Số tiền</h2>
+<p class="cap">Trước (bản doanh nghiệp, kế hoạch vốn): "1.534.000 triệu đồng" và "26.788,606145 triệu đồng" gãy hai dòng. Sau: đơn vị chọn theo độ lớn ("1.534 tỷ đồng", "26,8 tỷ đồng"), số đầy đủ ở chi tiết. Xem quy tắc ở <code>design-system-v2.md</code> mục 6.</p>
+<div class="pair"><figure><img src="audit/enterprise/mob-15-capital-plan.png" alt="Hiện tại: số tiền sai đơn vị"><figcaption>Hiện tại (bản doanh nghiệp)</figcaption></figure></div></section>
+
+<section><h2>11. Chế độ tối, chữ 200%, cài đặt ngưỡng, tạo nhanh</h2>
+<p class="cap">Những chế độ chưa có trong ứng dụng hiện tại, đã dựng để chứng minh hệ thống không vỡ.</p>
+<div class="pair">
+<figure><img src="mockups/png/direction-b-12.png" alt="v2: chế độ tối"><figcaption>v2: chế độ tối</figcaption></figure>
+<figure><img src="mockups/png/direction-b-13.png" alt="v2: chữ hệ thống 200%"><figcaption>v2: chữ 200%</figcaption></figure>
+<figure><img src="mockups/png/direction-b-14.png" alt="v2: cài đặt ngưỡng nhắc hạn"><figcaption>v2: ngưỡng nhắc hạn</figcaption></figure>
+<figure><img src="mockups/png/direction-b-15.png" alt="v2: tạo nhanh báo cáo hiện trường"><figcaption>v2: báo cáo hiện trường</figcaption></figure></div></section>
+<p style="padding:16px 32px 32px;color:#4A5E68">Mockup là đề xuất thiết kế, không phải ảnh phần mềm đã dựng. Tên, mã và số liệu là dữ liệu minh họa.</p>
+</body></html>
