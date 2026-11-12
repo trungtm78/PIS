@@ -49,6 +49,6 @@ To connect a tool: host and database of the platform, the login and password sho
 ## 5. Operating notes
 
 - The database must let the privileged migration make logins; otherwise the BI commands answer `503 BI_PROVISIONING_UNAVAILABLE` and change nothing.
-- Enable `pgaudit.log = 'read'` for the group role and `log_connections` before the first BI login is given out: it is the only record of what a BI tool read.
+- The offline install bundle has the opt-in read-only database port (`install.sh --with-bi`, `docs/runbooks/infra/bi-port.md`), closed by default. When it is on, the image's pgaudit (object mode on the views of `machvon_bi`) and `log_connections` are on and the daily audit file is shipped off the host: it is the record of what a BI tool read. Do not give out the first BI login before it is on.
 - The rate limiter counts in the process: with several replicas the ceiling is multiplied by their number; the access log is the record.
 - Integration Hub: the access side is read through `AccessOverviewReads` (database) and `accessConnectionView` (kernel, connector `access.open-api`): accounts per consumer, last use, scope, rate-limit refusals, state of the credentials, expiry and revocation.
