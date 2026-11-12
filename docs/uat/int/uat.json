@@ -1,6 +1,6 @@
 {
   "feature": "int",
-  "generated_at": "2026-11-12T05:15:04.622Z",
+  "generated_at": "2026-11-12T05:18:23.669Z",
   "platform_contract": "docs/uat/_platform.json",
   "domain_pack": "docs/uat/_domain-pack.md",
   "coverage_ledger": "docs/uat/int/_coverage-ledger.md",

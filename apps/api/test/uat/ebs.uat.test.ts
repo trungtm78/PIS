@@ -110,7 +110,7 @@ describe('UAT of the reconciliation with Oracle EBS (CN.04, EBS-01, EBS-02)', ()
     const file = await door(csv(HEADER, `${code},2026-06,2026-07-02,12,24`));
     const replies = await Promise.all(Array.from({ length: 5 }, () => world.as('ebs-admin', 'POST', '/ebs/imports', { body: body(file) })));
     expect(replies.filter((reply) => reply.status === 200)).toHaveLength(1);
-    for (const reply of replies.filter((one) => one.status !== 200)) expect([409, codeOf(reply)]).toEqual([409, 'IMPORT_FILE_ALREADY_APPLIED']);
+    for (const reply of replies.filter((one) => one.status !== 200)) expect([reply.status, codeOf(reply)]).toEqual([409, 'IMPORT_FILE_ALREADY_APPLIED']);
     expect(await world.rows('select 1 from machvon.ebs_record where project_code = $1', [code])).toHaveLength(1);
   });
 

@@ -17,6 +17,8 @@ const REASON = 'Waiting for the official sample file';
 const PERSONAS = {
   'hub-admin': ['hub.read', 'hub.state.manage', 'hub.run.record', 'hub.incident.manage', 'hub.snapshot.capture', 'hub.reject.manage', 'hub.agent.manage', 'hub.agent.heartbeat'],
   'hub-proposer': ['hub.read', 'hub.mapping.propose'],
+  // Holds both rights: the separation of the two hands is the rule that stops them, not the permission gate.
+  'hub-both': ['hub.read', 'hub.mapping.propose', 'hub.mapping.approve'],
   'hub-approver': ['hub.read', 'hub.mapping.approve'],
   'hub-reader': ['hub.read'],
 };
@@ -114,17 +116,19 @@ describe('UAT of the Integration Hub (TH.03, HUB-01..HUB-03)', () => {
     assertStatus(await world.as('hub-admin', 'POST', '/integration-hub/incidents', { body: { connector_code: 'no.such', summary: 'The file arrived with another layout' } }), 404);
   });
 
-  it('UAT-HUB-SOD-01 a mapping proposed by one person is decided by another (the proposer is 403), a second decision is 409 HUB_MAPPING_STATE_INVALID, and a version cannot be proposed twice', async () => {
+  it('UAT-HUB-SOD-01 a mapping proposed by one person is decided by another: the proposer who also holds the right to approve is refused (403 SELF_APPROVAL_DENIED), one who does not is refused at the door, a second decision is 409 HUB_MAPPING_STATE_INVALID, and a version cannot be proposed twice', async () => {
     const fields = [{ source: 'code', target: 'project_code', required: true, transform: { kind: 'UPPER' } }];
     const body = { pipeline_code: 'PROJECT_CODES', mapping_version: 'M1', fields };
-    const proposed = await world.as('hub-proposer', 'POST', '/integration-hub/connectors/national.project_codes/mappings', { body });
+    const proposed = await world.as('hub-both', 'POST', '/integration-hub/connectors/national.project_codes/mappings', { body });
     assertStatus(proposed, 200);
     const mapping = proposed.json.resource_id as string;
-    assertStatus(await world.as('hub-proposer', 'POST', '/integration-hub/connectors/national.project_codes/mappings', { body }), 409, 'HUB_MAPPING_VERSION_TAKEN');
+    assertStatus(await world.as('hub-both', 'POST', '/integration-hub/connectors/national.project_codes/mappings', { body }), 409, 'HUB_MAPPING_VERSION_TAKEN');
     assertStatus(await world.as('hub-proposer', 'POST', '/integration-hub/connectors/national.project_codes/mappings', { body: { ...body, mapping_version: 'M8', fields: [] } }), 422);
     expect((await world.events(mapping, 'hub.mapping.proposed.v1'))[0]?.payload).toMatchObject({ pipeline_code: 'PROJECT_CODES', mapping_version: 'M1' });
     const path = `/integration-hub/mappings/${mapping}/decision`;
+    assertStatus(await decide('hub-both', path, 1, { decision: 'APPROVE', reason: 'The columns match the register' }), 403, 'SELF_APPROVAL_DENIED');
     assertStatus(await decide('hub-proposer', path, 1, { decision: 'APPROVE', reason: 'The columns match the register' }), 403);
+    expect((await world.rows<{ state: string }>('select state from machvon.hub_pipeline_mapping where id = $1', [mapping]))[0]?.state).toBe('PROPOSED');
     assertStatus(await decide('hub-approver', path, 1, { decision: 'APPROVE', reason: 'The columns match the register' }), 200);
     assertStatus(await decide('hub-approver', path, 2, { decision: 'REJECT', reason: 'It was approved already' }), 409, 'HUB_MAPPING_STATE_INVALID');
     expect((await world.audits(mapping, 'hub.mapping_approved'))[0]).toMatchObject({ reason: 'The columns match the register', safe_diff: { mapping_version: 'M1' } });

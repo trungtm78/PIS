@@ -1,6 +1,6 @@
 {
   "feature": "ent",
-  "generated_at": "2026-11-12T05:15:04.624Z",
+  "generated_at": "2026-11-12T05:18:23.672Z",
   "platform_contract": "docs/uat/_platform.json",
   "domain_pack": "docs/uat/_domain-pack.md",
   "coverage_ledger": "docs/uat/ent/_coverage-ledger.md",
@@ -1825,7 +1825,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Đã có kiểm khổ 360 và 390 px trong apps/web/e2e/pwa-flows.spec.ts; chưa đặt tên theo mã ca nên chưa vào kho kết quả"
+        "reason": "Đã có kiểm khổ 360 và 390 px trong apps/web/e2e/pwa-targets.spec.ts; chưa đặt tên theo mã ca nên chưa vào kho kết quả"
       },
       "module": "ENT"
     },

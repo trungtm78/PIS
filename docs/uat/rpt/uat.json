@@ -1,6 +1,6 @@
 {
   "feature": "rpt",
-  "generated_at": "2026-11-12T05:15:04.612Z",
+  "generated_at": "2026-11-12T05:18:23.657Z",
   "platform_contract": "docs/uat/_platform.json",
   "domain_pack": "docs/uat/_domain-pack.md",
   "coverage_ledger": "docs/uat/rpt/_coverage-ledger.md",
@@ -1286,7 +1286,7 @@
     },
     {
       "tc_id": "TC-UAT-RPT-DEMO-01",
-      "title": "Biểu mẫu demo của enterprise tắt cho đến khi tenant duyệt quy tắc hoặc môi trường bật, mọi nơi mang nhãn MẪU DEMO, bản phát hành không tính là đã nhận",
+      "title": "Biểu mẫu demo của enterprise: lập khi tắt là 409 TEMPLATE_UNCONFIRMED, khi bật thì mọi nơi mang nhãn MẪU DEMO, và bên nhận không được ghi là đã nhận (409 TEMPLATE_UNCONFIRMED)",
       "type": "RED",
       "platform": "api",
       "persona": "rpt-preparer",
@@ -1295,10 +1295,11 @@
       "severity_if_fail": "S1",
       "oracle_type": "Statute",
       "rule_ref": "FR-RPT-01",
-      "oracle_source": "Quy tắc R18 và màn RPT-01: biểu mẫu demo luôn hiện nhãn \"MẪU DEMO — chờ mẫu chính thức\" và chỉ lập khi bật; sổ việc phụ thuộc khách PX-01",
-      "catches_bug": "Biểu mẫu demo lập được khi chưa bật, hoặc bản phát hành demo đếm là đã nhận",
+      "oracle_source": "Quy tắc R18 và ca thiết kế UAT-RPT-003 (RPT.md): biểu mẫu demo tắt cho đến khi tenant duyệt quy tắc hoặc môi trường bật, mọi nơi mang nhãn \"MẪU DEMO — chờ mẫu chính thức\", bản phát hành trên mẫu demo không được ghi là đã nhận; sổ việc phụ thuộc khách PX-01",
+      "catches_bug": "Biểu mẫu demo lập được khi chưa bật, hoặc bản phát hành demo được ghi là đã nhận và đi vào kỳ đã nhận",
       "coverage_ids": [
-        "COV-FR-RPT-01"
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-04"
       ],
       "backend_policy": "live",
       "determinism": {
@@ -1308,8 +1309,8 @@
         "serial": false
       },
       "seeding_method": "api",
-      "steps": "Chuẩn bị: Tenant A bản enterprise; sáu biểu mẫu DEMO (HPM-MONTHLY, PVN-MONTHLY, ...); quy tắc REPORT_FORM_MODE mặc định\n1. Lập biểu mẫu HPM-MONTHLY khi demo tắt\n2. Duyệt quy tắc bật demo bằng hai người rồi lập\n3. Đọc bản nháp, bản xem trước, tệp\n4. Phát hành và đọc counts_as_accepted",
-      "expected": "Bước 1: 409 TEMPLATE_UNCONFIRMED (hoặc 404 theo cấu hình). Bước 3: mọi nơi mang nhãn MẪU DEMO — chờ mẫu chính thức; Bước 4: counts_as_accepted false.",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; sáu biểu mẫu DEMO (PVN-MONTHLY, HPM-MONTHLY, ...); quy tắc REPORT_FORM_MODE mặc định (demo tắt)\n1. Lập PVN-MONTHLY khi demo tắt\n2. Bật demo bằng quy tắc được hai người duyệt rồi lập, kiểm, duyệt và phát hành\n3. Mở tệp Excel và đọc đầu trang in và dòng đầu\n4. Giao và ghi là bên nhận đã nhận",
+      "expected": "Bước 1: 409 TEMPLATE_UNCONFIRMED. Bước 3: mọi nơi mang nhãn \"MẪU DEMO — chờ mẫu chính thức\". Bước 4: giao được ghi nhận, việc ghi đã nhận bị 409 TEMPLATE_UNCONFIRMED và counts_as_accepted false.",
       "evidence_required": [
         "trace",
         "response-bodies"
@@ -1325,7 +1326,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần bật quy tắc REPORT_FORM_MODE bằng hai người và biểu mẫu DEMO có số liệu minh họa; chưa dựng trong suite"
+        "reason": "Đã là ca thiết kế UAT-RPT-003; cần bật quy tắc REPORT_FORM_MODE bằng hai người và biểu mẫu DEMO có số liệu minh họa, suite RPT chưa dựng (kiểm bằng apps/api/test/reports/demo-forms.enterprise.test.ts)"
       },
       "module": "RPT"
     },

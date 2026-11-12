@@ -1,6 +1,6 @@
 {
   "feature": "hub",
-  "generated_at": "2026-11-12T05:15:04.620Z",
+  "generated_at": "2026-11-12T05:18:23.667Z",
   "platform_contract": "docs/uat/_platform.json",
   "domain_pack": "docs/uat/_domain-pack.md",
   "coverage_ledger": "docs/uat/hub/_coverage-ledger.md",
@@ -600,10 +600,10 @@
     },
     {
       "tc_id": "TC-UAT-HUB-SOD-01",
-      "title": "Ánh xạ do một người đề xuất và người khác quyết định: người đề xuất bị 403, quyết định lần hai 409 HUB_MAPPING_STATE_INVALID, một phiên bản không đề xuất hai lần",
+      "title": "Ánh xạ do một người đề xuất và người khác quyết định: người đề xuất dù có quyền duyệt cũng bị 403 SELF_APPROVAL_DENIED, quyết định lần hai 409 HUB_MAPPING_STATE_INVALID, một phiên bản không đề xuất hai lần",
       "type": "RED",
       "platform": "api",
-      "persona": "hub-proposer",
+      "persona": "hub-both",
       "journey_ref": "J-HUB-MAPPING-01",
       "priority": "P0",
       "severity_if_fail": "S1",
@@ -616,14 +616,14 @@
       ],
       "backend_policy": "live",
       "determinism": {
-        "auth_role": "hub-proposer",
+        "auth_role": "hub-both",
         "clock_freeze": null,
         "network_stubs": [],
         "serial": false
       },
       "seeding_method": "api",
-      "steps": "Chuẩn bị: Tenant A; người đề xuất có hub.mapping.propose, người duyệt có hub.mapping.approve\n1. Đề xuất ánh xạ M1\n2. Đề xuất lại M1 và M8 không trường\n3. Người đề xuất duyệt\n4. Người duyệt APPROVE\n5. Người duyệt REJECT sau đó",
-      "expected": "Bước 2: 409 HUB_MAPPING_VERSION_TAKEN và 422. Bước 3: 403. Bước 4: APPROVED phiên bản 2, kiểm toán hub.mapping_approved. Bước 5: 409 HUB_MAPPING_STATE_INVALID.",
+      "steps": "Chuẩn bị: Tenant A; hub-both giữ cả hub.mapping.propose và hub.mapping.approve, hub-proposer chỉ có hub.mapping.propose, người duyệt có hub.mapping.approve\n1. hub-both đề xuất ánh xạ M1\n2. Đề xuất lại M1 và M8 không trường\n3. hub-both duyệt chính ánh xạ mình đề xuất, rồi hub-proposer (không có quyền duyệt) duyệt\n4. Người duyệt APPROVE\n5. Người duyệt REJECT sau đó",
+      "expected": "Bước 2: 409 HUB_MAPPING_VERSION_TAKEN và 422. Bước 3: 403 SELF_APPROVAL_DENIED rồi 403 vì thiếu quyền, ánh xạ vẫn PROPOSED. Bước 4: APPROVED phiên bản 2, kiểm toán hub.mapping_approved. Bước 5: 409 HUB_MAPPING_STATE_INVALID.",
       "evidence_required": [
         "trace",
         "response-bodies"
@@ -1012,6 +1012,7 @@
         "allow": [
           "hub-admin",
           "hub-proposer",
+          "hub-both",
           "hub-approver",
           "hub-reader"
         ],
@@ -1072,6 +1073,7 @@
         "allow": [
           "hub-admin",
           "hub-proposer",
+          "hub-both",
           "hub-approver",
           "hub-reader"
         ],
@@ -1132,6 +1134,7 @@
         "allow": [
           "hub-admin",
           "hub-proposer",
+          "hub-both",
           "hub-approver",
           "hub-reader"
         ],
@@ -1249,6 +1252,7 @@
         "allow": [
           "hub-admin",
           "hub-proposer",
+          "hub-both",
           "hub-approver",
           "hub-reader"
         ],
@@ -1309,6 +1313,7 @@
         "allow": [
           "hub-admin",
           "hub-proposer",
+          "hub-both",
           "hub-approver",
           "hub-reader"
         ],
@@ -1426,6 +1431,7 @@
         "allow": [
           "hub-admin",
           "hub-proposer",
+          "hub-both",
           "hub-approver",
           "hub-reader"
         ],
@@ -1486,6 +1492,7 @@
         "allow": [
           "hub-admin",
           "hub-proposer",
+          "hub-both",
           "hub-approver",
           "hub-reader"
         ],
@@ -1772,7 +1779,8 @@
         "url": "/integration-hub/connectors/{code}/mappings",
         "method": "POST",
         "allow": [
-          "hub-proposer"
+          "hub-proposer",
+          "hub-both"
         ],
         "deny_status": [
           401,
@@ -1785,7 +1793,7 @@
       "title": "decideHubMapping (POST /integration-hub/mappings/{id}/decision): chỉ người giữ quyền hub.mapping.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
       "type": "PERMISSIONS",
       "platform": "api",
-      "persona": "hub-approver",
+      "persona": "hub-both",
       "journey_ref": "J-AUTHZ-01",
       "priority": "P0",
       "severity_if_fail": "S1",
@@ -1798,7 +1806,7 @@
       ],
       "backend_policy": "live",
       "determinism": {
-        "auth_role": "hub-approver",
+        "auth_role": "hub-both",
         "clock_freeze": null,
         "network_stubs": [],
         "serial": false
@@ -1829,6 +1837,7 @@
         "url": "/integration-hub/mappings/{id}/decision",
         "method": "POST",
         "allow": [
+          "hub-both",
           "hub-approver"
         ],
         "deny_status": [

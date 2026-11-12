@@ -81,6 +81,7 @@ Thêm bởi lane uatent (2026-11-12) cho tám phân hệ IND, RPT, DIR, HPM, EBS
 | ebs-reader | EBS | A | giữ ebs.read trên cả tenant |
 | hub-admin | HUB | A | giữ hub.read, hub.state.manage, hub.run.record, hub.incident.manage, hub.snapshot.capture, hub.reject.manage, hub.agent.manage, hub.agent.heartbeat trên cả tenant |
 | hub-proposer | HUB | A | giữ hub.read, hub.mapping.propose trên cả tenant |
+| hub-both | HUB | A | giữ hub.read, hub.mapping.propose, hub.mapping.approve trên cả tenant |
 | hub-approver | HUB | A | giữ hub.read, hub.mapping.approve trên cả tenant |
 | hub-reader | HUB | A | giữ hub.read trên cả tenant |
 | int-admin | INT | A | giữ int.account.read, int.account.manage, int.access.read, int.dataset.read, int.dataset.manage, int.bi.read, int.bi.manage, int.codes.read, int.codes.propose, int.codes.approve, int.system.manage trên cả tenant |

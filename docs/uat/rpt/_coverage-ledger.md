@@ -15,7 +15,7 @@ M2=0 · FP=0 · risk=HIGH
 | COV-FR-RPT-01 | FR-RPT-01 | TC-UI-RPT-01, TC-UAT-RPT-001, TC-UAT-RPT-003, TC-UAT-RPT-IDM-01, TC-UAT-RPT-EDG-01, TC-UAT-RPT-DEMO-01, TC-UAT-RPT-A11-01, TC-UAT-RPT-PX-01, TC-UAT-RPT-SEC-01, TC-UAT-RPT-SEC-03 | ✅ |
 | COV-FR-RPT-02 | FR-RPT-02 | TC-UI-RPT-02, TC-UAT-RPT-001, TC-UAT-RPT-002, TC-UAT-RPT-E2E-01, TC-UAT-RPT-STA-01, TC-UAT-RPT-SOD-01, TC-UAT-RPT-A11-01, TC-UAT-RPT-SEC-02, TC-UAT-RPT-SEC-04, TC-UAT-RPT-SEC-05, TC-UAT-RPT-SEC-06, TC-UAT-RPT-SEC-07, TC-UAT-RPT-SEC-08, TC-UAT-RPT-SEC-12 | ✅ |
 | COV-FR-RPT-03 | FR-RPT-03 | TC-UI-RPT-03, TC-UAT-RPT-001, TC-UAT-RPT-002, TC-UAT-RPT-003, TC-UAT-RPT-E2E-01, TC-UAT-RPT-IDM-01, TC-UAT-RPT-STA-02, TC-UAT-RPT-ISO-01, TC-UAT-RPT-PRF-01, TC-UAT-RPT-A11-01, TC-UAT-RPT-SEC-09, TC-UAT-RPT-SEC-10, TC-UAT-RPT-SEC-11 | ✅ |
-| COV-FR-RPT-04 | FR-RPT-04 | TC-UI-RPT-04, TC-UAT-RPT-002, TC-UAT-RPT-003, TC-UAT-RPT-IDM-02, TC-UAT-RPT-EDG-01, TC-UAT-RPT-A11-01, TC-UAT-RPT-SEC-13, TC-UAT-RPT-SEC-14 | ✅ |
+| COV-FR-RPT-04 | FR-RPT-04 | TC-UI-RPT-04, TC-UAT-RPT-002, TC-UAT-RPT-003, TC-UAT-RPT-IDM-02, TC-UAT-RPT-EDG-01, TC-UAT-RPT-DEMO-01, TC-UAT-RPT-A11-01, TC-UAT-RPT-SEC-13, TC-UAT-RPT-SEC-14 | ✅ |
 | COV-FR-RPT-05 | FR-RPT-05 | TC-UI-RPT-05, TC-UAT-PLAN-3001, TC-UAT-RPT-PX-01 | ✅ |
 | COV-FR-RPT-06 | FR-RPT-06 | TC-UI-RPT-06, TC-UAT-PLAN-3001, TC-UAT-RPT-SIG-01, TC-UAT-RPT-SEC-15, TC-UAT-RPT-SEC-16, TC-UAT-RPT-SEC-17, TC-UAT-RPT-SEC-18, TC-UAT-RPT-SEC-19 | ✅ |
 | COV-FR-RPT-07 | FR-RPT-07 | TC-UI-RPT-07, TC-UAT-PLAN-3410, TC-UAT-PLAN-3411 | ✅ |
@@ -31,7 +31,7 @@ M2=0 · FP=0 · risk=HIGH
 
 ## Ca sâu chưa có kịch bản và lý do
 
-- UAT-RPT-DEMO-01: Cần bật quy tắc REPORT_FORM_MODE bằng hai người và biểu mẫu DEMO có số liệu minh họa; chưa dựng trong suite
+- UAT-RPT-DEMO-01: Đã là ca thiết kế UAT-RPT-003; cần bật quy tắc REPORT_FORM_MODE bằng hai người và biểu mẫu DEMO có số liệu minh họa, suite RPT chưa dựng (kiểm bằng apps/api/test/reports/demo-forms.enterprise.test.ts)
 - UAT-RPT-SIG-01: Cần cổng ký số của DOC và biểu mẫu Bộ Tài chính (mẫu chính thức là PX-01); suite UAT chưa dựng cổng ký
 - UAT-RPT-RML-01: Cần việc gửi email của bản enterprise và nhà cung cấp email giả; SMTP/Teams thật chờ khách (PX-16)
 - UAT-RPT-XCK-01: Cần hai biểu mẫu enterprise cùng kỳ lệch số; đã có ở apps/api/test/reports/crosscheck.enterprise.test.ts, chưa dựng trong suite UAT

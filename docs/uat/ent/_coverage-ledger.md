@@ -35,7 +35,7 @@ M2=0 · FP=0 · risk=HIGH
 - UAT-ENT-ORG-01: Cần lô nạp (applied batch) của tệp gói; ca tích hợp đã có ở apps/api/test/editions/org-pack.enterprise.test.ts, chưa dựng trong suite UAT; danh sách 09 đầu mối thật là PX-05
 - UAT-ENT-EQP-01: Cần chuỗi kế hoạch, gói thầu, hợp đồng, thanh toán ở BID, CTR, PAY; chưa dựng trong suite; layout nhập tệp là PX-06
 - UAT-ENT-PWA-01: Cần PWA trên bản enterprise trong trình duyệt di động; có sẵn apps/web/e2e/pwa-flows.spec.ts (không đặt tên theo mã ca) nhưng chưa có ca mất mạng khi duyệt
-- UAT-ENT-PWA-02: Đã có kiểm khổ 360 và 390 px trong apps/web/e2e/pwa-flows.spec.ts; chưa đặt tên theo mã ca nên chưa vào kho kết quả
+- UAT-ENT-PWA-02: Đã có kiểm khổ 360 và 390 px trong apps/web/e2e/pwa-targets.spec.ts; chưa đặt tên theo mã ca nên chưa vào kho kết quả
 - UAT-ENT-PWA-03: Cần thiết bị hoặc giả lập đăng ký đẩy; nhà cung cấp đẩy thật là PX-11
 - UAT-ENT-NAR-01: Cần báo cáo DIS có thuyết minh nhiều kỳ; ca tích hợp đã có ở apps/api/test/dis/report-decision.test.ts
 - UAT-ENT-PRF-01: Cần bộ dữ liệu 22 dự án; đo trên phần cứng khách là PX-10

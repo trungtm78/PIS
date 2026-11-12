@@ -27263,18 +27263,19 @@
     "source": "UAT enterprise (lane uatent, 2026-11-12)",
     "type": "integration",
     "priority": "P0",
-    "setup": "Tenant A bản enterprise; sáu biểu mẫu DEMO (HPM-MONTHLY, PVN-MONTHLY, ...); quy tắc REPORT_FORM_MODE mặc định",
+    "setup": "Tenant A bản enterprise; sáu biểu mẫu DEMO (PVN-MONTHLY, HPM-MONTHLY, ...); quy tắc REPORT_FORM_MODE mặc định (demo tắt)",
     "steps": [
-      "Lập biểu mẫu HPM-MONTHLY khi demo tắt",
-      "Duyệt quy tắc bật demo bằng hai người rồi lập",
-      "Đọc bản nháp, bản xem trước, tệp",
-      "Phát hành và đọc counts_as_accepted"
+      "Lập PVN-MONTHLY khi demo tắt",
+      "Bật demo bằng quy tắc được hai người duyệt rồi lập, kiểm, duyệt và phát hành",
+      "Mở tệp Excel và đọc đầu trang in và dòng đầu",
+      "Giao và ghi là bên nhận đã nhận"
     ],
-    "expected": "Bước 1: 409 TEMPLATE_UNCONFIRMED (hoặc 404 theo cấu hình). Bước 3: mọi nơi mang nhãn MẪU DEMO — chờ mẫu chính thức; Bước 4: counts_as_accepted false.",
+    "expected": "Bước 1: 409 TEMPLATE_UNCONFIRMED. Bước 3: mọi nơi mang nhãn \"MẪU DEMO — chờ mẫu chính thức\". Bước 4: giao được ghi nhận, việc ghi đã nhận bị 409 TEMPLATE_UNCONFIRMED và counts_as_accepted false.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
-      "FR-RPT-01"
+      "FR-RPT-01",
+      "FR-RPT-04"
     ]
   },
   {
@@ -29413,15 +29414,15 @@
     "source": "UAT enterprise (lane uatent, 2026-11-12)",
     "type": "integration",
     "priority": "P0",
-    "setup": "Tenant A; người đề xuất có hub.mapping.propose, người duyệt có hub.mapping.approve",
+    "setup": "Tenant A; hub-both giữ cả hub.mapping.propose và hub.mapping.approve, hub-proposer chỉ có hub.mapping.propose, người duyệt có hub.mapping.approve",
     "steps": [
-      "Đề xuất ánh xạ M1",
+      "hub-both đề xuất ánh xạ M1",
       "Đề xuất lại M1 và M8 không trường",
-      "Người đề xuất duyệt",
+      "hub-both duyệt chính ánh xạ mình đề xuất, rồi hub-proposer (không có quyền duyệt) duyệt",
       "Người duyệt APPROVE",
       "Người duyệt REJECT sau đó"
     ],
-    "expected": "Bước 2: 409 HUB_MAPPING_VERSION_TAKEN và 422. Bước 3: 403. Bước 4: APPROVED phiên bản 2, kiểm toán hub.mapping_approved. Bước 5: 409 HUB_MAPPING_STATE_INVALID.",
+    "expected": "Bước 2: 409 HUB_MAPPING_VERSION_TAKEN và 422. Bước 3: 403 SELF_APPROVAL_DENIED rồi 403 vì thiếu quyền, ánh xạ vẫn PROPOSED. Bước 4: APPROVED phiên bản 2, kiểm toán hub.mapping_approved. Bước 5: 409 HUB_MAPPING_STATE_INVALID.",
     "status": "NOT_RUN",
     "evidence": null,
     "covers": [
