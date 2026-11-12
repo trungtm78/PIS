@@ -1,3 +1,5 @@
+import { signOffLines } from './bi-sign-off.ts';
+import type { SignOffBlock } from './bi-sign-off.ts';
 import { DomainError } from './errors.ts';
 import { message, messagesUnder } from './messages.ts';
 import type { ExportColumn, ExportDocument, ExportHeaderEntry } from './dis-export.ts';
@@ -160,6 +162,8 @@ export interface BiExportInput {
   generatedAt: Date;
   rows: ReadonlyArray<{ key: string | null; label: string | null; value: string | null; numerator: string | null; denominator: string | null; nullReason: string | null }>;
   total: { value: string | null; numerator: string | null; denominator: string | null; nullReason: string | null };
+  /** The three signatures of what the figures come from (BC.02): printed after the usual header; none when the caller has none to give. */
+  signOff?: SignOffBlock | undefined;
 }
 
 const COLUMNS = (dimensionLabel: string): readonly ExportColumn[] => [
@@ -170,6 +174,15 @@ const COLUMNS = (dimensionLabel: string): readonly ExportColumn[] => [
   { key: 'denominator', label: message('bi.export.column.denominator'), numeric: true },
   { key: 'null_reason', label: message('bi.export.column.null_reason'), numeric: false },
 ];
+
+/** The prepared, checked and approved lines of the header: the name and the day, or the word for a step nobody took. */
+const signOffHeader = (block: SignOffBlock): ExportHeaderEntry[] =>
+  signOffLines(block, {
+    prepared: message('bi.export.header.sign_prepared'),
+    checked: message('bi.export.header.sign_checked'),
+    approved: message('bi.export.header.sign_approved'),
+    none: message('bi.export.header.sign_none'),
+  }).map((line) => ({ key: `sign_${line.key}`, label: line.label, value: line.value }));
 
 /**
  * The file of an export: a header that says what the figures are (the scope the reader was given, the period, the version of the dataset, the metric by its revision, when), then the groups of the answer and the total.
@@ -183,6 +196,7 @@ export function buildBiExportDocument(input: BiExportInput): ExportDocument {
     { key: 'snapshot', label: 'Snapshot', value: input.datasetVersionId },
     ...(input.dimension === undefined ? [] : [{ key: 'dimension', label: message('bi.export.header.dimension'), value: input.dimension.label }]),
     { key: 'generated_at', label: message('bi.export.header.generated_at'), value: input.generatedAt.toISOString() },
+    ...(input.signOff === undefined ? [] : signOffHeader(input.signOff)),
   ];
   const cells = (key: string, label: string, figure: { value: string | null; numerator: string | null; denominator: string | null; nullReason: string | null }): string[] => [
     key,

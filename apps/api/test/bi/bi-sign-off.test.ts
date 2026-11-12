@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Client } from 'pg';
-import { WORKER_MEMBERSHIP_ID } from '@machvon/db';
+import { BiPublicationStore, WORKER_MEMBERSHIP_ID } from '@machvon/db';
 import { APPROVER, APPROVER_SCOPED, BiApp, DATASET, NOBODY, REQUESTER, ROOT, TENANT_A, memberId } from './bi-app';
 import type { Reply } from './bi-app';
 
@@ -174,6 +174,21 @@ describe('the check step of a publication and the three signatures of a dashboar
     await expect(sqlAs(CHECKER, "update machvon.bi_publication_request set status = 'DECIDED', decision = 'APPROVED', decided_by = checked_by, decided_at = now() where id = $1::uuid", [request])).rejects.toMatchObject({ code: '23514' });
     await decide(request, 1, APPROVER);
     await expect(sqlAs(CHECKER, 'update machvon.bi_publication_request set check_comment = $2 where id = $1::uuid', [request, 'later'])).rejects.toMatchObject({ code: '42501' });
+  });
+
+  it('gives an export the signatures of the certification of its metric: the person it is made for prepared it, the checker of the request checked it, the certifier approved it', async () => {
+    const metric = await certifiedMetric();
+    const store = new BiPublicationStore();
+    const preparer = { id: memberId(NOBODY), at: new Date('2026-11-05T01:00:00Z') };
+    const read = () => app.harness.tenants.withTenant(app.contextOf(APPROVER), (tx) => store.signOffOfMetric(tx, metric, preparer));
+    // A metric whose certification had no request has no checker; nobody is made up.
+    expect(await read()).toMatchObject({ state: 'APPROVED', complete: false, checked: null, prepared: { id: memberId(NOBODY), at: '2026-11-05T01:00:00.000Z' }, approved: { id: memberId(NOBODY) } });
+    await owner(
+      `insert into machvon.bi_publication_request (tenant_id, id, object_kind, object_id, requested_by, checks_json, decision, decided_by, decided_at, status, checked_by, checked_at, created_by, updated_by)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), 'METRIC', $1::uuid, $2::uuid, '{"checks":[]}'::jsonb, 'APPROVED', $3::uuid, now(), 'DECIDED', $4::uuid, now(), $2::uuid, $2::uuid)`,
+      [metric, memberId(REQUESTER), memberId(APPROVER), memberId(CHECKER)],
+    );
+    expect(await read()).toMatchObject({ state: 'APPROVED', complete: true, checked: { id: memberId(CHECKER) } });
   });
 
   it('shows the request in the inbox with who checked it', async () => {
