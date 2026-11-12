@@ -11898,6 +11898,115 @@
       "req": "FR-PWF-08",
       "rule": "Thứ tự nghiêm ngặt xanh > vàng > đỏ ≥ -1. Quy tắc có phiên bản, người duyệt khác người soạn."
     },
+    "PWF-09": {
+      "title": "Bộ KPI workflow",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Quản trị quy trình dự án và người duyệt quy tắc",
+      "fields": [
+        "Mã bộ và mẫu workflow áp dụng",
+        "Phép tính chọn từ danh mục kernel",
+        "Tham số phép tính và phạm vi áp dụng",
+        "Thang điểm tuyến tính hoặc bậc thang có xem trước đường quy đổi",
+        "Trọng số",
+        "Tham chiếu mã KPI_DEFINITION và RAG_THRESHOLDS"
+      ],
+      "req": "FR-PWF-09",
+      "rule": "Chỉ tham chiếu, không định nghĩa công thức lần hai. Danh mục phép tính đóng, không biểu thức tự do. Tổng trọng số dương."
+    },
+    "PWF-10": {
+      "title": "Chính sách chấm điểm",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Quản trị quy trình dự án, người duyệt quy tắc và pháp chế rà soát",
+      "fields": [
+        "Kỳ: tháng, quý hoặc năm",
+        "Hệ số vai R, A, C, I",
+        "Trọng số ưu tiên",
+        "Mẫu nhỏ: số việc và tổng trọng số tối thiểu",
+        "Dải xếp loại",
+        "Biên độ điều chỉnh và độ dài lý do tối thiểu",
+        "Cửa sổ phản hồi",
+        "Thời hạn lưu trữ"
+      ],
+      "req": "FR-PWF-10",
+      "rule": "Điểm là căn cứ hỗ trợ, không tự dẫn tới thưởng, kỷ luật hay chấm dứt hợp đồng. Giá trị mặc định chưa kiểm chứng ghi nhãn. Đánh giá tác động dữ liệu cá nhân trước khi bật."
+    },
+    "PWF-11": {
+      "title": "Bảng điểm của tôi",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "dashboard",
+      "purpose": "Đây là bảng điều hành.",
+      "audience": "Người được đánh giá",
+      "fields": [
+        "Điểm kỳ và xếp loại hoặc \"chưa đủ dữ liệu\"",
+        "Phân rã tới từng việc và dữ kiện",
+        "Nút \"i\" công thức, nguồn, phiên bản quy tắc",
+        "So sánh các kỳ",
+        "Điều chỉnh làm đổi điểm",
+        "Phản hồi và trạng thái xử lý"
+      ],
+      "req": "FR-PWF-11",
+      "rule": "Chỉ điểm của mình. Thấy mọi điều chỉnh. Phản hồi trong cửa sổ, nội dung từ 20 ký tự. Ghi \"căn cứ hỗ trợ, quyết định thuộc người có thẩm quyền\"."
+    },
+    "PWF-12": {
+      "title": "Bảng điểm đơn vị",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Quản lý trực tiếp và bộ phận nhân sự",
+      "fields": [
+        "Người được chấm",
+        "Điểm tính và điểm điều chỉnh",
+        "Xếp loại hoặc mẫu nhỏ",
+        "Số việc xếp loại và tổng trọng số",
+        "Có điều chỉnh, có phản hồi mở",
+        "Xuất Excel"
+      ],
+      "req": "FR-PWF-12",
+      "rule": "Không xếp hạng chéo giữa người có mẫu chênh nhau. Quản lý cũ mất quyền với kỳ sau khi chuyển đơn vị."
+    },
+    "PWF-13": {
+      "title": "Chi tiết điểm",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Người được đánh giá, quản lý trực tiếp và bộ phận nhân sự trong quyền",
+      "fields": [
+        "Việc đóng góp: phần của người, trọng số, điểm việc",
+        "Khoảng phân công, tỷ lệ và hệ số vai",
+        "Phép loại trừ và lý do",
+        "Cờ bất thường",
+        "Điều chỉnh đã có và đề nghị điều chỉnh"
+      ],
+      "req": "FR-PWF-13",
+      "rule": "Điều chỉnh trong biên độ, lý do tối thiểu. Người duyệt khác người đề nghị và khác người được chấm. Giữ cả điểm tính và điểm điều chỉnh."
+    },
+    "PWF-14": {
+      "title": "Kỳ chấm điểm",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Bộ phận nhân sự và người rà soát tín hiệu",
+      "fields": [
+        "Tính nháp kỳ cho đơn vị và chính sách",
+        "Chốt kỳ và mã băm ảnh chụp",
+        "Cửa sổ phản hồi",
+        "Phản hồi chờ xử lý",
+        "Chính thức hóa kỳ",
+        "Tín hiệu thao túng cho người rà soát"
+      ],
+      "req": "FR-PWF-14",
+      "rule": "Không có đường quay lại. Cờ không đổi điểm."
+    },
     "DOC-24": {
       "title": "Kho hồ sơ dự án",
       "module": "DOC",

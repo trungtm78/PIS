@@ -2629,6 +2629,28 @@
           "parents": {
             "8": 7
           }
+        },
+        {
+          "title": "KPI và chấm điểm nhân viên",
+          "description": "Bộ KPI và chính sách chấm điểm, bảng điểm của tôi và của đơn vị, chi tiết điểm, kỳ chấm điểm",
+          "ids": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "primary": [
+            9,
+            11,
+            12
+          ],
+          "parents": {
+            "10": 9,
+            "13": 12,
+            "14": 12
+          }
         }
       ]
     }
@@ -8640,6 +8662,66 @@
       "group": "Hạn ba màu",
       "role": "detail",
       "parent": "PWF-07"
+    },
+    {
+      "id": "PWF-09",
+      "title": "Bộ KPI workflow",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "KPI và chấm điểm nhân viên",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-10",
+      "title": "Chính sách chấm điểm",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "KPI và chấm điểm nhân viên",
+      "role": "detail",
+      "parent": "PWF-09"
+    },
+    {
+      "id": "PWF-11",
+      "title": "Bảng điểm của tôi",
+      "kind": "dashboard",
+      "area": "investment",
+      "module": "PWF",
+      "group": "KPI và chấm điểm nhân viên",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-12",
+      "title": "Bảng điểm đơn vị",
+      "kind": "table",
+      "area": "investment",
+      "module": "PWF",
+      "group": "KPI và chấm điểm nhân viên",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-13",
+      "title": "Chi tiết điểm",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PWF",
+      "group": "KPI và chấm điểm nhân viên",
+      "role": "detail",
+      "parent": "PWF-12"
+    },
+    {
+      "id": "PWF-14",
+      "title": "Kỳ chấm điểm",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PWF",
+      "group": "KPI và chấm điểm nhân viên",
+      "role": "detail",
+      "parent": "PWF-12"
     },
     {
       "id": "DOC-24",
