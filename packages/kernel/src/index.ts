@@ -3266,8 +3266,8 @@ export { ADMIN_MIN_HOLDERS, DECISION_PERMISSIONS, GROUP_SUFFIX, ORG_PACK_COLUMNS
 export type { OrgPack, OrgPackRowKind, OrgPackState, OrgPackVerification, PackAbsence, PackDefect, PackDelegation, PackDoa, PackEntry, PackRole, PackRow, PackSeat, PackStep, PackUnit, PlanAction, PlanItem, PlanSection, RoleKind, SeatReport, SeatScope, SeatState, UnitFunction } from './org-pack.ts';
 export { BASIS_OF, CALENDAR_ITEM_KINDS, CALENDAR_ESCALATION_EVENT, CALENDAR_REMINDER_EVENT, SCHEDULE_DUE_SOON_DAYS, REMINDER_ALERT_TYPES, SCHEDULE_REMINDER_KINDS, SCHEDULE_CODES, SCHEDULE_RULE_TYPE, SCHEDULE_STEP_KINDS, SCHEDULE_STEP_STATES, daysOverdue, entryDeadline, entryOffsetOf, isScheduleCode, meetingPeriod, reminderDue, localTimeOf, reminderEventOf, scheduleCodeOf, scheduleDefaults, scheduleDefect, schedulePeriods, schedulePolicyOf, stepDeadlines, scheduleStepState } from './reporting-schedule.ts';
 export type { CalendarItemKind, DueReminder, ScheduleReminderKind, ScheduleBasis, ScheduleCode, SchedulePeriod, SchedulePolicy, ScheduleStep, ScheduleStepKind, StepDeadline, ScheduleStepState } from './reporting-schedule.ts';
-export { buildBoard } from './reporting-board.ts';
-export type { PeriodStepFacts, ScheduleBoardResult, ScheduleBoardStep, ScheduleBoardUnit, UnitPeriodFacts } from './reporting-board.ts';
+export { buildBoard, chainStepFact } from './reporting-board.ts';
+export type { ChainStepCount, PeriodStepFacts, ScheduleBoardResult, ScheduleBoardStep, ScheduleBoardUnit, UnitPeriodFacts } from './reporting-board.ts';
 export {
   AUDIT_DETAIL_DEFAULT_BYTES,
   AUDIT_DETAIL_MAX_BYTES,

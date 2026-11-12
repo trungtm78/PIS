@@ -141,6 +141,59 @@ describe('the reporting calendar: schedule rule, periods of every kind, board fa
     ]);
   });
 
+  it('reads the review of the planning board and the push from the staged approval chain of the reports of the period, and nothing where no chain runs', async () => {
+    const [september] = await owner<{ id: string }>(`select id from machvon.reporting_period where code = 'M2027-09'`);
+    const period = (await as((tx) => calendar.period(tx, (september as { id: string }).id))) as NonNullable<Awaited<ReturnType<ReportingCalendarStore['period']>>>;
+    // No instance yet: a single decision tenant has no chain, so the platform has no fact about the two steps.
+    expect(await as((tx) => calendar.chainFacts(tx, WHOLE_TENANT, period))).toEqual({});
+
+    const reports = await owner<{ id: string; project_id: string }>(`select id, project_id from machvon.report_revision where period_id = $1 and status <> 'DRAFT' order by project_id`, [period.id]);
+    const reportOf = (project: string): string => (reports.find((report) => report.project_id === project) as { id: string }).id;
+    const definition = { steps: ['UNIT_APPROVER', 'PLANNING_REVIEW', 'PERIOD_CLOSE', 'PUSH'].map((tag) => ({ id: tag.toLowerCase(), tag })), terminal: {} };
+    const versionId = randomUUID();
+    const instance = (resource: string, status: string, outcome: string | null, step: number, endedAt: string | null): { id: string; sql: [string, unknown[]] } => {
+      const id = randomUUID();
+      return {
+        id,
+        sql: [
+          `insert into machvon.workflow_instance (tenant_id, id, workflow_version_id, resource_type, resource_id, resource_version, status, started_at, temporal_workflow_id, initiator_membership_id, initiator_user_id, document_type, unit_id, outcome, ended_at, current_step, business_type)
+           values ($1, $2::uuid, $3, 'report_revision', $4, 1, $5, '2027-10-01T01:00:00Z', $2::uuid::text, $6, $6, 'REPORT', $7, $8, $9::timestamptz, $10, 'report.accept')`,
+          [TENANT_A, id, versionId, resource, status, memberId(ACTOR), unitId(2), outcome, endedAt, step],
+        ],
+      };
+    };
+    const task = (instanceId: string, step: number, decidedAt: string | null): [string, unknown[]] => [
+      `insert into machvon.approval_task (tenant_id, id, workflow_instance_id, assignee_id, due_at, step_id, step_index, status, decision, decided_at, decided_by)
+       values ($1, gen_random_uuid(), $2, $3, '2027-10-20T00:00:00Z', 'x', $4, $5, $6, $7::timestamptz, $8)`,
+      [TENANT_A, instanceId, memberId(APPROVER), step, decidedAt === null ? 'Pending' : 'Decided', decidedAt === null ? null : 'approve', decidedAt, decidedAt === null ? null : memberId(APPROVER)],
+    ];
+    const finished = instance(reportOf(projectId(1)), 'Completed', 'APPROVED', 3, '2027-10-06T03:00:00Z');
+    const running = instance(reportOf(projectId(3)), 'Running', null, 1, null);
+    await seedReplica([
+      [
+        `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, created_by, definition_hash) values ($1, $2, 'report.accept', 1, $3::jsonb, 'Published', 'APPROVAL', $4, repeat('e', 64))`,
+        [TENANT_A, versionId, JSON.stringify(definition), memberId(ACTOR)],
+      ],
+      finished.sql,
+      task(finished.id, 1, '2027-10-04T02:00:00Z'),
+      task(finished.id, 3, '2027-10-06T03:00:00Z'),
+      running.sql,
+      task(running.id, 1, null),
+    ]);
+    // One report went through every step, the other waits at the review: the review is open and the push as well, nothing is shown done.
+    expect(await as((tx) => calendar.chainFacts(tx, WHOLE_TENANT, period))).toEqual({ planningReviewAt: null, pushedAt: null });
+    // Seen only through the project that finished, the two steps are done at the instant of the last decision.
+    const onlyFirst = (first: number) => ({ sql: `p.id = $${first}::uuid`, params: [projectId(1)] });
+    expect(await as((tx) => calendar.chainFacts(tx, onlyFirst, period))).toEqual({ planningReviewAt: '2027-10-04T02:00:00.000Z', pushedAt: '2027-10-06T03:00:00.000Z' });
+    // The second report passes the review: the review of the period is done at the later instant; the push still waits for the receipt.
+    await seedReplica([
+      [`update machvon.workflow_instance set current_step = 2 where id = $1`, [running.id]],
+      [`update machvon.approval_task set status = 'Decided', decision = 'approve', decided_at = '2027-10-07T01:00:00Z', decided_by = $2 where workflow_instance_id = $1 and step_index = 1`, [running.id, memberId(APPROVER)]],
+    ]);
+    expect(await as((tx) => calendar.chainFacts(tx, WHOLE_TENANT, period))).toEqual({ planningReviewAt: '2027-10-07T01:00:00.000Z', pushedAt: null });
+    expect(await as((tx) => calendar.chainFacts(tx, WHOLE_TENANT, period), TENANT_B)).toEqual({});
+  });
+
   it('reminds the unit that has not finished, once, then again after the deadline, and tells the leader once when it is days overdue', async () => {
     const [september] = await owner<{ id: string }>(`select id from machvon.reporting_period where code = 'M2027-09'`);
     const key = (september as { id: string }).id;
@@ -167,6 +220,19 @@ describe('the reporting calendar: schedule rule, periods of every kind, board fa
     expect(ENTRY_KINDS).toEqual(expect.arrayContaining([['dis.calendar_step.reminded.v1', 'BEFORE_DUE', 1], ['dis.calendar_step.reminded.v1', 'OVERDUE', 1], ['dis.calendar_step.escalated.v1', 'ESCALATED', 1]]));
     const rows = await owner<{ n: string }>(`select count(*)::text as n from machvon.reporting_reminder where item_key = $1 and unit_id = $2 and step = 'ENTRY'`, [key, unitId(3)]);
     expect(rows[0]?.n).toBe('0');
+  });
+
+  it('reminds the steps of the period that the approval chain keeps only while they are open, and sends nothing for a step that is done or has no fact', async () => {
+    const [september] = await owner<{ id: string }>(`select id from machvon.reporting_period where code = 'M2027-09'`);
+    const key = (september as { id: string }).id;
+    const steps = async (): Promise<Array<{ step: unknown; kind: unknown; unit: unknown }>> =>
+      (await owner<{ payload: Record<string, unknown> }>(`select payload from machvon.outbox_event where payload ->> 'item_key' = $1 and payload ->> 'step' in ('PLANNING_REVIEW', 'PUSH') order by created_at, id`, [key])).map((row) => ({ step: row.payload.step, kind: row.payload.kind, unit: row.payload.unit_id }));
+    // The review passed on the 7th (the chain test above), the push waits for its receipt: only the push is reminded, for the period and not for a unit.
+    await asWorker((tx) => runCalendarReminders(tx, TENANT_A, new Date('2027-10-14T04:00:00Z')));
+    expect(await steps()).toEqual([{ step: 'PUSH', kind: 'BEFORE_DUE', unit: undefined }]);
+    // A period with no report on a chain has no fact for either step, so there is nothing to remind however late it is.
+    const [august] = await owner<{ id: string }>(`select id from machvon.reporting_period where code = 'M2027-08'`);
+    expect(await owner(`select 1 from machvon.outbox_event where payload ->> 'item_key' = $1 and payload ->> 'step' in ('PLANNING_REVIEW', 'PUSH')`, [(august as { id: string }).id])).toEqual([]);
   });
 
   it('keeps the tenants apart', async () => {
