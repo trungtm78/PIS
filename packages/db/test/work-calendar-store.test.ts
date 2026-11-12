@@ -87,13 +87,22 @@ describe('WorkCalendarStore (ST-ADM-010)', () => {
     expect(await publishedCount()).toBe('2');
   });
 
-  it('serialises two publications at the same time: both succeed and exactly one version of the year stays Published', async () => {
+  it('serialises two publications at the same time: exactly one version of the year stays Published, and it is the newer revision', async () => {
     const first = await draft();
     const second = await draft();
-    await Promise.all([publish(first.id), publish(second.id)]);
+    const [one, two] = await Promise.allSettled([publish(first.id), publish(second.id)]);
     expect(await publishedCount()).toBe('1');
-    const statuses = await Promise.all([first, second].map(async ({ id }) => (await asA((tx) => store.find(tx, id)))?.status));
-    expect(statuses.sort()).toEqual(['Published', 'Superseded']);
+    // Which of the two reaches the lock first depends on the machine. The newer revision always ends in force. If the older one went first it is superseded by it; if it came second it is refused as stale (409 STAGE_TRANSITION_DENIED)
+    // and stays a draft: a stale revision is never published over a newer one.
+    expect(two.status).toBe('fulfilled');
+    const status = async (id: string): Promise<string | undefined> => (await asA((tx) => store.find(tx, id)))?.status;
+    expect(await status(second.id)).toBe('Published');
+    if (one.status === 'fulfilled') {
+      expect(await status(first.id)).toBe('Superseded');
+    } else {
+      expect(one.reason).toMatchObject({ code: 'STAGE_TRANSITION_DENIED', status: 409 });
+      expect(await status(first.id)).toBe('Draft');
+    }
   });
 
   it('answers 404 for a missing calendar, 409 VERSION_CONFLICT for a stale version and 409 STAGE_TRANSITION_DENIED for one already published', async () => {
