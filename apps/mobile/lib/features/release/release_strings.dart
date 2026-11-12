@@ -1,3 +1,4 @@
+import '../../core/edition/edition_brand.g.dart';
 import '../../core/l10n/string_table.dart';
 
 /// The strings of MOB-54 (maintenance and forced update) and MOB-50 (help and feedback).
@@ -8,7 +9,7 @@ const StringTable releaseStrings = StringTable(
     'mob.release.upgrade.drafts': 'Bản nháp và thay đổi chưa gửi của bạn được giữ nguyên trên máy, khóa an toàn, và sẽ gửi sau khi bạn cập nhật.',
     'mob.release.upgrade.minimum': 'Phiên bản tối thiểu: {version}',
     'mob.release.upgrade.action': 'Cập nhật ngay',
-    'mob.release.upgrade.failed': 'Chưa mở được trang cập nhật. Thử lại hoặc tìm Hệ thống quản lý đầu tư công trong cửa hàng ứng dụng.',
+    'mob.release.upgrade.failed': 'Chưa mở được trang cập nhật. Thử lại hoặc tìm $kPublicProductNameVi trong cửa hàng ứng dụng.',
     'mob.release.maintenance.title': 'Hệ thống đang bảo trì',
     'mob.release.maintenance.body': 'Dịch vụ tạm dừng để bảo trì. Bạn vẫn xem và soạn bản nháp ngoại tuyến; thay đổi sẽ gửi khi dịch vụ trở lại.',
     'mob.release.maintenance.start': 'Bắt đầu: {time}',
@@ -51,7 +52,7 @@ const StringTable releaseStrings = StringTable(
     'mob.release.upgrade.drafts': 'Your drafts and unsent changes stay on this phone, locked and safe, and are sent after you update.',
     'mob.release.upgrade.minimum': 'Minimum version: {version}',
     'mob.release.upgrade.action': 'Update now',
-    'mob.release.upgrade.failed': 'The update page could not be opened. Try again or look for the Public Investment Management System in the app store.',
+    'mob.release.upgrade.failed': 'The update page could not be opened. Try again or look for the $kPublicProductNameEn in the app store.',
     'mob.release.maintenance.title': 'The system is under maintenance',
     'mob.release.maintenance.body': 'The service is paused for maintenance. You can still read and write offline drafts; changes are sent when the service is back.',
     'mob.release.maintenance.start': 'Started: {time}',

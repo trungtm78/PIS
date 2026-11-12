@@ -44,7 +44,7 @@ class BrandHeader extends ConsumerWidget {
         const SizedBox(width: 12),
         Expanded(
           child: enterprise
-              // The enterprise edition names the product (Mạch Vốn) and says what it is, then the tagline: the logo alone does not name it.
+              // The enterprise edition names the product (its launcher name) and says what it is, then the tagline: the logo alone does not name it.
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[

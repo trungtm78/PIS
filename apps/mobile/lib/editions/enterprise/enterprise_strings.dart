@@ -1,4 +1,5 @@
 import '../../core/l10n/string_table.dart';
+import 'enterprise_brand.g.dart';
 
 /// The name of the enterprise product in Vietnamese: the title of the application and the word the overlay below says in place of the public
 /// name. `npm run edition:check` holds it equal to the product name of the manifest of `packages/edition-enterprise`.
@@ -19,6 +20,7 @@ const StringTable kEnterpriseStrings = StringTable(
     'mob.home.tile.nullReason.treasuryNone': 'Chưa ghi nhận giải ngân',
     'mob.prj.list.work.treasury': 'Đối soát số liệu đã chốt',
     'mob.release.upgrade.failed': 'Chưa mở được trang cập nhật. Thử lại hoặc tìm Phần mềm quản lý đầu tư xây dựng trong cửa hàng ứng dụng.',
+    'mob.signIn.logo.label': kEnterpriseLogoAltVi,
     'mob.signIn.unlock.reason': 'Mở khóa Phần mềm quản lý đầu tư xây dựng',
     'mob.welcome.logo.label': 'Biểu trưng Phần mềm quản lý đầu tư xây dựng',
     'mob.welcome.title.text': 'Chào mừng đến Phần mềm quản lý đầu tư xây dựng',
@@ -34,6 +36,7 @@ const StringTable kEnterpriseStrings = StringTable(
     'mob.home.tile.nullReason.treasuryNone': 'No disbursement recorded',
     'mob.prj.list.work.treasury': 'Reconciliation of the closed figures',
     'mob.release.upgrade.failed': 'The update page could not be opened. Try again or look for the Construction Investment Management Software in the app store.',
+    'mob.signIn.logo.label': kEnterpriseLogoAltEn,
     'mob.signIn.unlock.reason':
         'Unlock the Construction Investment Management Software',
     'mob.welcome.logo.label':
