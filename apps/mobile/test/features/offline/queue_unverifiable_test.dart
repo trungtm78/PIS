@@ -18,7 +18,7 @@ void main() {
       expect(rig.queue.command(refused.id)!.state, CommandState.rejected);
       expect(rig.queue.command(unverifiable.id)!.state, CommandState.rejected);
 
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       await tester.pumpAndSettle();
       expect(find.text('Gửi lại'), findsOneWidget, reason: 'only the ordinary refusal');
       expect(find.text('Bỏ'), findsNWidgets(2), reason: 'both can be dropped');

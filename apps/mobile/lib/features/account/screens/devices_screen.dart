@@ -11,7 +11,9 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../../core/state/state_card.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../notification_inbox/push_registration.dart' show pushSignOutProvider;
+import '../../read_support/widgets.dart' show ScreenFrame;
 import '../../session/auth/auth_service.dart';
 import '../../session/flow.dart';
 import '../../session/session_providers.dart';
@@ -192,13 +194,11 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
         ? flow.state
         : loaded.state;
     final DevicesView? data = view.asData?.value;
-    final ThemeData theme = Theme.of(context);
     final bool empty =
         data != null && data.sessions.isEmpty && data.devices.isEmpty;
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t('mob.devices.title.text'))),
-      body: SafeArea(
-        child: StateBoundary(
+    return ScreenFrame(
+      title: context.t('mob.devices.title.text'),
+      body: StateBoundary(
           state: state,
           problem: flow.problem ?? loaded.problem,
           onRetry: state == ScreenState.loading
@@ -207,49 +207,28 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                     ? _lastIntention!()
                     : ref.invalidate(myDevicesProvider),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(MachvonSpace.space16),
+            padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 if (_revokedMessage != null)
-                  Semantics(liveRegion: true, child: Text(_revokedMessage!)),
+                  Semantics(liveRegion: true, child: Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(_revokedMessage!))),
                 if (empty)
                   StateCardInline(
                     title: context.t('mob.devices.empty.title'),
                     body: context.t('mob.devices.empty.body'),
                   )
                 else if (data != null) ...<Widget>[
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      context.t('mob.devices.sessions.title'),
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
+                  GroupHeader(title: context.t('mob.devices.sessions.title'), count: data.sessions.length),
                   for (final SessionRow row in data.sessions)
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(row.summary.isEmpty ? row.id : row.summary),
-                      subtitle: Text(
-                        <String>[
-                          if (row.current)
-                            context.t('mob.devices.current.label'),
-                          if (row.lastSeenAt != null)
-                            context.t(
-                              'mob.devices.lastSeen.label',
-                              <String, Object>{'date': _date(row.lastSeenAt!)},
-                            ),
-                        ].join(' · '),
-                      ),
+                    WorkRow(
+                      title: row.summary.isEmpty ? row.id : row.summary,
+                      subtitle: <String>[
+                        if (row.current) context.t('mob.devices.current.label'),
+                        if (row.lastSeenAt != null) context.t('mob.devices.lastSeen.label', <String, Object>{'date': _date(row.lastSeenAt!)}),
+                      ].join(' · '),
                     ),
-                  const SizedBox(height: MachvonSpace.space16),
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      context.t('mob.devices.devices.title'),
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
+                  GroupHeader(title: context.t('mob.devices.devices.title'), count: data.devices.length),
                   for (final DeviceRow device in data.devices)
                     _DeviceTile(
                       device: device,
@@ -261,15 +240,17 @@ class _DevicesScreenState extends ConsumerState<DevicesScreen> {
                     ),
                 ],
                 const SizedBox(height: MachvonSpace.space24),
-                FilledButton.tonal(
-                  onPressed: _signOut,
-                  child: Text(context.t('mob.devices.signOut.action')),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
+                  child: FilledButton.tonal(
+                    onPressed: _signOut,
+                    child: Text(context.t('mob.devices.signOut.action')),
+                  ),
                 ),
               ],
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -296,25 +277,14 @@ class _DeviceTile extends StatelessWidget {
     final String id = device.publicId.length > 8
         ? '…${device.publicId.substring(device.publicId.length - 8)}'
         : device.publicId;
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text('${device.platform} $id'),
-      subtitle: Text(
-        <String>[
-          if (thisPhone) context.t('mob.devices.thisDevice.label'),
-          if (device.revoked) context.t('mob.devices.revoked.label'),
-          if (device.lastSeenAt != null)
-            context.t('mob.devices.lastSeen.label', <String, Object>{
-              'date': _DevicesScreenState._date(device.lastSeenAt!),
-            }),
-        ].join(' · '),
-      ),
-      trailing: device.revoked
-          ? null
-          : OutlinedButton(
-              onPressed: onRevoke,
-              child: Text(context.t('mob.devices.revoke.action')),
-            ),
+    return WorkRow(
+      title: '${device.platform} $id',
+      subtitle: <String>[
+        if (thisPhone) context.t('mob.devices.thisDevice.label'),
+        if (device.revoked) context.t('mob.devices.revoked.label'),
+        if (device.lastSeenAt != null) context.t('mob.devices.lastSeen.label', <String, Object>{'date': _DevicesScreenState._date(device.lastSeenAt!)}),
+      ].join(' · '),
+      trailing: device.revoked ? null : OutlinedButton(onPressed: onRevoke, child: Text(context.t('mob.devices.revoke.action'))),
     );
   }
 }

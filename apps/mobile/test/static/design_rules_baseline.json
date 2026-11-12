@@ -1,34 +1,19 @@
 {
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
-    "AppBar(": 17,
-    "BoxDecoration(": 14,
-    "Card(": 23,
-    "Colors.": 3,
-    "EdgeInsets-number": 29,
-    "MachvonColors.": 85,
-    "Scaffold(": 26,
-    "TextStyle(": 15,
-    "fontSize:": 1,
-    "toStringAsFixed(": 9
+    "AppBar(": 13,
+    "BoxDecoration(": 7,
+    "Card(": 16,
+    "Colors.": 2,
+    "EdgeInsets-number": 24,
+    "MachvonColors.": 44,
+    "Scaffold(": 22,
+    "TextStyle(": 12,
+    "toStringAsFixed(": 7
   },
   "files": {
     "lib/editions/enterprise/enterprise_home.dart": {
       "EdgeInsets-number": 1
-    },
-    "lib/features/account/screens/account_screen.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/account/screens/devices_screen.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/account/screens/tenant_switch_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 2,
-      "Scaffold(": 1,
-      "TextStyle(": 2
     },
     "lib/features/ai_review/ai_support.dart": {
       "Card(": 1,
@@ -73,38 +58,6 @@
       "Card(": 1,
       "MachvonColors.": 1
     },
-    "lib/features/dashboard/screens/leader_home_screen.dart": {
-      "BoxDecoration(": 1,
-      "Card(": 1,
-      "EdgeInsets-number": 2,
-      "MachvonColors.": 3,
-      "fontSize:": 1,
-      "toStringAsFixed(": 1
-    },
-    "lib/features/dashboard/widgets/alert_card.dart": {
-      "BoxDecoration(": 2,
-      "Card(": 1,
-      "MachvonColors.": 21
-    },
-    "lib/features/dashboard/widgets/alert_list.dart": {
-      "BoxDecoration(": 2,
-      "Card(": 1,
-      "EdgeInsets-number": 1,
-      "MachvonColors.": 7
-    },
-    "lib/features/dashboard/widgets/alert_sheets.dart": {
-      "EdgeInsets-number": 2,
-      "MachvonColors.": 5
-    },
-    "lib/features/dashboard/widgets/committee_card.dart": {
-      "MachvonColors.": 1,
-      "TextStyle(": 1
-    },
-    "lib/features/dashboard/widgets/rag_card.dart": {
-      "BoxDecoration(": 1,
-      "MachvonColors.": 1,
-      "toStringAsFixed(": 1
-    },
     "lib/features/diary_hub/screens/hub_screen.dart": {
       "AppBar(": 1,
       "Card(": 1,
@@ -133,9 +86,6 @@
     },
     "lib/features/foundation/screens/error_state_screen.dart": {
       "Scaffold(": 1
-    },
-    "lib/features/notification_inbox/screens/notification_preferences_screen.dart": {
-      "Card(": 1
     },
     "lib/features/offline/screens/conflict_screen.dart": {
       "AppBar(": 1,
@@ -196,16 +146,6 @@
     },
     "lib/features/procurement_workflow/widgets.dart": {
       "MachvonColors.": 3
-    },
-    "lib/features/project_views/screens/project_list_screen.dart": {
-      "Colors.": 1
-    },
-    "lib/features/read_support/widgets.dart": {
-      "AppBar(": 1,
-      "BoxDecoration(": 1,
-      "Card(": 1,
-      "MachvonColors.": 3,
-      "Scaffold(": 1
     },
     "lib/features/release/screens/help_screen.dart": {
       "AppBar(": 1,

@@ -2,35 +2,66 @@ import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/l10n/app_strings.dart';
-import '../../core/theme/app_theme.dart';
+import '../../core/theme/typography.dart';
+import '../../core/widgets/app_scaffold.dart';
 import '../../core/widgets/kpi_tile.dart';
+import '../../core/widgets/section_panel.dart';
+import '../../core/widgets/tap_target.dart';
 
 export '../../core/theme/machvon_semantic.dart' show MachvonTone;
 export '../../core/widgets/kpi_tile.dart';
 export '../../core/widgets/status_pill.dart';
 
-/// The frame of a screen that reads: a title bar (with the back button when the screen was opened from another) and the
-/// body under it.
+/// The frame of a screen that reads: the slim top bar (with the back button when the screen was opened from another), the large title of
+/// a tab root, an optional line of context and the body under them. It is the one frame of the screens of `lib/features`
+/// (`AppScaffold`), so every screen has the same bar.
+///
+/// A tab root passes [root] so its [title] is drawn large; a child screen has the small title in the bar.
 class ScreenFrame extends StatelessWidget {
-  const ScreenFrame({required this.title, required this.body, this.actions = const <Widget>[], super.key});
+  const ScreenFrame({
+    required this.title,
+    required this.body,
+    this.actions = const <Widget>[],
+    this.root = false,
+    this.subtitle,
+    this.contextLine,
+    this.bottomBar,
+    this.floatingAction,
+    super.key,
+  });
 
   final String title;
   final Widget body;
   final List<Widget> actions;
 
+  /// The screen is the root of a tab: the title is large and there is no back button.
+  final bool root;
+  final String? subtitle;
+
+  /// The line of context under the titles (see `ContextLine`).
+  final Widget? contextLine;
+  final Widget? bottomBar;
+  final Widget? floatingAction;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title), actions: actions),
+    return AppScaffold(
+      title: root ? null : title,
+      largeTitle: root ? title : null,
+      subtitle: subtitle,
+      actions: actions,
+      contextLine: contextLine,
+      bottomBar: bottomBar,
+      floatingAction: floatingAction,
+      showBack: root ? false : null,
       body: body,
     );
   }
 }
 
-/// A titled block of a screen. The title is a heading for a screen reader, so the blocks can be walked through by heading.
-///
-/// With [uppercase] the title is the 12 px section label of the design (uppercase, spaced); with [unit] an "Unit: ..." chip sits
-/// at the end of the title line, for the blocks that hold money. The title line wraps at a large text scale.
+/// A titled block of a screen. The title is a heading for a screen reader, so the blocks can be walked through by heading. With [unit] an
+/// "Unit: ..." chip sits at the end of the title line, for the blocks that hold money. It is a [SectionPanel]: a heading and a hairline, not
+/// a box.
 class SectionCard extends StatelessWidget {
   const SectionCard({required this.title, required this.children, this.semanticLabel, this.unit, this.uppercase = false, super.key});
 
@@ -43,46 +74,16 @@ class SectionCard extends StatelessWidget {
   /// The unit of the figures in the block ("billion dong"); shown as the chip "Unit: billion dong".
   final String? unit;
 
-  /// Draws the title as the uppercase section label instead of a sentence-case heading.
+  /// Kept for the callers that asked for the uppercase label of the first design; the heading of the phone design is sentence case.
   final bool uppercase;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Widget heading = Semantics(
-      header: true,
-      child: uppercase
-          ? Text(title.toUpperCase(), style: theme.textTheme.labelMedium?.copyWith(color: MachvonColors.textSecondary, letterSpacing: 0.72))
-          : Text(title, style: theme.textTheme.titleMedium),
-    );
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Semantics(
-          container: true,
-          label: semanticLabel,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              if (unit == null)
-                heading
-              else
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Flexible(child: heading),
-                    const SizedBox(width: MachvonSpace.space8),
-                    Flexible(child: UnitChip(unit: unit!)),
-                  ],
-                ),
-              const SizedBox(height: MachvonSpace.space8),
-              ...children,
-            ],
-          ),
-        ),
-      ),
+    return SectionPanel(
+      title: title,
+      semanticLabel: semanticLabel,
+      trailing: unit == null ? null : UnitChip(unit: unit!),
+      children: children,
     );
   }
 }
@@ -141,18 +142,7 @@ class UnitChip extends StatelessWidget {
   final String unit;
 
   @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: MachvonColors.surface2,
-        borderRadius: BorderRadius.all(Radius.circular(MachvonRadius.pill)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space8, vertical: MachvonSpace.space4),
-        child: Text(context.t('mob.unit.chip.label', <String, Object>{'unit': unit}), style: Theme.of(context).textTheme.labelMedium?.copyWith(color: MachvonColors.textSecondary)),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => NoteChip(label: context.t('mob.unit.chip.label', <String, Object>{'unit': unit}));
 }
 
 /// A label and its value on one line that wraps (no overflow at a large text scale); a screen reader says them together.
@@ -164,15 +154,15 @@ class FactLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4),
       child: MergeSemantics(
         child: Wrap(
-          spacing: MachvonSpace.space8,
+          spacing: MachvonV2Space.s8,
           children: <Widget>[
-            Text('$label:', style: theme.textTheme.bodySmall),
-            Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, fontFeatures: kTabularFigures)),
+            Text('$label:', style: text.caption),
+            Text(value, style: text.bodyStrong),
           ],
         ),
       ),
@@ -190,19 +180,14 @@ class TappableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: onTap != null,
-      label: semanticLabel,
-      excludeSemantics: true,
-      child: InkWell(
-        onTap: onTap,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 48),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-            child: child,
-          ),
-        ),
+    return TapTarget(
+      onTap: onTap,
+      semanticLabel: semanticLabel,
+      radius: 0,
+      minHeight: MachvonV2Size.rowMinHeight,
+      child: SizedBox(
+        width: double.infinity,
+        child: Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8), child: child),
       ),
     );
   }

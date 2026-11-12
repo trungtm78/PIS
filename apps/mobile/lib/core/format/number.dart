@@ -11,6 +11,16 @@ String formatNumber(Object? value, String language, {bool signed = false}) {
   return signed && !amount.isNegative && !amount.isZero ? '+$text' : text;
 }
 
+/// A measured number (a score, a threshold) with at most [maxDecimals] decimals and no trailing zeros, in the decimal mark of [language]:
+/// `12,5`, `14`. A figure the server gave as text goes through [formatNumber] or [formatPercent] and keeps its digits.
+String formatMeasure(double value, String language, {int maxDecimals = 2}) {
+  String text = value.toStringAsFixed(maxDecimals);
+  if (text.contains('.')) {
+    text = text.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
+  }
+  return language == 'en' ? text : text.replaceAll('.', ',');
+}
+
 /// A percent given by the server (`14.0000`) in the decimal mark of the language, kept to the digits it came with.
 String formatPercent(String value, String language) {
   if (!RegExp(r'^-?[0-9]+(\.[0-9]+)?$').hasMatch(value)) return value;

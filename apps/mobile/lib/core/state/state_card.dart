@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../theme/colors.dart';
 import '../theme/machvon_semantic.dart';
-import '../widgets/skeleton.dart';
+import '../theme/typography.dart';
+import '../widgets/work_row.dart';
 
 /// The card every message state is drawn on: an icon, a title, a body and what the state offers to do. It scrolls, so a
 /// large text scale or a small screen never overflows, and its message is one live region, so TalkBack and VoiceOver
@@ -39,10 +41,15 @@ class StateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final MachvonSemantic semantic = context.semantic;
-    final Color circle = tone == null ? theme.colorScheme.primaryContainer : semantic.soft(tone!);
-    final Color glyph = tone == null ? theme.colorScheme.primary : semantic.strong(tone!);
+    final MachvonV2Palette p = context.v2.palette;
+    final MachvonV2Text text = context.v2text;
+    final (Color circle, Color glyph) = switch (tone) {
+      null => (p.primarySoft, p.primaryStrong),
+      MachvonTone.success => (p.okBg, p.okFg),
+      MachvonTone.warning => (p.soonBg, p.soonFg),
+      MachvonTone.danger => (p.lateBg, p.lateFg),
+      MachvonTone.info || MachvonTone.neutral => (p.infoBg, p.infoFg),
+    };
     final Widget content = Padding(
       padding: const EdgeInsets.all(MachvonSpace.space24),
       child: Column(
@@ -69,9 +76,9 @@ class StateCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Text(title, textAlign: TextAlign.center, style: theme.textTheme.headlineSmall),
+                Text(title, textAlign: TextAlign.center, style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap)),
                 const SizedBox(height: MachvonSpace.space8),
-                Text(body, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+                Text(body, textAlign: TextAlign.center, style: text.body.copyWith(color: p.ink2)),
                 for (final Widget detail in details) ...<Widget>[const SizedBox(height: MachvonSpace.space12), detail],
               ],
             ),
@@ -91,16 +98,13 @@ class StateCard extends StatelessWidget {
   }
 }
 
-/// The skeleton of a loading screen: seven grey bars (a tall one for the lead figure, then the rows), announced once as "loading"
-/// and not animated, so that a reduced-motion setting needs no special case. It never shows a 0 or any other figure.
+/// The skeleton of a loading screen: seven rows in the shape of a list row (a glyph, two lines, a label), announced once as "loading" and
+/// not animated, so that a reduced-motion setting needs no special case. It never shows a 0 or any other figure.
 class LoadingView extends StatelessWidget {
   const LoadingView({required this.label, super.key});
 
   final String label;
   static const int rows = 7;
-
-  // The widths of the bars as a share of the line, so the skeleton looks like text and not like a table of equal bars.
-  static const List<double> _widths = <double>[1, 0.6, 1, 0.85, 1, 0.7, 0.9];
 
   @override
   Widget build(BuildContext context) {
@@ -111,18 +115,8 @@ class LoadingView extends StatelessWidget {
       child: ExcludeSemantics(
         child: ListView(
           physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(MachvonSpace.space16),
-          children: <Widget>[
-            for (int row = 0; row < rows; row += 1)
-              Padding(
-                padding: const EdgeInsets.only(bottom: MachvonSpace.space12),
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: _widths[row],
-                  child: SkeletonBar(height: row == 0 ? MachvonSpace.space48 + MachvonSpace.space32 : MachvonSpace.space24),
-                ),
-              ),
-          ],
+          padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
+          children: <Widget>[for (int row = 0; row < rows; row += 1) const WorkRowSkeleton()],
         ),
       ),
     );

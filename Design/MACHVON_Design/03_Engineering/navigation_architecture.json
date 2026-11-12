@@ -9747,22 +9747,22 @@
       "id": "MOB-41",
       "title": "Danh sách đồng bộ",
       "kind": "table",
-      "bottomNavigation": "projects",
-      "tabRoot": "MOB-09"
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
     },
     {
       "id": "MOB-42",
       "title": "Xử lý xung đột",
       "kind": "compare",
-      "bottomNavigation": "projects",
-      "tabRoot": "MOB-09"
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
     },
     {
       "id": "MOB-43",
       "title": "Mất kết nối",
       "kind": "offline",
-      "bottomNavigation": "projects",
-      "tabRoot": "MOB-09"
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
     },
     {
       "id": "MOB-44",
