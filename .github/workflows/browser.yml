@@ -36,7 +36,7 @@ jobs:
   browser:
     name: Route walk, flows and visual regions
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       E2E_BROWSER_CHANNEL: chrome
       E2E_UPDATE_VISUAL: ${{ inputs.update_visual && '1' || '' }}

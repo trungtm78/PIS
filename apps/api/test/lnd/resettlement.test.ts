@@ -385,7 +385,7 @@ describe('the allocation of resettlement to the households (ST-LND-012, UAT-PLAN
     await expect(rows("update machvon.resettlement_allocation set unit_code = 'OTHER' where id = $1::uuid", [id])).rejects.toThrow(/do not change/);
     await expect(rows("update machvon.resettlement_allocation set household_id = $2::uuid where id = $1::uuid", [id, (await target()).householdId])).rejects.toThrow(/do not change/);
     await expect(rows("update machvon.resettlement_allocation set unit_code = ' padded ' where id = $1::uuid", [id])).rejects.toThrow();
-    await rows("update machvon.resettlement_allocation set status = 'HANDED_OVER', handed_on = current_date where id = $1::uuid", [id]);
+    await rows("update machvon.resettlement_allocation set status = 'HANDED_OVER', handed_on = $2::date where id = $1::uuid", [id, TODAY]);
     await expect(rows("update machvon.resettlement_allocation set status = 'ALLOCATED' where id = $1::uuid", [id])).rejects.toThrow(/final/);
     const asApplication = (sql: string): Promise<string> =>
       harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: memberId(ALLOCATOR), scopeVersion: 0 }, (tx) => tx.query(sql)).then(
