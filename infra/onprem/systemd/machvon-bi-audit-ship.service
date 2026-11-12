@@ -1,0 +1,11 @@
+[Unit]
+Description=MACHVON shipping of the audit log of the read-only BI port
+Requires=docker.service
+After=docker.service
+# Only when the BI port is on (install.sh --with-bi enables the timer); a failure leaves the files on the host and shows in systemctl status.
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /opt/machvon/current/infra/onprem/config/bi-audit-ship.sh --env-file /etc/machvon/compose.env
+TimeoutStartSec=1h
+Nice=10

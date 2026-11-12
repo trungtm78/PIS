@@ -489,7 +489,7 @@ async function loadK6Lib(environment) {
 }
 
 test('the k6 library builds the same URLs as the node runner and leaves out an operation whose variable is missing', async () => {
-  const vars = { projectId: 'p-1', isoWeek: '2026-W42', reportDraftId: 'd-1', reportIssueId: 'i-1', reportExportId: 'e-1', mneReportId: 'm-1', evaluationReportId: 'v-1', allocationLineId: 'l-1', enterpriseSnapshotId: 's-1' };
+  const vars = { projectId: 'p-1', isoWeek: '2026-W42', reportDraftId: 'd-1', reportIssueId: 'i-1', reportExportId: 'e-1', mneReportId: 'm-1', evaluationReportId: 'v-1', allocationLineId: 'l-1', enterpriseSnapshotId: 's-1', enterprisePeriodId: 'q-1', periodYear: '2026', periodMonth: '10' };
   const { api } = await loadK6Lib({ BASE_URL: 'https://h/v1/', TOKEN: 't', VARS: JSON.stringify(vars) });
   assert.equal(api.operations.length, committed.operations.length);
   for (const item of api.operations) {

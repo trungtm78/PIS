@@ -119,3 +119,53 @@ FROM r
 WHERE from_revision IS NOT NULL
   AND (active_value_vnd <> from_active_value_vnd OR paid_vnd <> from_paid_vnd)
 ORDER BY period_id, contract_id;
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- Enterprise tenants (INT-2): the dataset DS-ENT, the frozen enterprise period snapshot (kind ENTERPRISE_CLOSE). Run query 12 first:
+-- the dataset is closed until the tenant switches it on in INT-04 and its data product is CERTIFIED; a closed dataset returns no rows.
+-- The views show the snapshot in force of each period (a snapshot replaced by a later revision is not shown), so periods never double count.
+-- Figures are CUMULATIVE per period: take one period at a time. A rate is made from summed amounts and is NULL (never 0) when its plan is not positive.
+-- ---------------------------------------------------------------------------------------------------------------------------------
+
+-- 12. What this login may read of DS-ENT now, and why not
+SELECT dataset_code, view_name, grain, is_open, reason, certified_until
+FROM machvon_bi.v_enterprise_dataset_catalogue
+ORDER BY view_name;
+
+-- 13. The enterprise periods that have a frozen snapshot (the grain, the plan year and the month, quarter or year the snapshot closes)
+SELECT period_id, snapshot_id, revision, as_of_date, period_grain, plan_year, period_ordinal, count(*) AS cell_count
+FROM machvon_bi.v_enterprise_plan_actual
+GROUP BY period_id, snapshot_id, revision, as_of_date, period_grain, plan_year, period_ordinal
+ORDER BY as_of_date DESC;
+
+-- 14. Source for the table FactEnterprise of the enterprise model (Import mode): plan against actual by project, class, tier and measure
+SELECT snapshot_id, period_id, project_id, unit_id, class_code, tier_code, measure,
+       plan_in_force_vnd, plan_to_date_vnd, actual_vnd, cumulative_ytd_vnd
+FROM machvon_bi.v_enterprise_plan_actual;
+
+-- 15. The whole corporation and each unit in the latest period, with the rates made from the sums (metrics ent_rate_in_force and ent_rate_to_date)
+SELECT level, unit_id, measure, project_count, plan_in_force_vnd, plan_to_date_vnd, cumulative_ytd_vnd, rate_in_force_pct, rate_to_date_pct
+FROM machvon_bi.v_enterprise_by_unit
+WHERE period_id = (SELECT period_id FROM machvon_bi.v_enterprise_by_unit ORDER BY as_of_date DESC LIMIT 1)
+ORDER BY level DESC, unit_id, measure;
+
+-- 16. Funding split by project in the latest period: equity, loan and other funds side by side, with the share of each in the cumulative
+SELECT project_id, unit_id, measure, cumulative_ytd_equity_vnd, cumulative_ytd_loan_vnd, cumulative_ytd_other_vnd, cumulative_ytd_total_vnd, equity_share_pct, loan_share_pct
+FROM machvon_bi.v_enterprise_funding_split
+WHERE period_id = (SELECT period_id FROM machvon_bi.v_enterprise_funding_split ORDER BY as_of_date DESC LIMIT 1)
+ORDER BY unit_id, project_id, measure;
+
+-- 17. Why a figure is missing: the figures of the long format with no amount and their reason (NO_DATA, ZERO_DENOMINATOR, ESTIMATE_GAP)
+SELECT period_id, figure_kind, null_reason, count(*) AS figure_count
+FROM machvon_bi.v_enterprise_figures
+WHERE amount_vnd IS NULL
+GROUP BY period_id, figure_kind, null_reason
+ORDER BY period_id, figure_kind;
+
+-- 18. Reconciliation of a Lakehouse copy of DS-ENT: one row per period (the key of the load is period_id; revision tells a re-closed period)
+SELECT period_id, revision, as_of_date, measure, count(*) AS figure_count,
+       sum(amount_vnd) FILTER (WHERE figure_kind = 'CUMULATIVE_YTD' AND class_code <> 'TOTAL') AS cumulative_ytd_vnd,
+       sum(amount_vnd) FILTER (WHERE figure_kind = 'PLAN_IN_FORCE'  AND class_code <> 'TOTAL') AS plan_in_force_vnd
+FROM machvon_bi.v_enterprise_figures
+GROUP BY period_id, revision, as_of_date, measure
+ORDER BY as_of_date, measure;

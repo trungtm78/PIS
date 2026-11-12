@@ -38143,6 +38143,7 @@
   "mdm.value.reportUnitKind.count": "Số đếm",
   "mdm.value.reportUnitKind.area": "Diện tích",
   "mdm.value.reportUnitKind.other": "Khác",
+  "int.bi.dataset.name.enterprise": "Số liệu kỳ doanh nghiệp đã chốt",
   "bi.metric.ctrContractCount.name": "Số hợp đồng đang thực hiện",
   "bi.metric.ctrPortfolioValue.name": "Tổng giá trị danh mục hợp đồng",
   "bi.metric.ctrOriginalValue.name": "Giá trị hợp đồng ban đầu",

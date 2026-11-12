@@ -54,6 +54,17 @@ Follow the verification steps of `malware-scan.md` (EICAR refused, ordinary PDF 
 - [ ] ZAP baseline and API scan (`dast.yml` rules) run against the lab URL; no new high finding.
 - [ ] The independent penetration test is scheduled with the pack `pentest-readiness.md` and the catalogue `ransomware-scenarios.md` (outside this checklist).
 
+## G2. The read-only BI port (opt-in, INT-2)
+
+Only when the customer wants the port on this host (`bi-port.md`); with `MACHVON_BI=off` the first item is the whole check.
+
+- [ ] Port closed by default: after a normal install `docker compose ps db` shows no published port and `ss -ltn` shows nothing on `BI_PORT`.
+- [ ] `docker run --rm machvon/db:<version> sh -c "ls /usr/lib/postgresql/18/lib/pgaudit.so"` finds the library, and `show shared_preload_libraries` in the running database says `pgaudit`.
+- [ ] With the settings filled in: `bi-render.sh --check`, `bi-firewall.sh` (read the printed rules), `bi-firewall.sh --apply`, then `install.sh --with-bi`; the database starts with `compose.bi.yaml` (`docker compose ... config` shows one published port on the named address only).
+- [ ] From an allowed host with a BI login: `sslmode=verify-full` connects and `machvon_bi.v_dataset_catalogue` answers; `sslmode=disable` is rejected; `user=machvon_app` is rejected; a host that is not allowed times out; the connection limit of the login and of the source are enforced.
+- [ ] The audit file `db-YYYY-MM-DD.log` in the volume `machvon_dbaudit` holds an `AUDIT: OBJECT ... machvon_bi.v_...` line for the read, the connection lines and a failed login; `bi-audit-ship.sh` (after midnight UTC) delivers the file to the sink and writes the ledger entry.
+- [ ] Switch off (`bi-port.md`): the database is recreated without the port and the firewall chain is removed.
+
 ## H. Sign-off
 
 Names of the operator and the witness, date, release version, host sizing used (compare with `sizing-uat-prod.md`).

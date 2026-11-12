@@ -294829,7 +294829,8 @@
             "type": "string",
             "enum": [
               "DS-DISB",
-              "DS-CTR"
+              "DS-CTR",
+              "DS-ENT"
             ]
           },
           "enabled": {

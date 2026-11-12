@@ -123,7 +123,7 @@ Mã màn hình theo `Design/MACHVON_Design/03_Engineering/screen_catalog.json`, 
 | DL.02 | IND-01, IND-02, IND-03 | `listIndicators`, `evaluateIndicatorEntry`, `previewIndicatorImport`, `importIndicatorFile` | Từ điển và quy tắc chính thức (PX-02) |
 | DL.03 | DIS-21, DIS-22, DIS-32, DIS-33 | `buildEnterpriseSnapshot`, `freezeEnterpriseSnapshot`, `getEnterpriseSnapshot`, `getEnterpriseSnapshotReadiness` | Phạm vi dữ liệu lịch sử (PX-08) |
 | QT.01 | ADM-06, ADM-15, ADM-18, DIS-06 | `submitFundingFigures`, `returnFundingFigures`, `enterIndicatorFigures`, `recordHpmReceipt` | Người giữ vai trò (PX-05); giao diện HPM thật cho bước PUSH (PX-03) |
-| QT.02 | DIS-34, ADM-31, DIS-15, DIS-21, DIS-22 | `getReportingCalendar`, `getReportingCalendarBoard`, `requestPeriodReopen`, `decidePeriodReopen` | Hạn chính thức (D03); DIS-34 chưa theo dõi bước Ban KHĐT rà soát và bước đẩy HPM; email, Teams thật (PX-16) |
+| QT.02 | DIS-34, ADM-31, DIS-15, DIS-21, DIS-22 | `getReportingCalendar`, `getReportingCalendarBoard`, `requestPeriodReopen`, `decidePeriodReopen` | Hạn chính thức (D03); DIS-34 lấy dữ kiện bước Ban KHĐT rà soát và bước đẩy HPM từ quy trình duyệt theo tầng, chưa theo dõi khi chưa có hồ sơ chạy quy trình đó; email, Teams thật (PX-16) |
 | CN.01 | CAP-03, CAP-05, CAP-06, HOME-07 | thao tác của CAP | Văn bản căn cứ thật của kế hoạch 2026 do Ban KHĐT cung cấp |
 | CN.02 | DIS-35, EQP-01, EQP-02 | `inheritReportNarrative`, `listEquipmentProcurement`, `getEquipmentProcurement` | Nối eProcurement (PX-06) |
 | CN.03 | DIR-01 đến DIR-06, PWA-04, HOME-09, BAN-01 | `getDirectivesForReport`, `getBlockedProjects`, `getDirectiveWidget` | Định nghĩa "vướng thủ tục" do Ban KHĐT xác nhận |

@@ -1,6 +1,7 @@
 import { DomainError } from './errors.ts';
 import { hasControlChar } from './control-chars.ts';
 import { egpReasonOf } from './egp-connection.ts';
+import type { Edition } from './edition.ts';
 
 /**
  * INT-1, the open interface of the platform: machine accounts with client credentials, the scopes they hold, the rate limit they live under, the datasets that are certified for external readers and the login
@@ -58,6 +59,87 @@ export const OPEN_DATASET_DEFINITIONS: Readonly<Record<OpenDatasetCode, OpenData
 };
 
 export const isOpenDataset = (value: unknown): value is OpenDatasetCode => typeof value === 'string' && (OPEN_DATASETS as readonly string[]).includes(value);
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// The datasets of the enterprise edition (INT-2).
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * The certified datasets only the enterprise edition lets out, and only to BI logins (Power BI, Lakehouse): there is no open API scope for them. `DS-ENT` is the frozen enterprise period snapshot (kind
+ * ENTERPRISE_CLOSE, ENT-3a), which the two datasets above never read. A public process does not offer them (`biDatasetsOfEdition`), so a public tenant cannot switch one on and the lists a public screen shows are
+ * what they always were.
+ */
+export const ENTERPRISE_BI_DATASETS = ['DS-ENT'] as const;
+export type EnterpriseBiDatasetCode = (typeof ENTERPRISE_BI_DATASETS)[number];
+/** Every dataset a tenant may switch on for external readers, of any edition. */
+export type BiDatasetCode = OpenDatasetCode | EnterpriseBiDatasetCode;
+
+/** One certified view of the BI reader schema. */
+export interface BiView {
+  view: string;
+  grain: string;
+  columns: readonly string[];
+}
+
+export interface EnterpriseBiDatasetDefinition {
+  code: EnterpriseBiDatasetCode;
+  /** The views the BI login reads, in the schema `machvon_bi`; the first one is the base the others are made from. */
+  views: readonly BiView[];
+}
+
+const ENTERPRISE_PERIOD_COLUMNS = ['tenant_id', 'snapshot_id', 'period_id', 'revision', 'as_of_date'] as const;
+
+/** The certified views of the enterprise dataset DS-ENT; the test of the database pins these columns to the views. */
+export const ENTERPRISE_BI_DATASET_DEFINITIONS: Readonly<Record<EnterpriseBiDatasetCode, EnterpriseBiDatasetDefinition>> = {
+  'DS-ENT': {
+    code: 'DS-ENT',
+    views: [
+      {
+        view: 'v_enterprise_figures',
+        grain: 'one row per figure (project, class, tier, measure, figure kind, grain, ordinal) of the frozen enterprise period snapshot of a period',
+        columns: [...ENTERPRISE_PERIOD_COLUMNS, 'project_id', 'unit_id', 'class_code', 'tier_code', 'measure', 'figure_kind', 'grain', 'plan_year', 'ordinal', 'amount_vnd', 'null_reason', 'basis', 'certification_expires_on'],
+      },
+      {
+        view: 'v_enterprise_plan_actual',
+        grain: 'one row per project, class, tier and measure of the frozen enterprise period snapshot of a period: the plan, the actual, the cumulative and the rates side by side',
+        columns: [
+          ...ENTERPRISE_PERIOD_COLUMNS, 'period_grain', 'plan_year', 'period_ordinal', 'project_id', 'unit_id', 'class_code', 'tier_code', 'measure', 'plan_year_vnd', 'plan_adjusted_vnd', 'plan_in_force_vnd', 'plan_period_vnd', 'plan_to_date_vnd',
+          'estimate_vnd', 'estimate_as_reported_vnd', 'actual_vnd', 'cumulative_ytd_vnd', 'cumulative_since_start_vnd', 'estimate_year_vnd', 'rate_in_force_pct', 'rate_to_date_pct', 'certification_expires_on',
+        ],
+      },
+      {
+        view: 'v_enterprise_funding_split',
+        grain: 'one row per project and measure of the frozen enterprise period snapshot of a period: the plan in force and the cumulative by source of funds (equity, loan, other)',
+        columns: [
+          ...ENTERPRISE_PERIOD_COLUMNS, 'period_grain', 'plan_year', 'period_ordinal', 'project_id', 'unit_id', 'measure', 'plan_in_force_equity_vnd', 'plan_in_force_loan_vnd', 'plan_in_force_other_vnd', 'plan_in_force_total_vnd',
+          'cumulative_ytd_equity_vnd', 'cumulative_ytd_loan_vnd', 'cumulative_ytd_other_vnd', 'cumulative_ytd_total_vnd', 'equity_share_pct', 'loan_share_pct', 'certification_expires_on',
+        ],
+      },
+      {
+        view: 'v_enterprise_by_unit',
+        grain: 'one row per unit and measure, and one for the whole tenant, of the frozen enterprise period snapshot of a period: the sums over the projects with the rates made from the sums',
+        columns: [
+          ...ENTERPRISE_PERIOD_COLUMNS, 'period_grain', 'plan_year', 'period_ordinal', 'level', 'unit_id', 'measure', 'project_count', 'plan_in_force_vnd', 'plan_to_date_vnd', 'actual_vnd', 'cumulative_ytd_vnd', 'rate_in_force_pct',
+          'rate_to_date_pct', 'cumulative_ytd_equity_vnd', 'cumulative_ytd_loan_vnd', 'cumulative_ytd_other_vnd', 'equity_share_pct', 'loan_share_pct', 'certification_expires_on',
+        ],
+      },
+    ],
+  },
+};
+
+/** The datasets a tenant of the edition may switch on for external readers: the open datasets, and the enterprise ones in the enterprise edition. */
+export const biDatasetsOfEdition = (edition: Edition): readonly BiDatasetCode[] => (edition === 'enterprise' ? [...OPEN_DATASETS, ...ENTERPRISE_BI_DATASETS] : OPEN_DATASETS);
+
+export const isBiDatasetOfEdition = (value: unknown, edition: Edition): value is BiDatasetCode => typeof value === 'string' && (biDatasetsOfEdition(edition) as readonly string[]).includes(value);
+
+/** What an external reader is told about a dataset: the views it is read through (one for the open datasets, several for an enterprise one) and the open API scope when there is one (else an empty text). */
+export function biDatasetFacts(code: BiDatasetCode): { scope: string; views: readonly BiView[] } {
+  if (isOpenDataset(code)) {
+    const definition = OPEN_DATASET_DEFINITIONS[code];
+    return { scope: definition.scope, views: [{ view: definition.view, grain: definition.grain, columns: definition.columns }] };
+  }
+  return { scope: '', views: ENTERPRISE_BI_DATASET_DEFINITIONS[code].views };
+}
 
 export interface OpenApiScope {
   code: string;

@@ -43,12 +43,13 @@ Rules: a refusal of the exchange is always `401 OPEN_CLIENT_INVALID` with no rea
 3. The views `machvon_bi.v_disbursement_lines`, `v_contract_lines` and `v_dataset_catalogue` are `security_invoker` and read FROZEN snapshots. Their tenant comes from `machvon_bi.dataset_state(current_user, dataset)`, which reads the binding. A dataset that is not open yields no row.
 4. The four source tables carry one more RESTRICTIVE policy, `bi_reader_boundary`, for the group role: `tenant_id = machvon_bi.tenant_of(current_user)`. The group role is granted only the columns the views read.
 5. The negative test (`packages/db/test/int-open-api.test.ts`, `apps/api/test/int/int.test.ts`): a login sets `app.tenant_id` to another tenant and reads nothing, from the views and from the tables.
+6. The enterprise edition adds the dataset `DS-ENT` (INT-2, `V2960`): the frozen enterprise period snapshot (kind `ENTERPRISE_CLOSE`), read through `v_enterprise_figures`, `v_enterprise_plan_actual`, `v_enterprise_funding_split`, `v_enterprise_by_unit` and listed by `v_enterprise_dataset_catalogue`. Same mechanism and the same gate as the two datasets above (switched on on INT-04, CERTIFIED product, not expired); `bi_reader_boundary` of `period_snapshot` and of `period_snapshot_figure` bind the tables to the tenant of the login. It is offered to BI logins only: there is no open API scope for it, and the public edition neither lists nor switches it on. Negative test: `packages/db/test/int-enterprise-bi.test.ts`. The views and their columns are described in `docs/integration/power-bi-model.md` section 3.4.
 
 To connect a tool: host and database of the platform, the login and password shown on INT-04, default schema `machvon_bi`, read the views listed on INT-04.
 
 ## 5. Operating notes
 
 - The database must let the privileged migration make logins; otherwise the BI commands answer `503 BI_PROVISIONING_UNAVAILABLE` and change nothing.
-- Enable `pgaudit.log = 'read'` for the group role and `log_connections` before the first BI login is given out: it is the only record of what a BI tool read.
+- The offline install bundle has the opt-in read-only database port (`install.sh --with-bi`, `docs/runbooks/infra/bi-port.md`), closed by default. When it is on, the image's pgaudit (object mode on the views of `machvon_bi`) and `log_connections` are on and the daily audit file is shipped off the host: it is the record of what a BI tool read. Do not give out the first BI login before it is on.
 - The rate limiter counts in the process: with several replicas the ceiling is multiplied by their number; the access log is the record.
 - Integration Hub: the access side is read through `AccessOverviewReads` (database) and `accessConnectionView` (kernel, connector `access.open-api`): accounts per consumer, last use, scope, rate-limit refusals, state of the credentials, expiry and revocation.

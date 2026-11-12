@@ -67,6 +67,10 @@ The images carry what the migrations and the API need and nothing else: the data
 6. `sh install.sh`. It checks the bundle again, loads the images, checks the secret files and the compose file, starts the database, creates the pgBackRest stanza, runs the migrations, sets the passwords of the database roles from the secret files, starts every service and waits for all health checks.
 7. Install the systemd units from `infra/onprem/systemd/` (`machvon-backup-full.timer`, `machvon-backup-incr.timer`, `machvon-backup-verify.timer`) and enable the timers. The backup commands use `/etc/machvon/compose.env` (a copy of the `.env`) and `/opt/machvon/current` (a link to the installed bundle).
 
+### Optional: the read-only BI port
+
+The database publishes nothing outside the host. For Power BI or the Data Lakehouse of the customer there is an opt-in, closed-by-default read-only port (`MACHVON_BI=on`, `sh install.sh --with-bi`): one named listen address, a host firewall allowlist, TLS 1.2 or newer, SCRAM, only the BI group role reachable from outside, a connection limit, and a pgaudit trail shipped off the host. It is not part of a normal install; read `bi-port.md` first and do not switch it on before the customer has named the addresses, the certificate and the audit sink (PX-11).
+
 ## After the install
 
 1. First Keycloak administrator: sign in once with `KEYCLOAK_ADMIN_USER` and its secret, create named administrators with WebAuthn, then disable the bootstrap account.

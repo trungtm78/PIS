@@ -11,7 +11,7 @@ import {
   vietnamDateOf,
   versionConflict,
 } from '@machvon/kernel';
-import type { AccessAccountFacts, AccessConnectionView, AccessParams, DataProductCertification, GeneratedClientCredentials, MachineAccountMove, MachineAccountRequest, MachineAccountStatus, MachineCredentialState, OpenAccessEntry, OpenAccessOutcome, OpenDatasetCode } from '@machvon/kernel';
+import type { AccessAccountFacts, AccessConnectionView, AccessParams, DataProductCertification, GeneratedClientCredentials, MachineAccountMove, MachineAccountRequest, MachineAccountStatus, MachineCredentialState, OpenAccessEntry, OpenAccessOutcome, BiDatasetCode } from '@machvon/kernel';
 import { assertTimestampCursor, timestampKey } from './keyset.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -425,7 +425,7 @@ export class AccessLogStore {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 export interface ExportDatasetRow {
-  datasetCode: OpenDatasetCode;
+  datasetCode: BiDatasetCode;
   /** Null until the tenant configures the dataset for the first time. */
   id: string | null;
   productId: string | null;
@@ -442,7 +442,7 @@ export interface ExportDatasetRow {
 }
 
 interface ExportSql {
-  dataset_code: OpenDatasetCode;
+  dataset_code: BiDatasetCode;
   id: string | null;
   product_id: string | null;
   product_code: string | null;
@@ -468,7 +468,8 @@ export interface ProductChoice {
  * certification in DGV closes the dataset for readers at once without anyone switching anything. Switching on needs a CERTIFIED product now.
  */
 export class ExportDatasetStore {
-  async state(tx: TenantTx, now: Date): Promise<ExportDatasetRow[]> {
+  /** The datasets named (the open ones unless the edition offers more: `biDatasetsOfEdition`), each with the state the tenant gave it. */
+  async state(tx: TenantTx, now: Date, codes: readonly BiDatasetCode[] = OPEN_DATASETS): Promise<ExportDatasetRow[]> {
     const today = vietnamDateOf(now);
     const rows = await tx.query<ExportSql>(
       `select d.code as dataset_code, e.id, e.product_id, p.code as product_code, p.title as product_title, p.certification_status, p.certification_expires_on::text as certification_expires_on,
@@ -477,7 +478,7 @@ export class ExportDatasetStore {
          left join machvon.int_export_dataset e on e.dataset_code = d.code
          left join machvon.data_product p on p.tenant_id = e.tenant_id and p.id = e.product_id
         order by d.code`,
-      [[...OPEN_DATASETS]],
+      [[...codes]],
     );
     return rows.map((row) => {
       const enabled = row.enabled === true;
@@ -511,11 +512,13 @@ export class ExportDatasetStore {
    * Switches a dataset on or off for external readers (a versioned command; `expectedVersion` is 1 for a dataset never configured). Switching on needs the named product to be CERTIFIED and not past its day,
    * judged here by the kernel (422 `OPEN_DATASET_NOT_CERTIFIED`); switching off needs only the reason.
    */
-  async set(tx: TenantTx, datasetCode: OpenDatasetCode, expectedVersion: number, change: { enabled: boolean; productId: string | null; reason: string }, actor: string, now: Date): Promise<{ before: ExportDatasetRow; row: ExportDatasetRow }> {
+  async set(tx: TenantTx, datasetCode: BiDatasetCode, expectedVersion: number, change: { enabled: boolean; productId: string | null; reason: string }, actor: string, now: Date, codes: readonly BiDatasetCode[] = OPEN_DATASETS): Promise<{ before: ExportDatasetRow; row: ExportDatasetRow }> {
     // The row is locked BEFORE its version is read: two commands that carry the same version take turns, and the second one finds the new version and is refused.
     await tx.query('select id from machvon.int_export_dataset where dataset_code = $1 for update', [datasetCode]);
-    const states = await this.state(tx, now);
-    const before = states.find((state) => state.datasetCode === datasetCode) as ExportDatasetRow;
+    const states = await this.state(tx, now, codes);
+    const before = states.find((state) => state.datasetCode === datasetCode);
+    // A dataset the edition does not offer is not there to be switched.
+    if (before === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'dataset_code');
     if (before.version !== expectedVersion) throw versionConflict(before.version);
     const productId = change.productId ?? before.productId;
     if (productId === null) throw new DomainError('VALIDATION_FAILED', 422, 'product_id');
@@ -539,7 +542,7 @@ export class ExportDatasetStore {
         [before.id, productId, change.enabled, change.reason, actor, now.toISOString()],
       );
     }
-    const after = (await this.state(tx, now)).find((state) => state.datasetCode === datasetCode) as ExportDatasetRow;
+    const after = (await this.state(tx, now, codes)).find((state) => state.datasetCode === datasetCode) as ExportDatasetRow;
     return { before, row: after };
   }
 }

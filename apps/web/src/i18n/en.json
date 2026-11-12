@@ -38143,6 +38143,7 @@
   "mdm.value.reportUnitKind.count": "Count",
   "mdm.value.reportUnitKind.area": "Area",
   "mdm.value.reportUnitKind.other": "Other",
+  "int.bi.dataset.name.enterprise": "Frozen enterprise period figures",
   "bi.metric.ctrContractCount.name": "Active contracts",
   "bi.metric.ctrPortfolioValue.name": "Total contract portfolio value",
   "bi.metric.ctrOriginalValue.name": "Original contract value",

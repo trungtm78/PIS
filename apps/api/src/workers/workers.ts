@@ -43,6 +43,7 @@ import {
   AuditWriter,
   BASELINE_PACK,
   editionBaselines,
+  editionPeriodLockGate,
   BidPetitionDue,
   CapAllocationExtensionStore,
   CapBalanceReconcileJob,
@@ -191,7 +192,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const certificates = new CertificateStore();
   const masterData = new MasterStore();
   const audit = new AuditWriter(deps.tenants);
-  const disPeriods = new DisPeriodAutoclose(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
+  const disPeriods = new DisPeriodAutoclose(audit, { lockGate: editionPeriodLockGate, ...(deps.metrics === undefined ? {} : { metrics: deps.metrics }) });
   const disReopens = new DisReopenExpiry(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const permitTypes = new PmtPermitTypeStore();
   const guaranteeExpiry = new CtrGuaranteeExpiry(audit);

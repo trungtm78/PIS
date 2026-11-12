@@ -155,17 +155,17 @@ Hạn của từng bước lấy từ quy tắc quản trị `REPORTING_SCHEDULE
 
 ### 5.2 Hạn mặc định theo loại kỳ
 
-Số ngày tính sau ngày cuối kỳ (giao ban: sau ngày họp), theo `packages/kernel/src/reporting-schedule.ts`. Tự khóa kỳ: job `dis-period-autoclose` chốt mềm kỳ khi quá hạn nhập và khóa kỳ 3 ngày làm việc sau hạn nhập (giả định D03, lịch `WORKDAY_VN`; `docs/runbooks/jobs.md`).
+Số ngày tính sau ngày cuối kỳ (giao ban: sau ngày họp), theo `packages/kernel/src/reporting-schedule.ts`. Tự khóa kỳ: job `dis-period-autoclose` chốt mềm kỳ khi quá hạn nhập và khóa kỳ 3 ngày làm việc sau hạn nhập (giả định D03, lịch `WORKDAY_VN`); riêng bản doanh nghiệp, kỳ tháng, quý, năm chỉ khóa sau khi bước rà soát Ban KHĐT và bước chốt kỳ đã xong (INT-2; `docs/runbooks/jobs.md`).
 
 | Loại kỳ | Nhập liệu (hạn nhập) | Duyệt đơn vị | Ban KHĐT rà soát | Chốt kỳ | Đẩy hệ thống Tập đoàn | Tự khóa kỳ |
 |---|---|---|---|---|---|---|
-| Tháng | 5 | 7 | 10 | 12 | 15 | 3 ngày làm việc sau hạn nhập |
+| Tháng | 5 | 7 | 10 | 12 | 15 | 3 ngày làm việc sau hạn nhập, và không trước khi rà soát và chốt kỳ xong |
 | Quý | 10 | 13 | 17 | 20 | 25 | như trên |
 | Năm | 20 | 30 | 40 | 45 | 60 | như trên |
 | Giao ban (tính từ ngày họp) | 2 | 4 | 6 | 8 | 10 | như trên |
 | Điều chỉnh kế hoạch trong năm (tính từ cuối quý) | 10 | 15 | 20 | 25 | 30 | như trên |
 
-Hai mốc đang khác nhau và cần Tổ chuẩn hóa dữ liệu chốt trước go-live: tự khóa kỳ sau 3 ngày làm việc kể từ hạn nhập (kỳ tháng: khoảng ngày 8 đến 10) so với bước chốt kỳ của lịch là ngày 12 và rà soát Ban KHĐT là ngày 10 ([08](08-parallel-run-plan.md) mục 3). Nếu không chốt, kỳ có thể khóa trước khi Ban KHĐT rà soát xong và buộc phải mở lại có lý do (DIS-22). Việc này được ghi để PVFCCo quyết định, không tự đổi con số.
+Quy tắc tự khóa kỳ đã được chốt theo hướng quản trị chặt nhất (INT-2, bản doanh nghiệp): kỳ không tự khóa trước khi Ban KHĐT rà soát (ngày 10 của kỳ tháng) và bước chốt kỳ (ngày 12) xong, dù 3 ngày làm việc kể từ hạn nhập (khoảng ngày 8 đến 10) đã qua; bước có dữ kiện duyệt theo tầng thì chờ mọi hồ sơ của kỳ qua bước, bước chưa có dữ kiện thì chờ qua hạn trong lịch ([08](08-parallel-run-plan.md) mục 3, `docs/runbooks/jobs.md`). Kỳ bị giữ hiện ở kết quả job `dis-period-autoclose` (`held`) và ở bộ đếm `dis_period_lock_held_total`; người có quyền vẫn khóa tay được. Số ngày của lịch và số 3 ngày làm việc vẫn là giả định D03 để PVFCCo xác nhận, không tự đổi con số.
 
 ### 5.3 Việc của hỗ trợ theo mốc
 

@@ -1,4 +1,4 @@
-import { OPEN_DATASET_DEFINITIONS } from '@machvon/kernel';
+import { biDatasetFacts } from '@machvon/kernel';
 import type { AccessLogRow, BiReaderEventRow, BiReaderRow, ExportDatasetRow, MachineAccountRow, MachineCredentialRow, ProductChoice, ProjectCodeRow, SourceSystemRow } from '@machvon/db';
 
 /** The name of a person, or null when the person is unknown to the tenant (a deleted membership, a machine). */
@@ -58,13 +58,14 @@ export const accessLogDto = (row: AccessLogRow): Record<string, unknown> => ({
 });
 
 export const exportDatasetDto = (row: ExportDatasetRow, maySet: boolean): Record<string, unknown> => {
-  const definition = OPEN_DATASET_DEFINITIONS[row.datasetCode];
+  const facts = biDatasetFacts(row.datasetCode);
+  const [primary] = facts.views;
   return {
     dataset_code: row.datasetCode,
-    view_name: definition.view,
-    scope: definition.scope,
-    grain: definition.grain,
-    columns: [...definition.columns],
+    view_name: primary?.view,
+    scope: facts.scope,
+    grain: primary?.grain,
+    columns: [...(primary?.columns ?? [])],
     product_id: row.productId,
     product_code: row.productCode,
     product_title: row.productTitle,
