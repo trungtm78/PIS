@@ -235,7 +235,7 @@ describe('CrosswalkScreen: the integration connectors', () => {
   const connectors = (overrides: Partial<World> = {}): World => mapped({ cursors: CONNECTORS, ...overrides });
   const cursorRow = (connector: string) => document.querySelector(`tr[data-connector="${connector}"]`) as HTMLElement;
 
-  it('shows where each connector stands, with a badge that says whether its adapter is verified', async () => {
+  it('UAT-AC281: shows where each connector stands, with a badge that says whether its adapter is verified', async () => {
     mount(<CrosswalkScreen route={ROUTE} />, client(connectors()), CROSSWALK_MANAGER, '/mdm/mdm-24');
     await ready();
     await screen.findByRole('table', { name: vi_['mdm.cursor.table.aria'] });
