@@ -49,7 +49,7 @@ test('dart: the github reporter marks a failed test with a cross, passing tests 
   const log = ['✅ /w/test/a_test.dart: group fine', '❌ /w/test/b_test.dart: group the moment shows 07:00', 'Expected: 07:00', '2401 tests passed, 2 failed, 1 skipped.'].join('\n');
   const text = annotationText(log, 'dart');
   assert.match(text, /❌ \/w\/test\/b_test\.dart/);
-  assert.doesNotMatch(text, /group fine/);
+  assert.doesNotMatch(text.split('--- end of the log:')[0], /group fine/);
 });
 
 test('playwright: numbered failures and the summary line are reported', () => {
@@ -57,6 +57,11 @@ test('playwright: numbered failures and the summary line are reported', () => {
   const text = annotationText(log, 'playwright');
   assert.match(text, /the walk/);
   assert.match(text, /1 failed/);
+});
+
+test('the end of the log is always part of the text, so a killed step shows where the log stops', () => {
+  const text = annotationText(['FAIL src/a.test.ts', 'step one', 'step two', 'the log stops here'].join('\n'), 'jest');
+  assert.match(text, /--- end of the log:\n[\s\S]*the log stops here$/);
 });
 
 test('gates: a FAIL line is found', () => {
