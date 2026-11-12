@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/drafts/local_draft.dart';
@@ -13,7 +14,6 @@ import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/offline/store/local_store.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
-import '../offline_format.dart';
 import '../offline_problem.dart';
 
 /// MOB-43: what the person can do without a network, the drafts that are on the device, and how old the data on the device
@@ -79,7 +79,7 @@ class _Guide extends ConsumerWidget {
         if (asOf == null)
           Text(context.t('mob.offline.asof.none'))
         else ...<Widget>[
-          Text(context.t('mob.offline.asof.label', <String, Object>{'time': formatMoment(asOf, language)}), style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(context.t('mob.offline.asof.label', <String, Object>{'time': formatInstant(asOf, language: language)}), style: const TextStyle(fontWeight: FontWeight.w600)),
           Text(context.t('mob.offline.asof.notice')),
         ],
         const SizedBox(height: 16),
@@ -101,7 +101,7 @@ class _Guide extends ConsumerWidget {
             key: ValueKey<String>(draft.id),
             contentPadding: EdgeInsets.zero,
             title: Text(_kindLabel(context, draft.kind)),
-            subtitle: Text(context.t('mob.offline.draft.saved.label', <String, Object>{'time': formatMoment(DateTime.fromMillisecondsSinceEpoch(draft.updatedAt, isUtc: true), language)})),
+            subtitle: Text(context.t('mob.offline.draft.saved.label', <String, Object>{'time': formatInstant(DateTime.fromMillisecondsSinceEpoch(draft.updatedAt, isUtc: true), language: language)})),
           ),
         const SizedBox(height: 8),
         TextButton(

@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
-import '../read_support/money.dart';
 import 'model/report_cells.dart';
 import 'model/report_review.dart';
 
@@ -213,12 +213,6 @@ String findingMessage(BuildContext context, Finding finding) {
     default:
       return context.t('mob.rep.finding.other.body', <String, Object>{'code': finding.code});
   }
-}
-
-/// An amount of whole dong in millions of dong with its sign (`+50 million dong`, `-30 million dong`), exactly.
-String signedMillionsLabel(BuildContext context, String? vnd) {
-  if (vnd == null) return context.t('mob.read.money.none');
-  return context.t('mob.read.money.millions', <String, Object>{'value': formatSignedMillions(vnd, AppStrings.of(context).language)});
 }
 
 /// The short text beside the box a finding is about, or null for a finding that is not about one box.

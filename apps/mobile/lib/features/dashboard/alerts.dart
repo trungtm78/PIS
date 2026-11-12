@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
-import '../read_support/moment.dart';
+import '../../core/format/format.dart';
 import '../read_support/wire.dart';
 
 /// The three levels of an alert. Each has an icon and a word on the screen, never a colour alone. An item the server sends

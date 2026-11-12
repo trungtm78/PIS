@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/theme/app_theme.dart' show kTabularFigures;
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/widgets.dart';
 import '../labels.dart';
 import '../workflow_models.dart';
@@ -94,7 +93,7 @@ class _Header extends StatelessWidget {
           Text(context.t('mob.prc.row.project', <String, Object>{'project': detail.projectName == null ? detail.projectCode : '${detail.projectCode} · ${detail.projectName}'}), style: theme.textTheme.bodyMedium),
           if (detail.unitName != null) Text(context.t('mob.prc.detail.unit', <String, Object>{'unit': detail.unitName!}), style: theme.textTheme.bodySmall),
           Text(context.t('mob.prc.detail.method', <String, Object>{'method': methodLabel(context, detail.method)}), style: theme.textTheme.bodySmall),
-          Text(context.t('mob.prc.row.value', <String, Object>{'value': millionsLabel(context, detail.valueVnd)}), style: theme.textTheme.bodySmall),
+          Text(context.t('mob.prc.row.value', <String, Object>{'value': moneyLabel(context, detail.valueVnd)}), style: theme.textTheme.bodySmall),
         ],
       ),
     );

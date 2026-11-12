@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
-import '../read_support/amounts.dart';
 import 'reconciliation_commands.dart';
 
 export '../read_support/offline.dart' show isOffline;
@@ -89,7 +89,7 @@ String reconStatusLabel(BuildContext context, String status) {
 }
 
 /// An exact amount of whole dong, or that there is none.
-String moneyOrNone(BuildContext context, String? vnd) => vnd == null ? context.t('mob.treasury.figure.none') : dongLabel(context, vnd);
+String moneyOrNone(BuildContext context, String? vnd) => vnd == null ? context.t('mob.treasury.figure.none') : moneyExactLabel(context, vnd);
 
 /// The difference in words that keep its sign: the confirmed figure less the internal one, so a negative one is a shortfall at the Treasury.
 String differenceWords(BuildContext context, String? difference) {

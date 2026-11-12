@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/offline/attachments/attachment_policy.dart';
 import '../../../core/offline/attachments/attachment_uploader.dart';
@@ -12,9 +13,7 @@ import '../../../core/offline/offline_providers.dart';
 import '../../../core/session/session.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/clock.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../clearance_commands.dart';
@@ -329,7 +328,7 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
                 children: <Widget>[
                   Text(context.t('mob.clearance.records.item', <String, Object>{'kind': itemKindLabel(context, record.itemKind), 'description': record.description}), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
                   Text(
-                    context.t('mob.clearance.records.count', <String, Object>{'quantity': record.quantity, 'unit': record.unitCode, 'parcel': record.parcelCode, 'amount': dongLabel(context, record.amountVnd)}),
+                    context.t('mob.clearance.records.count', <String, Object>{'quantity': record.quantity, 'unit': record.unitCode, 'parcel': record.parcelCode, 'amount': moneyExactLabel(context, record.amountVnd)}),
                     style: theme.textTheme.bodySmall,
                   ),
                   Text(context.t('mob.clearance.records.state', <String, Object>{'status': recordStatusLabel(context, record.status), 'day': formatDay(record.surveyedOn)}), style: theme.textTheme.bodySmall),
@@ -433,7 +432,7 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(labelText: context.t('mob.clearance.form.price.label'), errorText: _problem('price')),
         ),
-        if (amount != null) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space4), child: Text(context.t('mob.clearance.form.amount', <String, Object>{'amount': dongLabel(context, amount)}), style: theme.textTheme.bodySmall)),
+        if (amount != null) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space4), child: Text(context.t('mob.clearance.form.amount', <String, Object>{'amount': moneyExactLabel(context, amount)}), style: theme.textTheme.bodySmall)),
         const SizedBox(height: MachvonSpace.space8),
         TextField(controller: _reference, decoration: InputDecoration(labelText: context.t('mob.clearance.form.reference.label'), errorText: _problem('reference'))),
         const SizedBox(height: MachvonSpace.space8),

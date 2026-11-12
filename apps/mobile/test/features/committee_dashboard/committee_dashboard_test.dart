@@ -205,7 +205,7 @@ void main() {
       expect(find.text('Xanh: kịp đường kỳ vọng'), findsWidgets);
       expect(find.text('Tỷ lệ giải ngân: 30,00%, đường kỳ vọng 45,30%'), findsOneWidget);
       expect(find.text('5 dự án, 2 cần quan tâm'), findsWidgets);
-      expect(find.text('Kế hoạch vốn: 100.000 triệu đồng'), findsWidgets);
+      expect(find.text('Kế hoạch vốn: 100 tỷ đồng'), findsWidgets);
       expect(find.text('-15,30 điểm phần trăm'), findsOneWidget);
       expect(find.text('+4,70 điểm phần trăm'), findsOneWidget);
       // A sector whose rate is held back says so and is never given a colour of its own or a zero.

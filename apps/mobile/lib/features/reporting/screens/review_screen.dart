@@ -6,6 +6,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_upload.dart';
@@ -15,7 +16,6 @@ import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queue_runner.dart';
 import '../../../core/offline/queue/queued_command.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../../release/telemetry.dart';
@@ -397,7 +397,7 @@ class _Differences extends StatelessWidget {
                 final bool fall = delta?.startsWith('-') ?? false;
                 return FactLine(
                   label: cellLabel(context, key),
-                  value: delta == null ? context.t('mob.rep.review.diffUnknown.body') : '${signedMillionsLabel(context, delta)}${fall ? ' · ${context.t('mob.rep.review.diffFall.body')}' : ''}',
+                  value: delta == null ? context.t('mob.rep.review.diffUnknown.body') : '${signedMoneyLabel(context, delta)}${fall ? ' · ${context.t('mob.rep.review.diffFall.body')}' : ''}',
                 );
               },
             ),
@@ -419,13 +419,13 @@ class _Totals extends StatelessWidget {
         KpiGroup(
           columns: 1,
           tiles: <Widget>[
-            KpiTile(label: context.t('mob.rep.totals.six.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).cumulative]))),
-            KpiTile(label: context.t('mob.rep.totals.ctmtqg.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).ctmtqg]))),
-            KpiTile(label: context.t('mob.rep.registration.total.label'), value: millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).nextMonth]))),
+            KpiTile(label: context.t('mob.rep.totals.six.label'), value: moneyLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).cumulative]))),
+            KpiTile(label: context.t('mob.rep.totals.ctmtqg.label'), value: moneyLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).ctmtqg]))),
+            KpiTile(label: context.t('mob.rep.registration.total.label'), value: moneyLabel(context, sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).nextMonth]))),
           ],
         ),
         const SizedBox(height: MachvonSpace.space8),
-        FactLine(label: context.t('mob.rep.volumes.construction.label'), value: form.construction.trim().isEmpty ? context.t('mob.rep.review.diffUnknown.body') : millionsLabel(context, digitsOf(form.construction))),
+        FactLine(label: context.t('mob.rep.volumes.construction.label'), value: form.construction.trim().isEmpty ? context.t('mob.rep.review.diffUnknown.body') : moneyLabel(context, digitsOf(form.construction))),
         FactLine(label: context.t('mob.rep.basis.title'), value: basisLabel(context, form.basis)),
         Text(context.t('mob.rep.ctmtqg.note.body'), style: Theme.of(context).textTheme.bodySmall),
       ],

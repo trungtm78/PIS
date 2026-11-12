@@ -4,12 +4,11 @@ import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/session/session.dart';
 import '../../../core/widgets/figure_info.dart';
 import '../../../core/widgets/skeleton.dart';
-import '../../read_support/amounts.dart';
-import '../../read_support/money.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../committee_workspace.dart';
@@ -301,7 +300,7 @@ String committeeFigureText(BuildContext context, CommitteeFigure? figure, {bool 
           ? context.t('mob.home.committee.value.points', <String, Object>{'points': _withSign(digits, raw)})
           : context.t('mob.home.tile.value.percent', <String, Object>{'value': digits});
     case CommitteeFigureUnit.vnd:
-      return millionsLabel(context, figure.value);
+      return moneyLabel(context, figure.value);
     case CommitteeFigureUnit.count:
       return figure.displayValue ?? figure.value!;
   }
@@ -429,7 +428,7 @@ class CommitteeOutlookRow extends StatelessWidget {
     final CommitteeOutlook outlook = workspace.province.outlook;
     final String band;
     if (low != null && high != null && low.hasValue && high.hasValue) {
-      final String range = context.t('mob.home.committee.outlook.range', <String, Object>{'low': millionsLabel(context, low.value), 'high': millionsLabel(context, high.value)});
+      final String range = context.t('mob.home.committee.outlook.range', <String, Object>{'low': moneyLabel(context, low.value), 'high': moneyLabel(context, high.value)});
       final String? lowPct = outlook.lowPct;
       final String? highPct = outlook.highPct;
       band = lowPct != null && highPct != null

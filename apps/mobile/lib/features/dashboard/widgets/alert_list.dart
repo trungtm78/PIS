@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart' show ScreenSpec;
 import '../../../core/navigation/route_table.dart' show RouteTable;
 import '../../read_support/clock.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../alert_commands.dart';
 import '../alerts.dart';

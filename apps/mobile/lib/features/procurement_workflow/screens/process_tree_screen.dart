@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/theme/app_theme.dart' show kTabularFigures;
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/widgets.dart';
 import '../labels.dart';
 import '../navigation.dart';
@@ -178,7 +177,7 @@ String _aria(BuildContext context, PrcTree tree, PrcNode node) {
   return context.t('mob.prc.tree.node.aria', <String, Object>{
     'label': nodeLabel(context, node),
     'count': node.count,
-    'value': millionsLabel(context, node.valueVnd),
+    'value': moneyLabel(context, node.valueVnd),
     'late': node.lateCount,
     'health': health == PrcHealth.none ? '' : healthLabel(context, health),
   });
@@ -228,7 +227,7 @@ class _NodeHeader extends StatelessWidget {
               children: <Widget>[
                 HealthPill(health: health),
                 if (node.lateCount > 0 && node.kind != PrcNodeKind.substate) Text(context.t('mob.prc.tree.late', <String, Object>{'n': node.lateCount}), style: theme.textTheme.bodySmall),
-                Text(millionsLabel(context, node.valueVnd), style: theme.textTheme.bodySmall),
+                Text(moneyLabel(context, node.valueVnd), style: theme.textTheme.bodySmall),
                 if (medianText != null) Text(medianText, style: theme.textTheme.bodySmall),
               ],
             ),

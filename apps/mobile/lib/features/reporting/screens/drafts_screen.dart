@@ -4,6 +4,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/drafts/local_draft.dart';
@@ -12,8 +13,6 @@ import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
-import '../../read_support/amounts.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../data/report_drafts.dart';
@@ -152,7 +151,7 @@ class _DraftTile extends StatelessWidget {
       'time': formatMoment(DateTime.fromMillisecondsSinceEpoch(snapshot.draft.updatedAt, isUtc: true).toIso8601String()),
       'id': snapshot.shortId,
     });
-    final String total = millionsLabel(context, sumTyped(<String>[for (final CellKey key in kCells) snapshot.form.cell(key).cumulative]));
+    final String total = moneyLabel(context, sumTyped(<String>[for (final CellKey key in kCells) snapshot.form.cell(key).cumulative]));
     final bool pending = status.isPending;
     final String title = context.t('mob.rep.header.context.label', <String, Object>{'project': project, 'period': period});
     return Card(

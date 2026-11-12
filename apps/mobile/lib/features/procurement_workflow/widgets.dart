@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
-import '../read_support/amounts.dart';
 import '../read_support/widgets.dart';
 import 'labels.dart';
 import 'workflow_models.dart';
@@ -122,7 +122,7 @@ class PackageRowTile extends StatelessWidget {
                   Text(countdownLabel(context, row.daysLeft!, row.dueOn!), style: theme.textTheme.bodySmall?.copyWith(color: overdue ? MachvonColors.danger : null)),
                 if (row.projectCode.isNotEmpty)
                   Text(context.t('mob.prc.row.project', <String, Object>{'project': row.projectName == null ? row.projectCode : '${row.projectCode} · ${row.projectName}'}), style: theme.textTheme.bodySmall),
-                Text(context.t('mob.prc.row.value', <String, Object>{'value': millionsLabel(context, row.valueVnd)}), style: theme.textTheme.bodySmall),
+                Text(context.t('mob.prc.row.value', <String, Object>{'value': moneyLabel(context, row.valueVnd)}), style: theme.textTheme.bodySmall),
                 if (row.running)
                   Text(
                     row.hasOwner && row.ownerName != null ? context.t('mob.prc.row.owner', <String, Object>{'name': row.ownerName!}) : context.t('mob.prc.row.ownerNone'),

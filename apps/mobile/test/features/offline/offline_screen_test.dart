@@ -18,8 +18,8 @@ void main() {
     testWidgets('it lists what can be done offline (drafts only), the drafts on the device, and the time of the data; it never calls it the latest', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final QueueRig rig = await realClockRig();
-      // 14:05 on 3 November 2026 in the time zone of the phone
-      rig.store.dataAsOf = DateTime(2026, 11, 3, 14, 5).toUtc();
+      // 14:05 on 3 November 2026 in Vietnam time (07:05 UTC)
+      rig.store.dataAsOf = DateTime.utc(2026, 11, 3, 7, 5);
       DraftStore(rig.store).save(kind: 'report', fields: <String, Object?>{'a': 1});
       DraftStore(rig.store).save(kind: 'issue', fields: <String, Object?>{'a': 1});
       rig.queue.enqueue(commandType: 'report.submit', payload: <String, Object?>{'report_id': '5b3c0e7a-0a56-4c0e-8c33-0f2f6b7f1a01'});
@@ -28,7 +28,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Bạn đang ngoại tuyến'), findsOneWidget);
-      expect(find.text('Dữ liệu trên máy tính đến 14:05 03/11/2026'), findsOneWidget);
+      expect(find.text('Dữ liệu trên máy tính đến 03/11/2026 14:05'), findsOneWidget);
       expect(find.textContaining('có thể đã khác trên server'), findsOneWidget);
       expect(find.text('Làm được khi ngoại tuyến'), findsOneWidget);
       expect(find.text('Báo cáo: lưu nháp và nộp'), findsOneWidget);
@@ -55,7 +55,7 @@ void main() {
       expect(find.text('There are no drafts on this device.'), findsOneWidget);
       expect(allText(tester).toLowerCase(), isNot(contains('latest')));
       expect(allText(tester).toLowerCase(), isNot(contains('mới nhất')));
-      rig.store.dataAsOf = DateTime(2026, 11, 3, 9, 7).toUtc();
+      rig.store.dataAsOf = DateTime.utc(2026, 11, 3, 2, 7);
       await openOfflineApp(tester, rig, location: '/projects/mob-43', locale: const Locale('en'));
       expect(find.text('Data on this device as of 2026-11-03 09:07'), findsOneWidget);
     });
@@ -63,7 +63,7 @@ void main() {
     testWidgets('online, it says so and keeps the same honesty about the data; the link leads to the queue', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final QueueRig rig = await realClockRig();
-      rig.store.dataAsOf = DateTime(2026, 11, 3, 14, 5).toUtc();
+      rig.store.dataAsOf = DateTime.utc(2026, 11, 3, 7, 5);
       final ProviderContainer container = await openOfflineApp(tester, rig, location: '/projects/mob-43');
       expect(find.text('Bạn đang trực tuyến'), findsOneWidget);
       expect(find.textContaining('có thể đã khác trên server'), findsOneWidget);
@@ -106,7 +106,7 @@ void main() {
     testWidgets('UI-MOB-43 contract: three devices, text at 200 percent, tap targets, labels and contrast', (WidgetTester tester) async {
       await expectScreenContract(tester, (WidgetTester t) async {
         final QueueRig rig = await realClockRig();
-        rig.store.dataAsOf = DateTime(2026, 11, 3, 14, 5).toUtc();
+        rig.store.dataAsOf = DateTime.utc(2026, 11, 3, 7, 5);
         DraftStore(rig.store).save(kind: 'report', fields: <String, Object?>{'a': 1});
         final ProviderContainer container = await openOfflineApp(t, rig, location: '/projects/mob-43');
         container.read(reachabilityProvider.notifier).report(Reachability.offline);

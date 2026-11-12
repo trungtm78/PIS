@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart' show ApiError;
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
-import '../../read_support/moment.dart';
 import '../alert_commands.dart';
 import '../alerts.dart';
 import '../work_policy.dart';

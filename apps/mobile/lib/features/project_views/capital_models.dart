@@ -1,4 +1,4 @@
-import '../read_support/money.dart';
+import '../../core/format/format.dart';
 import '../read_support/wire.dart';
 
 /// A capital plan the reader may see, as the choice of the screen lists it.

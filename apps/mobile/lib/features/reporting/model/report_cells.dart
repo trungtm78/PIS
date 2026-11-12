@@ -1,4 +1,4 @@
-import '../../read_support/money.dart';
+import '../../../core/format/format.dart';
 
 /// The three sources of money a report speaks of: the year plan, the plan carried over from the year before, and the other
 /// sources (DIS 3 F1 step 4). Each source has a central and a local budget, which makes the six cells of the paper form.

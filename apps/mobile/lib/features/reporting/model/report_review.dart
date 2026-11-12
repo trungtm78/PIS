@@ -1,4 +1,4 @@
-import '../../read_support/money.dart';
+import '../../../core/format/format.dart';
 import '../../read_support/wire.dart';
 import 'report_cells.dart';
 import 'report_context.dart';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:machvon_mobile/core/format/format.dart';
 import 'package:machvon_mobile/features/read_support/read_support_strings.dart';
 import 'package:machvon_mobile/features/reporting/labels.dart';
 import 'package:machvon_mobile/features/reporting/model/report_cells.dart';
@@ -49,12 +50,12 @@ void main() {
 
     testWidgets('an amount of millions is signed, exact, and in the language of the interface', (WidgetTester tester) async {
       await inLanguage(tester, 'vi', (BuildContext context) {
-        expect(signedMillionsLabel(context, '50000000'), '+50 triệu đồng');
-        expect(signedMillionsLabel(context, '-30500000'), '-30,5 triệu đồng');
-        expect(signedMillionsLabel(context, null), 'Chưa có số liệu');
+        expect(signedMoneyLabel(context, '50000000'), '+50 triệu đồng');
+        expect(signedMoneyLabel(context, '-30500000'), '-30,5 triệu đồng');
+        expect(signedMoneyLabel(context, null), 'Chưa có số liệu');
       });
       await inLanguage(tester, 'en', (BuildContext context) {
-        expect(signedMillionsLabel(context, '-30500000'), '-30.5 million dong');
+        expect(signedMoneyLabel(context, '-30500000'), '-30.5 million dong');
       });
     });
   });

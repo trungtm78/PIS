@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/amounts.dart';
-import '../../read_support/money.dart';
 import '../../read_support/widgets.dart';
 import '../labels.dart';
 import '../model/fields.dart';
@@ -130,9 +129,9 @@ class _Cumulative extends StatelessWidget {
       title: context.t('mob.rep.cumulative.title'),
       semanticLabel: null,
       children: <Widget>[
-        FactLine(label: context.t('mob.rep.cumulative.previous.label'), value: previous == null ? context.t('mob.rep.cumulative.noPrevious.body') : millionsLabel(context, previous)),
-        FactLine(label: context.t('mob.rep.cumulative.change.label'), value: previous == null ? context.t('mob.rep.cumulative.noPrevious.body') : signedMillionsLabel(context, differenceDong(cumulative, previous))),
-        FactLine(label: context.t('mob.rep.cumulative.total.label'), value: millionsLabel(context, cumulative)),
+        FactLine(label: context.t('mob.rep.cumulative.previous.label'), value: previous == null ? context.t('mob.rep.cumulative.noPrevious.body') : moneyLabel(context, previous)),
+        FactLine(label: context.t('mob.rep.cumulative.change.label'), value: previous == null ? context.t('mob.rep.cumulative.noPrevious.body') : signedMoneyLabel(context, differenceDong(cumulative, previous))),
+        FactLine(label: context.t('mob.rep.cumulative.total.label'), value: moneyLabel(context, cumulative)),
       ],
     );
   }

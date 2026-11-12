@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/paged.dart';
@@ -88,15 +88,15 @@ class _PlanBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.prj.capital.totals.title'),
           children: <Widget>[
-            KpiTile(label: context.t('mob.prj.capital.allocated'), value: millionsLabel(context, plan.allocatedVnd)),
+            KpiTile(label: context.t('mob.prj.capital.allocated'), value: moneyLabel(context, plan.allocatedVnd)),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
-              child: Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': millionsLabel(context, plan.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
+              child: Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': moneyLabel(context, plan.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
             ),
             if (disbursed == null)
               FactLine(label: context.t('mob.prj.capital.disbursed'), value: context.t('mob.prj.capital.disbursed.none'))
             else
-              KpiTile(label: context.t('mob.prj.capital.disbursed'), value: millionsLabel(context, disbursed)),
+              KpiTile(label: context.t('mob.prj.capital.disbursed'), value: moneyLabel(context, disbursed)),
             if (plan.truncated) Text(context.t('mob.prj.capital.truncated'), style: theme.textTheme.bodySmall),
           ],
         ),
@@ -122,17 +122,17 @@ class _SourceCard extends StatelessWidget {
     return SectionCard(
       title: context.t('mob.prj.capital.source.title', <String, Object>{'source': source.label}),
       children: <Widget>[
-        KpiTile(label: context.t('mob.prj.capital.allocated'), value: millionsLabel(context, source.allocatedVnd)),
+        KpiTile(label: context.t('mob.prj.capital.allocated'), value: moneyLabel(context, source.allocatedVnd)),
         if (source.ctmtqgVnd != '0')
           Padding(
             padding: const EdgeInsets.only(top: MachvonSpace.space8),
-            child: Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': millionsLabel(context, source.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
+            child: Text(context.t('mob.prj.capital.ctmtqg', <String, Object>{'value': moneyLabel(context, source.ctmtqgVnd)}), style: theme.textTheme.bodyMedium),
           ),
         const SizedBox(height: MachvonSpace.space8),
         if (disbursed == null)
           FactLine(label: context.t('mob.prj.capital.disbursed'), value: context.t('mob.prj.capital.disbursed.none'))
         else
-          KpiTile(label: context.t('mob.prj.capital.disbursed'), value: millionsLabel(context, disbursed)),
+          KpiTile(label: context.t('mob.prj.capital.disbursed'), value: moneyLabel(context, disbursed)),
         const Divider(),
         for (final CapitalLine line in source.lines)
           Padding(
@@ -143,8 +143,8 @@ class _SourceCard extends StatelessWidget {
                 children: <Widget>[
                   Text(context.t('mob.prj.capital.line', <String, Object>{'code': line.projectCode, 'name': line.projectName}), style: theme.textTheme.bodyLarge),
                   Text(
-                    '${context.t('mob.prj.capital.allocated')}: ${millionsLabel(context, line.allocatedVnd)} · '
-                    '${context.t('mob.prj.capital.disbursed')}: ${line.disbursedVnd == null ? context.t('mob.prj.capital.disbursed.none') : millionsLabel(context, line.disbursedVnd)}',
+                    '${context.t('mob.prj.capital.allocated')}: ${moneyLabel(context, line.allocatedVnd)} · '
+                    '${context.t('mob.prj.capital.disbursed')}: ${line.disbursedVnd == null ? context.t('mob.prj.capital.disbursed.none') : moneyLabel(context, line.disbursedVnd)}',
                     style: theme.textTheme.bodySmall,
                   ),
                 ],

@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
-import '../read_support/moment.dart';
 import 'workflow_models.dart';
 
 /// The words of the codes of the workflow. Each key is written out so the string check can see it is in use; a code the phone does not

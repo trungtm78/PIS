@@ -206,7 +206,7 @@ void main() {
       await app.open(tester, location: '/projects/mob-14/$id');
       expect(fact('Lũy kế kỳ trước', 'Chưa có kỳ trước để so sánh'), findsOneWidget);
       expect(fact('Phát sinh trong kỳ', 'Chưa có kỳ trước để so sánh'), findsOneWidget);
-      expect(fact('Lũy kế kỳ này', '0 triệu đồng'), findsOneWidget);
+      expect(fact('Lũy kế kỳ này', '0 đồng'), findsOneWidget);
     });
   });
 
@@ -224,8 +224,8 @@ void main() {
       await typeInto(tester, 'Đã gửi Kho bạc', '0');
       await typeInto(tester, 'Hồ sơ đang hoàn thiện', '200.000.000');
       await typeInto(tester, 'Tiến độ thực hiện', '40,5');
-      expect(find.text('1.500 triệu đồng'), findsOneWidget);
-      expect(find.text('1.250 triệu đồng'), findsOneWidget);
+      expect(find.text('1,5 tỷ đồng'), findsOneWidget);
+      expect(find.text('1,25 tỷ đồng'), findsOneWidget);
 
       await tester.tap(find.text('Phát sinh trong kỳ').first);
       await tester.pumpAndSettle();

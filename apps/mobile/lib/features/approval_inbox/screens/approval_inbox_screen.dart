@@ -3,15 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/route_catalogue.dart';
 import '../../../core/navigation/tab_badges.dart';
 import '../../../core/state/empty_state_view.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/paged.dart';
 import '../../read_support/widgets.dart';
@@ -166,7 +165,7 @@ class _TaskRow extends StatelessWidget {
                     if (!task.canDecide) StatusPill(label: context.t('mob.apv.inbox.row.cannot')),
                   ],
                 ),
-                if (task.amountVnd != null) Text(context.t('mob.apv.inbox.row.amount', <String, Object>{'value': millionsLabel(context, task.amountVnd)}), style: theme.textTheme.bodySmall),
+                if (task.amountVnd != null) Text(context.t('mob.apv.inbox.row.amount', <String, Object>{'value': moneyLabel(context, task.amountVnd)}), style: theme.textTheme.bodySmall),
                 if (unitName != null) Text(context.t('mob.apv.inbox.row.unit', <String, Object>{'unit': unitName!}), style: theme.textTheme.bodySmall),
                 Text(context.t('mob.apv.inbox.row.due', <String, Object>{'time': due}), style: theme.textTheme.bodySmall),
               ],

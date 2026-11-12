@@ -61,8 +61,8 @@ void main() {
       expect(find.text('14,0000%'), findsOneWidget);
       expect(find.text('12,5000%'), findsOneWidget);
       expect(find.text('30,0000%'), findsNothing, reason: 'the mean of 50% and 10% is not a figure of the screen');
-      expect(find.textContaining('Tử số 140 triệu đồng · mẫu số 1.000 triệu đồng'), findsOneWidget);
-      expect(find.textContaining('Tử số 140 triệu đồng · mẫu số 1.120 triệu đồng'), findsOneWidget);
+      expect(find.textContaining('Tử số 140 triệu đồng · mẫu số 1 tỷ đồng'), findsOneWidget);
+      expect(find.textContaining('Tử số 140 triệu đồng · mẫu số 1,12 tỷ đồng'), findsOneWidget);
       final Rect pm = tester.getRect(find.ancestor(of: find.text('14,0000%'), matching: find.byType(MetricTileCard)));
       final Rect total = tester.getRect(find.ancestor(of: find.text('12,5000%'), matching: find.byType(MetricTileCard)));
       expect(pm.top, total.top, reason: 'side by side');
@@ -171,7 +171,7 @@ void main() {
       await _open(tester, server, '/home', locale: const Locale('en'));
 
       expect(find.text('14.0000%'), findsOneWidget);
-      expect(find.textContaining('Numerator 140 million dong · denominator 1,000 million dong'), findsOneWidget);
+      expect(find.textContaining('Numerator 140 million dong · denominator 1 billion dong'), findsOneWidget);
       expect(find.text('The two disbursement rates'), findsOneWidget);
     });
 

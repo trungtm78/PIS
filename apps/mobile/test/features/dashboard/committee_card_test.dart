@@ -67,10 +67,10 @@ void main() {
       expect(find.text('41,20%'), findsOneWidget);
       expect(find.text('-4,10 điểm phần trăm'), findsOneWidget);
       expect(find.text('45,30%'), findsOneWidget, reason: 'the curve of today');
-      expect(find.text('1.200.000 triệu đồng'), findsOneWidget, reason: 'the plan');
-      expect(find.text('494.400 triệu đồng'), findsOneWidget, reason: 'disbursed');
-      expect(find.text('420.000 triệu đồng'), findsOneWidget, reason: 'the same period of last year');
-      expect(find.text('Từ 1.000.000 triệu đồng đến 1.100.000 triệu đồng (83,33% đến 91,67% kế hoạch)'), findsOneWidget, reason: 'the year-end band');
+      expect(find.text('1.200 tỷ đồng'), findsOneWidget, reason: 'the plan');
+      expect(find.text('494,4 tỷ đồng'), findsOneWidget, reason: 'disbursed');
+      expect(find.text('420 tỷ đồng'), findsOneWidget, reason: 'the same period of last year');
+      expect(find.text('Từ 1.000 tỷ đồng đến 1.100 tỷ đồng (83,33% đến 91,67% kế hoạch)'), findsOneWidget, reason: 'the year-end band');
       expect(find.text('7'), findsOneWidget, reason: 'projects needing attention');
       expect(find.text('2'), findsOneWidget, reason: 'units not reporting');
       expect(find.text('1'), findsOneWidget, reason: 'overdue directives');
@@ -253,7 +253,7 @@ void main() {
 
       expect(find.textContaining('Chưa có số liệu nào được nạp vào lõi dữ liệu'), findsOneWidget);
       expect(find.text('Bảng điều hành Ban chỉ đạo'), findsOneWidget);
-      expect(find.text('Từ 1.000.000 triệu đồng đến 1.100.000 triệu đồng'), findsNothing);
+      expect(find.text('Từ 1.000 tỷ đồng đến 1.100 tỷ đồng'), findsNothing);
       expect(find.byTooltip('Làm mới số liệu của Ban chỉ đạo'), findsOneWidget, reason: 'the head can look again');
     });
 

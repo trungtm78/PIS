@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
-import '../read_support/moment.dart';
 import '../read_support/widgets.dart';
 import 'node_stats.dart';
 

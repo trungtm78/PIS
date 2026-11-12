@@ -6,6 +6,7 @@ import 'package:machvon_api_client/machvon_api_client.dart' show ApiError;
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/offline_providers.dart';
@@ -15,7 +16,6 @@ import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
-import '../offline_format.dart';
 import '../offline_labels.dart';
 import '../offline_problem.dart';
 
@@ -163,7 +163,7 @@ class _Summary extends StatelessWidget {
               child: Text(context.t('mob.queue.summary.pending.label', <String, Object>{'count': pending.length}), style: Theme.of(context).textTheme.titleMedium),
             ),
             const SizedBox(height: 4),
-            Text(context.t('mob.queue.summary.size.label', <String, Object>{'size': formatBytes(bytes)})),
+            Text(context.t('mob.queue.summary.size.label', <String, Object>{'size': formatBytes(bytes, language: AppStrings.of(context).language)})),
             if (unknown > 0) Text(context.t('mob.queue.summary.unknown.label', <String, Object>{'count': unknown})),
             if (working && total > 0) ...<Widget>[
               const SizedBox(height: 8),
@@ -205,7 +205,7 @@ class _CommandTile extends StatelessWidget {
     final String type = commandTypeLabel(context, command.commandType);
     final String state = stateLabel(context, command.state);
     final String? reason = reasonOf(context, command);
-    final String size = context.t('mob.queue.item.size.label', <String, Object>{'size': formatBytes(command.payloadBytes)});
+    final String size = context.t('mob.queue.item.size.label', <String, Object>{'size': formatBytes(command.payloadBytes, language: AppStrings.of(context).language)});
     final String? code = command.errorCode == null ? null : context.t('mob.queue.item.code.label', <String, Object>{'code': command.errorCode!});
     return Card(
       child: Padding(

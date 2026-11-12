@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/clock.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../labels.dart';
@@ -78,8 +77,8 @@ class _Result extends StatelessWidget {
             FactLine(label: context.t('mob.rep.result.status.label'), value: reportStatusLabel(context, view.status)),
             FactLine(label: context.t('mob.rep.result.submittedAt.label'), value: submittedAt == null ? context.t('mob.rep.result.notSubmitted.body') : formatMoment(submittedAt)),
             if (handedIn) FactLine(label: context.t('mob.rep.result.timeliness.label'), value: view.isLate ? context.t('mob.rep.result.late.body') : context.t('mob.rep.result.onTime.body')),
-            FactLine(label: context.t('mob.rep.totals.six.label'), value: millionsLabel(context, view.cumulativeTotal)),
-            FactLine(label: context.t('mob.rep.totals.ctmtqg.label'), value: millionsLabel(context, view.ctmtqgTotal)),
+            FactLine(label: context.t('mob.rep.totals.six.label'), value: moneyLabel(context, view.cumulativeTotal)),
+            FactLine(label: context.t('mob.rep.totals.ctmtqg.label'), value: moneyLabel(context, view.ctmtqgTotal)),
           ],
         ),
         SectionCard(

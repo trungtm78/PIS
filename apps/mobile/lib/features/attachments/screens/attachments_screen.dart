@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_policy.dart';
@@ -17,7 +18,6 @@ import '../../../core/offline/offline_providers.dart';
 import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
-import '../../offline/offline_format.dart';
 import '../../read_support/navigate.dart';
 
 /// MOB-19: the files of a record on their way to the server, each with its size, its progress in chunks, its state
@@ -233,7 +233,7 @@ class _UploadTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String state = _state(context, upload.state);
-    final String size = context.t('mob.attach.item.size.label', <String, Object>{'size': formatBytes(upload.sizeBytes)});
+    final String size = context.t('mob.attach.item.size.label', <String, Object>{'size': formatBytes(upload.sizeBytes, language: AppStrings.of(context).language)});
     final bool waiting = upload.state == UploadState.pending;
     final bool problem = upload.state == UploadState.failed || upload.state == UploadState.infected;
     final String? reason = problem ? _reason(context, upload.errorCode) : (waiting && upload.errorCode != null ? context.t('mob.attach.reason.waiting.body') : null);

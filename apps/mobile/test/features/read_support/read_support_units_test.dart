@@ -1,8 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:machvon_mobile/core/format/format.dart';
 import 'package:machvon_mobile/features/read_support/attempts.dart';
-import 'package:machvon_mobile/features/read_support/moment.dart';
-import 'package:machvon_mobile/features/read_support/money.dart';
 import 'package:machvon_mobile/features/read_support/paged.dart';
 import 'package:machvon_mobile/features/read_support/read_cache.dart';
 import 'package:machvon_mobile/features/read_support/read_support_strings.dart';
@@ -19,19 +18,7 @@ void main() {
       expect(sumDong(<String>['123456789012345678901234', '1']), '123456789012345678901235', reason: 'beyond what a double holds');
     });
 
-    test('millions are written exactly with the marks of the language, six decimals hold every dong', () {
-      expect(formatMillions('420000000', 'vi'), '420');
-      expect(formatMillions('420500000', 'vi'), '420,5');
-      expect(formatMillions('420500000', 'en'), '420.5');
-      expect(formatMillions('1234000000', 'vi'), '1.234');
-      expect(formatMillions('1234000000', 'en'), '1,234');
-      expect(formatMillions('1', 'vi'), '0,000001');
-      expect(formatMillions('0', 'vi'), '0');
-      expect(formatMillions('-30000000', 'vi'), '-30');
-      expect(formatMillions('abc', 'vi'), 'abc');
-    });
-
-    test('whole dong are grouped, a fall is negative and a rise has a plus', () {
+    test('whole dong are grouped and a fall is negative', () {
       expect(formatDong('420000000', 'vi'), '420.000.000');
       expect(formatDong('420000000', 'en'), '420,000,000');
       expect(formatDong('-1234', 'vi'), '-1.234');
@@ -39,10 +26,6 @@ void main() {
       expect(formatDong('1.5', 'vi'), '1.5');
       expect(differenceDong('90000000', '100000000'), '-10000000');
       expect(differenceDong('100', '100'), '0');
-      expect(formatSignedMillions('20000000', 'vi'), '+20');
-      expect(formatSignedMillions('-10000000', 'vi'), '-10');
-      expect(formatSignedMillions('0', 'vi'), '0');
-      expect(formatSignedMillions('x', 'vi'), 'x');
     });
 
     test('a percent keeps the digits the server gave it and takes the decimal mark of the language', () {

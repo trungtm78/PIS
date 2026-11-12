@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../dashboard/committee_workspace.dart';
 import '../../dashboard/widgets/committee_card.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
-import '../../read_support/money.dart';
 import '../../read_support/widgets.dart';
 import '../committee_dashboard.dart';
 
@@ -217,10 +215,10 @@ class _RowTile extends StatelessWidget {
             Text(row.label, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
             Padding(padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4), child: Wrap(children: <Widget>[_RagPill(rag: row.hasRate ? row.rag : CommitteeRag.noData)])),
             Text(context.t('mob.ban.row.projects', <String, Object>{'count': row.projects, 'attention': row.attentionProjects}), style: theme.textTheme.bodySmall),
-            Text(context.t('mob.ban.row.plan', <String, Object>{'amount': millionsLabel(context, row.planVnd)}), style: theme.textTheme.bodyMedium),
+            Text(context.t('mob.ban.row.plan', <String, Object>{'amount': moneyLabel(context, row.planVnd)}), style: theme.textTheme.bodyMedium),
             if (row.planSharePct != null) Text(context.t('mob.ban.row.share', <String, Object>{'share': '${formatPercent(row.planSharePct!, language)}%'}), style: theme.textTheme.bodySmall),
             Text(
-              row.disbursedVnd == null ? context.t('mob.home.committee.value.none') : context.t('mob.ban.row.disbursed', <String, Object>{'amount': millionsLabel(context, row.disbursedVnd)}),
+              row.disbursedVnd == null ? context.t('mob.home.committee.value.none') : context.t('mob.ban.row.disbursed', <String, Object>{'amount': moneyLabel(context, row.disbursedVnd)}),
               style: theme.textTheme.bodyMedium,
             ),
             Text(
@@ -296,7 +294,7 @@ class _Attention extends StatelessWidget {
                     ),
                   Text(
                     context.t('mob.ban.attention.progress', <String, Object>{
-                      'plan': millionsLabel(context, project.planVnd),
+                      'plan': moneyLabel(context, project.planVnd),
                       'rate': project.ratePct == null ? context.t('mob.home.committee.value.none') : '${formatPercent(project.ratePct!, language)}%',
                       'expected': '${formatPercent(project.expectedPct, language)}%',
                     }),

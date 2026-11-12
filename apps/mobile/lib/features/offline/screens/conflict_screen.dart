@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/drafts/conflict_adapter.dart';
@@ -18,7 +19,6 @@ import '../../../core/offline/queue/queue_runner.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
-import '../offline_format.dart';
 import '../offline_labels.dart';
 import '../offline_problem.dart';
 
@@ -180,7 +180,7 @@ class _DifferenceCard extends StatelessWidget {
 
   String _show(BuildContext context, Object? value) {
     if (value == null) return context.t('mob.conflict.absent.label');
-    if (difference.isMoney && Decimal.tryParse(value) != null) return formatMoney(value, language);
+    if (difference.isMoney && Decimal.tryParse(value) != null) return formatNumber(value, language);
     return value is String ? value : jsonEncode(value);
   }
 
@@ -190,7 +190,7 @@ class _DifferenceCard extends StatelessWidget {
     final String mine = _show(context, difference.mine);
     final String server = _show(context, difference.server);
     final Decimal? delta = difference.moneyDelta;
-    final String? deltaText = delta == null ? null : context.t('mob.conflict.delta.label', <String, Object>{'delta': formatMoney(delta.toPlainString(), language, signed: true)});
+    final String? deltaText = delta == null ? null : context.t('mob.conflict.delta.label', <String, Object>{'delta': formatNumber(delta.toPlainString(), language, signed: true)});
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),

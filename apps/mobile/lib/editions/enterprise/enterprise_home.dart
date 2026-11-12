@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 
 import '../../core/di/providers.dart';
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
 import '../../features/account/account_providers.dart';
-import '../../features/read_support/moment.dart';
 import '../../features/read_support/widgets.dart';
 import '../../features/read_support/wire.dart';
 import '../../features/session/auth/identity_api.dart';

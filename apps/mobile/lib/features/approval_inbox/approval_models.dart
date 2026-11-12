@@ -1,4 +1,4 @@
-import '../read_support/money.dart';
+import '../../core/format/format.dart';
 import '../read_support/wire.dart';
 
 /// The permission that decides an approval task; the server judges it again, and demands a fresh second factor for it.

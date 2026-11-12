@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/widgets.dart';
 import '../funding.dart';
@@ -133,8 +133,8 @@ class _Amount extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(millionsLabel(context, vnd), style: (large ? theme.textTheme.headlineSmall : theme.textTheme.titleMedium)?.copyWith(fontWeight: FontWeight.w700)),
-          if (vnd != null) Text(dongLabel(context, vnd), style: theme.textTheme.bodySmall),
+          Text(moneyLabel(context, vnd), style: (large ? theme.textTheme.headlineSmall : theme.textTheme.titleMedium)?.copyWith(fontWeight: FontWeight.w700)),
+          if (vnd != null) Text(moneyExactLabel(context, vnd), style: theme.textTheme.bodySmall),
         ],
       ),
     );
@@ -162,7 +162,7 @@ class _SourceCardView extends StatelessWidget {
             Text(
               subset.vnd == null
                   ? context.t('mob.home.funding.subset.none')
-                  : context.t('mob.home.funding.subset.line', <String, Object>{'value': millionsLabel(context, subset.vnd)}),
+                  : context.t('mob.home.funding.subset.line', <String, Object>{'value': moneyLabel(context, subset.vnd)}),
               style: theme.textTheme.bodyMedium,
             ),
           if (subset != null && subset.partial && subset.vnd != null) Text(context.t('mob.home.funding.subset.partial'), style: theme.textTheme.bodySmall),

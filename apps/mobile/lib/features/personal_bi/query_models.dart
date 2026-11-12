@@ -1,5 +1,5 @@
+import '../../core/format/format.dart';
 import '../../core/offline/drafts/decimal.dart';
-import '../read_support/money.dart';
 import '../read_support/wire.dart';
 
 /// The quality badge DGV gives the data a figure comes from (`quality_badge`).

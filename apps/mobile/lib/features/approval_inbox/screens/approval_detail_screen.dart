@@ -3,14 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
-import '../../read_support/money.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../approval_models.dart';
@@ -90,7 +88,7 @@ class _DetailBody extends StatelessWidget {
           title: context.t('mob.apv.detail.content.title'),
           children: <Widget>[
             if (task.amountVnd != null) ...<Widget>[
-              KpiTile(label: context.t('mob.apv.detail.content.amount'), value: millionsLabel(context, task.amountVnd)),
+              KpiTile(label: context.t('mob.apv.detail.content.amount'), value: moneyLabel(context, task.amountVnd)),
               const SizedBox(height: MachvonSpace.space8),
             ],
             FactLine(label: context.t('mob.apv.detail.content.type'), value: businessTypeLabel(context, task.businessType)),
@@ -160,14 +158,14 @@ class _ComparisonCard extends StatelessWidget {
             padding: const EdgeInsets.only(top: MachvonSpace.space8),
             child: Text(
               context.t('mob.apv.detail.compare.total', <String, Object>{
-                'previous': millionsLabel(context, previous.totalVnd),
-                'current': millionsLabel(context, report.totalVnd),
+                'previous': moneyLabel(context, previous.totalVnd),
+                'current': moneyLabel(context, report.totalVnd),
                 'change': _change(context, differenceDong(report.totalVnd, previous.totalVnd), language),
               }),
               style: theme.textTheme.bodyLarge,
             ),
           ),
-          Text(context.t('mob.apv.detail.compare.ctmtqg', <String, Object>{'value': millionsLabel(context, report.ctmtqgVnd)}), style: theme.textTheme.bodySmall),
+          Text(context.t('mob.apv.detail.compare.ctmtqg', <String, Object>{'value': moneyLabel(context, report.ctmtqgVnd)}), style: theme.textTheme.bodySmall),
         ],
       ],
     );
@@ -176,7 +174,7 @@ class _ComparisonCard extends StatelessWidget {
 
 /// The change of an amount as a person reads it: a rise has a plus, a fall a minus, no change says so.
 String _change(BuildContext context, String changeVnd, String language) =>
-    changeVnd == '0' ? context.t('mob.apv.detail.compare.unchanged') : context.t('mob.read.money.millions', <String, Object>{'value': formatSignedMillions(changeVnd, language)});
+    changeVnd == '0' ? context.t('mob.apv.detail.compare.unchanged') : signedMoneyLabel(context, changeVnd);
 
 class _CellLine extends StatelessWidget {
   const _CellLine({required this.change, required this.language});
@@ -192,8 +190,8 @@ class _CellLine extends StatelessWidget {
         child: Text(
           context.t('mob.apv.detail.compare.cell', <String, Object>{
             'cell': cellLabel(context, change.bucket, change.level),
-            'previous': millionsLabel(context, change.previousVnd),
-            'current': millionsLabel(context, change.currentVnd),
+            'previous': moneyLabel(context, change.previousVnd),
+            'current': moneyLabel(context, change.currentVnd),
             'change': _change(context, change.changeVnd, language),
           }),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: change.changed ? FontWeight.w700 : FontWeight.w400),

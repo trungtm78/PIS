@@ -40,6 +40,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  permission_handler_platform_interface: any
+  plugin_platform_interface: any
+  device_info_plus_platform_interface: any
+  local_auth_platform_interface: any
+  flutter_web_auth_2_platform_interface: any
 hooks:
   user_defines:
     sqlite3:

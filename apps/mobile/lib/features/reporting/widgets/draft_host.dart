@@ -9,13 +9,13 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/offline/offline_providers.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../data/report_drafts.dart';
 import '../data/report_providers.dart';

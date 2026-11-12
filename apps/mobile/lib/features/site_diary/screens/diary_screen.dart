@@ -8,6 +8,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_policy.dart';
@@ -25,7 +26,6 @@ import '../../offline/offline_labels.dart';
 import '../../read_support/clock.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/offline.dart';
 import '../../read_support/widgets.dart';

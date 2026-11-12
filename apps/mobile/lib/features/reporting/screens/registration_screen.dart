@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/amounts.dart';
-import '../../read_support/money.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../labels.dart';
@@ -58,8 +57,8 @@ class _Registration extends StatelessWidget {
         SectionCard(
           title: context.t('mob.rep.totals.title'),
           children: <Widget>[
-            FactLine(label: context.t('mob.rep.registration.total.label'), value: millionsLabel(context, total)),
-            FactLine(label: context.t('mob.rep.totals.ctmtqg.label'), value: millionsLabel(context, ctmtqg)),
+            FactLine(label: context.t('mob.rep.registration.total.label'), value: moneyLabel(context, total)),
+            FactLine(label: context.t('mob.rep.totals.ctmtqg.label'), value: moneyLabel(context, ctmtqg)),
             Text(context.t('mob.rep.ctmtqg.note.body'), style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
@@ -92,8 +91,8 @@ class _RegistrationCell extends StatelessWidget {
     return SectionCard(
       title: cellLabel(context, cell),
       children: <Widget>[
-        if (reference != null) FactLine(label: context.t('mob.rep.cell.allocated.label'), value: millionsLabel(context, reference.allocated)),
-        if (remaining != null) FactLine(label: context.t('mob.rep.registration.remaining.label'), value: millionsLabel(context, remaining)),
+        if (reference != null) FactLine(label: context.t('mob.rep.cell.allocated.label'), value: moneyLabel(context, reference.allocated)),
+        if (remaining != null) FactLine(label: context.t('mob.rep.registration.remaining.label'), value: moneyLabel(context, remaining)),
         if (notApplicable)
           Text(context.t('mob.rep.cell.notApplicable.body', <String, Object>{'level': levelLabel(context, cell.level)}), style: Theme.of(context).textTheme.bodyMedium)
         else ...<Widget>[

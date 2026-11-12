@@ -1,4 +1,4 @@
-import '../read_support/money.dart';
+import '../../core/format/format.dart';
 import '../read_support/wire.dart';
 
 // Everything here is read from the server and shown. Money is a string of whole dong (never a number, never a float) and is shown

@@ -1,4 +1,4 @@
-import '../read_support/money.dart';
+import '../../core/format/format.dart';
 import '../read_support/wire.dart';
 
 /// The fund source categories of the funding structure, in the order of the screen. CTMTQG is a subset of its parent

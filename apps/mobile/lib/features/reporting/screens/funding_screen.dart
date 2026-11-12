@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/widgets.dart';
 import '../labels.dart';
 import '../model/fields.dart';
@@ -85,9 +85,9 @@ class _Funding extends StatelessWidget {
         SectionCard(
           title: context.t('mob.rep.totals.title'),
           children: <Widget>[
-            FactLine(label: context.t('mob.rep.totals.bucket.label'), value: millionsLabel(context, ofBucket)),
-            FactLine(label: context.t('mob.rep.totals.six.label'), value: millionsLabel(context, cumulative)),
-            FactLine(label: context.t('mob.rep.totals.ctmtqg.label'), value: millionsLabel(context, ctmtqg)),
+            FactLine(label: context.t('mob.rep.totals.bucket.label'), value: moneyLabel(context, ofBucket)),
+            FactLine(label: context.t('mob.rep.totals.six.label'), value: moneyLabel(context, cumulative)),
+            FactLine(label: context.t('mob.rep.totals.ctmtqg.label'), value: moneyLabel(context, ctmtqg)),
             Text(context.t('mob.rep.ctmtqg.note.body'), style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
@@ -148,8 +148,8 @@ class _CellCard extends StatelessWidget {
     return SectionCard(
       title: cellLabel(context, cell),
       children: <Widget>[
-        if (reference != null) FactLine(label: context.t('mob.rep.cell.allocated.label'), value: millionsLabel(context, reference.allocated)),
-        if (reference?.previous != null) FactLine(label: context.t('mob.rep.cell.previous.label'), value: millionsLabel(context, reference!.previous)),
+        if (reference != null) FactLine(label: context.t('mob.rep.cell.allocated.label'), value: moneyLabel(context, reference.allocated)),
+        if (reference?.previous != null) FactLine(label: context.t('mob.rep.cell.previous.label'), value: moneyLabel(context, reference!.previous)),
         if (notApplicable)
           Semantics(
             container: true,
@@ -167,7 +167,7 @@ class _CellCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: Text(
-                context.t('mob.rep.cell.change.label', <String, Object>{'change': signedMillionsLabel(context, delta)}),
+                context.t('mob.rep.cell.change.label', <String, Object>{'change': signedMoneyLabel(context, delta)}),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: delta.startsWith('-') ? Theme.of(context).colorScheme.error : null),
               ),
             ),

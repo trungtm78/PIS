@@ -1,4 +1,4 @@
-import '../read_support/moment.dart';
+import '../../core/format/format.dart';
 import '../read_support/wire.dart';
 
 /// What the phone reads of the workflow of procurement packages (PRC-1, BID-27..30 on the web): the process tree ("Progress tree"), the

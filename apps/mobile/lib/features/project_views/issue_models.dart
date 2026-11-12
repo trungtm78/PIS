@@ -1,4 +1,4 @@
-import '../read_support/moment.dart';
+import '../../core/format/format.dart';
 import '../read_support/wire.dart';
 
 /// The counts of one row of the weekly matrix.

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/widgets.dart';
@@ -85,10 +85,10 @@ class _DetailBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.prj.detail.capital.title'),
           children: <Widget>[
-            KpiTile(label: context.t('mob.prj.detail.capital.total'), value: millionsLabel(context, detail.totalInvestmentVnd)),
+            KpiTile(label: context.t('mob.prj.detail.capital.total'), value: moneyLabel(context, detail.totalInvestmentVnd)),
             Padding(
               padding: const EdgeInsets.only(top: MachvonSpace.space4),
-              child: Text(dongLabel(context, detail.totalInvestmentVnd), style: theme.textTheme.bodySmall),
+              child: Text(moneyExactLabel(context, detail.totalInvestmentVnd), style: theme.textTheme.bodySmall),
             ),
           ],
         ),

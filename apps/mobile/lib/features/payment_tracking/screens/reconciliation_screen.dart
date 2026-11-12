@@ -4,16 +4,15 @@ import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/empty_state_view.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/paged.dart';
 import '../../read_support/widgets.dart';
@@ -80,7 +79,7 @@ class _BoardScreenState extends State<_BoardScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: MachvonSpace.space8),
-                                    KpiTile(label: context.t('mob.treasury.board.summary.difference'), value: dongLabel(context, board.waitingDifferenceVnd)),
+                                    KpiTile(label: context.t('mob.treasury.board.summary.difference'), value: moneyExactLabel(context, board.waitingDifferenceVnd)),
                                   ],
                                 ),
                                 CheckboxListTile(

@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../project_views/project_models.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/moment.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/paged.dart';
 import '../../read_support/widgets.dart';
@@ -140,8 +139,8 @@ class _ChainBody extends StatelessWidget {
               columns: 1,
               tiles: <Widget>[
                 KpiTile(label: context.t('mob.paytrack.chain.totals.count'), value: '${chain.countedRequests}'),
-                KpiTile(label: context.t('mob.paytrack.chain.totals.gross'), value: dongLabel(context, chain.countedGrossVnd)),
-                KpiTile(label: context.t('mob.paytrack.chain.totals.settled'), value: dongLabel(context, chain.settledGrossVnd)),
+                KpiTile(label: context.t('mob.paytrack.chain.totals.gross'), value: moneyExactLabel(context, chain.countedGrossVnd)),
+                KpiTile(label: context.t('mob.paytrack.chain.totals.settled'), value: moneyExactLabel(context, chain.settledGrossVnd)),
               ],
             ),
             const SizedBox(height: MachvonSpace.space8),
@@ -185,8 +184,8 @@ class _RequestRow extends StatelessWidget {
     final String? net = request.fact('net_vnd');
     final String? created = request.fact('created_at');
     final String amounts = context.t('mob.paytrack.chain.row.amounts', <String, Object>{
-      'gross': request.amountVnd == null ? context.t('mob.treasury.figure.none') : dongLabel(context, request.amountVnd),
-      'net': net == null ? context.t('mob.treasury.figure.none') : dongLabel(context, net),
+      'gross': request.amountVnd == null ? context.t('mob.treasury.figure.none') : moneyExactLabel(context, request.amountVnd),
+      'net': net == null ? context.t('mob.treasury.figure.none') : moneyExactLabel(context, net),
     });
     return TappableRow(
       semanticLabel: context.t('mob.paytrack.chain.row.aria', <String, Object>{'no': request.label, 'kind': kind, 'status': status, 'amounts': amounts}),
@@ -262,14 +261,14 @@ class _TimelineBody extends StatelessWidget {
         SectionCard(
           title: context.t('mob.paytrack.amounts.title'),
           children: <Widget>[
-            KpiTile(label: context.t('mob.paytrack.amounts.gross'), value: dongLabel(context, request.grossVnd)),
+            KpiTile(label: context.t('mob.paytrack.amounts.gross'), value: moneyExactLabel(context, request.grossVnd)),
             const SizedBox(height: MachvonSpace.space8),
-            FactLine(label: context.t('mob.paytrack.amounts.advance'), value: dongLabel(context, request.advanceRecoveryVnd)),
-            FactLine(label: context.t('mob.paytrack.amounts.retention'), value: dongLabel(context, request.retentionVnd)),
-            if (request.taxAdjustmentVnd != null) FactLine(label: context.t('mob.paytrack.amounts.tax'), value: dongLabel(context, request.taxAdjustmentVnd)),
-            if (request.advanceRecoveryExtraVnd != null) FactLine(label: context.t('mob.paytrack.amounts.extra'), value: dongLabel(context, request.advanceRecoveryExtraVnd)),
+            FactLine(label: context.t('mob.paytrack.amounts.advance'), value: moneyExactLabel(context, request.advanceRecoveryVnd)),
+            FactLine(label: context.t('mob.paytrack.amounts.retention'), value: moneyExactLabel(context, request.retentionVnd)),
+            if (request.taxAdjustmentVnd != null) FactLine(label: context.t('mob.paytrack.amounts.tax'), value: moneyExactLabel(context, request.taxAdjustmentVnd)),
+            if (request.advanceRecoveryExtraVnd != null) FactLine(label: context.t('mob.paytrack.amounts.extra'), value: moneyExactLabel(context, request.advanceRecoveryExtraVnd)),
             const SizedBox(height: MachvonSpace.space8),
-            KpiTile(label: context.t('mob.paytrack.amounts.net'), value: dongLabel(context, request.netVnd)),
+            KpiTile(label: context.t('mob.paytrack.amounts.net'), value: moneyExactLabel(context, request.netVnd)),
           ],
         ),
         SectionCard(
@@ -322,7 +321,7 @@ class _EventLine extends StatelessWidget {
           children: <Widget>[
             Text(_name(context), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
             if (when != null) Text(when, style: theme.textTheme.bodySmall),
-            if (event.amountVnd != null) Text(dongLabel(context, event.amountVnd), style: theme.textTheme.bodySmall),
+            if (event.amountVnd != null) Text(moneyExactLabel(context, event.amountVnd), style: theme.textTheme.bodySmall),
           ],
         ),
       ),

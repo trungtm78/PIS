@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
+import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/widgets/figure_info.dart';
 import '../../directives/widgets/directive_widget.dart';
-import '../../read_support/amounts.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/money.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../alert_badge.dart';
@@ -220,7 +219,7 @@ class _CommandBlock extends StatelessWidget {
                         Text(
                           shownAmount == null
                               ? context.t('mob.home.tile.nullReason.other')
-                              : (shownAmount.value == null ? _nullReasonText(context, shownAmount.nullReason) : millionsLabel(context, shownAmount.value)),
+                              : (shownAmount.value == null ? _nullReasonText(context, shownAmount.nullReason) : moneyLabel(context, shownAmount.value)),
                           style: theme.textTheme.headlineSmall?.copyWith(fontSize: 32, fontWeight: FontWeight.w700, height: 1.1),
                         ),
                       ],
@@ -254,7 +253,7 @@ class _CommandBlock extends StatelessWidget {
         ? _nullReasonText(context, tile.nullReason)
         : context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.displayValue ?? tile.value!, AppStrings.of(context).language)});
     final String line = tile.hasSums && tile.value != null
-        ? context.t('mob.home.command.rate.line', <String, Object>{'label': label, 'value': value, 'numerator': millionsLabel(context, tile.numerator), 'denominator': millionsLabel(context, tile.denominator)})
+        ? context.t('mob.home.command.rate.line', <String, Object>{'label': label, 'value': value, 'numerator': moneyLabel(context, tile.numerator, decimals: 3), 'denominator': moneyLabel(context, tile.denominator, decimals: 3)})
         : '$label: $value';
     final FigureInfo? info = tile.info;
     return Padding(
@@ -492,8 +491,8 @@ class MetricTileCard extends StatelessWidget {
     final String label = metricLabel(context, tile.metricCode);
     final String value = _valueOf(context, tile);
     final String? sums = tile.hasSums
-        ? '${context.t('mob.home.tile.numerator', <String, Object>{'value': millionsLabel(context, tile.numerator)})} · '
-            '${context.t('mob.home.tile.denominator', <String, Object>{'value': millionsLabel(context, tile.denominator)})}'
+        ? '${context.t('mob.home.tile.numerator', <String, Object>{'value': moneyLabel(context, tile.numerator, decimals: 3)})} · '
+            '${context.t('mob.home.tile.denominator', <String, Object>{'value': moneyLabel(context, tile.denominator, decimals: 3)})}'
         : null;
     final String definition = tile.isSigned
         ? context.t('mob.home.tile.definition.signed')
@@ -546,7 +545,7 @@ class MetricTileCard extends StatelessWidget {
     if (tile.unit == TileUnit.percent) {
       return context.t('mob.home.tile.value.percent', <String, Object>{'value': formatPercent(tile.displayValue ?? value, AppStrings.of(context).language)});
     }
-    return millionsLabel(context, value);
+    return moneyLabel(context, value);
   }
 }
 
