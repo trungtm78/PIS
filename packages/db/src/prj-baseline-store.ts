@@ -19,6 +19,7 @@ import { idOf } from './prj-accountability-support.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { lockProject } from './prj-stage-support.ts';
 import type { LockedProject, StageScopes } from './prj-stage-support.ts';
+import { SqlProjectScheduleReader } from './pwf-schedule-read.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -242,15 +243,12 @@ export async function loadProjectFacts(tx: TenantTx, projectId: string): Promise
     `select id, parent_component_id, code, name, planned_value_vnd::text as planned_value_vnd, valid_from::text as valid_from, valid_until::text as valid_until from machvon.project_component where project_id = $1::uuid`,
     [projectId],
   );
-  const milestones = await tx.query<{ id: string; component_id: string | null; code: string; baseline_date: string; planned_date: string; status: MilestoneFact['status'] }>(
-    `select id, component_id, code, baseline_date::text as baseline_date, planned_date::text as planned_date, status from machvon.project_milestone where project_id = $1::uuid`,
-    [projectId],
-  );
+  const milestones = await new SqlProjectScheduleReader().milestones(tx, projectId);
   const [project] = await tx.query<{ end_year: number | null; total_investment_vnd: string }>('select end_year, total_investment_vnd::text as total_investment_vnd from machvon.project where id = $1::uuid', [projectId]);
   if (project === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
   return {
     components: components.map((row) => ({ id: row.id, parentId: row.parent_component_id, code: row.code, name: row.name, plannedValueVnd: row.planned_value_vnd, validFrom: row.valid_from, validUntil: row.valid_until })),
-    milestones: milestones.map((row) => ({ id: row.id, componentId: row.component_id, code: row.code, baselineDate: row.baseline_date, plannedDate: row.planned_date, status: row.status })),
+    milestones: milestones.map((row) => ({ id: row.id, componentId: row.componentId, code: row.code, baselineDate: row.baselineDate, plannedDate: row.plannedDate, status: row.status })),
     endYear: project.end_year,
     totalInvestmentVnd: project.total_investment_vnd,
   };

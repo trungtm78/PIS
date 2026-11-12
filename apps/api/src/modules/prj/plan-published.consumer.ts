@@ -59,7 +59,21 @@ export class PlanPublishedConsumer {
       PRJ_PLAN_PUBLISHED_CONSUMER,
       async (tx) => {
         const correlationId = randomUUID();
-        const changes = await this.stages.budgetFromPublishedPlan(tx, { ...plan, eventId: delivery.id, actor: WORKER_MEMBERSHIP_ID });
+        const { changes, refused } = await this.stages.budgetFromPublishedPlanGated(tx, { ...plan, eventId: delivery.id, actor: WORKER_MEMBERSHIP_ID });
+        // A project whose workflow keeps the publication of the plan closed stays in the pipeline: the event moves nothing for it and says why (PWF-1, BR-PWF-13). Ids, codes and reasons only.
+        for (const one of refused) {
+          await enqueueOutbox(tx, {
+            aggregateType: 'project',
+            aggregateId: one.projectId,
+            aggregateVersion: 0,
+            type: 'pwf.gate.refused.v1',
+            schemaVersion: 1,
+            payload: { tenant_id: delivery.tenantId, project_id: one.projectId, workflow_id: one.outcome.workflowId, target: one.outcome.target, missing: one.outcome.missing.map((missing) => ({ task: missing.task, reason: missing.reason })), occurred_at: new Date().toISOString() },
+            eventKey: `project:${one.projectId}:${delivery.id}:pwf.gate.refused.v1`,
+            correlationId,
+            causationId: delivery.id,
+          });
+        }
         for (const change of changes) {
           const record = stageChangeRecord(change, delivery.tenantId, new Date());
           await this.audit.recordInTx(tx, WORKER_MEMBERSHIP_ID, { ...record.audit, correlationId, requestId: randomUUID() });

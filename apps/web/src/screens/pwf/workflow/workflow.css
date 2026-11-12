@@ -1,0 +1,42 @@
+.pwf-board {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: start;
+}
+.pwf-board__column {
+  background: var(--mv-color-surface2);
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.pwf-board__column h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+.pwf-board__column ul,
+.pwf-gates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.pwf-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: var(--mv-color-surface);
+  border: 1px solid var(--mv-color-border);
+  border-radius: 6px;
+}
+.pwf-card__due,
+.pwf-card__who {
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-gate ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}

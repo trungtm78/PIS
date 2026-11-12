@@ -53,6 +53,14 @@ describe('ProcessTree: the flow view', () => {
     expect(card.textContent).toContain('lâu nhất 19 ngày');
   });
 
+  it('says what the count counts in the word the board gives, packages when it gives none', () => {
+    const { unmount } = render(<ProcessTree nodes={NODES} edges={EDGES} view="flow" caption="Cây tiến độ" onSelect={() => undefined} />);
+    expect(within(screen.getByRole('button', { name: /Lập hồ sơ mời thầu/ })).getByText('gói')).toBeInTheDocument();
+    unmount();
+    render(<ProcessTree nodes={NODES} edges={EDGES} view="flow" caption="Cây tiến độ" unitWord="việc" onSelect={() => undefined} />);
+    expect(within(screen.getByRole('button', { name: /Lập hồ sơ mời thầu/ })).getByText('việc')).toBeInTheDocument();
+  });
+
   it('says the health with an icon and a word, never by colour alone', () => {
     render(<ProcessTree nodes={NODES} edges={EDGES} view="flow" caption="c" onSelect={() => undefined} />);
     const late = screen.getByRole('button', { name: /Lập hồ sơ mời thầu/ });

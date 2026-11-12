@@ -11731,6 +11731,173 @@
       "req": "FR-IPF-01",
       "rule": "Chỉ đọc, chỉ bản enterprise. Mốc chưa có hiển thị là CHƯA CÓ, không hiển thị là đã xong. Mốc đạt trước mốc đứng trước hoặc mốc bắt buộc bị bỏ qua được nêu thành cảnh báo. Hồ sơ pháp lý chỉ gồm hồ sơ còn hiệu lực người xem được đọc theo phạm vi. Số tiền theo nguồn là số của bản kế hoạch đã phát hành (người soạn thấy thêm bản đang soạn)."
     },
+    "PWF-01": {
+      "title": "Thư viện mẫu workflow",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Quản trị quy trình dự án, người duyệt quy tắc và người đọc có quyền pwf.read",
+      "fields": [
+        "Mã mẫu và tên",
+        "Loại dự án",
+        "Phiên bản và trạng thái duyệt",
+        "Hiệu lực từ ngày",
+        "Số giai đoạn và số việc",
+        "Cờ \"mặc định, chưa xác nhận\"",
+        "So sánh hai phiên bản"
+      ],
+      "req": "FR-PWF-01",
+      "rule": "Mẫu là quy tắc có phiên bản. Người duyệt khác người soạn. Dự án đang chạy giữ bản đã đóng băng. Mẫu chưa kiểm chứng ghi nhãn."
+    },
+    "PWF-02": {
+      "title": "Soạn mẫu workflow",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Quản trị quy trình dự án",
+      "fields": [
+        "Giai đoạn và cổng chặn lệnh PRJ",
+        "Cây công việc: thời lượng ngày làm việc, bắt buộc, vai phụ trách, người duyệt hoàn thành",
+        "Liên kết FS, SS, FF, SF và độ trễ",
+        "Nhánh theo nhóm dự án và nguồn vốn",
+        "Loại chứng từ pháp lý và biểu mẫu",
+        "Danh mục kiểm",
+        "Mã KPI",
+        "Lỗi kiểm trực tiếp và gợi ý chất lượng lịch",
+        "Xem trước lịch"
+      ],
+      "req": "FR-PWF-02",
+      "rule": "Kiểm lỗi trực tiếp (vòng lặp, tham chiếu, giới hạn 400 việc, 12 giai đoạn). Cảnh báo chất lượng lịch không chặn. Trình duyệt qua kho quy tắc, người duyệt khác người soạn."
+    },
+    "PWF-03": {
+      "title": "Workflow của dự án",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Chủ đầu tư và lãnh đạo và giám sát trong scope",
+      "fields": [
+        "Cây tiến trình theo giai đoạn",
+        "Gantt có đường găng và đường cơ sở",
+        "Bảng việc theo giai đoạn với màu hạn chính thức",
+        "Cổng của lệnh PRJ và danh sách việc còn thiếu",
+        "Mô phỏng \"nếu dời ngày bắt đầu\"",
+        "Việc chưa tính được hạn: thiếu lịch năm N"
+      ],
+      "req": "FR-PWF-03",
+      "rule": "Giai đoạn workflow là dẫn xuất từ công việc, không phải trạng thái pháp định. Việc thiếu lịch không có ngày đoán và không bao giờ xanh. Nhánh bị loại không hiện."
+    },
+    "PWF-04": {
+      "title": "Chi tiết công việc",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Người thực hiện, người duyệt hoàn thành và quản lý dự án trong scope",
+      "fields": [
+        "Chứng từ pháp lý và biểu mẫu sinh từ mẫu",
+        "Danh mục kiểm và bằng chứng",
+        "Ngoại lệ, tạm dừng, hủy, trì hoãn bên ngoài",
+        "Sổ phân công",
+        "Lịch sử và số lần trả lại",
+        "KPI của việc kèm nút \"i\""
+      ],
+      "req": "FR-PWF-04",
+      "rule": "Nút theo quyền và trạng thái do máy chủ trả. Hoàn thành thiếu điều kiện hiện danh sách blockers. Người duyệt khác mọi người làm, không ngoại lệ nào che được."
+    },
+    "PWF-05": {
+      "title": "Khởi tạo và tiếp nhận workflow",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Chủ đầu tư",
+      "fields": [
+        "Chọn mẫu theo loại dự án",
+        "Ngày dự định bắt đầu",
+        "Dữ kiện nhánh: nhóm dự án, nguồn vốn, loại dự án",
+        "Ngày hiệu lực khi tiếp nhận",
+        "Chạy thử và kết quả từng việc",
+        "Việc quá khứ: NOT_TRACKED hoặc đã xong kèm bằng chứng",
+        "Nhập hàng loạt theo danh mục dự án"
+      ],
+      "req": "FR-PWF-05",
+      "rule": "Mỗi dự án một workflow. Chạy thử không ghi dữ liệu. Áp dụng là một giao dịch."
+    },
+    "PWF-06": {
+      "title": "Xem trước và duyệt dời lịch",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "detail",
+      "purpose": "Đây là màn hình xem chi tiết.",
+      "audience": "Quản lý dự án và người duyệt dời lịch khác người đề nghị",
+      "fields": [
+        "So sánh lịch trước và sau theo ngày làm việc",
+        "Thay đổi độ trễ cho phép và đường găng",
+        "Độ lệch so với đường cơ sở đầu",
+        "Lý do dời lịch",
+        "Duyệt hoặc trả"
+      ],
+      "req": "FR-PWF-06",
+      "rule": "Một đề nghị chờ duyệt mỗi workflow. Đường cơ sở không đổi khi dời lịch. Duyệt kèm phiên bản workflow, người sau nhận xung đột."
+    },
+    "PWF-16": {
+      "title": "Sổ phân công",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "table",
+      "purpose": "Đây là bảng dữ liệu.",
+      "audience": "Quản lý dự án trong scope",
+      "fields": [
+        "Người",
+        "Vai R, A, C, I",
+        "Khoảng từ ngày đến ngày",
+        "Tỷ lệ đóng góp",
+        "Lý do và người phân công",
+        "Thêm phân công"
+      ],
+      "req": "FR-PWF-16",
+      "rule": "Chỉ thêm, không sửa. Tổng tỷ lệ cùng vai không quá 100. Khoảng chồng nhau bị chặn. Đổi người chia theo khoảng."
+    },
+    "PWF-07": {
+      "title": "Bảng deadline toàn danh mục",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "dashboard",
+      "purpose": "Đây là bảng điều hành.",
+      "audience": "Lãnh đạo, giám sát và quản lý dự án trong scope",
+      "fields": [
+        "Lọc theo màu, giai đoạn, người, đơn vị",
+        "Số việc theo màu: đỏ, vàng, xanh",
+        "Hàng việc có hạn, màu và biểu tượng",
+        "Lịch tháng",
+        "Mốc 30 ngày tới",
+        "Tải công việc theo người và tuần",
+        "\"Đang hiện N trên M\""
+      ],
+      "req": "FR-PWF-07",
+      "rule": "Chỉ màu chính thức. Tổng theo màu chính xác kể cả khi danh sách bị cắt. Màu luôn kèm chữ và biểu tượng. Tải công việc chỉ hiển thị."
+    },
+    "PWF-08": {
+      "title": "Chính sách ba màu",
+      "module": "PWF",
+      "moduleName": "Workflow dự án, hạn ba màu và KPI",
+      "kind": "form",
+      "purpose": "Đây là biểu mẫu để nhập thông tin.",
+      "audience": "Quản trị quy trình dự án và người duyệt quy tắc",
+      "fields": [
+        "Nguồn cảnh báo: HOME_WORK, REPORT_SCHEDULE, PROJECT_TASK",
+        "Đơn vị: ngày lịch hoặc ngày làm việc",
+        "Ngưỡng xanh, vàng, đỏ",
+        "Ghi đè theo loại việc, mức ưu tiên, giai đoạn",
+        "Mốc nhắc và ngày leo thang",
+        "Xem trước \"còn 5 ngày: xanh, còn 2 ngày: vàng, dưới 1 ngày: đỏ\""
+      ],
+      "req": "FR-PWF-08",
+      "rule": "Thứ tự nghiêm ngặt xanh > vàng > đỏ ≥ -1. Quy tắc có phiên bản, người duyệt khác người soạn."
+    },
     "DOC-24": {
       "title": "Kho hồ sơ dự án",
       "module": "DOC",

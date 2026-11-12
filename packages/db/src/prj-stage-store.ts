@@ -6,6 +6,8 @@ import type { ProjectClassification, ProjectListRow, ProjectStatus } from './prj
 import { PrjLessonsStore } from './prj-lessons-store.ts';
 import { PLAN_PUBLISHED_EVENT, STAGE_SEQUENCE, commandEdgesFrom, edgeBy } from './prj-stage-machine.ts';
 import type { StageCommand } from './prj-stage-machine.ts';
+import { SqlProjectWorkflowGate } from './pwf-gate.ts';
+import type { GateOutcome, ProjectWorkflowGatePort } from './pwf-gate.ts';
 import { effectiveDateOf, invalid, lockProject, projectInScope, reasonOf, recordStageChange, usableDocumentId } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
 import type { ScopeBuilder } from './scope-version.ts';
@@ -322,11 +324,18 @@ export class PrjStageStore {
   private readonly rules: MasterRules;
   private readonly obligations: ProjectObligationsPort;
   private readonly lessons: ProjectLessonsPort;
+  private readonly gate: ProjectWorkflowGatePort;
 
-  constructor(rules: MasterRules = new MasterRules(), obligations: ProjectObligationsPort = new SqlProjectObligations(), lessons: ProjectLessonsPort = new SqlProjectLessons()) {
+  constructor(
+    rules: MasterRules = new MasterRules(),
+    obligations: ProjectObligationsPort = new SqlProjectObligations(),
+    lessons: ProjectLessonsPort = new SqlProjectLessons(),
+    gate: ProjectWorkflowGatePort = new SqlProjectWorkflowGate(),
+  ) {
     this.rules = rules;
     this.obligations = obligations;
     this.lessons = lessons;
+    this.gate = gate;
   }
 
   /**
@@ -346,6 +355,8 @@ export class PrjStageStore {
     const readings = await this.serverGuards(tx, guards, edge.to, locked, request.today);
     const refused = readings.find((reading) => reading.state === 'UNMET');
     if (refused !== undefined) refuse(refused);
+    // The workflow of the project, when it has one, keeps the command closed until the required tasks of the gated phases are done (PWF-1, R29): the same transaction, the same lock.
+    await this.gate.assert(tx, locked.id, request.command);
     const decisionDocumentId = documents.investmentDecisionDocumentId ?? documents.decisionDocumentId ?? null;
     const version = locked.version + 1;
     await tx.query(
@@ -355,6 +366,7 @@ export class PrjStageStore {
         where id = $1::uuid`,
       [locked.id, edge.to, request.actor, version, documents.investmentDecisionDocumentId ?? null],
     );
+    await this.gate.follow(tx, locked.id, edge.to);
     // A project cancelled while it is being appraised takes its open sheets with it: nobody decides on a sheet of a project that is gone.
     if (locked.status === 'APPRAISAL' && edge.to === 'CANCELLED') {
       await tx.query(
@@ -400,8 +412,13 @@ export class PrjStageStore {
    * project in any other stage, or without a funded line in that plan, is left as it is, so a repeated or late event moves nothing.
    */
   async budgetFromPublishedPlan(tx: TenantTx, request: { capitalPlanId: string; projectIds: readonly string[]; eventId: string; actor: string }): Promise<StageChange[]> {
+    return (await this.budgetFromPublishedPlanGated(tx, request)).changes;
+  }
+
+  /** As `budgetFromPublishedPlan`, and says which projects the gate of their workflow kept in the pipeline: the event moves nothing for them and the caller reports the refusal (BR-PWF-13). */
+  async budgetFromPublishedPlanGated(tx: TenantTx, request: { capitalPlanId: string; projectIds: readonly string[]; eventId: string; actor: string }): Promise<{ changes: StageChange[]; refused: Array<{ projectId: string; code: string; outcome: GateOutcome }> }> {
     const plans = await tx.query<{ decision_document_id: string | null }>(`select decision_document_id from machvon.capital_plan where id = $1::uuid and status = 'PUBLISHED'`, [request.capitalPlanId]);
-    if (plans[0] === undefined || request.projectIds.length === 0) return [];
+    if (plans[0] === undefined || request.projectIds.length === 0) return { changes: [], refused: [] };
     const decisionDocumentId = plans[0].decision_document_id;
     const candidates = await tx.query<ProjectStageSql>(
       `select p.id, p.code, p.version::text as version, p.status, p.classification, p.project_group, p.national_project_code
@@ -414,7 +431,14 @@ export class PrjStageStore {
       [[...request.projectIds], request.capitalPlanId],
     );
     const changes: StageChange[] = [];
+    const refused: Array<{ projectId: string; code: string; outcome: GateOutcome }> = [];
     for (const row of candidates) {
+      // A project whose workflow keeps the publication of the plan closed stays in the pipeline; the caller reports it (BR-PWF-13).
+      const outcome = await this.gate.assess(tx, row.id, PLAN_PUBLISHED_EVENT);
+      if (outcome !== undefined && outcome.gated && !outcome.open) {
+        refused.push({ projectId: row.id, code: row.code, outcome });
+        continue;
+      }
       const version = Number(row.version) + 1;
       await tx.query(`update machvon.project set status = 'BUDGETED', status_changed_at = now(), updated_at = now(), updated_by = $2::uuid, version = $3::bigint where id = $1::uuid`, [row.id, request.actor, version]);
       await recordStageChange(tx, {
@@ -447,7 +471,7 @@ export class PrjStageStore {
         nationalCodeWarning: false,
       });
     }
-    return changes;
+    return { changes, refused };
   }
 
   /** The history of the stage of a project, who moved it and on what ground, and the moves it may make now with the state of their guards. */

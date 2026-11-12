@@ -1,0 +1,97 @@
+.pwf-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--mv-color-border);
+  margin: 12px 0;
+}
+.pwf-tabs [role='tab'] {
+  font: inherit;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  color: var(--mv-color-text-secondary);
+  cursor: pointer;
+}
+.pwf-tabs [role='tab'][aria-selected='true'] {
+  background: var(--mv-color-surface);
+  border-color: var(--mv-color-border);
+  color: var(--mv-color-ink);
+  font-weight: 600;
+}
+.pwf-hint {
+  color: var(--mv-color-text-secondary);
+  font-size: 13px;
+}
+.pwf-calendar {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 8px 0 16px;
+}
+.pwf-calendar caption {
+  text-align: left;
+  font-size: 12px;
+  color: var(--mv-color-text-secondary);
+  padding-bottom: 4px;
+}
+.pwf-calendar th,
+.pwf-calendar td {
+  border: 1px solid var(--mv-color-border);
+  vertical-align: top;
+  padding: 0;
+}
+.pwf-calendar th {
+  background: var(--mv-color-surface2);
+  font-size: 12px;
+  padding: 4px;
+}
+.pwf-calendar__out {
+  background: var(--mv-color-surface2);
+}
+.pwf-calendar td {
+  height: 72px;
+}
+.pwf-day {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+  font: inherit;
+  text-align: left;
+  border: 0;
+  background: var(--mv-color-surface);
+  color: var(--mv-color-ink);
+  cursor: pointer;
+}
+.pwf-day[aria-pressed='true'] {
+  outline: 2px solid var(--mv-color-focus);
+  outline-offset: -2px;
+  background: var(--mv-color-primary-soft);
+}
+.pwf-day__number {
+  font-weight: 600;
+  font-size: 13px;
+}
+.pwf-day__counts {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 11px;
+}
+.pwf-day__count[data-band='RED'] {
+  color: var(--mv-color-danger);
+}
+.pwf-day__count[data-band='YELLOW'] {
+  color: var(--mv-color-warning);
+}
+.pwf-day__count[data-band='GREEN'] {
+  color: var(--mv-color-success);
+}
+.pwf-day__count[data-band='UNKNOWN'] {
+  color: var(--mv-color-neutral);
+}

@@ -34,13 +34,14 @@ import { orchestrationModule } from './orchestration';
 import { payModule } from './pay';
 import { pmtModule } from './pmt';
 import { prjModule } from './prj';
+import { pwfModule } from './pwf';
 import { qmsModule } from './qms';
 import { rptModule } from './reports';
 import { sasModule } from './sas';
 import { searchModule } from './search';
 
 /** Every business module of the API, sorted by code. A slice adds one line here (one import and one entry). */
-export const MODULES: readonly ModuleDescriptor[] = [admModule, astModule, audModule, banModule, biModule, bidModule, capModule, ctrModule, dgvModule, dirModule, disModule, docModule, feedModule, filesModule, fndModule, homeModule, hubModule, iamModule, indModule, intModule, issModule, llmModule, lndModule, mdmModule, mneModule, mobModule, notificationsModule, omniModule, orchestrationModule, payModule, pmtModule, prjModule, qmsModule, rptModule, sasModule, searchModule];
+export const MODULES: readonly ModuleDescriptor[] = [admModule, astModule, audModule, banModule, biModule, bidModule, capModule, ctrModule, dgvModule, dirModule, disModule, docModule, feedModule, filesModule, fndModule, homeModule, hubModule, iamModule, indModule, intModule, issModule, llmModule, lndModule, mdmModule, mneModule, mobModule, notificationsModule, omniModule, orchestrationModule, payModule, pmtModule, prjModule, pwfModule, qmsModule, rptModule, sasModule, searchModule];
 
 function activeModules(options: AppModuleOptions, registered: readonly ModuleDescriptor[]): ModuleDescriptor[] {
   // The modules of the edition (a package of its own, loaded by the process) come after the registry, so the order of the registry is what it was.

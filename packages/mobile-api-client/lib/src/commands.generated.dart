@@ -1792,6 +1792,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> getProjectLifecycle({required String id, Map<String, Object?>? query}) =>
       execute('getProjectLifecycle', path: <String, Object?>{'id': id}, query: query);
 
+  Future<Object?> getProjectReschedule({required String id, Map<String, Object?>? query}) =>
+      execute('getProjectReschedule', path: <String, Object?>{'id': id}, query: query);
+
   Future<Object?> getProjectReserve({required String id, Map<String, Object?>? query}) =>
       execute('getProjectReserve', path: <String, Object?>{'id': id}, query: query);
 

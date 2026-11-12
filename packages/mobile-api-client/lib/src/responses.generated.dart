@@ -783,6 +783,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getProjectEvm': PrjProjectEvmResponse.fromJson,
   'getProjectInvestmentProfile': ProjectInvestmentProfileResponse.fromJson,
   'getProjectLifecycle': asObject,
+  'getProjectReschedule': PwfReschedulePreviewResponse.fromJson,
   'getProjectReserve': PrjProjectReserveResponse.fromJson,
   'getProjectRiskSignals': PrjProjectRiskSignalsResponse.fromJson,
   'getProjectSchedule': PwfScheduleResponse.fromJson,
