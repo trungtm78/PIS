@@ -34,7 +34,7 @@ const STORE_TYPE_SELECTORS = [
 ].map((selector) => ({ selector, message: KEY_VALUE_STORE_MESSAGE }));
 
 export default tseslint.config(
-  { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/lint-fixtures/**', '**/*.generated.ts', 'Design/**', 'ci/**', 'docs/**', 'backend/**', '.tools/**', '.superpowers/**', '.claude/**', '.gstack/**'] },
+  { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/lint-fixtures/**', '**/*.generated.ts', 'Design/**', 'ci/**', 'docs/**', 'uat/**', 'backend/**', '.tools/**', '.superpowers/**', '.claude/**', '.gstack/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
