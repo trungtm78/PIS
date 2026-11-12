@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_mobile/core/widgets/deadline.dart';
+import 'package:machvon_mobile/core/widgets/stat_strip.dart';
 import 'package:machvon_mobile/features/vendor_controls/screens/contractor_screen.dart';
 import 'package:machvon_mobile/features/vendor_controls/screens/risk_list_screen.dart';
 import 'package:machvon_mobile/features/vendor_controls/vendor_models.dart';
@@ -98,7 +100,7 @@ void main() {
       expect(find.text('Quy tắc VENDOR_RISK, phiên bản 3'), findsOneWidget);
       expect(find.text('Các ngưỡng của quy tắc chưa được kiểm chứng.'), findsOneWidget);
       expect(find.textContaining('Chỉ đọc.'), findsOneWidget);
-      expect(find.bySemanticsLabel('Công ty Xây dựng An Phát, Cao'), findsOneWidget);
+      expect(find.bySemanticsLabel('Công ty Xây dựng An Phát, Cao, Quá hạn xét lại, hạn là 03/02/2027'), findsOneWidget);
     });
 
     testWidgets('a filter asks the server (tier, review overdue, waiting) and nothing is cut on the phone; "all" comes back', (WidgetTester tester) async {
@@ -333,6 +335,33 @@ void main() {
       expect(find.text('Chưa có mức rủi ro nào được xác nhận cho nhà thầu này.'), findsOneWidget);
       expect(find.text('Chưa xếp hạng'), findsOneWidget);
       expect(find.text('Mức đề xuất đang chờ'), findsOneWidget);
+    });
+
+    testWidgets('the figures at the top give the tier the shape of its band: high and critical late, medium soon, low ok; the run of poor ratings only when there is one', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      Future<List<DeadlineBand?>> bands(String tier, {int streak = 2}) async {
+        final ScriptedServer server = ScriptedServer();
+        final Map<String, Object?> risk = riskGrade();
+        (risk['live']! as Map<String, Object?>)['tier'] = tier;
+        _registerDetail(server, risk: risk, perf: performance(streak: streak));
+        await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
+        final StatStrip strip = tester.widget<StatStrip>(find.byType(StatStrip));
+        return strip.cells.map((StatCell cell) => cell.band).toList();
+      }
+
+      expect(await bands('CRITICAL'), <DeadlineBand?>[DeadlineBand.late, DeadlineBand.soon, null]);
+      expect(await bands('HIGH', streak: 0), <DeadlineBand?>[DeadlineBand.late, null, null]);
+      expect(await bands('MEDIUM'), <DeadlineBand?>[DeadlineBand.soon, DeadlineBand.soon, null]);
+      expect(await bands('LOW'), <DeadlineBand?>[DeadlineBand.ok, DeadlineBand.soon, null]);
+    });
+
+    testWidgets('a review that is not overdue shows the ok band with its day, an overdue one the late band', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      final ScriptedServer server = ScriptedServer();
+      _registerList(server);
+      await openVendorScreen(tester, server, const RiskListScreen());
+      final List<DeadlineLabel> labels = tester.widgetList<DeadlineLabel>(find.byType(DeadlineLabel)).toList();
+      expect(labels.map((DeadlineLabel label) => label.band), <DeadlineBand>[DeadlineBand.late, DeadlineBand.ok]);
     });
 
     testWidgets('every state, and the screen contract at the three devices and at 200 percent text', (WidgetTester tester) async {

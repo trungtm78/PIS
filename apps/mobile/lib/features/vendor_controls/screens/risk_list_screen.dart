@@ -238,6 +238,7 @@ class _RowTile extends StatelessWidget {
     final String? review = item.nextReviewOn;
     // The review day is the server's; the phone does not count how far away it is, so it names only the two states it was told: overdue, or a day set.
     final DeadlineBand reviewBand = item.reviewOverdue ? DeadlineBand.late : DeadlineBand.ok;
+    final String? reviewText = review == null ? null : item.reviewOverdue ? context.t('mob.vnd.row.reviewOverdue', <String, Object>{'day': formatDay(review)}) : context.t('mob.vnd.row.review', <String, Object>{'day': formatDay(review)});
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -246,7 +247,10 @@ class _RowTile extends StatelessWidget {
         TapTarget(
           onTap: onTap,
           radius: 0,
-          semanticLabel: context.t('mob.vnd.row.aria', <String, Object>{'name': item.name, 'tier': item.tier == null ? context.t('mob.vnd.tier.none') : tierWord(context, item.tier!)}),
+          semanticLabel: <String>[
+            context.t('mob.vnd.row.aria', <String, Object>{'name': item.name, 'tier': item.tier == null ? context.t('mob.vnd.tier.none') : tierWord(context, item.tier!)}),
+            ?reviewText,
+          ].join(', '),
           child: SizedBox(
             width: double.infinity,
             child: Column(
@@ -259,19 +263,12 @@ class _RowTile extends StatelessWidget {
                   trailing: Align(alignment: AlignmentDirectional.topEnd, child: TierPill(tier: item.tier)),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, 0, MachvonV2Space.s16, MachvonV2Space.s12),
+                  padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       if (item.score != null) Text(context.t('mob.vnd.row.score', <String, Object>{'score': item.score!}), style: text.body),
-                      if (review != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: MachvonV2Space.s4),
-                          child: DeadlineLabel(
-                            band: reviewBand,
-                            text: item.reviewOverdue ? context.t('mob.vnd.row.reviewOverdue', <String, Object>{'day': formatDay(review)}) : context.t('mob.vnd.row.review', <String, Object>{'day': formatDay(review)}),
-                          ),
-                        ),
+                      if (reviewText != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: DeadlineLabel(band: reviewBand, text: reviewText)),
                       if (item.pendingTier != null) Text(context.t('mob.vnd.row.pending', <String, Object>{'tier': tierWord(context, item.pendingTier!)}), style: text.caption),
                     ],
                   ),

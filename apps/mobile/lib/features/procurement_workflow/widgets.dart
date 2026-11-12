@@ -127,7 +127,7 @@ class PackageRowTile extends StatelessWidget {
       children: <Widget>[
         main,
         Padding(
-          padding: EdgeInsets.fromLTRB(inset, 0, MachvonV2Space.s16, MachvonV2Space.s12),
+          padding: EdgeInsets.only(left: inset, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -161,7 +161,10 @@ class PackageRowTile extends StatelessWidget {
         TapTarget(
           onTap: onTap,
           radius: 0,
-          semanticLabel: context.t('mob.prc.list.row.aria', <String, Object>{'code': row.code, 'title': title, 'status': status}),
+          semanticLabel: <String>[
+            context.t('mob.prc.list.row.aria', <String, Object>{'code': row.code, 'title': title, 'status': status}),
+            if (counted) '${deadlineBandName(context, band!)}: ${countdownLabel(context, row.daysLeft!, row.dueOn!)}',
+          ].join(', '),
           child: SizedBox(width: double.infinity, child: body),
         ),
       ],

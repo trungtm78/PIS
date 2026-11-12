@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
+import 'package:machvon_mobile/core/widgets/deadline.dart';
 import 'package:machvon_mobile/features/procurement_workflow/navigation.dart';
 import 'package:machvon_mobile/features/procurement_workflow/screens/package_detail_screen.dart';
 import 'package:machvon_mobile/features/procurement_workflow/screens/package_list_screen.dart';
@@ -140,6 +141,25 @@ void main() {
       await tester.tap(find.text('Xóa bộ lọc'));
       await tester.pumpAndSettle();
       expect(server.callsTo('GET', '/package-workflows/process-tree/packages').last.url.queryParameters['node_id'], 'M:OPEN_BIDDING');
+    });
+
+    testWidgets('a row carries the band of its due day with the real day: late, soon, ok; a completed package is done and a package with no due day has no band', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _registerTree(server);
+      _registerPackages(server, (HttpCall call) => rowPage(<Object?>[
+            rowJson('a', 'G-001', left: -3),
+            rowJson('b', 'G-002', left: 2),
+            rowJson('c', 'G-003', left: 9),
+            rowJson('d', 'G-004', status: 'COMPLETED'),
+            rowJson('e', 'G-005', status: 'NOT_STARTED'),
+          ]));
+      await openPrcScreen(tester, server, const PackageListScreen());
+
+      final List<DeadlineGlyph> glyphs = tester.widgetList<DeadlineGlyph>(find.byType(DeadlineGlyph)).toList();
+      expect(glyphs.map((DeadlineGlyph glyph) => glyph.band), <DeadlineBand>[DeadlineBand.late, DeadlineBand.soon, DeadlineBand.ok, DeadlineBand.done], reason: 'the not started package has no glyph');
+      expect(find.byType(DeadlineLabel), findsNWidgets(3), reason: 'the completed and the not started have no countdown');
+      expect(find.bySemanticsLabel('G-001 Gói thầu xây lắp, Đang thực hiện, Quá hạn: Quá hạn 3 ngày · 15/11'), findsOneWidget);
     });
 
     testWidgets('a truncated page says the list is partial', (WidgetTester tester) async {

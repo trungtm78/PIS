@@ -3,7 +3,9 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/colors.dart';
 import '../../core/theme/typography.dart';
+import '../../core/widgets/tap_target.dart';
 import '../read_support/widgets.dart';
 import 'labels.dart';
 import 'node_stats.dart';
@@ -13,21 +15,61 @@ const int kPrcNodeStatsShown = 5;
 
 /// The statistics of the node that is open on the packages-by-step screen: the days the packages stay, the counts that need a person, who holds
 /// most of them, what is still open and the weekly arrivals and departures. [stats] is null when the server could not give them: the card
-/// then says so with the code and the list below stays right.
-class NodeStatsCard extends StatelessWidget {
+/// then says so with the code and the list below stays right. It is one line (the title, the count and the late count) until it is opened, so the
+/// packages of the step stay on the first screen.
+class NodeStatsCard extends StatefulWidget {
   const NodeStatsCard({required this.stats, this.errorCode, super.key});
 
   final PrcNodeStats? stats;
   final String? errorCode;
 
   @override
+  State<NodeStatsCard> createState() => _NodeStatsCardState();
+}
+
+class _NodeStatsCardState extends State<NodeStatsCard> {
+  bool _open = false;
+
+  @override
   Widget build(BuildContext context) {
+    final MachvonV2 v2 = context.v2;
     final MachvonV2Text text = context.v2text;
-    final PrcNodeStats? one = stats;
+    final PrcNodeStats? one = widget.stats;
+    final String? errorCode = widget.errorCode;
     if (one == null) {
       return SectionCard(
         title: context.t('mob.prc.node.title'),
         children: <Widget>[Text(context.t('mob.prc.node.unavailable', <String, Object>{'code': errorCode ?? 'UNKNOWN'}), style: text.body)],
+      );
+    }
+    if (!_open) {
+      final String summary = context.t('mob.prc.node.summary', <String, Object>{'count': one.count, 'late': one.lateCount});
+      return TapTarget(
+        key: const ValueKey<String>('prc-node-stats-closed'),
+        onTap: () => setState(() => _open = true),
+        semanticLabel: '${context.t('mob.prc.node.title')}. $summary',
+        radius: 0,
+        minHeight: 56,
+        child: SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(context.t('mob.prc.node.title'), style: text.bodyStrong),
+                      Text(summary, style: text.caption),
+                    ],
+                  ),
+                ),
+                ExcludeSemantics(child: Icon(Icons.expand_more, color: v2.palette.ink2)),
+              ],
+            ),
+          ),
+        ),
       );
     }
     final String unit = one.working == false ? context.t('mob.prc.node.unit.calendar') : context.t('mob.prc.node.unit.working');
@@ -63,6 +105,7 @@ class NodeStatsCard extends StatelessWidget {
             Text(context.t('mob.prc.node.week.line', <String, Object>{'day': formatDay(week.weekOf), 'in': week.arrivals, 'out': week.departures}), style: text.body),
         ],
         if (one.truncated) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(context.t('mob.prc.node.truncated'), style: text.caption)),
+        Align(alignment: AlignmentDirectional.centerStart, child: TextButton(onPressed: () => setState(() => _open = false), child: Text(context.t('mob.prc.node.collapse')))),
       ],
     );
   }

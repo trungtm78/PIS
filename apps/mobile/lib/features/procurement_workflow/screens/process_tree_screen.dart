@@ -154,7 +154,7 @@ class _NodeTileState extends State<_NodeTile> {
                 ),
               ),
             if (noSteps && node.count > 0)
-              Padding(padding: EdgeInsets.fromLTRB(MachvonV2Space.s16 + (widget.depth + 1) * MachvonV2Space.s16, 0, MachvonV2Space.s16, MachvonV2Space.s8), child: Text(context.t('mob.prc.tree.noDefinition'), style: context.v2text.caption)),
+              Padding(padding: EdgeInsets.only(left: MachvonV2Space.s16 + (widget.depth + 1) * MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s8), child: Text(context.t('mob.prc.tree.noDefinition'), style: context.v2text.caption)),
             for (final PrcNode child in children) _NodeTile(tree: widget.tree, node: child, depth: widget.depth + 1, navigator: widget.navigator),
           ],
         ),

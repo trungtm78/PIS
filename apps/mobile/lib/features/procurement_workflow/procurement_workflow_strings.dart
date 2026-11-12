@@ -7,6 +7,8 @@ const StringTable procurementWorkflowStrings = StringTable(
   vi: <String, String>{
     // The packages by step (the list).
     'mob.prc.list.title': 'Gói thầu theo công đoạn',
+    'mob.prc.node.summary': '{count} gói, {late} trễ hạn',
+    'mob.prc.node.collapse': 'Thu gọn',
     'mob.prc.list.empty.title': 'Chưa có gói thầu ở bước này',
     'mob.prc.list.empty.narrowed': 'Chọn bước khác hoặc quay về tất cả các bước của hình thức này.',
     'mob.prc.list.empty.body': 'Chưa có gói thầu nào trong phạm vi bạn xem. Thử đọc lại sau ít phút.',
@@ -218,6 +220,8 @@ const StringTable procurementWorkflowStrings = StringTable(
   },
   en: <String, String>{
     'mob.prc.list.title': 'Packages by step',
+    'mob.prc.node.summary': '{count} packages, {late} late',
+    'mob.prc.node.collapse': 'Collapse',
     'mob.prc.list.empty.title': 'No packages at this step',
     'mob.prc.list.empty.narrowed': 'Choose another step, or go back to all the steps of this method.',
     'mob.prc.list.empty.body': 'There are no packages in the scope you view. Try reading again in a few minutes.',
