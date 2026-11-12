@@ -27,7 +27,8 @@ function MyScoreContent({ route }: ScreenProps) {
   const mayRead = mayDo(permissions, SCORE_PERMISSIONS.readOwn);
   const mine = useMyScores(mayRead);
   const reload = useReloadScores();
-  const state = useScreenState({ isLoading: mine.isLoading, error: mine.error, data: mine.data, isEmpty: (data) => (data as { items: unknown[] }).items.length === 0 });
+  const items = (mine.data?.pages ?? []).flatMap((page) => page.items);
+  const state = useScreenState({ isLoading: mine.isLoading, error: mine.error, data: mine.data, isEmpty: () => items.length === 0 });
   const screenState = !mayRead ? 'denied' : state;
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -39,10 +40,15 @@ function MyScoreContent({ route }: ScreenProps) {
       </div>
       <SupportNotice />
       <StateBoundary state={screenState} onRetry={() => void mine.refetch()}>
-        {(mine.data?.items ?? []).map((item) => (
+        {items.map((item) => (
           <PeriodCard key={item.line.id} item={item} onReload={() => void reload()} />
         ))}
-        <Comparison membershipId={tenant?.membershipId} enabled={mayRead && (mine.data?.items.length ?? 0) > 0} />
+        {mine.hasNextPage ? (
+          <button type="button" className="ui-button ui-button--outline" data-action="more-scores" disabled={mine.isFetchingNextPage} onClick={() => void mine.fetchNextPage()}>
+            {t('pwfs.my.more.action')}
+          </button>
+        ) : null}
+        <Comparison membershipId={tenant?.membershipId} enabled={mayRead && items.length > 0} />
       </StateBoundary>
       <p className="adm-kit-foot" data-testid="footer">
         {t('gova1.footer.reference', { id: route.id, req: route.req ?? '' })}

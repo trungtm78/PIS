@@ -37,6 +37,12 @@ const open = (setup: Setup = {}) => {
 const page = (...items: ReturnType<typeof myScore>[]) => ({ items, next_cursor: null, as_of: '2026-11-12T03:00:00.000Z' });
 
 describe('PWF-11: my score', () => {
+  it('offers the older periods when the person has more than a page of them, and asks for them with the cursor', async () => {
+    const h = open({ mine: { items: [myScore()], next_cursor: 'older', as_of: '2026-11-12T03:00:00.000Z' } });
+    fireEvent.click(await screen.findByRole('button', { name: text('pwfs.my.more.action') }));
+    await waitFor(() => expect(h.read).toHaveBeenCalledWith('getMyStaffScore', expect.objectContaining({ query: expect.objectContaining({ cursor: 'older' }) })));
+  });
+
   it('shows the score of the period with its rating, the policy it follows, the hash and the day responses are accepted until', async () => {
     open();
     const card = await screen.findByTestId('my-period');

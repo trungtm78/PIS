@@ -2,8 +2,8 @@
 -- Only the facts of the workflow are collected, and they are kept for `retention_months` of the scoring policy (60 by default). When that time has passed for an official period, the data that names a person is
 -- anonymised: the lines lose the membership, the contributions and the exclusions, the adjustments and responses lose their words and the person, the signals lose person and tasks, and the snapshot is replaced by a
 -- marker; the hash of the snapshot, the computed and adjusted scores and the counts of the period stay, with no name, as aggregate figures. The tables refuse every other change, so the one door is this function:
--- it runs with the rights of the owner of the database, only for the tenant of the transaction, and only for official periods that ended before the cutoff it is given (the retention job passes the day the
--- policy of each period allows).
+-- it runs with the rights of the owner of the database, only for the tenant of the transaction, and only for official periods whose retention (`retention_months` of the policy they were locked under, 60 when the
+-- snapshot has none) has ended: the deadline is judged inside the function, whoever calls it.
 
 CREATE FUNCTION machvon.pwf_expire_staff_scores(p_period uuid) RETURNS integer
 LANGUAGE plpgsql
@@ -21,7 +21,10 @@ BEGIN
   END IF;
   PERFORM set_config('app.scope_units', '*', true);
   SELECT p.id INTO v_found FROM machvon.staff_score_period p
-   WHERE p.tenant_id = v_tenant AND p.id = p_period AND p.status = 'OFFICIAL' AND p.erased_at IS NULL FOR UPDATE;
+   WHERE p.tenant_id = v_tenant AND p.id = p_period AND p.status = 'OFFICIAL' AND p.erased_at IS NULL
+     -- The deadline is judged here too, not only by the job: nobody can erase a period before its policy allows.
+     AND p.period_to < ((now() AT TIME ZONE 'Asia/Ho_Chi_Minh')::date - make_interval(months => COALESCE((p.snapshot #>> '{policy,params,retention_months}')::int, 60)))::date
+   FOR UPDATE;
   IF v_found IS NULL THEN
     PERFORM set_config('app.scope_units', COALESCE(v_previous, ''), true);
     RETURN 0;

@@ -106,6 +106,7 @@
   "pwfs.problem.denied.error": "You have no right to this action or scope.",
   "pwfs.problem.general.error": "It could not be done. Try again later.",
   "pwfs.my.title.text": "My score",
+  "pwfs.my.more.action": "Show older periods",
   "pwfs.my.subtitle.text": "Your own score by period, every point traced to tasks and facts.",
   "pwfs.my.period.title": "Period {range}",
   "pwfs.my.basis.text": "Policy {policy}, version {version}",

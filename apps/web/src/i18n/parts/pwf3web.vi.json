@@ -106,6 +106,7 @@
   "pwfs.problem.denied.error": "Bạn không có quyền với thao tác hoặc phạm vi này.",
   "pwfs.problem.general.error": "Không thực hiện được. Thử lại sau.",
   "pwfs.my.title.text": "Bảng điểm của tôi",
+  "pwfs.my.more.action": "Xem thêm kỳ cũ hơn",
   "pwfs.my.subtitle.text": "Điểm của riêng bạn theo kỳ, mỗi điểm đều truy được tới việc và dữ kiện.",
   "pwfs.my.period.title": "Kỳ {range}",
   "pwfs.my.basis.text": "Chính sách {policy}, phiên bản {version}",

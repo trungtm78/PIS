@@ -50,9 +50,11 @@ export function useScoreCacheGuard(): void {
 export function useMyScores(enabled = true) {
   const client = useApiClient();
   const key = useScoreKey();
-  return useQuery<MyScorePage>({
+  return useInfiniteQuery<MyScorePage, Error, { pages: MyScorePage[] }, readonly unknown[], string | undefined>({
     queryKey: [...key, 'mine'],
-    queryFn: () => client.read('getMyStaffScore', { query: { limit: PAGE_SIZE } }),
+    initialPageParam: undefined,
+    queryFn: ({ pageParam }) => client.read('getMyStaffScore', { query: { limit: PAGE_SIZE, ...(pageParam === undefined ? {} : { cursor: pageParam }) } }),
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
     enabled: enabled && key[1] !== undefined,
     ...FRESH,
   });

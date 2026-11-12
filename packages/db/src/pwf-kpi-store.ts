@@ -1,6 +1,6 @@
 import { DomainError, canonicalJson, pwfKpi } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
-import { dayOfInstant, factsOf, itemsFor, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
+import { calendarFingerprint, dayOfInstant, factsOf, itemsFor, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
 import type { CalendarSet, ResolvedKpiSet, TaskBundle, TaskReading } from './pwf-score-facts.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { scoreIdOf } from './pwf-score-support.ts';
@@ -138,11 +138,13 @@ export class PwfKpiStore {
 
   /** The ids of the tasks, done or cancelled, whose results were never evaluated or whose task moved since (a limited batch: the job asks again until none is left). */
   async pendingTaskIds(tx: TenantTx, limit: number): Promise<string[]> {
+    const fingerprint = await calendarFingerprint(tx);
     const rows = await tx.query<{ id: string }>(
       `select t.id from machvon.project_task t
-        where t.tracked and not t.excluded and t.kind = 'TASK' and t.status in ('DONE', 'CANCELLED') and (t.kpi_recorded_version is null or t.kpi_recorded_version <> t.version)
+        where t.tracked and not t.excluded and t.kind = 'TASK' and t.status in ('DONE', 'CANCELLED')
+          and (t.kpi_recorded_version is null or t.kpi_recorded_version <> t.version or t.kpi_recorded_calendars is distinct from $2)
         order by t.updated_at, t.id limit $1`,
-      [limit],
+      [limit, fingerprint],
     );
     return rows.map((row) => row.id);
   }
@@ -219,7 +221,7 @@ export class PwfKpiStore {
       );
     }
     summary.written = rows.length;
-    await tx.query('update machvon.project_task set kpi_recorded_version = version where id = any($1::uuid[])', [[...readings.keys()]]);
+    await tx.query('update machvon.project_task set kpi_recorded_version = version, kpi_recorded_calendars = $2 where id = any($1::uuid[])', [[...readings.keys()], await calendarFingerprint(tx)]);
     return summary;
   }
 

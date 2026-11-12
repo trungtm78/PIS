@@ -122,7 +122,7 @@ describe('startWorkers without a reachable database', () => {
 
   it('stops every timer, and a second stop is safe', async () => {
     const running = start(depsWith(collecting));
-    expect(timers.delays()).toHaveLength(70);
+    expect(timers.delays()).toHaveLength(71);
     await running.stop();
     expect(timers.delays()).toEqual([]);
     await expect(running.stop()).resolves.toBeUndefined();

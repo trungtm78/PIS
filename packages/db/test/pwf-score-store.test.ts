@@ -555,6 +555,10 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
 
     describe('the end of the retention (BR-PWF-42)', () => {
       it('UAT-PWF-RET-01: anonymises an official period: the person, the words and the tasks are gone, the hash and the figures without a name stay, and no read finds the line any more', async () => {
+        // Before its retention has ended nobody can erase it, whoever calls: the function judges the deadline itself.
+        expect(await as((tx) => scores.expire(tx, periodId))).toBe(false);
+        expect((await owner<{ erased_at: string | null }>('select erased_at::text from machvon.staff_score_period where id = $1::uuid', [periodId]))[0]?.erased_at).toBeNull();
+        await owner("update machvon.staff_score_period set snapshot = jsonb_set(snapshot, '{policy,params,retention_months}', '12'::jsonb) where id = $1::uuid", [periodId]);
         expect(await as((tx) => scores.expire(tx, periodId))).toBe(true);
         const lines = await owner<{ membership_id: string | null; contributions: unknown[]; score_computed: string | null }>('select membership_id, contributions, score_computed::text from machvon.staff_score_line where period_id = $1::uuid', [periodId]);
         expect(lines.every((row) => row.membership_id === null && row.contributions.length === 0 && row.score_computed !== null)).toBe(true);

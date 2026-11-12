@@ -4,7 +4,7 @@ import type { ResolvedGovernanceRule } from '@machvon/kernel';
 import { PwfKpiStore, scoreBundle } from './pwf-kpi-store.ts';
 import { computeFigures, previewHashOf, snapshotHashOf, snapshotOf, verifySnapshot } from './pwf-score-compute.ts';
 import type { PeriodFigures, PeriodSnapshot, SnapshotInputs, SnapshotKpi, SnapshotTask } from './pwf-score-compute.ts';
-import { dayOfInstant, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
+import { calendarFingerprint, dayOfInstant, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
 import type { CalendarSet, TaskBundle } from './pwf-score-facts.ts';
 import { SYSTEM_SCORE_SCOPE, checkVersion, lockPeriod, lockPeriodKey, notFound, scoreIdOf, unitReached, withScoreScope } from './pwf-score-support.ts';
 import type { ScoreUnits } from './pwf-score-support.ts';
@@ -177,10 +177,11 @@ export class PwfScoreStore {
     const ordered = [...bundles.values()].sort((left, right) => (left.row.id < right.row.id ? -1 : 1));
     const readings = new Map(ordered.map((bundle) => [bundle.row.id, readingOf(bundle.row, request.to)] as const));
     const finals = ordered.filter((bundle) => readings.get(bundle.row.id)?.final === true).map((bundle) => bundle.row.id);
-    // A task closed by the end of the period has its results recorded (idempotently) before the period reads them; one whose results were evaluated at its present version is not read again (the job keeps them current).
+    // A task closed by the end of the period has its results recorded (idempotently) before the period reads them; one whose results were evaluated at its present version, on the present calendars, is not read again (the job keeps them current).
+    const fingerprint = await calendarFingerprint(tx);
     const behind = finals.filter((id) => {
       const row = (bundles.get(id) as TaskBundle).row;
-      return row.kpiRecordedVersion !== row.version;
+      return row.kpiRecordedVersion !== row.version || row.kpiRecordedCalendars !== fingerprint;
     });
     await this.kpis.record(tx, behind, now);
     const heads = await this.kpis.heads(tx, finals, false);

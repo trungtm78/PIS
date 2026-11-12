@@ -43,6 +43,7 @@ export interface TaskFactsRow {
   version: number;
   /** The version of the task when its KPI results were last evaluated (null: never). */
   kpiRecordedVersion: number | null;
+  kpiRecordedCalendars: string | null;
 }
 
 interface TaskSql {
@@ -74,6 +75,7 @@ interface TaskSql {
   actual_vnd: string | null;
   version: number;
   kpi_recorded_version: number | null;
+  kpi_recorded_calendars: string | null;
 }
 
 const TASK_SELECT = `t.id, t.workflow_id, t.project_id, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.duration_working_days, t.status, t.own_task, ${VIETNAM_DAY('t.created_at')} as created_on,
@@ -82,7 +84,7 @@ const TASK_SELECT = `t.id, t.workflow_id, t.project_id, t.task_code, t.name, t.p
                   where b.tenant_id = t.tenant_id and b.task_id = t.id and b.finish_day is not null order by wb.version desc limit 1), t.baseline_finish::text) as baseline_current,
        t.baseline_start::text as baseline_start, t.planned_start::text as planned_start, t.planned_finish::text as planned_finish, t.actual_start::text as actual_start, t.actual_finish::text as actual_finish,
        ${VIETNAM_DAY('t.completion_requested_at')} as requested_on, ${VIETNAM_DAY('t.cancelled_at')} as cancelled_on, t.cancelled_by, t.return_count, t.reschedule_count,
-       t.estimate_vnd::text as estimate_vnd, t.actual_vnd::text as actual_vnd, t.version, t.kpi_recorded_version`;
+       t.estimate_vnd::text as estimate_vnd, t.actual_vnd::text as actual_vnd, t.version, t.kpi_recorded_version, t.kpi_recorded_calendars`;
 
 const toRow = (row: TaskSql): TaskFactsRow => ({
   id: row.id,
@@ -113,6 +115,7 @@ const toRow = (row: TaskSql): TaskFactsRow => ({
   actualVnd: row.actual_vnd,
   version: row.version,
   kpiRecordedVersion: row.kpi_recorded_version,
+  kpiRecordedCalendars: row.kpi_recorded_calendars,
 });
 
 /** One line of the ledger of assignments, with the id of the row. */
@@ -221,6 +224,12 @@ export async function loadCalendars(tx: TenantTx, fromYear: number, toYear: numb
     source: { forYear: (year) => byYear.get(year) },
     versions: rows.map((row) => ({ year: row.year, version: row.revision })),
   };
+}
+
+/** A fingerprint of the published working calendars (year and revision of each): when it changes, the results counted on the old ones are read again. */
+export async function calendarFingerprint(tx: TenantTx): Promise<string> {
+  const rows = await tx.query<{ f: string }>("select md5(coalesce(string_agg(year::text || ':' || revision::text, ',' order by year, revision), '')) as f from machvon.work_calendar_version where calendar_code = 'WORKDAY_VN' and status = 'Published'");
+  return (rows[0] as { f: string }).f;
 }
 
 /** The years of the days a set of tasks is counted over: from the earliest baseline to the latest day (inclusive). */
