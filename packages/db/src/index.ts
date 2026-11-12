@@ -1951,6 +1951,6 @@ export { PwfMyTaskReads } from './pwf-my-tasks.ts';
 export type { MyTaskFilter } from './pwf-my-tasks.ts';
 export { HomePwfSources } from './home-pwf-sources.ts';
 export { PwfTaskReminders } from './pwf-task-reminders.ts';
-export type { PwfReminderNotice } from './pwf-task-reminders.ts';
+export type { PwfReminderNotice, RecipientEligibility as PwfRecipientEligibility } from './pwf-task-reminders.ts';
 export { SqlProjectScheduleReader } from './pwf-schedule-read.ts';
 export type { MilestoneFact as PwfMilestoneFact, MilestoneFigures, ProjectScheduleReadPort } from './pwf-schedule-read.ts';

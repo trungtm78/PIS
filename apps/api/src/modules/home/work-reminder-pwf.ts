@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { HomeWorkActionStore, HomeWorkReminderStore, PwfTaskReminders, WORKER_MEMBERSHIP_ID, actionKey, enqueueOutbox } from '@machvon/db';
+import { HomeWorkActionStore, HomeWorkReminderStore, PwfTaskReminders, WORKER_MEMBERSHIP_ID, actionKey, enqueueOutbox, loadAccessIn, projectInScope } from '@machvon/db';
 import type { PwfReminderNotice, TenantTx } from '@machvon/db';
 import type { MetricsSink, TenantContext } from '@machvon/kernel';
 import { REMINDER_EVENT, WORK_RESOURCE_TYPE } from './work-action-support';
+import { canReadScope, workScopes } from './work-scope';
 
 export const PWF_REMINDER_METRIC = 'pwf_task_reminder_total';
 export const PROJECT_TASK_SOURCE = 'PROJECT_TASK';
@@ -26,7 +27,7 @@ export const pointSeriesKey = (sourceId: string, recipient: string, point: numbe
 export async function pwfTaskReminderPass(tx: TenantTx, tenant: TenantContext, now: Date, metrics: MetricsSink): Promise<PwfReminderResult> {
   await tx.query(`savepoint ${SAVEPOINT}`);
   try {
-    const notices = await new PwfTaskReminders().fire(tx, now);
+    const notices = await new PwfTaskReminders().fire(tx, now, mayBeToldOf(tx, now));
     const reminders = new HomeWorkReminderStore();
     const quiet = await quietItems(tx, notices, now);
     let made = 0;
@@ -58,6 +59,29 @@ export async function pwfTaskReminderPass(tx: TenantTx, tenant: TenantContext, n
     await tx.query(`release savepoint ${SAVEPOINT}`);
     return { reminders: 0, failed: true };
   }
+}
+
+/**
+ * Who may be told of a task: an active member who holds the right to read the alert centre and still reads the project of the task (the same judgement as the pass of the cadence, which lists only what the person may read). A reminder is
+ * never made for somebody who lost their membership or their access while the ledger of assignments still names them; the answer is kept for the pass, so each person and project is judged once.
+ */
+function mayBeToldOf(tx: TenantTx, now: Date): (membershipId: string, projectId: string) => Promise<boolean> {
+  const answers = new Map<string, Promise<boolean>>();
+  const access = new Map<string, ReturnType<typeof loadAccessIn>>();
+  return (membershipId, projectId) => {
+    const key = `${membershipId}:${projectId}`;
+    let answer = answers.get(key);
+    if (answer === undefined) {
+      let loaded = access.get(membershipId);
+      if (loaded === undefined) {
+        loaded = loadAccessIn(tx, membershipId);
+        access.set(membershipId, loaded);
+      }
+      answer = loaded.then(async (granted) => granted.membershipActive && canReadScope(granted, now) && (await projectInScope(tx, projectId, workScopes(granted, now).projectScope)));
+      answers.set(key, answer);
+    }
+    return answer;
+  };
 }
 
 /** The recipient-and-item pairs that are put off or paused now: the decisions of people about an item (`work_action`) are the state of the alert, whichever source made it. */

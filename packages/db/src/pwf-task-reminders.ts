@@ -1,9 +1,11 @@
 import { pwfDeadlineBand, vietnamDateOf } from '@machvon/kernel';
+import type { WorkCalendarSource } from '@machvon/kernel';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { severityOf } from './home-work-rules.ts';
 import type { WorkSeverity } from './home-work-rules.ts';
 import { addDays } from './home-work-sources.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
+import type { BandPolicySet } from './pwf-band-policies.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
@@ -31,8 +33,12 @@ export interface PwfReminderNotice {
   policyVersion: string;
 }
 
+/** Whether a person may be told of a task: an active membership that still reads the project (the caller knows access; the store knows the tasks). */
+export type RecipientEligibility = (membershipId: string, projectId: string) => Promise<boolean>;
+
 interface TaskSql {
   id: string;
+  project_id: string;
   schedule_version: number;
   kind: 'TASK' | 'MILESTONE';
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL';
@@ -56,38 +62,58 @@ interface FiredSql {
 
 /** How far back a point that was crossed is still worth telling (a task that is more than this overdue has had its last point long ago). */
 const LOOK_BACK_DAYS = 40;
-/** The most tasks one pass looks at (the next pass goes on from where the days are: the nearest to their day first). */
-const PASS_LIMIT = 20_000;
+/** How many tasks a pass reads at a time, and the most pages it reads in one pass (the rest of a very large window is reached by the next pass, which skips what already fired). */
+const PAGE_SIZE = 5_000;
+const MAX_PAGES = 40;
 
 const firedKey = (task: string, version: number, point: number, member: string | null): string => `${task}:${version}:${point}:${member ?? ''}`;
 
 export class PwfTaskReminders {
   private readonly policies = new PwfBandPolicies();
   private readonly calendars: HomeWorkCalendars;
+  private readonly pageSize: number;
 
-  constructor(calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
+  constructor(calendars: HomeWorkCalendars = new HomeWorkCalendars(), pageSize: number = PAGE_SIZE) {
     this.calendars = calendars;
+    this.pageSize = pageSize;
   }
 
   /**
    * Records every reminder point that has been crossed since the last pass and returns the notices to deliver (the nearest point of each task and person). It writes only `project_task_reminder`; the caller turns each notice into a reminder of
    * the alert centre in the same transaction.
    */
-  async fire(tx: TenantTx, now: Date): Promise<PwfReminderNotice[]> {
+  async fire(tx: TenantTx, now: Date, eligible: RecipientEligibility = () => Promise.resolve(true)): Promise<PwfReminderNotice[]> {
     const today = vietnamDateOf(now);
     const set = await this.policies.load(tx, today);
     const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
     const widest = await this.widestPoint(tx, set.widestReminderDays);
-    const tasks = await tx.query<TaskSql>(
-      `select t.id, t.schedule_version, t.kind, t.priority, t.phase_code, t.planned_finish::text as due_on, ou.path as unit_path
-         from machvon.project_task t
-         join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
-         join machvon.project p on p.tenant_id = t.tenant_id and p.id = t.project_id
-         left join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
-        where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.planned_finish between $1::date and $2::date
-        order by t.planned_finish, t.id limit ${PASS_LIMIT}`,
-      [addDays(today, -LOOK_BACK_DAYS), addDays(today, Math.ceil(widest * 1.5) + 21)],
-    );
+    const window = [addDays(today, -LOOK_BACK_DAYS), addDays(today, Math.ceil(widest * 1.5) + 21)];
+    const notices: PwfReminderNotice[] = [];
+    let after: { day: string; id: string } | null = null;
+    // The tasks of the window are read a page at a time, in the order of their days, so that a tenant with many of them is reached to the end and not only at its first rows.
+    for (let page = 0; page < MAX_PAGES; page += 1) {
+      const tasks: Array<TaskSql & { sort_day: string }> = await tx.query<TaskSql & { sort_day: string }>(
+        `select t.id, t.project_id, t.schedule_version, t.kind, t.priority, t.phase_code, t.planned_finish::text as due_on, t.planned_finish::text as sort_day, ou.path as unit_path
+           from machvon.project_task t
+           join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
+           join machvon.project p on p.tenant_id = t.tenant_id and p.id = t.project_id
+           left join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
+          where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.planned_finish between $1::date and $2::date
+            and ($3::date is null or (t.planned_finish, t.id) > ($3::date, $4::uuid))
+          order by t.planned_finish, t.id limit ${this.pageSize}`,
+        [window[0], window[1], after?.day ?? null, after?.id ?? null],
+      );
+      notices.push(...(await this.firePage(tx, tasks, { today, set, calendars, eligible })));
+      const last = tasks[tasks.length - 1];
+      if (tasks.length < this.pageSize || last === undefined) break;
+      after = { day: last.sort_day, id: last.id };
+    }
+    return notices;
+  }
+
+  /** One page of the window: the points its tasks crossed, recorded, and the notices they make. */
+  private async firePage(tx: TenantTx, tasks: readonly TaskSql[], context: { today: string; set: BandPolicySet; calendars: WorkCalendarSource | undefined; eligible: RecipientEligibility }): Promise<PwfReminderNotice[]> {
+    const { today, set, calendars, eligible } = context;
     if (tasks.length === 0) return [];
     const ids = tasks.map((task) => task.id);
     const assignees = await tx.query<AssigneeSql>(
@@ -125,6 +151,8 @@ export class PwfTaskReminders {
       const official = pwfDeadlineBand.dueReminders({ previousRemaining: null, remaining, reminderDays: policy.reminder_days }).filter((point) => !known.has(firedKey(task.id, task.schedule_version, point, null)));
       const people: Fresh['holders'] = [];
       for (const holder of own) {
+        // Somebody who is no longer an active member, or who no longer reads the project, is not told of its tasks, and the point is not spent on them.
+        if (!(await eligible(holder.membership_id, task.project_id))) continue;
         const personalDays = (holder.personal ?? []).filter((point) => !policy.reminder_days.includes(point));
         const personal = pwfDeadlineBand.dueReminders({ previousRemaining: null, remaining, reminderDays: personalDays }).filter((point) => !known.has(firedKey(task.id, task.schedule_version, point, holder.membership_id)));
         // A person is told once, of the nearest point crossed of the two lists together (the rule's and their own).

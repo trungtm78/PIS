@@ -324,18 +324,30 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       expect(await run()).toMatchObject({ pointReminders: 0 });
       // At 5 days the rule's point reaches both people, the person's own 5 is not a second reminder, and their own 1 comes at its day.
       expect(await run(later(3))).toMatchObject({ pointReminders: 2 });
-      // At 1 day left the rule's point of 2 days reaches both, and the person's own 1 is theirs alone.
-      expect(await run(later(7))).toMatchObject({ pointReminders: 3 });
+      // At 1 day left the person is told once, of the nearest of the two lists (their own 1), and the other one of the rule's point of 2.
+      expect(await run(later(7))).toMatchObject({ pointReminders: 2 });
     });
 
     it('does not remind a person of a task they put off with a snooze that has not come back, and reminds when it has', async () => {
       const id = await task(5);
       const snoozed = new Date(NOW.getTime() + 36 * 3_600_000).toISOString();
-      await seedRow(harness.database.adminUrl, 'work_action', TENANT_A, { source: 'PROJECT_TASK', source_id: `${id}:1`, action: 'SNOOZE', actor_membership_id: memberId(WORKER), snooze_until: snoozed, reason_code: 'WAITING_INFORMATION', created_at: NOW.toISOString() });
+      await seedRow(harness.database.adminUrl, 'work_action', TENANT_A, { source: 'PROJECT_TASK', source_id: `${id}:1`, action: 'SNOOZE', actor_membership_id: memberId(WORKER), snooze_until: snoozed, reason_code: 'WAITING_INFORMATION', snooze_ordinal: 1, snooze_final: false, policy_version: 'builtin', created_at: NOW.toISOString() });
       expect(await run()).toMatchObject({ pointReminders: 0 });
       expect(await reminderRows()).toEqual([]);
       // The point was spent while the item was put off; the next point comes at its day, after the snooze is over.
       expect(await run(later(3))).toMatchObject({ pointReminders: 1 });
+    });
+
+    it('does not remind a person who no longer reads the project or is not an active member, and keeps the point for later', async () => {
+      const id = await task(5, READER);
+      expect(await run()).toMatchObject({ pointReminders: 0 });
+      expect((await rows('select count(*)::int as n from machvon.project_task_reminder'))[0]).toEqual({ n: 0 });
+      expect(await reminderRows()).toEqual([]);
+      await seedSql(`update machvon.project_task_assignment set membership_id = $2 where task_id = $1::uuid`, [id, memberId(WORKER)]);
+      await rows(`update machvon.membership set status = 'Suspended' where id = $1::uuid`, [memberId(WORKER)]);
+      expect(await run()).toMatchObject({ pointReminders: 0 });
+      await rows(`update machvon.membership set status = 'Active' where id = $1::uuid`, [memberId(WORKER)]);
+      expect(await run()).toMatchObject({ pointReminders: 1 });
     });
 
     it('does not remind of a task that is done, on hold or cancelled, and not of a person who is nobody\'s to be told', async () => {

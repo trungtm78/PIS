@@ -520,6 +520,22 @@ describe('the multi-point reminders (BR-PWF-24)', () => {
     expect(await fire()).toEqual([]);
   });
 
+  it('reads a window of many tasks page by page to its end, so none is skipped behind the first rows', async () => {
+    const ids: string[] = [];
+    for (let n = 0; n < 7; n += 1) ids.push(await task(5));
+    const notices = await as((tx) => new PwfTaskReminders(undefined, 3).fire(tx, NOW), MANAGER);
+    expect(notices.map((notice) => notice.taskId).sort()).toEqual([...ids].sort());
+    expect((await firedRows()).length).toBe(7);
+  });
+
+  it('tells nobody who the caller says may not be told, and does not spend the point on them', async () => {
+    await task(5);
+    const nobody = await as((tx) => reminders.fire(tx, NOW, () => Promise.resolve(false)), MANAGER);
+    expect(nobody).toEqual([]);
+    expect(await firedRows()).toEqual([]);
+    expect((await fire()).map((notice) => notice.point)).toEqual([5]);
+  });
+
   it('does not make up a reminder for a task whose calendar is not published', async () => {
     await task(1);
     await calendars(`update machvon.work_calendar_version set status = 'Superseded'`);
@@ -565,6 +581,15 @@ describe('exact totals where the alert centre is cut', () => {
     expect(portfolio.shown).toBe(5);
     expect(portfolio.truncated).toBe(true);
     expect(Object.values(portfolio.counts_by_band).reduce((sum, value) => sum + value, 0)).toBe(LIMIT + EXTRA);
+    // Tasks whose days cannot be counted (no calendar) fill a whole chunk and are dropped: the read goes on behind them and does not claim the list is cut.
+    await calendars(`update machvon.work_calendar_version set status = 'Superseded' where revision = 1`);
+    const blind = await collect({ mode: 'count' });
+    // What is due today needs no day counted (no days to count: 0), and is still listed; everything that needs the calendar is dropped, and what is left is not cut.
+    expect(onlyTasks(blind.rows).length).toBeGreaterThan(0);
+    expect(onlyTasks(blind.rows).every((row) => row.dueOn === TODAY)).toBe(true);
+    expect(blind.truncated).toBe(false);
+    expect(blind.unavailableSources).not.toContain('PROJECT_TASK');
+    await calendars(`update machvon.work_calendar_version set status = 'Published' where revision = 1`);
     expect(pwfDeadlineBand.BAND_COLORS).toHaveLength(3);
   });
 });

@@ -9,6 +9,8 @@ import type { BandPolicySet } from './pwf-band-policies.ts';
 
 /** How many days ahead a milestone at risk is shown. */
 const MILESTONE_AHEAD_DAYS = 90;
+/** The most chunks of tasks read to fill a list (ten times the limit of a source). */
+const MAX_SCAN_CHUNKS = 10;
 
 /**
  * The tasks of the project workflow as a source of the alert centre (PWF-2, R30, BR-PWF-27). The source READS the deadline of a task from `project_task`: there is no `work_clock` for a task, so a task that is moved, paused,
@@ -41,11 +43,9 @@ export class HomePwfSources {
     return widest === null ? null : addDays(today, Math.ceil(widest * 1.5) + 21);
   }
 
-  private async dueTasks(context: SourceContext): Promise<SourceRow[]> {
-    const set = await this.policies.load(context.tx, context.today);
-    const calendars = await this.calendars.load(context.tx, WORK_CALENDAR_CODE, context.now);
+  /** One chunk of the tasks in the window of the reader, in the order of their days, after the task a previous chunk ended with. */
+  private async chunkAfter(context: SourceContext, horizon: string | null, after: { day: string; id: string } | null): Promise<TaskSql[]> {
     const params = new Params();
-    const horizon = this.horizonOf(set, context.today);
     const visible = reach(params, context, {
       source: 'PROJECT_TASK',
       id: `(t.id::text || ':' || t.schedule_version::text)`,
@@ -56,24 +56,41 @@ export class HomePwfSources {
       mine: (me) => this.assignedTo(me, params.add(context.today)),
     });
     const until = horizon === null ? '' : `and t.planned_finish <= ${params.add(horizon)}::date`;
-    const rows = await context.tx.query<TaskSql>(
+    const past = after === null ? '' : `and (t.planned_finish, t.id) > (${params.add(after.day)}::date, ${params.add(after.id)}::uuid)`;
+    return context.tx.query<TaskSql>(
       `select t.id, t.schedule_version, t.task_code, t.name, t.phase_code, t.kind, t.priority, t.critical, t.planned_finish::text as due_on, t.baseline_finish::text as baseline_on, p.id as project_id, p.code as project_code, ou.path as unit_path
          from machvon.project_task t
          join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
          ${PROJECT_JOINS('t', 't.project_id')}
-        where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.planned_finish is not null ${until} and ${visible}
+        where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.planned_finish is not null ${until} ${past} and ${visible}
         order by t.planned_finish, t.id limit ${SOURCE_LIMIT}`,
       params.values,
     );
+  }
+
+  private async dueTasks(context: SourceContext): Promise<SourceRow[]> {
+    const set = await this.policies.load(context.tx, context.today);
+    const calendars = await this.calendars.load(context.tx, WORK_CALENDAR_CODE, context.now);
+    const horizon = this.horizonOf(set, context.today);
     const items: SourceRow[] = [];
-    for (const row of rows) {
-      const policy = set.forUnitPath(row.unit_path);
-      const result = pwfDeadlineBand.deadlineBand({ dueOn: row.due_on, today: context.today, unit: policy.unit, calendars, thresholds: pwfDeadlineBand.thresholdsFor(policy, { taskKind: row.kind, priority: row.priority, phase: row.phase_code }) });
-      // No colour yet (far), or none can be given (the calendar of the year is not published): not a thing to act on today.
-      if (result.band === 'NONE' || result.band === 'UNKNOWN' || result.remainingDays === null) continue;
-      items.push(this.itemOf(context, row, result.band, result.remainingDays, pwfDeadlineBand.shouldEscalate({ remaining: result.remainingDays, escalateAfterOverdueDays: policy.escalate_after_overdue_days })));
+    let after: { day: string; id: string } | null = null;
+    // The tasks are read in chunks of the limit of a source and the ones that have no colour yet are dropped, so that a chunk full of far tasks never hides the ones behind it, and a list that really has more than the limit says so by being exactly as long as it.
+    for (let chunk = 0; chunk < MAX_SCAN_CHUNKS; chunk += 1) {
+      const rows: TaskSql[] = await this.chunkAfter(context, horizon, after);
+      for (const row of rows) {
+        const policy = set.forUnitPath(row.unit_path);
+        const result = pwfDeadlineBand.deadlineBand({ dueOn: row.due_on, today: context.today, unit: policy.unit, calendars, thresholds: pwfDeadlineBand.thresholdsFor(policy, { taskKind: row.kind, priority: row.priority, phase: row.phase_code }) });
+        // No colour yet (far), or none can be given (the calendar of the year is not published): not a thing to act on today.
+        if (result.band === 'NONE' || result.band === 'UNKNOWN' || result.remainingDays === null) continue;
+        items.push(this.itemOf(context, row, result.band, result.remainingDays, pwfDeadlineBand.shouldEscalate({ remaining: result.remainingDays, escalateAfterOverdueDays: policy.escalate_after_overdue_days })));
+        if (items.length >= SOURCE_LIMIT) return items;
+      }
+      const last = rows[rows.length - 1];
+      if (rows.length < SOURCE_LIMIT || last === undefined) return items;
+      after = { day: last.due_on, id: last.id };
     }
-    return items;
+    // So many tasks without a colour in the way that the list cannot be said to be complete: the source is named as unavailable (never shown as "no work").
+    throw new Error('PROJECT_TASK_SCAN_INCOMPLETE');
   }
 
   /** The tasks the ledger of assignments hands to the reader today, as the ones who do them or answer for them. */
