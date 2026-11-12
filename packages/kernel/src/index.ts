@@ -3330,3 +3330,4 @@ export * as pwfQuality from './project-workflow-quality.ts';
 export * as pwfDeadlineBand from './deadline-band.ts';
 export * as pwfKpi from './workflow-kpi.ts';
 export * as processCore from './process-core.ts';
+export { PWF_SCORE_TEXT } from './messages/pwf-score-texts.ts';
