@@ -126,7 +126,7 @@ describe('the definitions of the disbursement metrics over HTTP (ST-DIS-011)', (
     expect(await snapshotDefinition()).toBe('PROPOSED_PENDING_SIGNOFF');
   });
 
-  it('a snapshot says the definitions are signed only once the owner has published every one of them: one term short of that it still says they are proposals, and it follows the glossary with no setting of its own', async () => {
+  it('UAT-PLAN-69: a snapshot says the definitions are signed only once the owner has published every one of them: one term short of that it still says they are proposals, and it follows the glossary with no setting of its own', async () => {
     const terms = await rows<{ id: string; version: string }>("select id, version::text as version from machvon.glossary_term where domain = 'DISBURSEMENT' and status = 'IN_REVIEW' order by term_code");
     expect(terms).toHaveLength(codes.length);
     const finish = async (term: { id: string; version: string }): Promise<void> => {

@@ -237,7 +237,7 @@ describe('the Treasury forms of a payment request over HTTP (ST-PAY-005)', () =>
     expect(await generate(FORMER, target.id, ['03.a/TT'])).toMatchObject({ status: 409, json: { code: 'PAYMENT_STATE_INVALID' } });
   });
 
-  it('shows the buttons the caller may press and the proof on the request, and none to a person who may not', async () => {
+  it('UAT-PLAN-40 shows the buttons the caller may press and the proof on the request, and none to a person who may not; a request sent to the Treasury reads as SENT_TREASURY with its net as whole dong and the time of the server', async () => {
     await resetTemplates();
     for (const code of ['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT']) await template(code);
     const target = await checked();
@@ -249,7 +249,13 @@ describe('the Treasury forms of a payment request over HTTP (ST-PAY-005)', () =>
     expect((await read(FORMER)).json).toMatchObject({ forms_standing: ['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT'], actions: { generate_forms: true, send_treasury: true } });
     expect((await read(READER)).json).toMatchObject({ actions: { send_treasury: false } });
     await sendToTreasury(FORMER, target.id, await versionOf(target.id), (drawn.json.forms as Array<{ id: string }>).map((item) => item.id));
-    expect((await read(FORMER)).json).toMatchObject({ status: 'SENT_TREASURY', treasury_submitted_on: '2026-07-24', treasury_ref: 'KB-2026-0001', actions: { generate_forms: false, send_treasury: false } });
+    const sentRead = await read(FORMER);
+    expect(sentRead.json).toMatchObject({ status: 'SENT_TREASURY', treasury_submitted_on: '2026-07-24', treasury_ref: 'KB-2026-0001', actions: { generate_forms: false, send_treasury: false } });
+    // The money is an integer count of dong in a string, never a number with decimals; the time is the one the server stored, not the one of the phone that reads it.
+    expect(sentRead.json).toMatchObject({ net_vnd: '2100000000', gross_vnd: '3000000000' });
+    expect(String(sentRead.json.net_vnd)).toMatch(/^[0-9]+$/);
+    const [stored] = await rows<{ updated_at: Date }>('select updated_at from machvon.payment_request where id = $1::uuid', [target.id]);
+    expect(new Date(sentRead.json.updated_at as string).getTime()).toBe(stored?.updated_at.getTime());
   });
 
   it('keeps the people apart and asks for what a form needs: who may draw, where, which form, and a request that is checked', async () => {

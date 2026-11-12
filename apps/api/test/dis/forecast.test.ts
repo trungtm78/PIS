@@ -4,6 +4,7 @@ import { Client } from 'pg';
 import { EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, WORKER_MEMBERSHIP_ID } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
+import { DisbursementScheduleController } from '../../src/modules/cap/schedule.controller';
 import { disModule } from '../../src/modules/dis';
 import { DisbursementForecastController, curveOf } from '../../src/modules/dis/disbursement-forecast.controller';
 import { DIS_CLOCK } from '../../src/modules/dis/tokens';
@@ -18,6 +19,7 @@ const SIGNING_KEY = randomBytes(32);
 const READER = 1; // disbursement.read over the whole tenant
 const HERE_READER = 2; // over the unit HERE
 const NOBODY = 3;
+const INVESTOR = 4; // capital.schedule.register over the whole tenant
 const B_READER = 1;
 const ROOT = 1;
 const HERE = 2;
@@ -137,13 +139,15 @@ describe('the disbursement forecast over HTTP (ST-DIS-018)', () => {
         { n: ELSEWHERE, path: `/${unitId(ELSEWHERE)}/` },
       ]);
     }
-    for (const n of [READER, HERE_READER, NOBODY]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [READER, HERE_READER, NOBODY, INVESTOR]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_READER, ROOT);
     await harness.seedRole(TENANT_A, 1, 'DIS_READER', ['disbursement.read'], 20);
     await harness.seedRole(TENANT_B, 1, 'DIS_READER', ['disbursement.read'], 20);
+    await harness.seedRole(TENANT_A, 2, 'CAP_INVESTOR', ['capital.schedule.register', 'capital.read'], 30);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: READER, role: 1, kind: 'TENANT' },
       { n: 2, member: HERE_READER, role: 1, kind: 'UNIT_SUBTREE', refs: [unitId(HERE)] },
+      { n: 3, member: INVESTOR, role: 2, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_READER, role: 1, kind: 'TENANT' }]);
     const tenants = harness.tenants as TenantDatabase;
@@ -153,7 +157,7 @@ describe('the disbursement forecast over HTTP (ST-DIS-018)', () => {
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [DisbursementForecastController],
+      controllers: [DisbursementForecastController, DisbursementScheduleController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: DIS_CLOCK, useValue: () => NOW },
@@ -197,6 +201,47 @@ describe('the disbursement forecast over HTTP (ST-DIS-018)', () => {
     ]);
     expect(projectsOf(reply)).toHaveLength(1);
     expect(projectsOf(reply)[0]).toMatchObject({ project: { id: w.projects[0]?.id, code: w.projects[0]?.code }, eac_vnd: '650000000', gap_vnd: '-350000000', reallocation_candidate: true });
+  });
+
+  it('UAT-AC232: forecasts of 100 and 150 million for November and December make the estimate 650 million, and the December forecast raised to 200 million (revision 2, revision 1 no longer current) makes it 700 million, 300 million under the plan, with the reason of the change kept', async () => {
+    const w = await world([{ tag: 'E2', plan: '1000000000', payments: [[3, '100000000'], [6, '200000000'], [10, '100000000']] }]);
+    const projectId = w.projects[0]?.id as string;
+    const registered = async (month: number, amount: string, extra: Record<string, unknown> = {}): Promise<Reply> => {
+      const response = await fetch(`${app.baseUrl}/disbursement-schedules`, {
+        method: 'POST',
+        headers: { [TENANT_HEADER]: tokenOf(INVESTOR), 'content-type': 'application/json', 'idempotency-key': `key-${randomUUID()}` },
+        body: JSON.stringify({ project_id: projectId, plan_year: 2027, granularity: 'MONTH', month, kind: 'FORECAST', bucket: 'CURRENT_YEAR', budget_level: 'CENTRAL', amount_vnd: amount, assumption: 'Expected by the investor', ...extra }),
+      });
+      return { status: response.status, json: (await response.json()) as Record<string, unknown> };
+    };
+    // Step 1: the forecasts of the two months go in through the command of CAP.
+    expect((await registered(11, '100000000')).status).toBe(200);
+    const december = await registered(12, '150000000');
+    expect(december.status).toBe(200);
+    const first = await get(`?snapshot_id=${w.snapshotId}`);
+    expect(first.json).toMatchObject({ disbursed_vnd: '400000000', eac_vnd: '650000000', plan_total_vnd: '1000000000', gap_vnd: '-350000000' });
+    // Step 2: December is revised to 200 million, with the reason.
+    const revised = await registered(12, '200000000', { revision_reason: 'The contractor brought the payment forward' });
+    expect(revised.status).toBe(200);
+    const history = await harness.owner<{ revision: number; is_current: boolean; amount: string; supersedes_id: string | null; id: string }>(
+      TENANT_A,
+      [['select id, revision, is_current, amount_vnd::text as amount, supersedes_id from machvon.disbursement_schedule_line where project_id = $1::uuid and month = 12 and kind = \'FORECAST\' order by revision', [projectId]]],
+    );
+    expect(history).toMatchObject([
+      { revision: 1, is_current: false, amount: '150000000', supersedes_id: null },
+      { revision: 2, is_current: true, amount: '200000000', supersedes_id: december.json.resource_id },
+    ]);
+    // Step 3: what the screen reads: the estimate 700 million and the gap to the plan of -300 million.
+    const second = await get(`?snapshot_id=${w.snapshotId}`);
+    expect(second.json).toMatchObject({ eac_vnd: '700000000', gap_vnd: '-300000000', plan_total_vnd: '1000000000', method: 'FORECAST_AND_REGISTERED' });
+    expect(second.json.months).toEqual([
+      { month: 11, amount_vnd: '100000000', source: 'FORECAST' },
+      { month: 12, amount_vnd: '200000000', source: 'FORECAST' },
+    ]);
+    const reasons = await harness.owner<{ reason: string | null }>(TENANT_A, [['select reason from machvon.audit_event where action = \'capital.schedule_registered\' and resource_id = $1::uuid', [revised.json.resource_id]]]);
+    expect(reasons).toEqual([{ reason: 'The contractor brought the payment forward' }]);
+    // A wrong expectation makes the check fail: the estimate did not stay at the first 650 million.
+    expect(second.json.eac_vnd).not.toBe('650000000');
   });
 
   it('draws the cumulative curve: what the Treasury paid month by month to the cutoff (ending at the figure of the snapshot), the forecast after it, and nothing where the year is not known', async () => {

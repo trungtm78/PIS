@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { APP_FILTER } from '@nestjs/core';
-import { BASELINE_PACK, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, applyBaseline } from '@machvon/db';
+import { BASELINE_PACK, EffectiveAccessStore, InMemoryAuthzCache, TenantDatabase, applyBaseline, sealPack } from '@machvon/db';
 import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
@@ -343,6 +343,58 @@ describe('reporting period calendar (ST-DIS-001, DIS-14)', () => {
       expect((await get(`/resources/reporting_period/${randomUUID()}`, READER)).status).toBe(404);
       const theirs = await get('/resources/reporting_period', OTHER_TENANT_MANAGER, TENANT_B);
       expect(theirs.json.items).toEqual([]);
+    });
+  });
+
+  describe('the calendar published again (UAT-AC283, DIS-14)', () => {
+    // Last in the file: the new revision of the calendar stays in the database, and the tests above read revision 1.
+    it('UAT-AC283 generates the weeks of 2027 from revision 2 of the calendar: 52 or 53 periods that do not overlap (EXCLUDE reporting_period_no_overlap), calendar_version 2, each due on Friday at 03:00 UTC, and a repeat of the same request adds nothing', async () => {
+      now = new Date('2026-12-15T00:00:00Z');
+      await reset();
+      // Revision 2 of CALENDAR DEFAULT (Saturday to Friday, due Friday 10:00 +07) is published the way the platform publishes: a newer version of the entry in a signed pack.
+      const calendar = BASELINE_PACK.entries.find((entry) => entry.masterType === 'CALENDAR' && entry.businessKey === 'DEFAULT');
+      expect(calendar).toBeDefined();
+      const second = sealPack('PLATFORM-2026.2-CALENDAR', [{ ...(calendar as (typeof BASELINE_PACK.entries)[number]), label: `${(calendar as { label: string }).label} (r2)`, validFrom: '2026-06-01' }]);
+      const tenants = harness.tenants as TenantDatabase;
+      const result = await tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER, scopeVersion: 0 }, (tx) => applyBaseline(tx, second, WORKER));
+      expect(result).toMatchObject({ created: 0, superseded: 1 });
+      expect(await rows<{ revision: number; status: string }>("select revision, status from machvon.master_record_version where master_type = 'CALENDAR' and code = 'DEFAULT' order by revision")).toEqual([
+        { revision: 1, status: 'RETIRED' },
+        { revision: 2, status: 'EFFECTIVE' },
+      ]);
+
+      const key = `key-${randomUUID()}`;
+      const body = { calendar_code: 'DEFAULT', fiscal_year: 2027, period_type: 'WEEK' };
+      const first = await post('/reporting-periods/generate', { member: MANAGER, body, key });
+      expect(first.status).toBe(200);
+      const stored = await rows<{ n: string; fridays: string; at_three: string; revisions: string; bound: string }>(
+        `select count(*)::text as n, count(*) filter (where extract(dow from deadline_at at time zone 'UTC') = 5)::text as fridays,
+                count(*) filter (where to_char(deadline_at at time zone 'UTC', 'HH24:MI:SS') = '03:00:00')::text as at_three,
+                string_agg(distinct calendar_version::text, ',') as revisions, count(distinct calendar_version_id)::text as bound
+           from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK'`,
+      );
+      expect(Number(stored[0]?.n)).toBeGreaterThanOrEqual(52);
+      expect(Number(stored[0]?.n)).toBeLessThanOrEqual(53);
+      expect(stored[0]).toEqual({ n: stored[0]?.n, fridays: stored[0]?.n, at_three: stored[0]?.n, revisions: '2', bound: '1' });
+      const audit = await rows<{ safe_diff: Record<string, unknown> }>("select safe_diff from machvon.audit_event where action = 'dis.periods_generated' and resource_id = $1::uuid", [first.json.resource_id]);
+      expect(audit[0]?.safe_diff).toMatchObject({ calendar_code: 'DEFAULT', fiscal_year: 2027, calendar_revision: 2 });
+      // No two weeks overlap, and the database holds the rule itself: the exclusion constraint that no application code can skip.
+      expect(
+        (
+          await rows<{ n: string }>(
+            `select count(*)::text as n from machvon.reporting_period a join machvon.reporting_period b on a.tenant_id = b.tenant_id and a.calendar_code = b.calendar_code and a.period_type = b.period_type and a.id < b.id
+              where daterange(a.start_date, a.end_date, '[]') && daterange(b.start_date, b.end_date, '[]')`,
+          )
+        )[0]?.n,
+      ).toBe('0');
+      expect(await rows<{ n: string }>("select count(*)::text as n from pg_constraint where conname = 'reporting_period_no_overlap' and contype = 'x'")).toEqual([{ n: '1' }]);
+
+      // The same request again, under the same key and under a new one, creates nothing more.
+      const replay = await post('/reporting-periods/generate', { member: MANAGER, body, key });
+      expect([replay.status, replay.json.resource_id]).toEqual([200, first.json.resource_id]);
+      const repeat = await post('/reporting-periods/generate', { member: MANAGER, body });
+      expect([repeat.status, repeat.json.code, repeat.json.detail]).toEqual([409, 'PERIOD_OVERLAP', 'fiscal_year']);
+      expect((await rows<{ n: string }>("select count(*)::text as n from machvon.reporting_period where fiscal_year = 2027 and period_type = 'WEEK'"))[0]?.n).toBe(stored[0]?.n);
     });
   });
 });

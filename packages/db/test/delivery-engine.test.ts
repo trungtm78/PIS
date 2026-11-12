@@ -334,6 +334,64 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       expect(await statusOf(id)).toMatchObject({ status: 'Delivered' });
     });
 
+    it('UAT-AC177 a Zalo ZNS provider that always answers 503 is tried five times (attempt_no 1 to 5 at t0, +30 s, +2 min, +10 min, +30 min), never a sixth, then one e-mail attempt number 1 takes over and the notification is Delivered by e-mail', async () => {
+      const ZNS_ACCOUNT = randomUUID();
+      const ZNS = 'zns-gateway';
+      const flow = randomUUID();
+      await owner(
+        `insert into machvon.channel_account (tenant_id, id, channel, external_account_id, credential_secret_ref, capability_version, status, verified_at, webhook_secret_ref)
+         values ($1, $2, 'ZALO_ZNS', 'oa-1', 'secret://test/zns', 'v1', 'Active', now(), 'secret://test/zns-webhook')`,
+        [TENANT_A, ZNS_ACCOUNT],
+      );
+      await owner(
+        `insert into machvon.notification_template_version (tenant_id, id, code, channel, locale, revision, content_ast, variable_schema, status, content_hash, created_by, provider_status, provider_template_id)
+         values ($1, gen_random_uuid(), 'zns.uat', 'ZALO_ZNS', 'vi-VN', 1, '{"body":"B"}'::jsonb, '{}'::jsonb, 'Active', repeat('e', 64), $2, 'PROVIDER_APPROVED', '23001')`,
+        [TENANT_A, ACTOR],
+      );
+      // The Zalo services share one consent of the person (BR-NOT-07).
+      await owner(
+        `insert into machvon.contact_consent (tenant_id, id, membership_id, channel, purpose, status, evidence_reference, effective_at, consent_text_version, capture_method)
+         values ($1, gen_random_uuid(), $2, 'ZALO', 'OPERATIONAL', 'Granted', 'in-app:test', now(), 'v1', 'IN_APP')`,
+        [TENANT_A, memberId(RECIPIENT)],
+      );
+      await owner(
+        `insert into machvon.workflow_version (tenant_id, id, business_type, revision, definition_json, status, kind, event_type, created_by, definition_hash)
+         values ($1, $2, 'NOTIFICATION_ZNS_UAT', 3, $3::jsonb, 'Published', 'NOTIFICATION', 'report.zns-uat', $4, repeat('f', 64))`,
+        [TENANT_A, flow, JSON.stringify({ channels: [{ channel: 'ZALO_ZNS', templateCode: 'zns.uat' }, { channel: 'EMAIL', templateCode: 'mail.a' }] }), ACTOR],
+      );
+      try {
+        const id = await notify(['ZALO_ZNS', 'EMAIL'], { workflow: flow });
+        const waits: number[] = [];
+        let now = T0;
+        for (let attemptNo = 1; attemptNo <= 5; attemptNo += 1) {
+          const attempt = await queuedOf(id, 'ZALO_ZNS');
+          expect(attempt.attempt_no).toBe(attemptNo);
+          expect(await send(attempt.id, unavailable(), now, ZNS)).toBe(attemptNo < 5 ? 'RETRY' : 'FALLBACK');
+          if (attemptNo < 5) {
+            const due = (await queuedOf(id, 'ZALO_ZNS')).next_retry_at;
+            waits.push((due?.getTime() ?? 0) - now.getTime());
+            now = due ?? now;
+          }
+        }
+        // The jitter of the engine is fixed at the middle of its range here, so the waits are the schedule (each one would be inside +-20 percent for any other draw).
+        expect(waits).toEqual([30_000, 120_000, 600_000, 1_800_000]);
+        const zns = (await attemptsOf(id)).filter((row) => row.channel === 'ZALO_ZNS');
+        expect(zns.map((row) => [row.attempt_no, row.status, row.error_code])).toEqual([1, 2, 3, 4, 5].map((no) => [no, 'Failed', 'HTTP_503']));
+        // After the fifth failure the e-mail channel starts at attempt number 1, and there is no sixth ZNS attempt.
+        const mail = await queuedOf(id, 'EMAIL');
+        expect(mail.attempt_no).toBe(1);
+        expect((await attemptsOf(id)).filter((row) => row.channel === 'ZALO_ZNS')).toHaveLength(5);
+        const messageId = `msg-${randomUUID()}`;
+        expect(await send(mail.id, accepted(messageId), now)).toBe('ACCEPTED');
+        expect(await callback(EMAIL, EMAIL_ACCOUNT, `evt-${messageId}-delivered`, messageId, 'DELIVERED')).toMatchObject({ outcome: 'APPLIED' });
+        expect((await attemptsOf(id)).filter((row) => row.channel === 'EMAIL').map((row) => [row.attempt_no, row.status])).toEqual([[1, 'Delivered']]);
+        expect(await statusOf(id)).toMatchObject({ status: 'Delivered' });
+      } finally {
+        await owner('update machvon.channel_account set status = $2 where id = $1', [ZNS_ACCOUNT, 'Disabled']).catch(() => undefined);
+        await owner("delete from machvon.contact_consent where channel = 'ZALO' and tenant_id = $1", [TENANT_A]).catch(() => undefined);
+      }
+    });
+
     it('never makes a sixth send on a channel or a second send with the same number: the database refuses both', async () => {
       const id = await notify(['EMAIL']);
       const insert = (attemptNo: number): Promise<unknown> =>
@@ -352,6 +410,10 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
       expect(await send(attempt.id, unavailable(600), T0)).toBe('EXPIRED');
       expect((await attemptsOf(id)).map((row) => [row.channel, row.attempt_no, row.status])).toEqual([['EMAIL', 1, 'Failed']]);
       expect(await statusOf(id)).toMatchObject({ status: 'Expired' });
+      // The dead-letter queue (the failed queue of NOT-11) takes no record: an expired notification is not a failure to be replayed.
+      expect(await inTenant((tx) => deliveries.list(tx, { notificationId: id, deadLetter: true }, { limit: 50, after: undefined }))).toEqual([]);
+      const [expiry] = await owner<{ expires_at: Date }>('select expires_at from machvon.notification_instance where id = $1', [id]);
+      expect((expiry?.expires_at.getTime() ?? 0) - T0.getTime()).toBe(300_000);
     });
 
     it('uses a Retry-After that is longer than the schedule', async () => {
@@ -451,6 +513,33 @@ describe('DeliveryEngine (ST-NOT-002)', () => {
         { to_status: 'ACCEPTED', cause: 'RESPONSE' },
         { to_status: 'DELIVERED', cause: 'CALLBACK' },
       ]);
+    });
+
+    it('UAT-AC182 an accepted send gets Delivered, a late Accepted that is dropped (no step back) and a Read sent twice that is written once: the end is ProviderAccepted, Delivered, Read, with three inbox rows PROCESSED and the repeat deduped by its event key', async () => {
+      const { id, attemptId, messageId } = await acceptedNotification();
+      const key = (name: string): string => `evt-${messageId}-${name}`;
+      expect(await callback(EMAIL, EMAIL_ACCOUNT, key('delivered'), messageId, 'DELIVERED')).toMatchObject({ outcome: 'APPLIED' });
+      expect(await callback(EMAIL, EMAIL_ACCOUNT, key('accepted-late'), messageId, 'ACCEPTED')).toMatchObject({ outcome: 'STALE' });
+      expect(await callback(EMAIL, EMAIL_ACCOUNT, key('read'), messageId, 'READ')).toMatchObject({ outcome: 'APPLIED' });
+      expect(await callback(EMAIL, EMAIL_ACCOUNT, key('read'), messageId, 'READ')).toMatchObject({ duplicate: true });
+      // The history of the send: accepted by the provider, then delivered, then read, and nothing for the late Accepted or the repeated Read.
+      expect(await historyOf(attemptId)).toEqual([
+        { to_status: 'SENDING', cause: 'CREATED' },
+        { to_status: 'ACCEPTED', cause: 'RESPONSE' },
+        { to_status: 'DELIVERED', cause: 'CALLBACK' },
+        { to_status: 'READ', cause: 'CALLBACK' },
+      ]);
+      const [attempt] = await attemptsOf(id);
+      expect(attempt).toMatchObject({ status: 'Read', provider_message_id: messageId });
+      // Three events reached the inbox and were all processed; the second Read was recognised by its event key and added no row.
+      const inbox = await owner<{ event_key: string; status: string }>('select event_key, status from machvon.integration_event_inbox where event_key like $1 order by event_key', [`evt-${messageId}-%`]);
+      expect(inbox).toEqual([
+        { event_key: key('accepted-late'), status: 'PROCESSED' },
+        { event_key: key('delivered'), status: 'PROCESSED' },
+        { event_key: key('read'), status: 'PROCESSED' },
+      ]);
+      // A provider read leaves the notification itself Delivered.
+      expect(await statusOf(id)).toMatchObject({ status: 'Delivered' });
     });
 
     it('stamps the moments of the attempt from the callbacks, and a provider read leaves the notification Delivered', async () => {

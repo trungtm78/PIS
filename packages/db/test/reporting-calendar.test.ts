@@ -194,7 +194,7 @@ describe('the reporting calendar: schedule rule, periods of every kind, board fa
     expect(await as((tx) => calendar.chainFacts(tx, WHOLE_TENANT, period), TENANT_B)).toEqual({});
   });
 
-  it('reminds the unit that has not finished, once, then again after the deadline, and tells the leader once when it is days overdue', async () => {
+  it('UAT-DIS-ENT4C-2: reminds the unit that has not finished, once, then again after the deadline, and tells the leader once when it is days overdue', async () => {
     const [september] = await owner<{ id: string }>(`select id from machvon.reporting_period where code = 'M2027-09'`);
     const key = (september as { id: string }).id;
     const events = async (): Promise<Array<{ type: string; payload: Record<string, unknown> }>> =>
@@ -218,11 +218,15 @@ describe('the reporting calendar: schedule rule, periods of every kind, board fa
     await run('2027-10-08T04:00:00Z');
     const ENTRY_KINDS = (await events()).filter((event) => event.payload.step === 'ENTRY').map((event) => [event.type, event.payload.kind, event.payload.ordinal]);
     expect(ENTRY_KINDS).toEqual(expect.arrayContaining([['dis.calendar_step.reminded.v1', 'BEFORE_DUE', 1], ['dis.calendar_step.reminded.v1', 'OVERDUE', 1], ['dis.calendar_step.escalated.v1', 'ESCALATED', 1]]));
+    // One reminder of each kind is recorded for the unit that had not finished, however many passes ran, and the leader is told once.
+    const recorded = await owner<{ kind: string; n: string }>(`select kind, count(*)::text as n from machvon.reporting_reminder where item_key = $1 and unit_id = $2 and step = 'ENTRY' group by kind order by kind`, [key, unitId(2)]);
+    expect(recorded).toEqual([{ kind: 'BEFORE_DUE', n: '1' }, { kind: 'ESCALATED', n: '1' }, { kind: 'OVERDUE', n: '1' }]);
+    expect(ENTRY_KINDS.filter((one) => one[0] === 'dis.calendar_step.escalated.v1')).toHaveLength(1);
     const rows = await owner<{ n: string }>(`select count(*)::text as n from machvon.reporting_reminder where item_key = $1 and unit_id = $2 and step = 'ENTRY'`, [key, unitId(3)]);
     expect(rows[0]?.n).toBe('0');
   });
 
-  it('reminds the steps of the period that the approval chain keeps only while they are open, and sends nothing for a step that is done or has no fact', async () => {
+  it('UAT-DIS-ENT4C-2: reminds the steps of the period that the approval chain keeps only while they are open, and sends nothing for a step that is done or has no fact', async () => {
     const [september] = await owner<{ id: string }>(`select id from machvon.reporting_period where code = 'M2027-09'`);
     const key = (september as { id: string }).id;
     const steps = async (): Promise<Array<{ step: unknown; kind: unknown; unit: unknown }>> =>

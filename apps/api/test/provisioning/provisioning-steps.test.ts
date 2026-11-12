@@ -182,6 +182,38 @@ describe('ProvisioningSaga, steps 6 to 11 (ST-SAS-006)', () => {
       expect(dump).not.toContain(license?.signed_claims ?? 'missing');
     });
 
+    it('UAT-AC145 a new province tenant goes Requested, then Active with all 11 steps DONE: one organisation of the identity provider, the DNS record of its subdomain, the storage prefix of its id, entitlement version 1, a PILOT license Issued, the system roles, the root unit, theme 1 with its pointer, one owner invitation, and the audit rows of the request and the activation', async () => {
+      const request = { planVersionId: STANDARD_PLAN, code: 'minh-ha', name: 'UBND tỉnh Minh Hà', governingBodyType: 'PROVINCE', administrativeCode: '99', platformSubdomain: 'minhha', rootUnitName: 'UBND tỉnh Minh Hà', initialOwnerEmail: 'owner@minhha.gov.vn' };
+      const { tenantId, runId } = await harness.request(request);
+      expect(await harness.registry.getTenant(tenantId)).toMatchObject({ status: 'Requested', code: 'minh-ha' });
+      expect(await saga().run(tenantId, 1)).toBe('Completed');
+      const detail = await harness.registry.getDetail(tenantId);
+      expect(detail?.tenant).toMatchObject({ status: 'Active', code: 'minh-ha' });
+      expect(detail?.run).toMatchObject({ id: runId, status: 'Succeeded' });
+      expect(PROVISIONING_STEPS).toHaveLength(11);
+      for (const step of PROVISIONING_STEPS) expect(detail?.run?.steps[step]).toMatchObject({ status: 'DONE' });
+      // The identity provider got one organisation for the tenant, DNS its subdomain under the platform domain, storage the prefix of the tenant id.
+      expect([...ports.organizations]).toEqual(['minh-ha']);
+      expect([...ports.records]).toEqual(['minhha.machvon.vn']);
+      expect([...ports.prefixes]).toEqual([`${tenantId}/`]);
+      const sql = <T extends object>(text: string): Promise<T[]> => harness.admin((client) => client.query<T>(text, [tenantId]).then((result) => result.rows));
+      expect(await sql("select version_no::int as n, cause from machvon.entitlement_version where tenant_id = $1 and version_no = 1")).toEqual([{ n: 1, cause: 'PROVISIONING' }]);
+      expect(await sql("select edition, status from machvon.license_revision where tenant_id = $1")).toEqual([{ edition: 'PILOT', status: 'Issued' }]);
+      // The roles the product seeds as system roles (the design counted 12 of them; the product has grown to its own list, all of which are present).
+      const roles = (await sql<{ code: string }>('select code from machvon.role_definition where tenant_id = $1 and is_system order by code')).map((row) => row.code);
+      expect(roles).toEqual(SYSTEM_ROLES.map((role) => role.code).sort());
+      expect(roles.length).toBeGreaterThanOrEqual(12);
+      expect(await sql("select unit_type, parent_id from machvon.organization_unit where tenant_id = $1")).toEqual([{ unit_type: 'GOVERNING_BODY', parent_id: null }]);
+      expect(await sql("select version::int as version from machvon.tenant_theme_version where tenant_id = $1")).toEqual([{ version: 1 }]);
+      expect(await sql("select current_version::int as v from machvon.tenant_theme_pointer where tenant_id = $1")).toEqual([{ v: 1 }]);
+      // One invitation went to the owner, once.
+      expect(mailer.sent.filter((message) => message.tenantId === tenantId)).toHaveLength(1);
+      expect(await sql("select status from machvon.membership_invitation where tenant_id = $1")).toEqual([{ status: 'Pending' }]);
+      expect((await sql<{ action: string }>("select action from machvon.audit_event where tenant_id = $1 and outcome = 'SUCCESS' order by occurred_at")).map((row) => row.action)).toContain('tenant.activated');
+      // The negative control: a check that wants the tenant to be Failed must fail on this record.
+      expect(() => expect(detail?.tenant).toMatchObject({ status: 'Failed' })).toThrow();
+    });
+
     it('treats a redelivery of a finished run as done: nothing runs again', async () => {
       const { tenantId } = await requested();
       await saga().run(tenantId, 1);
@@ -290,6 +322,41 @@ describe('ProvisioningSaga, steps 6 to 11 (ST-SAS-006)', () => {
       const run = await harness.registry.loadRun(tenantId, 2);
       expect(run?.steps.ENTITLEMENT_V1.attempts).toBe(1);
       expect(run?.steps.ROOT_UNIT).toMatchObject({ status: 'DONE', attempts: 1 });
+    });
+
+    it('UAT-AC146 a DNS provider that is down stops the run at DNS_SUBDOMAIN with PROVIDER_UNAVAILABLE after its tries and the tenant is Failed, and the retry opens attempt 2 at DNS_SUBDOMAIN without repeating the identity provider step (still one organisation) and ends with the tenant Active', async () => {
+      const { tenantId } = await harness.request({ planVersionId: STANDARD_PLAN, code: 'lam-son', name: 'UBND tỉnh Lam Sơn', platformSubdomain: 'lamson', initialOwnerEmail: 'owner@lamson.gov.vn' });
+      // The DNS provider answers 503: the adapter reports it as a provider failure, which the saga retries after 10 s, 1 min and 5 min (the policy of SAS 3.1 step 5 is four tries, one more than the three of the design text).
+      const dns = ports.dns as { ensureRecord: (hostname: string) => Promise<void> };
+      const healthy = dns.ensureRecord;
+      let providerDown = true;
+      dns.ensureRecord = (hostname) => (providerDown ? Promise.reject(Object.assign(new Error('503 from the DNS provider'), { code: 'PROVIDER_UNAVAILABLE' })) : healthy(hostname));
+      expect(await saga().run(tenantId, 1)).toBe('Failed');
+      expect(delays).toEqual([10, 60, 300]);
+      const failed = await harness.registry.getDetail(tenantId);
+      expect(failed?.tenant.status).toBe('Failed');
+      expect(failed?.run).toMatchObject({ status: 'Failed', errorCode: 'PROVIDER_UNAVAILABLE', currentStep: 'DNS_SUBDOMAIN' });
+      expect(failed?.run?.steps.DNS_SUBDOMAIN).toMatchObject({ status: 'FAILED', attempts: 4, error_code: 'PROVIDER_UNAVAILABLE' });
+      expect(failed?.run?.steps.IDP_ORG).toMatchObject({ status: 'DONE', attempts: 1 });
+      expect([...ports.organizations]).toEqual(['lam-son']);
+      // The provider is back; the operator retries (If-Match is the version read).
+      providerDown = false;
+      const tenant = await harness.registry.getTenant(tenantId);
+      const retry = await harness.control.withTenantOf(PLATFORM_TENANT_ID, (tx) => harness.registry.startRetryRun(tx, tenantId, tenant?.version ?? 0, REQUESTER, PLATFORM_TENANT_ID, () => Promise.resolve()));
+      expect(retry.attempt).toBe(2);
+      const idpCalls = ports.callsTo('idp.ensureOrganization');
+      expect(await saga().run(tenantId, 2)).toBe('Completed');
+      // Attempt 2 starts at the failed step: the steps before it are carried over as DONE and the identity provider is not called again.
+      expect(ports.callsTo('idp.ensureOrganization')).toBe(idpCalls);
+      expect([...ports.organizations]).toEqual(['lam-son']);
+      expect([...ports.records]).toEqual(['lamson.machvon.vn']);
+      const second = await harness.registry.loadRun(tenantId, 2);
+      expect(second?.steps.IDP_ORG).toMatchObject({ status: 'DONE', attempts: 1 });
+      expect(second?.steps.DNS_SUBDOMAIN).toMatchObject({ status: 'DONE', attempts: 1 });
+      expect((await harness.registry.getTenant(tenantId))?.status).toBe('Active');
+      expect((await harness.registry.loadRun(tenantId, 1))?.status).toBe('Failed');
+      // The negative control: a check that wants three tries must fail on the four that were made.
+      expect(() => expect(failed?.run?.steps.DNS_SUBDOMAIN).toMatchObject({ attempts: 3 })).toThrow();
     });
 
     it('retries an infrastructure failure of the mailer after 10 s and sends one invitation that is pending', async () => {

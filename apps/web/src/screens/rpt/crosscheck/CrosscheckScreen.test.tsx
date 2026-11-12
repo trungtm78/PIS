@@ -100,7 +100,7 @@ describe('the model of RPT-09', () => {
 describe('RPT-09, the comparison of the reports of a period', () => {
   const path = `/rpt/rpt-09?kind=QUARTER&year=2026&index=4&draft=${DRAFT}`;
 
-  it('asks for the period and the draft, shows the coverage, the gate, the numbers and where each came from', async () => {
+  it('UAT-RPT-ENT4A-1: asks for the period and the draft, shows the coverage, the gate, the numbers and where each came from', async () => {
     const h = harness(() => answer());
     mount(<CrosscheckScreen route={route} />, h, { permissions: EXPLAIN, path });
     expect(await screen.findByTestId('coverage')).toBeTruthy();

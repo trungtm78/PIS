@@ -489,7 +489,7 @@ void main() {
     });
   });
 
-  group('AC-ST-MOB-008-5 UI-MOB-48 the tenant switch screen', () {
+  group('AC-ST-MOB-008-5 UAT-AC505 UI-MOB-48 the tenant switch screen', () {
     testWidgets('lists the memberships, marks the one in use, and says what happens to the data; confirming switches and goes home', (WidgetTester tester) async {
       useDevice(tester, kDeviceSizes[1]);
       world = _twoTenants();

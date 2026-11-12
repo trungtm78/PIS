@@ -9,6 +9,7 @@ import { loadErrorRegistry, signTenantContext } from '@machvon/kernel';
 import { AppModule } from '../../src/app.module';
 import { LocalTenantTokenIssuer, issuerKeyFromPem } from '../../src/auth/tenant-token-issuer';
 import { FileService } from '../../src/modules/files';
+import { HOME_CLOCK } from '../../src/modules/home/tokens';
 import { loadEditionManifest, loadEditionModules } from '../../src/editions/load-edition';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
@@ -27,8 +28,13 @@ export interface PersonaTable {
   [persona: string]: readonly string[];
 }
 
+/** Carries the clock port of the command centre (HOME_CLOCK, the one the product reads the day of the alert centre and of the BI certification from) into every controller of the application. */
+class UatClockModule {}
+
 export class UatWorld {
   readonly harness = new AuthzHarness();
+  /** The day the clock port answers; the system clock while it is unset. */
+  private clockNow: Date | undefined;
   readonly signingKey = randomBytes(32);
   app!: RunningApp;
   private controlPool!: Pool;
@@ -75,6 +81,7 @@ export class UatWorld {
     this.app = await startTestApp({
       signingKey: this.signingKey,
       imports: [
+        { module: UatClockModule, global: true, providers: [{ provide: HOME_CLOCK, useValue: (): Date => this.clockNow ?? new Date() }], exports: [HOME_CLOCK] },
         AppModule.register({
           database: tenants,
           registry: loadErrorRegistry(ERROR_CODES_PATH),
@@ -99,6 +106,11 @@ export class UatWorld {
       else process.env[name] = value;
     }
     for (const root of [this.objectRoot, this.outboxRoot]) if (root !== '') await rm(root, { recursive: true, force: true });
+  }
+
+  /** Moves the clock port (the alert centre, my work, the BI certification) to `now`; `undefined` gives the system clock back. */
+  setClock(now: Date | undefined): void {
+    this.clockNow = now;
   }
 
   /** A request as a persona of tenant A makes it; `tenantId` makes it as the same number of tenant B. */

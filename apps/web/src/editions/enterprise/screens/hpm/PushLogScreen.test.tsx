@@ -29,7 +29,7 @@ const loaded = async (): Promise<void> => {
 const content = (id: string): string => screen.getByTestId(id).textContent ?? '';
 
 describe('PushLogScreen (HPM-01): the push of the issued reports to HPM', () => {
-  it('UI-HPM-01: shows the connection as a file writer that stands for HPM, PENDING-EXTERNAL, registered as a proposal, with the refusing API adapter and who switched it and why', async () => {
+  it('UI-HPM-01 UAT-HPM-PX-01: shows the connection as a file writer that stands for HPM, PENDING-EXTERNAL, registered as a proposal, with the refusing API adapter and who switched it and why', async () => {
     mountWith();
     await loaded();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('hpm.push.page.title'));

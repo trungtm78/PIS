@@ -321,6 +321,36 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
       expect(JSON.stringify(audit[0]?.safe_diff)).not.toContain('Received');
     });
 
+    it('UAT-AC181 the inbox row has no read_at before it is opened, then Read with a read_at, then acknowledged at or after the read, and a notification that needs no acknowledgement answers 422 ACK_NOT_REQUIRED', async () => {
+      // N-81 asks for an acknowledgement and N-82 does not; both are Delivered to the same person (the push stand-in is the delivered row the store writes).
+      const n81 = await seed(READER, { ack: true });
+      const n82 = await seed(READER, { ack: false });
+      const stamps = (id: string) => admin<{ status: string; read_at: Date | null; acknowledged_at: Date | null }>('select status, read_at, acknowledged_at from machvon.notification_instance where id = $1', [id]);
+      // Step 1: read straight after the push: read_at is null, in the row and in the inbox read.
+      expect(await stamps(n81)).toEqual([expect.objectContaining({ status: 'Delivered', read_at: null, acknowledged_at: null })]);
+      const before = itemsOf(await list(READER)).find((item) => item.id === n81);
+      expect(before).toMatchObject({ status: 'Delivered', ack_required: true });
+      expect(before?.read_at).toBeUndefined();
+      // Step 2: opening it (NOT-02) sets the status to Read and the time of the read.
+      expect(await read(READER, n81)).toMatchObject({ status: 200, json: { status: 'READ', resource_id: n81 } });
+      const [opened] = await stamps(n81);
+      expect(opened).toMatchObject({ status: 'Read', acknowledged_at: null });
+      expect(opened?.read_at).toBeInstanceOf(Date);
+      expect(itemsOf(await list(READER)).find((item) => item.id === n81)).toMatchObject({ status: 'Read', read_at: expect.any(String) });
+      // Step 3: the acknowledgement is stamped at or after the read.
+      expect(await acknowledge(READER, n81)).toMatchObject({ status: 200, json: { status: 'ACKNOWLEDGED', resource_id: n81 } });
+      const [acknowledged] = await stamps(n81);
+      expect(acknowledged?.acknowledged_at).toBeInstanceOf(Date);
+      expect((acknowledged?.acknowledged_at as Date).getTime()).toBeGreaterThanOrEqual((acknowledged?.read_at as Date).getTime());
+      // Step 4: N-82 needs no acknowledgement: 422 ACK_NOT_REQUIRED, and nothing is stamped.
+      await read(READER, n82);
+      const refused = await acknowledge(READER, n82);
+      expect([refused.status, refused.json.code]).toEqual([422, 'ACK_NOT_REQUIRED']);
+      expect((await stamps(n82))[0]?.acknowledged_at).toBeNull();
+      // The negative control: a check that a refusal is a 200 must fail on the answer above.
+      expect(() => expect([refused.status, refused.json.code]).toEqual([200, 'ACKNOWLEDGED'])).toThrow();
+    });
+
     it('refuses an expired notification with 409 NOTIFICATION_EXPIRED', async () => {
       const id = await seed(READER, { ack: true });
       await read(READER, id);

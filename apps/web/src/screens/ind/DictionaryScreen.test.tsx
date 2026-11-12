@@ -34,7 +34,7 @@ const select = async (code: string): Promise<void> => {
 };
 
 describe('DictionaryScreen (IND-01): the list', () => {
-  it('UI-IND-01: names the screen and lists every indicator with its unit, how it is obtained, its version and whether the definition is the starting value nobody confirmed', async () => {
+  it('UI-IND-01 UAT-IND-PX-01: names the screen and lists every indicator with its unit, how it is obtained, its version and whether the definition is the starting value nobody confirmed', async () => {
     open();
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('ind.dict.page.title'));

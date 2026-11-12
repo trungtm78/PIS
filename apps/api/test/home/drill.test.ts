@@ -439,7 +439,7 @@ describe('the drill of a figure over HTTP (ST-HOME-002)', () => {
     expect((await call('/home/drill')).status).toBe(422);
   });
 
-  it('AC-ST-HOME-002-4: answers 409 SNAPSHOT_EXPIRED for a token that is old, with the snapshot to ask again for, and reads over the same snapshot with a new token', async () => {
+  it('AC-ST-HOME-002-4 / UAT-PLAN-72: answers 409 SNAPSHOT_EXPIRED for a token that is old, with the snapshot to ask again for, and reads over the same snapshot with a new token', async () => {
     const { snapshotId } = await world();
     const home = await center();
     const token = tileToken(home, 'PLAN_TOTAL');
@@ -454,6 +454,8 @@ describe('the drill of a figure over HTTP (ST-HOME-002)', () => {
     const again = await drill(tileToken(refreshed, 'PLAN_TOTAL'));
     expect(again.status).toBe(200);
     expect(again.json.snapshot_id).toBe(snapshotId);
+    // The figure is the one of the first snapshot, not of the newer one (which holds no project).
+    expect(again.json.value).toBe(dong(1750));
   });
 
   it('does not tell where to ask again to whoever is not the owner of an old token: another member or another tenant gets the 400 of any token of someone else', async () => {

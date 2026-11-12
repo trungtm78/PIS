@@ -42,7 +42,7 @@ afterEach(() => {
 });
 
 describe('SettingsScreen (PWA-07)', () => {
-  it('lists the sessions and the devices from the real operations, marking the current session', async () => {
+  it('UAT-PWA-04: lists the sessions and the devices from the real operations, marking the current session', async () => {
     const h = open();
     const sessions = await screen.findByTestId('sessions');
     expect(within(sessions).getAllByRole('listitem')).toHaveLength(2);
@@ -55,7 +55,7 @@ describe('SettingsScreen (PWA-07)', () => {
     expect(h.read).toHaveBeenCalledWith('listMyDevices', {});
   });
 
-  it('asks for the reason before ending another session and sends it once (AC-ST-PWA-004-1)', async () => {
+  it('UAT-PWA-04 / AC-ST-PWA-004-1: asks for the reason before ending another session and sends it once', async () => {
     const h = open();
     const sessions = await screen.findByTestId('sessions');
     fireEvent.click(sessions.querySelector('[data-action="revoke-session"]') as HTMLElement);
@@ -72,7 +72,7 @@ describe('SettingsScreen (PWA-07)', () => {
     expect(h.command.mock.calls[0]?.[1]).toMatchObject({ path: { sessionId: taskId(12) }, body: { reason: 'Máy đã mất, cần thu hồi phiên' } });
   });
 
-  it('removes a device with a reason, and shows the refusal in place', async () => {
+  it('UAT-PWA-04: removes a device with a reason, and shows the refusal in place', async () => {
     const h = open({ command: (operation) => (operation === 'revokeMyDevice' ? failure(403, 'PERMISSION_DENIED') : undefined) });
     const devices = await screen.findByTestId('devices');
     fireEvent.click(devices.querySelector('[data-device="' + taskId(22) + '"] [data-action="revoke-device"]') as HTMLElement);
@@ -83,7 +83,7 @@ describe('SettingsScreen (PWA-07)', () => {
     expect(h.command.mock.calls[0]?.[0]).toBe('revokeMyDevice');
   });
 
-  it('changes the language at once and saves it to the profile under its version', async () => {
+  it('UAT-PWA-04: changes the language at once and saves it to the profile under its version', async () => {
     const h = open();
     await screen.findByTestId('sessions');
     await waitFor(() => expect(h.read).toHaveBeenCalledWith('getMyProfile', {}));
@@ -95,7 +95,7 @@ describe('SettingsScreen (PWA-07)', () => {
     expect(h.command.mock.calls[0]?.[1]).toMatchObject({ body: { locale: 'en-US' }, ifMatchVersion: 4 });
   });
 
-  it('shows the preferences per category with the mandatory inbox locked, and saves the whole set under its version (AC-ST-PWA-004-2)', async () => {
+  it('UAT-PWA-04 / AC-ST-PWA-004-2: shows the preferences per category with the mandatory inbox locked, and saves the whole set under its version', async () => {
     const h = open();
     const form = await screen.findByTestId('preferences-form');
     const report = form.querySelector('[data-category="report"]') as HTMLElement;
@@ -114,7 +114,7 @@ describe('SettingsScreen (PWA-07)', () => {
     expect(await screen.findByTestId('save-done')).toBeInTheDocument();
   });
 
-  it('refuses equal quiet hours without sending', async () => {
+  it('UAT-PWA-04: refuses equal quiet hours without sending', async () => {
     const h = open();
     await screen.findByTestId('preferences-form');
     fireEvent.change(screen.getByLabelText(word('pwa2.settings.notifications.quietTo')), { target: { value: '22:00' } });

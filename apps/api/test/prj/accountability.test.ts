@@ -7,6 +7,7 @@ import { CommandModule } from '../../src/command.module';
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { prjModule } from '../../src/modules/prj';
+import { AccountabilityReadsController } from '../../src/modules/prj/accountability-reads.controller';
 import { ProjectAccountabilityController } from '../../src/modules/prj/accountability.controller';
 import { InMemoryPipelineCache } from '../../src/modules/prj/pipeline-cache';
 import { ProjectController, ProjectReadsController } from '../../src/modules/prj/project.controller';
@@ -154,7 +155,7 @@ describe('who answers for a project and the task forces (ST-PRJ-005)', () => {
     app = await startTestApp({
       signingKey: SIGNING_KEY,
       imports: [CommandModule.register({ database: tenants }), PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) })],
-      controllers: [ProjectController, ProjectReadsController, ProjectAccountabilityController, TaskForceController],
+      controllers: [ProjectController, ProjectReadsController, ProjectAccountabilityController, AccountabilityReadsController, TaskForceController],
       providers: [
         { provide: TenantDatabase, useValue: tenants },
         { provide: PRJ_PIPELINE_CACHE, useValue: cache },
@@ -210,6 +211,36 @@ describe('who answers for a project and the task forces (ST-PRJ-005)', () => {
       const replacement = await assign(ADMIN, target, { leader_membership_id: memberId(SECOND_LEADER), valid_from: TODAY });
       expect(replacement.status).toBe(200);
       expect(await rows(`select leader_membership_id from machvon.project_accountability where project_id = $1::uuid and status = 'ACTIVE'`, [target.id])).toEqual([{ leader_membership_id: memberId(SECOND_LEADER) }]);
+    });
+
+    it('UAT-AC210: a second leader in charge is 409 LEADER_ALREADY_ASSIGNED; ending the first on 2026-09-30 is 200 ENDED; the second then takes the post from 2026-10-01; the history holds two rows that do not overlap and the register column names the second leader', async () => {
+      const target = await project();
+      const first = await assign(ADMIN, target, { leader_membership_id: memberId(LEADER), valid_from: '2026-01-01' });
+      expect(first.status).toBe(200);
+      const refused = await assign(ADMIN, target, { leader_membership_id: memberId(SECOND_LEADER), valid_from: '2026-10-01' });
+      expect([refused.status, refused.json.code]).toEqual([409, 'LEADER_ALREADY_ASSIGNED']);
+      expect(await rows('select id from machvon.project_accountability where project_id = $1::uuid', [target.id])).toHaveLength(1);
+
+      const ended = await endAssignment(ADMIN, idOf(first), 1, { valid_until: '2026-09-30', end_reason: 'Điều động công tác' });
+      expect(ended.status).toBe(200);
+      expect(ended.json).toMatchObject({ status: 'ENDED', resource_id: idOf(first) });
+      const second = await assign(ADMIN, target, { leader_membership_id: memberId(SECOND_LEADER), valid_from: '2026-10-01' });
+      expect(second.status).toBe(200);
+
+      const history = await call('GET', `/resources/project_accountability?project_id=${target.id}`, { member: ADMIN });
+      expect(history.status).toBe(200);
+      const lines = history.json.items as Array<Record<string, unknown>>;
+      expect(lines.map((line) => [(line.leader as { membership_id: string }).membership_id, line.status, line.valid_from, line.valid_until]).sort()).toEqual(
+        [
+          [memberId(LEADER), 'ENDED', '2026-01-01', '2026-09-30'],
+          [memberId(SECOND_LEADER), 'ACTIVE', '2026-10-01', null],
+        ].sort(),
+      );
+      const [older, newer] = [lines.find((line) => line.status === 'ENDED'), lines.find((line) => line.status === 'ACTIVE')];
+      expect(String(older?.valid_until) < String(newer?.valid_from)).toBe(true);
+      // The register column (DIS-24 reads the leader in charge) shows the second leader (the day of the case is in the past by the clock of this run).
+      const register = await call('GET', '/resources/project?limit=200', { member: ADMIN });
+      expect((register.json.items as Array<Record<string, unknown>>).find((item) => item.id === target.id)?.leader_in_charge).toEqual({ membership_id: memberId(SECOND_LEADER), display_name: 'User 4' });
     });
 
     it('AC-ST-PRJ-005-1: the same command repeated with its key answers the first answer and writes nothing twice', async () => {

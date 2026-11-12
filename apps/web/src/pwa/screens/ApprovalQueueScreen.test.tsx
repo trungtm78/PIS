@@ -246,7 +246,7 @@ describe('ApprovalQueueScreen (PWA-02): the queue of period data', () => {
     expect(requestStepUp).toHaveBeenCalledTimes(1);
   });
 
-  it('sends the same request again with the same idempotency key after a lost answer, and a new one for another decision', async () => {
+  it('UAT-PWA-01: sends the same request again with the same idempotency key after a lost answer, and a new one for another decision', async () => {
     let calls = 0;
     const h = open({ tasks: [approvalTask(1)] }, { command: () => (++calls === 1 ? failure(0, NETWORK_ERROR_CODE) : { operation_id: 'op', status: 'OK', resource_version: 4 }) });
     await screen.findByTestId('counts');

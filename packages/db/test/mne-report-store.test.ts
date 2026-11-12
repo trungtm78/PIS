@@ -170,7 +170,7 @@ describe('MneReportStore (ST-MNE-002, MNE F3)', () => {
     expect(submitted.row.status).toBe('IN_REVIEW');
   });
 
-  it('fills the slow projects of the weekly quick report from the open warnings EW-01 of the unit, the furthest behind first, with the leader of each, limited and locked (AC-ST-MNE-005-1)', async () => {
+  it('fills the slow projects of the weekly quick report from the open warnings EW-01 of the unit, the furthest behind first, with the leader of each, limited and locked, beside the two rates of DIS-19 and the deadline of the WEEKLY rule (AC-ST-MNE-005-1, UAT-AC291)', async () => {
     const WEEKLY = {
       fields: [
         { key: 'rate_pm', label: 'Rate PM', kind: 'PERCENT', required: true, source: { kind: 'SNAPSHOT_METRIC', metric: 'rate_pm_pct' } },
@@ -222,6 +222,12 @@ describe('MneReportStore (ST-MNE-002, MNE F3)', () => {
          values ($1, $2, $3, $4, $5, (select period_id from machvon.period_snapshot where id = $6), $6, 'WARNING', jsonb_build_object('gap_points', '30.0000'), 'DA-FAR|2025', 'OPEN', $7, $7)`,
         [TENANT_A, randomUUID(), ruleId, projects.far, unitId(COMMITTEE), snapshotId, WORKER],
       );
+      // The figures of the snapshot (FX-DIS-004): 1,000 billion assigned by the Prime Minister, 1,250 billion in all, 600 billion paid by the Treasury.
+      await client.query(
+        `insert into machvon.period_snapshot_line (tenant_id, id, snapshot_id, project_id, unit_id, bucket, budget_level, plan_pm_assigned_vnd, plan_local_added_vnd, plan_total_vnd, disbursed_treasury_vnd, treasury_coverage)
+         values ($1, gen_random_uuid(), $2, $3, $4, 'CURRENT_YEAR', 'CENTRAL', 1000000000000, 250000000000, 1250000000000, 600000000000, 'COMPLETE')`,
+        [TENANT_A, snapshotId, projects.far, unitId(COMMITTEE)],
+      );
       // The leader of the far project; the leader of the middle one stopped being it, so it has none.
       await client.query(
         `insert into machvon.project_accountability (tenant_id, id, project_id, leader_membership_id, accountability_role, valid_from, status, created_by, updated_by)
@@ -243,8 +249,8 @@ describe('MneReportStore (ST-MNE-002, MNE F3)', () => {
     // The deadline is the one of the WEEKLY rule: the Friday that closes the week.
     expect(edited.row.dueDate).toBe(week.endsOn);
     const values = edited.row.payload.values as Record<string, unknown>;
-    // The two rates are those of DIS-19 (nothing to divide by in this snapshot: missing, never zero); the list is the two furthest behind among the open warnings of EW-01 under the unit.
-    expect(values.rate_pm).toBeNull();
+    // The two rates are those of DIS-19 on the figures of the snapshot (600 over 1,000 and 600 over 1,250, four decimals); the list is the two furthest behind among the open warnings of EW-01 under the unit.
+    expect([values.rate_pm, values.rate_total]).toEqual(['60.0000', '48.0000']);
     expect(values.slow).toBe(
       `1. DA-FAR - Project DA-FAR; lãnh đạo phụ trách: ${leader?.display_name}; chậm 35.5000 điểm so với kỳ vọng\n2. DA-MIDDLE - Project DA-MIDDLE; lãnh đạo phụ trách: chưa phân công; chậm 20.0000 điểm so với kỳ vọng`,
     );

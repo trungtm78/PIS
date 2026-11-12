@@ -163,6 +163,37 @@ describe('sending, checking and returning a payment request over HTTP (ST-PAY-00
     expect(await effects()).toEqual(once);
   });
 
+  it('UAT-AC345: the same key and request answer the first body (same resource_version) and add no entry (two CLAIM entries stay), the same key with other figures is 409 IDEMPOTENCY_CONFLICT, and a second draft of the acceptance under a new key is 409 ACCEPTANCE_ALREADY_CLAIMED', async () => {
+    const world = await approved();
+    const first = await drafted(MAKER, world);
+    const second = await drafted(MAKER, world);
+    const before = await versionOf(first.id, 'current');
+    const sent = await submit(MAKER, first.id, before, {}, 'K-AC345-A-submit-key');
+    expect(sent).toMatchObject({ status: 200, json: { status: 'SUBMITTED', resource_version: Number(await versionOf(first.id, 'current')) } });
+    const claims = async () => (await ledger(world.contract.contractId)).kinds.filter((kind) => kind === 'CLAIM').length;
+    expect(await claims()).toBe(2);
+    const entries = (await ledger(world.contract.contractId)).kinds.length;
+
+    // Step 2: the same request under the same key answers the body of the first call, the same resource_version, and puts nothing more on the books.
+    const replay = await submit(MAKER, first.id, before, {}, 'K-AC345-A-submit-key');
+    expect(replay).toEqual(sent);
+    expect(replay.json.resource_version).toBe(Number(await versionOf(first.id, 'current')));
+    expect(await claims()).toBe(2);
+    expect((await ledger(world.contract.contractId)).kinds).toHaveLength(entries);
+
+    // Step 3: the same key with other figures is another request under a key already used.
+    expect(await submit(MAKER, first.id, before, { expected_net_vnd: '2100000001' }, 'K-AC345-A-submit-key')).toMatchObject({ status: 409, json: { code: 'IDEMPOTENCY_CONFLICT' } });
+
+    // Step 4: another draft of the same acceptance under a new key: the key does not stop a duplicate intent, the claim on the acceptance does.
+    expect(await submit(MAKER, second.id, 'current', {}, 'K-AC345-B-submit-key')).toMatchObject({ status: 409, json: { code: 'ACCEPTANCE_ALREADY_CLAIMED' } });
+    expect(await statusOf(second.id)).toEqual({ status: 'DRAFT', claims_acceptance: false });
+    expect(await statusOf(first.id)).toEqual({ status: 'SUBMITTED', claims_acceptance: true });
+    expect(await claims()).toBe(2);
+    expect((await ledger(world.contract.contractId)).kinds).toHaveLength(entries);
+    expect(await ledger(world.contract.contractId)).toMatchObject({ requested: '3000000000' });
+    expect(await audits(first.id, 'payment_request.submitted')).toHaveLength(1);
+  });
+
   it('refuses a request that is stale, has no invoice or is not a draft, and puts nothing on the books', async () => {
     const { target, id } = await drafted();
     expect(await submit(MAKER, id, 'current', { expected_net_vnd: '2000000000' })).toMatchObject({ status: 422, json: { code: 'PAYMENT_NET_MISMATCH' } });

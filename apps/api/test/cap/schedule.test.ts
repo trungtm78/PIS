@@ -258,6 +258,23 @@ describe('the registration of the disbursement schedule over HTTP (ST-CAP-009)',
       expect(again[0]).toMatchObject({ amount_vnd: millions(1_200), revision: 2, achievement: { disbursed_vnd: millions(300), rate: '0.2500' } });
     });
 
+    it('UAT-AC231: October registers 800 million and the Treasury paid 500 million in it: the screen reads 800 million registered and 62.5 percent achieved, and the registration is never counted as disbursed (the numerator is the 500 million of the Treasury)', async () => {
+      const year = freshYear();
+      const target = await funded(year);
+      const ledger = () => rows<{ n: string; total: string }>(`select count(*)::text as n, coalesce(sum(amount_vnd), 0)::text as total from machvon.capital_ledger_entry where project_id = $1::uuid and entry_type = 'DISBURSE'`, [target.projectId]);
+      await pay(target, year, millions(500), `${year}-10-15T03:00:00.000Z`);
+      const registered = await register(body(target.projectId, year));
+      expect(registered.status).toBe(200);
+      expect(registered.json).toMatchObject({ status: 'CURRENT', resource_version: 1 });
+      // Registering moves no money: what the ledger holds as disbursed is still the 500 million of the Treasury.
+      expect(await ledger()).toEqual([{ n: '1', total: millions(500) }]);
+      const read = await list(`?project_id=${target.projectId}&plan_year=${year}&kind=REGISTERED`);
+      const [row, ...more] = itemsOf(read);
+      expect(more).toEqual([]);
+      expect(row).toMatchObject({ amount_vnd: millions(800), month: 10, kind: 'REGISTERED', is_current: true, achievement: { disbursed_vnd: millions(500), rate: '0.6250' } });
+      expect(row?.achievement).not.toMatchObject({ disbursed_vnd: millions(800) });
+    });
+
     it('refuses a subset above the amount (422 SUBSET_EXCEEDS_PARENT), a forecast without its assumption, a registration in the wrong grain and a malformed body, writing nothing', async () => {
       const year = freshYear();
       const target = await project();
