@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { ApiClientProvider } from '../../../../api/ApiClientContext';
@@ -10,7 +11,7 @@ import { PLATFORM_TENANT } from '../../../sas/test-support';
 import type { Harness } from '../../../sas/test-support';
 
 /** Mounts a screen like the shared test support does, and lets the test say the mode of the session (read-only freezes every write). */
-export function mountAs(screen: ReactElement, h: Harness, options: { permissions?: readonly string[] | undefined; mode?: SessionMode; path?: string } = {}) {
+export function mountAs(screen: ReactElement, h: Harness, options: { permissions?: readonly string[] | undefined; mode?: SessionMode; path?: string } = {}): RenderResult & { queries: QueryClient } {
   const session: SessionValue = {
     tenant: PLATFORM_TENANT,
     tenants: [PLATFORM_TENANT],
