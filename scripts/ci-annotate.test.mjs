@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { annotationCommand, annotationText, escapeMessage, escapeProperty, failureBlocks, main } from './ci-annotate.mjs';
+import { annotationCommands, annotationText, chunksOf, escapeMessage, escapeProperty, failureBlocks, main } from './ci-annotate.mjs';
 
 const JEST_LOG = [
   'PASS src/a.test.ts',
@@ -37,7 +37,7 @@ test('jest kind: failures of the node test runner (TAP) and of a coverage floor 
 });
 
 test('dart: the [E] line and the lines after it are kept, colours are removed', () => {
-  const log = ['00:01 +3: ok', '\u001b[31m00:02 +3 -1: test/x_test.dart: moment in the zone [E]\u001b[0m', '  Expected: \'07:00\'', '    Actual: \'00:00\'', '00:03 +4 -1: Some tests failed.'].join('\n');
+  const log = ['00:01 +3: ok', '\u001b[31m00:02 +3 -1: test/x_test.dart: moment in the zone [E]\u001b[0m', "  Expected: '07:00'", "    Actual: '00:00'", '00:03 +4 -1: Some tests failed.'].join('\n');
   const blocks = failureBlocks(log, 'dart');
   assert.equal(blocks.length, 1);
   assert.match(blocks[0], /x_test\.dart: moment in the zone \[E\]/);
@@ -69,19 +69,33 @@ test('a log with no matching line reports its last lines instead of nothing', ()
   assert.match(text, /line two/);
 });
 
-test('many blocks are limited and a long message is cut below the limit of the check-run API', () => {
-  const many = Array.from({ length: 200 }, (_, index) => `FAIL src/f${index}.test.ts\n${'x'.repeat(380)}\n\n\n\n\n\n\n\nfiller`).join('\n');
+test('many blocks are limited and the message is cut into chunks under the 4 KB an annotation shows', () => {
+  const many = Array.from({ length: 200 }, (_, index) => `FAIL src/f${index}.test.ts\n${['a', 'b', 'c', 'd', 'e', 'f'].map((letter) => letter.repeat(230)).join('\n')}`).join('\n');
   const text = annotationText(many, 'jest');
-  assert.ok(text.length < 49_000);
-  assert.match(text, /first 60 shown/);
-  const huge = annotationText(`FAIL a\n${'y'.repeat(400)}\n`.repeat(1), 'jest');
-  assert.ok(huge.length < 49_000);
+  assert.match(text, /first 80 shown/);
+  const chunks = chunksOf(text);
+  assert.equal(chunks.length, 8);
+  assert.ok(chunks.every((chunk) => chunk.length < 4000));
+  assert.match(chunks[7], /\[cut: \d+ more chunk/);
+  assert.equal(chunksOf('short').length, 1);
+  assert.equal(chunksOf('y'.repeat(9000))[0].length, 3600);
 });
 
-test('the command line is a single line with an escaped title', () => {
-  const line = annotationCommand(JEST_LOG, 'jest', 'Tests: all');
-  assert.ok(line.startsWith('::error title=Tests%3A all::'));
-  assert.equal(line.includes('\n'), false);
+test('lines of passing tests inside a block are left out', () => {
+  const blocks = failureBlocks(['  1) the walk', '  ✓ passes one', '  ✅ passes two', 'ok 3 - passes three', 'Error: boom'].join('\n'), 'playwright');
+  assert.equal(blocks.length, 1);
+  assert.doesNotMatch(blocks[0], /passes/);
+  assert.match(blocks[0], /boom/);
+});
+
+test('every chunk is its own single-line command with a numbered, escaped title', () => {
+  const [single] = annotationCommands(JEST_LOG, 'jest', 'Tests: all');
+  assert.ok(single.startsWith('::error title=Tests%3A all::'));
+  assert.equal(single.includes('\n'), false);
+  const many = Array.from({ length: 60 }, (_, index) => `FAIL src/f${index}.test.ts\n${'x'.repeat(230)}`).join('\n');
+  const commands = annotationCommands(many, 'jest', 'T');
+  assert.ok(commands.length > 1);
+  assert.ok(commands[0].startsWith(`::error title=T (1/${commands.length})::`));
 });
 
 test('an unknown kind throws, the entry point never fails the step', () => {
