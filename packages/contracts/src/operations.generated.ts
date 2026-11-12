@@ -575,6 +575,7 @@ export const OPERATIONS = {
   "getProjectEacControl": { method: "get", path: "/projects/{id}/eac-control", versioned: false, stepUp: null, permission: "capital.read" },
   "getProjectEffectiveness": { method: "get", path: "/projects/{id}/effectiveness", versioned: false, stepUp: null, permission: "project.read" },
   "getProjectEvm": { method: "get", path: "/projects/{id}/evm", versioned: false, stepUp: null, permission: "project.evm.read" },
+  "getProjectInvestmentProfile": { method: "get", path: "/projects/{id}/investment-profile", versioned: false, stepUp: null, permission: "project.read" },
   "getProjectLifecycle": { method: "get", path: "/projects/{id}/lifecycle", versioned: false, stepUp: null, permission: "project.read" },
   "getProjectReserve": { method: "get", path: "/projects/{id}/reserve", versioned: false, stepUp: null, permission: "project.reserve.read" },
   "getProjectRiskSignals": { method: "get", path: "/projects/{id}/risk-signals", versioned: false, stepUp: null, permission: "project.read" },

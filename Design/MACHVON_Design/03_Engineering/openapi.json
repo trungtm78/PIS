@@ -233640,6 +233640,133 @@
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT"
       }
+    },
+    "/projects/{id}/investment-profile": {
+      "get": {
+        "operationId": "getProjectInvestmentProfile",
+        "summary": "Hồ sơ đầu tư của dự án bản enterprise: loại dự án, cờ khởi công mới hoặc chuyển tiếp, mốc vòng đời so với danh mục, và tách kế hoạch vốn theo Nghị quyết PVN và Quyết định của Tổng công ty (MD.01, MD.02, CN.01)",
+        "tags": [
+          "PRJ"
+        ],
+        "x-permission": "project.read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "plan_year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectInvestmentProfile"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED"
+        ]
+      }
     }
   },
   "components": {
@@ -317695,6 +317822,283 @@
             "minLength": 0,
             "maxLength": 2000,
             "description": "What the checker saw; optional"
+          }
+        }
+      },
+      "ProjectInvestmentProfile": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project_id",
+          "plan_year",
+          "as_of",
+          "project_type",
+          "start_flag",
+          "start_year",
+          "start_year_basis",
+          "plans",
+          "milestones",
+          "findings",
+          "origin_split"
+        ],
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan_year": {
+            "type": "integer"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date"
+          },
+          "project_type": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "label",
+              "kind"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "kind": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "start_flag": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "NEW_START",
+              "CONTINUING",
+              null
+            ]
+          },
+          "start_year": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "start_year_basis": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "ACTUAL",
+              "PLANNED",
+              "PROJECT",
+              null
+            ]
+          },
+          "plans": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "plan_code",
+                "status",
+                "revision"
+              ],
+              "properties": {
+                "plan_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "status": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectInvestmentMilestone"
+            }
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "origin_split": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "total_vnd",
+              "group_assigned_vnd",
+              "board_approved_vnd",
+              "other_vnd",
+              "origins"
+            ],
+            "properties": {
+              "total_vnd": {
+                "type": "string"
+              },
+              "group_assigned_vnd": {
+                "type": "string"
+              },
+              "board_approved_vnd": {
+                "type": "string"
+              },
+              "other_vnd": {
+                "type": "string"
+              },
+              "origins": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "origin",
+                    "amount_vnd",
+                    "lines",
+                    "decisions"
+                  ],
+                  "properties": {
+                    "origin": {
+                      "type": "string"
+                    },
+                    "amount_vnd": {
+                      "type": "string"
+                    },
+                    "lines": {
+                      "type": "integer"
+                    },
+                    "decisions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "kind",
+                          "symbol",
+                          "issued_on",
+                          "authority"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "issued_on": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date"
+                          },
+                          "authority": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProjectInvestmentMilestone": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "label",
+          "sequence",
+          "phase",
+          "required",
+          "evidence_kinds",
+          "state",
+          "planned_on",
+          "actual_on"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "sequence": {
+            "type": "integer"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "PREPARATION",
+              "APPROVAL",
+              "EXECUTION",
+              "CLOSURE"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "evidence_kinds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "REACHED",
+              "PLANNED",
+              "DELAYED",
+              "CANCELLED",
+              "NOT_HELD"
+            ]
+          },
+          "planned_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "actual_on": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
           }
         }
       }

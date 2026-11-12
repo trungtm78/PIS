@@ -2179,6 +2179,8 @@ export { ISSUE_ACTIONS, ISSUE_ROLES, ISSUE_STATES, advanceIssue, assertAcceptabl
 export type { IssueAction, IssueActors, IssueRole, IssueSignatories, IssueState, IssueStep, IssuedCopyMarks, IssuedCopyRef, NextIssue, SnapshotRevisionRef } from './report-issue.ts';
 export { PREVIEW_ROW_CAP, RECEIVER_CODE, REPORT_CHANNELS, REPORT_FILE_FORMATS, REPORT_OUTPUT_FORMATS, assertDeliveryTarget, assertPeriodFitsForm, packageDigestOf, previewOf, previewOfDocument } from './report-form.ts';
 export type { PreviewCell, PreviewRow, ReportChannel, ReportDataSourceKind, ReportFileFormat, ReportFormBundle, ReportOutputFormat, ReportPreview, ReportTemplateBytes } from './report-form.ts';
+export { agencyReceiverOf, assertReceiverKnown, reportCatalogueView } from './report-catalogue.ts';
+export type { CatalogueEntry, CatalogueForm, CatalogueProblem, FormSource, ManagedReportCatalogue, ReportCatalogueView } from './report-catalogue.ts';
 export { DIS_WEEKLY_CODE, DIS_WEEKLY_FORM_REF, DIS_WEEKLY_INDICATORS, DIS_WEEKLY_LAYOUT, DIS_WEEKLY_SHEET, DIS_WEEKLY_VERSION, WEEKLY_ORG_FALLBACK, weeklySnapshotLine } from './report-public-forms.ts';
 export { documentSheetOf, formatSheetNumber, layoutHashOf, narrativeLinesOf, numFmtShape, formDocumentOf } from './report-document.ts';
 export type { DocumentSheet, ReportDocument, SheetCell, SheetRow } from './report-document.ts';

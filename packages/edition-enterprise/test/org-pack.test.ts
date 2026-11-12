@@ -5,6 +5,7 @@ import { validateMasterContent } from '@machvon/db';
 import type { EntryRef, MasterContent } from '@machvon/db';
 import {
   ORG_PACK_MAPPING,
+  REPORT_FORM_CATALOGUE,
   absencePolicyOf,
   directoryMappings,
   enterprisePackParams,
@@ -16,6 +17,7 @@ import {
   orgPackOfRows,
   orgPackRows,
   readTabularFile,
+  reportCatalogueView,
   verifyOrgPack,
 } from '@machvon/kernel';
 import type { OrgPackState } from '@machvon/kernel';
@@ -134,7 +136,7 @@ describe('the PVFCCo template pack (HT.02, HT.03, MD.03, QT.01)', () => {
     it('covers what MD.03 lists: report types, receiving agencies, periods, funding sources, units of measure and the delay causes of MDM-17', () => {
       const keys = (type: string): string[] => pack.entries.filter((item) => item.masterType === type).map((item) => item.key);
       expect(keys('REPORTING_PERIOD_KIND')).toEqual(['MONTH', 'QUARTER', 'YEAR', 'MEETING']);
-      expect(keys('RECEIVING_AGENCY')).toEqual(['PVN', 'HPM', 'UB_DTPT_KHCN', 'SO_BAN_NGANH', 'GIAO_BAN']);
+      expect(keys('RECEIVING_AGENCY')).toEqual(['PVN', 'HPM', 'UB_DTPT_KHCN', 'SO_BAN_NGANH', 'GIAO_BAN', 'NMD_PM']);
       expect(keys('REPORT_TYPE').length).toBeGreaterThanOrEqual(6);
       expect(keys('CAPITAL_SOURCE')).toEqual(['EQUITY', 'LOAN', 'OTHER']);
       expect(keys('REPORT_UNIT')).toEqual(expect.arrayContaining(['VND', 'MILLION_VND', 'BILLION_VND', 'PERCENT']));
@@ -142,6 +144,12 @@ describe('the PVFCCo template pack (HT.02, HT.03, MD.03, QT.01)', () => {
       expect(causes.filter((item) => item.parentKey === null).map((item) => item.key)).toEqual(['DELAY_CAUSE']);
       expect(causes.length).toBeGreaterThanOrEqual(8);
       for (const cause of causes) expect(pack.units.map((unit) => unit.code)).toContain(cause.attributes.handler_unit_key);
+    });
+
+    it('read as the managed report catalogue it agrees with the six forms of the code: same receiver, same period, nothing to report (MD.03)', () => {
+      const asEntries = (type: string) => pack.entries.filter((item) => item.masterType === type).map((item) => ({ key: item.key, label: item.label, attributes: item.attributes }));
+      const view = reportCatalogueView({ periodKinds: asEntries('REPORTING_PERIOD_KIND'), reportTypes: asEntries('REPORT_TYPE'), agencies: asEntries('RECEIVING_AGENCY') }, REPORT_FORM_CATALOGUE);
+      expect(view.forms.map((form) => [form.code, form.receiver, form.period, form.source, form.problems])).toEqual(REPORT_FORM_CATALOGUE.map((form) => [form.code, form.receiver, form.period, 'MANAGED', []]));
     });
 
     it('names the classes of the funding pack of the enterprise edition and only those', () => {

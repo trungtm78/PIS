@@ -8,6 +8,7 @@ import { HpmApprovalPush } from './approval-push';
 import { EbsImportController, EbsReadsController, EbsReconciliationController } from './ebs.controller';
 import { EquipmentCommandsController, EquipmentReadsController } from './equipment.controller';
 import { directoryFileSink } from './file-sink';
+import { InvestmentProfileController } from './investment-profile.controller';
 import { LeaderReadsController } from './leader.controller';
 import { ReportMailCommandController, ReportMailReadsController } from './report-mail.controller';
 import { OrgPackController } from './org-pack.controller';
@@ -71,5 +72,11 @@ export const eqpModule = defineModule({
   controllers: [EquipmentReadsController, EquipmentCommandsController],
 });
 
+/**
+ * The investment profile of a project (MD.01, MD.02, CN.01): the type and the flag of the stage, the milestones of the investment life against the catalogue of the edition, and the split of the plan between the resolution of the group and
+ * the decision of the company. A read over what the register holds. The module exists in the enterprise edition only.
+ */
+export const investmentProfileModule = defineModule({ code: 'IPF', editions: ['enterprise'], controllers: [InvestmentProfileController] });
+
 /** The modules of the enterprise edition, in the order the registry mounts them after its own. */
-export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, orgPackModule, leaderModule, reportMailModule, eqpModule];
+export const ENTERPRISE_API_MODULES = [hpmModule, ebsModule, orgPackModule, leaderModule, reportMailModule, eqpModule, investmentProfileModule];

@@ -211,7 +211,8 @@ function entries(): PackEntry[] {
   const period = (key: string, grain: string, months: number, days: number): PackEntry => entry('REPORTING_PERIOD_KIND', key, { grain, months, entry_deadline_working_days: days });
   const reportType = (key: string, periodKind: string, audience: string, formCode?: string): PackEntry =>
     entry('REPORT_TYPE', key, { period_kind_key: periodKind, audience, ...(formCode === undefined ? {} : { form_code: formCode }) });
-  const agency = (key: string, kind: string, channel: string, reportTypes: string[]): PackEntry => entry('RECEIVING_AGENCY', key, { agency_kind: kind, report_type_keys: reportTypes, channel });
+  const agency = (key: string, kind: string, channel: string, reportTypes: string[], receiverCode?: string): PackEntry =>
+    entry('RECEIVING_AGENCY', key, { agency_kind: kind, report_type_keys: reportTypes, channel, ...(receiverCode === undefined ? {} : { receiver_code: receiverCode }) });
   const source = (key: string, repayable: boolean): PackEntry => entry('CAPITAL_SOURCE', key, { fnd_class_code: key, repayable });
   const unit = (key: string, kind: string, factor: string, scale: number): PackEntry =>
     entry('REPORT_UNIT', key, { kind, symbol: names.REPORT_UNIT_SYMBOL?.[key] ?? key, factor, scale, rounding: 'HALF_UP' });
@@ -227,13 +228,15 @@ function entries(): PackEntry[] {
     reportType('COMMITTEE_PERIODIC', 'QUARTER', 'EXTERNAL_AGENCY', 'COMMITTEE-PERIODIC'),
     // The form for departments waits for the customer's sample (ENT-4b); the type exists so the agency can be named.
     reportType('DEPARTMENT_PERIODIC', 'YEAR', 'EXTERNAL_AGENCY'),
-    reportType('INVEST_STEERING', 'MEETING', 'INTERNAL', 'INVEST-STEERING'),
+    reportType('INVEST_STEERING', 'MONTH', 'INTERNAL', 'INVEST-STEERING'),
     reportType('PLANT_PHU_MY', 'MONTH', 'INTERNAL', 'PLANT-PHU-MY'),
     agency('PVN', 'PARENT_GROUP', 'FILE', ['PVN_MONTHLY', 'PVN_QUARTERLY']),
     agency('HPM', 'PARENT_GROUP', 'HPM', ['HPM_MONTHLY']),
-    agency('UB_DTPT_KHCN', 'COMMITTEE', 'FILE', ['COMMITTEE_PERIODIC']),
+    // The receiver code is the one the report forms and the delivery log carry (the report catalogue, MD.03): where it differs from the key, the entry says so.
+    agency('UB_DTPT_KHCN', 'COMMITTEE', 'FILE', ['COMMITTEE_PERIODIC'], 'UB-DTPT-KHCN'),
     agency('SO_BAN_NGANH', 'DEPARTMENT', 'EMAIL', ['DEPARTMENT_PERIODIC']),
-    agency('GIAO_BAN', 'INTERNAL_MEETING', 'MEETING', ['INVEST_STEERING', 'PLANT_PHU_MY']),
+    agency('GIAO_BAN', 'INTERNAL_MEETING', 'MEETING', ['INVEST_STEERING'], 'BAN-KHDT'),
+    agency('NMD_PM', 'INTERNAL_MEETING', 'FILE', ['PLANT_PHU_MY'], 'NMD-PM'),
     source('EQUITY', false),
     source('LOAN', true),
     source('OTHER', false),

@@ -13,6 +13,7 @@ import {
   enterpriseProjectTypePack,
   legalDocTypesOf,
   milestonesOf,
+  milestonesOfResolved,
   registerEnterpriseCatalogueRules,
   startFlagOf,
 } from './ent-catalogue.ts';
@@ -100,6 +101,7 @@ describe('the catalogues of the enterprise project register (ENT-3e, MD.01, MD.0
 
   it('a tenant can add an entry by an approved rule; a draft governs nothing; a retired rule falls back to the built-in entry', () => {
     const own = version(MILESTONE_RULE, 'ENVIRONMENT_PERMIT', { label: 'Permit', sequence: 35, phase: 'APPROVAL', evidence_kinds: ['FS_APPROVAL_DECISION'], required: false });
+    expect(milestonesOfResolved([{ code: 'B', params: { label: 'b', sequence: 20, phase: 'EXECUTION', evidence_kinds: ['X'], required: false } }, { code: 'A', params: { label: 'a', sequence: 20, phase: 'EXECUTION', evidence_kinds: ['X'], required: true } }, { code: 'C', params: { label: 'c', sequence: 5, phase: 'PREPARATION', evidence_kinds: ['X'], required: true } }]).map((one) => [one.code, one.required])).toEqual([['C', true], ['A', true], ['B', false]]);
     expect(milestonesOf([own], DAY).map((one) => one.code)).toContain('ENVIRONMENT_PERMIT');
     expect(milestonesOf([own], DAY).findIndex((one) => one.code === 'ENVIRONMENT_PERMIT')).toBe(3);
     expect(milestonesOf([{ ...own, status: 'SUBMITTED' }], DAY).map((one) => one.code)).not.toContain('ENVIRONMENT_PERMIT');

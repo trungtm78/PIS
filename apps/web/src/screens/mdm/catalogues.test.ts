@@ -55,6 +55,13 @@ describe('the catalogue configuration', () => {
     }
   });
 
+  it('has a typed form for the catalogues of the enterprise report chain and offers the major repair as a kind of project (MD.01, MD.03)', () => {
+    for (const type of ['REPORTING_PERIOD_KIND', 'REPORT_TYPE', 'RECEIVING_AGENCY', 'CAPITAL_SOURCE', 'REPORT_UNIT']) expect(TYPE_FORMS[type]?.length).toBeGreaterThan(0);
+    const kind = TYPE_FORMS.PROJECT_TYPE?.find((spec) => spec.name === 'kind');
+    expect(kind?.kind === 'choice' ? kind.choices : []).toContain('MAJOR_REPAIR');
+    expect(TYPE_FORMS.RECEIVING_AGENCY?.map((spec) => spec.name)).toContain('receiver_code');
+  });
+
   it('writes a value of a list the way it is named in a translation key', () => {
     expect(camel('SUBSET_OF')).toBe('subsetOf');
     expect(camel('NSTW')).toBe('nstw');
