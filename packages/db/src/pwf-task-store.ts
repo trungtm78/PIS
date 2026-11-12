@@ -202,8 +202,9 @@ export class PwfTaskStore {
     const status = awaiting ? 'AWAITING_APPROVAL' : 'DONE';
     await this.update(tx, task, { status, actual_finish: finish, ...(actualVnd === null ? {} : { actual_vnd: actualVnd }), completion_requested_by: request.actor, completion_requested_at: new Date().toISOString() }, request.actor);
     let version = task.version + 1;
-    if (waiver !== null) await tx.query(`update machvon.project_task_exception set status = 'USED', version = version + 1 where id = $1::uuid`, [waiver.id]);
-    await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: awaiting ? 'COMPLETE_REQUESTED' : 'COMPLETED', actor: request.actor, subject: { task_code: task.code, actual_finish: finish, waived: waiver !== null } });
+    // A waiver is used up when the task is done; a task that waits for approval keeps it, so a return does not cost the worker the decision that was made (the log says which waiver the request relied on).
+    if (waiver !== null && !awaiting) await tx.query(`update machvon.project_task_exception set status = 'USED', version = version + 1 where id = $1::uuid`, [waiver.id]);
+    await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: awaiting ? 'COMPLETE_REQUESTED' : 'COMPLETED', actor: request.actor, subject: { task_code: task.code, actual_finish: finish, waived: waiver !== null, waiver_id: waiver?.id ?? null } });
     if (!awaiting) version = await this.afterDone(tx, locked, request.actor, request.today);
     return this.result(locked, 'IN_PROGRESS', status, version, { actual_finish: finish, waived: waiver !== null });
   }
@@ -215,6 +216,11 @@ export class PwfTaskStore {
     this.assertOpenFor(locked, ['AWAITING_APPROVAL']);
     await this.assertNotMaker(tx, task, request.actor);
     await this.update(tx, task, { status: 'DONE', approved_by: request.actor, approved_at: new Date().toISOString() }, request.actor);
+    await tx.query(
+      `update machvon.project_task_exception set status = 'USED', version = version + 1
+        where status = 'APPROVED' and id = (select (subject ->> 'waiver_id')::uuid from machvon.project_task_log where task_id = $1::uuid and kind = 'COMPLETE_REQUESTED' and subject ->> 'waiver_id' is not null order by at desc, id desc limit 1)`,
+      [task.id],
+    );
     await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: 'APPROVED', actor: request.actor, reason: request.note ?? null, subject: { task_code: task.code } });
     const version = await this.afterDone(tx, locked, request.actor, request.today);
     return this.result(locked, 'AWAITING_APPROVAL', 'DONE', version, {});

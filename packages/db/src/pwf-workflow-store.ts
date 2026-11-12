@@ -3,6 +3,7 @@ import { DomainError, pwfSchedule, pwfWorkflow, vietnamDateOf } from '@machvon/k
 import type { ResolvedGovernanceRule } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { PrjBaselineStore } from './prj-baseline-store.ts';
+import { TERMINAL_STAGES } from './prj-stage-machine.ts';
 import { dateOf, lockProject } from './prj-stage-support.ts';
 import type { LockedProject, StageScopes } from './prj-stage-support.ts';
 import { DEFAULT_ASSIGNMENT_REASON, earliestYear, inputHashOf, pinPublishedCalendars } from './pwf-schedule-support.ts';
@@ -210,6 +211,8 @@ export class PwfWorkflowStore {
     await tx.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [`pwf:${project.id}`]);
     const existing = await tx.query<{ id: string }>('select id from machvon.project_workflow where project_id = $1::uuid', [project.id]);
     if (existing[0] !== undefined) throw new DomainError('PWF_WORKFLOW_EXISTS', 409, 'project_id', { extensions: { workflow_id: existing[0].id } });
+    // A project that is over has no workflow to run (the legal stages that end it end the workflow too).
+    if (TERMINAL_STAGES.includes(project.status)) throw new DomainError('PROJECT_STAGE_INVALID', 422, 'project_id', { extensions: { project_status: project.status } });
     return project;
   }
 
@@ -278,9 +281,9 @@ export class PwfWorkflowStore {
     const baselines = await tx.query<{ id: string }>('select id from machvon.project_baseline where project_id = $1::uuid and version = 0', [project.id]);
     const workflowId = randomUUID();
     await tx.query(
-      `insert into machvon.project_workflow (tenant_id, id, project_id, template_code, template_rule_id, template_rule_version, template_hash, template, facts, planned_start_date, project_baseline_id, adopted_on, created_by, updated_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4::uuid, $5::int, $6, $7::jsonb, $8::jsonb, $9::date, $10::uuid, $11::date, $12::uuid, $12::uuid)`,
-      [workflowId, project.id, resolved.code, resolved.ruleId, resolved.version, resolved.hash, JSON.stringify(pwfWorkflow.templateParamsOf(resolved.template)), JSON.stringify(plan.facts), plannedStart, baselines[0]?.id ?? null, adoptedOn, request.actor],
+      `insert into machvon.project_workflow (tenant_id, id, project_id, template_code, template_rule_id, template_rule_version, template_hash, template, facts, planned_start_date, project_baseline_id, adopted_on, created_by, updated_by, status)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4::uuid, $5::int, $6, $7::jsonb, $8::jsonb, $9::date, $10::uuid, $11::date, $12::uuid, $12::uuid, $13)`,
+      [workflowId, project.id, resolved.code, resolved.ruleId, resolved.version, resolved.hash, JSON.stringify(pwfWorkflow.templateParamsOf(resolved.template)), JSON.stringify(plan.facts), plannedStart, baselines[0]?.id ?? null, adoptedOn, request.actor, project.status === 'SUSPENDED' ? 'ON_HOLD' : 'ACTIVE'],
     );
     await this.insertTasks(tx, workflowId, project.id, plan, decisions, request.actor, adoptedOn);
     await this.defaultAssignments(tx, workflowId, project.id, plannedStart, today, request.actor);
@@ -306,7 +309,7 @@ export class PwfWorkflowStore {
       templateCode: resolved.code,
       templateHash: resolved.hash,
       templateRuleVersion: resolved.version,
-      status: 'ACTIVE',
+      status: project.status === 'SUSPENDED' ? 'ON_HOLD' : 'ACTIVE',
       version: published.workflowVersion,
       scheduleVersion: published.scheduleVersion,
       plannedStartDate: plannedStart,

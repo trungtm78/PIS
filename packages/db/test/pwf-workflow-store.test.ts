@@ -411,10 +411,20 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       await as((tx) => tasks.decideException(tx, { exceptionId: asked.exceptionId, expectedVersion: 1, decision: 'APPROVE', actor: memberId(CHECKER), scopes, today: TODAY }), CHECKER);
       const requested = await finish(wf.id, 'TA', { exceptionId: asked.exceptionId });
       expect(requested.status).toBe('AWAITING_APPROVAL');
-      expect((await owner<{ status: string }>('select status from machvon.project_task_exception where id = $1::uuid', [asked.exceptionId]))[0]?.status).toBe('USED');
+      // A task that waits for approval keeps the waiver: a return does not cost the worker the decision that was made.
+      expect((await owner<{ status: string }>('select status from machvon.project_task_exception where id = $1::uuid', [asked.exceptionId]))[0]?.status).toBe('APPROVED');
       // The waiver never covers the approver: the one who worked cannot approve.
       const waiting = await taskOf(wf.id, 'TA');
       expect((await refusal(as((tx) => tasks.approveCompletion(tx, { taskId: a.id as string, expectedVersion: Number(waiting.version), actor: memberId(WORKER), scopes, today: TODAY }), WORKER))).code).toBe('SELF_APPROVAL_DENIED');
+      await as((tx) => tasks.approveCompletion(tx, { taskId: a.id as string, expectedVersion: Number(waiting.version), actor: memberId(CHECKER), scopes, today: TODAY }), CHECKER);
+      expect((await owner<{ status: string }>('select status from machvon.project_task_exception where id = $1::uuid', [asked.exceptionId]))[0]?.status).toBe('USED');
+    });
+
+    it('refuses to start a workflow for a project that is over and starts it on hold for a project that is suspended', async () => {
+      const over = await project({ status: 'CLOSED' });
+      expect(await refusal(start(over.id))).toMatchObject({ code: 'PROJECT_STAGE_INVALID', status: 422 });
+      const suspended = await project({ status: 'SUSPENDED' });
+      expect((await start(suspended.id)).status).toBe('ON_HOLD');
     });
 
     it('a waiver covers only the requirements it names: the missing document still blocks the completion', async () => {

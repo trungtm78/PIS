@@ -119,7 +119,9 @@ export function proposedTasks(rows: readonly TaskRow[], links: readonly TaskLink
   for (const code of progress.keys()) if (!known.has(code)) throw invalid('progress');
   const base = scheduleTasksOf(rows, links).map((one): pwfSchedule.ScheduleTask => {
     const given = progress.get(one.code);
-    if (given === undefined || one.status === 'DONE' || one.status === 'CANCELLED') return one;
+    // Progress is what a person can say about a task that is being worked on: the same rule decides what the preview takes and what is kept when the proposal is approved.
+    const stored = rows.find((row) => row.code === one.code)?.status;
+    if (given === undefined || (stored !== 'IN_PROGRESS' && stored !== 'ON_HOLD')) return one;
     return {
       ...one,
       ...(given.actualStart !== undefined && given.actualStart !== null && one.status === 'IN_PROGRESS' && one.actualStart === null ? { actualStart: dateOf(given.actualStart, 'progress.actual_start') } : {}),
