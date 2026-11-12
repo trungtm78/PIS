@@ -1,5 +1,5 @@
 import { ApiError } from '@machvon/api-client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -15,7 +15,7 @@ import type { Problem, Schedule, WorkflowDetail } from '../model';
 import { ChangesView } from './ChangesView';
 import { DecisionPanel } from './DecisionPanel';
 import { ProposalForm } from './ProposalForm';
-import { useDecide, usePropose, useSchedule, useWorkflow } from './hooks';
+import { useDecide, useProposal, usePropose, useSchedule, useWorkflow } from './hooks';
 import { decisionBody, emptyForm, hasFormErrors, heldFromAddress, heldFromPreview, isOpenProposal, proposeBody, validateForm } from './model';
 import type { DecisionBody, HeldProposal, RescheduleForm } from './model';
 import '../pwf.css';
@@ -99,6 +99,12 @@ function ReschedulePanel({ projectId, workflow, schedule }: PanelProps) {
   const [form, setForm] = useState<RescheduleForm>(emptyForm);
   const [attempted, setAttempted] = useState(false);
   const [held, setHeld] = useState<HeldProposal | undefined>(() => heldFromAddress(params));
+  // A proposal named in the address is read from the server: its changes, reason and status come before the decision.
+  const stored = useProposal(held === undefined || held.preview !== undefined ? undefined : held.id);
+  useEffect(() => {
+    const loaded = stored.data;
+    if (loaded !== undefined) setHeld((current) => (current !== undefined && current.preview === undefined && current.id === loaded.proposal_id ? heldFromPreview(loaded) : current));
+  }, [stored.data]);
   const [problem, setProblem] = useState<Problem | undefined>(undefined);
   const [decided, setDecided] = useState<DecisionBody['decision'] | undefined>(undefined);
 

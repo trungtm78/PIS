@@ -596,6 +596,7 @@ export const OPERATIONS = {
   "getProjectEvm": { method: "get", path: "/projects/{id}/evm", versioned: false, stepUp: null, permission: "project.evm.read" },
   "getProjectInvestmentProfile": { method: "get", path: "/projects/{id}/investment-profile", versioned: false, stepUp: null, permission: "project.read" },
   "getProjectLifecycle": { method: "get", path: "/projects/{id}/lifecycle", versioned: false, stepUp: null, permission: "project.read" },
+  "getProjectReschedule": { method: "get", path: "/project-reschedules/{id}", versioned: false, stepUp: null, permission: "pwf.read" },
   "getProjectReserve": { method: "get", path: "/projects/{id}/reserve", versioned: false, stepUp: null, permission: "project.reserve.read" },
   "getProjectRiskSignals": { method: "get", path: "/projects/{id}/risk-signals", versioned: false, stepUp: null, permission: "project.read" },
   "getProjectSCurve": { method: "get", path: "/projects/{id}/s-curve", versioned: false, stepUp: null, permission: "project.evm.read" },

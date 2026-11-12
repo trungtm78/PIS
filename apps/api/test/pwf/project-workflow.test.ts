@@ -277,6 +277,12 @@ describe('the workflow of a project over HTTP (PWF-1)', () => {
       const proposed = await call('POST', `/projects/${id}/workflow/reschedules`, { member: MANAGER, ifMatch: `"${started.json.resource_version}"`, body: { planned_start_date: `${YEAR}-11-16`, reason: 'The start of the project is moved by two weeks' } });
       expect(proposed).toMatchObject({ status: 200, json: { status: 'PROPOSED', base_version: started.json.resource_version } });
       const proposalId = proposed.json.proposal_id as string;
+      // The second person reads the stored proposal before deciding it; a caller without pwf.read and another tenant do not.
+      const stored = await call('GET', `/project-reschedules/${proposalId}`, { member: CHECKER });
+      expect(stored).toMatchObject({ status: 200, json: { proposal_id: proposalId, status: 'PROPOSED', base_version: started.json.resource_version } });
+      expect((stored.json.changes as unknown[]).length).toBeGreaterThan(0);
+      expect((await call('GET', `/project-reschedules/${proposalId}`, { member: NOBODY })).status).toBe(403);
+      expect((await call('GET', `/project-reschedules/${proposalId}`, { member: B_MANAGER, tenantId: TENANT_B })).status).toBe(404);
       expect((await call('POST', `/project-reschedules/${proposalId}/decide`, { member: MANAGER, ifMatch: `"${started.json.resource_version}"`, body: { decision: 'APPROVE' } })).status).toBe(403);
       const decided = await call('POST', `/project-reschedules/${proposalId}/decide`, { member: CHECKER, ifMatch: `"${started.json.resource_version}"`, body: { decision: 'APPROVE' } });
       expect(decided).toMatchObject({ status: 200, json: { status: 'APPROVED' } });

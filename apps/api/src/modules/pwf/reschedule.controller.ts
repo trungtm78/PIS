@@ -1,8 +1,8 @@
-import { Body, Controller, HttpCode, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PwfRescheduleStore } from '@machvon/db';
+import { PwfRescheduleStore, TenantDatabase, projectScope } from '@machvon/db';
 import type { ProposalView, RescheduleInput } from '@machvon/db';
-import type { EffectiveAccess } from '@machvon/kernel';
+import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
 import type { CommandResult } from '../../command-result';
@@ -10,7 +10,8 @@ import type { CommandScope } from '../../command-scope';
 import type { Schemas } from '../../contract-types';
 import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
-import { PROPOSAL_RESOURCE, WORKFLOW_RESOURCE, announce, scopesOf } from './pwf-support';
+import { CurrentTenant } from '../../tenant-context.decorator';
+import { PROPOSAL_RESOURCE, READ_PERMISSION, WORKFLOW_RESOURCE, announce, scopesOf } from './pwf-support';
 import { schedulePreviewOf } from './workflow.controller';
 
 type Request = Schemas['PwfRescheduleRequest'];
@@ -62,6 +63,8 @@ function previewOf(proposal: ProposalView, now: Date): Schemas['PwfReschedulePre
 export class ProjectRescheduleController {
   private readonly store = new PwfRescheduleStore();
 
+  constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
+
   @Post('projects/:project_id/workflow/reschedules')
   @HttpCode(200)
   @OperationId('proposeProjectReschedule')
@@ -70,6 +73,15 @@ export class ProjectRescheduleController {
     const now = new Date();
     const proposal = await this.store.propose(scope.tx, { projectId: projectId.toLowerCase(), expectedVersion: scope.expectedVersion ?? 0, input: inputOf(body), actor: scope.tenant.membershipId, scopes: scopesOf(access, PERMISSIONS.proposeProjectReschedule, now), now });
     await announce(scope, { resource: PROPOSAL_RESOURCE, id: proposal.id, version: proposal.version, action: 'reschedule.proposed', type: 'pwf.reschedule.proposed.v1', fromStatus: null, status: proposal.status, facts: { workflow_id: proposal.workflowId, project_id: proposal.projectId, base_version: proposal.baseVersion, result_hash: proposal.resultHash }, reason: body.reason }, now);
+    return previewOf(proposal, now);
+  }
+
+  /** The stored proposal: the preview, the reason and the status, for the person who decides it (PWF-06). */
+  @Get('project-reschedules/:id')
+  @OperationId('getProjectReschedule')
+  async get(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Schemas['PwfReschedulePreview']> {
+    const now = new Date();
+    const proposal = await this.database.withTenant(tenant, (tx) => this.store.read(tx, projectScope(access, READ_PERMISSION, now), id));
     return previewOf(proposal, now);
   }
 

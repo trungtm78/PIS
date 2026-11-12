@@ -210,6 +210,19 @@ describe('PWF-06: the decision of a second person', () => {
     expect(input.ifMatchVersion).toBe(3);
   });
 
+  it('reads the stored proposal named in the address, so that the second person sees its changes before deciding, and not the notice that the details cannot be read', async () => {
+    const h = serve(
+      { get_resources_project_id: projectBody(), getProjectWorkflow: workflow(), getProjectSchedule: schedule(), getProjectReschedule: preview() },
+      { decideProjectReschedule: { resource_id: PROPOSAL_ID, status: 'APPROVED', resource_version: 2 } },
+    );
+    mount(<RescheduleScreen route={route} />, h, ['pwf.read', 'pwf.schedule.approve'], `/pwf/pwf-06?id=${PROJECT_ID}&proposal=${PROPOSAL_ID}&v=3`);
+    expect(await screen.findByTestId('proposal')).toBeTruthy();
+    await waitFor(() => expect(screen.queryByTestId('no-detail')).toBeNull());
+    fireEvent.click(screen.getByTestId('approve'));
+    await waitFor(() => expect(h.command).toHaveBeenCalledTimes(1));
+    expect((h.command.mock.calls[0]?.[1] as { ifMatchVersion: number }).ifMatchVersion).toBe(preview().base_version);
+  });
+
   it('shows no decision to a person who may only propose, and no form to a person who may only decide', async () => {
     open({ permissions: ['pwf.read', 'pwf.schedule.propose'] });
     await propose();

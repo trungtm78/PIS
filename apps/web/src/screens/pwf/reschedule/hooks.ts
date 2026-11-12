@@ -31,6 +31,18 @@ export function useSchedule(projectId: string | undefined) {
   });
 }
 
+/** The stored proposal named in the address (a second person opens it from a link): its preview, reason and status, read from the server so that nobody decides on what they cannot see. */
+export function useProposal(id: string | undefined) {
+  const client = useApiClient();
+  const key = usePwfKey();
+  return useQuery<ReschedulePreview>({
+    queryKey: [...key, 'proposal', id ?? ''],
+    queryFn: () => client.read('getProjectReschedule', { path: { id: id ?? '' } }),
+    enabled: key[1] !== undefined && id !== undefined,
+    retry: false,
+  });
+}
+
 /** Proposes a reschedule: the server answers with the preview it computed and stored. One idempotency attempt per intention; what the module reads is read again on success. */
 export function usePropose(projectId: string) {
   const client = useApiClient();

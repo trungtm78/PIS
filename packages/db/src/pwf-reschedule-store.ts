@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { DomainError, hasControlCharExceptWhitespace, processCore, pwfSchedule, pwfWorkflow, vietnamDateOf, versionConflict } from '@machvon/kernel';
 import { PrjBaselineStore } from './prj-baseline-store.ts';
+import { SCOPE_FROM } from './prj-project-store.ts';
+import type { ScopeBuilder } from './scope-version.ts';
 import { dateOf, lockProject } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
 import { logWorkflow, publishSchedule, resultHashOf } from './pwf-publish.ts';
@@ -258,14 +260,17 @@ export class PwfRescheduleStore {
     return { proposal: { ...toView(held, project.id), status: 'APPROVED' }, scheduleVersion: published.scheduleVersion, workflowVersion: published.workflowVersion, resultHash: published.resultHash };
   }
 
-  /** The proposal as it is stored, for the screens of the decision: out of scope is 404. */
-  async find(tx: TenantTx, proposalId: string): Promise<ProposalView | undefined> {
-    if (!UUID.test(proposalId)) return undefined;
+  /** The proposal as it is stored, for the screen of the decision: the preview, the reason and the status; a proposal of a project out of the scope does not exist (404). */
+  async read(tx: TenantTx, scope: ScopeBuilder, proposalId: string): Promise<ProposalView> {
+    if (!UUID.test(proposalId)) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    const predicate = scope(2);
     const rows = await tx.query<ProposalSql & { project_id: string }>(
-      `select ${PROPOSAL_COLUMNS}, w.project_id from machvon.project_reschedule_proposal pr join machvon.project_workflow w on w.tenant_id = pr.tenant_id and w.id = pr.workflow_id where pr.id = $1::uuid`,
-      [proposalId.toLowerCase()],
+      `select ${PROPOSAL_COLUMNS}, w.project_id from ${SCOPE_FROM} join machvon.project_workflow w on w.tenant_id = p.tenant_id and w.project_id = p.id
+         join machvon.project_reschedule_proposal pr on pr.tenant_id = w.tenant_id and pr.workflow_id = w.id where pr.id = $1::uuid and ${predicate.sql}`,
+      [proposalId.toLowerCase(), ...predicate.params],
     );
-    return rows[0] === undefined ? undefined : toView(rows[0], rows[0].project_id);
+    if (rows[0] === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+    return toView(rows[0], rows[0].project_id);
   }
 
   // ---- internals ------------------------------------------------------------------------------------------------------------------------------------------------------------------------

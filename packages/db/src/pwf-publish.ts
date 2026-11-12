@@ -54,6 +54,11 @@ interface MilestoneSql {
 export async function syncMilestones(tx: TenantTx, projectId: string, tasks: readonly TaskRow[], actor: string, today: string, baseline: PrjBaselineStore, firstPublication = false): Promise<void> {
   const linked = new Set<string>();
   for (const task of tasks) {
+    // A milestone task that an approved override removed takes its milestone out of the project: nothing is left to count it late.
+    if (task.kind === 'MILESTONE' && task.excluded && task.milestoneId !== null) {
+      await tx.query(`update machvon.project_milestone set status = 'CANCELLED', status_reason = $2, updated_at = now(), updated_by = $3::uuid, version = version + 1 where id = $1::uuid and status in ('PLANNED', 'DELAYED')`, [task.milestoneId, CANCELLED_REASON, actor]);
+      continue;
+    }
     if (task.kind !== 'MILESTONE' || task.excluded || !task.tracked) continue;
     const code = milestoneCodeOf(task.code);
     if (!MILESTONE_CODE.test(code)) throw new DomainError('PWF_SCHEDULE_INVALID', 422, 'task_code');

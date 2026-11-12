@@ -322,6 +322,9 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       const id = applied.workflow?.id as string;
       expect(await taskOf(id, 'TA')).toMatchObject({ status: 'DONE', tracked: true });
       expect(await taskOf(id, 'MS_A')).toMatchObject({ tracked: false });
+      // A past task taken in without its real dates ends where the plan put it: the schedule that was published is the one that is kept.
+      const plain = await taskOf(id, 'MS_A');
+      expect(plain.actual_finish).toBe(plain.planned_finish);
       expect(await taskOf(id, 'TC')).toMatchObject({ status: 'IN_PROGRESS', remaining_working_days: 3 });
       expect((await owner<{ adopted_on: string }>('select adopted_on::text as adopted_on from machvon.project_workflow where id = $1::uuid', [id]))[0]?.adopted_on).toBe(`${YEAR}-10-15`);
       expect((await owner<{ kind: string }>('select kind from machvon.project_schedule_version where workflow_id = $1::uuid', [id]))[0]?.kind).toBe('ADOPTION');
@@ -656,6 +659,16 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       for (const [code, result] of [['OWN_BB', results[0]], ['OWN_CC', results[1]]] as const) expect((result as PromiseFulfilledResult<{ version: number }>).value.version).toBe(Number((await taskOf(wf.id, code)).version));
       const versions = await owner<{ version: number }>('select version from machvon.project_schedule_version where workflow_id = $1::uuid order by version', [wf.id]);
       expect(versions.map((one) => one.version)).toEqual(versions.map((_, index) => index + 1));
+    });
+
+    it('cancels the milestone of a milestone task that an approved override removed, so nothing counts it late', async () => {
+      const p = await project();
+      const wf = await start(p.id);
+      const milestoneId = (await taskOf(wf.id, 'MS_A')).milestone_id as string;
+      expect((await owner<{ status: string }>('select status from machvon.project_milestone where id = $1::uuid', [milestoneId]))[0]?.status).toBe('PLANNED');
+      const proposal = await propose(p.id, wf.version, { overrides: { remove: ['MS_A'] } });
+      await decide(proposal.id, wf.version, CHECKER);
+      expect((await owner<{ status: string }>('select status from machvon.project_milestone where id = $1::uuid', [milestoneId]))[0]?.status).toBe('CANCELLED');
     });
 
     it('does not keep a gate closed for a required task that an approved override removed', async () => {

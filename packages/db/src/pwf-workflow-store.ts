@@ -177,9 +177,9 @@ export class PwfWorkflowStore {
     const plannedStart = checkedDay(request.plannedStartDate, 'planned_start_date');
     const resolved = await this.resolveTemplate(tx, request.templateCode, request.templateVersion, today);
     const facts = factsOf(resolved.template, project, request.facts);
-    const decisions = this.decisionsOf(resolved.template, facts, request);
-    // What would have ended before the effective date if the project had run to plan: those tasks need a decision (BR-PWF-17).
+    // What would have ended before the effective date if the project had run to plan: those tasks need a decision (BR-PWF-17), and a task taken in as past without its real dates ends where the plan put it.
     const planned = await this.previewTemplate(tx, resolved.template, plannedStart, facts);
+    const decisions = this.decisionsOf(resolved.template, facts, request, new Map(planned.result.tasks.map((one) => [one.code, { start: one.start, finish: one.finish }] as const)));
     const past = new Set(planned.result.tasks.filter((one) => one.state !== 'PASS_THROUGH' && one.finish !== null && one.finish < effectiveDate).map((one) => one.code));
     const undecided = [...past].filter((code) => !decisions.progress[code] && !decisions.notTracked.has(code));
     const plan = await this.plan(tx, resolved, facts, plannedStart, decisions.progress, effectiveDate);
@@ -213,7 +213,7 @@ export class PwfWorkflowStore {
     return project;
   }
 
-  private decisionsOf(template: pwfWorkflow.ProjectWorkflowTemplate, facts: pwfWorkflow.ProjectFacts, request: AdoptRequest): { progress: Record<string, pwfSchedule.TaskProgress>; notTracked: Set<string>; evidence: Map<string, readonly EvidenceDraft[]> } {
+  private decisionsOf(template: pwfWorkflow.ProjectWorkflowTemplate, facts: pwfWorkflow.ProjectFacts, request: AdoptRequest, plan: ReadonlyMap<string, { start: string | null; finish: string | null }>): { progress: Record<string, pwfSchedule.TaskProgress>; notTracked: Set<string>; evidence: Map<string, readonly EvidenceDraft[]> } {
     const known = new Set(template.tasks.map((one) => one.code));
     const left = new Set(pwfWorkflow.activeTasks(template, facts).excluded);
     const progress: Record<string, pwfSchedule.TaskProgress> = {};
@@ -225,8 +225,8 @@ export class PwfWorkflowStore {
     for (const [index, one] of (request.pastTasks ?? []).entries()) {
       const field = `past_tasks[${index}]`;
       claim(one.taskCode, field);
-      const start = one.actualStart ?? null;
-      const finish = one.actualFinish ?? null;
+      const start = one.actualStart ?? plan.get(one.taskCode)?.start ?? null;
+      const finish = one.actualFinish ?? plan.get(one.taskCode)?.finish ?? null;
       if (start !== null) dateOf(start, `${field}.actual_start`);
       if (finish !== null) dateOf(finish, `${field}.actual_finish`);
       if (start !== null && finish !== null && finish < start) throw new DomainError('PWF_ADOPT_INVALID', 422, field);
