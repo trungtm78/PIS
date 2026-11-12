@@ -1,0 +1,339 @@
+createOrReplace
+
+	expression ServerName = "[khách điền: máy chủ cơ sở dữ liệu:cổng]" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+
+	expression DatabaseName = "[khách điền: tên cơ sở dữ liệu]" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+
+	/// Một dòng cho mỗi (dự án, nhóm vốn, cấp ngân sách, thước đo) của bản chốt kỳ doanh nghiệp đang hiệu lực của một kỳ (machvon_bi.v_enterprise_plan_actual, tập DS-ENT).
+	table FactEnterprise
+
+		column snapshot_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: snapshot_id
+
+		column period_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: period_id
+
+		column project_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: project_id
+
+		column unit_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: unit_id
+
+		column class_code
+			dataType: string
+			summarizeBy: none
+			sourceColumn: class_code
+
+		column tier_code
+			dataType: string
+			summarizeBy: none
+			sourceColumn: tier_code
+
+		column measure
+			dataType: string
+			summarizeBy: none
+			sourceColumn: measure
+
+		column plan_in_force_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: plan_in_force_vnd
+
+		column plan_to_date_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: plan_to_date_vnd
+
+		column actual_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: actual_vnd
+
+		column cumulative_ytd_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: cumulative_ytd_vnd
+
+		measure 'Chosen Period' =
+				COALESCE (
+				    SELECTEDVALUE ( DimPeriod[period_id] ),
+				    MAXX ( TOPN ( 1, ALLSELECTED ( DimPeriod ), DimPeriod[as_of_date], DESC ), DimPeriod[period_id] )
+				)
+			displayFolder: Kỳ
+			description: Kỳ người xem chọn; nếu không chọn thì kỳ có ngày chốt mới nhất. Số lũy kế của mỗi bản chốt nên luôn tính ở đúng một kỳ.
+
+		measure 'Plan In Force VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactEnterprise[plan_in_force_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Doanh nghiệp
+
+		measure 'Plan To Date VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactEnterprise[plan_to_date_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Doanh nghiệp
+
+		measure 'Cumulative YTD VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactEnterprise[cumulative_ytd_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Doanh nghiệp
+
+		measure 'Period Actual VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactEnterprise[actual_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Doanh nghiệp
+
+		measure 'Rate In Force %' = DIVIDE ( [Cumulative YTD VND], [Plan In Force VND] )
+			formatString: 0.0%
+			displayFolder: Doanh nghiệp
+			description: Chỉ tiêu ent_rate_in_force: tổng lũy kế chia tổng kế hoạch hiệu lực; trống khi kế hoạch bằng 0, không bao giờ là 0. Không cộng hay lấy trung bình cột rate_in_force_pct.
+
+		measure 'Rate To Date %' = DIVIDE ( [Cumulative YTD VND], [Plan To Date VND] )
+			formatString: 0.0%
+			displayFolder: Doanh nghiệp
+			description: Chỉ tiêu ent_rate_to_date: tổng lũy kế chia tổng kế hoạch phân kỳ đến cuối kỳ.
+
+		partition FactEnterprise = m
+			mode: import
+			source =
+					let
+					    Source = PostgreSQL.Database ( ServerName, DatabaseName ),
+					    View = Source{[Schema = "machvon_bi", Item = "v_enterprise_plan_actual"]}[Data],
+					    Kept = Table.SelectColumns ( View, { "snapshot_id", "period_id", "project_id", "unit_id", "class_code", "tier_code", "measure", "plan_in_force_vnd", "plan_to_date_vnd", "actual_vnd", "cumulative_ytd_vnd" } )
+					in
+					    Kept
+
+	/// Cơ cấu nguồn vốn theo dự án (machvon_bi.v_enterprise_funding_split): vốn chủ sở hữu, vay và khác cạnh nhau.
+	table FactFunding
+
+		column snapshot_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: snapshot_id
+
+		column period_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: period_id
+
+		column project_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: project_id
+
+		column unit_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: unit_id
+
+		column measure
+			dataType: string
+			summarizeBy: none
+			sourceColumn: measure
+
+		column cumulative_ytd_equity_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: cumulative_ytd_equity_vnd
+
+		column cumulative_ytd_loan_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: cumulative_ytd_loan_vnd
+
+		column cumulative_ytd_other_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: cumulative_ytd_other_vnd
+
+		column cumulative_ytd_total_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: cumulative_ytd_total_vnd
+
+		measure 'Equity YTD VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_equity_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Cơ cấu vốn
+
+		measure 'Loan YTD VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_loan_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Cơ cấu vốn
+
+		measure 'Funding Total YTD VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_total_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Cơ cấu vốn
+
+		measure 'Equity Share %' = DIVIDE ( [Equity YTD VND], [Funding Total YTD VND] )
+			formatString: 0.0%
+			displayFolder: Cơ cấu vốn
+			description: Tổng vốn chủ sở hữu chia tổng toàn bộ nguồn vốn; tính từ tổng, không lấy trung bình cột equity_share_pct.
+
+		measure 'Loan Share %' = DIVIDE ( [Loan YTD VND], [Funding Total YTD VND] )
+			formatString: 0.0%
+			displayFolder: Cơ cấu vốn
+
+		partition FactFunding = m
+			mode: import
+			source =
+					let
+					    Source = PostgreSQL.Database ( ServerName, DatabaseName ),
+					    View = Source{[Schema = "machvon_bi", Item = "v_enterprise_funding_split"]}[Data],
+					    Kept = Table.SelectColumns ( View, { "snapshot_id", "period_id", "project_id", "unit_id", "measure", "cumulative_ytd_equity_vnd", "cumulative_ytd_loan_vnd", "cumulative_ytd_other_vnd", "cumulative_ytd_total_vnd" } )
+					in
+					    Kept
+
+	/// Các kỳ có bản chốt doanh nghiệp đang hiệu lực; một dòng cho mỗi period_id.
+	table DimPeriod
+
+		column period_id
+			dataType: string
+			summarizeBy: none
+			sourceColumn: period_id
+
+		column as_of_date
+			dataType: dateTime
+			formatString: dd/mm/yyyy
+			summarizeBy: none
+			sourceColumn: as_of_date
+
+		column plan_year
+			dataType: int64
+			summarizeBy: none
+			sourceColumn: plan_year
+
+		column period_grain
+			dataType: string
+			summarizeBy: none
+			sourceColumn: period_grain
+
+		column period_ordinal
+			dataType: int64
+			summarizeBy: none
+			sourceColumn: period_ordinal
+
+		partition DimPeriod = m
+			mode: import
+			source =
+					let
+					    Source = PostgreSQL.Database ( ServerName, DatabaseName ),
+					    View = Table.SelectColumns ( Source{[Schema = "machvon_bi", Item = "v_enterprise_plan_actual"]}[Data], { "period_id", "as_of_date", "plan_year", "period_grain", "period_ordinal" } ),
+					    Periods = Table.Distinct ( View, { "period_id" } )
+					in
+					    Periods
+
+	/// Nhãn của nhóm nguồn vốn; bảng nhập tay ba dòng.
+	table DimClass
+
+		column class_code
+			dataType: string
+			summarizeBy: none
+			sourceColumn: class_code
+
+		column label
+			dataType: string
+			summarizeBy: none
+			sourceColumn: label
+
+		partition DimClass = m
+			mode: import
+			source =
+					let
+					    Source = #table ( type table [class_code = text, label = text], { { "EQUITY", "Vốn chủ sở hữu" }, { "LOAN", "Vốn vay" }, { "OTHER", "Nguồn khác" } } )
+					in
+					    Source
+
+	/// Trạng thái tập DS-ENT: có đang mở không và vì sao không (machvon_bi.v_enterprise_dataset_catalogue). Mỗi báo cáo nên có một trang hiển thị bảng này.
+	table Catalogue
+
+		column dataset_code
+			dataType: string
+			summarizeBy: none
+			sourceColumn: dataset_code
+
+		column view_name
+			dataType: string
+			summarizeBy: none
+			sourceColumn: view_name
+
+		column grain
+			dataType: string
+			summarizeBy: none
+			sourceColumn: grain
+
+		column is_open
+			dataType: boolean
+			summarizeBy: none
+			sourceColumn: is_open
+
+		column reason
+			dataType: string
+			summarizeBy: none
+			sourceColumn: reason
+
+		column certified_until
+			dataType: dateTime
+			formatString: dd/mm/yyyy
+			summarizeBy: none
+			sourceColumn: certified_until
+
+		partition Catalogue = m
+			mode: import
+			source =
+					let
+					    Source = PostgreSQL.Database ( ServerName, DatabaseName ),
+					    View = Source{[Schema = "machvon_bi", Item = "v_enterprise_dataset_catalogue"]}[Data]
+					in
+					    View
+
+	relationship FactEnterprise_DimPeriod
+		fromColumn: FactEnterprise.period_id
+		toColumn: DimPeriod.period_id
+
+	relationship FactFunding_DimPeriod
+		fromColumn: FactFunding.period_id
+		toColumn: DimPeriod.period_id
+
+	relationship FactEnterprise_DimClass
+		fromColumn: FactEnterprise.class_code
+		toColumn: DimClass.class_code

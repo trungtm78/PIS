@@ -11,6 +11,7 @@ Tệp kèm theo (không chứa bí mật):
 | `docs/integration/machvon-bi.pbids` | Mở nhanh kết nối PostgreSQL trong Power BI Desktop; điền máy chủ và cơ sở dữ liệu |
 | `docs/integration/power-bi-sample-queries.sql` | Truy vấn mẫu trên các view; dùng làm nguồn bảng của mô hình hoặc kiểm tra số liệu |
 | `docs/integration/power-bi/machvon-sample-model.tmdl` | Mô hình ngữ nghĩa mẫu dạng văn bản TMDL (bảng, quan hệ, phép đo, tham số); dán vào khung nhìn TMDL của Power BI Desktop hoặc nạp bằng Tabular Editor; chưa mở thử trong Power BI Desktop (xem mục 9) |
+| `docs/integration/power-bi/machvon-enterprise-model.tmdl` | Như trên cho tenant bản doanh nghiệp: bảng `FactEnterprise` (`v_enterprise_plan_actual`), `FactFunding` (`v_enterprise_funding_split`), `DimPeriod`, `DimClass`, `Catalogue` và phép đo tỷ lệ, cơ cấu vốn (mục 3.4); chưa mở thử trong Power BI Desktop |
 
 ## 1. Hai con đường đọc dữ liệu
 
@@ -25,7 +26,7 @@ Hai đường cùng đọc **bản chụp đã đóng băng** (không đọc b�
 
 - Mỗi tài khoản BI gắn với đúng một tenant bằng chính tên đăng nhập; đổi `app.tenant_id` không đọc được tenant khác. Không có quyền ghi.
 - Mật khẩu hiện một lần khi cấp (hoặc đổi) ở INT-04; nhà cung cấp chỉ lưu bản băm SCRAM-SHA-256. Đặt mật khẩu trong kho thông tin xác thực của Power BI hoặc cổng dữ liệu, không để trong tệp mô hình hay tệp `.pbids`.
-- Mọi lần đọc được ghi bằng `pgaudit` ở máy chủ cơ sở dữ liệu: cán bộ vận hành cần bật `pgaudit.log = 'read'` trước khi cấp tài khoản đầu tiên.
+- Mọi lần đọc được ghi bằng `pgaudit` ở máy chủ cơ sở dữ liệu: ảnh cơ sở dữ liệu của gói cài ngoại tuyến đã có `pgaudit` và cổng BI tùy chọn bật ghi nhật ký (`docs/runbooks/infra/bi-port.md`); với cách cài khác, cán bộ vận hành cần bật `pgaudit.log = 'read'` trước khi cấp tài khoản đầu tiên.
 - Kết nối bằng TLS (`sslmode=require` trở lên); cơ sở dữ liệu không mở ra Internet, nên Power BI Service cần cổng dữ liệu (on-premises data gateway) đặt trong mạng PVFCCo.
 
 ## 3. Các view
@@ -67,6 +68,22 @@ Một dòng cho mỗi (hợp đồng, bên tham gia đang hiệu lực) của b�
 | `project_id`, `unit_id` | Dự án, đơn vị |
 | `contract_status`, `contract_type` | Trạng thái, loại hợp đồng |
 | `contract_value_vnd`, `active_value_vnd`, `paid_vnd` | Giá trị hợp đồng, giá trị hiện hành sau điều chỉnh, đã thanh toán (phần của bên này) |
+
+### 3.4 Tập DS-ENT (số liệu kỳ doanh nghiệp, chỉ bản doanh nghiệp)
+
+Tập `DS-ENT` đọc **bản chốt kỳ loại `ENTERPRISE_CLOSE`** (ENT-3a, migration `V2660`) mà `v_disbursement_lines` không đọc. Chỉ bản doanh nghiệp bật được tập này (INT-04 chỉ liệt kê nó ở bản đó); cổng giống hai tập trên: tenant bật, sản phẩm dữ liệu CERTIFIED chưa hết hạn, nếu không các view trả về không có dòng nào và `v_enterprise_dataset_catalogue` cho biết lý do. Mỗi kỳ chỉ hiện **bản chốt đang hiệu lực** (bản đã bị bản chốt lại thay thế không hiện, cột `revision` cho biết đó là lần chốt thứ mấy), nên cộng nhiều kỳ không bị đếm trùng một kỳ. Tài khoản BI của tenant A không đọc được dòng nào của tenant B, kể cả khi đặt `app.tenant_id` sang tenant B (kiểm thử `packages/db/test/int-enterprise-bi.test.ts`).
+
+Đơn vị (`unit_id`) là đơn vị chủ quản của dự án ở cuối kỳ, tức công ty thành viên của Tổng công ty; dòng `level = 'TENANT'` của `v_enterprise_by_unit` là toàn Tổng công ty. Số tiền là đồng nguyên (numeric 24,0). Ô không có số là rỗng (kèm lý do ở `v_enterprise_figures.null_reason`), không bao giờ là 0; tỷ lệ tính bằng tổng chia tổng và rỗng khi kế hoạch không dương.
+
+| View | Một dòng là | Dùng để |
+|---|---|---|
+| `v_enterprise_dataset_catalogue` | Một view của `DS-ENT` | Xem tập đang mở hay không và vì sao không (`is_open`, `reason`, `certified_until`) |
+| `v_enterprise_figures` | Một con số của bản chốt: (dự án, nhóm vốn `class_code`, cấp `tier_code`, thước đo `measure`, loại số `figure_kind`, `grain`, `ordinal`) | Dạng dài, nền cho mọi view khác; nạp Lakehouse theo `period_id`. Loại số: `PLAN_YEAR`, `PLAN_ADJUSTED`, `PLAN_IN_FORCE`, `PLAN_MONTH` hoặc `PLAN_QUARTER`, `PLAN_TO_DATE`, `ESTIMATE`, `ESTIMATE_AS_REPORTED`, `ACTUAL`, `CUMULATIVE_YTD`, `CUMULATIVE_SINCE_START`, `ESTIMATE_YEAR`, và `TMDT_IN_FORCE` (tổng mức đầu tư của dự án, nhóm `TOTAL`) |
+| `v_enterprise_plan_actual` | (dự án, nhóm vốn, cấp, thước đo) | Kế hoạch, thực hiện, lũy kế cạnh nhau: `plan_year_vnd`, `plan_adjusted_vnd`, `plan_in_force_vnd`, `plan_period_vnd`, `plan_to_date_vnd`, `estimate_vnd`, `actual_vnd` (phát sinh trong kỳ), `cumulative_ytd_vnd`, `cumulative_since_start_vnd`, `estimate_year_vnd`, `rate_in_force_pct`, `rate_to_date_pct`; `period_grain`, `plan_year`, `period_ordinal` là kỳ bản chốt khép lại |
+| `v_enterprise_funding_split` | (dự án, thước đo) | Cơ cấu nguồn vốn: kế hoạch hiệu lực và lũy kế của vốn chủ sở hữu (`EQUITY`), vốn vay (`LOAN`), các nhóm còn lại gộp thành `other`, tổng, và `equity_share_pct`, `loan_share_pct` |
+| `v_enterprise_by_unit` | (đơn vị, thước đo) và một dòng toàn tenant (`unit_id` rỗng) | Cộng theo đơn vị: `project_count`, kế hoạch, thực hiện, lũy kế, tỷ lệ tính từ tổng, cơ cấu vốn |
+
+Quy tắc sử dụng giống mục 3.2: số lũy kế là của đúng một kỳ, không cộng các kỳ với nhau; không cộng hay lấy trung bình các cột `*_pct`, tính lại bằng tổng chia tổng (năm chỉ tiêu `metrics/ent_rate_in_force`, `ent_rate_to_date`, `ent_cumulative_ytd`, `ent_plan_in_force`, `ent_period_actual` định nghĩa các phép tính đó một lần; một kiểm thử gắn từng trường và chiều của chúng với cột của `v_enterprise_plan_actual`). Truy vấn mẫu 12 đến 18 ở `power-bi-sample-queries.sql` chạy trên các view này; mô hình mẫu cho bản doanh nghiệp là `power-bi/machvon-enterprise-model.tmdl`.
 
 ## 4. Mô hình ngữ nghĩa đề xuất
 
@@ -176,8 +193,8 @@ Mã truy cập sống 5 phút: nếu danh sách lớn, đặt cả hàm lấy m�
 ## 8. Hạn chế đã biết và đề xuất tiếp theo
 
 1. Chưa có view danh mục đơn vị, nguồn vốn, nhà thầu cho tài khoản BI; chỉ có khóa. Đề xuất thêm các view `v_dim_unit`, `v_dim_fund_source`, `v_dim_contractor` có cùng cơ chế cổng và chứng nhận, rồi cập nhật mô hình này.
-2. Chưa có tập dữ liệu cho số liệu bản doanh nghiệp. ENT-3a đã chốt bản chốt loại `ENTERPRISE_CLOSE` (migration `V2660`), nhưng `v_disbursement_lines` chỉ đọc loại `PERIOD_CLOSE`, nên với dữ liệu PVFCCo mô hình này chỉ có dòng khi tenant có bản chốt `PERIOD_CLOSE`. Cần mở thêm một tập dữ liệu chứng nhận cho bản chốt doanh nghiệp (số liệu vốn, chỉ tiêu theo đơn vị và dự án) cùng cơ chế cổng; không đọc thẳng bảng nghiệp vụ. Xem `lakehouse-proposal.md` mục 8.
-3. Gói cài ngoại tuyến chưa mở đường mạng tới cơ sở dữ liệu và chưa có `pgaudit` (xem `lakehouse-proposal.md` mục 6): cho tới khi chọn phương án, Power BI lấy dữ liệu qua API mở bằng hàm Power Query ở mục 6, hoặc nối cơ sở dữ liệu ở UAT khi Ban CĐS&CNTT đã mở cổng.
+2. Số liệu kỳ doanh nghiệp đã có ở tập `DS-ENT` (INT-2, mục 3.4). Còn lại: (a) chưa có chiều đơn vị (tên công ty), tên dự án, tên nhóm vốn trong cổng BI, chỉ có khóa và mã nhóm vốn (mục 1 của danh sách này); (b) chưa có API mở `/open/v1` cho `DS-ENT`; (c) chưa chạy truy vấn chỉ tiêu `ent_*` trong BI nội bộ (cần bộ nối và nguồn đọc riêng, xem `lakehouse-proposal.md` mục 8); (d) thuyết minh của kỳ không thuộc tập này.
+3. Gói cài ngoại tuyến đã có cổng cơ sở dữ liệu chỉ-đọc tùy chọn (đóng theo mặc định) và `pgaudit` (INT-2; `lakehouse-proposal.md` mục 6, `docs/runbooks/infra/bi-port.md`) nhưng chưa chạy thật trên Docker; đường mạng do PVFCCo chọn. Cho tới khi cổng được bật, Power BI lấy dữ liệu qua API mở bằng hàm Power Query ở mục 6 (API mở chưa có `DS-ENT`), hoặc nối cơ sở dữ liệu ở UAT khi Ban CĐS&CNTT đã mở cổng.
 4. Chưa có đo hiệu năng trên phần cứng của PVFCCo; cần chạy các truy vấn mẫu trên môi trường UAT cấu hình tương đương Production và ghi kết quả.
 5. Việc giữ nhiều `revision` của hợp đồng trong Lakehouse và việc bản chụp hợp đồng cũ có còn hiện sau khi kỳ được chốt lại cần được thử trên UAT bằng một kỳ được chốt lại; kết quả ghi vào tài liệu này.
 6. Bản mẫu `.pbids` không đi kèm báo cáo `.pbix`: báo cáo mẫu cần dữ liệu thật hoặc dữ liệu thử đã chứng nhận trong UAT.
@@ -188,4 +205,4 @@ Tệp `docs/integration/power-bi/machvon-sample-model.tmdl` là mô hình ngữ 
 
 Tình trạng: **chưa mở thử trong Power BI Desktop** (môi trường soạn tài liệu không có Power BI Desktop). Cú pháp theo đặc tả TMDL; nếu Power BI Desktop báo lỗi ở dòng nào thì sửa dòng đó và ghi lại vào lịch sửa của tài liệu này. Số liệu thật chưa có: mô hình chỉ có ý nghĩa khi tài khoản BI đọc được tập dữ liệu đã bật và chứng nhận (mục 1).
 
-Lịch sửa: v0.2 2026-11-12 (rà soát lane aud4: thêm mục 9, cập nhật mục 8 theo phát hiện về bản chốt doanh nghiệp và đường mạng).
+Lịch sửa: v0.2 2026-11-12 (rà soát lane aud4: thêm mục 9, cập nhật mục 8 theo phát hiện về bản chốt doanh nghiệp và đường mạng); v0.3 2026-11-12 (lane INT-2: thêm mục 3.4 tập `DS-ENT`, mô hình `machvon-enterprise-model.tmdl`, truy vấn mẫu 12 đến 18, cập nhật mục 2 và 8 theo cổng cơ sở dữ liệu và `pgaudit` đã có trong gói cài đặt).

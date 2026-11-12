@@ -17,15 +17,15 @@ Trạng thái: hướng dẫn dựng từ thiết kế và mã nguồn INT-1 và
 
 ## 2. Điều kiện cần có trước
 
-1. Tập dữ liệu `DS-DISB` (giải ngân) và `DS-CTR` (hợp đồng) đã bật ở INT-04 và sản phẩm dữ liệu tương ứng ở trạng thái CERTIFIED, chưa hết hạn. Nếu chưa, các view trả về **không có dòng nào** mà không báo lỗi; `machvon_bi.v_dataset_catalogue` cho biết lý do (`DISABLED`, `NOT_CERTIFIED`, `EXPIRED`, `NO_BINDING`).
-2. Có ít nhất một bản chốt kỳ loại `PERIOD_CLOSE` đã đóng băng (với `DS-DISB`) và một bản chụp hợp đồng đã đóng băng (với `DS-CTR`). Lưu ý với tenant bản doanh nghiệp: bản chốt của bản doanh nghiệp là loại `ENTERPRISE_CLOSE` và **chưa có trong các view** (xem `lakehouse-proposal.md` mục 8); cho tới khi có tập dữ liệu mới, báo cáo giải ngân chỉ có dữ liệu khi tenant có bản chốt `PERIOD_CLOSE`.
+1. Tập dữ liệu `DS-DISB` (giải ngân) và `DS-CTR` (hợp đồng), và với bản doanh nghiệp là `DS-ENT` (số liệu kỳ doanh nghiệp), đã bật ở INT-04 và sản phẩm dữ liệu tương ứng ở trạng thái CERTIFIED, chưa hết hạn. Nếu chưa, các view trả về **không có dòng nào** mà không báo lỗi; `machvon_bi.v_dataset_catalogue` cho biết lý do (`DISABLED`, `NOT_CERTIFIED`, `EXPIRED`, `NO_BINDING`); với `DS-ENT` xem `machvon_bi.v_enterprise_dataset_catalogue`.
+2. Có ít nhất một bản chốt kỳ loại `PERIOD_CLOSE` đã đóng băng (với `DS-DISB`) và một bản chụp hợp đồng đã đóng băng (với `DS-CTR`). Với tenant bản doanh nghiệp: bản chốt kỳ của bản doanh nghiệp là loại `ENTERPRISE_CLOSE` và nằm ở tập `DS-ENT` (bốn view `v_enterprise_*`, bật ở INT-04, có bản chốt đã đóng băng của kỳ); `DS-DISB` không đọc loại này. Bản công chỉ có `DS-DISB` và `DS-CTR`.
 3. Cổng cơ sở dữ liệu đã được vận hành bật (theo mặc định **đóng**: gói cài ngoại tuyến chỉ mở cổng web; cổng chỉ-đọc cho công cụ BI chỉ có khi đặt `MACHVON_BI=on` và chạy `install.sh --with-bi`, xem mục 3a và `lakehouse-proposal.md` mục 6), hoặc dùng API mở cho toàn bộ dữ liệu.
 4. Máy làm báo cáo: Power BI Desktop bản hiện hành. Đầu nối PostgreSQL của Power BI có thể yêu cầu thành phần `Npgsql`; làm theo thông báo của Power BI Desktop nếu nó yêu cầu (chưa thử trên máy của Chi nhánh).
 5. Để làm mới theo lịch trên Power BI Service: cổng dữ liệu tại chỗ (on-premises data gateway) đặt trong mạng PVFCCo, vì cơ sở dữ liệu không mở ra Internet.
 
 ## 3. Cấp tài khoản (quản trị tích hợp)
 
-1. Mở INT-04 (Tài khoản BI và tập dữ liệu chứng nhận). Kiểm tra `DS-DISB` và `DS-CTR` đang bật; bật nếu chưa (thao tác ghi nhật ký kiểm toán).
+1. Mở INT-04 (Tài khoản BI và tập dữ liệu chứng nhận). Kiểm tra `DS-DISB` và `DS-CTR` (bản doanh nghiệp: thêm `DS-ENT`) đang bật; bật nếu chưa (thao tác ghi nhật ký kiểm toán).
 2. Nếu tập chưa được chứng nhận, Ban quản trị dữ liệu xử lý ở DGV-18 (Data product và chứng nhận) hoặc BI-19 (Chứng nhận chỉ tiêu và bộ dữ liệu); hạn chứng nhận hiện ở cột `certified_until` của `v_dataset_catalogue`.
 3. Tạo tài khoản BI: đặt nhãn rõ ứng dụng dùng (ví dụ `powerbi-qlptda`), số kết nối 1 đến 20 (đề xuất 2 cho cổng dữ liệu). Hệ thống hiện **một lần** tên đăng nhập `machvon_bi_<12 ký tự hex>` và mật khẩu. Ghi mật khẩu vào kho thông tin xác thực của cổng dữ liệu hoặc kho bí mật của PVFCCo; không gửi qua thư, không ghi vào tệp mô hình hay tệp `.pbids`. Mất mật khẩu thì đổi mật khẩu ở INT-04 (cấp lại).
 4. Giao cho cán bộ làm báo cáo: máy chủ và cổng, tên cơ sở dữ liệu, tên đăng nhập (mật khẩu giao qua kênh riêng).
@@ -86,7 +86,7 @@ Quy ước của MACHVON cho mọi con số trong báo cáo: có công thức, n
 | Kết nối báo không tới được máy chủ (hết thời gian chờ) | Cổng tùy chọn chưa bật, địa chỉ nguồn không nằm trong danh sách, tường lửa, sai cổng | Ban CĐS&CNTT và vận hành kiểm tra `MACHVON_BI`, `BI_ALLOWED_CIDRS` và chuỗi `MACHVON-BI` (`bi-port.md`) |
 | Kết nối bị từ chối ngay (no pg_hba.conf entry) | Không dùng TLS, hoặc địa chỉ nguồn không khớp, hoặc dùng tài khoản không phải tài khoản BI | Bật mã hóa trong Power BI (`sslmode=require`); dùng đúng tài khoản `machvon_bi_...`; báo vận hành địa chỉ nguồn thực |
 | Đăng nhập thất bại | Mật khẩu sai, đã đổi hoặc thu hồi ở INT-04 | Đổi mật khẩu ở INT-04, cập nhật thông tin xác thực |
-| Bảng mở được nhưng không có dòng | Tập chưa bật, chưa chứng nhận hoặc hết hạn; chưa có bản chốt `PERIOD_CLOSE` | Xem `v_dataset_catalogue.reason`; xem điều kiện mục 2 |
+| Bảng mở được nhưng không có dòng | Tập chưa bật, chưa chứng nhận hoặc hết hạn; chưa có bản chốt `PERIOD_CLOSE` (`DS-DISB`) hoặc `ENTERPRISE_CLOSE` đang hiệu lực (`DS-ENT`) | Xem `v_dataset_catalogue.reason` (`v_enterprise_dataset_catalogue.reason` cho `DS-ENT`); xem điều kiện mục 2 |
 | Số giải ngân lớn bất thường | Cộng nhiều kỳ với nhau (giải ngân là lũy kế) | Dùng phép đo chọn một kỳ (`Chosen Period`) |
 | Câu truy vấn bị ngắt sau 60 giây | Giới hạn của tài khoản BI | Thu hẹp truy vấn theo `period_id`, dùng chế độ Import |
 | Không có tên dự án | Cơ sở dữ liệu BI chỉ có khóa dự án | Nối với danh mục dự án lấy từ API mở (mục 4, bước 5) |
