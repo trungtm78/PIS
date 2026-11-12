@@ -117,7 +117,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-02",
@@ -156,7 +161,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-03",
@@ -195,7 +205,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-04",
@@ -234,7 +249,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-05",
@@ -273,7 +293,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-06",
@@ -312,7 +337,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-07",
@@ -351,7 +381,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-08",
@@ -390,7 +425,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-09",
@@ -429,7 +469,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-10",
@@ -468,7 +513,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-11",
@@ -507,7 +557,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-12",
@@ -546,7 +601,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-13",
@@ -585,7 +645,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-14",
@@ -624,7 +689,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-15",
@@ -663,7 +733,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC220",
@@ -1441,7 +1516,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-17",
@@ -1480,7 +1560,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-18",
@@ -1519,7 +1604,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-19",
@@ -1558,7 +1648,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-20",
@@ -1597,7 +1692,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-CAP-21",
@@ -1636,7 +1736,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-01",

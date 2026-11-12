@@ -43,7 +43,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-02",
@@ -82,7 +87,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-03",
@@ -121,7 +131,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-04",
@@ -160,7 +175,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-05",
@@ -199,7 +219,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-06",
@@ -238,7 +263,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-07",
@@ -277,7 +307,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-08",
@@ -316,7 +351,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-09",
@@ -355,7 +395,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-10",
@@ -394,7 +439,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-11",
@@ -433,7 +483,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-12",
@@ -472,7 +527,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-13",
@@ -511,7 +571,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-14",
@@ -550,7 +615,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-15",
@@ -589,7 +659,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-16",
@@ -628,7 +703,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-17",
@@ -667,7 +747,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-18",
@@ -706,7 +791,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-19",
@@ -745,7 +835,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-20",
@@ -784,7 +879,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-21",
@@ -823,7 +923,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DOC-22",

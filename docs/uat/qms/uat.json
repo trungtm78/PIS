@@ -533,7 +533,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-QMS-02",
@@ -572,7 +577,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-QMS-03",
@@ -611,7 +621,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-QMS-04",
@@ -650,7 +665,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-QMS-05",
@@ -689,7 +709,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-QMS-06",
@@ -728,7 +753,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-QMS-07",
@@ -767,7 +797,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-QMS-08",
@@ -806,7 +841,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-QMS-09",
@@ -925,7 +965,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "QMS"
+      "module": "QMS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-27",

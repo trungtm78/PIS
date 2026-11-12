@@ -43,7 +43,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-02",
@@ -82,7 +87,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-03",
@@ -121,7 +131,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-04",
@@ -160,7 +175,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-05",
@@ -199,7 +219,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-06",
@@ -238,7 +263,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-07",
@@ -277,7 +307,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-08",
@@ -316,7 +351,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-09",
@@ -355,7 +395,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-10",
@@ -394,7 +439,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-11",
@@ -433,7 +483,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-12",
@@ -472,7 +527,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-13",
@@ -511,7 +571,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC200",
@@ -1290,7 +1355,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-15",
@@ -1329,7 +1399,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-16",
@@ -1368,7 +1443,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-17",
@@ -1407,7 +1487,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-18",
@@ -1446,7 +1531,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-19",
@@ -1485,7 +1575,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-20",
@@ -1524,7 +1619,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PRJ-21",
@@ -1563,7 +1663,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PRJ"
+      "module": "PRJ",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-57",

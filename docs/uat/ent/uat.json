@@ -48,8 +48,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -318,8 +319,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -365,8 +367,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -598,8 +601,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -645,8 +649,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -692,8 +697,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -739,8 +745,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -787,7 +794,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "reason": "Màn hình PWA-05 là chi tiết của một việc phê duyệt (/m/approvals/<mã việc>): địa chỉ cần một việc có thật của tenant mà stack e2e có sẵn không có (PWA-02 hiện trạng thái rỗng); địa chỉ với mã bịa chỉ hiện thẻ \"không thấy việc\", không phải màn chi tiết"
       },
       "module": "ENT"
     },
@@ -834,7 +841,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "reason": "Màn hình PWA-06 là chi tiết của một chỉ đạo (/m/directives/<mã chỉ đạo>): địa chỉ cần một chỉ đạo có thật của tenant mà stack e2e có sẵn không có (PWA-04 hiện trạng thái rỗng); dựng một chỉ đạo cần cuộc giao ban và các bước của phân hệ DIR ngoài bộ dữ liệu của stack"
       },
       "module": "ENT"
     },
@@ -880,8 +887,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -927,8 +935,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -974,8 +983,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -1021,8 +1031,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },
@@ -1068,8 +1079,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "ENT"
     },

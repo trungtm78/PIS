@@ -343,7 +343,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PMT"
+      "module": "PMT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PMT-02",
@@ -382,7 +387,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PMT"
+      "module": "PMT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PMT-03",
@@ -421,7 +431,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PMT"
+      "module": "PMT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PMT-04",
@@ -460,7 +475,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PMT"
+      "module": "PMT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PMT-05",
@@ -499,7 +519,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PMT"
+      "module": "PMT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PMT-06",
@@ -538,7 +563,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PMT"
+      "module": "PMT",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     }
   ],
   "data_fixtures": [],

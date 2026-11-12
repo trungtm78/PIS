@@ -493,7 +493,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-02",
@@ -532,7 +537,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-03",
@@ -571,7 +581,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-04",
@@ -610,7 +625,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-05",
@@ -649,7 +669,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-06",
@@ -688,7 +713,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-07",
@@ -727,7 +757,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-08",
@@ -766,7 +801,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-09",
@@ -805,7 +845,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-10",
@@ -844,7 +889,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-11",
@@ -883,7 +933,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-12",
@@ -922,7 +977,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LND-13",
@@ -961,7 +1021,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LND"
+      "module": "LND",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-28",

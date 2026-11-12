@@ -189,7 +189,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-02",
@@ -228,7 +233,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-03",
@@ -267,7 +277,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-04",
@@ -306,7 +321,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-05",
@@ -345,7 +365,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-06",
@@ -384,7 +409,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-07",
@@ -423,7 +453,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-08",
@@ -462,7 +497,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-09",
@@ -501,7 +541,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-10",
@@ -540,7 +585,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-11",
@@ -579,7 +629,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-12",
@@ -618,7 +673,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-13",
@@ -657,7 +717,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-14",
@@ -696,7 +761,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-15",
@@ -735,7 +805,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-16",
@@ -774,7 +849,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-17",
@@ -813,7 +893,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-18",
@@ -852,7 +937,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-19",
@@ -891,7 +981,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-20",
@@ -930,7 +1025,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-LLM-21",
@@ -969,7 +1069,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "LLM"
+      "module": "LLM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC457",
