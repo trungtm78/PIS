@@ -85,7 +85,7 @@ class _FailureView extends StatelessWidget {
   Widget build(BuildContext context) {
     return StateView(
       kind: _unreachable ? StateKind.offline : StateKind.error,
-      title: context.t(_unreachable ? 'mob.signing.viewer.offline.title' : 'mob.signing.viewer.failed.title'),
+      title: _unreachable ? context.t('mob.signing.viewer.offline.title') : context.t('mob.signing.viewer.failed.title'),
       body: viewerFailureText(context, failure),
       actionLabel: context.t('mob.signing.viewer.retry.action'),
       onAction: onRetry,
