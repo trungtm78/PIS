@@ -3,9 +3,11 @@
 //   <out>/logo-*.png          2048 px exports for the film composition and the documents (Playwright, no new dependency)
 //   <out>/brand.json          the index: colours, files, taglines
 // Usage: node --disable-warning=ExperimentalWarning brand/build.mjs [--out D:\PIS-clips-out\brand] [--no-png]
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ENTERPRISE_EDITION_MANIFEST } from '../packages/edition-enterprise/src/manifest.ts';
+import { PUBLIC_EDITION_MANIFEST } from '../packages/kernel/src/edition.ts';
 import { MARK_PALETTES } from '../apps/web/src/brand/palettes.ts';
 import { MARK, markElements } from '../apps/web/src/pwa/icon-art.ts';
 import { loadFont, textPath } from './font-paths.mjs';
@@ -20,9 +22,8 @@ const logoDir = join(here, 'logo');
 const fontFile = (weight) => join(root, 'apps', 'mobile', 'assets', 'fonts', `BeVietnamPro-${weight}.ttf`);
 const fonts = { bold: loadFont(fontFile('Bold')), semi: loadFont(fontFile('SemiBold')), medium: loadFont(fontFile('Medium')), regular: loadFont(fontFile('Regular')) };
 
-/** The Vietnamese words of the brand (the wordmark, the names and the taglines of the editions) live in `brand/copy.json`, not in code. The wordmark is the Vietnamese name of the capital flow behind the internal code name MACHVON. */
-const COPY = JSON.parse(readFileSync(join(here, 'copy.json'), 'utf8'));
-const WORDMARK = COPY.wordmark;
+/** The words of the brand (the wordmark, the product names and the taglines of the editions) are not kept here: each edition manifest says them (`brand` of `packages/kernel/src/edition.ts` and of `packages/edition-enterprise/src/manifest.ts`). The wordmark is the launcher name of the edition in capitals, so the public logo carries no code name. */
+const wordmarkOf = (manifest) => manifest.brand.launcherName.vi.toLocaleUpperCase('vi');
 
 /** The colours come from the web source (apps/web/src/brand/palettes.ts), the one place both the product and these files read. */
 const dark = (id) => {
@@ -37,19 +38,19 @@ const light = (id) => {
 export const EDITIONS = {
   public: {
     id: 'public',
-    wordmark: WORDMARK,
-    productName: COPY.editions.public.productName,
-    productNameEn: 'Public Investment Management System',
-    tagline: COPY.editions.public.tagline,
+    wordmark: wordmarkOf(PUBLIC_EDITION_MANIFEST),
+    productName: PUBLIC_EDITION_MANIFEST.productName.vi,
+    productNameEn: PUBLIC_EDITION_MANIFEST.productName.en,
+    tagline: PUBLIC_EDITION_MANIFEST.brand.tagline.vi,
     dark: dark('public'),
     light: light('public'),
   },
   enterprise: {
     id: 'enterprise',
-    wordmark: WORDMARK,
-    productName: COPY.editions.enterprise.productName,
-    productNameEn: 'Construction Investment Management Software',
-    tagline: COPY.editions.enterprise.tagline,
+    wordmark: wordmarkOf(ENTERPRISE_EDITION_MANIFEST),
+    productName: ENTERPRISE_EDITION_MANIFEST.productName.vi,
+    productNameEn: ENTERPRISE_EDITION_MANIFEST.productName.en,
+    tagline: ENTERPRISE_EDITION_MANIFEST.brand.tagline.vi,
     dark: dark('enterprise'),
     light: light('enterprise'),
   },
@@ -158,7 +159,7 @@ function iconOnly(edition) {
 export function build() {
   mkdirSync(logoDir, { recursive: true });
   const jobs = [];
-  const index = { name: WORDMARK, codeName: 'MACHVON', version: 1, generatedBy: 'brand/build.mjs', font: 'Be Vietnam Pro (OFL), words drawn as outlines', output: outDir, editions: {} };
+  const index = { name: PUBLIC_EDITION_MANIFEST.productName.vi, version: 1, generatedBy: 'brand/build.mjs', font: 'Be Vietnam Pro (OFL), words drawn as outlines', output: outDir, editions: {} };
   for (const edition of Object.values(EDITIONS)) {
     const id = edition.id;
     const files = {};
