@@ -209,6 +209,14 @@ describe('scheduleProject: progress, cancelled and left-out tasks', () => {
     expect(dates(result, 'B')).toEqual(['2026-11-09', '2026-11-10']);
   });
 
+  it('keeps the actual days of a task that is done, even on a day nobody works, and does not place one that the calendars do not reach', () => {
+    const sunday = run([task('A', 2, { status: 'DONE', actualStart: '2026-11-06', actualFinish: '2026-11-08' })]);
+    expect(dates(sunday, 'A')).toEqual(['2026-11-06', '2026-11-08']);
+    const beyond = run([task('A', 2, { status: 'DONE', actualStart: '2026-12-30', actualFinish: '2027-01-06' })]);
+    expect(find(beyond, 'A').state).toBe('CALENDAR_UNAVAILABLE');
+    expect(find(beyond, 'A').finish).toBeNull();
+  });
+
   it('says when a task is marked done with no actual finish and plans it as it was', () => {
     const result = run([task('A', 2, { status: 'DONE' })]);
     expect(find(result, 'A').findings.map((one) => one.code)).toEqual(['ACTUAL_DATES_MISSING']);
@@ -305,6 +313,13 @@ describe('rescheduling the part that is not done and keeping the baseline', () =
     expect(slipped.diff.map((one) => one.code)).toEqual(['A', 'B', 'C']);
     expect(slipped.diff.find((one) => one.code === 'C')).toMatchObject({ startShiftDays: 2, finishShiftDays: 2 });
     expect(slipped.baseline).toEqual(baseline);
+  });
+
+  it('measures the variance of a project that starts later than its baseline', () => {
+    const first = run([task('A', 2)]);
+    const moved = rescheduleProject({ before: first, input: { tasks: [task('A', 2)], plannedStart: '2026-11-09', calendars: CAL_2026 } });
+    expect(find(moved.schedule, 'A').startVarianceDays).toBe(5);
+    expect(find(moved.schedule, 'A').finishVarianceDays).toBe(5);
   });
 
   it('does not move a task that is done, and uses the baseline given rather than the schedule before when there is one', () => {

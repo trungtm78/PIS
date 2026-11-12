@@ -247,7 +247,7 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
   const byCode = new Map(input.tasks.map((one) => [one.code, one] as const));
 
   // The line starts at the earliest date the project mentions.
-  const mentioned = [input.plannedStart, ...input.tasks.flatMap((one) => [one.actualStart, one.actualFinish]), input.statusDate].filter((day): day is string => typeof day === 'string');
+  const mentioned = [input.plannedStart, ...input.tasks.flatMap((one) => [one.actualStart, one.actualFinish]), input.statusDate, ...Object.values(input.baseline ?? {}).flatMap((one) => [one.start, one.finish])].filter((day): day is string => typeof day === 'string');
   const line = lineOf(input.calendars, mentioned.reduce((first, day) => (day < first ? day : first)));
   const startIdx = line.ceil(input.plannedStart);
   const statusIdx = typeof input.statusDate === 'string' ? line.ceil(input.statusDate) : null;
@@ -410,15 +410,18 @@ export function scheduleProject(input: ScheduleInput): ScheduleResult {
     const node = nodes.get(code) as Node;
     const task = node.task;
     const last = lastDay(node);
-    const placed = node.mode === 'PASS' ? false : node.s >= 0 && node.s < length && last < length && last >= 0;
+    // A task that is done is dated by its actual days, which may fall on a day nobody works; it can be placed only when the calendars reach its actual finish.
+    const reached = (day: string | null | undefined): boolean => typeof day !== 'string' || (length > 0 && day <= (line.days[length - 1] as string));
+    const placed = node.mode === 'PASS' ? false : node.mode === 'DONE' ? reached(task.actualFinish) && reached(task.actualStart) : node.s >= 0 && node.s < length && last < length && last >= 0;
     const state: ScheduledState = node.mode === 'PASS' ? 'PASS_THROUGH' : !placed ? 'CALENDAR_UNAVAILABLE' : node.mode === 'DONE' ? 'COMPLETED' : 'SCHEDULED';
     const taskFindings = [...node.findings];
     if (state === 'CALENDAR_UNAVAILABLE') {
       taskFindings.push({ code: 'CALENDAR_UNAVAILABLE', task: code, year: line.missingYear });
       if (!findings.some((one) => one.code === 'CALENDAR_UNAVAILABLE')) findings.push({ code: 'CALENDAR_UNAVAILABLE', task: null, year: line.missingYear });
     }
-    const first = placed ? line.dateAt(isMilestone(task) ? last : node.s) : null;
-    const finish = placed ? line.dateAt(last) : null;
+    const done = node.mode === 'DONE' && placed;
+    const finish = done ? (task.actualFinish as string) : placed ? line.dateAt(last) : null;
+    const first = done ? (isMilestone(task) ? finish : (task.actualStart ?? line.dateAt(node.s))) : placed ? line.dateAt(isMilestone(task) ? last : node.s) : null;
     const base = baseline?.[code];
     const variance = (date: string | null, reference: string | null | undefined, pick: (value: string) => number): number | null => {
       if (date === null || reference === undefined || reference === null) return null;

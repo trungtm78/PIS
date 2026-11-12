@@ -48,6 +48,7 @@ const facts = (patch: Partial<TaskFacts> = {}): TaskFacts => ({
   ...patch,
 });
 
+const VERSIONS = [{ year: 2026, version: 1 }];
 const compute = (code: (typeof KPI_OPERATION_CODES)[number], input: TaskFacts | TaskFacts[], params: Record<string, unknown> = {}, calendars: WorkCalendarSource | null = CALENDARS) =>
   kpiOperationOf(code).compute(Array.isArray(input) ? input : [input], params, { calendars: calendars ?? undefined });
 
@@ -275,13 +276,16 @@ const item = (patch: Partial<KpiSetItem> = {}): KpiSetItem => ({
 
 describe('scoreTask and taskScoreOf', () => {
   it('turns a value into a score and records what it read', () => {
-    const result = scoreTask(facts(), item(), { calendars: CALENDARS });
+    const result = scoreTask(facts(), item(), { calendars: CALENDARS, calendarVersions: VERSIONS });
     expect(result).toMatchObject({ kpiCode: 'PWF_TASK_DEVIATION_DAYS', operation: 'DAYS_DEVIATION', state: 'OK', value: 3, score: 70, weight: 40 });
     expect(result.inputsHash).toMatch(/^[0-9a-f]{64}$/);
-    expect(scoreTask(facts(), item(), { calendars: CALENDARS }).inputsHash).toBe(result.inputsHash);
-    expect(scoreTask(facts({ actualFinish: '2026-11-13' }), item(), { calendars: CALENDARS }).inputsHash).not.toBe(result.inputsHash);
+    expect(scoreTask(facts(), item(), { calendars: CALENDARS, calendarVersions: VERSIONS }).inputsHash).toBe(result.inputsHash);
+    expect(scoreTask(facts({ actualFinish: '2026-11-13' }), item(), { calendars: CALENDARS, calendarVersions: VERSIONS }).inputsHash).not.toBe(result.inputsHash);
+    // the calendar behind a working-day result is part of what was read
+    expect(scoreTask(facts(), item(), { calendars: CALENDARS, calendarVersions: [{ year: 2026, version: 2 }] }).inputsHash).not.toBe(result.inputsHash);
+    expect(() => scoreTask(facts(), item(), { calendars: CALENDARS })).toThrow(DomainError);
     // a fact the operation does not read does not move the hash
-    expect(scoreTask(facts({ returnCount: 9 }), item(), { calendars: CALENDARS }).inputsHash).toBe(result.inputsHash);
+    expect(scoreTask(facts({ returnCount: 9 }), item(), { calendars: CALENDARS, calendarVersions: VERSIONS }).inputsHash).toBe(result.inputsHash);
   });
 
   it('has no score when the operation gave none', () => {
@@ -289,7 +293,7 @@ describe('scoreTask and taskScoreOf', () => {
   });
 
   it('averages the scores by weight, re-normalised over the items that have one, and says what it left out', () => {
-    const a = { ...scoreTask(facts(), item(), { calendars: CALENDARS }), weight: 40 };
+    const a = { ...scoreTask(facts(), item(), { calendars: CALENDARS, calendarVersions: VERSIONS }), weight: 40 };
     const b = { ...scoreTask(facts({ returnCount: 1 }), item({ kpiCode: 'PWF_RETURN_COUNT', operation: 'RETURN_COUNT', scale: { kind: 'STEPPED', mode: 'AT_MOST', steps: [{ bound: 0, score: 100 }, { bound: 1, score: 80 }], otherwiseScore: 30 }, weight: 10 }), {}), weight: 10 };
     const c = scoreTask(facts({ estimateVnd: 0 }), item({ kpiCode: 'PWF_AMOUNT_VARIANCE_PCT', operation: 'AMOUNT_VARIANCE_PCT', weight: 50 }), {});
     expect(taskScoreOf([a, b, c])).toEqual({ score: 72, leftOut: [{ kpiCode: 'PWF_AMOUNT_VARIANCE_PCT', reason: 'NOT_APPLICABLE' }] });
@@ -336,7 +340,7 @@ describe('the rule types', () => {
   it('scores a task with the default set, weights summing to 100', () => {
     const set = parseKpiSet(builtInDefault(WORKFLOW_KPI_SET_RULE_TYPE, 'DEFAULT_PROJECT_WORKFLOW')?.params);
     expect(set.items.reduce((sum, one) => sum + one.weight, 0)).toBe(100);
-    const results = set.items.map((one) => scoreTask(facts(), one, { calendars: CALENDARS }));
+    const results = set.items.map((one) => scoreTask(facts(), one, { calendars: CALENDARS, calendarVersions: VERSIONS }));
     const { score } = taskScoreOf(results);
     expect(score).toBeGreaterThan(0);
     expect(score).toBeLessThanOrEqual(100);

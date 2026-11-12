@@ -86,6 +86,8 @@ export interface OperationParams {
 
 export interface OperationContext {
   calendars?: WorkCalendarSource | undefined;
+  /** The version of each year's calendar behind `calendars`: scoring a task with calendars and no versions is refused, because the hash of the inputs could not tell two calendars apart. */
+  calendarVersions?: ReadonlyArray<{ year: number; version: number }> | undefined;
 }
 
 export type OperationState = 'OK' | 'NOT_APPLICABLE' | 'EXCLUDED' | 'MISSING_FACT';
@@ -463,10 +465,11 @@ export interface TaskKpiResult {
 /** One KPI of a set for one task (or for a set of tasks when the operation is a rate): the value, its score on the scale, and the hash of what was read. */
 export function scoreTask(facts: TaskFacts | readonly TaskFacts[], item: KpiSetItem, context: OperationContext): TaskKpiResult {
   const given: readonly TaskFacts[] = 'taskCode' in facts ? [facts] : facts;
+  if (context.calendars !== undefined && context.calendarVersions === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'calendar_versions');
   const operation = kpiOperationOf(item.operation);
   const outcome = operation.compute(given, item.operationParams, context);
   const read = given.map((one) => Object.fromEntries(operation.reads.map((key) => [key, one[key]])));
-  const inputsHash = sha256Hex(canonicalJson({ operation: item.operation, params: item.operationParams, facts: read }));
+  const inputsHash = sha256Hex(canonicalJson({ operation: item.operation, params: item.operationParams, facts: read, calendars: context.calendarVersions === undefined ? null : [...context.calendarVersions].sort((left, right) => left.year - right.year) }));
   const score = outcome.state === 'OK' && outcome.value !== null ? convertScore(outcome.value, item.scale) : null;
   return { kpiCode: item.kpiCode, operation: item.operation, state: outcome.state, value: outcome.value, score, weight: item.weight, inputsHash };
 }
