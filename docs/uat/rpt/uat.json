@@ -1,0 +1,3250 @@
+{
+  "feature": "rpt",
+  "generated_at": "2026-11-12T05:18:23.657Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/rpt/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UI-RPT-01",
+      "title": "Danh mục biểu mẫu báo cáo và lập báo cáo (RPT-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Claim → FR-RPT-01; kỳ vọng nguyên văn của ca thiết kế UI-RPT-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Danh mục biểu mẫu báo cáo và lập báo cáo; user có quyền và user chỉ đọc; route RPT-01\n1. Mở RPT-01 từ menu và deep link; kiểm nhãn trường: Mã và tên biểu mẫu, Phiên bản, Bản (công khai hoặc doanh nghiệp), Trạng thái biểu mẫu (mẫu demo, nháp, sẵn sàng), Mẫu chính thức (đã xác nhận hay chờ), Bên nhận, Loại kỳ, Nguồn số liệu (thật hay minh họa), Có phát hành được không, Chọn kỳ và lập báo cáo\n2. Thực hiện thao tác chính theo quy tắc: Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu chính thức' và chỉ lập được khi chế độ demo bật (R18); bản công khai không có biểu mẫu của bản doanh nghiệp; lập lại cùng số liệu không tạo bản nháp thứ hai; số khác bản đã phát hành phải có lý do (R17)\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-01",
+      "expected": "Danh mục biểu mẫu báo cáo và lập báo cáo: hiển thị đúng 10 trường, áp quy tắc \"Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu chính thức' và chỉ lập được khi chế độ demo bật (R18); bản công khai không có biểu mẫu của bản doanh nghiệp; lập lại cùng số liệu không tạo bản nháp thứ hai; số khác bản đã phát hành phải có lý do (R17)\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RPT-02",
+      "title": "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành (RPT-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; kỳ vọng nguyên văn của ca thiết kế UI-RPT-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành; user có quyền và user chỉ đọc; route RPT-02\n1. Mở RPT-02 từ menu và deep link; kiểm nhãn trường: Biểu mẫu và kỳ, Trạng thái (nháp, đã kiểm, đã duyệt, đã phát hành), Xem trước từng ô của bảng và phần thuyết minh, Ô thiếu số và lý do, Mã băm của tệp và của bản, Người lập, người kiểm tra, người phê duyệt, Bản snapshot DIS và phiên bản, Lý do bản sửa, Tải tệp Excel và Word\n2. Thực hiện thao tác chính theo quy tắc: Ba người khác nhau: người kiểm khác người lập, người duyệt khác cả hai, người phát hành là người duyệt; đúng thứ tự; bản nháp lập trước khi chuỗi bản tiến lên bị từ chối (REPORT_OUT_OF_DATE); biểu mẫu demo bị tắt chế độ demo thì không phát hành được; ô không có số để trống kèm lý do, không bao giờ là 0\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-02",
+      "expected": "Bản nháp báo cáo, xem trước và luồng kiểm tra, phê duyệt, phát hành: hiển thị đúng 9 trường, áp quy tắc \"Ba người khác nhau: người kiểm khác người lập, người duyệt khác cả hai, người phát hành là người duyệt; đúng thứ tự; bản nháp lập trước khi chuỗi bản tiến lên bị từ chối (REPORT_OUT_OF_DATE); biểu mẫu demo bị tắt chế độ demo thì không phát hành được; ô không có số để trống kèm lý do, không bao giờ là 0\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RPT-03",
+      "title": "Các bản báo cáo đã phát hành (RPT-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-03",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-03",
+      "oracle_source": "Claim → FR-RPT-03; kỳ vọng nguyên văn của ca thiết kế UI-RPT-03 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-03 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Các bản báo cáo đã phát hành; user có quyền và user chỉ đọc; route RPT-03\n1. Mở RPT-03 từ menu và deep link; kiểm nhãn trường: Biểu mẫu, kỳ và phiên bản, Mã băm sha256 của bản, Tệp và mã băm từng tệp, Còn hiệu lực hay đã bị thay, Chuỗi các phiên bản và lý do sửa, Người lập, kiểm tra, phê duyệt, phát hành, Mẫu demo (không tính là đã nhận), Giao cho bên nhận, Câu trả lời của bên nhận\n2. Thực hiện thao tác chính theo quy tắc: Bản đã phát hành không sửa và không xóa; bản sửa là phiên bản mới nêu bản bị thay và lý do; giao bản đã bị thay là REPORT_OUT_OF_DATE, giao lại cùng nội dung cho cùng bên nhận là ALREADY_DELIVERED; bản mẫu demo không bao giờ được ghi là đã nhận (R18); tải tệp luôn kiểm lại mã băm\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-03",
+      "expected": "Các bản báo cáo đã phát hành: hiển thị đúng 9 trường, áp quy tắc \"Bản đã phát hành không sửa và không xóa; bản sửa là phiên bản mới nêu bản bị thay và lý do; giao bản đã bị thay là REPORT_OUT_OF_DATE, giao lại cùng nội dung cho cùng bên nhận là ALREADY_DELIVERED; bản mẫu demo không bao giờ được ghi là đã nhận (R18); tải tệp luôn kiểm lại mã băm\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-03",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RPT-04",
+      "title": "Nhật ký giao báo cáo cho bên nhận (RPT-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-04",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-04",
+      "oracle_source": "Claim → FR-RPT-04; kỳ vọng nguyên văn của ca thiết kế UI-RPT-04 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-04 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Nhật ký giao báo cáo cho bên nhận; user có quyền và user chỉ đọc; route RPT-04\n1. Mở RPT-04 từ menu và deep link; kiểm nhãn trường: Thời điểm, Biểu mẫu, kỳ và phiên bản, Bên nhận, Kênh giao, Sự kiện (đã giao, đã nhận, trả lại), Số tham chiếu, Người ghi, Có tính là đã nhận không\n2. Thực hiện thao tác chính theo quy tắc: Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy của hệ thống tập đoàn chỉ do bộ nối ENT-2 ghi; lần giao của bản mẫu demo luôn hiện là chưa tính đã nhận\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-04",
+      "expected": "Nhật ký giao báo cáo cho bên nhận: hiển thị đúng 8 trường, áp quy tắc \"Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy của hệ thống tập đoàn chỉ do bộ nối ENT-2 ghi; lần giao của bản mẫu demo luôn hiện là chưa tính đã nhận\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-04",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-001",
+      "title": "UAT-RPT-001: The preparer generates the report for the week",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Claim → FR-RPT-01, FR-RPT-02, FR-RPT-03; kỳ vọng nguyên văn của ca thiết kế UAT-RPT-001 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-RPT-001 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-02",
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Three members with the rights to generate, check and approve; a frozen DIS snapshot; the weekly report DIS-WEEKLY.\n1. The preparer generates the report for the week\n2. The preparer tries to check it\n3. The checker checks it\n4. The checker tries to approve it\n5. The approver approves and issues it\n6. Download the file and compute its sha256",
+      "expected": "Steps 2 and 4: 403 SELF_APPROVAL_DENIED; step 5: one copy of revision 1; step 6: the hash is the hash recorded on the copy.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-002",
+      "title": "UAT-RPT-002: Generate the same week without a reason",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-02",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02, FR-RPT-03, FR-RPT-04; kỳ vọng nguyên văn của ca thiết kế UAT-RPT-002 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-RPT-002 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-RPT-02",
+        "COV-FR-RPT-03",
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A copy of revision 1 of DIS-WEEKLY for a week; a newer frozen snapshot with other figures; a receiver MOF.\n1. Generate the same week without a reason\n2. Generate it with a reason, check, approve and issue\n3. Deliver revision 1 to MOF\n4. Deliver revision 2 to MOF\n5. Deliver revision 2 to MOF again",
+      "expected": "Step 1: 422 VALIDATION_FAILED; step 2: revision 2 names revision 1 and the reason; step 3: 409 REPORT_OUT_OF_DATE with the current revision; step 4: delivered; step 5: 409 ALREADY_DELIVERED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-003",
+      "title": "UAT-RPT-003: Generate PVN-MONTHLY with demo forms off",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Claim → FR-RPT-01, FR-RPT-03, FR-RPT-04; kỳ vọng nguyên văn của ca thiết kế UAT-RPT-003 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-RPT-003 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-03",
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: The enterprise edition with the six demo forms; demo forms off, then on.\n1. Generate PVN-MONTHLY with demo forms off\n2. Switch demo forms on and generate, check, approve and issue it\n3. Open the Excel file and read its print header and first row\n4. Deliver it and record that the receiver accepts it",
+      "expected": "Step 1: 409 TEMPLATE_UNCONFIRMED; step 3: every place carries \"MẪU DEMO — chờ mẫu chính thức\"; step 4: delivery recorded, acceptance refused with 409 TEMPLATE_UNCONFIRMED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RML-01",
+      "title": "Lịch gửi email biểu mẫu đã phát hành và nhật ký gửi (RML-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-HPM-02",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-HPM-02",
+      "oracle_source": "Claim → FR-HPM-02; kỳ vọng nguyên văn của ca thiết kế UI-RML-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RML-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-HPM-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A, edition enterprise, synthetic data of the e-mail schedules; a user with the permission and a read-only user; route RML-01\n1. Open RML-01 from the menu and by deep link; check the labelled fields: Kỳ, mẫu và phiên bản đã được nhận; Kỳ đã mở lại (yêu cầu mở lại của DIS); Lý do đính chính; Người đề nghị, người duyệt, trạng thái; Lần đẩy đã dùng đính chính\n2. Do the main action under the rule: Thay kỳ đã được nhận cần kỳ đã mở lại và đính chính do người khác duyệt, ghi ADM-11; một đính chính chỉ dùng một lần; một đề nghị chờ cho một phiên bản tại một thời điểm\n3. Force the 7 states (loading, populated, empty, validation error, service error, permission denied, stale) and check the hidden actions without the permission on RML-01",
+      "expected": "Đính chính kỳ báo cáo đã được HPM nhận: all 5 fields shown, the rule applied, the PENDING-EXTERNAL band visible, no action outside the permission",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RML-01",
+      "story_ids": [
+        "ST-RML-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RPT-05",
+      "title": "Biểu mẫu báo cáo gửi Bộ Tài chính (RPT-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-05",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-05",
+      "oracle_source": "Claim → FR-RPT-05; kỳ vọng nguyên văn của ca thiết kế UI-RPT-05 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-05 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Biểu mẫu báo cáo gửi Bộ Tài chính; người dùng có quyền và người dùng không có quyền; route RPT-05\n1. Mở RPT-05 từ menu và deep link; kiểm nhãn trường: Mẫu (tuần, tháng, quý, năm), Trạng thái mẫu, Người nhận, Kỳ báo cáo, Bản phát hành mới nhất, Chữ ký số, Khóa kỳ\n2. Thực hiện thao tác chính theo quy tắc: Bốn mẫu gửi Bộ Tài chính ở trạng thái chờ biểu mẫu chính thức: soạn và xem được nhưng không phát hành được; bản gửi người nhận cần chữ ký số thật khớp mã băm của bản phát hành; chữ ký thử không được tính.\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-05",
+      "expected": "Biểu mẫu báo cáo gửi Bộ Tài chính: hiển thị đúng các trường, áp quy tắc \"Bốn mẫu gửi Bộ Tài chính ở trạng thái chờ biểu mẫu chính thức: soạn và xem được nhưng không phát hành được; bản gửi người nhận cần chữ ký số thật khớp mã băm của bản phát hành; chữ ký thử không được tính.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-05",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RPT-06",
+      "title": "Khóa kỳ và chữ ký số báo cáo (RPT-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-06",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-06",
+      "oracle_source": "Claim → FR-RPT-06; kỳ vọng nguyên văn của ca thiết kế UI-RPT-06 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-06 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Khóa kỳ và chữ ký số báo cáo; người dùng có quyền và người dùng không có quyền; route RPT-06\n1. Mở RPT-06 từ menu và deep link; kiểm nhãn trường: Mẫu và kỳ, Bản phát hành, Mã băm, Người ký và nhà cung cấp, Người khóa, Người mở khóa, Lý do mở khóa\n2. Thực hiện thao tác chính theo quy tắc: Người duyệt ký số mã băm của bản phát hành qua cổng ký của DOC; kỳ bị khóa khi bản được ký (hoặc được nhận); kỳ khóa không nhận bản mới; mở khóa cần người thứ hai và lý do đủ dài, quy tắc ghi chưa kiểm chứng.\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-06",
+      "expected": "Khóa kỳ và chữ ký số báo cáo: hiển thị đúng các trường, áp quy tắc \"Người duyệt ký số mã băm của bản phát hành qua cổng ký của DOC; kỳ bị khóa khi bản được ký (hoặc được nhận); kỳ khóa không nhận bản mới; mở khóa cần người thứ hai và lý do đủ dài, quy tắc ghi chưa kiểm chứng.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-06",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-3001",
+      "title": "UAT-PLAN-3001: C starts the signature and completes it",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-05",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-05",
+      "oracle_source": "Claim → FR-RPT-05, FR-RPT-06; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-3001 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-3001 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-RPT-05",
+        "COV-FR-RPT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: An issued copy of a monthly report for the Ministry, approved by user C; a second user D; the signing port of the MOCK provider.\n1. C starts the signature and completes it\n2. Deliver the copy to the receiver MOF\n3. Make a new copy of the same period\n4. D unlocks the period with a short reason, then with a reason of enough length",
+      "expected": "A MOCK signature is kept as a test signature: delivery to the Ministry is refused with REPORT_SIGNATURE_REQUIRED; with a real signature the period is locked, a new copy is refused PERIOD_LOCKED, the unlock by the locker is refused as self approval and by D with a reason it opens the period.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-05",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RPT-07",
+      "title": "Bố cục biểu mẫu cấu hình (RPT-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-07",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-07",
+      "oracle_source": "Claim → FR-RPT-07; kỳ vọng nguyên văn của ca thiết kế UI-RPT-07 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-07 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Bố cục biểu mẫu cấu hình; người dùng có quyền và người dùng không có quyền; route RPT-07\n1. Mở RPT-07 từ menu và deep link; kiểm nhãn trường: Mã bố cục, Loại (nội bộ, theo yêu cầu của Sở, Ban, Ngành), Phiên bản đang hiệu lực, Trạng thái phiên bản, Người lập, Người duyệt, Hiệu lực từ, Mã băm bố cục\n2. Thực hiện thao tác chính theo quy tắc: Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-07",
+      "expected": "Bố cục biểu mẫu cấu hình: hiển thị đúng các trường, áp quy tắc \"Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-07",
+      "story_ids": [
+        "ST-RPT-131"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RPT-08",
+      "title": "Soạn bố cục biểu mẫu (RPT-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-08",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-08",
+      "oracle_source": "Claim → FR-RPT-08; kỳ vọng nguyên văn của ca thiết kế UI-RPT-08 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-08 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Soạn bố cục biểu mẫu; người dùng có quyền và người dùng không có quyền; route RPT-08\n1. Mở RPT-08 từ menu và deep link; kiểm nhãn trường: Loại và tên biểu mẫu, Đơn vị yêu cầu và văn bản yêu cầu, Chỉ tiêu, tiêu đề và cơ sở kỳ, Cột bảng dự án và thứ tự, Nhóm dự án, Tổng cộng và người ký, Xem trước bằng số liệu minh họa, Lý do và hiệu lực\n2. Thực hiện thao tác chính theo quy tắc: Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên RPT-08",
+      "expected": "Soạn bố cục biểu mẫu: hiển thị đúng các trường, áp quy tắc \"Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.\"; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-08",
+      "story_ids": [
+        "ST-RPT-131"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-3410",
+      "title": "UAT-PLAN-3410: Generate the report and open the workbook, the Word file and the PDF",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-07",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-07",
+      "oracle_source": "Claim → FR-RPT-07, FR-RPT-08; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-3410 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-3410 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-RPT-07",
+        "COV-FR-RPT-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A weekly report and a configured form with the same data; the workbook template, the Word skeleton where there is one.\n1. Generate the report and open the workbook, the Word file and the PDF\n2. Issue the copy and download the PDF",
+      "expected": "The cells, formulas, words and the number of pages of the three files agree; the PDF is named by the file-name rule and kept with its hash; the copy records the hash of the layout.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-08",
+      "story_ids": [
+        "ST-RPT-131"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-3411",
+      "title": "UAT-PLAN-3411: A drafts, B submits, C approves",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-07",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-07",
+      "oracle_source": "Claim → FR-RPT-07, FR-RPT-08; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-3411 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-3411 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-RPT-07",
+        "COV-FR-RPT-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: A layout drafted by user A as a rule of the type REPORT_LAYOUT; users B and C.\n1. A drafts, B submits, C approves\n2. Generate and issue a report of the configured form\n3. Approve a newer version of the layout and open the issued copy again",
+      "expected": "The form is offered from the day it is in force; the issued copy keeps the version and the hash of its layout; the official forms of PVN, HPM and the Ministry cannot be configured.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-07",
+      "story_ids": [
+        "ST-RPT-131"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UI-RPT-09",
+      "title": "So sánh chéo báo cáo cùng kỳ trước khi phát hành (RPT-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-09",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-09",
+      "oracle_source": "Claim → FR-RPT-09; kỳ vọng nguyên văn của ca thiết kế UI-RPT-09 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình RPT-09 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-RPT-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A; a reader (rpt.crosscheck.read), a person who may explain (rpt.crosscheck.explain) and the preparer of one of the reports; a quarter and its months with one difference; route RPT-09\n1. Open RPT-09 from the menu and from a draft; check the labelled fields: the period and the reports compared, the coverage, each difference with its numbers, formula, source and time, the path to an explanation, the explanations given\n2. As the person who may explain, record an explanation with a reason shorter than 20 characters, then with a good one\n3. Force the 7 states and check the hidden explanation form for a reader and for the preparer of an involved report",
+      "expected": "All fields shown; a comparison that made no comparison says so and never reads as agreeing; the short reason is refused on the screen and sends nothing; the explanation goes with the fingerprint and the period; no write in the read-only mode",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "RPT-09",
+      "story_ids": [
+        "ST-RPT-141"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-ENT4A-1",
+      "title": "UAT-RPT-ENT4A-1: Compare the consistent set",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-09",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-09",
+      "oracle_source": "Claim → FR-RPT-09; kỳ vọng nguyên văn của ca thiết kế UAT-RPT-ENT4A-1 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-RPT-ENT4A-1 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-RPT-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: The monthly PVN reports of a quarter, the quarterly report, the steering, board and HPM reports, all from one frozen snapshot; then one change at a time to the data\n1. Compare the consistent set\n2. Change one figure of one month by one dong; leave out a month; give a project row no unit; push a cumulative above the total investment; make the HPM report differ from PVN\n3. Open RPT-09 for the period",
+      "expected": "Step 1 gives no difference and a number of comparisons above zero; each change of step 2 is found by its own rule with formula, source and time of each number; a missing month is skipped with the reason, not passed",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-09",
+      "story_ids": [
+        "ST-RPT-141"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-ENT4A-2",
+      "title": "UAT-RPT-ENT4A-2: The approver issues the draft",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-FR-RPT-09",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-09",
+      "oracle_source": "Claim → FR-RPT-09; kỳ vọng nguyên văn của ca thiết kế UAT-RPT-ENT4A-2 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-RPT-ENT4A-2 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-RPT-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: An approved draft of the quarterly report with a blocking difference against its months; a preparer, an approver and a third person who may explain\n1. The approver issues the draft\n2. The preparer tries to explain the difference; the third person records a short reason, then a good reason\n3. The approver issues again; the third person repeats the explanation",
+      "expected": "Step 1 is 409 REPORT_CROSSCHECK_BLOCKED and audited; the preparer gets 403 SELF_APPROVAL_DENIED; a short reason is 422; the good reason is recorded once; step 3 issues the copy and keeps the evidence of the comparison; the repeat returns the first explanation",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-09",
+      "story_ids": [
+        "ST-RPT-141"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-E2E-01",
+      "title": "Người lập tạo bản nháp từ số liệu đã chốt, người thứ hai kiểm, người thứ ba duyệt, người duyệt phát hành bản sao bất biến có băm, bên ký và bản chốt",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-RPT-PUBLISH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02, FR-RPT-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Bản phát hành đổi được sau khi phát hành, băm không khớp tệp, hoặc không ghi kiểm toán và sự kiện",
+      "coverage_ids": [
+        "COV-FR-RPT-02",
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, edition enterprise; một bản chốt đã đóng băng với một dự án (kế hoạch 1.000 tỷ, giải ngân 600 tỷ); người lập, người kiểm, người duyệt khác nhau\n1. Người lập tạo bản nháp biểu mẫu DIS-WEEKLY cho kỳ hôm nay\n2. Người kiểm kiểm\n3. Người duyệt duyệt rồi phát hành\n4. Đọc bản phát hành, tệp XLSX và PDF\n5. Thử sửa và xóa bản phát hành trực tiếp trong cơ sở dữ liệu",
+      "expected": "Bước 1: CREATED, bản nháp DRAFT, snapshot_id đúng bản chốt, kiểm toán rpt.report_generated và sự kiện rpt.report.generated.v1. Bước 3: ISSUED. Bước 4: revision 1, is_current true, counts_as_accepted true, sha256 64 hex, hai tệp XLSX và PDF, băm tệp khớp, kiểm toán rpt.report_issued, sự kiện rpt.report.issued.v1. Bước 5: cơ sở dữ liệu từ chối (never changes) cả với chủ sở hữu.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/rpt.uat.test.ts"
+      },
+      "module": "RPT",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.report_issue WHERE layout_code = 'DIS-WEEKLY' AND revision = 1",
+        "expect": {
+          "value": "1"
+        }
+      },
+      "audit_assert": {
+        "entity": "report_issue",
+        "entity_id": "<id bản phát hành>",
+        "action": "rpt.report_issued",
+        "fields": [
+          "actor_id",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-IDM-01",
+      "title": "Lập lại đúng báo cáo đã phát hành là DUPLICATE, lập lại bản nháp chưa phát hành là EXISTING; không bao giờ có bản sao thứ hai",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-RPT-PUBLISH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Claim → FR-RPT-01, FR-RPT-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Cùng số liệu cho ra hai bản phát hành, hoặc hai bản nháp cho một yêu cầu",
+      "coverage_ids": [
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bản phát hành 1 của DIS-WEEKLY; một bản nháp sửa đổi chưa phát hành\n1. Lập lại báo cáo cùng số liệu\n2. Đọc danh sách đầu chuỗi\n3. Lập bản sửa đổi có lý do hai lần",
+      "expected": "Bước 1: DUPLICATE, draft_id rỗng, revision 1. Bước 2: một đầu chuỗi và một dòng report_issue. Bước 3: lần 2 trả EXISTING cùng draft_id.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/rpt.uat.test.ts"
+      },
+      "module": "RPT",
+      "idempotency": {
+        "url": "/report-engine/drafts",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "layout_code": "DIS-WEEKLY",
+          "period": {
+            "kind": "AS_OF"
+          }
+        },
+        "count_query": "SELECT count(*) FROM machvon.report_issue WHERE layout_code = 'DIS-WEEKLY' AND revision = 1",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-STA-01",
+      "title": "Các bước đi đúng thứ tự: duyệt trước kiểm là 409, phát hành trước duyệt là 409 REPORT_STATE_INVALID, kiểm hai lần và phiên bản cũ là 409",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "rpt-approver",
+      "journey_ref": "J-RPT-PUBLISH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Bỏ qua bước kiểm hoặc duyệt để phát hành thẳng",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-approver",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bản nháp phiên bản 1\n1. Duyệt khi chưa kiểm\n2. Phát hành khi chưa duyệt\n3. Kiểm, kiểm lần hai\n4. Duyệt với phiên bản 99",
+      "expected": "Bước 1: 409. Bước 2: 409 REPORT_STATE_INVALID. Bước 3: 200 rồi 409; trạng thái CHECKED. Bước 4: 409; trạng thái vẫn CHECKED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/rpt.uat.test.ts"
+      },
+      "module": "RPT",
+      "transition": {
+        "from": "DRAFT",
+        "to": "ISSUED",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SOD-01",
+      "title": "Người lập, người kiểm, người duyệt là ba người khác nhau: người giữ mọi quyền cũng không làm hai bước (403 SELF_APPROVAL_DENIED)",
+      "type": "RED",
+      "platform": "api",
+      "persona": "rpt-all",
+      "journey_ref": "J-RPT-PUBLISH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Một người vừa kiểm vừa duyệt vừa phát hành",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-all",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; người rpt-all giữ mọi quyền của động cơ báo cáo\n1. Người lập kiểm bản nháp của mình\n2. rpt-all kiểm\n3. rpt-all duyệt\n4. Người lập duyệt\n5. Người duyệt duyệt\n6. rpt-all phát hành\n7. Người duyệt phát hành",
+      "expected": "Bước 1: 403. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: 403. Bước 6: 403 SELF_APPROVAL_DENIED. Các bước 2, 5, 7: 200; bản nháp qua CHECKED, APPROVED, ISSUED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/rpt.uat.test.ts"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-STA-02",
+      "title": "Bản sửa là phiên bản mới cần lý do và nêu bản bị thay; bản nháp làm trước khi chuỗi dịch chuyển bị từ chối 409 REPORT_OUT_OF_DATE kèm phiên bản hiện hành",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "rpt-approver",
+      "journey_ref": "J-RPT-PUBLISH-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-03",
+      "oracle_source": "Claim → FR-RPT-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Bản nháp cũ ghi đè bản phát hành mới hơn",
+      "coverage_ids": [
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-approver",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; số liệu đã đổi sau bản phát hành 1\n1. Lập lại không lý do\n2. Lập hai bản sửa đổi cùng chuỗi, kiểm và duyệt cả hai\n3. Phát hành bản thứ hai\n4. Phát hành bản thứ nhất",
+      "expected": "Bước 1: 422 VALIDATION_FAILED. Bước 3: 200. Bước 4: 409 REPORT_OUT_OF_DATE kèm current_revision; bản phát hành 2 nêu supersedes_id là bản 1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-03",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/rpt.uat.test.ts"
+      },
+      "module": "RPT",
+      "transition": {
+        "from": "APPROVED",
+        "to": "ISSUED_OUT_OF_ORDER",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-IDM-02",
+      "title": "Giao một bản phát hành cho một bên nhận chỉ một lần (lần hai 409 ALREADY_DELIVERED), bản đã bị thay không giao được, nhật ký giao chỉ thêm",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "rpt-sender",
+      "journey_ref": "J-RPT-DELIVER-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-04",
+      "oracle_source": "Claim → FR-RPT-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Giao trùng, giao bản cũ, hoặc nhật ký giao sửa được",
+      "coverage_ids": [
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-sender",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; các bản phát hành 1 đến 3 của DIS-WEEKLY\n1. Giao bản 1 (đã bị thay) cho KBNN\n2. Giao bản mới nhất cho KBNN\n3. Giao lại cùng bản cho KBNN\n4. Người chỉ đọc giao\n5. Sửa nhật ký giao trực tiếp",
+      "expected": "Bước 1: 409 REPORT_OUT_OF_DATE kèm current_revision. Bước 2: DELIVERED. Bước 3: 409 ALREADY_DELIVERED; đúng 1 dòng report_delivery, 1 dòng kiểm toán rpt.report_delivered, 1 sự kiện. Bước 4: 403. Bước 5: cơ sở dữ liệu từ chối (append-only).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-04",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/rpt.uat.test.ts"
+      },
+      "module": "RPT",
+      "idempotency": {
+        "url": "/report-engine/issues/{id}/deliveries",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "receiver": "KBNN",
+          "channel": "DOWNLOAD"
+        },
+        "count_query": "SELECT count(*) FROM machvon.report_delivery WHERE receiver = 'KBNN'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-EDG-01",
+      "title": "Biểu mẫu lạ 404, loại kỳ hoặc năm kỳ sai 422, kênh người không được ghi (HPM_PUSH) 422, từ chối cần lời, trả lời cần đã giao trước",
+      "type": "EDGE",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-RPT-PUBLISH-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Claim → FR-RPT-01, FR-RPT-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Cho giao qua kênh của đẩy HPM bằng tay, hoặc ghi trả lời cho bên chưa được giao",
+      "coverage_ids": [
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bản phát hành mới nhất\n1. Lập với layout NO-SUCH\n2. Lập với kỳ MONTH cho biểu mẫu AS_OF\n3. Lập với năm không khớp ngày\n4. Giao kênh HPM_PUSH\n5. Giao bên nhận \"bad receiver\"\n6. Trả lời REJECTED không ghi chú\n7. Trả lời cho bên chưa giao\n8. Trả lời ACCEPTED hai lần",
+      "expected": "Bước 1: 404. Bước 2 và 3: 422. Bước 4 và 5: 422. Bước 6: 422. Bước 7: 409. Bước 8: 200 rồi 409.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/rpt.uat.test.ts"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-ISO-01",
+      "title": "Thành viên tenant khác nhận 404 cho bản phát hành, tệp và bản nháp của tenant này như id không tồn tại",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "rpt-reader",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-03",
+      "oracle_source": "Claim → FR-RPT-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Tải được tệp báo cáo của tenant khác (IDOR)",
+      "coverage_ids": [
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có bản phát hành I và bản nháp D; tenant B có quản trị\n1. Tenant B đọc bản phát hành I\n2. Đọc id ngẫu nhiên\n3. Tải tệp XLSX của I\n4. Đọc bản nháp D",
+      "expected": "Bước 1 và 2 cùng 404 và cùng mã; bước 3 và 4: 404.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-03",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/rpt.uat.test.ts"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/issues/{id}/files/XLSX",
+        "method": "GET",
+        "allow": [
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "content_base64"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-DEMO-01",
+      "title": "Biểu mẫu demo của enterprise: lập khi tắt là 409 TEMPLATE_UNCONFIRMED, khi bật thì mọi nơi mang nhãn MẪU DEMO, và bên nhận không được ghi là đã nhận (409 TEMPLATE_UNCONFIRMED)",
+      "type": "RED",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-RPT-FORMS-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Quy tắc R18 và ca thiết kế UAT-RPT-003 (RPT.md): biểu mẫu demo tắt cho đến khi tenant duyệt quy tắc hoặc môi trường bật, mọi nơi mang nhãn \"MẪU DEMO — chờ mẫu chính thức\", bản phát hành trên mẫu demo không được ghi là đã nhận; sổ việc phụ thuộc khách PX-01",
+      "catches_bug": "Biểu mẫu demo lập được khi chưa bật, hoặc bản phát hành demo được ghi là đã nhận và đi vào kỳ đã nhận",
+      "coverage_ids": [
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; sáu biểu mẫu DEMO (PVN-MONTHLY, HPM-MONTHLY, ...); quy tắc REPORT_FORM_MODE mặc định (demo tắt)\n1. Lập PVN-MONTHLY khi demo tắt\n2. Bật demo bằng quy tắc được hai người duyệt rồi lập, kiểm, duyệt và phát hành\n3. Mở tệp Excel và đọc đầu trang in và dòng đầu\n4. Giao và ghi là bên nhận đã nhận",
+      "expected": "Bước 1: 409 TEMPLATE_UNCONFIRMED. Bước 3: mọi nơi mang nhãn \"MẪU DEMO — chờ mẫu chính thức\". Bước 4: giao được ghi nhận, việc ghi đã nhận bị 409 TEMPLATE_UNCONFIRMED và counts_as_accepted false.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Đã là ca thiết kế UAT-RPT-003; cần bật quy tắc REPORT_FORM_MODE bằng hai người và biểu mẫu DEMO có số liệu minh họa, suite RPT chưa dựng (kiểm bằng apps/api/test/reports/demo-forms.enterprise.test.ts)"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SIG-01",
+      "title": "Ký số bản phát hành qua cổng ký của DOC khóa kỳ; mở khóa kỳ cần quyền riêng, lý do và người duyệt thứ hai",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "rpt-signer",
+      "journey_ref": "J-RPT-SIGN-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-06",
+      "oracle_source": "Claim → FR-RPT-06; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Kỳ đã ký không bị khóa, hoặc mở khóa không để lại lý do",
+      "coverage_ids": [
+        "COV-FR-RPT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-signer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; bản phát hành của biểu mẫu gửi Bộ Tài chính; cổng ký DOC; người ký và người mở khóa khác nhau\n1. Bắt đầu phiên ký\n2. Hoàn tất phiên ký\n3. Đọc khóa kỳ\n4. Mở khóa kỳ với lý do ngắn, rồi đủ",
+      "expected": "Kỳ bị khóa sau khi ký; mở khóa với lý do ngắn bị 422; mở khóa đủ cần người thứ hai; có kiểm toán.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-06",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần cổng ký số của DOC và biểu mẫu Bộ Tài chính (mẫu chính thức là PX-01); suite UAT chưa dựng cổng ký"
+      },
+      "module": "RPT",
+      "transition": {
+        "from": "SIGNED_LOCKED",
+        "to": "UNLOCKED_WITHOUT_REASON",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-RML-01",
+      "title": "Lịch gửi email biểu mẫu đã phát hành: tạo, ngừng, nhật ký gửi chỉ thêm, bản phát hành mới đi theo lịch một lần",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-mailer",
+      "journey_ref": "J-RPT-MAIL-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RML-01",
+      "oracle_source": "Claim → FR-RML-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Gửi email trùng cho cùng bản phát hành, hoặc lịch đã ngừng vẫn gửi",
+      "coverage_ids": [
+        "COV-FR-RML-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-mailer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; một bản phát hành; kênh email bản thử (SMTP thật là PX-11/PX-16)\n1. Tạo lịch gửi\n2. Phát hành bản mới\n3. Chạy việc gửi hai lần\n4. Ngừng lịch và phát hành tiếp",
+      "expected": "Mỗi bản phát hành đi một lần mỗi người nhận; nhật ký gửi chỉ thêm; sau khi ngừng không gửi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RML-01",
+      "story_ids": [
+        "ST-RML-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần việc gửi email của bản enterprise và nhà cung cấp email giả; SMTP/Teams thật chờ khách (PX-16)"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-XCK-01",
+      "title": "So sánh chéo báo cáo cùng kỳ: chặn phát hành khi có chênh lệch chưa giải trình (409 REPORT_CROSSCHECK_BLOCKED), người lập không tự giải trình (403), lý do ngắn bị 422",
+      "type": "RED",
+      "platform": "api",
+      "persona": "rpt-crosschecker",
+      "journey_ref": "J-RPT-CROSS-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-09",
+      "oracle_source": "Claim → FR-RPT-09; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Phát hành khi các biểu mẫu cùng kỳ lệch nhau và không có giải trình",
+      "coverage_ids": [
+        "COV-FR-RPT-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-crosschecker",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A bản enterprise; hai biểu mẫu cùng kỳ có số tổng lệch\n1. Phát hành khi có chênh lệch\n2. Người lập giải trình\n3. Người khác giải trình với lý do ngắn, rồi đủ\n4. Phát hành lại",
+      "expected": "Bước 1: 409 REPORT_CROSSCHECK_BLOCKED và có kiểm toán. Bước 2: 403 SELF_APPROVAL_DENIED. Bước 3: 422 rồi ghi lý do. Bước 4: phát hành được.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "RPT-09",
+      "story_ids": [
+        "ST-RPT-141"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần hai biểu mẫu enterprise cùng kỳ lệch số; đã có ở apps/api/test/reports/crosscheck.enterprise.test.ts, chưa dựng trong suite UAT"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-PRF-01",
+      "title": "Tải tệp PDF của bản phát hành (tệp nặng nhất) xong trong 20 giây ở phân vị 95; danh sách bản phát hành trong 5 giây",
+      "type": "PERFORMANCE",
+      "platform": "api",
+      "persona": "rpt-reader",
+      "journey_ref": "J-RPT-PUBLISH-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-RPT-03",
+      "oracle_source": "Yêu cầu của khách: mọi chức năng phản hồi dưới 5 giây và mọi báo cáo dưới 20 giây, đo bằng phân vị 95 (docs/qa/perf-budget.json; HSKT HT.05; đo trên phần cứng khách là PX-10)",
+      "catches_bug": "Dựng PDF hoặc kiểm băm mỗi lần đọc làm chậm quá ngân sách",
+      "coverage_ids": [
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có bản phát hành có PDF; 500 bản phát hành\n1. Gọi GET /report-engine/issues/{id}/files/PDF hai mươi lần sau ba lần khởi động\n2. Gọi GET /report-engine/issues",
+      "expected": "PDF p95 không quá 20.000 ms; danh sách p95 không quá 5.000 ms; không lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "RPT-03",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bản phát hành thật và bộ 500 bản; đo trên phần cứng khách là PX-10"
+      },
+      "module": "RPT",
+      "perf_budget": {
+        "url": "/report-engine/issues/{id}/files/PDF",
+        "method": "GET",
+        "p95_ms": 20000,
+        "sample": 20,
+        "warmup": 3,
+        "max_error_rate": 0
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-A11-01",
+      "title": "Bốn màn RPT đạt WCAG 2.2 AA: xem trước báo cáo là bảng có tiêu đề, dòng chảy ba người có trạng thái đọc được, tải tệp bằng bàn phím",
+      "type": "A11Y",
+      "platform": "web",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-RPT-PUBLISH-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Claim → FR-RPT-01, FR-RPT-02, FR-RPT-03, FR-RPT-04; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Xem trước báo cáo chỉ là hình, trạng thái của bước chỉ bằng màu",
+      "coverage_ids": [
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-02",
+        "COV-FR-RPT-03",
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; dữ liệu có bản nháp, đã kiểm, đã duyệt, đã phát hành\n1. Chạy axe ở 1280 px và 360 px\n2. Lập, kiểm, duyệt và phát hành chỉ bằng bàn phím",
+      "expected": "Không lỗi axe nghiêm trọng hoặc cao; mọi bước dùng được bằng bàn phím.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "accessibility",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-PX-01",
+      "title": "PENDING-EXTERNAL PX-01: bốn biểu mẫu gửi Bộ Tài chính và sáu biểu mẫu enterprise chờ mẫu chính thức nên không tính là đạt",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-RPT-FORMS-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Sổ việc phụ thuộc khách PX-01 và PX-15 (docs/delivery/11-pending-external-register.md): bố cục chính thức của sáu biểu mẫu và mẫu của đơn vị yêu cầu",
+      "catches_bug": "Báo cáo nghiệm thu tính đạt BC.01 trên mẫu giả định",
+      "coverage_ids": [
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; chưa có mẫu chính thức\n1. Mở RPT-01 và RPT-05\n2. Đọc nhãn và trạng thái từng biểu mẫu",
+      "expected": "Mọi biểu mẫu ở trạng thái chờ mẫu chính thức, mang nhãn MẪU DEMO; soạn và xem trước được, phát hành tính là chưa đạt.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001",
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chờ khách cung cấp bố cục chính thức (PX-01, PX-15)"
+      },
+      "module": "RPT"
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-01",
+      "title": "listReportCatalogue (GET /report-engine/catalogue): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Claim → FR-RPT-01; thao tác listReportCatalogue yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/catalogue thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/catalogue với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/catalogue",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-02",
+      "title": "listReportDrafts (GET /report-engine/drafts): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; thao tác listReportDrafts yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/drafts thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/drafts với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/drafts",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-03",
+      "title": "generateReport (POST /report-engine/drafts): chỉ người giữ quyền rpt.generate qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-01",
+      "oracle_source": "Claim → FR-RPT-01; thao tác generateReport yêu cầu quyền rpt.generate (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/drafts thiếu kiểm quyền rpt.generate hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.generate trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.generate gọi POST /report-engine/drafts với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-01",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/drafts",
+        "method": "POST",
+        "allow": [
+          "rpt-preparer",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-04",
+      "title": "getReportDraft (GET /report-engine/drafts/{id}): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; thao tác getReportDraft yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/drafts/{id} thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/drafts/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/drafts/{id}",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-05",
+      "title": "getReportDraftFile (GET /report-engine/drafts/{id}/files/{format}): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; thao tác getReportDraftFile yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/drafts/{id}/files/{format} thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/drafts/{id}/files/{format} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/drafts/{id}/files/{format}",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-06",
+      "title": "checkReport (POST /report-engine/drafts/{id}/check): chỉ người giữ quyền rpt.check qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-checker",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; thao tác checkReport yêu cầu quyền rpt.check (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/drafts/{id}/check thiếu kiểm quyền rpt.check hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-checker",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.check trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.check gọi POST /report-engine/drafts/{id}/check với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/drafts/{id}/check",
+        "method": "POST",
+        "allow": [
+          "rpt-checker",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-07",
+      "title": "approveReport (POST /report-engine/drafts/{id}/approve): chỉ người giữ quyền rpt.approve qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-approver",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; thao tác approveReport yêu cầu quyền rpt.approve (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/drafts/{id}/approve thiếu kiểm quyền rpt.approve hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-approver",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.approve trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.approve gọi POST /report-engine/drafts/{id}/approve với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/drafts/{id}/approve",
+        "method": "POST",
+        "allow": [
+          "rpt-approver",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-08",
+      "title": "issueReport (POST /report-engine/drafts/{id}/issue): chỉ người giữ quyền rpt.issue qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-approver",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; thao tác issueReport yêu cầu quyền rpt.issue (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/drafts/{id}/issue thiếu kiểm quyền rpt.issue hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-approver",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.issue trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.issue gọi POST /report-engine/drafts/{id}/issue với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/drafts/{id}/issue",
+        "method": "POST",
+        "allow": [
+          "rpt-approver",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-09",
+      "title": "listReportIssues (GET /report-engine/issues): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-03",
+      "oracle_source": "Claim → FR-RPT-03; thao tác listReportIssues yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/issues thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/issues với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-03",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/issues",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-10",
+      "title": "getReportIssue (GET /report-engine/issues/{id}): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-03",
+      "oracle_source": "Claim → FR-RPT-03; thao tác getReportIssue yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/issues/{id} thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/issues/{id} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-03",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/issues/{id}",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-11",
+      "title": "getReportIssueFile (GET /report-engine/issues/{id}/files/{format}): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-03",
+      "oracle_source": "Claim → FR-RPT-03; thao tác getReportIssueFile yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/issues/{id}/files/{format} thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/issues/{id}/files/{format} với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-03",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/issues/{id}/files/{format}",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-12",
+      "title": "deliverReport (POST /report-engine/issues/{id}/deliveries): chỉ người giữ quyền rpt.deliver qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-sender",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-02",
+      "oracle_source": "Claim → FR-RPT-02; thao tác deliverReport yêu cầu quyền rpt.deliver (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/issues/{id}/deliveries thiếu kiểm quyền rpt.deliver hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-sender",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.deliver trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.deliver gọi POST /report-engine/issues/{id}/deliveries với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-02",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/issues/{id}/deliveries",
+        "method": "POST",
+        "allow": [
+          "rpt-sender",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-13",
+      "title": "answerReportDelivery (POST /report-engine/issues/{id}/answers): chỉ người giữ quyền rpt.answer qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-sender",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-04",
+      "oracle_source": "Claim → FR-RPT-04; thao tác answerReportDelivery yêu cầu quyền rpt.answer (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/issues/{id}/answers thiếu kiểm quyền rpt.answer hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-sender",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.answer trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.answer gọi POST /report-engine/issues/{id}/answers với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-04",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/issues/{id}/answers",
+        "method": "POST",
+        "allow": [
+          "rpt-sender",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-14",
+      "title": "listReportDeliveries (GET /report-engine/deliveries): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-04",
+      "oracle_source": "Claim → FR-RPT-04; thao tác listReportDeliveries yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/deliveries thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/deliveries với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-04",
+      "story_ids": [
+        "ST-RPT-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/deliveries",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-15",
+      "title": "listReportPeriodLocks (GET /report-engine/period-locks): chỉ người giữ quyền rpt.lock.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-locker",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-06",
+      "oracle_source": "Claim → FR-RPT-06; thao tác listReportPeriodLocks yêu cầu quyền rpt.lock.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/period-locks thiếu kiểm quyền rpt.lock.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-locker",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.lock.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.lock.read gọi GET /report-engine/period-locks với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-06",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/period-locks",
+        "method": "GET",
+        "allow": [
+          "rpt-locker"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-16",
+      "title": "unlockReportPeriod (POST /report-engine/period-locks/{id}/unlock): chỉ người giữ quyền rpt.lock.unlock qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-locker",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-06",
+      "oracle_source": "Claim → FR-RPT-06; thao tác unlockReportPeriod yêu cầu quyền rpt.lock.unlock (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/period-locks/{id}/unlock thiếu kiểm quyền rpt.lock.unlock hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-locker",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.lock.unlock trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.lock.unlock gọi POST /report-engine/period-locks/{id}/unlock với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-06",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/period-locks/{id}/unlock",
+        "method": "POST",
+        "allow": [
+          "rpt-locker"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-17",
+      "title": "startReportSignature (POST /report-engine/issues/{id}/signature): chỉ người giữ quyền rpt.sign qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-signer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-06",
+      "oracle_source": "Claim → FR-RPT-06; thao tác startReportSignature yêu cầu quyền rpt.sign (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/issues/{id}/signature thiếu kiểm quyền rpt.sign hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-signer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.sign trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.sign gọi POST /report-engine/issues/{id}/signature với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-06",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/issues/{id}/signature",
+        "method": "POST",
+        "allow": [
+          "rpt-signer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-18",
+      "title": "getReportSignature (GET /report-engine/issues/{id}/signature): chỉ người giữ quyền rpt.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-06",
+      "oracle_source": "Claim → FR-RPT-06; thao tác getReportSignature yêu cầu quyền rpt.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/issues/{id}/signature thiếu kiểm quyền rpt.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.read gọi GET /report-engine/issues/{id}/signature với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-06",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/issues/{id}/signature",
+        "method": "GET",
+        "allow": [
+          "rpt-preparer",
+          "rpt-checker",
+          "rpt-approver",
+          "rpt-sender",
+          "rpt-signer",
+          "rpt-locker",
+          "rpt-mailer",
+          "rpt-crosschecker",
+          "rpt-reader",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-19",
+      "title": "completeReportSignature (POST /report-engine/signature-sessions/{id}/completion): chỉ người giữ quyền rpt.sign qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-signer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-06",
+      "oracle_source": "Claim → FR-RPT-06; thao tác completeReportSignature yêu cầu quyền rpt.sign (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/signature-sessions/{id}/completion thiếu kiểm quyền rpt.sign hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-signer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.sign trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.sign gọi POST /report-engine/signature-sessions/{id}/completion với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-06",
+      "story_ids": [
+        "ST-RPT-121"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/signature-sessions/{id}/completion",
+        "method": "POST",
+        "allow": [
+          "rpt-signer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-20",
+      "title": "previewReportLayout (POST /report-engine/layout-previews): chỉ người giữ quyền rpt.generate qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-preparer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-08",
+      "oracle_source": "Claim → FR-RPT-08; thao tác previewReportLayout yêu cầu quyền rpt.generate (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/layout-previews thiếu kiểm quyền rpt.generate hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-preparer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.generate trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.generate gọi POST /report-engine/layout-previews với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-08",
+      "story_ids": [
+        "ST-RPT-131"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/layout-previews",
+        "method": "POST",
+        "allow": [
+          "rpt-preparer",
+          "rpt-all"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-21",
+      "title": "listReportMailSchedules (GET /report-engine/mail-schedules): chỉ người giữ quyền rpt.mail.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-mailer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RML-01",
+      "oracle_source": "Claim → FR-RML-01; thao tác listReportMailSchedules yêu cầu quyền rpt.mail.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/mail-schedules thiếu kiểm quyền rpt.mail.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RML-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-mailer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.mail.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.mail.read gọi GET /report-engine/mail-schedules với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RML-01",
+      "story_ids": [
+        "ST-RML-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/mail-schedules",
+        "method": "GET",
+        "allow": [
+          "rpt-mailer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-22",
+      "title": "createReportMailSchedule (POST /report-engine/mail-schedules): chỉ người giữ quyền rpt.mail.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-mailer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RML-01",
+      "oracle_source": "Claim → FR-RML-01; thao tác createReportMailSchedule yêu cầu quyền rpt.mail.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/mail-schedules thiếu kiểm quyền rpt.mail.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RML-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-mailer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.mail.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.mail.manage gọi POST /report-engine/mail-schedules với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RML-01",
+      "story_ids": [
+        "ST-RML-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/mail-schedules",
+        "method": "POST",
+        "allow": [
+          "rpt-mailer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-23",
+      "title": "listReportMailings (GET /report-engine/mailings): chỉ người giữ quyền rpt.mail.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-mailer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RML-01",
+      "oracle_source": "Claim → FR-RML-01; thao tác listReportMailings yêu cầu quyền rpt.mail.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/mailings thiếu kiểm quyền rpt.mail.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RML-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-mailer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.mail.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.mail.read gọi GET /report-engine/mailings với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RML-01",
+      "story_ids": [
+        "ST-RML-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/mailings",
+        "method": "GET",
+        "allow": [
+          "rpt-mailer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-24",
+      "title": "retireReportMailSchedule (POST /report-engine/mail-schedules/{id}/retire): chỉ người giữ quyền rpt.mail.manage qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-mailer",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RML-01",
+      "oracle_source": "Claim → FR-RML-01; thao tác retireReportMailSchedule yêu cầu quyền rpt.mail.manage (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/mail-schedules/{id}/retire thiếu kiểm quyền rpt.mail.manage hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RML-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-mailer",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.mail.manage trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.mail.manage gọi POST /report-engine/mail-schedules/{id}/retire với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RML-01",
+      "story_ids": [
+        "ST-RML-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/mail-schedules/{id}/retire",
+        "method": "POST",
+        "allow": [
+          "rpt-mailer"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-25",
+      "title": "getReportCrosscheck (GET /report-engine/crosscheck): chỉ người giữ quyền rpt.crosscheck.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-crosschecker",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-09",
+      "oracle_source": "Claim → FR-RPT-09; thao tác getReportCrosscheck yêu cầu quyền rpt.crosscheck.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/crosscheck thiếu kiểm quyền rpt.crosscheck.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-crosschecker",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.crosscheck.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.crosscheck.read gọi GET /report-engine/crosscheck với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-09",
+      "story_ids": [
+        "ST-RPT-141"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/crosscheck",
+        "method": "GET",
+        "allow": [
+          "rpt-crosschecker"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-26",
+      "title": "listCrosscheckExplanations (GET /report-engine/crosscheck/explanations): chỉ người giữ quyền rpt.crosscheck.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-crosschecker",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-09",
+      "oracle_source": "Claim → FR-RPT-09; thao tác listCrosscheckExplanations yêu cầu quyền rpt.crosscheck.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /report-engine/crosscheck/explanations thiếu kiểm quyền rpt.crosscheck.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-crosschecker",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.crosscheck.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.crosscheck.read gọi GET /report-engine/crosscheck/explanations với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-09",
+      "story_ids": [
+        "ST-RPT-141"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/crosscheck/explanations",
+        "method": "GET",
+        "allow": [
+          "rpt-crosschecker"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-RPT-SEC-27",
+      "title": "explainCrosscheckFinding (POST /report-engine/crosscheck/explanations): chỉ người giữ quyền rpt.crosscheck.explain qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "rpt-crosschecker",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-RPT-09",
+      "oracle_source": "Claim → FR-RPT-09; thao tác explainCrosscheckFinding yêu cầu quyền rpt.crosscheck.explain (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /report-engine/crosscheck/explanations thiếu kiểm quyền rpt.crosscheck.explain hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-RPT-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "rpt-crosschecker",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ rpt.crosscheck.explain trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ rpt.crosscheck.explain gọi POST /report-engine/crosscheck/explanations với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "RPT-09",
+      "story_ids": [
+        "ST-RPT-141"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "RPT",
+      "access": {
+        "url": "/report-engine/crosscheck/explanations",
+        "method": "POST",
+        "allow": [
+          "rpt-crosschecker"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    }
+  ]
+}

@@ -4,7 +4,7 @@ Giai đoạn 3 (sản phẩm: kịch bản kiểm thử) và giai đoạn 4 (bi�
 
 Tệp này nối mỗi mã yêu cầu của hồ sơ kỹ thuật với (a) kiểm thử tích hợp hệ thống (SIT) mà nhà cung cấp chạy tự động trong kho mã, (b) ca UAT của các đầu mối trong `docs/uat/<phân hệ>/uat.json`, (c) khoảng trống kiểm thử đã biết. Tệp không chứa kết quả chạy: kết quả chỉ có giá trị khi sinh từ lượt chạy có bằng chứng (mục 5).
 
-Trạng thái tệp: v0.2, rà soát ngày 2026-11-12 sau khi các làn ENT-3a đến ENT-3e, ENT-4a đến ENT-4e, INFRA-2 và DOC-3 đã gộp vào main. Phần SIT của các làn đó đã có tệp kiểm thử (cột SIT của mục 3). Kịch bản chưa được Tổ chuẩn hóa dữ liệu duyệt (phiếu giai đoạn 3, PX-12). Phần UAT của bản enterprise chưa chuyển hết thành `uat.json`: 399 trên 1496 ca của bộ thiết kế chưa có trong `docs/uat` (mục 4).
+Trạng thái tệp: v0.2, rà soát ngày 2026-11-12 sau khi các làn ENT-3a đến ENT-3e, ENT-4a đến ENT-4e, INFRA-2 và DOC-3 đã gộp vào main. Phần SIT của các làn đó đã có tệp kiểm thử (cột SIT của mục 3). Kịch bản chưa được Tổ chuẩn hóa dữ liệu duyệt (phiếu giai đoạn 3, PX-12). Ca UAT của tám phân hệ enterprise (IND, RPT, DIR, HPM, EBS, HUB, INT, ENT) đã có trong `docs/uat/<phân hệ>/uat.json` từ 2026-11-12: 339 ca, trong đó 198 chạy tự động trên bản enterprise (`apps/api/test/uat`) và 141 làm tay kèm lý do; chưa có lượt chạy UAT được công nhận trên bản đã gộp.
 
 ---
 

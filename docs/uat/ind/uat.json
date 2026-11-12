@@ -1,0 +1,1753 @@
+{
+  "feature": "ind",
+  "generated_at": "2026-11-12T05:18:23.645Z",
+  "platform_contract": "docs/uat/_platform.json",
+  "domain_pack": "docs/uat/_domain-pack.md",
+  "coverage_ledger": "docs/uat/ind/_coverage-ledger.md",
+  "evidence_profile": "signoff",
+  "test_cases": [
+    {
+      "tc_id": "TC-UAT-PLAN-IND-1",
+      "title": "UAT-PLAN-IND-1: Read the dictionary and the entry rules",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-FR-IND-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01, FR-IND-02; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-IND-1 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-IND-1 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-IND-01",
+        "COV-FR-IND-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Starting dictionary of the platform, no approved entry rule, a tenant rule that blocks a cumulative above the total investment.\n1. Read the dictionary and the entry rules\n2. Try CUMULATIVE 9 against TOTAL_INVESTMENT 1 with and without templates\n3. Approve the rule and try again",
+      "expected": "Step 1: derived indicators are not enterable and the starting rules are templates; step 2: allowed without templates, blocked with them; step 3: blocked by the approved rule only.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001",
+        "ST-IND-002"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-IND-2",
+      "title": "UAT-PLAN-IND-2: Enter equity 400, loan 500, total 1000",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-FR-IND-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01, FR-IND-02; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-IND-2 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-IND-2 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-IND-01",
+        "COV-FR-IND-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Project, open period, locked period, rules: equity plus loan equals total (block), progress above 90 percent (warn).\n1. Enter equity 400, loan 500, total 1000\n2. Enter equity 400, loan 600, total 1000 and progress 95\n3. Enter the same plan figure again\n4. Enter a different plan figure without a reason, then with one\n5. Enter into the locked period",
+      "expected": "Step 1: 422 IND_ENTRY_RULE_VIOLATED and nothing written; step 2: revision 1 with the warning in the audit trail; step 3: unchanged; step 4: 422 on reason, then revision 2; step 5: 409 PERIOD_LOCKED.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001",
+        "ST-IND-002"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-IND-3",
+      "title": "UAT-PLAN-IND-3: Dry run F-1 through the sample mapping",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-FR-IND-03",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-03",
+      "oracle_source": "Claim → FR-IND-03; kỳ vọng nguyên văn của ca thiết kế UAT-PLAN-IND-3 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Hành vi của UAT-PLAN-IND-3 khác kết quả mong đợi của thiết kế",
+      "coverage_ids": [
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Form file F-1 with 5 rows (one project outside the scope, one unknown period, one blocked by a rule, one with a number that differs from the held one), layout flagged PENDING-EXTERNAL.\n1. Dry run F-1 through the sample mapping\n2. Dry run and apply F-1 through the approved mapping\n3. Apply F-1 again",
+      "expected": "Step 1: 409 IND_MAPPING_NOT_APPROVED; step 2: dry run writes nothing, apply writes the valid figures with the file, line and mapping version, the refused rows are in the error report with line, field and code and the differing number is a difference; step 3: already loaded.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "IND-03",
+      "story_ids": [
+        "ST-IND-003"
+      ],
+      "tags": [
+        "design-case",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UI-IND-01",
+      "title": "Từ điển chỉ tiêu (IND-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ind-admin",
+      "journey_ref": "J-FR-IND-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; kỳ vọng nguyên văn của ca thiết kế UI-IND-01 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình IND-01 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Từ điển chỉ tiêu; user có quyền và user chỉ đọc; route IND-01\n1. Mở IND-01 từ menu và deep link; kiểm nhãn trường: Mã chỉ tiêu, Tên, Đơn vị, Nhóm, Cách có số, Công thức, Người phụ trách, Phiên bản, Trạng thái xác nhận\n2. Thực hiện thao tác chính: lọc từ điển, mở chi tiết, nhập một số liệu và sửa có lý do\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên IND-01",
+      "expected": "Từ điển chỉ tiêu: hiển thị đúng 9 trường, giá trị khởi điểm ghi rõ chưa xác nhận, chỉ tiêu do hệ thống tính không có ô nhập; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001",
+        "ST-IND-002"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UI-IND-02",
+      "title": "Quy tắc nhập liệu (IND-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ind-admin",
+      "journey_ref": "J-FR-IND-02",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-02",
+      "oracle_source": "Claim → FR-IND-02; kỳ vọng nguyên văn của ca thiết kế UI-IND-02 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình IND-02 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-IND-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Quy tắc nhập liệu; user có quyền và user chỉ đọc; route IND-02\n1. Mở IND-02 từ menu và deep link; kiểm nhãn trường: Mã quy tắc, Loại kiểm tra, Mức, Trường, Nơi áp dụng, Hiệu lực, Phiên bản, Chạy thử\n2. Thực hiện thao tác chính: chạy thử một bộ số liệu có và không có quy tắc khởi điểm\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên IND-02",
+      "expected": "Quy tắc nhập liệu: hiển thị đúng 8 trường, quy tắc khởi điểm ghi là khuôn chưa áp dụng, kết quả chạy thử nêu từng quy tắc và lý do; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "IND-02",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UI-IND-03",
+      "title": "Bảng ánh xạ nhập Excel (IND-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "persona": "ind-admin",
+      "journey_ref": "J-FR-IND-03",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-03",
+      "oracle_source": "Claim → FR-IND-03; kỳ vọng nguyên văn của ca thiết kế UI-IND-03 (Design/MACHVON_Design/03_Engineering/test_cases.json)",
+      "catches_bug": "Màn hình IND-03 sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic của Bảng ánh xạ nhập Excel; user có quyền và user chỉ đọc; route IND-03\n1. Mở IND-03 từ menu và deep link; kiểm nhãn trường: Mã bảng, Cách bố trí, Dòng ánh xạ, Phiên bản, Người lập, Người duyệt, Hiệu lực, Chạy thử và áp dụng tệp, Lịch sử nhập\n2. Thực hiện thao tác chính: tải tệp, chọn bảng ánh xạ, chạy thử rồi áp dụng\n3. Kiểm 7 trạng thái (loading, populated, empty, validation error, service error, permission denied, stale) và thao tác bị ẩn khi thiếu quyền trên IND-03",
+      "expected": "Bảng ánh xạ nhập Excel: hiển thị đúng 9 trường, bảng mẫu ghi là khuôn chưa dùng được để đọc tệp, chạy thử không ghi gì, dòng bị từ chối nêu dòng, trường và mã; không action ngoài quyền; token/component theo mockup (D-B11)",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "IND-03",
+      "story_ids": [
+        "ST-IND-003"
+      ],
+      "tags": [
+        "screen-contract",
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UAT-IND-E2E-01",
+      "title": "Nhập chỉ tiêu thành bản 1, sửa cần lý do thành bản 2; lịch sử, nhật ký kiểm toán và outbox giữ cả hai, lý do không nằm trong safe_diff",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Sửa số liệu ghi đè mất bản cũ, hoặc lý do sửa lọt vào nhật ký kiểm toán dạng rõ",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, edition enterprise; dự án P và kỳ mở; người nhập có ind.entry\n1. Nhập PLAN_YEAR 1000 và PHYSICAL_PROGRESS_REPORTED 12,5\n2. Nhập PLAN_YEAR 1200 không lý do\n3. Nhập 1200 kèm lý do\n4. Đọc lịch sử, kiểm toán ind.figure_revised và sự kiện ind.figure.entered.v1",
+      "expected": "Bước 1: ENTERED, created 2. Bước 2: 422 VALIDATION_FAILED, detail reason. Bước 3: revised 1. Bước 4: lịch sử [[2,1200],[1,1000]]; safe_diff có revision 2, value 1200, with_reason true và không chứa chữ của lý do; các sự kiện có aggregate_version 1, 1, 2.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ind.uat.test.ts"
+      },
+      "module": "IND",
+      "db_assert": {
+        "query": "SELECT count(*) FROM machvon.ind_figure WHERE indicator_code = 'PLAN_YEAR'",
+        "expect": {
+          "min_rows": 1
+        }
+      },
+      "audit_assert": {
+        "entity": "ind_figure",
+        "entity_id": "<id số liệu>",
+        "action": "ind.figure_revised",
+        "fields": [
+          "actor_id",
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-IDM-01",
+      "title": "Nhập lại đúng số cũ không đổi gì: không bản mới, không sự kiện, kết quả nói unchanged",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Nhập lại đúng số cũ tạo bản mới làm lịch sử phình và sự kiện trùng",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; PLAN_YEAR 1000 đã nhập\n1. Nhập lại PLAN_YEAR 1000\n2. Đọc số liệu hiện hành và sự kiện",
+      "expected": "created 0, revised 0, unchanged 1; vẫn một bản và một sự kiện ind.figure.entered.v1.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ind.uat.test.ts"
+      },
+      "module": "IND",
+      "idempotency": {
+        "url": "/indicator-figures",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "figures": [
+            {
+              "indicator_code": "PLAN_YEAR",
+              "value": "1000"
+            }
+          ]
+        },
+        "count_query": "SELECT count(*) FROM machvon.ind_figure WHERE indicator_code = 'PLAN_YEAR'",
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-EDG-01",
+      "title": "Chỉ tiêu do hệ thống tính, chỉ tiêu lạ, chỉ tiêu lặp, số thập phân cho đơn vị đồng, dấu phẩy và danh sách rỗng bị từ chối 422 và nêu đúng trường",
+      "type": "EDGE",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Cho nhập chỉ tiêu dẫn xuất, hoặc báo lỗi 422 chung chung không nêu trường sai",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; kỳ mở\n1. Nhập RATE_YEAR_IN_FORCE\n2. Nhập NO_SUCH_CODE\n3. Nhập PLAN_YEAR hai lần\n4. Nhập PLAN_YEAR 5,5 và \"1,5\"\n5. Nhập danh sách rỗng",
+      "expected": "Mọi bước 422; detail lần lượt figures[0].indicator_code, figures[0].indicator_code, figures[1].indicator_code, figures[0].value; không bản ghi nào được tạo.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ind.uat.test.ts"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UAT-IND-STA-01",
+      "title": "Kỳ đã khóa không nhận số liệu (409 PERIOD_LOCKED); người chỉ đọc không nhập được (403); không ghi gì",
+      "type": "STATE",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Nhập số vào kỳ đã chốt làm lệch bản chốt",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; một kỳ LOCKED và một kỳ OPEN\n1. Nhập vào kỳ khóa\n2. Người chỉ đọc nhập vào kỳ mở",
+      "expected": "Bước 1: 409 PERIOD_LOCKED. Bước 2: 403. Không số liệu nào của dự án.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ind.uat.test.ts"
+      },
+      "module": "IND",
+      "transition": {
+        "from": "LOCKED",
+        "to": "ENTERED",
+        "allowed": false
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-DAT-01",
+      "title": "Quy tắc nhập liệu đã duyệt chặn bằng 422 IND_ENTRY_RULE_VIOLATED nêu tên quy tắc và không ghi gì; quy tắc cảnh báo cho qua và có dòng kiểm toán",
+      "type": "DATA",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-02",
+      "oracle_source": "Claim → FR-IND-02; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Quy tắc đã duyệt không được áp, hoặc cảnh báo không để lại dấu vết",
+      "coverage_ids": [
+        "COV-FR-IND-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; quy tắc BLOCK vốn tự có cộng vay bằng tổng và quy tắc WARN tiến độ trên 90 phần trăm đã được hai người duyệt\n1. Nhập vốn tự có 400, vay 500, tổng 1000\n2. Nhập 400, 600, 1000 và tiến độ 95",
+      "expected": "Bước 1: 422 IND_ENTRY_RULE_VIOLATED, detail EQUITY_PLUS_DEBT_EQUALS_TOTAL, nêu thông điệp của quy tắc, không số liệu. Bước 2: 200, warnings [PROGRESS_WARNING], kiểm toán ind.entry_warned.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "IND-02",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ind.uat.test.ts"
+      },
+      "module": "IND",
+      "audit_assert": {
+        "entity": "project",
+        "entity_id": "<id dự án>",
+        "action": "ind.entry_warned",
+        "fields": [
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-E2E-02",
+      "title": "Nhập biểu Excel: bị từ chối khi chưa có ánh xạ được duyệt, rồi đọc qua ánh xạ đã duyệt: chạy thử không ghi, áp dụng một lần theo băm, giữ dòng và phiên bản ánh xạ",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-IMPORT-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-03",
+      "oracle_source": "Claim → FR-IND-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đọc tệp bằng ánh xạ chưa duyệt, hoặc áp dụng hai lần cùng tệp",
+      "coverage_ids": [
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; tệp CSV một dòng; ánh xạ MONTHLY_FORM được hai người duyệt sau khi thử lần đầu\n1. Xem trước bằng ánh xạ mẫu SAMPLE_COLUMNS_FORM\n2. Duyệt ánh xạ MONTHLY_FORM và tải tệp lên cổng\n3. Chạy thử\n4. Áp dụng\n5. Áp dụng lần hai",
+      "expected": "Bước 1: 409 IND_MAPPING_NOT_APPROVED. Bước 2: fitting_mappings [MONTHLY_FORM]. Bước 3: DRY_RUN, không số liệu. Bước 4: APPLIED, figures_written 4, mỗi số có source IMPORT, mapping_code, mapping_version, import_line. Bước 5: 409 IMPORT_FILE_ALREADY_APPLIED. Có dòng kiểm toán ind.import_applied.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "IND-03",
+      "story_ids": [
+        "ST-IND-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ind.uat.test.ts"
+      },
+      "module": "IND",
+      "audit_assert": {
+        "entity": "file_import",
+        "entity_id": "<id lần nhập>",
+        "action": "ind.import_applied",
+        "fields": [
+          "safe_diff"
+        ],
+        "expect_rows": 1
+      },
+      "idempotency": {
+        "url": "/indicator-imports",
+        "method": "POST",
+        "key_header": "Idempotency-Key",
+        "concurrency": 5,
+        "body": {
+          "mapping_code": "MONTHLY_FORM",
+          "file_object_key": "<khóa>",
+          "file_sha256": "<băm>"
+        },
+        "count_query": "SELECT count(*) FROM machvon.ind_figure WHERE source = 'IMPORT' AND mapping_code = 'MONTHLY_FORM'",
+        "expect_rows": 4
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-ISO-01",
+      "title": "Thành viên tenant khác không nhập được số liệu cho dự án của tenant này (404) và đọc danh sách số liệu rỗng",
+      "type": "SECURITY",
+      "platform": "api",
+      "persona": "ind-reader",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Nhập hoặc đọc số liệu dự án của tenant khác (IDOR)",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có dự án P và kỳ K; tenant B có quản trị chỉ tiêu\n1. Tenant B nhập số cho P\n2. Tenant B đọc số liệu của P\n3. Tenant B đọc từ điển",
+      "expected": "Bước 1: 404. Bước 2: rỗng. Bước 3: 200 (từ điển của chính tenant B).",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/ind.uat.test.ts"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-figures?project_id={id}",
+        "method": "GET",
+        "allow": [
+          "ind-reader",
+          "ind-admin"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "PLAN_YEAR"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SCP-01",
+      "title": "Người nhập có quyền trên một đơn vị chỉ nhập cho dự án của đơn vị đó; dự án đơn vị khác 404 và danh sách rỗng",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-ISOL-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Người nhập một đơn vị ghi được cho dự án của đơn vị khác",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; người nhập UNIT_SUBTREE của phòng A; dự án của phòng A và phòng B\n1. Nhập cho dự án phòng B\n2. Nhập cho dự án phòng A\n3. Đọc lịch sử dự án phòng B",
+      "expected": "Bước 1: 404. Bước 2: 200. Bước 3: 404.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Suite dùng grant theo cả tenant; phạm vi đơn vị đã có ở apps/api/test/ind/ind.test.ts, chưa nối vào world của UAT"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-figures",
+        "method": "POST",
+        "allow": [
+          "ind-admin"
+        ],
+        "deny_status": [
+          401,
+          403,
+          404
+        ],
+        "must_not_contain": [
+          "PLAN_YEAR"
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-BND-01",
+      "title": "Biên giá trị chỉ tiêu: tiến độ 0, 100, 100,01 và -0,01; số tiền 0 và số rất lớn; ký tự thập phân theo định dạng VN",
+      "type": "BOUNDARY",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Ngưỡng phần trăm hoặc định dạng số kiểu Việt Nam sai",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A; chỉ tiêu PHYSICAL_PROGRESS_REPORTED (phần trăm) và PLAN_YEAR (đồng)\n1. Nhập từng giá trị biên\n2. Đọc kết quả",
+      "expected": "0 và 100 nhận; 100,01 và -0,01 bị 422 nêu trường value; số tiền lưu đúng đến đồng.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa chốt bảng giá trị biên với Tổ chuẩn hóa dữ liệu (PX-02: từ điển chỉ tiêu và quy tắc nhập liệu do khách chốt)"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UAT-IND-PRF-01",
+      "title": "Đọc số liệu chỉ tiêu của một kỳ trả lời trong 5 giây ở phân vị 95 với 22 dự án và 200 chỉ tiêu",
+      "type": "PERFORMANCE",
+      "platform": "api",
+      "persona": "ind-reader",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P2",
+      "severity_if_fail": "S3",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Yêu cầu của khách: mọi chức năng phản hồi dưới 5 giây, đo bằng phân vị 95 (docs/qa/perf-budget.json, lớp FUNCTION; HSKT HT.05; đo trên phần cứng khách là PX-10)",
+      "catches_bug": "Truy vấn số liệu hiện hành quét cả lịch sử bản sửa",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-reader",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A có 22 dự án và 200 chỉ tiêu, mỗi số có 3 bản sửa\n1. Gọi GET /indicator-figures?project_id=...&period_id=... hai mươi lần sau ba lần khởi động",
+      "expected": "p95 không quá 5.000 ms, không lỗi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "performance",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần bộ dữ liệu; chưa có bộ sinh số liệu chỉ tiêu"
+      },
+      "module": "IND",
+      "perf_budget": {
+        "url": "/indicator-figures?project_id={id}&period_id={id}",
+        "method": "GET",
+        "p95_ms": 5000,
+        "sample": 20,
+        "warmup": 3,
+        "max_error_rate": 0
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-A11-01",
+      "title": "Ba màn IND đạt WCAG 2.2 AA: ô nhập số có nhãn và lỗi gắn với ô, kết quả chạy thử đọc được từng dòng, bảng ánh xạ có tiêu đề",
+      "type": "A11Y",
+      "platform": "web",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01, FR-IND-02, FR-IND-03; quy tắc của màn hình và thao tác trong thiết kế (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Lỗi nhập không gắn với ô, ô khóa của chỉ tiêu dẫn xuất không được thông báo",
+      "coverage_ids": [
+        "COV-FR-IND-01",
+        "COV-FR-IND-02",
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Bản enterprise; dữ liệu có chỉ tiêu dẫn xuất và quy tắc khuôn\n1. Chạy axe ở 1280 px và 360 px\n2. Nhập số sai và đọc lỗi bằng trình đọc màn hình",
+      "expected": "Không lỗi axe nghiêm trọng hoặc cao; ô khóa có giải thích; lỗi gắn aria-describedby.",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "accessibility",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001",
+        "ST-IND-003"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UAT-IND-PX-01",
+      "title": "PENDING-EXTERNAL PX-02: giá trị khởi điểm và quy tắc khuôn chưa được duyệt nên không tính là đạt",
+      "type": "E2E",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-IND-ENTRY-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Statute",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Sổ việc phụ thuộc khách PX-02 (docs/delivery/11-pending-external-register.md): từ điển chỉ tiêu và quy tắc nhập liệu do Tổ chuẩn hóa dữ liệu thống nhất",
+      "catches_bug": "Báo cáo nghiệm thu tính đạt cho từ điển khởi điểm chưa được khách chốt",
+      "coverage_ids": [
+        "COV-FR-IND-01",
+        "COV-FR-IND-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A chưa duyệt quy tắc riêng\n1. Mở IND-01 và IND-02\n2. Đọc cột origin, unverified, active",
+      "expected": "Chỉ tiêu và quy tắc khởi điểm ghi origin DEFAULT, unverified true; quy tắc khuôn active false; băng chưa xác nhận hiển thị.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "business",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Chờ Tổ chuẩn hóa dữ liệu của khách thống nhất từ điển chỉ tiêu (PX-02)"
+      },
+      "module": "IND"
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-01",
+      "title": "listIndicators (GET /indicators): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; thao tác listIndicators yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicators thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicators với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicators",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-02",
+      "title": "getIndicator (GET /indicators/detail): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; thao tác getIndicator yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicators/detail thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicators/detail với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicators/detail",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-03",
+      "title": "listIndicatorEntryRules (GET /indicator-entry-rules): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-02",
+      "oracle_source": "Claim → FR-IND-02; thao tác listIndicatorEntryRules yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicator-entry-rules thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicator-entry-rules với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-02",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-entry-rules",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-04",
+      "title": "evaluateIndicatorEntry (POST /indicator-entry-rules/evaluate): chỉ người giữ quyền ind.entry qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; thao tác evaluateIndicatorEntry yêu cầu quyền ind.entry (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /indicator-entry-rules/evaluate thiếu kiểm quyền ind.entry hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.entry trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.entry gọi POST /indicator-entry-rules/evaluate với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-entry-rules/evaluate",
+        "method": "POST",
+        "allow": [
+          "ind-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-05",
+      "title": "listIndicatorImportMappings (GET /indicator-import-mappings): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-03",
+      "oracle_source": "Claim → FR-IND-03; thao tác listIndicatorImportMappings yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicator-import-mappings thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicator-import-mappings với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-03",
+      "story_ids": [
+        "ST-IND-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-import-mappings",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-06",
+      "title": "getIndicatorImportMapping (GET /indicator-import-mappings/detail): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-03",
+      "oracle_source": "Claim → FR-IND-03; thao tác getIndicatorImportMapping yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicator-import-mappings/detail thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicator-import-mappings/detail với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-03",
+      "story_ids": [
+        "ST-IND-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-import-mappings/detail",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-07",
+      "title": "enterIndicatorFigures (POST /indicator-figures): chỉ người giữ quyền ind.entry qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; thao tác enterIndicatorFigures yêu cầu quyền ind.entry (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /indicator-figures thiếu kiểm quyền ind.entry hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.entry trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.entry gọi POST /indicator-figures với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-figures",
+        "method": "POST",
+        "allow": [
+          "ind-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-08",
+      "title": "listIndicatorFigures (GET /indicator-figures): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; thao tác listIndicatorFigures yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicator-figures thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicator-figures với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-figures",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-09",
+      "title": "listIndicatorFigureHistory (GET /indicator-figures/history): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; thao tác listIndicatorFigureHistory yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicator-figures/history thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicator-figures/history với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-002"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-figures/history",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-10",
+      "title": "uploadIndicatorFile (POST /indicator-imports/files): chỉ người giữ quyền ind.import.preview qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; thao tác uploadIndicatorFile yêu cầu quyền ind.import.preview (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /indicator-imports/files thiếu kiểm quyền ind.import.preview hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.import.preview trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.import.preview gọi POST /indicator-imports/files với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-imports/files",
+        "method": "POST",
+        "allow": [
+          "ind-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-11",
+      "title": "previewIndicatorImport (POST /indicator-imports/preview): chỉ người giữ quyền ind.import.preview qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-03",
+      "oracle_source": "Claim → FR-IND-03; thao tác previewIndicatorImport yêu cầu quyền ind.import.preview (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /indicator-imports/preview thiếu kiểm quyền ind.import.preview hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.import.preview trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.import.preview gọi POST /indicator-imports/preview với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-03",
+      "story_ids": [
+        "ST-IND-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-imports/preview",
+        "method": "POST",
+        "allow": [
+          "ind-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-12",
+      "title": "importIndicatorFile (POST /indicator-imports): chỉ người giữ quyền ind.import qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-01",
+      "oracle_source": "Claim → FR-IND-01; thao tác importIndicatorFile yêu cầu quyền ind.import (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường POST /indicator-imports thiếu kiểm quyền ind.import hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.import trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.import gọi POST /indicator-imports với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-01",
+      "story_ids": [
+        "ST-IND-001"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-imports",
+        "method": "POST",
+        "allow": [
+          "ind-admin"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-13",
+      "title": "listIndicatorImports (GET /indicator-imports): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-03",
+      "oracle_source": "Claim → FR-IND-03; thao tác listIndicatorImports yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicator-imports thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicator-imports với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-03",
+      "story_ids": [
+        "ST-IND-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-imports",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    },
+    {
+      "tc_id": "TC-UAT-IND-SEC-14",
+      "title": "listIndicatorImportRows (GET /indicator-imports/rows): chỉ người giữ quyền ind.read qua được cửa quyền, người giữ mọi quyền khác của các phân hệ thì bị 403",
+      "type": "PERMISSIONS",
+      "platform": "api",
+      "persona": "ind-admin",
+      "journey_ref": "J-AUTHZ-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-IND-03",
+      "oracle_source": "Claim → FR-IND-03; thao tác listIndicatorImportRows yêu cầu quyền ind.read (x-permission trong openapi.json) (Design/MACHVON_Design/03_Engineering/openapi.json, screen_catalog.json)",
+      "catches_bug": "Đường GET /indicator-imports/rows thiếu kiểm quyền ind.read hoặc cho người giữ quyền khác đi qua",
+      "coverage_ids": [
+        "COV-FR-IND-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "ind-admin",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "steps": "Chuẩn bị: Tenant A, bản enterprise; một người chỉ giữ ind.read trên cả tenant; một người giữ mọi quyền khác của các phân hệ IND, RPT, DIR, HPM, EBS, HUB, INT và ENT\n1. Người giữ ind.read gọi GET /indicator-imports/rows với thân rỗng và id không tồn tại\n2. Người giữ mọi quyền khác gọi cùng yêu cầu",
+      "expected": "Bước 1: không phải 403 vì quyền (có thể 400, 404, 409 hoặc 422 vì thân rỗng hoặc id không tồn tại; không 401, không 5xx, đường có thật). Bước 2: 403 với mã PERMISSION_DENIED hoặc SCOPE_DENIED; không ghi gì.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "security",
+      "screen_id": "IND-03",
+      "story_ids": [
+        "ST-IND-003"
+      ],
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/enterprise-authz.uat.test.ts",
+        "registry": "apps/api/test/uat/enterprise-uat-ops.json"
+      },
+      "module": "IND",
+      "access": {
+        "url": "/indicator-imports/rows",
+        "method": "GET",
+        "allow": [
+          "ind-admin",
+          "ind-reader"
+        ],
+        "deny_status": [
+          401,
+          403
+        ]
+      }
+    }
+  ]
+}

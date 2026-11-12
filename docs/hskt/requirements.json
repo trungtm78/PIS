@@ -1578,17 +1578,30 @@
       "status": "PARTIAL",
       "evidence": {
         "docs": [
+          "docs/UAT-COVERAGE.md",
           "docs/delivery/05-sit-uat-scripts.md",
           "docs/uat/INDEX.md",
           "docs/UAT-COVERAGE.md",
-          "docs/uat/RUN-2026-11-09-r2.md"
+          "docs/uat/RUN-2026-11-09-r2.md",
+          "docs/uat/ent/uat.json"
         ],
         "stories": [
           "ST-KERNEL-090",
           "ST-KERNEL-091"
+        ],
+        "tests": [
+          "apps/api/test/uat/enterprise-authz.uat.test.ts",
+          "apps/api/test/uat/hpm.uat.test.ts",
+          "apps/api/test/uat/ebs.uat.test.ts",
+          "apps/api/test/uat/dir.uat.test.ts",
+          "apps/api/test/uat/ind.uat.test.ts",
+          "apps/api/test/uat/int.uat.test.ts",
+          "apps/api/test/uat/hub.uat.test.ts",
+          "apps/api/test/uat/rpt.uat.test.ts",
+          "apps/api/test/uat/ent.uat.test.ts"
         ]
       },
-      "gap": "Kịch bản SIT theo từng mã yêu cầu có tệp kiểm thử thật (05 v0.2). UAT: 1097 trong 1496 ca thiết kế đã thành ca UAT (docs/uat/<phân hệ>/uat.json, 26 thư mục); còn 399 ca (133 UAT-PLAN, 266 ca UI của màn mới) và các phân hệ chưa có thư mục (VND, RPT, PWA, BAN, INT, FEED, HUB, DIR, PORTAL, IND, EQP, HPM, EBS, ORG, RML) do nhà cung cấp sinh tiếp; chỉ 2 trong 26 phân hệ đạt sàn TC_min. Chưa có bản trên môi trường UAT của PVFCCo (PX-11) và kịch bản chưa được PVFCCo duyệt (PX-12).",
+      "gap": "Kịch bản có theo 34 phân hệ trong docs/uat/<phân hệ>/uat.json; tám phân hệ của bản enterprise (IND, RPT, DIR, HPM, EBS, HUB, INT, ENT) có từ 2026-11-12: 339 ca, trong đó 198 chạy tự động trên bản enterprise (apps/api/test/uat) và 141 làm tay kèm lý do (cần phần cứng khách, tài liệu của khách, đồng hồ giả hoặc trình duyệt). Còn thiếu thư mục cho BAN, FEED, FND, VND và 306 ca thiết kế của phân hệ khác chưa chuyển sang handoff; phần mềm lên môi trường UAT của khách chờ hạ tầng (PX-11).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1603,17 +1616,19 @@
       "status": "PARTIAL",
       "evidence": {
         "docs": [
+          "docs/UAT-EVIDENCE.md",
           "docs/delivery/05-sit-uat-scripts.md",
           "docs/delivery/09-acceptance-minutes-template.md",
           "docs/UAT-EVIDENCE.md",
           "docs/runbooks/uat-evidence.md",
-          "docs/uat/RUN-2026-11-09-r2.md"
+          "docs/uat/RUN-2026-11-09-r2.md",
+          "docs/uat/INDEX.md"
         ],
         "stories": [
           "ST-KERNEL-095"
         ]
       },
-      "gap": "Đã có lượt chạy UAT phát triển r2 trên bản đã gồm các làn ENT-3, ENT-4 (docs/uat/RUN-2026-11-09-r2.md) và bằng chứng sinh tự động (docs/UAT-EVIDENCE.md: 63 trong 676 dòng yêu cầu PASS, 611 NOT_RUN); không tính vào nghiệm thu. Còn: lượt UAT ký được trên bản đã gộp, chạy trên UAT của PVFCCo cùng các đầu mối (PX-11), biên bản UAT mẫu (09) ký (PX-12).",
+      "gap": "Chưa chạy UAT bản enterprise sau khi gộp các làn ENT-3 và ENT-4 (làn uatent đã viết ca và kịch bản chạy được, chạy từng bộ trên cây của làn: các bộ đạt, nhưng đó là bằng chứng phát triển, không phải lượt UAT trên bản đã gộp); mục dựng trên giả định ghi PENDING-EXTERNAL, không tính đạt (R18).",
       "owners": [
         "DELIVERY-1"
       ],
@@ -1783,13 +1798,14 @@
       "status": "PARTIAL",
       "evidence": {
         "docs": [
+          "docs/UAT-EVIDENCE.md",
           "docs/delivery/05-sit-uat-scripts.md",
           "docs/delivery/09-acceptance-minutes-template.md",
           "docs/uat/INDEX.md",
           "docs/uat/RUN-2026-11-09-r2.md"
         ]
       },
-      "gap": "Kịch bản SIT và UAT cùng mẫu biên bản có (05, 09 v0.2); còn 399 ca thiết kế chưa thành uat.json và các phân hệ chưa có thư mục UAT (xem GD.3); biên bản UAT thật cần lượt chạy ký được trên bản đã gộp, tại UAT của PVFCCo, rồi PVFCCo ký (PX-12).",
+      "gap": "Kịch bản (34 phân hệ, gồm tám phân hệ enterprise) và mẫu biên bản có; biên bản UAT thật cần chạy UAT trên bản đã gộp.",
       "owners": [
         "DELIVERY-1"
       ],
