@@ -1,0 +1,851 @@
+{
+  "edition": "enterprise",
+  "plannedCases": 448,
+  "executed": 448,
+  "pass": 389,
+  "fail": 59,
+  "skipped": 0,
+  "passWithApiRequests": 383,
+  "failingCasesByClause": {
+    "fields": 58,
+    "order": 2
+  },
+  "findingsByClause": {
+    "fields": 58,
+    "order": 2
+  },
+  "casesFailingOnlyOnSmallText": 0,
+  "casesFailingOnlyOnSmallTextOrFields": 57,
+  "negativeControls": [
+    {
+      "name": "a page that keeps the contract has no finding",
+      "status": "passed"
+    },
+    {
+      "name": "a page built to break the contract is red on every clause the browser decides",
+      "status": "passed"
+    }
+  ],
+  "notDecided": [
+    [
+      "dữ liệu/validation theo Module_Implementation_Contracts và F...",
+      261
+    ],
+    [
+      "fields: no record or form on the seeded data",
+      119
+    ],
+    [
+      "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      54
+    ],
+    [
+      "permission: screen of every user",
+      13
+    ],
+    [
+      "không mất dữ liệu nhập khi 409",
+      11
+    ],
+    [
+      "không hiện số 0 khi chưa đọc được số liệu",
+      8
+    ],
+    [
+      "the rule applied",
+      5
+    ],
+    [
+      "the PENDING-EXTERNAL band visible",
+      5
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (DOA_MATRIX_INVALID (GAP/OVER...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (REORG_MAPPING_INCOMPLETE, SE...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (GUEST_SCOPE_INVALID, CONTRAC...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (APPROVER_NOT_AUTHORIZED, TAS...",
+      1
+    ],
+    [
+      "áp quy tắc \"Hiển thị số tồn tại trọng yếu chưa đóng\"",
+      1
+    ],
+    [
+      "áp quy tắc \"Không nhận khi còn tồn tại CRITICAL; CRITICAL kh...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tổng giá trị tài sản không vượt giá trị hợp đồng...",
+      1
+    ],
+    [
+      "áp quy tắc \"Thời hạn tối thiểu theo rule [CXN-EXE-04]; hết h...",
+      1
+    ],
+    [
+      "áp quy tắc \"Quá hạn phản hồi tạo vướng mắc; xác nhận độc lập...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ liên kết tài sản đã chuyển giao\"",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ đặt kích hoạt; việc đánh giá do MNE thực hiệ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tỷ lệ = Σ đã thu hồi / Σ kiến nghị tài chính tro...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ thấy cuộc có phạm vi giao với scope của mình...",
+      1
+    ],
+    [
+      "áp quy tắc \"Bắt đầu cuộc đặt legal hold trên phạm vi; quyết ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Kết luận sửa đổi tạo revision mới; Σ kiến nghị t...",
+      1
+    ],
+    [
+      "áp quy tắc \"Dự án/hợp đồng phải cùng tenant và trong phạm vi...",
+      1
+    ],
+    [
+      "áp quy tắc \"Kiến nghị tài chính bắt buộc số tiền; owner tron...",
+      1
+    ],
+    [
+      "áp quy tắc \"Kéo-thả không đổi trạng thái; chuyển qua nút com...",
+      1
+    ],
+    [
+      "áp quy tắc \"Σ thu hồi ≤ số kiến nghị (khóa hàng); một khoản ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ gắn văn bản EFFECTIVE hoặc tệp ATTACHMENT đã...",
+      1
+    ],
+    [
+      "áp quy tắc \"Số liệu chốt as-of và băm; phát hành qua DOC (mẫ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Nhắc 7/3/1 ngày trước hạn; quá hạn leo thang lên...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đồng bộ chỉ từ CI/deploy; cùng băm gói không áp ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Kiểm quyền lại khi chạy và khi tải; tệp ghi phạm...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chia sẻ chỉ cấp quyền xem đối tượng; dữ liệu hiể...",
+      1
+    ],
+    [
+      "áp quy tắc \"Một snapshot FROZEN mỗi dataset × kỳ; dựng lại t...",
+      1
+    ],
+    [
+      "áp quy tắc \"Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trì...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi appropriation có văn bản giao; tổng phân bổ ...",
+      1
+    ],
+    [
+      "áp quy tắc \"warn_pct ≤ block_pct ≤ 100; tiêu dùng = (giữ vốn...",
+      1
+    ],
+    [
+      "áp quy tắc \"Giữ vốn giảm số dư khả dụng; hết hạn tự giải phó...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ điều chuyển cùng nguồn và cấp ngân sách; dòn...",
+      1
+    ],
+    [
+      "áp quy tắc \"Kéo dài cần văn bản cho phép; tạo dòng CARRYOVER...",
+      1
+    ],
+    [
+      "áp quy tắc \"Sổ cái append-only; sửa sai bằng REVERSAL; tra c...",
+      1
+    ],
+    [
+      "áp quy tắc \"Số tầng cố định theo dự án sau lần dùng đầu; chỉ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đặt được trước lần dùng đầu; sau đó khóa (CHANGE...",
+      1
+    ],
+    [
+      "áp quy tắc \"Giải tỏa cần quyền retention.release, điều kiện ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mọi chuyển Suspended/Terminated cần lý do, văn b...",
+      1
+    ],
+    [
+      "áp quy tắc \"Điểm theo trọng số rule version; người duyệt khá...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tệp xuất idempotent theo mã băm; nộp ra ngoài th...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tổng tỷ lệ phải bằng 100; ngưỡng thu hồi 80% áp ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ phiên bản EFFECTIVE dùng cho BOQ thanh toán;...",
+      1
+    ],
+    [
+      "áp quy tắc \"BREAKING chỉ phát hành khi mọi consumer APPROVED...",
+      1
+    ],
+    [
+      "áp quy tắc \"Data owner xác nhận (khác người đề xuất); chỉ ma...",
+      1
+    ],
+    [
+      "áp quy tắc \"Rubric riêng tham chiếu DCAM/DMM, không tuyên bố...",
+      1
+    ],
+    [
+      "áp quy tắc \"Ngày giao ban không ở tương lai; mã GB-năm-số đá...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi chỉ đạo về đúng một dự án hoặc một đơn vị, c...",
+      1
+    ],
+    [
+      "áp quy tắc \"Quá hạn là chỉ đạo chưa đóng quá ngày hạn, tính ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đóng cần bằng chứng và người đóng khác người ghi...",
+      1
+    ],
+    [
+      "áp quy tắc \"Trạng thái cuối kỳ dựng lại từ dòng thời gian; c...",
+      1
+    ],
+    [
+      "áp quy tắc \"Luôn hiển thị song song hai tỷ lệ cùng tử số; tử...",
+      1
+    ],
+    [
+      "áp quy tắc \"Quy tắc là dữ liệu có phiên bản, legal_basis và ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Snapshot FROZEN bất biến; sửa sau chốt tạo snaps...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mở lại cần lý do ≥20 ký tự, phạm vi, thời hạn và...",
+      1
+    ],
+    [
+      "áp quy tắc \"EAC = đã giải ngân theo ngày Kho bạc + Σ dự báo ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Kế hoạch tuần là cam kết, không phải actual; chê...",
+      1
+    ],
+    [
+      "áp quy tắc \"Định nghĩa đề xuất ở trạng thái CHỜ KÝ; snapshot...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi ô là MetricTile có as_of; số đếm theo scope ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ chọn được mẫu PUBLISHED còn hiệu lực tại ngà...",
+      1
+    ],
+    [
+      "áp quy tắc \"Lọc theo scope cây đơn vị; trạng thái RECALLED/R...",
+      1
+    ],
+    [
+      "áp quy tắc \"Người duyệt khác người soạn; PDF cuối bị khóa kh...",
+      1
+    ],
+    [
+      "áp quy tắc \"Lãnh đạo ký PAdES trên đúng PDF đã khóa (revisio...",
+      1
+    ],
+    [
+      "áp quy tắc \"Số cấp sau khi lãnh đạo ký, trong transaction kh...",
+      1
+    ],
+    [
+      "áp quy tắc \"Hiển thị đủ lý do mã hóa (failure_codes); INDETE...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ phát hành khi cả hai chữ ký VALID; doc.issue...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đường (ii): xác minh chữ ký và chuỗi chứng thư t...",
+      1
+    ],
+    [
+      "áp quy tắc \"Số liên tục từ 01 mỗi năm, số hủy vẫn hiện trong...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tệp quét virus trước khi liên kết; trùng (cơ qua...",
+      1
+    ],
+    [
+      "áp quy tắc \"Số đến cấp theo sổ năm; phân công trong scope củ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ người được giao xử lý; văn bản trả lời liên ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mẫu chưa xác nhận hiển thị nhãn \"Chờ xác nhận [C...",
+      1
+    ],
+    [
+      "áp quy tắc \"Người duyệt khác người soạn; hiệu lực các revisi...",
+      1
+    ],
+    [
+      "áp quy tắc \"Giá trị ngoài khoảng cho phép bị từ chối (LAYOUT...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đóng hồ sơ chốt quy tắc bảo quản đang hiệu lực; ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Quy tắc là dữ liệu có hiệu lực; hai bộ quy tắc k...",
+      1
+    ],
+    [
+      "áp quy tắc \"Thu hồi cần lý do và căn cứ; số đã cấp không tái...",
+      1
+    ],
+    [
+      "áp quy tắc \"Adapter PROPOSED [CXN-06]; không có lời gọi ra n...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi (sổ, tổ chức, năm) duy nhất; mở sổ năm mới t...",
+      1
+    ],
+    [
+      "trạng thái",
+      1
+    ],
+    [
+      "a masked figure reads as no permission and never as 0",
+      1
+    ],
+    [
+      "the public build has no such screen",
+      1
+    ],
+    [
+      "a second link is refused",
+      1
+    ],
+    [
+      "a cancelled line offers no change",
+      1
+    ],
+    [
+      "áp quy tắc \"Mọi ô số mang scope, as_of, snapshot, công thức;...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tử số/mẫu số trả riêng; tổng con khớp tổng cha h...",
+      1
+    ],
+    [
+      "kết nối",
+      1
+    ],
+    [
+      "nhật ký đẩy",
+      1
+    ],
+    [
+      "áp quy tắc \"Một danh mục cho mọi kết nối dữ liệu bên ngoài; ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng củ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại;...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (SESSION_EXPIRED; trạng thái ...",
+      1
+    ],
+    [
+      "giá trị khởi điểm ghi rõ chưa xác nhận",
+      1
+    ],
+    [
+      "chỉ tiêu do hệ thống tính không có ô nhập",
+      1
+    ],
+    [
+      "quy tắc khởi điểm ghi là khuôn chưa áp dụng",
+      1
+    ],
+    [
+      "kết quả chạy thử nêu từng quy tắc và lý do",
+      1
+    ],
+    [
+      "bảng mẫu ghi là khuôn chưa dùng được để đọc tệp",
+      1
+    ],
+    [
+      "chạy thử không ghi gì",
+      1
+    ],
+    [
+      "dòng bị từ chối nêu dòng",
+      1
+    ],
+    [
+      "trường và mã",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi tài khoản máy đọc đúng phạm vi đã cấp và chỉ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Phạm vi chỉ cho đọc, không có phạm vi ghi; đổi k...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mở rộng bảng master_crosswalk, không có bảng địn...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi lần đọc là một dòng, không sửa và không xóa ...",
+      1
+    ],
+    [
+      "a milestone the project does not hold reads as not held and ...",
+      1
+    ],
+    [
+      "an empty split says so and is never 0",
+      1
+    ],
+    [
+      "a project outside the scope is not found",
+      1
+    ],
+    [
+      "and the public build has no such screen",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi thay đổi tạo phiên bản mới; vướng mắc giữ SL...",
+      1
+    ],
+    [
+      "áp quy tắc \"Leo thang không đóng vướng mắc gốc; cấp 3 phải đ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Nội dung liên quan dữ liệu cá nhân không đưa vào...",
+      1
+    ],
+    [
+      "áp quy tắc \"Ma trận là dữ liệu có hiệu lực; INTERNAL trở lên...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mọi lệnh ghi/tiền/quyết định dựa trên đầu ra AI ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Audit ghi tuyến đã dùng cho từng request; không ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Số liệu theo snapshot; tiến độ hiển thị kể cả kh...",
+      1
+    ],
+    [
+      "áp quy tắc \"Không hiển thị chủ sử dụng; nhóm đất quyết định ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Dữ liệu PERSONAL: mã hóa, che khi hiển thị, giới...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đơn giá phải theo quyết định giá còn hiệu lực; h...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ dựa trên kiểm đếm đã xác nhận; duyệt sau niê...",
+      1
+    ],
+    [
+      "áp quy tắc \"Bộ đếm theo rule hiệu lực; không đóng niêm yết s...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chi trong 30 ngày kể từ phê duyệt; trễ phải có l...",
+      1
+    ],
+    [
+      "áp quy tắc \"Vướng mắc ISS chỉ chứa mã, không chứa nội dung k...",
+      1
+    ],
+    [
+      "áp quy tắc \"Cần điều kiện tiên quyết và quyết định cho bước ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ bàn giao cho hợp đồng ACTIVE; không vượt diệ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chế độ theo dõi ngoài nhận báo cáo có bằng chứng...",
+      1
+    ],
+    [
+      "áp quy tắc \"Một lô/căn chỉ gán cho một hộ tại một thời điểm\"",
+      1
+    ],
+    [
+      "áp quy tắc \"Không xóa dữ liệu đang là chứng từ chi trả; ghi ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Thuật ngữ có vòng duyệt; người đề xuất không tự ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Merge giữ alias và danh sách tham chiếu đã trỏ l...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi thuộc tính một chiến lược có phiên bản; SOUR...",
+      1
+    ],
+    [
+      "áp quy tắc \"Sáp nhập tỉnh/xã, bỏ cấp huyện, hợp nhất sở theo...",
+      1
+    ],
+    [
+      "áp quy tắc \"Nghĩa vụ là dữ liệu có legal_basis + hiệu lực; h...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mẫu biểu là dữ liệu có phiên bản; báo cáo dùng p...",
+      1
+    ],
+    [
+      "áp quy tắc \"Số liệu lấy từ PeriodSnapshot FROZEN; không nhập...",
+      1
+    ],
+    [
+      "áp quy tắc \"Sự kiện khởi công/điều chỉnh/hoàn thành của PRJ ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Người duyệt khác người lập; phát hành qua DOC (s...",
+      1
+    ],
+    [
+      "áp quy tắc \"Không gọi API hệ thống quốc gia; xuất tệp theo m...",
+      1
+    ],
+    [
+      "áp quy tắc \"Sinh từ snapshot tuần FROZEN theo CV 3665/BTC-PT...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đánh giá ban đầu/giữa kỳ/kết thúc/tác động/đột x...",
+      1
+    ],
+    [
+      "áp quy tắc \"Trễ = thời điểm SUBMITTED_EXTERNAL (hoặc hiện tạ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Báo cáo đã phát hành bất biến; đính chính tạo re...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (CHANNEL_IDENTITY_UNVERIFIED,...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (INBOX_STATE_INVALID) với cor...",
+      1
+    ],
+    [
+      "the template note visible",
+      1
+    ],
+    [
+      "áp quy tắc \"Tổng đề nghị ≤ giá trị nghiệm thu ≤ giá trị hợp ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ sau khi hợp đồng có hiệu lực và có bảo lãnh ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tạm ứng GPMB thu hồi trong 30 ngày; cảnh báo T-7...",
+      1
+    ],
+    [
+      "áp quy tắc \"Idempotent theo mã băm tệp + khóa nghiệp vụ từng...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mẫu sinh từ DOC theo phiên bản có hiệu lực; mẫu ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đóng khi còn công nợ/tạm ứng cần phê duyệt ngoại...",
+      1
+    ],
+    [
+      "áp quy tắc \"Hạn tính theo nhóm dự án tại ngày nộp bằng rule ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chuỗi truy vết theo tenant và phiên bản, chỉ đọc...",
+      1
+    ],
+    [
+      "áp quy tắc \"Danh mục bắt buộc sinh theo loại giấy phép áp dụ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Một giấy phép hiện hành mỗi loại; cấp lại tạo bả...",
+      1
+    ],
+    [
+      "áp quy tắc \"Dữ liệu có legal_basis và hiệu lực; không sửa bả...",
+      1
+    ],
+    [
+      "áp quy tắc \"Cổng đánh giá theo quy tắc hiệu lực tại ngày; mi...",
+      1
+    ],
+    [
+      "áp quy tắc \"Cảnh báo 60/30/15/0 ngày khử trùng; hết hạn tự t...",
+      1
+    ],
+    [
+      "áp quy tắc \"Người duyệt khác người đề xuất; miễn trừ tối đa ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chuyển giai đoạn chỉ qua command có guard (bảng ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tổng điểm = Σ(điểm × trọng số)/5, làm tròn 2 chữ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Điểm = khả năng × tác động (1–25); điểm ≥15 là C...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi dự án tối đa một LEADER_IN_CHARGE ACTIVE; kế...",
+      1
+    ],
+    [
+      "áp quy tắc \"Thành viên phải có membership trong tenant và sc...",
+      1
+    ],
+    [
+      "áp quy tắc \"Giải trình gắn cảnh báo/kỳ; quá hạn chuyển OVERD...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ chuyển trong cùng tenant; báo cáo trước ngày...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mã TTQG duy nhất trong tenant; nhập bằng tệp có ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Chỉ hiện số việc chờ duyệt; không lưu số liệu ng...",
+      1
+    ],
+    [
+      "áp quy tắc \"Quyết định gửi một lần khi đang trực tuyến, kèm ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Cùng nguồn số liệu và mô hình với HOME-09; số li...",
+      1
+    ],
+    [
+      "áp quy tắc \"Đọc từ listDirectives và getDirectiveSummary tro...",
+      1
+    ],
+    [
+      "áp quy tắc \"Danh sách đọc từ listMySessions và listMyDevices...",
+      1
+    ],
+    [
+      "áp quy tắc \"Cùng bản chốt và cùng mô hình với HOME-09; một c...",
+      1
+    ],
+    [
+      "áp quy tắc \"Cùng nguồn và cùng cách tính với BID-27; danh sá...",
+      1
+    ],
+    [
+      "áp quy tắc \"Thông báo chỉ mang tiêu đề chung và đường dẫn; t...",
+      1
+    ],
+    [
+      "áp quy tắc \"Một nhật ký chính mỗi hợp đồng mỗi ngày; điều ch...",
+      1
+    ],
+    [
+      "áp quy tắc \"Ký băm nội dung; sửa sau khi ký bị chặn; phân bi...",
+      1
+    ],
+    [
+      "áp quy tắc \"Mỗi vai trò ký đúng một lần theo hash nội dung; ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Hợp đồng ACTIVE và cổng giấy phép đạt; quy chế á...",
+      1
+    ],
+    [
+      "áp quy tắc \"Duyệt cần đủ chữ ký theo quy chế và không còn NC...",
+      1
+    ],
+    [
+      "áp quy tắc \"Không đạt tự tạo NCR; kết quả cần báo cáo đính k...",
+      1
+    ],
+    [
+      "áp quy tắc \"NCR CRITICAL chặn nghiệm thu; xác nhận khác ngườ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Cờ EXIF/GPS/thời gian/trùng lặp chỉ để rà soát, ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Tính theo lịch làm việc; ký bù hiển thị số ngày ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu...",
+      1
+    ],
+    [
+      "áp quy tắc \"Ba người khác nhau: người kiểm khác người lập, n...",
+      1
+    ],
+    [
+      "áp quy tắc \"Bản đã phát hành không sửa và không xóa; bản sửa...",
+      1
+    ],
+    [
+      "áp quy tắc \"Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy...",
+      1
+    ],
+    [
+      "áp quy tắc \"Bốn mẫu gửi Bộ Tài chính ở trạng thái chờ biểu m...",
+      1
+    ],
+    [
+      "áp quy tắc \"Người duyệt ký số mã băm của bản phát hành qua c...",
+      1
+    ],
+    [
+      "áp quy tắc \"Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu ...",
+      1
+    ],
+    [
+      "áp quy tắc \"Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, t...",
+      1
+    ],
+    [
+      "a comparison that made no comparison says so and never reads...",
+      1
+    ],
+    [
+      "the short reason is refused on the screen and sends nothing",
+      1
+    ],
+    [
+      "the explanation goes with the fingerprint and the period",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (TENANT_STATE_INVALID; bước F...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (MIGRATION_VERIFICATION_FAILE...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (EINVOICE_ADJUSTMENT_INVALID,...",
+      1
+    ],
+    [
+      "lỗi hiển thị theo Problem.code (SELF_APPROVAL_DENIED, FEATUR...",
+      1
+    ]
+  ]
+}

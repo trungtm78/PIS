@@ -142,8 +142,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "DIR"
     },
@@ -189,8 +190,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "DIR"
     },
@@ -328,8 +330,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "DIR"
     },
@@ -514,8 +517,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "DIR"
     },
@@ -607,8 +611,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "DIR"
     },
@@ -701,7 +706,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "reason": "Màn hình DIR-06 chỉ có trên điện thoại (nền tảng mobile trong danh mục), không có địa chỉ web để mở; kịch bản Maestro của điện thoại là nơi kiểm"
       },
       "module": "DIR"
     },

@@ -4,6 +4,9 @@ import type { PeriodKind } from '../model';
  * The model of the layout editor (RPT-08, ENT-4b, R23). The user chooses from closed lists, never designs cells: the state here is what the form holds while it is edited, `toParams` is the params of a rule of the
  * type `REPORT_LAYOUT` (the server judges them again with the same schema), and `fromParams` reads the rule in force back so a new version can start from it.
  */
+/** Permissions of the steps of a layout (x-permission of the rule store, ADM-11): who writes and submits a version, and who approves it. */
+export const MAKE_PERMISSION = 'adm.governance.manage';
+export const APPROVE_PERMISSION = 'adm.governance.approve';
 export const RULE_TYPE = 'REPORT_LAYOUT';
 export const CODE_PATTERN = /^CFG_[A-Z][A-Z0-9_]{1,34}$/;
 export const KEY_PATTERN = /^[a-z][a-z0-9_]{0,23}$/;

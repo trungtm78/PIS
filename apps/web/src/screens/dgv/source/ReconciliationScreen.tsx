@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { CommandFrame } from '../../qms/CommandFrame';
@@ -11,7 +12,7 @@ import { Field } from '../components';
 import { NO_FILTER, useCatalog } from '../hooks';
 import { useReconciliation, useReconciliations, useRunReconciliation } from './hooks';
 import { formProblemMessage, kindLabel, problemMessage, resultLabel, resultTone, sideLabel } from './labels';
-import { DIFFERENCE_KINDS, RECON_BASIS, RECON_RESULTS, RECON_SOURCE_A, RECON_SOURCE_B, describeProblem, emptyRecon, formatDong, reconBody, resourceIdOf, validateRecon } from './model';
+import { DIFFERENCE_KINDS, RECON_BASIS, RECON_RESULTS, RECON_SOURCE_A, RECON_SOURCE_B, RUN_PERMISSION, describeProblem, emptyRecon, formatDong, reconBody, resourceIdOf, validateRecon } from './model';
 import type { ReconForm, ReconView } from './model';
 import '../dgv.css';
 import '../dgv-kit.css';
@@ -32,7 +33,7 @@ export default function ReconciliationScreen({ route }: ScreenProps) {
 
 function ReconciliationContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
   const [search, setSearch] = useSearchParams();
   const chosen = search.get(RECON_PARAM) ?? undefined;
   const [result, setResult] = useState('');
@@ -41,7 +42,7 @@ function ReconciliationContent({ route }: ScreenProps) {
   const detail = useReconciliation(chosen);
   const rows = (list.data?.pages ?? []).flatMap((entry) => entry.items);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
-  const acting = mode !== 'READ_ONLY';
+  const acting = mode !== 'READ_ONLY' && holds(permissions, RUN_PERMISSION);
   const dong = (value: string): string => formatDong(value, locale);
   const open = (id: string | undefined): void => {
     const next = new URLSearchParams(search);

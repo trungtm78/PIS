@@ -2,6 +2,11 @@ import { ApiError } from '@machvon/api-client';
 
 /** Permission of the screen (x-permission in openapi.json). */
 export const READ_PERMISSION = 'contractor.performance.read';
+/** Permissions of the commands the screen offers (x-permission of the operations in openapi.json). */
+export const EVALUATE_PERMISSION = 'contractor.performance.evaluate';
+export const APPROVE_PERMISSION = 'contractor.performance.approve';
+export const RECORD_PERMISSION = 'contractor.violation.record';
+export const CONFIRM_PERMISSION = 'contractor.violation.confirm';
 
 export const TEXT_MAX = 2000;
 export const PERIOD_MAX = 40;

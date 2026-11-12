@@ -111,22 +111,24 @@ function ProfileRelease({ profile }: { profile: ProfileEntry }) {
         {profile.rollbackProfileId === null ? null : <p className="sub">{t('llm.release.rollback', { id: profile.rollbackProfileId.slice(0, 8) })}</p>}
       </div>
       <StateBoundary state={state} onRetry={retry}>
-        <table className="table" data-testid="gate-table" aria-label={t('llm.release.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.release.column.route')}</th>
-              <th scope="col">{t('llm.release.column.gate')}</th>
-              <th scope="col">{t('llm.release.column.metrics')}</th>
-              <th scope="col">{t('llm.release.column.cost')}</th>
-              <th scope="col">{t('llm.release.column.action')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {profile.routes.map((entry) => (
-              <RouteRow key={entry} profile={profile} route={entry} runs={current} datasets={datasets.data ?? []} mayStart={mayStart} maySign={open(profile) && holds(EVAL_SIGN)} />
-            ))}
-          </tbody>
-        </table>
+        <div className="tablewrap" role="region" aria-label={t('llm.release.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="gate-table" aria-label={t('llm.release.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.release.column.route')}</th>
+                <th scope="col">{t('llm.release.column.gate')}</th>
+                <th scope="col">{t('llm.release.column.metrics')}</th>
+                <th scope="col">{t('llm.release.column.cost')}</th>
+                <th scope="col">{t('llm.release.column.action')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {profile.routes.map((entry) => (
+                <RouteRow key={entry} profile={profile} route={entry} runs={current} datasets={datasets.data ?? []} mayStart={mayStart} maySign={open(profile) && holds(EVAL_SIGN)} />
+              ))}
+            </tbody>
+          </table>
+        </div>
         {profile.routes.length === 0 ? <p data-testid="release-no-routes">{t('llm.release.noRoutes')}</p> : null}
         {open(profile) && holds(PROFILE_PUBLISH) ? <DecisionForm profile={profile} runs={current} ready={ready} /> : null}
       </StateBoundary>

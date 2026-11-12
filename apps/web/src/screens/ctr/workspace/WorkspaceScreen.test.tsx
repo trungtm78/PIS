@@ -8,7 +8,7 @@ import type { World } from './test-support';
 
 const ROUTE = routeOf('CTR-03', 'FR-CTR-03');
 const PATH = `/ctr/ctr-03?id=${contractId(1)}`;
-const PERMISSIONS = ['contract.read'];
+const PERMISSIONS = ['contract.read', 'contract.review.submit', 'contract.review.decide', 'contract.sign', 'contract.activate', 'contract.complete', 'contract.close', 'contract.update'];
 const OK = { operation_id: 'o', status: 'IN_REVIEW', resource_version: 4, resource_id: contractId(1) };
 const problem = (code: string, status = 409, extensions: Record<string, unknown> = {}) => new ApiError({ status, code, correlationId: 'c', extensions });
 const text = (key: string, params: Record<string, string | number> = {}): string =>
@@ -19,9 +19,9 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function open(state: World, options: { command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY'; path?: string } = {}) {
+function open(state: World, options: { command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY'; path?: string; permissions?: readonly string[] } = {}) {
   const h = client(state, options.command ?? (() => OK));
-  mount(<WorkspaceScreen route={ROUTE} />, h, { permissions: PERMISSIONS, path: options.path ?? PATH, ...(options.mode === undefined ? {} : { mode: options.mode }) });
+  mount(<WorkspaceScreen route={ROUTE} />, h, { permissions: options.permissions ?? PERMISSIONS, path: options.path ?? PATH, ...(options.mode === undefined ? {} : { mode: options.mode }) });
   return h;
 }
 
@@ -367,6 +367,16 @@ describe('WorkspaceScreen (CTR-03): the review, the signing and the activation o
       await screen.findByTestId('facts');
       expect(screen.queryByTestId('change-link')).toBeNull();
     });
+  });
+
+  it('offers no command to a person who may only read, whatever the server says the contract may take', async () => {
+    open({ summary: summary('ACTIVE', { actions: { ...noActions, complete: true, close: true } }) }, { permissions: ['contract.read'] });
+    await screen.findByTestId('facts');
+    expect(commandButtons()).toEqual([]);
+    cleanup();
+    open({ summary: summary('ACTIVE', { actions: { ...noActions, complete: true, close: true } }) });
+    await screen.findByTestId('facts');
+    expect(commandButtons()).toEqual(['complete', 'close']);
   });
 
   describe('the commands that stop a contract', () => {

@@ -1,0 +1,4451 @@
+[
+ {
+  "case": "TC-UI-ADM-01",
+  "screen": "ADM-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-02",
+  "screen": "ADM-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-03",
+  "screen": "ADM-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-04",
+  "screen": "ADM-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-05",
+  "screen": "ADM-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-06",
+  "screen": "ADM-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-07",
+  "screen": "ADM-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-08",
+  "screen": "ADM-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-09",
+  "screen": "ADM-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-10",
+  "screen": "ADM-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-11",
+  "screen": "ADM-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-12",
+  "screen": "ADM-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-13",
+  "screen": "ADM-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-14",
+  "screen": "ADM-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-15",
+  "screen": "ADM-15",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Đơn vị áp dụng"
+   },
+   {
+    "clause": "order",
+    "detail": "fields out of the order of the catalogue: Từ (VND), Đến (VND), Hiệu lực, Căn cứ"
+   }
+  ],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (DOA_MATRIX_INVALID (GAP/OVERLAP), SELF_APPROVAL_DENIED) với correlation_id",
+   "không mất dữ liệu nhập khi 409"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-16",
+  "screen": "ADM-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (REORG_MAPPING_INCOMPLETE, SELF_APPROVAL_DENIED) với correlation_id",
+   "không mất dữ liệu nhập khi 409",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-17",
+  "screen": "ADM-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (GUEST_SCOPE_INVALID, CONTRACT_NOT_ACTIVE, QUOTA_EXCEEDED) với correlation_id",
+   "không mất dữ liệu nhập khi 409",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-ADM-18",
+  "screen": "ADM-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (APPROVER_NOT_AUTHORIZED, TASK_ALREADY_DECIDED) với correlation_id",
+   "không mất dữ liệu nhập khi 409",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AST-01",
+  "screen": "AST-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Hiển thị số tồn tại trọng yếu chưa đóng\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a list) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AST-02",
+  "screen": "AST-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Không nhận khi còn tồn tại CRITICAL; CRITICAL không được miễn; người xác nhận khác nhà thầu\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a review) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AST-03",
+  "screen": "AST-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Tổng giá trị tài sản không vượt giá trị hợp đồng; mã ngoài nhập tay (adapter MISSING)\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a detail) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AST-04",
+  "screen": "AST-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Thời hạn tối thiểu theo rule [CXN-EXE-04]; hết hạn và hết yêu cầu mở mới đóng và cho giải tỏa\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AST-05",
+  "screen": "AST-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Quá hạn phản hồi tạo vướng mắc; xác nhận độc lập\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AST-06",
+  "screen": "AST-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ liên kết tài sản đã chuyển giao\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AST-07",
+  "screen": "AST-07",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Loại kích hoạt, Bàn giao nguồn, Ngày đến hạn, Trạng thái"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Chỉ đặt kích hoạt; việc đánh giá do MNE thực hiện\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-01",
+  "screen": "AUD-01",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Cuộc đang diễn ra"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Tỷ lệ = Σ đã thu hồi / Σ kiến nghị tài chính trong scope, hiển thị tử và mẫu; quá hạn bằng chữ + số ngày\""
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-02",
+  "screen": "AUD-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ thấy cuộc có phạm vi giao với scope của mình; dữ liệu CONFIDENTIAL\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-03",
+  "screen": "AUD-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Bắt đầu cuộc đặt legal hold trên phạm vi; quyết định phải là văn bản EFFECTIVE ở DOC\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-04",
+  "screen": "AUD-04",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Loại kết luận, Văn bản kết luận (DOC), Ngày ban hành/nhận, Hạn thực hiện, Hạn báo cáo, Tổng kiến nghị tài chính, Công khai"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Kết luận sửa đổi tạo revision mới; Σ kiến nghị tài chính phải bằng tổng ghi trong kết luận\""
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-05",
+  "screen": "AUD-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Dự án/hợp đồng phải cùng tenant và trong phạm vi cuộc\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-06",
+  "screen": "AUD-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Kiến nghị tài chính bắt buộc số tiền; owner trong scope người giao; hạn không sau hạn kết luận trừ khi có lý do\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-07",
+  "screen": "AUD-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Kéo-thả không đổi trạng thái; chuyển qua nút command có guard; người kiểm tra khác người báo hoàn thành\"",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-08",
+  "screen": "AUD-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Σ thu hồi ≤ số kiến nghị (khóa hàng); một khoản PAY chỉ gắn một lần; sửa sai bằng dòng đảo\"",
+   "fields: the screen (a reconcile) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-09",
+  "screen": "AUD-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ gắn văn bản EFFECTIVE hoặc tệp ATTACHMENT đã quét sạch; xem theo quyền tài liệu\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-10",
+  "screen": "AUD-10",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: As-of, Số liệu tổng hợp, Băm payload, Trạng thái DOC, Người duyệt"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Số liệu chốt as-of và băm; phát hành qua DOC (mẫu AUD-BC-KET-QUA-THUC-HIEN-KIEN-NGHI); chỉ ISSUED khi nhận doc.issued\""
+  ]
+ },
+ {
+  "case": "TC-UI-AUD-11",
+  "screen": "AUD-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Nhắc 7/3/1 ngày trước hạn; quá hạn leo thang lên lãnh đạo đơn vị owner qua NOT\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-01",
+  "screen": "BI-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-02",
+  "screen": "BI-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-03",
+  "screen": "BI-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-04",
+  "screen": "BI-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-05",
+  "screen": "BI-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-06",
+  "screen": "BI-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-07",
+  "screen": "BI-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-08",
+  "screen": "BI-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-09",
+  "screen": "BI-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-10",
+  "screen": "BI-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-11",
+  "screen": "BI-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-12",
+  "screen": "BI-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-13",
+  "screen": "BI-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-14",
+  "screen": "BI-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-15",
+  "screen": "BI-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Đồng bộ chỉ từ CI/deploy; cùng băm gói không áp dụng lại; đổi nghĩa chỉ tiêu cần mã mới\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-16",
+  "screen": "BI-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Kiểm quyền lại khi chạy và khi tải; tệp ghi phạm vi, as_of, snapshot; vượt trần dòng → yêu cầu thu hẹp\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-17",
+  "screen": "BI-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chia sẻ chỉ cấp quyền xem đối tượng; dữ liệu hiển thị theo quyền của người xem\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-BI-18",
+  "screen": "BI-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Một snapshot FROZEN mỗi dataset × kỳ; dựng lại tạo bản mới SUPERSEDED bản cũ, không sửa bản đã dùng\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-01",
+  "screen": "BID-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-02",
+  "screen": "BID-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-03",
+  "screen": "BID-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-04",
+  "screen": "BID-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-05",
+  "screen": "BID-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-06",
+  "screen": "BID-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-07",
+  "screen": "BID-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-08",
+  "screen": "BID-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-09",
+  "screen": "BID-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-10",
+  "screen": "BID-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-11",
+  "screen": "BID-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-12",
+  "screen": "BID-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-13",
+  "screen": "BID-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-14",
+  "screen": "BID-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-15",
+  "screen": "BID-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-16",
+  "screen": "BID-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-17",
+  "screen": "BID-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-18",
+  "screen": "BID-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-19",
+  "screen": "BID-19",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-20",
+  "screen": "BID-20",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-BID-21",
+  "screen": "BID-21",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Hạn chế còn hiệu lực chặn tiếp nhận hồ sơ và trình kết quả (CONTRACTOR_RESTRICTED)\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-01",
+  "screen": "CAP-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-02",
+  "screen": "CAP-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-03",
+  "screen": "CAP-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-04",
+  "screen": "CAP-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-05",
+  "screen": "CAP-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-06",
+  "screen": "CAP-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-07",
+  "screen": "CAP-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-08",
+  "screen": "CAP-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-09",
+  "screen": "CAP-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-10",
+  "screen": "CAP-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-11",
+  "screen": "CAP-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-12",
+  "screen": "CAP-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-13",
+  "screen": "CAP-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-14",
+  "screen": "CAP-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-15",
+  "screen": "CAP-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-16",
+  "screen": "CAP-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi appropriation có văn bản giao; tổng phân bổ ≤ giá trị giao (CHECK DB); CTMTQG là tập con, không cộng thêm\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-17",
+  "screen": "CAP-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"warn_pct ≤ block_pct ≤ 100; tiêu dùng = (giữ vốn + cam kết + đã giải ngân)/vốn giao; vượt warn cần xác nhận, vượt block bị chặn\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-18",
+  "screen": "CAP-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Giữ vốn giảm số dư khả dụng; hết hạn tự giải phóng bằng bút toán RELEASE; không xóa\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-19",
+  "screen": "CAP-19",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ điều chuyển cùng nguồn và cấp ngân sách; dòng giảm không xuống dưới đã cam kết; áp dụng tạo revision kế hoạch mới có văn bản\"",
+   "fields: the screen (a compare) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-20",
+  "screen": "CAP-20",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Năm kế hoạch gốc"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Kéo dài cần văn bản cho phép; tạo dòng CARRYOVER is_extended ở năm sau, giữ source_year gốc; không cộng vào vốn năm\""
+  ]
+ },
+ {
+  "case": "TC-UI-CAP-21",
+  "screen": "CAP-21",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Sổ cái append-only; sửa sai bằng REVERSAL; tra cứu kế hoạch tại thời điểm bất kỳ\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-01",
+  "screen": "CTR-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-02",
+  "screen": "CTR-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-03",
+  "screen": "CTR-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-04",
+  "screen": "CTR-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-05",
+  "screen": "CTR-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-06",
+  "screen": "CTR-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-07",
+  "screen": "CTR-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-08",
+  "screen": "CTR-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-09",
+  "screen": "CTR-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-10",
+  "screen": "CTR-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-11",
+  "screen": "CTR-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-12",
+  "screen": "CTR-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-13",
+  "screen": "CTR-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-14",
+  "screen": "CTR-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-15",
+  "screen": "CTR-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-16",
+  "screen": "CTR-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-17",
+  "screen": "CTR-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-18",
+  "screen": "CTR-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-19",
+  "screen": "CTR-19",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Số tầng cố định theo dự án sau lần dùng đầu; chỉ CO APPROVED tạo phiên bản hợp đồng; duyệt khác người lập; phiên bản chưa hiệu lực không đổi BOQ thanh toán\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-20",
+  "screen": "CTR-20",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Đã khóa, Thay đổi đầu tiên, Người đặt"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Đặt được trước lần dùng đầu; sau đó khóa (CHANGE_TIERS_LOCKED), kể cả bằng SQL trực tiếp\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-21",
+  "screen": "CTR-21",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Giải tỏa cần quyền retention.release, điều kiện đạt và người duyệt khác người đề xuất; không vượt số đang giữ\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a funding) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-22",
+  "screen": "CTR-22",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Xử lý bảo lãnh, Ảnh hưởng thanh toán"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Mọi chuyển Suspended/Terminated cần lý do, văn bản và người duyệt; Terminated không đảo ngược\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-23",
+  "screen": "CTR-23",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Điểm theo trọng số rule version; người duyệt khác người lập; vi phạm cần văn bản mới được xác nhận\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-24",
+  "screen": "CTR-24",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Phạm vi, Kỳ từ – đến, Số dòng, Mã băm SHA-256, Trạng thái nộp"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Tệp xuất idempotent theo mã băm; nộp ra ngoài thực hiện thủ công, mã biên nhận nhập tay (adapter PROPOSED, API MISSING)\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-25",
+  "screen": "CTR-25",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Tổng tỷ lệ phải bằng 100; ngưỡng thu hồi 80% áp theo từng thành viên\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-CTR-26",
+  "screen": "CTR-26",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ phiên bản EFFECTIVE dùng cho BOQ thanh toán; phiên bản PENDING_EFFECTIVE hiển thị nhưng không tính; hồi tố qua quy trình riêng\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a timeline) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-01",
+  "screen": "DGV-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-02",
+  "screen": "DGV-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-03",
+  "screen": "DGV-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-04",
+  "screen": "DGV-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-05",
+  "screen": "DGV-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-06",
+  "screen": "DGV-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-07",
+  "screen": "DGV-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-08",
+  "screen": "DGV-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-09",
+  "screen": "DGV-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-10",
+  "screen": "DGV-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-11",
+  "screen": "DGV-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-12",
+  "screen": "DGV-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-13",
+  "screen": "DGV-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-14",
+  "screen": "DGV-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-15",
+  "screen": "DGV-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-16",
+  "screen": "DGV-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-17",
+  "screen": "DGV-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-18",
+  "screen": "DGV-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-19",
+  "screen": "DGV-19",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"BREAKING chỉ phát hành khi mọi consumer APPROVED và có cửa sổ dual-run\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-20",
+  "screen": "DGV-20",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Data owner xác nhận (khác người đề xuất); chỉ mapping CONFIRMED được pipeline dùng\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DGV-21",
+  "screen": "DGV-21",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Ánh xạ DCAM/DMM, Coverage tối thiểu"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Rubric riêng tham chiếu DCAM/DMM, không tuyên bố chứng nhận; người công bố khác người soạn\""
+  ]
+ },
+ {
+  "case": "TC-UI-DIR-01",
+  "screen": "DIR-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Ngày giao ban không ở tương lai; mã GB-năm-số đánh theo năm; biên bản là phiên bản tệp của tenant không nhiễm mã độc\"",
+   "fields: the screen (a list) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DIR-02",
+  "screen": "DIR-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi chỉ đạo về đúng một dự án hoặc một đơn vị, có đơn vị thực hiện và hạn không trước ngày họp; chỉ đạo ghi lại không sửa nội dung\"",
+   "fields: the screen (a detail) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DIR-03",
+  "screen": "DIR-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Quá hạn là chỉ đạo chưa đóng quá ngày hạn, tính theo đồng hồ trong ngày, không lưu; số liệu có công thức, nguồn và thời điểm\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DIR-04",
+  "screen": "DIR-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Đóng cần bằng chứng và người đóng khác người ghi chỉ đạo và người thực hiện; gia hạn có lý do, người duyệt khác người đề nghị, trong số ngày và số lần chính sách cho phép; lịch sử không sửa\"",
+   "fields: the screen (a timeline) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DIR-05",
+  "screen": "DIR-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Trạng thái cuối kỳ dựng lại từ dòng thời gian; chỉ đạo đến hạn đúng ngày cuối kỳ mà chưa đóng tính là quá hạn cuối ngày; số liệu cộng khớp với danh sách\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-01",
+  "screen": "DIS-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-02",
+  "screen": "DIS-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-03",
+  "screen": "DIS-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-04",
+  "screen": "DIS-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-05",
+  "screen": "DIS-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-06",
+  "screen": "DIS-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-07",
+  "screen": "DIS-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-08",
+  "screen": "DIS-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-09",
+  "screen": "DIS-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-10",
+  "screen": "DIS-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-11",
+  "screen": "DIS-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-12",
+  "screen": "DIS-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-13",
+  "screen": "DIS-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-14",
+  "screen": "DIS-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-15",
+  "screen": "DIS-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-16",
+  "screen": "DIS-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-17",
+  "screen": "DIS-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-18",
+  "screen": "DIS-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-19",
+  "screen": "DIS-19",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: KH TTg giao, Đã giải ngân (ngày Kho bạc), Tỷ lệ theo KH TTg giao, Tỷ lệ theo KH gồm giao thêm"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Luôn hiển thị song song hai tỷ lệ cùng tử số; tử số tính theo ngày Kho bạc thanh toán; mẫu số 0 → null + lý do [CXN-03]\""
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-20",
+  "screen": "DIS-20",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Mã quy tắc"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Quy tắc là dữ liệu có phiên bản, legal_basis và hiệu lực; người duyệt khác người soạn; cảnh báo dedupe theo rule+đối tượng+kỳ\""
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-21",
+  "screen": "DIS-21",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Snapshot FROZEN bất biến; sửa sau chốt tạo snapshot mới supersede; mọi số HOME/MNE đọc từ snapshot có as_of\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-22",
+  "screen": "DIS-22",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Phạm vi dự án"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Mở lại cần lý do ≥20 ký tự, phạm vi, thời hạn và người duyệt khác người đề nghị; hết hạn tự khóa lại\""
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-23",
+  "screen": "DIS-23",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Dự án/đơn vị, Đã giải ngân, Dự báo theo tháng, Ước cuối năm, Chênh lệch so kế hoạch, Phương pháp"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"EAC = đã giải ngân theo ngày Kho bạc + Σ dự báo các tháng còn lại hiện hành; nêu phương pháp và giả định\""
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-24",
+  "screen": "DIS-24",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Kế hoạch tuần là cam kết, không phải actual; chênh lệch âm hai tuần liên tiếp sinh cảnh báo EW-09 [CXN-33]\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DIS-25",
+  "screen": "DIS-25",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Basis, Fixture golden"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Định nghĩa đề xuất ở trạng thái CHỜ KÝ; snapshot và tệp xuất ghi definition_status; chỉ Chủ nghiệp vụ vốn ký\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-01",
+  "screen": "DOC-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi ô là MetricTile có as_of; số đếm theo scope đơn vị của người xem; ô \"Mẫu chờ xác nhận pháp lý\" hiển thị nhãn [CXN] và dẫn tới DOC-14\"",
+   "fields: the screen (a dashboard) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-02",
+  "screen": "DOC-02",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Xem trước PDF có watermark"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Chỉ chọn được mẫu PUBLISHED còn hiệu lực tại ngày soạn; payload sai schema bị chặn; mẫu chưa xác nhận pháp lý luôn có watermark; văn bản độ mật nhà nước bị từ chối (STATE_SECRET_NOT_SUPPORTED)\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-03",
+  "screen": "DOC-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Lọc theo scope cây đơn vị; trạng thái RECALLED/REPLACED/CORRECTED hiển thị bằng chữ + icon; không lộ văn bản ngoài scope\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-04",
+  "screen": "DOC-04",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Danh mục kiểm thể thức, Ý kiến rà soát, Băm SHA-256 của PDF cuối, Thẩm quyền ký theo DoA"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Người duyệt khác người soạn; PDF cuối bị khóa khi chuyển SUBMITTED; người ký phải đạt thẩm quyền DoA theo loại văn bản và số tiền; ký thay/ủy quyền cần delegation đang hiệu lực\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-05",
+  "screen": "DOC-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Lãnh đạo ký PAdES trên đúng PDF đã khóa (revision n); chứng thư phải Active ở ADM và chưa bị thu hồi; phiên hết hạn sau 15 phút; trạng thái adapter hiển thị VERIFIED/PROPOSED/MOCK/MISSING\"",
+   "fields: the screen (a documents) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-06",
+  "screen": "DOC-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Số cấp sau khi lãnh đạo ký, trong transaction khóa hàng sổ; không hậu tố a/b; thất bại ở bước đóng dấu giữ nguyên số (NUMBERED) cho tới khi thử lại hoặc hủy số có người duyệt khác\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-07",
+  "screen": "DOC-07",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Danh sách chữ ký theo thứ tự, Chuỗi chứng thư và nhà cung cấp CA, Trạng thái thu hồi (OCSP/CRL), Thay đổi gia tăng sau chữ ký, Dấu thời gian, Kết luận VALID/INVALID/INDETERMINATE"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Hiển thị đủ lý do mã hóa (failure_codes); INDETERMINATE chặn phát hành trừ khi chính sách tenant cho phép; xác minh lại không ghi đè kết quả cũ\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-08",
+  "screen": "DOC-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ phát hành khi cả hai chữ ký VALID; doc.issued phát một lần; gửi lại không tạo phân phối trùng\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-09",
+  "screen": "DOC-09",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Người ký khai báo, Số và ký hiệu khai báo, Kết quả xác minh chữ ký, Sổ đăng ký số"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Đường (ii): xác minh chữ ký và chuỗi chứng thư trước khi đăng ký số; trùng số trong sổ → 409; chữ ký không hợp lệ → không đăng ký\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-10",
+  "screen": "DOC-10",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Ngày ban hành, Trích yếu, Xuất sổ"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Số liên tục từ 01 mỗi năm, số hủy vẫn hiện trong sổ; xuất sổ có chữ ký số và băm; auditor chỉ đọc\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-11",
+  "screen": "DOC-11",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Nguồn tiếp nhận, Tệp quét/PDF, Ký hiệu và ngày trên văn bản gốc, Mức khẩn, Cảnh báo trùng, Lý do vẫn nhận"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Tệp quét virus trước khi liên kết; trùng (cơ quan + ký hiệu + ngày) bị chặn trừ khi có lý do; văn bản độ mật nhà nước không nhận\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-12",
+  "screen": "DOC-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Số đến cấp theo sổ năm; phân công trong scope của người giao; quá hạn đánh dấu bằng chữ và ngày hạn gốc\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-13",
+  "screen": "DOC-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ người được giao xử lý; văn bản trả lời liên kết phải đã ISSUED; giải quyết sau hạn đánh dấu trễ\"",
+   "fields: the screen (a detail) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-14",
+  "screen": "DOC-14",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Hiệu lực từ–đến, Trạng thái xác nhận pháp lý"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Mẫu chưa xác nhận hiển thị nhãn \"Chờ xác nhận [CXN]\"; lọc theo ngày hiệu lực; mẫu của TT 44/2026 M02–M10 có watermark tới khi pháp chế ghi xác nhận\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-15",
+  "screen": "DOC-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Người duyệt khác người soạn; hiệu lực các revision cùng mã không chồng lấn; chỉ pháp chế ghi xác nhận pháp lý\"",
+   "fields: the screen (a compare) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-16",
+  "screen": "DOC-16",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Khổ giấy, Lề trang, Phông và cỡ chữ từng thành phần, Vị trí chữ ký lãnh đạo, Trường số/ký hiệu/ngày, Phạm vi cho phép theo luật"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Giá trị ngoài khoảng cho phép bị từ chối (LAYOUT_OUT_OF_LEGAL_RANGE); dựng lại cùng đầu vào cho PDF cùng băm; phông thay thế được ghi rõ\""
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-17",
+  "screen": "DOC-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Đóng hồ sơ chốt quy tắc bảo quản đang hiệu lực; chưa có quy tắc xác nhận → giữ vĩnh viễn tạm thời; legal hold chặn đề nghị hủy\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-18",
+  "screen": "DOC-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Quy tắc là dữ liệu có hiệu lực; hai bộ quy tắc khác nhau cùng nhóm cần pháp chế chọn precedence; người duyệt khác người soạn\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-19",
+  "screen": "DOC-19",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Thu hồi cần lý do và căn cứ; số đã cấp không tái sử dụng; module nguồn nhận doc.recalled kèm source_ref và băm\"",
+   "fields: the screen (a timeline) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-20",
+  "screen": "DOC-20",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Adapter PROPOSED [CXN-06]; không có lời gọi ra ngoài ngoài allowlist của tenant; trùng envelope bị bỏ qua; DEAD sau 20 lần có cảnh báo và owner\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-DOC-21",
+  "screen": "DOC-21",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi (sổ, tổ chức, năm) duy nhất; mở sổ năm mới tự động 00:00 01/01 giờ VN; khóa sổ năm cũ chỉ khi không còn văn bản NUMBERED\""
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-01",
+  "screen": "HOME-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-02",
+  "screen": "HOME-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-03",
+  "screen": "HOME-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-04",
+  "screen": "HOME-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-05",
+  "screen": "HOME-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-06",
+  "screen": "HOME-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-07",
+  "screen": "HOME-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-08",
+  "screen": "HOME-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-09",
+  "screen": "HOME-09",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Cảnh báo mở, Thời điểm số liệu"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Mọi ô số mang scope, as_of, snapshot, công thức; drill giữ ngữ cảnh và kiểm lại quyền ở đích\""
+  ]
+ },
+ {
+  "case": "TC-UI-HOME-10",
+  "screen": "HOME-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Tử số/mẫu số trả riêng; tổng con khớp tổng cha hoặc nêu lý do không cộng được; thiếu dữ liệu không thành 0\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-HUB-01",
+  "screen": "HUB-01",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Mã và tên bộ kết nối, Trạng thái sức khỏe, Trạng thái chờ bên ngoài, Bộ chỉ tiêu sức khỏe (tỷ lệ khỏe, tuổi cũ nhất, lỗi 7 ngày, chênh lệch tồn đọng, ánh xạ chờ duyệt)"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Một danh mục cho mọi kết nối dữ liệu bên ngoài; trạng thái KHỎE, CŨ, LỖI, TẮT, CHỜ BÊN NGOÀI, CHƯA CHẠY; số liệu có biểu tượng i (công thức, nguồn, thời điểm); bộ kết nối chờ bên ngoài không tính vào tỷ lệ khỏe.\""
+  ]
+ },
+ {
+  "case": "TC-UI-HUB-02",
+  "screen": "HUB-02",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Tổng quan và công tắc bật tắt, Lịch sử chạy, Quy trình ETL (trích xuất, kiểm tra, biến đổi, nạp), bản ghi bị loại, lịch chạy, Ánh xạ và phiên bản, Tài khoản và tác tử thu thập, Mẫu tệp và chính sách độ mới, Liên kết tới màn hình riêng của bộ kết nối"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Bật hoặc tắt kèm lý do (chuyển cho lệnh riêng của bộ kết nối khi có); ánh xạ do người này đề xuất và người khác duyệt; bản ghi bị loại xử lý lại sau khi sửa; bí mật không nằm trong cơ sở dữ liệu, chỉ có tham chiếu kho khóa.\""
+  ]
+ },
+ {
+  "case": "TC-UI-HUB-03",
+  "screen": "HUB-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi bộ kết nối chỉ có một sự cố mở cho mỗi loại; điều kiện hết thì sự cố tự đóng; nhận xử lý và đóng cần lý do; nhật ký chỉ ghi thêm.\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-01",
+  "screen": "IAM-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Tất cả người dùng (nhân sự, khách nhà thầu)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-02",
+  "screen": "IAM-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Tất cả người dùng (nhân sự, khách nhà thầu)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-03",
+  "screen": "IAM-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Tất cả người dùng (nhân sự, khách nhà thầu)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-04",
+  "screen": "IAM-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Tất cả người dùng (nhân sự, khách nhà thầu)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-05",
+  "screen": "IAM-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Tất cả người dùng (nhân sự, khách nhà thầu)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-06",
+  "screen": "IAM-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Tất cả người dùng (nhân sự, khách nhà thầu)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-07",
+  "screen": "IAM-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Tất cả người dùng (nhân sự, khách nhà thầu)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-08",
+  "screen": "IAM-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Tất cả người dùng (nhân sự, khách nhà thầu)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-IAM-09",
+  "screen": "IAM-09",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "order",
+    "detail": "fields out of the order of the catalogue: Phạm vi, Hiệu lực"
+   }
+  ],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (SESSION_EXPIRED; trạng thái stale khi scope_version tăng) với correlation_id",
+   "không mất dữ liệu nhập khi 409"
+  ]
+ },
+ {
+  "case": "TC-UI-IND-01",
+  "screen": "IND-01",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Trạng thái xác nhận"
+   }
+  ],
+  "notDecided": [
+   "giá trị khởi điểm ghi rõ chưa xác nhận",
+   "chỉ tiêu do hệ thống tính không có ô nhập"
+  ]
+ },
+ {
+  "case": "TC-UI-IND-02",
+  "screen": "IND-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "quy tắc khởi điểm ghi là khuôn chưa áp dụng",
+   "kết quả chạy thử nêu từng quy tắc và lý do"
+  ]
+ },
+ {
+  "case": "TC-UI-IND-03",
+  "screen": "IND-03",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Người lập, Chạy thử và áp dụng tệp"
+   }
+  ],
+  "notDecided": [
+   "bảng mẫu ghi là khuôn chưa dùng được để đọc tệp",
+   "chạy thử không ghi gì",
+   "dòng bị từ chối nêu dòng",
+   "trường và mã"
+  ]
+ },
+ {
+  "case": "TC-UI-INT-01",
+  "screen": "INT-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi tài khoản máy đọc đúng phạm vi đã cấp và chỉ dữ liệu của tổ chức mình; bí mật hiện một lần rồi chỉ còn giá trị băm; tạm khóa có hiệu lực ngay cả với mã truy cập còn sống; thu hồi là cuối cùng và thu hồi mọi thông tin xác thực; mọi thao tác có lý do và vào nhật ký kiểm toán\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-INT-02",
+  "screen": "INT-02",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Gợi ý bí mật, Trạng thái khóa, Hạn chuyển tiếp"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Phạm vi chỉ cho đọc, không có phạm vi ghi; đổi khóa giữ khóa cũ trong thời gian chuyển tiếp có hạn (tối đa 72 giờ) và không bao giờ quá hai khóa còn sống; bí mật mới chỉ hiện một lần, phát lại yêu cầu không trả lại bí mật\""
+  ]
+ },
+ {
+  "case": "TC-UI-INT-03",
+  "screen": "INT-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mở rộng bảng master_crosswalk, không có bảng định danh mới; người đề xuất không tự duyệt (SELF_APPROVAL_DENIED); một mã ngoài chỉ thuộc một dự án và một dự án chỉ giữ một mã ACTIVE cho mỗi hệ thống; mã phải khớp khuôn dạng hệ thống khai báo; REJECTED và RETIRED là cuối cùng, mã sai thay bằng đề xuất mới\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-INT-04",
+  "screen": "INT-04",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Tên đăng nhập CSDL, Số kết nối tối đa, Lần đổi mật khẩu gần nhất"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Mỗi tổ chức một tài khoản CSDL cho mỗi công cụ, chỉ đọc, gắn với tổ chức bằng chính tên đăng nhập, không bằng biến phiên app.tenant_id; view chỉ có dữ liệu đã chốt của tập dữ liệu đang CERTIFIED và đã bật; đổi app.tenant_id sang tổ chức khác không đọc được gì; mật khẩu hiện một lần và CSDL chỉ giữ giá trị SCRAM; ngừng tài khoản thì xóa tài khoản CSDL\""
+  ]
+ },
+ {
+  "case": "TC-UI-INT-05",
+  "screen": "INT-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi lần đọc là một dòng, không sửa và không xóa được; chỉ ghi tên tham số truy vấn, không ghi giá trị; lần bị từ chối vì phạm vi, vì tập dữ liệu chưa chứng nhận hoặc vì vượt giới hạn tần suất cũng có dòng; đọc qua tài khoản CSDL của công cụ BI ghi ở nhật ký máy chủ CSDL, không ở đây\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-01",
+  "screen": "ISS-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-02",
+  "screen": "ISS-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-03",
+  "screen": "ISS-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-04",
+  "screen": "ISS-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-05",
+  "screen": "ISS-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-06",
+  "screen": "ISS-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-07",
+  "screen": "ISS-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-08",
+  "screen": "ISS-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-09",
+  "screen": "ISS-09",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Ngưỡng leo thang"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Mỗi thay đổi tạo phiên bản mới; vướng mắc giữ SLA đã áp tại thời điểm tạo\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-10",
+  "screen": "ISS-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Leo thang không đóng vướng mắc gốc; cấp 3 phải đến tổ công tác đang hoạt động\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-ISS-11",
+  "screen": "ISS-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Nội dung liên quan dữ liệu cá nhân không đưa vào vướng mắc; không tạo trùng cho cùng nguồn đang mở\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-01",
+  "screen": "LLM-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-02",
+  "screen": "LLM-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-03",
+  "screen": "LLM-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-04",
+  "screen": "LLM-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-05",
+  "screen": "LLM-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-06",
+  "screen": "LLM-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-07",
+  "screen": "LLM-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-08",
+  "screen": "LLM-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-09",
+  "screen": "LLM-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-10",
+  "screen": "LLM-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-11",
+  "screen": "LLM-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-12",
+  "screen": "LLM-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-13",
+  "screen": "LLM-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-14",
+  "screen": "LLM-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-15",
+  "screen": "LLM-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-16",
+  "screen": "LLM-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-17",
+  "screen": "LLM-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-18",
+  "screen": "LLM-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-19",
+  "screen": "LLM-19",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Tuyến trong nước, Tuyến tự host, Điều kiện (DPA, ẩn danh, D07), Người duyệt"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Ma trận là dữ liệu có hiệu lực; INTERNAL trở lên không bao giờ tới tuyến quốc tế; bật quốc tế cần d07_approval_ref; người duyệt khác người soạn\""
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-20",
+  "screen": "LLM-20",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mọi lệnh ghi/tiền/quyết định dựa trên đầu ra AI phải có bản ghi; thiếu bản ghi → command bị từ chối\"",
+   "fields: the screen (a list) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LLM-21",
+  "screen": "LLM-21",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Audit ghi tuyến đã dùng cho từng request; không chứa nội dung prompt; drill tới attempt và chi phí\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-01",
+  "screen": "LND-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Số liệu theo snapshot; tiến độ hiển thị kể cả khi Trung tâm quỹ đất thực hiện\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a dashboard) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-02",
+  "screen": "LND-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Không hiển thị chủ sử dụng; nhóm đất quyết định bộ đếm 90/180 ngày\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a map) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-03",
+  "screen": "LND-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Dữ liệu PERSONAL: mã hóa, che khi hiển thị, giới hạn theo đơn vị; cần căn cứ xử lý và thời hạn lưu\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-04",
+  "screen": "LND-04",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Thửa, Loại tài sản, Số lượng, Đơn giá (quyết định giá), Thành tiền, Hộ xác nhận"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Đơn giá phải theo quyết định giá còn hiệu lực; hộ phản đối chuyển DISPUTED\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-05",
+  "screen": "LND-05",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Đơn vị thực hiện, Tổng bồi thường, Tổng hỗ trợ, Tổng tái định cư, Tổng cộng, Quyết định"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Chỉ dựa trên kiểm đếm đã xác nhận; duyệt sau niêm yết đủ ngày và xử lý ý kiến; duyệt khác người lập\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-06",
+  "screen": "LND-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Bộ đếm theo rule hiệu lực; không đóng niêm yết sớm\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a timeline) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-07",
+  "screen": "LND-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chi trong 30 ngày kể từ phê duyệt; trễ phải có lý do; gửi tiền khi hộ không nhận\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a funding) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-08",
+  "screen": "LND-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Vướng mắc ISS chỉ chứa mã, không chứa nội dung khiếu nại\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-09",
+  "screen": "LND-09",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Cơ quan, Ngày dự kiến, Ngày thực hiện"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Cần điều kiện tiên quyết và quyết định cho bước thực hiện; người chuyển bước khác người lập\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-10",
+  "screen": "LND-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ bàn giao cho hợp đồng ACTIVE; không vượt diện tích cần\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-11",
+  "screen": "LND-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chế độ theo dõi ngoài nhận báo cáo có bằng chứng; trễ hạn tạo vướng mắc\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-12",
+  "screen": "LND-12",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Loại, Mã lô/căn, Khu tái định cư, Thứ tự ưu tiên, Ngày bàn giao"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Một lô/căn chỉ gán cho một hộ tại một thời điểm\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-LND-13",
+  "screen": "LND-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Không xóa dữ liệu đang là chứng từ chi trả; ghi lý do từ chối một phần\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a confirm) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-01",
+  "screen": "MDM-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-02",
+  "screen": "MDM-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-03",
+  "screen": "MDM-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-04",
+  "screen": "MDM-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-05",
+  "screen": "MDM-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-06",
+  "screen": "MDM-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-07",
+  "screen": "MDM-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-08",
+  "screen": "MDM-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-09",
+  "screen": "MDM-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-10",
+  "screen": "MDM-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-11",
+  "screen": "MDM-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-12",
+  "screen": "MDM-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-13",
+  "screen": "MDM-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-14",
+  "screen": "MDM-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-15",
+  "screen": "MDM-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-16",
+  "screen": "MDM-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-17",
+  "screen": "MDM-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-18",
+  "screen": "MDM-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-19",
+  "screen": "MDM-19",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-20",
+  "screen": "MDM-20",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-21",
+  "screen": "MDM-21",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-22",
+  "screen": "MDM-22",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-23",
+  "screen": "MDM-23",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-24",
+  "screen": "MDM-24",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-25",
+  "screen": "MDM-25",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-26",
+  "screen": "MDM-26",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-27",
+  "screen": "MDM-27",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-28",
+  "screen": "MDM-28",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-29",
+  "screen": "MDM-29",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-30",
+  "screen": "MDM-30",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-31",
+  "screen": "MDM-31",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-32",
+  "screen": "MDM-32",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-33",
+  "screen": "MDM-33",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-34",
+  "screen": "MDM-34",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Thuật ngữ có vòng duyệt; người đề xuất không tự duyệt; chỉ một phiên bản PUBLISHED mỗi mã\""
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-35",
+  "screen": "MDM-35",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Merge giữ alias và danh sách tham chiếu đã trỏ lại để unmerge đảo được; mã ngoài ACTIVE duy nhất theo hệ thống nguồn\"",
+   "fields: the screen (a compare) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-36",
+  "screen": "MDM-36",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi thuộc tính một chiến lược có phiên bản; SOURCE_PRIORITY cần danh sách nguồn; thiếu quy tắc thì steward quyết định\""
+  ]
+ },
+ {
+  "case": "TC-UI-MDM-37",
+  "screen": "MDM-37",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Sáp nhập tỉnh/xã, bỏ cấp huyện, hợp nhất sở theo cải cách 2025 ghi bằng succession có hiệu lực; báo cáo lịch sử giữ tên tại ngày nghiệp vụ [CXN-34]\"",
+   "fields: the screen (a tree) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-01",
+  "screen": "MNE-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Nghĩa vụ là dữ liệu có legal_basis + hiệu lực; hạn tính từ due_rule của phiên bản hiệu lực tại kỳ [CXN-10]\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-02",
+  "screen": "MNE-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mẫu biểu là dữ liệu có phiên bản; báo cáo dùng phiên bản hiệu lực tại ngày cuối kỳ; mã mẫu 02–10 chờ xác nhận [CXN-10]\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-03",
+  "screen": "MNE-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Số liệu lấy từ PeriodSnapshot FROZEN; không nhập tay chỉ tiêu tài chính đã có nguồn; thuyết minh bắt buộc\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-04",
+  "screen": "MNE-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Sự kiện khởi công/điều chỉnh/hoàn thành của PRJ tạo nghĩa vụ báo cáo dự án theo quy tắc EVENT\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-05",
+  "screen": "MNE-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Người duyệt khác người lập; phát hành qua DOC (soạn→ký→cấp số→phát hành); MNE chỉ ISSUED khi DOC phát sự kiện ISSUED\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-06",
+  "screen": "MNE-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Không gọi API hệ thống quốc gia; xuất tệp theo mẫu, người dùng nộp và ghi số tiếp nhận; adapter_status PROPOSED/MOCK hiển thị rõ\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-07",
+  "screen": "MNE-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Sinh từ snapshot tuần FROZEN theo CV 3665/BTC-PTHT (2026) [CXN-11]; cùng tử số/mẫu số với DIS-19\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-08",
+  "screen": "MNE-08",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Loại đánh giá, Đơn vị đánh giá, Kiến nghị"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Đánh giá ban đầu/giữa kỳ/kết thúc/tác động/đột xuất; nộp cần kết luận và ngày hoàn thành; người duyệt khác người lập\""
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-09",
+  "screen": "MNE-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Trễ = thời điểm SUBMITTED_EXTERNAL (hoặc hiện tại nếu chưa nộp) > hạn theo phiên bản nghĩa vụ; không tính trễ cho nghĩa vụ đã hết hiệu lực\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-MNE-10",
+  "screen": "MNE-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Báo cáo đã phát hành bất biến; đính chính tạo revision mới có lý do, phát hành lại qua DOC, bản cũ SUPERSEDED\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-01",
+  "screen": "NOT-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Người nhận thông báo (mọi membership)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-02",
+  "screen": "NOT-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Người nhận thông báo (mọi membership)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-03",
+  "screen": "NOT-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD",
+   "permission: the catalogue gives the screen to \"Người nhận thông báo (mọi membership)\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-04",
+  "screen": "NOT-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-05",
+  "screen": "NOT-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-06",
+  "screen": "NOT-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-07",
+  "screen": "NOT-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-08",
+  "screen": "NOT-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-09",
+  "screen": "NOT-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-10",
+  "screen": "NOT-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-11",
+  "screen": "NOT-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-12",
+  "screen": "NOT-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-13",
+  "screen": "NOT-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-14",
+  "screen": "NOT-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-15",
+  "screen": "NOT-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-16",
+  "screen": "NOT-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-NOT-17",
+  "screen": "NOT-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (CHANNEL_IDENTITY_UNVERIFIED, CONSENT_STATE_INVALID) với correlation_id",
+   "không mất dữ liệu nhập khi 409",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-01",
+  "screen": "OMNI-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-02",
+  "screen": "OMNI-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-03",
+  "screen": "OMNI-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-04",
+  "screen": "OMNI-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-05",
+  "screen": "OMNI-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-06",
+  "screen": "OMNI-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-07",
+  "screen": "OMNI-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-08",
+  "screen": "OMNI-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-09",
+  "screen": "OMNI-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-10",
+  "screen": "OMNI-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-OMNI-11",
+  "screen": "OMNI-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (INBOX_STATE_INVALID) với correlation_id",
+   "không mất dữ liệu nhập khi 409",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-01",
+  "screen": "PAY-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-02",
+  "screen": "PAY-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-03",
+  "screen": "PAY-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-04",
+  "screen": "PAY-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-05",
+  "screen": "PAY-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-06",
+  "screen": "PAY-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-07",
+  "screen": "PAY-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-08",
+  "screen": "PAY-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-09",
+  "screen": "PAY-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-10",
+  "screen": "PAY-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Tổng đề nghị ≤ giá trị nghiệm thu ≤ giá trị hợp đồng (CHECK DB); sửa sai bằng bút toán đảo, không xóa\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a reconcile) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-11",
+  "screen": "PAY-11",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Trần cho phép, Bảo lãnh tạm ứng"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Chỉ sau khi hợp đồng có hiệu lực và có bảo lãnh tạm ứng hợp lệ; không vượt trần theo loại hợp đồng\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-12",
+  "screen": "PAY-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Tạm ứng GPMB thu hồi trong 30 ngày; cảnh báo T-7, đến hạn, quá hạn, leo thang; không tự đánh dấu đã thu hồi\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-13",
+  "screen": "PAY-13",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Dòng mới, Dòng trùng, Dòng xung đột, Dòng lỗi, Trạng thái"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Idempotent theo mã băm tệp + khóa nghiệp vụ từng dòng; nạp lại báo đã nạp; dòng lỗi vào quarantine\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-14",
+  "screen": "PAY-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mẫu sinh từ DOC theo phiên bản có hiệu lực; mẫu chưa xác nhận [CXN-08] không cho gửi\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a documents) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-15",
+  "screen": "PAY-15",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Phạm vi, Giá trị quyết toán, Tạm ứng chưa thu, Ngoại lệ đóng"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Đóng khi còn công nợ/tạm ứng cần phê duyệt ngoại lệ; hạn thẩm tra theo nhóm dự án\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-16",
+  "screen": "PAY-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Hạn tính theo nhóm dự án tại ngày nộp bằng rule có hiệu lực; mẫu chưa xác nhận không sinh\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a calendar) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PAY-17",
+  "screen": "PAY-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chuỗi truy vết theo tenant và phiên bản, chỉ đọc\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a tree) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PMT-01",
+  "screen": "PMT-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Danh mục bắt buộc sinh theo loại giấy phép áp dụng; mục [CXN] chưa xác nhận có cờ cảnh báo\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PMT-02",
+  "screen": "PMT-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Một giấy phép hiện hành mỗi loại; cấp lại tạo bản mới thay thế\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a timeline) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PMT-03",
+  "screen": "PMT-03",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Điều kiện áp dụng, Được miễn"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Dữ liệu có legal_basis và hiệu lực; không sửa bản đang dùng\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-PMT-04",
+  "screen": "PMT-04",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Mốc PRJ bị chặn, Điều kiện áp dụng"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Cổng đánh giá theo quy tắc hiệu lực tại ngày; miễn trừ có thời hạn và văn bản\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-PMT-05",
+  "screen": "PMT-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Cảnh báo 60/30/15/0 ngày khử trùng; hết hạn tự tạo vướng mắc; không tự gia hạn\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PMT-06",
+  "screen": "PMT-06",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Căn cứ miễn, Người duyệt, Miễn trừ cổng đến ngày"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Người duyệt khác người đề xuất; miễn trừ tối đa theo rule\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-01",
+  "screen": "PRJ-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-02",
+  "screen": "PRJ-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-03",
+  "screen": "PRJ-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-04",
+  "screen": "PRJ-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-05",
+  "screen": "PRJ-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-06",
+  "screen": "PRJ-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-07",
+  "screen": "PRJ-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-08",
+  "screen": "PRJ-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-09",
+  "screen": "PRJ-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-10",
+  "screen": "PRJ-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-11",
+  "screen": "PRJ-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-12",
+  "screen": "PRJ-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-13",
+  "screen": "PRJ-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-14",
+  "screen": "PRJ-14",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Mã dự án TTQG, Sẵn sàng bố trí vốn"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Chuyển giai đoạn chỉ qua command có guard (bảng transition), căn cứ quyết định và người duyệt khác người đề xuất\""
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-15",
+  "screen": "PRJ-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Tổng điểm = Σ(điểm × trọng số)/5, làm tròn 2 chữ số; người thẩm định khác người đề xuất; ngưỡng vào ngân hàng dự án là dữ liệu có hiệu lực\"",
+   "fields: the screen (a criteria) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-16",
+  "screen": "PRJ-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Điểm = khả năng × tác động (1–25); điểm ≥15 là CRITICAL và sinh cảnh báo HOME-03; đóng rủi ro phải có lý do\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-17",
+  "screen": "PRJ-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi dự án tối đa một LEADER_IN_CHARGE ACTIVE; kết thúc phân công phải có ngày và lý do; lịch sử không bị ghi đè\"",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-18",
+  "screen": "PRJ-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Thành viên phải có membership trong tenant và scope giao với phạm vi tổ; giải thể tổ kết thúc mọi thành viên cùng transaction\"",
+   "fields: the screen (a list) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-19",
+  "screen": "PRJ-19",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Giải trình gắn cảnh báo/kỳ; quá hạn chuyển OVERDUE nhưng vẫn nhận phản hồi có cờ trễ; người kết luận khác người phản hồi\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-20",
+  "screen": "PRJ-20",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ chuyển trong cùng tenant; báo cáo trước ngày hiệu lực giữ đơn vị cũ; người duyệt khác người đề nghị\""
+  ]
+ },
+ {
+  "case": "TC-UI-PRJ-21",
+  "screen": "PRJ-21",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Tệp nhập, Dòng lỗi"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Mã TTQG duy nhất trong tenant; nhập bằng tệp có hash chống nạp lại; dự án có vốn mà thiếu mã bị chặn theo quy tắc dữ liệu [CXN-01]\""
+  ]
+ },
+ {
+  "case": "TC-UI-PWA-01",
+  "screen": "PWA-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Chỉ hiện số việc chờ duyệt; không lưu số liệu nghiệp vụ trong bộ nhớ đệm của trình duyệt; thông báo chỉ mang tiêu đề chung và đường dẫn\"",
+   "không hiện số 0 khi chưa đọc được số liệu",
+   "fields: the screen (a cards) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PWA-02",
+  "screen": "PWA-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Quyết định gửi một lần khi đang trực tuyến, kèm phiên bản của việc (If-Match), xác thực bước hai (aal2) và khóa chống gửi lặp; trả lại bắt buộc có ý kiến; không xếp hàng, không gửi từ thông báo\"",
+   "không hiện số 0 khi chưa đọc được số liệu",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PWA-03",
+  "screen": "PWA-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Cùng nguồn số liệu và mô hình với HOME-09; số liệu không có thì nói rõ, không hiện 0; số liệu thuộc về bản chốt đang xem\"",
+   "không hiện số 0 khi chưa đọc được số liệu",
+   "fields: the screen (a dashboard) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PWA-04",
+  "screen": "PWA-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Đọc từ listDirectives và getDirectiveSummary trong phạm vi của người đọc; tiến độ chưa báo cáo nói rõ, không hiện 0%; nội dung chỉ đạo chỉ hiện trong ứng dụng, không đưa vào thông báo\"",
+   "không hiện số 0 khi chưa đọc được số liệu",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PWA-07",
+  "screen": "PWA-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Danh sách đọc từ listMySessions và listMyDevices; thu hồi phiên hiện tại bị từ chối; lưu thông báo kèm phiên bản; kênh bắt buộc không tắt được\"",
+   "không hiện số 0 khi chưa đọc được số liệu",
+   "permission: the catalogue gives the screen to \"Mọi người dùng đã đăng nhập\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-PWA-08",
+  "screen": "PWA-08",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Nguyên nhân chậm giải ngân, Mức cảnh báo"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Cùng bản chốt và cùng mô hình với HOME-09; một cột, không cuộn ngang ở 360 px\"",
+   "không hiện số 0 khi chưa đọc được số liệu"
+  ]
+ },
+ {
+  "case": "TC-UI-PWA-09",
+  "screen": "PWA-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Cùng nguồn và cùng cách tính với BID-27; danh sách một cột thay cho cây đồ thị\"",
+   "không hiện số 0 khi chưa đọc được số liệu",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-PWA-10",
+  "screen": "PWA-10",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Đăng ký và hủy đăng ký thiết bị, Thông báo thử gửi cho chính mình"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Thông báo chỉ mang tiêu đề chung và đường dẫn; thông báo thử chỉ gửi cho chính người dùng; đăng ký bắt đầu từ thao tác chạm của người dùng\"",
+   "không hiện số 0 khi chưa đọc được số liệu",
+   "permission: the catalogue gives the screen to \"Mọi người dùng đã đăng nhập\", so no persona lacks the right to what it offers"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-01",
+  "screen": "QMS-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Một nhật ký chính mỗi hợp đồng mỗi ngày; điều chỉnh sau khóa bằng bản điều chỉnh\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-02",
+  "screen": "QMS-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Ký băm nội dung; sửa sau khi ký bị chặn; phân biệt xác nhận nội bộ và chữ ký số\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a form) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-03",
+  "screen": "QMS-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Mỗi vai trò ký đúng một lần theo hash nội dung; If-Match chống ghi đè\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-04",
+  "screen": "QMS-04",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Hạng mục BOQ, Loại kiểm tra, Vị trí, Nhật ký liên quan"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Hợp đồng ACTIVE và cổng giấy phép đạt; quy chế áp dụng theo ngày đề nghị\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-05",
+  "screen": "QMS-05",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Vai trò phải ký, Đã ký, Quyết định"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Duyệt cần đủ chữ ký theo quy chế và không còn NCR nghiêm trọng; duyệt phát sự kiện cho CTR\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-06",
+  "screen": "QMS-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Không đạt tự tạo NCR; kết quả cần báo cáo đính kèm\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a table) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-07",
+  "screen": "QMS-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"NCR CRITICAL chặn nghiệm thu; xác nhận khác người khắc phục\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a board) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-08",
+  "screen": "QMS-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Cờ EXIF/GPS/thời gian/trùng lặp chỉ để rà soát, không kết luận xác thực; vị trí chỉ khi có đồng ý\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a map) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-QMS-11",
+  "screen": "QMS-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Tính theo lịch làm việc; ký bù hiển thị số ngày muộn\"",
+   "lỗi nghiệp vụ hiển thị mã Problem ổn định",
+   "fields: the screen (a calendar) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-01",
+  "screen": "RPT-01",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Mã và tên biểu mẫu, Trạng thái biểu mẫu (mẫu demo, nháp, sẵn sàng), Có phát hành được không, Chọn kỳ và lập báo cáo"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Biểu mẫu demo luôn hiện nhãn 'MẪU DEMO — chờ mẫu chính thức' và chỉ lập được khi chế độ demo bật (R18); bản công khai không có biểu mẫu của bản doanh nghiệp; lập lại cùng số liệu không tạo bản nháp thứ hai; số khác bản đã phát hành phải có lý do (R17)\""
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-02",
+  "screen": "RPT-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Ba người khác nhau: người kiểm khác người lập, người duyệt khác cả hai, người phát hành là người duyệt; đúng thứ tự; bản nháp lập trước khi chuỗi bản tiến lên bị từ chối (REPORT_OUT_OF_DATE); biểu mẫu demo bị tắt chế độ demo thì không phát hành được; ô không có số để trống kèm lý do, không bao giờ là 0\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-03",
+  "screen": "RPT-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Bản đã phát hành không sửa và không xóa; bản sửa là phiên bản mới nêu bản bị thay và lý do; giao bản đã bị thay là REPORT_OUT_OF_DATE, giao lại cùng nội dung cho cùng bên nhận là ALREADY_DELIVERED; bản mẫu demo không bao giờ được ghi là đã nhận (R18); tải tệp luôn kiểm lại mã băm\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-04",
+  "screen": "RPT-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Nhật ký chỉ thêm, không sửa, không xóa; kênh đẩy của hệ thống tập đoàn chỉ do bộ nối ENT-2 ghi; lần giao của bản mẫu demo luôn hiện là chưa tính đã nhận\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-05",
+  "screen": "RPT-05",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Kỳ báo cáo"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Bốn mẫu gửi Bộ Tài chính ở trạng thái chờ biểu mẫu chính thức: soạn và xem được nhưng không phát hành được; bản gửi người nhận cần chữ ký số thật khớp mã băm của bản phát hành; chữ ký thử không được tính.\""
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-06",
+  "screen": "RPT-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "áp quy tắc \"Người duyệt ký số mã băm của bản phát hành qua cổng ký của DOC; kỳ bị khóa khi bản được ký (hoặc được nhận); kỳ khóa không nhận bản mới; mở khóa cần người thứ hai và lý do đủ dài, quy tắc ghi chưa kiểm chứng.\"",
+   "fields: the screen shows a state card on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-07",
+  "screen": "RPT-07",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Phiên bản đang hiệu lực, Trạng thái phiên bản, Người lập, Người duyệt, Hiệu lực từ, Mã băm bố cục"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Bố cục nội bộ và bố cục theo mẫu của đơn vị yêu cầu là quy tắc quản trị loại REPORT_LAYOUT có phiên bản: người lập khác người trình khác người duyệt, ghi nhật ký ADM-11; mẫu do PVN, HPM, Bộ Tài chính quy định do mã đặt, không sửa được ở đây; bản đã phát hành giữ phiên bản và mã băm bố cục lúc phát hành.\""
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-08",
+  "screen": "RPT-08",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Loại và tên biểu mẫu, Đơn vị yêu cầu và văn bản yêu cầu, Cột bảng dự án và thứ tự"
+   }
+  ],
+  "notDecided": [
+   "áp quy tắc \"Người dùng chỉ chọn chỉ tiêu, cột, nhóm dự án, thứ tự và tiêu đề, không thiết kế ô tự do; xem trước dùng số liệu minh họa ghi rõ; lưu thành bản nháp của quy tắc, trình và duyệt qua màn quản trị quy tắc.\""
+  ]
+ },
+ {
+  "case": "TC-UI-RPT-09",
+  "screen": "RPT-09",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Kỳ (tháng hoặc quý) và các báo cáo cùng kỳ được so sánh: báo cáo tháng PVN, quý, giao ban, HPM và bản chốt kỳ, Độ phủ: số quy tắc đã chạy, số phép so sánh, số phép bị bỏ qua và lý do, Từng số lệch: quy tắc, chỉ tiêu, số kỳ vọng, số thực tế, chênh lệch, dung sai, mức chặn hoặc cảnh báo, Công thức, nguồn và thời điểm của từng số hạng, Đường giải trình (lập lại báo cáo, gán đơn vị, hoàn tất tháng còn thiếu, giải trình), Giải trình đã ghi: người, lý do, thời điểm"
+   }
+  ],
+  "notDecided": [
+   "a comparison that made no comparison says so and never reads as agreeing",
+   "the short reason is refused on the screen and sends nothing",
+   "the explanation goes with the fingerprint and the period"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-01",
+  "screen": "SAS-01",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-02",
+  "screen": "SAS-02",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-03",
+  "screen": "SAS-03",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-04",
+  "screen": "SAS-04",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-05",
+  "screen": "SAS-05",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-06",
+  "screen": "SAS-06",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-07",
+  "screen": "SAS-07",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-08",
+  "screen": "SAS-08",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-09",
+  "screen": "SAS-09",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-10",
+  "screen": "SAS-10",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-11",
+  "screen": "SAS-11",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-12",
+  "screen": "SAS-12",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-13",
+  "screen": "SAS-13",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-14",
+  "screen": "SAS-14",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-15",
+  "screen": "SAS-15",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-16",
+  "screen": "SAS-16",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-17",
+  "screen": "SAS-17",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-18",
+  "screen": "SAS-18",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-19",
+  "screen": "SAS-19",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-20",
+  "screen": "SAS-20",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-21",
+  "screen": "SAS-21",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "dữ liệu/validation theo Module_Implementation_Contracts và FRD"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-22",
+  "screen": "SAS-22",
+  "result": "PASS",
+  "findings": [],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (TENANT_STATE_INVALID; bước FAILED hiển thị error_code) với correlation_id",
+   "không mất dữ liệu nhập khi 409",
+   "fields: the screen (a timeline) shows no record and no form on the data of the seeded stack, so it shows no field"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-23",
+  "screen": "SAS-23",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Kết quả đối chiếu, Người duyệt cutover, Trạng thái"
+   }
+  ],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (MIGRATION_VERIFICATION_FAILED, SELF_APPROVAL_DENIED) với correlation_id",
+   "không mất dữ liệu nhập khi 409"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-24",
+  "screen": "SAS-24",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Loại xử lý, Dòng điều chỉnh, Tổng sau điều chỉnh"
+   }
+  ],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (EINVOICE_ADJUSTMENT_INVALID, EINVOICE_ALREADY_REPLACED) với correlation_id",
+   "không mất dữ liệu nhập khi 409"
+  ]
+ },
+ {
+  "case": "TC-UI-SAS-25",
+  "screen": "SAS-25",
+  "result": "FAIL",
+  "findings": [
+   {
+    "clause": "fields",
+    "detail": "fields of the catalogue not on the screen: Chế độ khi grace, Hiệu lực ghi đè, Người duyệt"
+   }
+  ],
+  "notDecided": [
+   "lỗi hiển thị theo Problem.code (SELF_APPROVAL_DENIED, FEATURE_UNKNOWN) với correlation_id",
+   "không mất dữ liệu nhập khi 409"
+  ]
+ }
+]

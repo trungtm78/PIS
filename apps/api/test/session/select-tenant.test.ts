@@ -265,7 +265,7 @@ describe('selectTenantContext, session binding and revocation (ST-IAM-003)', () 
         expect(reply.status).toBe(403);
         expect(reply.json.code).toBe('TENANT_SELECTION_INVALID');
       }
-      const strip = (json: Record<string, unknown>) => ({ ...json, correlationId: 'x' });
+      const strip = (json: Record<string, unknown>) => ({ ...json, correlation_id: 'x' });
       expect(strip(foreign.json)).toEqual(strip(missing.json));
       expect(strip(foreign.json)).toEqual(strip(wrongTenant.json));
       expect(JSON.stringify(foreign.json)).not.toContain('tenant-active');
@@ -444,7 +444,7 @@ describe('selectTenantContext, session binding and revocation (ST-IAM-003)', () 
         expect(reply.status).toBe(401);
         expect(reply.json.code).toBe('SESSION_EXPIRED');
       }
-      const strip = (json: Record<string, unknown>) => ({ ...json, correlationId: 'x' });
+      const strip = (json: Record<string, unknown>) => ({ ...json, correlation_id: 'x' });
       expect(strip(locked.json)).toEqual(strip(unknown.json));
       expect(strip(locked.json)).toEqual(strip(forged.json));
     });
@@ -519,7 +519,7 @@ describe('selectTenantContext, session binding and revocation (ST-IAM-003)', () 
       const missing = await api('GET', `/resources/membership/${member(99)}`, token);
       expect(other.status).toBe(404);
       expect(missing.status).toBe(404);
-      expect({ ...other.json, correlationId: 'x' }).toEqual({ ...missing.json, correlationId: 'x' });
+      expect({ ...other.json, correlation_id: 'x' }).toEqual({ ...missing.json, correlation_id: 'x' });
     });
 
     it('masks personal data for a caller who may read memberships but does not manage them', async () => {

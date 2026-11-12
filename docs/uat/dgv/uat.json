@@ -264,7 +264,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-02",
@@ -303,7 +308,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-03",
@@ -342,7 +352,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-04",
@@ -381,7 +396,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-05",
@@ -420,7 +440,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-06",
@@ -459,7 +484,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-07",
@@ -498,7 +528,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-08",
@@ -537,7 +572,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-09",
@@ -576,7 +616,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-10",
@@ -615,7 +660,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-11",
@@ -654,7 +704,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-12",
@@ -693,7 +748,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-13",
@@ -732,7 +792,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-14",
@@ -771,7 +836,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-15",
@@ -810,7 +880,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-16",
@@ -849,7 +924,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-17",
@@ -888,7 +968,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-18",
@@ -927,7 +1012,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-19",
@@ -966,7 +1056,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-20",
@@ -1005,7 +1100,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-DGV-21",
@@ -1044,7 +1144,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC483",

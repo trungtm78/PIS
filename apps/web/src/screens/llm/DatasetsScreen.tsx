@@ -40,32 +40,34 @@ function DatasetsContent({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={state} onRetry={() => void datasets.refetch()}>
-        <table className="table" data-testid="dataset-table" aria-label={t('llm.datasets.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.datasets.column.code')}</th>
-              <th scope="col">{t('llm.datasets.column.revision')}</th>
-              <th scope="col">{t('llm.datasets.column.task')}</th>
-              <th scope="col">{t('llm.datasets.column.source')}</th>
-              <th scope="col">{t('llm.datasets.column.max')}</th>
-              <th scope="col">{t('llm.datasets.column.cases')}</th>
-              <th scope="col">{t('llm.datasets.column.injection')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(datasets.data ?? []).map((dataset) => (
-              <tr key={dataset.id} data-dataset-id={dataset.id}>
-                <td>{dataset.code}</td>
-                <td>{dataset.revision}</td>
-                <td>{dataset.taskType}</td>
-                <td>{datasetSourceLabel(t, dataset.source)}</td>
-                <td>{classificationLabel(t, dataset.maxClassification)}</td>
-                <td>{dataset.caseCount}</td>
-                <td>{dataset.injectionCases}</td>
+        <div className="tablewrap" role="region" aria-label={t('llm.datasets.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="dataset-table" aria-label={t('llm.datasets.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.datasets.column.code')}</th>
+                <th scope="col">{t('llm.datasets.column.revision')}</th>
+                <th scope="col">{t('llm.datasets.column.task')}</th>
+                <th scope="col">{t('llm.datasets.column.source')}</th>
+                <th scope="col">{t('llm.datasets.column.max')}</th>
+                <th scope="col">{t('llm.datasets.column.cases')}</th>
+                <th scope="col">{t('llm.datasets.column.injection')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(datasets.data ?? []).map((dataset) => (
+                <tr key={dataset.id} data-dataset-id={dataset.id}>
+                  <td>{dataset.code}</td>
+                  <td>{dataset.revision}</td>
+                  <td>{dataset.taskType}</td>
+                  <td>{datasetSourceLabel(t, dataset.source)}</td>
+                  <td>{classificationLabel(t, dataset.maxClassification)}</td>
+                  <td>{dataset.caseCount}</td>
+                  <td>{dataset.injectionCases}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {(datasets.data ?? []).length === 0 ? <p data-testid="datasets-none">{t('llm.datasets.none')}</p> : null}
         {may ? <DatasetForm /> : null}
       </StateBoundary>

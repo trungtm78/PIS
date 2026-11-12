@@ -6,7 +6,7 @@
 }
 
 .doc-back-link a {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--mv-color-text-secondary);
 }
 
@@ -17,13 +17,13 @@
 .findings {
   margin: 8px 0 0;
   padding-left: 16px;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
 .findings code,
 .facts code {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .facts {

@@ -82,41 +82,43 @@ function RequestsContent({ route }: ScreenProps) {
             </Field>
           </div>
         </div>
-        <table className="table" data-testid="request-table" aria-label={t('llm.requests.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.requests.column.time')}</th>
-              <th scope="col">{t('llm.requests.column.task')}</th>
-              <th scope="col">{t('llm.requests.column.classification')}</th>
-              <th scope="col">{t('llm.requests.column.route')}</th>
-              <th scope="col">{t('llm.requests.column.model')}</th>
-              <th scope="col">{t('llm.requests.column.status')}</th>
-              <th scope="col">{t('llm.requests.column.cost')}</th>
-              <th scope="col">{t('llm.requests.column.detail')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((request) => (
-              <tr key={request.id} data-request-id={request.id} data-status={request.status} data-route={request.route ?? 'NONE'} data-classification={request.classification}>
-                <td>{vietnamDay(request.createdAt)}</td>
-                <td>
-                  {request.taskType} <span className="sub">{request.subjectModule}</span>
-                </td>
-                <td>{classificationLabel(t, request.classification)}</td>
-                <td>{request.route === null ? t('llm.requests.noRoute') : routeLabel(t, request.route)}</td>
-                <td>{request.modelId ?? t('llm.requests.noRoute')}</td>
-                <td>
-                  {requestStatusLabel(t, request.status)}
-                  {request.rejectCode === null ? null : <span className="sub"> · {rejectCodeLabel(t, request.rejectCode)}</span>}
-                </td>
-                <td>{request.costVnd === null ? '—' : `${groupDigits(request.costVnd)} ₫`}</td>
-                <td>
-                  <Link to={`${ROUTING_PATH}?request=${request.id}`}>{t('llm.requests.route')}</Link>
-                </td>
+        <div className="tablewrap" role="region" aria-label={t('llm.requests.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="request-table" aria-label={t('llm.requests.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.requests.column.time')}</th>
+                <th scope="col">{t('llm.requests.column.task')}</th>
+                <th scope="col">{t('llm.requests.column.classification')}</th>
+                <th scope="col">{t('llm.requests.column.route')}</th>
+                <th scope="col">{t('llm.requests.column.model')}</th>
+                <th scope="col">{t('llm.requests.column.status')}</th>
+                <th scope="col">{t('llm.requests.column.cost')}</th>
+                <th scope="col">{t('llm.requests.column.detail')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((request) => (
+                <tr key={request.id} data-request-id={request.id} data-status={request.status} data-route={request.route ?? 'NONE'} data-classification={request.classification}>
+                  <td>{vietnamDay(request.createdAt)}</td>
+                  <td>
+                    {request.taskType} <span className="sub">{request.subjectModule}</span>
+                  </td>
+                  <td>{classificationLabel(t, request.classification)}</td>
+                  <td>{request.route === null ? t('llm.requests.noRoute') : routeLabel(t, request.route)}</td>
+                  <td>{request.modelId ?? t('llm.requests.noRoute')}</td>
+                  <td>
+                    {requestStatusLabel(t, request.status)}
+                    {request.rejectCode === null ? null : <span className="sub"> · {rejectCodeLabel(t, request.rejectCode)}</span>}
+                  </td>
+                  <td>{request.costVnd === null ? '—' : `${groupDigits(request.costVnd)} ₫`}</td>
+                  <td>
+                    <Link to={`${ROUTING_PATH}?request=${request.id}`}>{t('llm.requests.route')}</Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {rows.length === 0 ? <p data-testid="requests-none">{t('llm.requests.none')}</p> : null}
         {requests.hasNextPage ? (
           <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="requests-more" disabled={requests.isFetchingNextPage} onClick={() => void requests.fetchNextPage()}>

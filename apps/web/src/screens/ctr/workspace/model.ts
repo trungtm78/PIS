@@ -18,6 +18,16 @@ const text = (value: unknown): string | undefined => (typeof value === 'string' 
 
 export const COMMANDS = ['submit', 'return', 'sign', 'activate', 'complete', 'close', 'cancel'] as const;
 export type Command = (typeof COMMANDS)[number];
+/** The permission of the command behind each button (x-permission of the operation in openapi.json): the server says whether a contract may take a command, the session whether the person may at all. */
+export const COMMAND_PERMISSION: Readonly<Record<Command, string>> = {
+  submit: 'contract.review.submit',
+  return: 'contract.review.decide',
+  sign: 'contract.sign',
+  activate: 'contract.activate',
+  complete: 'contract.complete',
+  close: 'contract.close',
+  cancel: 'contract.update',
+};
 export type Actions = Record<Command, boolean>;
 
 /** The commands of CTR-22: they stop the work of a contract, let it go on, or end it for good. */

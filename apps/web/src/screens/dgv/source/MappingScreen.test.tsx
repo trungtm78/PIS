@@ -11,10 +11,10 @@ const word = (key: string): string => (vi_ as Record<string, string>)[key] ?? ke
 const PERMISSIONS = ['data.mapping.read', 'data.mapping.manage', 'data.mapping.approve', 'data.catalog.read'];
 const ROUTE = routeOf('DGV-20', 'FR-DGV-20');
 
-function open(state: Partial<World> = {}, options: { mode?: 'FULL' | 'READ_ONLY'; command?: (operation: string, input: unknown) => unknown; path?: string } = {}): Harness & { state: World } {
+function open(state: Partial<World> = {}, options: { mode?: 'FULL' | 'READ_ONLY'; permissions?: readonly string[]; command?: (operation: string, input: unknown) => unknown; path?: string } = {}): Harness & { state: World } {
   const full = world(state);
   const h = client(full, options.command);
-  mountInSession(<MappingScreen route={ROUTE} />, h, { permissions: PERMISSIONS, ...(options.mode === undefined ? {} : { mode: options.mode }) }, options.path ?? '/dgv/dgv-20');
+  mountInSession(<MappingScreen route={ROUTE} />, h, { permissions: options.permissions ?? PERMISSIONS, ...(options.mode === undefined ? {} : { mode: options.mode }) }, options.path ?? '/dgv/dgv-20');
   return { ...h, state: full };
 }
 
@@ -149,6 +149,26 @@ describe('MappingScreen (DGV-20): the mappings of the fields of a source', () =>
     refusal = problem('VERSION_CONFLICT', 409);
     fireEvent.click(within(dialog()).getByRole('button', { name: word('dgv.source.confirm.submit') }));
     await waitFor(() => expect(screen.getByTestId('refusal').textContent).toBe(word('dgv.source.error.versionConflict')));
+  });
+
+  it('shows no button that changes anything to a person who may read the mappings and not propose or decide', async () => {
+    open({ mappings: [mapping(1, { actions: { decide: true } })] }, { permissions: ['data.mapping.read', 'data.catalog.read'] });
+    await screen.findByTestId('mappings');
+    expect(screen.queryByRole('button', { name: word('dgv.source.propose.action') })).toBeNull();
+    expect(document.querySelector('[data-action="confirm"]')).toBeNull();
+    expect(document.querySelector('[data-action="reject"]')).toBeNull();
+  });
+
+  it('offers a proposal to who may manage a mapping, and the decision to who may approve it, each alone', async () => {
+    open({ mappings: [mapping(1, { actions: { decide: true } })] }, { permissions: ['data.mapping.read', 'data.catalog.read', 'data.mapping.manage'] });
+    await screen.findByTestId('mappings');
+    expect(screen.getByRole('button', { name: word('dgv.source.propose.action') })).toBeTruthy();
+    expect(document.querySelector('[data-action="confirm"]')).toBeNull();
+    cleanup();
+    open({ mappings: [mapping(1, { actions: { decide: true } })] }, { permissions: ['data.mapping.read', 'data.catalog.read', 'data.mapping.approve'] });
+    await screen.findByTestId('mappings');
+    expect(screen.queryByRole('button', { name: word('dgv.source.propose.action') })).toBeNull();
+    expect(document.querySelector('[data-action="confirm"]')).not.toBeNull();
   });
 
   it('shows no button that changes anything while the tenant is read-only', async () => {

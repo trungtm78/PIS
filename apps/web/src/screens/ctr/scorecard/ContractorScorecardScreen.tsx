@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { amountText } from '../model';
@@ -12,7 +13,7 @@ import { ApproveDialog, ConfirmDialog, EvaluateDialog, RecordDialog } from './Di
 import { useScorecard, useScorecardContractors } from './hooks';
 import type { Range } from './hooks';
 import { criterionLabel, evaluationStatusLabel, kindLabel, penaltyLabel, ratingLabel, severityLabel, violationKindLabel, violationStatusLabel } from './labels';
-import { CRITERIA, READ_PERMISSION, SEVERITIES, rangeProblem, shownError } from './model';
+import { APPROVE_PERMISSION, CONFIRM_PERMISSION, CRITERIA, EVALUATE_PERMISSION, READ_PERMISSION, RECORD_PERMISSION, SEVERITIES, rangeProblem, shownError } from './model';
 import type { EvaluationLine, Scorecard, ViolationLine } from './model';
 
 type Dialog = { kind: 'evaluate' } | { kind: 'record' } | { kind: 'approve'; evaluation: EvaluationLine } | { kind: 'confirm'; violation: ViolationLine };
@@ -88,7 +89,7 @@ function ScorecardContent({ route }: ScreenProps) {
             <section className="card" aria-labelledby="evaluations-title">
               <div className="heading">
                 <h2 id="evaluations-title">{t('ctr.scorecard.evaluations.title')}</h2>
-                {writable && evaluable.length > 0 ? (
+                {writable && holds(permissions, EVALUATE_PERMISSION) && evaluable.length > 0 ? (
                   <button type="button" className="primary" data-evaluate onClick={() => setDialog({ kind: 'evaluate' })}>
                     {t('ctr.scorecard.evaluate.action')}
                   </button>
@@ -143,7 +144,7 @@ function ScorecardContent({ route }: ScreenProps) {
                           </span>
                         </td>
                         <td>
-                          {writable && line.canApprove ? (
+                          {writable && holds(permissions, APPROVE_PERMISSION) && line.canApprove ? (
                             <button type="button" data-approve={line.id} onClick={() => setDialog({ kind: 'approve', evaluation: line })}>
                               {t('ctr.scorecard.approve.action')}
                             </button>
@@ -165,7 +166,7 @@ function ScorecardContent({ route }: ScreenProps) {
             <section className="card" aria-labelledby="violations-title">
               <div className="heading">
                 <h2 id="violations-title">{t('ctr.scorecard.violations.title')}</h2>
-                {writable && recordable.length > 0 ? (
+                {writable && holds(permissions, RECORD_PERMISSION) && recordable.length > 0 ? (
                   <button type="button" className="primary" data-record onClick={() => setDialog({ kind: 'record' })}>
                     {t('ctr.scorecard.record.action')}
                   </button>
@@ -214,7 +215,7 @@ function ScorecardContent({ route }: ScreenProps) {
                           </span>
                         </td>
                         <td>
-                          {writable && line.canConfirm ? (
+                          {writable && holds(permissions, CONFIRM_PERMISSION) && line.canConfirm ? (
                             <button type="button" data-confirm={line.id} onClick={() => setDialog({ kind: 'confirm', violation: line })}>
                               {t('ctr.scorecard.confirm.action')}
                             </button>

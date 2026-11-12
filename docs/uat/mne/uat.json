@@ -615,7 +615,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-02",
@@ -654,7 +659,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-03",
@@ -693,7 +703,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-04",
@@ -732,7 +747,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-05",
@@ -771,7 +791,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-06",
@@ -810,7 +835,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-07",
@@ -849,7 +879,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-08",
@@ -888,7 +923,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-09",
@@ -927,7 +967,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MNE-10",
@@ -966,7 +1011,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-73",

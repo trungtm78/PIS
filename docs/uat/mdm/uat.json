@@ -262,7 +262,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-02",
@@ -301,7 +306,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-03",
@@ -340,7 +350,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-04",
@@ -379,7 +394,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-05",
@@ -418,7 +438,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-06",
@@ -457,7 +482,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-07",
@@ -496,7 +526,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-08",
@@ -535,7 +570,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-09",
@@ -574,7 +614,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-10",
@@ -613,7 +658,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-11",
@@ -652,7 +702,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-12",
@@ -691,7 +746,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-13",
@@ -730,7 +790,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-14",
@@ -769,7 +834,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-15",
@@ -808,7 +878,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-16",
@@ -847,7 +922,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-17",
@@ -886,7 +966,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-18",
@@ -925,7 +1010,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-19",
@@ -964,7 +1054,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-20",
@@ -1003,7 +1098,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-21",
@@ -1042,7 +1142,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-22",
@@ -1081,7 +1186,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-23",
@@ -1120,7 +1230,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-24",
@@ -1159,7 +1274,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-25",
@@ -1198,7 +1318,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-26",
@@ -1237,7 +1362,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-27",
@@ -1276,7 +1406,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-28",
@@ -1315,7 +1450,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-29",
@@ -1354,7 +1494,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-30",
@@ -1393,7 +1538,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-31",
@@ -1432,7 +1582,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-32",
@@ -1471,7 +1626,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-33",
@@ -1510,7 +1670,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC273",
@@ -2047,7 +2212,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-35",
@@ -2086,7 +2256,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-36",
@@ -2125,7 +2300,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-MDM-37",
@@ -2164,7 +2344,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "MDM"
+      "module": "MDM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-53",

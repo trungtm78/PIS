@@ -43,25 +43,27 @@ function BudgetsContent({ route }: ScreenProps) {
         </div>
       </div>
       <StateBoundary state={state} onRetry={() => void budgets.refetch()}>
-        <table className="table" data-testid="budget-table" aria-label={t('llm.budgets.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.budgets.column.scope')}</th>
-              <th scope="col">{t('llm.budgets.column.period')}</th>
-              <th scope="col">{t('llm.budgets.column.limit')}</th>
-              <th scope="col">{t('llm.budgets.column.settled')}</th>
-              <th scope="col">{t('llm.budgets.column.held')}</th>
-              <th scope="col">{t('llm.budgets.column.available')}</th>
-              <th scope="col">{t('llm.budgets.column.quota')}</th>
-              <th scope="col">{t('llm.budgets.column.mode')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(budgets.data ?? []).map((budget) => (
-              <BudgetRow key={budget.id} budget={budget} />
-            ))}
-          </tbody>
-        </table>
+        <div className="tablewrap" role="region" aria-label={t('llm.budgets.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="budget-table" aria-label={t('llm.budgets.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.budgets.column.scope')}</th>
+                <th scope="col">{t('llm.budgets.column.period')}</th>
+                <th scope="col">{t('llm.budgets.column.limit')}</th>
+                <th scope="col">{t('llm.budgets.column.settled')}</th>
+                <th scope="col">{t('llm.budgets.column.held')}</th>
+                <th scope="col">{t('llm.budgets.column.available')}</th>
+                <th scope="col">{t('llm.budgets.column.quota')}</th>
+                <th scope="col">{t('llm.budgets.column.mode')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(budgets.data ?? []).map((budget) => (
+                <BudgetRow key={budget.id} budget={budget} />
+              ))}
+            </tbody>
+          </table>
+        </div>
         {(budgets.data ?? []).length === 0 ? <p data-testid="budgets-none">{t('llm.budgets.none')}</p> : null}
         {may ? <BudgetForm /> : null}
       </StateBoundary>

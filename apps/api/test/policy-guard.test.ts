@@ -272,7 +272,7 @@ describe('policy guard (ST-IAM-004)', () => {
     const { rows } = await admin.query<{ correlation_id: string }>(
       "select correlation_id from machvon.audit_event where action = 'authz.denied:test_guarded_command' order by seq desc limit 1",
     );
-    expect(rows[0]?.correlation_id).toBe(denied.json.correlationId);
+    expect(rows[0]?.correlation_id).toBe(denied.json.correlation_id);
   });
 
   it('denies a read without writing an audit row, and keeps the tenant boundary for a member of another tenant', async () => {

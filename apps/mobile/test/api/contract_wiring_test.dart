@@ -129,7 +129,7 @@ void main() {
       final FakeTransport transport = FakeTransport(
         (HttpCall call) async => FakeTransport.json(
           403,
-          <String, Object?>{'type': 'about:blank', 'title': 'x', 'status': 403, 'code': 'SCOPE_DENIED', 'correlationId': 'c-1'},
+          <String, Object?>{'type': 'about:blank', 'title': 'x', 'status': 403, 'code': 'SCOPE_DENIED', 'correlation_id': 'c-1'},
         ),
       );
       final ProviderContainer container = _container(transport);

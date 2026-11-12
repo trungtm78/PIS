@@ -151,6 +151,18 @@ describe('DifferencesScreen (EBS-02): the differences with Oracle EBS by project
     expect(await screen.findByRole('status')).toBeTruthy();
   });
 
+  it('hides the actions from a reader whatever the server says of the connection and of each difference', async () => {
+    mountWith({ permissions: EBS_READER });
+    await screen.findByRole('table');
+    expect(screen.queryByTestId('reconcile-button')).toBeNull();
+    expect(document.querySelector('[data-testid^="resolve-"], [data-testid^="reassign-"]')).toBeNull();
+    cleanup();
+    mountWith();
+    await screen.findByRole('table');
+    expect(screen.getByTestId('reconcile-button')).toBeTruthy();
+    expect(document.querySelector('[data-testid^="resolve-"]')).not.toBeNull();
+  });
+
   it('hides the actions from a reader and in a read-only workspace; the service error has a retry', async () => {
     mountWith({ permissions: EBS_READER, world: { connection: ebsConnection({}, { may_reconcile: false, may_import: false, may_switch: false, may_preview: false }), differences: [difference(1, {}, { may_resolve: false, may_reassign: false })] } });
     await screen.findByRole('table');

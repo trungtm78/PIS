@@ -52,23 +52,25 @@ function KillSwitchContent({ route }: ScreenProps) {
             {t('llm.emergency.engagedCount', { count: engaged.length })}
           </p>
         )}
-        <table className="table" data-testid="switch-table" aria-label={t('llm.emergency.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.emergency.column.scope')}</th>
-              <th scope="col">{t('llm.emergency.column.reason')}</th>
-              <th scope="col">{t('llm.emergency.column.engaged')}</th>
-              <th scope="col">{t('llm.emergency.column.affected')}</th>
-              <th scope="col">{t('llm.emergency.column.state')}</th>
-              <th scope="col">{t('llm.emergency.column.action')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(switches.data ?? []).map((entry) => (
-              <SwitchRow key={entry.id} entry={entry} may={may} />
-            ))}
-          </tbody>
-        </table>
+        <div className="tablewrap" role="region" aria-label={t('llm.emergency.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="switch-table" aria-label={t('llm.emergency.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.emergency.column.scope')}</th>
+                <th scope="col">{t('llm.emergency.column.reason')}</th>
+                <th scope="col">{t('llm.emergency.column.engaged')}</th>
+                <th scope="col">{t('llm.emergency.column.affected')}</th>
+                <th scope="col">{t('llm.emergency.column.state')}</th>
+                <th scope="col">{t('llm.emergency.column.action')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(switches.data ?? []).map((entry) => (
+                <SwitchRow key={entry.id} entry={entry} may={may} />
+              ))}
+            </tbody>
+          </table>
+        </div>
         {(switches.data ?? []).length === 0 ? <p data-testid="switches-none">{t('llm.emergency.none')}</p> : null}
         {may ? <EngageForm /> : null}
       </StateBoundary>

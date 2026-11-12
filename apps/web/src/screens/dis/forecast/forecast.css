@@ -16,7 +16,7 @@
 
 .dis-forecast-chart .tick,
 .dis-forecast-chart .label {
-  font-size: 10px;
+  font-size: 12px;
   fill: var(--mv-color-text-secondary);
 }
 

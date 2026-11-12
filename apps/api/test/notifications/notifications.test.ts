@@ -279,7 +279,7 @@ describe('notification inbox, read and acknowledge (ST-NOT-001 backend)', () => 
       const missing = await read(SELF_ONLY, randomUUID());
       expect(foreign.status).toBe(404);
       expect(missing.status).toBe(404);
-      expect({ ...foreign.json, correlationId: 'x' }).toEqual({ ...missing.json, correlationId: 'x' });
+      expect({ ...foreign.json, correlation_id: 'x' }).toEqual({ ...missing.json, correlation_id: 'x' });
     });
 
     it('refuses a body that is not a read receipt', async () => {

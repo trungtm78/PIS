@@ -191,8 +191,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "IND"
     },
@@ -238,8 +239,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "IND"
     },
@@ -285,8 +287,9 @@
         "manual"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Hợp đồng màn hình cần trình duyệt; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       },
       "module": "IND"
     },

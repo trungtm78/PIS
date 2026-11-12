@@ -146,27 +146,29 @@ function Overview({ data, onSwitch }: { data: Detail; onSwitch: () => void }) {
         </p>
       </SectionCard>
       <SectionCard title={t('hub.det.alerts.section')}>
-        <table className="hub-table">
-          <caption className="hub-sr">{t('hub.det.alerts.caption')}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{t('hub.det.alerts.code')}</th>
-              <th scope="col">{t('hub.det.alerts.owner')}</th>
-              <th scope="col">{t('hub.det.alerts.action')}</th>
-              <th scope="col">{t('hub.det.alerts.consequence')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.alert_types.map((alert) => (
-              <tr key={alert.code}>
-                <td>{alert.code}</td>
-                <td>{alert.owner ?? '–'}</td>
-                <td>{alert.expected_action ?? '–'}</td>
-                <td>{alert.consequence ?? '–'}</td>
+        <div className="tablewrap" role="region" aria-label={t('hub.det.alerts.caption')} tabIndex={0}>
+          <table className="hub-table">
+            <caption className="hub-sr">{t('hub.det.alerts.caption')}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t('hub.det.alerts.code')}</th>
+                <th scope="col">{t('hub.det.alerts.owner')}</th>
+                <th scope="col">{t('hub.det.alerts.action')}</th>
+                <th scope="col">{t('hub.det.alerts.consequence')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.alert_types.map((alert) => (
+                <tr key={alert.code}>
+                  <td>{alert.code}</td>
+                  <td>{alert.owner ?? '–'}</td>
+                  <td>{alert.expected_action ?? '–'}</td>
+                  <td>{alert.consequence ?? '–'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </SectionCard>
       <SectionCard title={t('hub.det.trend.section')}>
         {data.trend.length === 0 ? (
@@ -287,31 +289,33 @@ function PipelineTab({ data, onReject }: { data: Detail; onReject: (reject: Reje
 
       </SectionCard>
       <SectionCard title={t('hub.pipe.protocols.section')}>
-        <table className="hub-table">
-          <caption className="hub-sr">{t('hub.pipe.protocols.caption')}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{t('hub.pipe.protocols.code')}</th>
-              <th scope="col">{t('hub.pipe.protocols.status')}</th>
-              <th scope="col">{t('hub.pipe.protocols.egress')}</th>
-              <th scope="col">{t('hub.pipe.protocols.security')}</th>
-              <th scope="col">{t('hub.pipe.protocols.failure')}</th>
-              <th scope="col">{t('hub.pipe.protocols.implementation')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.protocol_details.map((protocol) => (
-              <tr key={`${protocol.code}-${protocol.status}`} data-testid={`protocol-${protocol.code}`}>
-                <td>{protocol.code}</td>
-                <td>{t(`hub.pipe.protocols.status.${word(protocol.status)}`)}</td>
-                <td>{t(`hub.pipe.egress.${word(protocol.egress)}`)}</td>
-                <td>{t('hub.pipe.securityLine', { auth: protocol.auth.join(' / '), tls: t(`hub.pipe.tls.${word(protocol.tls)}`), signature: t(`hub.pipe.signature.${word(protocol.signature)}`) })}</td>
-                <td>{`${protocol.retry}; ${protocol.delivery}`}</td>
-                <td>{t(`hub.pipe.impl.${word(protocol.implementation)}`)}</td>
+        <div className="tablewrap" role="region" aria-label={t('hub.pipe.protocols.caption')} tabIndex={0}>
+          <table className="hub-table">
+            <caption className="hub-sr">{t('hub.pipe.protocols.caption')}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t('hub.pipe.protocols.code')}</th>
+                <th scope="col">{t('hub.pipe.protocols.status')}</th>
+                <th scope="col">{t('hub.pipe.protocols.egress')}</th>
+                <th scope="col">{t('hub.pipe.protocols.security')}</th>
+                <th scope="col">{t('hub.pipe.protocols.failure')}</th>
+                <th scope="col">{t('hub.pipe.protocols.implementation')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.protocol_details.map((protocol) => (
+                <tr key={`${protocol.code}-${protocol.status}`} data-testid={`protocol-${protocol.code}`}>
+                  <td>{protocol.code}</td>
+                  <td>{t(`hub.pipe.protocols.status.${word(protocol.status)}`)}</td>
+                  <td>{t(`hub.pipe.egress.${word(protocol.egress)}`)}</td>
+                  <td>{t('hub.pipe.securityLine', { auth: protocol.auth.join(' / '), tls: t(`hub.pipe.tls.${word(protocol.tls)}`), signature: t(`hub.pipe.signature.${word(protocol.signature)}`) })}</td>
+                  <td>{`${protocol.retry}; ${protocol.delivery}`}</td>
+                  <td>{t(`hub.pipe.impl.${word(protocol.implementation)}`)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </SectionCard>
     </>
   );
@@ -435,29 +439,31 @@ function Layouts({ data }: { data: Detail }) {
   return (
     <>
       <SectionCard title={t('hub.lay.section')}>
-        <table className="hub-table">
-          <caption className="hub-sr">{t('hub.lay.caption')}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{t('hub.lay.col.layout')}</th>
-              <th scope="col">{t('hub.lay.col.version')}</th>
-              <th scope="col">{t('hub.lay.col.acceptance')}</th>
-              <th scope="col">{t('hub.lay.col.pending')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.layouts.map((layout) => (
-              <tr key={`${layout.code}-${layout.version}`}>
-                <td>{layout.code}</td>
-                <td>{layout.version}</td>
-                <td>
-                  <AcceptanceBadge acceptance={layout.acceptance} />
-                </td>
-                <td>{layout.pending.length === 0 ? '–' : layout.pending.join(', ')}</td>
+        <div className="tablewrap" role="region" aria-label={t('hub.lay.caption')} tabIndex={0}>
+          <table className="hub-table">
+            <caption className="hub-sr">{t('hub.lay.caption')}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t('hub.lay.col.layout')}</th>
+                <th scope="col">{t('hub.lay.col.version')}</th>
+                <th scope="col">{t('hub.lay.col.acceptance')}</th>
+                <th scope="col">{t('hub.lay.col.pending')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.layouts.map((layout) => (
+                <tr key={`${layout.code}-${layout.version}`}>
+                  <td>{layout.code}</td>
+                  <td>{layout.version}</td>
+                  <td>
+                    <AcceptanceBadge acceptance={layout.acceptance} />
+                  </td>
+                  <td>{layout.pending.length === 0 ? '–' : layout.pending.join(', ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </SectionCard>
       <SectionCard title={t('hub.lay.policy.section')}>
         {rule === null ? (

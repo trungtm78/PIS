@@ -2,6 +2,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from '../../../../i18n';
 import type { ScreenProps } from '../../../../routes/types';
 import { useSession } from '../../../../session/SessionContext';
+import { holds } from '../../../../session/holds';
 import { StateBoundary } from '../../../../states/StateBoundary';
 import { useScreenState } from '../../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, InfoFormula, ReadonlyStat, SectionCard, StatusPill } from '../../../../ui';
@@ -14,6 +15,7 @@ import {
   EMPTY_RECONCILE_FORM,
   EMPTY_RESOLVE_FORM,
   NO_FILTERS,
+  RECONCILE_PERMISSION,
   RESOLUTION_KINDS,
   UUID_PATTERN,
   gapSign,
@@ -42,7 +44,7 @@ type Dialog = { kind: 'reconcile' } | { kind: 'resolve'; difference: Difference 
 
 function DifferencesContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { tenant, mode } = useSession();
+  const { tenant, mode, permissions } = useSession();
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   const ids = useId();
   const query = useEbsDifferences(filters);
@@ -56,7 +58,9 @@ function DifferencesContent({ route }: ScreenProps) {
   const refreshFailed = query.isError && rows.length > 0;
   const asOf = vietnamStamp(query.data?.pages[0]?.as_of);
   const readOnly = mode === 'READ_ONLY';
-  const mayReconcile = connection.data?.actions.may_reconcile === true && !readOnly;
+  // Reconciling, resolving and reassigning share one permission: a membership without it is offered none of the three, whatever the server says of the row.
+  const mayChange = !readOnly && holds(permissions, RECONCILE_PERMISSION);
+  const mayReconcile = connection.data?.actions.may_reconcile === true && mayChange;
   const acceptance = connection.data?.acceptance ?? 'PENDING_EXTERNAL';
   const set = (patch: Partial<Filters>): void => setFilters((current) => ({ ...current, ...patch }));
 
@@ -111,12 +115,12 @@ function DifferencesContent({ route }: ScreenProps) {
       header: t('ebs.differences.column.actions'),
       render: (row) => (
         <span className="ent2-row-actions">
-          {row.actions.may_resolve && !readOnly && (
+          {row.actions.may_resolve && mayChange && (
             <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`resolve-${row.id}`} onClick={() => { setNote(undefined); setDialog({ kind: 'resolve', difference: row }); }}>
               {t('ebs.differences.resolve.action')}
             </button>
           )}
-          {row.actions.may_reassign && !readOnly && (
+          {row.actions.may_reassign && mayChange && (
             <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`reassign-${row.id}`} onClick={() => { setNote(undefined); setDialog({ kind: 'reassign', difference: row }); }}>
               {t('ebs.differences.reassign.action')}
             </button>

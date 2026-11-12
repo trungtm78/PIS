@@ -1,5 +1,5 @@
 /** The standard members of an RFC 9457 problem the server sends; everything else is an extension. */
-const STANDARD_MEMBERS: ReadonlySet<string> = new Set(['type', 'title', 'status', 'code', 'detail', 'correlationId']);
+const STANDARD_MEMBERS: ReadonlySet<string> = new Set(['type', 'title', 'status', 'code', 'detail', 'correlation_id']);
 
 export const NETWORK_ERROR_CODE = 'NETWORK_ERROR';
 const INTERNAL_ERROR_CODE = 'INTERNAL_ERROR';
@@ -82,7 +82,7 @@ export async function errorFromResponse(response: Response, fallbackCorrelationI
     status: response.status,
     code: body.code as string,
     detail: typeof body.detail === 'string' ? body.detail : undefined,
-    correlationId: typeof body.correlationId === 'string' ? body.correlationId : (response.headers.get('x-correlation-id') ?? fallbackCorrelationId),
+    correlationId: typeof body.correlation_id === 'string' ? body.correlation_id : (response.headers.get('x-correlation-id') ?? fallbackCorrelationId),
     extensions,
     retryAfterSeconds,
   });

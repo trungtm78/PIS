@@ -205,7 +205,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-02",
@@ -244,7 +249,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-03",
@@ -283,7 +293,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-04",
@@ -322,7 +337,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-05",
@@ -361,7 +381,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-06",
@@ -400,7 +425,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-07",
@@ -439,7 +469,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-08",
@@ -478,7 +513,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-09",
@@ -517,7 +557,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC320",
@@ -1692,7 +1737,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-11",
@@ -1731,7 +1781,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-12",
@@ -1770,7 +1825,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-13",
@@ -1809,7 +1869,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-14",
@@ -1848,7 +1913,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-15",
@@ -1887,7 +1957,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-16",
@@ -1926,7 +2001,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-PAY-17",
@@ -1965,7 +2045,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "PAY"
+      "module": "PAY",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-19",

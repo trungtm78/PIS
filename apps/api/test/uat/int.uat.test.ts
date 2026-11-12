@@ -103,7 +103,7 @@ describe('UAT of the open interface (TH.02, INT-01..INT-05)', () => {
     const wrong = await exchange(reader.clientId, `mvs_${'A'.repeat(43)}`);
     expect([unknown.status, wrong.status]).toEqual([401, 401]);
     expect(codeOf(unknown)).toBe('OPEN_CLIENT_INVALID');
-    expect({ ...wrong.json, correlationId: undefined, detail: undefined }).toEqual({ ...unknown.json, correlationId: undefined, detail: undefined });
+    expect({ ...wrong.json, correlation_id: undefined, detail: undefined }).toEqual({ ...unknown.json, correlation_id: undefined, detail: undefined });
     assertStatus(await open('GET', '/open/v1/projects'), 401, 'OPEN_CLIENT_INVALID');
     assertStatus(await open('GET', '/open/v1/projects', { bearer: 'garbage' }), 401);
     // A tenant session of a person does not open the machine routes, and a machine token does not open the admin routes.

@@ -822,7 +822,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-02",
@@ -861,7 +866,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-03",
@@ -900,7 +910,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-04",
@@ -939,7 +954,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-05",
@@ -978,7 +998,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-06",
@@ -1017,7 +1042,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-07",
@@ -1056,7 +1086,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-08",
@@ -1095,7 +1130,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-09",
@@ -1134,7 +1174,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-10",
@@ -1173,7 +1218,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-11",
@@ -1212,7 +1262,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-12",
@@ -1251,7 +1306,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-13",
@@ -1290,7 +1350,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-14",
@@ -1329,7 +1394,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-15",
@@ -1368,7 +1438,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-16",
@@ -1407,7 +1482,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-17",
@@ -1446,7 +1526,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-18",
@@ -1485,7 +1570,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-19",
@@ -1524,7 +1614,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-20",
@@ -1563,7 +1658,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-21",
@@ -1602,7 +1702,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC145",
@@ -2847,7 +2952,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-23",
@@ -2886,7 +2996,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-24",
@@ -2925,7 +3040,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-SAS-25",
@@ -2964,7 +3084,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-14",

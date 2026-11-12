@@ -99,28 +99,30 @@ function UsageContent({ route }: ScreenProps) {
                 </KpiStrip>
               </SectionCard>
             </div>
-            <table className="table" data-testid="usage-tokens" aria-label={t('llm.usage.tokens.aria')}>
-              <thead>
-                <tr>
-                  <th scope="col">{t('llm.usage.tokens.attempts')}</th>
-                  <th scope="col">{t('llm.usage.tokens.input')}</th>
-                  <th scope="col">{t('llm.usage.tokens.cached')}</th>
-                  <th scope="col">{t('llm.usage.tokens.noncached')}</th>
-                  <th scope="col">{t('llm.usage.tokens.output')}</th>
-                  <th scope="col">{t('llm.usage.tokens.cost')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{current.attempts}</td>
-                  <td>{count(current.inputTotal)}</td>
-                  <td>{count(current.cachedInput)}</td>
-                  <td>{count(current.noncachedInput)}</td>
-                  <td>{count(current.outputTotal)}</td>
-                  <td>{dong(current.costVnd)}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="tablewrap" role="region" aria-label={t('llm.usage.tokens.aria')} tabIndex={0}>
+              <table className="table" data-testid="usage-tokens" aria-label={t('llm.usage.tokens.aria')}>
+                <thead>
+                  <tr>
+                    <th scope="col">{t('llm.usage.tokens.attempts')}</th>
+                    <th scope="col">{t('llm.usage.tokens.input')}</th>
+                    <th scope="col">{t('llm.usage.tokens.cached')}</th>
+                    <th scope="col">{t('llm.usage.tokens.noncached')}</th>
+                    <th scope="col">{t('llm.usage.tokens.output')}</th>
+                    <th scope="col">{t('llm.usage.tokens.cost')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{current.attempts}</td>
+                    <td>{count(current.inputTotal)}</td>
+                    <td>{count(current.cachedInput)}</td>
+                    <td>{count(current.noncachedInput)}</td>
+                    <td>{count(current.outputTotal)}</td>
+                    <td>{dong(current.costVnd)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             {current.pendingReconcile > 0 ? (
               <p className="callout warning" role="status" data-testid="usage-pending">
                 {t('llm.usage.pending', { count: current.pendingReconcile })}
@@ -167,30 +169,32 @@ function ReservationList({ title, tableId, noneId, none, rows, query }: { title:
         </p>
       ) : (
         <>
-          <table className="table" data-testid={tableId} aria-label={title}>
-            <thead>
-              <tr>
-                <th scope="col">{t('llm.usage.reservations.request')}</th>
-                <th scope="col">{t('llm.usage.reservations.amount')}</th>
-                <th scope="col">{t('llm.usage.reservations.status')}</th>
-                <th scope="col">{t('llm.usage.reservations.settled')}</th>
-                <th scope="col">{t('llm.usage.reservations.released')}</th>
-                <th scope="col">{t('llm.usage.reservations.note')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((entry) => (
-                <tr key={entry.id} data-reservation-id={entry.id} data-status={entry.status}>
-                  <td>{entry.requestId.slice(0, 8)}</td>
-                  <td>{dong(entry.amount)}</td>
-                  <td>{reservationStatusLabel(t, entry.status)}</td>
-                  <td>{entry.settledAmount === null ? '' : dong(entry.settledAmount)}</td>
-                  <td>{entry.releasedAmount === null ? '' : dong(entry.releasedAmount)}</td>
-                  <td>{entry.note ?? ''}</td>
+          <div className="tablewrap" role="region" aria-label={title} tabIndex={0}>
+            <table className="table" data-testid={tableId} aria-label={title}>
+              <thead>
+                <tr>
+                  <th scope="col">{t('llm.usage.reservations.request')}</th>
+                  <th scope="col">{t('llm.usage.reservations.amount')}</th>
+                  <th scope="col">{t('llm.usage.reservations.status')}</th>
+                  <th scope="col">{t('llm.usage.reservations.settled')}</th>
+                  <th scope="col">{t('llm.usage.reservations.released')}</th>
+                  <th scope="col">{t('llm.usage.reservations.note')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rows.map((entry) => (
+                  <tr key={entry.id} data-reservation-id={entry.id} data-status={entry.status}>
+                    <td>{entry.requestId.slice(0, 8)}</td>
+                    <td>{dong(entry.amount)}</td>
+                    <td>{reservationStatusLabel(t, entry.status)}</td>
+                    <td>{entry.settledAmount === null ? '' : dong(entry.settledAmount)}</td>
+                    <td>{entry.releasedAmount === null ? '' : dong(entry.releasedAmount)}</td>
+                    <td>{entry.note ?? ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {rows.length === 0 && !query.isLoading ? <p data-testid={noneId}>{none}</p> : null}
           {query.hasNextPage ? (
             <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>

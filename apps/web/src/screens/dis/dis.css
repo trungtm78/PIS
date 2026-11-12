@@ -22,7 +22,7 @@
 }
 .dis-code {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--mv-color-text-secondary);
 }
 .dis-dialog-body {
@@ -88,7 +88,7 @@
   font-size: 12px;
 }
 .dis-back-link a {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--mv-color-text-secondary);
 }
 .dis-matrix th[scope='row'] {

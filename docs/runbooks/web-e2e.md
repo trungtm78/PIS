@@ -322,10 +322,38 @@ Firefox and WebKit run a smoke subset in their own workflow (`browsers.yml`, sel
 
 ## Screen contract checks (`UI-<screen>`)
 
-The acceptance criteria of ADM-004, ADM-005 and eleven more stories end with "the screen contract checks of UI-<screen> report 0 failures". `UI-<screen>`
-is a test case of `test_cases.json`; the tool that would run it is not identified in the repository. The gated regions above, the route walk, the component
-tests of the seven states and the browser flows stand in for it, and `docs/r10-baseline-approvals.md` lists exactly which steps of the test case they cover
-and which (field names against the catalogue, an accessibility engine) they do not.
+The acceptance criteria of ADM-004, ADM-005 and eleven more stories end with "the screen contract checks of UI-<screen> report 0 failures", and the handoff files of
+`docs/uat/<module>/uat.json` hold one case `TC-UI-<SCREEN>` for each screen. `apps/web/e2e/screen-contract.spec.ts` is the tool that decides them: one Playwright
+test for each case of the edition under test, its case id in the title (so `npm run uat:run` and `npm run uat:evidence` match the result to the case).
+
+```bash
+node scripts/lane.mjs browser -- npx playwright test e2e/screen-contract.spec.ts      # run from apps/web; MACHVON_EDITION=enterprise VITE_EDITION=enterprise for the enterprise edition
+SCREEN_CONTRACT_OUT=<file.jsonl> ...                                                  # one JSON line for each case: clauses, what is not decided, findings
+node scripts/uat-screen-contract.mjs generate                                         # the table of the cases and the `automation` of each case in docs/uat (check: npm run uat:screens:check)
+```
+
+What a case asks for is read from its own `expected` text (`support/screen-contract.ts`, `clausesOf`); the clauses are decided by measuring the screen:
+
+| Clause | Measured with |
+|---|---|
+| page renders its screen id, no crash card, a breadcrumb and a heading | the person the route walk uses (`devUserFor`), 1440 px |
+| no uncaught error, no console error | same, at 1440 and 390 px (the answers the product specifies, `isExpectedAbsence`, are left out as in the walk) |
+| no horizontal overflow | `scrollWidth` against the window at 1440 and 390 px; the finding names the elements that reach past the edge and sit in no scrolling region (`overflowers`), the thing to put in a focusable scroll region |
+| every control has a label | axe rules `button-name`, `link-name`, `label`, `select-name`, `input-button-name`, the `aria-*` name rules and the valid ARIA attribute, role and relation rules (`AXE_RULES`) |
+| no action outside the permission | a persona that holds every right to read and none to change (`uiReader`: the owner's membership, so the screen has its data, with a session that lists only the `*.read` rights and the personal ones; the control plane screens use `operator`): the screen offers no enabled (a control in a disabled fieldset is disabled) primary or danger button, no submit button and no button whose name is a change of data ("Thêm", "Lưu", "Gửi", "Duyệt", "Xóa"...), outside the shell, a filter and a state card |
+| denied state and 403 | the member without any right (`nobody`): where a request of the screen is refused with 403 the screen shows its denied state (or a notice that names the missing right) and no write; the error answers are Problem documents |
+| API binding | every request of the screen is an operation of `openapi.json` (method and path template) and none answers 5xx or an unspecified 4xx |
+| fields, their order | the fields of `screen_catalog.json` are on the screen (marks and capitals folded) and keep the catalogue order, when the screen shows its data |
+| seven states | the six states forced on the screen itself by what the API answers (an empty page, a 500, a 403, a 401 SESSION_EXPIRED, no network, a late answer) at 390 px: no crash, no overflow, no uncaught error, the card of that state (the busy skeleton for loading); never `?demoState=`, which draws a card in the place of the screen |
+| design tokens | `--mv-color-primary` is defined, the body font is Be Vietnam Pro, no text under 12 px (the finding names the element, tag and classes, one for each kind of element), no italic heading (design.md) |
+
+What the browser cannot decide (a business rule applied, a figure right, the wording of a business error, "data per the FRD") is listed with every verdict in the
+annotation `not-decided` and in `SCREEN_CONTRACT_OUT`; a green test means every clause that can be decided holds, never that those hold. The PWA screens are opened at
+`/m/...` (the route table holds only their stand-ins) and PWA-05 and PWA-06 follow the first record of their list. A case whose screen is no web route (DIR-06 is a
+phone screen) is MANUAL with the reason in its handoff file.
+
+Negative controls: the spec measures a page that keeps the contract (no finding) and a page built to break it (every clause red, each finding naming what is wrong), with
+the very functions of the cases; `support/screen-contract.test.ts` turns each clause red with a mutated measure.
 
 ## Accessibility (ST-KERNEL-032, AC-1)
 

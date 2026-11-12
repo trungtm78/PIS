@@ -2,6 +2,7 @@ import { useId, useState } from 'react';
 import { useTranslation } from '../../../../i18n';
 import type { ScreenProps } from '../../../../routes/types';
 import { useSession } from '../../../../session/SessionContext';
+import { holds } from '../../../../session/holds';
 import { StateBoundary } from '../../../../states/StateBoundary';
 import { useScreenState } from '../../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, SectionCard, StatusPill } from '../../../../ui';
@@ -10,7 +11,7 @@ import { failureCode, moneyText, vietnamStamp } from '../shared/format';
 import { Field, ReadonlyNote } from '../shared/parts';
 import { useDecideHpmCorrection, useHpmConnection, useHpmCorrections, useProposeHpmCorrection } from './hooks';
 import { correctionStateLabel, hpmErrorText, modeLabel } from './labels';
-import { CORRECTION_MODES, CORRECTION_STATES, EMPTY_CORRECTION_FORM, correctionBody, correctionProblems, correctionTone, modeOf } from './model';
+import { CORRECTION_MODES, CORRECTION_STATES, DECIDE_PERMISSION, EMPTY_CORRECTION_FORM, PROPOSE_PERMISSION, correctionBody, correctionProblems, correctionTone, modeOf } from './model';
 import type { Correction, CorrectionForm, CorrectionMode, CorrectionState } from './model';
 import '../shared/shared.css';
 
@@ -27,7 +28,7 @@ type Dialog = { kind: 'propose' } | { kind: 'decide'; correction: Correction } |
 
 function CorrectionContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { tenant, mode } = useSession();
+  const { tenant, mode, permissions } = useSession();
   const [filter, setFilter] = useState<CorrectionState | undefined>(undefined);
   const filterId = useId();
   const query = useHpmCorrections(filter);
@@ -38,7 +39,7 @@ function CorrectionContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: query.isLoading, error: rows.length === 0 ? query.error : undefined, data: query.data === undefined ? undefined : rows, isEmpty: (data) => Array.isArray(data) && data.length === 0 });
   const refreshFailed = query.isError && rows.length > 0;
   const asOf = vietnamStamp(query.data?.pages[0]?.as_of);
-  const mayPropose = connection.data?.actions.may_propose_correction === true && mode !== 'READ_ONLY';
+  const mayPropose = connection.data?.actions.may_propose_correction === true && mode !== 'READ_ONLY' && holds(permissions, PROPOSE_PERMISSION);
   const columns: DataTableColumn<Correction>[] = [
     { key: 'series', header: t('hpm.correction.column.series'), pinned: true, render: (row) => `${row.layout_code} · ${row.period}` },
     { key: 'revision', header: t('hpm.correction.column.revision'), align: 'right', render: (row) => row.from_revision },
@@ -67,7 +68,7 @@ function CorrectionContent({ route }: ScreenProps) {
       key: 'actions',
       header: t('hpm.correction.column.actions'),
       render: (row) =>
-        row.actions.may_decide && mode !== 'READ_ONLY' ? (
+        row.actions.may_decide && mode !== 'READ_ONLY' && holds(permissions, DECIDE_PERMISSION) ? (
           <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`decide-${row.id}`} onClick={() => { setNote(undefined); setDialog({ kind: 'decide', correction: row }); }}>
             {t('hpm.correction.decide.action')}
           </button>

@@ -58,6 +58,13 @@ describe('the model of the layout editor (R23)', () => {
 describe('RPT-08, the editor of a layout', () => {
   const route = routeOf('RPT-08', 'FR-RPT-08');
 
+  it('shows the form to a person who may not make a rule, with every control that changes it switched off and the reason said', async () => {
+    const h = harness(() => ({}));
+    mount(<LayoutEditorScreen route={route} />, h, { permissions: ['rpt.read'], path: '/rpt/rpt-08' });
+    expect(screen.getByTestId('readonly-note')).toBeTruthy();
+    for (const id of ['save', 'indicator-add', 'group-add', 'indicator-0-up', 'indicator-0-down', 'indicator-0-remove']) expect((screen.getByTestId(id) as HTMLButtonElement).disabled).toBe(true);
+  });
+
   it('shows the preview the server builds from the choices, and saves a draft version of the rule with the reason', async () => {
     const shown = { valid: true, problem: null, form_name: 'My view', status: 'READY', datasets: [], preview: previewOf(), issues: [] };
     const h = harness(() => ({}), (operation) => (operation === 'previewReportLayout' ? shown : { resource_id: 'r1' }));
@@ -164,5 +171,13 @@ describe('RPT-07, the configured layouts and their versions', () => {
     expect(await screen.findByTestId('versions')).toBeTruthy();
     await waitFor(() => expect(screen.queryByTestId('approve-1')).toBeNull());
     expect(screen.queryByTestId('withdraw-1')).toBeNull();
+    expect(screen.queryByTestId('new-layout')).toBeNull();
+    expect(document.querySelector('[data-testid^="edit-"]')).toBeNull();
+  });
+
+  it('offers a new layout and the writing of a version to who may make a rule', async () => {
+    const h = harness(answer);
+    mount(<LayoutListScreen route={route} />, h, { permissions: MANAGE, path: '/rpt/rpt-07' });
+    expect(await screen.findByTestId('new-layout')).toBeTruthy();
   });
 });

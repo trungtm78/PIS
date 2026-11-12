@@ -160,6 +160,18 @@ describe('PushLogScreen (HPM-01): the push of the issued reports to HPM', () => 
     expect(screen.getByTestId('action-waiting')).toBeTruthy();
   });
 
+  it('hides every action from a reader whatever the server says of the connection and of each push', async () => {
+    mountWith({ permissions: HPM_READER });
+    await loaded();
+    for (const control of ['push-button', 'switch-button']) expect(screen.queryByTestId(control)).toBeNull();
+    expect(document.querySelector('[data-testid^="retry-"], [data-testid^="receipt-"]')).toBeNull();
+    cleanup();
+    mountWith();
+    await loaded();
+    expect(screen.getByTestId('push-button')).toBeTruthy();
+    expect(document.querySelector('[data-testid^="retry-"], [data-testid^="receipt-"]')).not.toBeNull();
+  });
+
   it('hides every action from a reader and says the rights are not there; the workspace in a read-only mode says so too', async () => {
     mountWith({ permissions: HPM_READER, world: { connection: hpmConnection({}, { may_switch: false, may_push: false, may_record_receipt: false }), pushes: [hpmPush(1, {}, { may_record_receipt: false })] } });
     await loaded();

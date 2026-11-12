@@ -32,7 +32,7 @@ const C2 = '00000000-0000-4000-8000-00c000000012';
 const DOCUMENT = '00000000-0000-4000-8000-00d000000001';
 const ROUTE = routeOf('CTR-23', 'FR-CTR-23');
 const READER = ['contractor.performance.read'];
-const MAKER = ['contractor.performance.read', 'contractor.performance.evaluate', 'contractor.violation.record'];
+const MAKER = ['contractor.performance.read', 'contractor.performance.evaluate', 'contractor.performance.approve', 'contractor.violation.record', 'contractor.violation.confirm'];
 const problem = (code: string, status = 422) => new ApiError({ status, code, correlationId: 'c' });
 const text = (key: string, params: Record<string, string | number> = {}): string => Object.entries(params).reduce((message, [name, value]) => message.replace(`{${name}}`, String(value)), (vi_ as Record<string, string>)[key] ?? key);
 
@@ -290,6 +290,13 @@ describe('ContractorScorecardScreen (CTR-23): the scorecard of a contractor and 
       expect(document.querySelector('[data-record]')).toBeNull();
     });
 
+    it('offers no command to a person who holds the right to read only, whatever the server says each contract may take', async () => {
+      open(() => card({ contracts: allowedContracts(true, true), evaluations: [evaluation(1, { allowed: { approve: true } })] }), { permissions: READER });
+      await ready();
+      expect(screen.getAllByTestId('status').length).toBeGreaterThan(0);
+      for (const control of ['[data-evaluate]', '[data-record]', '[data-approve]', '[data-confirm]']) expect(document.querySelector(control)).toBeNull();
+    });
+
     it('approves an evaluation at the version read, with a note, only where the server says it may', async () => {
       const waiting = evaluation(1, { allowed: { approve: true }, version: 3 });
       const h = open(() => card({ evaluations: [waiting, evaluation(2)] }), { permissions: ['contractor.performance.read', 'contractor.performance.approve'] });
@@ -365,7 +372,7 @@ describe('ContractorScorecardScreen (CTR-23): the scorecard of a contractor and 
 
     it('AC-ST-CTR-014-2 UAT-PLAN-17: asks for the document of decision for every sanction, and for none when there is no sanction, and an amount only for liquidated damages', async () => {
       const waiting = violation(1, { allowed: { confirm: true }, version: 4 });
-      const h = open(() => card({ violations: [waiting] }), { permissions: READER });
+      const h = open(() => card({ violations: [waiting] }), { permissions: MAKER });
       await ready();
       fireEvent.click(document.querySelector('[data-confirm]') as HTMLElement);
       expect(document.getElementById('confirm-amount')).toBeNull();
@@ -385,7 +392,7 @@ describe('ContractorScorecardScreen (CTR-23): the scorecard of a contractor and 
     });
 
     it('confirms a violation with no sanction without a document, and opens a suggested one with its sanction and its document', async () => {
-      const h = open(() => card({ violations: [violation(1, { allowed: { confirm: true } }), violation(2, { allowed: { confirm: true }, penalty_kind: 'TERMINATION', decision_document_version_id: DOCUMENT })] }));
+      const h = open(() => card({ violations: [violation(1, { allowed: { confirm: true } }), violation(2, { allowed: { confirm: true }, penalty_kind: 'TERMINATION', decision_document_version_id: DOCUMENT })] }), { permissions: MAKER });
       await ready();
       fireEvent.click(document.querySelector('[data-confirm]') as HTMLElement);
       fireEvent.submit(dialog().querySelector('form') as HTMLElement);
@@ -398,7 +405,7 @@ describe('ContractorScorecardScreen (CTR-23): the scorecard of a contractor and 
     });
 
     it('shows the refusal of a sanction with no document in words and keeps the form open', async () => {
-      open(() => card({ violations: [violation(1, { allowed: { confirm: true } })] }), { command: () => problem('DECISION_DOCUMENT_REQUIRED') });
+      open(() => card({ violations: [violation(1, { allowed: { confirm: true } })] }), { permissions: MAKER, command: () => problem('DECISION_DOCUMENT_REQUIRED') });
       await ready();
       fireEvent.click(document.querySelector('[data-confirm]') as HTMLElement);
       pick('confirm-penalty', 'WARNING');

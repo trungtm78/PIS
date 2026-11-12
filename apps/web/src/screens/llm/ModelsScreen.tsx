@@ -79,39 +79,41 @@ function ModelsContent({ route }: ScreenProps) {
             {t('llm.models.usableNote')}
           </p>
         </FilterPanel>
-        <table className="table" data-testid="model-table" aria-label={t('llm.models.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.models.column.model')}</th>
-              <th scope="col">{t('llm.models.column.provider')}</th>
-              <th scope="col">{t('llm.models.column.window')}</th>
-              <th scope="col">{t('llm.models.column.output')}</th>
-              <th scope="col">{t('llm.models.column.max')}</th>
-              <th scope="col">{t('llm.models.column.capabilities')}</th>
-              <th scope="col">{t('llm.models.column.status')}</th>
-              <th scope="col">{t('llm.models.column.action')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shown.map((model) => (
-              <tr key={model.id} data-model-id={model.id} data-status={model.status}>
-                <td>
-                  {model.modelId} {model.modelVersion === null ? null : <span className="sub">{model.modelVersion}</span>}
-                </td>
-                <td>{providerOf(model.providerId)?.name ?? model.providerId.slice(0, 8)}</td>
-                <td>{model.contextWindow.toLocaleString('en-US')}</td>
-                <td>{model.maxOutput.toLocaleString('en-US')}</td>
-                <td>{classificationLabel(t, model.maxClassification)}</td>
-                <td>{model.capabilities.length === 0 ? t('llm.models.none') : model.capabilities.map((capability) => capabilityLabel(t, capability)).join(', ')}</td>
-                <td>
-                  <StatusPill tone={modelStatusTone(model.status)}>{modelStatusLabel(t, model.status)}</StatusPill>
-                  {model.status === 'APPROVED' ? null : <span className="sub"> · {t('llm.models.notUsable')}</span>}
-                </td>
-                <td>{mayApprove && (model.status === 'PROPOSED' || model.status === 'EVAL_PENDING') ? <ApproveModel model={model} /> : null}</td>
+        <div className="tablewrap" role="region" aria-label={t('llm.models.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="model-table" aria-label={t('llm.models.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.models.column.model')}</th>
+                <th scope="col">{t('llm.models.column.provider')}</th>
+                <th scope="col">{t('llm.models.column.window')}</th>
+                <th scope="col">{t('llm.models.column.output')}</th>
+                <th scope="col">{t('llm.models.column.max')}</th>
+                <th scope="col">{t('llm.models.column.capabilities')}</th>
+                <th scope="col">{t('llm.models.column.status')}</th>
+                <th scope="col">{t('llm.models.column.action')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {shown.map((model) => (
+                <tr key={model.id} data-model-id={model.id} data-status={model.status}>
+                  <td>
+                    {model.modelId} {model.modelVersion === null ? null : <span className="sub">{model.modelVersion}</span>}
+                  </td>
+                  <td>{providerOf(model.providerId)?.name ?? model.providerId.slice(0, 8)}</td>
+                  <td>{model.contextWindow.toLocaleString('en-US')}</td>
+                  <td>{model.maxOutput.toLocaleString('en-US')}</td>
+                  <td>{classificationLabel(t, model.maxClassification)}</td>
+                  <td>{model.capabilities.length === 0 ? t('llm.models.none') : model.capabilities.map((capability) => capabilityLabel(t, capability)).join(', ')}</td>
+                  <td>
+                    <StatusPill tone={modelStatusTone(model.status)}>{modelStatusLabel(t, model.status)}</StatusPill>
+                    {model.status === 'APPROVED' ? null : <span className="sub"> · {t('llm.models.notUsable')}</span>}
+                  </td>
+                  <td>{mayApprove && (model.status === 'PROPOSED' || model.status === 'EVAL_PENDING') ? <ApproveModel model={model} /> : null}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {shown.length === 0 ? <p data-testid="models-none">{t('llm.models.empty')}</p> : null}
         {may ? <ModelForm providers={providers.data ?? []} /> : null}
       </StateBoundary>

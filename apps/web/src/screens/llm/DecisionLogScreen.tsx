@@ -59,40 +59,42 @@ function DecisionLogContent({ route }: ScreenProps) {
             </Field>
           </div>
         </div>
-        <table className="table" data-testid="decision-table" aria-label={t('llm.decisions.table.aria')}>
-          <thead>
-            <tr>
-              <th scope="col">{t('llm.decisions.column.time')}</th>
-              <th scope="col">{t('llm.decisions.column.subject')}</th>
-              <th scope="col">{t('llm.decisions.column.action')}</th>
-              <th scope="col">{t('llm.decisions.column.decision')}</th>
-              <th scope="col">{t('llm.decisions.column.rationale')}</th>
-              <th scope="col">{t('llm.decisions.column.output')}</th>
-              <th scope="col">{t('llm.decisions.column.applied')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((entry) => (
-              <tr key={entry.id} data-decision-id={entry.id} data-decision={entry.decision}>
-                <td>
-                  {vietnamDay(entry.decidedAt)} <span className="sub">{entry.decidedBy.slice(0, 8)}</span>
-                </td>
-                <td>
-                  {entry.module} · {entry.kind} <span className="sub">{entry.subjectId.slice(0, 8)}</span>
-                </td>
-                <td>{actionKindLabel(t, entry.action)}</td>
-                <td>{decisionLabel(t, entry.decision)}</td>
-                <td>{entry.rationale}</td>
-                <td>
-                  <Link to={`${ROUTING_PATH}?request=${entry.requestId}`}>
-                    <code>{entry.outputSha256.slice(0, 12)}</code>
-                  </Link>
-                </td>
-                <td>{entry.appliedOperation === null ? t('llm.decisions.notApplied') : t('llm.decisions.applied', { operation: entry.appliedOperation, version: entry.appliedVersion ?? '' })}</td>
+        <div className="tablewrap" role="region" aria-label={t('llm.decisions.table.aria')} tabIndex={0}>
+          <table className="table" data-testid="decision-table" aria-label={t('llm.decisions.table.aria')}>
+            <thead>
+              <tr>
+                <th scope="col">{t('llm.decisions.column.time')}</th>
+                <th scope="col">{t('llm.decisions.column.subject')}</th>
+                <th scope="col">{t('llm.decisions.column.action')}</th>
+                <th scope="col">{t('llm.decisions.column.decision')}</th>
+                <th scope="col">{t('llm.decisions.column.rationale')}</th>
+                <th scope="col">{t('llm.decisions.column.output')}</th>
+                <th scope="col">{t('llm.decisions.column.applied')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((entry) => (
+                <tr key={entry.id} data-decision-id={entry.id} data-decision={entry.decision}>
+                  <td>
+                    {vietnamDay(entry.decidedAt)} <span className="sub">{entry.decidedBy.slice(0, 8)}</span>
+                  </td>
+                  <td>
+                    {entry.module} · {entry.kind} <span className="sub">{entry.subjectId.slice(0, 8)}</span>
+                  </td>
+                  <td>{actionKindLabel(t, entry.action)}</td>
+                  <td>{decisionLabel(t, entry.decision)}</td>
+                  <td>{entry.rationale}</td>
+                  <td>
+                    <Link to={`${ROUTING_PATH}?request=${entry.requestId}`}>
+                      <code>{entry.outputSha256.slice(0, 12)}</code>
+                    </Link>
+                  </td>
+                  <td>{entry.appliedOperation === null ? t('llm.decisions.notApplied') : t('llm.decisions.applied', { operation: entry.appliedOperation, version: entry.appliedVersion ?? '' })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {rows.length === 0 ? <p data-testid="decisions-none">{t('llm.decisions.none')}</p> : null}
         {decisions.hasNextPage ? (
           <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="decisions-more" disabled={decisions.isFetchingNextPage} onClick={() => void decisions.fetchNextPage()}>

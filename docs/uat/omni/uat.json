@@ -198,7 +198,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-02",
@@ -237,7 +242,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-03",
@@ -276,7 +286,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-04",
@@ -315,7 +330,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-05",
@@ -354,7 +374,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-06",
@@ -393,7 +418,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-07",
@@ -432,7 +462,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-08",
@@ -471,7 +506,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-09",
@@ -510,7 +550,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-OMNI-10",
@@ -549,7 +594,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC195",
@@ -778,7 +828,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "OMNI"
+      "module": "OMNI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-PLAN-50",

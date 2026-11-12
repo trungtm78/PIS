@@ -1781,7 +1781,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
       const missing = await asTenant(realApp.baseUrl, 'TNT-A', '/resources/organization_unit/00000000-0000-4000-8000-0000000000ff');
       const foreignReply = await asTenant(realApp.baseUrl, 'TNT-A', `/resources/organization_unit/${foreign?.id}`);
       expect(missing.status).toBe(foreignReply.status);
-      expect({ ...missing.json, correlationId: 'x' }).toEqual({ ...foreignReply.json, correlationId: 'x' });
+      expect({ ...missing.json, correlation_id: 'x' }).toEqual({ ...foreignReply.json, correlation_id: 'x' });
     });
 
     it('reaches the handlers: the requests of the foreign-id cases are not 404 on the objects of the user own tenant', async () => {

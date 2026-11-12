@@ -323,7 +323,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-02",
@@ -362,7 +367,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-03",
@@ -401,7 +411,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-04",
@@ -440,7 +455,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-05",
@@ -479,7 +499,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-06",
@@ -518,7 +543,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-07",
@@ -557,7 +587,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-08",
@@ -596,7 +631,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-09",
@@ -635,7 +675,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-10",
@@ -674,7 +719,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-11",
@@ -713,7 +763,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-12",
@@ -752,7 +807,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-13",
@@ -791,7 +851,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-14",
@@ -830,7 +895,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-15",
@@ -869,7 +939,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-16",
@@ -908,7 +983,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-17",
@@ -947,7 +1027,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-BI-18",
@@ -986,7 +1071,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "BI"
+      "module": "BI",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC471",

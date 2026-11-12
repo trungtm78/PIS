@@ -43,7 +43,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-02",
@@ -82,7 +87,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-03",
@@ -121,7 +131,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-04",
@@ -160,7 +175,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-05",
@@ -199,7 +219,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-06",
@@ -238,7 +263,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-07",
@@ -277,7 +307,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-08",
@@ -316,7 +351,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-09",
@@ -355,7 +395,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-10",
@@ -394,7 +439,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UI-AUD-11",
@@ -433,7 +483,12 @@
       "tags": [
         "screen-contract"
       ],
-      "module": "AUD"
+      "module": "AUD",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
     },
     {
       "tc_id": "TC-UAT-AC433",
