@@ -1,0 +1,16 @@
+  [32,159,400,209] Danh sách phê duyệt
+C [432,136,528,232] Duyệt nghiệm thu
+C [528,136,624,232] Duyệt và ký văn bản
+C [624,136,720,232] Văn bản đến cần xử lý
+  [0,240,720,352] Số liệu tại 12/11/2026 23:43
+C [616,248,712,344] Làm mới
+C [0,352,720,674] 6 việc chờ quyết định, 0 quá hạn / Loại hồ sơ / Tất cả
+C [32,546,688,642] Chỉ việc quá hạn
+  [0,674,720,934] Nhận báo cáo, Lãnh đạo duyệt báo cáo tuần của dự án, hạn 13/11/2026 17:00
+  [0,934,720,1194] Nhận báo cáo, Lãnh đạo duyệt báo cáo tuần của dự án, hạn 13/11/2026 17:00
+  [0,1194,720,1368] Nhận báo cáo, Lãnh đạo duyệt báo cáo tuần của dự án, hạn 13/11/2026 17:00
+C [0,1368,144,1512] Trang chủ / Tab 1 trong tổng số 5
+C [144,1368,288,1512] Dự án / Tab 2 trong tổng số 5
+C [288,1368,432,1512] Phê duyệt / Tab 3 trong tổng số 5, 6 mục cần xử lý
+C [432,1368,576,1512] Thông báo / Tab 4 trong tổng số 5, 20 mục cần xử lý
+C [576,1368,720,1512] Cá nhân / Tab 5 trong tổng số 5

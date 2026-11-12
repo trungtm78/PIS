@@ -1,0 +1,12 @@
+  [32,159,400,209]  || Danh sách phê duyệt
+C [432,136,528,232]  || Duyệt nghiệm thu
+C [528,136,624,232]  || Duyệt và ký văn bản
+C [624,136,720,232]  || Văn bản đến cần xử lý
+  [0,240,720,352]  || Số liệu tại 13/11/2026 00:09
+C [616,248,712,344]  || Làm mới
+  [48,863,672,1017]  || Chưa có dữ liệu. Điều chỉnh bộ lọc hoặc tạo bản ghi đầu tiên.
+C [0,1368,144,1512]  || Trang chủ / Tab 1 trong tổng số 5
+C [144,1368,288,1512]  || Dự án / Tab 2 trong tổng số 5
+C [288,1368,432,1512]  || Phê duyệt / Tab 3 trong tổng số 5
+C [432,1368,576,1512]  || Thông báo / Tab 4 trong tổng số 5, 10 mục cần xử lý
+C [576,1368,720,1512]  || Cá nhân / Tab 5 trong tổng số 5
