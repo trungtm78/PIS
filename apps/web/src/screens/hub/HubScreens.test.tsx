@@ -186,6 +186,28 @@ describe('HUB-02, one connector', () => {
     expect(screen.getByText(word('hub.det.trend.empty'))).toBeTruthy();
   });
 
+  it('moves between the seven tabs with the arrow keys, Home and End as the WAI-ARIA tabs pattern says, with one tab stop', async () => {
+    mountConnector(readsOf());
+    await screen.findByTestId('connector-head');
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs.map((tab) => tab.getAttribute('tabindex'))).toEqual(['0', '-1', '-1', '-1', '-1', '-1', '-1']);
+    tabs[0]?.focus();
+    fireEvent.keyDown(tabs[0] as HTMLElement, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(tabs[1]);
+    await waitFor(() => expect(tabs[1]?.getAttribute('aria-selected')).toBe('true'));
+    expect(tabs.map((tab) => tab.getAttribute('tabindex'))).toEqual(['-1', '0', '-1', '-1', '-1', '-1', '-1']);
+    fireEvent.keyDown(tabs[1] as HTMLElement, { key: 'End' });
+    expect(document.activeElement).toBe(tabs[6]);
+    fireEvent.keyDown(tabs[6] as HTMLElement, { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(tabs[0]);
+    fireEvent.keyDown(tabs[0] as HTMLElement, { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(tabs[6]);
+    fireEvent.keyDown(tabs[6] as HTMLElement, { key: 'Home' });
+    expect(document.activeElement).toBe(tabs[0]);
+    fireEvent.keyDown(tabs[0] as HTMLElement, { key: 'a' });
+    expect(document.activeElement).toBe(tabs[0]);
+  });
+
   it('switches the connector off only with a reason of ten characters, sends the version, and names the owner of the switch', async () => {
     const h = mountConnector(readsOf(), () => ({ operation_id: 'x', status: 'DISABLED', resource_version: 2, resource_id: 'treasury.statement' }));
     await screen.findByTestId('connector-head');

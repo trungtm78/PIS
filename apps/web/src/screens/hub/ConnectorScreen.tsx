@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -10,7 +10,7 @@ import { ConfirmDialog, ContextBar, DataTable, SectionCard } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import { AcceptanceBadge, AgentPill, OutcomePill, ReasonDialog, StatusBadge, refusalText } from './components';
 import { useAgents, useConnector, useDecideMapping, useDecideReject, useProposeMapping, useRejects, useRuns, useSetState } from './hooks';
-import { DETAIL_TABS, MAPPING_VERSION, ageParts, parseMappingFields, stageLine, vietnamDateTime, word } from './model';
+import { DETAIL_TABS, MAPPING_VERSION, ageParts, parseMappingFields, stageLine, tabAfterKey, vietnamDateTime, word } from './model';
 import type { Agent, Detail, DetailTab, Mapping, Pipeline, Reject, Run } from './model';
 import './hub.css';
 
@@ -43,6 +43,14 @@ function ConnectorContent({ route }: ScreenProps) {
   const refreshFailed = query.isError && data !== undefined;
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const choose = (next: DetailTab): void => setParams({ ...(code === undefined ? {} : { code }), tab: next });
+  /** The keys of the WAI-ARIA tabs pattern: the arrows, Home and End select the neighbouring tab and put the focus on it. */
+  const onTabKey = (event: KeyboardEvent<HTMLDivElement>): void => {
+    const next = tabAfterKey(tab, event.key);
+    if (next === undefined) return;
+    event.preventDefault();
+    choose(next);
+    document.getElementById(`tab-${next}`)?.focus();
+  };
 
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
@@ -63,9 +71,9 @@ function ConnectorContent({ route }: ScreenProps) {
               <StatusBadge status={data.summary.status} /> <AcceptanceBadge acceptance={data.summary.acceptance} />
               {data.summary.figures_blocked ? <span className="hub-muted">{t('hub.det.figuresBlocked')}</span> : null}
             </div>
-            <div role="tablist" aria-label={t('hub.det.tabs.label')} className="hub-tabs">
+            <div role="tablist" aria-label={t('hub.det.tabs.label')} className="hub-tabs" onKeyDown={onTabKey}>
               {DETAIL_TABS.map((one) => (
-                <button key={one} type="button" role="tab" id={`tab-${one}`} aria-selected={tab === one} aria-controls={`panel-${one}`} data-testid={`tab-${one}`} className={`hub-tab${tab === one ? ' hub-tab--on' : ''}`} onClick={() => choose(one)}>
+                <button key={one} type="button" role="tab" id={`tab-${one}`} aria-selected={tab === one} aria-controls={`panel-${one}`} tabIndex={tab === one ? 0 : -1} data-testid={`tab-${one}`} className={`hub-tab${tab === one ? ' hub-tab--on' : ''}`} onClick={() => choose(one)}>
                   {t(`hub.det.tab.${one}`)}
                 </button>
               ))}

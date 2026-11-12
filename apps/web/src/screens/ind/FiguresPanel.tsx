@@ -114,18 +114,18 @@ export function FiguresPanel({ initial }: { initial: string | undefined }) {
       <div className="ind-form">
         <div className="field">
           <label htmlFor={`${ids}-project`}>{t('ind.fig.project.label')}</label>
-          <input id={`${ids}-project`} type="text" value={projectId} aria-invalid={projectId.trim() !== '' && !UUID.test(projectId.trim())} onChange={(event) => setProjectId(event.target.value)} />
+          <input id={`${ids}-project`} type="text" value={projectId} aria-invalid={projectId.trim() !== '' && !UUID.test(projectId.trim())} aria-describedby={projectId.trim() !== '' && !UUID.test(projectId.trim()) ? `${ids}-project-error` : undefined} onChange={(event) => setProjectId(event.target.value)} />
           {projectId.trim() !== '' && !UUID.test(projectId.trim()) ? (
-            <small className="sub" role="alert" data-testid="project-invalid">
+            <small className="sub" role="alert" id={`${ids}-project-error`} data-testid="project-invalid">
               {t('ind.fig.project.invalid')}
             </small>
           ) : null}
         </div>
         <div className="field">
           <label htmlFor={`${ids}-period`}>{t('ind.fig.period.label')}</label>
-          <input id={`${ids}-period`} type="text" value={periodId} aria-invalid={periodId.trim() !== '' && !UUID.test(periodId.trim())} onChange={(event) => setPeriodId(event.target.value)} />
+          <input id={`${ids}-period`} type="text" value={periodId} aria-invalid={periodId.trim() !== '' && !UUID.test(periodId.trim())} aria-describedby={periodId.trim() !== '' && !UUID.test(periodId.trim()) ? `${ids}-period-error` : undefined} onChange={(event) => setPeriodId(event.target.value)} />
           {periodId.trim() !== '' && !UUID.test(periodId.trim()) ? (
-            <small className="sub" role="alert" data-testid="period-invalid">
+            <small className="sub" role="alert" id={`${ids}-period-error`} data-testid="period-invalid">
               {t('ind.fig.period.invalid')}
             </small>
           ) : null}
@@ -182,12 +182,13 @@ export function FiguresPanel({ initial }: { initial: string | undefined }) {
           {lines.map((line, index) => {
             const fault = line.indicatorCode === '' && line.value === '' ? undefined : lineProblem(line);
             const rowKey = `${ids}-line-${index}`;
+            const errorId = `${rowKey}-error`;
             return (
               <fieldset className="ind-line" key={rowKey} data-testid="entry-line" data-fault={fault}>
                 <legend>{t('ind.fig.line.legend', { n: index + 1 })}</legend>
                 <div className="field">
                   <label htmlFor={`${rowKey}-indicator`}>{t('ind.fig.line.indicator')}</label>
-                  <select id={`${rowKey}-indicator`} value={line.indicatorCode} disabled={enter.isPending} onChange={(event) => change(index, { indicatorCode: event.target.value })}>
+                  <select id={`${rowKey}-indicator`} value={line.indicatorCode} disabled={enter.isPending} aria-invalid={fault === 'duplicate'} aria-describedby={fault === 'duplicate' ? errorId : undefined} onChange={(event) => change(index, { indicatorCode: event.target.value })}>
                     <option value="">{t('ind.fig.line.choose')}</option>
                     {indicators.map((one) => (
                       <option key={one.code} value={one.code}>
@@ -198,26 +199,26 @@ export function FiguresPanel({ initial }: { initial: string | undefined }) {
                 </div>
                 <div className="field">
                   <label htmlFor={`${rowKey}-value`}>{t('ind.fig.line.value')}</label>
-                  <input id={`${rowKey}-value`} type="text" inputMode="decimal" value={line.value} disabled={enter.isPending} aria-invalid={fault === 'value'} onChange={(event) => change(index, { value: event.target.value })} />
+                  <input id={`${rowKey}-value`} type="text" inputMode="decimal" value={line.value} disabled={enter.isPending} aria-invalid={fault === 'value'} aria-describedby={fault === 'value' ? errorId : undefined} onChange={(event) => change(index, { value: event.target.value })} />
                 </div>
                 {needsReason(line) ? (
                   <div className="field">
                     <label htmlFor={`${rowKey}-reason`}>{t('ind.fig.line.reason')}</label>
-                    <input id={`${rowKey}-reason`} type="text" value={line.reason} disabled={enter.isPending} aria-invalid={fault === 'reason'} onChange={(event) => change(index, { reason: event.target.value })} />
+                    <input id={`${rowKey}-reason`} type="text" value={line.reason} disabled={enter.isPending} aria-invalid={fault === 'reason'} aria-describedby={fault === 'reason' ? errorId : undefined} onChange={(event) => change(index, { reason: event.target.value })} />
                   </div>
                 ) : null}
                 {fault === 'value' ? (
-                  <small className="sub" role="alert">
+                  <small className="sub" role="alert" id={errorId}>
                     {t('ind.fig.fault.value')}
                   </small>
                 ) : null}
                 {fault === 'duplicate' ? (
-                  <small className="sub" role="alert">
+                  <small className="sub" role="alert" id={errorId}>
                     {t('ind.fig.fault.duplicate')}
                   </small>
                 ) : null}
                 {fault === 'reason' ? (
-                  <small className="sub" role="alert">
+                  <small className="sub" role="alert" id={errorId}>
                     {t('ind.fig.fault.reason')}
                   </small>
                 ) : null}
