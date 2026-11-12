@@ -324,6 +324,55 @@ export function traceCoverage({ root, planPath = join(root, PLAN_RELATIVE_PATH),
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// The handoff files of docs/uat/<module>/uat.json: every id they name must exist
+// ---------------------------------------------------------------------------------------------------------------------
+
+const ENGINEERING_RELATIVE_PATH = join('Design', 'MACHVON_Design', '03_Engineering');
+
+const readJsonIfThere = (path, fallback) => (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : fallback);
+
+/**
+ * The cases of the handoff files that name something that does not exist: a screen that is not in the screen catalogue, a story that the plan does not define, a case that the design catalogue (`test_cases.json`) does not hold
+ * (the run store and the evidence document know a case by that id), a case twice, and a case that says it is automated whose script (or the table the script reads) never names it. A case that points nowhere cannot be run and a
+ * case that claims a script that does not name it is a claim, not a proof.
+ */
+export function handoffFailures({ root, plan }) {
+  const directory = join(root, 'docs', 'uat');
+  if (!existsSync(directory)) return [];
+  const engineering = join(root, ENGINEERING_RELATIVE_PATH);
+  const screens = new Set(readJsonIfThere(join(engineering, 'screen_catalog.json'), []).map((screen) => screen.id));
+  const designIds = new Set(readJsonIfThere(join(engineering, 'test_cases.json'), []).map((test) => test.id));
+  const stories = new Set(plan.stories.map((story) => story.id));
+  const failures = [];
+  const seen = new Map();
+  const sources = new Map();
+  const sourceOf = (path) => {
+    if (!sources.has(path)) sources.set(path, existsSync(join(root, path)) ? readFileSync(join(root, path), 'utf8') : undefined);
+    return sources.get(path);
+  };
+  // `critical` is a slice of cases that the module folders hold as well, so it is the only folder where an id may repeat.
+  for (const entry of readdirSync(directory, { withFileTypes: true }).filter((one) => one.isDirectory() && one.name !== 'critical')) {
+    const file = join(directory, entry.name, 'uat.json');
+    if (!existsSync(file)) continue;
+    const where = relative(root, file).split(sep).join('/');
+    for (const test of JSON.parse(readFileSync(file, 'utf8')).test_cases ?? []) {
+      const id = String(test.tc_id ?? '').replace(/^TC-/, '');
+      const place = `${where}: ${test.tc_id}`;
+      if (seen.has(test.tc_id)) failures.push({ code: 'HANDOFF_DUPLICATE', id: test.tc_id, where: `${place}, already in ${seen.get(test.tc_id)}` });
+      seen.set(test.tc_id, where);
+      if (designIds.size > 0 && !designIds.has(id) && test.automation !== undefined) failures.push({ code: 'HANDOFF_CASE_UNKNOWN', id: test.tc_id, where: place });
+      if (test.screen_id !== undefined && screens.size > 0 && !screens.has(test.screen_id)) failures.push({ code: 'HANDOFF_SCREEN_UNKNOWN', id: test.screen_id, where: place });
+      for (const story of test.story_ids ?? []) if (!stories.has(story)) failures.push({ code: 'HANDOFF_STORY_UNKNOWN', id: story, where: place });
+      if (test.automation?.state === 'AUTOMATED') {
+        const named = [test.automation.suite, test.automation.registry].filter((path) => typeof path === 'string').some((path) => sourceOf(path)?.includes(id));
+        if (!named) failures.push({ code: 'HANDOFF_AUTOMATION_MISSING', id: test.tc_id, where: `${place} names ${test.automation.suite ?? 'no suite'}` });
+      }
+    }
+  }
+  return failures;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // The generated document
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -400,7 +449,7 @@ export function main(argv, { log = console.log } = {}) {
     releases: values.releases.split(',').filter(Boolean),
   });
   const document = renderCoverage(trace);
-  const failures = trace.failures.map((failure) => describeFailure(failure, messages));
+  const failures = [...trace.failures, ...handoffFailures({ root, plan: JSON.parse(readFileSync(planPath, 'utf8')) })].map((failure) => describeFailure(failure, messages));
   if (values.check) {
     const current = existsSync(outPath) ? readFileSync(outPath, 'utf8') : undefined;
     if (current !== document) failures.push(format(messages['uat.stale'], { path: relative(root, outPath).split(sep).join('/') }));

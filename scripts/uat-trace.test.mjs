@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { extractTests, renderCoverage, traceCoverage, main } from './uat-trace.mjs';
+import { extractTests, handoffFailures, renderCoverage, traceCoverage, main } from './uat-trace.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cleanups = [];
@@ -339,6 +339,74 @@ test('every message exists in both catalogues', () => {
     for (const key of ['uat.UNCOVERED_MISSING', 'uat.UNCOVERED_SKIPPED', 'uat.UNKNOWN_ID', 'uat.DUPLICATE_PLAN_ID', 'uat.STATUS_UNKNOWN_STORY', 'uat.STATUS_INVALID', 'uat.summary.pass', 'uat.summary.fail', 'uat.stale', 'uat.plan.missing', 'uat.EXTERNAL_UNKNOWN', 'uat.EXTERNAL_MISPLACED', 'uat.EXTERNAL_COVERED', 'uat.EXTERNAL_NO_CHECK']) {
       assert.ok(messages[key], `${locale} ${key}`);
     }
+  }
+});
+
+const ENGINEERING = join('Design', 'MACHVON_Design', '03_Engineering');
+const handoffTree = (cases, extra = {}) =>
+  scratch({
+    [join(ENGINEERING, 'screen_catalog.json')]: JSON.stringify([{ id: 'HPM-01' }]),
+    [join(ENGINEERING, 'test_cases.json')]: JSON.stringify([{ id: 'UAT-HPM-E2E-01' }, { id: 'UAT-HPM-SEC-01' }]),
+    [join('docs', 'uat', 'hpm', 'uat.json')]: JSON.stringify({ test_cases: cases }),
+    ...extra,
+  });
+const codes = (tree) => handoffFailures({ root: tree.root, plan: PLAN }).map((failure) => `${failure.code} ${failure.id}`);
+
+test('a handoff case that names a screen, a story and a design case that exist, with a script that names it, raises nothing', () => {
+  const tree = handoffTree(
+    [{ tc_id: 'TC-UAT-HPM-E2E-01', screen_id: 'HPM-01', story_ids: ['ST-AAA-001'], automation: { state: 'AUTOMATED', suite: 'apps/api/test/uat/hpm.uat.test.ts' } }],
+    { 'apps/api/test/uat/hpm.uat.test.ts': "it('UAT-HPM-E2E-01 pushes', () => {});" },
+  );
+  assert.deepEqual(codes(tree), []);
+});
+
+test('a handoff case that names a screen, a story or a design case that does not exist is reported, so is a case that is in two files', () => {
+  const tree = handoffTree(
+    [
+      { tc_id: 'TC-UAT-HPM-NOPE-01', screen_id: 'HPM-99', story_ids: ['ST-ZZZ-009'], automation: { state: 'MANUAL', reason: 'by hand' } },
+      { tc_id: 'TC-UAT-HPM-E2E-01', automation: { state: 'MANUAL', reason: 'by hand' } },
+    ],
+    { [join('docs', 'uat', 'ebs', 'uat.json')]: JSON.stringify({ test_cases: [{ tc_id: 'TC-UAT-HPM-E2E-01' }] }) },
+  );
+  const found = codes(tree);
+  assert.ok(found.includes('HANDOFF_CASE_UNKNOWN TC-UAT-HPM-NOPE-01'));
+  assert.ok(found.includes('HANDOFF_SCREEN_UNKNOWN HPM-99'));
+  assert.ok(found.includes('HANDOFF_STORY_UNKNOWN ST-ZZZ-009'));
+  assert.ok(found.includes('HANDOFF_DUPLICATE TC-UAT-HPM-E2E-01'));
+});
+
+test('a case that claims a script is reported when the script is missing or does not name it, and is accepted when the table the script reads does', () => {
+  const tree = handoffTree(
+    [
+      { tc_id: 'TC-UAT-HPM-E2E-01', automation: { state: 'AUTOMATED', suite: 'apps/api/test/uat/absent.test.ts' } },
+      { tc_id: 'TC-UAT-HPM-SEC-01', automation: { state: 'AUTOMATED', suite: 'apps/api/test/uat/hpm.uat.test.ts' } },
+    ],
+    { 'apps/api/test/uat/hpm.uat.test.ts': "it('names another case', () => {});" },
+  );
+  assert.deepEqual(codes(tree), ['HANDOFF_AUTOMATION_MISSING TC-UAT-HPM-E2E-01', 'HANDOFF_AUTOMATION_MISSING TC-UAT-HPM-SEC-01']);
+  const withTable = handoffTree([{ tc_id: 'TC-UAT-HPM-SEC-01', automation: { state: 'AUTOMATED', suite: 'apps/api/test/uat/hpm.uat.test.ts', registry: 'apps/api/test/uat/ops.json' } }], {
+    'apps/api/test/uat/hpm.uat.test.ts': "it('the matrix', () => {});",
+    'apps/api/test/uat/ops.json': '[{"id":"UAT-HPM-SEC-01"}]',
+  });
+  assert.deepEqual(codes(withTable), []);
+});
+
+test('the slice of critical cases may repeat the ids of the module folders, and a repository with no handoff files raises nothing', () => {
+  const tree = handoffTree([{ tc_id: 'TC-UAT-HPM-E2E-01' }], { [join('docs', 'uat', 'critical', 'uat.json')]: JSON.stringify({ test_cases: [{ tc_id: 'TC-UAT-HPM-E2E-01' }] }) });
+  assert.deepEqual(codes(tree), []);
+  assert.deepEqual(handoffFailures({ root: scratch({}).root, plan: PLAN }), []);
+  const folderWithoutFile = scratch({ [join(ENGINEERING, 'screen_catalog.json')]: '[]', [join('docs', 'uat', 'empty', 'note.md')]: 'nothing' });
+  assert.deepEqual(handoffFailures({ root: folderWithoutFile.root, plan: PLAN }), []);
+});
+
+test('the handoff failures reach the command line and are worded in both languages', () => {
+  const tree = handoffTree([{ tc_id: 'TC-UAT-HPM-E2E-01', screen_id: 'HPM-99' }]);
+  const lines = [];
+  assert.equal(main(['--root', tree.root, '--plan', tree.plan, '--out', tree.out, '--check', '--locale', 'en'], { log: (line) => lines.push(line) }), 1);
+  assert.ok(lines.some((line) => line.includes('HPM-99')));
+  for (const locale of ['vi', 'en']) {
+    const messages = JSON.parse(readFileSync(join(REPO_ROOT, 'scripts', 'messages', `${locale}.json`), 'utf8'));
+    for (const code of ['HANDOFF_DUPLICATE', 'HANDOFF_CASE_UNKNOWN', 'HANDOFF_SCREEN_UNKNOWN', 'HANDOFF_STORY_UNKNOWN', 'HANDOFF_AUTOMATION_MISSING']) assert.ok(messages[`uat.${code}`], `${locale} ${code}`);
   }
 });
 
