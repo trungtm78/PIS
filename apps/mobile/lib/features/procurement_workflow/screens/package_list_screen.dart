@@ -6,7 +6,11 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../../core/state/empty_state_view.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/state_view.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/widgets.dart';
@@ -121,7 +125,7 @@ class _PackageListScreenState extends State<PackageListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.prc.list.title'),
       body: DataView<PrcListData>(
         cacheKey: 'prc.list.${_node ?? 'default'}',
@@ -163,81 +167,32 @@ class _ListBody extends StatelessWidget {
     final PrcTree tree = data.tree;
     final PrcNode selected = tree.byId(data.nodeId)!;
     // The method the node lies under: the node itself, or the first of its path that is a method.
-    final String methodId = selected.method == null
-        ? data.nodeId
-        : 'M:${selected.method}';
+    final String methodId = selected.method == null ? data.nodeId : 'M:${selected.method}';
     final PrcNode? method = tree.byId(methodId);
-    final List<PrcNode> chips = method == null
-        ? const <PrcNode>[]
-        : tree.childrenOf(method.id);
+    final List<PrcNode> steps = method == null ? const <PrcNode>[] : tree.childrenOf(method.id);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            MachvonSpace.space16,
-            MachvonSpace.space12,
-            MachvonSpace.space16,
-            MachvonSpace.space4,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              if (tree.methods.length > 1)
-                DropdownButtonFormField<String>(
-                  initialValue: method?.id,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: context.t('mob.prc.list.method.label'),
-                  ),
-                  items: <DropdownMenuItem<String>>[
-                    for (final PrcNode one in tree.methods)
-                      DropdownMenuItem<String>(
-                        value: one.id,
-                        child: Text(
-                          '${nodeLabel(context, one)} · ${one.count}',
-                        ),
-                      ),
-                  ],
-                  onChanged: (String? id) {
-                    if (id != null) onNode(id);
-                  },
-                ),
-              const SizedBox(height: MachvonSpace.space8),
-              Text(
-                context.t('mob.prc.list.steps.label'),
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
+        if (tree.methods.length > 1)
+          FilterChips<String>(
+            options: <ChipOption<String>>[
+              for (final PrcNode one in tree.methods) ChipOption<String>(value: one.id, label: '${nodeLabel(context, one)} · ${one.count}'),
             ],
+            selected: method?.id ?? '',
+            onChanged: onNode,
           ),
-        ),
-        if (method != null)
-          _Chips(
-            method: method,
-            steps: chips,
-            selectedId: data.nodeId,
-            tree: tree,
-            onNode: onNode,
-          ),
+        if (method != null) _Chips(method: method, steps: steps, selectedId: data.nodeId, tree: tree, onNode: onNode),
         if (selected.kind == PrcNodeKind.substate)
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: MachvonSpace.space16,
-            ),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: StatusPill(
-                label: nodeLabel(context, selected),
-                tone: MachvonTone.info,
-              ),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16),
+            child: Align(alignment: AlignmentDirectional.centerStart, child: StatusPill(label: nodeLabel(context, selected), tone: MachvonTone.info)),
           ),
         TappableRow(
           semanticLabel: context.t('mob.prc.list.tree.link'),
           onTap: () => navigator.openTree(context),
           child: Row(
             children: <Widget>[
-              Expanded(child: Text(context.t('mob.prc.list.tree.link'))),
+              Expanded(child: Text(context.t('mob.prc.list.tree.link'), style: context.v2text.bodyStrong.copyWith(color: context.v2.palette.primaryStrong))),
               const ExcludeSemantics(child: Icon(Icons.chevron_right)),
             ],
           ),
@@ -258,14 +213,9 @@ class _ListBody extends StatelessWidget {
   }
 }
 
+/// The steps of the method as one row of chips: all, then each step with its count (the chips are the filters of the list).
 class _Chips extends StatelessWidget {
-  const _Chips({
-    required this.method,
-    required this.steps,
-    required this.selectedId,
-    required this.tree,
-    required this.onNode,
-  });
+  const _Chips({required this.method, required this.steps, required this.selectedId, required this.tree, required this.onNode});
 
   final PrcNode method;
   final List<PrcNode> steps;
@@ -275,58 +225,18 @@ class _Chips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String stepOfSelection = tree.byId(selectedId)?.stepCode == null
-        ? ''
-        : 'S:${tree.byId(selectedId)!.method}:${tree.byId(selectedId)!.stepCode}';
-    Widget chip(String label, String aria, String id, bool selected) => Padding(
-      padding: const EdgeInsets.only(right: MachvonSpace.space8),
-      child: Semantics(
-        button: true,
-        selected: selected,
-        label: aria,
-        excludeSemantics: true,
-        child: ChoiceChip(
-          label: Text(label),
-          selected: selected,
-          onSelected: (_) => onNode(id),
-          materialTapTargetSize: MaterialTapTargetSize.padded,
-        ),
-      ),
-    );
-    return SizedBox(
-      height: MediaQuery.textScalerOf(context).scale(48) + 16,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-        child: Row(
-          children: <Widget>[
-            chip(
-              context.t('mob.prc.list.chip.all', <String, Object>{
-                'count': method.count,
-              }),
-              context.t('mob.prc.list.chip.aria', <String, Object>{
-                'name': nodeLabel(context, method),
-                'count': method.count,
-              }),
-              method.id,
-              selectedId == method.id,
-            ),
-            for (final PrcNode step in steps)
-              chip(
-                context.t('mob.prc.list.chip.step', <String, Object>{
-                  'name': nodeLabel(context, step),
-                  'count': step.count,
-                }),
-                context.t('mob.prc.list.chip.aria', <String, Object>{
-                  'name': nodeLabel(context, step),
-                  'count': step.count,
-                }),
-                step.id,
-                selectedId == step.id || stepOfSelection == step.id,
-              ),
-          ],
-        ),
-      ),
+    final PrcNode? selectedNode = tree.byId(selectedId);
+    // A state of a step (late, on hold...) keeps its step chosen.
+    final String stepOfSelection = selectedNode?.stepCode == null ? '' : 'S:${selectedNode!.method}:${selectedNode.stepCode}';
+    final bool isStep = steps.any((PrcNode step) => step.id == selectedId);
+    final String chosen = isStep ? selectedId : (stepOfSelection.isEmpty ? method.id : stepOfSelection);
+    return FilterChips<String>(
+      options: <ChipOption<String>>[
+        ChipOption<String>(value: method.id, label: context.t('mob.prc.list.chip.all', <String, Object>{'count': method.count})),
+        for (final PrcNode step in steps) ChipOption<String>(value: step.id, label: context.t('mob.prc.list.chip.step', <String, Object>{'name': nodeLabel(context, step), 'count': step.count})),
+      ],
+      selected: chosen,
+      onChanged: onNode,
     );
   }
 }
@@ -377,16 +287,10 @@ class _RowListState extends ConsumerState<_RowList> {
       _failed = false;
     });
     try {
-      final Object? raw = await ref
-          .read(apiClientProvider)
-          .execute(
-            'listPackageProcessTreeNodePackages',
-            query: <String, Object?>{
-              'node_id': widget.data.nodeId,
-              'limit': kPrcPageSize,
-              'cursor': cursor,
-            },
-          );
+      final Object? raw = await ref.read(apiClientProvider).execute(
+        'listPackageProcessTreeNodePackages',
+        query: <String, Object?>{'node_id': widget.data.nodeId, 'limit': kPrcPageSize, 'cursor': cursor},
+      );
       final PrcRowPage? page = parsePrcRowPage(raw);
       if (!mounted) return;
       if (page == null) {
@@ -412,25 +316,29 @@ class _RowListState extends ConsumerState<_RowList> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     if (_rows.isEmpty) {
+      final bool narrowed = widget.data.nodeId != widget.methodId;
       return RefreshIndicator(
         onRefresh: widget.onRefresh,
         child: ListView(
           children: <Widget>[
             widget.stats,
             SizedBox(
-              height: 360,
-              child: EmptyStateView(
-                activeFilters: <String>[
-                  nodeLabel(
-                    context,
-                    widget.data.tree.byId(widget.data.nodeId)!,
+              height: 440,
+              child: StateView(
+                kind: StateKind.empty,
+                title: context.t('mob.prc.list.empty.title'),
+                body: narrowed ? context.t('mob.prc.list.empty.narrowed') : context.t('mob.prc.list.empty.body'),
+                details: <Widget>[
+                  Text(
+                    '${context.t('mob.states.empty.filter.label')}: ${nodeLabel(context, widget.data.tree.byId(widget.data.nodeId)!)}',
+                    textAlign: TextAlign.center,
+                    style: text.caption,
                   ),
                 ],
-                onClearFilters: widget.data.nodeId == widget.methodId
-                    ? null
-                    : () => widget.onNode(widget.methodId),
+                actionLabel: narrowed ? context.t('mob.states.empty.clearFilters.action') : context.t('mob.states.retry.action'),
+                onAction: narrowed ? () => widget.onNode(widget.methodId) : () => widget.onRefresh(),
               ),
             ),
           ],
@@ -444,38 +352,22 @@ class _RowListState extends ConsumerState<_RowList> {
         itemBuilder: (BuildContext context, int index) {
           if (index == 0) {
             return Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
+              padding: const EdgeInsets.all(MachvonV2Space.s16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   widget.stats,
-                  Text(
-                    context.t('mob.prc.list.count', <String, Object>{
-                      'shown': _rows.length,
-                    }),
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  if (widget.data.page.truncated)
-                    Text(
-                      context.t('mob.prc.list.truncated'),
-                      style: theme.textTheme.bodySmall,
-                    ),
+                  Text(context.t('mob.prc.list.count', <String, Object>{'shown': _rows.length}), style: text.caption),
+                  if (widget.data.page.truncated) Text(context.t('mob.prc.list.truncated'), style: text.caption),
                 ],
               ),
             );
           }
-          if (index == _rows.length + 1)
-            return _Footer(
-              hasMore: _cursor != null,
-              loading: _loading,
-              failed: _failed,
-              onMore: _more,
-            );
+          if (index == _rows.length + 1) {
+            return _Footer(hasMore: _cursor != null, loading: _loading, failed: _failed, onMore: _more);
+          }
           final PrcPackageRow row = _rows[index - 1];
-          return PackageRowTile(
-            row: row,
-            onTap: () => widget.navigator.openPackage(context, row.packageId),
-          );
+          return PackageRowTile(row: row, dividerAbove: index > 1, onTap: () => widget.navigator.openPackage(context, row.packageId));
         },
       ),
     );
@@ -483,12 +375,7 @@ class _RowListState extends ConsumerState<_RowList> {
 }
 
 class _Footer extends StatelessWidget {
-  const _Footer({
-    required this.hasMore,
-    required this.loading,
-    required this.failed,
-    required this.onMore,
-  });
+  const _Footer({required this.hasMore, required this.loading, required this.failed, required this.onMore});
 
   final bool hasMore;
   final bool loading;
@@ -497,32 +384,21 @@ class _Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!hasMore) return const SizedBox(height: MachvonSpace.space24);
+    if (!hasMore) return const SizedBox(height: MachvonV2Space.s24);
     return Padding(
-      padding: const EdgeInsets.all(MachvonSpace.space16),
+      padding: const EdgeInsets.all(MachvonV2Space.s16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           if (failed)
             Padding(
-              padding: const EdgeInsets.only(bottom: MachvonSpace.space8),
-              child: Text(
-                context.t('mob.prc.list.more.error'),
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: MachvonColors.danger),
-              ),
+              padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
+              child: Semantics(liveRegion: true, child: Text(context.t('mob.prc.list.more.error'), style: context.v2text.caption.copyWith(color: context.v2.palette.lateFg))),
             ),
           if (loading)
             const LinearProgressIndicator(minHeight: 3)
           else
-            OutlinedButton(
-              onPressed: onMore,
-              child: Text(
-                failed
-                    ? context.t('mob.prc.list.more.retry')
-                    : context.t('mob.prc.list.more.action'),
-              ),
-            ),
+            OutlinedButton(onPressed: onMore, child: Text(failed ? context.t('mob.prc.list.more.retry') : context.t('mob.prc.list.more.action'))),
         ],
       ),
     );

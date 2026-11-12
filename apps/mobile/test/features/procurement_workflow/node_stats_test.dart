@@ -123,7 +123,7 @@ void main() {
       await openPrcScreen(tester, server, const PackageListScreen(), locale: const Locale('en'));
 
       expect(find.text('Statistics of the step in view'), findsOneWidget);
-      expect(find.text('6,5 calendar days'), findsOneWidget);
+      expect(find.text('6.5 calendar days'), findsOneWidget);
       expect(find.text('Week of 02/11/2026: in 3, out 1'), findsOneWidget);
     });
   });

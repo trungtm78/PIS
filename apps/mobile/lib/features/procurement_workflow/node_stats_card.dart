@@ -3,7 +3,9 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/typography.dart';
 import '../read_support/widgets.dart';
+import 'labels.dart';
 import 'node_stats.dart';
 
 /// How many of each list the card writes out; the rest is counted (the full lists are on the computer).
@@ -20,12 +22,12 @@ class NodeStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final PrcNodeStats? one = stats;
     if (one == null) {
       return SectionCard(
         title: context.t('mob.prc.node.title'),
-        children: <Widget>[Text(context.t('mob.prc.node.unavailable', <String, Object>{'code': errorCode ?? 'UNKNOWN'}), style: theme.textTheme.bodyMedium)],
+        children: <Widget>[Text(context.t('mob.prc.node.unavailable', <String, Object>{'code': errorCode ?? 'UNKNOWN'}), style: text.body)],
       );
     }
     final String unit = one.working == false ? context.t('mob.prc.node.unit.calendar') : context.t('mob.prc.node.unit.working');
@@ -39,32 +41,30 @@ class NodeStatsCard extends StatelessWidget {
         if (one.heldCount != null) FactLine(label: context.t('mob.prc.node.held'), value: '${one.heldCount}'),
         if (one.noOwnerCount != null) FactLine(label: context.t('mob.prc.node.noOwner'), value: '${one.noOwnerCount}'),
         if (one.hasDays) ...<Widget>[
-          if (one.medianDays != null) FactLine(label: context.t('mob.prc.node.median'), value: context.t('mob.prc.node.days', <String, Object>{'n': _days(one.medianDays!), 'unit': unit})),
+          if (one.medianDays != null) FactLine(label: context.t('mob.prc.node.median'), value: context.t('mob.prc.node.days', <String, Object>{'n': daysNumber(context, one.medianDays!), 'unit': unit})),
           if (one.longestDays != null) FactLine(label: context.t('mob.prc.node.longest'), value: context.t('mob.prc.node.days', <String, Object>{'n': '${one.longestDays}', 'unit': unit})),
           if (one.shortestDays != null) FactLine(label: context.t('mob.prc.node.shortest'), value: context.t('mob.prc.node.days', <String, Object>{'n': '${one.shortestDays}', 'unit': unit})),
         ] else
-          Text(context.t('mob.prc.node.noDays'), style: theme.textTheme.bodySmall),
+          Text(context.t('mob.prc.node.noDays'), style: text.caption),
         if (one.topOwners.isNotEmpty) ...<Widget>[
-          const SizedBox(height: MachvonSpace.space8),
-          Semantics(header: true, child: Text(context.t('mob.prc.node.owners'), style: theme.textTheme.titleSmall)),
-          for (final PrcTopOwner owner in one.topOwners.take(kPrcNodeStatsShown)) Text(context.t('mob.prc.node.owner.line', <String, Object>{'name': owner.name, 'count': owner.count}), style: theme.textTheme.bodyMedium),
+          const SizedBox(height: MachvonV2Space.s8),
+          Semantics(header: true, child: Text(context.t('mob.prc.node.owners'), style: text.heading)),
+          for (final PrcTopOwner owner in one.topOwners.take(kPrcNodeStatsShown)) Text(context.t('mob.prc.node.owner.line', <String, Object>{'name': owner.name, 'count': owner.count}), style: text.body),
         ],
         if (one.unfinished.isNotEmpty) ...<Widget>[
-          const SizedBox(height: MachvonSpace.space8),
-          Semantics(header: true, child: Text(context.t('mob.prc.node.unfinished'), style: theme.textTheme.titleSmall)),
-          for (final PrcUnfinishedItem item in one.unfinished.take(kPrcNodeStatsShown)) Text(context.t('mob.prc.node.unfinished.line', <String, Object>{'name': item.label, 'count': item.count}), style: theme.textTheme.bodyMedium),
+          const SizedBox(height: MachvonV2Space.s8),
+          Semantics(header: true, child: Text(context.t('mob.prc.node.unfinished'), style: text.heading)),
+          for (final PrcUnfinishedItem item in one.unfinished.take(kPrcNodeStatsShown)) Text(context.t('mob.prc.node.unfinished.line', <String, Object>{'name': item.label, 'count': item.count}), style: text.body),
         ],
         if (one.weeks.isNotEmpty) ...<Widget>[
-          const SizedBox(height: MachvonSpace.space8),
-          Semantics(header: true, child: Text(context.t('mob.prc.node.weeks'), style: theme.textTheme.titleSmall)),
+          const SizedBox(height: MachvonV2Space.s8),
+          Semantics(header: true, child: Text(context.t('mob.prc.node.weeks'), style: text.heading)),
           for (final PrcWeek week in one.weeks.reversed.take(kPrcNodeStatsShown).toList().reversed)
-            Text(context.t('mob.prc.node.week.line', <String, Object>{'day': formatDay(week.weekOf), 'in': week.arrivals, 'out': week.departures}), style: theme.textTheme.bodyMedium),
+            Text(context.t('mob.prc.node.week.line', <String, Object>{'day': formatDay(week.weekOf), 'in': week.arrivals, 'out': week.departures}), style: text.body),
         ],
-        if (one.truncated) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space4), child: Text(context.t('mob.prc.node.truncated'), style: theme.textTheme.bodySmall)),
+        if (one.truncated) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(context.t('mob.prc.node.truncated'), style: text.caption)),
       ],
     );
   }
 }
 
-/// A number of days with at most one decimal: 6 is `6`, 6.5 is `6,5`.
-String _days(double value) => value == value.truncateToDouble() ? value.toInt().toString() : value.toStringAsFixed(1).replaceAll('.', ',');

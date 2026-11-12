@@ -5,7 +5,10 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../../core/theme/app_theme.dart' show kTabularFigures;
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/stat_strip.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/widgets.dart';
@@ -32,7 +35,7 @@ class ProcessTreeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.prc.tree.title'),
       body: DataView<PrcTree>(
         cacheKey: 'prc.tree',
@@ -54,37 +57,42 @@ class _TreeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final List<PrcNode> roots = tree.methods;
     return ListView(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, MachvonSpace.space12, MachvonSpace.space16, MachvonSpace.space4),
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s12, MachvonV2Space.s16, MachvonV2Space.s8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(context.t('mob.prc.tree.total', <String, Object>{'count': tree.totalCount}), style: theme.textTheme.titleMedium),
-              Text(context.t('mob.prc.tree.period', <String, Object>{'from': formatDay(tree.periodFrom), 'to': formatDay(tree.periodTo)}), style: theme.textTheme.bodySmall),
-              if (tree.truncated) Text(context.t('mob.prc.tree.truncated'), style: theme.textTheme.bodySmall),
+              Semantics(header: true, child: Text(context.t('mob.prc.tree.total', <String, Object>{'count': tree.totalCount}), style: text.title)),
+              Text(context.t('mob.prc.tree.period', <String, Object>{'from': formatDay(tree.periodFrom), 'to': formatDay(tree.periodTo)}), style: text.caption),
+              if (tree.truncated) Text(context.t('mob.prc.tree.truncated'), style: text.caption),
             ],
           ),
         ),
-        SectionCard(
-          title: context.t('mob.prc.tree.title'),
-          children: <Widget>[
-            KpiGroup(
-              tiles: <Widget>[
-                KpiTile(label: context.t('mob.prc.tree.kpi.running'), value: '${tree.running}'),
-                KpiTile(label: context.t('mob.prc.tree.kpi.late'), value: '${tree.late}', note: tree.late > 0 ? context.t('mob.prc.tree.health.late') : null, noteTone: MachvonTone.danger),
-                KpiTile(label: context.t('mob.prc.tree.kpi.stalled'), value: '${tree.stalled}'),
-                KpiTile(label: context.t('mob.prc.tree.kpi.hold'), value: '${tree.onHold}'),
-                KpiTile(label: context.t('mob.prc.tree.kpi.noOwner'), value: '${tree.noOwner}'),
-              ],
+        StatStrip(
+          cells: <StatCell>[
+            StatCell(value: '${tree.running}', label: context.t('mob.prc.tree.kpi.running')),
+            StatCell(
+              value: '${tree.late}',
+              label: context.t('mob.prc.tree.kpi.late'),
+              band: tree.late > 0 ? DeadlineBand.late : null,
+              bandText: tree.late > 0 ? context.t('mob.prc.tree.health.late') : null,
             ),
+            StatCell(value: '${tree.stalled}', label: context.t('mob.prc.tree.kpi.stalled')),
           ],
         ),
+        StatStrip(
+          cells: <StatCell>[
+            StatCell(value: '${tree.onHold}', label: context.t('mob.prc.tree.kpi.hold')),
+            StatCell(value: '${tree.noOwner}', label: context.t('mob.prc.tree.kpi.noOwner')),
+          ],
+        ),
+        const SizedBox(height: MachvonV2Space.s8),
         for (final PrcNode node in roots) _NodeTile(tree: tree, node: node, depth: 0, navigator: navigator),
-        Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.prc.tree.help'), style: theme.textTheme.bodySmall)),
+        Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.prc.tree.help'), style: text.caption)),
       ],
     );
   }
@@ -109,12 +117,12 @@ class _NodeTileState extends State<_NodeTile> {
   Widget build(BuildContext context) {
     final PrcNode node = widget.node;
     final List<PrcNode> children = widget.tree.childrenOf(node.id);
-    final EdgeInsets padding = EdgeInsets.only(left: MachvonSpace.space16 + widget.depth * MachvonSpace.space16, right: MachvonSpace.space16);
+    final EdgeInsets padding = EdgeInsets.only(left: MachvonV2Space.s16 + widget.depth * MachvonV2Space.s16, right: MachvonV2Space.s16);
     final Widget header = _NodeHeader(tree: widget.tree, node: node);
     final VoidCallback? open = node.count == 0 ? null : () => widget.navigator.openNode(context, node.id);
     if (children.isEmpty) {
       return Padding(
-        padding: EdgeInsets.only(left: widget.depth * MachvonSpace.space16),
+        padding: EdgeInsets.only(left: widget.depth * MachvonV2Space.s16),
         child: _Guide(
           depth: widget.depth,
           child: TappableRow(semanticLabel: _aria(context, widget.tree, node), onTap: open, child: header),
@@ -126,7 +134,7 @@ class _NodeTileState extends State<_NodeTile> {
     return _Guide(
       depth: widget.depth,
       child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        data: Theme.of(context).copyWith(dividerColor: context.v2.palette.surface.withValues(alpha: 0)),
         child: ExpansionTile(
           key: PageStorageKey<String>(node.id),
           initiallyExpanded: _expandedNodes.contains(node.id),
@@ -138,15 +146,15 @@ class _NodeTileState extends State<_NodeTile> {
           children: <Widget>[
             if (open != null)
               Padding(
-                padding: EdgeInsets.only(left: widget.depth * MachvonSpace.space16),
+                padding: EdgeInsets.only(left: widget.depth * MachvonV2Space.s16),
                 child: TappableRow(
                   semanticLabel: context.t('mob.prc.tree.open', <String, Object>{'count': node.count}),
                   onTap: open,
-                  child: Row(children: <Widget>[Expanded(child: Text(context.t('mob.prc.tree.open', <String, Object>{'count': node.count}), style: const TextStyle(color: MachvonColors.primary))), const ExcludeSemantics(child: Icon(Icons.chevron_right))]),
+                  child: Row(children: <Widget>[Expanded(child: Text(context.t('mob.prc.tree.open', <String, Object>{'count': node.count}), style: context.v2text.body.copyWith(color: context.v2.palette.primaryStrong))), const ExcludeSemantics(child: Icon(Icons.chevron_right))]),
                 ),
               ),
             if (noSteps && node.count > 0)
-              Padding(padding: EdgeInsets.fromLTRB(MachvonSpace.space16 + (widget.depth + 1) * MachvonSpace.space16, 0, MachvonSpace.space16, MachvonSpace.space8), child: Text(context.t('mob.prc.tree.noDefinition'), style: Theme.of(context).textTheme.bodySmall)),
+              Padding(padding: EdgeInsets.fromLTRB(MachvonV2Space.s16 + (widget.depth + 1) * MachvonV2Space.s16, 0, MachvonV2Space.s16, MachvonV2Space.s8), child: Text(context.t('mob.prc.tree.noDefinition'), style: context.v2text.caption)),
             for (final PrcNode child in children) _NodeTile(tree: widget.tree, node: child, depth: widget.depth + 1, navigator: widget.navigator),
           ],
         ),
@@ -165,9 +173,11 @@ class _Guide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (depth == 0) return child;
-    return DecoratedBox(
-      decoration: const BoxDecoration(border: Border(left: BorderSide(color: MachvonColors.border))),
-      child: child,
+    return Stack(
+      children: <Widget>[
+        Positioned(left: 0, top: 0, bottom: 0, width: 1, child: ColoredBox(color: context.v2.palette.line)),
+        child,
+      ],
     );
   }
 }
@@ -191,16 +201,17 @@ class _NodeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
     final PrcHealth health = healthOf(node);
     final bool empty = node.count == 0;
-    final Color? muted = empty ? MachvonColors.textSecondary : null;
+    final Color muted = empty ? v2.palette.ink2 : v2.palette.ink;
     final int moved = tree.movedInto(node.id);
     final int returned = tree.returnedFrom(node.id);
     final double? median = node.medianDays;
     String? medianText;
     if (median != null) {
-      final Map<String, Object> days = <String, Object>{'n': median == median.truncateToDouble() ? median.toInt().toString() : median.toStringAsFixed(1)};
+      final Map<String, Object> days = <String, Object>{'n': daysNumber(context, median)};
       medianText = node.medianWorking ? context.t('mob.prc.tree.median.working', days) : context.t('mob.prc.tree.median.calendar', days);
     }
     // No container: the sentence joins the row that opens or expands, so a screen reader reads that row as one labelled control.
@@ -213,34 +224,34 @@ class _NodeHeader extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Expanded(child: Text(nodeLabel(context, node), style: theme.textTheme.bodyLarge?.copyWith(color: muted, fontWeight: node.kind == PrcNodeKind.method ? FontWeight.w700 : null))),
-              const SizedBox(width: MachvonSpace.space8),
-              Text(context.t('mob.prc.tree.count', <String, Object>{'count': node.count}), style: theme.textTheme.bodyLarge?.copyWith(color: muted, fontWeight: FontWeight.w700, fontFeatures: kTabularFigures)),
+              Expanded(child: Text(nodeLabel(context, node), style: (node.kind == PrcNodeKind.method ? text.heading : text.body).copyWith(color: muted))),
+              const SizedBox(width: MachvonV2Space.s8),
+              Text(context.t('mob.prc.tree.count', <String, Object>{'count': node.count}), style: text.bodyStrong.copyWith(color: muted)),
             ],
           ),
           if (!empty) ...<Widget>[
-            const SizedBox(height: MachvonSpace.space4),
+            const SizedBox(height: MachvonV2Space.s4),
             Wrap(
-              spacing: MachvonSpace.space8,
-              runSpacing: MachvonSpace.space4,
+              spacing: MachvonV2Space.s8,
+              runSpacing: MachvonV2Space.s4,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: <Widget>[
                 HealthPill(health: health),
-                if (node.lateCount > 0 && node.kind != PrcNodeKind.substate) Text(context.t('mob.prc.tree.late', <String, Object>{'n': node.lateCount}), style: theme.textTheme.bodySmall),
-                Text(moneyLabel(context, node.valueVnd), style: theme.textTheme.bodySmall),
-                if (medianText != null) Text(medianText, style: theme.textTheme.bodySmall),
+                if (node.lateCount > 0 && node.kind != PrcNodeKind.substate) Text(context.t('mob.prc.tree.late', <String, Object>{'n': node.lateCount}), style: text.caption),
+                Text(moneyLabel(context, node.valueVnd), style: text.caption),
+                if (medianText != null) Text(medianText, style: text.caption),
               ],
             ),
-            const SizedBox(height: MachvonSpace.space4),
+            const SizedBox(height: MachvonV2Space.s4),
             Row(
               children: <Widget>[
                 Expanded(child: ShareBar(fraction: node.shareFraction)),
-                const SizedBox(width: MachvonSpace.space8),
-                Text(context.t('mob.prc.tree.share', <String, Object>{'percent': _percent(node.shareCountBp)}), style: theme.textTheme.bodySmall),
+                const SizedBox(width: MachvonV2Space.s8),
+                Text(context.t('mob.prc.tree.share', <String, Object>{'percent': _percent(context, node.shareCountBp)}), style: text.caption),
               ],
             ),
-            if (moved > 0) Text(context.t('mob.prc.tree.moved', <String, Object>{'n': moved}), style: theme.textTheme.bodySmall),
-            if (returned > 0) Text(context.t('mob.prc.tree.returned', <String, Object>{'n': returned}), style: theme.textTheme.bodySmall),
+            if (moved > 0) Text(context.t('mob.prc.tree.moved', <String, Object>{'n': moved}), style: text.caption),
+            if (returned > 0) Text(context.t('mob.prc.tree.returned', <String, Object>{'n': returned}), style: text.caption),
           ],
         ],
       ),
@@ -249,9 +260,8 @@ class _NodeHeader extends StatelessWidget {
 }
 
 /// A share in ten-thousandths as a percentage with at most one decimal: 1234 is `12,3`, 5000 is `50`.
-String _percent(int basisPoints) {
+String _percent(BuildContext context, int basisPoints) {
   final int tenths = (basisPoints / 100 * 10).round();
-  final String whole = (tenths ~/ 10).toString();
-  final int fraction = tenths % 10;
-  return fraction == 0 ? whole : '$whole,$fraction';
+  final String text = tenths % 10 == 0 ? '${tenths ~/ 10}' : '${tenths ~/ 10}.${tenths % 10}';
+  return formatPercent(text, AppStrings.of(context).language);
 }

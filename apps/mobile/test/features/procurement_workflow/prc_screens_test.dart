@@ -24,6 +24,14 @@ class _Taps {
       );
 }
 
+/// Opens a tab of the package screen: the row of tabs scrolls, so the tab is brought into view first.
+Future<void> openTab(WidgetTester tester, Finder tab) async {
+  await tester.ensureVisible(tab);
+  await tester.pumpAndSettle();
+  await tester.tap(tab);
+  await tester.pumpAndSettle();
+}
+
 void _registerTree(ScriptedServer server, {int total = 10}) => server.on('GET', '/package-workflows/process-tree', (_) => treeJson(total: total));
 
 void _registerPackages(ScriptedServer server, [Object? Function(HttpCall call)? answer]) {
@@ -127,8 +135,8 @@ void main() {
       _registerTree(server);
       _registerPackages(server, (HttpCall call) => rowPage(<Object?>[], truncated: true));
       await openPrcScreen(tester, server, const PackageListScreen(initialNode: 'S:OPEN_BIDDING:EVALUATE'));
-      expect(find.text('Chưa có dữ liệu'), findsOneWidget);
-      expect(find.text('Đánh giá hồ sơ dự thầu'), findsWidgets, reason: 'the filter in use is named');
+      expect(find.text('Chưa có gói thầu ở bước này'), findsOneWidget);
+      expect(find.text('Bộ lọc đang áp dụng: Đánh giá hồ sơ dự thầu'), findsOneWidget, reason: 'the filter in use is named');
       await tester.tap(find.text('Xóa bộ lọc'));
       await tester.pumpAndSettle();
       expect(server.callsTo('GET', '/package-workflows/process-tree/packages').last.url.queryParameters['node_id'], 'M:OPEN_BIDDING');
@@ -205,7 +213,7 @@ void main() {
       expect(find.text('2 trễ'), findsOneWidget);
       expect(find.text('40% tổng'), findsOneWidget);
       expect(find.text('trung vị 6 ngày làm việc'), findsOneWidget);
-      expect(find.text('trung vị 9.5 ngày'), findsOneWidget, reason: 'calendar days when the calendar is not published');
+      expect(find.text('trung vị 9,5 ngày'), findsOneWidget, reason: 'calendar days when the calendar is not published');
       expect(find.text('Đã chuyển vào trong kỳ: 3 gói'), findsOneWidget);
       expect(find.text('Trả lại trong kỳ: 1 gói'), findsOneWidget, reason: 'the step that sent one back says so in words');
       expect(find.text('Chưa bắt đầu quy trình'), findsOneWidget);
@@ -285,6 +293,9 @@ void main() {
       expect(find.text('Đã đi 2/4 bước · 52%'), findsOneWidget);
       expect(find.text('Còn 1 mục bắt buộc chưa xong'), findsOneWidget);
       expect(find.text('Bước quá hạn 2 ngày'), findsOneWidget);
+      expect(find.text('Giá gói'), findsOneWidget);
+      expect(find.text('450.000.000 đồng (450 triệu đồng)'), findsOneWidget);
+      await openTab(tester, find.text('Các bước'));
       // The stepper: done, done, late (the only one that is not "done"), upcoming; the standard against the actual days.
       expect(find.text('Xong'), findsNWidgets(2));
       expect(find.text('Trễ'), findsOneWidget);
@@ -292,10 +303,12 @@ void main() {
       expect(find.text('chuẩn 4 · thực 6'), findsOneWidget);
       expect(find.text('chuẩn 10'), findsOneWidget, reason: 'a step that was passed with no days kept shows only its standard');
       expect(find.text('chuẩn 6'), findsOneWidget, reason: 'a step not reached shows only its standard');
+      await openTab(tester, find.textContaining('Danh mục kiểm'));
       expect(find.text('Khai báo không có xung đột lợi ích'), findsOneWidget);
       expect(find.text('Báo cáo đánh giá hồ sơ dự thầu'), findsOneWidget);
       expect(find.text('Giao cho: Lê Văn Cường'), findsOneWidget);
       expect(find.text('Xác nhận'), findsOneWidget, reason: 'the evidence kind as a chip');
+      await openTab(tester, find.text('Tổng quan'));
       expect(find.text('Kiến nghị: 1 đang chờ trên tổng 1'), findsOneWidget);
       expect(find.text('Mở thầu: 04/11/2026'), findsOneWidget);
     });
@@ -305,6 +318,7 @@ void main() {
       final ScriptedServer server = ScriptedServer();
       register(server);
       await openPrcScreen(tester, server, const PackageDetailScreen(packageId: 'k-1'));
+      await openTab(tester, find.text('Dòng thời gian'));
 
       expect(find.text('Thứ Tư, 04/11/2026 · 1 thay đổi'), findsOneWidget);
       expect(find.text('Thứ Ba, 03/11/2026'), findsOneWidget);
@@ -348,6 +362,7 @@ void main() {
       });
       register(server, body);
       await openPrcScreen(tester, server, const PackageDetailScreen(packageId: 'k-1'));
+      await openTab(tester, find.text('Dòng thời gian'));
       expect(find.text('Quá hạn bước Đánh giá hồ sơ dự thầu (hạn 10/11/2026)'), findsOneWidget);
       expect(find.textContaining('Người làm: Hệ thống'), findsOneWidget);
       expect(find.textContaining('các bước sau và ngày ký hợp đồng bị đẩy lùi'), findsOneWidget);
@@ -377,6 +392,7 @@ void main() {
       register(server);
       await openPrcScreen(tester, server, const PackageDetailScreen(packageId: 'k-1'), locale: const Locale('en'));
       expect(find.text('Package progress'), findsOneWidget);
+      await openTab(tester, find.text('Timeline'));
       expect(find.text('Wednesday, 04/11/2026 · 1 changes'), findsOneWidget);
       expect(find.text('Moved from Lập hồ sơ mời thầu to Đánh giá hồ sơ dự thầu'), findsOneWidget);
     });

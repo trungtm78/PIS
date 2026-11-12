@@ -4,6 +4,12 @@ import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import 'workflow_models.dart';
 
+/// A number of days with at most one decimal in the decimal mark of the language: 6 is `6`, 6.5 is `6,5` (`6.5` in English).
+String daysNumber(BuildContext context, double value) {
+  final double rounded = (value * 10).round() / 10;
+  return formatNumber(rounded == rounded.truncateToDouble() ? '${rounded.toInt()}' : '$rounded', AppStrings.of(context).language);
+}
+
 /// The words of the codes of the workflow. Each key is written out so the string check can see it is in use; a code the phone does not
 /// know is shown as it came, never hidden.
 

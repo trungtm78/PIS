@@ -3,6 +3,11 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/colors.dart';
+import '../../core/theme/typography.dart';
+import '../../core/widgets/deadline.dart';
+import '../../core/widgets/tap_target.dart';
+import '../../core/widgets/work_row.dart';
 import '../read_support/widgets.dart';
 import 'labels.dart';
 import 'workflow_models.dart';
@@ -58,6 +63,7 @@ class ShareBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MachvonV2Palette palette = context.v2.palette;
     return ExcludeSemantics(
       child: ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.pill)),
@@ -65,8 +71,8 @@ class ShareBar extends StatelessWidget {
           height: 4,
           child: Stack(
             children: <Widget>[
-              const Positioned.fill(child: ColoredBox(color: MachvonColors.border)),
-              FractionallySizedBox(widthFactor: fraction, child: const ColoredBox(color: MachvonColors.primary, child: SizedBox.expand())),
+              Positioned.fill(child: ColoredBox(color: palette.line)),
+              FractionallySizedBox(widthFactor: fraction, child: ColoredBox(color: palette.primary, child: const SizedBox.expand())),
             ],
           ),
         ),
@@ -75,65 +81,90 @@ class ShareBar extends StatelessWidget {
   }
 }
 
-/// A package of a list: the code and the name, where it is, how long, who holds it and whether it is late. One tap target, read as one
-/// sentence by a screen reader.
+/// The band of a package: done when it is completed, else the band of its due day as the server counted it (never the clock of the phone);
+/// null when the package has no due day to count (not started, on hold, cancelled).
+DeadlineBand? bandOfRow(PrcPackageRow row) {
+  if (row.status == 'COMPLETED') return DeadlineBand.done;
+  final int? left = row.daysLeft;
+  if (!row.running || left == null || row.dueOn == null) return null;
+  return DeadlineBand.fromDays(left);
+}
+
+/// A package of a list: the code and the name, where it is (the step of the workflow), its deadline band with the real due day, and the facts
+/// that decide whether to open it: the state, how long it has been there, the project, the price and who holds it. One tap target, read as
+/// one sentence by a screen reader.
 class PackageRowTile extends StatelessWidget {
-  const PackageRowTile({required this.row, required this.onTap, super.key});
+  const PackageRowTile({required this.row, required this.onTap, this.dividerAbove = true, super.key});
 
   final PrcPackageRow row;
   final VoidCallback? onTap;
+  final bool dividerAbove;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String title = row.title ?? '';
     final String status = statusLabel(context, row.status);
     final int? days = row.daysWorking ?? row.daysCalendar;
     final String? daysText = days == null
         ? null
         : (row.daysWorking != null ? context.t('mob.prc.row.days.working', <String, Object>{'n': days}) : context.t('mob.prc.row.days.calendar', <String, Object>{'n': days}));
-    final bool overdue = row.daysLeft != null && row.daysLeft! < 0;
-    return TappableRow(
-      semanticLabel: context.t('mob.prc.list.row.aria', <String, Object>{'code': row.code, 'title': title, 'status': status}),
-      onTap: onTap,
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(title.isEmpty ? row.code : '${row.code} · $title', style: theme.textTheme.bodyLarge),
-                const SizedBox(height: MachvonSpace.space4),
-                Wrap(
-                  spacing: MachvonSpace.space8,
-                  runSpacing: MachvonSpace.space4,
-                  children: <Widget>[
-                    StatusPill(label: status, tone: _toneOfStatus(row.status)),
-                    if (row.late) StatusPill(label: context.t('mob.prc.row.late', <String, Object>{'n': row.lateDays}), tone: MachvonTone.danger, icon: Icons.block),
-                    if (row.held) StatusPill(label: context.t('mob.prc.row.hold'), icon: Icons.pause_circle_outline),
-                    if (row.stalled) StatusPill(label: context.t('mob.prc.row.stalled'), tone: MachvonTone.warning),
-                  ],
-                ),
-                if (row.stepName != null && row.stepOrder != null)
-                  Text(context.t('mob.prc.row.step', <String, Object>{'order': row.stepOrder!, 'of': row.stepsTotal ?? 0, 'name': row.stepName!}), style: theme.textTheme.bodyMedium),
-                if (daysText != null) Text(daysText, style: theme.textTheme.bodySmall),
-                if (row.running && row.progressPercent != null) Text(context.t('mob.prc.row.progress', <String, Object>{'percent': row.progressPercent!}), style: theme.textTheme.bodySmall),
-                if (row.running && row.daysLeft != null && row.dueOn != null)
-                  Text(countdownLabel(context, row.daysLeft!, row.dueOn!), style: theme.textTheme.bodySmall?.copyWith(color: overdue ? MachvonColors.danger : null)),
-                if (row.projectCode.isNotEmpty)
-                  Text(context.t('mob.prc.row.project', <String, Object>{'project': row.projectName == null ? row.projectCode : '${row.projectCode} · ${row.projectName}'}), style: theme.textTheme.bodySmall),
-                Text(context.t('mob.prc.row.value', <String, Object>{'value': moneyLabel(context, row.valueVnd)}), style: theme.textTheme.bodySmall),
-                if (row.running)
-                  Text(
-                    row.hasOwner && row.ownerName != null ? context.t('mob.prc.row.owner', <String, Object>{'name': row.ownerName!}) : context.t('mob.prc.row.ownerNone'),
-                    style: theme.textTheme.bodySmall,
-                  ),
-              ],
-            ),
+    final DeadlineBand? band = bandOfRow(row);
+    final bool counted = row.running && row.daysLeft != null && row.dueOn != null;
+    final double inset = band == null ? MachvonV2Space.s16 : MachvonV2Space.s16 + MachvonV2Size.glyph + MachvonV2Space.s12;
+    Widget fact(String line) => Text(line, style: text.caption);
+    final Widget main = WorkRow(
+      title: title.isEmpty ? row.code : '${row.code} · $title',
+      subtitle: row.stepName != null && row.stepOrder != null
+          ? context.t('mob.prc.row.step', <String, Object>{'order': row.stepOrder!, 'of': row.stepsTotal ?? 0, 'name': row.stepName!})
+          : null,
+      leading: band == null ? null : DeadlineGlyph(band: band),
+      trailing: counted ? DeadlineLabel(band: band!, text: countdownLabel(context, row.daysLeft!, row.dueOn!), dueDay: row.dueOn) : null,
+    );
+    final Widget body = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        main,
+        Padding(
+          padding: EdgeInsets.fromLTRB(inset, 0, MachvonV2Space.s16, MachvonV2Space.s12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Wrap(
+                spacing: MachvonV2Space.s8,
+                runSpacing: MachvonV2Space.s4,
+                children: <Widget>[
+                  StatusPill(label: status, tone: _toneOfStatus(row.status)),
+                  if (row.late) StatusPill(label: context.t('mob.prc.row.late', <String, Object>{'n': row.lateDays}), tone: MachvonTone.danger, icon: Icons.block),
+                  if (row.held) StatusPill(label: context.t('mob.prc.row.hold'), icon: Icons.pause_circle_outline),
+                  if (row.stalled) StatusPill(label: context.t('mob.prc.row.stalled'), tone: MachvonTone.warning),
+                ],
+              ),
+              const SizedBox(height: MachvonV2Space.s4),
+              if (daysText != null) fact(daysText),
+              if (row.running && row.progressPercent != null) fact(context.t('mob.prc.row.progress', <String, Object>{'percent': row.progressPercent!})),
+              if (row.projectCode.isNotEmpty)
+                fact(context.t('mob.prc.row.project', <String, Object>{'project': row.projectName == null ? row.projectCode : '${row.projectCode} · ${row.projectName}'})),
+              fact(context.t('mob.prc.row.value', <String, Object>{'value': moneyLabel(context, row.valueVnd)})),
+              if (row.running) fact(row.hasOwner && row.ownerName != null ? context.t('mob.prc.row.owner', <String, Object>{'name': row.ownerName!}) : context.t('mob.prc.row.ownerNone')),
+            ],
           ),
-          if (onTap != null) const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-        ],
-      ),
+        ),
+      ],
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        if (dividerAbove) Padding(padding: EdgeInsets.only(left: inset), child: SizedBox(height: 1, child: ColoredBox(color: context.v2.palette.line))),
+        TapTarget(
+          onTap: onTap,
+          radius: 0,
+          semanticLabel: context.t('mob.prc.list.row.aria', <String, Object>{'code': row.code, 'title': title, 'status': status}),
+          child: SizedBox(width: double.infinity, child: body),
+        ),
+      ],
     );
   }
 }
