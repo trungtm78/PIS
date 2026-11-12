@@ -18,6 +18,7 @@ const facts = (over: Partial<ScreenFacts> = {}): ScreenFacts => ({
   breadcrumb: true,
   title: 'Cây tổ chức',
   overflowPx: 0,
+  overflowers: [],
   stateCards: [],
   hasContent: true,
   dataRows: true,
@@ -147,7 +148,7 @@ const MUTATIONS: Array<{ name: string; clause: Clause; build: () => ContractInpu
   { name: 'a forced state crashes the screen', clause: 'states', build: () => input(['states'], { states: [{ state: 'error', observation: observation({ width: 390 }, { crashed: true }) }] }), detail: 'state error: the page crashes' },
   { name: 'a forced state raises an uncaught error', clause: 'states', build: () => input(['states'], { states: [{ state: 'offline', observation: observation({ width: 390, pageErrors: ['x is undefined'] }) }] }), detail: 'x is undefined' },
   { name: 'the opening for a member without the right did not load', clause: 'denied', build: () => input(['denied'], { denied: observation({ loadError: 'Timeout 15000ms exceeded.' }) }), detail: 'did not load for a member without the right' },
-  { name: 'the tokens are missing', clause: 'tokens', build: () => input(['tokens'], { wide: observation({}, { tokens: { primaryDefined: false, bodyFont: 'Arial', textBelowFloor: [{ text: 'nhỏ', px: 10 }], italicHeadings: ['Chữ nghiêng'] } }) }), detail: `under ${MIN_TEXT_PX} px` },
+  { name: 'the tokens are missing', clause: 'tokens', build: () => input(['tokens'], { wide: observation({}, { tokens: { primaryDefined: false, bodyFont: 'Arial', textBelowFloor: [{ text: 'nhỏ', px: 10, where: 'p.ghi-chu' }], italicHeadings: ['Chữ nghiêng'] } }) }), detail: `under ${MIN_TEXT_PX} px` },
 ];
 
 for (const mutation of MUTATIONS) {

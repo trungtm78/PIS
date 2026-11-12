@@ -94,6 +94,8 @@ export interface WriteAction {
 export interface TextBelowFloor {
   text: string;
   px: number;
+  /** The element that carries the text, as tag and classes, so that a finding names the rule to change. */
+  where: string;
 }
 
 /** What the page says about itself, measured inside the page. */
@@ -110,6 +112,8 @@ export interface ScreenFacts {
   title: string;
   /** document scrollWidth minus innerWidth, never negative. */
   overflowPx: number;
+  /** The elements that reach past the right edge and sit in no scrolling region of their own (tag and classes), the cause of an overflow of the page. */
+  overflowers: string[];
   /** The state cards of the screen (empty, denied, error, expired...): their text. */
   stateCards: string[];
   /** Whether the screen is showing its data (no state card in the place of the content). */
@@ -194,6 +198,28 @@ export const MIN_TEXT_PX = 12;
  * A link never counts: it navigates, whatever it is called and however it is drawn.
  */
 export function factsInPage(minTextPx: number): ScreenFacts {
+  // The widest elements that stick out of the page: those whose parent does not, and that no region that scrolls by itself holds. They are what to change, never the page.
+  const overflowersInPage = (): string[] => {
+    const edge = window.innerWidth;
+    const scrolls = (element: Element | null): boolean => {
+      for (let node = element; node !== null && node !== document.body; node = node.parentElement) {
+        const x = getComputedStyle(node).overflowX;
+        if (x === 'auto' || x === 'scroll' || x === 'hidden' || x === 'clip') return true;
+      }
+      return false;
+    };
+    const names: string[] = [];
+    for (const element of Array.prototype.slice.call(document.body.querySelectorAll('*')) as Element[]) {
+      const box = element.getBoundingClientRect();
+      if (box.width === 0 || box.right <= edge + 1 || scrolls(element)) continue;
+      const parent = element.parentElement;
+      if (parent !== null && parent !== document.body && parent.getBoundingClientRect().right > edge + 1 && !scrolls(parent)) continue;
+      const classes = typeof element.className === 'string' && element.className !== '' ? `.${element.className.trim().split(/\s+/).join('.')}` : '';
+      const name = `${element.tagName.toLowerCase()}${classes} (right ${Math.round(box.right)})`;
+      if (!names.includes(name) && names.length < 6) names.push(name);
+    }
+    return names;
+  };
   const visible = (element: Element): boolean => {
     const box = (element as HTMLElement).getBoundingClientRect();
     const style = getComputedStyle(element);
@@ -207,7 +233,8 @@ export function factsInPage(minTextPx: number): ScreenFacts {
   const outsideShell = 'nav, [role="navigation"], [role="tablist"], .sidebar, .workspace-topbar, .topbar, [role="search"], .ui-filter, [role="dialog"], .statecard';
   const writeActions = all(root, 'button, a[href], input[type="submit"], [role="button"]')
     .filter((element) => visible(element) && !element.closest(outsideShell))
-    .filter((element) => !(element as HTMLButtonElement).disabled && element.getAttribute('aria-disabled') !== 'true')
+    // A control in a disabled fieldset is disabled although its own `disabled` is not set: the pseudo-class knows.
+    .filter((element) => !element.matches(':disabled') && element.getAttribute('aria-disabled') !== 'true')
     .filter((element) => {
       const classes = typeof element.className === 'string' ? element.className : '';
       const primary = element.tagName !== 'A' && /(?:^|\s)(?:ui-button--primary|ui-button--danger|primary)(?:\s|$)/.test(classes);
@@ -225,11 +252,16 @@ export function factsInPage(minTextPx: number): ScreenFacts {
 
   const small: TextBelowFloor[] = [];
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  for (let node = walker.nextNode(); node !== null && small.length < 8; node = walker.nextNode()) {
+  const seen = new Set<string>();
+  for (let node = walker.nextNode(); node !== null && small.length < 12; node = walker.nextNode()) {
     const parent = node.parentElement;
     if (parent === null || (node.textContent ?? '').trim() === '' || !visible(parent) || ['SCRIPT', 'STYLE'].includes(parent.tagName)) continue;
     const px = Number.parseFloat(getComputedStyle(parent).fontSize);
-    if (px < minTextPx) small.push({ text: (node.textContent ?? '').trim().slice(0, 40), px });
+    if (px >= minTextPx) continue;
+    const where = `${parent.tagName.toLowerCase()}${typeof parent.className === 'string' && parent.className !== '' ? `.${parent.className.trim().split(/\s+/).join('.')}` : ''}`;
+    // One finding per kind of element: the rule to change is the same for all its texts.
+    if (!seen.has(where)) small.push({ text: (node.textContent ?? '').trim().slice(0, 40), px, where });
+    seen.add(where);
   }
   const bodyStyle = getComputedStyle(document.body);
   return {
@@ -240,6 +272,7 @@ export function factsInPage(minTextPx: number): ScreenFacts {
     breadcrumb: document.querySelector('.workspace-breadcrumb strong') !== null,
     title: textOf(root.querySelector('h1') ?? document.createElement('span')),
     overflowPx: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
+    overflowers: overflowersInPage(),
     stateCards: cards.map(textOf),
     hasContent: cards.length === 0,
     dataRows: all(root, 'table tbody tr').some((row) => visible(row) && row.querySelectorAll('td').length >= 2) || all(root, 'dl dd').some(visible),
@@ -422,7 +455,7 @@ export function judgeScreen(input: ContractInput): Finding[] {
   }
   if (wanted.has('overflow')) {
     for (const observation of [wide, narrow]) {
-      if (observation.facts.overflowPx > 0) findings.push({ clause: 'overflow', detail: `the page scrolls sideways by ${observation.facts.overflowPx} px at ${observation.width} px` });
+      if (observation.facts.overflowPx > 0) findings.push({ clause: 'overflow', detail: `the page scrolls sideways by ${observation.facts.overflowPx} px at ${observation.width} px${observation.facts.overflowers.length === 0 ? '' : `; reached by ${observation.facts.overflowers.join(', ')}`}` });
     }
   }
   if (wanted.has('labels')) {
@@ -488,7 +521,7 @@ export function judgeScreen(input: ContractInput): Finding[] {
     const { tokens } = wide.facts;
     if (!tokens.primaryDefined) findings.push({ clause: 'tokens', detail: 'the token --mv-color-primary is not defined on the page' });
     if (!/Be Vietnam Pro/i.test(tokens.bodyFont)) findings.push({ clause: 'tokens', detail: `the body font is not Be Vietnam Pro (${tokens.bodyFont})` });
-    for (const small of tokens.textBelowFloor) findings.push({ clause: 'tokens', detail: `text under ${MIN_TEXT_PX} px: "${small.text}" at ${small.px} px` });
+    for (const small of tokens.textBelowFloor) findings.push({ clause: 'tokens', detail: `text under ${MIN_TEXT_PX} px: "${small.text}" at ${small.px} px in ${small.where}` });
     for (const heading of tokens.italicHeadings) findings.push({ clause: 'tokens', detail: `italic heading: "${heading}"` });
   }
   return findings;

@@ -48,7 +48,7 @@ type ForcedState = keyof typeof FORCED_STATES;
 const I18N = readJson<Record<string, string>>('../src/i18n/vi.json');
 const STATE_TITLES: Readonly<Record<string, string>> = Object.fromEntries(Object.entries(FORCED_STATES).map(([state, key]) => [state, I18N[key] ?? '']));
 
-const problemBody = (status: number, code: string): string => JSON.stringify({ type: `urn:machvon:error:${code}`, title: `error.${code}.title`, status, code, correlation_id: 'forced', correlationId: 'forced' });
+const problemBody = (status: number, code: string): string => JSON.stringify({ type: `urn:machvon:error:${code}`, title: `error.${code}.title`, status, code, correlation_id: 'forced' });
 
 /**
  * Forces a state on the screen itself, the way a person meets it: the API answers what makes the screen show that state (its lists emptied, a 500, a 403, a lapsed session, no network),
@@ -173,7 +173,7 @@ async function observeOnce(browser: Browser, baseURL: string, options: ObserveOp
   }
   await Promise.all(pending);
   await context.close();
-  const empty: ScreenFacts = { screenIds: [], notImplemented: false, crashed: false, busy: false, breadcrumb: false, title: '', overflowPx: 0, stateCards: [], hasContent: false, dataRows: false, formFields: false, writeActions: [], screenText: '', tokens: { primaryDefined: false, bodyFont: '', textBelowFloor: [], italicHeadings: [] } };
+  const empty: ScreenFacts = { screenIds: [], notImplemented: false, crashed: false, busy: false, breadcrumb: false, title: '', overflowPx: 0, overflowers: [], stateCards: [], hasContent: false, dataRows: false, formFields: false, writeActions: [], screenText: '', tokens: { primaryDefined: false, bodyFont: '', textBelowFloor: [], italicHeadings: [] } };
   return { user: options.user, width: options.width, facts: facts ?? empty, consoleErrors, pageErrors, calls, axe, ...(loadError === undefined ? {} : { loadError }) };
 }
 
@@ -284,7 +284,7 @@ test.describe('screen contract of the screens of the edition', () => {
  * are measured with the very same functions; the first must give no finding, the second one for each clause.
  */
 const FIXTURE_HEAD = '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>fixture</title><style>:root{--mv-color-primary:#007d77}body{font-family:"Be Vietnam Pro",sans-serif;font-size:14px}</style></head><body>';
-const CLEAN_PAGE = `${FIXTURE_HEAD}<div class="workspace-breadcrumb"><strong>Mẫu</strong></div><section data-screen-id="NEG-01" aria-labelledby="screen-title"><h1 id="screen-title">Màn mẫu</h1><label for="name">Tên</label><input id="name"><button type="button" class="ui-button ui-button--outline">Xem</button></section></body></html>`;
+const CLEAN_PAGE = `${FIXTURE_HEAD}<div class="workspace-breadcrumb"><strong>Mẫu</strong></div><section data-screen-id="NEG-01" aria-labelledby="screen-title"><h1 id="screen-title">Màn mẫu</h1><label for="name">Tên</label><input id="name"><button type="button" class="ui-button ui-button--outline">Xem</button><fieldset disabled><legend>Khóa</legend><button type="button" class="ui-button ui-button--primary">Lưu bản nháp</button></fieldset></section></body></html>`;
 const BROKEN_HEAD = '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>fixture</title></head><body>';
 const BROKEN_PAGE = `${BROKEN_HEAD}<section><h1></h1><h2 style="font-style:italic">Chữ nghiêng</h2><p style="font-size:10px">chữ quá nhỏ</p><input type="text"><button type="button"></button><button type="button" class="ui-button ui-button--primary">Lưu</button><div class="card"><header><h2>Phần</h2><button type="button" class="ui-button ui-button--outline">Duyệt kỳ báo cáo</button></header></div><nav aria-label="phân trang"><button type="button" class="ui-button ui-button--primary">Lưu trong thanh điều hướng</button></nav><div style="width:2400px;height:10px"></div><script>console.error('fixture console error');setTimeout(function(){throw new Error('fixture uncaught error')},0)</script></section></body></html>`;
 
@@ -312,6 +312,8 @@ test.describe('screen contract negative controls', () => {
     expect(text).toContain('fixture console error');
     expect(text).toContain('fixture uncaught error');
     expect(text).toContain('scrolls sideways');
+    // The element that reaches past the edge is named; the same element inside a region that scrolls is not (the clean page below has none).
+    expect(text).toMatch(/reached by div \(right 24\d\d\)/);
     expect(text).toContain('button-name');
     expect(text).toContain('is offered "Lưu"');
     // A write in the header of a section card of the screen is no shell control; the one in a navigation landmark is left out on purpose.
@@ -321,6 +323,7 @@ test.describe('screen contract negative controls', () => {
     expect(text).toContain('Be Vietnam Pro');
     expect(text).toContain('--mv-color-primary');
     expect(text).toContain('under 12 px');
+    expect(text).toContain('in p');
     expect(text).toContain('italic heading');
   });
 });
