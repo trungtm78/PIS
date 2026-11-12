@@ -133,10 +133,10 @@ function SetContent({ route }: ScreenProps) {
           <p className="adm-kit-sub" data-testid="base-note">
             {baseNote}
           </p>
-          <p className="pwf-figure">
+          <div className="pwf-figure">
             <span>{t('pwfs.kpiset.referenceOnly.note')}</span>
             <FigureInfo name={t('pwfs.kpiset.title.text')} formula={t('pwfs.kpiset.info.formula')} source={t('pwfs.kpiset.info.source')} asOf={null} version={t('pwfs.kpiset.info.version')} />
-          </p>
+          </div>
         </SectionCard>
         <StateBoundary state={effective.isLoading ? 'loading' : 'default'}>
           <SectionCard title={t('pwfs.kpiset.items.title')} status={<span data-testid="item-count">{t('pwfs.kpiset.items.count', { count: form.items.length, max: MAX_ITEMS })}</span>}>

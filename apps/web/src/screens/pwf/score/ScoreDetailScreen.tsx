@@ -72,10 +72,10 @@ function Detail({ line }: { line: ScoreLine }) {
         <div className="pwf-grid" data-testid="detail">
           <div>
             <ScoreFigure line={line} />
-            <p className="pwf-figure">
+            <div className="pwf-figure">
               <span>{t('pwfs.my.basis.text', { policy: line.basis.policy_code, version: line.basis.policy_version })}</span>
               <ScoreInfo basis={line.basis} asOf={line.as_of} />
-            </p>
+            </div>
           </div>
           <dl className="pwf-facts">
             <dt>{t('pwfs.detail.state.label')}</dt>

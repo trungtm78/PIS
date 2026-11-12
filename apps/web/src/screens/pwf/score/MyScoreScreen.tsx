@@ -63,10 +63,10 @@ function PeriodCard({ item, onReload }: { item: MyScore; onReload: () => void })
         <div className="pwf-grid">
           <div>
             <ScoreFigure line={line} />
-            <p className="pwf-figure">
+            <div className="pwf-figure">
               <span>{t('pwfs.my.basis.text', { policy: line.basis.policy_code, version: line.basis.policy_version })}</span>
               <ScoreInfo basis={line.basis} asOf={line.as_of} />
-            </p>
+            </div>
           </div>
           <dl className="pwf-facts">
             <dt>{t('pwfs.my.window.label')}</dt>
