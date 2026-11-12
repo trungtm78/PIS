@@ -6,12 +6,12 @@ import { StateBoundary } from '../../../../states/StateBoundary';
 import { useScreenState } from '../../../../states/useScreenState';
 import { ConfirmDialog, ContextBar, DataTable, SectionCard, StatusPill } from '../../../../ui';
 import type { DataTableColumn } from '../../../../ui';
-import { failureCode, vietnamStamp } from '../shared/format';
+import { failureCode, moneyText, vietnamStamp } from '../shared/format';
 import { Field, ReadonlyNote } from '../shared/parts';
 import { useDecideHpmCorrection, useHpmConnection, useHpmCorrections, useProposeHpmCorrection } from './hooks';
-import { correctionStateLabel, hpmErrorText } from './labels';
-import { CORRECTION_STATES, EMPTY_CORRECTION_FORM, correctionBody, correctionProblems, correctionTone } from './model';
-import type { Correction, CorrectionForm, CorrectionState } from './model';
+import { correctionStateLabel, hpmErrorText, modeLabel } from './labels';
+import { CORRECTION_MODES, CORRECTION_STATES, EMPTY_CORRECTION_FORM, correctionBody, correctionProblems, correctionTone, modeOf } from './model';
+import type { Correction, CorrectionForm, CorrectionMode, CorrectionState } from './model';
 import '../shared/shared.css';
 
 /**
@@ -26,7 +26,7 @@ export default function CorrectionScreen({ route }: ScreenProps) {
 type Dialog = { kind: 'propose' } | { kind: 'decide'; correction: Correction } | undefined;
 
 function CorrectionContent({ route }: ScreenProps) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { tenant, mode } = useSession();
   const [filter, setFilter] = useState<CorrectionState | undefined>(undefined);
   const filterId = useId();
@@ -42,7 +42,17 @@ function CorrectionContent({ route }: ScreenProps) {
   const columns: DataTableColumn<Correction>[] = [
     { key: 'series', header: t('hpm.correction.column.series'), pinned: true, render: (row) => `${row.layout_code} · ${row.period}` },
     { key: 'revision', header: t('hpm.correction.column.revision'), align: 'right', render: (row) => row.from_revision },
-    { key: 'reopen', header: t('hpm.correction.column.reopen'), render: (row) => <code className="ent2-key">{row.period_reopen_id}</code> },
+    { key: 'mode', header: t('hpm.correction.column.mode'), render: (row) => modeLabel(t, modeOf(row)) },
+    {
+      key: 'reopen',
+      header: t('hpm.correction.column.reopen'),
+      render: (row) =>
+        modeOf(row) === 'ADJUST_NEXT_PERIOD' ? (
+          t('hpm.correction.booking.value', { subject: row.subject_code ?? '–', amount: moneyText(row.amount_vnd, locale), period: row.target_period ?? '–' })
+        ) : (
+          <code className="ent2-key">{row.period_reopen_id ?? '–'}</code>
+        ),
+    },
     { key: 'reason', header: t('hpm.correction.column.reason'), render: (row) => row.reason },
     {
       key: 'state',
@@ -149,7 +159,11 @@ function ProposeDialog({ onClose, onDone }: { onClose: () => void; onDone: () =>
   const [form, setForm] = useState<CorrectionForm>(EMPTY_CORRECTION_FORM);
   const [problems, setProblems] = useState<ReturnType<typeof correctionProblems>>({});
   const [error, setError] = useState<string | undefined>(undefined);
-  const set = (field: keyof CorrectionForm) => (event: { target: { value: string } }) => setForm((current) => ({ ...current, [field]: event.target.value }));
+  const set = (field: Exclude<keyof CorrectionForm, 'mode'>) => (event: { target: { value: string } }) => setForm((current) => ({ ...current, [field]: event.target.value }));
+  const setMode = (mode: CorrectionMode): void => {
+    setForm((current) => ({ ...current, mode }));
+    setProblems({});
+  };
   return (
     <ConfirmDialog
       open
@@ -171,6 +185,15 @@ function ProposeDialog({ onClose, onDone }: { onClose: () => void; onDone: () =>
         mutation.mutateAsync(correctionBody(form)).then(onDone, (failure: unknown) => setError(hpmErrorText(t, failure)));
       }}
     >
+      <fieldset className="ent2-choice">
+        <legend>{t('hpm.correction.field.mode.label')}</legend>
+        {CORRECTION_MODES.map((one) => (
+          <label key={one}>
+            <input type="radio" name={`${id}-mode`} checked={form.mode === one} onChange={() => setMode(one)} data-testid={one === 'OVERWRITE' ? 'correction-mode-overwrite' : 'correction-mode-adjust'} />
+            {modeLabel(t, one)}
+          </label>
+        ))}
+      </fieldset>
       <Field id={`${id}-layout`} label={t('hpm.correction.field.layout.label')} problem={problems.layoutCode}>
         <input id={`${id}-layout`} value={form.layoutCode} onChange={set('layoutCode')} aria-invalid={problems.layoutCode !== undefined} data-testid="correction-layout" />
       </Field>
@@ -180,9 +203,20 @@ function ProposeDialog({ onClose, onDone }: { onClose: () => void; onDone: () =>
       <Field id={`${id}-revision`} label={t('hpm.correction.field.revision.label')} problem={problems.fromRevision}>
         <input id={`${id}-revision`} inputMode="numeric" value={form.fromRevision} onChange={set('fromRevision')} aria-invalid={problems.fromRevision !== undefined} data-testid="correction-revision" />
       </Field>
-      <Field id={`${id}-reopen`} label={t('hpm.correction.field.reopen.label')} problem={problems.periodReopenId} hint={t('hpm.correction.field.reopen.hint')}>
-        <input id={`${id}-reopen`} value={form.periodReopenId} onChange={set('periodReopenId')} aria-invalid={problems.periodReopenId !== undefined} data-testid="correction-reopen" />
-      </Field>
+      {form.mode === 'OVERWRITE' ? (
+        <Field id={`${id}-reopen`} label={t('hpm.correction.field.reopen.label')} problem={problems.periodReopenId} hint={t('hpm.correction.field.reopen.hint')}>
+          <input id={`${id}-reopen`} value={form.periodReopenId} onChange={set('periodReopenId')} aria-invalid={problems.periodReopenId !== undefined} data-testid="correction-reopen" />
+        </Field>
+      ) : (
+        <>
+          <Field id={`${id}-subject`} label={t('hpm.correction.field.subject.label')} problem={problems.subjectCode} hint={t('hpm.correction.field.subject.hint')}>
+            <input id={`${id}-subject`} value={form.subjectCode} onChange={set('subjectCode')} aria-invalid={problems.subjectCode !== undefined} data-testid="correction-subject" />
+          </Field>
+          <Field id={`${id}-amount`} label={t('hpm.correction.field.amount.label')} problem={problems.amountVnd} hint={t('hpm.correction.field.amount.hint')}>
+            <input id={`${id}-amount`} inputMode="numeric" value={form.amountVnd} onChange={set('amountVnd')} aria-invalid={problems.amountVnd !== undefined} data-testid="correction-amount" />
+          </Field>
+        </>
+      )}
       <Field id={`${id}-reason`} label={t('hpm.correction.field.reason.label')} problem={problems.reason}>
         <textarea id={`${id}-reason`} rows={3} value={form.reason} onChange={set('reason')} aria-invalid={problems.reason !== undefined} data-testid="correction-reason" />
       </Field>
