@@ -906,10 +906,10 @@
       },
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'rpt.report_issued' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'rpt.report_issued' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'rpt.report_issued' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'rpt.report_issued' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {

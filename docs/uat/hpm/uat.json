@@ -338,10 +338,10 @@
       },
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'hpm.push_submitted' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.push_submitted' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, safe_diff, occurred_at FROM machvon.audit_event WHERE action = 'hpm.push_submitted' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, safe_diff, occurred_at FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.push_submitted' ORDER BY occurred_at DESC LIMIT 1"
       },
       "idempotency": {
         "resolve": {
@@ -658,9 +658,9 @@
       "module": "HPM",
       "db_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.hpm_push WHERE period = '2026-M06' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M06' LIMIT 1"
         },
-        "query": "SELECT status FROM machvon.hpm_push WHERE period = '2026-M06' ORDER BY created_at LIMIT 1",
+        "query": "SELECT status FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M06' ORDER BY created_at LIMIT 1",
         "expect": {
           "value": "ACCEPTED"
         }
@@ -812,19 +812,19 @@
       "module": "HPM",
       "db_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.hpm_push WHERE period = '2026-M01' AND revision = 1 LIMIT 1"
+          "present": "SELECT 1 FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M01' AND revision = 1 LIMIT 1"
         },
-        "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M01' AND revision = 1",
+        "query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M01' AND revision = 1",
         "expect": {
           "value": "1"
         }
       },
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'hpm.connection_switched' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.connection_switched' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, reason, safe_diff FROM machvon.audit_event WHERE action = 'hpm.connection_switched' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, reason, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.connection_switched' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {

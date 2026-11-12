@@ -759,10 +759,10 @@
       },
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'directive.closed' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'directive.closed' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, reason, occurred_at FROM machvon.audit_event WHERE action = 'directive.closed' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, reason, occurred_at FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'directive.closed' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -1078,10 +1078,10 @@
       "module": "DIR",
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'directive.cancelled' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'directive.cancelled' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, reason FROM machvon.audit_event WHERE action = 'directive.cancelled' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, reason FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'directive.cancelled' ORDER BY occurred_at DESC LIMIT 1"
       },
       "transition": {
         "from": "CANCELLED",

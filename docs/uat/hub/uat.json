@@ -379,10 +379,10 @@
       "module": "HUB",
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'hub.run_recorded' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hub.run_recorded' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'hub.run_recorded' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hub.run_recorded' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -540,10 +540,10 @@
       "module": "HUB",
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'hub.connector_switched' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hub.connector_switched' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, reason, safe_diff FROM machvon.audit_event WHERE action = 'hub.connector_switched' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, reason, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hub.connector_switched' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -803,9 +803,9 @@
       "module": "HUB",
       "db_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.hub_run_log WHERE outcome = 'FAILED' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.hub_run_log WHERE tenant_id = '${tenant_id}' AND outcome = 'FAILED' LIMIT 1"
         },
-        "query": "SELECT 1 FROM machvon.hub_run_log WHERE outcome = 'FAILED' AND error_code IS NOT NULL AND finished_at IS NOT NULL LIMIT 1",
+        "query": "SELECT 1 FROM machvon.hub_run_log WHERE tenant_id = '${tenant_id}' AND outcome = 'FAILED' AND error_code IS NOT NULL AND finished_at IS NOT NULL LIMIT 1",
         "expect": {
           "min_rows": 1
         }

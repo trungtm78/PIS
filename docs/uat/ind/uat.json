@@ -336,19 +336,19 @@
       "module": "IND",
       "db_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.ind_figure WHERE indicator_code = 'PLAN_YEAR' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.ind_figure WHERE tenant_id = '${tenant_id}' AND indicator_code = 'PLAN_YEAR' LIMIT 1"
         },
-        "query": "SELECT 1 FROM machvon.ind_figure WHERE indicator_code = 'PLAN_YEAR' AND revision >= 1 AND entered_by IS NOT NULL LIMIT 1",
+        "query": "SELECT 1 FROM machvon.ind_figure WHERE tenant_id = '${tenant_id}' AND indicator_code = 'PLAN_YEAR' AND revision >= 1 AND entered_by IS NOT NULL LIMIT 1",
         "expect": {
           "min_rows": 1
         }
       },
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'ind.figure_revised' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.figure_revised' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'ind.figure_revised' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.figure_revised' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -559,10 +559,10 @@
       "module": "IND",
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'ind.entry_warned' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.entry_warned' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT safe_diff FROM machvon.audit_event WHERE action = 'ind.entry_warned' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.entry_warned' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -611,10 +611,10 @@
       "module": "IND",
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'ind.import_applied' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.import_applied' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT safe_diff FROM machvon.audit_event WHERE action = 'ind.import_applied' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.import_applied' ORDER BY occurred_at DESC LIMIT 1"
       },
       "db_assert": {
         "query": "SELECT tenant_id, connector_code, file_sha256 FROM machvon.file_import WHERE status = 'APPLIED' GROUP BY tenant_id, connector_code, file_sha256 HAVING count(*) > 1",

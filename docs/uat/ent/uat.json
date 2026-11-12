@@ -1344,10 +1344,10 @@
       },
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'enterprise.snapshot_built' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'enterprise.snapshot_built' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'enterprise.snapshot_built' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'enterprise.snapshot_built' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -1505,10 +1505,10 @@
       "module": "ENT",
       "audit_assert": {
         "resolve": {
-          "present": "SELECT 1 FROM machvon.audit_event WHERE action = 'enterprise.snapshot_frozen' LIMIT 1"
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'enterprise.snapshot_frozen' LIMIT 1"
         },
         "expect_rows": 1,
-        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE action = 'enterprise.snapshot_frozen' ORDER BY occurred_at DESC LIMIT 1"
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'enterprise.snapshot_frozen' ORDER BY occurred_at DESC LIMIT 1"
       },
       "transition": {
         "from": "FROZEN",
