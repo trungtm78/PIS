@@ -314,6 +314,75 @@ export function resolveBand(tiers: BandTiers, context: BandContext, due: DueInfo
   return { official: officialResult, personal: deadlineBand({ ...due, thresholds: merged }), personalApplied: applied, clamped };
 }
 
+export interface BandExample {
+  remaining_days: number;
+  band: Band;
+}
+
+/**
+ * What a ladder does at the days that matter, for the preview a person reads before saving ("5 days left: green, 2 days: yellow, under 1 day: red"): one line above the green line, each line itself, the day after each line and the first day
+ * overdue, nearest the deadline last; and the days the caller asks for. The ladder must be valid (422 DEADLINE_BAND_THRESHOLDS_INVALID).
+ */
+export function previewBandExamples(thresholds: BandThresholds, extraDays: readonly number[] = []): BandExample[] {
+  validateThresholds(thresholds);
+  const { green_days: green, yellow_days: yellow, red_days: red } = thresholds;
+  const days = new Set<number>([yellow + 1, yellow, red + 1, red, red - 1, ...extraDays]);
+  if (green !== null) {
+    days.add(green + 1);
+    days.add(green);
+  }
+  return [...days].sort((left, right) => right - left).map((remaining) => ({ remaining_days: remaining, band: bandOf(remaining, thresholds) }));
+}
+
+/** What a person saves as their own preference: a level left null follows the official one; the reminder days are extra points of their own. */
+export interface PersonalPreference {
+  green_days: number | null;
+  yellow_days: number | null;
+  red_days: number | null;
+  reminder_days: readonly number[];
+}
+
+/** The most extra reminder days one person can keep (the same as a rule). */
+export const MAX_PERSONAL_REMINDERS = 6;
+const LEVEL_RANGE: Readonly<Record<keyof BandThresholds, readonly [number, number]>> = { green_days: [1, 3650], yellow_days: [0, 3650], red_days: [-1, 3650] };
+const REMINDER_RANGE = [-30, 365] as const;
+
+/**
+ * Checks what a person asked for against the official ladder of the source and gives the ladder they will see. Each level they set is whole days in its range and starts no later than the official one (422 DEADLINE_PERSONAL_NOT_EARLIER,
+ * naming the level: nobody loosens their own deadline, R40); the ladder that results from merging is strictly ordered (422 DEADLINE_BAND_THRESHOLDS_INVALID, naming the level). The extra reminder days are strictly decreasing, at most
+ * six, and none below the official red line (a reminder that comes after the deadline's last official point is a later warning). A source whose official green line is open (null) takes no personal green line: that would start green later.
+ */
+export function assertPersonalPreference(official: BandThresholds, input: PersonalPreference): BandThresholds {
+  const levels: Array<keyof BandThresholds> = ['green_days', 'yellow_days', 'red_days'];
+  for (const level of levels) {
+    const value = input[level];
+    if (value === null) continue;
+    const [min, max] = LEVEL_RANGE[level];
+    if (!Number.isInteger(value) || value < min || value > max) throw bad('DEADLINE_BAND_THRESHOLDS_INVALID', level);
+  }
+  for (const level of levels) {
+    const value = input[level];
+    if (value === null) continue;
+    const line = official[level];
+    if (line === null || value < line) throw bad('DEADLINE_PERSONAL_NOT_EARLIER', level);
+  }
+  const merged: BandThresholds = { green_days: input.green_days ?? official.green_days, yellow_days: input.yellow_days ?? official.yellow_days, red_days: input.red_days ?? official.red_days };
+  validateThresholds(merged);
+  const reminders = input.reminder_days;
+  if (reminders.length > MAX_PERSONAL_REMINDERS) throw bad('DEADLINE_BAND_THRESHOLDS_INVALID', 'reminder_days');
+  for (let index = 0; index < reminders.length; index += 1) {
+    const value = reminders[index] as number;
+    if (!Number.isInteger(value) || value < REMINDER_RANGE[0] || value > REMINDER_RANGE[1] || (index > 0 && value >= (reminders[index - 1] as number))) throw bad('DEADLINE_BAND_THRESHOLDS_INVALID', 'reminder_days');
+    if (value < official.red_days) throw bad('DEADLINE_PERSONAL_NOT_EARLIER', 'reminder_days');
+  }
+  return merged;
+}
+
+/** The levels of a stored preference that are later than the official ones now (the official rule moved after the person saved): they are raised to the official line when read and named, never silently dropped. */
+export function clampedLevels(official: BandThresholds, stored: PersonalThresholds): Array<keyof BandThresholds> {
+  return mergePersonal(official, stored).clamped as Array<keyof BandThresholds>;
+}
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Reminders and escalation.
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
