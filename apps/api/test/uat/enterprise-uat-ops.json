@@ -1054,5 +1054,13 @@
   "method": "GET",
   "path": "/report-narrative-template",
   "permission": "report.import"
+ },
+ {
+  "id": "UAT-ENT-SEC-17",
+  "module": "ENT",
+  "operationId": "getProjectInvestmentProfile",
+  "method": "GET",
+  "path": "/projects/{id}/investment-profile",
+  "permission": "project.read"
  }
 ]

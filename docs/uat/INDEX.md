@@ -57,13 +57,13 @@ Ca sâu đã được thêm vào `test_cases.json` và `traceability.json` (ngu�
 | --- | ---: | ---: | ---: | ---: |
 | DIR | 48 | 28 | 5 | 15 |
 | EBS | 30 | 19 | 5 | 6 |
-| ENT | 59 | 22 | 10 | 27 |
+| ENT | 68 | 28 | 12 | 28 |
 | HPM | 32 | 19 | 7 | 6 |
 | HUB | 36 | 25 | 4 | 7 |
 | IND | 32 | 21 | 5 | 6 |
 | INT | 42 | 29 | 5 | 8 |
 | RPT | 60 | 35 | 7 | 18 |
-| Tổng | 339 | 198 | - | - |
+| Tổng | 348 | 204 | - | - |
 
 Kịch bản chạy được nằm ở `apps/api/test/uat/` (Jest, cơ sở dữ liệu nhúng thật, toàn bộ bản enterprise): `enterprise-authz.uat.test.ts` (ma trận quyền cho mọi thao tác) và một bộ cho mỗi phân hệ (`hpm`, `ebs`, `dir`, `ind`, `int`, `hub`, `rpt`, `ent`). Tên mỗi test mang mã ca nên `npm run uat:run` ghép kết quả vào đúng ca; mỗi bộ có một chứng âm (kiểm chứng rằng phép kiểm đỏ được). `npm run uat:check` kiểm mọi mã màn hình, story và ca nêu trong các `uat.json`, và rằng ca khai là tự động có kịch bản nêu mã của nó.
 Làm tay còn lại và lý do: trường `automation.reason` của từng ca; tóm tắt ở `_coverage-ledger.md` của từng phân hệ.

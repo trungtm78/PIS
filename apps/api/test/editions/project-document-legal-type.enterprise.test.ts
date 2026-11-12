@@ -124,7 +124,7 @@ describe('the legal-document type of a project document (MD.02)', () => {
     if (objectRoot !== '') await rm(objectRoot, { recursive: true, force: true });
   }, 60_000);
 
-  describe('the public edition: the repository as it was', () => {
+  describe('UAT-ENT-IPF-03 the public edition: the repository as it was', () => {
     it('creates a document without the member exactly as before: the same trail, no type', async () => {
       const made = await create(publicApp);
       expect(made).toMatchObject({ status: 200, json: { status: 'CREATED' } });
@@ -159,7 +159,7 @@ describe('the legal-document type of a project document (MD.02)', () => {
     });
   });
 
-  describe('the enterprise edition: the type of the catalogue is judged and kept', () => {
+  describe('UAT-ENT-IPF-04 the enterprise edition: the type of the catalogue is judged and kept', () => {
     it('keeps a code of the catalogue with the document, in the same transaction, and tells the trail', async () => {
       const made = await create(enterpriseApp, { legal_doc_type: 'GROUP_RESOLUTION' });
       expect(made).toMatchObject({ status: 200, json: { status: 'CREATED' } });
@@ -223,7 +223,7 @@ describe('the legal-document type of a project document (MD.02)', () => {
     });
   });
 
-  describe('the investment profile reads the documents by type', () => {
+  describe('UAT-ENT-IPF-05 the investment profile reads the documents by type', () => {
     it('lists the active typed documents of the project by type, for who may read the documents, and none for who may not', async () => {
       const group = await create(enterpriseApp, { legal_doc_type: 'GROUP_RESOLUTION', reference: 'PROFILE-NQ-1', effective_from: '2000-01-01' });
       const group2 = await create(enterpriseApp, { legal_doc_type: 'GROUP_RESOLUTION', reference: 'PROFILE-NQ-2' });
