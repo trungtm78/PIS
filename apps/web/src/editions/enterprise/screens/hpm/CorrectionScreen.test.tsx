@@ -121,4 +121,51 @@ describe('CorrectionScreen (HPM-02): the corrections that let an accepted period
     await screen.findByRole('table');
     expect(h.read.mock.calls.filter((call) => call[0] === 'listHpmCorrections').length).toBeGreaterThanOrEqual(2);
   });
+  it('TH.01: lists an adjustment in the next period with its mode, the subject, the signed amount and the period it is booked in, and no reopening', async () => {
+    const adjustment = hpmCorrection(3, { mode: 'ADJUST_NEXT_PERIOD', period_reopen_id: null, target_period: '2026-M10', subject_code: 'CAPEX-1', amount_vnd: '-1500000', reason: 'A credit note of the supplier lowers September' });
+    mountWith({ world: { corrections: [hpmCorrection(1), adjustment] } });
+    const table = await screen.findByRole('table', { name: word('hpm.correction.section.title') });
+    const row = table.querySelector(`[data-correction-id="${uuid(303)}"]`) as HTMLElement;
+    expect(within(row).getByText(word('hpm.correction.mode.adjust'))).toBeTruthy();
+    expect(row.textContent).toContain('CAPEX-1');
+    expect(row.textContent).toContain('-1.500.000');
+    expect(row.textContent).toContain('2026-M10');
+    expect(row.textContent).not.toContain(uuid(703));
+    const overwrite = table.querySelector(`[data-correction-id="${uuid(301)}"]`) as HTMLElement;
+    expect(within(overwrite).getByText(word('hpm.correction.mode.overwrite'))).toBeTruthy();
+    expect(overwrite.textContent).toContain(uuid(701));
+  });
+
+  it('TH.01: proposes an adjustment in the next period: it asks for the subject and the signed amount instead of the reopening, and sends the mode', async () => {
+    const { h } = mountWith();
+    fireEvent.click(await screen.findByTestId('propose-button'));
+    const dialog = await screen.findByRole('dialog');
+    expect(screen.getByTestId('correction-reopen')).toBeTruthy();
+    expect(screen.queryByTestId('correction-subject')).toBeNull();
+    fireEvent.click(within(dialog).getByTestId('correction-mode-adjust'));
+    expect(screen.queryByTestId('correction-reopen')).toBeNull();
+    fireEvent.click(within(dialog).getByRole('button', { name: word('hpm.correction.propose.confirm') }));
+    expect(h.command).not.toHaveBeenCalled();
+    expect(dialog.querySelector('.ui-dialog__error')?.textContent).toBe(word('ent.error.validation.text'));
+    fireEvent.change(screen.getByTestId('correction-layout'), { target: { value: 'HPM-MONTHLY' } });
+    fireEvent.change(screen.getByTestId('correction-period'), { target: { value: '2026-M09' } });
+    fireEvent.change(screen.getByTestId('correction-subject'), { target: { value: 'CAPEX-1' } });
+    fireEvent.change(screen.getByTestId('correction-amount'), { target: { value: '0' } });
+    fireEvent.change(screen.getByTestId('correction-reason'), { target: { value: 'A credit note of the supplier lowers September' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: word('hpm.correction.propose.confirm') }));
+    expect(h.command).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId('correction-amount'), { target: { value: '-1500000' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: word('hpm.correction.propose.confirm') }));
+    await waitFor(() => expect(h.command).toHaveBeenCalled());
+    expect(h.command.mock.calls[0]?.[0]).toBe('proposeHpmCorrection');
+    expect((h.command.mock.calls[0]?.[1] as { body: Record<string, unknown> }).body).toEqual({
+      layout_code: 'HPM-MONTHLY',
+      period: '2026-M09',
+      from_revision: 1,
+      reason: 'A credit note of the supplier lowers September',
+      mode: 'ADJUST_NEXT_PERIOD',
+      subject_code: 'CAPEX-1',
+      amount_vnd: '-1500000',
+    });
+  });
 });

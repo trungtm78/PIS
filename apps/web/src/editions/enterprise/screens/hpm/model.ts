@@ -88,16 +88,28 @@ export function pushBody(form: PushForm) {
   };
 }
 
+export type CorrectionMode = Correction['mode'];
+export const CORRECTION_MODES: readonly CorrectionMode[] = ['OVERWRITE', 'ADJUST_NEXT_PERIOD'];
+export const SUBJECT_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,79}$/;
+export const AMOUNT_PATTERN = /^-?[1-9][0-9]{0,23}$/;
+
+/** The mode of a row of the list; a row that does not say is an overwrite (the only mode before TH.01). */
+export const modeOf = (row: Pick<Correction, 'mode'>): CorrectionMode => (row.mode === 'ADJUST_NEXT_PERIOD' ? 'ADJUST_NEXT_PERIOD' : 'OVERWRITE');
+
 export interface CorrectionForm {
+  /** OVERWRITE replaces the accepted revision after a reopening; ADJUST_NEXT_PERIOD books a signed amount in the next period and leaves the accepted period as it is (TH.01). */
+  mode: CorrectionMode;
   layoutCode: string;
   period: string;
   fromRevision: string;
   periodReopenId: string;
+  subjectCode: string;
+  amountVnd: string;
   reason: string;
 }
 
-export const EMPTY_CORRECTION_FORM: CorrectionForm = { layoutCode: '', period: '', fromRevision: '1', periodReopenId: '', reason: '' };
-export type CorrectionField = 'layoutCode' | 'period' | 'fromRevision' | 'periodReopenId' | 'reason';
+export const EMPTY_CORRECTION_FORM: CorrectionForm = { mode: 'OVERWRITE', layoutCode: '', period: '', fromRevision: '1', periodReopenId: '', subjectCode: '', amountVnd: '', reason: '' };
+export type CorrectionField = 'layoutCode' | 'period' | 'fromRevision' | 'periodReopenId' | 'subjectCode' | 'amountVnd' | 'reason';
 
 export function correctionProblems(form: CorrectionForm): Partial<Record<CorrectionField, FieldProblem>> {
   const found: Partial<Record<CorrectionField, FieldProblem>> = {};
@@ -108,14 +120,21 @@ export function correctionProblems(form: CorrectionForm): Partial<Record<Correct
   check('layoutCode', form.layoutCode, LAYOUT_PATTERN);
   check('period', form.period, PERIOD_PATTERN);
   check('fromRevision', form.fromRevision, /^[1-9]\d{0,3}$|^10000$/);
-  check('periodReopenId', form.periodReopenId, UUID_PATTERN);
+  if (form.mode === 'OVERWRITE') check('periodReopenId', form.periodReopenId, UUID_PATTERN);
+  else {
+    check('subjectCode', form.subjectCode, SUBJECT_PATTERN);
+    check('amountVnd', form.amountVnd, AMOUNT_PATTERN);
+  }
   if (form.reason.trim() === '') found.reason = 'REQUIRED';
   else if (form.reason.trim().length < 10) found.reason = 'FORMAT';
   return found;
 }
 
+/** The body of the proposal from a valid form: an overwrite names the reopening, an adjustment the subject and the signed amount (the contract refuses the other's fields). */
 export function correctionBody(form: CorrectionForm) {
-  return { layout_code: form.layoutCode.trim(), period: form.period.trim(), from_revision: Number(form.fromRevision), period_reopen_id: form.periodReopenId.trim().toLowerCase(), reason: form.reason.trim(), mode: 'OVERWRITE' as const };
+  const common = { layout_code: form.layoutCode.trim(), period: form.period.trim(), from_revision: Number(form.fromRevision), reason: form.reason.trim() };
+  if (form.mode === 'ADJUST_NEXT_PERIOD') return { ...common, mode: 'ADJUST_NEXT_PERIOD' as const, subject_code: form.subjectCode.trim(), amount_vnd: form.amountVnd.trim() };
+  return { ...common, period_reopen_id: form.periodReopenId.trim().toLowerCase(), mode: 'OVERWRITE' as const };
 }
 
 /** The length the screen asks of a note when the receiver rejects a push (the contract asks ten characters). */

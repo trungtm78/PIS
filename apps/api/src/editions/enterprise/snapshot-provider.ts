@@ -1,4 +1,4 @@
-import { EnterpriseSnapshotStore } from '@machvon/db';
+import { EnterpriseSnapshotStore, EntNarrativeStore } from '@machvon/db';
 import { EnterpriseFigureReader, WEEKLY_ORG_FALLBACK, periodRange } from '@machvon/kernel';
 import type { FormPeriod } from '@machvon/kernel';
 import { ENTERPRISE_SNAPSHOT_PROVIDER, demoFormOf, snapshotFillData } from '@machvon/edition-enterprise/src/server.ts';
@@ -10,12 +10,13 @@ const nothing = (period: FormPeriod): ProviderResult => ({ data: { period, meta:
 /**
  * The figures of the six enterprise forms from the frozen enterprise period snapshot (ENT-3a, R21): the snapshot of the month or the quarter of the form, the latest revision, read through the one reader of the kernel. A
  * period with no frozen snapshot answers without a snapshot and the report engine keeps the illustrative data and the demo stamp; the figures of a tenant are never those of another period. The forms are tenant-wide, so
- * the engine asks the permission over the whole tenant before it calls this provider. Registered by the enterprise seam of the API (`editions/load-enterprise.ts`), so a public process never holds it.
+ * the engine asks the permission over the whole tenant before it calls this provider. The Word document also carries the structured narratives of the projects that the units wrote and the approver accepted for the period. Registered by the enterprise seam of the API (`editions/load-enterprise.ts`), so a public process never holds it.
  */
 export class EnterpriseSnapshotProvider implements ReportFigureProvider {
   readonly id = ENTERPRISE_SNAPSHOT_PROVIDER;
   readonly wholeTenant = true;
   private readonly store = new EnterpriseSnapshotStore();
+  private readonly narratives = new EntNarrativeStore();
 
   async load(context: ProviderContext): Promise<ProviderResult> {
     const form = demoFormOf(context.layout.code);
@@ -36,7 +37,9 @@ export class EnterpriseSnapshotProvider implements ReportFigureProvider {
             );
       const names = new Map<string, SnapshotProjectName>(projects.map((one) => [one.id, { code: one.code, name: one.name, group: one.project_group, unitName: one.unit_name ?? '' }]));
       const [root] = await tx.query<{ name: string }>('select name from machvon.organization_unit where parent_id is null and valid_until is null order by valid_from, id limit 1');
-      return { data: snapshotFillData(form, context.period, reader, names, root?.name ?? WEEKLY_ORG_FALLBACK), snapshot: { snapshotId: row.id, revision: row.revision, cutoff: row.asOfDate } };
+      // The words of the units for the Word document: what the approver accepted for the period (ENT-3b), never a draft.
+      const words = await this.narratives.acceptedForForm(tx, ids, { from: range.from, to: range.to });
+      return { data: snapshotFillData(form, context.period, reader, names, root?.name ?? WEEKLY_ORG_FALLBACK, words), snapshot: { snapshotId: row.id, revision: row.revision, cutoff: row.asOfDate } };
     });
   }
 }

@@ -3,6 +3,8 @@ import type { EnterpriseSnapshotView } from '@machvon/kernel/src/enterprise-snap
 import type { StoredFigure } from '@machvon/kernel/src/fnd-actuals.ts';
 import type { FigureBook, FigureQuery } from '@machvon/kernel/src/fnd-figures.ts';
 import { builtInPack } from '@machvon/kernel/src/fnd-taxonomy.ts';
+import type { ProjectNarrativeText } from '@machvon/kernel/src/ent-narrative.ts';
+import { formDocumentOf } from '@machvon/kernel/src/report-document.ts';
 import { DEMO_MARK, REPORT_FORM_CATALOGUE, fillGrid } from '@machvon/kernel/src/report-layout.ts';
 import type { FormPeriod } from '@machvon/kernel/src/report-layout.ts';
 import { DEMO_FORMS, ENTERPRISE_SNAPSHOT_PROVIDER, enterpriseReportBundles, illustrativeFillData, snapshotFigures, snapshotFillData } from '../src/report-forms/exports.ts';
@@ -105,6 +107,23 @@ describe('the six enterprise forms filled from a frozen snapshot (ENT-3a, R21)',
         const sum = (field: string): string => rows.reduce((total, row) => total + BigInt(String(row[field] ?? '0')), 0n).toString();
         expect(figureOf([...data.figures], 'ENT_DISBURSED_YTD')?.value).toBe(sum('disb_ytd'));
         expect(figureOf([...data.figures], 'ENT_PLAN_IN_FORCE')?.value).toBe(sum('plan_force'));
+      });
+
+      it('lays the narratives of the projects out at the token of the Word skeleton, and says there is none when nobody wrote one', () => {
+        if (form.narrative === null) return;
+        const words: ProjectNarrativeText = {
+          projectCode: 'P-1',
+          projectName: 'Project one',
+          fields: { status: 'The works follow the schedule', difficulties: 'The site is not handed over' },
+          causeLabels: ['Site handover'],
+          directiveLines: ['CD-1 (2026-10-05): hand the site over'],
+        };
+        const written = snapshotFillData(form, period, reader, names, 'Enterprise', [words]);
+        expect(written.narratives).toEqual([words]);
+        const text = JSON.stringify(formDocumentOf(form.layout, form.narrative, written).narrative?.blocks);
+        for (const expected of ['P-1 - Project one', 'The works follow the schedule', 'The site is not handed over', 'Site handover', 'CD-1 (2026-10-05): hand the site over']) expect(text).toContain(expected);
+        expect(data.narratives).toBeUndefined();
+        expect(JSON.stringify(formDocumentOf(form.layout, form.narrative, data).narrative?.blocks)).not.toContain('The works follow the schedule');
       });
 
       it('fills the grid of the DEMO layout, keeps the demo mark, and says what it lacks instead of writing zero', () => {
