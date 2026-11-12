@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { HomeWorkReminderStore, PwfTaskReminders, WORKER_MEMBERSHIP_ID, enqueueOutbox } from '@machvon/db';
+import { HomeWorkActionStore, HomeWorkReminderStore, PwfTaskReminders, WORKER_MEMBERSHIP_ID, actionKey, enqueueOutbox } from '@machvon/db';
 import type { PwfReminderNotice, TenantTx } from '@machvon/db';
 import type { MetricsSink, TenantContext } from '@machvon/kernel';
 import { REMINDER_EVENT, WORK_RESOURCE_TYPE } from './work-action-support';
@@ -28,8 +28,11 @@ export async function pwfTaskReminderPass(tx: TenantTx, tenant: TenantContext, n
   try {
     const notices = await new PwfTaskReminders().fire(tx, now);
     const reminders = new HomeWorkReminderStore();
+    const quiet = await quietItems(tx, notices, now);
     let made = 0;
     for (const notice of notices) {
+      // What the person put off (a snooze that has not come back) or whose clock they paused is not reminded: the point is spent, as a cadence reminder that falls in a snooze is.
+      if (quiet.has(`${notice.recipient}:${actionKey(PROJECT_TASK_SOURCE, notice.sourceId)}`)) continue;
       const recorded = await reminders.record(tx, {
         source: PROJECT_TASK_SOURCE,
         sourceId: notice.sourceId,
@@ -55,6 +58,22 @@ export async function pwfTaskReminderPass(tx: TenantTx, tenant: TenantContext, n
     await tx.query(`release savepoint ${SAVEPOINT}`);
     return { reminders: 0, failed: true };
   }
+}
+
+/** The recipient-and-item pairs that are put off or paused now: the decisions of people about an item (`work_action`) are the state of the alert, whichever source made it. */
+async function quietItems(tx: TenantTx, notices: readonly PwfReminderNotice[], now: Date): Promise<Set<string>> {
+  const actions = new HomeWorkActionStore();
+  const quiet = new Set<string>();
+  const byRecipient = new Map<string, string[]>();
+  for (const notice of notices) byRecipient.set(notice.recipient, [...(byRecipient.get(notice.recipient) ?? []), notice.sourceId]);
+  for (const [recipient, ids] of byRecipient) {
+    const states = await actions.stateOf(tx, ids.map((sourceId) => ({ source: PROJECT_TASK_SOURCE, sourceId })), recipient, now);
+    for (const [key, state] of states) {
+      const paused = state.pauses.some((span) => span.resumedAt === null && Date.parse(span.until) > now.getTime());
+      if (state.snoozedUntil !== null || paused) quiet.add(`${recipient}:${key}`);
+    }
+  }
+  return quiet;
 }
 
 /** The event that carries a reminder, in the transaction that recorded it: the item, the person, the point; never the words of anyone. */

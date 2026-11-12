@@ -101,16 +101,15 @@ export class PwfTaskReminders {
     const holders = new Map<string, AssigneeSql[]>();
     for (const row of assignees) holders.set(row.task_id, [...(holders.get(row.task_id) ?? []), row]);
 
+    /** What was crossed for one task since the last pass: the points of the rule (for everybody who holds the task) and, for each holder, the points they added. */
     interface Fresh {
       task: TaskSql;
-      member: string | null;
-      points: number[];
-      nearest: number;
       remaining: number;
       severity: WorkSeverity;
       policyVersion: string;
       listed: readonly number[];
-      ordinalBase: number;
+      official: number[];
+      holders: Array<{ member: string; personal: number[]; listed: readonly number[]; nearest: number }>;
     }
     const fresh: Fresh[] = [];
     for (const task of tasks) {
@@ -121,51 +120,49 @@ export class PwfTaskReminders {
       const thresholds = pwfDeadlineBand.thresholdsFor(policy, { taskKind: task.kind, priority: task.priority, phase: task.phase_code });
       const band = pwfDeadlineBand.bandOf(remaining, thresholds);
       const severity = severityOf('PROJECT_TASK', remaining < 0 ? 'OVERDUE' : band === 'NONE' ? 'GREEN' : band);
-      const version = set.versionForUnitPath(task.unit_path);
       const own = holders.get(task.id) ?? [];
       if (own.length === 0) continue;
       const official = pwfDeadlineBand.dueReminders({ previousRemaining: null, remaining, reminderDays: policy.reminder_days }).filter((point) => !known.has(firedKey(task.id, task.schedule_version, point, null)));
-      if (official.length > 0) fresh.push({ task, member: null, points: official, nearest: Math.min(...official), remaining, severity, policyVersion: version, listed: policy.reminder_days, ordinalBase: 0 });
+      const people: Fresh['holders'] = [];
       for (const holder of own) {
         const personalDays = (holder.personal ?? []).filter((point) => !policy.reminder_days.includes(point));
-        const crossed = pwfDeadlineBand.dueReminders({ previousRemaining: null, remaining, reminderDays: personalDays }).filter((point) => !known.has(firedKey(task.id, task.schedule_version, point, holder.membership_id)));
-        if (crossed.length > 0) fresh.push({ task, member: holder.membership_id, points: crossed, nearest: Math.min(...crossed), remaining, severity, policyVersion: version, listed: holder.personal ?? [], ordinalBase: 100 });
+        const personal = pwfDeadlineBand.dueReminders({ previousRemaining: null, remaining, reminderDays: personalDays }).filter((point) => !known.has(firedKey(task.id, task.schedule_version, point, holder.membership_id)));
+        // A person is told once, of the nearest point crossed of the two lists together (the rule's and their own).
+        const crossed = [...official, ...personal];
+        if (crossed.length > 0) people.push({ member: holder.membership_id, personal, listed: holder.personal ?? [], nearest: Math.min(...crossed) });
       }
+      if (people.length > 0) fresh.push({ task, remaining, severity, policyVersion: set.versionForUnitPath(task.unit_path), listed: policy.reminder_days, official, holders: people });
     }
     if (fresh.length === 0) return [];
-    const rows = fresh.flatMap((entry) => entry.points.map((point) => ({ entry, point })));
+    const rows: Array<{ entry: Fresh; point: number; member: string | null; notified: boolean }> = [];
+    for (const entry of fresh) {
+      for (const point of entry.official) rows.push({ entry, point, member: null, notified: entry.holders.some((holder) => holder.nearest === point) });
+      for (const holder of entry.holders) for (const point of holder.personal) rows.push({ entry, point, member: holder.member, notified: holder.nearest === point });
+    }
     const inserted = await tx.query<{ task_id: string; schedule_version: number; reminder_day: number; membership_id: string | null }>(
       `insert into machvon.project_task_reminder (tenant_id, task_id, schedule_version, reminder_day, audience, membership_id, remaining_days, fired_on, notified)
        select nullif(current_setting('app.tenant_id', true), '')::uuid, x.task_id, x.version, x.point, case when x.member is null then 'OFFICIAL' else 'PERSONAL' end, x.member, x.remaining, $7::date, x.notified
          from unnest($1::uuid[], $2::int[], $3::int[], $4::uuid[], $5::int[], $6::boolean[]) as x(task_id, version, point, member, remaining, notified)
        on conflict do nothing
        returning task_id, schedule_version, reminder_day, membership_id`,
-      [
-        rows.map(({ entry }) => entry.task.id),
-        rows.map(({ entry }) => entry.task.schedule_version),
-        rows.map(({ point }) => point),
-        rows.map(({ entry }) => entry.member),
-        rows.map(({ entry }) => entry.remaining),
-        rows.map(({ entry, point }) => point === entry.nearest),
-        today,
-      ],
+      [rows.map(({ entry }) => entry.task.id), rows.map(({ entry }) => entry.task.schedule_version), rows.map(({ point }) => point), rows.map(({ member }) => member), rows.map(({ entry }) => entry.remaining), rows.map(({ notified }) => notified), today],
     );
     const written = new Set(inserted.map((row) => firedKey(row.task_id, row.schedule_version, row.reminder_day, row.membership_id)));
     const notices: PwfReminderNotice[] = [];
     for (const entry of fresh) {
-      // Another pass recorded the point first: it tells the person, not this one.
-      if (!written.has(firedKey(entry.task.id, entry.task.schedule_version, entry.nearest, entry.member))) continue;
-      const recipients = entry.member === null ? (holders.get(entry.task.id) ?? []).map((holder) => holder.membership_id) : [entry.member];
-      for (const recipient of recipients) {
+      for (const holder of entry.holders) {
+        const ofRule = entry.official.includes(holder.nearest);
+        // Another pass recorded the point first: it tells the person, not this one.
+        if (!written.has(firedKey(entry.task.id, entry.task.schedule_version, holder.nearest, ofRule ? null : holder.member))) continue;
         notices.push({
           taskId: entry.task.id,
           sourceId: `${entry.task.id}:${entry.task.schedule_version}`,
           scheduleVersion: entry.task.schedule_version,
-          recipient,
-          audience: entry.member === null ? 'OFFICIAL' : 'PERSONAL',
-          point: entry.nearest,
+          recipient: holder.member,
+          audience: ofRule ? 'OFFICIAL' : 'PERSONAL',
+          point: holder.nearest,
           remaining: entry.remaining,
-          ordinal: entry.ordinalBase + entry.listed.indexOf(entry.nearest) + 1,
+          ordinal: ofRule ? entry.listed.indexOf(holder.nearest) + 1 : 100 + holder.listed.indexOf(holder.nearest) + 1,
           severity: entry.severity,
           dueOn: entry.task.due_on,
           policyVersion: entry.policyVersion,

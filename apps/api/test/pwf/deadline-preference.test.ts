@@ -11,6 +11,7 @@ import { PwfPreferenceController } from '../../src/modules/pwf/preference.contro
 import { PolicyModule } from '../../src/policy.module';
 import { ProblemFilter } from '../../src/problem.filter';
 import { AuthzHarness, TENANT_A, TENANT_B, memberId, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { seedRow } from '../../../../packages/db/test/support/seed-rows';
 import { TENANT_HEADER } from '../isolation/test-auth.guard';
 import { ERROR_CODES_PATH, startTestApp } from '../isolation/test-app';
 import type { RunningApp } from '../isolation/test-app';
@@ -86,6 +87,7 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
   }
 
   const clear = async (): Promise<void> => {
+    await seedSql('delete from machvon.work_action', []);
     await rows('delete from machvon.work_reminder');
     await rows('delete from machvon.project_task_reminder');
     await rows('delete from machvon.project_task_assignment');
@@ -324,6 +326,16 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       expect(await run(later(3))).toMatchObject({ pointReminders: 2 });
       // At 1 day left the rule's point of 2 days reaches both, and the person's own 1 is theirs alone.
       expect(await run(later(7))).toMatchObject({ pointReminders: 3 });
+    });
+
+    it('does not remind a person of a task they put off with a snooze that has not come back, and reminds when it has', async () => {
+      const id = await task(5);
+      const snoozed = new Date(NOW.getTime() + 36 * 3_600_000).toISOString();
+      await seedRow(harness.database.adminUrl, 'work_action', TENANT_A, { source: 'PROJECT_TASK', source_id: `${id}:1`, action: 'SNOOZE', actor_membership_id: memberId(WORKER), snooze_until: snoozed, reason_code: 'WAITING_INFORMATION', created_at: NOW.toISOString() });
+      expect(await run()).toMatchObject({ pointReminders: 0 });
+      expect(await reminderRows()).toEqual([]);
+      // The point was spent while the item was put off; the next point comes at its day, after the snooze is over.
+      expect(await run(later(3))).toMatchObject({ pointReminders: 1 });
     });
 
     it('does not remind of a task that is done, on hold or cancelled, and not of a person who is nobody\'s to be told', async () => {

@@ -1947,7 +1947,7 @@ export { PwfBandPolicies, BAND_SOURCE as PWF_BAND_SOURCE } from './pwf-band-poli
 export type { BandPolicySet } from './pwf-band-policies.ts';
 export { PwfDeadlinePreferenceStore, hasPersonalLadder, personalThresholdsOf } from './pwf-deadline-preference.ts';
 export type { PreferenceReading, StoredPreference } from './pwf-deadline-preference.ts';
-export { MY_TASKS_CAP, PwfMyTaskReads } from './pwf-my-tasks.ts';
+export { PwfMyTaskReads } from './pwf-my-tasks.ts';
 export type { MyTaskFilter } from './pwf-my-tasks.ts';
 export { HomePwfSources } from './home-pwf-sources.ts';
 export { PwfTaskReminders } from './pwf-task-reminders.ts';

@@ -317,7 +317,9 @@ export class HomeWorkStore {
         calendars,
       });
       row.clocks = clocks;
-      row.reminders = { ...reminder, sent: summary?.sent ?? 0, lastAt: summary?.lastAt ?? null };
+      // The tasks of a workflow are reminded at the points of their deadline rule (the pass of the reminder job over `project_task_reminder`), not by the cadence of the severity: the cadence never says one is due.
+      const cadence = row.source === 'PROJECT_TASK' ? { ...reminder, due: false, nextAt: null } : reminder;
+      row.reminders = { ...cadence, sent: summary?.sent ?? 0, lastAt: summary?.lastAt ?? null };
       row.notices = notices.get(key) ?? [];
       row.existingClock = EXISTING_CLOCKS.find((clock) => clock.source === row.source) ?? null;
       row.policyVersion = policies.versions.clock;

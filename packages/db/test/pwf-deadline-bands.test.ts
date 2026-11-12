@@ -235,6 +235,8 @@ describe('the source PROJECT_TASK of the alert centre', () => {
     expect(first.alertType?.owner).toBe('TASK_ASSIGNEE');
     expect(first.consequence).toContain('đỏ');
     expect(first.lifecycle).toBe('NEW');
+    // The points of the rule remind, not the cadence of the severity: the item never says a reminder is due by the cadence.
+    expect(rows.every((row) => row.reminders?.due === false && row.reminders.nextAt === null)).toBe(true);
   });
 
   it('gives a task the reader answers for or does, never one of somebody else; the view scope has them all', async () => {
@@ -436,6 +438,18 @@ describe('my tasks, bounded and exact', () => {
     expect(red.items.every((one) => one.official_band.band === 'RED')).toBe(true);
     const due = (await as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { dueBefore: day(0), status: 'NOT_STARTED' }, { limit: 10 }, NOW))) as { total: number };
     expect(due.total).toBe(3);
+    // The colour filter pages by the database too: one at a time, the same three, with the exact total on every page.
+    const redIds: string[] = [];
+    let cursor: { code: string; id: string } | undefined;
+    for (let step = 0; step < 5; step += 1) {
+      const got = (await as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { band: 'RED' }, { limit: 1, after: cursor }, NOW))) as { items: Array<{ task_id: string }>; next: { code: string; id: string } | null; total: number };
+      expect(got.total).toBe(3);
+      redIds.push(...got.items.map((one) => one.task_id));
+      cursor = got.next ?? undefined;
+      if (cursor === undefined) break;
+    }
+    expect(new Set(redIds).size).toBe(3);
+    expect(((await as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { band: 'UNKNOWN' }, { limit: 5 }, NOW))) as { total: number; items: unknown[] })).toMatchObject({ total: 0, items: [] });
     await expect(as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { band: 'PURPLE' }, { limit: 10 }, NOW))).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
   });
 });
@@ -494,6 +508,16 @@ describe('the multi-point reminders (BR-PWF-24)', () => {
     expect(atFive.filter((notice) => notice.audience === 'PERSONAL')).toEqual([]);
     const rows = await firedRows();
     expect(rows.filter((row) => row.audience === 'PERSONAL').map((row) => row.reminder_day)).toEqual([8]);
+  });
+
+  it('tells a person once, of the nearest point of the rule and of their own days together, and records the other crossed points as not sent', async () => {
+    await as((tx) => preferences.save(tx, memberId(WORKER), { green_days: null, yellow_days: null, red_days: null, reminder_days: [3] }, 0, NOW));
+    const id = await task(2);
+    const notices = await fire();
+    // The rule's points of 5 and 2 and the person's own 3 are all crossed together: one notice, the nearest (2, the rule's).
+    expect(notices.map((notice) => [notice.audience, notice.point, notice.sourceId])).toEqual([['OFFICIAL', 2, `${id}:1`]]);
+    expect((await firedRows()).map((row) => [row.audience, row.reminder_day, row.notified]).sort()).toEqual([['OFFICIAL', 2, true], ['OFFICIAL', 5, false], ['PERSONAL', 3, false]].sort());
+    expect(await fire()).toEqual([]);
   });
 
   it('does not make up a reminder for a task whose calendar is not published', async () => {

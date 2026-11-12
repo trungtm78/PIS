@@ -9,15 +9,13 @@ import type { TenantTx } from './tenant-database.ts';
 /**
  * "My tasks" by deadline (MOB-80, PWF-15; R40): the open tasks the ledger of assignments hands to the caller, each with the OFFICIAL colour and, only when the person set a ladder of their own that differs from it, the colour of THAT ladder, beside
  * the real day of the deadline. The official colour is always there and is the one that counts; the personal one is only ever earlier. A personal ladder the official rule has since passed is read as the official line (the preference names what was
- * raised), and one that cannot be merged into a valid ladder is left out rather than shown wrong. Bounded (R35): the person's open tasks are read once, nearest day first, up to a cap, and the total is the exact count of what the filters leave.
+ * raised), and one that cannot be merged into a valid ladder is left out rather than shown wrong. Bounded (R35): the page is cut by the database (cursor on the day and the id) and the total is the exact count of what the filters leave, from a grouped count of its own.
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const BANDS = ['NONE', 'GREEN', 'YELLOW', 'RED', 'UNKNOWN'] as const;
 const STATUSES = ['NOT_STARTED', 'IN_PROGRESS', 'AWAITING_APPROVAL', 'ON_HOLD'] as const;
-/** The most open tasks of one person that are read (a person with more has a total that says it is a lower bound by the cap in `read_cap`). */
-export const MY_TASKS_CAP = 5000;
 const FAR_DAY = '9999-12-31';
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
@@ -84,18 +82,46 @@ export class PwfMyTaskReads {
     ];
     if (filter.status !== undefined) where.push(`t.status = ${bind(filter.status)}`);
     if (filter.dueBefore !== undefined) where.push(`t.planned_finish <= ${bind(filter.dueBefore)}::date`);
+    const set = await this.policies.load(tx, today);
+    const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
+    const officialOf = (kind: MyTaskSql['kind'], priority: MyTaskSql['priority'], phase: string, unitPath: string | null, dueOn: string | null): pwfDeadlineBand.DeadlineBandResult => {
+      const policy = set.forUnitPath(unitPath);
+      return pwfDeadlineBand.deadlineBand({ dueOn, today, unit: policy.unit, calendars, thresholds: pwfDeadlineBand.thresholdsFor(policy, { taskKind: kind, priority, phase }) });
+    };
+    // The exact total (and the groups the colour filter keeps) come from one grouped count of their own, so a page never changes the number it says there are; the page is cut by the database, nothing is read past it.
+    const groups = await tx.query<{ d: string | null; kind: MyTaskSql['kind']; priority: MyTaskSql['priority']; phase_code: string; unit_path: string | null; n: string }>(
+      `select t.planned_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n
+         from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
+        where ${where.join(' and ')} group by t.planned_finish, t.kind, t.priority, t.phase_code, ou.path`,
+      params,
+    );
+    let total = 0;
+    const kept = groups.filter((group) => filter.band === undefined || officialOf(group.kind, group.priority, group.phase_code, group.unit_path, group.d).band === filter.band);
+    for (const group of kept) total += Number(group.n);
+    const pageParams = [...params];
+    const pageBind = (value: unknown): string => {
+      pageParams.push(value);
+      return `$${pageParams.length}`;
+    };
+    const conditions = [...where];
+    if (filter.band !== undefined) {
+      if (kept.length === 0) conditions.push('false');
+      else {
+        const keys = `(coalesce(t.planned_finish::text, ''), t.kind, t.priority, t.phase_code, coalesce(ou.path, '')) in (select * from unnest(${pageBind(kept.map((one) => one.d ?? ''))}::text[], ${pageBind(kept.map((one) => one.kind))}::text[], ${pageBind(kept.map((one) => one.priority))}::text[], ${pageBind(kept.map((one) => one.phase_code))}::text[], ${pageBind(kept.map((one) => one.unit_path ?? ''))}::text[]))`;
+        conditions.push(keys);
+      }
+    }
+    if (page.after !== undefined) conditions.push(`(coalesce(t.planned_finish, date '${FAR_DAY}'), t.id) > (${pageBind(page.after.code)}::date, ${pageBind(page.after.id)}::uuid)`);
     const rows = await tx.query<MyTaskSql>(
       `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.status, t.planned_finish::text as due_date, t.kind, t.priority, t.phase_code, t.critical, t.version, ou.path as unit_path,
               coalesce(t.planned_finish, date '${FAR_DAY}')::text as sort_day
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${where.join(' and ')} order by coalesce(t.planned_finish, date '${FAR_DAY}'), t.id limit ${MY_TASKS_CAP}`,
-      params,
+        where ${conditions.join(' and ')} order by coalesce(t.planned_finish, date '${FAR_DAY}'), t.id limit ${pageBind(page.limit + 1)}`,
+      pageParams,
     );
-    const set = await this.policies.load(tx, today);
     const stored = await this.preferences.stored(tx, membershipId);
     const personal = hasPersonalLadder(stored) ? personalThresholdsOf(stored) : null;
-    const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
-    const listed = rows.map((row) => {
+    const listed = rows.slice(0, page.limit).map((row) => {
       const policy = set.forUnitPath(row.unit_path);
       const context = { taskKind: row.kind, priority: row.priority, phase: row.phase_code };
       const due = { dueOn: row.due_date, today, unit: policy.unit, calendars };
@@ -109,10 +135,7 @@ export class PwfMyTaskReads {
       }
       return { row, official: viewOf(resolved.official), personal: resolved.personal !== null && resolved.personalApplied ? viewOf(resolved.personal) : null };
     });
-    const wanted = filter.band === undefined ? listed : listed.filter((entry) => entry.official.band === filter.band);
-    const after = page.after;
-    const rest = after === undefined ? wanted : wanted.filter((entry) => entry.row.sort_day > after.code || (entry.row.sort_day === after.code && entry.row.id > after.id));
-    const shown = rest.slice(0, page.limit);
+    const shown = listed;
     const last = shown[shown.length - 1];
     return {
       items: shown.map(({ row, official, personal: own }) => ({
@@ -128,8 +151,8 @@ export class PwfMyTaskReads {
         critical: row.critical,
         version: row.version,
       })),
-      next: rest.length > shown.length && last !== undefined ? { code: last.row.sort_day, id: last.row.id } : null,
-      total: wanted.length,
+      next: rows.length > page.limit && last !== undefined ? { code: last.row.sort_day, id: last.row.id } : null,
+      total,
       as_of: now.toISOString(),
     };
   }
