@@ -39,7 +39,8 @@ export const operations = budget.operations
   .map((entry) => ({ entry, url: urlOf(entry) }))
   .filter((item) => item.url !== null);
 
-export const limitOf = (entry) => budget.classes[entry.class].budgetMs;
+/** The budget of an operation: its own `budgetMs` when it has one (tighter than its class), else the budget of its class. */
+export const limitOf = (entry) => (entry.budgetMs !== undefined ? entry.budgetMs : budget.classes[entry.class].budgetMs);
 
 /** One request of an operation, tagged so that the thresholds can single it out; the body is received to the end. */
 export function hit(item) {
@@ -48,7 +49,7 @@ export function hit(item) {
   check(response, { 'status is 2xx or 3xx': (answer) => answer.status >= 200 && answer.status < 400 });
 }
 
-/** The thresholds of the budget: p95 of every operation under the budget of its class, and almost no failed request. */
+/** The thresholds of the budget: p95 of every operation under its own budget (that of its class unless the row tightens it), and almost no failed request. */
 export function thresholdsOf(items) {
   const thresholds = { http_req_failed: ['rate<0.01'] };
   Object.keys(budget.classes).forEach((name) => {

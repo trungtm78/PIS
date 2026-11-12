@@ -87,6 +87,9 @@ export interface DirectiveLine {
   escalatesOn: string | null;
   closedAt: string | null;
   evidenceCount: number;
+  /** The latest progress that was reported, null when none was (never 0 for "not reported"). */
+  progressPercent: number | null;
+  progressReportedAt: string | null;
   openExtension: { id: string; proposedDueOn: string; requestedBy: string; version: number } | null;
   createdBy: Person;
   createdAt: string;
@@ -295,6 +298,8 @@ export function toDirective(raw: unknown): DirectiveLine | undefined {
     escalatesOn: strOrNull(raw.escalates_on),
     closedAt: strOrNull(raw.closed_at),
     evidenceCount: num(raw.evidence_count),
+    progressPercent: numOrNull(raw.progress_percent),
+    progressReportedAt: strOrNull(raw.progress_reported_at),
     openExtension: extension === undefined ? null : { id: str(extension.id), proposedDueOn: str(extension.proposed_due_on), requestedBy: str(extension.requested_by), version: num(extension.version) },
     createdBy: toPerson(raw.created_by),
     createdAt: str(raw.created_at),

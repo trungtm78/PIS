@@ -132,6 +132,10 @@ export interface DirectiveLine {
   closedAt: string | null;
   closedBy: string | null;
   evidenceCount: number;
+  /** The latest progress that was reported (0 to 100), null when no note of progress carried one: never 0 for "nothing reported". */
+  progressPct: number | null;
+  /** When that progress was reported. */
+  progressReportedAt: string | null;
   openExtension: { id: string; proposedDueOn: string; requestedBy: string; version: number } | null;
   createdBy: { membershipId: string; displayName: string };
   createdAt: string;
@@ -365,6 +369,8 @@ interface DirectiveSql {
   closed_at: string | null;
   closed_by: string | null;
   evidence_count: number;
+  progress_pct: number | null;
+  progress_reported_at: string | null;
   extension_id: string | null;
   extension_proposed_due_on: string | null;
   extension_requested_by: string | null;
@@ -382,6 +388,8 @@ const DIRECTIVE_COLUMNS = `d.id, d.code, d.seq, d.meeting_id, m.code as meeting_
   d.assignee_membership_id, ${NAME_OF('d.assignee_membership_id')} as assignee_name,
   d.original_due_on::text as original_due_on, d.due_on::text as due_on, d.extension_count, d.status, ${ISO('d.closed_at')} as closed_at, d.closed_by,
   (select count(*) from machvon.directive_evidence e where e.tenant_id = d.tenant_id and e.directive_id = d.id)::int as evidence_count,
+  (select ev.progress_pct from machvon.directive_event ev where ev.tenant_id = d.tenant_id and ev.directive_id = d.id and ev.progress_pct is not null order by ev.occurred_at desc, ev.id desc limit 1) as progress_pct,
+  (select ${ISO('ev.occurred_at')} from machvon.directive_event ev where ev.tenant_id = d.tenant_id and ev.directive_id = d.id and ev.progress_pct is not null order by ev.occurred_at desc, ev.id desc limit 1) as progress_reported_at,
   x.id as extension_id, x.proposed_due_on::text as extension_proposed_due_on, x.requested_by as extension_requested_by, x.version::text as extension_version,
   d.created_by, ${NAME_OF('d.created_by')} as created_name, ${ISO('d.created_at')} as created_at, d.version::text as version`;
 
@@ -404,6 +412,8 @@ function toLine(row: DirectiveSql, today: string, policy: DirectivePolicy): Dire
     closedAt: row.closed_at,
     closedBy: row.closed_by,
     evidenceCount: row.evidence_count,
+    progressPct: row.progress_pct,
+    progressReportedAt: row.progress_reported_at,
     openExtension: row.extension_id === null ? null : { id: row.extension_id, proposedDueOn: row.extension_proposed_due_on ?? '', requestedBy: row.extension_requested_by ?? '', version: Number(row.extension_version) },
     createdBy: { membershipId: row.created_by, displayName: row.created_name ?? '' },
     createdAt: row.created_at,

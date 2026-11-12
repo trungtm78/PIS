@@ -79,6 +79,8 @@ const REQUIRED_CYCLES = ['daily', 'weekly', 'monthly'];
 const REQUIRED_TYPES = ['full', 'diff', 'incr'];
 const DRILL_VERDICTS = ['matches', 'targets-missed', 'does-not-match'];
 const HEX64 = /^[0-9a-f]{64}$/;
+/** Where the data of a drill came from: a repository of pgBackRest or the offline media. A copy of a development database is a rehearsal and never goes into the ledger. */
+const DRILL_SOURCES = ['repo1', 'repo2', 'offline-media'];
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 const calendarOf =(text) => /^OnCalendar=(.+)$/m.exec(text ?? '')?.[1]?.trim();
@@ -234,6 +236,7 @@ function checkLedger({ root, policy, findings }) {
     previous = String(entry.performedOn);
     if (['reportSha256', 'sourceManifestSha256', 'restoredManifestSha256'].some((key) => !HEX64.test(String(entry[key])))) problem(`${label}: the sha256 of the report and of both manifests are required`);
     if (!DRILL_VERDICTS.includes(entry.verdict)) problem(`${label}: verdict must be one of ${DRILL_VERDICTS.join(', ')}`);
+    if (!DRILL_SOURCES.includes(entry.source)) problem(`${label}: source must be one of ${DRILL_SOURCES.join(', ')} (a rehearsal on a copy of a development database is not evidence)`);
     if (!(entry.rpoSeconds >= 0) || !(entry.rtoSeconds >= 0)) problem(`${label}: rpoSeconds and rtoSeconds are required`);
     if (typeof entry.operator !== 'string' || typeof entry.witness !== 'string' || entry.operator === '' || entry.witness === '' || entry.operator === entry.witness) problem(`${label}: operator and witness are required and must be two people`);
     if (typeof entry.release !== 'string' || entry.release === '') problem(`${label}: the restored release is required`);

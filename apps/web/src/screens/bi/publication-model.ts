@@ -43,6 +43,10 @@ export interface PublicationRequest {
   decidedBy: Person | null;
   decidedAt: string | null;
   comment: string | null;
+  /** The check step (BC.02): who checked the request, when, and what they said; null while nobody has. */
+  checkedBy: Person | null;
+  checkedAt: string | null;
+  checkComment: string | null;
   createdAt: string;
   version: number;
 }
@@ -65,6 +69,9 @@ export function toRequest(raw: unknown): PublicationRequest | undefined {
     decidedBy: raw.decided_by === null || raw.decided_by === undefined ? null : personOf(raw.decided_by),
     decidedAt: nullableText(raw.decided_at),
     comment: nullableText(raw.comment),
+    checkedBy: raw.checked_by === null || raw.checked_by === undefined ? null : personOf(raw.checked_by),
+    checkedAt: nullableText(raw.checked_at),
+    checkComment: nullableText(raw.check_comment),
     createdAt: text(raw.created_at),
     version: typeof raw.version === 'number' ? raw.version : 1,
   };
@@ -96,6 +103,9 @@ export const requestBody = (form: RequestForm): { object_kind: Kind; object_id: 
 
 /** A rejection says why; an approval may say nothing. */
 export const decisionProblem = (decision: Decision, comment: string): 'reasonRequired' | undefined => (decision === 'REJECTED' && comment.trim() === '' ? 'reasonRequired' : undefined);
+
+/** The body of the check: the note, trimmed, or none. */
+export const checkBody = (comment: string): { comment?: string } => (comment.trim() === '' ? {} : { comment: comment.trim() });
 
 export const decisionBody = (decision: Decision, comment: string): { decision: Decision; comment?: string } => (comment.trim() === '' ? { decision } : { decision, comment: comment.trim() });
 

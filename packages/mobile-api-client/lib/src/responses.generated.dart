@@ -120,6 +120,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'captureProjectBaseline': CommandResultResponse.fromJson,
   'certifyDataProduct': CommandResultResponse.fromJson,
   'changeSubscriptionPlan': CommandResultResponse.fromJson,
+  'checkBiPublication': CommandResultResponse.fromJson,
   'checkPaymentIntegrity': PayIntegrityCheckResultResponse.fromJson,
   'checkProjectDisbursement': PayDisbursementCheckResponse.fromJson,
   'checkReport': CommandResultResponse.fromJson,

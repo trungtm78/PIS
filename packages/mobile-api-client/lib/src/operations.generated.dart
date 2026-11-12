@@ -119,6 +119,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'captureProjectBaseline': OperationDescriptor(method: 'POST', path: '/projects/{id}/baseline', versioned: false, stepUp: null, permission: 'project.baseline.capture'),
   'certifyDataProduct': OperationDescriptor(method: 'POST', path: '/dgv/data-products/{id}/certification', versioned: true, stepUp: null, permission: 'data.product.certify'),
   'changeSubscriptionPlan': OperationDescriptor(method: 'POST', path: '/system/subscriptions/{subscriptionId}/plan-change', versioned: true, stepUp: null, permission: 'system.billing.manage'),
+  'checkBiPublication': OperationDescriptor(method: 'POST', path: '/bi/publication-requests/{id}/check', versioned: true, stepUp: null, permission: 'bi.publish'),
   'checkPaymentIntegrity': OperationDescriptor(method: 'POST', path: '/payment-requests/{id}/integrity-checks', versioned: false, stepUp: null, permission: 'payment.integrity.check'),
   'checkProjectDisbursement': OperationDescriptor(method: 'GET', path: '/projects/{id}/disbursement-check', versioned: false, stepUp: null, permission: 'payment_request.read'),
   'checkReport': OperationDescriptor(method: 'POST', path: '/report-engine/drafts/{id}/check', versioned: true, stepUp: null, permission: 'rpt.check'),

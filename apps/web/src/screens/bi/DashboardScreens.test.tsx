@@ -3,6 +3,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
+import part from '../../i18n/parts/aud3.vi.json';
 import { harness, mount, routeOf } from '../mne/test-support';
 import ChartBuilderScreen from './ChartBuilderScreen';
 import { ChartView, pointsOf } from './ChartView';
@@ -201,6 +202,38 @@ describe('BI-03 builder of a dashboard (ST-BI-005)', () => {
     mount(<DashboardBuilderScreen route={BUILDER} />, h, { permissions }, path);
     return h;
   };
+
+  it('shows the three signatures of the version the dashboard points to, and the furthest step of each version (BC.02)', async () => {
+    const block = (state: string, complete: boolean) => ({
+      version_id: V2,
+      revision: 2,
+      prepared_by: { id: ME, name: 'Lan', at: '2026-11-01T01:00:00.000Z' },
+      checked_by: state === 'PREPARED' ? null : { id: OTHER, name: 'Minh', at: '2026-11-02T01:00:00.000Z' },
+      approved_by: state === 'APPROVED' ? { id: OTHER, name: null, at: '2026-11-03T01:00:00.000Z' } : null,
+      state,
+      complete,
+    });
+    open({
+      one: {
+        ...dashboard(D1, 'D-ONE'),
+        sign_off: block('CHECKED', false),
+        versions: [version(V2, 2, { sign_off: block('CHECKED', false) }), version(V1, 1, { sign_off: block('APPROVED', true) })],
+      },
+    });
+    const signed = await screen.findByTestId('sign-off');
+    expect(within(signed).getByTestId('sign-prepared').textContent).toContain('Lan');
+    expect(within(signed).getByTestId('sign-checked').textContent).toContain('Minh');
+    expect(within(signed).getByTestId('sign-approved').textContent).toContain(part['bi.sign.none']);
+    expect(within(signed).getByTestId('sign-incomplete')).toBeTruthy();
+    expect(screen.getAllByTestId('version-sign').map((cell) => cell.textContent)).toEqual([part['bi.sign.state.CHECKED'], part['bi.sign.state.APPROVED']]);
+  });
+
+  it('says a dashboard that gave no signatures is not signed, and has nobody made up', async () => {
+    open();
+    await screen.findByTestId('versions');
+    expect(screen.getAllByTestId('version-sign').map((cell) => cell.textContent)).toEqual([part['bi.sign.state.UNSIGNED'], part['bi.sign.state.UNSIGNED']]);
+    expect(screen.getByTestId('sign-none').textContent).toBe(part['bi.sign.noVersion']);
+  });
 
   it('puts the versions, the preview and the form in section cards, each with its title as a level 2 heading', async () => {
     open();

@@ -355,6 +355,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> changeSubscriptionPlan(PlanChangeApply body, {required String subscriptionId, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('changeSubscriptionPlan', path: <String, Object?>{'subscriptionId': subscriptionId}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 
+  Future<Object?> checkBiPublication(BiPublicationCheck body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
+      execute('checkBiPublication', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
+
   Future<Object?> checkPaymentIntegrity(Map<String, Object?> body, {required String id, CommandAttempt? attempt}) =>
       execute('checkPaymentIntegrity', path: <String, Object?>{'id': id}, body: body, attempt: attempt);
 

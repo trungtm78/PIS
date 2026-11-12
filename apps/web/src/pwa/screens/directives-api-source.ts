@@ -7,8 +7,8 @@ import type { DirectiveItem, DirectivesQuery, DirectivesReading } from './direct
 export const PWA_DIRECTIVES_PAGE = 30;
 
 /**
- * One directive of the API as the tracking view shows it. The list does not carry the progress that was reported (it lives in the timeline of the directive), so the item says it does not know it
- * (`progressKnown: false`) and the card sends the reader to the detail instead of claiming "not reported". Who issued it is the steering meeting that gave it.
+ * One directive of the API as the tracking view shows it. The list carries the latest progress that was reported (`progress_percent`, null when no note gave one), so the card shows the bar or "not reported"
+ * and never 0%. Who issued it is the steering meeting that gave it.
  */
 export function toDirectiveItem(line: DirectiveLine): DirectiveItem {
   return {
@@ -19,9 +19,8 @@ export function toDirectiveItem(line: DirectiveLine): DirectiveItem {
     dueOn: line.dueOn,
     status: line.status,
     assigneeUnit: line.assigneeUnit.name,
-    progressPercent: null,
-    progressKnown: false,
-    lastUpdateAt: null,
+    progressPercent: line.progressPercent,
+    lastUpdateAt: line.progressReportedAt,
     overdueDays: line.overdueDays ?? 0,
   };
 }

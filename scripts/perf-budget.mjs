@@ -26,6 +26,9 @@ export function percentile(values, p) {
   return sorted[rank - 1];
 }
 
+/** The budget of one operation: its own `budgetMs` when it tightens the budget of its class (a snapshot read at 800 ms), else the budget of the class. */
+export const limitOf = (entry, budget) => entry.budgetMs ?? budget.classes[entry.class].budgetMs;
+
 const round = (value) => Math.round(value * 10) / 10;
 
 /** The figures of one operation from its samples: `{ ms, status }` where status 0 means no answer (timeout or network failure). */
@@ -41,6 +44,21 @@ export function summarize(samples) {
     p95: times.length === 0 ? 0 : round(percentile(times, 95)),
     max: times.length === 0 ? 0 : round(Math.max(...times)),
   };
+}
+
+const EDITIONS = ['PUBLIC', 'ENTERPRISE'];
+
+/** What is wrong with the optional `budgetMs` (only tighter than the class), `scale` (times the demo volume the row is measured at) and `edition` of a row. */
+function rowLimitProblems(label, entry, classes) {
+  const problems = [];
+  if (entry?.budgetMs !== undefined) {
+    const classLimit = classes[entry.class]?.budgetMs;
+    if (!Number.isInteger(entry.budgetMs) || entry.budgetMs <= 0) problems.push(`${label} budgetMs must be a positive whole number of milliseconds`);
+    else if (Number.isInteger(classLimit) && entry.budgetMs > classLimit) problems.push(`${label} budgetMs ${entry.budgetMs} is over the ${classLimit} ms of its class ${entry.class}`);
+  }
+  if (entry?.scale !== undefined && (!Number.isInteger(entry.scale) || entry.scale < 1)) problems.push(`${label} scale must be a whole number of at least 1`);
+  if (entry?.edition !== undefined && !EDITIONS.includes(entry.edition)) problems.push(`${label} has an unknown edition ${entry.edition}`);
+  return problems;
 }
 
 /** Problems of a budget table: what would make a run meaningless. An empty list is a valid table. */
@@ -70,6 +88,7 @@ export function budgetProblems(budget) {
     if (entry?.method !== 'GET') problems.push(`${label} is not a GET: only reads and downloads are measured`);
     if (typeof entry?.path !== 'string' || !entry.path.startsWith('/')) problems.push(`${label} has no path`);
     if (classes[entry?.class] === undefined) problems.push(`${label} has an unknown class ${entry?.class}`);
+    problems.push(...rowLimitProblems(label, entry, classes));
     const placeholders = [...String(entry?.path ?? '').matchAll(/\{(\w+)\}/g)].map((found) => found[1]);
     for (const name of placeholders) {
       const fixed = entry.pathFixed?.[name];
@@ -157,7 +176,7 @@ export function buildRequest(entry, baseUrl, vars) {
 
 /** The verdict on one operation: over budget (by the chosen statistic), failed (some samples got no 2xx or 3xx), or within the budget. */
 export function evaluateEntry(entry, stats, budget, stat) {
-  const limit = budget.classes[entry.class].budgetMs;
+  const limit = limitOf(entry, budget);
   if (stats.failed > 0) return { status: 'FAIL', reason: `${stats.failed} of ${stats.samples} samples failed (status ${stats.statuses.join(',')})`, limit };
   const measured = stats[stat];
   if (measured > limit) return { status: 'FAIL', reason: `${stat} ${measured} ms is over the budget of ${limit} ms`, limit };
@@ -191,7 +210,7 @@ export async function runBudget({ budget, baseUrl, token, vars = {}, headers = {
   const results = [];
   for (const entry of selectOperations(budget, only)) {
     const { url, missing } = buildRequest(entry, baseUrl, vars);
-    const limit = budget.classes[entry.class].budgetMs;
+    const limit = limitOf(entry, budget);
     let result;
     if (missing.length > 0) {
       result = { id: entry.id, operationId: entry.operationId, class: entry.class, path: entry.path, status: 'SKIPPED', reason: `missing variables: ${missing.join(', ')}`, limit, stats: undefined };
@@ -300,7 +319,7 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
     return 0;
   }
   if (values.list) {
-    for (const entry of selectOperations(budget, only)) log(`${pad(entry.id, 9)}${pad(entry.class, 9)}${pad(`${budget.classes[entry.class].budgetMs} ms`, 10)}${entry.method} ${entry.path}`);
+    for (const entry of selectOperations(budget, only)) log(`${pad(entry.id, 9)}${pad(entry.class, 9)}${pad(`${limitOf(entry, budget)} ms`, 10)}${entry.method} ${entry.path}`);
     return 0;
   }
   if (selectOperations(budget, only).length === 0) {

@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BiDatasetStore, BiExportStore, BiQueryStore, assertFilter } from '@machvon/db';
+import { BiDatasetStore, BiExportStore, BiPublicationStore, BiQueryStore, assertFilter } from '@machvon/db';
 import type { BiExportJobRow, TenantTx } from '@machvon/db';
 import { BI_DIMENSION_LABELS, BI_EXPORT_ROW_CAP, BI_EXPORT_TTL_DAYS, DomainError, PDF_ROW_CAP, activeGrants, buildBiExportDocument, csvOf, datasetAdapterOf, figureOf, holdsPermission, xlsxOf } from '@machvon/kernel';
 import type { BiExportFormat, EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -128,6 +128,7 @@ export class BiExportRunner {
   private readonly store = new BiExportStore();
   private readonly queries = new BiQueryStore();
   private readonly datasets = new BiDatasetStore();
+  private readonly publications = new BiPublicationStore();
 
   constructor(
     private readonly engine: BiQueryEngine,
@@ -194,6 +195,8 @@ export class BiExportRunner {
       if (answer.rows.length > cap) return ended('DENIED', 'EXPORT_ROW_CAP_EXCEEDED', 422);
       const figures = answer.rows.map((row) => ({ key: row.key, label: row.label, ...figureOf(read.plan, row) }));
       const total = figureOf(read.plan, answer.total);
+      // The file says who prepared it (the person it is made for), who checked the certification of the metric and who certified it: a step nobody took is printed as such (BC.02).
+      const signOff = await this.publications.signOffOfMetric(tx, spec.metricId, { id: input.requestedBy, at: now });
       const document = buildBiExportDocument({
         metricCode: read.metricCode,
         metricRevision: read.metricRevision,
@@ -205,6 +208,7 @@ export class BiExportRunner {
         generatedAt: now,
         rows: figures.map((figure) => ({ key: figure.key, label: figure.label, value: figure.value, numerator: figure.numerator, denominator: figure.denominator, nullReason: figure.nullReason })),
         total: { value: total.value, numerator: total.numerator, denominator: total.denominator, nullReason: total.nullReason },
+        signOff,
       });
       const bytes: Uint8Array = input.format === 'CSV' ? new Uint8Array(Buffer.from(csvOf(document), 'utf8')) : input.format === 'XLSX' ? xlsxOf(document) : input.format === 'DOCX' ? await docxOf(document) : await pdfOf(document, { stamp: now });
       const key = await this.files.storeGenerated(tenant, EXPORT_KIND, jobId, bytes, MEDIA_TYPE[input.format]);

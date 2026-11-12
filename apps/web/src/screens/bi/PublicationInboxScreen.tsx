@@ -6,7 +6,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field } from '../mne/components';
-import { useDecidePublication, usePublications, useSubmitPublication } from './hooks';
+import { useCheckPublication, useDecidePublication, usePublications, useSubmitPublication } from './hooks';
 import { checkLabel, decisionLabel, kindLabel, refusalMessage, requestProblemMessage, statusLabel } from './publication-labels';
 import { EMPTY_REQUEST, KINDS, PUBLISH_PERMISSION, REQUEST_PERMISSION, STATUSES, decisionProblem, describePublicationProblem, validateRequest } from './publication-model';
 import type { Decision, PublicationRequest, RequestForm } from './publication-model';
@@ -37,6 +37,7 @@ function InboxContent({ route }: ScreenProps) {
   const [status, setStatus] = useState<string>('PENDING');
   const list = usePublications(status === ALL ? undefined : status);
   const decide = useDecidePublication();
+  const check = useCheckPublication();
   const ask = useSubmitPublication();
   const [selected, setSelected] = useState<string | undefined>(undefined);
   const [comment, setComment] = useState('');
@@ -51,12 +52,15 @@ function InboxContent({ route }: ScreenProps) {
   });
   const chosen: PublicationRequest | undefined = (list.data ?? []).find((request) => request.id === selected && request.status === 'PENDING');
   const own = chosen !== undefined && chosen.requestedBy.id === tenant?.membershipId;
-  const refusal = decide.isError ? describePublicationProblem(decide.error) : undefined;
+  // The person who checked a request does not decide it (three people, not two).
+  const checkerSelf = chosen !== undefined && chosen.checkedBy !== null && chosen.checkedBy.id === tenant?.membershipId;
+  const refusal = decide.isError ? describePublicationProblem(decide.error) : check.isError ? describePublicationProblem(check.error) : undefined;
   const askRefusal = ask.isError ? describePublicationProblem(ask.error) : undefined;
   const problems = attempted ? validateRequest(form) : {};
 
   const choose = (request: PublicationRequest): void => {
     decide.reset();
+    check.reset();
     setSelected(request.id);
     setComment('');
     setRejected(false);
@@ -74,6 +78,18 @@ function InboxContent({ route }: ScreenProps) {
           setSelected(undefined);
           setComment('');
           setRejected(false);
+        },
+      },
+    );
+  };
+  const markChecked = (request: PublicationRequest): void => {
+    if (check.isPending) return;
+    check.mutate(
+      { requestId: request.id, version: request.version, comment },
+      {
+        onSuccess: () => {
+          setSelected(undefined);
+          setComment('');
         },
       },
     );
@@ -169,6 +185,12 @@ function InboxContent({ route }: ScreenProps) {
                 </td>
                 <td>
                   <StatusPill tone={requestStatusTone(request.status)}>{statusLabel(t, request.status)}</StatusPill>
+                  <p className="sub" data-testid="checked">
+                    {request.checkedBy === null
+                      ? t('bi.sign.check.notDone')
+                      : t('bi.sign.check.done', { name: request.checkedBy.name ?? request.checkedBy.id, date: day(request.checkedAt ?? '') })}
+                    {request.checkComment === null ? null : ` — ${request.checkComment}`}
+                  </p>
                   {request.decision === null ? null : (
                     <p className="sub" data-testid="decision">
                       {t('bi.pub.decided', {
@@ -207,12 +229,21 @@ function InboxContent({ route }: ScreenProps) {
             <p className="callout" data-testid="self">
               {t('bi.pub.self')}
             </p>
+          ) : checkerSelf ? (
+            <p className="callout" data-testid="checker-self">
+              {t('bi.sign.check.self')}
+            </p>
           ) : (
             <>
               <Field id="pub-comment" label={t('bi.pub.decide.comment')} error={rejected ? t('bi.pub.decide.reason') : undefined}>
                 <textarea id="pub-comment" value={comment} aria-invalid={rejected} onChange={(event) => setComment(event.target.value)} />
               </Field>
               <div className="formfooter">
+                {chosen.checkedBy === null ? (
+                  <button type="button" disabled={check.isPending} onClick={() => markChecked(chosen)}>
+                    {t('bi.sign.check.action')}
+                  </button>
+                ) : null}
                 <button type="button" className="ui-button ui-button--primary" disabled={decide.isPending} onClick={() => settle(chosen, 'APPROVED')}>
                   {t('bi.pub.decide.approve')}
                 </button>
