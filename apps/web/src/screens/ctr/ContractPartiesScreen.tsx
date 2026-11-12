@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { BackLink, Field, StatusBadge } from './components';
-import { useContract, useContractorOptions, useReplaceParties } from './hooks';
+import { BackLink, DefaultContractBar, Field, StatusBadge } from './components';
+import { useContract, useContractChoice, useContractorOptions, useReplaceParties } from './hooks';
 import { partyProblemMessage, problemMessage, roleLabel } from './labels';
 import { PARTY_ROLES, UPDATE_PERMISSION, amountText, describeProblem, draftLink, draftsOf, partiesBody, partyTotals, validateParties } from './model';
 import type { ContractView, Option, PartyDraft, PartyRole } from './model';
@@ -24,8 +23,9 @@ export default function ContractPartiesScreen({ route }: ScreenProps) {
 
 function ContractPartiesContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const [params] = useSearchParams();
-  const contractId = params.get('id') ?? undefined;
+  // Opened without a contract in the address (the menu), the largest contract in force is read, and the selector stays to change it.
+  const choice = useContractChoice('id');
+  const contractId = choice.contractId ?? undefined;
   const contract = useContract(contractId);
   const state = useScreenState({ isLoading: contract.isLoading, error: contract.error, data: contractId === undefined ? undefined : (contract.data ?? undefined), isEmpty: NEVER_EMPTY });
   const missing = contractId === undefined || (contract.isSuccess && contract.data === null);
@@ -33,7 +33,10 @@ function ContractPartiesContent({ route }: ScreenProps) {
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       {contractId === undefined ? null : <BackLink to={draftLink(contractId)}>{t('ctr.back.draft.link')}</BackLink>}
-      {missing ? (
+      <DefaultContractBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : missing ? (
         <>
           <div className="heading">
             <h1 id="screen-title">{t('ctr.parties.page.title')}</h1>

@@ -33,8 +33,15 @@ const press = (name: string): void => {
 const action = (name: string): HTMLElement => document.querySelector(`button[data-action="${name}"]`) as HTMLElement;
 
 describe('PaymentDetailScreen (PAY-03): a payment request and its documents', () => {
-  it('asks for a request when the address names none', async () => {
+  it('opens on the newest request when the address names none, with the note and a selector (menu entry)', async () => {
     open(world(), { path: '/pay/pay-03' });
+    expect((await screen.findByTestId('default-request')).textContent).toContain(vi_['pay.payment.default.notice']);
+    expect((screen.getByTestId('default-request-select') as HTMLSelectElement).value).toBe(paymentId(1));
+    await screen.findByTestId('request-no');
+  });
+
+  it('asks for a request when the address names none and there is none', async () => {
+    open(world({ payments: [] }), { path: '/pay/pay-03' });
     expect((await screen.findByTestId('no-request')).textContent).toBe(vi_['pay.payment.detail.none']);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['pay.payment.detail.title']);
     expect(screen.getByText(text('pay.payment.detail.footer', { id: 'PAY-03', req: 'FR-PAY-03' }))).toBeTruthy();

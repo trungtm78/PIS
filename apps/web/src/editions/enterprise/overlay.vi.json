@@ -23,5 +23,22 @@
   "cap.annual.page.subtitle": "Vốn của năm và vốn kéo dài theo từng dự án.",
   "cap.fund.nsdpDtpt.label": "Vốn chủ sở hữu - đầu tư phát triển",
   "cap.annual.total.note": "Tổng vốn là tổng của các dòng vốn trong bảng.",
-  "pay.payment.status.sentTreasury": "Đã gửi thanh toán"
+  "pay.payment.status.sentTreasury": "Đã gửi thanh toán",
+  "prj.list.missingCode.label": "Chỉ dự án thiếu mã dự án cấp trên",
+  "prj.nationalCode.missing.badge": "Thiếu mã dự án cấp trên",
+  "prj.reconcile.missingOnly.label": "Chỉ dự án thiếu mã dự án cấp trên",
+  "prj.reconcile.missing.count": "{count} dự án chưa có mã dự án cấp trên",
+  "prj.reconcile.assign.aria": "Gán mã dự án cấp trên cho dự án {code}",
+  "prj.reconcile.column.nationalCode": "Mã dự án cấp trên",
+  "prj.reconcile.dialog.code.label": "Mã dự án cấp trên mới",
+  "prj.reconcile.dialog.current.none": "Dự án chưa có mã dự án cấp trên.",
+  "prj.reconcile.dialog.current.text": "Mã dự án cấp trên hiện tại: {code}",
+  "prj.reconcile.dialog.title": "Mã dự án cấp trên của dự án {code}",
+  "prj.reconcile.field.codeRequired.error": "Cần nhập mã dự án cấp trên.",
+  "prj.reconcile.page.title": "Mã dự án trên hệ thống cấp trên",
+  "prj.reconcile.importRow.duplicate.text": "Mã dự án cấp trên bị trùng",
+  "prj.reconcile.import.title": "Nhập tệp đối chiếu mã dự án cấp trên",
+  "prj.guard.nationalCode.label": "Mã dự án cấp trên theo quy tắc hiện hành",
+  "prj.stageProblem.nationalCodeFormat.error": "Mã dự án cấp trên không đúng định dạng của quy tắc hiện hành.",
+  "prj.stageProblem.nationalCodeRequired.error": "Quy tắc hiện hành yêu cầu mã dự án cấp trên trước bước chuyển này."
 }

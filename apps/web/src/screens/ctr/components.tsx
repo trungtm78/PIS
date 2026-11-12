@@ -1,9 +1,11 @@
+import { useId } from 'react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import { StatusPill } from '../../ui';
 import type { Tone } from '../../ui';
 import { errorIdOf, hintIdOf, wireControl } from '../field-wiring';
+import type { ContractChoice } from './hooks';
 import { statusLabel } from './labels';
 import type { ContractStatus } from './model';
 import './ctr.css';
@@ -83,5 +85,26 @@ export function StatusBadge({ status }: { status: ContractStatus }) {
     <span data-testid="status">
       <StatusPill tone={contractTone(status)}>{statusLabel(t, status)}</StatusPill>
     </span>
+  );
+}
+
+/** The note and the selector of a screen of one contract that was opened without one: it says which contract is shown and lets the reader switch to another of the register. */
+export function DefaultContractBar({ choice }: { choice: ContractChoice }) {
+  const { t } = useTranslation();
+  const selectId = useId();
+  if (!choice.defaulted || choice.contractId === null || choice.choices.length === 0) return null;
+  return (
+    <div className="callout" role="status" data-testid="default-contract">
+      <p>{t('ctr.default.notice')}</p>
+      <label htmlFor={selectId}>{t('ctr.default.select.label')} </label>
+      <select id={selectId} data-testid="default-contract-select" value={choice.contractId} onChange={(event) => choice.pick(event.target.value)}>
+        {choice.choices.map((contract) => (
+          <option key={contract.id} value={contract.id}>
+            {contract.code}
+            {contract.title === null ? '' : ` · ${contract.title}`}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }

@@ -7,7 +7,8 @@ import { useScreenState } from '../../../states/useScreenState';
 import { useAdvances, useRecoveryPlan } from '../../pay/advance/hooks';
 import { kindLabel, statusLabel } from '../../pay/advance/labels';
 import { listLink, recoveredShare, scheduleLink, signedAmountText } from '../../pay/advance/model';
-import { BackLink } from '../components';
+import { BackLink, DefaultContractBar } from '../components';
+import { useContractChoice } from '../hooks';
 import '../ctr.css';
 import { SectionCard } from '../../../ui';
 
@@ -26,7 +27,9 @@ export default function ScheduleScreen({ route }: ScreenProps) {
 function ScheduleContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const [search] = useSearchParams();
-  const contractId = search.get('contract');
+  // Opened without a contract in the address (the menu), the largest contract in force is shown, and the selector stays to change it.
+  const choice = useContractChoice('contract');
+  const contractId = choice.contractId;
   const named = search.get('advance');
   const advances = useAdvances({ contractId: contractId ?? undefined });
   const list = contractId === null ? [] : (advances.data ?? []);
@@ -45,7 +48,10 @@ function ScheduleContent({ route }: ScreenProps) {
           <p>{t('ctr.advance.subtitle')}</p>
         </div>
       </div>
-      {contractId === null ? (
+      <DefaultContractBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : contractId === null ? (
         <p className="callout" role="status" data-testid="no-contract">
           {t('ctr.advance.none')}
         </p>

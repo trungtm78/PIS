@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import ProgressScreen from './ProgressScreen';
-import { MAKER, PLAN_VERSION, READER, REPORT, client, mount, progressRecord, reportRecord, routeOf, world } from './test-support';
+import { MAKER, PLAN_VERSION, READER, REPORT, client, lineRecord, mount, pageRecord, progressRecord, reportRecord, routeOf, world } from './test-support';
 
 const ROUTE = routeOf('DIS-03', 'FR-DIS-03');
 const PATH = `/dis/dis-03?report=${REPORT}`;
@@ -125,6 +125,25 @@ describe('DIS-03 enter the volumes', () => {
     open(reportRecord(), undefined, MAKER, 'READ_ONLY');
     await screen.findByTestId('report-facts');
     expect(screen.queryByRole('button', { name: vi_['dis.progress.save.action'] })).toBeNull();
+  });
+
+  it('opens on the first draft of the list when none is chosen, says so, and offers the list to switch (menu entry)', async () => {
+    const h = client(world({ details: { [REPORT]: reportRecord() }, page: pageRecord([lineRecord(1), lineRecord(2)]) }));
+    mount(<ProgressScreen route={ROUTE} />, h, { permissions: MAKER, path: '/dis/dis-03' });
+    expect((await screen.findByTestId('default-report')).textContent).toContain(vi_['dis.default.notice']);
+    await screen.findByTestId('report-facts');
+    const select = screen.getByTestId('default-report-select') as HTMLSelectElement;
+    expect(select.value).toBe(REPORT);
+    expect(select.querySelectorAll('option')).toHaveLength(2);
+    expect(h.read).toHaveBeenCalledWith('get_resources_report_revision', expect.objectContaining({ query: expect.objectContaining({ status: 'DRAFT' }) }));
+    expect(screen.queryByTestId('report-choose')).toBeNull();
+  });
+
+  it('names no default and reads no list when the address names the report', async () => {
+    const h = open();
+    await screen.findByTestId('report-facts');
+    expect(screen.queryByTestId('default-report')).toBeNull();
+    expect(h.read).not.toHaveBeenCalledWith('get_resources_report_revision', expect.anything());
   });
 
   it('asks for a report when none is chosen, and says nothing is there for one that is not found', async () => {

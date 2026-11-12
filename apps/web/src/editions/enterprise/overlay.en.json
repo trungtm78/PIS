@@ -23,5 +23,22 @@
   "cap.annual.page.subtitle": "Capital of the year and carried-over capital project by project.",
   "cap.fund.nsdpDtpt.label": "Equity - development investment",
   "cap.annual.total.note": "The total is the sum of the lines of the table.",
-  "pay.payment.status.sentTreasury": "Sent for payment"
+  "pay.payment.status.sentTreasury": "Sent for payment",
+  "prj.list.missingCode.label": "Only projects without a parent code",
+  "prj.nationalCode.missing.badge": "Parent code missing",
+  "prj.reconcile.missingOnly.label": "Only projects without a parent code",
+  "prj.reconcile.missing.count": "{count} projects have no parent code",
+  "prj.reconcile.assign.aria": "Assign the parent code of the project {code}",
+  "prj.reconcile.column.nationalCode": "Parent code",
+  "prj.reconcile.dialog.code.label": "New parent code",
+  "prj.reconcile.dialog.current.none": "The project has no parent code yet.",
+  "prj.reconcile.dialog.current.text": "Current parent code: {code}",
+  "prj.reconcile.dialog.title": "Parent code of the project {code}",
+  "prj.reconcile.field.codeRequired.error": "The parent code is required.",
+  "prj.reconcile.page.title": "Project code in the national investment system",
+  "prj.reconcile.importRow.duplicate.text": "The parent code is a duplicate",
+  "prj.reconcile.import.title": "Import the parent code reconciliation file",
+  "prj.guard.nationalCode.label": "Parent project code by the rule in force",
+  "prj.stageProblem.nationalCodeFormat.error": "The parent project code does not have the format of the rule in force.",
+  "prj.stageProblem.nationalCodeRequired.error": "The rule in force requires the parent project code before this move."
 }

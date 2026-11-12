@@ -4,7 +4,7 @@ import { editionAccess, editionRoutes } from '../editions/edition';
 import { useEdition } from '../editions/EditionContext';
 import { useTranslation } from '../i18n';
 import { ARCHITECTURE } from '../navigation/architecture';
-import { buildNavigation } from '../navigation/model';
+import { buildNavigation, resolveNavigationExtension } from '../navigation/model';
 import { routeById, routeByPath } from '../routes/registry';
 import { WEB_ROUTES } from '../routes/web-routes';
 import { useUnreadBadge } from '../screens/not/inbox/badge';
@@ -56,12 +56,17 @@ export function Shell() {
 
 function StaffShell() {
   useFocusFirstInvalid();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const session = useSession();
   const location = useLocation();
   const route = routeByPath(location.pathname);
-  const { manifest } = useEdition();
-  const navigation = useMemo(() => buildNavigation(ARCHITECTURE, editionRoutes(WEB_ROUTES, manifest), editionAccess(session.access, manifest)), [session.access, manifest]);
+  const { manifest, navigation: editionNavigation } = useEdition();
+  const navigation = useMemo(
+    () => buildNavigation(ARCHITECTURE, editionRoutes(WEB_ROUTES, manifest), editionAccess(session.access, manifest), resolveNavigationExtension(editionNavigation, t)),
+    // `t` keeps its identity when the language changes; `locale` is what rebuilds the translated labels of the edition's entries.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [session.access, manifest, editionNavigation, t, locale],
+  );
   const { favourites, toggle, move, isPinned } = useFavourites(isWebScreen);
   const narrow = useMediaQuery(DRAWER_QUERY);
   const [drawerOpen, setDrawerOpen] = useState(false);

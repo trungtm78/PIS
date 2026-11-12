@@ -1,0 +1,119 @@
+--- a/apps/mobile/pubspec.yaml
++++ b/apps/mobile/pubspec.yaml
+@@ -4,8 +4,8 @@
+ version: 0.1.0+1
+ 
+ environment:
+-  sdk: ^3.13.0
+-  flutter: ">=3.47.0"
++  sdk: ^3.12.0
++  flutter: ">=3.44.0"
+ 
+ dependencies:
+   crypto: ^3.0.8
+@@ -33,13 +33,9 @@
+   path_provider: ^2.1.6
+   pdfx: ^2.11.0
+   permission_handler: ^13.0.2
+-  sqlite3: ^3.8.0
++  sqlite3: ^3.5.2
+   url_launcher: ^6.3.3
+ 
+-dev_dependencies:
+-  flutter_test:
+-    sdk: flutter
+-
+ hooks:
+   user_defines:
+     sqlite3:
+--- a/apps/mobile/lib/app/app_config.dart
++++ b/apps/mobile/lib/app/app_config.dart
+@@ -7,7 +7,7 @@
+ 
+ /// The loopback hosts a debug build may reach over plain http: the host machine as seen from the Android emulator and
+ /// from the iOS simulator.
+-const Set<String> _loopbackHosts = <String>{'localhost', '127.0.0.1', '10.0.2.2'};
++const Set<String> _loopbackHosts = <String>{'localhost', '127.0.0.1', '10.0.2.2', '172.20.10.5'};
+ 
+ /// The settings fixed when the application starts.
+ final class AppConfig {
+--- a/apps/mobile/lib/features/session/auth/oidc_client.dart
++++ b/apps/mobile/lib/features/session/auth/oidc_client.dart
+@@ -19,7 +19,7 @@
+ const String kSecondFactorAcr = 'aal2';
+ 
+ const Duration _clockSkew = Duration(minutes: 1);
+-const Set<String> _loopbackHosts = <String>{'localhost', '127.0.0.1', '10.0.2.2'};
++const Set<String> _loopbackHosts = <String>{'localhost', '127.0.0.1', '10.0.2.2', '172.20.10.5'};
+ 
+ /// Why a sign-in step failed. The exception carries this code and nothing else: no text from the provider, no address,
+ /// no token can reach a log or a screen through it.
+@@ -260,7 +260,7 @@
+     final Uri? authorization = _endpointUri(document?['authorization_endpoint'], config.issuer);
+     final Uri? token = _endpointUri(document?['token_endpoint'], config.issuer);
+     final Object? announced = document?['issuer'];
+-    if (authorization == null || token == null || announced is! String || announced.replaceAll(RegExp(r'/+$'), '') != key) {
++    if (authorization == null || token == null || announced is! String || _demoCanon(announced) != _demoCanon(key)) {
+       throw const OidcException(OidcFailure.discoveryFailed);
+     }
+     return _endpoints[key] = OidcEndpoints(
+@@ -281,7 +281,7 @@
+     if (!_sameText(query['state'] ?? '', pkce.state)) throw const OidcException(OidcFailure.stateMismatch);
+     if (query.containsKey('error')) throw const OidcException(OidcFailure.providerRefused);
+     final String? issuer = query['iss'];
+-    if (issuer != null && issuer.replaceAll(RegExp(r'/+$'), '') != config.issuer.toString()) {
++    if (issuer != null && _demoCanon(issuer) != _demoCanon(config.issuer.toString())) {
+       throw const OidcException(OidcFailure.callbackInvalid);
+     }
+     final String? code = query['code'];
+@@ -347,7 +347,7 @@
+   return byAcr || byAmr ? AssuranceLevel.aal2 : AssuranceLevel.aal1;
+ }
+ 
+-bool _sameIssuer(Object? claim, Uri issuer) => claim is String && claim.replaceAll(RegExp(r'/+$'), '') == issuer.toString();
++bool _sameIssuer(Object? claim, Uri issuer) => claim is String && _demoCanon(claim) == _demoCanon(issuer.toString());
+ 
+ bool _audienceHas(Object? audience, String clientId) =>
+     audience == clientId || (audience is List<Object?> && audience.contains(clientId));
+@@ -359,7 +359,9 @@
+   final Uri? url = Uri.tryParse(value);
+   if (url == null || url.host.isEmpty) return null;
+   if (url.scheme == 'https') return url;
+-  return url.scheme == 'http' && issuer.scheme == 'http' && url.host == issuer.host && url.port == issuer.port ? url : null;
++  if (url.scheme != 'http' || issuer.scheme != 'http') return null;
++  final Uri aligned = url.host == '127.0.0.1' ? url.replace(host: issuer.host, port: issuer.port) : url;
++  return aligned.host == issuer.host && aligned.port == issuer.port ? aligned : null;
+ }
+ 
+ Map<String, Object?>? _jsonObject(String text) {
+@@ -380,3 +382,6 @@
+   }
+   return difference == 0;
+ }
++
++/// DEMO ONLY: the test identity provider names itself 127.0.0.1 in its documents and tokens; a phone reaches it by the LAN address of the laptop.
++String _demoCanon(String value) => value.replaceAll(RegExp(r'/+$'), '').replaceFirst('//172.20.10.5:', '//127.0.0.1:');
+--- a/apps/mobile/lib/features/document_signing/document_fetcher.dart
++++ b/apps/mobile/lib/features/document_signing/document_fetcher.dart
+@@ -41,7 +41,7 @@
+   if (parsed.hasScheme) {
+     if (parsed.host.isEmpty) return null;
+     if (parsed.scheme == 'https') return parsed;
+-    final bool loopback = parsed.host == 'localhost' || parsed.host == '127.0.0.1' || parsed.host == '10.0.2.2';
++    final bool loopback = parsed.host == 'localhost' || parsed.host == '127.0.0.1' || parsed.host == '10.0.2.2' || parsed.host == '172.20.10.5';
+     return allowInsecureLoopback && parsed.scheme == 'http' && loopback ? parsed : null;
+   }
+   if (parsed.hasAuthority || !link.startsWith('/')) return null;
+--- a/apps/mobile/android/app/src/debug/AndroidManifest.xml
++++ b/apps/mobile/android/app/src/debug/AndroidManifest.xml
+@@ -1,7 +1,5 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+-    <!-- The INTERNET permission is required for development. Specifically,
+-         the Flutter tool needs it to communicate with the running application
+-         to allow setting breakpoints, to provide hot reload, etc.
+-    -->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+     <uses-permission android:name="android.permission.INTERNET"/>
++    <!-- DEMO ONLY: plain http to the laptop over the LAN. -->
++    <application android:usesCleartextTraffic="true" tools:replace="android:usesCleartextTraffic"/>
+ </manifest>

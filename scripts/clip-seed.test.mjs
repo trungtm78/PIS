@@ -316,7 +316,7 @@ test('the accounting rows name projects of the plan, two periods, and differ fro
 });
 
 test('the enterprise dataset runs its own groups (capital, documents, procurement, contracts, process tree, BI) and no group of the public dataset', () => {
-  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal']);
+  assert.deepEqual(DATASET_GROUPS.enterprise, ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-execution', 'clip-ent-issues', 'clip-ent-lifecycle', 'clip-ent-weekly', 'clip-ent-capplus', 'clip-ent-legal', 'clip-ent-rights', 'clip-ent-bi2', 'clip-ent-vendor', 'clip-ent-ops', 'clip-ent-admin', 'clip-ent-platform', 'clip-ent-audit', 'clip-ent-mobile', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal']);
   assert.ok(DATASET_GROUPS.public.every((group) => !group.startsWith('clip-ent')));
 });
 

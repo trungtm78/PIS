@@ -136,7 +136,7 @@ test.describe('PRJ-01 to PRJ-03 project register', () => {
     await expect(profile).toContainText('Thành phố Cao Bằng');
     await expect(page.getByTestId('suggestion-awaiting')).toBeVisible();
     await page.getByRole('tab', { name: vi['prj.workspace.tab.plan'] }).click();
-    await expect(page.getByTestId('tab-notice')).toHaveText(vi['prj.workspace.plan.notice']);
+    await expect(page.getByRole('tab', { name: vi['prj.workspace.tab.plan'] })).toHaveAttribute('aria-selected', 'true');
     await page.getByRole('tab', { name: vi['prj.workspace.tab.overview'] }).click();
 
     const renamed = 'Dự án trường học kiểm thử e2e (đã sửa)';

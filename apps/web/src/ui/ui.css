@@ -208,11 +208,12 @@ code {
 .ui-table-wrap { background: var(--mv-color-surface); border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-card); overflow: hidden; }
 .ui-table-scroll { overflow: auto; max-height: 70vh; max-width: 100%; }
 .ui-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; color: var(--mv-color-ink); }
-.ui-table__head { position: sticky; top: 0; z-index: 2; padding: var(--mv-space-12); background: var(--mv-color-table-head); color: var(--mv-color-menu-text); font-size: 12px; font-weight: 700; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--mv-color-table-head-group); }
-.ui-table__head--group { background: var(--mv-color-table-head-group); text-align: center; height: 40px; }
-.ui-table__head--sub { top: 40px; }
-.ui-table__head--right { text-align: right; }
-.ui-table__head--pinned { left: 0; z-index: 4; }
+/* The kit rules are written as .ui-table .x (0,2,0) so the global `.workspace-app th, th` of the brand sheet (0,1,1: sticky, top 0, z-index 1) cannot flatten the header layers: a pinned body cell (z-index 1) must always sit under the header, and a pinned header cell above both. */
+.ui-table .ui-table__head { position: sticky; top: 0; z-index: 2; padding: var(--mv-space-12); background: var(--mv-color-table-head); color: var(--mv-color-menu-text); font-size: 12px; font-weight: 700; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--mv-color-table-head-group); }
+.ui-table .ui-table__head--group { background: var(--mv-color-table-head-group); text-align: center; height: 40px; }
+.ui-table .ui-table__head--sub { top: 40px; }
+.ui-table .ui-table__head--right { text-align: right; }
+.ui-table .ui-table__head--pinned { left: 0; z-index: 4; }
 .ui-table__row { min-height: 44px; }
 .ui-table__cell { min-height: 44px; padding: var(--mv-space-8) var(--mv-space-12); border-bottom: 1px solid var(--mv-color-border); background: var(--mv-color-surface); vertical-align: middle; }
 .ui-table__cell--right { text-align: right; font-variant-numeric: tabular-nums; }
@@ -230,6 +231,14 @@ code {
 .ui-pager__button { min-width: 32px; min-height: 32px; border: 1px solid var(--mv-color-border); border-radius: var(--mv-radius-control); background: var(--mv-color-surface); color: var(--mv-color-ink); font: inherit; cursor: pointer; }
 .ui-pager__button[aria-current='page'] { background: var(--mv-color-primary); border-color: var(--mv-color-primary); color: var(--mv-color-surface); }
 .ui-pager__button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+/* A card that holds a bare table scrolls it sideways instead of widening the page (phone width). */
+.card:has(> table) { overflow-x: auto; }
+/* A section, a context bar and a table frame may shrink inside a grid / flex parent; otherwise their widest child sets the track and the page scrolls sideways. */
+.ui-section, .ui-context, .ui-table-wrap { min-width: 0; }
+
+/* Any other header row of the app sits above the pinned body cells of its own table. */
+.workspace-app thead th { z-index: 3; }
 
 /* FundMatrix */
 .ui-fund-matrix { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--mv-space-16); }

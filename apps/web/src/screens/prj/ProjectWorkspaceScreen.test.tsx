@@ -86,7 +86,7 @@ describe('ProjectWorkspaceScreen (PRJ-03): the workspace of one project', () => 
     expect(screen.getByTestId('suggestion-none').textContent).toBe(vi_['prj.suggestion.none.text']);
   });
 
-  it('keeps the other sections as a shell that says what will fill them', async () => {
+  it('fills the other tabs with cards of their own and keeps the tab in the address', async () => {
     mount(<ProjectWorkspaceScreen route={ROUTE} />, client(world()), { permissions: READER, path: open() });
     await ready();
     const tabs = within(screen.getByRole('tablist', { name: vi_['prj.workspace.tabs.title'] })).getAllByRole('tab');
@@ -98,20 +98,24 @@ describe('ProjectWorkspaceScreen (PRJ-03): the workspace of one project', () => 
       vi_['prj.workspace.tab.issues'],
     ]);
     expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
-    const notices: Array<[string, string]> = [
-      [vi_['prj.workspace.tab.objectives'], vi_['prj.workspace.objectives.notice']],
-      [vi_['prj.workspace.tab.plan'], vi_['prj.workspace.plan.notice']],
-      [vi_['prj.workspace.tab.disbursement'], vi_['prj.workspace.disbursement.notice']],
-      [vi_['prj.workspace.tab.issues'], vi_['prj.workspace.issues.notice']],
-    ];
-    for (const [name, notice] of notices) {
+    // Every other tab shows cards of its own (each reads its data on its own; a failed read stays inside its card), never the placeholder notice.
+    for (const name of [vi_['prj.workspace.tab.objectives'], vi_['prj.workspace.tab.plan'], vi_['prj.workspace.tab.disbursement'], vi_['prj.workspace.tab.issues']]) {
       fireEvent.click(screen.getByRole('tab', { name }));
-      expect(screen.getByTestId('tab-notice').textContent).toBe(notice);
+      expect(screen.queryByTestId('tab-notice')).toBeNull();
+      expect(screen.queryByTestId('tab-failed')).toBeNull();
+      expect(within(screen.getByRole('tabpanel')).getAllByRole('region').length).toBeGreaterThan(0);
       expect(screen.getByRole('tab', { name }).getAttribute('aria-selected')).toBe('true');
       expect(screen.getByRole('tabpanel').getAttribute('aria-labelledby')).toBe(screen.getByRole('tab', { name }).id);
     }
     fireEvent.click(screen.getByRole('tab', { name: vi_['prj.workspace.tab.overview'] }));
     expect(screen.getByTestId('profile')).toBeTruthy();
+  });
+
+  it('opens on the tab named in the address, so a reload keeps the tab', async () => {
+    mount(<ProjectWorkspaceScreen route={ROUTE} />, client(world()), { permissions: READER, path: `${open()}&tab=plan` });
+    const tab = await screen.findByRole('tab', { name: vi_['prj.workspace.tab.plan'] });
+    await waitFor(() => expect(tab.getAttribute('aria-selected')).toBe('true'));
+    expect(screen.queryByTestId('profile')).toBeNull();
   });
 
   it('says that no project is chosen, and that a project outside the scope or in another tenant is not found (AC-ST-PRJ-001-3)', async () => {

@@ -27,7 +27,7 @@ const validityText = (t: T, row: TeamRow): string =>
  */
 export default function TeamScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
-  const { projectId } = useProjectParam();
+  const { projectId } = useProjectParam({ fallbackToFirst: true });
   // The team is read for one person in one tenant and one project: a move to another starts the screen over.
   return <TeamContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${projectId ?? ''}`} route={route} />;
 }
@@ -35,7 +35,7 @@ export default function TeamScreen({ route }: ScreenProps) {
 function TeamContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
-  const { projectId, choose } = useProjectParam();
+  const { projectId, choose } = useProjectParam({ fallbackToFirst: true });
   const readable = mayRead(permissions, READ_PERMISSION);
   const forcesReadable = mayRead(permissions, TASK_FORCE_READ_PERMISSION);
   const asked = readable && projectId !== undefined;

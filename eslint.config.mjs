@@ -47,6 +47,11 @@ export default tseslint.config(
     },
   },
   {
+    // Plain scripts served as-is from apps/web/public run in the browser, not in Node.
+    files: ['apps/web/public/**/*.js'],
+    languageOptions: { globals: { ...globals.browser } },
+  },
+  {
     // Raw key-value access must go through TenantCache so every key carries the tenant prefix.
     files: ['**/*.ts'],
     rules: { 'no-restricted-syntax': ['error', ...RAW_ACCESS_SELECTORS, ...STORE_TYPE_SELECTORS] },

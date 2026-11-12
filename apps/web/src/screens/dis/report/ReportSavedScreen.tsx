@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { useEffect, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -9,7 +9,8 @@ import type { ScreenState } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import '../dis.css';
 import { BackLink } from '../components';
-import { useReport } from './hooks';
+import { DefaultReportBar } from './components';
+import { useReport, useReportChoice } from './hooks';
 import { EDIT_PATH, REPORTS_PATH } from './model';
 import type { ReportDetail } from './model';
 import { formatVnd } from './money';
@@ -28,12 +29,13 @@ export const draftCodeOf = (detail: ReportDetail): string => `${detail.project.c
 
 function ReportSavedContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const [params] = useSearchParams();
-  const reportId = params.get('report') ?? undefined;
+  // Opened without a report in the address (the menu), the latest draft is shown, and the selector stays to change it.
+  const choice = useReportChoice(true);
+  const reportId = choice.reportId;
   const report = useReport(reportId);
   const missing = report.error instanceof ApiError && report.error.status === 404;
   const loaded = useScreenState({ isLoading: report.isLoading, error: missing ? undefined : report.error, data: report.data, isEmpty: (data) => data === undefined });
-  const state: ScreenState = reportId === undefined ? 'default' : missing ? 'empty' : loaded;
+  const state: ScreenState = choice.isLoading ? 'loading' : reportId === undefined ? 'default' : missing ? 'empty' : loaded;
   const detail = report.data;
   const heading = useRef<HTMLHeadingElement>(null);
   // The heading is the first thing there is to read once the draft is shown: focus goes to it.
@@ -52,6 +54,7 @@ function ReportSavedContent({ route }: ScreenProps) {
           <p>{t('dis.reportSaved.page.subtitle')}</p>
         </div>
       </div>
+      <DefaultReportBar choice={choice} />
       <StateBoundary state={state} onRetry={() => void report.refetch()}>
         {detail === undefined ? (
           <p className="muted" data-testid="saved-choose">

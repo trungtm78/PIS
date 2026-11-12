@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -7,9 +6,9 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
-import { StatusBadge } from '../components';
+import { StatusBadge, DefaultContractBar } from '../components';
 import { ScopeBar } from '../kit';
-import { useContract } from '../hooks';
+import { useContract, useContractChoice } from '../hooks';
 import type { ContractView } from '../model';
 import { useMeasurements } from '../measurement/hooks';
 import { quantityText } from '../measurement/model';
@@ -45,8 +44,9 @@ type Dialog = { kind: 'draft' } | { kind: 'submit' | 'decide' | 'revoke'; id: st
 
 function AcceptanceContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const [search] = useSearchParams();
-  const contractId = search.get('contract');
+  // Opened without a contract in the address (the menu), the largest contract in force is shown, and the selector stays to change it.
+  const choice = useContractChoice('contract');
+  const contractId = choice.contractId;
   const contract = useContract(contractId);
   const acceptances = useAcceptances(contractId);
   // Whoever may read the acceptances and not the measurements still reads the acceptances: only the drafting is missing.
@@ -65,7 +65,10 @@ function AcceptanceContent({ route }: ScreenProps) {
           <p>{t('ctr.acceptance.subtitle')}</p>
         </div>
       </div>
-      {contractId === null ? (
+      <DefaultContractBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : contractId === null ? (
         <p className="callout" role="status" data-testid="no-contract">
           {t('ctr.acceptance.none.notice')}
         </p>

@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
@@ -93,6 +93,20 @@ export function useDatasetVersions(datasetId: string | undefined) {
     queryFn: async () => (await client.readAll('listBiDatasetVersions', { path: { id: datasetId as string } })).flatMap((raw) => toVersion(raw) ?? []),
     enabled: tenant !== undefined && datasetId !== undefined,
     retry: false,
+  });
+}
+
+/** The versions of several datasets at once (the board asks each dataset its own snapshot); same cache entries as `useDatasetVersions`, one result per id in the order given. */
+export function useDatasetsVersions(datasetIds: readonly string[]) {
+  const client = useApiClient();
+  const { tenant } = useSession();
+  return useQueries({
+    queries: datasetIds.map((datasetId) => ({
+      queryKey: [...biRoot(tenant?.id), 'dataset-versions', tenant?.membershipId, datasetId],
+      queryFn: async (): Promise<DatasetVersion[]> => (await client.readAll('listBiDatasetVersions', { path: { id: datasetId } })).flatMap((raw) => toVersion(raw) ?? []),
+      enabled: tenant !== undefined,
+      retry: false,
+    })),
   });
 }
 
@@ -215,15 +229,15 @@ export function useRefreshContext() {
 }
 
 /** The tile of a metric over a snapshot, for the board: the total, with nothing cut. */
-export function useTile(metricId: string, snapshotId: string | undefined) {
+export function useTile(metricId: string, snapshotId: string | undefined, dimension?: string) {
   const client = useApiClient();
   const { tenant } = useSession();
   const watch = useJobWatch();
   return useQuery<QueryResult>({
-    queryKey: [...biRoot(tenant?.id), 'tile', tenant?.membershipId, metricId, snapshotId],
+    queryKey: [...biRoot(tenant?.id), 'tile', tenant?.membershipId, metricId, snapshotId, dimension ?? ''],
     queryFn: async ({ signal }) => {
       const result = await resolveQuery(
-        () => client.command('post_dashboard_queries', { body: { metric_version_id: metricId, snapshot_id: snapshotId as string, dimensions: [], filters: [] } }),
+        () => client.command('post_dashboard_queries', { body: { metric_version_id: metricId, snapshot_id: snapshotId as string, dimensions: dimension === undefined ? [] : [dimension], filters: [] } }),
         watch(signal),
       );
       if (result === undefined) throw new Error('the answer could not be read');

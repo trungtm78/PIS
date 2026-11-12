@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
+import type { ReportChoice } from './hooks';
 import { reportStatusLabel, stepLabel } from './labels';
 import type { ReportDetail } from './model';
 import { digitsOf, formatVnd } from './money';
@@ -71,5 +72,25 @@ export function ReportFacts({ detail }: { detail: ReportDetail }) {
         {t('dis.reportEdit.revision.value', { revision: detail.revision })}
       </dd>
     </dl>
+  );
+}
+
+/** The note and the selector of a screen of one report that was opened without one: it says which report is shown and lets the reader switch to another of the list. */
+export function DefaultReportBar({ choice }: { choice: ReportChoice }) {
+  const { t } = useTranslation();
+  const selectId = useId();
+  if (!choice.defaulted || choice.reportId === undefined || choice.choices.length === 0) return null;
+  return (
+    <div className="callout" role="status" data-testid="default-report">
+      <p>{t('dis.default.notice')}</p>
+      <label htmlFor={selectId}>{t('dis.default.select.label')} </label>
+      <select id={selectId} data-testid="default-report-select" value={choice.reportId} onChange={(event) => choice.pick(event.target.value)}>
+        {choice.choices.map((report) => (
+          <option key={report.id} value={report.id}>
+            {t('dis.default.option', { project: report.project.code, period: report.period.code, revision: report.revision, status: reportStatusLabel(t, report.status) })}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }

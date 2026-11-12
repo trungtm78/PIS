@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { BackLink, StatusBadge } from '../components';
+import { BackLink, DefaultContractBar, StatusBadge } from '../components';
 import { LIST_PATH, workspaceLink } from '../model';
 import type { ContractView } from '../model';
 import type { ViewScope } from './hooks';
@@ -103,6 +103,7 @@ export function ViewFrame<T>({ route, title, subtitle, module, scope, loaded, is
           )}
         </div>
       </div>
+      <DefaultContractBar choice={scope.choice} />
       {contractId === null ? (
         <p className="callout" role="status" data-testid="no-contract">
           {t('ctr.view.none.notice')} <Link to={LIST_PATH}>{t('ctr.view.none.link')}</Link>

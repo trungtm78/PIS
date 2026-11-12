@@ -16,6 +16,7 @@ import { aggregationLabel, originLabel, statusLabel } from './labels';
 import { metricStatusTone } from './tones';
 import './bi.css';
 import './bi-kit.css';
+import { metricName } from './metric-names';
 
 /**
  * BI-05: the catalogue of the metrics (ST-BI-001, BI 3 F1): every revision with its formula, its unit, who owns it, where it comes from (the files of the repository or the tenant) and the commit it came
@@ -108,9 +109,9 @@ function metricColumns(t: Translate): DataTableColumn<Metric>[] {
       render: (metric) => (
         <>
           <Link to={`${DEFINITION_PATH}?id=${metric.id}`} aria-label={t('bi.catalogue.open.aria', { code: metric.code, revision: metric.revision })}>
-            {metric.code}
+            {metricName(t, metric.code)}
           </Link>{' '}
-          <span className="sub">{t('bi.catalogue.revision', { revision: metric.revision })}</span>
+          <span className="sub">{metricName(t, metric.code) === metric.code ? '' : `${metric.code} · `}{t('bi.catalogue.revision', { revision: metric.revision })}</span>
         </>
       ),
     },

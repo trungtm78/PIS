@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 export const DATASETS = ['public', 'enterprise'];
 
 /** The groups of the enterprise dataset, in order: portfolio, capital of the year (lines for the packages), funding, directives, accounting file, report forms, documents, procurement, contracts, process tree, disbursement, the frozen enterprise snapshot, BI, the triage of the warnings. */
-export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal'];
+export const ENTERPRISE_GROUPS = ['clip-ent-projects', 'clip-ent-capital', 'clip-ent-funding', 'clip-ent-directives', 'clip-ent-ebs', 'clip-ent-reports', 'clip-ent-documents', 'clip-ent-procurement', 'clip-ent-contracts', 'clip-ent-alerts', 'clip-ent-equipment', 'clip-ent-workflow', 'clip-ent-disbursement', 'clip-ent-snapshot', 'clip-ent-capital-prior', 'clip-ent-snapshot-prior', 'clip-ent-crosscheck', 'clip-ent-bi', 'clip-ent-alert-triage', 'clip-ent-capital-adjust', 'clip-ent-execution', 'clip-ent-issues', 'clip-ent-lifecycle', 'clip-ent-weekly', 'clip-ent-capplus', 'clip-ent-legal', 'clip-ent-rights', 'clip-ent-bi2', 'clip-ent-vendor', 'clip-ent-ops', 'clip-ent-admin', 'clip-ent-platform', 'clip-ent-audit', 'clip-ent-mobile', 'clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal'];
 
 /** The groups of the seed layer each dataset runs, in order (the registry of apps/web/e2e/hdsd/seed/index.ts keeps the order of dependencies). */
 export const DATASET_GROUPS = {
@@ -48,6 +48,11 @@ export const DATASET_PHASES = {
     { clockDays: 0, groups: ['clip-ent-alert-triage'] },
     // The adjustment of the plan of the year comes last: the lines of the first revision are the ones the packages, contracts and snapshots above were made on.
     { clockDays: 0, groups: ['clip-ent-capital-adjust'] },
+    // Contract execution is told over time: the first measurements and advances 46 days ago, the next ones 36 days ago, the latest ones today (the last phase).
+    { clockDays: -46, groups: ['clip-ent-execution'], env: { CLIP_EXEC_STAGE: 'A' } },
+    { clockDays: -36, groups: ['clip-ent-execution'], env: { CLIP_EXEC_STAGE: 'B' } },
+    // Operations after the portfolio exists (each group is its own file in apps/web/e2e/hdsd/seed/clip/enterprise-*.ts): field issues, execution and payments, the end of the lifecycle, audit and notifications.
+    { clockDays: 0, groups: ['clip-ent-execution', 'clip-ent-issues', 'clip-ent-lifecycle', 'clip-ent-weekly', 'clip-ent-capplus', 'clip-ent-legal', 'clip-ent-rights', 'clip-ent-bi2', 'clip-ent-vendor', 'clip-ent-ops', 'clip-ent-admin', 'clip-ent-platform', 'clip-ent-audit', 'clip-ent-mobile'] },
     // The appraisal stage, the effectiveness appraisals, the earned value, the project documents and the structured narratives come last: they only read what the groups above made.
     { clockDays: 0, groups: ['clip-ent-appraisal', 'clip-ent-project-docs', 'clip-ent-narrative', 'clip-ent-contractor-portal'] },
   ],

@@ -12,8 +12,8 @@ import { fieldProblemMessage, problemMessage } from './appraisal-labels';
 import { DECISION_PATH, EMPTY_PROPOSAL, SCORE_PATH, SUBMIT_PERMISSION, appraisalLink, describeAppraisalProblem, proposalBody, validateProposal } from './appraisal-model';
 import type { ProposalForm } from './appraisal-model';
 import { Field, SuggestionPanel } from './components';
-import { useProject } from './hooks';
-import { amountText } from './model';
+import { useDefaultProject, useProject } from './hooks';
+import { LIST_PATH, amountText } from './model';
 import type { ProjectView } from './model';
 import './prj.css';
 
@@ -29,19 +29,29 @@ export default function ProposalScreen({ route }: ScreenProps) {
 function ProposalContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const [params] = useSearchParams();
-  const projectId = params.get('id') ?? undefined;
+  const namedId = params.get('id') ?? undefined;
+  // Opened without a project in the address (the menu), the first project still in concept of the register is shown (the register stays one link away).
+  const fallback = useDefaultProject(namedId === undefined, 'CONCEPT');
+  const projectId = namedId ?? fallback.project?.id;
   const project = useProject(projectId);
   const state = useScreenState({ isLoading: project.isLoading, error: project.error, data: projectId === undefined ? undefined : (project.data ?? undefined), isEmpty: NEVER_EMPTY });
   const head = project.data === undefined || project.data === null ? undefined : project.data;
 
   return (
     <AppraisalFrame route={route} title={t('prj.proposal.page.title')} subtitle={t('prj.proposal.page.subtitle')} project={head}>
-      {projectId === undefined || (project.isSuccess && project.data === null) ? (
+      {projectId === undefined && fallback.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : projectId === undefined || (project.isSuccess && project.data === null) ? (
         <p className="callout warning" role="status" data-testid="no-project">
           {t('prj.proposal.noProject.notice')}
         </p>
       ) : (
         <StateBoundary state={state} onRetry={() => void project.refetch()}>
+          {namedId === undefined && head !== undefined ? (
+            <p className="callout" role="status" data-testid="default-project">
+              {t('prj.proposal.default.notice')} <Link to={LIST_PATH}>{t('prj.score.default.link')}</Link>
+            </p>
+          ) : null}
           {head === undefined ? null : <Proposal project={head} />}
         </StateBoundary>
       )}

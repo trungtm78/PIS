@@ -19,6 +19,8 @@ interface LineText {
   code: string;
   name: string;
   planRef: string;
+  /** The project the equipment belongs to: the name of a line is paired with the package of that project, never by position. */
+  project?: string;
   bump?: number;
 }
 interface PlannedText extends LineText {
@@ -82,11 +84,14 @@ export async function seedClipEnterpriseEquipment(ctx: SeedContext): Promise<voi
     const rank = (pack: Obj): number => (contracts.some((contract) => String(contract.package_id) === String(pack.id)) ? 0 : 1);
     const ordered = [...packages].sort((a, b) => rank(a) - rank(b) || String(a.code).localeCompare(String(b.code)));
     const stages: string[] = [];
-    for (const [index, pack] of ordered.slice(0, LINES.length).entries()) {
-      const text = LINES[index];
-      if (text === undefined) break;
+    const taken = new Set<LineText>();
+    for (const pack of ordered.slice(0, LINES.length)) {
       const project = projects.find((row) => String(row.id) === projectIdOf(pack));
       if (project === undefined) continue;
+      // The name that belongs to the project of the package; a package of a project the texts do not know takes the next free name.
+      const text = LINES.find((line) => line.project === String(project.code) && !taken.has(line)) ?? LINES.find((line) => !taken.has(line));
+      if (text === undefined) break;
+      taken.add(text);
       const contract = contracts.find((row) => String(row.package_id) === String(pack.id) && String(row.status) !== 'CANCELLED');
       const stage = await ensureLine(ctx, {
         projectId: String(project.id),
@@ -104,13 +109,13 @@ export async function seedClipEnterpriseEquipment(ctx: SeedContext): Promise<voi
     const free = equipmentCodes.map((code) => projectByCode.get(code)).filter((row): row is Obj => row !== undefined);
     const targets = [...free.filter((row) => !carrying.has(String(row.id))), ...free.filter((row) => carrying.has(String(row.id)))];
     for (const [index, text] of PLANNED.entries()) {
-      const project = targets[index % Math.max(1, targets.length)];
+      const project = (text.project === undefined ? undefined : projectByCode.get(text.project)) ?? targets[index % Math.max(1, targets.length)];
       if (project === undefined) break;
       const stage = await ensureLine(ctx, { projectId: String(project.id), projectCode: String(project.code), text, plannedVnd: vndMillions(text.millions) });
       if (stage !== undefined) stages.push(stage);
     }
     // One line the plan dropped: made, then cancelled with the reason (the list hides it until "show cancelled" is ticked).
-    const dropped = targets[targets.length - 1] ?? targets[0];
+    const dropped = (CANCELLED.project === undefined ? undefined : projectByCode.get(CANCELLED.project)) ?? targets[targets.length - 1] ?? targets[0];
     if (dropped !== undefined && (await existingLine(ctx, String(dropped.id), CANCELLED.code)) === undefined) {
       const made = await ctx.attempt(MAKER, 'POST', '/equipment-procurement', { project_id: String(dropped.id), code: CANCELLED.code, name: CANCELLED.name, planned_value_vnd: vndMillions(CANCELLED.millions), plan_ref: CANCELLED.planRef });
       const created = made.ok ? await existingLine(ctx, String(dropped.id), CANCELLED.code) : undefined;

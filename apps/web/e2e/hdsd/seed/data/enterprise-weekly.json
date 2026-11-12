@@ -1,0 +1,303 @@
+{
+  "fractions": [
+    0.7,
+    0.74,
+    0.79,
+    0.84,
+    0.89,
+    0.94,
+    0.97,
+    1
+  ],
+  "progressBack": [
+    4.5,
+    3.8,
+    3,
+    2.2,
+    1.5,
+    0.8,
+    0.3,
+    0
+  ],
+  "projects": [
+    {
+      "code": "DA-PMDT105",
+      "disbursedBn": 41,
+      "constructionBn": 52,
+      "acceptanceBn": 47.5,
+      "submittedBn": 44,
+      "progressPct": 61.5,
+      "nextBn": 3.2,
+      "phases": [
+        "Hoàn thành lắp đặt đường ống tuần hoàn khu A, đang thi công móng bể giải nhiệt số 2.",
+        "Thi công móng và kết cấu bể giải nhiệt số 3, lắp đặt cụm bơm tuần hoàn.",
+        "Hoàn thiện kết cấu bể số 3, chuẩn bị nghiệm thu khối lượng tháng 10 và lắp tủ điện điều khiển."
+      ],
+      "difficulty": {
+        "from": 2,
+        "to": 5,
+        "text": "Phát hiện cáp ngầm ngoài hồ sơ khảo sát tại vị trí móng bể số 3, phải điều chỉnh biện pháp thi công và xin gia hạn 12 ngày.",
+        "solution": "Ban quản lý dự án đã lập phương án thay đổi, phối hợp phòng Kỹ thuật dời tuyến cáp; nhà thầu Nam Việt đã tăng ca ở các hạng mục không bị ảnh hưởng.",
+        "proposal": "Đề nghị lãnh đạo phê duyệt lệnh thay đổi và phụ lục gia hạn tiến độ 12 ngày."
+      }
+    },
+    {
+      "code": "DA-PMDT114",
+      "disbursedBn": 27.5,
+      "constructionBn": 34,
+      "acceptanceBn": 31.2,
+      "submittedBn": 29.4,
+      "progressPct": 47,
+      "nextBn": 2.4,
+      "phases": [
+        "Đổ bê tông cọc và đài móng kho chứa số 1, hoàn thành 60% khối lượng phần ngầm.",
+        "Thi công khung thép và sàn kho số 1, bắt đầu cọc móng kho số 2.",
+        "Lắp dựng khung thép kho số 1, nghiệm thu phần móng kho số 2."
+      ],
+      "difficulty": {
+        "from": 1,
+        "to": 4,
+        "text": "Giá thép xây dựng tăng so với dự toán, nhà thầu đề nghị điều chỉnh đơn giá (đề xuất thay đổi PCO-001, +430 triệu đồng).",
+        "solution": "Đã thẩm định đề xuất thay đổi, chờ lãnh đạo ra lệnh; ban quản lý dự án làm việc với nhà thầu để giữ tiến độ trong thời gian chờ.",
+        "proposal": "Đề nghị lãnh đạo sớm ra lệnh thay đổi để nhà thầu đặt hàng thép đợt hai."
+      }
+    },
+    {
+      "code": "DA-PMDT120",
+      "disbursedBn": 18.2,
+      "constructionBn": 24,
+      "acceptanceBn": 21,
+      "submittedBn": 19.8,
+      "progressPct": 38.5,
+      "nextBn": 2.1,
+      "phases": [
+        "Hoàn thiện thiết kế bản vẽ thi công hệ thống xử lý khí thải, đang lập hồ sơ thẩm tra.",
+        "Thi công móng tháp hấp thụ và gia công kết cấu thép tại xưởng.",
+        "Lắp đặt khung tháp hấp thụ, chuẩn bị lắp quạt hút công suất lớn."
+      ],
+      "difficulty": {
+        "from": 0,
+        "to": 3,
+        "text": "Báo cáo thẩm tra thiết kế bản vẽ thi công chậm so với kế hoạch do tư vấn thẩm tra bổ sung ý kiến về thông số tháp hấp thụ.",
+        "solution": "Đã họp ba bên với tư vấn thẩm tra và đơn vị thiết kế, chốt lại thông số; hồ sơ thẩm tra đã trình lãnh đạo xem xét.",
+        "proposal": "Đề nghị lãnh đạo xem xét sớm hồ sơ thẩm tra để khởi công hạng mục lắp đặt."
+      }
+    },
+    {
+      "code": "DA-PMDT130",
+      "disbursedBn": 33,
+      "constructionBn": 41,
+      "acceptanceBn": 37,
+      "submittedBn": 35,
+      "progressPct": 52,
+      "nextBn": 2.8,
+      "phases": [
+        "Hoàn thành san nền và hệ thống thoát nước khu đóng bao mở rộng.",
+        "Thi công móng nhà đóng bao và đường nội bộ.",
+        "Dựng khung nhà đóng bao, lắp đặt băng tải đợt đầu."
+      ],
+      "difficulty": {
+        "from": 1,
+        "to": 6,
+        "text": "Chờ phê duyệt điều chỉnh quy mô đầu tư theo kết luận giao ban tháng 10 nên chưa triển khai gói thiết bị đóng bao mới.",
+        "solution": "Ban quản lý dự án đã lập tờ trình điều chỉnh quy mô kèm thuyết minh, đang trình lãnh đạo.",
+        "proposal": "Đề nghị lãnh đạo chốt phương án điều chỉnh quy mô trong tháng 11."
+      }
+    },
+    {
+      "code": "DA-PMDT137",
+      "disbursedBn": 21.5,
+      "constructionBn": 27,
+      "acceptanceBn": 24.5,
+      "submittedBn": 23,
+      "progressPct": 44,
+      "nextBn": 1.9,
+      "phases": [
+        "Lắp đặt tuyến cáp trung thế và tủ phân phối khu vực kho.",
+        "Thi công trạm biến áp phụ và hệ thống chiếu sáng, hoàn thiện nối đất.",
+        "Cài đặt và chạy thử hệ thống điều khiển phân tán giai đoạn 1."
+      ],
+      "difficulty": {
+        "from": 3,
+        "to": 6,
+        "text": "Nhà sản xuất nước ngoài giao tủ điều khiển chậm khoảng ba tuần do vận chuyển, ảnh hưởng tiến độ chạy thử.",
+        "solution": "Đã yêu cầu nhà cung cấp đổi phương thức vận chuyển và bố trí nhân sự cài đặt ngay khi hàng về kho.",
+        "proposal": "Đề nghị phòng Vật tư hỗ trợ thủ tục thông quan ưu tiên cho lô tủ điều khiển."
+      }
+    },
+    {
+      "code": "DA-PMTB164",
+      "disbursedBn": 12.4,
+      "constructionBn": 15.5,
+      "acceptanceBn": 14,
+      "submittedBn": 13.2,
+      "progressPct": 70,
+      "nextBn": 0.9,
+      "phases": [
+        "Nhà thầu hoàn tất chế tạo lô thiết bị đầu, chuẩn bị kiểm tra xuất xưởng.",
+        "Lô thiết bị đầu tiên về kho, đang kiểm tra số lượng và chất lượng.",
+        "Nghiệm thu lô thiết bị đầu, lắp đặt và chạy thử máy nén thứ nhất."
+      ],
+      "difficulty": {
+        "from": 2,
+        "to": 6,
+        "text": "Nhà thầu giao lô thiết bị thứ nhất chậm 15 ngày so với hợp đồng.",
+        "solution": "Đã gửi thông báo vi phạm tiến độ cho nhà thầu và lập hồ sơ claim phạt vi phạm theo điều khoản hợp đồng.",
+        "proposal": "Đề nghị lãnh đạo cho ý kiến về mức phạt vi phạm trước khi gửi hồ sơ claim chính thức."
+      }
+    },
+    {
+      "code": "DA-PMTB168",
+      "disbursedBn": 7.2,
+      "constructionBn": 9.6,
+      "acceptanceBn": 8.4,
+      "submittedBn": 7.9,
+      "progressPct": 55,
+      "nextBn": 0.7,
+      "phases": [
+        "Lô thiết bị phòng thí nghiệm đợt 1 về kho, đang kiểm tra thùng hàng.",
+        "Lắp đặt thiết bị phân tích đợt 1 tại phòng thí nghiệm trung tâm.",
+        "Lập biên bản nghiệm thu đợt 1, chuẩn bị đào tạo vận hành."
+      ],
+      "difficulty": {
+        "from": 4,
+        "to": 5,
+        "text": "Biên bản nghiệm thu đợt 1 chờ chữ ký của tư vấn giám sát nên chưa lập được hồ sơ thanh toán.",
+        "solution": "Đã hẹn lịch ký với tư vấn giám sát vào đầu tuần sau.",
+        "proposal": "Không có đề xuất mới."
+      }
+    },
+    {
+      "code": "DA-PMTB172",
+      "disbursedBn": 4.6,
+      "constructionBn": 6.8,
+      "acceptanceBn": 5.9,
+      "submittedBn": 5.3,
+      "progressPct": 33,
+      "nextBn": 0.6,
+      "phases": [
+        "Hoàn thiện thuyết minh kỹ thuật và danh mục thông số máy bơm công nghệ.",
+        "Lập hồ sơ mời thầu gói mua sắm bơm công nghệ, lấy ý kiến phòng Pháp chế.",
+        "Trình phê duyệt hồ sơ mời thầu, chuẩn bị phát hành theo kế hoạch lựa chọn nhà thầu."
+      ],
+      "difficulty": {
+        "from": 3,
+        "to": 5,
+        "text": "Phòng Kỹ thuật điều chỉnh thông số bơm hai lần, kéo dài thời gian hoàn thiện hồ sơ mời thầu.",
+        "solution": "Đã chốt thông số cuối cùng trong buổi họp liên phòng ngày giao ban tuần.",
+        "proposal": "Không có đề xuất mới."
+      }
+    },
+    {
+      "code": "DA-PMTB180",
+      "disbursedBn": 6.1,
+      "constructionBn": 8.2,
+      "acceptanceBn": 7.4,
+      "submittedBn": 6.8,
+      "progressPct": 48,
+      "nextBn": 0.5,
+      "phases": [
+        "Ký hợp đồng cung cấp máy biến áp, nhà thầu bắt đầu sản xuất.",
+        "Nhà sản xuất hoàn thành lõi từ và cuộn dây, chuẩn bị thử nghiệm.",
+        "Thử nghiệm xuất xưởng máy biến áp thứ nhất có sự chứng kiến của đại diện chủ đầu tư."
+      ],
+      "difficulty": {
+        "from": 2,
+        "to": 5,
+        "text": "Giá đồng nguyên liệu biến động, nhà thầu đề nghị xem xét lại điều kiện thanh toán lô thứ hai.",
+        "solution": "Ban quản lý dự án đã làm việc với phòng Pháp chế và đối chiếu điều khoản điều chỉnh giá trong hợp đồng.",
+        "proposal": "Đề nghị phòng Tài chính cho ý kiến về phương án thanh toán lô thứ hai."
+      }
+    },
+    {
+      "code": "DA-PMTB191",
+      "disbursedBn": 1.9,
+      "constructionBn": 2.6,
+      "acceptanceBn": 2.2,
+      "submittedBn": 2,
+      "progressPct": 36,
+      "nextBn": 0.3,
+      "phases": [
+        "Nhà thầu xác nhận đơn hàng xe nâng, chờ lịch giao hàng.",
+        "Nhận hai trên năm xe nâng, đang kiểm tra chất lượng và hồ sơ xuất xưởng.",
+        "Hoàn thành đào tạo vận hành lô xe đầu, chờ lô còn lại."
+      ],
+      "difficulty": {
+        "from": 4,
+        "to": 6,
+        "text": "Ba xe nâng còn lại chưa có lịch giao do nhà sản xuất thiếu linh kiện.",
+        "solution": "Đã yêu cầu nhà thầu cam kết lịch giao bằng văn bản.",
+        "proposal": "Không có đề xuất mới."
+      }
+    },
+    {
+      "code": "DA-PMDT154",
+      "disbursedBn": 9.4,
+      "constructionBn": 14,
+      "acceptanceBn": 11.5,
+      "submittedBn": 10.2,
+      "progressPct": 22,
+      "nextBn": 1,
+      "phases": [
+        "Khảo sát hiện trạng dây chuyền amoniac và lập phương án cải tạo.",
+        "Hoàn thiện phương án cải tạo, lấy ý kiến phòng Sản xuất.",
+        "Trình phương án cải tạo, chờ bố trí thời gian dừng dây chuyền."
+      ],
+      "difficulty": {
+        "from": 2,
+        "to": 6,
+        "text": "Chưa bố trí được thời gian dừng dây chuyền sản xuất để cải tạo vì kế hoạch sản xuất quý IV kín lịch.",
+        "solution": "Đã đề xuất cải tạo theo từng công đoạn trong đợt bảo dưỡng tổng thể.",
+        "proposal": "Đề nghị lãnh đạo thống nhất lịch dừng dây chuyền với khối sản xuất."
+      }
+    },
+    {
+      "code": "DA-PMTB204",
+      "disbursedBn": 0.9,
+      "constructionBn": 1.3,
+      "acceptanceBn": 1,
+      "submittedBn": 0.9,
+      "progressPct": 18,
+      "nextBn": 0.2,
+      "phases": [
+        "Lập danh mục thiết bị đo lường và điều khiển cần mua sắm.",
+        "Khảo giá thị trường và lập dự toán sơ bộ.",
+        "Hoàn thiện dự toán, chuẩn bị lập kế hoạch lựa chọn nhà thầu."
+      ],
+      "difficulty": {
+        "from": 3,
+        "to": 5,
+        "text": "Chưa có giá tham khảo đủ ba nhà cung cấp cho một số cảm biến đặc chủng.",
+        "solution": "Đã gửi thư mời báo giá tới thêm hai nhà cung cấp.",
+        "proposal": "Không có đề xuất mới."
+      }
+    }
+  ],
+  "returnItems": {
+    "fix": [
+      "Khối lượng thi công lũy kế chưa khớp biên bản nghiệm thu tháng 10, đề nghị đối chiếu và cập nhật.",
+      "Bổ sung thuyết minh nguyên nhân giải ngân thấp hơn kế hoạch tuần."
+    ],
+    "leave": [
+      "Thiếu thuyết minh nguyên nhân chậm thanh toán lô máy biến áp thứ hai, đề nghị bổ sung.",
+      "Đề nghị cập nhật tiến độ vật lý theo biên bản thử nghiệm xuất xưởng."
+    ]
+  },
+  "text": {
+    "approve": "Số liệu phù hợp với hồ sơ thanh toán và biên bản nghiệm thu, đồng ý.",
+    "returnFix": "Trả lại để chỉnh khối lượng theo biên bản nghiệm thu tháng 10.",
+    "returnLeave": "Trả lại để bổ sung thuyết minh và cập nhật tiến độ vật lý.",
+    "correction": "Đã đối chiếu biên bản nghiệm thu tháng 10 và cập nhật lại khối lượng thi công lũy kế theo yêu cầu của lãnh đạo.",
+    "monthApprove": "Báo cáo tháng đầy đủ thuyết minh, số liệu khớp báo cáo tuần, đồng ý.",
+    "noDifficulty": "Không phát sinh vướng mắc mới trong tuần.",
+    "noDifficultyMonth": "Các vướng mắc đã nêu ở các tuần trước đã được xử lý hoặc đang theo dõi; không phát sinh vướng mắc mới.",
+    "schedule": "Tiến độ bám sát kế hoạch đã duyệt, các mốc quan trọng không thay đổi.",
+    "scheduleDelay": "Tiến độ chậm so với kế hoạch tuần, ban quản lý dự án đang áp dụng biện pháp bù tiến độ.",
+    "nextPlan": "Tiếp tục thi công theo kế hoạch tuần, hoàn thiện hồ sơ nghiệm thu khối lượng và hồ sơ thanh toán.",
+    "disbursementPrefix": "Giải ngân lũy kế đến hết tuần đạt",
+    "reportReasons": {
+      "late": "Nộp muộn do chờ xác nhận số liệu thanh toán từ phòng Kế toán.",
+      "draft": "Dự thảo báo cáo tuần đang cập nhật số liệu, chưa trình."
+    }
+  }
+}

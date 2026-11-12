@@ -3,9 +3,9 @@ import type { CommandReply, Obj , SeedContext} from '../context.ts';
 import { CHECKER, LEADER, MAKER, contractorsByNumber, decisionInForce, paper } from './shared.ts';
 import { asObj } from '../context.ts';
 import TEXTS from './data/bid.json' with { type: 'json' };
-import { textsOf } from '../../../support/texts.ts';
+import { textsWithOverlay } from '../overlay.ts';
 
-const tx = textsOf(TEXTS);
+const tx = textsWithOverlay('bid', TEXTS);
 
 /**
  * Module BID: the plans that choose the contractors of the funded projects, and what comes of them. The planner of the board drafts the plan of each

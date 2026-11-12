@@ -1,5 +1,6 @@
 .leader-panel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--mv-space-16);
   margin-block: var(--mv-space-16);
 }

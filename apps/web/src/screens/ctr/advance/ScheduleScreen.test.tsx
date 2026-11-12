@@ -22,8 +22,15 @@ function open(state: World, path = `/ctr/ctr-06?contract=${contractId(1)}`) {
 const rowOf = (id: string): HTMLElement => document.querySelector(`tr[data-advance="${id}"]`) as HTMLElement;
 
 describe('ScheduleScreen (CTR-06): the advances of a contract and the schedule of their recovery', () => {
-  it('asks for a contract when the address names none', async () => {
+  it('opens on the largest contract in force when the address names none, with the note and a selector (menu entry)', async () => {
     open(world(), '/ctr/ctr-06');
+    expect((await screen.findByTestId('default-contract')).textContent).toContain(vi_['ctr.default.notice']);
+    expect((screen.getByTestId('default-contract-select') as HTMLSelectElement).value).toBe(contractId(1));
+    await screen.findByTestId('advances');
+  });
+
+  it('asks for a contract when the address names none and the register is empty', async () => {
+    open(world({ contracts: [] }), '/ctr/ctr-06');
     expect((await screen.findByTestId('no-contract')).textContent).toBe(vi_['ctr.advance.none']);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['ctr.advance.title']);
     expect(screen.getByText(text('ctr.advance.footer', { id: 'CTR-06', req: 'FR-CTR-06' }))).toBeTruthy();
