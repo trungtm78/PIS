@@ -113,6 +113,7 @@ const grouped = (digits: string, locale: string): string => new Intl.NumberForma
 /** A figure as it is written: money in dong, a ratio in percent, a count as a number; no figure is "no data" (or "not applicable"), never 0. */
 export function formatFigure(figure: Figure, unit: string, locale: string, words: { noData: string; notApplicable: string }): string {
   if (figure.value === null) return figure.nullReason === 'NOT_APPLICABLE' ? words.notApplicable : words.noData;
+  if (unit === 'index') return new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(figure.value));
   if (unit === 'percent') return `${new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(figure.value))}%`;
   return /^-?\d+$/.test(figure.value) ? (unit === 'VND' ? `${grouped(figure.value, locale)} ₫` : grouped(figure.value, locale)) : figure.value;
 }

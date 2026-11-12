@@ -266,7 +266,7 @@ describe('BI-03 builder of a dashboard (ST-BI-005)', () => {
     const user = userEvent.setup();
     const form = await screen.findByRole('form', { name: vi_['bi.dash.builder.form'] });
     const metricOptions = [...(within(form).getAllByLabelText(vi_['bi.dash.tile.metric'])[0] as HTMLSelectElement).options].map((option) => option.textContent);
-    expect(metricOptions).toEqual([fill(vi_['bi.dash.tile.metricOption'], { code: 'disbursement_rate', revision: 1 }), fill(vi_['bi.dash.tile.metricOption'], { code: 'disbursed', revision: 1 })]);
+    expect(metricOptions).toEqual([fill(vi_['bi.dash.tile.metricOption'], { code: 'Tỷ lệ giải ngân (disbursement_rate)', revision: 1 }), fill(vi_['bi.dash.tile.metricOption'], { code: 'disbursed', revision: 1 })]);
     // Overlapping tiles, a breakpoint out of range and a pinned policy without a version are refused before anything is sent.
     await user.clear(within(form).getAllByLabelText(fill(vi_['bi.dash.tile.side'], { side: vi_['bi.dash.side.x'] }))[1] as HTMLElement);
     await user.type(within(form).getAllByLabelText(fill(vi_['bi.dash.tile.side'], { side: vi_['bi.dash.side.x'] }))[1] as HTMLElement, '3');
@@ -602,7 +602,7 @@ describe('BI-04 builder of a chart (ST-BI-005, UAT-AC32)', () => {
     const h = client({ dashboards: [] }, () => ratio());
     mount(<ChartBuilderScreen route={CHART} />, h, { permissions: VIEW });
     const user = userEvent.setup();
-    expect([...((await screen.findByLabelText(vi_['bi.chart.metric'])) as HTMLSelectElement).options].map((option) => option.textContent)).toEqual(['disbursement_rate', 'disbursed']);
+    expect([...((await screen.findByLabelText(vi_['bi.chart.metric'])) as HTMLSelectElement).options].map((option) => option.textContent)).toEqual(['Tỷ lệ giải ngân (disbursement_rate)', 'disbursed']);
     expect([...(screen.getByLabelText(vi_['bi.chart.snapshot']) as HTMLSelectElement).options]).toHaveLength(1);
     for (const [kind, selector] of [['LINE', 'polyline'], ['AREA', 'polygon'], ['PIE', 'path[data-point]']] as const) {
       await user.selectOptions(screen.getByLabelText(vi_['bi.chart.kind']), kind);

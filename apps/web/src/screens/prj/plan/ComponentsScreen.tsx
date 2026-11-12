@@ -21,14 +21,14 @@ import { fieldMessage, problemMessage } from './shared';
  */
 export default function ComponentsScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
-  const { projectId } = useProjectParam();
+  const { projectId } = useProjectParam({ fallbackToFirst: true });
   return <ComponentsContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${projectId ?? ''}`} route={route} />;
 }
 
 function ComponentsContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
-  const { projectId, choose } = useProjectParam();
+  const { projectId, choose } = useProjectParam({ fallbackToFirst: true });
   const projects = useProjects();
   const project = (projects.data ?? []).find((candidate) => candidate.id === projectId);
   const list = useComponents(projectId);

@@ -13,6 +13,7 @@ import type { Aggregate, Aggregation, Metric, MetricErrors, MetricValues, NullPo
 import { useCreateMetric, useMetric } from './hooks';
 import { aggregateLabel, aggregationLabel, fieldProblemMessage, nullPolicyLabel, originLabel, problemMessage, statusLabel } from './labels';
 import './bi-kit.css';
+import { metricLabel } from './metric-names';
 
 /**
  * BI-06: the definition of a metric (ST-BI-001, BI 3 F1). With an id it shows one revision, read-only: a metric of the platform changes by the files of the repository, and a draft of the tenant is judged
@@ -67,7 +68,7 @@ function MetricView({ metric }: { metric: Metric }) {
   ];
   return (
     <section className="card" aria-labelledby="metric-view-title" data-testid="metric-view" data-origin={metric.origin}>
-      <h2 id="metric-view-title">{metric.code}</h2>
+      <h2 id="metric-view-title">{metricLabel(t, metric.code)}</h2>
       {metric.origin === 'PLATFORM_CODE' ? (
         <p className="pill" data-testid="metric-platform-note">
           {t('bi.definition.platformNote')}

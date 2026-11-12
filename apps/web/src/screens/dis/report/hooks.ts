@@ -1,6 +1,7 @@
 import { uploadFile } from '@machvon/api-client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
@@ -14,7 +15,7 @@ import type { ImportBatch, StoredWorkbook } from './import-model';
 import { reasonBody } from './lifecycle-model';
 import { toWorkflow } from './workflow-model';
 import type { ReportWorkflow } from './workflow-model';
-import { createBody, queryOf, saveBody, toReportDetail, toReportLine, toReportPage } from './model';
+import { NO_FILTER, createBody, defaultReport, queryOf, saveBody, toReportDetail, toReportLine, toReportPage } from './model';
 import type { Basis, FilterState, FundingForm, ReportDetail, ReportDraftBody, ReportLine, ReportPage } from './model';
 
 const root = (tenantId: string | undefined) => ['dis', tenantId, 'reports'] as const;
@@ -44,6 +45,33 @@ export function useReportPage(filter: FilterState, cursor: string | undefined, s
     enabled: tenant !== undefined && enabled,
     retry: false,
   });
+}
+
+/** What a screen of one report needs to open on a report: the one in the address, else the default one with the list to change it (see `defaultReport`). */
+export interface ReportChoice {
+  /** The report to read; undefined when the address names none and the list offers none. */
+  reportId: string | undefined;
+  /** True when the address names no report, so the screen shows the default one and offers the list to change it. */
+  defaulted: boolean;
+  choices: readonly ReportLine[];
+  isLoading: boolean;
+  pick(reportId: string): void;
+}
+
+/** The report of a screen of one report; `draftsOnly` is for the steps of a draft, which have nothing to show for a report that was handed in. Nothing is read from the list when the address names a report. */
+export function useReportChoice(draftsOnly: boolean): ReportChoice {
+  const [params] = useSearchParams();
+  const named = params.get('report') ?? undefined;
+  const [picked, setPicked] = useState<string | undefined>(undefined);
+  const page = useReportPage(draftsOnly ? { ...NO_FILTER, status: 'DRAFT' } : NO_FILTER, undefined, PAGE_SIZE, named === undefined);
+  const choices = named === undefined ? (page.data?.items ?? []) : [];
+  return {
+    reportId: named ?? picked ?? defaultReport(choices)?.id,
+    defaulted: named === undefined,
+    choices,
+    isLoading: named === undefined && page.isLoading,
+    pick: setPicked,
+  };
 }
 
 /** One report with its project, period, plan version and cells; a report outside the scope of the caller is a 404 like one that does not exist. */

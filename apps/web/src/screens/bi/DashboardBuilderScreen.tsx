@@ -16,6 +16,7 @@ import { COMPARE_PATH } from './publication-model';
 import { SignOffBlock } from './SignOffBlock';
 import { SectionCard } from '../../ui';
 import './bi-kit.css';
+import { metricLabel } from './metric-names';
 
 const NONE = '—';
 
@@ -330,7 +331,7 @@ function Editor({ dashboard, metrics, catalogueFailed, incoming, onConsumed, onR
                     <select id={`tile-metric-${widget.key}`} value={widget.metricVersionId} onChange={(event) => setWidget(widget.key, { metricVersionId: event.target.value })}>
                       {certified.map((metric) => (
                         <option key={metric.id} value={metric.id}>
-                          {t('bi.dash.tile.metricOption', { code: metric.code, revision: metric.revision })}
+                          {t('bi.dash.tile.metricOption', { code: metricLabel(t, metric.code), revision: metric.revision })}
                         </option>
                       ))}
                     </select>

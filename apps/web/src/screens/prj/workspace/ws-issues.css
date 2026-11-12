@@ -1,0 +1,11 @@
+/* The tables of the issues tab keep a readable width on a phone: the scroll region of the table scrolls sideways instead of squeezing the columns. */
+.ws-iss .ui-table {
+  min-width: 620px;
+}
+.ws-iss .ui-table td,
+.ws-iss .ui-table th {
+  vertical-align: top;
+}
+.ws-iss .ui-table td:first-child {
+  min-width: 220px;
+}

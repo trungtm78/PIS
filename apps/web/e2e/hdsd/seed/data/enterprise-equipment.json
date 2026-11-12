@@ -1,17 +1,72 @@
 {
   "equipment.lines": [
-    { "code": "TB26-01", "name": "Máy nén khí ly tâm 2 cấp, lưu lượng 3.000 m3/giờ, nhập khẩu từ Đức", "planRef": "KH-TB-2026/01", "bump": 104 },
-    { "code": "TB26-02", "name": "Bộ điều khiển phân tán DCS và thiết bị đo lường dây chuyền amoniac", "planRef": "KH-TB-2026/02", "bump": 102 },
-    { "code": "TB26-03", "name": "Máy biến áp 110/6,6 kV - 63 MVA kèm phụ kiện", "planRef": "KH-TB-2026/03", "bump": 101 },
-    { "code": "TB26-04", "name": "Bơm công nghệ chịu hóa chất và bộ phớt cơ khí dự phòng", "planRef": "KH-TB-2026/04", "bump": 100 },
-    { "code": "TB26-05", "name": "Xe nâng hàng 5 tấn và thiết bị bốc xếp kho cảng", "planRef": "KH-TB-2026/05", "bump": 103 },
-    { "code": "TB26-06", "name": "Thiết bị phòng thí nghiệm phân tích khí và nước thải", "planRef": "KH-TB-2026/06", "bump": 102 }
+    {
+      "code": "TB26-01",
+      "project": "DA-PMTB164",
+      "name": "Máy nén khí ly tâm 2 cấp, lưu lượng 3.000 m3/giờ, nhập khẩu từ Đức",
+      "planRef": "KH-TB-2026/01",
+      "bump": 104
+    },
+    {
+      "code": "TB26-02",
+      "project": "DA-PMTB168",
+      "name": "Thiết bị phòng thí nghiệm phân tích khí, nước thải và chất lượng sản phẩm",
+      "planRef": "KH-TB-2026/02",
+      "bump": 102
+    },
+    {
+      "code": "TB26-03",
+      "project": "DA-PMDT105",
+      "name": "Bơm tuần hoàn công suất lớn và tháp giải nhiệt cho hệ thống nước làm mát",
+      "planRef": "KH-TB-2026/03",
+      "bump": 101
+    },
+    {
+      "code": "TB26-04",
+      "project": "DA-PMDT114",
+      "name": "Hệ thống băng tải nhập xuất và cân định lượng cho kho chứa sản phẩm",
+      "planRef": "KH-TB-2026/04",
+      "bump": 100
+    },
+    {
+      "code": "TB26-05",
+      "project": "DA-PMDT120",
+      "name": "Thiết bị lọc bụi, tháp hấp thụ và quạt hút cho hệ thống xử lý khí thải",
+      "planRef": "KH-TB-2026/05",
+      "bump": 103
+    },
+    {
+      "code": "TB26-06",
+      "project": "DA-PMDT130",
+      "name": "Máy đóng bao tự động và dây chuyền băng tải cho khu đóng bao",
+      "planRef": "KH-TB-2026/06",
+      "bump": 102
+    }
   ],
   "equipment.planned": [
-    { "code": "TB26-07", "name": "Tuabin hơi phụ trợ 8 MW, nhập khẩu từ Nhật Bản, giá trị tính theo tỷ giá JPY công bố", "planRef": "KH-TB-2027/01", "millions": 46800 },
-    { "code": "TB26-08", "name": "Cân băng tải định lượng và hệ thống đóng bao tự động", "planRef": "KH-TB-2027/02", "millions": 18500 }
+    {
+      "code": "TB26-07",
+      "project": "DA-PMTB204",
+      "name": "Hệ thống điều khiển phân tán DCS và thiết bị đo lường dây chuyền amoniac, nhập khẩu, giá trị quy đổi theo tỷ giá công bố",
+      "planRef": "KH-TB-2027/01",
+      "millions": 46800
+    },
+    {
+      "code": "TB26-08",
+      "project": "DA-PMTB164",
+      "name": "Bộ lọc khí hút, hệ thống làm mát trung gian và phụ tùng thay thế cho máy nén khí",
+      "planRef": "KH-TB-2027/02",
+      "millions": 18500
+    }
   ],
-  "equipment.cancelled": { "code": "TB26-09", "name": "Máy phát điện dự phòng 2.000 kVA (đã gộp vào gói cung cấp thiết bị chính)", "planRef": "KH-TB-2026/09", "millions": 9200, "reason": "Điều chỉnh kế hoạch: hạng mục được gộp vào gói cung cấp thiết bị chính của dự án" },
+  "equipment.cancelled": {
+    "code": "TB26-09",
+    "project": "DA-PMTB191",
+    "name": "Xe nâng điện 3 tấn dự phòng (đã gộp vào gói cung cấp thiết bị chính)",
+    "planRef": "KH-TB-2026/09",
+    "millions": 9200,
+    "reason": "Điều chỉnh kế hoạch: hạng mục được gộp vào gói cung cấp thiết bị chính của dự án"
+  },
   "fx.reason": "Tỷ giá bình quân dùng quy đổi giá trị thiết bị nhập khẩu theo quyết định của Tổng công ty",
   "fx.letter.symbol": "158/QĐ-TGĐ",
   "fx.letter.title": "Quyết định về việc áp dụng tỷ giá quy đổi cho thiết bị nhập khẩu",

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useId, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -11,7 +11,8 @@ import type { ManualOutcome } from './manual-confirm-model';
 import { itemLink } from '../recon/model';
 import { MANUAL_CONFIRM_PERMISSION } from './manual-confirm-model';
 import { AttachDialog, CancelDialog, ReturnDialog, ReviseDialog, SubmitDialog, VerifyDialog } from './PaymentDialogs';
-import { usePayment } from './hooks';
+import { usePayment, usePaymentChoice } from './hooks';
+import type { PaymentChoice } from './hooks';
 import { docKindLabel, kindLabel, statusLabel, statusTone, warningMessage } from './labels';
 import { listLink, signedAmountText, valuationLink } from './model';
 import { formsLink } from '../forms/model';
@@ -35,8 +36,9 @@ type Dialog = 'revise' | 'attach' | 'cancel' | 'submit' | 'verify' | 'return' | 
 
 function PaymentDetailContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const [search] = useSearchParams();
-  const id = search.get('request');
+  // Opened without a request in the address (the menu), the newest request is shown, and the selector stays to change it.
+  const choice = usePaymentChoice();
+  const id = choice.requestId;
   const payment = usePayment(id);
   const state = useScreenState({ isLoading: payment.isLoading, error: payment.error, data: id === null ? null : payment.data, isEmpty: (data) => data === null });
   return (
@@ -48,7 +50,10 @@ function PaymentDetailContent({ route }: ScreenProps) {
           <p>{t('pay.payment.detail.subtitle')}</p>
         </div>
       </div>
-      {id === null ? (
+      <DefaultPaymentBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : id === null ? (
         <p className="callout" role="status" data-testid="no-request">
           {t('pay.payment.detail.none')}
         </p>
@@ -59,6 +64,26 @@ function PaymentDetailContent({ route }: ScreenProps) {
       )}
       <p className="prototype-note">{t('pay.payment.detail.footer', { id: route.id, req: route.req ?? '' })}</p>
     </section>
+  );
+}
+
+/** The note and the selector of the detail opened without a request: it says which request is shown and lets the reader switch to another of the list. */
+function DefaultPaymentBar({ choice }: { choice: PaymentChoice }) {
+  const { t } = useTranslation();
+  const selectId = useId();
+  if (!choice.defaulted || choice.requestId === null || choice.choices.length === 0) return null;
+  return (
+    <div className="callout" role="status" data-testid="default-request">
+      <p>{t('pay.payment.default.notice')}</p>
+      <label htmlFor={selectId}>{t('pay.payment.default.select.label')} </label>
+      <select id={selectId} data-testid="default-request-select" value={choice.requestId} onChange={(event) => choice.pick(event.target.value)}>
+        {choice.choices.map((request) => (
+          <option key={request.id} value={request.id}>
+            {request.requestNo ?? request.id.slice(0, 8)} · {request.contract.code} · {statusLabel(t, request.status)}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 

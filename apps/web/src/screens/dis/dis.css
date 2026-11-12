@@ -166,6 +166,9 @@ th.num {
   z-index: 1;
   background: var(--mv-color-surface);
 }
+.dis-full-table thead .pinned {
+  z-index: 4;
+}
 .dis-full-table .pinned-first {
   left: 0;
   min-width: 120px;

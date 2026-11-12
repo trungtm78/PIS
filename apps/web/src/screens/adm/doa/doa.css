@@ -1,6 +1,7 @@
 /* ADM-15: the delegation-of-authority matrix, in the language of the shared screen classes. */
 .adm-doa {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
 }
 

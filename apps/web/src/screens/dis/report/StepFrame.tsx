@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import type { ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -9,8 +9,8 @@ import type { ScreenState } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { BackLink } from '../components';
 import '../dis.css';
-import { StepNav } from './components';
-import { useReport } from './hooks';
+import { DefaultReportBar, StepNav } from './components';
+import { useReport, useReportChoice } from './hooks';
 import { REMOVAL_PATH, canDelete } from './lifecycle-model';
 import { REPORTS_PATH } from './model';
 import type { ReportDetail } from './model';
@@ -30,14 +30,15 @@ export interface StepTexts {
  * boundary. A report that is not found is told as empty (whoever asked cannot tell one of another scope from one that is not there); with none chosen there is nothing to load.
  */
 export function StepFrame({ route, texts, current, children }: ScreenProps & { texts: StepTexts; current?: StepKey; children: (detail: ReportDetail) => ReactNode }) {
-  const [params] = useSearchParams();
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
-  const reportId = params.get('report') ?? undefined;
+  // Opened without a report in the address (the menu), the latest draft (the steps of a draft) or the latest report is shown, and the selector stays to change it.
+  const choice = useReportChoice(current !== undefined);
+  const reportId = choice.reportId;
   const report = useReport(reportId);
   const missing = report.error instanceof ApiError && report.error.status === 404;
   const loaded = useScreenState({ isLoading: report.isLoading, error: missing ? undefined : report.error, data: report.data, isEmpty: (data) => data === undefined });
-  const state: ScreenState = reportId === undefined ? 'default' : missing ? 'empty' : loaded;
+  const state: ScreenState = choice.isLoading ? 'loading' : reportId === undefined ? 'default' : missing ? 'empty' : loaded;
   const detail = report.data;
 
   return (
@@ -49,6 +50,7 @@ export function StepFrame({ route, texts, current, children }: ScreenProps & { t
           <p>{texts.subtitle}</p>
         </div>
       </div>
+      <DefaultReportBar choice={choice} />
       {detail === undefined || current === undefined ? null : <StepNav reportId={detail.id} current={current} />}
       <StateBoundary state={state} onRetry={() => void report.refetch()}>
         {detail === undefined ? (

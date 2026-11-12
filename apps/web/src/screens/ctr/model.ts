@@ -615,3 +615,17 @@ export const workspaceLink = (contractId: string): string => linkTo(WORKSPACE_PA
 
 /** The address of the screen that suspends, resumes or terminates a contract (CTR-22). */
 export const haltLink = (contractId: string): string => linkTo(HALT_PATH, contractId);
+
+/** The stages in which a contract no longer runs: it is ended, stopped for good or cancelled. */
+const ENDED_STATUSES: readonly ContractStatus[] = ['COMPLETED', 'CLOSED', 'TERMINATED', 'CANCELLED'];
+
+/**
+ * The contract a screen of one contract shows when it is opened without one: the largest by value among those in force (ACTIVE), else the largest that has not ended, else the largest of the
+ * register. Undefined when the register is empty. Ties keep the order of the register (by code).
+ */
+export function defaultContract(lines: readonly ContractLine[]): ContractLine | undefined {
+  const inForce = lines.filter((line) => line.status === 'ACTIVE');
+  const alive = lines.filter((line) => !ENDED_STATUSES.includes(line.status));
+  const pool = inForce.length > 0 ? inForce : alive.length > 0 ? alive : lines;
+  return pool.reduce<ContractLine | undefined>((best, line) => (best === undefined || Number(line.contractValueVnd) > Number(best.contractValueVnd) ? line : best), undefined);
+}

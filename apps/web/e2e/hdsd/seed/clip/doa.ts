@@ -20,7 +20,7 @@ export async function ensureDoaMatrix(ctx: SeedContext): Promise<void> {
   if (draft === undefined) {
     const created = await ctx.command('projectManager', '/doa-matrices', {
       effective_from: ctx.day(-200),
-      legal_basis_ref: 'QD-UBND-QUY-CHE-UY-QUYEN-2026',
+      legal_basis_ref: clipPlan()?.dataset === 'enterprise' ? clipText('doa.legalBasis') : 'QD-UBND-QUY-CHE-UY-QUYEN-2026',
       rules: DOCUMENT_TYPES.map((type) => ({ document_type: type, unit_id: ctx.unitId('CB-HQ'), include_subtree: true, amount_min_vnd: '0', approver_role_id: String(role.id), approval_levels: 1, requires_distinct_approvers: false })),
     });
     id = created.resource_id;
@@ -34,7 +34,7 @@ export async function ensureDoaMatrix(ctx: SeedContext): Promise<void> {
     const sent = await ctx.command('projectManager', `/doa-matrices/${id}/submit`, { reason: clipText('doa.submit') }, { version });
     version = sent.resource_version;
   }
-  const basis = await ctx.letter({ symbol: clipPlan()?.dataset === 'enterprise' ? clipText('doa.symbol') : '41/QD-UBND', title: clipText('doa.title'), issuedOn: ctx.day(-210) });
+  const basis = await ctx.letter({ symbol: clipPlan()?.dataset === 'enterprise' ? clipText('doa.symbol') : '41/QD-UBND', title: clipText('doa.title'), issuedOn: ctx.day(-210), ...(clipPlan()?.dataset === 'enterprise' ? { sender: clipText('doa.sender') } : {}) });
   await ctx.command('capApprover', `/doa-matrices/${id}/decision`, { decision: 'approve', reason: clipText('doa.reason'), evidence_ids: [basis.documentId] }, { version });
   ctx.record({ module: 'ADM', screen: 'ADM-04', kind: 'doa-matrix', id, code: 'DOA', note: 'approved' });
 }

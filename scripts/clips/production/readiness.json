@@ -522,6 +522,48 @@
         },
         "clip-ent-contractor-portal": {
           "proof": "RUN_VERIFIED"
+        },
+        "clip-ent-execution": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-issues": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-lifecycle": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-weekly": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-capplus": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-legal": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-rights": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-bi2": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-vendor": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-ops": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-admin": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-platform": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-audit": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
+        "clip-ent-mobile": {
+          "proof": "WRITTEN_NOT_RUN"
         }
       },
       "chapters": {
@@ -792,12 +834,6 @@
         }
       },
       "plannedGroups": {
-        "clip-ent-vendor": {
-          "proof": "NOT_DONE",
-          "needs": [
-            "Nhà thầu minh họa có kỳ tài chính, khai quan hệ cá nhân, sổ bảo đảm, hạng rủi ro, chứng chỉ, sự kiện uy tín; liên kết đầu mối và sàng lọc; tài khoản thành viên khách contractorUser, thư mời, yêu cầu, đánh giá và kế hoạch khắc phục."
-          ]
-        },
         "clip-ent-claims": {
           "proof": "NOT_DONE",
           "needs": [
@@ -852,12 +888,6 @@
             "Vướng mắc, nhật ký thi công, chất lượng, giấy phép, bàn giao tài sản của các dự án doanh nghiệp (không có giải phóng mặt bằng cho dự án mua sắm thiết bị)."
           ]
         },
-        "clip-ent-lifecycle": {
-          "proof": "NOT_DONE",
-          "needs": [
-            "Đề xuất chủ trương, thẩm định, cấu trúc công việc, điều chỉnh, phân công lãnh đạo và yêu cầu giải trình cho dự án doanh nghiệp."
-          ]
-        },
         "clip-ent-reports-close": {
           "proof": "NOT_DONE",
           "needs": [
@@ -874,12 +904,6 @@
           "proof": "NOT_DONE",
           "needs": [
             "Hợp đồng có yêu cầu thay đổi, phụ lục, khối lượng, chất lượng và nghiệm thu đã ghi."
-          ]
-        },
-        "clip-ent-platform": {
-          "proof": "NOT_DONE",
-          "needs": [
-            "Chủ đề và biểu trưng của doanh nghiệp, mã trùng chờ hợp nhất, sự cố chất lượng dữ liệu, mẫu thông báo, lịch sử sao lưu."
           ]
         },
         "clip-ent-phone-extra": {

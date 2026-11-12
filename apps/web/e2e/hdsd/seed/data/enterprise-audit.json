@@ -1,0 +1,472 @@
+{
+  "engagements": [
+    {
+      "code": "KTNB-2026-01",
+      "type": "INTERNAL_AUDIT",
+      "authorityKind": "INTERNAL",
+      "authority": "Ban Kiểm toán nội bộ Tổng công ty Đạm Phú Mỹ",
+      "title": "Kiểm toán nội bộ công tác đầu tư xây dựng năm 2026",
+      "decision": {
+        "symbol": "311/QĐ-HĐTV",
+        "title": "Quyết định về việc kiểm toán nội bộ công tác đầu tư xây dựng năm 2026",
+        "sender": "Hội đồng thành viên Tổng công ty Đạm Phú Mỹ",
+        "ago": 120
+      },
+      "projects": [
+        "DA-PMDT105",
+        "DA-PMDT114",
+        "DA-PMDT120"
+      ],
+      "contracts": [
+        "HD-PMDT105-XL01",
+        "HD-PMDT105-TV01"
+      ],
+      "from": "2026-01-01",
+      "to": "2026-09-30",
+      "state": "FOLLOW_UP",
+      "startedAgo": 100,
+      "fieldworkEndedAgo": 45,
+      "fieldworkNote": "Hoàn thành kiểm toán tại Ban Quản lý dự án đầu tư và Ban Tài chính Kế toán",
+      "workingPaper": {
+        "symbol": "KTNB-01/BB-LV",
+        "title": "Biên bản làm việc với Ban Quản lý dự án đầu tư về hồ sơ quản lý hợp đồng xây lắp",
+        "ago": 60
+      },
+      "conclusion": {
+        "kind": "INTERNAL_REPORT",
+        "symbol": "07/BC-KTNB",
+        "title": "Báo cáo kết quả kiểm toán nội bộ công tác đầu tư xây dựng năm 2026",
+        "sender": "Ban Kiểm toán nội bộ Tổng công ty Đạm Phú Mỹ",
+        "issuedAgo": 30,
+        "receivedAgo": 28,
+        "implementIn": 45,
+        "reportIn": 50,
+        "summary": "Kiểm toán nội bộ kết luận công tác đầu tư xây dựng năm 2026 của Ban Quản lý dự án đầu tư cơ bản đáp ứng yêu cầu chung, đồng thời ghi nhận 5 tồn tại: chi phí tư vấn giám sát tạm tính vượt định mức, số liệu giải ngân năm 2025 trên báo cáo chưa khớp sổ kế toán, thủ tục gia hạn hợp đồng xây lắp chưa đủ hồ sơ, hồ sơ nghiệm thu vật liệu còn thiếu và kế hoạch lựa chọn nhà thầu chưa đồng bộ với kế hoạch vốn. Đề nghị các đơn vị khắc phục theo các kiến nghị kèm theo.",
+        "totalBillions": 3.24,
+        "findings": [
+          {
+            "code": "NB-01",
+            "category": "PROCEDURE",
+            "severity": "MEDIUM",
+            "project": "DA-PMDT105",
+            "contract": "HD-PMDT105-XL01",
+            "description": "Hợp đồng HD-PMDT105-XL01: nhà thầu đề nghị gia hạn 11 ngày do chậm giao thiết bị từ nhà sản xuất nhưng chưa có phụ lục điều chỉnh tiến độ được cấp có thẩm quyền phê duyệt."
+          },
+          {
+            "code": "NB-02",
+            "category": "QUALITY",
+            "severity": "MEDIUM",
+            "project": "DA-PMDT114",
+            "description": "Hồ sơ nghiệm thu vật liệu đầu vào của gói thầu PMDT114-XL01 thiếu chứng chỉ xuất xưởng và biên bản thí nghiệm đối chứng cho một số lô thép kết cấu."
+          },
+          {
+            "code": "NB-03",
+            "category": "FINANCIAL",
+            "severity": "HIGH",
+            "project": "DA-PMDT105",
+            "contract": "HD-PMDT105-TV01",
+            "billions": 1.24,
+            "description": "Chi phí tư vấn giám sát của hợp đồng HD-PMDT105-TV01 được tạm tính vượt định mức quy định 1,24 tỷ đồng so với giá trị khối lượng thực hiện đến hết quý III."
+          },
+          {
+            "code": "NB-04",
+            "category": "FINANCIAL",
+            "severity": "MEDIUM",
+            "project": "DA-PMDT105",
+            "billions": 2,
+            "description": "Số liệu giải ngân lũy kế tháng 3 năm 2025 của dự án DA-PMDT105 trên báo cáo tình hình thực hiện kế hoạch cao hơn số liệu trên sổ kế toán Oracle EBS 2,0 tỷ đồng."
+          },
+          {
+            "code": "NB-05",
+            "category": "PLANNING",
+            "severity": "LOW",
+            "project": "DA-PMDT120",
+            "description": "Kế hoạch lựa chọn nhà thầu gói PMDT120-XL01 điều chỉnh thời gian bắt đầu chưa đồng bộ với tiến độ giải ngân của kế hoạch vốn năm 2026."
+          }
+        ],
+        "recs": [
+          {
+            "code": "KN-01",
+            "type": "FINANCIAL_RECOVERY",
+            "finding": "NB-03",
+            "description": "Thu hồi 1,24 tỷ đồng chi phí tư vấn giám sát tạm tính vượt định mức của hợp đồng HD-PMDT105-TV01 và giảm trừ vào đợt thanh toán kế tiếp.",
+            "billions": 1.24,
+            "to": "ACTION_DONE",
+            "dueIn": 20,
+            "unit": "CB-STC",
+            "recoveredBillions": 0.9
+          },
+          {
+            "code": "KN-02",
+            "type": "FINANCIAL_ADJUSTMENT",
+            "finding": "NB-04",
+            "description": "Điều chỉnh số liệu giải ngân lũy kế tháng 3 năm 2025 của dự án DA-PMDT105 theo sổ kế toán EBS và báo cáo lại kỳ báo cáo đã chốt.",
+            "billions": 2,
+            "to": "PLANNED",
+            "dueIn": 25,
+            "unit": "CB-STC"
+          },
+          {
+            "code": "KN-03",
+            "type": "PROCESS_CORRECTION",
+            "finding": "NB-01",
+            "description": "Lập và trình phụ lục điều chỉnh tiến độ hợp đồng HD-PMDT105-XL01 cho cấp có thẩm quyền phê duyệt, bổ sung hồ sơ đề nghị gia hạn.",
+            "to": "CLOSED",
+            "dueIn": 12,
+            "unit": "CB-SKHDT-QLDA"
+          },
+          {
+            "code": "KN-04",
+            "type": "PROCESS_CORRECTION",
+            "finding": "NB-02",
+            "description": "Bổ sung chứng chỉ xuất xưởng, biên bản thí nghiệm đối chứng các lô thép kết cấu của gói thầu PMDT114-XL01 vào hồ sơ quản lý chất lượng.",
+            "to": "VERIFYING",
+            "dueIn": 15,
+            "unit": "CB-SKHDT-QLDA"
+          },
+          {
+            "code": "KN-05",
+            "type": "POLICY_CHANGE",
+            "finding": "NB-05",
+            "description": "Rà soát quy trình điều chỉnh kế hoạch lựa chọn nhà thầu để bảo đảm đồng bộ với kế hoạch vốn năm và ban hành hướng dẫn nội bộ.",
+            "to": "ASSIGNED",
+            "dueIn": 35,
+            "unit": "CB-SKHDT"
+          },
+          {
+            "code": "KN-06",
+            "type": "ACCOUNTABILITY",
+            "description": "Xem xét trách nhiệm của các tổ chức, cá nhân liên quan đến việc tạm tính chi phí tư vấn giám sát vượt định mức.",
+            "to": "RECEIVED"
+          }
+        ]
+      }
+    },
+    {
+      "code": "KTR-DKVN-2026-03",
+      "type": "SPECIALIZED_INSPECTION",
+      "authorityKind": "MINISTRY_INSPECTORATE",
+      "authority": "Ban Kiểm tra - Giám sát Tập đoàn Dầu khí Việt Nam",
+      "title": "Kiểm tra công tác lựa chọn nhà thầu và quản lý hợp đồng mua sắm thiết bị năm 2026",
+      "decision": {
+        "symbol": "892/QĐ-DKVN",
+        "title": "Quyết định về việc kiểm tra công tác lựa chọn nhà thầu và quản lý hợp đồng mua sắm thiết bị năm 2026 tại Tổng công ty Đạm Phú Mỹ",
+        "sender": "Tập đoàn Dầu khí Việt Nam",
+        "ago": 90
+      },
+      "projects": [
+        "DA-PMTB164",
+        "DA-PMTB168"
+      ],
+      "contracts": [
+        "HD-PMTB164-TB01",
+        "HD-PMTB168-TB01"
+      ],
+      "from": "2026-01-01",
+      "to": "2026-10-31",
+      "state": "FOLLOW_UP",
+      "startedAgo": 75,
+      "fieldworkEndedAgo": 40,
+      "fieldworkNote": "Hoàn thành kiểm tra hồ sơ lựa chọn nhà thầu và hợp đồng mua sắm thiết bị tại Tổng công ty",
+      "workingPaper": {
+        "symbol": "KT-DKVN/BB-LV",
+        "title": "Biên bản làm việc của Đoàn kiểm tra Tập đoàn về hồ sơ lựa chọn nhà thầu mua sắm thiết bị",
+        "ago": 55
+      },
+      "conclusion": {
+        "kind": "INSPECTION_CONCLUSION",
+        "symbol": "58/KL-KTGS",
+        "title": "Kết luận kiểm tra công tác lựa chọn nhà thầu và quản lý hợp đồng mua sắm thiết bị năm 2026",
+        "sender": "Ban Kiểm tra - Giám sát Tập đoàn Dầu khí Việt Nam",
+        "docType": "TB",
+        "issuedAgo": 20,
+        "receivedAgo": 18,
+        "implementIn": 40,
+        "reportIn": 45,
+        "summary": "Đoàn kiểm tra kết luận công tác lựa chọn nhà thầu và quản lý hợp đồng mua sắm thiết bị của Tổng công ty cơ bản đúng quy định; tuy nhiên có hợp đồng được ký trước ngày công bố kết quả lựa chọn nhà thầu, hồ sơ kiểm tra chất lượng thiết bị đầu vào lưu chưa đầy đủ và sổ theo dõi mua sắm thiết bị còn dòng chưa gắn gói thầu. Yêu cầu Tổng công ty khắc phục và báo cáo Tập đoàn.",
+        "totalBillions": 0,
+        "findings": [
+          {
+            "code": "TB-01",
+            "category": "PROCUREMENT",
+            "severity": "HIGH",
+            "project": "DA-PMTB164",
+            "contract": "HD-PMTB164-TB01",
+            "description": "Hợp đồng HD-PMTB164-TB01 được ký ngày 16/9/2026, trước ngày công bố kết quả lựa chọn nhà thầu gói PMTB164-TB01 (23/9/2026), chưa phù hợp trình tự quy định của Luật Đấu thầu."
+          },
+          {
+            "code": "TB-02",
+            "category": "PROCEDURE",
+            "severity": "MEDIUM",
+            "project": "DA-PMTB168",
+            "contract": "HD-PMTB168-TB01",
+            "description": "Hợp đồng HD-PMTB168-TB01 ký trước thời điểm có quyết định phê duyệt kết quả lựa chọn nhà thầu; hồ sơ thương thảo hợp đồng chưa nêu rõ căn cứ ký sớm."
+          },
+          {
+            "code": "TB-03",
+            "category": "PLANNING",
+            "severity": "LOW",
+            "project": "DA-PMTB164",
+            "description": "Sổ theo dõi mua sắm thiết bị còn dòng thiết bị chưa gắn gói thầu và chưa phân kỳ kế hoạch mua sắm năm 2027."
+          },
+          {
+            "code": "TB-04",
+            "category": "QUALITY",
+            "severity": "LOW",
+            "project": "DA-PMTB164",
+            "contract": "HD-PMTB164-TB01",
+            "description": "Hồ sơ kiểm tra chất lượng thiết bị đầu vào (FAT) của máy nén khí ly tâm lưu chưa đầy đủ biên bản chạy thử tại nhà máy chế tạo."
+          }
+        ],
+        "recs": [
+          {
+            "code": "TB-KN-01",
+            "type": "PROCESS_CORRECTION",
+            "finding": "TB-01",
+            "description": "Rà soát, ban hành quy định nội bộ không ký hợp đồng trước khi có quyết định phê duyệt và công bố kết quả lựa chọn nhà thầu; báo cáo Tập đoàn.",
+            "to": "VERIFYING",
+            "dueIn": 18,
+            "unit": "CB-SKHDT-QLDA"
+          },
+          {
+            "code": "TB-KN-02",
+            "type": "ACCOUNTABILITY",
+            "finding": "TB-01",
+            "description": "Kiểm điểm trách nhiệm của tổ chuyên gia và Ban Quản lý dự án trong việc ký hợp đồng chưa đúng trình tự.",
+            "to": "ASSIGNED",
+            "dueIn": 30,
+            "unit": "CB-SKHDT"
+          },
+          {
+            "code": "TB-KN-03",
+            "type": "PROCESS_CORRECTION",
+            "finding": "TB-02",
+            "description": "Bổ sung hồ sơ giải trình căn cứ ký sớm hợp đồng HD-PMTB168-TB01 và báo cáo Tập đoàn.",
+            "to": "DISPUTED",
+            "dueIn": 28,
+            "unit": "CB-SKHDT-QLDA",
+            "disputeReason": "Hợp đồng HD-PMTB168-TB01 được ký đồng thời với quyết định trúng thầu theo ủy quyền của Hội đồng thành viên ngày 15/9/2026; đề nghị Ban Kiểm tra - Giám sát xem xét lại nội dung kiến nghị này."
+          },
+          {
+            "code": "TB-KN-04",
+            "type": "PROCESS_CORRECTION",
+            "finding": "TB-04",
+            "description": "Bổ sung biên bản chạy thử FAT của máy nén khí ly tâm vào hồ sơ chất lượng thiết bị trước khi nghiệm thu bàn giao.",
+            "to": "CLOSED",
+            "dueIn": 10,
+            "unit": "CB-SKHDT-QLDA"
+          },
+          {
+            "code": "TB-KN-05",
+            "type": "PROCESS_CORRECTION",
+            "finding": "TB-03",
+            "description": "Gắn các dòng thiết bị còn lại của sổ mua sắm vào gói thầu và phân kỳ kế hoạch mua sắm thiết bị năm 2027.",
+            "to": "PLANNED",
+            "dueIn": 32,
+            "unit": "CB-SKHDT-QLDA"
+          }
+        ]
+      }
+    },
+    {
+      "code": "KTNB-2026-05",
+      "type": "INTERNAL_AUDIT",
+      "authorityKind": "INTERNAL",
+      "authority": "Ban Kiểm toán nội bộ Tổng công ty Đạm Phú Mỹ",
+      "title": "Kiểm toán nội bộ công tác quản lý vốn và giải ngân kế hoạch vốn đầu tư năm 2026",
+      "decision": {
+        "symbol": "312/QĐ-HĐTV",
+        "title": "Quyết định về việc kiểm toán nội bộ công tác quản lý vốn và giải ngân kế hoạch vốn đầu tư năm 2026",
+        "sender": "Hội đồng thành viên Tổng công ty Đạm Phú Mỹ",
+        "ago": 30
+      },
+      "projects": [
+        "DA-PMDT130",
+        "DA-PMDT137",
+        "DA-PMTB172"
+      ],
+      "contracts": [],
+      "from": "2026-01-01",
+      "to": "2026-10-31",
+      "state": "ONGOING",
+      "startedAgo": 12
+    },
+    {
+      "code": "KTNB-2027-01",
+      "type": "INTERNAL_AUDIT",
+      "authorityKind": "INTERNAL",
+      "authority": "Ban Kiểm toán nội bộ Tổng công ty Đạm Phú Mỹ",
+      "title": "Kiểm toán nội bộ công tác quyết toán vốn đầu tư dự án hoàn thành năm 2026",
+      "decision": {
+        "symbol": "313/QĐ-HĐTV",
+        "title": "Quyết định về việc phê duyệt kế hoạch kiểm toán nội bộ công tác quyết toán vốn đầu tư dự án hoàn thành năm 2026",
+        "sender": "Hội đồng thành viên Tổng công ty Đạm Phú Mỹ",
+        "ago": 5
+      },
+      "projects": [
+        "DA-PMTB164"
+      ],
+      "contracts": [],
+      "from": "2026-01-01",
+      "to": "2026-12-31",
+      "state": "PLANNED"
+    }
+  ],
+  "handovers": [
+    {
+      "no": "BBBG-PMTB168-01",
+      "project": "DA-PMTB168",
+      "contract": "HD-PMTB168-TB01",
+      "kind": "PARTIAL",
+      "unit": "CB-HQ",
+      "plannedIn": 10,
+      "to": "PUNCH",
+      "title": "Biên bản bàn giao đợt 1 bộ điều khiển phân tán DCS và đo lường dây chuyền amoniac",
+      "punch": [
+        {
+          "description": "Module vào analog AI-08 báo lỗi kênh 3 khi chạy thử, chưa đạt yêu cầu nghiệm thu FAT.",
+          "severity": "CRITICAL",
+          "location": "Tủ điều khiển DCS, rack 2",
+          "dueIn": 5,
+          "state": "OPEN"
+        },
+        {
+          "description": "Phần mềm hiển thị DCS thiếu màn hình tổng quan dây chuyền theo bản vẽ P&ID đã duyệt.",
+          "severity": "MAJOR",
+          "location": "Phòng điều khiển trung tâm",
+          "dueIn": 9,
+          "state": "FIXED"
+        },
+        {
+          "description": "Thiếu tài liệu hướng dẫn vận hành bản tiếng Việt cho người vận hành.",
+          "severity": "MINOR",
+          "location": "Phòng điều khiển trung tâm",
+          "dueIn": 12,
+          "state": "OPEN"
+        },
+        {
+          "description": "Chưa hoàn thành hiệu chuẩn 4 đầu đo áp suất theo chứng chỉ của đơn vị kiểm định.",
+          "severity": "MAJOR",
+          "location": "Dây chuyền amoniac, khu đo lường",
+          "dueIn": 1,
+          "state": "OPEN"
+        }
+      ]
+    },
+    {
+      "no": "BBBG-PMTB164-02",
+      "project": "DA-PMTB164",
+      "contract": "HD-PMTB164-TB01",
+      "kind": "ASSET_TRANSFER",
+      "unit": "CB-HQ",
+      "plannedIn": 40,
+      "to": "DRAFT",
+      "title": "Biên bản bàn giao đợt 2 phụ tùng, dụng cụ và tài liệu của máy nén khí K-101",
+      "punch": []
+    }
+  ],
+  "claims": [
+    {
+      "project": "DA-PMTB164",
+      "no": "BH-PMTB164-01",
+      "defect": "Rò rỉ dầu bôi trơn tại gioăng nắp ổ đỡ phía đầu ra của máy nén khí K-101 sau 120 giờ vận hành.",
+      "severity": "MAJOR",
+      "location": "Máy nén khí K-101, ổ đỡ đầu ra",
+      "ago": 0,
+      "to": "VERIFIED"
+    },
+    {
+      "project": "DA-PMTB164",
+      "no": "BH-PMTB164-02",
+      "defect": "Cảm biến nhiệt độ dầu bôi trơn báo cảnh báo giả khi nhiệt độ môi trường trên 35 độ C.",
+      "severity": "MINOR",
+      "location": "Hệ thống dầu bôi trơn K-101",
+      "ago": 0,
+      "to": "ACKNOWLEDGED"
+    },
+    {
+      "project": "DA-PMTB164",
+      "no": "BH-PMTB164-03",
+      "defect": "Đồng hồ áp suất đầu hút cho chỉ số lệch so với đầu đo điều khiển 0,2 bar.",
+      "severity": "MINOR",
+      "location": "Đầu hút máy nén khí K-101",
+      "ago": 0,
+      "to": "FILED"
+    }
+  ],
+  "members": [
+    {
+      "name": "Nguyễn Thị Hoa",
+      "email": "hoa.nguyen@dpm.example.test",
+      "unit": "CB-STC",
+      "role": "KE_TOAN_THANH_TOAN"
+    },
+    {
+      "name": "Bùi Thanh Hương",
+      "email": "huong.bui@dpm.example.test",
+      "unit": "CB-STC",
+      "role": "KE_TOAN_THANH_TOAN"
+    },
+    {
+      "name": "Phạm Văn Long",
+      "email": "long.pham@dpm.example.test",
+      "unit": "CB-SKHDT-QLDA",
+      "role": "CAN_BO_BAN_QLDA"
+    },
+    {
+      "name": "Lê Thị Mai",
+      "email": "mai.le@dpm.example.test",
+      "unit": "CB-SKHDT-QLDA",
+      "role": "CAN_BO_BAN_QLDA"
+    },
+    {
+      "name": "Trần Quang Huy",
+      "email": "huy.tran@dpm.example.test",
+      "unit": "CB-SKHDT"
+    },
+    {
+      "name": "Vũ Thị Ngọc",
+      "email": "ngoc.vu@dpm.example.test",
+      "unit": "CB-SKHDT-VP"
+    },
+    {
+      "name": "Đặng Minh Tuấn",
+      "email": "tuan.dang@dpm.example.test",
+      "unit": "CB-HQ"
+    }
+  ],
+  "texts": {
+    "assignAction": "Triển khai thực hiện kiến nghị {0}: {1}",
+    "actionProof": "Báo cáo kết quả thực hiện kiến nghị {0}",
+    "recoveryProof": "Chứng từ nộp trả của đơn vị theo kiến nghị {0}",
+    "closureBasis": "Văn bản xác nhận hoàn thành kiến nghị {0}",
+    "closureComment": "Đã kiểm tra hồ sơ khắc phục, đạt yêu cầu của kiến nghị",
+    "disputeProof": "Công văn giải trình kiến nghị {0}",
+    "recoveryNote": "Đơn vị đã nộp trả một phần theo kiến nghị",
+    "cancelReason": "Nội dung kiểm toán được gộp vào đợt kiểm toán nội bộ khác",
+    "senderUnit": "Ban Quản lý dự án đầu tư",
+    "senderFinance": "Ban Tài chính Kế toán",
+    "senderBank": "Ngân hàng thương mại đối tác",
+    "senderAuthority": "Ban Kiểm toán nội bộ Tổng công ty Đạm Phú Mỹ",
+    "followUpPlace": "Phú Mỹ",
+    "evidenceNote": "Tài liệu làm việc của đoàn kiểm toán",
+    "handoverSender": "Ban Quản lý dự án đầu tư",
+    "contractorSender": "Nhà thầu cung cấp thiết bị",
+    "punchFixed": "Nhà thầu đã khắc phục và gửi hồ sơ chứng minh",
+    "punchVerified": "Đã kiểm tra tại hiện trường, đạt yêu cầu",
+    "punchWaived": "Tồn tại nhỏ, không ảnh hưởng vận hành; bổ sung theo gói thầu phụ tùng",
+    "acceptReason": "Thiết bị đã chạy thử đạt yêu cầu, các tồn tại đã được khắc phục hoặc miễn trừ, đồng ý nghiệm thu bàn giao",
+    "asBuilt": "Hồ sơ hoàn công và tài liệu kỹ thuật của {0}",
+    "manual": "Tài liệu hướng dẫn vận hành, bảo trì của {0}",
+    "punchProof": "Biên bản khắc phục tồn tại số {0} của {1}",
+    "commissioning": "Biên bản đưa thiết bị vào sử dụng của {0}",
+    "maintenance": "Kế hoạch bảo trì máy nén khí K-101 của {0}",
+    "fundingOrigin": "Vốn chủ sở hữu của Tổng công ty",
+    "claimProof": "Biên bản ghi nhận sự cố bảo hành {0}",
+    "claimAck": "Nhà sản xuất đã tiếp nhận và cam kết khắc phục",
+    "claimFixed": "Đã thay gioăng và kiểm tra lại kín khít",
+    "claimVerified": "Đã kiểm tra vận hành sau khắc phục, đạt yêu cầu",
+    "memberGrant": "Cấp vai trò thành viên để mọi cán bộ nhận và đọc thông báo",
+    "evaluationNote": "Kích hoạt đánh giá sau đầu tư 12 tháng sau bàn giao"
+  }
+}

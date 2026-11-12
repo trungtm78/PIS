@@ -15,13 +15,13 @@ import { NONE, ProjectChooser, documentText, statusLabel, statusTone, useProject
  */
 export default function LegalDossierScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
-  const { projectId } = useProjectParam();
+  const { projectId } = useProjectParam({ fallbackToFirst: true });
   return <DossierContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${projectId ?? ''}`} route={route} />;
 }
 
 function DossierContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const { projectId, choose } = useProjectParam();
+  const { projectId, choose } = useProjectParam({ fallbackToFirst: true });
   const list = useRevisions(projectId);
   const documents = dossierOf(list.data?.items ?? []);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: projectId === undefined || list.data === undefined ? undefined : documents, isEmpty: () => documents.length === 0 });

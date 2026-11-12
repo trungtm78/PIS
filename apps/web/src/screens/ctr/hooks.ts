@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useApiClient } from '../../api/ApiClientContext';
 import { AttemptRegistry } from '../../api/attempt-registry';
 import { useSession } from '../../session/SessionContext';
-import { toContractLine, toContractView, toContractorOption, toProjectOption } from './model';
+import { defaultContract, toContractLine, toContractView, toContractorOption, toProjectOption } from './model';
 import type { ContractLine, ContractView, CreateBody, Option, PartiesBody, ReviseBody } from './model';
 
 // What the register shows depends on the scope of the membership that is signed in, not only on the tenant: switching between two
@@ -112,4 +113,32 @@ export interface CancelInput {
 export function useCancelContract() {
   const client = useApiClient();
   return useCommand<CancelInput>((input, attempt) => client.command('cancelContractDraft', { path: { id: input.id }, body: { reason: input.reason }, ifMatchVersion: input.version, attempt }));
+}
+
+/** What a screen of one contract needs to open on a contract: the one in the address, else the default one with the register to change it (see `defaultContract`). */
+export interface ContractChoice {
+  /** The contract to read; null when the address names none and the register offers none. */
+  contractId: string | null;
+  /** True when the address names no contract, so the screen shows the default one and offers the register to change it. */
+  defaulted: boolean;
+  choices: readonly ContractLine[];
+  isLoading: boolean;
+  pick(contractId: string): void;
+}
+
+/** The contract of a screen of one contract; `param` is the name of the address parameter that screen has always read. Nothing is read from the register when the address names a contract. */
+export function useContractChoice(param: 'id' | 'contract'): ContractChoice {
+  const [search] = useSearchParams();
+  const named = search.get(param);
+  const [picked, setPicked] = useState<string | null>(null);
+  const register = useContracts(named === null);
+  const choices = named === null ? (register.data ?? []) : [];
+  const fallback = named === null ? defaultContract(choices) : undefined;
+  return {
+    contractId: named ?? picked ?? fallback?.id ?? null,
+    defaulted: named === null,
+    choices,
+    isLoading: named === null && register.isLoading,
+    pick: setPicked,
+  };
 }

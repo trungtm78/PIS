@@ -13,6 +13,7 @@ import { EMPTY_LINEAGE_QUERY, lineageNeedsMetric } from './metric-lineage-model'
 import type { MetricLineage, MetricLineageQuery } from './metric-lineage-model';
 import './bi-kit.css';
 import { StatusPill } from '../../ui';
+import { metricLabel } from './metric-names';
 
 /**
  * BI-14: where the figures of a metric come from (ST-BI-009, BI F5): the version of the metric, the version of the dataset it was read over, the snapshot of DIS and the projects it is made of, level by level, each step with the
@@ -56,7 +57,7 @@ function LineageContent({ route }: ScreenProps) {
           <select id="bilin-metric" value={chosen.metricId} aria-invalid={missing} onChange={(event) => setForm({ ...form, metricId: event.target.value })}>
             {(metrics.data ?? []).map((metric) => (
               <option key={metric.id} value={metric.id}>
-                {metric.code} · {metric.revision}
+                {metricLabel(t, metric.code)} · {metric.revision}
               </option>
             ))}
           </select>

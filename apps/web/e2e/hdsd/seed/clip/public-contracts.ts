@@ -19,7 +19,9 @@ import { clipText } from './plan.ts';
 const CONTRACT_TYPE = 'UNIT_PRICE';
 /** Only a joint venture has parties (the lead and at least one member), and a payment is made to a party: so the contracts that are paid (and take the advance) are joint ventures. */
 export const ADVANCE_PACKAGE = 'DT205-XL02';
-export const JOINT_VENTURE_PACKAGES: readonly string[] = ['DT205-XL01', ADVANCE_PACKAGE, 'NN031-XL01'];
+/** The enterprise contracts that are paid (clip-ent-execution) are joint ventures too: a payment needs a party to be paid to. */
+const ENTERPRISE_PAID_PACKAGES = ['PMDT105-XL01', 'PMDT105-XL02', 'PMDT105-TV01', 'PMDT114-XL01', 'PMDT114-XL02', 'PMDT114-TV01', 'PMTB164-TB01', 'PMTB168-TB01'];
+export const JOINT_VENTURE_PACKAGES: readonly string[] = ['DT205-XL01', ADVANCE_PACKAGE, 'NN031-XL01', ...ENTERPRISE_PAID_PACKAGES];
 const ADVANCE_CATEGORY: Record<PackageSpec['category'], string> = { CONSTRUCTION: 'CONSTRUCTION', EQUIPMENT: 'EQUIPMENT', CONSULTING: 'CONSULTING', OTHER: 'OTHER' };
 
 async function contractOf(ctx: SeedContext, code: string): Promise<Obj | undefined> {

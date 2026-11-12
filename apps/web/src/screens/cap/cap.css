@@ -27,6 +27,9 @@
   background: var(--mv-color-surface);
   z-index: 1;
 }
+.cap-table thead .cap-pin {
+  z-index: 4;
+}
 .cap-table .cap-pin-1 {
   left: 0;
   min-width: 160px;

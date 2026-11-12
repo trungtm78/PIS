@@ -165,8 +165,12 @@ describe('ContractPartiesScreen (CTR-25): the members of a joint venture', () =>
     open(opened(detail(1)));
     expect((await screen.findByTestId('not-venture')).textContent).toBe(vi_['ctr.parties.notVenture.notice']);
     cleanup();
-    mount(<ContractPartiesScreen route={ROUTE} />, opened(), { permissions: MAKER });
+    mount(<ContractPartiesScreen route={ROUTE} />, opened(venture(), undefined, { contracts: [] }), { permissions: MAKER });
     expect((await screen.findByTestId('no-contract')).textContent).toBe(vi_['ctr.parties.noContract.notice']);
+    cleanup();
+    mount(<ContractPartiesScreen route={ROUTE} />, opened(detail(2), undefined, { details: [detail(1), detail(2)] }), { permissions: MAKER });
+    expect((await screen.findByTestId('default-contract')).textContent).toContain(vi_['ctr.default.notice']);
+    expect((screen.getByTestId('default-contract-select') as HTMLSelectElement).value).toBe(contractId(2));
     cleanup();
     const forbidden = opened(venture(), undefined, { details: [], missing: new ApiError({ status: 403, code: 'SCOPE_DENIED', correlationId: 'c', extensions: {} }) });
     open(forbidden);

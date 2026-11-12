@@ -10,8 +10,8 @@ import { useImportBoq, useBoqLines } from './boq-hooks';
 import { faultLabel, fieldLabel, fileProblemMessage, importProblemMessage, modeLabel, roundingLabel } from './boq-labels';
 import { BOQ_MANAGE_PERMISSION, DEFAULT_RETENTION_PCT, IMPORT_MODES, decimalText, describeImportProblem, linesOf, prepareFile, reconcile, toImportResult, totalOf } from './boq-model';
 import type { BoqLine, ImportMode, ImportResult, PreparedFile, Reconciliation } from './boq-model';
-import { BackLink, Fact, StatusBadge } from './components';
-import { useContract } from './hooks';
+import { BackLink, DefaultContractBar, Fact, StatusBadge } from './components';
+import { useContract, useContractChoice } from './hooks';
 import { revisionStatusLabel } from './labels';
 import { amountText, draftLink } from './model';
 import type { ContractView, RevisionLine } from './model';
@@ -30,11 +30,13 @@ export default function BoqScreen({ route }: ScreenProps) {
 function BoqContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const [params] = useSearchParams();
-  const contractId = params.get('id') ?? undefined;
+  // Opened without a contract in the address (the menu), the largest contract in force is read, and the selector stays to change it.
+  const choice = useContractChoice('id');
+  const contractId = choice.contractId ?? undefined;
   const contract = useContract(contractId);
   const lines = useBoqLines(contractId);
   const state = useScreenState({
-    isLoading: contract.isLoading || lines.isLoading,
+    isLoading: choice.isLoading || contract.isLoading || lines.isLoading,
     error: contract.error ?? lines.error,
     data: contractId === undefined ? undefined : (contract.data ?? undefined),
     isEmpty: NEVER_EMPTY,
@@ -44,7 +46,10 @@ function BoqContent({ route }: ScreenProps) {
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       {contractId === undefined ? null : <BackLink to={draftLink(contractId)}>{t('ctr.back.draft.link')}</BackLink>}
-      {missing ? (
+      <DefaultContractBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : missing ? (
         <>
           <div className="heading">
             <h1 id="screen-title">{t('ctr.boq.page.title')}</h1>
