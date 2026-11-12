@@ -1,0 +1,352 @@
+createOrReplace
+
+	expression ServerName = "[khách điền: máy chủ cơ sở dữ liệu:cổng]" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+
+	expression DatabaseName = "[khách điền: tên cơ sở dữ liệu]" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+
+	/// Một dòng cho mỗi (dự án, nhóm vốn, cấp ngân sách) của bản chụp đã đóng băng của một kỳ (machvon_bi.v_disbursement_lines).
+	table FactDisbursement
+
+		column snapshot_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: snapshot_id
+
+		column period_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: period_id
+
+		column line_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: line_id
+
+		column project_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: project_id
+
+		column unit_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: unit_id
+
+		column fund_source_version_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: fund_source_version_id
+
+		column bucket
+			dataType: string
+			summarizeBy: none
+			sourceColumn: bucket
+
+		column budget_level
+			dataType: string
+			summarizeBy: none
+			sourceColumn: budget_level
+
+		column plan_total_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: plan_total_vnd
+
+		column disbursed_treasury_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: disbursed_treasury_vnd
+
+		column disbursed_reported_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: disbursed_reported_vnd
+
+		column period_delta_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: period_delta_vnd
+
+		column rate_total_pct
+			dataType: decimal
+			summarizeBy: none
+			sourceColumn: rate_total_pct
+
+		column rate_null_reason
+			dataType: string
+			summarizeBy: none
+			sourceColumn: rate_null_reason
+
+		column treasury_coverage
+			dataType: string
+			summarizeBy: none
+			sourceColumn: treasury_coverage
+
+		measure 'Chosen Period' =
+				COALESCE (
+				    SELECTEDVALUE ( DimPeriod[period_id] ),
+				    MAXX ( TOPN ( 1, ALLSELECTED ( DimPeriod ), DimPeriod[as_of_date], DESC ), DimPeriod[period_id] )
+				)
+			displayFolder: Kỳ
+			description: Kỳ người xem chọn; nếu không chọn thì kỳ có ngày chốt mới nhất. Giải ngân là lũy kế nên luôn tính ở đúng một kỳ.
+
+		measure 'Plan VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactDisbursement[plan_total_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Giải ngân
+
+		measure 'Disbursed Treasury VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactDisbursement[disbursed_treasury_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Giải ngân
+
+		measure 'Disbursement Rate %' = DIVIDE ( [Disbursed Treasury VND], [Plan VND] )
+			formatString: 0.0%
+			displayFolder: Giải ngân
+			description: Tính lại bằng tổng chia tổng; không dùng cột rate_total_pct vì tỷ lệ không cộng được qua các dòng.
+
+		measure 'Period Delta VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactDisbursement[period_delta_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Giải ngân
+
+		measure 'Lines Without Treasury Coverage' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( COUNTROWS ( FactDisbursement ), FactDisbursement[treasury_coverage] = "NONE", DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Chất lượng dữ liệu
+			description: Dòng nằm trong mẫu số (kế hoạch) nhưng Kho bạc không có số giải ngân; tỷ lệ bị thấp đi.
+
+		partition FactDisbursement = m
+			mode: import
+			source =
+					let
+					    Source = PostgreSQL.Database ( ServerName, DatabaseName ),
+					    View = Source{[Schema = "machvon_bi", Item = "v_disbursement_lines"]}[Data],
+					    Kept = Table.SelectColumns ( View, { "snapshot_id", "period_id", "line_id", "project_id", "unit_id", "fund_source_version_id", "bucket", "budget_level", "plan_total_vnd", "disbursed_treasury_vnd", "disbursed_reported_vnd", "period_delta_vnd", "rate_total_pct", "rate_null_reason", "treasury_coverage" } )
+					in
+					    Kept
+
+	/// Một dòng cho mỗi (hợp đồng, bên tham gia) của bản chụp hợp đồng đã đóng băng; chỉ giữ phiên bản mới nhất của mỗi kỳ (machvon_bi.v_contract_lines).
+	table FactContract
+
+		column snapshot_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: snapshot_id
+
+		column period_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: period_id
+
+		column revision
+			dataType: int64
+			summarizeBy: none
+			sourceColumn: revision
+
+		column contract_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: contract_id
+
+		column contractor_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: contractor_id
+
+		column project_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: project_id
+
+		column unit_id
+			dataType: string
+			isHidden
+			summarizeBy: none
+			sourceColumn: unit_id
+
+		column is_lead
+			dataType: boolean
+			summarizeBy: none
+			sourceColumn: is_lead
+
+		column share_pct
+			dataType: decimal
+			summarizeBy: none
+			sourceColumn: share_pct
+
+		column contract_status
+			dataType: string
+			summarizeBy: none
+			sourceColumn: contract_status
+
+		column contract_type
+			dataType: string
+			summarizeBy: none
+			sourceColumn: contract_type
+
+		column active_value_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: active_value_vnd
+
+		column paid_vnd
+			dataType: decimal
+			isHidden
+			formatString: #,0
+			summarizeBy: none
+			sourceColumn: paid_vnd
+
+		measure 'Contract Value VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactContract[active_value_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Hợp đồng
+
+		measure 'Paid To Contractors VND' =
+				VAR ChosenPeriod = [Chosen Period]
+				RETURN CALCULATE ( SUM ( FactContract[paid_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+			formatString: #,0
+			displayFolder: Hợp đồng
+
+		measure 'Paid Share %' = DIVIDE ( [Paid To Contractors VND], [Contract Value VND] )
+			formatString: 0.0%
+			displayFolder: Hợp đồng
+
+		partition FactContract = m
+			mode: import
+			source =
+					let
+					    Source = PostgreSQL.Database ( ServerName, DatabaseName ),
+					    View = Source{[Schema = "machvon_bi", Item = "v_contract_lines"]}[Data],
+					    Newest = Table.Group ( View, { "period_id" }, { { "max_revision", each List.Max ( [revision] ), Int64.Type } } ),
+					    Joined = Table.Join ( View, { "period_id", "revision" }, Newest, { "period_id", "max_revision" }, JoinKind.Inner ),
+					    Kept = Table.SelectColumns ( Joined, { "snapshot_id", "period_id", "revision", "contract_id", "contractor_id", "project_id", "unit_id", "is_lead", "share_pct", "contract_status", "contract_type", "active_value_vnd", "paid_vnd" } )
+					in
+					    Kept
+
+	/// Các kỳ có bản chụp, lấy từ cả hai view; một dòng cho mỗi period_id.
+	table DimPeriod
+
+		column period_id
+			dataType: string
+			summarizeBy: none
+			sourceColumn: period_id
+
+		column as_of_date
+			dataType: dateTime
+			formatString: dd/mm/yyyy
+			summarizeBy: none
+			sourceColumn: as_of_date
+
+		partition DimPeriod = m
+			mode: import
+			source =
+					let
+					    Source = PostgreSQL.Database ( ServerName, DatabaseName ),
+					    Disbursement = Table.SelectColumns ( Source{[Schema = "machvon_bi", Item = "v_disbursement_lines"]}[Data], { "period_id", "as_of_date" } ),
+					    Contract = Table.RenameColumns ( Table.SelectColumns ( Source{[Schema = "machvon_bi", Item = "v_contract_lines"]}[Data], { "period_id", "cutoff_date" } ), { { "cutoff_date", "as_of_date" } } ),
+					    Periods = Table.Distinct ( Table.Combine ( { Disbursement, Contract } ), { "period_id" } )
+					in
+					    Periods
+
+	/// Nhãn của nhóm vốn; bảng nhập tay ba dòng.
+	table DimBucket
+
+		column bucket
+			dataType: string
+			summarizeBy: none
+			sourceColumn: bucket
+
+		column label
+			dataType: string
+			summarizeBy: none
+			sourceColumn: label
+
+		partition DimBucket = m
+			mode: import
+			source =
+					let
+					    Source = #table ( type table [bucket = text, label = text], { { "CURRENT_YEAR", "Kế hoạch năm nay" }, { "CARRYOVER", "Vốn kéo dài" }, { "OTHER", "Khác" } } )
+					in
+					    Source
+
+	/// Trạng thái từng tập dữ liệu: có đang mở không và vì sao không (machvon_bi.v_dataset_catalogue). Mỗi báo cáo nên có một trang hiển thị bảng này.
+	table Catalogue
+
+		column dataset_code
+			dataType: string
+			summarizeBy: none
+			sourceColumn: dataset_code
+
+		column view_name
+			dataType: string
+			summarizeBy: none
+			sourceColumn: view_name
+
+		column grain
+			dataType: string
+			summarizeBy: none
+			sourceColumn: grain
+
+		column is_open
+			dataType: boolean
+			summarizeBy: none
+			sourceColumn: is_open
+
+		column reason
+			dataType: string
+			summarizeBy: none
+			sourceColumn: reason
+
+		column certified_until
+			dataType: dateTime
+			formatString: dd/mm/yyyy
+			summarizeBy: none
+			sourceColumn: certified_until
+
+		partition Catalogue = m
+			mode: import
+			source =
+					let
+					    Source = PostgreSQL.Database ( ServerName, DatabaseName ),
+					    View = Source{[Schema = "machvon_bi", Item = "v_dataset_catalogue"]}[Data]
+					in
+					    View
+
+	relationship FactDisbursement_DimPeriod
+		fromColumn: FactDisbursement.period_id
+		toColumn: DimPeriod.period_id
+
+	relationship FactContract_DimPeriod
+		fromColumn: FactContract.period_id
+		toColumn: DimPeriod.period_id
+
+	relationship FactDisbursement_DimBucket
+		fromColumn: FactDisbursement.bucket
+		toColumn: DimBucket.bucket
