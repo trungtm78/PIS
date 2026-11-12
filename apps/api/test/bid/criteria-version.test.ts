@@ -186,7 +186,7 @@ describe('criteria versions commands and reads (ST-BID-003)', () => {
   });
 
   describe('drafting and approving', () => {
-    it('drafts a version, refuses its maker as approver and one without the right, and approves it with bid.criteria.approved.v1 (AC-ST-BID-003-1, -2)', async () => {
+    it('UAT-AC447: drafts a version, refuses its maker as approver and one without the right, and approves it with bid.criteria.approved.v1 (AC-ST-BID-003-1, -2)', async () => {
       const seeded = await pack();
       const made = await create(SOLO, body(seeded));
       expect(made.status).toBe(200);
@@ -259,7 +259,7 @@ describe('criteria versions commands and reads (ST-BID-003)', () => {
       expect(await countFor(seeded.packageId)).toBe(1);
     });
 
-    it('refuses weights of 30/30/20/10 with their sum, and saves nothing (AC-ST-BID-003-1)', async () => {
+    it('UAT-AC447: refuses weights of 30/30/20/10 with their sum, and saves nothing (AC-ST-BID-003-1)', async () => {
       const seeded = await pack();
       const reply = await create(PLANNER, body(seeded, { criteria: [scored('C1', 30), scored('C2', 30), scored('C3', 20), scored('C4', 10)] }));
       expect([reply.status, reply.json.code]).toEqual([422, 'CRITERIA_WEIGHT_INVALID']);

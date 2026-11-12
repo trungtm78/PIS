@@ -148,7 +148,7 @@ describe('quality rules, runs and scorecards over HTTP (ST-DGV-002)', () => {
   }, 60_000);
 
   describe('createQualityRuleVersion and approveQualityRuleVersion', () => {
-    it('refuses the author approving the rule, accepts another approver, and refuses a raw SQL node (AC-ST-DGV-002-3)', async () => {
+    it('UAT-AC484: refuses the author approving the rule, accepts another approver, and refuses a raw SQL node (AC-ST-DGV-002-3)', async () => {
       const world = await newWorld();
       const draft = await createRule(LEAD, ruleBody(world));
       expect(draft.status).toBe(200);
@@ -308,7 +308,7 @@ describe('quality rules, runs and scorecards over HTTP (ST-DGV-002)', () => {
   });
 
   describe('getQualityScorecard', () => {
-    it('is a hard fail with a score of about 95 and a CRITICAL incident when nine rules pass and one integrity rule finds a reference to no project (AC-ST-DGV-002-1)', async () => {
+    it('UAT-AC485: is a hard fail with a score of about 95 and a CRITICAL incident when nine rules pass and one integrity rule finds a reference to no project (AC-ST-DGV-002-1)', async () => {
       const world = await newWorld({ is_critical: true });
       const passing: Array<[string, string, unknown]> = [
         ['R-01', 'COMPLETENESS', { op: 'not_null', field: 'project_id' }],

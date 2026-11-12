@@ -258,7 +258,7 @@ describe('the registration of the disbursement schedule over HTTP (ST-CAP-009)',
       expect(again[0]).toMatchObject({ amount_vnd: millions(1_200), revision: 2, achievement: { disbursed_vnd: millions(300), rate: '0.2500' } });
     });
 
-    it('refuses a subset above the amount (422 SUBSET_EXCEEDS_PARENT), a forecast without its assumption, a registration in the wrong grain and a malformed body, writing nothing', async () => {
+    it('UAT-PLAN-63: refuses a subset above the amount (422 SUBSET_EXCEEDS_PARENT), a forecast without its assumption, a registration in the wrong grain and a malformed body, writing nothing', async () => {
       const year = freshYear();
       const target = await project();
       const subset = await register(body(target, year, { ctmtqg_subset_vnd: millions(801) }));
@@ -273,7 +273,7 @@ describe('the registration of the disbursement schedule over HTTP (ST-CAP-009)',
       expect(await countOf(target)).toBe(0);
     });
 
-    it('refuses a locked period (409 PERIOD_LOCKED) and a locked fiscal year (409 FISCAL_YEAR_LOCKED), and writes nothing (AC-ST-CAP-009-2)', async () => {
+    it('UAT-PLAN-63: refuses a locked period (409 PERIOD_LOCKED) and a locked fiscal year (409 FISCAL_YEAR_LOCKED), and writes nothing (AC-ST-CAP-009-2)', async () => {
       const year = freshYear();
       const target = await project();
       const calendarId = await seedMaster('CAL', 'CALENDAR', {});
@@ -308,7 +308,7 @@ describe('the registration of the disbursement schedule over HTTP (ST-CAP-009)',
       expect(await countOf(inside)).toBe(1);
     });
 
-    it('takes the revisions of several requests at the same moment one after the other: each one a revision, one of them current', async () => {
+    it('UAT-PLAN-63: takes the revisions of several requests at the same moment one after the other: each one a revision, one of them current', async () => {
       const year = freshYear();
       const target = await project();
       const replies = await Promise.all([1, 2, 3, 4].map((n) => register(body(target, year, { amount_vnd: millions(100 * n) }))));

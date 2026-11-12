@@ -219,7 +219,7 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       expect((await publish(PUBLISHER, idOf(proposed), Number(record?.version))).status).toBe(200);
     });
 
-    it('answers 428 without If-Match, 409 VERSION_CONFLICT for a stale one, and 422 IMPACT_NOT_COMPUTED for a request without impact (AC-ST-MDM-001-4)', async () => {
+    it('UAT-PLAN-53: answers 428 without If-Match, 409 VERSION_CONFLICT for a stale one, and 422 IMPACT_NOT_COMPUTED for a request without impact (AC-ST-MDM-001-4)', async () => {
       const proposed = await propose(STEWARD);
       const change = await changeOf(idOf(proposed));
       const noMatch = await call('POST', `/master-change-requests/${change.id}/submit`, { member: STEWARD });

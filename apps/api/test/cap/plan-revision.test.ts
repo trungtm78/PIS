@@ -247,11 +247,12 @@ describe('revision and as-of reading of the capital plan over HTTP (ST-CAP-004)'
       expect(audit[0]).toMatchObject({ reason: REASON, diff: { revision: 2, supersedes_id: plan.id, copied_lines: 2, copied_projects: 2 } });
     });
 
-    it('refuses a second revision while one is pending (409 REVISION_PENDING_EXISTS)', async () => {
+    it('UAT-PLAN-60: refuses a second revision while one is pending (409 REVISION_PENDING_EXISTS)', async () => {
       const plan = await planOf([money(2)], '2030-06-30T00:00:00Z');
       expect((await revise(plan.id, plan.version)).status).toBe(200);
       const again = await revise(plan.id, plan.version);
       expect([again.status, codeOf(again)]).toEqual([409, 'REVISION_PENDING_EXISTS']);
+      expect((await rows<{ n: string }>("select count(*)::text as n from machvon.capital_plan where supersedes_id = $1::uuid and status = 'DRAFT'", [plan.id]))[0]?.n).toBe('1');
     });
 
     it('refuses a plan that is not published (409 PLAN_NOT_PUBLISHED), a stale (409) or missing (428) If-Match, a short reason (422), a missing one (400) and a plan of another tenant (404)', async () => {
