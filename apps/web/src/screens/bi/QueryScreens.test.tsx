@@ -131,7 +131,7 @@ describe('BI-09 analysis workbench (ST-BI-004, BI F3, F4)', () => {
     const h = client(normal(), () => answer());
     mount(<WorkbenchScreen route={BENCH} />, h, { permissions: QUERIER });
     const options = [...((await screen.findByLabelText(vi_['bi.workbench.metric'])) as HTMLSelectElement).options].map((option) => option.textContent);
-    expect(options).toEqual(['disbursement_rate', 'disbursed']);
+    expect(options).toEqual(['Tỷ lệ giải ngân (disbursement_rate)', 'disbursed']);
     const result = await runIt(user);
     expect(h.command.mock.calls[0]).toMatchObject(['post_dashboard_queries', { body: { metric_version_id: RATE.id, snapshot_id: V1, dimensions: ['unit'], filters: [] } }]);
     expect(within(result).getByTestId('label-period').textContent).toBe(fill(vi_['bi.query.label.period'], { period: '2026-10' }));
@@ -422,7 +422,7 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     const h = client({ ...normal(), versions: [version(V1), version(V2, 'FROZEN', '2026-09')] }, () => answer());
     mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
     await findFigure(RATE.id);
-    await user.selectOptions(screen.getByLabelText(vi_['bi.board.period']), V2);
+    await user.selectOptions(screen.getByLabelText(vi_['bi.board.period']), '2026-09');
     await waitFor(() => expect(h.command.mock.calls.some(([, input]) => (input as { body: { snapshot_id: string } }).body.snapshot_id === V2)).toBe(true));
     cleanup();
     mount(

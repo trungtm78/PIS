@@ -14,6 +14,7 @@ import { DIMENSIONS, describeQueryProblem } from './query-model';
 import type { Group, QueryResult } from './query-model';
 import { GroupTable, Reconciliation, ResultLabels } from './QueryResultView';
 import './bi-kit.css';
+import { metricLabel } from './metric-names';
 
 interface Level {
   result: QueryResult;
@@ -131,7 +132,7 @@ function WorkbenchContent({ route }: ScreenProps) {
               <select id="wb-metric" value={chosenMetric} onChange={(event) => setMetricId(event.target.value)}>
                 {certified.map((metric) => (
                   <option key={metric.id} value={metric.id}>
-                    {metric.code}
+                    {metricLabel(t, metric.code)}
                   </option>
                 ))}
               </select>

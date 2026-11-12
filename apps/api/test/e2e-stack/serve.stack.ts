@@ -55,7 +55,11 @@ import { PUSH_TOKEN_VAULT } from '../../src/notifications/devices/push-vault';
 import type { PushTokenVault } from '../../src/notifications/devices/push-vault';
 import { PermissionResourceAccess } from '../../src/notifications/resource-access-port';
 import { FileService } from '../../src/modules/files';
+import { LLM_GATEWAY } from '../../src/modules/llm/tokens';
+import { LLM_DOCUMENT_TEXT, OcrDocumentTextPort } from '../../src/modules/llm/knowledge-ports';
+import { AnthropicGateway, PdfFallbackTextPort } from './anthropic-gateway';
 import { DOCUMENT_FILE_PORT } from '../../src/modules/doc/file-port';
+import type { DocumentFilePort } from '../../src/modules/doc/file-port';
 import { DOC_REVOCATION, DOC_SIGNING_PORT, DOC_TRUST_STORE } from '../../src/modules/doc/tokens';
 import { seedDocsSigning } from './docs-signing';
 import { seedOutgoingDocuments } from './outgoing-seed';
@@ -1200,7 +1204,8 @@ const TENANT_PEOPLE = DOCS_PEOPLE.filter((person) => person.plane !== 'control')
 function docsRoles(): Array<{ n: number; code: string; permissions: string[]; rank: number }> {
   const unique = (roles: ReadonlyArray<{ permissions: readonly string[] }>): string[] => [...new Set(roles.flatMap((role) => role.permissions))];
   // The permissions of the product's own catalogue, but not the ones of the platform (tenants, licences, models): a unit of a tenant does not hold those.
-  const platform = /^(system|llm|license|subscription|support|control|internal|edge)./;
+  // Demo only: with DEMO_ANTHROPIC_API_KEY set the unit roles also hold the AI gateway permissions (llm.*), so that a maker and a checker exist for the AI registry.
+  const platform = (process.env.DEMO_ANTHROPIC_API_KEY ?? '') === '' ? /^(system|llm|license|subscription|support|control|internal|edge)./ : /^(system|license|subscription|support|control|internal|edge)./;
   const everything = [...new Set([...unique(E2E_ROLES), ...Object.values(PERMISSIONS)])].filter((permission) => !platform.test(permission));
   const deciding = (permission: string): boolean => /approve|publish|decide|certify|sign|review|accept|confirm/.test(permission);
   return [
@@ -1979,7 +1984,7 @@ describe('e2e API stack', () => {
       process.env.MACHVON_OBJECT_ROOT = objectRoot;
       const providerSecret = randomBytes(24).toString('hex');
       process.env[PROVIDER_WEBHOOK_ENV] = `${PROVIDER_KEY_ID}:${providerSecret}`;
-      const moduleRef = await Test.createTestingModule({
+      const moduleBuilder = Test.createTestingModule({
         imports: [
           {
             module: E2eRootModule,
@@ -2017,8 +2022,14 @@ describe('e2e API stack', () => {
         .useValue(outgoing.trust)
         // No OCSP or CRL service exists in the stack: the test authority answers that none of its certificates is revoked, so the gate can be shown issuing.
         .overrideProvider(DOC_REVOCATION)
-        .useValue({ check: async () => ({ status: 'GOOD' as const }) })
-        .compile();
+        .useValue({ check: async () => ({ status: 'GOOD' as const }) });
+      // Demo only: with DEMO_ANTHROPIC_API_KEY in the environment the AI gateway port answers with the real Claude API; without it the module keeps its own binding.
+      const demoAnthropicKey = process.env.DEMO_ANTHROPIC_API_KEY;
+      const moduleRef = await (demoAnthropicKey === undefined || demoAnthropicKey === ''
+        ? moduleBuilder
+        : moduleBuilder.overrideProvider(LLM_GATEWAY).useFactory({ factory: (files: FileService) => new AnthropicGateway({ apiKey: demoAnthropicKey, files }), inject: [FileService] })
+          .overrideProvider(LLM_DOCUMENT_TEXT).useFactory({ factory: (files: FileService, documentFiles: DocumentFilePort) => new PdfFallbackTextPort(new OcrDocumentTextPort(files), documentFiles), inject: [FileService, DOCUMENT_FILE_PORT] })
+      ).compile();
       // The raw body is what the provider signs: the webhook controllers verify the signature on it.
       app = moduleRef.createNestApplication({ rawBody: true });
       // A UAT run (scripts/uat-run.mjs) keeps a line for each request the browser tests make.

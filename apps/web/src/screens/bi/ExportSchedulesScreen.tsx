@@ -17,6 +17,7 @@ import { DIMENSIONS } from './query-model';
 import './bi-kit.css';
 import { StatusPill } from '../../ui';
 import { scheduleStateTone } from './tones';
+import { metricLabel } from './metric-names';
 
 const NONE = '—';
 
@@ -125,7 +126,7 @@ function SchedulesContent({ route }: ScreenProps) {
             <select id="sch-metric" value={chosen.metricId} onChange={(event) => setForm({ ...form, metricId: event.target.value })}>
               {certified.map((metric) => (
                 <option key={metric.id} value={metric.id}>
-                  {metric.code}
+                  {metricLabel(t, metric.code)}
                 </option>
               ))}
             </select>

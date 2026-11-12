@@ -1,9 +1,10 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import AppraisalDecisionScreen from './AppraisalDecisionScreen';
+import { line as projectLine } from './test-support';
 import { DOCUMENT, OTHER_SHEET_ID, PROJECT_ID, SHEET_ID, appraisal, appraisalClient, lifecycle, mount, routeOf, sheet, world } from './appraisal-test-support';
 
 const ROUTE = routeOf('PRJ-10', 'FR-PRJ-10');
@@ -192,6 +193,17 @@ describe('AppraisalDecisionScreen (PRJ-10): the decision on the appraisal of a p
     mount(<AppraisalDecisionScreen route={ROUTE} />, appraisalClient(worldOf()), { permissions: DECIDER, mode: 'READ_ONLY', path: OPEN });
     expect((await screen.findByTestId('read-only')).textContent).toBe(vi_['prj.decision.readOnly.frozen.notice']);
     expect(screen.getByTestId('sheets')).toBeTruthy();
+  });
+
+  it('PRJ-10 without a project in the address opens the round of the first project in appraisal of the register, says so, and keeps the register one link away', async () => {
+    const h = appraisalClient(worldOf());
+    (h.client as unknown as { readAll: unknown }).readAll = vi.fn(() => Promise.resolve([projectLine(7, { status: 'CONCEPT' }), projectLine(1, { status: 'APPRAISAL' })]));
+    mount(<AppraisalDecisionScreen route={ROUTE} />, h, { permissions: DECIDER, path: '/prj/prj-10' });
+    await ready();
+    expect(h.read).toHaveBeenCalledWith('getProjectLifecycle', { path: { id: PROJECT_ID } });
+    expect(screen.queryByTestId('no-project')).toBeNull();
+    expect(screen.getByTestId('default-project').textContent).toContain(vi_['prj.decision.default.notice']);
+    expect(within(screen.getByTestId('default-project')).getByRole('link', { name: vi_['prj.score.default.link'] }).getAttribute('href')).toBe('/prj/prj-01');
   });
 
   it('says so when no project is named or the lifecycle cannot be read, and retries; a sheet without a name for its appraiser is unknown', async () => {

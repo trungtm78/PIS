@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
+import { DefaultContractBar } from '../components';
+import { useContractChoice } from '../hooks';
 import { amountText } from '../model';
 import { useHolds } from './hooks';
 import { blockerLabel, conditionLabel, statusLabel } from './labels';
@@ -26,8 +27,9 @@ export default function RetentionScreen({ route }: ScreenProps) {
 function RetentionContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { mode } = useSession();
-  const [search] = useSearchParams();
-  const contractId = search.get('contract');
+  // Opened without a contract in the address (the menu), the largest contract in force is shown, and the selector stays to change it.
+  const choice = useContractChoice('contract');
+  const contractId = choice.contractId;
   const holds = useHolds(contractId);
   const [releasing, setReleasing] = useState<HoldLine | undefined>(undefined);
   const state = useScreenState({ isLoading: holds.isLoading, error: holds.error, data: contractId === null || holds.isLoading ? undefined : holds.data, isEmpty: (data) => data === null });
@@ -43,7 +45,10 @@ function RetentionContent({ route }: ScreenProps) {
           <p>{t('ctr.retention.page.subtitle')}</p>
         </div>
       </div>
-      {contractId === null ? (
+      <DefaultContractBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : contractId === null ? (
         <p className="callout" role="status" data-testid="no-contract">
           {t('ctr.retention.none.notice')}
         </p>

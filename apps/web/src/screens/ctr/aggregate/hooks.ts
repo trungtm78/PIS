@@ -1,7 +1,6 @@
 import type { ApiClient } from '@machvon/api-client';
 import { useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { useSession } from '../../../session/SessionContext';
 import { toAsset } from '../../ast/asset/model';
@@ -20,7 +19,8 @@ import { toInspectionLine } from '../../qms/inspection/model';
 import type { InspectionLine } from '../../qms/inspection/model';
 import { toNcrLine } from '../../qms/nonconformance/model';
 import type { NcrLine } from '../../qms/nonconformance/model';
-import { useContract, useScopeKey } from '../hooks';
+import { useContract, useContractChoice, useScopeKey } from '../hooks';
+import type { ContractChoice } from '../hooks';
 import type { ContractView } from '../model';
 import { contractIdOf, settlementsOf } from './model';
 
@@ -32,6 +32,8 @@ const query = (parameters: Record<string, string | number>): Record<string, stri
 /** What a view stands on: the contract it was opened for (named in the address), the contract as the caller may read it, and whether the caller holds the reads of the data it shows (all of them: a view that reads two owners is not shown half). */
 export interface ViewScope {
   contractId: string | null;
+  /** The contract of the address, or the default one with the register to change it when the address names none. */
+  choice: ContractChoice;
   contract: UseQueryResult<ContractView | null>;
   mayRead: boolean;
 }
@@ -39,11 +41,11 @@ export interface ViewScope {
 /** The contract of the address and the read right over the data of the view; a caller without a right reads nothing (the screen says it is denied). */
 export function useViewScope(permission: string | readonly string[]): ViewScope {
   const { permissions } = useSession();
-  const [search] = useSearchParams();
-  const contractId = contractIdOf(search.get('id'));
+  const choice = useContractChoice('id');
+  const contractId = contractIdOf(choice.contractId);
   const contract = useContract(contractId);
   const needed = typeof permission === 'string' ? [permission] : permission;
-  return { contractId, contract, mayRead: permissions === undefined || needed.every((one) => permissions.includes(one)) };
+  return { contractId, choice, contract, mayRead: permissions === undefined || needed.every((one) => permissions.includes(one)) };
 }
 
 const rowsOf = <T>(raw: readonly unknown[], parse: (item: unknown) => T | undefined): T[] => raw.flatMap((item) => parse(item) ?? []);

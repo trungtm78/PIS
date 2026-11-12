@@ -77,10 +77,12 @@ export function Sidebar(props: SidebarProps) {
   const { navigation, route, tenant, user } = props;
   // Modules whose shortcuts the user opened or closed by hand; the current module is open until the user closes it.
   const [overrides, setOverrides] = useState<ReadonlyMap<string, boolean>>(new Map());
-  const isOpen = (module: string): boolean => overrides.get(module) ?? route?.module === module;
-  const toggle = (module: string): void => setOverrides(new Map(overrides).set(module, !isOpen(module)));
+  // An entry of an edition may gather several modules (`covers`): a screen of any of them keeps the entry active and open.
+  const owns = (link: NavLink, module: string | undefined): boolean => module !== undefined && (module === link.module || (link.covers?.includes(module) ?? false));
+  const isOpen = (link: NavLink): boolean => overrides.get(link.module) ?? owns(link, route?.module);
+  const toggle = (link: NavLink): void => setOverrides(new Map(overrides).set(link.module, !isOpen(link)));
 
-  const represented = new Set(['HOME', 'NOT', ...navigation.quick.map((link) => link.module)]);
+  const represented = new Set(['HOME', 'NOT', ...navigation.quick.flatMap((link) => [link.module, ...(link.covers ?? [])])]);
   const moduleLink: NavLink | undefined =
     route === undefined || represented.has(route.module) || !navigation.isModuleVisible(route.module)
       ? undefined
@@ -101,13 +103,12 @@ export function Sidebar(props: SidebarProps) {
 
   const renderLink = (link: NavLink) => {
     const exact = route?.id === link.id;
-    const active = link.expandable ? route?.module === link.module : exact || isOverviewChild(link, route);
-    const open = link.expandable && isOpen(link.module);
+    const active = link.expandable ? owns(link, route?.module) : exact || isOverviewChild(link, route);
+    const open = link.expandable && isOpen(link);
     const label = labelText(t, link.label);
     const shortcuts = navigation.shortcuts.get(link.module) ?? [];
-    const activeNumber = route?.module === link.module ? Number(route.id.split('-')[1]) : -1;
     const count = link.id === NOTIFICATIONS ? (props.unreadNotifications ?? 0) : (props.counts?.[link.id] ?? 0);
-    const leaf = route !== undefined && route.module === link.module && activeNumber > 1 && !shortcuts.some((shortcut) => shortcut.id === route.id) ? route : undefined;
+    const leaf = route !== undefined && owns(link, route.module) && route.id !== link.id && !shortcuts.some((shortcut) => shortcut.id === route.id) ? route : undefined;
     return (
       <div key={link.id}>
         <div className={`sidebar-destination${active ? ' destination-active' : ''}`}>
@@ -119,7 +120,7 @@ export function Sidebar(props: SidebarProps) {
               // Opening the page you are on toggles its shortcuts instead of reloading it, as in the prototype.
               if (link.expandable && exact) {
                 event.preventDefault();
-                toggle(link.module);
+                toggle(link);
               }
             }}
           >
@@ -133,7 +134,7 @@ export function Sidebar(props: SidebarProps) {
               className="sidebar-expand"
               aria-label={t('shell.nav.expand.label', { name: label })}
               aria-expanded={open}
-              onClick={() => toggle(link.module)}
+              onClick={() => toggle(link)}
             >
               <Icon name="chevron" />
             </button>

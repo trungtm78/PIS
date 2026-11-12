@@ -18,6 +18,7 @@ import { DIMENSIONS, describeQueryProblem } from './query-model';
 import type { QueryResult } from './query-model';
 import { GroupTable, ResultLabels } from './QueryResultView';
 import './bi-kit.css';
+import { metricLabel } from './metric-names';
 
 /**
  * BI-04: the builder of a chart (ST-BI-005, BI F3, UAT-AC32): a certified metric over a frozen version of the dataset, cut by a dimension and drawn as bars, a line, an area, a pie or a figure. A ratio is the
@@ -99,7 +100,7 @@ function ChartContent({ route }: ScreenProps) {
               <select id="chart-metric" value={chosenMetric} onChange={(event) => setMetricId(event.target.value)}>
                 {certified.map((metric) => (
                   <option key={metric.id} value={metric.id}>
-                    {metric.code}
+                    {metricLabel(t, metric.code)}
                   </option>
                 ))}
               </select>

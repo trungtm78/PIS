@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { wireControl } from '../../field-wiring';
-import { BackLink, StatusBadge } from '../components';
+import { BackLink, StatusBadge, DefaultContractBar } from '../components';
+import { useContractChoice } from '../hooks';
 import { LIST_PATH, amountText } from '../model';
 import { useSummary } from '../workspace/hooks';
 import { formProblemMessage, problemMessage } from '../workspace/labels';
@@ -36,8 +36,9 @@ export default function StatusScreen({ route }: ScreenProps) {
 function StatusContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { mode } = useSession();
-  const [search] = useSearchParams();
-  const contractId = search.get('id');
+  // Opened without a contract in the address (the menu), the largest contract in force is shown, and the selector stays to change it.
+  const choice = useContractChoice('id');
+  const contractId = choice.contractId;
   const summary = useSummary(contractId);
   const [done, setDone] = useState(false);
   const state = useScreenState({
@@ -57,7 +58,10 @@ function StatusContent({ route }: ScreenProps) {
         </div>
       </div>
       <BackLink to={LIST_PATH}>{t('ctr.back.list.link')}</BackLink>
-      {contractId === null ? (
+      <DefaultContractBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : contractId === null ? (
         <p className="callout" role="status" data-testid="no-contract">
           {t('ctr.halt.none.notice')}
         </p>

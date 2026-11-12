@@ -78,12 +78,25 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-project-docs` | RUN_VERIFIED |
 | `clip-ent-narrative` | RUN_VERIFIED |
 | `clip-ent-contractor-portal` | RUN_VERIFIED |
+| `clip-ent-execution` | WRITTEN_NOT_RUN |
+| `clip-ent-issues` | WRITTEN_NOT_RUN |
+| `clip-ent-lifecycle` | WRITTEN_NOT_RUN |
+| `clip-ent-weekly` | WRITTEN_NOT_RUN |
+| `clip-ent-capplus` | WRITTEN_NOT_RUN |
+| `clip-ent-legal` | WRITTEN_NOT_RUN |
+| `clip-ent-rights` | WRITTEN_NOT_RUN |
+| `clip-ent-bi2` | WRITTEN_NOT_RUN |
+| `clip-ent-vendor` | WRITTEN_NOT_RUN |
+| `clip-ent-ops` | WRITTEN_NOT_RUN |
+| `clip-ent-admin` | WRITTEN_NOT_RUN |
+| `clip-ent-platform` | WRITTEN_NOT_RUN |
+| `clip-ent-audit` | WRITTEN_NOT_RUN |
+| `clip-ent-mobile` | WRITTEN_NOT_RUN |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**
 
 | Nhóm dữ liệu | Nhóm phải tạo |
 |---|---|
-| `clip-ent-vendor` | Nhà thầu minh họa có kỳ tài chính, khai quan hệ cá nhân, sổ bảo đảm, hạng rủi ro, chứng chỉ, sự kiện uy tín; liên kết đầu mối và sàng lọc; tài khoản thành viên khách contractorUser, thư mời, yêu cầu, đánh giá và kế hoạch khắc phục. |
 | `clip-ent-claims` | Điều khoản claim, claim ở nhiều trạng thái, cảnh báo sớm hợp đồng có đánh giá và biện pháp, đồng hồ quyết toán hợp đồng cho 8 hợp đồng của bộ doanh nghiệp. |
 | `clip-ent-alert-governance` | Cảnh báo leo thang, người vắng mặt có người thay, thiết lập cá nhân, thang kênh, phản hồi cảnh báo sai, ủy quyền vĩnh viễn và làm thay đã duyệt. |
 | `clip-ent-audit-controls` | Cuộc kiểm toán nội bộ có phát hiện và kiến nghị; chạy quét red flag; tố giác và sổ quà tặng. |
@@ -93,11 +106,9 @@ Bộ dữ liệu: `enterprise` (docs/clip-data.md)
 | `clip-ent-correspondence` | Văn bản đi và đến của doanh nghiệp ở các bước, quy tắc bảo quản. |
 | `clip-ent-integration` | Bộ kết nối của Hub (HPM, EBS, kho dữ liệu), tài khoản máy và tài khoản BI, mục đối chiếu mã dự án, hợp đồng dữ liệu và sản phẩm dữ liệu. |
 | `clip-ent-field` | Vướng mắc, nhật ký thi công, chất lượng, giấy phép, bàn giao tài sản của các dự án doanh nghiệp (không có giải phóng mặt bằng cho dự án mua sắm thiết bị). |
-| `clip-ent-lifecycle` | Đề xuất chủ trương, thẩm định, cấu trúc công việc, điều chỉnh, phân công lãnh đạo và yêu cầu giải trình cho dự án doanh nghiệp. |
 | `clip-ent-reports-close` | Lô số liệu theo kỳ, một kỳ đã chốt có chữ ký số và một lần mở lại, tệp Excel nhập qua bảng ánh xạ, luồng duyệt dựng bằng giao diện. |
 | `clip-ent-bid-analysis` | Gói thầu có hồ sơ dự thầu nhiều tệp đã qua OCR và một lượt phân tích AI có dẫn chứng. |
 | `clip-ent-contract-site` | Hợp đồng có yêu cầu thay đổi, phụ lục, khối lượng, chất lượng và nghiệm thu đã ghi. |
-| `clip-ent-platform` | Chủ đề và biểu trưng của doanh nghiệp, mã trùng chờ hợp nhất, sự cố chất lượng dữ liệu, mẫu thông báo, lịch sử sao lưu. |
 | `clip-ent-phone-extra` | Tài khoản cán bộ và lãnh đạo có dữ liệu cho các màn điện thoại còn lại; phim quay trên máy ảo theo tên cảnh trong thư mục phone-ent. |
 | `clip-ent-snapshot-close` | Làn ENT-3a: kế hoạch vốn và chỉ tiêu đã nhập đủ cho một kỳ để dựng và chốt ảnh chụp doanh nghiệp, cùng một kỳ còn thiếu để quay lời từ chối. |
 | `clip-ent-approval-push` | Làn ENT-3c: luồng duyệt có bước đẩy HPM đang chờ biên nhận, một lần bị từ chối. |

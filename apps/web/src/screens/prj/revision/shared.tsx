@@ -9,9 +9,13 @@ type T = Translator['t'];
 export const NONE = '—';
 
 /** The project of the address (`?id=`) and the way to choose another. */
-export function useProjectParam(): { projectId: string | undefined; choose(id: string): void } {
+export function useProjectParam(options?: { fallbackToFirst?: boolean }): { projectId: string | undefined; choose(id: string): void } {
   const [params, setParams] = useSearchParams();
-  return { projectId: params.get('id') ?? undefined, choose: (id) => setParams(id === '' ? {} : { id }) };
+  const projects = useProjects();
+  const explicit = params.get('id') ?? undefined;
+  // A screen that is opened from the menu with no project shows the first project of the list, so it never opens empty; `?id=` still wins.
+  const fallback = options?.fallbackToFirst === true && explicit === undefined ? projects.data?.[0]?.id : undefined;
+  return { projectId: explicit ?? fallback, choose: (id) => setParams(id === '' ? {} : { id }) };
 }
 
 /** The select that names the project whose revisions are read; the choice goes to the address. */

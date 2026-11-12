@@ -1,9 +1,9 @@
 import { taxCode, vnd, vndMillions } from './context.ts';
 import type { CommandReply, Obj , SeedContext} from './context.ts';
 import TEXTS from './data/procurement-finance.json' with { type: 'json' };
-import { textsOf } from '../../support/texts.ts';
+import { textsWithOverlay } from './overlay.ts';
 
-const tx = textsOf(TEXTS);
+const tx = textsWithOverlay('procurement-finance', TEXTS);
 
 /**
  * Group `procurement-finance` (modules BID, CTR and PAY): from the procurement plan of a project to the money that leaves the Treasury.

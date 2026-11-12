@@ -1,0 +1,730 @@
+{
+  "iss.decision.symbol": "176/QĐ-HĐTV",
+  "iss.decision.title": "Quyết định về việc ban hành danh mục loại vướng mắc trong quản lý dự án đầu tư của Tổng công ty",
+  "iss.decision.sender": "Hội đồng thành viên Tổng công ty",
+  "iss.decision.reason": "Ban hành danh mục loại vướng mắc theo Quyết định số 176/QĐ-HĐTV",
+  "iss.categories": [
+    {
+      "key": "DN-TIEN-DO-TB",
+      "label": "Tiến độ thi công và cung ứng thiết bị"
+    },
+    {
+      "key": "DN-MAT-BANG-GP",
+      "label": "Mặt bằng thi công và giấy phép"
+    },
+    {
+      "key": "DN-CHAT-LUONG",
+      "label": "Chất lượng công trình và thiết bị"
+    },
+    {
+      "key": "DN-AN-TOAN-MT",
+      "label": "An toàn lao động, phòng cháy chữa cháy và môi trường"
+    },
+    {
+      "key": "DN-HOP-DONG-TT",
+      "label": "Hợp đồng, thanh toán và đấu thầu"
+    },
+    {
+      "key": "DN-THIET-KE",
+      "label": "Thay đổi thiết kế"
+    }
+  ],
+  "iss.note.assign": "Giao xử lý theo phạm vi phụ trách của Ban Quản lý dự án",
+  "iss.note.start": "Bắt đầu xử lý",
+  "iss.note.accept": "Tiếp nhận, Ban Kế hoạch và Đầu tư sẽ chủ trì cuộc họp giải quyết trong tuần",
+  "iss.note.resultDefault": "Đã xử lý xong",
+  "iss.note.closeDefault": "Đã kiểm tra thực tế tại công trường, vướng mắc đã được xử lý",
+  "iss.issues": [
+    {
+      "key": "I01",
+      "title": "Bơm tuần hoàn và quạt tháp giải nhiệt nhập khẩu giao chậm 11 ngày so với tiến độ hợp đồng HD-PMDT105-XL01",
+      "description": "Nhà sản xuất tại châu Âu báo lùi lịch xuất xưởng do thiếu linh kiện động cơ. Nhà thầu Nam Việt đã gửi đề nghị gia hạn 11 ngày. Hạng mục lắp đặt cụm bơm số 2 và số 3 nằm trên đường găng của dự án, cần quyết định giữa gia hạn thời gian hoặc rút ngắn thời gian lắp đặt.",
+      "project": "DA-PMDT105",
+      "contract": "HD-PMDT105-XL01",
+      "category": "DN-TIEN-DO-TB",
+      "severity": "HIGH",
+      "openedAgo": 24,
+      "claimOf": "HD-PMDT105-XL01",
+      "worker": "projectManager",
+      "steps": [
+        {
+          "ago": 24,
+          "to": "IN_PROGRESS",
+          "comment": "Đã họp với nhà thầu Nam Việt và đại diện nhà sản xuất, chốt lịch xuất xưởng mới và phương án vận chuyển đường hàng không một phần."
+        },
+        {
+          "ago": 14,
+          "extend": "Nhà sản xuất cần thêm thời gian kiểm tra xuất xưởng, đồng ý gia hạn thêm một ngày làm việc để nhà thầu nộp lịch giao hàng điều chỉnh.",
+          "escalate": {
+            "level": 2,
+            "unit": "CB-SKHDT",
+            "reason": "Thiết bị thuộc đường găng của dự án, đề nghị Ban Kế hoạch và Đầu tư chấp thuận gia hạn 11 ngày và điều chỉnh tiến độ tổng thể.",
+            "accept": true
+          }
+        },
+        {
+          "ago": 4,
+          "comment": "Thiết bị đã thông quan, dự kiến về công trường trong tuần. Nhà thầu cam kết làm thêm giờ để bù thời gian lắp đặt."
+        }
+      ]
+    },
+    {
+      "key": "I02",
+      "title": "Chưa bàn giao mặt bằng khu tháp giải nhiệt số 2 do vướng tuyến ống cấp nước chữa cháy hiện hữu",
+      "description": "Khu vực đặt móng tháp giải nhiệt số 2 có tuyến ống cấp nước chữa cháy DN300 của nhà máy đi ngầm, chưa có phương án dời tuyến. Nhà thầu Minh Phát chưa thể đào móng đúng kế hoạch.",
+      "project": "DA-PMDT105",
+      "contract": "HD-PMDT105-XL02",
+      "category": "DN-MAT-BANG-GP",
+      "severity": "HIGH",
+      "openedAgo": 30,
+      "worker": "owner",
+      "steps": [
+        {
+          "ago": 30,
+          "to": "IN_PROGRESS",
+          "comment": "Đã phối hợp Xưởng Năng lượng khảo sát tuyến ống, thống nhất phương án dời tuyến trong kỳ dừng bảo dưỡng."
+        },
+        {
+          "ago": 8,
+          "comment": "Kỳ dừng bảo dưỡng bắt đầu ngày 17/11, nhà thầu chuẩn bị vật tư dời tuyến ống."
+        }
+      ]
+    },
+    {
+      "key": "I03",
+      "title": "Hồ sơ thẩm duyệt phòng cháy chữa cháy của kho chứa sản phẩm được yêu cầu bổ sung",
+      "description": "Cơ quan phòng cháy chữa cháy yêu cầu bổ sung giải pháp ngăn cháy lan giữa hai khoang kho và tính toán lưu lượng nước chữa cháy. Chưa có văn bản thẩm duyệt nên chưa thể lắp dựng khung thép phần kho khoang B.",
+      "project": "DA-PMDT114",
+      "contract": "HD-PMDT114-XL01",
+      "category": "DN-MAT-BANG-GP",
+      "severity": "MEDIUM",
+      "openedAgo": 9,
+      "worker": "projectManager",
+      "steps": [
+        {
+          "ago": 9,
+          "to": "ASSIGNED"
+        }
+      ]
+    },
+    {
+      "key": "I04",
+      "title": "Cường độ bê tông móng M2 kho chứa sản phẩm không đạt mác thiết kế ở mẫu nén 28 ngày",
+      "description": "Kết quả nén mẫu của phòng thí nghiệm đạt 27,4 MPa, thấp hơn cường độ thiết kế 30 MPa tại móng M2 trục B-C. Cần khoan lấy lõi kiểm tra và đề xuất phương án xử lý.",
+      "project": "DA-PMDT114",
+      "contract": "HD-PMDT114-XL01",
+      "category": "DN-CHAT-LUONG",
+      "severity": "HIGH",
+      "openedAgo": 20,
+      "worker": "projectManager",
+      "steps": [
+        {
+          "ago": 20,
+          "to": "IN_PROGRESS",
+          "comment": "Đã yêu cầu nhà thầu dừng đổ bê tông phần móng tiếp theo và gửi mẫu khoan lấy lõi đến phòng thí nghiệm độc lập."
+        },
+        {
+          "ago": 12,
+          "comment": "Đã khoan lấy lõi tại ba vị trí, cường độ đạt 31,0 MPa."
+        },
+        {
+          "ago": 8,
+          "to": "PENDING_VERIFICATION",
+          "result": "Cường độ lõi khoan đạt 31,0 MPa, đạt mác thiết kế. Đề nghị lãnh đạo xác nhận để nhà thầu tiếp tục thi công."
+        }
+      ]
+    },
+    {
+      "key": "I05",
+      "title": "Máy nén khí ly tâm nhập khẩu từ Đức bị giữ tại cảng Cái Mép do thiếu chứng nhận xuất xứ",
+      "description": "Lô hàng máy nén khí hai cấp 3.000 m3/giờ của hợp đồng HD-PMTB164-TB01 đến cảng nhưng hải quan chưa thông quan do thiếu chứng nhận xuất xứ (C/O) bản gốc. Lưu kho bãi phát sinh phí hằng ngày và có nguy cơ chậm tiến độ lắp đặt.",
+      "project": "DA-PMTB164",
+      "contract": "HD-PMTB164-TB01",
+      "category": "DN-TIEN-DO-TB",
+      "severity": "HIGH",
+      "openedAgo": 6,
+      "worker": "projectManager",
+      "steps": [
+        {
+          "ago": 6,
+          "to": "IN_PROGRESS",
+          "comment": "Đã yêu cầu nhà thầu Tân Phát liên hệ nhà sản xuất gửi C/O bản gốc bằng chuyển phát nhanh."
+        },
+        {
+          "ago": 3,
+          "escalate": {
+            "level": 2,
+            "unit": "CB-SKHDT",
+            "reason": "Cần Ban Kế hoạch và Đầu tư làm việc với hải quan và hãng tàu về việc gia hạn lưu bãi trong khi chờ chứng từ.",
+            "accept": false
+          }
+        }
+      ]
+    },
+    {
+      "key": "I06",
+      "title": "Bất đồng giá trị thanh toán đợt 1 hệ thống DCS: nhà thầu đề nghị 30%, chủ đầu tư xác nhận 20%",
+      "description": "Nhà thầu Tân Phát đề nghị thanh toán 30% giá trị hợp đồng HD-PMTB168-TB01 (7,938 tỷ đồng) khi thiết bị về kho. Điều kiện thanh toán của hợp đồng chỉ gắn 20% (5,292 tỷ đồng) với mốc giao hàng, 10% còn lại gắn với nghiệm thu tại nhà máy (FAT).",
+      "project": "DA-PMTB168",
+      "contract": "HD-PMTB168-TB01",
+      "category": "DN-HOP-DONG-TT",
+      "severity": "MEDIUM",
+      "openedAgo": 12,
+      "worker": "owner",
+      "steps": [
+        {
+          "ago": 12,
+          "to": "IN_PROGRESS",
+          "comment": "Đã làm việc với nhà thầu, dẫn điều khoản thanh toán của hợp đồng và biên bản giao hàng."
+        },
+        {
+          "ago": 5,
+          "comment": "Hai bên thống nhất thanh toán 20% đợt 1, phần 10% còn lại thanh toán sau nghiệm thu FAT. Chờ nhà thầu ký biên bản thỏa thuận."
+        }
+      ]
+    },
+    {
+      "key": "I07",
+      "title": "Thay đổi thiết kế: bổ sung bộ lọc túi thứ hai cho hệ thống xử lý khí thải theo quy chuẩn mới",
+      "description": "Quy chuẩn kỹ thuật quốc gia về khí thải công nghiệp áp dụng từ năm 2026 siết giới hạn bụi. Thiết kế cơ sở chỉ có một bộ lọc túi, cần bổ sung bộ thứ hai và điều chỉnh sơ đồ công nghệ trước khi mời thầu thi công.",
+      "project": "DA-PMDT120",
+      "category": "DN-THIET-KE",
+      "severity": "MEDIUM",
+      "openedAgo": 22,
+      "worker": "projectManager",
+      "steps": [
+        {
+          "ago": 22,
+          "to": "IN_PROGRESS",
+          "comment": "Đã yêu cầu tư vấn thiết kế lập phương án bổ sung bộ lọc và dự toán chênh lệch."
+        },
+        {
+          "ago": 15,
+          "to": "PENDING_VERIFICATION",
+          "result": "Tư vấn đã nộp bản vẽ điều chỉnh và dự toán chênh lệch trong phạm vi dự phòng phí của dự án."
+        },
+        {
+          "ago": 9,
+          "to": "CLOSED",
+          "closeNote": "Đã kiểm tra bản vẽ điều chỉnh, phương án bổ sung bộ lọc túi đạt yêu cầu quy chuẩn, đồng ý cập nhật hồ sơ mời thầu."
+        }
+      ]
+    },
+    {
+      "key": "I08",
+      "title": "Giấy phép môi trường cho khu đóng bao mở rộng chưa được cấp, có nguy cơ chậm mốc khởi công",
+      "description": "Hồ sơ đề nghị cấp giấy phép môi trường đã nộp nhưng cơ quan thẩm định chưa có kết quả. Theo kế hoạch, mốc khởi công khu đóng bao mở rộng là tháng 12 nên cần theo dõi sát và chuẩn bị phương án khởi công từng phần.",
+      "project": "DA-PMDT130",
+      "category": "DN-MAT-BANG-GP",
+      "severity": "HIGH",
+      "openedAgo": 1,
+      "steps": []
+    },
+    {
+      "key": "I09",
+      "title": "Rò rỉ hóa chất xử lý nước làm mát tại khu bồn chứa trong lúc thi công",
+      "description": "Van xả bồn chứa hóa chất diệt khuẩn bị hở khi nhà thầu di chuyển giàn giáo, khoảng 200 lít hóa chất tràn ra rãnh thu gom. Đã cô lập khu vực, chưa có người bị thương.",
+      "project": "DA-PMDT105",
+      "contract": "HD-PMDT105-XL01",
+      "category": "DN-AN-TOAN-MT",
+      "severity": "CRITICAL",
+      "openedAgo": 3,
+      "worker": "projectManager",
+      "position": {
+        "lat": "10.592100",
+        "lng": "107.044800",
+        "accuracy": "9"
+      },
+      "steps": [
+        {
+          "ago": 3,
+          "to": "IN_PROGRESS",
+          "comment": "Đã cô lập khu vực, thu gom bằng vật liệu hấp thụ và báo Phòng An toàn - Môi trường của nhà máy."
+        },
+        {
+          "ago": 2,
+          "escalate": {
+            "level": 1,
+            "reason": "Cần Phòng An toàn - Môi trường nhà máy bố trí thêm lực lượng ứng phó và lập báo cáo sự cố gửi cơ quan quản lý môi trường.",
+            "accept": false
+          }
+        }
+      ]
+    },
+    {
+      "key": "I10",
+      "title": "Tư vấn giám sát chậm nộp báo cáo tuần 43 của hợp đồng HD-PMDT114-XL01",
+      "description": "Báo cáo giám sát tuần 43 quá hạn nộp 4 ngày làm việc, ảnh hưởng đến việc tổng hợp báo cáo tiến độ của Ban Quản lý dự án.",
+      "project": "DA-PMDT114",
+      "contract": "HD-PMDT114-XL01",
+      "category": "DN-TIEN-DO-TB",
+      "severity": "LOW",
+      "openedAgo": 16,
+      "worker": "owner",
+      "steps": [
+        {
+          "ago": 16,
+          "to": "IN_PROGRESS",
+          "comment": "Đã nhắc nhở đơn vị tư vấn, hẹn nộp báo cáo trong ngày."
+        },
+        {
+          "ago": 14,
+          "to": "PENDING_VERIFICATION",
+          "result": "Đơn vị tư vấn đã nộp báo cáo tuần 43 và cam kết nộp đúng hạn các tuần sau."
+        },
+        {
+          "ago": 13,
+          "to": "CLOSED",
+          "closeNote": "Đã nhận đủ báo cáo, đơn vị tư vấn nộp đúng hạn từ tuần 44."
+        }
+      ]
+    },
+    {
+      "key": "I11",
+      "title": "Nhà thầu kiến nghị về đánh giá hồ sơ dự thầu gói PMTB172-TB01 (bơm công nghệ)",
+      "description": "Một nhà thầu không được xếp hạng thứ nhất có văn bản kiến nghị về tiêu chí kỹ thuật của gói thầu. Gói thầu tạm giữ ở bước đánh giá cho đến khi có trả lời.",
+      "project": "DA-PMTB172",
+      "category": "DN-HOP-DONG-TT",
+      "severity": "MEDIUM",
+      "openedAgo": 7,
+      "worker": "projectManager",
+      "steps": [
+        {
+          "ago": 7,
+          "to": "IN_PROGRESS",
+          "comment": "Đã tiếp nhận kiến nghị, giao Tổ chuyên gia đấu thầu rà soát lại tiêu chí kỹ thuật và trả lời trong 5 ngày làm việc."
+        }
+      ]
+    }
+  ],
+  "qms.sender.project": "Ban Quản lý dự án đầu tư",
+  "qms.sender.contractor": "Nhà thầu thi công",
+  "qms.equipment.pump": "Cần trục bánh xích 80 tấn 1 chiếc, máy hàn 6 chiếc, xe nâng 2 chiếc, máy cắt plasma 1 chiếc",
+  "qms.equipment.store": "Máy xúc 2 chiếc, trạm trộn bê tông di động 1 chiếc, cần cẩu tháp 1 chiếc, xe bơm bê tông 1 chiếc",
+  "qms.issues.rain": "Mưa làm gián đoạn thi công ngoài trời hai giờ buổi chiều",
+  "qms.issues.none": "Không có",
+  "qms.work.pump": [
+    "Lắp đặt bơm tuần hoàn P-101B lên bệ móng; căn chỉnh trục bơm - động cơ.",
+    "Hàn nối đường ống thép carbon DN600 đoạn từ bơm đến bể thu hồi, kiểm tra mối hàn bằng thẩm thấu.",
+    "Lắp dựng giàn thao tác quanh tháp giải nhiệt số 1; nghiệm thu nội bộ giàn giáo.",
+    "Buộc cốt thép bể thu hồi nước làm mát, lắp ván khuôn thành bể.",
+    "Thử áp đường ống cấp nước làm mát đoạn A-B, áp suất thử 1,5 lần áp suất làm việc.",
+    "Đổ bê tông bệ máy quạt tháp giải nhiệt số 2 và bảo dưỡng.",
+    "Dời tuyến cáp điều khiển hiện hữu, lắp máng cáp mới dọc đường ống chính."
+  ],
+  "qms.work.store": [
+    "Đào hố móng M3 trục C-D, đổ bê tông lót móng.",
+    "Buộc cốt thép móng M3, lắp ván khuôn, nghiệm thu cốt thép với tư vấn giám sát.",
+    "Đổ bê tông móng M3 bằng xe bơm, lấy mẫu bê tông 6 tổ mẫu.",
+    "Lắp dựng cột thép khung chính trục A, bắt bu lông neo.",
+    "Lắp dựng xà gồ mái kho khoang A, kiểm tra độ thẳng đứng của cột.",
+    "Thi công nền kho khoang A: lu lèn lớp đá dăm, đổ bê tông nền dày 20 cm.",
+    "Bảo dưỡng bê tông móng M3, kiểm tra cao độ bu lông neo trục D."
+  ],
+  "qms.inspections.pump": [
+    {
+      "title": "Nghiệm thu cốt thép bệ móng bơm tuần hoàn P-101B",
+      "type": "CONCEALED_WORK",
+      "location": "Bệ móng bơm P-101B",
+      "requestedAgo": 21,
+      "to": "PASS",
+      "note": "Cốt thép đúng bản vẽ thi công, khoảng cách và chiều dày lớp bảo vệ đạt"
+    },
+    {
+      "title": "Nghiệm thu nhập vật liệu: ống thép carbon DN600 lô 05",
+      "type": "MATERIAL_ENTRY",
+      "location": "Bãi vật tư khu bể thu hồi",
+      "requestedAgo": 15,
+      "to": "FAIL",
+      "note": "Chứng chỉ chất lượng thiếu số lô nấu, yêu cầu bổ sung hoặc đưa lô ống ra khỏi công trường"
+    },
+    {
+      "title": "Kiểm tra an toàn thi công hàn cắt (làm việc nóng) cạnh đường ống hiện hữu",
+      "type": "SAFETY",
+      "location": "Rack ống khu bơm cấp nước làm mát",
+      "requestedAgo": 9,
+      "to": "CONDITIONAL",
+      "note": "Cần bổ sung giấy phép làm việc nóng, người giám sát cháy và bình chữa cháy trước khi hàn tiếp"
+    },
+    {
+      "title": "Nghiệm thu giai đoạn: lắp đặt cụm bơm tuần hoàn số 1",
+      "type": "CONSTRUCTION_STAGE",
+      "location": "Khu bơm tuần hoàn",
+      "requestedAgo": 6,
+      "to": "SCHEDULED"
+    },
+    {
+      "title": "Nghiệm thu cốt thép bể thu hồi nước làm mát",
+      "type": "CONCEALED_WORK",
+      "location": "Bể thu hồi nước làm mát",
+      "requestedAgo": 3,
+      "to": "REQUESTED"
+    },
+    {
+      "title": "Nghiệm thu nhập vật liệu: van bướm DN400 lô 02",
+      "type": "MATERIAL_ENTRY",
+      "location": "Kho vật tư công trường",
+      "requestedAgo": 25,
+      "to": "CANCELLED",
+      "note": "Nhà thầu đổi nhà cung cấp van nên hủy đề nghị cũ"
+    }
+  ],
+  "qms.inspections.store": [
+    {
+      "title": "Nghiệm thu cốt thép móng M2 kho chứa sản phẩm",
+      "type": "CONCEALED_WORK",
+      "location": "Móng M2 trục B-C",
+      "requestedAgo": 22,
+      "to": "PASS",
+      "note": "Cốt thép đúng bản vẽ, lớp bê tông bảo vệ đạt"
+    },
+    {
+      "title": "Kiểm tra an toàn thi công trên cao: lắp dựng khung thép nhà kho",
+      "type": "SAFETY",
+      "location": "Khung thép kho khoang A",
+      "requestedAgo": 4,
+      "to": "SCHEDULED"
+    }
+  ],
+  "qms.materials": [
+    {
+      "sample": "MAU-BT-1109",
+      "kind": "Bê tông B30 móng M2 kho chứa (khoan lấy lõi)",
+      "lab": "Phòng thí nghiệm LAS-XD độc lập - Công ty Kiểm định Phương Nam",
+      "standard": "TCVN 12252:2020",
+      "ago": 12,
+      "result": "PASS"
+    },
+    {
+      "sample": "MAU-TH-0905",
+      "kind": "Thép CB400-V D25 lô 07",
+      "lab": "Phòng thí nghiệm LAS-XD độc lập - Công ty Kiểm định Phương Nam",
+      "standard": "TCVN 1651-2:2018",
+      "ago": 8,
+      "result": "PASS"
+    },
+    {
+      "sample": "MAU-XM-0911",
+      "kind": "Xi măng PC40 lô 15",
+      "lab": "Phòng thí nghiệm LAS-XD độc lập - Công ty Kiểm định Phương Nam",
+      "standard": "TCVN 2682:2020",
+      "ago": 10,
+      "result": "PASS"
+    },
+    {
+      "sample": "MAU-CT-0221",
+      "kind": "Cát vàng lô 04",
+      "lab": "Phòng thí nghiệm LAS-XD độc lập - Công ty Kiểm định Phương Nam",
+      "standard": "TCVN 7570:2006",
+      "ago": 18
+    },
+    {
+      "sample": "MAU-CP-1021",
+      "kind": "Đá dăm 1x2 lô 11",
+      "lab": "Phòng thí nghiệm LAS-XD độc lập - Công ty Kiểm định Phương Nam",
+      "standard": "TCVN 7570:2006",
+      "ago": 6
+    }
+  ],
+  "qms.ncrs": [
+    {
+      "contract": "store",
+      "title": "Cường độ bê tông móng M2 kho chứa không đạt mác thiết kế",
+      "description": "Mẫu nén 28 ngày đạt 27,4 MPa so với 30 MPa yêu cầu. Cần khoan lấy lõi kiểm tra và xử lý nếu không đạt.",
+      "severity": "MAJOR",
+      "source": "SUPERVISOR_REMARK",
+      "owner": "projectManager",
+      "dueIn": -2,
+      "to": "CLOSED",
+      "action": "Khoan lấy lõi ba vị trí và thí nghiệm lại tại phòng thí nghiệm độc lập"
+    },
+    {
+      "contract": "pump",
+      "title": "Lớp bê tông bảo vệ cốt thép bệ bơm P-101B mỏng hơn thiết kế",
+      "description": "Đo kiểm tra tại sáu vị trí, lớp bảo vệ 32 - 36 mm so với 40 mm theo thiết kế.",
+      "severity": "MAJOR",
+      "source": "SUPERVISOR_REMARK",
+      "owner": "owner",
+      "dueIn": 6,
+      "to": "EVIDENCE",
+      "action": "Phun vữa sửa chữa không co ngót, nộp biên bản đo lại lớp bảo vệ"
+    },
+    {
+      "contract": "store",
+      "title": "Đá dăm 1x2 lô 11 không đạt hàm lượng hạt thoi dẹt",
+      "description": "Kết quả thí nghiệm 21,4% hạt thoi dẹt, vượt giới hạn 15%.",
+      "severity": "MINOR",
+      "source": "SUPERVISOR_REMARK",
+      "owner": "projectManager",
+      "dueIn": 4,
+      "to": "ACTION",
+      "action": "Đưa lô đá ra khỏi công trường và nhập lô thay thế có chứng nhận chất lượng"
+    },
+    {
+      "contract": "pump",
+      "title": "Thiếu rào chắn và biển cảnh báo khu vực hàn cắt cạnh đường ống hiện hữu",
+      "description": "Khu vực hàn cắt chưa có rào chắn, chưa có giám sát cháy và bình chữa cháy tại chỗ, người của nhà máy vẫn đi lại gần vị trí hàn.",
+      "severity": "CRITICAL",
+      "source": "INSPECTION",
+      "owner": "owner",
+      "dueIn": 1,
+      "to": "OPEN",
+      "action": "Lắp rào chắn, biển cảnh báo, bố trí giám sát cháy và xin giấy phép làm việc nóng",
+      "inspectionTitle": "Kiểm tra an toàn thi công hàn cắt (làm việc nóng) cạnh đường ống hiện hữu"
+    }
+  ],
+  "qms.note.sampleResultDefault": "Đã kiểm tra",
+  "qms.note.itemPass": "Đạt yêu cầu",
+  "qms.reason.cancel": "Nhà thầu rút đề nghị",
+  "qms.minutes.title": "Biên bản nghiệm thu chất lượng: {0}",
+  "qms.lab.report": "Kết quả thí nghiệm mẫu {0}",
+  "qms.lab.pass": "Đạt yêu cầu theo tiêu chuẩn áp dụng",
+  "qms.lab.fail": "Không đạt yêu cầu theo tiêu chuẩn áp dụng",
+  "qms.remedy.title": "Biên bản khắc phục: {0}",
+  "qms.remedy.note": "Đã khắc phục theo yêu cầu, gửi biên bản và kết quả kiểm tra",
+  "qms.verify.note": "Đã kiểm tra thực tế, kết quả đạt yêu cầu",
+  "qms.close.note": "Đã khắc phục và được xác minh, đóng hồ sơ không phù hợp",
+  "pmt.decision.title": "Quyết định miễn giấy phép xây dựng của dự án {0}",
+  "pmt.decision.sender": "Ban Quản lý dự án đầu tư",
+  "pmt.exemption.basis": "Công trình thuộc dự án nằm trong khu công nghiệp đã có quy hoạch chi tiết tỷ lệ 1/500 được phê duyệt, thiết kế đã được thẩm định (Luật Xây dựng, Điều 89, khoản 2)",
+  "pmt.title.dossier": "Hồ sơ đề nghị cấp phép {0}",
+  "pmt.title.permit": "{0} {1} của dự án {2}",
+  "pmt.sender.office": "Ban Quản lý dự án đầu tư",
+  "pmt.sender.authority": "Cơ quan cấp phép",
+  "pmt.note.submit": "Nộp hồ sơ trực tiếp tại bộ phận một cửa",
+  "pmt.note.ack": "Cơ quan cấp phép đã tiếp nhận và hẹn lịch thẩm định",
+  "pmt.note.submitOnline": "Nộp hồ sơ qua cổng dịch vụ công trực tuyến",
+  "pmt.note.meeting": "Họp thẩm định hồ sơ",
+  "pmt.note.supplement": "Yêu cầu bổ sung hồ sơ",
+  "pmt.reason.rejected": "Hồ sơ chưa đạt yêu cầu",
+  "pmt.types": [
+    {
+      "code": "GPXD",
+      "name": "Giấy phép xây dựng",
+      "category": "CONSTRUCTION_PERMIT",
+      "authority": "Cơ quan quản lý xây dựng nơi đặt nhà máy",
+      "basis": "Luật Xây dựng số 50/2014/QH13 (sửa đổi, bổ sung năm 2020), Điều 89 và Điều 95",
+      "validityMonths": 24,
+      "processingDays": 20,
+      "exemptionAllowed": true,
+      "appliesTo": {
+        "work_types": [
+          "NEW_BUILD"
+        ]
+      }
+    },
+    {
+      "code": "TKXD",
+      "name": "Văn bản thẩm định thiết kế xây dựng",
+      "category": "DESIGN_APPRAISAL",
+      "authority": "Cơ quan chuyên môn về xây dựng",
+      "basis": "Luật Xây dựng số 50/2014/QH13 (sửa đổi, bổ sung năm 2020), Điều 83",
+      "processingDays": 30,
+      "appliesTo": {
+        "work_types": [
+          "NEW_BUILD"
+        ]
+      }
+    },
+    {
+      "code": "DTM",
+      "name": "Quyết định phê duyệt kết quả thẩm định báo cáo đánh giá tác động môi trường",
+      "category": "ENVIRONMENT",
+      "authority": "Cơ quan quản lý nhà nước về môi trường",
+      "basis": "Luật Bảo vệ môi trường số 72/2020/QH14, Điều 34",
+      "processingDays": 45,
+      "appliesTo": {
+        "min_total_investment_vnd": "100000000000"
+      }
+    },
+    {
+      "code": "GPMT",
+      "name": "Giấy phép môi trường",
+      "category": "ENVIRONMENT",
+      "authority": "Cơ quan quản lý nhà nước về môi trường",
+      "basis": "Luật Bảo vệ môi trường số 72/2020/QH14, Điều 39",
+      "validityMonths": 84,
+      "processingDays": 30,
+      "appliesTo": {
+        "work_types": [
+          "NEW_BUILD"
+        ]
+      }
+    },
+    {
+      "code": "PCCC",
+      "name": "Văn bản thẩm duyệt thiết kế phòng cháy và chữa cháy",
+      "category": "FIRE_SAFETY",
+      "authority": "Cơ quan Cảnh sát phòng cháy, chữa cháy và cứu nạn, cứu hộ",
+      "basis": "Luật Phòng cháy, chữa cháy và cứu nạn, cứu hộ số 55/2024/QH15",
+      "processingDays": 15,
+      "appliesTo": {
+        "work_types": [
+          "NEW_BUILD"
+        ]
+      }
+    },
+    {
+      "code": "GPNM",
+      "name": "Giấy phép khai thác, sử dụng nước mặt cho hệ thống nước làm mát",
+      "category": "WATER_RESOURCES",
+      "authority": "Cơ quan quản lý nhà nước về tài nguyên nước",
+      "basis": "Luật Tài nguyên nước số 28/2023/QH15, Điều 44",
+      "validityMonths": 60,
+      "processingDays": 30,
+      "appliesTo": {
+        "min_total_investment_vnd": "650000000000",
+        "max_total_investment_vnd": "700000000000"
+      }
+    },
+    {
+      "code": "LVN",
+      "name": "Giấy phép làm việc nóng (hàn, cắt, mài) trong khu vực nhà máy đang vận hành",
+      "category": "OTHER",
+      "authority": "Phòng An toàn - Môi trường, Nhà máy Đạm Phú Mỹ",
+      "basis": "Luật Phòng cháy, chữa cháy và cứu nạn, cứu hộ số 55/2024/QH15; Quy định an toàn làm việc nóng của Tổng công ty",
+      "validityMonths": 1,
+      "processingDays": 3,
+      "appliesTo": {
+        "work_types": [
+          "NEW_BUILD"
+        ]
+      }
+    }
+  ],
+  "pmt.dossiers": {
+    "DA-PMDT105": [
+      {
+        "type": "GPXD",
+        "to": "ISSUED",
+        "submitted": 140,
+        "issued": 110,
+        "no": "112/GPXD-SXD"
+      },
+      {
+        "type": "TKXD",
+        "to": "ISSUED",
+        "submitted": 160,
+        "issued": 130,
+        "no": "215/TĐ-SXD"
+      },
+      {
+        "type": "DTM",
+        "to": "ISSUED",
+        "submitted": 240,
+        "issued": 190,
+        "no": "2145/QĐ-BNNMT"
+      },
+      {
+        "type": "PCCC",
+        "to": "ISSUED",
+        "submitted": 120,
+        "issued": 95,
+        "no": "68/TD-PCCC"
+      },
+      {
+        "type": "GPNM",
+        "to": "ISSUED",
+        "submitted": 150,
+        "issued": 100,
+        "no": "31/GP-BNNMT",
+        "endsIn": 1300
+      },
+      {
+        "type": "GPMT",
+        "to": "SUPPLEMENT_REQUESTED",
+        "submitted": 40,
+        "note": "Cơ quan cấp phép yêu cầu bổ sung phương án xử lý nước thải hệ thống làm mát"
+      },
+      {
+        "type": "LVN",
+        "to": "ISSUED",
+        "submitted": 12,
+        "issued": 10,
+        "no": "LVN-105/2026-11",
+        "endsIn": 20
+      }
+    ],
+    "DA-PMDT114": [
+      {
+        "type": "GPXD",
+        "to": "ISSUED",
+        "submitted": 100,
+        "issued": 75,
+        "no": "93/GPXD-SXD"
+      },
+      {
+        "type": "TKXD",
+        "to": "ISSUED",
+        "submitted": 120,
+        "issued": 90,
+        "no": "187/TĐ-SXD"
+      },
+      {
+        "type": "DTM",
+        "to": "ISSUED",
+        "submitted": 210,
+        "issued": 165,
+        "no": "1872/QĐ-BNNMT"
+      },
+      {
+        "type": "PCCC",
+        "to": "SUPPLEMENT_REQUESTED",
+        "submitted": 26,
+        "note": "Cơ quan phòng cháy chữa cháy yêu cầu bổ sung giải pháp ngăn cháy lan giữa hai khoang kho"
+      },
+      {
+        "type": "GPMT",
+        "to": "SUBMITTED",
+        "submitted": 8
+      }
+    ],
+    "DA-PMDT120": [
+      {
+        "type": "TKXD",
+        "to": "ISSUED",
+        "submitted": 90,
+        "issued": 60,
+        "no": "241/TĐ-SXD"
+      },
+      {
+        "type": "DTM",
+        "to": "IN_APPRAISAL",
+        "submitted": 38,
+        "note": "Chờ hội đồng thẩm định báo cáo đánh giá tác động môi trường"
+      },
+      {
+        "type": "PCCC",
+        "to": "REJECTED_THEN_FILED",
+        "submitted": 75,
+        "note": "Thiết kế đường thoát nạn khu điều khiển chưa đạt quy chuẩn"
+      },
+      {
+        "type": "GPXD",
+        "to": "SUBMITTED",
+        "submitted": 6
+      }
+    ],
+    "DA-PMDT130": [
+      {
+        "type": "GPXD",
+        "to": "EXEMPTED"
+      },
+      {
+        "type": "GPMT",
+        "to": "IN_APPRAISAL",
+        "submitted": 21,
+        "note": "Chờ cơ quan thẩm định hồ sơ giấy phép môi trường khu đóng bao mở rộng"
+      },
+      {
+        "type": "TKXD",
+        "to": "ISSUED",
+        "submitted": 70,
+        "issued": 45,
+        "no": "256/TĐ-SXD"
+      }
+    ]
+  },
+  "iss.role.name": "Xác nhận hoàn tất và gia hạn vướng mắc",
+  "iss.role.reason": "Lãnh đạo Ban xác nhận kết quả xử lý và quyết định gia hạn vướng mắc của các dự án đầu tư"
+}

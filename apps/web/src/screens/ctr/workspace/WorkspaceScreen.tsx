@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard, StatusPill } from '../../../ui';
-import { BackLink, StatusBadge } from '../components';
+import { BackLink, StatusBadge, DefaultContractBar } from '../components';
 import { ScopeBar } from '../kit';
+import { useContractChoice } from '../hooks';
 import { LIST_PATH, amountText, haltLink } from '../model';
 import { CHANGEABLE_CONTRACT_STATUSES, requestLink } from '../change/model';
 import { measurementLink } from '../measurement/model';
@@ -41,8 +42,9 @@ export default function WorkspaceScreen({ route }: ScreenProps) {
 function WorkspaceContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { mode } = useSession();
-  const [search] = useSearchParams();
-  const contractId = search.get('id');
+  // Opened without a contract in the address (the menu), the largest contract in force is shown, and the selector stays to change it.
+  const choice = useContractChoice('id');
+  const contractId = choice.contractId;
   const summary = useSummary(contractId);
   const [open, setOpen] = useState<Open>(undefined);
   const state = useScreenState({ isLoading: summary.isLoading, error: summary.error, data: contractId === null ? null : summary.data, isEmpty: (data) => data === null || data === undefined });
@@ -52,7 +54,10 @@ function WorkspaceContent({ route }: ScreenProps) {
   return (
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <BackLink to={LIST_PATH}>{t('ctr.back.list.link')}</BackLink>
-      {contractId === null ? (
+      <DefaultContractBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : contractId === null ? (
         <>
           <div className="heading">
             <div>

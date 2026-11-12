@@ -18,6 +18,7 @@ import { DIMENSIONS } from './query-model';
 import './bi-kit.css';
 import { StatusPill } from '../../ui';
 import { exportStatusTone } from './tones';
+import { metricLabel } from './metric-names';
 
 const NONE = '—';
 const day = (stamp: string): string => stamp.slice(0, 10);
@@ -151,7 +152,7 @@ function ExportsContent({ route }: ScreenProps) {
             <select id="exp-metric" value={chosen.metricId} onChange={(event) => setForm({ ...form, metricId: event.target.value })}>
               {certified.map((metric) => (
                 <option key={metric.id} value={metric.id}>
-                  {metric.code}
+                  {metricLabel(t, metric.code)}
                 </option>
               ))}
             </select>

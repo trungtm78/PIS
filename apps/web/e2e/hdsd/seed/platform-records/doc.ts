@@ -12,6 +12,15 @@ import { clipPlan } from '../clip/plan.ts';
 /** The enterprise clip dataset writes the same documents in the words of the enterprise (data/doc.enterprise.json), never those of the province. */
 const ENTERPRISE = clipPlan()?.dataset === 'enterprise';
 const tx = textsOf(ENTERPRISE ? (ENTERPRISE_TEXTS as typeof TEXTS) : TEXTS);
+/** A value the enterprise dataset writes in its own words where the guide keeps the province's: symbols and codes, the projects a paper is about, the sums it quotes. */
+const ent = <T>(province: T, enterprise: T): T => (ENTERPRISE ? enterprise : province);
+/** Recipient codes (external agencies) and the keys of the two project decisions / dossiers. */
+const KBNN_CODE = ent('KBNN-CB', 'NHTM-DT');
+const BKHDT_CODE = ent('BKHDT', 'DKVN');
+const UBND_CODE = ent('UBND-CB', 'HDTV-DPM');
+const REGISTER_OUT = ent('SKHDT', 'KHDT');
+const KEY_DECISION_A = ent('QD-PHE-DUYET-DT205', 'QD-PHE-DUYET-PMDT154');
+const KEY_DECISION_B = ent('QD-PHE-DUYET-TH012', 'QD-PHE-DUYET-PMTB164');
 
 /**
  * Module DOC of the group `platform-records`: the office of the Department of Planning and Investment of Cao Bang at work with documents.
@@ -113,9 +122,9 @@ function readPack(): Pack {
 
 // ---- the recipients ------------------------------------------------------------------------------------------------------------------
 
-const KBNN = { kind: 'EXTERNAL_AGENCY', name: tx('name.016'), code: 'KBNN-CB' };
-const BO_KHDT = { kind: 'EXTERNAL_AGENCY', name: tx('name.017'), code: 'BKHDT' };
-const UBND_TINH = { kind: 'EXTERNAL_AGENCY', name: tx('name.018'), code: 'UBND-CB' };
+const KBNN = { kind: 'EXTERNAL_AGENCY', name: tx('name.016'), code: KBNN_CODE };
+const BO_KHDT = { kind: 'EXTERNAL_AGENCY', name: tx('name.017'), code: BKHDT_CODE };
+const UBND_TINH = { kind: 'EXTERNAL_AGENCY', name: tx('name.018'), code: UBND_CODE };
 const STC = (ctx: SeedContext) => ({ kind: 'INTERNAL_UNIT', name: tx('name.019'), code: 'CB-STC', unit_id: ctx.unitId('CB-STC') });
 const QLDA = (ctx: SeedContext) => ({ kind: 'INTERNAL_UNIT', name: tx('name.020'), code: 'CB-SKHDT-QLDA', unit_id: ctx.unitId('CB-SKHDT-QLDA') });
 const VP = (ctx: SeedContext) => ({ kind: 'INTERNAL_UNIT', name: tx('name.021'), code: 'CB-SKHDT-VP', unit_id: ctx.unitId('CB-SKHDT-VP') });
@@ -149,17 +158,17 @@ function plans(ctx: SeedContext): OutgoingPlan[] {
   const face = { agency: AGENCY, parent_agency: PARENT_AGENCY, place: PLACE, ...sign };
   return [
     {
-      key: 'QD-PHE-DUYET-DT205', type: 'QD', template: 'DOC-QD-PHE-DUYET-DU-AN', unit: 'CB-SKHDT-QLDA', subject: { module: 'PRJ', project: 'DA-DT205' }, upTo: 'issued', after: 'distribute-ack',
+      key: KEY_DECISION_A, type: 'QD', template: 'DOC-QD-PHE-DUYET-DU-AN', unit: 'CB-SKHDT-QLDA', subject: { module: 'PRJ', project: ent('DA-DT205', 'DA-PMDT154') }, upTo: 'issued', after: 'distribute-ack',
       title: tx('title.023'),
       payload: { ...face, title: tx('title.023'), grounds: tx('grounds.024'), body: tx('body.025') },
-      amountVnd: '150000000000',
+      amountVnd: ent('150000000000', '251000000000'),
       recipients: (c) => [QLDA(c), STC(c), KBNN],
     },
     {
-      key: 'QD-PHE-DUYET-TH012', type: 'QD', template: 'DOC-QD-PHE-DUYET-DU-AN', unit: 'CB-SKHDT-QLDA', subject: { module: 'PRJ', project: 'DA-TH012' }, upTo: 'issued', after: 'distribute',
+      key: KEY_DECISION_B, type: 'QD', template: 'DOC-QD-PHE-DUYET-DU-AN', unit: 'CB-SKHDT-QLDA', subject: { module: 'PRJ', project: ent('DA-TH012', 'DA-PMTB164') }, upTo: 'issued', after: 'distribute',
       title: tx('title.026'),
       payload: { ...face, title: tx('title.026'), grounds: tx('grounds.027'), body: tx('body.028') },
-      amountVnd: '45000000000',
+      amountVnd: ent('45000000000', '86000000000'),
       recipients: (c) => [QLDA(c), STC(c)],
     },
     {
@@ -203,7 +212,7 @@ function plans(ctx: SeedContext): OutgoingPlan[] {
       key: 'TTR-DIEU-CHINH-VON', type: 'QD', template: 'DOC-QD-DIEU-CHINH-KE-HOACH-VON', unit: 'CB-SKHDT-QLDA', upTo: 'submitted', urgency: 'THUONG_KHAN',
       title: tx('title.050'),
       payload: { ...face, title: tx('title.050'), body: tx('body.051') },
-      amountVnd: '18000000000',
+      amountVnd: ent('18000000000', '20000000000'),
       recipients: () => [UBND_TINH],
     },
     {
@@ -240,14 +249,14 @@ function plans(ctx: SeedContext): OutgoingPlan[] {
       key: 'QD-THU-HOI', type: 'QD', template: 'DOC-QD-CHU-TRUONG-DAU-TU', unit: 'CB-SKHDT', upTo: 'issued', after: 'recall',
       title: tx('title.068'),
       payload: { ...face, title: tx('title.068'), grounds: tx('grounds.069'), body: tx('body.070') },
-      amountVnd: '9500000000',
+      amountVnd: ent('9500000000', '840000000000'),
       recipients: (c) => [QLDA(c), STC(c)],
     },
     {
       key: 'QD-THAY-THE', type: 'QD', template: 'DOC-QD-DIEU-CHINH-KE-HOACH-VON', unit: 'CB-SKHDT', upTo: 'issued', after: 'replace',
       title: tx('title.071'),
       payload: { ...face, title: tx('title.071'), grounds: tx('grounds.072'), body: tx('body.073') },
-      amountVnd: '12000000000',
+      amountVnd: ent('12000000000', '20000000000'),
       recipients: (c) => [QLDA(c), STC(c)],
     },
     {
@@ -357,7 +366,7 @@ async function afterwards(ctx: SeedContext, plan: OutgoingPlan, state: State, re
     case 'distribute-mixed': {
       const sent = await once(ctx, key('distributed'), async () => {
         const recipients = plan.recipients(ctx);
-        const channelOf = (recipient: Obj): string => (recipient.kind === 'INTERNAL_UNIT' ? 'INTERNAL' : plan.after === 'distribute-mixed' && recipient.code === 'KBNN-CB' ? 'EMAIL' : recipient.code === 'BKHDT' ? 'LGSP' : 'PAPER_HANDOVER');
+        const channelOf = (recipient: Obj): string => (recipient.kind === 'INTERNAL_UNIT' ? 'INTERNAL' : plan.after === 'distribute-mixed' && recipient.code === KBNN_CODE ? 'EMAIL' : recipient.code === BKHDT_CODE ? 'LGSP' : 'PAPER_HANDOVER');
         const reply = await ctx.must<Obj>(DRAFTER, 'POST', `/outgoing-documents/${state.id}/distributions`, { recipients: recipients.map((recipient) => ({ ...recipient, channel: channelOf(recipient), acknowledgement_required: true })) }, { version: await currentVersion(ctx, state.id) });
         // the answer lists the distributions it made
         return { distributions: ((reply.distributions ?? []) as Obj[]).map((row) => ({ id: String(row.distribution_id), status: String(row.status ?? '') })) };
@@ -483,10 +492,10 @@ async function registers(ctx: SeedContext): Promise<{ outgoing: string; incoming
     made(ctx, 'DOC', 'register', `${code}/${year}`, `${direction} ${mode}`, { id: reply.resource_id, screen: 'DOC-21' });
     return reply.resource_id;
   };
-  const outgoing = await open('SKHDT', tx('outgoing.093', ctx.year), 'OUTGOING', ctx.year, 'MANAGED', 'CB-SKHDT-VP');
+  const outgoing = await open(REGISTER_OUT, tx('outgoing.093', ctx.year), 'OUTGOING', ctx.year, 'MANAGED', 'CB-SKHDT-VP');
   const incoming = await open('DEN', tx('incoming.094', ctx.year), 'INCOMING', ctx.year, 'MANAGED', 'CB-SKHDT-VP');
   await open('ZEXT', tx('registers.095', ctx.year), 'OUTGOING', ctx.year, 'MIRRORED', 'CB-SKHDT-VP');
-  const previous = await open('SKHDT', tx('outgoing.093', ctx.year - 1), 'OUTGOING', ctx.year - 1, 'MANAGED', 'CB-SKHDT-VP');
+  const previous = await open(REGISTER_OUT, tx('outgoing.093', ctx.year - 1), 'OUTGOING', ctx.year - 1, 'MANAGED', 'CB-SKHDT-VP');
   await once(ctx, `doc.register.closed.${ctx.year - 1}`, async () => {
     const found = await ctx.get<Obj>(DRAFTER, `/document-number-registers/${previous}/entries`).catch(() => ({}) as Obj);
     void found;
@@ -587,19 +596,19 @@ interface IncomingPlan {
 }
 
 const INCOMING: IncomingPlan[] = [
-  { key: 'CV-1523', title: tx('title.103'), type: 'CV', channel: 'LGSP', sender: tx('name.018'), symbol: '1523/UBND-KTTH', issuedDaysAgo: 6, urgency: 'KHAN', target: 'assigned', directive: tx('directive.104'), dueInDays: 5, handler: 'projectManager', unit: 'CB-SKHDT-QLDA' },
+  { key: 'CV-1523', title: tx('title.103'), type: 'CV', channel: 'LGSP', sender: tx('name.018'), symbol: ent('1523/UBND-KTTH', '1523/HĐTV-KHĐT'), issuedDaysAgo: 6, urgency: 'KHAN', target: 'assigned', directive: tx('directive.104'), dueInDays: 5, handler: 'projectManager', unit: 'CB-SKHDT-QLDA' },
   { key: 'CV-3472', title: tx('title.105'), type: 'CV', channel: 'EMAIL', sender: tx('name.017'), symbol: tx('symbol.106'), issuedDaysAgo: 9, urgency: 'THUONG_KHAN', target: 'processing', directive: tx('directive.107'), dueInDays: 1, handler: 'projectManager', unit: 'CB-SKHDT-VP' },
-  { key: 'TB-412', title: tx('title.108'), type: 'TB', channel: 'PAPER_SCAN', sender: tx('name.016'), symbol: '412/TB-KBNN', issuedDaysAgo: 14, target: 'filed', directive: tx('directive.109'), dueInDays: 7, handler: 'projectManager', unit: 'CB-SKHDT-QLDA', resolution: tx('resolution.110'), dossier: 'HO_SO_GIAI_NGAN' },
+  { key: 'TB-412', title: tx('title.108'), type: 'TB', channel: 'PAPER_SCAN', sender: tx('name.016'), symbol: ent('412/TB-KBNN', '412/TB-NHTM'), issuedDaysAgo: 14, target: 'filed', directive: tx('directive.109'), dueInDays: 7, handler: 'projectManager', unit: 'CB-SKHDT-QLDA', resolution: tx('resolution.110'), dossier: 'HO_SO_GIAI_NGAN' },
   { key: 'CV-87', title: tx('title.111'), type: 'CV', channel: 'EMAIL', sender: tx('sender.112'), symbol: tx('symbol.113'), issuedDaysAgo: 3, target: 'registered' },
-  { key: 'CV-219', title: tx('title.114'), type: 'CV', channel: 'UPLOAD', sender: tx('sender.115'), symbol: '219/STC-QLNS', issuedDaysAgo: 1, target: 'received' },
-  { key: 'GM-64', title: tx('title.116'), type: 'GM', channel: 'LGSP', sender: tx('sender.117'), symbol: '64/GM-VPUBND', issuedDaysAgo: 2, urgency: 'HOA_TOC', target: 'assigned', directive: tx('directive.118'), dueInDays: 0, handler: 'owner', unit: 'CB-SKHDT-VP' },
-  { key: 'CV-905', title: tx('title.119'), type: 'CV', channel: 'PAPER_SCAN', sender: tx('sender.120'), symbol: '905/KTNN-KV1', issuedDaysAgo: 8, urgency: 'KHAN', classification: 'CONFIDENTIAL', target: 'processing', directive: tx('directive.121'), dueInDays: 4, handler: 'projectManager', unit: 'CB-SKHDT-QLDA' },
-  { key: 'CV-5588', title: tx('title.122'), type: 'CV', channel: 'EMAIL', sender: tx('sender.123'), symbol: '5588/SXD-QLXD', issuedDaysAgo: 5, target: 'rejected', rejection: tx('rejection.124') },
+  { key: 'CV-219', title: tx('title.114'), type: 'CV', channel: 'UPLOAD', sender: tx('sender.115'), symbol: ent('219/STC-QLNS', '219/TCKT-QLV'), issuedDaysAgo: 1, target: 'received' },
+  { key: 'GM-64', title: tx('title.116'), type: 'GM', channel: 'LGSP', sender: tx('sender.117'), symbol: ent('64/GM-VPUBND', '64/GM-VPTCT'), issuedDaysAgo: 2, urgency: 'HOA_TOC', target: 'assigned', directive: tx('directive.118'), dueInDays: 0, handler: 'owner', unit: 'CB-SKHDT-VP' },
+  { key: 'CV-905', title: tx('title.119'), type: 'CV', channel: 'PAPER_SCAN', sender: tx('sender.120'), symbol: ent('905/KTNN-KV1', '905/KTĐL-PM'), issuedDaysAgo: 8, urgency: 'KHAN', classification: 'CONFIDENTIAL', target: 'processing', directive: tx('directive.121'), dueInDays: 4, handler: 'projectManager', unit: 'CB-SKHDT-QLDA' },
+  { key: 'CV-5588', title: tx('title.122'), type: 'CV', channel: 'EMAIL', sender: tx('sender.123'), symbol: ent('5588/SXD-QLXD', '5588/QV-KD'), issuedDaysAgo: 5, target: 'rejected', rejection: tx('rejection.124') },
   { key: 'QD-301', title: tx('title.125'), type: 'QD', channel: 'LGSP', sender: tx('name.018'), symbol: tx('symbol.126'), issuedDaysAgo: 20, target: 'filed', directive: tx('directive.127'), dueInDays: 3, handler: 'projectManager', unit: 'CB-SKHDT-VP', resolution: tx('resolution.128'), dossier: 'HO_SO_KE_HOACH_VON' },
-  { key: 'BC-78', title: tx('title.129'), type: 'BC', channel: 'PORTAL', sender: tx('sender.130'), symbol: '78/BC-UBND', issuedDaysAgo: 4, target: 'registered' },
+  { key: 'BC-78', title: tx('title.129'), type: 'BC', channel: 'PORTAL', sender: tx('sender.130'), symbol: ent('78/BC-UBND', '78/BC-NMĐPM'), issuedDaysAgo: 4, target: 'registered' },
   { key: 'CV-1190', title: tx('title.131'), type: 'CV', channel: 'LGSP', sender: tx('sender.132'), symbol: tx('symbol.133'), issuedDaysAgo: 11, target: 'resolved', directive: tx('directive.134'), dueInDays: 6, handler: 'projectManager', unit: 'CB-SKHDT-QLDA', resolution: tx('resolution.135') },
-  { key: 'TB-33', title: tx('title.136'), type: 'TB', channel: 'PAPER_SCAN', sender: tx('sender.137'), symbol: '33/TB-BL', issuedDaysAgo: 7, target: 'resolved', directive: tx('directive.138'), dueInDays: 2, handler: 'owner', unit: 'CB-SKHDT-VP', resolution: tx('resolution.139') },
-  { key: 'CV-612', title: tx('title.140'), type: 'CV', channel: 'EMAIL', sender: tx('sender.141'), symbol: '612/BDT-CSDT', issuedDaysAgo: 2, target: 'assigned', directive: tx('directive.142'), dueInDays: 9, handler: 'projectManager', unit: 'CB-SKHDT-QLDA' },
+  { key: 'TB-33', title: tx('title.136'), type: 'TB', channel: 'PAPER_SCAN', sender: tx('sender.137'), symbol: ent('33/TB-BL', '33/TB-BA'), issuedDaysAgo: 7, target: 'resolved', directive: tx('directive.138'), dueInDays: 2, handler: 'owner', unit: 'CB-SKHDT-VP', resolution: tx('resolution.139') },
+  { key: 'CV-612', title: tx('title.140'), type: 'CV', channel: 'EMAIL', sender: tx('sender.141'), symbol: ent('612/BDT-CSDT', '612/ATSKMT-KHĐT'), issuedDaysAgo: 2, target: 'assigned', directive: tx('directive.142'), dueInDays: 9, handler: 'projectManager', unit: 'CB-SKHDT-QLDA' },
 ];
 
 async function incomingLetters(ctx: SeedContext, registerId: string, dossiers: Map<string, string>): Promise<void> {
@@ -680,10 +689,10 @@ interface DossierPlan {
 }
 
 const DOSSIERS: DossierPlan[] = [
-  { key: 'HO_SO_DU_AN', code: 'HS-DT205-2026', title: tx('title.143'), category: 'HO_SO_DU_AN', unit: 'CB-SKHDT-QLDA', project: 'DA-DT205', outgoing: ['QD-PHE-DUYET-DT205'], end: 'closed' },
+  { key: 'HO_SO_DU_AN', code: ent('HS-DT205-2026', 'HS-PMDT154-2026'), title: tx('title.143'), category: 'HO_SO_DU_AN', unit: 'CB-SKHDT-QLDA', project: ent('DA-DT205', 'DA-PMDT154'), outgoing: [KEY_DECISION_A], end: 'closed' },
   { key: 'HO_SO_KE_HOACH_VON', code: 'HS-KHV-2027', title: tx('title.144'), category: 'VAN_BAN_DIEU_HANH', unit: 'CB-SKHDT-VP', outgoing: ['QD-GIAO-KE-HOACH-VON'], end: 'open' },
   { key: 'HO_SO_GIAI_NGAN', code: 'HS-GN-Q3-2026', title: tx('title.145'), category: 'HO_SO_GIAI_NGAN', unit: 'CB-SKHDT-VP', outgoing: ['CV-DON-DOC-GIAI-NGAN'], end: 'open' },
-  { key: 'HO_SO_TH012', code: 'HS-TH012-2026', title: tx('title.146'), category: 'HO_SO_DU_AN', unit: 'CB-SKHDT-QLDA', project: 'DA-TH012', outgoing: ['QD-PHE-DUYET-TH012'], end: 'handed-over' },
+  { key: 'HO_SO_TH012', code: ent('HS-TH012-2026', 'HS-PMTB164-2026'), title: tx('title.146'), category: 'HO_SO_DU_AN', unit: 'CB-SKHDT-QLDA', project: ent('DA-TH012', 'DA-PMTB164'), outgoing: [KEY_DECISION_B], end: 'handed-over' },
   { key: 'HO_SO_THAM_KHAO', code: 'HS-TK-2026', title: tx('title.147'), category: 'TAI_LIEU_THAM_KHAO', unit: 'CB-SKHDT-VP', outgoing: [], end: 'open' },
 ];
 

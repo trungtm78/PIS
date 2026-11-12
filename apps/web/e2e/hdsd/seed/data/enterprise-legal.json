@@ -1,0 +1,183 @@
+{
+  "sender.board": "Hội đồng thành viên Tổng công ty",
+  "sender.pmb": "Ban Quản lý dự án đầu tư của Tổng công ty",
+  "policy.title": "Nghị quyết của Hội đồng thành viên về chủ trương đầu tư dự án {name}",
+  "policy.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận Nghị quyết chủ trương đầu tư của Hội đồng thành viên.",
+  "policy.scope": "Chủ trương đầu tư: Hội đồng thành viên Tổng công ty thông qua chủ trương đầu tư dự án {name}, tổng mức đầu tư sơ bộ {total} tỷ đồng, thời gian thực hiện {from} - {to}. Tình trạng hồ sơ: đủ, còn hiệu lực.",
+  "policy.approve": "Đã đối chiếu nghị quyết với biên bản họp Hội đồng thành viên: hồ sơ chủ trương đầu tư đủ.",
+  "feasibility.title": "Báo cáo nghiên cứu khả thi và thiết kế cơ sở của dự án {name}",
+  "feasibility.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận báo cáo nghiên cứu khả thi và thiết kế cơ sở trình thẩm định.",
+  "feasibility.scope": "Báo cáo nghiên cứu khả thi và thiết kế cơ sở của dự án {name} do Ban Quản lý dự án đầu tư lập, tổng mức đầu tư {total} tỷ đồng, đã đủ nội dung để trình Hội đồng thẩm định đầu tư. Tình trạng hồ sơ: đủ.",
+  "feasibility.approve": "Hồ sơ nghiên cứu khả thi đủ thành phần theo quy chế đầu tư của Tổng công ty.",
+  "proposal.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận tờ trình đề nghị thẩm định, phê duyệt dự án {proposal}.",
+  "proposal.scope": "Tờ trình {proposal} của Ban Quản lý dự án đầu tư đề nghị thẩm định và phê duyệt dự án {name}, tổng mức đầu tư {total} tỷ đồng. Tình trạng hồ sơ: đủ.",
+  "proposal.approve": "Tờ trình đã được tiếp nhận đúng thẩm quyền, hồ sơ kèm theo đủ.",
+  "appraisal.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận thông báo kết quả thẩm định {proposal} của Hội đồng thẩm định đầu tư.",
+  "appraisal.scope": "Thông báo kết quả thẩm định {proposal} của Hội đồng thẩm định đầu tư: dự án {name} đủ điều kiện đưa vào danh mục đầu tư của Tổng công ty. Tình trạng hồ sơ: đủ, còn hiệu lực.",
+  "appraisal.approve": "Đã đối chiếu giả định và nguồn số liệu với báo cáo nghiên cứu khả thi; kết quả đủ điều kiện làm căn cứ trình quyết định đầu tư.",
+  "decision.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận quyết định của Hội đồng thành viên về việc triển khai dự án.",
+  "decision.scope": "Quyết định đầu tư: Hội đồng thành viên ban hành quyết định {proposal} về việc triển khai dự án {name}, tổng mức đầu tư {total} tỷ đồng, thời gian thực hiện {from} - {to}. Tình trạng hồ sơ: đủ, còn hiệu lực.",
+  "decision.approve": "Quyết định đầu tư còn hiệu lực, là căn cứ giao vốn và ký hợp đồng.",
+  "design.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận văn bản thẩm định thiết kế xây dựng {no}.",
+  "design.scope": "Văn bản thẩm định thiết kế xây dựng số {no} ngày {date}, do cơ quan chuyên môn về xây dựng cấp cho dự án {name}. Hiệu lực: không thời hạn. Tình trạng hồ sơ: đủ.",
+  "design.approve": "Văn bản thẩm định thiết kế đã đối chiếu với hồ sơ thiết kế: đủ.",
+  "env.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận quyết định phê duyệt kết quả thẩm định báo cáo đánh giá tác động môi trường {no}.",
+  "env.scope": "Quyết định phê duyệt kết quả thẩm định báo cáo đánh giá tác động môi trường số {no} ngày {date} của dự án {name}. Hiệu lực: không thời hạn. Tình trạng hồ sơ: đủ; giấy phép môi trường đang được hoàn thiện theo dõi tại hồ sơ giấy phép.",
+  "env.approve": "Quyết định đánh giá tác động môi trường đủ điều kiện làm căn cứ xin giấy phép môi trường.",
+  "build.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận giấy phép xây dựng {no}.",
+  "build.scope": "Giấy phép xây dựng số {no} ngày {date} do Sở Xây dựng nơi đặt nhà máy cấp cho dự án {name}. Hiệu lực: {valid}. Tình trạng hồ sơ: đủ, được phép khởi công các hạng mục chính.",
+  "build.approve": "Giấy phép xây dựng đã đối chiếu với quyết định đầu tư và thiết kế được thẩm định: đủ.",
+  "water.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận giấy phép khai thác, sử dụng nước mặt {no}.",
+  "water.scope": "Giấy phép khai thác, sử dụng nước mặt số {no} ngày {date} cho hệ thống nước làm mát của dự án {name}. Hiệu lực: {valid}. Cần gia hạn trước khi hết hạn. Tình trạng hồ sơ: đủ.",
+  "water.approve": "Giấy phép khai thác nước còn hiệu lực; đã đặt nhắc gia hạn trong hồ sơ giấy phép.",
+  "fire.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận văn bản thẩm duyệt thiết kế phòng cháy và chữa cháy {no}.",
+  "fire.scope": "Văn bản thẩm duyệt thiết kế phòng cháy và chữa cháy số {no} ngày {date} của cơ quan Cảnh sát phòng cháy, chữa cháy và cứu nạn, cứu hộ đối với dự án {name}. Hiệu lực: không thời hạn. Tình trạng hồ sơ: đủ; nghiệm thu phòng cháy chữa cháy chờ bổ sung khi hoàn thành xây lắp.",
+  "fire.approve": "Văn bản thẩm duyệt phòng cháy chữa cháy khớp với thiết kế được duyệt.",
+  "contract.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận hợp đồng {contract} đã ký.",
+  "contract.scope": "Hợp đồng {contract} ({title}) đã ký ngày {date} và có hiệu lực thi hành, thuộc dự án {name}. Tình trạng hồ sơ: đủ, đã lưu bản ký.",
+  "contract.approve": "Bản hợp đồng đã ký đủ chữ ký các bên, đã lưu trong hồ sơ.",
+  "guarantee.reason": "Hồ sơ pháp lý của dự án {code}: ghi nhận bảo lãnh thực hiện hợp đồng {contract}.",
+  "guarantee.scope": "Bảo lãnh thực hiện hợp đồng {contract} số {no} do {issuer} phát hành, giá trị {amount} đồng, hiệu lực từ ngày {date} đến hết ngày {until}, bên thụ hưởng là Tổng công ty. Tình trạng hồ sơ: đủ, đã được người xác minh đối chiếu.",
+  "guarantee.approve": "Thư bảo lãnh đã được đối chiếu với điều kiện hợp đồng: đủ giá trị và thời hạn.",
+  "valid.open": "không thời hạn",
+  "valid.until": "đến hết ngày {date}",
+  "lookahead.items": {
+    "DA-PMDT105": [
+      [
+        "Lắp đặt cụm bơm tuần hoàn số 1 và hệ thống ống dẫn nước làm mát",
+        0,
+        4,
+        "Nhà thầu Nam Việt"
+      ],
+      [
+        "Thi công móng tháp giải nhiệt số 2, đổ bê tông đợt 2",
+        1,
+        6,
+        "Nhà thầu Nam Việt"
+      ],
+      [
+        "Nghiệm thu cốt thép và ván khuôn trước khi đổ bê tông",
+        1,
+        2,
+        "Tư vấn giám sát"
+      ],
+      [
+        "Kiểm tra, thử áp lực tuyến ống cấp nước làm mát",
+        9,
+        11,
+        "Ban Quản lý dự án đầu tư"
+      ],
+      [
+        "Hoàn thiện hồ sơ nghiệm thu khối lượng đợt 4",
+        10,
+        13,
+        "Ban Quản lý dự án đầu tư"
+      ]
+    ],
+    "DA-PMDT114": [
+      [
+        "Thi công phần mái và vách bao che nhà kho khu A",
+        0,
+        5,
+        "Nhà thầu xây lắp"
+      ],
+      [
+        "Lắp dựng hệ thống băng tải nhập xuất sản phẩm",
+        7,
+        12,
+        "Nhà thầu xây lắp"
+      ],
+      [
+        "Nghiệm thu móng và nền kho trước khi lắp thiết bị",
+        2,
+        3,
+        "Tư vấn giám sát"
+      ]
+    ],
+    "DA-PMDT120": [
+      [
+        "Chế tạo và vận chuyển tháp hấp thụ về công trường",
+        0,
+        8,
+        "Nhà thầu thiết bị"
+      ],
+      [
+        "Thi công móng quạt hút và hệ thống ống khói",
+        2,
+        9,
+        "Nhà thầu xây lắp"
+      ],
+      [
+        "Hoàn thiện hồ sơ xin giấy phép môi trường",
+        3,
+        9,
+        "Ban An toàn Sức khỏe Môi trường"
+      ]
+    ]
+  },
+  "lookahead.constraint": [
+    "PERMIT",
+    "Chờ giấy phép môi trường trước khi chạy thử hệ thống xử lý khí thải"
+  ],
+  "lookahead.constraint2": [
+    "MATERIAL",
+    "Thép hình nhập khẩu dự kiến về cảng chậm so với tiến độ cấp vật tư"
+  ],
+  "appraisal.source": "Báo cáo nghiên cứu khả thi của dự án, Ban Quản lý dự án đầu tư lập",
+  "appraisal.list": [
+    {
+      "project": "DA-PMDT154",
+      "title": "Thẩm định hiệu quả tài chính dự án Cải tạo dây chuyền sản xuất amoniac",
+      "capex": [
+        125,
+        126
+      ],
+      "benefit": [
+        52,
+        58,
+        62,
+        64,
+        64,
+        64,
+        64,
+        64
+      ],
+      "stage": "APPROVED"
+    },
+    {
+      "project": "DA-PMTB204",
+      "title": "Thẩm định hiệu quả đầu tư mua sắm thiết bị đo lường và điều khiển",
+      "capex": [
+        71
+      ],
+      "benefit": [
+        18,
+        21,
+        23,
+        23,
+        23,
+        23
+      ],
+      "stage": "SUBMITTED"
+    },
+    {
+      "project": "DA-PMDT137",
+      "title": "Thẩm định hiệu quả tài chính dự án Hạ tầng điện và tự động hóa",
+      "capex": [
+        300,
+        300,
+        152
+      ],
+      "benefit": [
+        200,
+        230,
+        250,
+        250,
+        250,
+        250,
+        250
+      ],
+      "stage": "COMPUTED"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { AttemptRegistry } from '../../../api/attempt-registry';
 import { useScopeKey } from '../hooks';
@@ -27,6 +28,27 @@ export function usePayments(filter: PaymentFilter = {}, enabled = true) {
     enabled: enabled && key[1] !== undefined,
     retry: false,
   });
+}
+
+/** What the detail of a payment request needs to open on a request: the one in the address, else the newest one of the list with the list to change it. */
+export interface PaymentChoice {
+  /** The request to read; null when the address names none and the list offers none. */
+  requestId: string | null;
+  /** True when the address names no request, so the screen shows the newest one and offers the list to change it. */
+  defaulted: boolean;
+  choices: readonly PaymentRequest[];
+  isLoading: boolean;
+  pick(requestId: string): void;
+}
+
+/** The request of the detail screen (the `request` parameter); nothing is read from the list when the address names a request. */
+export function usePaymentChoice(): PaymentChoice {
+  const [search] = useSearchParams();
+  const named = search.get('request');
+  const [picked, setPicked] = useState<string | null>(null);
+  const list = usePayments({}, named === null);
+  const choices = named === null ? (list.data ?? []) : [];
+  return { requestId: named ?? picked ?? choices[0]?.id ?? null, defaulted: named === null, choices, isLoading: named === null && list.isLoading, pick: setPicked };
 }
 
 /** One request with its lines and documents; null when it is not there for the caller (another tenant, or outside the scope: a 404). */

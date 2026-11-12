@@ -323,7 +323,7 @@ describe('BI-16 the files of the exports (ST-BI-008)', () => {
         within(within(form).getByLabelText(vi_['bi.exp.metric']))
           .getAllByRole('option')
           .map((option) => option.textContent),
-      ).toEqual(['disbursement_rate']),
+      ).toEqual(['Tỷ lệ giải ngân (disbursement_rate)']),
     );
     await waitFor(() =>
       expect(

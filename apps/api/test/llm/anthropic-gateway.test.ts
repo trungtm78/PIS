@@ -1,0 +1,97 @@
+import { createHash } from 'node:crypto';
+import { GatewayFailure } from '@machvon/kernel';
+import type { GatewayCall } from '@machvon/kernel';
+import { AnthropicGateway, PdfFallbackTextPort, extractJsonObject } from '../e2e-stack/anthropic-gateway';
+
+const CALL: GatewayCall = {
+  route: 'INTERNATIONAL',
+  providerCode: 'ANTHROPIC',
+  providerModelId: 'claude-sonnet-5-5',
+  inputRef: 'playground/abc',
+  inputSha256: 'a'.repeat(64),
+  promptTemplateKey: 'k',
+  promptSha256: 'b'.repeat(64),
+  sourceIds: ['11111111-1111-4111-8111-111111111111'],
+  outputSchema: { type: 'object' },
+  maxOutputTokens: 1000,
+  effort: null,
+  timeoutMs: 30_000,
+  tools: [],
+};
+
+const files = { readStored: async () => ({ object: {} as never, bytes: new Uint8Array() }) };
+const reply = (status: number, body: unknown): typeof fetch => (async () => new Response(JSON.stringify(body), { status })) as typeof fetch;
+
+describe('AnthropicGateway (demo adapter)', () => {
+  it('maps a reply to the port result, counting cached tokens in the input total', async () => {
+    const gateway = new AnthropicGateway({
+      apiKey: 'test-key',
+      files,
+      fetchImpl: reply(200, { id: 'msg_1', content: [{ type: 'text', text: 'Here: {"statements":[]} done' }], usage: { input_tokens: 10, cache_read_input_tokens: 5, output_tokens: 7 } }),
+    });
+    const result = await gateway.complete(CALL);
+    expect(result.output).toBe('{"statements":[]}');
+    expect(result.providerRequestId).toBe('msg_1');
+    expect(result.usage).toEqual({ inputTotal: 15, cachedInput: 5, outputTotal: 7 });
+  });
+
+  it('maps provider errors, refusals and timeouts to the failure kinds', async () => {
+    const failure = async (fetchImpl: typeof fetch) => {
+      try {
+        await new AnthropicGateway({ apiKey: 'k', files, fetchImpl }).complete(CALL);
+      } catch (error) {
+        return error instanceof GatewayFailure ? error.kind : 'other';
+      }
+      return 'none';
+    };
+    expect(await failure(reply(529, {}))).toBe('PROVIDER_ERROR');
+    expect(await failure(reply(401, {}))).toBe('PROVIDER_ERROR');
+    expect(await failure(reply(504, {}))).toBe('TIMEOUT');
+    expect(await failure(reply(200, { stop_reason: 'refusal', content: [] }))).toBe('REFUSAL');
+    expect(await failure((async () => Promise.reject(Object.assign(new Error('x'), { name: 'AbortError' }))) as unknown as typeof fetch)).toBe('TIMEOUT');
+  });
+
+  it('refuses a call that is not the international Anthropic route before it reads or sends anything', async () => {
+    let sent = 0;
+    const fetchImpl = (async () => {
+      sent += 1;
+      return new Response('{}');
+    }) as typeof fetch;
+    const gateway = new AnthropicGateway({ apiKey: 'k', files, fetchImpl });
+    await expect(gateway.complete({ ...CALL, route: 'DOMESTIC_HOSTED' })).rejects.toBeInstanceOf(GatewayFailure);
+    await expect(gateway.complete({ ...CALL, providerCode: 'OTHER' })).rejects.toBeInstanceOf(GatewayFailure);
+    expect(sent).toBe(0);
+  });
+
+  it('sends the stored input only when its hash is the one the caller recorded', async () => {
+    const stored = new TextEncoder().encode('{"task":"real"}');
+    const bodies: string[] = [];
+    const fetchImpl = (async (_url: unknown, init?: RequestInit) => {
+      bodies.push(String(init?.body));
+      return new Response(JSON.stringify({ content: [{ type: 'text', text: '{}' }] }));
+    }) as typeof fetch;
+    const key = 'tenants/22222222-2222-4222-8222-222222222222/kind/33333333-3333-4333-8333-333333333333';
+    const gateway = new AnthropicGateway({ apiKey: 'k', files: { readStored: async () => ({ object: {} as never, bytes: stored }) }, fetchImpl });
+    await gateway.complete({ ...CALL, inputRef: key, inputSha256: createHash('sha256').update(stored).digest('hex') });
+    await gateway.complete({ ...CALL, inputRef: key, inputSha256: 'f'.repeat(64) });
+    expect(bodies[0]).toContain('real');
+    expect(bodies[1]).not.toContain('real');
+  });
+
+  it('stops reading a body that is larger than the cap', async () => {
+    const huge = (async () => new Response(new Uint8Array(2_500_000))) as typeof fetch;
+    await expect(new AnthropicGateway({ apiKey: 'k', files, fetchImpl: huge }).complete(CALL)).rejects.toMatchObject({ kind: 'PROVIDER_ERROR' });
+  });
+
+  it('extracts the first balanced JSON object, also from a fenced reply', () => {
+    expect(extractJsonObject('```json\n{"a":{"b":"}"}}\n```')).toBe('{"a":{"b":"}"}}');
+  });
+
+  it('reads the plain text lines of a demo PDF when no OCR was recorded', async () => {
+    const pdf = Buffer.from('BT (Line one) Tj T* (Line \\(two\\)) Tj ET', 'latin1');
+    const ocr = { pages: async () => Promise.reject(new Error('no ocr')) };
+    const port = new PdfFallbackTextPort(ocr, { get: async () => ({ bytes: new Uint8Array(pdf), mime: 'application/pdf' }) });
+    const tx = { query: async () => [{ object_key: 'tenants/x' }] } as never;
+    expect(await port.pages(tx, { tenantId: 't', membershipId: 'm', scopeVersion: 1 }, 'v')).toEqual(['Line one\nLine (two)']);
+  });
+});

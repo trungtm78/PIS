@@ -311,8 +311,25 @@ describe('BoqScreen (CTR-04): the BOQ of a contract revision', () => {
     expect(screen.queryByTestId('faults')).toBeNull();
   });
 
-  it('asks for a contract when none is named, and says when the contract is not found', async () => {
-    open(opened(), BOQ_MANAGER, undefined, '/');
+  it('opens on the largest contract in force when none is named, with the note and a selector to switch to another (menu entry)', async () => {
+    open(opened(detail(2), undefined, { details: [detail(1), detail(2)] }), BOQ_MANAGER, undefined, '/');
+    expect((await screen.findByTestId('default-contract')).textContent).toContain(vi_['ctr.default.notice']);
+    await waitFor(() => expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(`HD-A-002 · ${vi_['ctr.boq.page.title']}`));
+    const select = screen.getByTestId('default-contract-select') as HTMLSelectElement;
+    expect(select.value).toBe(contractId(2));
+    expect(within(select).getAllByRole('option')).toHaveLength(2);
+    fireEvent.change(select, { target: { value: contractId(1) } });
+    await waitFor(() => expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(`HD-A-001 · ${vi_['ctr.boq.page.title']}`));
+  });
+
+  it('names no default and shows no selector when the address names the contract', async () => {
+    open(opened());
+    await ready();
+    expect(screen.queryByTestId('default-contract')).toBeNull();
+  });
+
+  it('asks for a contract when none is named and the register is empty, and says when the contract is not found', async () => {
+    open(opened(contract(), undefined, { contracts: [] }), BOQ_MANAGER, undefined, '/');
     expect((await screen.findByTestId('no-contract')).textContent).toBe(vi_['ctr.boq.noContract.notice']);
     cleanup();
     open(opened(contract(), undefined, { details: [], missing: problem('RESOURCE_NOT_FOUND', 404) }), BOQ_MANAGER, undefined, `/?id=${contractId(9)}`);
