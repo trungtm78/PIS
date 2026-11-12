@@ -158,12 +158,17 @@ describe('the model of the board tied to a dashboard (BC.02)', () => {
     expect(boardMetricsOf(one as NonNullable<typeof one>, metrics).map((metric) => metric.code)).toEqual(['disbursed', 'disbursement_rate']);
   });
 
-  it('reads a board at any frozen snapshot unless the published version pins its dataset versions, and then at the pinned ones only', () => {
-    const frozenOnes = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
-    expect(snapshotsOf(frozenOnes, undefined)).toEqual(frozenOnes);
-    expect(snapshotsOf(frozenOnes, { policy: 'LATEST_FROZEN', pinnedDatasetVersionIds: ['a'] })).toEqual(frozenOnes);
-    expect(snapshotsOf(frozenOnes, { policy: 'PINNED', pinnedDatasetVersionIds: ['b', 'zzz'] })).toEqual([{ id: 'b' }]);
-    expect(snapshotsOf(frozenOnes, { policy: 'PINNED', pinnedDatasetVersionIds: [] })).toEqual([]);
+  it('reads a board at a frozen snapshot unless the published version pins its dataset versions, and then at the pinned ones only, frozen or superseded', () => {
+    const versions = [
+      { id: 'a', status: 'FROZEN' },
+      { id: 'b', status: 'SUPERSEDED' },
+      { id: 'c', status: 'FROZEN' },
+      { id: 'd', status: 'FAILED' },
+    ];
+    expect(snapshotsOf(versions, undefined).map((one) => one.id)).toEqual(['a', 'c']);
+    expect(snapshotsOf(versions, { policy: 'LATEST_FROZEN', pinnedDatasetVersionIds: ['b'] }).map((one) => one.id)).toEqual(['a', 'c']);
+    expect(snapshotsOf(versions, { policy: 'PINNED', pinnedDatasetVersionIds: ['b', 'c', 'd', 'zzz'] }).map((one) => one.id)).toEqual(['b', 'c']);
+    expect(snapshotsOf(versions, { policy: 'PINNED', pinnedDatasetVersionIds: [] })).toEqual([]);
   });
 });
 
@@ -271,6 +276,18 @@ describe('BI-02 read as a published dashboard (BC.02)', () => {
     await waitFor(() => expect(tileIds()).toEqual([RATE.id, DISBURSED.id]));
     expect(screen.queryByTestId('board-pinned')).toBeNull();
     expect([...(screen.getByLabelText(txt('bi.board.period')) as HTMLSelectElement).options].map((option) => option.textContent)).toEqual(['2026-11', '2026-10']);
+  });
+
+  it('a pinned snapshot that a newer build has since superseded still gives the signed board its figures', async () => {
+    const OLD = '00000000-0000-4000-8000-0000000000a3';
+    const superseded = { ...frozen, id: OLD, as_of_period: '2026-09', status: 'SUPERSEDED' };
+    const pinnedVersion = { ...version(VP, 1, 'PUBLISHED', [DISBURSED.id], signOff()), dataset_version_policy: 'PINNED', pinned_dataset_version_ids: [OLD] };
+    const h = client({ one: detail({ versions: [pinnedVersion] }), snapshots: [frozen, superseded] });
+    mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER }, `${BOARD_PATH}?${BOARD_DASHBOARD_PARAM}=${D1}`);
+    await waitFor(() => expect(tileIds()).toEqual([DISBURSED.id]));
+    expect([...(screen.getByLabelText(txt('bi.board.period')) as HTMLSelectElement).options].map((option) => option.textContent)).toEqual(['2026-09']);
+    const asked = (h.client.command as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([operation]) => operation === 'post_dashboard_queries');
+    expect(JSON.stringify(asked)).toContain(OLD);
   });
 
   it('a pin that names no frozen snapshot leaves the board with no period, said in words, and no figure', async () => {

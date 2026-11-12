@@ -30,10 +30,11 @@ export function boardMetricsOf(version: Pick<DashboardVersion, 'metricVersionIds
 }
 
 /**
- * The snapshots a board may be read at. A version that pins its dataset versions (`PINNED`) was approved with those figures, so the signatures stand on those snapshots only; a version that follows the latest frozen one
- * (`LATEST_FROZEN`), and a board that is not tied to a dashboard, may be read at any frozen snapshot.
+ * The snapshots a board may be read at. A board that follows the latest data (not tied to a dashboard, or a published version with the policy LATEST_FROZEN) is read at a frozen snapshot. A version that pins its dataset versions
+ * (PINNED) was signed on those figures, so it is read at the pinned ones only, frozen or since superseded by a newer build (the query store serves both): a signature never goes with a newer snapshot, and a pinned snapshot
+ * that was superseded does not take the figures away from the board that was approved on it.
  */
-export function snapshotsOf<T extends { id: string }>(frozen: readonly T[], published: Pick<DashboardVersion, 'policy' | 'pinnedDatasetVersionIds'> | undefined): T[] {
-  if (published === undefined || published.policy !== 'PINNED') return [...frozen];
-  return frozen.filter((snapshot) => published.pinnedDatasetVersionIds.includes(snapshot.id));
+export function snapshotsOf<T extends { id: string; status: string }>(versions: readonly T[], published: Pick<DashboardVersion, 'policy' | 'pinnedDatasetVersionIds'> | undefined): T[] {
+  if (published === undefined || published.policy !== 'PINNED') return versions.filter((one) => one.status === 'FROZEN');
+  return versions.filter((one) => published.pinnedDatasetVersionIds.includes(one.id) && (one.status === 'FROZEN' || one.status === 'SUPERSEDED'));
 }

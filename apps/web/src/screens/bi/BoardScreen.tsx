@@ -44,7 +44,6 @@ function BoardContent({ route }: ScreenProps) {
   const datasets = useDatasets();
   const disbursement = (datasets.data ?? []).find((dataset) => dataset.sourceKind === 'PERIOD_SNAPSHOT');
   const versions = useDatasetVersions(disbursement?.id);
-  const frozen = useMemo(() => (versions.data ?? []).filter((version) => version.status === 'FROZEN'), [versions.data]);
   const [params] = useSearchParams();
   const [dashboardId, setDashboardId] = useState(params.get(BOARD_DASHBOARD_PARAM) ?? '');
   const tied = dashboardId !== '';
@@ -59,7 +58,7 @@ function BoardContent({ route }: ScreenProps) {
   );
   const signOff = tied ? (published?.signOff ?? null) : null;
   // A published version that pins its dataset versions was signed on those figures: the board is read at them only.
-  const served = useMemo(() => snapshotsOf(frozen, tied ? published : undefined), [frozen, tied, published]);
+  const served = useMemo(() => snapshotsOf(versions.data ?? [], tied ? published : undefined), [versions.data, tied, published]);
   const pinned = tied && published?.policy === 'PINNED';
   const [asked, setAsked] = useState('');
   const chosen = served.find((version) => version.id === asked) ?? served[0];
