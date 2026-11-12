@@ -5,5 +5,6 @@
   "bi.board.dashboard.noMetrics": "The published version of this dashboard no longer holds a metric that is certified.",
   "bi.board.sign.unbound": "This board is not tied to the published version of a dashboard, so it has no prepared, checked or approved signature; it is not a signed report.",
   "bi.present.title.dashboard": "{dashboard}: metric board for {period}",
-  "bi.dash.library.board": "Open as a metric board"
+  "bi.dash.library.board": "Open as a metric board",
+  "bi.board.dashboard.pinned": "This dashboard pins its dataset versions at publication: only the pinned periods can be chosen, so the signatures stay with the figures that were approved."
 }

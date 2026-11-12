@@ -6,7 +6,7 @@ import { translator } from '../../i18n';
 import { harness, mount, routeOf } from '../mne/test-support';
 import BoardScreen from './BoardScreen';
 import DashboardLibraryScreen from './DashboardLibraryScreen';
-import { BOARD_DASHBOARD_PARAM, BOARD_PATH, boardDashboards, boardMetricsOf, publishedVersionOf } from './board-model';
+import { BOARD_DASHBOARD_PARAM, BOARD_PATH, boardDashboards, boardMetricsOf, publishedVersionOf, snapshotsOf } from './board-model';
 import { toDashboard, toVersion } from './dashboard-model';
 import { toMetric } from './bi-model';
 import { rawMetric } from './test-support';
@@ -109,6 +109,7 @@ interface World {
   dashboards?: unknown[] | Error;
   one?: unknown;
   metrics?: unknown[];
+  snapshots?: unknown[];
 }
 
 function client(world: World = {}) {
@@ -123,7 +124,7 @@ function client(world: World = {}) {
         : operation === 'listBiDatasets'
           ? [dataset]
           : operation === 'listBiDatasetVersions'
-            ? [frozen]
+            ? (world.snapshots ?? [frozen])
             : operation === 'listDashboards'
               ? (world.dashboards ?? [dashboardRow(D1, 'D-ONE'), dashboardRow(D2, 'D-DRAFT', { status: 'DRAFT' })])
               : new Error(`unexpected readAll ${operation}`);
@@ -155,6 +156,14 @@ describe('the model of the board tied to a dashboard (BC.02)', () => {
   it('keeps the certified metrics of a version in its own order, once, and leaves out the withdrawn and the unknown', () => {
     const one = toVersion(version(VP, 1, 'PUBLISHED', [DISBURSED.id, WITHDRAWN.id, '00000000-0000-4000-8000-0000000000ff', RATE.id, DISBURSED.id]));
     expect(boardMetricsOf(one as NonNullable<typeof one>, metrics).map((metric) => metric.code)).toEqual(['disbursed', 'disbursement_rate']);
+  });
+
+  it('reads a board at any frozen snapshot unless the published version pins its dataset versions, and then at the pinned ones only', () => {
+    const frozenOnes = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+    expect(snapshotsOf(frozenOnes, undefined)).toEqual(frozenOnes);
+    expect(snapshotsOf(frozenOnes, { policy: 'LATEST_FROZEN', pinnedDatasetVersionIds: ['a'] })).toEqual(frozenOnes);
+    expect(snapshotsOf(frozenOnes, { policy: 'PINNED', pinnedDatasetVersionIds: ['b', 'zzz'] })).toEqual([{ id: 'b' }]);
+    expect(snapshotsOf(frozenOnes, { policy: 'PINNED', pinnedDatasetVersionIds: [] })).toEqual([]);
   });
 });
 
@@ -241,6 +250,34 @@ describe('BI-02 read as a published dashboard (BC.02)', () => {
     mount(<BoardScreen route={BOARD} />, client({ one: retired }), { permissions: QUERIER }, `${BOARD_PATH}?${BOARD_DASHBOARD_PARAM}=${D1}`);
     expect((await screen.findByTestId('board-dashboard-empty')).textContent).toBe(txt('bi.board.dashboard.noMetrics'));
     expect(screen.getByTestId('present-open').hasAttribute('disabled')).toBe(true);
+  });
+
+  it('a published version that pins its dataset versions is read at the pinned snapshot only, never at a newer one with the same signatures', async () => {
+    const user = userEvent.setup();
+    const NEWER = '00000000-0000-4000-8000-0000000000a2';
+    const newer = { ...frozen, id: NEWER, as_of_period: '2026-11' };
+    const pinnedVersion = { ...version(VP, 1, 'PUBLISHED', [DISBURSED.id], signOff()), dataset_version_policy: 'PINNED', pinned_dataset_version_ids: [SNAP] };
+    const h = client({ one: detail({ versions: [pinnedVersion] }), snapshots: [newer, frozen] });
+    mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER }, `${BOARD_PATH}?${BOARD_DASHBOARD_PARAM}=${D1}`);
+    await waitFor(() => expect(tileIds()).toEqual([DISBURSED.id]));
+    expect(screen.getByTestId('board-pinned').textContent).toBe(txt('bi.board.dashboard.pinned'));
+    const period = screen.getByLabelText(txt('bi.board.period')) as HTMLSelectElement;
+    expect([...period.options].map((option) => option.textContent)).toEqual(['2026-10']);
+    const explained = (h.client.command as unknown as ReturnType<typeof vi.fn>).mock.calls.filter(([operation]) => operation === 'post_dashboard_queries');
+    expect(JSON.stringify(explained)).toContain(SNAP);
+    expect(JSON.stringify(explained)).not.toContain(NEWER);
+    // The same board with no dashboard is read at the newest frozen snapshot and says nothing of a pin.
+    await user.selectOptions(screen.getByLabelText(txt('bi.board.dashboard')), '');
+    await waitFor(() => expect(tileIds()).toEqual([RATE.id, DISBURSED.id]));
+    expect(screen.queryByTestId('board-pinned')).toBeNull();
+    expect([...(screen.getByLabelText(txt('bi.board.period')) as HTMLSelectElement).options].map((option) => option.textContent)).toEqual(['2026-11', '2026-10']);
+  });
+
+  it('a pin that names no frozen snapshot leaves the board with no period, said in words, and no figure', async () => {
+    const pinnedVersion = { ...version(VP, 1, 'PUBLISHED', [DISBURSED.id], signOff()), dataset_version_policy: 'PINNED', pinned_dataset_version_ids: ['00000000-0000-4000-8000-0000000000a9'] };
+    mount(<BoardScreen route={BOARD} />, client({ one: detail({ versions: [pinnedVersion] }) }), { permissions: QUERIER }, `${BOARD_PATH}?${BOARD_DASHBOARD_PARAM}=${D1}`);
+    expect((await screen.findByTestId('board-no-period')).textContent).toBe(txt('bi.board.noPeriod'));
+    expect(screen.getByTestId('board-pinned')).toBeTruthy();
   });
 
   it('a dashboard that cannot be read is an error state, with the choice left to go back', async () => {

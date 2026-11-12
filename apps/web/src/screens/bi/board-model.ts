@@ -28,3 +28,12 @@ export function boardMetricsOf(version: Pick<DashboardVersion, 'metricVersionIds
     return metric !== undefined && metric.status === 'CERTIFIED' ? [metric] : [];
   });
 }
+
+/**
+ * The snapshots a board may be read at. A version that pins its dataset versions (`PINNED`) was approved with those figures, so the signatures stand on those snapshots only; a version that follows the latest frozen one
+ * (`LATEST_FROZEN`), and a board that is not tied to a dashboard, may be read at any frozen snapshot.
+ */
+export function snapshotsOf<T extends { id: string }>(frozen: readonly T[], published: Pick<DashboardVersion, 'policy' | 'pinnedDatasetVersionIds'> | undefined): T[] {
+  if (published === undefined || published.policy !== 'PINNED') return [...frozen];
+  return frozen.filter((snapshot) => published.pinnedDatasetVersionIds.includes(snapshot.id));
+}

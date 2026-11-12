@@ -16,7 +16,7 @@ import { useDashboard, useDashboards, useDatasetVersions, useDatasets, useMetric
 import type { Metric } from './bi-model';
 import type { Dataset } from './dataset-model';
 import type { SignOff } from './dashboard-model';
-import { BOARD_DASHBOARD_PARAM, boardDashboards, boardMetricsOf, publishedVersionOf } from './board-model';
+import { BOARD_DASHBOARD_PARAM, boardDashboards, boardMetricsOf, publishedVersionOf, snapshotsOf } from './board-model';
 import { queryProblemMessage } from './labels';
 import { WORKBENCH_PATH, describeQueryProblem, formatFigure } from './query-model';
 import { ResultLabels } from './QueryResultView';
@@ -44,7 +44,7 @@ function BoardContent({ route }: ScreenProps) {
   const datasets = useDatasets();
   const disbursement = (datasets.data ?? []).find((dataset) => dataset.sourceKind === 'PERIOD_SNAPSHOT');
   const versions = useDatasetVersions(disbursement?.id);
-  const served = useMemo(() => (versions.data ?? []).filter((version) => version.status === 'FROZEN'), [versions.data]);
+  const frozen = useMemo(() => (versions.data ?? []).filter((version) => version.status === 'FROZEN'), [versions.data]);
   const [params] = useSearchParams();
   const [dashboardId, setDashboardId] = useState(params.get(BOARD_DASHBOARD_PARAM) ?? '');
   const tied = dashboardId !== '';
@@ -58,6 +58,9 @@ function BoardContent({ route }: ScreenProps) {
     [tied, published, metrics.data],
   );
   const signOff = tied ? (published?.signOff ?? null) : null;
+  // A published version that pins its dataset versions was signed on those figures: the board is read at them only.
+  const served = useMemo(() => snapshotsOf(frozen, tied ? published : undefined), [frozen, tied, published]);
+  const pinned = tied && published?.policy === 'PINNED';
   const [asked, setAsked] = useState('');
   const chosen = served.find((version) => version.id === asked) ?? served[0];
   // A board tied to a dashboard is never "empty" as a whole: the choice of the dashboard stays reachable and the reason is said in the page.
@@ -152,6 +155,11 @@ function BoardContent({ route }: ScreenProps) {
                 ))}
               </select>
             </Field>
+            {pinned ? (
+              <p className="sub" data-testid="board-pinned">
+                {t('bi.board.dashboard.pinned')}
+              </p>
+            ) : null}
             {chosen === undefined ? <p data-testid="board-no-period">{t('bi.board.noPeriod')}</p> : null}
           </div>
         </FilterPanel>
