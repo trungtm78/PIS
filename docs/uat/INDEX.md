@@ -68,6 +68,10 @@ Ca sâu đã được thêm vào `test_cases.json` và `traceability.json` (ngu�
 Kịch bản chạy được nằm ở `apps/api/test/uat/` (Jest, cơ sở dữ liệu nhúng thật, toàn bộ bản enterprise): `enterprise-authz.uat.test.ts` (ma trận quyền cho mọi thao tác) và một bộ cho mỗi phân hệ (`hpm`, `ebs`, `dir`, `ind`, `int`, `hub`, `rpt`, `ent`). Tên mỗi test mang mã ca nên `npm run uat:run` ghép kết quả vào đúng ca; mỗi bộ có một chứng âm (kiểm chứng rằng phép kiểm đỏ được). `npm run uat:check` kiểm mọi mã màn hình, story và ca nêu trong các `uat.json`, và rằng ca khai là tự động có kịch bản nêu mã của nó.
 Làm tay còn lại và lý do: trường `automation.reason` của từng ca; tóm tắt ở `_coverage-ledger.md` của từng phân hệ.
 
+## Phân hệ PWF: workflow dự án, hạn ba màu, KPI và chấm điểm (lane pwfspec, 2026-11-13)
+
+`docs/uat/pwf/uat.json` (76 ca) và `_coverage-ledger.md`: 15 ca `UAT-PWF-01..15` của mục 10 đặc tả `Design/MACHVON_Design/01_Documents/05_modules/PWF.md` khai triển đủ, cộng ca âm tính, biên (ngưỡng 5/2/0 tại 6, 5, 3, 2, 1, 0, -1), đồng thời, idempotency, cách ly tenant, IDOR điểm nhân viên, tự duyệt, mẫu nhỏ, thiếu lịch năm, ngoại tuyến điện thoại, quyền riêng tư và hồi quy. Phủ đủ 20 câu chuyện ST-PWF và 29 tiêu chí AC-ST-PWF. Mọi ca là kế hoạch (`automation_intent.state = PLANNED`, một ca `MANUAL` có lý do): chưa có kịch bản, chưa chạy, không có bằng chứng. Câu chuyện ST-PWF chưa nằm trong `implementation_plan.json` nên ca dùng `linked_stories`, `linked_acs`, `linked_screens` thay cho `story_ids`, `screen_id`; khi làn tích hợp đăng ký xong thì đổi tên trường và chuyển `automation_intent` thành `automation`.
+
 ## Việc còn lại của writer (nợ có chủ đích)
 
 1. **Đào sâu theo thao tác:** `openapi.json` có 1.017 thao tác (545 có body, 1.493 trường bắt buộc, 818 trường có ràng buộc, 296 enum). Ca "thiếu trường X thì 422" chỉ có giá trị khi khẳng định `detail` nêu đúng trường X, nếu không nó vẫn đạt khi có lỗi 422 khác (oracle yếu). Cần bộ sinh ví dụ hợp lệ theo schema trước khi sinh ca.
