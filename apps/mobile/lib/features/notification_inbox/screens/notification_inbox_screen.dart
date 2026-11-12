@@ -60,6 +60,13 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
   NotificationFilter _filter = const NotificationFilter();
   late int _tab = widget.initialTab;
 
+  // The inbox keeps its state while another tab is open, so a link to the other tab arrives as a new parameter of the same screen: follow it.
+  @override
+  void didUpdateWidget(NotificationInboxScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTab != widget.initialTab) _tab = widget.initialTab;
+  }
+
   @override
   void initState() {
     super.initState();

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall;
+import 'package:machvon_mobile/core/di/providers.dart' show routerProvider;
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
 import 'package:machvon_mobile/core/navigation/tab_badges.dart';
@@ -78,6 +79,22 @@ void main() {
       expect(currentLocation(container), '/inbox?tab=work');
       expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget, reason: 'the full list of the alerts is what was asked for');
       expect(find.text('Tất cả 4'), findsNothing, reason: 'the events are the other tab');
+    });
+
+    testWidgets('the "Xem tất cả" opens the alert tab even when the inbox was left on the events before', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = _server();
+      server.on('GET', '/home/command-center', (_) => commandCenter());
+      final ProviderContainer container = await _open(tester, server, '/inbox');
+      expect(find.text('Tất cả 4'), findsOneWidget, reason: 'the inbox was seen on its events');
+
+      container.read(routerProvider).go('/home');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Xem tất cả'));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/inbox?tab=work');
+      expect(find.text('Giấy phép DA-DT205 đã hết hạn'), findsOneWidget);
+      expect(find.text('Tất cả 4'), findsNothing);
     });
 
     testWidgets('an inbox with no notification still has the alerts of the person in the other tab, and says it is empty', (WidgetTester tester) async {
