@@ -82,27 +82,36 @@ createOrReplace
 			displayFolder: Kỳ
 			description: Kỳ người xem chọn; nếu không chọn thì kỳ có ngày chốt mới nhất. Số lũy kế của mỗi bản chốt nên luôn tính ở đúng một kỳ.
 
+		measure 'Chosen Measure' =
+				COALESCE ( SELECTEDVALUE ( DimMeasure[measure] ), "DISBURSED" )
+			displayFolder: Kỳ
+			description: Thước đo tài chính người xem chọn (EXECUTED thực hiện, DISBURSED giải ngân); mặc định DISBURSED. Hai thước đo không được cộng với nhau nên mọi phép đo đều giữ đúng một thước đo.
+
 		measure 'Plan In Force VND' =
 				VAR ChosenPeriod = [Chosen Period]
-				RETURN CALCULATE ( SUM ( FactEnterprise[plan_in_force_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+				VAR ChosenMeasure = [Chosen Measure]
+				RETURN CALCULATE ( SUM ( FactEnterprise[plan_in_force_vnd] ), DimPeriod[period_id] = ChosenPeriod, DimMeasure[measure] = ChosenMeasure )
 			formatString: #,0
 			displayFolder: Doanh nghiệp
 
 		measure 'Plan To Date VND' =
 				VAR ChosenPeriod = [Chosen Period]
-				RETURN CALCULATE ( SUM ( FactEnterprise[plan_to_date_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+				VAR ChosenMeasure = [Chosen Measure]
+				RETURN CALCULATE ( SUM ( FactEnterprise[plan_to_date_vnd] ), DimPeriod[period_id] = ChosenPeriod, DimMeasure[measure] = ChosenMeasure )
 			formatString: #,0
 			displayFolder: Doanh nghiệp
 
 		measure 'Cumulative YTD VND' =
 				VAR ChosenPeriod = [Chosen Period]
-				RETURN CALCULATE ( SUM ( FactEnterprise[cumulative_ytd_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+				VAR ChosenMeasure = [Chosen Measure]
+				RETURN CALCULATE ( SUM ( FactEnterprise[cumulative_ytd_vnd] ), DimPeriod[period_id] = ChosenPeriod, DimMeasure[measure] = ChosenMeasure )
 			formatString: #,0
 			displayFolder: Doanh nghiệp
 
 		measure 'Period Actual VND' =
 				VAR ChosenPeriod = [Chosen Period]
-				RETURN CALCULATE ( SUM ( FactEnterprise[actual_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+				VAR ChosenMeasure = [Chosen Measure]
+				RETURN CALCULATE ( SUM ( FactEnterprise[actual_vnd] ), DimPeriod[period_id] = ChosenPeriod, DimMeasure[measure] = ChosenMeasure )
 			formatString: #,0
 			displayFolder: Doanh nghiệp
 
@@ -188,19 +197,22 @@ createOrReplace
 
 		measure 'Equity YTD VND' =
 				VAR ChosenPeriod = [Chosen Period]
-				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_equity_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+				VAR ChosenMeasure = [Chosen Measure]
+				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_equity_vnd] ), DimPeriod[period_id] = ChosenPeriod, DimMeasure[measure] = ChosenMeasure )
 			formatString: #,0
 			displayFolder: Cơ cấu vốn
 
 		measure 'Loan YTD VND' =
 				VAR ChosenPeriod = [Chosen Period]
-				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_loan_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+				VAR ChosenMeasure = [Chosen Measure]
+				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_loan_vnd] ), DimPeriod[period_id] = ChosenPeriod, DimMeasure[measure] = ChosenMeasure )
 			formatString: #,0
 			displayFolder: Cơ cấu vốn
 
 		measure 'Funding Total YTD VND' =
 				VAR ChosenPeriod = [Chosen Period]
-				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_total_vnd] ), DimPeriod[period_id] = ChosenPeriod )
+				VAR ChosenMeasure = [Chosen Measure]
+				RETURN CALCULATE ( SUM ( FactFunding[cumulative_ytd_total_vnd] ), DimPeriod[period_id] = ChosenPeriod, DimMeasure[measure] = ChosenMeasure )
 			formatString: #,0
 			displayFolder: Cơ cấu vốn
 
@@ -261,6 +273,27 @@ createOrReplace
 					    Periods = Table.Distinct ( View, { "period_id" } )
 					in
 					    Periods
+
+	/// Thước đo tài chính của bản chốt (cột measure của cả hai bảng sự kiện); bảng nhập tay hai dòng. Hai thước đo không cộng với nhau: mọi phép đo của mô hình giữ đúng một thước đo.
+	table DimMeasure
+
+		column measure
+			dataType: string
+			summarizeBy: none
+			sourceColumn: measure
+
+		column label
+			dataType: string
+			summarizeBy: none
+			sourceColumn: label
+
+		partition DimMeasure = m
+			mode: import
+			source =
+					let
+					    Source = #table ( type table [measure = text, label = text], { { "DISBURSED", "Giải ngân" }, { "EXECUTED", "Thực hiện" } } )
+					in
+					    Source
 
 	/// Nhãn của nhóm nguồn vốn; bảng nhập tay ba dòng.
 	table DimClass
@@ -337,3 +370,11 @@ createOrReplace
 	relationship FactEnterprise_DimClass
 		fromColumn: FactEnterprise.class_code
 		toColumn: DimClass.class_code
+
+	relationship FactEnterprise_DimMeasure
+		fromColumn: FactEnterprise.measure
+		toColumn: DimMeasure.measure
+
+	relationship FactFunding_DimMeasure
+		fromColumn: FactFunding.measure
+		toColumn: DimMeasure.measure
