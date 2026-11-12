@@ -1,7 +1,7 @@
 import { ApiError } from '@machvon/api-client';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -14,8 +14,8 @@ import { BackLink, Field } from '../components';
 import '../dis.css';
 import { ErrorSummary, ReceiptCard, StatusStrip, useDeadlineOf } from './entry-parts';
 import type { SummaryItem } from './entry-parts';
-import { MoneyInput, ReportFacts, StepNav } from './components';
-import { useReport, useSaveReport, useSubmitReport } from './hooks';
+import { DefaultReportBar, MoneyInput, ReportFacts, StepNav } from './components';
+import { useReport, useReportChoice, useSaveReport, useSubmitReport } from './hooks';
 import { basisLabel, cellLabel, cellProblemMessage, formProblemMessage, reportProblemMessage } from './labels';
 import { BASES, CELLS, REPORTS_PATH, SAVED_PATH, canEdit, cellId, deltaOf, describeReport, fieldId, formOf, hasFall, hasProblems, takesCtmtqg, totalsOf, validateFunding } from './model';
 import type { Basis, Bucket, CellKey, FundingForm, ReportDetail } from './model';
@@ -44,8 +44,9 @@ const versionOf = (answer: unknown): number | undefined => {
 
 function ReportEditContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const [params] = useSearchParams();
-  const reportId = params.get('report') ?? undefined;
+  // Opened without a report in the address (the menu), the latest draft is shown, and the selector stays to change it.
+  const choice = useReportChoice(true);
+  const reportId = choice.reportId;
   const report = useReport(reportId);
   const save = useSaveReport();
   const submit = useSubmitReport();
@@ -55,7 +56,7 @@ function ReportEditContent({ route }: ScreenProps) {
   const missing = report.error instanceof ApiError && report.error.status === 404;
   const loaded = useScreenState({ isLoading: report.isLoading, error: missing ? undefined : report.error, data: report.data, isEmpty: (data) => data === undefined });
   // A report that is not found is told as empty: whoever asked cannot tell one of another scope from one that is not there. With none chosen there is nothing to load.
-  const state: ScreenState = reportId === undefined ? 'default' : missing ? 'empty' : loaded;
+  const state: ScreenState = choice.isLoading ? 'loading' : reportId === undefined ? 'default' : missing ? 'empty' : loaded;
   const detail = report.data;
   const dueAt = useDeadlineOf(detail?.period.id ?? '');
   const sending = save.isPending || submit.isPending;
@@ -85,6 +86,7 @@ function ReportEditContent({ route }: ScreenProps) {
           <p>{t('dis.reportEdit.page.subtitle')}</p>
         </div>
       </div>
+      <DefaultReportBar choice={choice} />
       {detail === undefined ? null : <StepNav reportId={detail.id} current="cells" />}
       <StateBoundary state={state} onRetry={() => void report.refetch()}>
         {detail === undefined ? (

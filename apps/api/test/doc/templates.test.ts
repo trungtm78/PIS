@@ -78,7 +78,7 @@ describe('document template library API (ST-DOC-006)', () => {
   });
 
   describe('the three separated steps (AC-ST-DOC-006-1)', () => {
-    it('AC-ST-DOC-006-1: refuses self approval, publishes with the watermark, refuses a confirmer without the permission, needs a reference, then confirms: new renders have no watermark and older ones keep it', async () => {
+    it('AC-ST-DOC-006-1, UAT-AC424: refuses self approval, publishes with the watermark, refuses a confirmer without the permission, needs a reference, then confirms: new renders have no watermark and older ones keep it', async () => {
       await app.setLayoutConfirmed(true);
       try {
         const created = await draft({ template_code: 'UAT-424-MNE-TT44-M03' });
@@ -237,7 +237,7 @@ describe('document template library API (ST-DOC-006)', () => {
   });
 
   describe('effective dating (AC-ST-DOC-006-2)', () => {
-    it('AC-ST-DOC-006-2: renders each date from the revision in force, refuses an overlapping revision, and keeps what was rendered', async () => {
+    it('AC-ST-DOC-006-2, UAT-AC423: renders each date from the revision in force, refuses an overlapping revision, and keeps what was rendered', async () => {
       const code = 'DOC-CV-GIAI-TRINH-T';
       const rev1 = await draft({ template_code: code, effective_from: '2026-01-01', effective_until: '2027-01-01', title: 'Revision one' });
       const rev2 = await draft({ template_code: code, effective_from: '2027-01-01', title: 'Revision two' });

@@ -76,7 +76,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CTR-02",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/ctr/contract-register.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC58",
@@ -150,7 +157,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CTR-05",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/ctr/uat-case-ac59-guarantee-expiry.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC60",
@@ -299,7 +313,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "PAY-02",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/uat-case-ac64-payment-net.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC65",
@@ -1242,8 +1263,13 @@
       "design_type": "security",
       "screen_id": "CTR-01",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ctr-contract-cases.test.ts"
+      },
       "module": "CTR"
     },
     {
@@ -1429,6 +1455,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "CTR-02",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ctr-contract-cases.test.ts"
+      },
       "module": "CTR"
     },
     {
@@ -1577,6 +1610,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "CTR-05",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/ctr/guarantee-register.test.ts"
+      },
       "module": "CTR"
     },
     {
@@ -1798,7 +1838,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "CTR-02",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/ctr/contract-register.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC317",
@@ -1913,7 +1960,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "CTR-03",
-      "module": "CTR"
+      "module": "CTR",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/rls-catalog.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UI-CTR-19",

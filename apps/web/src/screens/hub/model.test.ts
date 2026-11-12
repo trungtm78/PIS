@@ -1,6 +1,6 @@
 import { ApiError } from '@machvon/api-client';
 import { describe, expect, it } from 'vitest';
-import { STATUSES, ageParts, healthyLabel, needsReason, parseMappingFields, reasonOk, refusalOf, stageLine, statusTone, vietnamDateTime, word } from './model';
+import { STATUSES, ageParts, healthyLabel, needsReason, parseMappingFields, reasonOk, refusalOf, stageLine, statusTone, tabAfterKey, vietnamDateTime, word } from './model';
 
 describe('the model of the hub screens', () => {
   it('writes the word of a code the way the keys do', () => {
@@ -11,6 +11,16 @@ describe('the model of the hub screens', () => {
 
   it('gives every status a tone, and only a fault is red', () => {
     expect(STATUSES.map((status) => statusTone(status))).toEqual(['success', 'warning', 'danger', 'neutral', 'info', 'neutral']);
+  });
+
+  it('moves the selected tab by an arrow key, wraps at the ends, jumps with Home and End, and ignores any other key', () => {
+    expect(tabAfterKey('overview', 'ArrowRight')).toBe('runs');
+    expect(tabAfterKey('layouts', 'ArrowRight')).toBe('overview');
+    expect(tabAfterKey('overview', 'ArrowLeft')).toBe('layouts');
+    expect(tabAfterKey('mapping', 'ArrowLeft')).toBe('pipeline');
+    expect(tabAfterKey('mapping', 'Home')).toBe('overview');
+    expect(tabAfterKey('mapping', 'End')).toBe('layouts');
+    expect(tabAfterKey('mapping', 'Enter')).toBeUndefined();
   });
 
   it('writes the age in hours under two days and in days after, and none for a connector that never succeeded', () => {

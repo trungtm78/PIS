@@ -253,6 +253,31 @@ describe('the payment and e-invoice webhooks and the reconciliation over HTTP (S
     expect(audit[0]?.reason).toBe(REASON);
   });
 
+  it('UAT-PLAN-48 an issued invoice is read with its number, the code of the tax authority the provider gave and the payment that matched it (Matched), and a bank line that does not fit is Unmatched and is refused with the amount that is outstanding and the amount paid, so the difference in VND is known', async () => {
+    const invoice = await invoiceOf('1000000', { providerDown: true });
+    // The provider answers late with the number and the code of the tax authority.
+    const issued = await webhook('einvoice', 'mock-einvoice', { event_id: `evt-${randomUUID()}`, type: 'einvoice.issued', reference_key: invoice.invoiceId, template_code: '1', series: 'C26TMV', number: '000000007', tax_authority_code: 'TAX-8812', lookup_code: 'LOOKUP-7' });
+    expect(issued.json).toEqual({ received: true, duplicate: false });
+    // A bank line that names the invoice and the amount that is outstanding matches it.
+    const exact = paymentBody({ amount_vnd: invoice.total, memo: `CK ${invoice.code}` });
+    expect((await webhook('payments', 'mock-bank', exact)).status).toBe(200);
+    await eventually(async () => (await invoicesOf(invoice.tenantId))[0]?.status === 'Paid');
+    const [row] = await invoicesOf(invoice.tenantId);
+    expect(row).toMatchObject({ id: invoice.invoiceId, invoice_code: invoice.code, status: 'Paid', einvoice: { tax_authority_code: 'TAX-8812', number: '000000007' } });
+    expect(row?.payments).toEqual([expect.objectContaining({ txn_ref: exact.txn_ref, match_status: 'Matched', amount_vnd: invoice.total })]);
+    // A bank line of 600,000 VND less than the invoice, with no code in its note, stays Unmatched; matching it by hand is refused with the two amounts.
+    const open = await invoiceOf('1000000');
+    const short = paymentBody({ amount_vnd: String(Number(open.total) - 600000), memo: 'khong ghi ma hoa don' });
+    expect((await webhook('payments', 'mock-bank', short)).status).toBe(200);
+    const queued = ((await call('GET', '/system/payments?status=Unmatched')).json.items as Array<{ id: string; txn_ref: string; match_status: string; version: number; amount_vnd: string }>).find((payment) => payment.txn_ref === short.txn_ref);
+    expect(queued).toMatchObject({ match_status: 'Unmatched', amount_vnd: short.amount_vnd });
+    const refused = await call('POST', `/system/payments/${queued?.id}/match`, { payload: { invoice_id: open.invoiceId, reason: REASON }, ifMatch: `"${queued?.version}"` });
+    expect([refused.status, refused.json.code]).toEqual([422, 'AMOUNT_MISMATCH']);
+    expect(Number(refused.json.outstanding_vnd) - Number(refused.json.payment_vnd)).toBe(600000);
+    // The negative control: a check that wants the short line Matched must fail on this record.
+    expect(() => expect(queued).toMatchObject({ match_status: 'Matched' })).toThrow();
+  });
+
   it('keeps a payment whose amount is not the invoice at PendingReview for a person, and shows it in the queue', async () => {
     const invoice = await invoiceOf();
     const body = paymentBody({ amount_vnd: '500000', memo: `CK ${invoice.code}` });

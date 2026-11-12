@@ -272,6 +272,49 @@ describe('the staged approval of a weekly report (WF-1)', () => {
     expect(await flow.approve(rejectedReport.reportId, 2)).toMatchObject({ status: 200, json: { status: 'ACCEPTED' } });
   });
 
+  it('UAT-AC133 an approval that reaches the final command after the maker withdrew the report: the owning module refuses (409), the instance is Completed GUARD_REJECTED, the report stays WITHDRAWN, the operators get one alert, and a retry with the same key changes nothing', async () => {
+    await approveRule([step('unit-approver', 'UNIT_APPROVER')]);
+    try {
+      const { reportId } = await flow.submitted();
+      const instance = await instanceOf(reportId);
+      const [task] = await pending(instance?.id as string);
+      // The withdrawal of the maker lands between the read of the approver and the final command of the engine. The command of the withdrawal cancels the instance in its own transaction, so only that race leaves a
+      // Running instance behind a WITHDRAWN report: the test makes the same update the command makes (the table keeps the graph SUBMITTED to WITHDRAWN) and leaves the instance running.
+      await flow.rows(
+        "update machvon.report_revision set status = 'WITHDRAWN', withdrawn_by = $2::uuid, withdrawn_at = now(), withdrawn_reason = 'The maker took the report back', version = version + 1 where id = $1 and status = 'SUBMITTED'",
+        [reportId, memberId(MAKER)],
+      );
+      const withdrawn = await flow.state(reportId);
+      expect(withdrawn).toMatchObject({ status: 'WITHDRAWN', version: '3' });
+      // What the final command asks of the domain: the single decision of the report answers 409 for a withdrawn report (the table of states is the guard, BR-ADM-07).
+      expect(await flow.approve(reportId, 3)).toMatchObject({ status: 409, json: { code: 'REPORT_STATE_INVALID', report_status: 'WITHDRAWN' } });
+      // The last approver approves the task: the engine calls the final command (key wf:<instance>:final:1) and the domain refuses.
+      const key = `key-ac133-${randomUUID()}`;
+      const send = (): Promise<Reply> =>
+        fetch(`${flow.app.baseUrl}/approval-tasks/${task?.id}/decision`, {
+          method: 'POST',
+          headers: { [TENANT_HEADER]: DisFlow.tokenOf(LEADER), 'content-type': 'application/json', 'idempotency-key': key, 'if-match': `"${task?.version}"`, [CLAIMS_HEADER]: JSON.stringify({ aal: 'aal2', aal2At: new Date().toISOString() }) },
+          body: JSON.stringify({ decision: 'approve' }),
+        }).then(async (response) => ({ status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> }));
+      const first = await send();
+      expect(first).toMatchObject({ status: 200, json: { status: 'GUARD_REJECTED' } });
+      expect(await instanceOf(reportId)).toMatchObject({ status: 'Completed', outcome: 'GUARD_REJECTED' });
+      expect(await flow.state(reportId)).toEqual(withdrawn);
+      expect(await flow.events(reportId, 'report.accepted.v1')).toHaveLength(0);
+      expect(await flow.events(instance?.id as string, 'adm.workflow_guard_rejected.v1')).toHaveLength(1);
+      // The same key again: the first answer is replayed, and nothing is raised a second time.
+      const again = await send();
+      expect(again.status).toBe(first.status);
+      expect(again.json).toEqual(first.json);
+      expect(await instanceOf(reportId)).toMatchObject({ status: 'Completed', outcome: 'GUARD_REJECTED' });
+      expect(await flow.events(instance?.id as string, 'adm.workflow_guard_rejected.v1')).toHaveLength(1);
+      // The negative control: a check that wants the report accepted must fail on this record.
+      expect(() => expect(withdrawn).toMatchObject({ status: 'ACCEPTED' })).toThrow();
+    } finally {
+      await approveRule(CHAIN);
+    }
+  });
+
   it('reminds the approver at 80 percent of the time to the deadline and again when it is passed, through the engine clock', async () => {
     const { reportId } = await flow.submitted();
     const instance = await instanceOf(reportId);

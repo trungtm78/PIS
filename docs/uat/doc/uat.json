@@ -1085,9 +1085,14 @@
       "design_type": "integration (idempotency)",
       "screen_id": "DOC-06",
       "tags": [
-        "concurrency"
+        "concurrency",
+        "automated"
       ],
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doc/outgoing.test.ts"
+      }
     },
     {
       "tc_id": "TC-UAT-AC402",
@@ -1124,6 +1129,13 @@
       "design_evidence": null,
       "design_type": "domain (boundary)",
       "screen_id": "DOC-06",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/doc-flow-cases.test.ts"
+      },
       "module": "DOC"
     },
     {
@@ -1162,7 +1174,14 @@
       "design_evidence": null,
       "design_type": "integration (byte-level)",
       "screen_id": "DOC-05",
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doc/outgoing.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC404",
@@ -1238,8 +1257,13 @@
       "design_type": "security (negative)",
       "screen_id": "DOC-07",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/doc-flow-cases.test.ts"
+      },
       "module": "DOC"
     },
     {
@@ -1537,8 +1561,13 @@
       "design_type": "security (cách ly tenant)",
       "screen_id": "DOC-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/doc-flow-cases.test.ts"
+      },
       "module": "DOC"
     },
     {
@@ -1915,6 +1944,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "DOC-02",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doc/templates.test.ts"
+      },
       "module": "DOC"
     },
     {
@@ -1953,8 +1989,13 @@
       "design_type": "security",
       "screen_id": "DOC-14",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doc/templates.test.ts"
+      },
       "module": "DOC"
     },
     {
@@ -2029,6 +2070,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "DOC-05",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The last clause (the offline queue of the phone holds no signing command) is proven only by the Flutter widget test apps/mobile/test/features/document_signing/signing_test.dart:483, which is not in the Jest/Playwright journal and cannot run locally (Smart App Control blocks sqlite3mc.dll); the server clauses (second session 409 SIGNING_SESSION_OPEN, complete after 15 minutes 409 SIGNING_SESSION_EXPIRED, then a new session signs) are covered by apps/api/test/doc/outgoing.test.ts but a script that names the case would not prove the mobile clause."
+      },
       "module": "DOC"
     },
     {
@@ -2178,7 +2226,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration (spike R0)",
-      "module": "DOC"
+      "module": "DOC",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Cần môi trường sandbox CA thật (nhà cung cấp do D05 chọn), hai chứng thư kiểm thử và công cụ xác minh độc lập pdfsig/DSS; adapter REMOTE_CA đang PROPOSED, không chạy được trong tiến trình. Đây là spike R0 ghi lại năng lực của CA."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC431",
@@ -2212,6 +2267,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/doc-flow-cases.test.ts"
+      },
       "module": "DOC"
     },
     {
@@ -2248,8 +2310,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doc/documents.test.ts"
+      },
       "module": "DOC"
     }
   ],

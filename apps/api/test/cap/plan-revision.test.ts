@@ -247,11 +247,12 @@ describe('revision and as-of reading of the capital plan over HTTP (ST-CAP-004)'
       expect(audit[0]).toMatchObject({ reason: REASON, diff: { revision: 2, supersedes_id: plan.id, copied_lines: 2, copied_projects: 2 } });
     });
 
-    it('refuses a second revision while one is pending (409 REVISION_PENDING_EXISTS)', async () => {
+    it('UAT-PLAN-60: refuses a second revision while one is pending (409 REVISION_PENDING_EXISTS)', async () => {
       const plan = await planOf([money(2)], '2030-06-30T00:00:00Z');
       expect((await revise(plan.id, plan.version)).status).toBe(200);
       const again = await revise(plan.id, plan.version);
       expect([again.status, codeOf(again)]).toEqual([409, 'REVISION_PENDING_EXISTS']);
+      expect((await rows<{ n: string }>("select count(*)::text as n from machvon.capital_plan where supersedes_id = $1::uuid and status = 'DRAFT'", [plan.id]))[0]?.n).toBe('1');
     });
 
     it('refuses a plan that is not published (409 PLAN_NOT_PUBLISHED), a stale (409) or missing (428) If-Match, a short reason (422), a missing one (400) and a plan of another tenant (404)', async () => {
@@ -334,6 +335,76 @@ describe('revision and as-of reading of the capital plan over HTTP (ST-CAP-004)'
       expect((await asOf(plan.id, '?at=2030-02-31')).status).toBe(422);
       expect((await asOf(plan.id, '?at=2030-06-30&project_id=not-an-id')).status).toBe(422);
       expect((await asOf(plan.id, '?at=2030-06-30', B_PLANNER, TENANT_B)).status).toBe(404);
+    });
+
+    it('UAT-AC09: as of 2026-06-30 the plan reads revision 1 with 5,000,000,000 and the decision of revision 1, as of 2026-07-02 revision 2 with 4,200,000,000, and revision 1 is SUPERSEDED but still readable', async () => {
+      const plan = await planOf(['5000000000', money(1)], '2026-01-15T00:00:00Z');
+      const first = plan.id;
+      const decisionOf = async (planId: string): Promise<string> => (await rows<{ doc: string }>('select decision_document_id::text as doc from machvon.capital_plan where id = $1::uuid', [planId]))[0]?.doc as string;
+      const firstDecision = await decisionOf(first);
+      expect(firstDecision).toBeTruthy();
+      const created = await revise(first, plan.version);
+      const second = idOf(created);
+      const drafted = await drafting(second, versionOf(created), plan, ['4200000000', money(1)]);
+      expect(drafted.status).toBe(200);
+      await carry(second, versionOf(drafted), '2026-07-01T00:00:00Z');
+      const secondDecision = await decisionOf(second);
+      expect(secondDecision).not.toBe(firstDecision);
+
+      const june = await asOf(first, '?at=2026-06-30');
+      expect(june.status).toBe(200);
+      expect(june.json).toMatchObject({ revision: 1, status: 'SUPERSEDED', capital_plan_id: first, decision_document_id: firstDecision });
+      expect(linesOf(june).find((line) => (line.project as { id: string }).id === plan.projects[0])).toMatchObject({ amount_vnd: '5000000000' });
+
+      const july = await asOf(first, '?at=2026-07-02');
+      expect(july.status).toBe(200);
+      expect(july.json).toMatchObject({ revision: 2, status: 'PUBLISHED', capital_plan_id: second, decision_document_id: secondDecision });
+      expect(linesOf(july).find((line) => (line.project as { id: string }).id === plan.projects[0])).toMatchObject({ amount_vnd: '4200000000', initial_vnd: '5000000000', adjustment_vnd: '-800000000' });
+
+      // The replaced revision keeps its status and is still there to read, by its own id as well.
+      expect(await statusOf(first)).toBe('SUPERSEDED');
+      const again = await asOf(first, '?at=2026-06-30');
+      expect(again.json).toMatchObject({ revision: 1, status: 'SUPERSEDED', totals: { amount_vnd: '6000000000' } });
+      // A wrong expectation makes the check fail: the 30 June plan is not the 4,200,000,000 one.
+      expect(linesOf(june).find((line) => (line.project as { id: string }).id === plan.projects[0])).not.toMatchObject({ amount_vnd: '4200000000' });
+    });
+
+    it('UAT-AC224: the revision opens as a DRAFT copy of the lines (previous_line_id names the line of revision 1), and once published the plan shows given at the start 5,000, adjustment -800 and in force 4,200 million for the project, the total of the plan unchanged', async () => {
+      const plan = await planOf(['5000000000', '1000000000'], '2026-01-15T00:00:00Z');
+      const created = await revise(plan.id, plan.version, PLANNER, { reason: 'Điều chỉnh giữa năm' });
+      expect(created.status).toBe(200);
+      expect(created.json).toMatchObject({ status: 'DRAFT', resource_version: 1 });
+      const second = idOf(created);
+      const lineRows = (planId: string) =>
+        rows<{ id: string; project_id: string; amount: string; previous: string | null }>(
+          `select al.id, al.project_id, al.amount_vnd::text as amount, al.previous_line_id as previous
+             from machvon.allocation_line al join machvon.plan_version pv on pv.id = al.plan_version_id where pv.capital_plan_id = $1::uuid`,
+          [planId],
+        );
+      const firstLines = await lineRows(plan.id);
+      const copied = await lineRows(second);
+      expect(copied).toHaveLength(2);
+      for (const line of copied) {
+        const origin = firstLines.find((candidate) => candidate.project_id === line.project_id);
+        expect(origin).toBeDefined();
+        expect(line.previous).toBe(origin?.id);
+        expect(line.amount).toBe(origin?.amount);
+      }
+      // P-A-001 down to 4.2 billion, P-A-002 up by the 0.8 billion: the total of the plan does not move.
+      const drafted = await drafting(second, versionOf(created), plan, ['4200000000', '1800000000']);
+      expect(drafted.status).toBe(200);
+      await carry(second, versionOf(drafted), '2026-07-01T00:00:00Z');
+      const shown = await asOf(second, '?at=2026-07-02');
+      expect(shown.status).toBe(200);
+      const own = linesOf(shown).find((line) => (line.project as { id: string }).id === plan.projects[0]);
+      expect(own).toMatchObject({ initial_vnd: '5000000000', adjustment_vnd: '-800000000', amount_vnd: '4200000000' });
+      const other = linesOf(shown).find((line) => (line.project as { id: string }).id === plan.projects[1]);
+      expect(other).toMatchObject({ initial_vnd: '1000000000', adjustment_vnd: '800000000', amount_vnd: '1800000000' });
+      expect(shown.json).toMatchObject({ revision: 2, totals: { amount_vnd: '6000000000', initial_vnd: '6000000000' } });
+      const before = await asOf(plan.id, '?at=2026-06-30');
+      expect((before.json.totals as { amount_vnd: string }).amount_vnd).toBe((shown.json.totals as { amount_vnd: string }).amount_vnd);
+      // A wrong expectation makes the check fail.
+      expect(own).not.toMatchObject({ adjustment_vnd: '-700000000' });
     });
   });
 });

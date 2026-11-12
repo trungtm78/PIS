@@ -55,13 +55,13 @@ async function seed(statements: Array<[string, unknown[]]>): Promise<void> {
 }
 
 let counter = 0;
-async function frozenSnapshot(): Promise<string> {
+async function frozenSnapshot(unit: number = UNIT): Promise<string> {
   counter += 1;
   const projectId = randomUUID();
   const snapshotId = randomUUID();
   const periodId = randomUUID();
   await seed([
-    [`insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group) values ($1, $2, $3, 'Bridge', $4, $5, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`, [TENANT_A, projectId, `ME-${counter}-${projectId.slice(0, 6)}`, unitId(UNIT), randomUUID()]],
+    [`insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group) values ($1, $2, $3, 'Bridge', $4, $5, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`, [TENANT_A, projectId, `ME-${counter}-${projectId.slice(0, 6)}`, unitId(unit), randomUUID()]],
     [
       `insert into machvon.reporting_period (tenant_id, id, code, calendar_version, start_date, end_date, deadline_at, calendar_code, period_type, fiscal_year, status, calendar_version_id, created_by, updated_by)
        values ($1, $2, $3, 1, $4::date, $4::date + 6, now(), 'DEFAULT', 'WEEK', 2026, 'OPEN', $5, $6, $6)`,
@@ -75,7 +75,7 @@ async function frozenSnapshot(): Promise<string> {
     [
       `insert into machvon.period_snapshot_line (tenant_id, id, snapshot_id, project_id, unit_id, bucket, budget_level, plan_pm_assigned_vnd, plan_local_added_vnd, plan_total_vnd, disbursed_treasury_vnd, treasury_coverage)
        values ($1, gen_random_uuid(), $2, $3, $4, 'CURRENT_YEAR', 'CENTRAL', 1000000000000, 250000000000, 1250000000000, 600000000000, 'COMPLETE')`,
-      [TENANT_A, snapshotId, projectId, unitId(UNIT)],
+      [TENANT_A, snapshotId, projectId, unitId(unit)],
     ],
   ]);
   return snapshotId;
@@ -112,9 +112,10 @@ const delivery = (type: string, payload: Record<string, unknown>): OutboxDeliver
 });
 
 /** A report that DOC issued: made, handed in, approved, asked for issue and answered. */
-async function issuedReport(formCode = 'TT44-M02', formOverrides: Record<string, unknown> = {}): Promise<{ id: string; sha256: string }> {
-  const formId = await publishedForm(formCode, formOverrides);
-  const made = await call('POST', '/mne-reports', PREPARER, { body: { form_id: formId, report_year: 2026, period_label: 'H1-2026', scope_unit_id: unitId(UNIT), snapshot_id: await frozenSnapshot() } });
+async function issuedReport(formCode = 'TT44-M02', formOverrides: Record<string, unknown> = {}, options: { unit?: number; formId?: string; ruleId?: string } = {}): Promise<{ id: string; sha256: string }> {
+  const formId = options.formId ?? (await publishedForm(formCode, formOverrides));
+  const unit = options.unit ?? UNIT;
+  const made = await call('POST', '/mne-reports', PREPARER, { body: { form_id: formId, report_year: 2026, period_label: 'H1-2026', scope_unit_id: unitId(unit), snapshot_id: await frozenSnapshot(unit), ...(options.ruleId === undefined ? {} : { obligation_rule_id: options.ruleId }) } });
   const id = made.json.resource_id as string;
   await call('POST', `/mne-reports/${id}/revisions`, PREPARER, { body: { narrative: { assessment: 'Giải ngân đúng tiến độ.' } }, ifMatch: etag(1) });
   await call('POST', `/mne-reports/${id}/submit`, PREPARER, { ifMatch: etag(2) });
@@ -231,6 +232,43 @@ describe('the export package and the receipt of the filing (ST-MNE-004, MNE-06)'
       expect(await reportRow(id)).toMatchObject({ status: 'SUBMITTED_EXTERNAL', is_late: false });
       const shown = await call('GET', `/mne-reports/${id}`, READER);
       expect((shown.json.packages as Array<Record<string, unknown>>)[0]).toMatchObject({ status: 'SUBMISSION_CONFIRMED', receipt: { reference: 'QG-9', document_id: documentId } });
+    });
+
+    it('UAT-AC293 tells in the filing progress which unit filed on time, which filed 2 days late and which has not filed and is 5 days late today (BR-MNE-04)', async () => {
+      // The design runs on 2026-07-15: the server counts to the real day, so the open obligation is due 5 days before today, whatever today is; the other two keep the design dates.
+      const formId = await publishedForm('TT44-M02');
+      // The rule of the half year: due on 10 July (CXN-10), which is the due date the three obligations of the design carry.
+      const rule = await app.call('POST', '/mne-obligation-rules', {
+        member: ADMIN,
+        body: { rule_code: 'OVERALL_SEMIANNUAL', form_id: formId, reporting_role: 'INVESTOR', recipient: 'Department of Finance', frequency: 'SEMIANNUAL', due_rule_json: { period: 'H1', month: 7, day: 10 }, legal_basis: 'Circular 44/2026/TT-BTC [CXN-10]', effective_from: '2026-01-01' },
+      });
+      expect((await app.call('POST', `/mne-obligation-rules/${rule.json.resource_id as string}/publish`, { member: APPROVER, ifMatch: etag(1) })).status).toBe(200);
+      const ruleId = rule.json.resource_id as string;
+      const [first, second, third] = INVESTORS;
+      const ids = [await issuedReport('TT44-M02', {}, { unit: first, formId, ruleId }), await issuedReport('TT44-M02', {}, { unit: second, formId, ruleId }), await issuedReport('TT44-M02', {}, { unit: third, formId, ruleId })].map((made) => made.id);
+      const [onTime, late, open] = ids as [string, string, string];
+      await app.harness.owner(TENANT_A, [["update machvon.mne_report set due_date = (now() at time zone 'Asia/Ho_Chi_Minh')::date - 5 where id = $1::uuid", [open]]]);
+      const file = async (id: string, day: string): Promise<void> => {
+        expect((await generate(id, { target_system: 'RECIPIENT_AGENCY', formats: ['CSV'] })).status).toBe(200);
+        const [pkg] = await packageRows(id);
+        expect((await receipt(pkg?.id as string, { receipt_reference: `QG-${day}`, submitted_at: `${day}T03:00:00.000Z` })).status).toBe(200);
+      };
+      await file(onTime, '2026-07-09');
+      await file(late, '2026-07-12');
+
+      const progress = async () => {
+        const listed = await call('GET', '/mne-obligations?report_year=2026&limit=200', READER);
+        expect(listed.status).toBe(200);
+        const rows = listed.json.items as Array<Record<string, unknown>>;
+        return (unit: number) => rows.find((row) => row.scope_unit_id === unitId(unit));
+      };
+      const of = await progress();
+      expect(of(first)).toMatchObject({ status: 'SUBMITTED_EXTERNAL', due_date: '2026-07-10', filed_on: '2026-07-09', is_late: false, days_late: 0 });
+      expect(of(second)).toMatchObject({ status: 'SUBMITTED_EXTERNAL', due_date: '2026-07-10', filed_on: '2026-07-12', is_late: true, days_late: 2 });
+      expect(of(third)).toMatchObject({ status: 'ISSUED', filed_on: null, is_late: true, days_late: 5 });
+      // The negative control: an obligation that is not due yet is not late (the answer depends on the day, not on the status).
+      await app.harness.owner(TENANT_A, [["update machvon.mne_report set due_date = (now() at time zone 'Asia/Ho_Chi_Minh')::date + 5 where id = $1::uuid", [open]]]);
+      expect((await progress())(third)).toMatchObject({ status: 'ISSUED', is_late: false, days_late: 0 });
     });
   });
 

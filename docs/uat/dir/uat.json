@@ -45,11 +45,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -92,11 +92,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -234,11 +234,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -280,11 +280,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -375,11 +375,11 @@
       "tags": [
         "design-case",
         "security",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/dir-extra.test.ts"
       },
       "module": "DIR"
     },
@@ -421,11 +421,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -467,11 +467,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -561,11 +561,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -659,7 +659,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "reason": "Cần thiết bị đã đồng bộ rồi mất mạng (DIR-06 ngoại tuyến, nhãn dữ liệu không phải mới nhất, không có nút thao tác). Chứng minh tương ứng là widget test Flutter apps/mobile/test/features/directives/directives_test.dart, không đặt tên theo mã ca và không chạy được trên máy này (Smart App Control chặn sqlite3mc.dll), nên chưa có lượt xanh để ghi AUTOMATED."
       },
       "module": "DIR"
     },
@@ -757,21 +757,17 @@
       },
       "module": "DIR",
       "db_assert": {
-        "query": "SELECT status FROM machvon.directive WHERE code LIKE 'GB-%/CD-01'",
+        "query": "SELECT d.id FROM machvon.directive d JOIN machvon.audit_event a ON a.tenant_id = d.tenant_id AND a.resource_id = d.id AND a.action = 'directive.closed' WHERE d.status <> 'DONE'",
         "expect": {
-          "value": "DONE"
+          "rows": 0
         }
       },
       "audit_assert": {
-        "entity": "directive",
-        "entity_id": "<id chỉ đạo>",
-        "action": "directive.closed",
-        "fields": [
-          "actor_id",
-          "reason",
-          "occurred_at"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'directive.closed' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason, occurred_at FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'directive.closed' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -819,16 +815,21 @@
       },
       "module": "DIR",
       "idempotency": {
+        "resolve": {
+          "day": "SELECT (current_date - 1)::text",
+          "unit": "SELECT id::text FROM machvon.organization_unit WHERE tenant_id = '${tenant_id}' AND parent_id IS NULL AND valid_until IS NULL ORDER BY valid_from, id LIMIT 1"
+        },
         "url": "/steering-meetings",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "meeting_date": "<hôm qua>",
+          "meeting_date": "${day}",
           "meeting_type": "MONTHLY",
-          "title": "Giao ban tháng"
+          "title": "Giao ban tháng ${stamp}",
+          "unit_id": "${unit}"
         },
-        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE title = 'Giao ban tháng'",
+        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE tenant_id = '${tenant_id}' AND title = 'Giao ban tháng ${stamp}'",
         "expect_rows": 1
       }
     },
@@ -877,16 +878,21 @@
       },
       "module": "DIR",
       "idempotency": {
+        "resolve": {
+          "day": "SELECT (current_date - 4)::text",
+          "unit": "SELECT id::text FROM machvon.organization_unit WHERE tenant_id = '${tenant_id}' AND parent_id IS NULL AND valid_until IS NULL ORDER BY valid_from, id LIMIT 1"
+        },
         "url": "/steering-meetings",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "meeting_date": "<4 ngày trước>",
+          "meeting_date": "${day}",
           "meeting_type": "WEEKLY",
-          "title": "Giao ban đồng thời"
+          "title": "Giao ban đồng thời ${stamp}",
+          "unit_id": "${unit}"
         },
-        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE title = 'Giao ban đồng thời'",
+        "count_query": "SELECT count(*) FROM machvon.steering_meeting WHERE tenant_id = '${tenant_id}' AND title = 'Giao ban đồng thời ${stamp}'",
         "expect_rows": 1
       }
     },
@@ -1076,14 +1082,11 @@
       },
       "module": "DIR",
       "audit_assert": {
-        "entity": "directive",
-        "entity_id": "<id chỉ đạo>",
-        "action": "directive.cancelled",
-        "fields": [
-          "actor_id",
-          "reason"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'directive.cancelled' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'directive.cancelled' ORDER BY occurred_at DESC LIMIT 1"
       },
       "transition": {
         "from": "CANCELLED",
@@ -1243,11 +1246,11 @@
         "ST-DIR-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Suite hiện dùng grant theo cả tenant; ca phạm vi đơn vị cần grant UNIT_ONLY (đã có ở apps/api/test/dir/directive.test.ts), chưa nối vào world của UAT"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/dir-extra.test.ts"
       },
       "module": "DIR",
       "access": {
@@ -1302,11 +1305,11 @@
         "ST-DIR-004"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần kỳ báo cáo và đồng hồ giả; suite hiện chưa dựng kỳ báo cáo cho DIR"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-dir.uat.test.ts"
       },
       "module": "DIR"
     },
@@ -1452,11 +1455,11 @@
         "ST-DIR-003"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-dir.spec.ts"
       },
       "module": "DIR"
     },

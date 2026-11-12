@@ -489,7 +489,7 @@ async function loadK6Lib(environment) {
 }
 
 test('the k6 library builds the same URLs as the node runner and leaves out an operation whose variable is missing', async () => {
-  const vars = { projectId: 'p-1', isoWeek: '2026-W42', reportDraftId: 'd-1', reportIssueId: 'i-1', reportExportId: 'e-1', mneReportId: 'm-1', evaluationReportId: 'v-1', allocationLineId: 'l-1', enterpriseSnapshotId: 's-1', enterprisePeriodId: 'q-1', periodYear: '2026', periodMonth: '10' };
+  const vars = { projectId: 'p-1', baselineProjectId: 'b-1', isoWeek: '2026-W42', reportDraftId: 'd-1', reportIssueId: 'i-1', reportExportId: 'e-1', mneReportId: 'm-1', evaluationReportId: 'v-1', allocationLineId: 'l-1', enterpriseSnapshotId: 's-1', enterprisePeriodId: 'q-1', periodYear: '2026', periodMonth: '10' };
   const { api } = await loadK6Lib({ BASE_URL: 'https://h/v1/', TOKEN: 't', VARS: JSON.stringify(vars) });
   assert.equal(api.operations.length, committed.operations.length);
   for (const item of api.operations) {
@@ -539,4 +539,73 @@ test('a run that selects no operation fails: exit 2 from the command line, exit 
   assert.equal(lines[0], 'no operation of the table matches --only TYPO');
   assert.equal(exitCode([], false), 1);
   assert.equal(exitCode([], true), 1);
+});
+
+const verifyingBudget = {
+  ...discoveringBudget,
+  variables: { ...discoveringBudget.variables, baselineProjectId: 'a project that has a baseline' },
+  discovery: {
+    baselineProjectId: { path: '/resources/project', query: { limit: '50' }, rows: 'items', pick: 'id', verify: { path: '/projects/{value}/baseline', pick: 'has_baseline', equals: true }, scan: 3 },
+  },
+};
+
+test('a discovery that verifies its rows takes the first row that passes the read, not the first row of the list (R6-PUB-05: only some projects have a baseline)', async () => {
+  const urls = [];
+  const fetchImpl = async (url) => {
+    urls.push(url);
+    if (url.includes('/resources/project')) return jsonAnswer({ items: [{ id: 'p-1' }, { id: 'p 2' }, { id: 'p-3' }, { id: 'p-4' }] });
+    if (url.includes('/baseline')) return jsonAnswer({ has_baseline: url.includes('p%202') });
+    return jsonAnswer({}, 404);
+  };
+  const result = await discoverVariables({ budget: verifyingBudget, baseUrl: 'https://h/v1/', token: 't', fetchImpl });
+  assert.deepEqual(result.found, { baselineProjectId: 'p 2' });
+  assert.deepEqual(result.problems, []);
+  assert.deepEqual(urls, ['https://h/v1/resources/project?limit=50', 'https://h/v1/projects/p-1/baseline', 'https://h/v1/projects/p%202/baseline']);
+});
+
+test('a discovery that verifies its rows reads at most `scan` rows and says how many were read when none passes, or when a read is refused', async () => {
+  const reads = [];
+  const none = await discoverVariables({
+    budget: verifyingBudget,
+    baseUrl: 'https://h/v1',
+    fetchImpl: async (url) => {
+      reads.push(url);
+      return url.includes('/baseline') ? jsonAnswer({ has_baseline: false }) : jsonAnswer({ items: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }, { name: 'no id' }] });
+    },
+  });
+  assert.deepEqual(none.found, {});
+  assert.equal(reads.filter((url) => url.includes('/baseline')).length, 3);
+  assert.match(none.problems[0], /^baselineProjectId: none of the 3 rows of \/resources\/project passes \/projects\/\{value\}\/baseline \(has_baseline = true\)/);
+
+  const refused = await discoverVariables({ budget: verifyingBudget, baseUrl: 'https://h/v1', fetchImpl: async (url) => (url.includes('/baseline') ? jsonAnswer({}, 403) : jsonAnswer({ items: [{ id: 'a' }] })) });
+  assert.deepEqual(refused.found, {});
+  assert.match(refused.problems[0], /none of the 1 rows/);
+
+  const noRows = await discoverVariables({ budget: verifyingBudget, baseUrl: 'https://h/v1', fetchImpl: async () => jsonAnswer({ other: [] }) });
+  assert.match(noRows.problems[0], /none of the 0 rows/);
+});
+
+test('the table is refused when a verifying discovery names no rows, no {value} or nothing the answer must hold', () => {
+  const broken = { ...verifyingBudget, discovery: { baselineProjectId: { path: '/resources/project', pick: 'id', verify: { path: '/x', pick: '' } } } };
+  const problems = budgetProblems(broken);
+  assert.ok(problems.some((problem) => problem.includes('names none (rows)')));
+  assert.ok(problems.some((problem) => problem.includes('no {value}')));
+  assert.ok(problems.some((problem) => problem.includes('without what the answer must hold')));
+});
+
+test('a discovery with `where` keeps the rows that hold the value and takes the first of them (R6-ENT-05: the first line of the list belongs to a superseded plan, which has no availability)', async () => {
+  const filtering = {
+    ...discoveringBudget,
+    variables: { ...discoveringBudget.variables, lineId: 'a line' },
+    discovery: { lineId: { path: '/resources/allocation_line', query: { limit: '100' }, rows: 'items', pick: 'id', where: { pick: 'plan_status', equals: 'PUBLISHED' } } },
+  };
+  const rows = [{ id: 'l-1', plan_status: 'SUPERSEDED' }, { id: 'l-2', plan_status: 'PUBLISHED' }, { id: 'l-3', plan_status: 'PUBLISHED' }];
+  const picked = await discoverVariables({ budget: filtering, baseUrl: 'https://h/v1', fetchImpl: async () => jsonAnswer({ items: rows }) });
+  assert.deepEqual(picked.found, { lineId: 'l-2' });
+  const none = await discoverVariables({ budget: filtering, baseUrl: 'https://h/v1', fetchImpl: async () => jsonAnswer({ items: [rows[0]] }) });
+  assert.deepEqual(none.found, {});
+  assert.equal(none.problems[0], 'lineId: none of the 0 rows of /resources/allocation_line has plan_status = "PUBLISHED": the tenant has no such row');
+  const broken = budgetProblems({ ...filtering, discovery: { lineId: { path: '/resources/allocation_line', pick: 'id', where: { pick: '' } } } });
+  assert.ok(broken.some((problem) => problem.includes('filters rows without what a row must hold')));
+  assert.ok(broken.some((problem) => problem.includes('names none (rows)')));
 });

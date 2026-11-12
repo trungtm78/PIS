@@ -78,8 +78,14 @@ export function projectNow(ctx: SeedContext, id: string): Promise<Obj> {
   return ctx.get('projectManager', `/resources/project/${id}`);
 }
 
+/** The sender of the decisions the guide receives from the province: the enterprise plan names its own (overlay key `capital-projects:sender.038`); without it the default sender of the letter stays. */
+function senderOfEnterprise(): { sender?: string } {
+  const sender = tx('sender.038');
+  return sender === '' ? {} : { sender };
+}
+
 export async function publishMoreAreas(ctx: SeedContext): Promise<void> {
-  const decision = await ctx.letter({ symbol: tx('symbol.016'), title: tx('title.017'), issuedOn: '2026-06-20', sender: DECISION.sender });
+  const decision = await ctx.letter({ symbol: tx('symbol.016'), title: tx('title.017'), issuedOn: '2026-06-20', sender: tx('sender.038') === '' ? DECISION.sender : tx('sender.038') });
   const province = await masterRecord(ctx, 'AREA', 'CAO-BANG');
   if (province === undefined) throw new Error(tx('publishMoreAreas.018'));
   for (const area of [...AREAS, ...MORE_AREAS]) await publishArea(ctx, area, decision.documentId, province);
@@ -185,16 +191,17 @@ export async function advanceAfterPlan(ctx: SeedContext, spec: PortfolioProject)
       symbol: tx('symbol.029', spec.code.replace(/\D/gu, '').padStart(3, '0')),
       title: tx('title.030', spec.name),
       issuedOn: ctx.day(-60),
+      ...senderOfEnterprise(),
     });
     await ctx.command('projectManager', `/projects/${spec.id}/implementation-start`, { reason: tx('reason.031'), investment_decision_document_id: decision.documentId, effective_date: ctx.day(-45) }, { version: Number(project.version) });
     project = await projectNow(ctx, spec.id);
   }
   if (project.status === 'IMPLEMENTATION' && spec.target === 'SUSPENDED') {
-    const decision = await ctx.letter({ symbol: tx('symbol.032'), title: tx('title.033'), issuedOn: ctx.day(-20) });
+    const decision = await ctx.letter({ symbol: tx('symbol.032'), title: tx('title.033'), issuedOn: ctx.day(-20), ...senderOfEnterprise() });
     await ctx.command('projectManager', `/projects/${spec.id}/suspension`, { reason: tx('reason.034'), decision_document_id: decision.documentId, effective_date: ctx.day(-20) }, { version: Number(project.version) });
   }
   if (project.status === 'IMPLEMENTATION' && spec.target === 'COMPLETED') {
-    const decision = await ctx.letter({ symbol: tx('symbol.035'), title: tx('title.036'), issuedOn: ctx.day(-12) });
+    const decision = await ctx.letter({ symbol: tx('symbol.035'), title: tx('title.036'), issuedOn: ctx.day(-12), ...senderOfEnterprise() });
     await ctx.command('projectManager', `/projects/${spec.id}/completion`, { reason: tx('reason.037'), decision_document_id: decision.documentId, effective_date: ctx.day(-12) }, { version: Number(project.version) });
   }
 }

@@ -1,0 +1,184 @@
+{
+  "workflow.step.name": "Lãnh đạo xem xét, phê duyệt hồ sơ",
+  "workflow.publish.reason": "Ban hành quy trình xem xét, phê duyệt hồ sơ dự án của Tổng công ty",
+  "member.grant.reason": "Cấp vai trò thành viên để lãnh đạo nhận và đọc thông báo trên điện thoại",
+  "role.submit.name": "Trình hồ sơ dự án xem xét",
+  "role.submit.reason": "Cho phép cán bộ ban quản lý dự án trình hồ sơ dự án để lãnh đạo xem xét, phê duyệt",
+  "notification.publish.reason": "Gửi nhắc việc phê duyệt đến đúng người được giao xử lý",
+  "reports": [
+    {
+      "project": "DA-PMDT105",
+      "progressPct": "61.50",
+      "constructionBn": 52,
+      "acceptanceBn": 47.5,
+      "submittedBn": 44,
+      "disbursedBn": 41
+    },
+    {
+      "project": "DA-PMDT114",
+      "progressPct": "47.00",
+      "constructionBn": 34,
+      "acceptanceBn": 31.2,
+      "submittedBn": 29.4,
+      "disbursedBn": 27.5
+    },
+    {
+      "project": "DA-PMDT120",
+      "progressPct": "38.50",
+      "constructionBn": 24,
+      "acceptanceBn": 21,
+      "submittedBn": 19.8,
+      "disbursedBn": 18.2
+    },
+    {
+      "project": "DA-PMTB164",
+      "progressPct": "70.00",
+      "constructionBn": 15.5,
+      "acceptanceBn": 14,
+      "submittedBn": 13.2,
+      "disbursedBn": 12.4
+    },
+    {
+      "project": "DA-PMTB168",
+      "progressPct": "55.00",
+      "constructionBn": 9.6,
+      "acceptanceBn": 8.4,
+      "submittedBn": 7.9,
+      "disbursedBn": 7.2
+    },
+    {
+      "project": "DA-PMTB172",
+      "progressPct": "33.00",
+      "constructionBn": 6.8,
+      "acceptanceBn": 5.9,
+      "submittedBn": 5.3,
+      "disbursedBn": 4.6
+    }
+  ],
+  "reviews": [
+    {
+      "key": "tkkt-pmdt105",
+      "project": "DA-PMDT105",
+      "contract": "",
+      "docClass": "DESIGN",
+      "title": "Hồ sơ thiết kế kỹ thuật hệ thống nước làm mát",
+      "reference": "TKKT-PMDT105/2026",
+      "changeNote": "Bản trình duyệt lần 1 sau khi tiếp thu ý kiến thẩm tra",
+      "reviewNote": "Kính trình lãnh đạo xem xét, phê duyệt hồ sơ thiết kế kỹ thuật để phát hành hồ sơ mời thầu gói thiết bị chính.",
+      "pdf": [
+        "HO SO THIET KE KY THUAT",
+        "DA-PMDT105",
+        "HE THONG NUOC LAM MAT"
+      ]
+    },
+    {
+      "key": "du-toan-pmdt114",
+      "project": "DA-PMDT114",
+      "contract": "",
+      "docClass": "COST_ESTIMATE",
+      "title": "Dự toán xây dựng kho chứa sản phẩm (điều chỉnh lần 1)",
+      "reference": "DT-PMDT114/2026-DC1",
+      "changeNote": "Điều chỉnh đơn giá vật liệu theo thông báo giá quý III/2026",
+      "reviewNote": "Trình duyệt dự toán điều chỉnh làm căn cứ lập kế hoạch vốn bổ sung cho dự án.",
+      "pdf": [
+        "DU TOAN XAY DUNG",
+        "DA-PMDT114",
+        "KHO CHUA SAN PHAM"
+      ]
+    },
+    {
+      "key": "pl01-hd-pmdt105-xl01",
+      "project": "DA-PMDT105",
+      "contract": "HD-PMDT105-XL01",
+      "docClass": "CONTRACT",
+      "title": "Phụ lục hợp đồng số 01 - HD-PMDT105-XL01 (điều chỉnh tiến độ thi công)",
+      "reference": "PL01/HD-PMDT105-XL01",
+      "changeNote": "Dự thảo phụ lục sau khi thương thảo với nhà thầu Nam Việt",
+      "reviewNote": "Trình lãnh đạo phê duyệt nội dung phụ lục gia hạn tiến độ 11 ngày trước khi ký chính thức.",
+      "pdf": [
+        "PHU LUC HOP DONG SO 01",
+        "HD-PMDT105-XL01",
+        "DIEU CHINH TIEN DO THI CONG"
+      ]
+    },
+    {
+      "key": "tham-tra-pmdt120",
+      "project": "DA-PMDT120",
+      "contract": "",
+      "docClass": "DESIGN",
+      "title": "Báo cáo thẩm tra thiết kế bản vẽ thi công hệ thống xử lý khí thải",
+      "reference": "TTr-TKBVTC-PMDT120/2026",
+      "changeNote": "Báo cáo thẩm tra của tư vấn độc lập, đã tiếp thu ý kiến của chủ đầu tư",
+      "reviewNote": "Trình lãnh đạo xem xét kết quả thẩm tra thiết kế bản vẽ thi công, quá hạn xử lý theo kế hoạch tiến độ.",
+      "pdf": [
+        "BAO CAO THAM TRA THIET KE",
+        "DA-PMDT120",
+        "HE THONG XU LY KHI THAI"
+      ]
+    },
+    {
+      "key": "ho-so-moi-thau-pmtb164",
+      "project": "DA-PMTB164",
+      "contract": "",
+      "docClass": "PROCUREMENT",
+      "title": "Hồ sơ mời thầu gói mua sắm máy nén khí",
+      "reference": "HSMT-PMTB164/2026",
+      "changeNote": "Bản hoàn thiện sau góp ý của phòng Kỹ thuật và phòng Pháp chế",
+      "reviewNote": "Trình lãnh đạo phê duyệt hồ sơ mời thầu để phát hành theo kế hoạch lựa chọn nhà thầu đã duyệt.",
+      "pdf": [
+        "HO SO MOI THAU",
+        "DA-PMTB164",
+        "MUA SAM MAY NEN KHI"
+      ]
+    },
+    {
+      "key": "nghiem-thu-pmtb168",
+      "project": "DA-PMTB168",
+      "contract": "",
+      "docClass": "ACCEPTANCE",
+      "title": "Biên bản nghiệm thu lô thiết bị phòng thí nghiệm đợt 1",
+      "reference": "BBNT-PMTB168/2026-D1",
+      "changeNote": "Biên bản có chữ ký của chủ đầu tư, nhà thầu và tư vấn giám sát",
+      "reviewNote": "Trình lãnh đạo xác nhận nghiệm thu đợt 1 để làm căn cứ thanh toán cho nhà thầu.",
+      "pdf": [
+        "BIEN BAN NGHIEM THU",
+        "DA-PMTB168",
+        "THIET BI PHONG THI NGHIEM DOT 1"
+      ]
+    },
+    {
+      "key": "to-trinh-pmdt130",
+      "project": "DA-PMDT130",
+      "contract": "",
+      "docClass": "INVESTMENT_DECISION",
+      "title": "Tờ trình phê duyệt điều chỉnh quy mô dự án mở rộng khu đóng bao",
+      "reference": "TTr-PMDT130/2026-DC",
+      "changeNote": "Bản trình lãnh đạo, kèm thuyết minh điều chỉnh quy mô",
+      "reviewNote": "Kính trình lãnh đạo xem xét điều chỉnh quy mô đầu tư của dự án theo kết luận giao ban tháng 10.",
+      "pdf": [
+        "TO TRINH PHE DUYET DIEU CHINH QUY MO",
+        "DA-PMDT130",
+        "MO RONG KHU DONG BAO"
+      ]
+    },
+    {
+      "key": "ho-so-ky-thuat-pmtb172",
+      "project": "DA-PMTB172",
+      "contract": "",
+      "docClass": "FEASIBILITY",
+      "title": "Thuyết minh kỹ thuật mua sắm bơm công nghệ",
+      "reference": "TMKT-PMTB172/2026",
+      "changeNote": "Thuyết minh kỹ thuật và danh mục thông số yêu cầu",
+      "reviewNote": "Trình lãnh đạo phê duyệt thuyết minh kỹ thuật làm cơ sở lập hồ sơ mời thầu.",
+      "pdf": [
+        "THUYET MINH KY THUAT",
+        "DA-PMTB172",
+        "MUA SAM BOM CONG NGHE"
+      ]
+    }
+  ],
+  "report.rule.step": "Lãnh đạo duyệt báo cáo tuần của dự án",
+  "report.rule.reason": "Báo cáo tuần của dự án do lãnh đạo duyệt trên hệ thống, thay cho duyệt ngoài văn bản",
+  "report.rule.submit": "Trình lãnh đạo duyệt quy trình duyệt báo cáo tuần",
+  "report.rule.approve": "Đồng ý áp dụng quy trình duyệt báo cáo tuần của dự án"
+}

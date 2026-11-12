@@ -131,7 +131,7 @@ describe('BI-09 analysis workbench (ST-BI-004, BI F3, F4)', () => {
     const h = client(normal(), () => answer());
     mount(<WorkbenchScreen route={BENCH} />, h, { permissions: QUERIER });
     const options = [...((await screen.findByLabelText(vi_['bi.workbench.metric'])) as HTMLSelectElement).options].map((option) => option.textContent);
-    expect(options).toEqual(['disbursement_rate', 'disbursed']);
+    expect(options).toEqual(['Tỷ lệ giải ngân (disbursement_rate)', 'disbursed']);
     const result = await runIt(user);
     expect(h.command.mock.calls[0]).toMatchObject(['post_dashboard_queries', { body: { metric_version_id: RATE.id, snapshot_id: V1, dimensions: ['unit'], filters: [] } }]);
     expect(within(result).getByTestId('label-period').textContent).toBe(fill(vi_['bi.query.label.period'], { period: '2026-10' }));
@@ -375,6 +375,23 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     expect(within(tile).getByRole('link').getAttribute('href')).toBe(`/bi/bi-09?metric=${RATE.id}&snapshot=${V1}`);
   });
 
+  // UAT run r6, R6-PUB-04: the board asked the snapshot of the disbursement dataset for every certified metric, and the API refuses (422) the metrics that belong to another dataset: 27 of 28 on the public
+  // demo, each a red line in the console and a tile that said nothing useful. A metric that is not of the dataset of the board is not asked for there.
+  it('R6-PUB-04: a metric of another dataset is not asked of the snapshot of the board: its tile says so and sends no request', async () => {
+    const CONTRACTS = rawMetric({ id: '00000000-0000-4000-8000-0000000000b9', code: 'ctr_contract_count', grain: 'contract', aggregation_type: 'additive', unit: 'COUNT' });
+    const OWN = rawMetric({ id: '00000000-0000-4000-8000-0000000000ba', code: 'own_metric', dataset_id: '00000000-0000-4000-8000-0000000000dd', origin: 'TENANT_UI' });
+    const h = client({ ...normal(), metrics: [RATE, DISBURSED, CONTRACTS, OWN] }, () => answer());
+    mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
+    await findFigure(RATE.id);
+    const asked = h.command.mock.calls.map(([, input]) => (input as { body: { metric_version_id: string } }).body.metric_version_id);
+    expect(asked.sort()).toEqual([RATE.id, DISBURSED.id].sort());
+    for (const metric of [CONTRACTS, OWN]) {
+      const tile = document.querySelector(`[data-metric-id="${metric.id}"]`) as HTMLElement;
+      expect(within(tile).getByText(translator.t('bi.board.tile.elsewhere'))).toBeTruthy();
+      expect(tile.querySelector('[data-reason]')).toBeNull();
+    }
+  });
+
   it('names the period and the snapshot of the board in the context bar, and groups the tiles in a strip with a label', async () => {
     mount(<BoardScreen route={BOARD} />, client(normal(), () => answer()), { permissions: QUERIER });
     await findFigure(RATE.id);
@@ -422,7 +439,7 @@ describe('BI-02 the board of certified metrics (ST-BI-004, BI F3)', () => {
     const h = client({ ...normal(), versions: [version(V1), version(V2, 'FROZEN', '2026-09')] }, () => answer());
     mount(<BoardScreen route={BOARD} />, h, { permissions: QUERIER });
     await findFigure(RATE.id);
-    await user.selectOptions(screen.getByLabelText(vi_['bi.board.period']), V2);
+    await user.selectOptions(screen.getByLabelText(vi_['bi.board.period']), '2026-09');
     await waitFor(() => expect(h.command.mock.calls.some(([, input]) => (input as { body: { snapshot_id: string } }).body.snapshot_id === V2)).toBe(true));
     cleanup();
     mount(

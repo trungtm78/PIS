@@ -95,7 +95,7 @@ describe('the shared upload pipeline (ST-KERNEL-024)', () => {
     expect(downloaded.object).toMatchObject({ contentType: 'application/pdf', scanStatus: 'CLEAN', size: PDF.length });
   });
 
-  it('answers 404 to the tenant that asks for the file of another, as for a file that does not exist (AC-ST-KERNEL-024-2)', async () => {
+  it('answers 404 to the tenant that asks for the file of another, as for a file that does not exist (AC-ST-KERNEL-024-2, UAT-NFR-TENANCY-04)', async () => {
     const ownedByB = await service.upload(b, { purpose: 'document', declaredType: 'application/pdf', bytes: PDF });
     const missing = objectKey(TENANT_B, 'document', 'does-not-exist');
     const foreign = await refusal(service.download(a, ownedByB.key));

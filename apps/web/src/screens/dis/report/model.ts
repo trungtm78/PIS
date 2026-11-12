@@ -428,6 +428,11 @@ export interface FilterState {
   status: '' | ReportStatus;
 }
 
+/** The report a screen of one report shows when it is opened without one: the first of the list, which the read orders by the latest change. Undefined when the list is empty. */
+export function defaultReport(lines: readonly ReportLine[]): ReportLine | undefined {
+  return lines[0];
+}
+
 export const NO_FILTER: FilterState = { year: '', periodId: '', planId: '', projectId: '', status: '' };
 
 export type ReportProblem =

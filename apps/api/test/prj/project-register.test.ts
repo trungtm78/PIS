@@ -143,12 +143,13 @@ describe('the project register: create, profile update, list and workspace (ST-P
   });
 
   describe('createProject', () => {
-    it('creates a CONCEPT project at version 1 with revision r1 INITIAL, audited and announced, and refuses the same code in the tenant but not in another (AC-ST-PRJ-001-1)', async () => {
+    it('UAT-AC200: creates a CONCEPT project at version 1 with revision r1 INITIAL, audited and announced, and refuses the same code in the tenant but not in another (AC-ST-PRJ-001-1)', async () => {
       const code = 'DA-2026-001';
       const first = await create(MAKER, { code, sector_master_version_id: versions.sector });
       expect(first.status).toBe(200);
       expect(first.json).toMatchObject({ status: 'CONCEPT', resource_version: 1 });
       const projectId = idOf(first);
+      expect(await rows('select project_group from machvon.project where id = $1', [projectId])).toEqual([{ project_group: null }]);
       expect(await rows('select revision, change_kind from machvon.project_revision where project_id = $1', [projectId])).toEqual([{ revision: 1, change_kind: 'INITIAL' }]);
       expect(await rows('select action, resource_type, outcome from machvon.audit_event where resource_id = $1', [projectId])).toEqual([{ action: 'project.created', resource_type: 'project', outcome: 'SUCCESS' }]);
       const events = await rows<{ type: string; payload: Record<string, unknown> }>('select type, payload from machvon.outbox_event where aggregate_id = $1', [projectId]);

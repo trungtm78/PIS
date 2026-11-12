@@ -227,7 +227,7 @@ describe('procurement plan commands and reads (ST-BID-001)', () => {
   });
 
   describe('the plan, the budget check and the decision', () => {
-    it('drafts a plan on a line of 30 billion with packages of 18 and 10, refuses the maker as approver, a decision not in force, and approves on a decision in force with bid.plan.approved.v1; a revision adding 5 billion cannot be submitted and only one plan stays APPROVED (AC-ST-BID-001-1)', async () => {
+    it('UAT-AC445: drafts a plan on a line of 30 billion with packages of 18 and 10, refuses the maker as approver, a decision not in force, and approves on a decision in force with bid.plan.approved.v1; a revision adding 5 billion cannot be submitted and only one plan stays APPROVED (AC-ST-BID-001-1)', async () => {
       const seeded = await project();
       const made = await create(SOLO, planBody(seeded, [pack(seeded.line, 18), pack(seeded.line, 10)]));
       expect(made.status).toBe(200);

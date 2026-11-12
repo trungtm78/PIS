@@ -176,7 +176,7 @@ describe('guarantee commands and reads (ST-CTR-003)', () => {
   });
 
   describe('the lifecycle (AC-ST-CTR-003-1)', () => {
-    it('refuses the registrant as verifier, verifies by another person, replaces on extension, and releases only with evidence', async () => {
+    it('UAT-AC310: refuses the registrant as verifier, verifies by another person, replaces on extension, and releases only with evidence', async () => {
       const registered = await register(OFFICER, { guarantee_no: 'BL-A-002', amount_vnd: '500000000', expires_at: '2099-12-31T16:59:00Z' });
       expect(registered).toMatchObject({ status: 200, json: { status: 'PENDING_VERIFICATION', resource_version: 1 } });
       const id = idOf(registered);

@@ -28,7 +28,7 @@ describe('sha256Hex', () => {
 });
 
 describe('reportFileName', () => {
-  it('names a file code_period_version_sha8.ext by default', () => {
+  it('UAT-PLAN-3410: names a file code_period_version_sha8.ext by default', () => {
     expect(reportFileName(parts())).toBe('MONTHLY-GROUP_2026-M10_v02_a1b2c3d4.xlsx');
     expect(reportFileName(parts({ period: { kind: 'QUARTER', year: 2026, index: 3 }, revision: 1, extension: 'docx' }))).toBe('MONTHLY-GROUP_2026-Q3_v01_a1b2c3d4.docx');
     expect(reportFileName(parts({ period: { kind: 'AS_OF', year: 2026, day: '2026-10-31' } }))).toBe('MONTHLY-GROUP_2026-10-31_v02_a1b2c3d4.xlsx');

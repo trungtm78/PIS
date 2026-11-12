@@ -1151,6 +1151,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "BID-03",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/bid/procurement-plan.test.ts"
+      },
       "module": "BID"
     },
     {
@@ -1225,6 +1232,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "BID-04",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/bid/criteria-version.test.ts"
+      },
       "module": "BID"
     },
     {

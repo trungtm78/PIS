@@ -148,7 +148,7 @@ describe('quality rules, runs and scorecards over HTTP (ST-DGV-002)', () => {
   }, 60_000);
 
   describe('createQualityRuleVersion and approveQualityRuleVersion', () => {
-    it('refuses the author approving the rule, accepts another approver, and refuses a raw SQL node (AC-ST-DGV-002-3)', async () => {
+    it('UAT-AC484: refuses the author approving the rule, accepts another approver, and refuses a raw SQL node (AC-ST-DGV-002-3)', async () => {
       const world = await newWorld();
       const draft = await createRule(LEAD, ruleBody(world));
       expect(draft.status).toBe(200);
@@ -308,7 +308,7 @@ describe('quality rules, runs and scorecards over HTTP (ST-DGV-002)', () => {
   });
 
   describe('getQualityScorecard', () => {
-    it('is a hard fail with a score of about 95 and a CRITICAL incident when nine rules pass and one integrity rule finds a reference to no project (AC-ST-DGV-002-1)', async () => {
+    it('UAT-AC485: is a hard fail with a score of about 95 and a CRITICAL incident when nine rules pass and one integrity rule finds a reference to no project (AC-ST-DGV-002-1)', async () => {
       const world = await newWorld({ is_critical: true });
       const passing: Array<[string, string, unknown]> = [
         ['R-01', 'COMPLETENESS', { op: 'not_null', field: 'project_id' }],
@@ -364,7 +364,7 @@ describe('quality rules, runs and scorecards over HTTP (ST-DGV-002)', () => {
       expect(runDetail.json).toMatchObject({ id: idOf(requested), certified_blocked: true, hard_fail: true, snapshot_id: snap.id });
     });
 
-    it('shows NOT_ASSESSED with a null score for a dataset with no run, STALE with its age for an old run, and the executive average leaves out the unassessed dataset (AC-ST-DGV-002-2)', async () => {
+    it('UAT-AC486: shows NOT_ASSESSED with a null score for a dataset with no run, STALE with its age for an old run, and the executive average leaves out the unassessed dataset (AC-ST-DGV-002-2)', async () => {
       const domain = `AC2${randomUUID().slice(0, 5).toUpperCase()}`;
       const never = await newWorld({ domain });
       const stale = await newWorld({ domain });

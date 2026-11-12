@@ -191,13 +191,59 @@ describe('the approval workflows over HTTP (ST-ADM-012)', () => {
     expect((await rows<{ status: string }>('select status from machvon.workflow_instance where id = $1', [instanceId]))[0]?.status).toBe('Running');
   });
 
-  it('lets a delegate who holds no right to decide through the door of the decision with the delegation alone, and nobody else without a grant', async () => {
+  it('UAT-AC132 an instance runs to its end by the two steps of the version it started on (v3) while v4 with three steps is published, the instance started after the publication is pinned to v4 and has three steps, and v3 is Superseded but still readable', async () => {
+    const v3 = await publish('report.accept', definitionOf([step('first'), step('second')]));
+    const older = await startInstance();
+    const instanceRow = async (instanceId: string) => (await rows<{ workflow_version_id: string; status: string; outcome: string | null; current_step: number }>('select workflow_version_id, status, outcome, current_step from machvon.workflow_instance where id = $1', [instanceId]))[0];
+    expect(await instanceRow(older)).toMatchObject({ workflow_version_id: v3, status: 'Running', current_step: 0 });
+    // Someone other than the author publishes v4, with three steps, while I-1 is on its first step.
+    const v4 = await publish('report.accept', definitionOf([step('first'), step('second'), step('third')]));
+    expect(v4).not.toBe(v3);
+    // The engine keeps the approvers of one step out of the next (four eyes), so a third leader takes the third step.
+    const LEADER_C = 11;
+    await harness.seedMembership(TENANT_A, LEADER_C, ROOT);
+    await harness.seedGrants(TENANT_A, [{ n: 20, member: LEADER_C, role: LEADER_ROLE, kind: 'TENANT' }]);
+    const leaders = [LEADER_A, LEADER_B, LEADER_C];
+    const approveCurrent = async (instanceId: string): Promise<void> => {
+      const pending = await rows<{ id: string; version: string; assignee_id: string }>("select id, version::text, assignee_id from machvon.approval_task where workflow_instance_id = $1 and status = 'Pending'", [instanceId]);
+      const task = pending.find((row) => leaders.some((member) => memberId(member) === row.assignee_id));
+      expect(task).toBeDefined();
+      const member = leaders.find((candidate) => memberId(candidate) === task?.assignee_id) as number;
+      const done = await call('POST', `/approval-tasks/${task?.id}/decision`, { member, ifMatch: `"${task?.version}"`, body: { decision: 'approve' }, claims: SECOND_FACTOR });
+      expect(done.status).toBe(200);
+    };
+    // I-1 goes on by the two steps of v3, never by the third of v4, and keeps v3 to its end.
+    await approveCurrent(older);
+    expect(await instanceRow(older)).toMatchObject({ workflow_version_id: v3, status: 'Running', current_step: 1 });
+    await approveCurrent(older);
+    expect(await instanceRow(older)).toMatchObject({ workflow_version_id: v3, status: 'Completed', outcome: 'APPROVED' });
+    expect(await rows("select step_id from machvon.approval_task where workflow_instance_id = $1 and status = 'Decided' order by step_index", [older])).toEqual([{ step_id: 'first' }, { step_id: 'second' }]);
+    // I-2 starts after the publication: pinned to v4, three steps.
+    const newer = await startInstance();
+    expect(await instanceRow(newer)).toMatchObject({ workflow_version_id: v4, status: 'Running', current_step: 0 });
+    await approveCurrent(newer);
+    await approveCurrent(newer);
+    expect(await instanceRow(newer)).toMatchObject({ workflow_version_id: v4, status: 'Running', current_step: 2 });
+    await approveCurrent(newer);
+    expect(await instanceRow(newer)).toMatchObject({ workflow_version_id: v4, status: 'Completed', outcome: 'APPROVED' });
+    expect(await rows("select step_id from machvon.approval_task where workflow_instance_id = $1 and status = 'Decided' order by step_index", [newer])).toEqual([{ step_id: 'first' }, { step_id: 'second' }, { step_id: 'third' }]);
+    // v3 is Superseded and can still be read by the id the old instance holds; v4 is the one in force.
+    expect(await call('GET', `/resources/workflow_version/${v3}`, { member: READER })).toMatchObject({ status: 200, json: { id: v3, status: 'Superseded', business_type: 'report.accept' } });
+    expect(await call('GET', `/resources/workflow_version/${v4}`, { member: READER })).toMatchObject({ status: 200, json: { id: v4, status: 'Published' } });
+    // The negative control: a check that wants I-1 on v4 must fail on this record.
+    expect(() => expect({ workflow_version_id: v3 }).toMatchObject({ workflow_version_id: v4 })).toThrow();
+  });
+
+  it('UAT-PLAN-32 lets a delegate who holds no right to decide through the door of the decision with the delegation alone, and nobody else without a grant: the refusal is 403 SCOPE_DENIED and tells nothing of the record', async () => {
     await publish('report.accept', definitionOf([step('review')]));
     const instanceId = await startInstance();
     const task = await taskOf(instanceId, LEADER_B);
     const ifMatch = `"${task?.version}"`;
     const body = { decision: 'approve' };
-    expect(await call('POST', `/approval-tasks/${task?.id}/decision`, { member: DELEGATE, ifMatch, body, claims: SECOND_FACTOR })).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
+    const denied = await call('POST', `/approval-tasks/${task?.id}/decision`, { member: DELEGATE, ifMatch, body, claims: SECOND_FACTOR });
+    expect(denied).toMatchObject({ status: 403, json: { code: 'SCOPE_DENIED' } });
+    // The answer carries the reason and the code, and nothing of the record the phone tried to open: not its task, its instance or its business type.
+    for (const secret of [task?.id as string, instanceId, 'report.accept']) expect(JSON.stringify(denied.json)).not.toContain(secret);
     await rows(
       `insert into machvon.delegation_grant (tenant_id, id, delegator_membership_id, delegate_membership_id, permissions, scope_json, valid_from, valid_until, reason, status)
        values (nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), $1, $2, array['approval.decide'], '{"kind":"TENANT","ref_ids":[]}'::jsonb, now() - interval '1 day', now() + interval '10 days', 'Đi công tác', 'Active')`,

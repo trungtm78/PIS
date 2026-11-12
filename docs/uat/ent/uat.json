@@ -92,11 +92,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/org-pack.enterprise.test.ts"
       },
       "module": "ENT"
     },
@@ -138,11 +138,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/org-pack.enterprise.test.ts"
       },
       "module": "ENT"
     },
@@ -182,11 +182,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-dis.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -225,11 +225,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/reporting-calendar.test.ts"
       },
       "module": "ENT"
     },
@@ -269,11 +269,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/screens/dis/calendar/calendar-states.test.tsx"
       },
       "module": "ENT"
     },
@@ -412,11 +412,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-dis.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -458,11 +458,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-dis.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -504,11 +504,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-ent.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -551,11 +551,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-ent.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -1120,11 +1120,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/pwa/screens/ApprovalDetailScreen.test.tsx"
       },
       "module": "ENT"
     },
@@ -1163,11 +1163,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/pwa/screens/DrillDowns.test.tsx"
       },
       "module": "ENT"
     },
@@ -1210,7 +1210,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "reason": "FINDING: the directive detail of the phone (DirectiveDetailScreen) lists the timeline in the order the API returns it (oldest first, packages/db dir-directive-store orders by occurred_at ascending) and shows no list of the extension request or of the evidence (only the extension count), where the design (implementation_plan AC-ST-PWA-003-2) says the timeline newest first with the request and the evidence. Steps 1 and 2 are proven by DirectiveFilters.test.tsx and directives-api.test.tsx."
       },
       "module": "ENT"
     },
@@ -1249,11 +1249,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/web/src/pwa/screens/SettingsScreen.test.tsx"
       },
       "module": "ENT"
     },
@@ -1295,11 +1295,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dis/report-decision.test.ts"
       },
       "module": "ENT"
     },
@@ -1349,20 +1349,17 @@
       },
       "module": "ENT",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE'",
+        "query": "SELECT tenant_id, period_id FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE' AND status = 'FROZEN' GROUP BY tenant_id, period_id HAVING count(*) > 1",
         "expect": {
-          "value": "1"
+          "rows": 0
         }
       },
       "audit_assert": {
-        "entity": "period_snapshot",
-        "entity_id": "<id bản chốt>",
-        "action": "enterprise.snapshot_built",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'enterprise.snapshot_built' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'enterprise.snapshot_built' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -1410,14 +1407,17 @@
       },
       "module": "ENT",
       "idempotency": {
+        "resolve": {
+          "period": "SELECT rp.id::text FROM machvon.reporting_period rp WHERE rp.tenant_id = '${tenant_id}' AND rp.code ~ '^ENT-M[0-9]{4}-[0-9]{2}$' AND rp.end_date < current_date AND rp.status <> 'OPEN' AND NOT EXISTS (SELECT 1 FROM machvon.period_snapshot s WHERE s.tenant_id = rp.tenant_id AND s.period_id = rp.id AND s.snapshot_kind = 'ENTERPRISE_CLOSE') ORDER BY rp.start_date DESC, rp.id LIMIT 1"
+        },
         "url": "/enterprise-snapshots",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "period_id": "<id kỳ>"
+          "period_id": "${period}"
         },
-        "count_query": "SELECT count(*) FROM machvon.period_snapshot WHERE snapshot_kind = 'ENTERPRISE_CLOSE'",
+        "count_query": "SELECT count(*) FROM machvon.period_snapshot WHERE tenant_id = '${tenant_id}' AND period_id = '${period}' AND snapshot_kind = 'ENTERPRISE_CLOSE'",
         "expect_rows": 1
       }
     },
@@ -1516,14 +1516,11 @@
       },
       "module": "ENT",
       "audit_assert": {
-        "entity": "period_snapshot",
-        "entity_id": "<id bản chốt>",
-        "action": "enterprise.snapshot_frozen",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'enterprise.snapshot_frozen' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'enterprise.snapshot_frozen' ORDER BY occurred_at DESC LIMIT 1"
       },
       "transition": {
         "from": "FROZEN",
@@ -1683,11 +1680,11 @@
         "ST-PWA-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Suite dùng grant theo cả tenant; ca phạm vi đơn vị đã có ở apps/api/test/fnd/enterprise-snapshot.test.ts, chưa nối vào world của UAT"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/fnd/enterprise-snapshot.test.ts"
       },
       "module": "ENT",
       "access": {
@@ -1742,11 +1739,11 @@
         "ST-ORG-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần lô nạp (applied batch) của tệp gói; ca tích hợp đã có ở apps/api/test/editions/org-pack.enterprise.test.ts, chưa dựng trong suite UAT; danh sách 09 đầu mối thật là PX-05"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/org-pack.enterprise.test.ts"
       },
       "module": "ENT"
     },
@@ -1788,11 +1785,11 @@
         "ST-EQP-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần chuỗi kế hoạch, gói thầu, hợp đồng, thanh toán ở BID, CTR, PAY; chưa dựng trong suite; layout nhập tệp là PX-06"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-ent.uat.test.ts"
       },
       "module": "ENT"
     },
@@ -1838,7 +1835,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần PWA trên bản enterprise trong trình duyệt di động; có sẵn apps/web/e2e/pwa-flows.spec.ts (không đặt tên theo mã ca) nhưng chưa có ca mất mạng khi duyệt"
+        "reason": "Chua co kich ban Playwright xanh: ban nhap tren stack enterprise (hang doi duyet, ten thay cho ma, If-Match, 409 o thiet bi thu hai) chay qua buoc dang nhap/MFA nhung do o buoc mat mang (khung quyet dinh khong hien loi sau khi mat mang), nen chua duoc dua vao repo. Ngoai ra phan CacheStorage khi service worker dang kiem soat trang khong phu duoc tren dev server (SW chi dang ky o ban production, ban production khong co phien dev de dang nhap); phan nay moi co don vi test cache-policy/sw-core."
       },
       "module": "ENT"
     },
@@ -1930,7 +1927,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần thiết bị hoặc giả lập đăng ký đẩy; nhà cung cấp đẩy thật là PX-11"
+        "reason": "The case spans three layers with no single script that proves all of it: the screen PWA-07 (no end action on the current session, a short reason refused before sending) is proved by vitest apps/web/src/pwa/screens/SettingsScreen.test.tsx, the device revoke with reason and its audit by apps/api/test/session/self-service.test.ts, the test notification to oneself by apps/api/test/notifications/my-test-push.test.ts; none names the case id and the real push provider and installed PWA on two devices need PX-11 and a device. A browser run on the PWA with two registered devices is not available in the UAT stack."
       },
       "module": "ENT",
       "access": {
@@ -1990,7 +1987,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần báo cáo DIS có thuyết minh nhiều kỳ; ca tích hợp đã có ở apps/api/test/dis/report-decision.test.ts"
+        "reason": "finding: the case says the second inheritance is 422 NARRATIVE_NOTHING_TO_INHERIT, the product and the error registry answer 409"
       },
       "module": "ENT",
       "transition": {
@@ -2097,7 +2094,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Đã có axe 111 màn và kiểm mục tiêu chạm 44 px (lượt UAT 2); chưa đặt tên theo mã ca"
+        "reason": "finding: the rendered boxes at 360 px are not all 44 px (expected: every touch target from 44 px); the case therefore cannot be marked passed by a script"
       },
       "module": "ENT"
     },
@@ -2138,11 +2135,11 @@
         "ST-ORG-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ khách cung cấp danh sách 09 đầu mối (PX-05)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/editions/org-pack.enterprise.test.ts"
       },
       "module": "ENT"
     },

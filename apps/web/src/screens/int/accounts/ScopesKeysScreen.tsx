@@ -152,9 +152,10 @@ function AccountKeys({ accountId, accounts, page, detail }: { accountId: string 
         emptyKind="none"
       />
       <p className="sub">{t('int.keys.credentials.overlap')}</p>
-      <h3>{t('int.keys.call.title')}</h3>
+      <h3 id="int-call-title">{t('int.keys.call.title')}</h3>
       <p className="sub">{t('int.keys.call.intro', { url: page?.token_url ?? '/open/v1/token' })}</p>
-      <pre className="int-snippet" data-testid="call-snippet">
+      {/* The line may be longer than the card and then scrolls: a region the keyboard reaches and a screen reader names by the heading above it. */}
+      <pre className="int-snippet" data-testid="call-snippet" tabIndex={0} role="region" aria-labelledby="int-call-title">
         {snippet}
       </pre>
     </SectionCard>

@@ -122,7 +122,7 @@ describe('working calendar commands (ST-ADM-010)', () => {
       await expect(dueIn('2026-04-29T15:00:00+07:00', 8)).rejects.toMatchObject({ code: 'CALENDAR_NOT_EFFECTIVE' });
     });
 
-    it('refuses a 2027 calendar with a date outside its year with 422 CALENDAR_INVALID, naming the field, and stores nothing (AC-ST-ADM-010-2)', async () => {
+    it('refuses a 2027 calendar with a date outside its year with 422 CALENDAR_INVALID, naming the field, and stores nothing (AC-ST-ADM-010-2, UAT-AC135)', async () => {
       const reply = await draft(AUTHOR, {
         ...STD_2026,
         year: 2027,
@@ -198,7 +198,7 @@ describe('working calendar commands (ST-ADM-010)', () => {
       expect((await publish(AUTHOR, calendarId)).status).toBe(200);
     });
 
-    it('changes the deadlines counted after the next publication only: the version in force is superseded and a deadline already stored does not move', async () => {
+    it('changes the deadlines counted after the next publication only: the version in force is superseded and a deadline already stored does not move (UAT-AC135)', async () => {
       const first = idOf(await draft(AUTHOR));
       await publish(PUBLISHER, first);
       const alreadyCounted = await dueIn('2026-04-29T15:00:00+07:00', 8);

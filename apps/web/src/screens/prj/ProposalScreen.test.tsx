@@ -1,11 +1,11 @@
 import { ApiError } from '@machvon/api-client';
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import ProposalScreen from './ProposalScreen';
 import { DOCUMENT, PROJECT_ID, appraisalClient, mount, routeOf, world } from './appraisal-test-support';
-import { detail } from './test-support';
+import { detail, line as projectLine } from './test-support';
 
 const ROUTE = routeOf('PRJ-09', 'FR-PRJ-09');
 const SENDER = ['project.read', 'project.stage.submit'];
@@ -122,6 +122,23 @@ describe('ProposalScreen (PRJ-09): the proposal that sends a project to appraisa
     await ready();
     expect(screen.getByTestId('read-only').textContent).toBe(vi_['prj.proposal.readOnly.frozen.notice']);
     expect(screen.getByLabelText(vi_['prj.proposal.reason.label']).matches(':disabled')).toBe(true);
+  });
+
+  it('PRJ-09 without a project in the address proposes for the first project in concept of the register, says so, and keeps the register one link away', async () => {
+    const h = appraisalClient(world());
+    (h.client as unknown as { readAll: unknown }).readAll = vi.fn(() => Promise.resolve([projectLine(7, { status: 'APPRAISAL' }), projectLine(1, { status: 'CONCEPT' })]));
+    mount(<ProposalScreen route={ROUTE} />, h, { permissions: SENDER, path: '/prj/prj-09' });
+    await ready();
+    expect(h.read).toHaveBeenCalledWith('get_resources_project_id', { path: { id: PROJECT_ID } });
+    expect(screen.queryByTestId('no-project')).toBeNull();
+    expect(screen.getByTestId('default-project').textContent).toContain(vi_['prj.proposal.default.notice']);
+    expect(within(screen.getByTestId('default-project')).getByRole('link', { name: vi_['prj.score.default.link'] }).getAttribute('href')).toBe('/prj/prj-01');
+  });
+
+  it('PRJ-09 names no default when the address names the project', async () => {
+    mount(<ProposalScreen route={ROUTE} />, appraisalClient(world()), { permissions: SENDER, path: OPEN });
+    await ready();
+    expect(screen.queryByTestId('default-project')).toBeNull();
   });
 
   it('says so when no project is named or the project cannot be read, and retries the read', async () => {

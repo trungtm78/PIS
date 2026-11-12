@@ -3,9 +3,13 @@ import type { Obj } from '../context.ts';
 import { grantMemberRoles } from './iam.ts';
 import { at, made, once } from './shared.ts';
 import TEXTS from './data/notifications.json' with { type: 'json' };
+import ENTERPRISE_TEXTS from './data/notifications.enterprise.json' with { type: 'json' };
 import { textsOf } from '../../../support/texts.ts';
+import { clipPlan } from '../clip/plan.ts';
 
-const tx = textsOf(TEXTS);
+/** The enterprise clip dataset writes the templates, campaigns and reasons in the words of the enterprise (data/notifications.enterprise.json), never those of the province. */
+const ENTERPRISE = clipPlan()?.dataset === 'enterprise';
+const tx = textsOf(ENTERPRISE ? (ENTERPRISE_TEXTS as typeof TEXTS) : TEXTS);
 
 /**
  * NOT for the guide. The story: the provincial Department of Planning and Investment tells its people what needs their hand. Two phases:

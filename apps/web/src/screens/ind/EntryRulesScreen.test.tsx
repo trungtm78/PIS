@@ -37,7 +37,7 @@ const run = (): void => {
 };
 
 describe('EntryRulesScreen (IND-02): the rules', () => {
-  it('UI-IND-02: lists each rule with its check, level, fields, range, surfaces, version and whether it is in force or only a template', async () => {
+  it('UI-IND-02 UAT-IND-PX-01: lists each rule with its check, level, fields, range, surfaces, version and whether it is in force or only a template', async () => {
     open();
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(word('ind.rules.page.title'));
@@ -63,7 +63,7 @@ describe('EntryRulesScreen (IND-02): the rules', () => {
     expect(screen.queryByTestId('rules-none-active')).toBeNull();
   });
 
-  it('says that no entry is held to any rule while the tenant has approved none, and links to the governance rules', async () => {
+  it('UAT-IND-PX-01 says that no entry is held to any rule while the tenant has approved none, and links to the governance rules', async () => {
     open({ world: { rules: { ...RULES, items: RULES.items.map((one) => ({ ...one, active: false, origin: 'DEFAULT' })) } } });
     await ready();
     expect(screen.getByTestId('rules-none-active').textContent).toBe(word('ind.rules.summary.noneActive'));

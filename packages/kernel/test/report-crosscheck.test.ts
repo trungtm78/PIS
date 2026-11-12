@@ -216,7 +216,7 @@ describe('figureSetOf', () => {
 });
 
 describe('a clean family', () => {
-  it('gives no finding, runs all six rules, and compares many numbers', () => {
+  it('UAT-RPT-ENT4A-1: gives no finding, runs all six rules, and compares many numbers', () => {
     const result = run(family());
     expect(result.findings).toEqual([]);
     expect(result.coverage.rulesRun).toBe(6);
@@ -241,7 +241,7 @@ describe('a clean family', () => {
 describe('metamorphic: one change in the world must be noticed', () => {
   const tamper = (executed: [bigint, bigint, bigint]) => (one: Project): Project => ({ ...one, executed });
 
-  it('a month of PVN that is one dong off breaks the quarter, the snapshot and the sibling reports', () => {
+  it('UAT-RPT-ENT4A-1: a month of PVN that is one dong off breaks the quarter, the snapshot and the sibling reports', () => {
     const wrong = tweak(tamper([300_000_001n, 200_000_000n, 500_000_000n]));
     const result = run(family((reports) => replace(reports, 'PVN_MONTHLY-10', { set: setOf(wrong, 10) })));
     expect(rulesOf(result)).toEqual(expect.arrayContaining(['XR-01', 'XR-02', 'XR-03']));
@@ -250,7 +250,7 @@ describe('metamorphic: one change in the world must be noticed', () => {
     expect(quarterly?.terms.map((one) => one.role)).toEqual(['PVN_QUARTERLY', 'PVN_MONTHLY', 'PVN_MONTHLY', 'PVN_MONTHLY']);
   });
 
-  it('the HPM report that differs from PVN is caught by the pair rule, and by the snapshot rule', () => {
+  it('UAT-RPT-ENT4A-1: the HPM report that differs from PVN is caught by the pair rule, and by the snapshot rule', () => {
     const wrong = tweak((one) => ({ ...one, tmdt: one.tmdt + 5n }));
     const result = run(family((reports) => replace(reports, 'HPM_MONTHLY-11', { set: setOf(wrong, 11) })));
     const same = result.findings.filter((one) => one.ruleId === 'XR-03' && one.code === 'ENT_TOTAL_INVESTMENT');
@@ -271,7 +271,7 @@ describe('metamorphic: one change in the world must be noticed', () => {
     expect(stale[0]?.path[stale[0].path.length - 1]).toEqual({ step: 'EXPLAIN' });
   });
 
-  it('a project row without a unit makes the unit sum fall short of the company figure', () => {
+  it('UAT-RPT-ENT4A-1: a project row without a unit makes the unit sum fall short of the company figure', () => {
     const withoutUnit = tweak((one) => ({ ...one, unit: null }), 'P3');
     const result = run(family((reports) => replace(reports, 'PVN_QUARTERLY-Q4', { set: setOf(withoutUnit, 4) })));
     const unit = result.findings.filter((one) => one.ruleId === 'XR-05');
@@ -287,7 +287,7 @@ describe('metamorphic: one change in the world must be noticed', () => {
     expect(result.findings.some((one) => one.ruleId === 'XR-05' && one.code === 'ENT_PLAN_YEAR' && one.difference === '-1')).toBe(true);
   });
 
-  it('cumulative above the total investment is caught in a row and in the strip', () => {
+  it('UAT-RPT-ENT4A-1: cumulative above the total investment is caught in a row and in the strip', () => {
     const over = tweak((one) => ({ ...one, startBefore: one.tmdt }));
     const result = run(family((reports) => replace(reports, 'PVN_QUARTERLY-Q4', { set: setOf(over, 4) })));
     const cumulative = result.findings.filter((one) => one.ruleId === 'XR-04');
@@ -321,7 +321,7 @@ describe('metamorphic: one change in the world must be noticed', () => {
 });
 
 describe('what is not compared is said, never passed', () => {
-  it('a missing month skips the quarter rule with the reason and makes no finding', () => {
+  it('UAT-RPT-ENT4A-1: a missing month skips the quarter rule with the reason and makes no finding', () => {
     const result = run(family((reports) => reports.filter((one) => one.ref.id !== 'PVN_MONTHLY-11')));
     expect(result.findings).toEqual([]);
     expect(result.skipped.some((one) => one.ruleId === 'XR-01' && one.reason === 'MISSING_REPORT' && one.periodCode === '2026-M11')).toBe(true);
@@ -400,7 +400,7 @@ describe('every number has its formula, source and time', () => {
   const wrong = tweak((one) => ({ ...one, executed: [one.executed[0] + 3n, one.executed[1], one.executed[2]] }));
   const result = run(family((reports) => replace(reports, 'PVN_MONTHLY-10', { set: setOf(wrong, 10) })));
 
-  it('names the rule, the formula and for each term the report, the source and the day', () => {
+  it('UAT-RPT-ENT4A-1: names the rule, the formula and for each term the report, the source and the day', () => {
     const finding = result.findings.find((one) => one.ruleId === 'XR-02' && one.code === 'ENT_EXECUTED_PERIOD');
     expect(finding?.ruleName.length).toBeGreaterThan(3);
     expect(finding?.formula).toContain('ENT_EXECUTED_PERIOD');

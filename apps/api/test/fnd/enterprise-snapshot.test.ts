@@ -233,7 +233,7 @@ describe('the enterprise period snapshot: build, freeze and read (ENT-3a, DL.03,
       expect((await call('GET', `/enterprise-snapshots/${snapshotId}?measure=NOPE`, { member: BUILDER })).status).toBe(422);
     });
 
-    it('a reader of one unit tree sees that unit alone and the sums of what he sees (partial)', async () => {
+    it('UAT-ENT-SCP-01 a reader of one unit tree sees that unit alone and the sums of what he sees (partial)', async () => {
       const partial = await call('GET', `/enterprise-snapshots/${snapshotId}?measure=DISBURSED`, { member: UNIT_READER });
       expect(partial.status).toBe(200);
       expect(partial.json).toMatchObject({ partial: true });

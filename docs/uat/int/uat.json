@@ -283,11 +283,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-int.uat.test.ts"
       },
       "module": "INT"
     },
@@ -326,11 +326,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-int.uat.test.ts"
       },
       "module": "INT"
     },
@@ -369,11 +369,11 @@
       "story_ids": [],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-int.uat.test.ts"
       },
       "module": "INT"
     },
@@ -487,12 +487,12 @@
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "name": "Lakehouse of the ministry",
+          "name": "Lakehouse of the ministry ${stamp}",
           "scopes": [
             "open.projects.read"
           ]
         },
-        "count_query": "SELECT count(*) FROM machvon.int_machine_account WHERE lower(name) = 'lakehouse of the ministry'",
+        "count_query": "SELECT count(*) FROM machvon.int_machine_account WHERE tenant_id = '${tenant_id}' AND name = 'Lakehouse of the ministry ${stamp}'",
         "expect_rows": 1
       }
     },
@@ -651,7 +651,10 @@
       },
       "module": "INT",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.int_access_log WHERE operation = 'listOpenProjects'",
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.int_access_log WHERE tenant_id = '${tenant_id}' AND operation = 'listOpenProjects' LIMIT 1"
+        },
+        "query": "SELECT 1 FROM machvon.int_access_log WHERE tenant_id = '${tenant_id}' AND operation = 'listOpenProjects' LIMIT 1",
         "expect": {
           "min_rows": 1
         }
@@ -852,11 +855,11 @@
         "ST-INT-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Phụ thuộc đồng hồ phút của bộ giới hạn; chưa viết trong suite để tránh ca chập chờn, đã có trong apps/api/test/int/int.test.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/int/int.test.ts"
       },
       "module": "INT"
     },
@@ -897,11 +900,11 @@
         "ST-INT-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần sản phẩm dữ liệu và chứng nhận của DGV; suite UAT chưa dựng sản phẩm dữ liệu"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/int-extra.test.ts"
       },
       "module": "INT",
       "transition": {
@@ -947,11 +950,11 @@
         "ST-INT-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần mở kết nối CSDL thật bằng tài khoản BI (cổng Postgres), suite UAT chỉ đi qua HTTP; đã có trong apps/api/test/int/int.test.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/int-extra.test.ts"
       },
       "module": "INT",
       "access": {
@@ -1008,11 +1011,11 @@
         "ST-INT-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần bộ dữ liệu lớn và đo trên phần cứng khách (PX-10)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/int-extra.test.ts"
       },
       "module": "INT",
       "perf_budget": {
@@ -1066,11 +1069,11 @@
         "ST-INT-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-int.spec.ts"
       },
       "module": "INT"
     },

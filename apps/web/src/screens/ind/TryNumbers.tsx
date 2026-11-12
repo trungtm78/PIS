@@ -92,20 +92,21 @@ export function TryNumbers({ surfaces }: { surfaces: readonly Surface[] }) {
           </div>
           {lines.map((line, index) => {
             const key = `${ids}-fact-${index}`;
+            const errorId = `${key}-error`;
             const fault = line.field === '' && line.value === '' ? undefined : factFault(line, lines);
             return (
               <fieldset className="ind-line" key={key} data-testid="fact-line" data-fault={fault}>
                 <legend>{t('ind.rules.try.line', { n: index + 1 })}</legend>
                 <div className="field">
                   <label htmlFor={`${key}-field`}>{t('ind.rules.try.field')}</label>
-                  <input id={`${key}-field`} type="text" value={line.field} aria-invalid={fault === 'field' || fault === 'duplicate'} onChange={(event) => touch(lines.map((one, at) => (at === index ? { ...one, field: event.target.value.toUpperCase() } : one)))} />
+                  <input id={`${key}-field`} type="text" value={line.field} aria-invalid={fault === 'field' || fault === 'duplicate'} aria-describedby={fault === 'field' || fault === 'duplicate' ? errorId : undefined} onChange={(event) => touch(lines.map((one, at) => (at === index ? { ...one, field: event.target.value.toUpperCase() } : one)))} />
                 </div>
                 <div className="field">
                   <label htmlFor={`${key}-value`}>{t('ind.rules.try.value')}</label>
-                  <input id={`${key}-value`} type="text" inputMode="decimal" value={line.value} aria-invalid={fault === 'value'} onChange={(event) => touch(lines.map((one, at) => (at === index ? { ...one, value: event.target.value } : one)))} />
+                  <input id={`${key}-value`} type="text" inputMode="decimal" value={line.value} aria-invalid={fault === 'value'} aria-describedby={fault === 'value' ? errorId : undefined} onChange={(event) => touch(lines.map((one, at) => (at === index ? { ...one, value: event.target.value } : one)))} />
                 </div>
                 {fault === undefined ? null : (
-                  <small className="sub" role="alert">
+                  <small className="sub" role="alert" id={errorId}>
                     {fault === 'field' ? t('ind.rules.try.fault.field') : fault === 'duplicate' ? t('ind.rules.try.fault.duplicate') : t('ind.rules.try.fault.value')}
                   </small>
                 )}

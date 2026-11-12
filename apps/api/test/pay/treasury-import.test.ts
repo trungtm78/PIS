@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { payModule } from '../../src/modules/pay';
 import { TreasuryImportController, TreasuryImportReadsController } from '../../src/modules/pay/treasury-import.controller';
 import { eicarBytes } from '../../src/modules/files/mock-scan';
-import { TENANT_B } from '../../../../packages/db/test/support/authz-fixtures';
-import { MEMBERS, PayApp, shaOf } from './pay-app';
+import { TENANT_B, id, unitId } from '../../../../packages/db/test/support/authz-fixtures';
+import { BRANCH_A, FAMILY, MEMBERS, PayApp, shaOf } from './pay-app';
 import type { Reply } from './pay-app';
 
 const HEADER = 'document_no,document_date,project_code,treasury_office_code,amount_vnd,confirmed_at,payee_account';
@@ -343,6 +343,109 @@ describe('importTreasuryStatement and getTreasuryImport (ST-PAY-006)', () => {
       const reply = await importFile(csv(line('E-6', 1)), IMPORTER, { statement_date: '2026-10-16', source_kind: 'EXPORT_FILE' });
       expect(reply.status).toBe(200);
       expect((await importOf(reply.json.resource_id)).json).toMatchObject({ statement_date: '2026-10-16', source_kind: 'EXPORT_FILE' });
+    });
+  });
+
+  describe('the reconciliation total and the concurrent import (UAT-AC11, UAT-AC333)', () => {
+    const certifiedOf = async (importId: unknown): Promise<{ rows: number; amount_vnd: string }> => (await importOf(importId)).json.certified_total as { rows: number; amount_vnd: string };
+    const amountOf = async (prefix: string): Promise<string> =>
+      (await pay.rows<{ total: string }>("select coalesce(sum(amount_vnd), 0)::text as total from machvon.treasury_transaction where external_id like $1", [`KBNN_FILE|${prefix}%`]))[0]?.total ?? '';
+    const countOf = (prefix: string): Promise<number> => pay.count("select count(*)::text as n from machvon.treasury_transaction where external_id like $1", [`KBNN_FILE|${prefix}%`]);
+    const importsOf = (sha: string): Promise<number> => pay.count('select count(*)::text as n from machvon.treasury_import where file_sha256 = $1', [sha]);
+
+    it('UAT-AC11: F1 is applied with three new rows (2,670,000,000), F1 again is ALREADY_IMPORTED without a new import, F2 (F1 and one more row) makes one new row and three duplicates, and the total is 2,970,000,000 and not 5,640,000,000', async () => {
+      // The total the PAY-13 screen reads is the certified total of the statements: it is read before the files and again after each, so the difference is what the files did.
+      const baseline = await importFile(csv(line('AC11-BASE', 7)));
+      const start = await certifiedOf(baseline.json.resource_id);
+      const f1 = csv(line('AC11-CT-0001', 2_100_000_000), line('AC11-CT-0002', 450_000_000), line('AC11-CT-0003', 120_000_000));
+      const f2 = csv(line('AC11-CT-0001', 2_100_000_000), line('AC11-CT-0002', 450_000_000), line('AC11-CT-0003', 120_000_000), line('AC11-CT-0004', 300_000_000));
+      const hash1 = shaOf(f1);
+      const hash2 = shaOf(f2);
+      expect(hash1).not.toBe(hash2);
+
+      const first = await importFile(f1);
+      expect(first.status).toBe(200);
+      expect(first.json).toMatchObject({ status: 'APPLIED', result: 'APPLIED', row_total: 3, row_new: 3, row_duplicate: 0, row_conflict: 0, row_error: 0 });
+      expect(await countOf('AC11-CT')).toBe(3);
+      expect(await amountOf('AC11-CT')).toBe('2670000000');
+      const afterFirst = await certifiedOf(first.json.resource_id);
+      expect([afterFirst.rows - start.rows, BigInt(afterFirst.amount_vnd) - BigInt(start.amount_vnd)]).toEqual([3, 2_670_000_000n]);
+
+      // F1 again under a new idempotency key: the file is the identity, so nothing is created and the count of imports of that file stays one.
+      const again = await importFile(f1);
+      expect(again.json).toMatchObject({ status: 'ALREADY_IMPORTED', result: 'ALREADY_IMPORTED', resource_id: first.json.resource_id, duplicate: true });
+      expect(await importsOf(hash1)).toBe(1);
+      expect(await countOf('AC11-CT')).toBe(3);
+
+      // F2: the three rows of F1 are duplicates (same key, same hash), the new one is created; the four transactions sum to 2,970,000,000.
+      const second = await importFile(f2);
+      expect(second.json).toMatchObject({ row_total: 4, row_new: 1, row_duplicate: 3, row_conflict: 0, row_error: 0 });
+      expect(second.json.resource_id).not.toBe(first.json.resource_id);
+      expect(await importsOf(hash2)).toBe(1);
+      expect(await countOf('AC11-CT')).toBe(4);
+      expect(await amountOf('AC11-CT')).toBe('2970000000');
+      const afterSecond = await certifiedOf(second.json.resource_id);
+      expect([afterSecond.rows - start.rows, BigInt(afterSecond.amount_vnd) - BigInt(start.amount_vnd)]).toEqual([4, 2_970_000_000n]);
+      expect(BigInt(afterSecond.amount_vnd) - BigInt(start.amount_vnd)).not.toBe(5_640_000_000n);
+      // The negative control: a check on the doubled total (the original and the repeat added) is not satisfied by this answer.
+      expect(() => expect(BigInt(afterSecond.amount_vnd) - BigInt(start.amount_vnd)).toBe(5_640_000_000n)).toThrow();
+    });
+
+    it('UAT-AC333: of two requests for one file at the same moment (two keys, 30 rounds) one is APPLIED with five rows and the other ALREADY_IMPORTED of the same import; one import and five transactions; the file of one byte more is five duplicates; another tenant applies the same file on its own', async () => {
+      const files: Uint8Array[] = [];
+      for (let round = 0; round < 30; round += 1) {
+        const rows = [1, 2, 3, 4, 5].map((n) => line(`AC333-R${round}-${n}`, 650_000_000));
+        const bytes = csv(...rows);
+        files.push(bytes);
+        const stored = await pay.store(bytes);
+        const body = { file_object_id: stored.fileObjectId, file_sha256: stored.sha256, source_kind: 'STATEMENT_FILE' };
+        const replies = await Promise.all([
+          pay.call('POST', '/treasury-imports', { member: IMPORTER, body, key: `ac333-a-${round}-${randomUUID()}` }),
+          pay.call('POST', '/treasury-imports', { member: IMPORTER, body, key: `ac333-b-${round}-${randomUUID()}` }),
+        ]);
+        expect(replies.map((reply) => reply.status)).toEqual([200, 200]);
+        expect(replies.map((reply) => reply.json.result).sort()).toEqual(['ALREADY_IMPORTED', 'APPLIED']);
+        const applied = replies.find((reply) => reply.json.result === 'APPLIED') as Reply;
+        const repeated = replies.find((reply) => reply.json.result === 'ALREADY_IMPORTED') as Reply;
+        expect(applied.json).toMatchObject({ row_new: 5, row_total: 5 });
+        expect(repeated.json.resource_id).toBe(applied.json.resource_id);
+        expect(await importsOf(stored.sha256)).toBe(1);
+        expect(await countOf(`AC333-R${round}-`)).toBe(5);
+        expect(await amountOf(`AC333-R${round}-`)).toBe('3250000000');
+      }
+
+      // F3b: the first file with one byte more is a new file, but each of its five rows has a key and a hash that exist: five duplicates, nothing new, the total does not move.
+      const original = files[0] as Uint8Array;
+      const certifiedBefore = await certifiedOf((await importFile(csv(line('AC333-PROBE', 1)))).json.resource_id);
+      const f3b = new Uint8Array([...original, 0x0a]);
+      expect(shaOf(f3b)).not.toBe(shaOf(original));
+      const variant = await importFile(f3b);
+      expect(variant.json).toMatchObject({ row_total: 5, row_new: 0, row_duplicate: 5, row_conflict: 0, row_error: 0 });
+      expect(await countOf('AC333-R0-')).toBe(5);
+      expect(await amountOf('AC333-R0-')).toBe('3250000000');
+      const certifiedAfter = await certifiedOf(variant.json.resource_id);
+      expect(certifiedAfter).toEqual(certifiedBefore);
+
+      // Tenant B: the hash is unique only inside the tenant; the same bytes are applied there (the project of the rows exists in tenant B too).
+      const admin = new (await import('pg')).Client({ connectionString: pay.harness.database.adminUrl });
+      await admin.connect();
+      try {
+        await admin.query('set session_replication_role = replica');
+        await admin.query(
+          `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, classification, total_investment_vnd, status, version, project_group)
+           values ($1, $2, $3, 'Bridge twin', $4, $5, 'INTERNAL', 1000, 'IMPLEMENTATION', 1, 'B')`,
+          [TENANT_B, randomUUID(), pay.worldA.projectCodeA, unitId(BRANCH_A), id(FAMILY, 40)],
+        );
+      } finally {
+        await admin.end();
+      }
+      const inB = await pay.store(original, TENANT_B);
+      expect(inB.sha256).toBe(shaOf(original));
+      const applied = await pay.call('POST', '/treasury-imports', { member: OTHER_IMPORTER, tenantId: TENANT_B, body: { file_object_id: inB.fileObjectId, file_sha256: inB.sha256, source_kind: 'STATEMENT_FILE' } });
+      expect(applied.status).toBe(200);
+      expect(applied.json).toMatchObject({ result: 'APPLIED', row_new: 5 });
+      expect(await pay.count('select count(*)::text as n from machvon.treasury_import where file_sha256 = $1', [inB.sha256], TENANT_B)).toBe(1);
+      expect(await importsOf(inB.sha256)).toBe(1);
     });
   });
 });

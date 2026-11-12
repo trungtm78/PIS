@@ -25,8 +25,23 @@ export interface WebEditionBundle {
    * is blocked or overdue) shows on the command center and the committee dashboard through this slot; a public build has none and the screens draw nothing in its place.
    */
   readonly slots?: WebEditionSlots;
+  /**
+   * Entries the edition adds to the business part of the sidebar (screens that exist in this edition only): the chain of reports to the group, the push to HPM with the reconciliation against Oracle EBS, and the
+   * directions and meetings. The design data and the public edition do not change; the labels are keys of the base catalogue, said the edition's way by its overlay.
+   */
+  readonly navigation?: readonly EditionNavigationEntry[];
   /** The on-screen guides (DOC-3) said the edition's own way, by language: the drawer applies it to the generated help file, which stays the public text. */
   readonly help?: Readonly<Record<string, HelpOverlay>>;
+}
+
+/** One sidebar entry of an edition: the labels are i18n keys, translated when the shell builds the navigation (`resolveNavigationExtension`). */
+export interface EditionNavigationEntry {
+  readonly module: string;
+  readonly labelKey: string;
+  readonly icon: string;
+  readonly after: string;
+  readonly covers?: readonly string[];
+  readonly shortcuts: readonly (readonly [string, string])[];
 }
 
 /** Which part of the leader panel a screen asks for: the rates, the tiles, or both one under the other; 'summary' is the rates without the table of projects, for the phone. */

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { Client } from 'pg';
-import vi from '../src/i18n/vi.json' with { type: 'json' };
+import { terms } from './support/edition-terms.ts';
 import { membershipOf, sql, stackInfo } from './support/stack.ts';
 
 /**
@@ -14,6 +14,9 @@ import { membershipOf, sql, stackInfo } from './support/stack.ts';
 
 const OWNER = membershipOf('owner');
 let counter = 0;
+
+/** The combinations of origin and budget level one decision paper can register in one year (8: four origins, two levels). */
+const DECISION_LINES = ['PM_ASSIGNED', 'LOCAL_ADDED', 'CENTRAL_SUPPORT', 'REVENUE_INCREASE'].flatMap((origin) => ['CENTRAL', 'LOCAL'].map((level) => [origin, level] as const));
 
 async function open(page: Page, path: string, user: string): Promise<void> {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -53,9 +56,15 @@ async function seed(): Promise<Seeded> {
   const planUnit = stackInfo().units.A['CB-STC'] as string;
   if (area === undefined || fund === undefined || contractor === undefined || papers.length < 1) throw new Error('the fixtures of the stack are missing');
   const paper = papers[0]!;
-  // One decision line is registered once: each seed takes a combination of origin and level of its own.
-  const origin = ['PM_ASSIGNED', 'LOCAL_ADDED', 'CENTRAL_SUPPORT', 'REVENUE_INCREASE'][counter % 4]!;
-  const level = counter % 8 < 4 ? 'CENTRAL' : 'LOCAL';
+  // One decision line is registered once (appropriation_decision_line_uq): each seed takes a combination of origin and level that no appropriation of the shared decision paper holds yet. The rows the database holds
+  // decide, not a counter of this process: Playwright starts a new worker after a failed test and the counter starts again, which made the next case collide with a row an earlier case left.
+  const taken = await sql<{ origin: string; budget_level: string }>(
+    'select origin, budget_level from machvon.appropriation where tenant_id = $1 and decision_document_id = $2 and fund_source_version_id = $3 and plan_year = 2099',
+    [tenant, paper.document_id, fund.id],
+  );
+  const free = DECISION_LINES.find(([candidateOrigin, candidateLevel]) => !taken.some((row) => row.origin === candidateOrigin && row.budget_level === candidateLevel));
+  if (free === undefined) throw new Error(`every combination of origin and level of the decision paper is taken (${DECISION_LINES.length}): the stack holds too many seeds`);
+  const [origin, level] = free;
   const client = new Client({ connectionString: stackInfo().adminUrl });
   await client.connect();
   try {
@@ -176,7 +185,7 @@ const auditsOf = (requestId: string, action: string) => sql<{ actor_id: string }
 /** Draws a request up in the form (PAY-02) and gives back the page with the result open. */
 async function draw(page: Page, seeded: Seeded, number: string, tax?: { amount: string; basis: string }): Promise<void> {
   await open(page, `/pay/pay-02?contract=${seeded.contractId}`, 'paymentAccountant');
-  await expect(page.getByRole('heading', { level: 1, name: vi['pay.payment.create.title'] })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: terms['pay.payment.create.title'] })).toBeVisible();
   await expect(page.locator('#payment-acceptance option')).toHaveCount(2);
   await page.locator('#payment-acceptance').selectOption(seeded.acceptanceId);
   await expect(page.locator('#payment-line option')).toHaveCount(2);
@@ -186,7 +195,7 @@ async function draw(page: Page, seeded: Seeded, number: string, tax?: { amount: 
     await page.locator('#payment-tax').fill(tax.amount);
     await page.locator('#payment-tax-basis').fill(tax.basis);
   }
-  await page.getByRole('button', { name: vi['pay.payment.create.submit'] }).click();
+  await page.getByRole('button', { name: terms['pay.payment.create.submit'] }).click();
   await page.getByTestId('result').or(page.getByTestId('refusal')).waitFor();
   // A refusal is told in words, so the test says which one rather than that the result was missing.
   if ((await page.getByTestId('refusal').count()) > 0) throw new Error(`the form was refused: ${await page.getByTestId('refusal').textContent()}`);
@@ -200,8 +209,8 @@ async function attachInvoice(page: Page, seeded: Seeded, invoiceNo: string): Pro
   await page.locator('#attach-document').fill(seeded.paper);
   await page.locator('#attach-invoice-no').fill(invoiceNo);
   await page.locator('#attach-invoice-date').fill('2026-07-01');
-  await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.attach.submit'] }).click();
-  await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.attached']);
+  await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.attach.submit'] }).click();
+  await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.attached']);
 }
 
 const ledgerOf = (contractId: string) =>
@@ -244,7 +253,7 @@ test.describe('the payment request', () => {
 
     // The form does not ask for any amount the server works out; the server's figures are shown once the request is drawn up.
     await open(page, `/pay/pay-02?contract=${seeded.contractId}`, 'paymentAccountant');
-    await expect(page.getByText(vi['pay.payment.create.serverNumbers'])).toBeVisible();
+    await expect(page.getByText(terms['pay.payment.create.serverNumbers'])).toBeVisible();
     await expect(page.locator('[id*="gross"], [id*="net"], [id*="retention"], [id*="recovery"]')).toHaveCount(0);
     await draw(page, seeded, first, { amount: '-1000000', basis: 'Thông báo thuế 12/TB' });
     await expect(page.getByTestId('result-gross')).toHaveText('3.000.000.000');
@@ -264,7 +273,7 @@ test.describe('the payment request', () => {
     await expect(page.getByTestId('gross')).toHaveText('3.000.000.000');
     await expect(page.getByTestId('net')).toHaveText('2.099.000.000');
     await expect(page.getByTestId('tax-basis')).toHaveText('Thông báo thuế 12/TB');
-    await expect(page.getByTestId('no-documents')).toHaveText(vi['pay.payment.documents.empty']);
+    await expect(page.getByTestId('no-documents')).toHaveText(terms['pay.payment.documents.empty']);
 
     // An invoice is attached: its number and date are asked for; a second draft of the acceptance meets the duplicate.
     const invoiceNo = `HD-E2E-${Date.now().toString(36).toUpperCase()}`;
@@ -273,14 +282,14 @@ test.describe('the payment request', () => {
     await page.locator('#attach-document').fill(seeded.paper);
     await page.locator('#attach-invoice-no').fill(invoiceNo);
     await page.locator('#attach-invoice-date').fill('2026-07-01');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.attach.submit'] }).click();
-    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.attached']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.attach.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.attached']);
     await expect(page.getByTestId('doc-invoice')).toContainText(invoiceNo);
     expect(await documentsOf(made!.id)).toEqual([{ doc_kind: 'INVOICE', invoice_no: invoiceNo, duplicate_override_reason: null, duplicate_override_by: null }]);
 
     const second = `${first}-2`;
     await draw(page, seeded, second);
-    await expect(page.getByTestId('warnings')).toContainText(vi['pay.payment.warning.otherDrafts']);
+    await expect(page.getByTestId('warnings')).toContainText(terms['pay.payment.warning.otherDrafts']);
     await page.getByTestId('open-request').click();
     await expect(page.getByTestId('other-drafts')).toBeVisible();
     await page.locator('button[data-action="attach"]').click();
@@ -290,8 +299,8 @@ test.describe('the payment request', () => {
     await page.locator('#attach-invoice-date').fill('2026-07-01');
     // The accountant who drew the request up is not offered the exception.
     await expect(page.locator('#attach-override')).toHaveCount(0);
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.attach.submit'] }).click();
-    await expect(page.getByTestId('refusal')).toHaveText(vi['pay.payment.error.invoiceDuplicate']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.attach.submit'] }).click();
+    await expect(page.getByTestId('refusal')).toHaveText(terms['pay.payment.error.invoiceDuplicate']);
     const [, other] = await requestsOf(seeded.contractId);
     expect(await documentsOf(other!.id)).toEqual([]);
 
@@ -304,14 +313,14 @@ test.describe('the payment request', () => {
     await page.locator('#attach-invoice-no').fill(invoiceNo);
     await page.locator('#attach-invoice-date').fill('2026-07-01');
     await page.locator('#attach-override').fill('Hóa đơn điều chỉnh theo thông báo 12/TB');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.attach.submit'] }).click();
-    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.attached']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.attach.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.attached']);
     await expect(page.getByTestId('doc-override')).toHaveText('Hóa đơn điều chỉnh theo thông báo 12/TB');
     expect(await documentsOf(other!.id)).toEqual([{ doc_kind: 'INVOICE', invoice_no: invoiceNo, duplicate_override_reason: 'Hóa đơn điều chỉnh theo thông báo 12/TB', duplicate_override_by: membershipOf('paymentApprover') }]);
 
     // CTR-13 shows how the amount of the first request is made up, line by line.
     await open(page, `/ctr/ctr-13?request=${made!.id}`, 'paymentReader');
-    await expect(page.getByRole('heading', { level: 1, name: vi['ctr.valuation.title'] })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: terms['ctr.valuation.title'] })).toBeVisible();
     const lines = page.locator('tr[data-line]');
     await expect(lines).toHaveCount(2);
     await expect(lines.nth(0).getByTestId('item')).toHaveText('B01');
@@ -329,9 +338,9 @@ test.describe('the payment request', () => {
     await open(page, `/pay/pay-03?request=${other!.id}`, 'paymentAccountant');
     await page.locator('button[data-action="cancel"]').click();
     await page.locator('#cancel-reason').fill('Lập trùng với đề nghị trước.');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.cancel.submit'] }).click();
-    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.cancelled']);
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.cancelled']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.cancel.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.cancelled']);
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.cancelled']);
     expect((await requestsOf(seeded.contractId)).map((row) => [row.request_no, row.status])).toEqual([
       [first, 'DRAFT'],
       [second, 'CANCELLED'],
@@ -349,7 +358,7 @@ test.describe('the payment request', () => {
     const [made] = await requestsOf(seeded.contractId);
 
     await open(page, `/pay/pay-01?contract=${seeded.contractId}`, 'paymentReader');
-    await expect(page.getByRole('heading', { level: 1, name: vi['pay.payment.list.title'] })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: terms['pay.payment.list.title'] })).toBeVisible();
     await expect(page.locator('tbody tr')).toHaveCount(1);
     await expect(page.getByTestId('create')).toHaveCount(0);
     await page.getByTestId('open').click();
@@ -357,7 +366,7 @@ test.describe('the payment request', () => {
     await expect(page.locator('button[data-action]')).toHaveCount(0);
     await expect(page.getByTestId('valuation')).toBeVisible();
     await open(page, `/pay/pay-02?contract=${seeded.contractId}`, 'paymentReader');
-    await expect(page.getByTestId('no-right')).toHaveText(vi['pay.payment.create.noRight']);
+    await expect(page.getByTestId('no-right')).toHaveText(terms['pay.payment.create.noRight']);
     expect(made?.status).toBe('DRAFT');
   });
 
@@ -376,10 +385,10 @@ test.describe('the payment request', () => {
 
     // Sending shows what the request is worth and what sending does, then holds the acceptance and puts the amounts on the ledger of the contract.
     await page.locator('button[data-action="submit"]').click();
-    await expect(page.getByTestId('submit-intro')).toHaveText(vi['pay.payment.submit.intro'].replace('{gross}', '3.000.000.000').replace('{net}', '2.100.000.000'));
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.submit.submit'] }).click();
-    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.submitted']);
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.submitted']);
+    await expect(page.getByTestId('submit-intro')).toHaveText(terms['pay.payment.submit.intro'].replace('{gross}', '3.000.000.000').replace('{net}', '2.100.000.000'));
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.submit.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.submitted']);
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.submitted']);
     const sent = firstDraft;
     expect((await requestsOf(seeded.contractId))[0]).toMatchObject({ status: 'SUBMITTED' });
     expect(await sql<{ claims_acceptance: boolean }>('select claims_acceptance from machvon.payment_request where id = $1', [sent!.id])).toEqual([{ claims_acceptance: true }]);
@@ -393,25 +402,25 @@ test.describe('the payment request', () => {
     // A second request for the same acceptance is turned away in words, and leaves nothing on the ledger.
     await open(page, `/pay/pay-03?request=${secondDraft!.id}`, 'paymentAccountant');
     await page.locator('button[data-action="submit"]').click();
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.submit.submit'] }).click();
-    await expect(page.getByTestId('refusal')).toHaveText(vi['pay.payment.error.claimed']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.submit.submit'] }).click();
+    await expect(page.getByTestId('refusal')).toHaveText(terms['pay.payment.error.claimed']);
     expect((await ledgerOf(seeded.contractId))[0]).toMatchObject({ requested: '3000000000' });
 
     // The approver checks the first request with a note, then gives it back with a reason; the acceptance, the retention and the recovery are released.
     await open(page, `/pay/pay-03?request=${sent!.id}`, 'paymentApprover');
     await page.locator('button[data-action="verify"]').click();
     await page.locator('#verify-note').fill('Hồ sơ đầy đủ.');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.verify.submit'] }).click();
-    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.verified']);
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.verified']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.verify.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.verified']);
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.verified']);
     await expect(page.getByTestId('verification-note')).toHaveText('Hồ sơ đầy đủ.');
     await page.locator('button[data-action="return"]').click();
     // The standard reasons of the return are asked for first (ACCEPTANCE_MISMATCH is one the rule starts with); the free text says more.
     await page.locator('#return-reason-code').selectOption('ACCEPTANCE_MISMATCH');
     await page.locator('#return-reason').fill('Hóa đơn không khớp với nghiệm thu.');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.return.submit'] }).click();
-    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.returned']);
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.returned']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.return.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.returned']);
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.returned']);
     await expect(page.getByTestId('return-reason')).toHaveText('Hóa đơn không khớp với nghiệm thu.');
     expect(await sql<{ status: string; claims_acceptance: boolean; verified_by: string }>('select status, claims_acceptance, verified_by from machvon.payment_request where id = $1', [sent!.id])).toEqual([
       { status: 'RETURNED', claims_acceptance: false, verified_by: membershipOf('paymentApprover') },
@@ -429,26 +438,26 @@ test.describe('the payment request', () => {
     await page.getByTestId('open-request').click();
     await attachInvoice(page, seeded, `HD-E2E-F-${stamp}`);
     await page.locator('button[data-action="submit"]').click();
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.submit.submit'] }).click();
-    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.submitted']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.submit.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.submitted']);
     const [made] = await requestsOf(seeded.contractId);
     await open(page, `/pay/pay-03?request=${made!.id}`, 'paymentApprover');
     await page.locator('button[data-action="verify"]').click();
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.verify.submit'] }).click();
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.verified']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.verify.submit'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.verified']);
 
     // The board shows the request waiting for its forms; the forms are drawn from the confirmed templates, with the place the accountant writes.
     await open(page, '/pay/pay-04', 'paymentAccountant');
     const row = page.locator(`tr[data-request="${made!.id}"]`);
-    await expect(row.getByTestId('forms')).toHaveText(vi['pay.board.forms'].replace('{count}', '0').replace('{total}', '4'));
+    await expect(row.getByTestId('forms')).toHaveText(terms['pay.board.forms'].replace('{count}', '0').replace('{total}', '4'));
     await row.getByTestId('open').click();
-    await expect(page.getByRole('heading', { level: 1, name: vi['pay.forms.title'] })).toBeVisible();
-    await expect(page.getByTestId('missing')).toHaveText(vi['pay.forms.missing'].replace('{forms}', '03.a/TT, 04.a/TT, 04.b/TT, 05.a/TT'));
+    await expect(page.getByRole('heading', { level: 1, name: terms['pay.forms.title'] })).toBeVisible();
+    await expect(page.getByTestId('missing')).toHaveText(terms['pay.forms.missing'].replace('{forms}', '03.a/TT, 04.a/TT, 04.b/TT, 05.a/TT'));
     await expect(page.locator('button[data-action="send"]')).toHaveCount(0);
     await page.locator('button[data-action="generate-all"]').click();
     await page.locator('#generate-place').fill('Cao Bằng');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.generate.submit'] }).click();
-    await expect(page.getByTestId('done')).toHaveText(vi['pay.forms.done.generated']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.forms.generate.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(terms['pay.forms.done.generated']);
     for (const code of ['03.a/TT', '04.a/TT', '04.b/TT', '05.a/TT']) {
       const form = page.locator(`tr[data-form="${code}"]`);
       await expect(form).toHaveAttribute('data-state', 'standing');
@@ -471,8 +480,8 @@ test.describe('the payment request', () => {
     // One form drawn again replaces the one before: the old one is kept as superseded.
     await page.locator('tr[data-form="03.a/TT"] button[data-action="generate"]').click();
     await page.locator('#generate-place').fill('Cao Bằng');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.generate.submit'] }).click();
-    await expect(page.getByTestId('history')).toContainText(vi['pay.forms.status.superseded']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.forms.generate.submit'] }).click();
+    await expect(page.getByTestId('history')).toContainText(terms['pay.forms.status.superseded']);
     expect((await sql<{ status: string }>("select status from machvon.payment_form_instance where payment_request_id = $1 and form_code = '03.a/TT' order by created_at", [made!.id])).map((form) => form.status)).toEqual(['SUPERSEDED', 'GENERATED']);
 
     // The file goes to the Treasury by hand; the day and the number are recorded by another person than the one who drew the request up (the matrix of duties: payment.request and payment.approve of one record).
@@ -480,9 +489,9 @@ test.describe('the payment request', () => {
     await page.locator('button[data-action="send"]').click();
     await page.locator('#send-day').fill('2026-07-24');
     await page.locator('#send-ref').fill('KB-2026-0001');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.send.submit'] }).click();
-    await expect(page.getByTestId('done')).toHaveText(vi['pay.forms.done.sent']);
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.sentTreasury']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.forms.send.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(terms['pay.forms.done.sent']);
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.sentTreasury']);
     await expect(page.getByTestId('sent-on')).toHaveText('2026-07-24');
     await expect(page.getByTestId('ref')).toHaveText('KB-2026-0001');
     expect(await sql<{ status: string; treasury_ref: string; treasury_sent_by: string }>('select status, treasury_ref, treasury_sent_by from machvon.payment_request where id = $1', [made!.id])).toEqual([
@@ -505,24 +514,24 @@ test.describe('the payment request', () => {
     await page.getByTestId('open-request').click();
     await attachInvoice(page, seeded, `HD-E2E-R-${stamp}`);
     await page.locator('button[data-action="submit"]').click();
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.submit.submit'] }).click();
-    await expect(page.getByTestId('done')).toContainText(vi['pay.payment.done.submitted']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.submit.submit'] }).click();
+    await expect(page.getByTestId('done')).toContainText(terms['pay.payment.done.submitted']);
     const [made] = await requestsOf(seeded.contractId);
     await open(page, `/pay/pay-03?request=${made!.id}`, 'paymentApprover');
     await page.locator('button[data-action="verify"]').click();
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.payment.verify.submit'] }).click();
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.verified']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.payment.verify.submit'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.verified']);
     await open(page, `/pay/pay-14?request=${made!.id}`, 'paymentAccountant');
     await page.locator('button[data-action="generate-all"]').click();
     await page.locator('#generate-place').fill('Cao Bằng');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.generate.submit'] }).click();
-    await expect(page.getByTestId('done')).toHaveText(vi['pay.forms.done.generated']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.forms.generate.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(terms['pay.forms.done.generated']);
     // Another person than the one who drew the request up records that the file went to the Treasury.
     await open(page, `/pay/pay-14?request=${made!.id}`, 'paymentSender');
     await page.locator('button[data-action="send"]').click();
     await page.locator('#send-day').fill('2026-07-24');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.forms.send.submit'] }).click();
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.sentTreasury']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.forms.send.submit'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.sentTreasury']);
 
     // The Treasury confirmed two payments: one that is 10m short of the net of the request (2.1bn) and one that is the net.
     const [project] = await sql<{ project_id: string }>('select project_id from machvon.contract where id = $1', [seeded.contractId]);
@@ -540,13 +549,13 @@ test.describe('the payment request', () => {
 
     // UAT-AC12: matched to the request, the short transaction does not settle it; the dialog shows both figures and leads to the difference that was opened.
     await open(page, '/pay/pay-05', 'reconciler');
-    await expect(page.getByRole('heading', { level: 1, name: vi['pay.recon.title'] })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: terms['pay.recon.title'] })).toBeVisible();
     await page.locator(`tr[data-transaction="${short}"] button[data-action="match"]`).click();
     await page.locator('#match-request').selectOption(made!.id);
     await expect(page.getByTestId('match-agree')).toHaveAttribute('data-agree', 'no');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.recon.match.submit'] }).click();
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.recon.match.submit'] }).click();
     await expect(page.getByTestId('mismatch')).toContainText(
-      vi['pay.recon.match.mismatch'].replace('{internal}', '2.100.000.000').replace('{confirmed}', '2.090.000.000').replace('{difference}', '-10.000.000'),
+      terms['pay.recon.match.mismatch'].replace('{internal}', '2.100.000.000').replace('{confirmed}', '2.090.000.000').replace('{difference}', '-10.000.000'),
     );
     expect((await sql<{ status: string }>('select status from machvon.payment_request where id = $1', [made!.id]))[0]?.status).toBe('SENT_TREASURY');
     const [opened] = await sql<{ id: string; internal: string; confirmed: string; difference: string; owner: string; status: string }>(
@@ -557,15 +566,15 @@ test.describe('the payment request', () => {
     await page.getByTestId('mismatch-item').click();
 
     // UAT-AC336: the reconciler gives it to its owner with a day; the owner explains it; the owner may not write it off, a second person may.
-    await expect(page.getByRole('heading', { level: 1, name: vi['pay.item.title'] })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: terms['pay.item.title'] })).toBeVisible();
     await expect(page.getByTestId('internal')).toHaveText('2.100.000.000');
     await expect(page.getByTestId('confirmed')).toHaveText('2.090.000.000');
     await expect(page.getByTestId('difference')).toHaveText('-10.000.000');
     await page.locator('button[data-action="assign"]').click();
     await page.locator('#assign-owner').selectOption(membershipOf('reconcileOwner'));
     await page.locator('#assign-due').fill('2099-12-31T10:00');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.item.assign.submit'] }).click();
-    await expect(page.getByTestId('done')).toHaveText(vi['pay.item.done.assigned']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.item.assign.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(terms['pay.item.done.assigned']);
     expect((await sql<{ owner: string; due: string }>(`select owner_membership_id as owner, to_char(due_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI') as due from machvon.reconciliation_item where id = $1`, [opened!.id]))[0]).toEqual({
       owner: membershipOf('reconcileOwner'),
       due: '2099-12-31T03:00',
@@ -574,21 +583,21 @@ test.describe('the payment request', () => {
     await open(page, `/pay/pay-06?item=${opened!.id}`, 'reconcileOwner');
     await page.locator('button[data-action="explain"]').click();
     await page.locator('#resolve-note').fill('Kho bạc trừ phí 10.000.000 theo thông báo TB-77');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.item.action.explain'] }).click();
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.recon.status.explained']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.item.action.explain'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.recon.status.explained']);
     await page.locator('button[data-action="write-off"]').click();
     await page.locator('#resolve-note').fill('Không thu hồi được');
     await page.locator('#resolve-approval').fill(seeded.paper);
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.item.action.writeOff'] }).click();
-    await expect(page.getByTestId('refusal')).toHaveText(vi['pay.recon.error.selfApproval']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.item.action.writeOff'] }).click();
+    await expect(page.getByTestId('refusal')).toHaveText(terms['pay.recon.error.selfApproval']);
     expect((await sql<{ status: string }>('select status from machvon.reconciliation_item where id = $1', [opened!.id]))[0]?.status).toBe('EXPLAINED');
 
     await open(page, `/pay/pay-06?item=${opened!.id}`, 'reconcileApprover');
     await page.locator('button[data-action="write-off"]').click();
     await page.locator('#resolve-note').fill('Không thu hồi được');
     await page.locator('#resolve-approval').fill(seeded.paper);
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.item.action.writeOff'] }).click();
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.recon.status.writtenOff']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.item.action.writeOff'] }).click();
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.recon.status.writtenOff']);
     await expect(page.getByTestId('difference')).toHaveText('-10.000.000');
     expect((await sql<{ status: string; resolved_by: string; approval: string; difference: string }>('select status, resolved_by, approval_document_version_id as approval, difference_vnd::text as difference from machvon.reconciliation_item where id = $1', [opened!.id]))[0]).toEqual({
       status: 'WRITTEN_OFF_APPROVED',
@@ -604,8 +613,8 @@ test.describe('the payment request', () => {
     await page.locator(`tr[data-transaction="${exact}"] button[data-action="match"]`).click();
     await page.locator('#match-request').selectOption(made!.id);
     await expect(page.getByTestId('match-agree')).toHaveAttribute('data-agree', 'yes');
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.recon.match.submit'] }).click();
-    await expect(page.getByTestId('done')).toHaveText(vi['pay.recon.done.settled'].replace('{day}', '2026-07-25'));
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.recon.match.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(terms['pay.recon.done.settled'].replace('{day}', '2026-07-25'));
     expect((await sql<{ status: string; paid_on: string; tx: string }>('select status, treasury_paid_on::text as paid_on, settled_transaction_id as tx from machvon.payment_request where id = $1', [made!.id]))[0]).toEqual({ status: 'SETTLED', paid_on: '2026-07-25', tx: exact });
     expect((await sql<{ paid_total: string; recovered: string }>('select paid_total_vnd::text as paid_total, advance_recovered_vnd::text as recovered from machvon.contract where id = $1', [seeded.contractId]))[0]).toEqual({ paid_total: '3000000000', recovered: '750000000' });
     expect(await sql(`select 1 from machvon.cumulative_ledger_entry where payment_request_id = $1 and entry_kind = 'PAYMENT'`, [made!.id])).toHaveLength(2);
@@ -616,14 +625,14 @@ test.describe('the payment request', () => {
     // PAY-09: the project stands as the rows say, and a reader sees the board and the item and no command.
     await open(page, '/pay/pay-09', 'reconcileReader');
     const row = page.locator(`tr[data-project="${project!.project_id}"]`);
-    await expect(row.getByTestId('sent')).toHaveText(vi['pay.track.count'].replace('{count}', '0').replace('{amount}', '0'));
-    await expect(row.getByTestId('settled')).toHaveText(vi['pay.track.count'].replace('{count}', '1').replace('{amount}', '2.100.000.000'));
-    await expect(row.getByTestId('confirmed')).toHaveText(vi['pay.track.count'].replace('{count}', '2').replace('{amount}', '4.190.000.000'));
+    await expect(row.getByTestId('sent')).toHaveText(terms['pay.track.count'].replace('{count}', '0').replace('{amount}', '0'));
+    await expect(row.getByTestId('settled')).toHaveText(terms['pay.track.count'].replace('{count}', '1').replace('{amount}', '2.100.000.000'));
+    await expect(row.getByTestId('confirmed')).toHaveText(terms['pay.track.count'].replace('{count}', '2').replace('{amount}', '4.190.000.000'));
     await expect(row.getByTestId('unmatched')).toHaveText('0');
     await expect(row.getByTestId('differences')).toHaveText('0');
     await open(page, '/pay/pay-05', 'reconcileReader');
     await expect(page.locator('button[data-action="match"]')).toHaveCount(0);
-    await expect(page.locator(`tr[data-item="${opened!.id}"]`).getByTestId('status')).toHaveText(vi['pay.recon.status.writtenOff']);
+    await expect(page.locator(`tr[data-item="${opened!.id}"]`).getByTestId('status')).toHaveText(terms['pay.recon.status.writtenOff']);
     await page.locator(`tr[data-item="${opened!.id}"]`).getByTestId('open').click();
     await expect(page.locator('button[data-action]')).toHaveCount(0);
 
@@ -636,20 +645,20 @@ test.describe('the payment request', () => {
     );
     await open(page, `/pay/pay-03?request=${made!.id}`, 'paymentChief');
     await page.getByTestId('reversal').click();
-    await expect(page.getByRole('heading', { level: 1, name: vi['pay.reversal.title'] })).toBeVisible();
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.settled']);
+    await expect(page.getByRole('heading', { level: 1, name: terms['pay.reversal.title'] })).toBeVisible();
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.settled']);
     await expect(page.getByTestId('paid-on')).toHaveText('2026-07-25');
     await expect(page.locator('tr[data-entry]')).toHaveCount(8);
     await expect(page.locator('tr[data-entry][data-undone="yes"]')).toHaveCount(0);
     await page.locator('button[data-action="reverse"]').click();
     await page.locator('#reverse-reason').fill('Kho bạc hoàn trả do sai số tài khoản thụ hưởng');
     await page.locator('#reverse-approval').fill(seeded.paper);
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.reversal.dialog.submit'] }).click();
-    await expect(page.getByRole('dialog').getByText(vi['pay.reversal.problem.required'])).toBeVisible();
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.reversal.dialog.submit'] }).click();
+    await expect(page.getByRole('dialog').getByText(terms['pay.reversal.problem.required'])).toBeVisible();
     await page.locator('#reverse-refund').selectOption(refunded!.id);
-    await page.getByRole('dialog').getByRole('button', { name: vi['pay.reversal.dialog.submit'] }).click();
-    await expect(page.getByTestId('done')).toHaveText(vi['pay.reversal.done.reversed'].replace('{entries}', '2'));
-    await expect(page.getByTestId('status')).toHaveText(vi['pay.payment.status.reversed']);
+    await page.getByRole('dialog').getByRole('button', { name: terms['pay.reversal.dialog.submit'] }).click();
+    await expect(page.getByTestId('done')).toHaveText(terms['pay.reversal.done.reversed'].replace('{entries}', '2'));
+    await expect(page.getByTestId('status')).toHaveText(terms['pay.payment.status.reversed']);
     await expect(page.locator('tr[data-entry][data-undone="yes"]')).toHaveCount(8);
     expect((await sql<{ status: string; claims: boolean; by: string; refund: string }>('select status, claims_acceptance as claims, reversed_by as by, refund_transaction_id as refund from machvon.payment_request where id = $1', [made!.id]))[0]).toEqual({
       status: 'REVERSED',
@@ -665,18 +674,18 @@ test.describe('the payment request', () => {
 
     // UAT-AC67: the auditor traces the payment from the project; the reversed payment and both Treasury transactions (the payment and its refund) are in the chain, each with its version.
     await open(page, `/pay/pay-17?project=${project!.project_id}&contract=${seeded.contractId}`, 'paymentAuditor');
-    await expect(page.getByRole('heading', { level: 1, name: vi['pay.chain.title'] })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: terms['pay.chain.title'] })).toBeVisible();
     await expect(page.locator(`li[data-node="${made!.id}"]`).getByTestId('status')).toHaveText('REVERSED');
     await expect(page.locator(`li[data-node="${made!.id}"]`).getByTestId('version')).toHaveText(/\d+$/);
     await expect(page.locator(`li[data-node="${exact}"]`)).toHaveCount(1);
     await expect(page.locator(`li[data-node="${refunded!.id}"]`)).toHaveCount(1);
     await expect(page.locator(`li[data-node="${seeded.acceptanceId}"]`)).toHaveCount(1);
-    await expect(page.locator(`li[data-node="${seeded.contractId}"]`).getByTestId('version')).toContainText(vi['pay.chain.revision.of'].replace('{revision}', '1'));
+    await expect(page.locator(`li[data-node="${seeded.contractId}"]`).getByTestId('version')).toContainText(terms['pay.chain.revision.of'].replace('{revision}', '1'));
     await page.locator(`li[data-node="${made!.id}"]`).getByTestId('open').click();
     // The link leads to the request (PAY-03); the auditor holds the right to the chain, not to the request, so the screen there says so.
     await expect(page).toHaveURL(new RegExp(`/pay/pay-03\\?request=${made!.id}`));
     // A person without the right reads nothing.
     await open(page, `/pay/pay-17?project=${project!.project_id}`, 'reconcileReader');
-    await expect(page.getByTestId('no-read')).toHaveText(vi['pay.chain.read.denied']);
+    await expect(page.getByTestId('no-read')).toHaveText(terms['pay.chain.read.denied']);
   });
 });

@@ -581,6 +581,9 @@ test.describe('master data: propose, review, publish, change and history', () =>
   });
 
   test('a steward records the merger of two agencies, a second person approves and publishes it, and the inheritance tree and the agency screen show it (MDM-37, MDM-03)', async ({ page }) => {
+    // Four entries put in force, two proposals through review and publication and the reads of the tree take 14 to 20 seconds on an idle machine: the default 30 seconds is too close for a machine under
+    // load (UAT run r6, R6-PUB-01: the field of the first form was awaited when the budget ended, and the same case passes alone on an idle machine). The assertions are unchanged; only the budget is.
+    test.slow();
     const suffix = unique();
     const [left, right, merged, other] = ['A', 'B', 'Y', 'Z'].map((part) => `E2E-AG-${part}-${suffix}`) as [string, string, string, string];
     for (const entry of [left, right, merged, other]) await putInForce(page, entry, { type: 'AGENCY', name: `Agency ${entry}` });

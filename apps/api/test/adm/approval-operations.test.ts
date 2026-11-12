@@ -192,6 +192,36 @@ describe('cancelWorkflowInstance, reassignApprovalTask and the monitor reads ove
       expect(await call('POST', `/approval-tasks/${task.id}/decision`, { member: LEADER_B, ifMatch: `"${task.version}"`, key: 'replayed-decision-key-0001', body: { decision: 'reject', reason: REASON }, claims: { aal: 'aal2' } })).toMatchObject({ status: 409, json: { code: 'IDEMPOTENCY_CONFLICT' } });
     });
 
+    it('UAT-AC130 two people of the group decide at the same moment, with two different keys and the first version of the task: exactly one answer is 200, the other is 409 TASK_ALREADY_DECIDED or VERSION_CONFLICT, and one decision, one audit row and one event come of it', async () => {
+      const instance = await startInstance();
+      const taskA = await taskOf(instance.id, LEADER_A);
+      const taskB = await taskOf(instance.id, LEADER_B);
+      const decide = (member: number, task: { id: string; version: string }, key: string): Promise<Reply> =>
+        call('POST', `/approval-tasks/${task.id}/decision`, { member, ifMatch: `"${task.version}"`, key, body: { decision: 'approve' }, claims: { aal: 'aal2' } });
+      // The group has two members who are both entitled; the step needs one approval. The two hand their decision in at the same moment.
+      const answers = await Promise.all([decide(LEADER_A, taskA, 'uat-ac130-a-0000000001'), decide(LEADER_B, taskB, 'uat-ac130-b-0000000002')]);
+      expect(answers.filter((answer) => answer.status === 200)).toHaveLength(1);
+      const refused = answers.find((answer) => answer.status !== 200) as Reply;
+      expect(refused.status).toBe(409);
+      expect(['TASK_ALREADY_DECIDED', 'VERSION_CONFLICT']).toContain(refused.json.code);
+      // One decision is recorded: the instance is Completed once, one audit row of the decision and one decided event reach the consumers (the engine runs in the database, so its signal is that event).
+      expect(await rows<{ status: string; outcome: string }>('select status, outcome from machvon.workflow_instance where id = $1', [instance.id])).toEqual([{ status: 'Completed', outcome: 'APPROVED' }]);
+      const audits = await Promise.all([taskA.id, taskB.id].map((id) => auditRows(id, 'approval.task_decided')));
+      expect(audits.flat()).toHaveLength(1);
+      const events = await Promise.all([taskA.id, taskB.id].map((id) => outbox(id, 'adm.approval_task.decided.v1')));
+      expect(events.flat()).toHaveLength(1);
+      // The same person with two keys at the same moment on one task is the same race: one 200 and one refusal.
+      const second = await startInstance();
+      const task = await taskOf(second.id, LEADER_A);
+      const pair = await Promise.all([decide(LEADER_A, task, 'uat-ac130-c-0000000003'), decide(LEADER_A, task, 'uat-ac130-d-0000000004')]);
+      expect(pair.filter((answer) => answer.status === 200)).toHaveLength(1);
+      expect(['TASK_ALREADY_DECIDED', 'VERSION_CONFLICT']).toContain((pair.find((answer) => answer.status !== 200) as Reply).json.code);
+      expect((await auditRows(task.id, 'approval.task_decided')).length).toBe(1);
+      expect((await outbox(task.id, 'adm.approval_task.decided.v1')).length).toBe(1);
+      // The negative control: a check that wants both answers to be 200 must fail on what was seen.
+      expect(() => expect(answers.filter((answer) => answer.status === 200)).toHaveLength(2)).toThrow();
+    });
+
     it('AC-ST-ADM-013-5: the monitor reads the pending tasks with the figures, the step, the version it runs by and what the viewer may do; a leader sees only their own and no operations', async () => {
       const instance = await startInstance();
       const operator = await call('GET', `/resources/approval_task?status=Pending&workflow_instance_id=${instance.id}`, { member: ADMIN });

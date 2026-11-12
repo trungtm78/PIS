@@ -657,8 +657,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-grants.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -696,8 +701,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-grants.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -735,8 +745,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/roles-and-grants.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -774,8 +789,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-grants.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -853,8 +873,13 @@
       "design_type": "security",
       "screen_id": "ADM-17",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the project list of a guest contractor is refused, not a list with P-01 only"
+      },
       "module": "ADM"
     },
     {
@@ -927,6 +952,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-01",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/org-units-commands.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1037,8 +1069,13 @@
       "design_type": "security",
       "screen_id": "ADM-02",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-members.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1076,7 +1113,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-02",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/guest-contractors.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC115",
@@ -1113,8 +1157,13 @@
       "design_type": "security",
       "screen_id": "ADM-02",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/members.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1230,6 +1279,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-02",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-members.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1267,6 +1323,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-06",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-doa-approval.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1303,6 +1366,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-15",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/doa-matrices.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1339,6 +1409,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-15",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: no warning on HOME for the Tenant Admin when a DoA rule is missing"
+      },
       "module": "ADM"
     },
     {
@@ -1415,7 +1492,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-18",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/adm/approval-operations.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC131",
@@ -1488,7 +1572,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-06",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/adm/approval.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC133",
@@ -1525,7 +1616,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-06",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dis/report-staged-approval.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC134",
@@ -1562,6 +1660,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-06",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-doa-approval.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1598,6 +1703,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "ADM-07",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/work-calendars.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1635,8 +1747,13 @@
       "design_type": "security",
       "screen_id": "ADM-08",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-certificates.test.ts"
+      },
       "module": "ADM"
     },
     {
@@ -1824,7 +1941,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-12",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/legal-holds.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC142",
@@ -1932,7 +2056,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "ADM-14",
-      "module": "ADM"
+      "module": "ADM",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Bước 2 đòi Keycloak required action được đồng bộ sau khi công bố chính sách bảo mật: API không có cổng hay bộ chuyển đổi nào đẩy required action sang Keycloak (apps/api/src/modules/adm và src/session không có mã đó) và Keycloak không chạy trong tiến trình. Bước 1 (403 SELF_APPROVAL_DENIED), công bố và MFA khi chọn tenant đã có test (apps/api/test/security-policies.test.ts, session/select-tenant.test.ts)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UI-ADM-15",
@@ -2143,8 +2274,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the inbox events show neither payload hash nor size"
+      },
       "module": "ADM"
     },
     {

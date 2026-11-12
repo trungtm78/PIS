@@ -219,7 +219,7 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       expect((await publish(PUBLISHER, idOf(proposed), Number(record?.version))).status).toBe(200);
     });
 
-    it('answers 428 without If-Match, 409 VERSION_CONFLICT for a stale one, and 422 IMPACT_NOT_COMPUTED for a request without impact (AC-ST-MDM-001-4)', async () => {
+    it('UAT-PLAN-53: answers 428 without If-Match, 409 VERSION_CONFLICT for a stale one, and 422 IMPACT_NOT_COMPUTED for a request without impact (AC-ST-MDM-001-4)', async () => {
       const proposed = await propose(STEWARD);
       const change = await changeOf(idOf(proposed));
       const noMatch = await call('POST', `/master-change-requests/${change.id}/submit`, { member: STEWARD });
@@ -346,6 +346,116 @@ describe('master data commands and reads (ST-MDM-001)', () => {
       const successor = await inForce();
       const accepted = await retire(used.recordId, { successor_record_id: successor.recordId });
       expect(accepted.status).toBe(200);
+    });
+
+    it('UAT-AC46 refuses a publication whose version would overlap a published one with 409 EFFECTIVE_RANGE_OVERLAP and writes no version; an update from the day the version in force ends closes it and starts the next in one step without overlap', async () => {
+      // The design reads r1 [2024-01-01, 2026-01-01) and r2 [2026-01-01, open): the product keeps the version in force as the one the record points at, and a version
+      // published beyond it (the row no command makes: a later publication that waits for its date) as the second one, so the same two ranges are reproduced here.
+      const overlapOf = async (recordId: string): Promise<number> =>
+        Number(
+          (
+            await rows<{ n: string }>(
+              `select count(*)::text as n from machvon.master_record_version a join machvon.master_record_version b on b.master_record_id = a.master_record_id and a.revision < b.revision
+                where a.master_record_id = $1 and a.status in ('APPROVED', 'EFFECTIVE', 'RETIRED') and b.status in ('APPROVED', 'EFFECTIVE', 'RETIRED')
+                  and daterange(a.valid_from, a.valid_until, '[)') && daterange(b.valid_from, b.valid_until, '[)')`,
+              [recordId],
+            )
+          )[0]?.n,
+        );
+      const rangesOf = (recordId: string) =>
+        rows<{ revision: number; valid_from: string; valid_until: string | null; status: string }>(
+          'select revision, valid_from::text as valid_from, valid_until::text as valid_until, status from machvon.master_record_version where master_record_id = $1 order by revision',
+          [recordId],
+        );
+      const update = (recordId: string, from: string, label: string): Promise<Reply> =>
+        call('POST', '/master-change-requests', {
+          member: STEWARD,
+          body: { change_kind: 'UPDATE', master_type: 'SECTOR', master_record_id: recordId, proposed: { label, valid_until: null }, effective_from: from, reason: 'Edit of the version and its range' },
+        });
+      const approve = async (changeId: string): Promise<void> => {
+        const submitted = await submit(STEWARD, changeId);
+        expect(submitted.status).toBe(200);
+        expect((await decide(CHECKER, changeId, 'approve', versionOf(submitted))).status).toBe(200);
+      };
+      const recordVersion = async (recordId: string): Promise<number> => Number((await rows<{ version: string }>('select version::text as version from machvon.master_record where id = $1', [recordId]))[0]?.version);
+
+      // First attempt: an update from 2025-06-01 would close r1 there and run on to infinity, into r2.
+      const first = await inForce({ valid_from: '2024-01-01', valid_until: '2026-01-01' });
+      const opened = await update(first.recordId, '2025-06-01', 'r3 over r2');
+      expect(opened.status).toBe(200);
+      await approve(idOf(opened));
+      await rows(
+        `insert into machvon.master_record_version (tenant_id, id, master_record_id, master_type, code, revision, label, attributes, valid_from, valid_until, status, namespace, created_by, updated_by)
+         values ($1, $2, $3, 'SECTOR', $4, 9, 'r2', '{}', '2026-01-01', null, 'APPROVED', 'TENANT', $5, $5)`,
+        [TENANT_A, randomUUID(), first.recordId, first.key, memberId(STEWARD)],
+      );
+      const refused = await publish(PUBLISHER, first.recordId, await recordVersion(first.recordId));
+      expect([refused.status, refused.json.code]).toEqual([409, 'EFFECTIVE_RANGE_OVERLAP']);
+      expect(await rangesOf(first.recordId)).toEqual([
+        { revision: 1, valid_from: '2024-01-01', valid_until: '2026-01-01', status: 'EFFECTIVE' },
+        { revision: 9, valid_from: '2026-01-01', valid_until: null, status: 'APPROVED' },
+      ]);
+      expect((await rows<{ status: string }>('select status from machvon.master_change_request where id = $1', [idOf(opened)]))[0]?.status).toBe('APPROVED');
+      expect(await overlapOf(first.recordId)).toBe(0);
+
+      // Second attempt, on an entry whose version in force ends on 2026-01-01: the update from that day starts the next version where the first one ends.
+      const second = await inForce({ valid_from: '2024-01-01', valid_until: '2026-01-01' });
+      const next = await update(second.recordId, '2026-01-01', 'r3');
+      expect(next.status).toBe(200);
+      await approve(idOf(next));
+      const published = await publish(PUBLISHER, second.recordId, await recordVersion(second.recordId));
+      expect(published.status).toBe(200);
+      expect(await rangesOf(second.recordId)).toEqual([
+        { revision: 1, valid_from: '2024-01-01', valid_until: '2026-01-01', status: 'EFFECTIVE' },
+        { revision: 2, valid_from: '2026-01-01', valid_until: null, status: 'EFFECTIVE' },
+      ]);
+      expect(await overlapOf(second.recordId)).toBe(0);
+      expect((await rows<{ n: string }>('select count(*)::text as n from machvon.master_record where id = $1 and current_version_id = (select id from machvon.master_record_version where master_record_id = $1 and revision = 2)', [second.recordId]))[0]?.n).toBe('1');
+    });
+
+    it('UAT-AC280 refuses to retire an entry that five projects use without a successor (409 MASTER_IN_USE), then retires it with the successor: the entry is RETIRED with its end date, the five projects keep the old version and the successor stays in force', async () => {
+      const used = await inForce();
+      const successor = await inForce();
+      const oldVersion = (await rows<{ id: string }>('select current_version_id as id from machvon.master_record where id = $1', [used.recordId]))[0]?.id as string;
+      const admin = new Client({ connectionString: harness.database.adminUrl });
+      await admin.connect();
+      try {
+        await admin.query('set session_replication_role = replica');
+        for (let n = 1; n <= 5; n += 1) {
+          await admin.query(
+            `insert into machvon.project (tenant_id, id, code, name, owner_unit_id, area_master_version_id, sector_master_version_id, classification, total_investment_vnd, status, version)
+             values ($1, $2, $3, 'Project', $4, $5, $6, 'INTERNAL', 1000, 'CONCEPT', 1)`,
+            [TENANT_A, randomUUID(), `UAT280-${used.key}-${n}`, unitId(1), randomUUID(), oldVersion],
+          );
+        }
+      } finally {
+        await admin.end();
+      }
+      const retire = (extra: Record<string, unknown> = {}): Promise<Reply> =>
+        call('POST', '/master-change-requests', { member: STEWARD, body: { change_kind: 'RETIRE', master_type: 'SECTOR', master_record_id: used.recordId, proposed: {}, effective_from: '2025-06-01', reason: 'Replaced by the new sector', ...extra } });
+      const refused = await retire();
+      expect([refused.status, refused.json.code]).toEqual([409, 'MASTER_IN_USE']);
+      expect((await call('GET', `/master-records/${used.recordId}/usages`, { member: READER })).json).toMatchObject({ total: 5, counts: { 'project.sector_master_version_id': 5 } });
+      expect(Number((await rows<{ n: string }>("select count(*)::text as n from machvon.master_change_request where master_record_id = $1 and change_kind = 'RETIRE'", [used.recordId]))[0]?.n)).toBe(0);
+
+      const accepted = await retire({ successor_record_id: successor.recordId });
+      expect(accepted.status).toBe(200);
+      const view = await call('GET', `/master-change-requests/${idOf(accepted)}`, { member: READER });
+      expect(view.json).toMatchObject({ change_kind: 'RETIRE', impact: { total: 5 } });
+      expect(JSON.stringify(view.json)).toContain(successor.recordId);
+      const submitted = await submit(STEWARD, idOf(accepted));
+      expect(submitted.status).toBe(200);
+      expect((await decide(CHECKER, idOf(accepted), 'approve', versionOf(submitted))).status).toBe(200);
+      const record = (await rows<{ version: string }>('select version::text as version from machvon.master_record where id = $1', [used.recordId]))[0];
+      expect((await publish(PUBLISHER, used.recordId, Number(record?.version))).status).toBe(200);
+
+      expect((await rows<{ status: string }>('select status from machvon.master_record where id = $1', [used.recordId]))[0]?.status).toBe('RETIRED');
+      expect(await rows('select status, valid_until::text as valid_until from machvon.master_record_version where id = $1', [oldVersion])).toEqual([{ status: 'RETIRED', valid_until: '2025-06-01' }]);
+      expect(Number((await rows<{ n: string }>('select count(*)::text as n from machvon.project where sector_master_version_id = $1', [oldVersion]))[0]?.n)).toBe(5);
+      // The entry stays in the table with its history; what new data is offered is the successor, in force.
+      const found = async (key: string): Promise<Record<string, unknown> | undefined> => ((await call('GET', `/master-records?master_type=SECTOR&business_key=${key}`, { member: READER })).json.items as Array<Record<string, unknown>>)[0];
+      expect(await found(used.key)).toMatchObject({ id: used.recordId, status: 'RETIRED' });
+      expect(await found(successor.key)).toMatchObject({ id: successor.recordId, status: 'EFFECTIVE' });
     });
   });
 

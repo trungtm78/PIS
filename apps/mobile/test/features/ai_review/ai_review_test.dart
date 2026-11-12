@@ -10,6 +10,7 @@ import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/ai_review/ai_models.dart';
 import 'package:machvon_mobile/features/ai_review/ai_review_feature.dart' as ai;
 import 'package:machvon_mobile/features/ai_review/screens/findings_screen.dart';
+import 'package:machvon_mobile/features/notification_inbox/push_device.dart' show PushPayload;
 import 'package:machvon_mobile/features/read_support/read_cache.dart';
 
 import '../../support/harness.dart';
@@ -283,10 +284,18 @@ void main() {
       }
       await tester.drag(find.byType(FindingCard).first, const Offset(-400, 0));
       await tester.drag(find.byType(FindingCard).first, const Offset(400, 0));
+      await tester.longPress(find.byType(FindingCard).first);
       await tester.pumpAndSettle();
-      expect(_writes(server), isEmpty, reason: 'nothing is sent by any gesture');
+      expect(_writes(server), isEmpty, reason: 'nothing is sent by any gesture, the long press included');
       expect(currentLocation(container), _findings);
       expect(find.text('Cần kiểm chứng'), findsNWidgets(2));
+    });
+
+    test('a push carries the id of a notification and nothing else: no action, decision or finding in it is read, so no push can approve a finding', () {
+      final PushPayload? payload = PushPayload.parse(<String, Object?>{'nid': 'ntf-0123456789abcdef', 'action': 'approve', 'decision': 'APPROVED', 'finding_id': 'f-1'});
+      expect(payload?.notificationId, 'ntf-0123456789abcdef');
+      expect(payload?.location, '/r/ntf-0123456789abcdef', reason: 'the opaque link opens the notification; the decision is never part of it');
+      expect(PushPayload.parse(<String, Object?>{'action': 'approve', 'finding_id': 'f-1'}), isNull, reason: 'without a notification id there is no payload to act on');
     });
 
     testWidgets('a run that did not reach the experts says why, and a view keeps only the findings that await verification', (WidgetTester tester) async {

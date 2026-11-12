@@ -28,7 +28,7 @@ const DATASETS = [
 const SUMMARY = summary({ total: 4, not_assessed: 1, passed: 1, failed: 1, stale: 1, hard_fail: 1, open_incidents: 3, overdue_incidents: 1, average_score: '91.50' });
 
 describe('QualityDashboardScreen (DGV-01): data quality control (UI-DGV-01)', () => {
-  it('shows a dataset that was never assessed as "not assessed" with no score, and a run older than its freshness SLO as stale with its age (AC-ST-DGV-002-2)', async () => {
+  it('UAT-AC486: shows a dataset that was never assessed as "not assessed" with no score, and a run older than its freshness SLO as stale with its age (AC-ST-DGV-002-2)', async () => {
     mount(<QualityDashboardScreen route={ROUTE} />, qualityClient(qualityWorld({ datasets: DATASETS, summary: SUMMARY })), DASHBOARD_READER, '/dgv/dgv-01');
     await ready();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['dgv.dashboard.page.title']);

@@ -104,7 +104,8 @@ describe('the token of a drill (BI BR-BI-06)', () => {
       `${forged}.${signature}`,
       otherKey,
       `${otherKid[0]}.${signature}`,
-      `${payload}.${signature.slice(0, -2)}AA`,
+      // The first character of a base64url signature carries all six of its bits; the last one carries only four of a 256-bit value, so a change there may decode to the same bytes (and the old form, two letters A, was no change at all one time in a few hundred).
+      `${payload}.${signature.startsWith('A') ? 'B' : 'A'}${signature.slice(1)}`,
       payload,
       'x.y',
       '',

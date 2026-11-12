@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { AREAS } from '../base.ts';
 import { APPROPRIATIONS } from '../capital-plan.ts';
 import type { AppropriationSpec, LineSpec } from '../capital-plan.ts';
 import { LINES } from '../capital-plan.ts';
@@ -54,6 +55,8 @@ export function clipText(key: string, ...args: readonly unknown[]): string {
 function applyEnterprisePlan(plan: ClipPlan): void {
   const capital = plan.capital as { appropriations: Array<ClipPlan['extraAppropriations'][number] & { decisionKind?: string }>; lines: Array<{ project: string; appropriation: string; billions: number; bucket?: LineSpec['bucket'] }> };
   MORE_AREAS.length = 0;
+  // The three wards of the province belong to the guide's base group: the enterprise publishes the areas of its own plan only.
+  AREAS.length = 0;
   PROJECTS.length = 0;
   PROJECTS.push(...plan.projects);
   APPROPRIATIONS.length = 0;

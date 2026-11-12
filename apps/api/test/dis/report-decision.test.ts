@@ -1000,6 +1000,37 @@ describe('the decision on a weekly report and its corrections over HTTP (ST-DIS-
       expect(await inherit(sent.reportId, 2)).toMatchObject({ status: 409, json: { code: 'REVISION_IMMUTABLE' } });
     });
 
+    it('UAT-DIS-ENT3B-1: the author inherits the previous period into the empty fields only and the source period is recorded; a second time has nothing to inherit; a submitted report, a locked period and a stale version are 409; the template is 403 without the import right', async () => {
+      const { projectId, planId } = await seedProject();
+      const first = await submitted({ project: { projectId, planId }, extra: { narrative: block({ proposals: 'Ask the group for support.' }) } });
+      // A draft of the next period with one field written and the others empty.
+      const next = await create(draft(projectId, week(), planId, { narrative: { enterprise: { status: 'New status of this period.' } } }));
+      expect(next.status).toBe(200);
+      // Step 1: only the empty fields are filled, the written one is unchanged, and the period it came from is recorded.
+      const copied = await inherit(idOf(next), 1);
+      expect(copied).toMatchObject({ status: 200, json: { resource_version: 2 } });
+      const detail = await read(idOf(next));
+      expect(detail.json.narrative).toMatchObject({ enterprise: { status: 'New status of this period.', schedule: 'Milestone 3 is late.', proposals: 'Ask the group for support.', inheritance: { from_report_id: first.reportId, fields: ['schedule', 'proposals'] } } });
+      expect((await context(idOf(next))).json).toMatchObject({ inheritance: { from_report_id: first.reportId, from_period_id: first.period } });
+      const periodCode = (await rows<{ code: string }>('select code from machvon.reporting_period where id = $1', [first.period]))[0]?.code;
+      expect((await trail(idOf(next))).find((row) => row.action === 'dis.report_narrative_inherited')?.safe_diff).toMatchObject({ from_report_id: first.reportId, from_period_code: periodCode, copied_fields: ['schedule', 'proposals', 'causes'] });
+      // Step 2: nothing is left to copy. The registry of the design (error_codes.json) gives this code 409; the text of the case says 422, the product follows the registry.
+      expect(await inherit(idOf(next), 2)).toMatchObject({ status: 409, json: { code: 'NARRATIVE_NOTHING_TO_INHERIT' } });
+      // Step 3: a report that was handed in, a period that is locked and a version that moved.
+      expect(await inherit(first.reportId, 2)).toMatchObject({ status: 409, json: { code: 'REVISION_IMMUTABLE' } });
+      const lockedPeriod = week();
+      const inLocked = await create(draft(projectId, lockedPeriod, planId, { narrative: { enterprise: { status: 'Written before the lock.' } } }));
+      expect(inLocked.status).toBe(200);
+      await lockPeriod(lockedPeriod);
+      expect(await inherit(idOf(inLocked), 1)).toMatchObject({ status: 409, json: { code: 'PERIOD_LOCKED' } });
+      const stale = await create(draft(projectId, week(), planId, { narrative: { enterprise: { status: 'A third draft.' } } }));
+      expect(await inherit(idOf(stale), 7)).toMatchObject({ status: 409, json: { code: 'VERSION_CONFLICT' } });
+      expect((await state(idOf(stale)))?.version).toBe('1');
+      // Step 4: the template is for who may import (the maker does), not for a reader.
+      expect((await call('GET', `/report-narrative-template?period_id=${week()}`, { member: MAKER })).status).toBe(200);
+      expect((await call('GET', `/report-narrative-template?period_id=${week()}`, { member: READER })).status).toBe(403);
+    });
+
     it('serves the Excel template prefilled with the projects that have a draft, and the file is read back by the import: dry run, fault by line, then apply once', async () => {
       const { projectId, planId } = await seedProject();
       const period = week();

@@ -78,7 +78,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CAP-05",
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/plan-revision.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UI-CAP-01",
@@ -925,7 +932,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CAP-07",
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/plan-revision.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC225",
@@ -998,7 +1012,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CAP-17",
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/reservation.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC227",
@@ -1179,7 +1200,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CAP-08",
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/schedule.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC232",
@@ -1216,7 +1244,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CAP-12",
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dis/forecast.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC233",
@@ -1364,7 +1399,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "CAP-01",
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "BR-CAP-09 is not implemented: no code path returns warnings[0].code=MEDIUM_TERM_CEILING_EXCEEDED (the string exists only in CAP.md; the drafting commands of the capital plan return no warnings and nothing sums the annual plans of a project against a medium-term ceiling). The engine must be built before the case can run."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC237",
@@ -1809,7 +1851,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "CAP"
+      "module": "CAP",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The job capital.balance-reconcile is proven (cap_balance_drift_vnd, audit row, event cap.balance.drift_detected.v1, balance untouched, in packages/db/test/cap-payment-ledger-store.test.ts) but the part 'one incident is opened' has no engine: no DGV incident is opened from the drift event (DGV incidents open only from quality-rule failures; nothing consumes cap.balance.drift_detected.v1). The alert is only the rule file alerts/rules/CAP_BALANCE_DRIFT.json evaluated by the ops alert engine."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-03",
@@ -1844,8 +1893,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/avc-policy.test.ts"
+      },
       "module": "CAP"
     },
     {
@@ -1948,6 +2002,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/plan-revision.test.ts"
+      },
       "module": "CAP"
     },
     {
@@ -2050,6 +2111,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/cap/schedule.test.ts"
+      },
       "module": "CAP"
     },
     {

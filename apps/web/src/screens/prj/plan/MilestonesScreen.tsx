@@ -42,14 +42,14 @@ const CLOSE_GLYPH = '\u00d7';
  */
 export default function MilestonesScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
-  const { projectId } = useProjectParam();
+  const { projectId } = useProjectParam({ fallbackToFirst: true });
   return <MilestonesContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${projectId ?? ''}`} route={route} />;
 }
 
 function MilestonesContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
-  const { projectId, choose } = useProjectParam();
+  const { projectId, choose } = useProjectParam({ fallbackToFirst: true });
   const [progressing, setProgressing] = useState<MilestoneView | undefined>(undefined);
   const [linking, setLinking] = useState<MilestoneView | undefined>(undefined);
   const projects = useProjects();

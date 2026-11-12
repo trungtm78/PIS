@@ -132,7 +132,7 @@ describe('the comparison of the reports of one period and the gate on release (E
     expect(sets.map((one) => one.layout_code)).toEqual(['PVN-MONTHLY', 'PVN-MONTHLY', 'PVN-MONTHLY']);
   });
 
-  it('shows what is compared, the coverage and the findings with formula, source and time of every number', async () => {
+  it('UAT-RPT-ENT4A-1: shows what is compared, the coverage and the findings with formula, source and time of every number', async () => {
     const made = await generate('PVN-QUARTERLY-F2', QUARTER);
     expect(made.status).toBe(200);
     quarterly = made.json.draft_id as string;
@@ -151,7 +151,7 @@ describe('the comparison of the reports of one period and the gate on release (E
     expect(body.gate.passed).toBe(false);
   });
 
-  it('refuses to issue the quarter while a blocking difference has no explanation, and records the refusal', async () => {
+  it('UAT-RPT-ENT4A-2: refuses to issue the quarter while a blocking difference has no explanation, and records the refusal', async () => {
     expect((await step(CHECKER, quarterly, 1, 'check')).status).toBe(200);
     expect((await step(APPROVER, quarterly, 2, 'approve')).status).toBe(200);
     const refused = await step(APPROVER, quarterly, 3, 'issue');
@@ -170,7 +170,7 @@ describe('the comparison of the reports of one period and the gate on release (E
     expect((other.json.findings as unknown[]).length).toBe(0);
   });
 
-  it('is not explained by the person who prepared a report it is about, nor with a short reason, nor for figures that are not a finding', async () => {
+  it('UAT-RPT-ENT4A-2: is not explained by the person who prepared a report it is about, nor with a short reason, nor for figures that are not a finding', async () => {
     const findings = (await crosscheck(quarterly)).json.findings as Finding[];
     const blocking = findings.filter((one) => one.severity === 'BLOCKING')[0] as Finding;
     expect(blocking.can_explain).toBe(false);
@@ -183,7 +183,7 @@ describe('the comparison of the reports of one period and the gate on release (E
     expect((await call('GET', '/report-engine/crosscheck?kind=QUARTER&year=2026&index=4', { member: READER })).json.can_explain).toBe(false);
   });
 
-  it('lets someone else explain each blocking difference once, and a repeat gets the first', async () => {
+  it('UAT-RPT-ENT4A-2: lets someone else explain each blocking difference once, and a repeat gets the first', async () => {
     const findings = (await crosscheck(quarterly)).json.findings as Finding[];
     const blocking = findings.filter((one) => one.severity === 'BLOCKING');
     expect(blocking.length).toBeGreaterThan(0);
@@ -201,7 +201,7 @@ describe('the comparison of the reports of one period and the gate on release (E
     expect((await rows<{ n: string }>("select count(*)::text as n from machvon.audit_event where action = 'rpt.crosscheck_explained'"))[0]?.n).toBe(String(blocking.length));
   });
 
-  it('then issues the quarter, keeps the evidence with the copy, with the copy', async () => {
+  it('UAT-RPT-ENT4A-2: then issues the quarter, keeps the evidence with the copy, with the copy', async () => {
     const issued = await step(APPROVER, quarterly, 3, 'issue');
     expect([issued.status, issued.json.status]).toEqual([200, 'ISSUED']);
     const evidence = await rows<{ outcome: string; comparisons: number; blocking_explained: number; result_sha256: string }>('select outcome, comparisons, blocking_explained, result_sha256 from machvon.report_crosscheck_release');

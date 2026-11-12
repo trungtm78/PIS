@@ -190,6 +190,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-13",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -227,6 +234,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-13",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -263,6 +277,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-13",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -301,8 +322,13 @@
       "design_type": "security",
       "screen_id": "ADM-03",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -339,7 +365,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "SAS-15",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Hai phần chưa có trong sản phẩm hoặc không chạy trong tiến trình: (1) không có consumer nào đổi sự kiện sas.license.revoked.v1 thành thông báo cho Tenant Owner (grep apps/api/src và packages/db/src chỉ thấy phát sự kiện, không có luồng thông báo); (2) việc 3 phiên SSE và thiết bị di động nhận entitlements.changed và bị 403 ENTITLEMENT_DENIED trước T0+60 giây (đo p95) cần máy khách SSE/di động thật. Thu hồi giấy phép, audit có lý do, outbox, xóa cache đã có test (apps/api/test/licenses.test.ts)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-SEC02",
@@ -418,8 +451,13 @@
       "design_type": "integration/security/UAT",
       "screen_id": "SAS-04",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/security-theme-control.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -698,8 +736,13 @@
       "design_type": "integration/security/UAT",
       "screen_id": "SAS-13",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -1701,7 +1744,14 @@
       "design_evidence": null,
       "design_type": "E2E",
       "screen_id": "SAS-02",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/provisioning/provisioning-steps.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC146",
@@ -1738,7 +1788,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "SAS-02",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/provisioning/provisioning-steps.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC147",
@@ -1774,7 +1831,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "SAS-02",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/system-tenants.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC148",
@@ -1810,6 +1874,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-03",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the detail of the refusal is the transition, not the state. Expected detail \"Active\"."
+      },
       "module": "SAS"
     },
     {
@@ -1846,7 +1917,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "SAS-03",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Đầu vào của ca tự mâu thuẫn với sản phẩm: reason_code SECURITY_INCIDENT kèm access_policy READ_ONLY_EXPORT bị từ chối 422 VALIDATION_FAILED (tenant-state.ts: sự cố an ninh luôn là NO_ACCESS, nên GET 200 và export 202 không thể xảy ra cùng lý do này). Chuỗi xuyên phiên người dùng thật (GET 200, submit 403 TENANT_SUSPENDED, export 202) chỉ được chứng minh rời từng mảnh ở apps/api/test/tenant-state.test.ts và session/tenant-runtime.test.ts."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC150",
@@ -2214,6 +2292,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-12",
+      "tags": [
+        "manual"
+      ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: step 3 answers 422 VALIDATION_FAILED, the design says 400 INVALID_REQUEST."
+      },
       "module": "SAS"
     },
     {
@@ -2288,8 +2373,13 @@
       "design_type": "security",
       "screen_id": "SAS-13",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -2326,6 +2416,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "SAS-15",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/sas-license-entitlements.test.ts"
+      },
       "module": "SAS"
     },
     {
@@ -2726,7 +2823,14 @@
       "design_evidence": null,
       "design_type": "UAT",
       "screen_id": "SAS-18",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "Màn SAS-18 chưa hiển thị các chỉ số của ca: license_propagation_lag p95, tuổi bản ghi outbox cũ nhất và số inbox FAILED theo mã tenant được liệt kê là chỉ số chưa có nguồn, không kèm số (PENDING_INDICATORS trong apps/web/src/screens/sas/health/model.ts). Chỉ phần không lộ tên dự án/số tiền được kiểm (health.test.tsx)."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC174",
@@ -2763,8 +2867,13 @@
       "design_type": "security",
       "screen_id": "SAS-01",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "finding: the list GET /system/tenants does not carry governing_body_type; only the detail GET /system/tenants/{id} does."
+      },
       "module": "SAS"
     },
     {
@@ -3051,7 +3160,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/entitlements.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-47",
@@ -3085,7 +3201,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/system-tenants.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-PLAN-48",
@@ -3119,7 +3242,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "SAS"
+      "module": "SAS",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/payments.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     }
   ],
   "data_fixtures": [],

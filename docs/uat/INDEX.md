@@ -74,3 +74,19 @@ Làm tay còn lại và lý do: trường `automation.reason` của từng ca; t
 2. **Ba mục cần người** của bảng tự kiểm: fault-seeding, adversarial-verify, đánh giá UX bởi người đóng vai persona.
 3. **M2 và FP chưa đo** (khai 0): `TC_min` hiện là MAX(M1, M4).
 4. **Khối chuyên sâu** (`access`, `db_assert`, `idempotency`, `transition`) chỉ có ở 28 ca then chốt. Các ca loại `RED` mang nhãn `security` thiếu đường dẫn và ma trận vai nên chưa bật được cổng quyền/IDOR; `perf_budget` chưa có vì ngân sách hiệu năng là thoả thuận sản phẩm, chưa ai đặt.
+
+## Tầng dữ liệu của kỹ năng (G15): cách khai báo và cách chạy
+
+Khối `db_assert`, `audit_assert` và `idempotency` của ca đo trên **cơ sở dữ liệu đang chạy**, không trên thế giới Jest. Lượt r6 (2026-11-12, `RUN-2026-11-12-r6.md`, R6-ENT-07) cho thấy ba lỗi của kịch bản, nay đã sửa ở chính ca:
+
+1. **Thân yêu cầu mô tả thay vì thân hợp lệ** (`<hôm qua>`, `<id kỳ>`): API từ chối 400 trước khi ghi gì, đếm ra 0. Thân nay theo `openapi.json` (trường bắt buộc, kiểu số nguyên) và lấy giá trị theo môi trường qua `resolve`.
+2. **Đếm bản ghi theo nội dung mà lượt trước đã để lại** (ENT-IDM-01 đếm 4 bản ghi cùng tên có sẵn; HPM-IDM-01 "đạt" dù cả 5 lệnh nhận 400, vì dòng 2026-M09 đã có sẵn). Nội dung do ca tạo nay mang `${stamp}` (mới ở mỗi lượt), nên đếm đúng là đếm cái lượt này tạo.
+3. **Bảng không có trong sản phẩm** (`audit_log`; bảng thật là `machvon.audit_event`, cột `resource_type`, `resource_id`, `action`, `actor_id`, `safe_diff`, `reason`, `occurred_at`). Khối audit nay có `query` thật.
+
+Một khối có thể khai `resolve`: bản đồ có thứ tự tên -> câu `SELECT`/`WITH` chỉ đọc. `node scripts/uat-db-cases.mjs --cases <cases.json> --out <cases.resolved.json> --dsn <DSN chỉ đọc> --tenant <id tenant đo>` chạy từng câu một lần trên môi trường đo, lấy ô đầu của dòng đầu làm giá trị của `${tên}` trong url, thân và câu đếm (có sẵn `${tenant_id}` và `${stamp}`; `${tên|int}` cho trường số nguyên; `$[since_key]` là mốc ghi bản ghi Idempotency-Key đầu tiên của lượt). Rồi đưa `cases.resolved.json` cho `db_assert.py`. Câu nào không có dòng (môi trường không có kỳ chưa dùng, không có kịch bản dữ liệu) thì **khối bị bỏ và ca được liệt kê ở `*.unresolved.json`: KHÔNG CHẠY, không bao giờ ĐẠT**.
+
+Ca cần tệp đã tải lên kho đối tượng (EBS-IDM-01/02/03: kho này chỉ có cửa của Jest) hay cần người chạy kịch bản (RPT-IDM-01) không gửi được lệnh từ tầng chỉ đọc; chúng được khẳng định bằng **bất biến trên toàn bộ dữ liệu** (không tệp nào áp dụng hai lần, không bản ghi nào trùng khoá, mỗi bản phát hành của một chuỗi chỉ một lần, không phân bổ vượt số tiền, không xuất bản sự kiện hai lần) với `expect: { rows: 0 }`. Phần "gửi đồng thời năm lần cùng khoá" của các ca ấy do bộ Jest cùng mã ca chứng minh (`apps/api/test/uat/*.uat.test.ts`, mỗi ca một mã `UAT-<phân hệ>-IDM-nn`).
+
+Các câu của ca không được ghi/DDL (cùng rào với `db_assert.py`, `scripts/uat-db-cases.test.mjs` giữ rào ấy). Giữ ở `%` của câu `LIKE` dạng `%%` khi dùng `db_assert.py`; các ca ở đây dùng `~` (biểu thức chính quy) để tránh chuyện đó.
+
+Đã kiểm trên cơ sở dữ liệu thật (2026-11-12, bản doanh nghiệp, DB của ngăn xếp demo có dữ liệu mẫu Đạm Phú Mỹ, các câu chạy chỉ đọc, các lệnh ghi gửi bằng API với token của `owner`): 9 ca idempotency gửi đồng thời đạt (DIR-IDM-01/02, IND-IDM-01, INT-IDM-01, RPT-IDM-02, HPM-E2E-01, HPM-IDM-01/02/04: 1 bản ghi, các lệnh còn lại 409 `IDEMPOTENCY_IN_PROGRESS`), các khối bất biến đạt, và những khối cần dữ liệu kịch bản mà demo không có (nhật ký audit của thao tác chưa ai làm, kỳ đã đóng chưa có bản chốt, bản phát hành chưa đẩy HPM) được báo KHÔNG CHẠY. Chạy lại lượt thứ hai trên cùng DB: các ca HPM hết bản phát hành chưa đẩy nên cũng thành KHÔNG CHẠY, không thành đỏ giả. `db_assert.py` thật (Python) chưa chạy ở máy này (không có Python): phần chạy tương đương bằng Node nằm ở báo cáo của lượt sửa.

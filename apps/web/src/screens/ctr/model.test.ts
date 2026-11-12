@@ -5,6 +5,7 @@ import {
   EMPTY_FORM,
   amountText,
   createBody,
+  defaultContract,
   describeProblem,
   draftLink,
   draftsOf,
@@ -225,5 +226,28 @@ describe('refusals, the register and its links', () => {
   it('links to the draft and to the members by the id of the contract', () => {
     expect(draftLink('abc')).toBe('/ctr/ctr-02?id=abc');
     expect(partiesLink('a b')).toBe('/ctr/ctr-25?id=a+b');
+  });
+});
+
+describe('defaultContract: the contract a screen of one contract opens on without one', () => {
+  const rows = (...specs: Array<[number, string, string]>) =>
+    specs.flatMap(([n, status, value]) => toContractLine(line(n, { status, contract_value_vnd: value })) ?? []);
+
+  it('is the largest contract in force, whatever the order of the register', () => {
+    const lines = rows([1, 'DRAFT', '90000000000'], [2, 'ACTIVE', '10000000000'], [3, 'ACTIVE', '70000000000'], [4, 'ACTIVE', '50000000000']);
+    expect(defaultContract(lines)?.code).toBe('HD-A-003');
+  });
+
+  it('keeps the first of the register when two in force are worth the same', () => {
+    expect(defaultContract(rows([1, 'ACTIVE', '5'], [2, 'ACTIVE', '5']))?.code).toBe('HD-A-001');
+  });
+
+  it('falls back to the largest that has not ended, then to the largest of the register', () => {
+    expect(defaultContract(rows([1, 'COMPLETED', '90'], [2, 'SIGNED', '20'], [3, 'DRAFT', '30']))?.code).toBe('HD-A-003');
+    expect(defaultContract(rows([1, 'COMPLETED', '10'], [2, 'CLOSED', '20']))?.code).toBe('HD-A-002');
+  });
+
+  it('is undefined for an empty register', () => {
+    expect(defaultContract([])).toBeUndefined();
   });
 });

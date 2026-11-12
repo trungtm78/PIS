@@ -228,7 +228,7 @@ describe('delegation-of-authority matrix commands (ST-ADM-011)', () => {
   });
 
   describe('submitDoaMatrix and decideDoaMatrix', () => {
-    it('refuses a gap at submission with 422 GAP and an overlap with 422 OVERLAP, then the self-publish with 403 SELF_APPROVAL_DENIED, then lets a second person publish it (AC-ST-ADM-011-2)', async () => {
+    it('refuses a gap at submission with 422 GAP and an overlap with 422 OVERLAP, then the self-publish with 403 SELF_APPROVAL_DENIED, then lets a second person publish it (AC-ST-ADM-011-2, UAT-AC127)', async () => {
       // The owner holds both permissions, so only the maker rule stops them approving what they wrote.
       const id = idOf(await draft(OWNER, matrix([rule('0', '5000000000', LEADER_BQLGT), rule('6000000000', null, LEADER_UBND)])));
       const gap = await submit(OWNER, id);
@@ -263,7 +263,7 @@ describe('delegation-of-authority matrix commands (ST-ADM-011)', () => {
       expect((await decide(APPROVER, id, 'approve', '"3"')).status).toBe(200);
     });
 
-    it('publishes the matrix on the approval of a second person: the approver and the time are kept, the event goes out, the old matrix ends on the new first day', async () => {
+    it('publishes the matrix on the approval of a second person: the approver and the time are kept, the event goes out, the old matrix ends on the new first day (UAT-AC127)', async () => {
       const first = await pending();
       const approved = await decide(APPROVER, first, 'approve');
       expect(approved.status).toBe(200);

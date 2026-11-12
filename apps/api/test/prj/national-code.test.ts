@@ -354,6 +354,31 @@ describe('the national project code: assignment by hand, reconciliation file and
       const dryAgain = await importFile(CODE_ADMIN, file, { dryRun: true });
       expect(dryAgain.json).toMatchObject({ already_applied: true, counts: { duplicate: 2, errors: 1, valid: 0 } });
     });
+    it('UAT-AC207: a file whose second row repeats a code is a dry run with that row in error and no change; the corrected file applies and the three projects take their codes, three audit rows; the same file again is 409 IMPORT_FILE_ALREADY_APPLIED', async () => {
+      const [a, b, c] = [await project('BUDGETED'), await project('BUDGETED'), await project('BUDGETED')] as const;
+      const [one, two, three] = [freshCode(), freshCode(), freshCode()];
+      const faulty = await upload(csv(`${a.code},${one}`, `${b.code},${one}`, `${c.code},${three}`));
+      const dry = await importFile(CODE_ADMIN, faulty, { dryRun: true });
+      expect(dry.status).toBe(200);
+      expect(dry.json).toMatchObject({ status: 'DRY_RUN', counts: { total: 3, valid: 2, errors: 1 } });
+      expect((dry.json.rows as Array<Record<string, unknown>>).filter((entry) => entry.status === 'ERROR').map((entry) => [entry.line, entry.internal_code, entry.code])).toEqual([[3, b.code, 'NATIONAL_CODE_DUPLICATE']]);
+      for (const target of [a, b, c]) expect((await row(target.id)).national_project_code).toBeNull();
+      expect(await rows('select id from machvon.file_import where file_sha256 = $1', [faulty.sha])).toEqual([]);
+
+      const fixed = await upload(csv(`${a.code},${one}`, `${b.code},${two}`, `${c.code},${three}`));
+      const applied = await importFile(CODE_ADMIN, fixed, { dryRun: false });
+      expect(applied.status).toBe(200);
+      expect(applied.json).toMatchObject({ status: 'APPLIED', assigned: 3, counts: { total: 3, applied: 3, quarantined: 0 } });
+      for (const [target, code] of [[a, one], [b, two], [c, three]] as const) {
+        expect(await row(target.id)).toMatchObject({ national_project_code: code });
+        const trail = await audits(target.id);
+        expect(trail).toHaveLength(1);
+        expect(trail[0]?.safe_diff).toMatchObject({ via: 'IMPORT', national_project_code: code, import_id: applied.json.resource_id });
+      }
+      const again = await importFile(CODE_ADMIN, fixed, { dryRun: false });
+      expect([again.status, again.json.code]).toEqual([409, 'IMPORT_FILE_ALREADY_APPLIED']);
+      expect(await rows('select id from machvon.file_import where file_sha256 = $1', [fixed.sha])).toHaveLength(1);
+    });
 
     it('AC-ST-PRJ-004-2: a file none of whose rows can be taken is 422 IMPORT_HAS_ERRORS with the line of each fault, and leaves nothing behind', async () => {
       const bytes = csv(`NO-SUCH-1,${freshCode()}`, `NO-SUCH-2,${freshCode()}`);

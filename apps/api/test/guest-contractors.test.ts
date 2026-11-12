@@ -65,6 +65,7 @@ interface Reply {
 
 interface CallOptions {
   key?: string;
+  ifMatch?: string;
 }
 
 describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
@@ -110,6 +111,7 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
     const headers: Record<string, string> = { 'content-type': 'application/json' };
     if (token !== undefined) headers.authorization = `Bearer ${token}`;
     if (method !== 'GET') headers['idempotency-key'] = options.key ?? `key-${randomUUID()}`;
+    if (options.ifMatch !== undefined) headers['if-match'] = options.ifMatch;
     const response = await fetch(`${baseUrl}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
     return { status: response.status, headers: response.headers, json: (await response.json()) as Record<string, unknown> };
   }
@@ -618,6 +620,51 @@ describe('guest contractors (ST-ADM-007, ADM-17 backend)', () => {
         await admin('delete from machvon.license_revision where tenant_id = $1', [T]);
         expect((await inviteGuest(ADMIN, guestBody({ email }))).status).toBe(201);
         expect(await members()).toBe(before + 1);
+      });
+    });
+
+    describe('the seats of staff and of guests, one meter each (UAT-AC114)', () => {
+      it('UAT-AC114 with every staff seat in use a new staff invitation is 403 QUOTA_EXCEEDED naming the meter, the seats used and the limit, a guest is still invited (the guest meter is apart), and once a membership ends the staff invitation is accepted', async () => {
+        const staffInUse = (): Promise<number> => countOf("select count(*) as n from machvon.membership where tenant_id = $1 and status = 'Active' and membership_type = 'STAFF'", [T]);
+        // One more Active staff member that no other case uses, so that ending it frees a seat without touching the people of the other cases.
+        await harness.seedMembership(T, 90, U2);
+        const seats = await staffInUse();
+        await admin('delete from machvon.license_revision where tenant_id = $1', [T]);
+        const client = new Client({ connectionString: harness.database.adminUrl });
+        await client.connect();
+        try {
+          await client.query('set session_replication_role = replica');
+          await client.query(
+            `insert into machvon.license_revision (tenant_id, id, serial, revision, entitlement_version_id, valid_from, valid_until, grace_until, status, signed_claims, key_id, seats, quota_json)
+             values ($1, $2, 'uat-ac114', 1, $3, now() - interval '1 day', now() + interval '1 year', now() + interval '2 years', 'Active', 'claims', 'key-1', $4, '{"guest_seats": 5}'::jsonb)`,
+            [T, randomUUID(), randomUUID(), seats],
+          );
+        } finally {
+          await client.end();
+        }
+        try {
+          const invitations = (): Promise<number> => countOf('select count(*) as n from machvon.membership_invitation where tenant_id = $1', [T]);
+          const before = await invitations();
+          // Step 1: the fourth person of the design (here, the one after the last free seat) is refused with the facts of the meter, and nothing is written.
+          const staffBody = { email: emailOf('staff-full'), organization_unit_id: unitId(U2) };
+          const full = await as(ADMIN, 'POST', '/memberships/invitations', staffBody);
+          expect([full.status, full.json.code, full.json.feature, full.json.used, full.json.limit]).toEqual([403, 'QUOTA_EXCEEDED', 'seats', seats, seats]);
+          expect(await invitations()).toBe(before);
+          // Step 2: a guest contractor is counted on the guest meter, which has room: 201.
+          const guest = await inviteGuest(ADMIN, guestBody({ email: emailOf('guest-meter') }));
+          expect(guest.status).toBe(201);
+          expect(await invitations()).toBe(before + 1);
+          // Step 3: one membership ends (the seat is free again) and the same invitation goes through.
+          const row = (await admin<{ version: string }>('select version::text from machvon.membership where id = $1', [memberId(90)]))[0];
+          const ended = await as(ADMIN, 'POST', `/memberships/${memberId(90)}/end`, { reason: 'the person left the unit for good' }, { ifMatch: `"${row?.version}"` });
+          expect(ended.status).toBe(200);
+          expect(await staffInUse()).toBe(seats - 1);
+          expect((await as(ADMIN, 'POST', '/memberships/invitations', staffBody)).status).toBe(201);
+          // The negative control: a check that wants the full meter to be accepted must fail on the first answer.
+          expect(() => expect(full.status).toBe(201)).toThrow();
+        } finally {
+          await admin('delete from machvon.license_revision where tenant_id = $1', [T]);
+        }
       });
     });
 

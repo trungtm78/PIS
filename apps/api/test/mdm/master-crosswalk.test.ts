@@ -125,7 +125,7 @@ describe('crosswalk and integration cursor commands and reads (ST-MDM-007)', () 
   }, 60_000);
 
   describe('createMasterCrosswalk and retireMasterCrosswalk', () => {
-    it('maps a code, refuses a second ACTIVE mapping of it with 409 CROSSWALK_DUPLICATE, and frees it when the first is retired (AC-ST-MDM-007-1)', async () => {
+    it('UAT-AC273 maps a code, refuses a second ACTIVE mapping of it with 409 CROSSWALK_DUPLICATE, and frees it when the first is retired, the history keeping both rows with valid_from/valid_until (AC-ST-MDM-007-1)', async () => {
       const record = await entry();
       const first = await create(MANAGER, body(record, 'KB-AC1'));
       expect(first.status).toBe(200);
@@ -136,7 +136,17 @@ describe('crosswalk and integration cursor commands and reads (ST-MDM-007)', () 
 
       const retired = await retire(MANAGER, idOf(first), versionOf(first));
       expect(retired.json).toMatchObject({ status: 'RETIRED', resource_version: 2 });
-      expect((await create(MANAGER, body(await entry(), 'KB-AC1'))).status).toBe(200);
+      const again = await create(MANAGER, body(await entry(), 'KB-AC1'));
+      expect(again.status).toBe(200);
+      const history = await rows<{ id: string; status: string; valid_from: string; valid_until: string | null }>(
+        "select id::text, status, valid_from::text, valid_until::text from machvon.master_crosswalk where external_code = 'KB-AC1' order by version desc, created_at",
+      );
+      expect(history).toHaveLength(2);
+      const old = history.find((h) => h.id === idOf(first));
+      const fresh = history.find((h) => h.id === idOf(again));
+      expect(old).toMatchObject({ status: 'RETIRED', valid_from: '2024-01-01' });
+      expect(old?.valid_until).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(fresh).toMatchObject({ status: 'ACTIVE', valid_from: '2024-01-01', valid_until: null });
       const actions = await rows<{ action: string; reason: string | null }>("select action, reason from machvon.audit_event where resource_id = $1 order by occurred_at, id", [idOf(first)]);
       expect(actions).toEqual([
         { action: 'master.crosswalk_created', reason: null },

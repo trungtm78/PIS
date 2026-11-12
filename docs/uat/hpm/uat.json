@@ -92,11 +92,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-hpm.uat.test.ts"
       },
       "module": "HPM"
     },
@@ -139,11 +139,11 @@
       "tags": [
         "design-case",
         "security",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM"
     },
@@ -233,11 +233,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-hpm.uat.test.ts"
       },
       "module": "HPM"
     },
@@ -280,11 +280,11 @@
       "tags": [
         "design-case",
         "security",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM"
     },
@@ -333,33 +333,38 @@
       },
       "module": "HPM",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M10' AND status = 'ACCEPTED'",
+        "query": "SELECT id FROM machvon.hpm_push WHERE status = 'ACCEPTED' AND (receipt_reference IS NULL OR receipt_by IS NULL OR receipt_at IS NULL)",
         "expect": {
-          "value": "1"
+          "rows": 0
         }
       },
       "audit_assert": {
-        "entity": "hpm_push",
-        "entity_id": "<id lượt đẩy>",
-        "action": "hpm.push_submitted",
-        "fields": [
-          "actor_id",
-          "safe_diff",
-          "occurred_at"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.push_submitted' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff, occurred_at FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.push_submitted' ORDER BY occurred_at DESC LIMIT 1"
       },
       "idempotency": {
+        "resolve": {
+          "issue": "SELECT i.id::text FROM machvon.report_issue i WHERE i.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.hpm_push p WHERE p.tenant_id = i.tenant_id AND p.issue_id = i.id) ORDER BY i.issued_at, i.id OFFSET 3 LIMIT 1",
+          "layout": "SELECT layout_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "period": "SELECT period_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "revision": "SELECT revision::text FROM machvon.report_issue WHERE id = '${issue}'",
+          "sha": "SELECT sha256 FROM machvon.report_issue WHERE id = '${issue}'"
+        },
         "url": "/hpm/pushes",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 1,
         "body": {
-          "layout_code": "HPM-MONTHLY",
-          "period": "2026-M10",
-          "revision": 1
+          "layout_code": "${layout}",
+          "period": "${period}",
+          "revision": "${revision|int}",
+          "sha256": "${sha}",
+          "issue_id": "${issue}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M10'",
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}'",
         "expect_rows": 1
       }
     },
@@ -408,16 +413,25 @@
       },
       "module": "HPM",
       "idempotency": {
+        "resolve": {
+          "issue": "SELECT i.id::text FROM machvon.report_issue i WHERE i.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.hpm_push p WHERE p.tenant_id = i.tenant_id AND p.issue_id = i.id) ORDER BY i.issued_at, i.id OFFSET 0 LIMIT 1",
+          "layout": "SELECT layout_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "period": "SELECT period_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "revision": "SELECT revision::text FROM machvon.report_issue WHERE id = '${issue}'",
+          "sha": "SELECT sha256 FROM machvon.report_issue WHERE id = '${issue}'"
+        },
         "url": "/hpm/pushes",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "layout_code": "HPM-MONTHLY",
-          "period": "2026-M09",
-          "revision": 1
+          "layout_code": "${layout}",
+          "period": "${period}",
+          "revision": "${revision|int}",
+          "sha256": "${sha}",
+          "issue_id": "${issue}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M09'",
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}'",
         "expect_rows": 1
       }
     },
@@ -466,16 +480,25 @@
       },
       "module": "HPM",
       "idempotency": {
+        "resolve": {
+          "issue": "SELECT i.id::text FROM machvon.report_issue i WHERE i.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.hpm_push p WHERE p.tenant_id = i.tenant_id AND p.issue_id = i.id) ORDER BY i.issued_at, i.id OFFSET 1 LIMIT 1",
+          "layout": "SELECT layout_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "period": "SELECT period_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "revision": "SELECT revision::text FROM machvon.report_issue WHERE id = '${issue}'",
+          "sha": "SELECT sha256 FROM machvon.report_issue WHERE id = '${issue}'"
+        },
         "url": "/hpm/pushes",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 1,
         "body": {
-          "layout_code": "HPM-MONTHLY",
-          "period": "2026-M08",
-          "revision": 1
+          "layout_code": "${layout}",
+          "period": "${period}",
+          "revision": "${revision|int}",
+          "sha256": "${sha}",
+          "issue_id": "${issue}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M08'",
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}'",
         "expect_rows": 1
       }
     },
@@ -569,16 +592,25 @@
       },
       "module": "HPM",
       "idempotency": {
+        "resolve": {
+          "issue": "SELECT i.id::text FROM machvon.report_issue i WHERE i.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.hpm_push p WHERE p.tenant_id = i.tenant_id AND p.issue_id = i.id) ORDER BY i.issued_at, i.id OFFSET 2 LIMIT 1",
+          "layout": "SELECT layout_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "period": "SELECT period_code FROM machvon.report_issue WHERE id = '${issue}'",
+          "revision": "SELECT revision::text FROM machvon.report_issue WHERE id = '${issue}'",
+          "sha": "SELECT sha256 FROM machvon.report_issue WHERE id = '${issue}'"
+        },
         "url": "/hpm/pushes",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "layout_code": "HPM-MONTHLY",
-          "period": "2026-M11",
-          "revision": 1
+          "layout_code": "${layout}",
+          "period": "${period}",
+          "revision": "${revision|int}",
+          "sha256": "${sha}",
+          "issue_id": "${issue}"
         },
-        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M11'",
+        "count_query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}'",
         "expect_rows": 1
       }
     },
@@ -627,7 +659,10 @@
       },
       "module": "HPM",
       "db_assert": {
-        "query": "SELECT status FROM machvon.hpm_push WHERE period = '2026-M06'",
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M06' LIMIT 1"
+        },
+        "query": "SELECT status FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M06' ORDER BY created_at LIMIT 1",
         "expect": {
           "value": "ACCEPTED"
         }
@@ -778,21 +813,20 @@
       },
       "module": "HPM",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M01' AND revision = 1",
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M01' AND revision = 1 LIMIT 1"
+        },
+        "query": "SELECT count(*) FROM machvon.hpm_push WHERE tenant_id = '${tenant_id}' AND period = '2026-M01' AND revision = 1",
         "expect": {
           "value": "1"
         }
       },
       "audit_assert": {
-        "entity": "ent_connection",
-        "entity_id": "<id kết nối>",
-        "action": "hpm.connection_switched",
-        "fields": [
-          "actor_id",
-          "reason",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.connection_switched' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, reason, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'hpm.connection_switched' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -893,11 +927,11 @@
         "ST-HPM-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần bơm lỗi vào bộ ghi tệp (giả đĩa đầy), cổng tải bộ ghi chỉ có ở bài jest tích hợp apps/api/test/editions/hpm.enterprise.test.ts, không đạt được qua HTTP của bản đang chạy"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM",
       "transition": {
@@ -943,11 +977,11 @@
         "ST-HPM-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần kỳ mở lại thật của DIS (cổng HPM_PERIOD_REOPEN); jest tích hợp dùng bản giả của cổng, UAT cần chạy trên bản đã gộp có DIS thật"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-hpm.uat.test.ts"
       },
       "module": "HPM"
     },
@@ -988,11 +1022,11 @@
         "ST-HPM-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa viết kịch bản; có thể thêm vào hpm.uat.test.ts, không đòi hỏi thêm hạ tầng"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM"
     },
@@ -1033,11 +1067,11 @@
         "ST-HPM-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần một bản phát hành từ động cơ báo cáo trên biểu mẫu DEMO (RPT làm trước); suite RPT chưa phát hành biểu mẫu DEMO"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/hpm-extra.enterprise.test.ts"
       },
       "module": "HPM"
     },
@@ -1138,7 +1172,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Đã có quét axe 111 màn trong apps/web/e2e/a11y.spec.ts nhưng không đặt tên theo mã ca; chưa có đi bàn phím riêng cho hai màn này"
+        "reason": "The expected text includes 'băng PENDING-EXTERNAL được đọc' (read aloud) and the step 'Kiểm thông báo trạng thái đọc được bằng trình đọc màn hình': what NVDA/VoiceOver/TalkBack say needs a person with a screen reader. Everything a machine can prove is automated and green, with titles that do not carry the case id."
       },
       "module": "HPM"
     },
@@ -1179,11 +1213,11 @@
         "ST-HPM-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ khách cung cấp giao diện kỹ thuật HPM (PX-03); không thể chạy trước khi có tài liệu"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-hpm.uat.test.ts"
       },
       "module": "HPM"
     },

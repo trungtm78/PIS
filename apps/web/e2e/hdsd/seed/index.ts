@@ -16,6 +16,20 @@ import { seedClipContractorPortal } from './clip/contractor-portal.ts';
 import { seedClipEnterpriseAppraisal } from './clip/enterprise-appraisal.ts';
 import { seedClipEnterpriseNarrative, seedClipEnterpriseProjectDocs } from './clip/enterprise-records.ts';
 import { seedClipEnterpriseEquipment } from './clip/enterprise-equipment.ts';
+import { seedClipEnterpriseIssues } from './clip/enterprise-issues.ts';
+import { seedClipEnterpriseExecution } from './clip/enterprise-execution.ts';
+import { seedClipEnterpriseLifecycle } from './clip/enterprise-lifecycle.ts';
+import { seedClipEnterpriseAudit } from './clip/enterprise-audit.ts';
+import { seedClipEnterpriseMobile } from './clip/enterprise-mobile.ts';
+import { seedClipEnterpriseCapPlus } from './clip/enterprise-capplus.ts';
+import { seedClipEnterpriseWeekly } from './clip/enterprise-weekly.ts';
+import { seedClipEnterpriseLegal } from './clip/enterprise-legal.ts';
+import { seedClipEnterpriseBi2 } from './clip/enterprise-bi2.ts';
+import { seedClipEnterpriseVendor } from './clip/enterprise-vendor.ts';
+import { seedClipEnterpriseOps } from './clip/enterprise-ops.ts';
+import { seedClipEnterpriseAdmin } from './clip/enterprise-admin.ts';
+import { seedClipEnterprisePlatform } from './clip/enterprise-platform.ts';
+import { seedClipEnterpriseRights } from './clip/enterprise-rights.ts';
 import { seedClipEnterpriseSnapshot } from './clip/enterprise-snapshot.ts';
 import { seedClipEnterpriseCrosscheck } from './clip/enterprise-crosscheck.ts';
 import { seedClipEnterpriseCapitalPrior } from './clip/enterprise-capital-prior.ts';
@@ -81,6 +95,20 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-ent-bi', seed: seedClipEnterpriseBi },
   { name: 'clip-ent-alert-triage', seed: seedClipEnterpriseAlertTriage },
   { name: 'clip-ent-capital-adjust', seed: seedClipEnterpriseCapitalAdjust },
+  { name: 'clip-ent-execution', seed: seedClipEnterpriseExecution },
+  { name: 'clip-ent-issues', seed: seedClipEnterpriseIssues },
+  { name: 'clip-ent-lifecycle', seed: seedClipEnterpriseLifecycle },
+  { name: 'clip-ent-weekly', seed: seedClipEnterpriseWeekly },
+  { name: 'clip-ent-capplus', seed: seedClipEnterpriseCapPlus },
+  { name: 'clip-ent-legal', seed: seedClipEnterpriseLegal },
+  { name: 'clip-ent-rights', seed: seedClipEnterpriseRights },
+  { name: 'clip-ent-bi2', seed: seedClipEnterpriseBi2 },
+  { name: 'clip-ent-vendor', seed: seedClipEnterpriseVendor },
+  { name: 'clip-ent-ops', seed: seedClipEnterpriseOps },
+  { name: 'clip-ent-admin', seed: seedClipEnterpriseAdmin },
+  { name: 'clip-ent-platform', seed: seedClipEnterprisePlatform },
+  { name: 'clip-ent-audit', seed: seedClipEnterpriseAudit },
+  { name: 'clip-ent-mobile', seed: seedClipEnterpriseMobile },
   { name: 'clip-ent-appraisal', seed: seedClipEnterpriseAppraisal },
   { name: 'clip-ent-project-docs', seed: seedClipEnterpriseProjectDocs },
   { name: 'clip-ent-narrative', seed: seedClipEnterpriseNarrative },

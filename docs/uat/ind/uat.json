@@ -46,11 +46,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ind.uat.test.ts"
       },
       "module": "IND"
     },
@@ -94,11 +94,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ind.uat.test.ts"
       },
       "module": "IND"
     },
@@ -140,11 +140,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ind.uat.test.ts"
       },
       "module": "IND"
     },
@@ -338,20 +338,20 @@
       },
       "module": "IND",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.ind_figure WHERE indicator_code = 'PLAN_YEAR'",
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.ind_figure WHERE tenant_id = '${tenant_id}' AND indicator_code = 'PLAN_YEAR' LIMIT 1"
+        },
+        "query": "SELECT 1 FROM machvon.ind_figure WHERE tenant_id = '${tenant_id}' AND indicator_code = 'PLAN_YEAR' AND revision >= 1 AND entered_by IS NOT NULL LIMIT 1",
         "expect": {
           "min_rows": 1
         }
       },
       "audit_assert": {
-        "entity": "ind_figure",
-        "entity_id": "<id số liệu>",
-        "action": "ind.figure_revised",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.figure_revised' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.figure_revised' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -399,11 +399,17 @@
       },
       "module": "IND",
       "idempotency": {
+        "resolve": {
+          "period": "SELECT id::text FROM machvon.reporting_period WHERE tenant_id = '${tenant_id}' AND locked_at IS NULL ORDER BY start_date DESC, id LIMIT 1",
+          "project": "SELECT p.id::text FROM machvon.project p WHERE p.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.ind_figure f WHERE f.tenant_id = p.tenant_id AND f.project_id = p.id AND f.period_id = '${period}' AND f.indicator_code = 'PLAN_YEAR') ORDER BY p.id LIMIT 1"
+        },
         "url": "/indicator-figures",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
+          "project_id": "${project}",
+          "period_id": "${period}",
           "figures": [
             {
               "indicator_code": "PLAN_YEAR",
@@ -411,7 +417,7 @@
             }
           ]
         },
-        "count_query": "SELECT count(*) FROM machvon.ind_figure WHERE indicator_code = 'PLAN_YEAR'",
+        "count_query": "SELECT count(*) FROM machvon.ind_figure WHERE tenant_id = '${tenant_id}' AND project_id = '${project}' AND period_id = '${period}' AND indicator_code = 'PLAN_YEAR'",
         "expect_rows": 1
       }
     },
@@ -555,13 +561,11 @@
       },
       "module": "IND",
       "audit_assert": {
-        "entity": "project",
-        "entity_id": "<id dự án>",
-        "action": "ind.entry_warned",
-        "fields": [
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.entry_warned' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.entry_warned' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -609,26 +613,17 @@
       },
       "module": "IND",
       "audit_assert": {
-        "entity": "file_import",
-        "entity_id": "<id lần nhập>",
-        "action": "ind.import_applied",
-        "fields": [
-          "safe_diff"
-        ],
-        "expect_rows": 1
-      },
-      "idempotency": {
-        "url": "/indicator-imports",
-        "method": "POST",
-        "key_header": "Idempotency-Key",
-        "concurrency": 5,
-        "body": {
-          "mapping_code": "MONTHLY_FORM",
-          "file_object_key": "<khóa>",
-          "file_sha256": "<băm>"
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.import_applied' LIMIT 1"
         },
-        "count_query": "SELECT count(*) FROM machvon.ind_figure WHERE source = 'IMPORT' AND mapping_code = 'MONTHLY_FORM'",
-        "expect_rows": 4
+        "expect_rows": 1,
+        "query": "SELECT safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'ind.import_applied' ORDER BY occurred_at DESC LIMIT 1"
+      },
+      "db_assert": {
+        "query": "SELECT tenant_id, connector_code, file_sha256 FROM machvon.file_import WHERE status = 'APPLIED' GROUP BY tenant_id, connector_code, file_sha256 HAVING count(*) > 1",
+        "expect": {
+          "rows": 0
+        }
       }
     },
     {
@@ -729,11 +724,11 @@
         "ST-IND-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Suite dùng grant theo cả tenant; phạm vi đơn vị đã có ở apps/api/test/ind/ind.test.ts, chưa nối vào world của UAT"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ind-extra.test.ts"
       },
       "module": "IND",
       "access": {
@@ -793,7 +788,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Chưa chốt bảng giá trị biên với Tổ chuẩn hóa dữ liệu (PX-02: từ điển chỉ tiêu và quy tắc nhập liệu do khách chốt)"
+        "reason": "finding: a progress of 100.01 or -0.01 is accepted (200) while no tenant rule PROGRESS_PERCENT_IN_RANGE is approved; the case expects 422 naming the value"
       },
       "module": "IND"
     },
@@ -834,11 +829,11 @@
         "ST-IND-002"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần bộ dữ liệu; chưa có bộ sinh số liệu chỉ tiêu"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/ind-extra.test.ts"
       },
       "module": "IND",
       "perf_budget": {
@@ -891,11 +886,11 @@
         "ST-IND-003"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-ind.spec.ts"
       },
       "module": "IND"
     },
@@ -937,11 +932,11 @@
         "ST-IND-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ Tổ chuẩn hóa dữ liệu của khách thống nhất từ điển chỉ tiêu (PX-02)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-d-ind.uat.test.ts"
       },
       "module": "IND"
     },

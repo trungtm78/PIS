@@ -394,8 +394,13 @@
       "design_type": "security",
       "screen_id": "IAM-04",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/isolation/isolation.test.ts"
+      },
       "module": "IAM"
     },
     {
@@ -433,8 +438,13 @@
       "design_type": "security",
       "screen_id": "IAM-04",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-members.test.ts"
+      },
       "module": "IAM"
     },
     {
@@ -473,8 +483,13 @@
       "design_type": "security",
       "screen_id": "IAM-04",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "needs the Flutter app with its local database and the PowerSync buckets on a device or emulator; the sqlite tests cannot run on this machine (Smart App Control blocks sqlite3mc.dll)"
+      },
       "module": "IAM"
     },
     {
@@ -663,8 +678,13 @@
       "design_type": "security",
       "screen_id": "IAM-03",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "no password recovery endpoint exists in the API (openapi.json has none); passwords belong to Keycloak/AD (realm resetPasswordAllowed false, docs/security/identity-test-plan.md); needs a running Keycloak with a mailbox"
+      },
       "module": "IAM"
     },
     {
@@ -702,8 +722,13 @@
       "design_type": "security",
       "screen_id": "IAM-01",
       "tags": [
-        "security"
+        "security",
+        "manual"
       ],
+      "automation": {
+        "state": "MANUAL",
+        "reason": "the lock after 5 wrong passwords in 15 minutes is Keycloak brute-force detection (realm failureFactor 5, docs/security/identity-test-plan.md III-1..III-2); the realm was never imported into a running Keycloak, so no script can drive or clock it"
+      },
       "module": "IAM"
     },
     {
@@ -823,8 +848,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/iam-adm-members.test.ts"
+      },
       "module": "IAM"
     }
   ],

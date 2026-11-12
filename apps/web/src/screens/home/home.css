@@ -1,5 +1,5 @@
 /* The leader home (HOME-01, HOME-09) and the queue (HOME-02): layout only, colours are the --mv-color-* tokens. */
-.home-stack { display: grid; gap: var(--mv-space-16); }
+.home-stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--mv-space-16); }
 .home-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--mv-space-16); align-items: start; }
 @media (max-width: 1279px) { .home-pair { grid-template-columns: minmax(0, 1fr); } }
 .home-note { margin: 0 0 var(--mv-space-12); color: var(--mv-color-text-secondary); font-size: 12px; }

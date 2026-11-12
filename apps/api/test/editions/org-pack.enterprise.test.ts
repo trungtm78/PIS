@@ -133,7 +133,7 @@ describe('the PVFCCo configuration pack (ENT-3d)', () => {
   });
 
   describe('getEnterpriseOrgPack', () => {
-    it('shows the template as it is, with the nine input points, the plan against an empty tenant and the file to register', async () => {
+    it('UAT-ENT-PX-01 / UAT-ENT-ORG-01: shows the template as it is, with the nine input points, the plan against an empty tenant and the file to register', async () => {
       const reply = await call('GET', '/enterprise/org-pack', { member: ADMIN });
       expect(reply.status).toBe(200);
       expect(reply.json).toMatchObject({ label: 'PVFCCO-TEMPLATE', source: 'TEMPLATE', batch_id: null, loader: { target_entity: 'ORG_PACK', mapping_version: 'ORG-PACK-1' }, structure_complete: false });
@@ -156,7 +156,7 @@ describe('the PVFCCo configuration pack (ENT-3d)', () => {
   });
 
   describe('the load through the real import path', () => {
-    it('stops a pack that breaks a rule at the dry run, naming the row, and writes nothing to the tenant', async () => {
+    it('UAT-PLAN-ORG-1 / UAT-ENT-ORG-01: stops a pack that breaks a rule at the dry run, naming the row, and writes nothing to the tenant', async () => {
       const pack = pvfccoTemplatePack();
       const broken = { ...pack, seats: pack.seats.map((seat) => (seat.roleCode === 'ENT_DATA_ENTRY' && seat.unitCode === 'NM_DPM' ? { ...seat, scope: 'TENANT' as const } : seat)) };
       const { batch, passed } = await loadFile(broken);
@@ -177,7 +177,7 @@ describe('the PVFCCo configuration pack (ENT-3d)', () => {
       expect(errors.map((error) => [error.code, error.field])).toEqual([['PACK_INVALID', 'attributes.channel']]);
     });
 
-    it('refuses to apply a batch by the person who registered it', async () => {
+    it('UAT-PLAN-ORG-1 / UAT-ENT-ORG-01: refuses to apply a batch by the person who registered it', async () => {
       const bytes = new TextEncoder().encode(orgPackCsv(pvfccoTemplatePack()));
       const sha = createHash('sha256').update(bytes).update('self-approval').digest('hex');
       const batch = await tenants.withTenant(as(REGISTRAR), (tx) => store.register(tx, { sourceSystem: PVFCCO_PACK_LABEL, targetEntity: ORG_PACK_ENTITY, fileSha256: sha, fileStorageKey: 'k-self', mappingVersion: ORG_PACK_MAPPING_VERSION }, memberId(REGISTRAR)));
@@ -201,7 +201,7 @@ describe('the PVFCCo configuration pack (ENT-3d)', () => {
       expect((await call('POST', '/enterprise/org-pack/materialisations', { member: ADMIN, body: { batch_id: 'nope' } })).status).toBeGreaterThanOrEqual(400);
     });
 
-    it('turns the applied batch into the units and the roles, and proposes the rules, the matrix rule and the catalogue entries for approval by somebody else', async () => {
+    it('UAT-PLAN-ORG-1 / UAT-ENT-ORG-01: turns the applied batch into the units and the roles, and proposes the rules, the matrix rule and the catalogue entries for approval by somebody else', async () => {
       const loaded = await loadFile(pvfccoTemplatePack());
       expect(loaded.passed).toBe(true);
       expect(loaded.batch).toMatchObject({ status: 'Applied', createdBy: memberId(REGISTRAR), approvedBy: memberId(ADMIN) });
@@ -256,7 +256,7 @@ describe('the PVFCCo configuration pack (ENT-3d)', () => {
       expect(events.map((event) => event.payload.batch_id)).toEqual([batchId]);
     });
 
-    it('changes nothing the second time', async () => {
+    it('UAT-PLAN-ORG-1 / UAT-ENT-ORG-01: changes nothing the second time', async () => {
       const before = await rows<{ n: string }>('select (select count(*) from machvon.organization_unit) + (select count(*) from machvon.role_definition) + (select count(*) from machvon.governance_rule) + (select count(*) from machvon.doa_matrix_version) + (select count(*) from machvon.master_record) as n');
       const again = await materialise(batchId);
       expect(again.status).toBe(200);
@@ -299,7 +299,7 @@ describe('the PVFCCo configuration pack (ENT-3d)', () => {
   });
 
   describe('what the roles of the pack let a person see (HT.02)', () => {
-    it('keeps the person of an input point in the unit, and lets the planning unit and the leadership see all units', async () => {
+    it('UAT-PLAN-ORG-2: keeps the person of an input point in the unit, and lets the planning unit and the leadership see all units', async () => {
       const access = new EffectiveAccessStore(tenants, new InMemoryAuthzCache());
       const unit = async (code: string) => {
         const row = (await rows<{ id: string; path: string }>('select id, path from machvon.organization_unit where code = $1', [code]))[0] as { id: string; path: string };

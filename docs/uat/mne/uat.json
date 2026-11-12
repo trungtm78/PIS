@@ -40,7 +40,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MNE-01",
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/mne/mne-obligations.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC286",
@@ -148,7 +155,14 @@
       "design_evidence": null,
       "design_type": "integration",
       "screen_id": "MNE-04",
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "No consumer of project.stage_changed.v1 creates a PROJECT_START mne_report: the EVENT rules are skipped by generate (periodsOf returns [] for EVENT in packages/db/src/mne-obligation-store.ts) and the only MNE consumer (apps/api/src/modules/mne/report.consumer.ts) handles the DOC events only. The engine the case needs does not exist."
+      },
+      "tags": [
+        "manual"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC289",
@@ -256,7 +270,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MNE-07",
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/mne-report-store.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC292",
@@ -328,7 +349,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "MNE-09",
-      "module": "MNE"
+      "module": "MNE",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/mne/mne-export.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC294",
@@ -1023,8 +1051,13 @@
       "design_evidence": null,
       "design_type": "security",
       "tags": [
-        "security"
+        "security",
+        "automated"
       ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-mne-form-publish.test.ts"
+      },
       "module": "MNE"
     },
     {

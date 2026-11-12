@@ -747,6 +747,13 @@
       ],
       "design_evidence": null,
       "design_type": "business",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/mdm-iss-sla-policy.test.ts"
+      },
       "module": "ISS"
     },
     {
@@ -886,7 +893,14 @@
       ],
       "design_evidence": null,
       "design_type": "integration",
-      "module": "ISS"
+      "module": "ISS",
+      "automation": {
+        "state": "MANUAL",
+        "reason": "The product has no per-item location or consent: ISS-05 raises all issues of an inspection from one shared position/consent form (apps/web/src/screens/iss/field/model.ts RaiseForm) and a checklist row holds only code, label, outcome and note, so 'location on item 4 only, consent only on item 4' cannot be set up; the save-inspection-then-raise-issues orchestration is client side (no server command) and is exercised only against a mocked command in SiteInspectionScreen.test.tsx."
+      },
+      "tags": [
+        "manual"
+      ]
     }
   ],
   "data_fixtures": [],

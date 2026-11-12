@@ -28,6 +28,11 @@ import {
   validateForm,
 } from './model';
 import type { ProjectField, ProjectForm, ProjectView } from './model';
+import { TabBoundary, TabFallback } from './workspace/common';
+import DisbursementTab from './workspace/DisbursementTab';
+import IssuesTab from './workspace/IssuesTab';
+import ObjectivesTab from './workspace/ObjectivesTab';
+import PlanTab from './workspace/PlanTab';
 import './prj.css';
 
 const NEVER_EMPTY = (): boolean => false;
@@ -50,19 +55,6 @@ function tabLabel(t: ReturnType<typeof useTranslation>['t'], tab: Tab): string {
   }
 }
 
-function tabNotice(t: ReturnType<typeof useTranslation>['t'], tab: Exclude<Tab, 'overview'>): string {
-  switch (tab) {
-    case 'objectives':
-      return t('prj.workspace.objectives.notice');
-    case 'plan':
-      return t('prj.workspace.plan.notice');
-    case 'disbursement':
-      return t('prj.workspace.disbursement.notice');
-    case 'issues':
-      return t('prj.workspace.issues.notice');
-  }
-}
-
 /** PRJ-03: the workspace of one project, a shell whose tabs fill with the plan, the disbursement and the issues of the project as those modules land. */
 export default function ProjectWorkspaceScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
@@ -71,10 +63,22 @@ export default function ProjectWorkspaceScreen({ route }: ScreenProps) {
 
 function ProjectWorkspaceContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const projectId = params.get('id') ?? undefined;
   const project = useProject(projectId);
-  const [tab, setTab] = useState<Tab>('overview');
+  const requested = params.get('tab');
+  const tab: Tab = TABS.find((item) => item === requested) ?? 'overview';
+  // The tab lives in the address (?tab=plan), so a reload or a shared link keeps it.
+  const setTab = (next: Tab): void =>
+    setParams(
+      (current) => {
+        const copy = new URLSearchParams(current);
+        if (next === 'overview') copy.delete('tab');
+        else copy.set('tab', next);
+        return copy;
+      },
+      { replace: true },
+    );
   const state = useScreenState({
     isLoading: project.isLoading,
     error: project.error,
@@ -147,9 +151,9 @@ function Workspace({ project, tab, onTab, onReload }: { project: ProjectView; ta
         {tab === 'overview' ? (
           <Overview project={project} onReload={onReload} />
         ) : (
-          <p className="callout" role="status" data-testid="tab-notice">
-            {tabNotice(t, tab)}
-          </p>
+          <TabBoundary key={tab} fallback={<TabFallback />}>
+            {tab === 'objectives' ? <ObjectivesTab project={project} /> : tab === 'plan' ? <PlanTab project={project} /> : tab === 'disbursement' ? <DisbursementTab project={project} /> : <IssuesTab project={project} />}
+          </TabBoundary>
         )}
       </div>
     </>

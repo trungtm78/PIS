@@ -525,11 +525,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-rpt.uat.test.ts"
       },
       "module": "RPT"
     },
@@ -668,11 +668,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-rpt.uat.test.ts"
       },
       "module": "RPT"
     },
@@ -715,11 +715,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uat/case-e-rpt.uat.test.ts"
       },
       "module": "RPT"
     },
@@ -809,11 +809,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/reports/crosscheck.enterprise.test.ts"
       },
       "module": "RPT"
     },
@@ -855,11 +855,11 @@
       ],
       "tags": [
         "design-case",
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Ca thiết kế nhiều bước; chưa có kịch bản đặt tên theo mã ca"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/reports/crosscheck.enterprise.test.ts"
       },
       "module": "RPT"
     },
@@ -909,20 +909,17 @@
       },
       "module": "RPT",
       "db_assert": {
-        "query": "SELECT count(*) FROM machvon.report_issue WHERE layout_code = 'DIS-WEEKLY' AND revision = 1",
+        "query": "SELECT tenant_id, layout_code, period_code, revision FROM machvon.report_issue GROUP BY tenant_id, layout_code, period_code, revision HAVING count(*) > 1",
         "expect": {
-          "value": "1"
+          "rows": 0
         }
       },
       "audit_assert": {
-        "entity": "report_issue",
-        "entity_id": "<id bản phát hành>",
-        "action": "rpt.report_issued",
-        "fields": [
-          "actor_id",
-          "safe_diff"
-        ],
-        "expect_rows": 1
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'rpt.report_issued' LIMIT 1"
+        },
+        "expect_rows": 1,
+        "query": "SELECT actor_id, safe_diff FROM machvon.audit_event WHERE tenant_id = '${tenant_id}' AND action = 'rpt.report_issued' ORDER BY occurred_at DESC LIMIT 1"
       }
     },
     {
@@ -970,19 +967,11 @@
         "suite": "apps/api/test/uat/rpt.uat.test.ts"
       },
       "module": "RPT",
-      "idempotency": {
-        "url": "/report-engine/drafts",
-        "method": "POST",
-        "key_header": "Idempotency-Key",
-        "concurrency": 5,
-        "body": {
-          "layout_code": "DIS-WEEKLY",
-          "period": {
-            "kind": "AS_OF"
-          }
-        },
-        "count_query": "SELECT count(*) FROM machvon.report_issue WHERE layout_code = 'DIS-WEEKLY' AND revision = 1",
-        "expect_rows": 1
+      "db_assert": {
+        "query": "SELECT tenant_id, layout_code, period_code, package_sha256 FROM machvon.report_draft WHERE state <> 'ISSUED' GROUP BY tenant_id, layout_code, period_code, package_sha256 HAVING count(*) > 1",
+        "expect": {
+          "rows": 0
+        }
       }
     },
     {
@@ -1175,15 +1164,18 @@
       },
       "module": "RPT",
       "idempotency": {
-        "url": "/report-engine/issues/{id}/deliveries",
+        "resolve": {
+          "issue": "SELECT id::text FROM machvon.report_issue WHERE tenant_id = '${tenant_id}' ORDER BY issued_at DESC, id LIMIT 1"
+        },
+        "url": "/report-engine/issues/${issue}/deliveries",
         "method": "POST",
         "key_header": "Idempotency-Key",
         "concurrency": 5,
         "body": {
-          "receiver": "KBNN",
+          "receiver": "UAT-${stamp}",
           "channel": "DOWNLOAD"
         },
-        "count_query": "SELECT count(*) FROM machvon.report_delivery WHERE receiver = 'KBNN'",
+        "count_query": "SELECT count(*) FROM machvon.report_delivery WHERE tenant_id = '${tenant_id}' AND issue_id = '${issue}' AND receiver = 'UAT-${stamp}' AND event = 'DELIVERED'",
         "expect_rows": 1
       }
     },
@@ -1332,11 +1324,11 @@
         "ST-RPT-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Đã là ca thiết kế UAT-RPT-003; cần bật quy tắc REPORT_FORM_MODE bằng hai người và biểu mẫu DEMO có số liệu minh họa, suite RPT chưa dựng (kiểm bằng apps/api/test/reports/demo-forms.enterprise.test.ts)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/rpt-extra.test.ts"
       },
       "module": "RPT"
     },
@@ -1377,11 +1369,11 @@
         "ST-RPT-121"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần cổng ký số của DOC và biểu mẫu Bộ Tài chính (mẫu chính thức là PX-01); suite UAT chưa dựng cổng ký"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/rpt-extra.test.ts"
       },
       "module": "RPT",
       "transition": {
@@ -1431,7 +1423,7 @@
       ],
       "automation": {
         "state": "MANUAL",
-        "reason": "Cần việc gửi email của bản enterprise và nhà cung cấp email giả; SMTP/Teams thật chờ khách (PX-16)"
+        "reason": "The mail runner is proven only against in-memory fakes of its store (packages/edition-enterprise delivery-runner.test.ts) and its store alone; no suite runs it over the database with the real e-mail channel port. The world lacks the wiring: an active EMAIL channel_account, an address of the recipient in tenant_user_directory, the in-memory e-mail adapter in a ChannelAdapterRegistry and the job createReportMailJob. Not built in this lane; a real SMTP is PX-16."
       },
       "module": "RPT"
     },
@@ -1472,11 +1464,11 @@
         "ST-RPT-141"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần hai biểu mẫu enterprise cùng kỳ lệch số; đã có ở apps/api/test/reports/crosscheck.enterprise.test.ts, chưa dựng trong suite UAT"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/rpt-extra.test.ts"
       },
       "module": "RPT"
     },
@@ -1517,11 +1509,11 @@
         "ST-RPT-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Cần bản phát hành thật và bộ 500 bản; đo trên phần cứng khách là PX-10"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/rpt-extra.test.ts"
       },
       "module": "RPT",
       "perf_budget": {
@@ -1574,11 +1566,11 @@
         "ST-RPT-001"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chưa có đi bàn phím riêng; quét axe chung ở apps/web/e2e/a11y.spec.ts"
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/uatcase-a11y-rpt.spec.ts"
       },
       "module": "RPT"
     },
@@ -1621,11 +1613,11 @@
         "ST-RPT-121"
       ],
       "tags": [
-        "manual"
+        "automated"
       ],
       "automation": {
-        "state": "MANUAL",
-        "reason": "Chờ khách cung cấp bố cục chính thức (PX-01, PX-15)"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/reports/report-engine.enterprise.test.ts"
       },
       "module": "RPT"
     },

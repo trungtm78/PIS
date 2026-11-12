@@ -530,7 +530,7 @@ describe('knowledge collections: indexing and retrieval filtered by tenant and a
     expect(await ask(BQL1, a.id, 'thẩm định dự án đầu tư công')).toEqual([]);
   });
 
-  it('puts the tenant in front of the distance: the same text in two tenants is found in its own, and the query names the tenant', async () => {
+  it('puts the tenant in front of the distance: the same text in two tenants is found in its own, and the query names the tenant (UAT-NFR-TENANCY-04)', async () => {
     const a = await collection(TENANT_A);
     const documentA = await document({ unit: 2 });
     await index(ADMIN, a.id, documentA);

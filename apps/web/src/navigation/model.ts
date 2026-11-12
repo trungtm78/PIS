@@ -17,7 +17,24 @@ export interface NavLink {
   path: string;
   /** The module has contextual shortcuts that open under the link. */
   expandable: boolean;
+  /** Further modules whose screens belong under this link (an edition entry that gathers several modules): they keep the link active and open. */
+  covers?: readonly string[];
 }
+
+/** One sidebar entry an edition adds to the quick modules; the text is already translated (`resolveNavigationExtension`). */
+export interface NavigationExtensionEntry {
+  module: string;
+  label: string;
+  icon: string;
+  /** The module of the quick link this entry follows; entries that share an anchor keep their order. */
+  after: string;
+  covers?: readonly string[];
+  /** [screen id, title] of the shortcuts under the link; they replace the shortcuts the design data holds for the module. */
+  shortcuts: readonly (readonly [string, string])[];
+}
+
+/** What an edition adds to the navigation of the design data; the public edition has none. */
+export type NavigationExtension = readonly NavigationExtensionEntry[];
 
 export interface ShortcutLink {
   id: string;
@@ -54,6 +71,21 @@ export interface DirectoryGroup {
 /** Which modules the signed-in user may open; the server still decides every request. */
 export interface NavigationAccess {
   isModuleVisible(module: string): boolean;
+}
+
+/** Translates the entries an edition adds (labels are i18n keys) into the text `buildNavigation` takes; none for the public edition. */
+export function resolveNavigationExtension(
+  entries: readonly { module: string; labelKey: string; icon: string; after: string; covers?: readonly string[]; shortcuts: readonly (readonly [string, string])[] }[] | undefined,
+  t: (key: string) => string,
+): NavigationExtension {
+  return (entries ?? []).map((entry) => ({
+    module: entry.module,
+    label: t(entry.labelKey),
+    icon: entry.icon,
+    after: entry.after,
+    ...(entry.covers === undefined ? {} : { covers: entry.covers }),
+    shortcuts: entry.shortcuts.map(([id, key]) => [id, t(key)] as const),
+  }));
 }
 
 export const ALL_MODULES_VISIBLE: NavigationAccess = { isModuleVisible: () => true };
@@ -99,7 +131,7 @@ export function screenId(module: string, number: number): string {
  * Builds the navigation of the shell from navigation_architecture.json and the route table. Pure: the same input
  * gives the same model, so it can be tested without a browser.
  */
-export function buildNavigation(arch: NavArchitecture, routes: readonly WebRoute[], access: NavigationAccess): NavigationModel {
+export function buildNavigation(arch: NavArchitecture, routes: readonly WebRoute[], access: NavigationAccess, extension: NavigationExtension = []): NavigationModel {
   const byId = new Map(routes.map((route) => [route.id, route]));
   const visible = (module: string): boolean => access.isModuleVisible(module);
   const nameOf = (module: string): string => arch.modules[module]?.name ?? module;
@@ -117,6 +149,18 @@ export function buildNavigation(arch: NavArchitecture, routes: readonly WebRoute
     return [{ id, module, label: { text: label }, icon, path, expandable: true }];
   });
 
+  // The entries of the edition follow their anchor in the order given; an anchor the session cannot see leaves them at the end of the list.
+  const placed = new Map<string, number>();
+  for (const entry of extension) {
+    const id = screenId(entry.module, 1);
+    const path = linkTo(id);
+    if (!visible(entry.module) || path === undefined || !isIconName(entry.icon)) continue;
+    const anchor = quick.findIndex((link) => link.module === entry.after);
+    const count = placed.get(entry.after) ?? 0;
+    placed.set(entry.after, count + 1);
+    quick.splice(anchor < 0 ? quick.length : anchor + 1 + count, 0, { id, module: entry.module, label: { text: entry.label }, icon: entry.icon, path, expandable: true, ...(entry.covers === undefined ? {} : { covers: entry.covers }) });
+  }
+
   const shortcuts = new Map<string, ShortcutLink[]>();
   for (const [module, entries] of Object.entries(arch.contextualShortcuts)) {
     if (!visible(module)) continue;
@@ -126,6 +170,17 @@ export function buildNavigation(arch: NavArchitecture, routes: readonly WebRoute
       return path === undefined ? [] : [{ id, label, path }];
     });
     shortcuts.set(module, links);
+  }
+
+  for (const entry of extension) {
+    if (!visible(entry.module) || linkTo(screenId(entry.module, 1)) === undefined) continue;
+    shortcuts.set(
+      entry.module,
+      entry.shortcuts.flatMap(([id, label]) => {
+        const path = linkTo(id);
+        return path === undefined || !visible(id.split('-')[0] ?? '') ? [] : [{ id, label, path }];
+      }),
+    );
   }
 
   const libraryModule = (code: string): LibraryModule | undefined => {

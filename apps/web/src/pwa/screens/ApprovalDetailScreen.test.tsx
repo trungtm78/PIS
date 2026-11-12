@@ -69,7 +69,7 @@ function open(world: World, options: { permissions?: readonly string[] | undefin
 afterEach(cleanup);
 
 describe('ApprovalDetailScreen (PWA-05)', () => {
-  it('names the project, period and unit, and compares the figures with the plan and the period before (AC-ST-PWA-001-1)', async () => {
+  it('UAT-PWA-01 / AC-ST-PWA-001-1: names the project, period and unit, and compares the figures with the plan and the period before', async () => {
     const h = open({ reports: { [REPORT]: report(REPORT, 1) } });
     await screen.findByTestId('summary');
     await waitFor(() => expect(screen.getByTestId('project-name').textContent).toContain('Cầu Bằng Giang'));
@@ -89,7 +89,7 @@ describe('ApprovalDetailScreen (PWA-05)', () => {
     await waitFor(() => expect(h.readAll).toHaveBeenCalledWith('get_resources_approval_task', { query: { workflow_instance_id: taskId(101) } }));
   });
 
-  it('lists the evidence and the steps, and says the first report has no earlier one', async () => {
+  it('UAT-PWA-01: lists the evidence and the steps, and says the first report has no earlier one', async () => {
     open({ reports: { [REPORT]: report(REPORT, 1) }, steps: [stepRow(2, { decision: 'return', reason: 'Thiếu biên bản' }), stepRow(1)] });
     const evidence = await screen.findByLabelText(word('pwa2.approvalDetail.evidence.aria'));
     expect(evidence.textContent).toContain('bien-ban.pdf');
@@ -102,7 +102,7 @@ describe('ApprovalDetailScreen (PWA-05)', () => {
     expect(screen.getByText(word('pwa2.approvalDetail.revision.first'))).toBeInTheDocument();
   });
 
-  it('compares a corrected revision with the one before it', async () => {
+  it('UAT-PWA-01: compares a corrected revision with the one before it', async () => {
     open({ reports: { [REPORT]: report(REPORT, 2, { supersedes_id: BEFORE, amendment_reason: 'Sửa số kho bạc', funding_lines: [line('CURRENT_YEAR', 'CENTRAL', '1000', '600', '400')] }), [BEFORE]: report(BEFORE, 1, { funding_lines: [line('CURRENT_YEAR', 'CENTRAL', '1000', '500', null)] }) } });
     const comparison = await screen.findByTestId('revision-comparison');
     expect(comparison.textContent).toContain('Lần 2 so với lần 1');
@@ -110,7 +110,7 @@ describe('ApprovalDetailScreen (PWA-05)', () => {
     expect(comparison.textContent).toContain('500 → 600 (+100)');
   });
 
-  it('leaves out a part the reader may not see, and says so; a lost connection is a failure to retry', async () => {
+  it('UAT-PWA-01: leaves out a part the reader may not see, and says so; a lost connection is a failure to retry', async () => {
     open({ reports: { [REPORT]: failure(403, 'PERMISSION_DENIED') } });
     expect((await screen.findAllByText(word('pwa2.approvalDetail.unavailable.denied'))).length).toBeGreaterThan(0);
     expect(screen.getByTestId('summary')).toBeInTheDocument();
@@ -142,7 +142,7 @@ describe('ApprovalDetailScreen (PWA-05)', () => {
     expect(h.read).not.toHaveBeenCalledWith('get_resources_approval_task_id', expect.anything());
   });
 
-  it('approves under the version on the screen with the idempotency key, and gives a receipt with the project name (AC-ST-PWA-001-2)', async () => {
+  it('UAT-PWA-01 / AC-ST-PWA-001-2: approves under the version on the screen with the idempotency key, and gives a receipt with the project name', async () => {
     const h = open({ reports: { [REPORT]: report(REPORT, 1) } });
     await waitFor(() => expect(screen.getByTestId('project-name').textContent).toContain('Cầu Bằng Giang'));
     fireEvent.click(within(screen.getByTestId('actions')).getByRole('button', { name: word('pwa.approvals.action.approve') }));
@@ -157,7 +157,7 @@ describe('ApprovalDetailScreen (PWA-05)', () => {
     expect(calls[0]?.attempt.key).toBeTruthy();
   });
 
-  it('requires a reason to return, asks for the second factor in place, and offers to reload after a conflict', async () => {
+  it('UAT-PWA-01: requires a reason to return, asks for the second factor in place, and offers to reload after a conflict', async () => {
     let failWith: ApiError | undefined = failure(401, 'MFA_REQUIRED');
     let asked = 0;
     const h = open({ reports: { [REPORT]: report(REPORT, 1) } }, { command: () => failWith ?? { operation_id: 'o', status: 'OK', resource_version: 4 }, requestStepUp: () => { asked += 1; return Promise.resolve(); } });
@@ -197,7 +197,7 @@ describe('approval detail model', () => {
     expect(toReportFigures({ ...report(REPORT, 1), project: undefined })).toBeUndefined();
   });
 
-  it('computes exact differences and the share of the plan, with no rate over a plan of zero', () => {
+  it('UAT-PWA-01: computes exact differences and the share of the plan, with no rate over a plan of zero', () => {
     expect(differenceDong('9007199254740993', '1')).toBe('9007199254740992');
     expect(differenceDong('5', '9')).toBe('-4');
     expect(planShareTenths('467', '1000')).toBe(467);
@@ -207,7 +207,7 @@ describe('approval detail model', () => {
     expect(kilobytes(1)).toBe(1);
   });
 
-  it('compares six cells and orders the steps by their index', () => {
+  it('UAT-PWA-01: compares six cells and orders the steps by their index', () => {
     const now = toReportFigures(report(REPORT, 2))!;
     const before = toReportFigures(report(BEFORE, 1, { funding_lines: [line('CURRENT_YEAR', 'CENTRAL', '1', '700000000', null)] }))!;
     const changes = compareRevisions(before, now);

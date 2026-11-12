@@ -472,7 +472,7 @@ describe('GOV-12 over HTTP', () => {
   describe('period reports for the Ministry (G4-6)', () => {
     const issueId = randomUUID();
     const digest = createHash('sha256').update('XLSX:http').digest('hex');
-    it('lists the four forms for the Ministry as waiting for the official template', () => {
+    it('UAT-RPT-PX-01: lists the four forms for the Ministry as waiting for the official template', () => {
       const forms = REPORT_FORMS.list().filter((bundle) => bundle.receiver === 'MOF');
       expect(forms.map((bundle) => bundle.layout.code)).toEqual(['MOF-DIS-MONTHLY', 'MOF-DIS-QUARTERLY', 'MOF-DIS-WEEKLY', 'MOF-DIS-YEARLY']);
       for (const bundle of forms) expect(bundle.layout.status).toBe('PENDING_EXTERNAL');

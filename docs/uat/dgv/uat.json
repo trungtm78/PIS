@@ -1186,6 +1186,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "DGV-03",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dgv/dgv-dataset.test.ts"
+      },
       "module": "DGV"
     },
     {
@@ -1222,6 +1229,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "DGV-06",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dgv/dgv-quality.test.ts"
+      },
       "module": "DGV"
     },
     {
@@ -1259,6 +1273,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "DGV-07",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dgv/dgv-quality.test.ts"
+      },
       "module": "DGV"
     },
     {
@@ -1295,7 +1316,14 @@
       "design_evidence": null,
       "design_type": "business",
       "screen_id": "DGV-01",
-      "module": "DGV"
+      "module": "DGV",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/dgv/dgv-quality.test.ts"
+      },
+      "tags": [
+        "automated"
+      ]
     },
     {
       "tc_id": "TC-UAT-AC487",
@@ -1367,6 +1395,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "DGV-09",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/dgv-source-cases.test.ts"
+      },
       "module": "DGV"
     },
     {
@@ -1478,6 +1513,13 @@
       "design_evidence": null,
       "design_type": "domain",
       "screen_id": "DGV-14",
+      "tags": [
+        "automated"
+      ],
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/uatcase/dgv-source-cases.test.ts"
+      },
       "module": "DGV"
     },
     {

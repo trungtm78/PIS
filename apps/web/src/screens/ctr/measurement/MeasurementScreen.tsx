@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -9,8 +8,8 @@ import { usePeriods } from '../../dis/hooks';
 import { useBoqLines } from '../boq-hooks';
 import { linesOf } from '../boq-model';
 import type { BoqLine } from '../boq-model';
-import { BackLink, StatusBadge } from '../components';
-import { useContract } from '../hooks';
+import { BackLink, StatusBadge, DefaultContractBar } from '../components';
+import { useContract, useContractChoice } from '../hooks';
 import type { ContractView } from '../model';
 import { useMeasurements, useSubmitMeasurement } from './hooks';
 import { measurementProblemMessage, statusLabel } from './labels';
@@ -38,8 +37,9 @@ export default function MeasurementScreen({ route }: ScreenProps) {
 
 function MeasurementContent({ route }: ScreenProps) {
   const { t } = useTranslation();
-  const [search] = useSearchParams();
-  const contractId = search.get('contract');
+  // Opened without a contract in the address (the menu), the largest contract in force is shown, and the selector stays to change it.
+  const choice = useContractChoice('contract');
+  const contractId = choice.contractId;
   const contract = useContract(contractId);
   const lines = useBoqLines(contractId);
   const measurements = useMeasurements(contractId);
@@ -59,7 +59,10 @@ function MeasurementContent({ route }: ScreenProps) {
           <p>{t('ctr.measurement.subtitle')}</p>
         </div>
       </div>
-      {contractId === null ? (
+      <DefaultContractBar choice={choice} />
+      {choice.isLoading ? (
+        <StateBoundary state="loading" />
+      ) : contractId === null ? (
         <p className="callout" role="status" data-testid="no-contract">
           {t('ctr.measurement.none.notice')}
         </p>

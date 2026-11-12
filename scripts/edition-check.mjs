@@ -30,7 +30,7 @@ export const FINDING_CODES = [
 /** The folders that hold the enterprise edition only. */
 export const ENTERPRISE_HOMES = ['packages/edition-enterprise/', 'apps/web/src/editions/enterprise/', 'apps/mobile/lib/editions/enterprise/', 'apps/api/src/editions/enterprise/'];
 /** The files that may import a home besides the homes themselves: one loader per process. */
-export const ENTERPRISE_SEAMS = ['apps/web/src/editions/load.ts', 'apps/api/src/editions/load-enterprise.ts', 'apps/mobile/lib/app/edition_seam.dart'];
+export const ENTERPRISE_SEAMS = ['apps/web/src/editions/load.ts', 'apps/api/src/editions/load-enterprise.ts', 'apps/mobile/lib/app/edition_seam.dart', 'apps/web/e2e/support/edition-terms.ts'];
 const IMPORTER_TESTS = /\.enterprise\.test\.tsx?$|enterprise_test\.dart$/;
 
 const WEB_OVERLAY_DIR = 'apps/web/src/editions/enterprise';
