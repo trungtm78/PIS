@@ -1,0 +1,9 @@
+{
+  "nonce": "a8702530567ab65b3c0c5080fa3ca4ab",
+  "ids": [
+    "CANARY-TITLE",
+    "CANARY-HTTP",
+    "CANARY-DOM"
+  ],
+  "must_fail": true
+}

@@ -1,0 +1,45 @@
+(node:12700) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[WebServer] (node:24572) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/PIS-uat6/packages/db/src/test-hygiene.ts is not specified and it doesn't parse as CommonJS.
+[WebServer] Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+[WebServer] To eliminate this warning, add "type": "module" to \\?\D:\PIS-uat6\packages\db\package.json.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:24572) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+
+Running 1 test using 1 worker
+
+  x  1 e2e\mdm-flows.spec.ts:583:3 › master data: propose, review, publish, change and history › a steward records the merger of two agencies, a second person approves and publishes it, and the inheritance tree and the agency screen show it (MDM-37, MDM-03) (30.0s)
+[WebServer]  PASS  test/e2e-stack/serve.stack.ts (50.372 s)
+[WebServer]   e2e API stack
+[WebServer]     √ serves the application on E2E_API_PORT until the stop file appears (46291 ms)
+[WebServer] 
+[WebServer] Test Suites: 1 passed, 1 total
+[WebServer] Tests:       1 passed, 1 total
+[WebServer] Snapshots:   0 total
+[WebServer] Time:        50.42 s, estimated 1507 s
+[WebServer] Ran all test suites.
+
+
+  1) e2e\mdm-flows.spec.ts:583:3 › master data: propose, review, publish, change and history › a steward records the merger of two agencies, a second person approves and publishes it, and the inheritance tree and the agency screen show it (MDM-37, MDM-03) 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByLabel('Loại danh mục', { exact: true })
+
+
+      597 |     const record = async (from: string, to: string, options: { kind?: string; share?: string; date?: string; submit?: boolean } = {}): Promise<void> => {
+      598 |       await open(page, '/mdm/mdm-37', 'steward');
+    > 599 |       await page.getByLabel(vi['mdm.succession.type.label'], { exact: true }).selectOption('AGENCY');
+          |                                                                               ^
+      600 |       const form = page.getByRole('form', { name: vi['mdm.succession.form.aria'] });
+      601 |       if (options.kind !== undefined) await form.getByLabel(vi['mdm.succession.kind.label'], { exact: true }).selectOption(options.kind);
+      602 |       await form.getByLabel(vi['mdm.succession.predecessor.label'], { exact: true }).selectOption((await recordOf(from)).id);
+        at record (D:\PIS-uat6\apps\web\e2e\mdm-flows.spec.ts:599:79)
+        at D:\PIS-uat6\apps\web\e2e\mdm-flows.spec.ts:617:5
+
+    Error Context: e2e\test-results\mdm-flows-master-data-prop-4bd73-reen-show-it-MDM-37-MDM-03-\error-context.md
+
+  1 failed
+    e2e\mdm-flows.spec.ts:583:3 › master data: propose, review, publish, change and history › a steward records the merger of two agencies, a second person approves and publishes it, and the inheritance tree and the agency screen show it (MDM-37, MDM-03) 

@@ -1,0 +1,1068 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-BI02",
+      "name": "TC-BI02: after the scope of the requester narrows, the old export gives no link and a new one holds only what the old and the new scope both cover",
+      "duration_ms": 896,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-NOT01",
+      "name": "TC-NOT01: DELIVERED then ACCEPTED never moves the send back, a repeated READ is one event, and the retry of a send whose recipient withdrew the consent is suppressed and never reaches the provider",
+      "duration_ms": 5682,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-NOT02",
+      "name": "TC-NOT02: the link of a notification of a record the person may not read does not mark it read and does not show the record",
+      "duration_ms": 1928,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-SEC01",
+      "name": "TC-SEC01: tenant A reaching for the ids of tenant B through detail, search, export and file gets 403 or 404, no metadata, no count, no file, no side effect",
+      "duration_ms": 26,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TH01",
+      "name": "TC-TH01: a theme draft is kept for its own tenant only, and the published theme and the other people do not change",
+      "duration_ms": 2722,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TH04",
+      "name": "the review tells the volume of 203.8% as a warning that does not block, writes the notes and attaches a clean file, and refuses an infected file and one that is not what it says (AC-ST-DIS-004-2, AC-ST-DIS-004-4, TH04)",
+      "duration_ms": 1184,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TH05",
+      "name": "TC-TH05: the tenant gets its own theme and version, and a change of theme loses neither the breadcrumb, the form nor the place in the menu",
+      "duration_ms": 880,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TX01",
+      "name": "TC-TX01: only one of two simultaneous allocations of the whole balance succeeds, the balance is 0, the other is refused as a conflict or insufficient and leaves no trace",
+      "duration_ms": 1246,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TX02",
+      "name": "TC-TX02: a retry after a timeout, a repeat of the same key and body, and the same key with another body leave one business audit row and one logical event",
+      "duration_ms": 917,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-TX03",
+      "name": "TC-TX03: a send whose answer was lost is Unknown and is not sent again on its own; what the provider holds settles it without a second message, and a provider that never saw it gets a new send with a new key",
+      "duration_ms": 9774,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC12",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-",
+      "duration_ms": 9663,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC154",
+      "name": "writes a draft, publishes it with a reason, and writes the next revision without touching the published one (UAT-AC154)",
+      "duration_ms": 1631,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC155",
+      "name": "previews an upgrade, applies it against the preview, and is refused a preview that went stale (UAT-AC155)",
+      "duration_ms": 1684,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC157",
+      "name": "one administrator asks, a second one approves, the table shows the override as the source, and either may end it (UAT-AC157, UAT-AC158)",
+      "duration_ms": 2447,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC158",
+      "name": "one administrator asks, a second one approves, the table shows the override as the source, and either may end it (UAT-AC157, UAT-AC158)",
+      "duration_ms": 2447,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC160",
+      "name": "a system administrator renews a license: revision 2 takes its place, revision 1 is kept as Superseded, both signatures verify and the history shows the chain (AC-ST-SAS-014-1, AC-ST-SAS-014-3, UAT-AC160, UI-SAS-14, UI-SAS-16)",
+      "duration_ms": 1661,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC229",
+      "name": "the planner asks, the approver approves with the document and the capital moves to a line of the next year (AC-ST-CAP-007-1, UAT-AC229)",
+      "duration_ms": 2212,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC230",
+      "name": "a year that is locked turns every write off (UAT-AC230) | the officer soft-closes the year and locks it: the capital that was not carried over lapses and the year shows the red banner (AC-ST-CAP-008-1, UAT-AC230)",
+      "duration_ms": 2623,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC240",
+      "name": "a maker draws the draft of a project for an open week, enters FX-DIS-001, is refused a CTMTQG above its cell, and saves (AC-ST-DIS-003-1, AC-ST-DIS-003-2, UAT-AC240)",
+      "duration_ms": 1633,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC246",
+      "name": "a requester asks for one project with a reason and a window, a different person approves 48 hours, and only that project is marked as reopened (AC-ST-DIS-002-1, UAT-AC246)",
+      "duration_ms": 1720,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC264",
+      "name": "a maker draws the draft and enters the volumes with the basis of the year to date marked as awaiting the sign-off (AC-ST-DIS-004-1, UAT-AC264)",
+      "duration_ms": 1252,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC300",
+      "name": "the leader is refused while retention is held, then closes the contract on the closed settlement once it is released (UI-CTR-03, AC-ST-CTR-012-1, UAT-AC300)",
+      "duration_ms": 1679,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC302",
+      "name": "the activation is refused while the conditions stand open, and the contract stays signed (AC-ST-CTR-004-2, UAT-AC302)",
+      "duration_ms": 1134,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC303",
+      "name": "the leader suspends an active contract on a decision document and resumes it with an extension that does not move the due date (UI-CTR-22, AC-ST-CTR-005-1, UAT-AC303)",
+      "duration_ms": 1614,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC304",
+      "name": "the one who made the decision document may not approve the termination; the leader terminates it with the guarantee called and nothing is offered after (UI-CTR-22, AC-ST-CTR-005-2, UAT-AC304)",
+      "duration_ms": 1776,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC305",
+      "name": "the leader is refused while a serious non-conformance is open and while a measurement waits, then completes the contract on the approved minutes (UI-CTR-03, AC-ST-CTR-011-1, UAT-AC305)",
+      "duration_ms": 2127,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC307",
+      "name": "the owner sets the tiers, the first request locks them, and a statement that bypasses the command is refused (UI-CTR-20, UI-CTR-07, AC-ST-CTR-006-1, UAT-AC307) | a project of one tier starts at the CO, and the form says where it starts (UI-CTR-07, AC-ST-CTR-006-1, UAT-AC307)",
+      "duration_ms": 3850,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC308",
+      "name": "the request is promoted from the change event to the PCO and the CO, and the CO is assessed with cost, schedule, scope and funding (UI-CTR-19, AC-ST-CTR-006-2, UAT-AC308) | the one who raised the chain may not decide it; an authority compares the CO with the contract and approves it, and the revisio",
+      "duration_ms": 6790,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC309",
+      "name": "the chief accountant is refused while the warranty is open and above what is held, releases a line once the warranty is closed, and a reader may do nothing (UI-CTR-21, AC-ST-CTR-010-1, UAT-AC309)",
+      "duration_ms": 2128,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC311",
+      "name": "the supervisor records and sends a quantity, another person approves it, and the authority corrects it (UI-CTR-10, AC-ST-CTR-008-1, AC-ST-CTR-008-2, UAT-AC311, UAT-AC312)",
+      "duration_ms": 4261,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC312",
+      "name": "the supervisor records and sends a quantity, another person approves it, and the authority corrects it (UI-CTR-10, AC-ST-CTR-008-1, AC-ST-CTR-008-2, UAT-AC311, UAT-AC312)",
+      "duration_ms": 4261,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC313",
+      "name": "the officer draws up and sends an acceptance, a leader approves it and payment is told once, and another person revokes it (UI-CTR-12, AC-ST-CTR-009-1, UAT-AC63, UAT-AC313) | a contract that asks for quality acceptance minutes refuses the approval in words until there are some (UI-CTR-12, AC-ST-CTR-",
+      "duration_ms": 5243,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC320",
+      "name": "the accountant sends a request, another request for the same acceptance is turned away, the approver checks it and gives it back, and the ledger follows (UI-PAY-03, AC-ST-PAY-003-1, AC-ST-PAY-003-3, AC-ST-PAY-003-5, UAT-AC320, UAT-AC322, UAT-AC332)",
+      "duration_ms": 4372,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC322",
+      "name": "the accountant sends a request, another request for the same acceptance is turned away, the approver checks it and gives it back, and the ledger follows (UI-PAY-03, AC-ST-PAY-003-1, AC-ST-PAY-003-3, AC-ST-PAY-003-5, UAT-AC320, UAT-AC322, UAT-AC332)",
+      "duration_ms": 4372,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC323",
+      "name": "the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60)",
+      "duration_ms": 4949,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC331",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-",
+      "duration_ms": 9663,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC332",
+      "name": "the accountant sends a request, another request for the same acceptance is turned away, the approver checks it and gives it back, and the ledger follows (UI-PAY-03, AC-ST-PAY-003-1, AC-ST-PAY-003-3, AC-ST-PAY-003-5, UAT-AC320, UAT-AC322, UAT-AC332)",
+      "duration_ms": 4372,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC335",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-",
+      "duration_ms": 9663,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC336",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-",
+      "duration_ms": 9663,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC337",
+      "name": "the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337)",
+      "duration_ms": 5697,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC341",
+      "name": "the chief accountant reads the balances and their entries, narrows them to one item, and a person without the right is refused (UI-PAY-10, AC-ST-PAY-001-4, UAT-AC341)",
+      "duration_ms": 1675,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC360",
+      "name": "the supervisor drafts and signs, the contractor and the owner sign, the owner approves it once and revokes it with a reason (UI-QMS-05, AC-ST-QMS-005-1, AC-ST-QMS-005-2, UAT-AC360, UAT-PLAN-27) | the contractor asks, the supervisor schedules and records a failed result, and the inspection is kept as",
+      "duration_ms": 8969,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC361",
+      "name": "the supervisor raises and assigns, the contractor answers, the verifier gives back once, verifies and closes, and reopens it (UI-QMS-07, AC-ST-QMS-006-1, UAT-AC361)",
+      "duration_ms": 4849,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC363",
+      "name": "the contractor asks, the supervisor schedules and records a failed result, and the inspection is kept as it is (UI-QMS-04, AC-ST-QMS-004-1, AC-ST-QMS-004-3, UAT-AC363, UAT-AC360) | the regime that replaces the current one from 2027 gives the inspection of that day its own roles (UI-QMS-04, AC-ST-QMS",
+      "duration_ms": 7546,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC377",
+      "name": "an officer posts a plan for the days of the rule, records an opinion, closes the posting once its days are over, and the approver approves when every opinion is handled (AC-ST-LND-006-1, UAT-AC377, UI-LND-06)",
+      "duration_ms": 3464,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC378",
+      "name": "the one who pays schedules a payment for each household, confirms one on time, says why another is late, deposits the money of the third, and the plan is completed (AC-ST-LND-007-1, AC-ST-LND-007-3, UAT-AC378, UI-LND-07)",
+      "duration_ms": 2775,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC381",
+      "name": "the data protection officer holds an erasure back while the household was paid, meets it in part with the reason, and anonymises a household that was not paid (AC-ST-LND-003-1, UAT-AC381, UI-LND-13)",
+      "duration_ms": 2652,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC382",
+      "name": "an officer drafts a plan, composes it from a confirmed record and a policy, revises it after it was posted, and the earlier revision stays readable (AC-ST-LND-005-1, AC-ST-LND-005-2, UAT-AC382, UAT-PLAN-30, UI-LND-05)",
+      "duration_ms": 2598,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC384",
+      "name": "the officer files a complaint, which gets its number, its days and its timer and holds the parcels; answers one with a reply document and escalates another (AC-ST-LND-008-1, UAT-AC384, UI-LND-08)",
+      "duration_ms": 2308,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC386",
+      "name": "an officer hands a section over to the active contract in steps, and the share of the project follows the areas (AC-ST-LND-009-1, UAT-AC386, UI-LND-10)",
+      "duration_ms": 1514,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC387",
+      "name": "the officer reports the stage of the centre with evidence, the late stage shows on the overview with the centre, and the figures equal the rows (AC-ST-LND-010-1, UAT-AC387, UI-LND-11, UI-LND-01)",
+      "duration_ms": 1930,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC388",
+      "name": "the project office drafts and lists the defects, the contractor puts them right, the verifier verifies and waives, and the receiving unit accepts (UI-AST-01, UI-AST-02, AC-ST-AST-001-1, AC-ST-AST-001-2, UAT-AC65, UAT-AC388)",
+      "duration_ms": 5788,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC389",
+      "name": "the accountant registers assets within the value of the contract, and the operating unit transfers one with the dossier of the commissioning (UI-AST-03, AC-ST-AST-002-1, UAT-AC389)",
+      "duration_ms": 2489,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC390",
+      "name": "the project office creates an obligation within the rule, closes it once it has run out and no claim is open, and a reader may do nothing (UI-AST-04, AC-ST-AST-003-1, AC-ST-AST-003-2, UAT-AC390, UAT-AC392)",
+      "duration_ms": 3053,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC392",
+      "name": "the project office creates an obligation within the rule, closes it once it has run out and no claim is open, and a reader may do nothing (UI-AST-04, AC-ST-AST-003-1, AC-ST-AST-003-2, UAT-AC390, UAT-AC392)",
+      "duration_ms": 3053,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC433",
+      "name": "the coordinator registers an engagement, starts it with a legal hold on its scope and ends the fieldwork (AC-ST-AUD-001-1, UAT-AC433, UI-AUD-02, UI-AUD-03)",
+      "duration_ms": 1990,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC434",
+      "name": "the coordinator records the conclusion, adds the recommendations within its total and a finding about the project (AC-ST-AUD-002-1, AC-ST-AUD-002-2, UAT-AC434, UI-AUD-04, UI-AUD-05)",
+      "duration_ms": 2298,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC435",
+      "name": "a leader gives a recommendation to a unit, the owner does the work and reports it, a verifier who had no hand in it closes it (AC-ST-AUD-003-1, AC-ST-AUD-003-2, UAT-AC435, UAT-AC436, UI-AUD-06, UI-AUD-07)",
+      "duration_ms": 2668,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC436",
+      "name": "a leader gives a recommendation to a unit, the owner does the work and reports it, a verifier who had no hand in it closes it (AC-ST-AUD-003-1, AC-ST-AUD-003-2, UAT-AC435, UAT-AC436, UI-AUD-06, UI-AUD-07)",
+      "duration_ms": 2668,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC440",
+      "name": "a person asks DOC to issue the report, DOC rejects it, a new revision is asked for and DOC issues it with the person who signed it (AC-ST-AUD-005-1, AC-ST-AUD-005-2, UAT-AC440, UI-AUD-10) | the engagement is not closed while a recommendation is open or no report was issued, and is closed once both a",
+      "duration_ms": 11580,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC441",
+      "name": "the owner explains a financial recommendation recovered in part; the authority accepts the explanation and the verifier closes it on what was recovered (AC-ST-AUD-003-3, UAT-AC441)",
+      "duration_ms": 1810,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC443",
+      "name": "the coordinator cancels a started engagement with a reason, which releases its legal hold (AC-ST-AUD-001-3, UAT-AC443)",
+      "duration_ms": 1382,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC446",
+      "name": "a winner under a restriction is refused (AC-ST-BID-006-2, UAT-AC446, UI-BID-18)",
+      "duration_ms": 1173,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC448",
+      "name": "the clerk logs the files a contractor handed in; the proposal is stored confidential and sealed until the opening, and the clerk sees the receipt and never the price (UI-BID-05, AC-ST-BID-004-1, UAT-AC448) | a member of the evaluation team sees nothing of the proposal before the opening, declares, a",
+      "duration_ms": 3828,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC450",
+      "name": "the planner logs a petition, the screen shows it overdue, a person with a conflict is not offered the answer and a different officer answers it (UI-BID-20, AC-ST-BID-007-1, AC-ST-BID-007-2, UAT-AC456, UAT-AC450) | a member who declares a relation with a bidder loses that bidder, the authority recuse",
+      "duration_ms": 5695,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC454",
+      "name": "the planner uploads the file, reads the dry run, applies it once, and the links are in step; the same file again is told as loaded (AC-ST-BID-005-1, UAT-AC454, UI-BID-19)",
+      "duration_ms": 2552,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC455",
+      "name": "the proposer submits the result at the price of the package or below, a person with the authority approves it, and the package is awarded (AC-ST-BID-006-1, UAT-AC455, UI-BID-18)",
+      "duration_ms": 2074,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC456",
+      "name": "the planner logs a petition, the screen shows it overdue, a person with a conflict is not offered the answer and a different officer answers it (UI-BID-20, AC-ST-BID-007-1, AC-ST-BID-007-2, UAT-AC456, UAT-AC450)",
+      "duration_ms": 2893,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC56",
+      "name": "the maker sends a draft to review; the reviewer gives it back with the reason, the maker sends it again and the reviewer signs it (UI-CTR-03, AC-ST-CTR-004-1, UAT-AC56)",
+      "duration_ms": 2810,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC60",
+      "name": "the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60)",
+      "duration_ms": 4949,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC61",
+      "name": "the accountant sees a late advance and a planned one, is refused a recovery above what is owed, records one with its evidence, cancels the planned advance and reads the schedule (UI-PAY-07, UI-CTR-06, AC-ST-PAY-004-3, AC-ST-PAY-004-4, UAT-AC61)",
+      "duration_ms": 1855,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC63",
+      "name": "the officer draws up and sends an acceptance, a leader approves it and payment is told once, and another person revokes it (UI-CTR-12, AC-ST-CTR-009-1, UAT-AC63, UAT-AC313)",
+      "duration_ms": 3252,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-AC65",
+      "name": "the project office drafts and lists the defects, the contractor puts them right, the verifier verifies and waives, and the receiving unit accepts (UI-AST-01, UI-AST-02, AC-ST-AST-001-1, AC-ST-AST-001-2, UAT-AC65, UAT-AC388)",
+      "duration_ms": 5788,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-ACCESSIBILITY-01",
+      "name": "AC-ST-KERNEL-032-1 UAT-NFR-ACCESSIBILITY-01: HOME-01 at 390 px has 0 serious or critical axe violations and no horizontal scroll | AC-ST-KERNEL-032-1 UAT-NFR-ACCESSIBILITY-01: HOME-09 at 390 px has 0 serious or critical axe violations and no horizontal scroll | AC-ST-KERNEL-032-1 UAT-NFR-ACCESSIBILI",
+      "duration_ms": 40502,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-04",
+      "name": "TC-UAT-NFR-SECURITY-04: the same Idempotency-Key and body answers the first answer again, another body is 409, no key is 400, and the report has one audit row and one event",
+      "duration_ms": 889,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-09",
+      "name": "TC-UAT-NFR-SECURITY-09: in every round exactly one of two simultaneous allocations of 100,000,000 VND is 200, the other is refused (409 VERSION_CONFLICT, or 422 APPROPRIATION_EXCEEDED per CAP.md), and the balance ends at 0 and never below",
+      "duration_ms": 21641,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-10",
+      "name": "TC-UAT-NFR-SECURITY-10: a signed DELIVERED, then an older ACCEPTED, the same DELIVERED again and an unsigned READ leave the send DELIVERED, one history row for each state, and the unsigned one is 401",
+      "duration_ms": 1745,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-01",
+      "name": "TC-UAT-NFR-TENANCY-01: every operation with an id answers 404 RESOURCE_NOT_FOUND for an object of tenant B and shows nothing of B",
+      "duration_ms": 21878,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-02",
+      "name": "TC-UAT-NFR-TENANCY-02: no table with a tenant lacks row-level security, and the application role sees and writes only its own tenant",
+      "duration_ms": 328,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-06",
+      "name": "TC-UAT-NFR-TENANCY-06: a scheduled export generated after the grant over Ban Y was revoked holds the five projects of Sở X only, none of Ban Y, and its audit row names a new scope hash",
+      "duration_ms": 65929,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-09",
+      "name": "TC-UAT-NFR-TENANCY-09: a member sees only the projects of their unit, and a guest contractor only their own contract",
+      "duration_ms": 231,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-27",
+      "name": "the supervisor drafts and signs, the contractor and the owner sign, the owner approves it once and revokes it with a reason (UI-QMS-05, AC-ST-QMS-005-1, AC-ST-QMS-005-2, UAT-AC360, UAT-PLAN-27)",
+      "duration_ms": 4226,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-29",
+      "name": "an officer counts an asset at the price decision of the day of the survey, someone else records the answer of the household, and the household and the parcel are inventoried (AC-ST-LND-004-1, UAT-PLAN-29, UI-LND-04)",
+      "duration_ms": 2204,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-30",
+      "name": "an officer drafts a plan, composes it from a confirmed record and a policy, revises it after it was posted, and the earlier revision stays readable (AC-ST-LND-005-1, AC-ST-LND-005-2, UAT-AC382, UAT-PLAN-30, UI-LND-05)",
+      "duration_ms": 2598,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-62",
+      "name": "a year with a plan waiting for a decision cannot be closed, and the screen says how many (AC-ST-CAP-008-2, UAT-PLAN-62)",
+      "duration_ms": 806,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UAT-PLAN-67",
+      "name": "a second draft of the same project and week is refused, with a way to the first (AC-ST-DIS-003-3, UAT-PLAN-67)",
+      "duration_ms": 857,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AST-01",
+      "name": "the project office drafts and lists the defects, the contractor puts them right, the verifier verifies and waives, and the receiving unit accepts (UI-AST-01, UI-AST-02, AC-ST-AST-001-1, AC-ST-AST-001-2, UAT-AC65, UAT-AC388)",
+      "duration_ms": 5788,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AST-02",
+      "name": "the project office drafts and lists the defects, the contractor puts them right, the verifier verifies and waives, and the receiving unit accepts (UI-AST-01, UI-AST-02, AC-ST-AST-001-1, AC-ST-AST-001-2, UAT-AC65, UAT-AC388)",
+      "duration_ms": 5788,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AST-03",
+      "name": "the accountant registers assets within the value of the contract, and the operating unit transfers one with the dossier of the commissioning (UI-AST-03, AC-ST-AST-002-1, UAT-AC389)",
+      "duration_ms": 2489,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AST-04",
+      "name": "the project office creates an obligation within the rule, closes it once it has run out and no claim is open, and a reader may do nothing (UI-AST-04, AC-ST-AST-003-1, AC-ST-AST-003-2, UAT-AC390, UAT-AC392)",
+      "duration_ms": 3053,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-01",
+      "name": "a reader sees the ledger, the rates with their numerators and denominators, and the overview, and has no button that records or reverses (UI-AUD-08, UI-AUD-01)",
+      "duration_ms": 1249,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-02",
+      "name": "the coordinator registers an engagement, starts it with a legal hold on its scope and ends the fieldwork (AC-ST-AUD-001-1, UAT-AC433, UI-AUD-02, UI-AUD-03) | a reader sees the list and the file and has no button that registers, starts, ends or cancels (UI-AUD-02, UI-AUD-03)",
+      "duration_ms": 4216,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-03",
+      "name": "the coordinator registers an engagement, starts it with a legal hold on its scope and ends the fieldwork (AC-ST-AUD-001-1, UAT-AC433, UI-AUD-02, UI-AUD-03) | a reader sees the list and the file and has no button that registers, starts, ends or cancels (UI-AUD-02, UI-AUD-03)",
+      "duration_ms": 4216,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-04",
+      "name": "the coordinator records the conclusion, adds the recommendations within its total and a finding about the project (AC-ST-AUD-002-1, AC-ST-AUD-002-2, UAT-AC434, UI-AUD-04, UI-AUD-05) | a reader sees the conclusion, its recommendations and its findings and has no button that records or adds (UI-AUD-04",
+      "duration_ms": 4529,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-05",
+      "name": "the coordinator records the conclusion, adds the recommendations within its total and a finding about the project (AC-ST-AUD-002-1, AC-ST-AUD-002-2, UAT-AC434, UI-AUD-04, UI-AUD-05) | a reader sees the conclusion, its recommendations and its findings and has no button that records or adds (UI-AUD-04",
+      "duration_ms": 4529,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-06",
+      "name": "a leader gives a recommendation to a unit, the owner does the work and reports it, a verifier who had no hand in it closes it (AC-ST-AUD-003-1, AC-ST-AUD-003-2, UAT-AC435, UAT-AC436, UI-AUD-06, UI-AUD-07) | a reader sees the board and the table and has no button that assigns, plans, reports, dispute",
+      "duration_ms": 4027,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-07",
+      "name": "a leader gives a recommendation to a unit, the owner does the work and reports it, a verifier who had no hand in it closes it (AC-ST-AUD-003-1, AC-ST-AUD-003-2, UAT-AC435, UAT-AC436, UI-AUD-06, UI-AUD-07) | a reader sees the board and the table and has no button that assigns, plans, reports, dispute",
+      "duration_ms": 4027,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-08",
+      "name": "an accountant records a remittance with its document, is refused more than what is left, and reverses a line with a reason that leaves a line against it (AC-ST-AUD-004-1, AC-ST-AUD-004-2, UI-AUD-08) | a reader sees the ledger, the rates with their numerators and denominators, and the overview, and h",
+      "duration_ms": 2988,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-AUD-10",
+      "name": "a person asks DOC to issue the report, DOC rejects it, a new revision is asked for and DOC issues it with the person who signed it (AC-ST-AUD-005-1, AC-ST-AUD-005-2, UAT-AC440, UI-AUD-10) | a reader sees the reports and the engagement and has no button that asks for a report or closes (UI-AUD-10)",
+      "duration_ms": 8123,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-BID-05",
+      "name": "the clerk logs the files a contractor handed in; the proposal is stored confidential and sealed until the opening, and the clerk sees the receipt and never the price (UI-BID-05, AC-ST-BID-004-1, UAT-AC448) | a member of the evaluation team sees nothing of the proposal before the opening, declares, a",
+      "duration_ms": 7980,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-BID-17",
+      "name": "the planner records the milestones of a package, is refused a date out of order, and the database holds the milestones with the source MANUAL (UI-BID-17) | someone who may only read sees the milestones, the links and no button (UI-BID-17, UI-BID-19)",
+      "duration_ms": 2755,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-BID-18",
+      "name": "the proposer submits the result at the price of the package or below, a person with the authority approves it, and the package is awarded (AC-ST-BID-006-1, UAT-AC455, UI-BID-18) | a winner under a restriction is refused (AC-ST-BID-006-2, UAT-AC446, UI-BID-18) | someone who only reads sees the result",
+      "duration_ms": 4273,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-BID-19",
+      "name": "the planner uploads the file, reads the dry run, applies it once, and the links are in step; the same file again is told as loaded (AC-ST-BID-005-1, UAT-AC454, UI-BID-19) | someone who may only read sees the milestones, the links and no button (UI-BID-17, UI-BID-19)",
+      "duration_ms": 4097,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-BID-20",
+      "name": "the planner logs a petition, the screen shows it overdue, a person with a conflict is not offered the answer and a different officer answers it (UI-BID-20, AC-ST-BID-007-1, AC-ST-BID-007-2, UAT-AC456, UAT-AC450)",
+      "duration_ms": 2893,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-03",
+      "name": "the leader is refused while retention is held, then closes the contract on the closed settlement once it is released (UI-CTR-03, AC-ST-CTR-012-1, UAT-AC300) | the leader is refused while a serious non-conformance is open and while a measurement waits, then completes the contract on the approved minu",
+      "duration_ms": 7428,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-04",
+      "name": "a file with faults is answered row by row and writes nothing; lines above the value are refused with the figures (AC-ST-CTR-002-3, UI-CTR-04)",
+      "duration_ms": 1298,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-05",
+      "name": "an advance guarantee is kept while an advance is owed, and the accountant sees the amount owed in the expiring view (AC-ST-CTR-003-2, UI-CTR-05)",
+      "duration_ms": 1300,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-06",
+      "name": "the accountant sees a late advance and a planned one, is refused a recovery above what is owed, records one with its evidence, cancels the planned advance and reads the schedule (UI-PAY-07, UI-CTR-06, AC-ST-PAY-004-3, AC-ST-PAY-004-4, UAT-AC61)",
+      "duration_ms": 1855,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-07",
+      "name": "the owner sets the tiers, the first request locks them, and a statement that bypasses the command is refused (UI-CTR-20, UI-CTR-07, AC-ST-CTR-006-1, UAT-AC307) | a project of one tier starts at the CO, and the form says where it starts (UI-CTR-07, AC-ST-CTR-006-1, UAT-AC307)",
+      "duration_ms": 3850,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-08",
+      "name": "the one who raised the chain may not decide it; an authority compares the CO with the contract and approves it, and the revision waits for its day (UI-CTR-08, UI-CTR-26, AC-ST-CTR-007-1, AC-ST-CTR-007-2, UAT-AC308) | a change order is given back to be assessed again, or rejected, with the reason (UI",
+      "duration_ms": 6573,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-10",
+      "name": "the supervisor records and sends a quantity, another person approves it, and the authority corrects it (UI-CTR-10, AC-ST-CTR-008-1, AC-ST-CTR-008-2, UAT-AC311, UAT-AC312) | a reader sees the quantities and no command (UI-CTR-10)",
+      "duration_ms": 5036,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-12",
+      "name": "the officer draws up and sends an acceptance, a leader approves it and payment is told once, and another person revokes it (UI-CTR-12, AC-ST-CTR-009-1, UAT-AC63, UAT-AC313) | a contract that asks for quality acceptance minutes refuses the approval in words until there are some (UI-CTR-12, AC-ST-CTR-",
+      "duration_ms": 6583,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-13",
+      "name": "the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60)",
+      "duration_ms": 4949,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-19",
+      "name": "the request is promoted from the change event to the PCO and the CO, and the CO is assessed with cost, schedule, scope and funding (UI-CTR-19, AC-ST-CTR-006-2, UAT-AC308) | a request is withdrawn with a reason, and a reader sees the board and no command (UI-CTR-19)",
+      "duration_ms": 5288,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-20",
+      "name": "the owner sets the tiers, the first request locks them, and a statement that bypasses the command is refused (UI-CTR-20, UI-CTR-07, AC-ST-CTR-006-1, UAT-AC307)",
+      "duration_ms": 2093,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-21",
+      "name": "the chief accountant is refused while the warranty is open and above what is held, releases a line once the warranty is closed, and a reader may do nothing (UI-CTR-21, AC-ST-CTR-010-1, UAT-AC309)",
+      "duration_ms": 2128,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-22",
+      "name": "the leader suspends an active contract on a decision document and resumes it with an extension that does not move the due date (UI-CTR-22, AC-ST-CTR-005-1, UAT-AC303) | the one who made the decision document may not approve the termination; the leader terminates it with the guarantee called and noth",
+      "duration_ms": 4680,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-CTR-26",
+      "name": "the one who raised the chain may not decide it; an authority compares the CO with the contract and approves it, and the revision waits for its day (UI-CTR-08, UI-CTR-26, AC-ST-CTR-007-1, AC-ST-CTR-007-2, UAT-AC308)",
+      "duration_ms": 3806,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-DIS-01",
+      "name": "a reader finds the report in the list with its figures and cannot change it or start another (AC-ST-DIS-003-4, UI-DIS-01)",
+      "duration_ms": 925,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-01",
+      "name": "the officer reports the stage of the centre with evidence, the late stage shows on the overview with the centre, and the figures equal the rows (AC-ST-LND-010-1, UAT-AC387, UI-LND-11, UI-LND-01)",
+      "duration_ms": 1930,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-02",
+      "name": "a parcel is declared, its notice starts 90 days for agricultural land and 180 for the rest, and the database holds the timers (AC-ST-LND-001-1, UI-LND-02) | a parcel list is imported once, the same file again creates nothing, and a file with an owner column is refused and kept nowhere (AC-ST-LND-001",
+      "duration_ms": 4333,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-03",
+      "name": "a household is registered on a legal basis, sealed and shown masked, linked to a parcel, and opened by the one recorded reading (AC-ST-LND-002-1, UI-LND-03) | the same identity number is not registered twice in a project, and the server says so (AC-ST-LND-002-2, UI-LND-03) | a reader sees the househ",
+      "duration_ms": 4029,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-04",
+      "name": "an officer counts an asset at the price decision of the day of the survey, someone else records the answer of the household, and the household and the parcel are inventoried (AC-ST-LND-004-1, UAT-PLAN-29, UI-LND-04) | a household that objects needs the note of the objection and is disputed (AC-ST-LN",
+      "duration_ms": 5520,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-05",
+      "name": "an officer drafts a plan, composes it from a confirmed record and a policy, revises it after it was posted, and the earlier revision stays readable (AC-ST-LND-005-1, AC-ST-LND-005-2, UAT-AC382, UAT-PLAN-30, UI-LND-05) | a reader sees the plans and the totals and no button that drafts, adds or revise",
+      "duration_ms": 4286,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-06",
+      "name": "an officer posts a plan for the days of the rule, records an opinion, closes the posting once its days are over, and the approver approves when every opinion is handled (AC-ST-LND-006-1, UAT-AC377, UI-LND-06) | a reader sees the posting, its dates and the opinions, and no button that posts, records,",
+      "duration_ms": 4920,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-07",
+      "name": "the one who pays schedules a payment for each household, confirms one on time, says why another is late, deposits the money of the third, and the plan is completed (AC-ST-LND-007-1, AC-ST-LND-007-3, UAT-AC378, UI-LND-07) | a reader sees the payments and the masked account and no button that schedule",
+      "duration_ms": 4609,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-08",
+      "name": "the officer files a complaint, which gets its number, its days and its timer and holds the parcels; answers one with a reply document and escalates another (AC-ST-LND-008-1, UAT-AC384, UI-LND-08) | a reader sees the complaints with what they say and no button that files or answers (UI-LND-08)",
+      "duration_ms": 3869,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-10",
+      "name": "an officer hands a section over to the active contract in steps, and the share of the project follows the areas (AC-ST-LND-009-1, UAT-AC386, UI-LND-10) | someone who may only read sees the sections and no button (UI-LND-10) | an officer who manages the land creates a section and names no contract ye",
+      "duration_ms": 3458,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-11",
+      "name": "the officer reports the stage of the centre with evidence, the late stage shows on the overview with the centre, and the figures equal the rows (AC-ST-LND-010-1, UAT-AC387, UI-LND-11, UI-LND-01) | someone who may only read sees the board and the overview and no button (UI-LND-11)",
+      "duration_ms": 3387,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-LND-13",
+      "name": "the data protection officer holds an erasure back while the household was paid, meets it in part with the reason, and anonymises a household that was not paid (AC-ST-LND-003-1, UAT-AC381, UI-LND-13)",
+      "duration_ms": 2652,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-01",
+      "name": "the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60) | a reader sees the requests and their",
+      "duration_ms": 7011,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-02",
+      "name": "the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60)",
+      "duration_ms": 4949,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-03",
+      "name": "the accountant draws a request up, gives it an invoice, meets a duplicate invoice, an approver lets it through, and the valuation shows how the amount is made up (UI-PAY-01, UI-PAY-02, UI-PAY-03, UI-CTR-13, AC-ST-PAY-002-1, AC-ST-PAY-002-4, UAT-AC323, UAT-AC60) | the accountant sends a request, anot",
+      "duration_ms": 9321,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-04",
+      "name": "the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337)",
+      "duration_ms": 5697,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-05",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-",
+      "duration_ms": 9663,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-06",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-",
+      "duration_ms": 9663,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-07",
+      "name": "the accountant sees a late advance and a planned one, is refused a recovery above what is owed, records one with its evidence, cancels the planned advance and reads the schedule (UI-PAY-07, UI-CTR-06, AC-ST-PAY-004-3, AC-ST-PAY-004-4, UAT-AC61) | a reader sees the advances and the schedule and no co",
+      "duration_ms": 2799,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-08",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-",
+      "duration_ms": 9663,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-09",
+      "name": "the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-",
+      "duration_ms": 9663,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-10",
+      "name": "the chief accountant reads the balances and their entries, narrows them to one item, and a person without the right is refused (UI-PAY-10, AC-ST-PAY-001-4, UAT-AC341)",
+      "duration_ms": 1675,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-13",
+      "name": "the accountant imports a statement, reads what became of every row, and the same file again changes nothing (AC-ST-PAY-006-1, AC-ST-PAY-006-2, AC-ST-PAY-006-4, UI-PAY-13)",
+      "duration_ms": 1910,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PAY-14",
+      "name": "the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337)",
+      "duration_ms": 5697,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-09",
+      "name": "a project is sent, scored by two appraisers and admitted to the project bank, and the database holds every step (AC-ST-PRJ-003-2, AC-ST-PRJ-003-1, AC-ST-PRJ-003-4, UI-PRJ-09, UI-PRJ-15, UI-PRJ-10)",
+      "duration_ms": 3115,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-10",
+      "name": "a project is sent, scored by two appraisers and admitted to the project bank, and the database holds every step (AC-ST-PRJ-003-2, AC-ST-PRJ-003-1, AC-ST-PRJ-003-4, UI-PRJ-09, UI-PRJ-15, UI-PRJ-10)",
+      "duration_ms": 3115,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-14",
+      "name": "the stage manager is told which guard is not met, then moves a project through start, suspension and resumption, and the database holds each move (AC-ST-PRJ-002-4, AC-ST-PRJ-002-2, UI-PRJ-14)",
+      "duration_ms": 1748,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-15",
+      "name": "a project is sent, scored by two appraisers and admitted to the project bank, and the database holds every step (AC-ST-PRJ-003-2, AC-ST-PRJ-003-1, AC-ST-PRJ-003-4, UI-PRJ-09, UI-PRJ-15, UI-PRJ-10)",
+      "duration_ms": 3115,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-PRJ-21",
+      "name": "the officer assigns a code by hand, is refused a code of the wrong format or one that is held, and the database holds the code, the audit row and the event (AC-ST-PRJ-004-1, UI-PRJ-21) | the officer uploads the reconciliation file, reads the dry run row by row, applies it once, and the second apply ",
+      "duration_ms": 3237,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-04",
+      "name": "the contractor asks, the supervisor schedules and records a failed result, and the inspection is kept as it is (UI-QMS-04, AC-ST-QMS-004-1, AC-ST-QMS-004-3, UAT-AC363, UAT-AC360) | the regime that replaces the current one from 2027 gives the inspection of that day its own roles (UI-QMS-04, AC-ST-QMS",
+      "duration_ms": 10551,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-05",
+      "name": "the supervisor drafts and signs, the contractor and the owner sign, the owner approves it once and revokes it with a reason (UI-QMS-05, AC-ST-QMS-005-1, AC-ST-QMS-005-2, UAT-AC360, UAT-PLAN-27) | a reader sees the minutes and no command (UI-QMS-05)",
+      "duration_ms": 5638,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-QMS-07",
+      "name": "the supervisor raises and assigns, the contractor answers, the verifier gives back once, verifies and closes, and reopens it (UI-QMS-07, AC-ST-QMS-006-1, UAT-AC361)",
+      "duration_ms": 4849,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-SAS-14",
+      "name": "a system administrator renews a license: revision 2 takes its place, revision 1 is kept as Superseded, both signatures verify and the history shows the chain (AC-ST-SAS-014-1, AC-ST-SAS-014-3, UAT-AC160, UI-SAS-14, UI-SAS-16) | a platform operator reads the history of a tenant and has no way to rene",
+      "duration_ms": 3209,
+      "status": "PASS",
+      "reasons": []
+    },
+    {
+      "tc_id": "TC-UI-SAS-16",
+      "name": "a system administrator renews a license: revision 2 takes its place, revision 1 is kept as Superseded, both signatures verify and the history shows the chain (AC-ST-SAS-014-1, AC-ST-SAS-014-3, UAT-AC160, UI-SAS-14, UI-SAS-16) | a platform operator reads the history of a tenant and has no way to rene",
+      "duration_ms": 3209,
+      "status": "PASS",
+      "reasons": []
+    }
+  ]
+}

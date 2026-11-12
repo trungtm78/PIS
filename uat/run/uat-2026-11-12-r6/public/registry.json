@@ -1,0 +1,8 @@
+{
+  "run_id": "public",
+  "registry": "uat/_registry",
+  "untrusted": [],
+  "findings": 1,
+  "history_runs": 5,
+  "green_runs": []
+}

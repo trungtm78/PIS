@@ -1,0 +1,1787 @@
+[
+ {
+  "step": 1,
+  "action": "no-candidate",
+  "ms": 81
+ },
+ {
+  "step": 2,
+  "action": "no-candidate",
+  "ms": 43
+ },
+ {
+  "step": 3,
+  "action": "no-candidate",
+  "ms": 33
+ },
+ {
+  "step": 4,
+  "action": "no-candidate",
+  "ms": 33
+ },
+ {
+  "step": 5,
+  "action": "no-candidate",
+  "ms": 34
+ },
+ {
+  "step": 6,
+  "action": "back"
+ },
+ {
+  "step": 6,
+  "action": "lac-origin",
+  "url": "about:blank",
+  "ms": 32
+ },
+ {
+  "step": 7,
+  "action": "no-candidate",
+  "ms": 35
+ },
+ {
+  "step": 8,
+  "action": "no-candidate",
+  "ms": 33
+ },
+ {
+  "step": 9,
+  "action": "no-candidate",
+  "ms": 33
+ },
+ {
+  "step": 10,
+  "action": "no-candidate",
+  "ms": 38
+ },
+ {
+  "step": 11,
+  "action": "no-candidate",
+  "ms": 35
+ },
+ {
+  "step": 12,
+  "action": "no-candidate",
+  "ms": 35
+ },
+ {
+  "step": 13,
+  "action": "no-candidate",
+  "ms": 37
+ },
+ {
+  "step": 14,
+  "action": "no-candidate",
+  "ms": 32
+ },
+ {
+  "step": 15,
+  "action": "no-candidate",
+  "ms": 32
+ },
+ {
+  "step": 16,
+  "action": "no-candidate",
+  "ms": 33
+ },
+ {
+  "step": 17,
+  "action": "scroll",
+  "dy": 199,
+  "ms": 18
+ },
+ {
+  "step": 18,
+  "action": "no-candidate",
+  "ms": 49
+ },
+ {
+  "step": 19,
+  "action": "no-candidate",
+  "ms": 34
+ },
+ {
+  "step": 20,
+  "action": "no-candidate",
+  "ms": 40
+ },
+ {
+  "step": 21,
+  "action": "scroll",
+  "dy": 191,
+  "ms": 10
+ },
+ {
+  "step": 22,
+  "action": "no-candidate",
+  "ms": 36
+ },
+ {
+  "step": 23,
+  "action": "no-candidate",
+  "ms": 35
+ },
+ {
+  "step": 24,
+  "action": "no-candidate",
+  "ms": 34
+ },
+ {
+  "step": 25,
+  "action": "key",
+  "key": "Tab",
+  "ms": 3
+ },
+ {
+  "step": 26,
+  "action": "scroll",
+  "dy": 764,
+  "ms": 6
+ },
+ {
+  "step": 27,
+  "action": "no-candidate",
+  "ms": 49
+ },
+ {
+  "step": 28,
+  "action": "scroll",
+  "dy": -371,
+  "ms": 18
+ },
+ {
+  "step": 29,
+  "action": "no-candidate",
+  "ms": 32
+ },
+ {
+  "step": 30,
+  "action": "no-candidate",
+  "ms": 34
+ },
+ {
+  "step": 31,
+  "action": "scroll",
+  "dy": 128,
+  "ms": 15
+ },
+ {
+  "step": 32,
+  "action": "no-candidate",
+  "ms": 32
+ },
+ {
+  "step": 33,
+  "action": "scroll",
+  "dy": 672,
+  "ms": 23
+ },
+ {
+  "step": 34,
+  "action": "no-candidate",
+  "ms": 92
+ },
+ {
+  "step": 35,
+  "action": "scroll",
+  "dy": -376,
+  "ms": 21
+ },
+ {
+  "step": 36,
+  "action": "key",
+  "key": "Tab",
+  "ms": 2
+ },
+ {
+  "step": 37,
+  "action": "no-candidate",
+  "ms": 33
+ },
+ {
+  "step": 38,
+  "action": "no-candidate",
+  "ms": 36
+ },
+ {
+  "step": 39,
+  "action": "no-candidate",
+  "ms": 37
+ },
+ {
+  "step": 40,
+  "action": "no-candidate",
+  "ms": 40
+ },
+ {
+  "step": 41,
+  "action": "no-candidate",
+  "ms": 37
+ },
+ {
+  "step": 42,
+  "action": "scroll",
+  "dy": 843,
+  "ms": 19
+ },
+ {
+  "step": 43,
+  "action": "no-candidate",
+  "ms": 37
+ },
+ {
+  "step": 44,
+  "action": "no-candidate",
+  "ms": 34
+ },
+ {
+  "step": 45,
+  "action": "key",
+  "key": "Space",
+  "ms": 3
+ },
+ {
+  "step": 46,
+  "action": "key",
+  "key": "Enter",
+  "ms": 1
+ },
+ {
+  "step": 47,
+  "action": "no-candidate",
+  "ms": 33
+ },
+ {
+  "step": 48,
+  "action": "no-candidate",
+  "ms": 34
+ },
+ {
+  "step": 49,
+  "action": "scroll",
+  "dy": 66,
+  "ms": 21
+ },
+ {
+  "step": 50,
+  "action": "scroll",
+  "dy": 1025,
+  "ms": 25
+ },
+ {
+  "step": 51,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Hợp đồng",
+  "ms": 131
+ },
+ {
+  "step": 52,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 65
+ },
+ {
+  "step": 53,
+  "action": "key",
+  "key": "ArrowDown",
+  "ms": 7
+ },
+ {
+  "step": 54,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 87
+ },
+ {
+  "step": 55,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 57
+ },
+ {
+  "step": 56,
+  "action": "key",
+  "key": "Escape",
+  "ms": 2
+ },
+ {
+  "step": 57,
+  "action": "click",
+  "target": "DA-PMDT114",
+  "ms": 39
+ },
+ {
+  "step": 58,
+  "action": "click",
+  "target": "Hợp đồng",
+  "ms": 77
+ },
+ {
+  "step": 59,
+  "action": "click",
+  "target": "Hợp đồng & thực hiện",
+  "ms": 67
+ },
+ {
+  "step": 60,
+  "action": "click",
+  "target": "Thành viên liên danh và phạm vi\nChi tiết & thao tác",
+  "ms": 56
+ },
+ {
+  "step": 61,
+  "action": "scroll",
+  "dy": 606,
+  "ms": 3
+ },
+ {
+  "step": 62,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng BI & báo cáo",
+  "ms": 39
+ },
+ {
+  "step": 63,
+  "action": "click",
+  "target": "Kế hoạch vốn",
+  "ms": 42
+ },
+ {
+  "step": 64,
+  "action": "click",
+  "target": "Nhật ký công trường",
+  "ms": 49
+ },
+ {
+  "step": 65,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 64
+ },
+ {
+  "step": 66,
+  "action": "click",
+  "target": "Thiết kế dashboard",
+  "ms": 3005
+ },
+ {
+  "step": 67,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3013
+ },
+ {
+  "step": 68,
+  "action": "click",
+  "target": "VA\nNguyễn Văn An\nCán bộ quản lý · Bản mẫu\n··· VA Nguyễn Văn ",
+  "ms": 3004
+ },
+ {
+  "step": 69,
+  "action": "click",
+  "target": "Nhật ký công trường",
+  "ms": 3010
+ },
+ {
+  "step": 70,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 3006
+ },
+ {
+  "step": 71,
+  "action": "click",
+  "target": "← Danh mục hợp đồng",
+  "ms": 3013
+ },
+ {
+  "step": 72,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 3015
+ },
+ {
+  "step": 73,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Dự án",
+  "ms": 3017
+ },
+ {
+  "step": 74,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Nhà thầu",
+  "ms": 3010
+ },
+ {
+  "step": 75,
+  "action": "click",
+  "target": "Thiết kế dashboard",
+  "ms": 3004
+ },
+ {
+  "step": 76,
+  "action": "click",
+  "target": "VA\nNguyễn Văn An\nCán bộ quản lý · Bản mẫu\n··· VA Nguyễn Văn ",
+  "ms": 3005
+ },
+ {
+  "step": 77,
+  "action": "click",
+  "target": "ĐP ĐP: trang chủ Đạm Phú Mỹ",
+  "ms": 3017
+ },
+ {
+  "step": 78,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 3012
+ },
+ {
+  "step": 79,
+  "action": "click",
+  "target": "Hợp đồng",
+  "ms": 3006
+ },
+ {
+  "step": 80,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 3017
+ },
+ {
+  "step": 81,
+  "action": "click",
+  "target": "Quyết toán",
+  "ms": 3014
+ },
+ {
+  "step": 82,
+  "action": "click",
+  "target": "Danh mục hợp đồng",
+  "ms": 3014
+ },
+ {
+  "step": 83,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Giải ngân",
+  "ms": 3012
+ },
+ {
+  "step": 84,
+  "action": "click",
+  "target": "Đóng hướng dẫn",
+  "ms": 13
+ },
+ {
+  "step": 85,
+  "action": "click",
+  "target": "Việc của tôi\n2",
+  "ms": 61
+ },
+ {
+  "step": 86,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 55
+ },
+ {
+  "step": 87,
+  "action": "click",
+  "target": "Thông báo\n3",
+  "ms": 56
+ },
+ {
+  "step": 88,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 55
+ },
+ {
+  "step": 89,
+  "action": "click",
+  "target": "Quản trị & cấu hình",
+  "ms": 53
+ },
+ {
+  "step": 90,
+  "action": "click",
+  "target": "Quản trị tổ chức\nTổ chức, thành viên, quyền và quy trình.",
+  "ms": 71
+ },
+ {
+  "step": 91,
+  "action": "fill",
+  "target": "topbar-search-input",
+  "value": "${7*7}",
+  "ms": 16
+ },
+ {
+  "step": 92,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Hợp đồng",
+  "ms": 44
+ },
+ {
+  "step": 93,
+  "action": "click",
+  "target": "Chỉ tiêu",
+  "ms": 50
+ },
+ {
+  "step": 94,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Giải ngân",
+  "ms": 57
+ },
+ {
+  "step": 95,
+  "action": "scroll",
+  "dy": 402,
+  "ms": 12
+ },
+ {
+  "step": 96,
+  "action": "click",
+  "target": "ctr_accepted_to_requested Mở chỉ tiêu ctr_accepted_to_reques",
+  "ms": 46
+ },
+ {
+  "step": 97,
+  "action": "key",
+  "key": "Escape",
+  "ms": 1
+ },
+ {
+  "step": 98,
+  "action": "click",
+  "target": "Giải ngân",
+  "ms": 48
+ },
+ {
+  "step": 99,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng BI & báo cáo",
+  "ms": 54
+ },
+ {
+  "step": 100,
+  "action": "click",
+  "target": "Tuần báo cáo",
+  "ms": 3015
+ },
+ {
+  "step": 101,
+  "action": "click",
+  "target": "Báo cáo giải ngân",
+  "ms": 31
+ },
+ {
+  "step": 102,
+  "action": "select",
+  "target": "Tất cả\nDA-PMDT105 · Nâng công suất hệ thống nước làm mát (1)",
+  "index": 6,
+  "ms": 13
+ },
+ {
+  "step": 103,
+  "action": "click",
+  "target": "Phần mềm quản lý đầu tư xây dựng Phần mềm quản lý đầu tư xây",
+  "ms": 3008
+ },
+ {
+  "step": 104,
+  "action": "select",
+  "target": "Tất cả\nDA-PMDT105 · Nâng công suất hệ thống nước làm mát (1)",
+  "index": 13,
+  "ms": 13
+ },
+ {
+  "step": 105,
+  "action": "click",
+  "target": "Chọn kỳ và dự án\nChi tiết & thao tác",
+  "ms": 48
+ },
+ {
+  "step": 106,
+  "action": "key",
+  "key": "Tab",
+  "ms": 2
+ },
+ {
+  "step": 107,
+  "action": "click",
+  "target": "Cần xử lý\n2\n1 khẩn Cần xử lý 2, 1 khẩn",
+  "ms": 51
+ },
+ {
+  "step": 108,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3014
+ },
+ {
+  "step": 109,
+  "action": "select",
+  "target": "Chọn dự án\nDA-PMDT105 · Nâng công suất hệ thống nước làm mát",
+  "index": 3,
+  "ms": 10
+ },
+ {
+  "step": 110,
+  "action": "key",
+  "key": "Enter",
+  "ms": 4
+ },
+ {
+  "step": 111,
+  "action": "fill",
+  "target": "${7*7}    topbar-search-input",
+  "value": "31/12/9999",
+  "ms": 9
+ },
+ {
+  "step": 112,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 51
+ },
+ {
+  "step": 113,
+  "action": "select",
+  "target": "Mọi giai đoạn\nÝ tưởng\nThẩm định\nNgân hàng dự án\nĐã bố trí vố",
+  "index": 10,
+  "ms": 21
+ },
+ {
+  "step": 114,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 50
+ },
+ {
+  "step": 115,
+  "action": "click",
+  "target": "Thông báo\n3",
+  "ms": 3008
+ },
+ {
+  "step": 116,
+  "action": "click",
+  "target": "Quản lý dự án",
+  "ms": 3013
+ },
+ {
+  "step": 117,
+  "action": "click",
+  "target": "Kế hoạch vốn",
+  "ms": 3011
+ },
+ {
+  "step": 118,
+  "action": "select",
+  "target": "Mọi giai đoạn\nÝ tưởng\nThẩm định\nNgân hàng dự án\nĐã bố trí vố",
+  "index": 5,
+  "ms": 18
+ },
+ {
+  "step": 119,
+  "action": "select",
+  "target": "Mọi giai đoạn\nÝ tưởng\nThẩm định\nNgân hàng dự án\nĐã bố trí vố",
+  "index": 8,
+  "ms": 9
+ },
+ {
+  "step": 120,
+  "action": "click",
+  "target": "Giai đoạn",
+  "ms": 3009
+ },
+ {
+  "step": 121,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Thông báo",
+  "ms": 3013
+ },
+ {
+  "step": 122,
+  "action": "click",
+  "target": "Hồ sơ pháp lý",
+  "ms": 3010
+ },
+ {
+  "step": 123,
+  "action": "click",
+  "target": "ĐP ĐP: trang chủ Đạm Phú Mỹ",
+  "ms": 3013
+ },
+ {
+  "step": 124,
+  "action": "click",
+  "target": "Mở trung tâm trợ giúp",
+  "ms": 35
+ },
+ {
+  "step": 125,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Thông báo",
+  "ms": 42
+ },
+ {
+  "step": 126,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Giải ngân",
+  "ms": 34
+ },
+ {
+  "step": 127,
+  "action": "click",
+  "target": "Nhóm yêu cầu",
+  "ms": 32
+ },
+ {
+  "step": 128,
+  "action": "click",
+  "target": "Giải ngân",
+  "ms": 51
+ },
+ {
+  "step": 129,
+  "action": "key",
+  "key": "ArrowUp",
+  "ms": 1
+ },
+ {
+  "step": 130,
+  "action": "key",
+  "key": "Tab",
+  "ms": 3
+ },
+ {
+  "step": 131,
+  "action": "select",
+  "target": "Tất cả\n2026\n2025    report-year",
+  "index": 0,
+  "ms": 12
+ },
+ {
+  "step": 132,
+  "action": "click",
+  "target": "Kế hoạch vốn",
+  "ms": 52
+ },
+ {
+  "step": 133,
+  "action": "click",
+  "target": "Việc của tôi\n2",
+  "ms": 53
+ },
+ {
+  "step": 134,
+  "action": "click",
+  "target": "Tất cả chức năng",
+  "ms": 53
+ },
+ {
+  "step": 135,
+  "action": "click",
+  "target": "ĐP ĐP: trang chủ Đạm Phú Mỹ",
+  "ms": 3008
+ },
+ {
+  "step": 136,
+  "action": "click",
+  "target": "Nhà thầu",
+  "ms": 3021
+ },
+ {
+  "step": 137,
+  "action": "click",
+  "target": "Cần xử lý\n2\n1 khẩn Cần xử lý 2, 1 khẩn",
+  "ms": 3008
+ },
+ {
+  "step": 138,
+  "action": "key",
+  "key": "ArrowDown",
+  "ms": 1
+ },
+ {
+  "step": 139,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Thông báo",
+  "ms": 3004
+ },
+ {
+  "step": 140,
+  "action": "key",
+  "key": "Enter",
+  "ms": 3
+ },
+ {
+  "step": 141,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Kế hoạch vốn",
+  "ms": 3013
+ },
+ {
+  "step": 142,
+  "action": "click",
+  "target": "Cần xử lý (1)",
+  "ms": 3017
+ },
+ {
+  "step": 143,
+  "action": "click",
+  "target": "Cần xử lý (1)",
+  "ms": 3010
+ },
+ {
+  "step": 144,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Thông báo",
+  "ms": 3016
+ },
+ {
+  "step": 145,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Kế hoạch vốn",
+  "ms": 3015
+ },
+ {
+  "step": 146,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Kế hoạch vốn",
+  "ms": 3017
+ },
+ {
+  "step": 147,
+  "action": "viewport",
+  "width": 820,
+  "height": 1180,
+  "ms": 14
+ },
+ {
+  "step": 148,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3014
+ },
+ {
+  "step": 149,
+  "action": "scroll",
+  "dy": -337,
+  "ms": 2
+ },
+ {
+  "step": 150,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3015
+ },
+ {
+  "step": 151,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3005
+ },
+ {
+  "step": 152,
+  "action": "click",
+  "target": "Nhóm người nhận\nKhông gian làm việc",
+  "ms": 35
+ },
+ {
+  "step": 153,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 57
+ },
+ {
+  "step": 154,
+  "action": "click",
+  "target": "Email",
+  "ms": 33
+ },
+ {
+  "step": 155,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 38
+ },
+ {
+  "step": 156,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 35
+ },
+ {
+  "step": 157,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 28
+ },
+ {
+  "step": 158,
+  "action": "click",
+  "target": "2\n1 khẩn Cần xử lý 2, 1 khẩn",
+  "ms": 40
+ },
+ {
+  "step": 159,
+  "action": "click",
+  "target": "Múi giờ",
+  "ms": 3007
+ },
+ {
+  "step": 160,
+  "action": "back",
+  "ms": 15
+ },
+ {
+  "step": 161,
+  "action": "click",
+  "target": "on",
+  "ms": 3014
+ },
+ {
+  "step": 162,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 98
+ },
+ {
+  "step": 163,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 96
+ },
+ {
+  "step": 164,
+  "action": "click",
+  "target": "Tên chiến dịch",
+  "ms": 3010
+ },
+ {
+  "step": 165,
+  "action": "key",
+  "key": "Space",
+  "ms": 38
+ },
+ {
+  "step": 166,
+  "action": "select",
+  "target": "Thông báo chung\nNhắc việc\nVận hành    campaign-purpose",
+  "index": 2,
+  "ms": 11
+ },
+ {
+  "step": 167,
+  "action": "back",
+  "ms": 2
+ },
+ {
+  "step": 168,
+  "action": "click",
+  "target": "Tất cả",
+  "ms": 101
+ },
+ {
+  "step": 169,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3013
+ },
+ {
+  "step": 170,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 58
+ },
+ {
+  "step": 171,
+  "action": "click",
+  "target": "Việc đang bị hoãn",
+  "ms": 3005
+ },
+ {
+  "step": 172,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3006
+ },
+ {
+  "step": 173,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 3007
+ },
+ {
+  "step": 174,
+  "action": "click",
+  "target": "Cần xử lý (1)",
+  "ms": 3020
+ },
+ {
+  "step": 175,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3007
+ },
+ {
+  "step": 176,
+  "action": "key",
+  "key": "Tab",
+  "ms": 3
+ },
+ {
+  "step": 177,
+  "action": "click",
+  "target": "Cần xử lý (1)",
+  "ms": 3012
+ },
+ {
+  "step": 178,
+  "action": "click",
+  "target": "Hạn xử lý",
+  "ms": 17
+ },
+ {
+  "step": 179,
+  "action": "fill",
+  "target": "2026-10-23    :r6b:",
+  "value": "\t\n",
+  "ms": 8
+ },
+ {
+  "step": 180,
+  "action": "click",
+  "target": "Tất cả (2)",
+  "ms": 3011
+ },
+ {
+  "step": 181,
+  "action": "back",
+  "ms": 1
+ },
+ {
+  "step": 182,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3058
+ },
+ {
+  "step": 183,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 3017
+ },
+ {
+  "step": 184,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 3016
+ },
+ {
+  "step": 185,
+  "action": "select",
+  "target": "Chọn người\nHoàng Thị Lan\nLê Minh Cường\nNguyễn Văn An\nNgô Tha",
+  "index": 7,
+  "ms": 11
+ },
+ {
+  "step": 186,
+  "action": "click",
+  "target": "Mở menu",
+  "ms": 3005
+ },
+ {
+  "step": 187,
+  "action": "scroll",
+  "dy": -58,
+  "ms": 1
+ },
+ {
+  "step": 188,
+  "action": "key",
+  "key": "Enter",
+  "ms": 3
+ },
+ {
+  "step": 189,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3013
+ },
+ {
+  "step": 190,
+  "action": "key",
+  "key": "ArrowUp",
+  "ms": 3
+ },
+ {
+  "step": 191,
+  "action": "click",
+  "target": "Đóng",
+  "ms": 3011
+ },
+ {
+  "step": 192,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3009
+ },
+ {
+  "step": 193,
+  "action": "click",
+  "target": "Việc đang bị hoãn",
+  "ms": 3010
+ },
+ {
+  "step": 194,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3017
+ },
+ {
+  "step": 195,
+  "action": "scroll",
+  "dy": 813,
+  "ms": 1
+ },
+ {
+  "step": 196,
+  "action": "key",
+  "key": "Enter",
+  "ms": 2
+ },
+ {
+  "step": 197,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3017
+ },
+ {
+  "step": 198,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3008
+ },
+ {
+  "step": 199,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 3007
+ },
+ {
+  "step": 200,
+  "action": "click",
+  "target": "Theo dõi\n8",
+  "ms": 3012
+ },
+ {
+  "step": 201,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 3010
+ },
+ {
+  "step": 202,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3006
+ },
+ {
+  "step": 203,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 3009
+ },
+ {
+  "step": 204,
+  "action": "click",
+  "target": "Dự án chưa nộp báo cáo tuần quá lâu, khẩn Mở hồ sơ: Dự án ch",
+  "ms": 3012
+ },
+ {
+  "step": 205,
+  "action": "click",
+  "target": "Việc đang bị hoãn",
+  "ms": 3014
+ },
+ {
+  "step": 206,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3014
+ },
+ {
+  "step": 207,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3004
+ },
+ {
+  "step": 208,
+  "action": "click",
+  "target": "Tạo kế hoạch",
+  "ms": 3013
+ },
+ {
+  "step": 209,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 3020
+ },
+ {
+  "step": 210,
+  "action": "click",
+  "target": "2\n1 khẩn Cần xử lý 2, 1 khẩn",
+  "ms": 3016
+ },
+ {
+  "step": 211,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 3015
+ },
+ {
+  "step": 212,
+  "action": "click",
+  "target": "Dự án chưa nộp báo cáo tuần quá lâu, khẩn Mở hồ sơ: Dự án ch",
+  "ms": 3012
+ },
+ {
+  "step": 213,
+  "action": "select",
+  "target": "Chọn người\nHoàng Thị Lan\nLê Minh Cường\nNguyễn Văn An\nNgô Tha",
+  "index": 2,
+  "ms": 9
+ },
+ {
+  "step": 214,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3006
+ },
+ {
+  "step": 215,
+  "action": "click",
+  "target": "Hủy",
+  "ms": 68
+ },
+ {
+  "step": 216,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 67
+ },
+ {
+  "step": 217,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 3005
+ },
+ {
+  "step": 218,
+  "action": "select",
+  "target": "Chọn người cho phép\nHoàng Thị Lan\nLê Minh Cường\nNgô Thanh Sơ",
+  "index": 3,
+  "ms": 10
+ },
+ {
+  "step": 219,
+  "action": "scroll",
+  "dy": -55,
+  "ms": 7
+ },
+ {
+  "step": 220,
+  "action": "fill",
+  "target": ":r6n:",
+  "value": "\" onmouseover=\"x",
+  "ms": 12
+ },
+ {
+  "step": 221,
+  "action": "select",
+  "target": "Chọn người cho phép\nHoàng Thị Lan\nLê Minh Cường\nNgô Thanh Sơ",
+  "index": 1,
+  "ms": 11
+ },
+ {
+  "step": 222,
+  "action": "click",
+  "target": "Kế hoạch & nguồn vốn",
+  "ms": 3010
+ },
+ {
+  "step": 223,
+  "action": "click",
+  "target": "Khẩn\n3",
+  "ms": 3015
+ },
+ {
+  "step": 224,
+  "action": "scroll",
+  "dy": -59,
+  "ms": 1
+ },
+ {
+  "step": 225,
+  "action": "key",
+  "key": "Enter",
+  "ms": 9
+ },
+ {
+  "step": 226,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 3006
+ },
+ {
+  "step": 227,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3019
+ },
+ {
+  "step": 228,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3015
+ },
+ {
+  "step": 229,
+  "action": "click",
+  "target": "Lý do tạm dừng",
+  "ms": 54
+ },
+ {
+  "step": 230,
+  "action": "click",
+  "target": "Cần xử lý\n45",
+  "ms": 3012
+ },
+ {
+  "step": 231,
+  "action": "key",
+  "key": "ArrowDown",
+  "ms": 5
+ },
+ {
+  "step": 232,
+  "action": "click",
+  "target": "Mở menu",
+  "ms": 3010
+ },
+ {
+  "step": 233,
+  "action": "click",
+  "target": "Lý do tạm dừng",
+  "ms": 24
+ },
+ {
+  "step": 234,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3009
+ },
+ {
+  "step": 235,
+  "action": "scroll",
+  "dy": -255,
+  "ms": 2
+ },
+ {
+  "step": 236,
+  "action": "click",
+  "target": "Giải thích (bắt buộc)",
+  "ms": 40
+ },
+ {
+  "step": 237,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 3010
+ },
+ {
+  "step": 238,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 3016
+ },
+ {
+  "step": 239,
+  "action": "click",
+  "target": "Bộ lọc (1 điều kiện đang áp dụng)",
+  "ms": 3012
+ },
+ {
+  "step": 240,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3019
+ },
+ {
+  "step": 241,
+  "action": "click",
+  "target": "Hủy",
+  "ms": 58
+ },
+ {
+  "step": 242,
+  "action": "scroll",
+  "dy": 71,
+  "ms": 14
+ },
+ {
+  "step": 243,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3012
+ },
+ {
+  "step": 244,
+  "action": "click",
+  "target": "Theo dõi\n8",
+  "ms": 31
+ },
+ {
+  "step": 245,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 44
+ },
+ {
+  "step": 246,
+  "action": "click",
+  "target": "Theo dõi (0)",
+  "ms": 38
+ },
+ {
+  "step": 247,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 156
+ },
+ {
+  "step": 248,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 94
+ },
+ {
+  "step": 249,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3013
+ },
+ {
+  "step": 250,
+  "action": "click",
+  "target": "Người nhận",
+  "ms": 37
+ },
+ {
+  "step": 251,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3007
+ },
+ {
+  "step": 252,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3005
+ },
+ {
+  "step": 253,
+  "action": "click",
+  "target": "Người nhận",
+  "ms": 15
+ },
+ {
+  "step": 254,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3003
+ },
+ {
+  "step": 255,
+  "action": "key",
+  "key": "Enter",
+  "ms": 9
+ },
+ {
+  "step": 256,
+  "action": "back",
+  "ms": 2
+ },
+ {
+  "step": 257,
+  "action": "click",
+  "target": "Mở menu",
+  "ms": 58
+ },
+ {
+  "step": 258,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3016
+ },
+ {
+  "step": 259,
+  "action": "scroll",
+  "dy": 680,
+  "ms": 2
+ },
+ {
+  "step": 260,
+  "action": "click",
+  "target": "Hợp đồng",
+  "ms": 54
+ },
+ {
+  "step": 261,
+  "action": "key",
+  "key": "Enter",
+  "ms": 5
+ },
+ {
+  "step": 262,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Giải ngân",
+  "ms": 3007
+ },
+ {
+  "step": 263,
+  "action": "click",
+  "target": "HD-PMDT105-XL01",
+  "ms": 20
+ },
+ {
+  "step": 264,
+  "action": "click",
+  "target": "2\n1 khẩn Cần xử lý 2, 1 khẩn",
+  "ms": 53
+ },
+ {
+  "step": 265,
+  "action": "fill",
+  "target": "31/12/9999    topbar-search-input",
+  "value": "{{7*7}}",
+  "ms": 11
+ },
+ {
+  "step": 266,
+  "action": "back",
+  "ms": 3
+ },
+ {
+  "step": 267,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3036
+ },
+ {
+  "step": 268,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 24
+ },
+ {
+  "step": 269,
+  "action": "fill",
+  "target": "{{7*7}}    topbar-search-input",
+  "value": "' OR '1'='1",
+  "ms": 8
+ },
+ {
+  "step": 270,
+  "action": "click",
+  "target": "Nhắc lại",
+  "ms": 46
+ },
+ {
+  "step": 271,
+  "action": "fill",
+  "target": "' OR '1'='1    topbar-search-input",
+  "value": "-1",
+  "ms": 22
+ },
+ {
+  "step": 272,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3009
+ },
+ {
+  "step": 273,
+  "action": "scroll",
+  "dy": 1050,
+  "ms": 2
+ },
+ {
+  "step": 274,
+  "action": "click",
+  "target": "Hoàn tác Hoàn tác nhận xử lý (còn 5 giây)",
+  "ms": 3011
+ },
+ {
+  "step": 275,
+  "action": "click",
+  "target": "Tất cả",
+  "ms": 3008
+ },
+ {
+  "step": 276,
+  "action": "click",
+  "target": "Mục bắt buộc sắp đến hạn · PMTB191-XL01 Mở hồ sơ: Mục bắt bu",
+  "ms": 3011
+ },
+ {
+  "step": 277,
+  "action": "click",
+  "target": "Từ khóa",
+  "ms": 3016
+ },
+ {
+  "step": 278,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3017
+ },
+ {
+  "step": 279,
+  "action": "click",
+  "target": "Khẩn\n3",
+  "ms": 3013
+ },
+ {
+  "step": 280,
+  "action": "click",
+  "target": "Của tôi",
+  "ms": 3020
+ },
+ {
+  "step": 281,
+  "action": "click",
+  "target": "Tất cả",
+  "ms": 3012
+ },
+ {
+  "step": 282,
+  "action": "click",
+  "target": "Mở menu",
+  "ms": 3014
+ },
+ {
+  "step": 283,
+  "action": "click",
+  "target": "Lý do hoãn",
+  "ms": 21
+ },
+ {
+  "step": 284,
+  "action": "fill",
+  "target": "-1    search-query",
+  "value": "1,5",
+  "ms": 8
+ },
+ {
+  "step": 285,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3010
+ },
+ {
+  "step": 286,
+  "action": "scroll",
+  "dy": 1016,
+  "ms": 1
+ },
+ {
+  "step": 287,
+  "action": "key",
+  "key": "Enter",
+  "ms": 18
+ },
+ {
+  "step": 288,
+  "action": "click",
+  "target": "Theo dõi\n8",
+  "ms": 3010
+ },
+ {
+  "step": 289,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3003
+ },
+ {
+  "step": 290,
+  "action": "click",
+  "target": "Hủy",
+  "ms": 36
+ },
+ {
+  "step": 291,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 32
+ },
+ {
+  "step": 292,
+  "action": "key",
+  "key": "Escape",
+  "ms": 2
+ },
+ {
+  "step": 293,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 48
+ },
+ {
+  "step": 294,
+  "action": "click",
+  "target": "Từ khóa",
+  "ms": 3015
+ },
+ {
+  "step": 295,
+  "action": "key",
+  "key": "Enter",
+  "ms": 3
+ },
+ {
+  "step": 296,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 46
+ },
+ {
+  "step": 297,
+  "action": "click",
+  "target": "Mở trung tâm trợ giúp",
+  "ms": 44
+ },
+ {
+  "step": 298,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 49
+ },
+ {
+  "step": 299,
+  "action": "click",
+  "target": "Họ và tên",
+  "ms": 41
+ },
+ {
+  "step": 300,
+  "action": "key",
+  "key": "ArrowDown",
+  "ms": 2
+ }
+]

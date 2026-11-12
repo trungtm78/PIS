@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-02",
+      "name": "Catalog: 0 bảng thiếu RLS/FORCE/policy",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 15
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-08",
+      "name": "Workflow hợp lệ ghi đúng TNT-A",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 4
+    },
+    {
+      "tc_id": "TC-TX01",
+      "name": "TC-TX01",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-du-lieu-seed",
+      "reasons": [
+        "the SQL of the case holds a {placeholder} id that no seed of the stack provides"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-TX02",
+      "name": "TC-TX02",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-du-lieu-seed",
+      "reasons": [
+        "the SQL of the case holds a {placeholder} id that no seed of the stack provides"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-04",
+      "name": "TC-UAT-NFR-SECURITY-04",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-du-lieu-seed",
+      "reasons": [
+        "the SQL of the case holds a {placeholder} id that no seed of the stack provides"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-09",
+      "name": "TC-UAT-NFR-SECURITY-09",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-du-lieu-seed",
+      "reasons": [
+        "the SQL of the case holds a {placeholder} id that no seed of the stack provides"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-NFR-SECURITY-10",
+      "name": "TC-UAT-NFR-SECURITY-10",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-du-lieu-seed",
+      "reasons": [
+        "the SQL of the case holds a {placeholder} id that no seed of the stack provides"
+      ],
+      "duration_ms": 0
+    }
+  ]
+}

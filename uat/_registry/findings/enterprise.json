@@ -1,0 +1,473 @@
+{
+  "run_id": "enterprise",
+  "at": "2026-11-12T18:26:01+07:00",
+  "build": "0748687af1",
+  "findings": [
+    {
+      "tc_id": "TC-UAT-DIR-IDM-01",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; thư ký có directive.meeting.manage\n1. POST /steering-meetings với khóa k\n2. Lặp lại cùng nội dung và khóa\n3. Lặp lại cùng khóa với tiêu đề khác",
+      "action": "Chuẩn bị: Tenant A; thư ký có directive.meeting.manage\n1. POST /steering-meetings với khóa k\n2. Lặp lại cùng nội dung và khóa\n3. Lặp lại cùng khóa với tiêu đề khác",
+      "expected": "Lần 2: cùng resource_id và mã GB-năm-số; đúng 1 dòng steering_meeting và 1 dòng kiểm toán directive.meeting_created. Lần 3: 409.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-DIR-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-DIR-IDM-02",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; thư ký có directive.meeting.manage\n1. Gửi cùng lúc năm yêu cầu POST /steering-meetings giống hệt, cùng Idempotency-Key\n2. Đếm steering_meeting",
+      "action": "Chuẩn bị: Tenant A; thư ký có directive.meeting.manage\n1. Gửi cùng lúc năm yêu cầu POST /steering-meetings giống hệt, cùng Idempotency-Key\n2. Đếm steering_meeting",
+      "expected": "Mọi yêu cầu trả 200 hoặc 409 (không 5xx), ít nhất một 200 và mọi 200 cùng resource_id; đúng một dòng steering_meeting.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-DIR-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-01",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; tệp đã áp dụng\n1. Gọi lại POST /ebs/imports với cùng tệp (cùng sha256)",
+      "action": "Chuẩn bị: Tenant A; tệp đã áp dụng\n1. Gọi lại POST /ebs/imports với cùng tệp (cùng sha256)",
+      "expected": "409 IMPORT_FILE_ALREADY_APPLIED; số bản ghi của dự án không đổi.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-EBS-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-02",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S2",
+      "precondition": "Chuẩn bị: Tenant A; tệp chưa áp dụng\n1. Gọi POST /ebs/imports với khóa k\n2. Gọi lại với cùng khóa k",
+      "action": "Chuẩn bị: Tenant A; tệp chưa áp dụng\n1. Gọi POST /ebs/imports với khóa k\n2. Gọi lại với cùng khóa k",
+      "expected": "Lần 2: 200, cùng resource_id; đúng một bản ghi của dự án.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-EBS-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-03",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; tệp chưa áp dụng; quản trị có ebs.import\n1. Gửi cùng lúc năm yêu cầu POST /ebs/imports với cùng tệp (khóa Idempotency khác nhau)\n2. Đếm ebs_record của dự án",
+      "action": "Chuẩn bị: Tenant A; tệp chưa áp dụng; quản trị có ebs.import\n1. Gửi cùng lúc năm yêu cầu POST /ebs/imports với cùng tệp (khóa Idempotency khác nhau)\n2. Đếm ebs_record của dự án",
+      "expected": "Đúng một lệnh trả 200; bốn lệnh còn lại 409 IMPORT_FILE_ALREADY_APPLIED; đúng một bản ghi của dự án.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-EBS-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-EBS-E2E-02",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; dự án của ta đã chi 600 (Kho bạc), sao kê EBS ghi 700; dự án thứ hai khớp 50 và 50; lịch làm việc đã công bố\n1. Người chỉ đọc chạy đối chiếu\n2. Người đối chiếu chạy POST /ebs/recon",
+      "action": "Chuẩn bị: Tenant A; dự án của ta đã chi 600 (Kho bạc), sao kê EBS ghi 700; dự án thứ hai khớp 50 và 50; lịch làm việc đã công bố\n1. Người chỉ đọc chạy đối chiếu\n2. Người đối chiếu chạy POST /ebs/reconciliations kỳ 2026-10 với người phụ trách đã chỉ định\n3. Chạy lại cùng kỳ",
+      "expected": "Bước 1: 403. Bước 2: một mục AMOUNT_MISMATCH ours 600, theirs 700, delta 100, OPEN, owner đúng, không mục cho dự án khớp; owner không thuộc maker_ids; có dòng kiểm toán ebs.reconciliation_run và sự kiện ebs.reconciliation.run.v1. Bước 3: opened 0, refreshed 0; vẫn một mục OPEN.",
+      "actual": "ô đầu tiên: mong đợi «1», thực tế «0»",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-EBS-02"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IDM-01",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; kỳ đã khóa có bản chốt BUILDING\n1. Dựng với khóa k\n2. Dựng cho kỳ khác với cùng khóa k",
+      "action": "Chuẩn bị: Tenant A; kỳ đã khóa có bản chốt BUILDING\n1. Dựng với khóa k\n2. Dựng cho kỳ khác với cùng khóa k",
+      "expected": "Bước 1: 200, vẫn một dòng period_snapshot ENTERPRISE_CLOSE của kỳ. Bước 2: 409 IDEMPOTENCY_CONFLICT.",
+      "actual": "duplicate-on-retry: 5 request đồng thời cùng khoá idempotency tạo 4 bản ghi, mong đợi tối đa 1 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-DIS-32"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-02",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S2",
+      "precondition": "Chuẩn bị: Tenant A; lượt đẩy kỳ 2026-M08 phiên bản 1 đã gửi\n1. Gọi lại POST /hpm/pushes với đúng nội dung nhưng khóa Idempotency khác",
+      "action": "Chuẩn bị: Tenant A; lượt đẩy kỳ 2026-M08 phiên bản 1 đã gửi\n1. Gọi lại POST /hpm/pushes với đúng nội dung nhưng khóa Idempotency khác",
+      "expected": "200, status ALREADY_DELIVERED, resource_id là lượt đẩy cũ, attempts vẫn 1; chỉ một dòng hpm_push của kỳ.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-HPM-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-04",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; một báo cáo đã tải lên; kỳ 2026-M11 chưa đẩy\n1. Gửi cùng lúc năm yêu cầu POST /hpm/pushes giống hệt, cùng Idempotency-Key\n2. Đếm hpm_push và hpm_push_attempt của kỳ",
+      "action": "Chuẩn bị: Tenant A; một báo cáo đã tải lên; kỳ 2026-M11 chưa đẩy\n1. Gửi cùng lúc năm yêu cầu POST /hpm/pushes giống hệt, cùng Idempotency-Key\n2. Đếm hpm_push và hpm_push_attempt của kỳ",
+      "expected": "Mọi yêu cầu trả 200 hoặc 409 (không 5xx), ít nhất một 200; đúng 1 dòng hpm_push và 1 dòng hpm_push_attempt.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-HPM-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-HPM-STA-01",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; một lượt ACCEPTED (kỳ 2026-M06) và một lượt REJECTED (kỳ 2026-M05)\n1. Gọi POST /hpm/pushes/{id}/retry với phiên bản hiện tại cho lượt ACCEPTED\n2. Ghi biên nhận thứ hai cho lượt ACC",
+      "action": "Chuẩn bị: Tenant A; một lượt ACCEPTED (kỳ 2026-M06) và một lượt REJECTED (kỳ 2026-M05)\n1. Gọi POST /hpm/pushes/{id}/retry với phiên bản hiện tại cho lượt ACCEPTED\n2. Ghi biên nhận thứ hai cho lượt ACCEPTED\n3. Gọi retry cho lượt REJECTED",
+      "expected": "Cả ba lần: 409; hai lần retry mang HPM_PUSH_STATE_INVALID; không dòng thử mới.",
+      "actual": "ô đầu tiên: mong đợi «ACCEPTED», thực tế «None»",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-HPM-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-HUB-IDM-01",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; lượt chạy hỏng của treasury.statement với source_ref cố định\n1. Ghi lượt chạy với khóa k\n2. Ghi lại cùng khóa k\n3. Ghi lại với khóa mới\n4. Đếm hub_run_log và sự cố OPEN",
+      "action": "Chuẩn bị: Tenant A; lượt chạy hỏng của treasury.statement với source_ref cố định\n1. Ghi lượt chạy với khóa k\n2. Ghi lại cùng khóa k\n3. Ghi lại với khóa mới\n4. Đếm hub_run_log và sự cố OPEN",
+      "expected": "Lần 2 cùng resource_id; lần 3 ALREADY_RECORDED; đúng một dòng hub_run_log của source_ref và một sự cố OPEN của bộ kết nối.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-HUB-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-IND-IDM-01",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; PLAN_YEAR 1000 đã nhập\n1. Nhập lại PLAN_YEAR 1000\n2. Đọc số liệu hiện hành và sự kiện",
+      "action": "Chuẩn bị: Tenant A; PLAN_YEAR 1000 đã nhập\n1. Nhập lại PLAN_YEAR 1000\n2. Đọc số liệu hiện hành và sự kiện",
+      "expected": "created 0, revised 0, unchanged 1; vẫn một bản và một sự kiện ind.figure.entered.v1.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-IND-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-INT-IDM-01",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; quản trị có int.account.manage\n1. POST /int/machine-accounts với khóa k\n2. Gửi lại cùng nội dung và khóa\n3. Tìm chuỗi bí mật trong int_machine_credential, int_machine_account, idem",
+      "action": "Chuẩn bị: Tenant A; quản trị có int.account.manage\n1. POST /int/machine-accounts với khóa k\n2. Gửi lại cùng nội dung và khóa\n3. Tìm chuỗi bí mật trong int_machine_credential, int_machine_account, idempotency_record, audit_event, outbox_event, int_access_log\n4. Tạo lại với tên khác chữ hoa",
+      "expected": "Lần 1: 201, shown_once true, client_secret dạng mvs_ 43 ký tự. Lần 2: 201, client_secret rỗng, cùng client_id và account_id. Không bảng nào chứa bí mật. Tên khác chữ hoa: 409 OPEN_ACCOUNT_NAME_TAKEN.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-INT-01"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-NFR-PERFORMANCE-02",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Staging mô hình BRD; trình duyệt Chromium throttling \"Fast 3G\" + CPU 4x\nĐầu vào: 10 màn hình lõi: HOME-01, PRJ-01, CAP-01, DIS-01, DIS-02, PAY-01, CTR-01, ISS-01, BI-02, ADM-01\n1. Mở mỗi màn",
+      "action": "Chuẩn bị: Staging mô hình BRD; trình duyệt Chromium throttling \"Fast 3G\" + CPU 4x\nĐầu vào: 10 màn hình lõi: HOME-01, PRJ-01, CAP-01, DIS-01, DIS-02, PAY-01, CTR-01, ISS-01, BI-02, ADM-01\n1. Mở mỗi màn hình 30 lần, đo LCP\n2. Gửi 500 lệnh submit báo cáo song song 50, đo thời gian",
+      "expected": "LCP p95 mỗi màn hình ≤ 2,5 s; command submit p95 ≤ 1 s",
+      "actual": "1 run(s): FAIL. The heading of the loaded home was not visible within 2500 ms after a cold start on a debug build with software graphics; the flow itself says the emulator gives no verdict for a phone.",
+      "evidence": [
+        "uat/run/uat-2026-11-12-r6/logs/maestro-20_cold_start_main_content.log"
+      ],
+      "repro": null,
+      "regression_hint": [
+        "COV-NFR-PERFORMANCE-02"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-AC12",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S2",
+      "precondition": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A)",
+      "action": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01",
+      "expected": "số nội bộ khác số xác nhận hiển thị hai cột và sai lệch, không tự chọn số lớn hơn. Cụ thể: Tạo 1 reconciliation_item AMOUNT_MISMATCH: internal 1.000.000.000, confirmed 990.000.000, difference −10.000.000; PAY-05 hiển thị cả hai số và chênh lệch −10.000.000, không tự chọn số lớn hơn. PR-A-002 vẫn SENT_TREASURY, contract.paid_total_vnd không tăng. resolve không có note: 422 VALIDATION_FAILED; có note: item EXPLAINED, ghi audit. due_at và owner bắt buộc (không null).",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-05",
+        "COV-FR-PAY-06"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-PAY-04",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã giao dịch, Ngày gửi, Phản hồi\n2. Thử loading/empty/error/denied; kiểm c",
+      "action": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-04\n1. Mở route bằng menu và deep link; kiểm tên trường: Mã giao dịch, Ngày gửi, Phản hồi\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-04"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-PAY-05",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Số báo cáo, Số xác nhận, Chênh lệch\n2. Thử loading/empty/error/denied; kiể",
+      "action": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-05\n1. Mở route bằng menu và deep link; kiểm tên trường: Số báo cáo, Số xác nhận, Chênh lệch\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-05"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-PAY-06",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại sai lệch, Bằng chứng, Người xử lý\n2. Thử loading/empty/error/denied; ",
+      "action": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-06\n1. Mở route bằng menu và deep link; kiểm tên trường: Loại sai lệch, Bằng chứng, Người xử lý\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-06"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-PAY-08",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Giao dịch gốc, Lý do, Giá trị đảo\n2. Thử loading/empty/error/denied; kiểm ",
+      "action": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-08\n1. Mở route bằng menu và deep link; kiểm tên trường: Giao dịch gốc, Lý do, Giá trị đảo\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ scope/snapshot",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-08"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-PAY-09",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Mã Kho bạc, Hồ sơ gửi, Đã xác nhận, Sai lệch, Lần đồng bộ\n2. Thử lo",
+      "action": "Chuẩn bị: Dùng dữ liệu có/không có bản ghi, đúng/sai scope; route PAY-09\n1. Mở route bằng menu và deep link; kiểm tên trường: Dự án, Mã Kho bạc, Hồ sơ gửi, Đã xác nhận, Sai lệch, Lần đồng bộ\n2. Thử loading/empty/error/denied; kiểm các action theo quyền và rule: Tách báo cáo nội bộ, đề nghị thanh toán và xác nhận giao dịch\n3. Kiểm keyboard, responsive, quay lại giữ ngữ cảnh; với số liệu drill giữ s",
+      "expected": "Không crash/tràn; mọi control có nhãn; không action ngoài quyền; dữ liệu/validation theo Module_Implementation_Contracts và FRD; API binding phải được review trước chạy",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-09"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-AC331",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S2",
+      "precondition": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A)",
+      "action": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01",
+      "expected": "Bước 1: 422 VALIDATION_FAILED. Bước 2: 422 REFUND_NOT_CONFIRMED. Bước 3: 200, status REVERSED, bút toán đảo: PAYMENT_REVERSAL (paid −3.000.000.000 gộp), ADVANCE_RECOVERY_REVERSAL (−750.000.000 → advance outstanding tăng lại 750.000.000), RETENTION_RELEASE âm theo retention_hold bị hủy; contract.paid_total_vnd về 0; không dòng nào bị xóa. NT-A-001 có thể tạo đề nghị mới.",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-08",
+        "COV-FR-PAY-04"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-AC335",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S2",
+      "precondition": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A)",
+      "action": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01",
+      "expected": "PR-A-001 SETTLED; cumulative_ledger.paid_vnd B01 2.000.000.000, B02 1.000.000.000; contract.paid_total_vnd 3.000.000.000; contract_advance.recovered_vnd 750.000.000; outbox có pay.payment.settled.v1 với payload tối thiểu (payment_request_id, amount_vnd 2.100.000.000, allocation_line_id, confirmed_at); consumer CAP tạo đúng 1 capital_ledger_entry DISBURSE 2.100.000.000. Ghép lần 2: 409 TRANSACTION_ALREADY_MATCHED.",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-04",
+        "COV-FR-PAY-05"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-AC336",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A)",
+      "action": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01",
+      "expected": "Job tạo 1 vướng mắc ISS và gán issue_id vào RI-001 (chạy lại job không tạo thêm). Bước 2: 422 APPROVAL_REQUIRED. Bước 3: 403 SELF_APPROVAL_DENIED. Bước 4: 200, status WRITTEN_OFF_APPROVED, có resolved_by/resolved_at/resolution_note; difference_vnd −10.000.000 giữ nguyên (không sửa số gốc).",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the reconciler matches a transaction that differs and an explained difference is written off by a second person, then matches the one that agrees and the request is settled (UI-PAY-05, UI-PAY-06, UI-PAY-08, UI-PAY-09, AC-ST-PAY-007-1, AC-ST-PAY-007-2, AC-ST-PAY-007-3, AC-ST-PAY-008-1, AC-ST-PAY-008-2, UAT-AC335, UAT-AC12, UAT-AC336, UAT-AC331) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-06",
+        "COV-FR-PAY-05"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-AC337",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A)",
+      "action": "Chuẩn bị: Fixture EXE-FX (synthetic): tenant TNT-A (UBND tỉnh A) và TNT-B; đơn vị CDT-A-01 (Ban QLDA giao thông A), SOTC-A (Sở Tài chính A), UBND-XA-A1 (xã A1), TTQD-A (Trung tâm phát triển quỹ đất A); dự án PRJ-A-001 \"Đường tỉnh ĐT.A1 km0–km12\" (nhóm B); nhà thầu NT-A-01 (Công ty TNHH Xây dựng Minh An, synthetic); hợp đồng HD-A-001 đơn giá cố định 10.000.000.000 VND, ACTIVE từ 2026-03-01, BOQ B01",
+      "expected": "03.a/TT: GENERATED, lưu legal_basis, template_version_id, file_sha256 và outgoing_document_id. 05.a/TT: 422 TEMPLATE_UNCONFIRMED (không sinh). 04.b/TT: 422 TEMPLATE_NOT_EFFECTIVE. markPaymentSentToTreasury thiếu bộ mẫu bắt buộc: 422 FORMS_NOT_GENERATED. Sinh lại: bản cũ SUPERSEDED, bản mới GENERATED, vẫn đúng 1 GENERATED cho (PR-A-001, 03.a/TT).",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-14"
+      ]
+    },
+    {
+      "tc_id": "TC-UI-PAY-14",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P1",
+      "severity": "S3",
+      "precondition": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Biểu mẫu thanh toán Kho bạc\"; user có quyền và user chỉ đọc; route PAY-14\n1. Mở PAY-14 từ menu và deep link; kiểm nhãn trường: Mẫu (03.a/TT, 04",
+      "action": "Chuẩn bị: Tenant TNT-A với dữ liệu synthetic EXE-FX cho \"Biểu mẫu thanh toán Kho bạc\"; user có quyền và user chỉ đọc; route PAY-14\n1. Mở PAY-14 từ menu và deep link; kiểm nhãn trường: Mẫu (03.a/TT, 04.a/TT, 04.b/TT, 05.a/TT), Phiên bản mẫu, Căn cứ pháp lý, Trạng thái xác nhận, Tệp sinh, Ngày gửi\n2. Thực hiện thao tác chính theo quy tắc: Mẫu sinh từ DOC theo phiên bản có hiệu lực; mẫu chưa xác nhận",
+      "expected": "Biểu mẫu thanh toán Kho bạc: hiển thị đúng 6 trường; áp quy tắc \"Mẫu sinh từ DOC theo phiên bản có hiệu lực; mẫu chưa xác nhận [CXN-08] không cho gửi\"; không action ngoài quyền; token/component theo mockup (D-B11); lỗi nghiệp vụ hiển thị mã Problem ổn định",
+      "actual": "apps/web/e2e/pay-payment-flows.spec.ts :: the accountant draws the four Treasury forms of a checked request, follows it on the board and records the day and the number the file was sent (UI-PAY-04, UI-PAY-14, AC-ST-PAY-005-1, AC-ST-PAY-005-2, UAT-AC337) -> failed",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-PAY-14"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-RPT-IDM-01",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; bản phát hành 1 của DIS-WEEKLY; một bản nháp sửa đổi chưa phát hành\n1. Lập lại báo cáo cùng số liệu\n2. Đọc danh sách đầu chuỗi\n3. Lập bản sửa đổi có lý do hai lần",
+      "action": "Chuẩn bị: Tenant A; bản phát hành 1 của DIS-WEEKLY; một bản nháp sửa đổi chưa phát hành\n1. Lập lại báo cáo cùng số liệu\n2. Đọc danh sách đầu chuỗi\n3. Lập bản sửa đổi có lý do hai lần",
+      "expected": "Bước 1: DUPLICATE, draft_id rỗng, revision 1. Bước 2: một đầu chuỗi và một dòng report_issue. Bước 3: lần 2 trả EXISTING cùng draft_id.",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-RPT-01",
+        "COV-FR-RPT-03"
+      ]
+    },
+    {
+      "tc_id": "TC-UAT-RPT-IDM-02",
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "priority": "P0",
+      "severity": "S1",
+      "precondition": "Chuẩn bị: Tenant A; các bản phát hành 1 đến 3 của DIS-WEEKLY\n1. Giao bản 1 (đã bị thay) cho KBNN\n2. Giao bản mới nhất cho KBNN\n3. Giao lại cùng bản cho KBNN\n4. Người chỉ đọc giao\n5. Sửa nhật ký giao t",
+      "action": "Chuẩn bị: Tenant A; các bản phát hành 1 đến 3 của DIS-WEEKLY\n1. Giao bản 1 (đã bị thay) cho KBNN\n2. Giao bản mới nhất cho KBNN\n3. Giao lại cùng bản cho KBNN\n4. Người chỉ đọc giao\n5. Sửa nhật ký giao trực tiếp",
+      "expected": "Bước 1: 409 REPORT_OUT_OF_DATE kèm current_revision. Bước 2: DELIVERED. Bước 3: 409 ALREADY_DELIVERED; đúng 1 dòng report_delivery, 1 dòng kiểm toán rpt.report_delivered, 1 sự kiện. Bước 4: 403. Bước 5: cơ sở dữ liệu từ chối (append-only).",
+      "actual": "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])",
+      "evidence": [],
+      "repro": null,
+      "regression_hint": [
+        "COV-FR-RPT-04"
+      ]
+    }
+  ]
+}

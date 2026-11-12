@@ -1,0 +1,420 @@
+(node:26276) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+> @machvon/api@0.0.0 e2e:stack
+> node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage=false --runInBand --forceExit --testMatch "<rootDir>/apps/api/test/e2e-stack/serve.stack.ts"
+
+(node:23464) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[public-stack] API up, seeding the public dataset
+applying dataset public (digest bfdc69fb9a881394) to http://127.0.0.1:3999: [clock -80 days: base, capital] [clock 0 days: clip-public-documents, clip-public-procurement, clip-public-contracts] [clock -40 days: clip-public-payments] [clock -70 days: clip-public-workflow] [clock -45 days: clip-public-workflow] [clock -25 days: clip-public-workflow] [clock -12 days: clip-public-workflow] [clock -6 days: clip-public-workflow] [clock -3 days: clip-public-workflow] [clock -1 days: clip-public-workflow] [clock 0 days: clip-public-payments] [clock 0 days: clip-public-alerts, clip-public-egp, clip-public-disbursement, clip-public-feed, clip-public-bi, clip-public-directives, clip-public-committee, clip-public-extras] [clock 0 days: clip-public-contractor-portal]
+seed group base
+  [base/DOC] document type of the decisions (30 ms)
+  [base/DOC] receive the decision 128/QĐ-UBND (61 ms)
+  [base/MDM] find the province (24 ms)
+  [base/MDM] ward CB-THUC-PHAN (197 ms)
+  [base/MDM] ward CB-NUNG-TRI-CAO (172 ms)
+  [base/MDM] ward CB-TAN-GIANG (208 ms)
+  [base/PRJ] project DA-DT205 (71 ms)
+  [base/PRJ] project DA-TH012 (58 ms)
+  [base/PRJ] project DA-YT007 (62 ms)
+seed group capital
+  [capital/MDM] wards and communes of the portfolio (2293 ms)
+  [capital/PRJ] register DA-DT205 (69 ms)
+  [capital/PRJ] register DA-TH012 (76 ms)
+  [capital/PRJ] register DA-YT007 (79 ms)
+  [capital/PRJ] register DA-NN031 (96 ms)
+  [capital/PRJ] register DA-MT019 (81 ms)
+  [capital/PRJ] register DA-CN026 (82 ms)
+  [capital/PRJ] register DA-VH044 (90 ms)
+  [capital/PRJ] register DA-GT118 (68 ms)
+  [capital/PRJ] register DA-GD022 (90 ms)
+  [capital/PRJ] register DA-ICT03 (62 ms)
+  [capital/PRJ] register DA-TL001 (82 ms)
+  [capital/PRJ] register DA-DC071 (61 ms)
+  [capital/PRJ] register DA-TT015 (80 ms)
+  [capital/PRJ] register DA-VH577 (64 ms)
+  [capital/PRJ] register DA-MT149 (63 ms)
+  [capital/PRJ] register DA-GT240 (81 ms)
+  [capital/PRJ] register DA-NN264 (76 ms)
+  [capital/PRJ] register DA-NN737 (81 ms)
+  [capital/PRJ] register DA-CN321 (79 ms)
+  [capital/PRJ] register DA-YT412 (77 ms)
+  [capital/PRJ] register DA-GT319 (64 ms)
+  [capital/PRJ] register DA-NN265 (79 ms)
+  [capital/PRJ] register DA-GD443 (78 ms)
+  [capital/PRJ] register DA-TT250 (63 ms)
+  [capital/PRJ] register DA-GD854 (80 ms)
+  [capital/PRJ] register DA-GT324 (79 ms)
+  [capital/PRJ] register DA-YT768 (63 ms)
+  [capital/PRJ] register DA-NN752 (64 ms)
+  [capital/PRJ] register DA-CN162 (79 ms)
+  [capital/PRJ] register DA-GT272 (62 ms)
+  [capital/PRJ] register DA-VH867 (80 ms)
+  [capital/PRJ] register DA-GT139 (80 ms)
+  [capital/PRJ] register DA-YT538 (63 ms)
+  [capital/PRJ] register DA-VH820 (66 ms)
+  [capital/PRJ] register DA-MT788 (65 ms)
+  [capital/PRJ] register DA-GD105 (76 ms)
+  [capital/PRJ] register DA-GD662 (81 ms)
+  [capital/PRJ] register DA-CN817 (62 ms)
+  [capital/PRJ] register DA-TT424 (80 ms)
+  [capital/PRJ] register DA-NN208 (77 ms)
+  [capital/PRJ] register DA-YT271 (64 ms)
+  [capital/PRJ] register DA-CN839 (80 ms)
+  [capital/PRJ] register DA-GD324 (78 ms)
+  [capital/PRJ] register DA-VH236 (70 ms)
+  [capital/PRJ] register DA-MT619 (75 ms)
+  [capital/PRJ] appraise DA-DT205 (208 ms)
+  [capital/PRJ] appraise DA-TH012 (186 ms)
+  [capital/PRJ] appraise DA-YT007 (172 ms)
+  [capital/PRJ] appraise DA-NN031 (192 ms)
+  [capital/PRJ] appraise DA-MT019 (191 ms)
+  [capital/PRJ] appraise DA-CN026 (190 ms)
+  [capital/PRJ] appraise DA-VH044 (189 ms)
+  [capital/PRJ] appraise DA-GT118 (73 ms)
+  [capital/PRJ] appraise DA-GD022 (80 ms)
+  [capital/PRJ] appraise DA-ICT03 (173 ms)
+  [capital/PRJ] appraise DA-TL001 (158 ms)
+  [capital/PRJ] appraise DA-DC071 (173 ms)
+  [capital/PRJ] appraise DA-TT015 (15 ms)
+  [capital/PRJ] appraise DA-VH577 (193 ms)
+  [capital/PRJ] appraise DA-MT149 (173 ms)
+  [capital/PRJ] appraise DA-GT240 (187 ms)
+  [capital/PRJ] appraise DA-NN264 (191 ms)
+  [capital/PRJ] appraise DA-NN737 (188 ms)
+  [capital/PRJ] appraise DA-CN321 (191 ms)
+  [capital/PRJ] appraise DA-YT412 (206 ms)
+  [capital/PRJ] appraise DA-GT319 (188 ms)
+  [capital/PRJ] appraise DA-NN265 (189 ms)
+  [capital/PRJ] appraise DA-GD443 (159 ms)
+  [capital/PRJ] appraise DA-TT250 (190 ms)
+  [capital/PRJ] appraise DA-GD854 (191 ms)
+  [capital/PRJ] appraise DA-GT324 (190 ms)
+  [capital/PRJ] appraise DA-YT768 (190 ms)
+  [capital/PRJ] appraise DA-NN752 (190 ms)
+  [capital/PRJ] appraise DA-CN162 (189 ms)
+  [capital/PRJ] appraise DA-GT272 (175 ms)
+  [capital/PRJ] appraise DA-VH867 (222 ms)
+  [capital/PRJ] appraise DA-GT139 (172 ms)
+  [capital/PRJ] appraise DA-YT538 (174 ms)
+  [capital/PRJ] appraise DA-VH820 (158 ms)
+  [capital/PRJ] appraise DA-MT788 (175 ms)
+  [capital/PRJ] appraise DA-GD105 (158 ms)
+  [capital/PRJ] appraise DA-GD662 (174 ms)
+  [capital/PRJ] appraise DA-CN817 (190 ms)
+  [capital/PRJ] appraise DA-TT424 (75 ms)
+  [capital/PRJ] appraise DA-NN208 (79 ms)
+  [capital/PRJ] appraise DA-YT271 (175 ms)
+  [capital/PRJ] appraise DA-CN839 (173 ms)
+  [capital/PRJ] appraise DA-GD324 (96 ms)
+  [capital/PRJ] appraise DA-VH236 (176 ms)
+  [capital/PRJ] appraise DA-MT619 (13 ms)
+  [capital/CAP] assignments of capital (appropriations) (671 ms)
+  [capital/CAP] capital plan of the year (1581 ms)
+  [capital/PRJ] projects funded by the plan become BUDGETED (1171 ms)
+  [capital/PRJ] stage of DA-DT205 (100 ms)
+  [capital/PRJ] stage of DA-TH012 (78 ms)
+  [capital/PRJ] stage of DA-YT007 (16 ms)
+  [capital/PRJ] stage of DA-NN031 (80 ms)
+  [capital/PRJ] stage of DA-MT019 (147 ms)
+  [capital/PRJ] stage of DA-CN026 (124 ms)
+  [capital/PRJ] stage of DA-VH044 (14 ms)
+  [capital/PRJ] stage of DA-GT118 (16 ms)
+  [capital/PRJ] stage of DA-GD022 (17 ms)
+  [capital/PRJ] stage of DA-ICT03 (15 ms)
+  [capital/PRJ] stage of DA-TL001 (15 ms)
+  [capital/PRJ] stage of DA-DC071 (16 ms)
+  [capital/PRJ] stage of DA-TT015 (17 ms)
+  [capital/PRJ] stage of DA-VH577 (80 ms)
+  [capital/PRJ] stage of DA-MT149 (79 ms)
+  [capital/PRJ] stage of DA-GT240 (74 ms)
+  [capital/PRJ] stage of DA-NN264 (85 ms)
+  [capital/PRJ] stage of DA-NN737 (79 ms)
+  [capital/PRJ] stage of DA-CN321 (55 ms)
+  [capital/PRJ] stage of DA-YT412 (39 ms)
+  [capital/PRJ] stage of DA-GT319 (63 ms)
+  [capital/PRJ] stage of DA-NN265 (62 ms)
+  [capital/PRJ] stage of DA-GD443 (65 ms)
+  [capital/PRJ] stage of DA-TT250 (78 ms)
+  [capital/PRJ] stage of DA-GD854 (64 ms)
+  [capital/PRJ] stage of DA-GT324 (80 ms)
+  [capital/PRJ] stage of DA-YT768 (79 ms)
+  [capital/PRJ] stage of DA-NN752 (15 ms)
+  [capital/PRJ] stage of DA-CN162 (17 ms)
+  [capital/PRJ] stage of DA-GT272 (16 ms)
+  [capital/PRJ] stage of DA-VH867 (4 ms)
+  [capital/PRJ] stage of DA-GT139 (11 ms)
+  [capital/PRJ] stage of DA-YT538 (18 ms)
+  [capital/PRJ] stage of DA-VH820 (21 ms)
+  [capital/PRJ] stage of DA-MT788 (90 ms)
+  [capital/PRJ] stage of DA-GD105 (95 ms)
+  [capital/PRJ] stage of DA-GD662 (94 ms)
+  [capital/PRJ] stage of DA-CN817 (97 ms)
+  [capital/PRJ] stage of DA-TT424 (5 ms)
+  [capital/PRJ] stage of DA-NN208 (5 ms)
+  [capital/PRJ] stage of DA-YT271 (19 ms)
+  [capital/PRJ] stage of DA-CN839 (15 ms)
+  [capital/PRJ] stage of DA-GD324 (16 ms)
+  [capital/PRJ] stage of DA-VH236 (16 ms)
+  [capital/PRJ] stage of DA-MT619 (16 ms)
+
+seed done in 20.2 s, 1260 calls
+  base: 0.9 s, ledger D:\tmp\uat6-public-stack\seed-ledger.base.json
+  capital: 19.3 s, ledger D:\tmp\uat6-public-stack\seed-ledger.capital.json
+seed group clip-public-documents
+  [clip-public-documents/ADM] delegation of authority matrix (142 ms)
+  [clip-public-documents/DOC] layout profile of Decree 30/2020 (63 ms)
+  [clip-public-documents/DOC] layout profile of the demo payment forms (111 ms)
+  [clip-public-documents/DOC] document types (126 ms)
+  [clip-public-documents/DOC] number registers (161 ms)
+  [clip-public-documents/DOC] template library (platform pack) (1438 ms)
+  [clip-public-documents/DOC] retention rules (282 ms)
+(node:23464) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+  ! [clip-public-documents/DOC] POST /document-versions/772deb6f-1668-4590-807f-5244eacf4df6/signature-verifications -> HTTP 403 {"type":"urn:machvon:error:SCOPE_DENIED","title":"error.SCOPE_DENIED.title","status":403,"code":"SCOPE_DENIED","correlationId":"046e9f8a-a675-41c1-b189-94b79985de95"}
+  [clip-public-documents/DOC] outgoing documents (9039 ms)
+  [clip-public-documents/DOC] dossiers opened (189 ms)
+  [clip-public-documents/DOC] incoming letters (1519 ms)
+  ! [clip-public-documents/DOC] POST /dossiers/02182d72-1490-4473-9a53-d129aa083703/handover -> HTTP 422 {"type":"urn:machvon:error:VALIDATION_FAILED","title":"error.VALIDATION_FAILED.title","status":422,"code":"VALIDATION_FAILED","detail":"handed_over_at","correlationId":"2bc46a44-e550-4cf2-9f29-bfb6a0702c05"}
+  [clip-public-documents/DOC] dossiers filled, closed and handed over (219 ms)
+seed group clip-public-procurement
+  [clip-public-procurement/ADM] working calendar (61 ms)
+  [clip-public-procurement/DOC] document types of the papers (63 ms)
+  [clip-public-procurement/BID] contractors (2387 ms)
+  [clip-public-procurement/BID] procurement plan of DA-VH577 (632 ms)
+  [clip-public-procurement/BID] procurement plan of DA-MT149 (617 ms)
+  [clip-public-procurement/BID] procurement plan of DA-GT240 (609 ms)
+  [clip-public-procurement/BID] procurement plan of DA-NN264 (624 ms)
+  [clip-public-procurement/BID] procurement plan of DA-NN737 (631 ms)
+  [clip-public-procurement/BID] procurement plan of DA-CN321 (622 ms)
+  [clip-public-procurement/BID] procurement plan of DA-YT412 (608 ms)
+  [clip-public-procurement/BID] procurement plan of DA-GT319 (654 ms)
+  [clip-public-procurement/BID] procurement plan of DA-NN265 (631 ms)
+  [clip-public-procurement/BID] procurement plan of DA-GD443 (615 ms)
+  [clip-public-procurement/BID] procurement plan of DA-TT250 (616 ms)
+  [clip-public-procurement/BID] procurement plan of DA-GD854 (600 ms)
+  [clip-public-procurement/BID] procurement plan of DA-GT324 (619 ms)
+  [clip-public-procurement/BID] procurement plan of DA-YT768 (616 ms)
+seed group clip-public-contracts
+  [clip-public-contracts/BID] procurement plan of DA-DT205 (646 ms)
+  [clip-public-contracts/BID] procurement plan of DA-TH012 (605 ms)
+  [clip-public-contracts/BID] procurement plan of DA-NN031 (614 ms)
+  [clip-public-contracts/BID] procurement plan of DA-YT007 (614 ms)
+  [clip-public-contracts/BID] procurement plan of DA-VH044 (618 ms)
+  [clip-public-contracts/BID] procurement plans of the guide projects (3097 ms)
+  [clip-public-contracts/BID] tender of DT205-XL01 (AWARDED) (993 ms)
+  [clip-public-contracts/BID] tender of DT205-XL02 (AWARDED) (980 ms)
+  [clip-public-contracts/BID] tender of DT205-TV01 (AWARDED) (905 ms)
+  [clip-public-contracts/BID] tender of DT205-TB01 (RESULT_PENDING) (867 ms)
+  [clip-public-contracts/BID] tender of DT205-KS01 (AWARDED) (862 ms)
+  [clip-public-contracts/BID] tender of TH012-XL01 (AWARDED) (944 ms)
+  [clip-public-contracts/BID] tender of TH012-TB01 (AWARDED) (869 ms)
+  [clip-public-contracts/BID] tender of TH012-TV01 (AWARDED) (898 ms)
+  [clip-public-contracts/BID] tender of NN031-XL01 (AWARDED) (920 ms)
+  [clip-public-contracts/BID] tender of NN031-XL02 (EVALUATING) (743 ms)
+  [clip-public-contracts/BID] tender of NN031-TV01 (SEALED) (562 ms)
+  [clip-public-contracts/BID] tender of YT007-XL01 (SEALED) (631 ms)
+  [clip-public-contracts/BID] tender of YT007-TB01 (INVITED) (369 ms)
+  [clip-public-contracts/BID] tender of YT007-TV01 (PLANNED) (0 ms)
+  [clip-public-contracts/BID] tender of VH044-XL01 (PLANNED) (0 ms)
+  [clip-public-contracts/BID] tender of VH044-TV01 (PLANNED) (0 ms)
+  [clip-public-contracts/BID] tenders (10545 ms)
+  [clip-public-contracts/CTR] contract of DT205-XL01 (769 ms)
+  [clip-public-contracts/CTR] contract of DT205-XL02 (868 ms)
+  [clip-public-contracts/CTR] contract of DT205-TV01 (545 ms)
+  [clip-public-contracts/CTR] contract of TH012-XL01 (689 ms)
+  [clip-public-contracts/CTR] contract of NN031-XL01 (731 ms)
+  [clip-public-contracts/CTR] claim and evaluation (55 ms)
+
+seed done in 41.8 s, 1307 calls
+  clip-public-documents: 13.3 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-documents.json
+  clip-public-procurement: 11.2 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-procurement.json
+  clip-public-contracts: 17.3 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-contracts.json
+2 refusals the seeds tolerated:
+  [clip-public-documents/DOC] POST /document-versions/772deb6f-1668-4590-807f-5244eacf4df6/signature-verifications -> HTTP 403 {"type":"urn:machvon:error:SCOPE_DENIED","title":"error.SCOPE_DENIED.title","status":403,"code":"SCOPE_DENIED","correlationId":"046e9f8a-a675-41c1-b189-94b79985de95"}
+  [clip-public-documents/DOC] POST /dossiers/02182d72-1490-4473-9a53-d129aa083703/handover -> HTTP 422 {"type":"urn:machvon:error:VALIDATION_FAILED","title":"error.VALIDATION_FAILED.title","status":422,"code":"VALIDATION_FAILED","detail":"handed_over_at","correlationId":"2bc46a44-e550-4cf2-9f29-bfb6a0702c05"}
+seed group clip-public-payments
+  [clip-public-payments/PAY] payment of the first contract sent to the Treasury (2592 ms)
+  [clip-public-payments/PAY] payment of the second contract sent and left waiting (2452 ms)
+  [clip-public-payments/PAY] advance paid long ago (2222 ms)
+
+seed done in 7.3 s, 95 calls
+  clip-public-payments: 7.3 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-payments.json
+seed group clip-public-workflow
+  [clip-public-workflow/ADM] working calendar (7 ms)
+  [clip-public-workflow/BID] workflow of VH577-TV01 to RESULT_POST (2201 ms)
+  [clip-public-workflow/BID] workflow of GT240-TB01 to DOC_APPROVE (475 ms)
+  [clip-public-workflow/BID] workflow of CN321-XL01 to NOT_STARTED (0 ms)
+  [clip-public-workflow/BID] workflow of GT319-TV01 to DOC_APPRAISE (476 ms)
+  [clip-public-workflow/BID] workflow of GD443-TB01 to NOTICE_POST (640 ms)
+  [clip-public-workflow/BID] workflow of GT324-XL01 to CONTRACT_SIGN (2552 ms)
+
+seed done in 7.8 s, 273 calls
+  clip-public-workflow: 7.8 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-workflow.json
+seed group clip-public-workflow
+  [clip-public-workflow/ADM] working calendar (7 ms)
+  [clip-public-workflow/BID] workflow of MT149-TB01 to RETURN:DOC_APPROVE (502 ms)
+  [clip-public-workflow/BID] workflow of NN737-XL01 to BID_OPENING (1437 ms)
+  [clip-public-workflow/BID] workflow of YT412-TV01 to BID_CLOSING (1295 ms)
+  [clip-public-workflow/BID] workflow of NN265-TB01 to PLAN_SELECTION (31 ms)
+  [clip-public-workflow/BID] workflow of GD854-XL01 to RESULT_POST (2124 ms)
+  [clip-public-workflow/BID] workflow of YT768-TV01 to DOC_APPROVE (632 ms)
+
+seed done in 7.4 s, 263 calls
+  clip-public-workflow: 7.4 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-workflow.json
+seed group clip-public-workflow
+  [clip-public-workflow/ADM] working calendar (6 ms)
+  [clip-public-workflow/BID] workflow of MT149-XL01 to BID_CLOSING (1267 ms)
+  [clip-public-workflow/BID] workflow of NN264-TV01 to PLAN_SELECTION (35 ms)
+  [clip-public-workflow/BID] workflow of CN321-TB01 to RESULT_POST (1585 ms)
+  [clip-public-workflow/BID] workflow of NN265-XL01 to DOC_APPROVE (651 ms)
+  [clip-public-workflow/BID] workflow of TT250-TV01 to NOT_STARTED (0 ms)
+  [clip-public-workflow/BID] workflow of GT324-TB01 to DOC_APPRAISE (2242 ms)
+
+seed done in 7.2 s, 252 calls
+  clip-public-workflow: 7.2 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-workflow.json
+seed group clip-public-workflow
+  [clip-public-workflow/ADM] working calendar (6 ms)
+  [clip-public-workflow/BID] workflow of VH577-TB01 to EVALUATE (1151 ms)
+  [clip-public-workflow/BID] workflow of NN264-XL01 to RESULT_APPROVE (1985 ms)
+  [clip-public-workflow/BID] workflow of CN321-TV01 to EVALUATE (1623 ms)
+  [clip-public-workflow/BID] workflow of GT319-TB01 to DOC_PREPARE (231 ms)
+  [clip-public-workflow/BID] workflow of TT250-XL01 to HOLD:EVALUATE (1620 ms)
+  [clip-public-workflow/BID] workflow of GT324-TV01 to RETURN:DOC_APPROVE (689 ms)
+
+seed done in 8.7 s, 320 calls
+  clip-public-workflow: 8.7 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-workflow.json
+seed group clip-public-workflow
+  [clip-public-workflow/ADM] working calendar (6 ms)
+  [clip-public-workflow/BID] workflow of MT149-TV01 to CONTRACT_SIGN (2544 ms)
+  [clip-public-workflow/BID] workflow of NN264-TB01 to NOTICE_POST (636 ms)
+  [clip-public-workflow/BID] workflow of YT412-XL01 to EVALUATE (1591 ms)
+  [clip-public-workflow/BID] workflow of NN265-TV01 to RESULT_APPROVE (2007 ms)
+  [clip-public-workflow/BID] workflow of TT250-TB01 to EVALUATE (1173 ms)
+  [clip-public-workflow/BID] workflow of YT768-XL01 to DOC_PREPARE (219 ms)
+
+seed done in 9.6 s, 355 calls
+  clip-public-workflow: 9.6 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-workflow.json
+seed group clip-public-workflow
+  [clip-public-workflow/ADM] working calendar (5 ms)
+  [clip-public-workflow/BID] workflow of GT240-XL01 to DOC_APPRAISE (468 ms)
+  [clip-public-workflow/BID] workflow of NN737-TV01 to NOTICE_POST (2827 ms)
+  [clip-public-workflow/BID] workflow of YT412-TB01 to CONTRACT_SIGN (1933 ms)
+  [clip-public-workflow/BID] workflow of GD443-XL01 to NOTICE_POST (816 ms)
+  [clip-public-workflow/BID] workflow of GD854-TV01 to EVALUATE (1777 ms)
+  [clip-public-workflow/BID] workflow of YT768-TB01 to RESULT_APPROVE (1392 ms)
+
+seed done in 10.6 s, 391 calls
+  clip-public-workflow: 10.6 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-workflow.json
+seed group clip-public-workflow
+  [clip-public-workflow/ADM] working calendar (6 ms)
+  [clip-public-workflow/BID] workflow of VH577-XL01 to EVALUATE (1595 ms)
+  [clip-public-workflow/BID] workflow of GT240-TV01 to DOC_PREPARE (223 ms)
+  [clip-public-workflow/BID] workflow of NN737-TB01 to HOLD:EVALUATE (1202 ms)
+  [clip-public-workflow/BID] workflow of GT319-XL01 to RETURN:DOC_APPROVE (676 ms)
+  [clip-public-workflow/BID] workflow of GD443-TV01 to BID_OPENING (1471 ms)
+  [clip-public-workflow/BID] workflow of GD854-TB01 to BID_CLOSING (1013 ms)
+
+seed done in 7.6 s, 269 calls
+  clip-public-workflow: 7.6 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-workflow.json
+seed group clip-public-payments
+  ! [clip-public-payments/-] POST /reporting-periods/generate -> HTTP 409 {"type":"urn:machvon:error:PERIOD_OVERLAP","title":"error.PERIOD_OVERLAP.title","status":409,"code":"PERIOD_OVERLAP","detail":"fiscal_year","correlationId":"eb290bb6-20c7-4a25-8a96-380d15aaf3bf"}
+  [clip-public-payments/PAY] the Treasury confirms the first payment (187 ms)
+
+seed done in 0.2 s, 10 calls
+  clip-public-payments: 0.2 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-payments.json
+1 refusals the seeds tolerated:
+  [clip-public-payments/-] POST /reporting-periods/generate -> HTTP 409 {"type":"urn:machvon:error:PERIOD_OVERLAP","title":"error.PERIOD_OVERLAP.title","status":409,"code":"PERIOD_OVERLAP","detail":"fiscal_year","correlationId":"eb290bb6-20c7-4a25-8a96-380d15aaf3bf"}
+seed group clip-public-alerts
+  [clip-public-alerts/DIS] rule EW-01 published (11 ms)
+  [clip-public-alerts/DIS] rule EW-11 published (14 ms)
+  [clip-public-alerts/DIS] rule EW-05 published (17 ms)
+seed group clip-public-egp
+  [clip-public-egp/ADM] working calendar (12 ms)
+  [egp] KHLCNT dry run {"total":15,"valid":13,"errors":2,"duplicate":0,"conflict":0}
+  [egp] KHLCNT applied {"total":15,"applied":13,"duplicate":0,"conflict":0,"quarantined":2,"differences_opened":0} mappings proposed 17
+  [clip-public-egp/BID] plan file (dry run, then apply) (332 ms)
+  [egp] TBMT dry run {"total":8,"valid":8,"errors":0,"duplicate":0,"conflict":0}
+  [egp] TBMT applied {"total":8,"applied":8,"duplicate":0,"conflict":0,"quarantined":0,"differences_opened":0} mappings proposed 8
+  [clip-public-egp/BID] notice file (dry run, then apply) (194 ms)
+  [clip-public-egp/BID] mappings (317 ms)
+  [clip-public-egp/BID] posting obligations (187 ms)
+  [egp] reconciliation examined 19 differences 16 opened 16
+  [clip-public-egp/BID] reconciliation (127 ms)
+seed group clip-public-disbursement
+  [clip-public-disbursement/MDM] Treasury office in force (170 ms)
+  [clip-public-disbursement/MDM] Treasury code mapping (30 ms)
+  [dis] statement file {"file_object_id":"2d155c09-dae1-4789-8c6f-a434047e09e9","file_sha256":"fd7093496757b59f2d7ed9e6a030198cbf4345ccf91959897f588322488d034e","size_bytes":3264,"file_name":"treasury-statement.csv","format":"CSV","columns":["document_no","document_date","project_code","treasury_office_code","amount_vnd",
+  [dis] statement import {"operation_id":"88616b1a-0bf7-4970-a6c0-b0f9e1ee1372","status":"APPLIED","resource_version":1,"resource_id":"430df552-b077-4ab3-9b56-9c1e51ad887c","result":"APPLIED","duplicate":false,"row_total":55,"row_new":55,"row_duplicate":0,"row_conflict":0,"row_error":0,"differences_opened":0}
+  [clip-public-disbursement/PAY] Treasury statement (133 ms)
+  ! [clip-public-disbursement/DIS] POST /reporting-periods/generate -> HTTP 409 {"type":"urn:machvon:error:PERIOD_OVERLAP","title":"error.PERIOD_OVERLAP.title","status":409,"code":"PERIOD_OVERLAP","detail":"fiscal_year","correlationId":"e6e81301-faa6-4085-9562-da7f39403c0a"}
+  [dis] 12 monthly periods, first {"id":"662a31d3-bbf7-4bcf-a757-6a0c201dfe70","code":"M2026-01","calendar_code":"DEFAULT","period_type":"MONTH","fiscal_year":2026,"start_date":"2026-01-01","end_date":"2026-01-31","deadline_at":"2026-02-05T03:00:00.000Z","calendar_version":
+  [clip-public-disbursement/DIS] periods and snapshots (795 ms)
+  [dis] 52 weekly periods, 45 past their deadline
+  [clip-public-disbursement/DIS] weekly periods and snapshots (1244 ms)
+seed group clip-public-feed
+  [feed] PROJECT dry run {"total":18,"valid":18,"errors":0,"duplicate":0,"conflict":0}
+  [feed] PROJECT applied {"total":18,"applied":18,"duplicate":0,"conflict":0,"quarantined":0,"differences_opened":0}
+  [clip-public-feed/FEED] project file (116 ms)
+  [feed] PLAN dry run {"total":18,"valid":18,"errors":0,"duplicate":0,"conflict":0}
+  [feed] PLAN applied {"total":18,"applied":18,"duplicate":0,"conflict":0,"quarantined":0,"differences_opened":0}
+  [clip-public-feed/FEED] plan file (63 ms)
+  [feed] DISBURSEMENT dry run {"total":51,"valid":51,"errors":0,"duplicate":0,"conflict":0}
+  [feed] DISBURSEMENT applied {"total":51,"applied":51,"duplicate":0,"conflict":0,"quarantined":0,"differences_opened":0}
+  [clip-public-feed/FEED] disbursement file (116 ms)
+  [clip-public-feed/FEED] mappings decided (246 ms)
+  [clip-public-feed/FEED] generator of the province (176 ms)
+  [feed] compared 15 projects
+  [clip-public-feed/FEED] reconciliation with the disbursement figures (57 ms)
+seed group clip-public-bi
+  [clip-public-bi/BI] bundle of the metric files (35 ms)
+(node:13608) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/PIS-uat6/packages/kernel/src/bi-metric.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\PIS-uat6\packages\kernel\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  [clip-public-bi/BI] sync of the registry (inline bundle) (47 ms)
+  [bi] registry APPLIED added 28 revised 0
+  ! [clip-public-bi/BI] POST /bi/publication-requests -> HTTP 403 {"type":"urn:machvon:error:SCOPE_DENIED","title":"error.SCOPE_DENIED.title","status":403,"code":"SCOPE_DENIED","correlationId":"d8644b96-b46d-4357-a03b-7ba7da12cfcc"}
+  [clip-public-bi/BI] dashboard BD-LANH-DAO (209 ms)
+  ! [clip-public-bi/BI] POST /bi/publication-requests -> HTTP 403 {"type":"urn:machvon:error:SCOPE_DENIED","title":"error.SCOPE_DENIED.title","status":403,"code":"SCOPE_DENIED","correlationId":"3b2c7e3e-d0c7-4d2c-a00c-22f5c61e79aa"}
+  [clip-public-bi/BI] dashboard BD-HOP-DONG (160 ms)
+seed group clip-public-directives
+seed group clip-public-committee
+  [committee] alerts opened 3 kept 0
+  [committee] workspace feed empty false projects 32 attention 32
+seed group clip-public-extras
+  [clip-public-extras/ADM] delegation of the approval right for thirty days (31 ms)
+
+seed done in 5.5 s, 214 calls
+  clip-public-alerts: 0.1 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-alerts.json
+  clip-public-egp: 1.2 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-egp.json
+  clip-public-disbursement: 2.4 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-disbursement.json
+  clip-public-feed: 0.8 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-feed.json
+  clip-public-bi: 0.5 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-bi.json
+  clip-public-directives: 0.3 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-directives.json
+  clip-public-committee: 0.3 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-committee.json
+  clip-public-extras: 0.0 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-extras.json
+3 refusals the seeds tolerated:
+  [clip-public-disbursement/DIS] POST /reporting-periods/generate -> HTTP 409 {"type":"urn:machvon:error:PERIOD_OVERLAP","title":"error.PERIOD_OVERLAP.title","status":409,"code":"PERIOD_OVERLAP","detail":"fiscal_year","correlationId":"e6e81301-faa6-4085-9562-da7f39403c0a"}
+  [clip-public-bi/BI] POST /bi/publication-requests -> HTTP 403 {"type":"urn:machvon:error:SCOPE_DENIED","title":"error.SCOPE_DENIED.title","status":403,"code":"SCOPE_DENIED","correlationId":"d8644b96-b46d-4357-a03b-7ba7da12cfcc"}
+  [clip-public-bi/BI] POST /bi/publication-requests -> HTTP 403 {"type":"urn:machvon:error:SCOPE_DENIED","title":"error.SCOPE_DENIED.title","status":403,"code":"SCOPE_DENIED","correlationId":"3b2c7e3e-d0c7-4d2c-a00c-22f5c61e79aa"}
+seed group clip-public-contractor-portal
+  [clip-public-contractor-portal/VND] portal invitation for Công ty Cổ phần Tư vấn Đầu tư Xây dựng Việt Đông (45 ms)
+  [clip-public-contractor-portal/VND] the contractor answers the first request through the portal (16 ms)
+
+seed done in 0.2 s, 8 calls
+  clip-public-contractor-portal: 0.2 s, ledger D:\tmp\uat6-public-stack\seed-ledger.clip-public-contractor-portal.json
+sweep of the overdue advances (the clock of the stack at 06:30 for 30 seconds)
+[public-stack] SEED-EXIT 0
+[public-stack] READY
+PASS test/e2e-stack/serve.stack.ts (2501.478 s)
+  e2e API stack
+    √ serves the application on E2E_API_PORT until the stop file appears (2496930 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        2501.54 s
+Ran all test suites.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
+[public-stack] stopped

@@ -1,0 +1,198 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\PIS-uat6\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "e2e/mdm-flows.spec.ts",
+      "--grep",
+      "merger",
+      "--reporter=list,./e2e/support/uat-reporter.ts,json"
+    ],
+    "configFile": "D:\\PIS-uat6\\apps\\web\\playwright.config.ts",
+    "rootDir": "D:/PIS-uat6/apps/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": "D:\\PIS-uat6\\apps\\web\\e2e\\support\\global-teardown.ts",
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/PIS-uat6/apps/web/e2e/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/PIS-uat6/apps/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\PIS-uat6\\apps\\web\\e2e\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "D:\\PIS-uat6\\apps\\web\\e2e",
+        "snapshotDir": "D:\\PIS-uat6\\apps\\web\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:62590",
+          "channel": "chrome",
+          "deviceScaleFactor": 1,
+          "locale": "vi-VN"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "D:\\PIS-uat6\\apps\\web\\e2e\\support\\uat-reporter.ts"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "mdm-flows.spec.ts",
+      "file": "mdm-flows.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "master data: propose, review, publish, change and history",
+          "file": "mdm-flows.spec.ts",
+          "line": 105,
+          "column": 6,
+          "specs": [
+            {
+              "title": "a steward records the merger of two agencies, a second person approves and publishes it, and the inheritance tree and the agency screen show it (MDM-37, MDM-03)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "D:\\PIS-uat6\\apps\\web\\e2e\\mdm-flows.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 30020,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "D:\\PIS-uat6\\apps\\web\\e2e\\mdm-flows.spec.ts",
+                            "column": 79,
+                            "line": 599
+                          },
+                          "message": "Error: locator.selectOption: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Loại danh mục', { exact: true })\u001b[22m\n\n\n  597 |     const record = async (from: string, to: string, options: { kind?: string; share?: string; date?: string; submit?: boolean } = {}): Promise<void> => {\n  598 |       await open(page, '/mdm/mdm-37', 'steward');\n> 599 |       await page.getByLabel(vi['mdm.succession.type.label'], { exact: true }).selectOption('AGENCY');\n      |                                                                               ^\n  600 |       const form = page.getByRole('form', { name: vi['mdm.succession.form.aria'] });\n  601 |       if (options.kind !== undefined) await form.getByLabel(vi['mdm.succession.kind.label'], { exact: true }).selectOption(options.kind);\n  602 |       await form.getByLabel(vi['mdm.succession.predecessor.label'], { exact: true }).selectOption((await recordOf(from)).id);\n    at record (D:\\PIS-uat6\\apps\\web\\e2e\\mdm-flows.spec.ts:599:79)\n    at D:\\PIS-uat6\\apps\\web\\e2e\\mdm-flows.spec.ts:617:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-12T10:11:36.428Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "D:\\PIS-uat6\\apps\\web\\e2e\\mdm-flows.spec.ts",
+                            "line": 0,
+                            "column": 0
+                          }
+                        }
+                      ],
+                      "attachments": [
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "D:\\PIS-uat6\\apps\\web\\e2e\\test-results\\mdm-flows-master-data-prop-4bd73-reen-show-it-MDM-37-MDM-03-\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e1eb2769a145c4864447-68b09e36a6993134a706",
+              "file": "mdm-flows.spec.ts",
+              "line": 583,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-12T10:11:06.705Z",
+    "duration": 61551.358,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

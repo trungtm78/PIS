@@ -1,0 +1,210 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-UAT-DIR-IDM-01",
+      "name": "Ghi cùng cuộc họp hai lần với cùng Idempotency-Key trả đúng kết quả lần đầu; cùng khóa khác nội dung bị từ chối 409",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 63
+    },
+    {
+      "tc_id": "TC-UAT-DIR-IDM-02",
+      "name": "Năm cuộc họp giống hệt gửi cùng lúc với một khóa chỉ tạo một cuộc họp với một mã",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 4
+    },
+    {
+      "tc_id": "TC-UAT-DIR-DAT-01",
+      "name": "Chỉ đạo quá hạn là kết quả của đồng hồ chứ không phải cờ lưu: xếp trước, số quá hạn đúng, và các số của tổng hợp cộng đúng bằng danh sách",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 2
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-01",
+      "name": "Cùng một tệp áp dụng lần hai bị từ chối (409 IMPORT_FILE_ALREADY_APPLIED), không thêm bản ghi",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 6
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-02",
+      "name": "Gửi lại cùng Idempotency-Key của lệnh áp dụng trả kết quả lần đầu thay vì từ chối",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 6
+    },
+    {
+      "tc_id": "TC-UAT-EBS-IDM-03",
+      "name": "Năm lệnh áp dụng cùng một tệp gửi cùng lúc chỉ ghi bản ghi một lần: một lệnh áp dụng, các lệnh còn lại bị từ chối là đã áp dụng",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 8
+    },
+    {
+      "tc_id": "TC-UAT-EBS-E2E-02",
+      "name": "Đối chiếu theo mã dự án mở một mục chênh lệch với người phụ trách không phải người làm số liệu, không nói gì về phần khớp, chạy lại không mở thêm",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "ô đầu tiên: mong đợi «1», thực tế «0»"
+      ],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-ENT-IDM-01",
+      "name": "Dựng lại bản chốt với cùng Idempotency-Key trả đúng bản đã dựng và không tạo bản thứ hai; cùng khóa cho kỳ khác bị 409 IDEMPOTENCY_CONFLICT",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "duplicate-on-retry: 5 request đồng thời cùng khoá idempotency tạo 4 bản ghi, mong đợi tối đa 1 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 7
+    },
+    {
+      "tc_id": "TC-UAT-ENT-DAT-01",
+      "name": "Bản chốt đã đóng băng đọc với băm đã kiểm và dòng dõi; kỳ đã đóng băng không dựng lại cho đến khi mở lại; lãnh đạo đọc tỷ lệ so với kế hoạch kèm tử số và mẫu số",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 0
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-01",
+      "name": "Gửi lại cùng Idempotency-Key trả đúng kết quả lần đầu: một dòng, một lần thử",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 7
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-02",
+      "name": "Đẩy lại cùng nội dung bằng khóa Idempotency mới là ALREADY_DELIVERED, không có lần thử mới",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400])"
+      ],
+      "duration_ms": 2
+    },
+    {
+      "tc_id": "TC-UAT-HPM-IDM-04",
+      "name": "Năm lệnh đẩy giống hệt gửi cùng lúc với một khóa chỉ tạo một dòng và một gói; người thua cuộc nhận kết quả của người thắng",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 6
+    },
+    {
+      "tc_id": "TC-UAT-HPM-STA-01",
+      "name": "Lượt đẩy đã được nhận hoặc bị từ chối không đẩy lại được; lượt đã quyết định không nhận biên nhận thứ hai",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "ô đầu tiên: mong đợi «ACCEPTED», thực tế «None»"
+      ],
+      "duration_ms": 1
+    },
+    {
+      "tc_id": "TC-UAT-HUB-IDM-01",
+      "name": "Ghi cùng một lượt chạy hai lần chỉ giữ một lượt và một sự cố; cùng Idempotency-Key trả kết quả đầu",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 22
+    },
+    {
+      "tc_id": "TC-UAT-HUB-HLT-01",
+      "name": "Tỷ lệ khỏe bằng 50 phần trăm khi một trong hai bộ kết nối có dữ liệu khỏe; bộ kết nối chờ không được tính; mỗi số có công thức, nguồn và cờ chưa xác nhận",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 1
+    },
+    {
+      "tc_id": "TC-UAT-IND-IDM-01",
+      "name": "Nhập lại đúng số cũ không đổi gì: không bản mới, không sự kiện, kết quả nói unchanged",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 6
+    },
+    {
+      "tc_id": "TC-UAT-INT-IDM-01",
+      "name": "Mở lại cùng tài khoản với cùng Idempotency-Key trả kết quả cũ không kèm bí mật; chỉ một tài khoản; bí mật không nằm trong bảng nào",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 24
+    },
+    {
+      "tc_id": "TC-UAT-INT-DAT-01",
+      "name": "Mỗi lần gọi API mở là một dòng nhật ký truy cập ghi tên tham số truy vấn và không bao giờ ghi giá trị; nhật ký đọc được qua API của tenant mình",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 1
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-02",
+      "name": "Catalog: 0 bảng thiếu RLS/FORCE/policy",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 21
+    },
+    {
+      "tc_id": "TC-UAT-NFR-TENANCY-08",
+      "name": "Workflow hợp lệ ghi đúng TNT-A",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [],
+      "duration_ms": 9
+    },
+    {
+      "tc_id": "TC-UAT-RPT-IDM-01",
+      "name": "Lập lại đúng báo cáo đã phát hành là DUPLICATE, lập lại bản nháp chưa phát hành là EXISTING; không bao giờ có bản sao thứ hai",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 10
+    },
+    {
+      "tc_id": "TC-UAT-RPT-IDM-02",
+      "name": "Giao một bản phát hành cho một bên nhận chỉ một lần (lần hai 409 ALREADY_DELIVERED), bản đã bị thay không giao được, nhật ký giao chỉ thêm",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "mong đợi 1 bản ghi, thực tế 0 (mã trả về: [400, 400, 400, 400, 400])"
+      ],
+      "duration_ms": 9
+    }
+  ]
+}

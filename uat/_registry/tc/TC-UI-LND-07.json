@@ -1,0 +1,53 @@
+{
+  "tc_id": "TC-UI-LND-07",
+  "runs": [
+    {
+      "run_id": "uatsuites-run1",
+      "at": "2026-11-12T16:41:51+07:00",
+      "build": "0748687af1",
+      "status": "KHONG_CHAY",
+      "reason": "lop-loi",
+      "repro": null,
+      "duration_ms": 0
+    },
+    {
+      "run_id": "uatsuites-run2",
+      "at": "2026-11-12T16:41:52+07:00",
+      "build": "0748687af1",
+      "status": "KHONG_CHAY",
+      "reason": "lop-loi",
+      "repro": null,
+      "duration_ms": 0
+    },
+    {
+      "run_id": "uatsuites-run3",
+      "at": "2026-11-12T16:41:53+07:00",
+      "build": "0748687af1",
+      "status": "KHONG_CHAY",
+      "reason": "lop-loi",
+      "repro": null,
+      "duration_ms": 0
+    },
+    {
+      "run_id": "public",
+      "at": "2026-11-12T18:13:50+07:00",
+      "build": "0748687af1",
+      "status": "PASS",
+      "reason": "",
+      "repro": null,
+      "duration_ms": 4609
+    },
+    {
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "status": "PASS",
+      "reason": "",
+      "repro": null,
+      "duration_ms": 4636
+    }
+  ],
+  "flake_rate": 0.0,
+  "fail_runs": 0,
+  "untrusted": false
+}

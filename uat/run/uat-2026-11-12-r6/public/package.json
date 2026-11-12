@@ -1,0 +1,9 @@
+{
+  "name": "uat-test-only-run",
+  "private": true,
+  "description": "Không gian chạy UAT riêng của một lượt — KHÔNG phải package của sản phẩm",
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@axe-core/playwright": "4.11.2"
+  }
+}

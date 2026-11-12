@@ -1,0 +1,18 @@
+Running on guide
+ > Flow 06_sign_in_test_idp
+Launch app "vn.machvon.app"... COMPLETED
+Assert that "??ng nh?p b?ng SSO" is visible... COMPLETED
+Tap on "??ng nh?p b?ng SSO"... COMPLETED
+Run flow when "Use without an account" is visible...
+Run flow when "Use without an account" is visible... SKIPPED
+Run flow when "No thanks" is visible...
+Run flow when "No thanks" is visible... SKIPPED
+Assert that "Ch?n ??n v? và vai trò" is visible... COMPLETED
+Take screenshot mob03_choose_unit... COMPLETED
+Tap on "(??m Phú M?|Cao B?ng).*"... COMPLETED
+Tap on "Ti?p t?c"... COMPLETED
+Assert that "Xác th?c hai y?u t?" is visible... COMPLETED
+Take screenshot mob04_second_factor... COMPLETED
+Tap on "Xác th?c trong trình duy?t"... COMPLETED
+Assert that "Trang ch? (lãnh ??o|?i?u hành)" is visible... COMPLETED
+Take screenshot mob07_home... COMPLETED

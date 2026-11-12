@@ -1,0 +1,3204 @@
+{
+  "verdict": "NO-GO",
+  "harness_verdict": "FAIL",
+  "gates": [
+    {
+      "gate": "G0",
+      "name": "Môi trường",
+      "state": "ĐẠT",
+      "detail": "http://127.0.0.1:3999/__e2e/health → HTTP 200",
+      "effect": ""
+    },
+    {
+      "gate": "G1",
+      "name": "Lớp chạy",
+      "state": "ĐẠT",
+      "detail": "api (409 test), db (2 test), e2e (152 test), mobile (6 test)",
+      "effect": ""
+    },
+    {
+      "gate": "G2",
+      "name": "Đường găng P0/P1",
+      "state": "HỎNG",
+      "detail": "610/1097 ca P0/P1 không đạt: TC-UI-ADM-01(KHÔNG CHẠY), TC-UI-ADM-02(KHÔNG CHẠY), TC-UI-ADM-03(KHÔNG CHẠY), TC-UI-ADM-04(KHÔNG CHẠY), TC-UI-ADM-05(KHÔNG CHẠY), TC-UI-ADM-06(KHÔNG CHẠY), TC-UI-ADM-07(KHÔNG CHẠY), TC-UI-ADM-08(KHÔNG CHẠY), TC-UI-ADM-09(KHÔNG CHẠY), TC-UI-ADM-10(KHÔNG CHẠY), TC-UI-ADM-11(KHÔNG CHẠY), TC-UI-ADM-12(KHÔNG CHẠY)",
+      "effect": "NO-GO"
+    },
+    {
+      "gate": "G3",
+      "name": "Độ phủ thực thi",
+      "state": "HỎNG",
+      "detail": "488/1097 ca đã chạy = 44.5% < 95%",
+      "effect": "NO-GO"
+    },
+    {
+      "gate": "G5",
+      "name": "Hồi quy",
+      "state": "KHÔNG ÁP",
+      "detail": "không có baseline do người chỉ định (kỹ năng không bao giờ tự ghi baseline)",
+      "effect": ""
+    },
+    {
+      "gate": "G8",
+      "name": "Độ bền (monkey)",
+      "state": "ĐẠT",
+      "detail": "seed 20261112: 600 thao tác · seed 20261112: 300 thao tác",
+      "effect": ""
+    },
+    {
+      "gate": "G9",
+      "name": "Rào không-sửa",
+      "state": "ĐẠT",
+      "detail": "sạch · phương thức git · tệp bị .gitignore cũng nằm trong tầm quét",
+      "effect": ""
+    },
+    {
+      "gate": "G10",
+      "name": "Oracle-binding",
+      "state": "ĐẠT",
+      "detail": "0/0 ca có assert giá trị neo vào `expected`",
+      "effect": ""
+    },
+    {
+      "gate": "G11",
+      "name": "Chứng âm (negative control)",
+      "state": "ĐẠT",
+      "detail": "cả 3 mệnh đề chắc chắn sai đều đỏ — bộ đo của lượt này có thể bắt lỗi",
+      "effect": ""
+    },
+    {
+      "gate": "G12",
+      "name": "Bằng chứng đủ",
+      "state": "KHÔNG ĐO ĐƯỢC",
+      "detail": "hồ sơ ci: 889 ca ĐẠT không sinh hiện vật — không chặn, nhưng cũng không ký được bằng lượt này",
+      "effect": "HẠ TRẦN"
+    },
+    {
+      "gate": "G13",
+      "name": "Phủ yêu cầu",
+      "state": "HỎNG",
+      "detail": "175 yêu cầu chỉ được phủ bởi ca KHÔNG CHẠY (phủ trên giấy): COV-FR-ADM-02, COV-FR-ADM-03, COV-FR-ADM-05, COV-FR-ADM-07, COV-FR-ADM-08, COV-FR-ADM-14, COV-FR-ADM-15, COV-FR-AUD-11",
+      "effect": "NO-GO"
+    },
+    {
+      "gate": "G14",
+      "name": "Ma trận quyền · IDOR",
+      "state": "KHÔNG ĐO ĐƯỢC",
+      "detail": "2/9 ca không chạy được (khong-co-kich-ban)",
+      "effect": "HẠ TRẦN"
+    },
+    {
+      "gate": "G15",
+      "name": "Dữ liệu · Audit · Idempotency · Trạng thái",
+      "state": "ĐẠT",
+      "detail": "9 ca đều đạt",
+      "effect": ""
+    },
+    {
+      "gate": "G16",
+      "name": "Khả năng tiếp cận (đo được)",
+      "state": "ĐẠT",
+      "detail": "quét 79 màn · 0 vi phạm critical/serious · 0 ghi nhận không chặn · 0 mục axe chưa kết luận được (đúng chỗ cần người nhìn) · axe-core bắt ~57% lỗi a11y theo số lượng; chỉ 29,5% tiêu chí WCAG 2.2 tự động hoá được, 60,2% buộc kiểm thủ công — G16 xanh KHÔNG phải là tuyên bố tuân thủ WCAG 2.2 AA",
+      "effect": ""
+    },
+    {
+      "gate": "G17",
+      "name": "Hiệu năng (ngân sách người đặt)",
+      "state": "KHÔNG ÁP",
+      "detail": "không ca nào khai `perf_budget`",
+      "effect": ""
+    },
+    {
+      "gate": "G4",
+      "name": "Ngân sách lỗi",
+      "state": "CẦN NGƯỜI",
+      "detail": "ngưỡng S2 cho phép là thoả thuận của người, không có trong hiện vật",
+      "effect": ""
+    },
+    {
+      "gate": "G6",
+      "name": "Phi chức năng",
+      "state": "CẦN NGƯỜI",
+      "detail": "a11y/hiệu năng cần ngân sách do người đặt",
+      "effect": ""
+    },
+    {
+      "gate": "G7",
+      "name": "Ký duyệt",
+      "state": "CẦN NGƯỜI",
+      "detail": "cần người có thẩm quyền ký — AI không bao giờ tự duyệt",
+      "effect": ""
+    }
+  ],
+  "counts": {
+    "total": 1097,
+    "PASS": 487,
+    "FAIL": 1,
+    "KHONG_CHAY": 609
+  },
+  "findings": [
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC103 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC104 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC105 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC106 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC108 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC110 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC113 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC126 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC127 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC130 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC132 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC134 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC141 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-15 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-16 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-17 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ADM-18 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-BI01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC445 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-15 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC224 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC226 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-16 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-17 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-19 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-CAP-20 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-63 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC301 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC485 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC486 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC488 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-15 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-16 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-17 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-18 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC245 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-19 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-20 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-21 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-22 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-24 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DIS-25 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-19 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-DOC-21 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC401 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC402 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC403 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC405 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC413 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC424 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC430 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC432 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-HOME-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC100 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC101 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC102 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-IAM-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-44 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-ISS-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-15 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-16 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-17 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-18 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-19 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-20 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-21 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-22 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-23 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-24 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-25 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-26 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-27 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-28 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-29 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-30 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-31 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-32 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-33 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC276 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-34 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MDM-37 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-54 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC285 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC291 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MNE-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MNE-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MNE-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MNE-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MNE-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MNE-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MNE-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-73 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-15 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-16 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-17 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-18 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-19 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-20 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-21 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-22 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-23 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-24 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-25 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-26 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-27 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-28 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-29 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-30 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-31 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-32 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-33 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-34 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-55 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-56 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-57 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-58 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-59 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-MOB-60 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC501 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC502 [P0] KHÔNG CHẠY (thieu-du-lieu-seed): The flow needs the push registration of the device, which a build without Firebase only gets from a local edit of the product (push_port.dart); product code may not be edited in this run."
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC504 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-33 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-36 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-39 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-41 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-42 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-43 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-SEC05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-AI01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-OPS02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UX01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-TENANCY-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-TENANCY-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-SECURITY-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-SECURITY-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-SECURITY-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-SECURITY-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-SECURITY-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-SECURITY-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-SECURITY-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-PRIVACY-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-LEGAL-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-LEGAL-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-AVAILABILITY-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-AVAILABILITY-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-OBSERVABILITY-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-OPERABILITY-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-OPERABILITY-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-NFR-AI-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-09 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-15 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-16 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC177 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC181 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC182 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC187 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-NOT-17 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC10 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC321 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC324 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC326 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC327 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC330 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC333 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC338 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC344 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC396 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-19 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-21 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC368 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-02 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-04 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-05 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-06 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-07 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-08 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-11 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-12 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-13 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC200 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC201 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC202 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC203 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC204 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC206 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC207 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC210 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC217 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-PRJ-19 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC43 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC44 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-SEC03 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-LIC01 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC145 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC146 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC147 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC149 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-AC159 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-SAS-22 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UI-SAS-25 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-14 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P0",
+      "text": "TC-UAT-PLAN-46 [P0] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "FAIL",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-PERFORMANCE-02 [P1][S3] LCP p95 mỗi màn hình ≤ 2,5 s: mong đợi «LCP p95 mỗi màn hình ≤ 2,5 s; command submit p95 ≤ 1 s» (nguồn: NFR-PERFORMANCE-02) — thực tế: 1 run(s): FAIL. The heading of the loaded home was not visible within 2500 ms after a cold start on a debug build with software graphics; the flow itself says the emulator gives no verdict for a phone. — bằng chứng: uat/run/uat-2026-11-12-r6/logs/maestro-public-20_cold_start_main_content.log"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC114 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC115 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC118 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC128 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC133 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC135 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC136 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC144 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-AST-05 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-AST-06 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-AST-07 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-AUD-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-AUD-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC438 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-04 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-05 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-06 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-07 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-08 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-10 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-12 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-13 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-14 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-15 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-16 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-17 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BI-18 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-04 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-06 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-07 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-08 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-10 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-12 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-13 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-14 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-15 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-16 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-BID-21 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC447 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC231 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC232 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC236 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CAP-18 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-60 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC57 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC59 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC64 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-14 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-15 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-16 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-17 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-18 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC306 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC310 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC316 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC398 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-23 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-24 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-CTR-25 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-04 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-05 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-06 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-07 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-08 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-10 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-12 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-13 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-14 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-15 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-16 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-17 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-18 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-19 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-20 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DGV-21 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC483 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC484 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC491 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DIS-23 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-66 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-69 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DOC-15 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DOC-16 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DOC-17 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DOC-18 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DOC-20 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DOC-22 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-DOC-23 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC423 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC426 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC431 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC269 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-72 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC123 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC124 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-ISS-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-22 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-26 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-04 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-05 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-06 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-07 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-08 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-10 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-12 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-13 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-14 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-15 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-16 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-17 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-18 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-19 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-20 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LLM-21 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LND-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-LND-12 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC45 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC46 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC47 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC48 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC49 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC273 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC279 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC280 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC281 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC282 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC283 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC284 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MDM-35 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MDM-36 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-53 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-56 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC288 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC293 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MNE-04 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MNE-08 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MNE-10 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-35 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-36 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-37 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-38 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-39 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-40 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-41 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-42 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-43 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-44 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-45 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-46 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-47 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-48 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-49 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-50 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-51 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-52 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-53 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-54 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-61 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-62 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-63 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-64 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-65 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-66 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-67 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-MOB-68 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC505 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC507 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-32 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-35 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-37 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-38 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-40 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-PRIVACY-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-LEGAL-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-AVAILABILITY-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-PERFORMANCE-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-PERFORMANCE-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-ACCESSIBILITY-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-RETENTION-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-RETENTION-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-RETENTION-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-NFR-OBSERVABILITY-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC178 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC186 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-49 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-04 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-07 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-08 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-10 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-OMNI-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC328 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC334 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC342 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC345 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PAY-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PAY-12 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PAY-15 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PAY-16 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PAY-17 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC373 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PMT-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PMT-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PMT-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PMT-04 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PMT-05 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PMT-06 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC208 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC211 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC216 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-PRJ-16 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-QMS-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-QMS-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-QMS-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-QMS-06 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-QMS-08 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-QMS-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-QMS-10 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-QMS-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC40 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC41 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC42 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-01 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-02 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-03 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-04 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-05 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-06 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-07 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-08 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-09 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-10 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-11 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-12 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-13 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-15 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-17 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-18 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-19 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-20 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-21 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC148 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC161 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC162 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC173 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-AC174 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-23 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UI-SAS-24 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-47 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "KHONG_CHAY",
+      "priority": "P1",
+      "text": "TC-UAT-PLAN-48 [P1] KHÔNG CHẠY (khong-co-kich-ban)"
+    },
+    {
+      "kind": "MONKEY",
+      "priority": "S3",
+      "text": "MONKEY S3 console.error seed 20261112 bước 68 ×54: Failed to load resource: the server responded with a status of 422 (Unprocessable Entity) — ảnh: monkey\\shots\\s20261112-b68-console.error.png"
+    },
+    {
+      "kind": "MONKEY",
+      "priority": "S3",
+      "text": "MONKEY S3 console.error seed 20261112 bước 68 ×2: Failed to load resource: the server responded with a status of 403 (Forbidden) — ảnh: monkey\\shots\\s20261112-b68-console.error.png"
+    }
+  ],
+  "build": "0748687af1",
+  "url": "http://127.0.0.1:3999/__e2e/health",
+  "spec_hash": "55d304a9d1f6",
+  "generated_at": "2026-11-12T18:13:50+07:00"
+}

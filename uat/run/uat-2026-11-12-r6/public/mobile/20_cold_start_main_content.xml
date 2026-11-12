@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="guide" tests="1" failures="1" time="7.442" timestamp="2026-11-12T18:07:20">
+    <testcase id="20_cold_start_main_content" name="20_cold_start_main_content" classname="20_cold_start_main_content" file="apps\mobile\qa\device\flows\20_cold_start_main_content.yaml" time="7.433" timestamp="2026-11-12T18:07:20" status="ERROR">
+      <failure>Assertion is false: "Cần xử lý ngay" is visible</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

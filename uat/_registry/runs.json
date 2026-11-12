@@ -1,0 +1,69 @@
+{
+  "runs": [
+    {
+      "run_id": "uatsuites-run1",
+      "at": "2026-11-12T16:41:51+07:00",
+      "build": "0748687af1",
+      "out": "uat/run/uat-2026-11-12-r6/ledger/uatsuites-run1",
+      "counts": {
+        "total": 1445,
+        "PASS": 199,
+        "FAIL": 0,
+        "KHONG_CHAY": 1246
+      },
+      "green": false
+    },
+    {
+      "run_id": "uatsuites-run2",
+      "at": "2026-11-12T16:41:52+07:00",
+      "build": "0748687af1",
+      "out": "uat/run/uat-2026-11-12-r6/ledger/uatsuites-run2",
+      "counts": {
+        "total": 1445,
+        "PASS": 199,
+        "FAIL": 0,
+        "KHONG_CHAY": 1246
+      },
+      "green": false
+    },
+    {
+      "run_id": "uatsuites-run3",
+      "at": "2026-11-12T16:41:53+07:00",
+      "build": "0748687af1",
+      "out": "uat/run/uat-2026-11-12-r6/ledger/uatsuites-run3",
+      "counts": {
+        "total": 1445,
+        "PASS": 199,
+        "FAIL": 0,
+        "KHONG_CHAY": 1246
+      },
+      "green": false
+    },
+    {
+      "run_id": "public",
+      "at": "2026-11-12T18:13:50+07:00",
+      "build": "0748687af1",
+      "out": "uat/run/uat-2026-11-12-r6/public",
+      "counts": {
+        "total": 1097,
+        "PASS": 487,
+        "FAIL": 1,
+        "KHONG_CHAY": 609
+      },
+      "green": false
+    },
+    {
+      "run_id": "enterprise",
+      "at": "2026-11-12T18:26:01+07:00",
+      "build": "0748687af1",
+      "out": "uat/run/uat-2026-11-12-r6/enterprise",
+      "counts": {
+        "total": 1445,
+        "PASS": 678,
+        "FAIL": 27,
+        "KHONG_CHAY": 740
+      },
+      "green": false
+    }
+  ]
+}

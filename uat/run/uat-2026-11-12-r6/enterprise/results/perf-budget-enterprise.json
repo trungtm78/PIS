@@ -1,0 +1,1528 @@
+{
+  "budget": 1,
+  "baseUrl": "http://127.0.0.1:3999",
+  "summary": {
+    "total": 87,
+    "pass": 79,
+    "fail": 2,
+    "skipped": 6
+  },
+  "results": [
+    {
+      "id": "PB-F001",
+      "operationId": "getCommandCenter",
+      "class": "FUNCTION",
+      "path": "/home/command-center",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 10.1,
+        "p50": 16.1,
+        "p95": 23.8,
+        "max": 28.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F002",
+      "operationId": "getMyWork",
+      "class": "FUNCTION",
+      "path": "/home/my-work",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 129.5,
+        "p50": 136.5,
+        "p95": 164.7,
+        "max": 168.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F003",
+      "operationId": "getMyWorkCounts",
+      "class": "FUNCTION",
+      "path": "/home/my-work/counts",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 120.7,
+        "p50": 130.8,
+        "p95": 136.9,
+        "max": 151
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F004",
+      "operationId": "getHomeWarnings",
+      "class": "FUNCTION",
+      "path": "/home/warnings",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 4.8,
+        "p50": 16,
+        "p95": 17.7,
+        "max": 19.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F005",
+      "operationId": "getDisbursementRankings",
+      "class": "FUNCTION",
+      "path": "/home/rankings",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 11.3,
+        "p50": 15.9,
+        "p95": 16.5,
+        "max": 16.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F006",
+      "operationId": "getMultiMetricRanking",
+      "class": "FUNCTION",
+      "path": "/home/rankings/multi",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 7,
+        "p50": 16.1,
+        "p95": 20.1,
+        "max": 21.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F007",
+      "operationId": "getHomeChanges",
+      "class": "FUNCTION",
+      "path": "/home/changes",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 11.2,
+        "p50": 16,
+        "p95": 21.9,
+        "max": 24.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F008",
+      "operationId": "getDisbursementOutlook",
+      "class": "FUNCTION",
+      "path": "/home/outlook",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 6.9,
+        "p50": 15.7,
+        "p95": 19,
+        "max": 22.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F009",
+      "operationId": "getKpiRegister",
+      "class": "FUNCTION",
+      "path": "/home/kpi-register",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 8.7,
+        "p50": 16.1,
+        "p95": 18.6,
+        "max": 18.8
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F010",
+      "operationId": "getRagReading",
+      "class": "FUNCTION",
+      "path": "/home/rag",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 5.6,
+        "p50": 15.7,
+        "p95": 18,
+        "max": 19.2
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F011",
+      "operationId": "getBottleneckAnalysis",
+      "class": "FUNCTION",
+      "path": "/home/bottlenecks",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 7.1,
+        "p50": 16.2,
+        "p95": 19.8,
+        "max": 23
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F012",
+      "operationId": "getAnalyticsHeatmap",
+      "class": "FUNCTION",
+      "path": "/home/insight/heatmap",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 6,
+        "p50": 15.7,
+        "p95": 18.1,
+        "max": 18.2
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F013",
+      "operationId": "getAlertHealth",
+      "class": "FUNCTION",
+      "path": "/home/alert-health",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 14.9,
+        "p50": 16.5,
+        "p95": 17.7,
+        "max": 17.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F014",
+      "operationId": "getCapitalAvailability",
+      "class": "FUNCTION",
+      "path": "/capital/availability",
+      "stats": {
+        "samples": 20,
+        "failed": 20,
+        "statuses": [
+          404
+        ],
+        "min": 15.3,
+        "p50": 18.2,
+        "p95": 33.1,
+        "max": 33.8
+      },
+      "status": "FAIL",
+      "reason": "20 of 20 samples failed (status 404)",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F015",
+      "operationId": "listAppropriations",
+      "class": "FUNCTION",
+      "path": "/appropriations",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 20.5,
+        "p50": 32,
+        "p95": 33.9,
+        "max": 34.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F016",
+      "operationId": "listFundReservations",
+      "class": "FUNCTION",
+      "path": "/fund-reservations",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.2,
+        "p50": 15.8,
+        "p95": 16.7,
+        "max": 16.7
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F017",
+      "operationId": "listCapitalLedger",
+      "class": "FUNCTION",
+      "path": "/capital-ledger",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 7.9,
+        "p50": 16.2,
+        "p95": 18.8,
+        "max": 20.7
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F018",
+      "operationId": "listFiscalYears",
+      "class": "FUNCTION",
+      "path": "/fiscal-years",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.3,
+        "p50": 15.9,
+        "p95": 16.2,
+        "max": 17.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F019",
+      "operationId": "getDisbursementRates",
+      "class": "FUNCTION",
+      "path": "/disbursement-rates",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.4,
+        "p50": 15.6,
+        "p95": 18.9,
+        "max": 21.7
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F020",
+      "operationId": "getDisbursementForecast",
+      "class": "FUNCTION",
+      "path": "/disbursement-forecasts",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 4.9,
+        "p50": 15.9,
+        "p95": 19,
+        "max": 19.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F021",
+      "operationId": "listEarlyWarnings",
+      "class": "FUNCTION",
+      "path": "/early-warnings",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 4.3,
+        "p50": 15.7,
+        "p95": 16.6,
+        "max": 17.7
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F022",
+      "operationId": "listProjectPipeline",
+      "class": "FUNCTION",
+      "path": "/project-pipeline",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 2.1,
+        "p50": 15.8,
+        "p95": 18.1,
+        "max": 19.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F023",
+      "operationId": "listProjectTransfers",
+      "class": "FUNCTION",
+      "path": "/project-transfers",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.9,
+        "p50": 15.8,
+        "p95": 17.1,
+        "max": 19.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F024",
+      "operationId": "getRiskSignalBoard",
+      "class": "FUNCTION",
+      "path": "/risk-signals/board",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 14.3,
+        "p50": 16.3,
+        "p95": 18.3,
+        "max": 20.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F025",
+      "operationId": "getContractPortfolio",
+      "class": "FUNCTION",
+      "path": "/contracts/analytics/portfolio",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 20.4,
+        "p50": 32.5,
+        "p95": 34.6,
+        "max": 35.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F026",
+      "operationId": "listContractFactSnapshots",
+      "class": "FUNCTION",
+      "path": "/contracts/analytics/snapshots",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.1,
+        "p50": 15.6,
+        "p95": 18.2,
+        "max": 18.2
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F027",
+      "operationId": "listContractEarlyWarnings",
+      "class": "FUNCTION",
+      "path": "/contract-early-warnings",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.8,
+        "p50": 16,
+        "p95": 16.8,
+        "max": 20.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F028",
+      "operationId": "listClaims",
+      "class": "FUNCTION",
+      "path": "/claims",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 5.6,
+        "p50": 15.6,
+        "p95": 17.2,
+        "max": 18.8
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F029",
+      "operationId": "listProcurementPlans",
+      "class": "FUNCTION",
+      "path": "/procurement-plans",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.8,
+        "p50": 16.2,
+        "p95": 17.2,
+        "max": 20.2
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F030",
+      "operationId": "listPackageWorkflows",
+      "class": "FUNCTION",
+      "path": "/package-workflows",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 97.7,
+        "p50": 102.7,
+        "p95": 113.4,
+        "max": 114.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F031",
+      "operationId": "getPackageWorkflowBoard",
+      "class": "FUNCTION",
+      "path": "/package-workflows/board",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 96.5,
+        "p50": 99.9,
+        "p95": 105.5,
+        "max": 113.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F032",
+      "operationId": "getPackageProcessTree",
+      "class": "FUNCTION",
+      "path": "/package-workflows/process-tree",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 190.2,
+        "p50": 199.7,
+        "p95": 208.1,
+        "max": 228
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F033",
+      "operationId": "getPackageWorkflowStatistics",
+      "class": "FUNCTION",
+      "path": "/package-workflows/statistics",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 96.5,
+        "p50": 103.2,
+        "p95": 113.3,
+        "max": 114.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F034",
+      "operationId": "getPackageWorkflowSummary",
+      "class": "FUNCTION",
+      "path": "/package-workflows/summary",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 96.1,
+        "p50": 99.9,
+        "p95": 107.2,
+        "max": 111.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F035",
+      "operationId": "listAdvances",
+      "class": "FUNCTION",
+      "path": "/advances",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 7.8,
+        "p50": 15.8,
+        "p95": 18.7,
+        "max": 19
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F036",
+      "operationId": "listOverdueAdvances",
+      "class": "FUNCTION",
+      "path": "/advances/overdue",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 8.3,
+        "p50": 15.8,
+        "p95": 24.2,
+        "max": 24.7
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F037",
+      "operationId": "getPaymentChain",
+      "class": "FUNCTION",
+      "path": "/payment-chain",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 15.2,
+        "p50": 16.1,
+        "p95": 20.2,
+        "max": 21.3
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F038",
+      "operationId": "listReconciliationItems",
+      "class": "FUNCTION",
+      "path": "/reconciliation-items",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 8.6,
+        "p50": 16,
+        "p95": 17,
+        "max": 18.4
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F039",
+      "operationId": "getTreasuryTracking",
+      "class": "FUNCTION",
+      "path": "/treasury-tracking",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 5.4,
+        "p50": 16.1,
+        "p95": 19.6,
+        "max": 20.4
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F040",
+      "operationId": "listIncomingDocuments",
+      "class": "FUNCTION",
+      "path": "/incoming-documents",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 14.8,
+        "p50": 16.2,
+        "p95": 30.2,
+        "max": 34
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F041",
+      "operationId": "listOutgoingDocuments",
+      "class": "FUNCTION",
+      "path": "/outgoing-documents",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.9,
+        "p50": 15.9,
+        "p95": 20.4,
+        "max": 22.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F042",
+      "operationId": "listDossiers",
+      "class": "FUNCTION",
+      "path": "/dossiers",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 13.5,
+        "p50": 16.1,
+        "p95": 19.4,
+        "max": 22.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F043",
+      "operationId": "getDocumentOverview",
+      "class": "FUNCTION",
+      "path": "/document-overview",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 12.7,
+        "p50": 16.1,
+        "p95": 19.1,
+        "max": 20.6
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F044",
+      "operationId": "getIssueWeeklyMatrix",
+      "class": "FUNCTION",
+      "path": "/issues/weekly-matrix",
+      "status": "SKIPPED",
+      "reason": "missing variables: isoWeek",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F045",
+      "operationId": "listIssueSlaBreaches",
+      "class": "FUNCTION",
+      "path": "/issues/sla-breaches",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 10.8,
+        "p50": 16,
+        "p95": 18,
+        "max": 18.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F046",
+      "operationId": "listDirectives",
+      "class": "FUNCTION",
+      "path": "/directives",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 5.7,
+        "p50": 15.8,
+        "p95": 17.8,
+        "max": 21.8
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F047",
+      "operationId": "getDirectiveSummary",
+      "class": "FUNCTION",
+      "path": "/directives/summary",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 4.2,
+        "p50": 15.8,
+        "p95": 16.8,
+        "max": 18.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F048",
+      "operationId": "listOverdueDirectives",
+      "class": "FUNCTION",
+      "path": "/directives/overdue",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 15.5,
+        "p50": 16.4,
+        "p95": 17.9,
+        "max": 18.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F049",
+      "operationId": "searchGlobal",
+      "class": "FUNCTION",
+      "path": "/search",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.9,
+        "p50": 15.9,
+        "p95": 18.2,
+        "max": 18.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F050",
+      "operationId": "listMyNotifications",
+      "class": "FUNCTION",
+      "path": "/me/notifications",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 2.5,
+        "p50": 16.3,
+        "p95": 17.7,
+        "max": 18.3
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F051",
+      "operationId": "getMyEffectiveAccess",
+      "class": "FUNCTION",
+      "path": "/me/effective-access",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 14.7,
+        "p50": 16.3,
+        "p95": 18.1,
+        "max": 18.3
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F052",
+      "operationId": "getMyProfile",
+      "class": "FUNCTION",
+      "path": "/me/profile",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 1.7,
+        "p50": 15.6,
+        "p95": 16.7,
+        "max": 16.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F053",
+      "operationId": "listDashboards",
+      "class": "FUNCTION",
+      "path": "/bi/dashboards",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 5.8,
+        "p50": 16.4,
+        "p95": 17.7,
+        "max": 19.4
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F054",
+      "operationId": "listBiDatasets",
+      "class": "FUNCTION",
+      "path": "/bi/datasets",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 8.8,
+        "p50": 15.8,
+        "p95": 18.8,
+        "max": 20.4
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F055",
+      "operationId": "getDataFreshness",
+      "class": "FUNCTION",
+      "path": "/bi/data-freshness",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 5.3,
+        "p50": 16.4,
+        "p95": 18,
+        "max": 18.8
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F056",
+      "operationId": "getCommitteeWorkspace",
+      "class": "FUNCTION",
+      "path": "/committee/workspace",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 23,
+        "p50": 32.1,
+        "p95": 37.9,
+        "max": 38.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F057",
+      "operationId": "getCommitteeMeetingPack",
+      "class": "FUNCTION",
+      "path": "/committee/meeting-pack",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 26.1,
+        "p50": 32.3,
+        "p95": 35.3,
+        "max": 36.7
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F058",
+      "operationId": "listGovernanceAlerts",
+      "class": "FUNCTION",
+      "path": "/project-governance-alerts",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 10.3,
+        "p50": 15.9,
+        "p95": 17.5,
+        "max": 18.7
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F059",
+      "operationId": "listAlertEscalations",
+      "class": "FUNCTION",
+      "path": "/home/alert-escalations",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.2,
+        "p50": 16.6,
+        "p95": 19.6,
+        "max": 20
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F060",
+      "operationId": "listAiAssistRuns",
+      "class": "FUNCTION",
+      "path": "/ai/assist/runs",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 6.4,
+        "p50": 16.3,
+        "p95": 18,
+        "max": 18.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F061",
+      "operationId": "getFundingFigureBoard",
+      "class": "FUNCTION",
+      "path": "/funding-figures/board",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 25,
+        "p50": 32.9,
+        "p95": 37.4,
+        "max": 43.3
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F062",
+      "operationId": "listReportCatalogue",
+      "class": "FUNCTION",
+      "path": "/report-engine/catalogue",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 24.8,
+        "p50": 33.1,
+        "p95": 59.7,
+        "max": 62
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F063",
+      "operationId": "listReportDrafts",
+      "class": "FUNCTION",
+      "path": "/report-engine/drafts",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 4.6,
+        "p50": 16.1,
+        "p95": 21,
+        "max": 26.9
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F064",
+      "operationId": "listReportIssues",
+      "class": "FUNCTION",
+      "path": "/report-engine/issues",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 5.1,
+        "p50": 16,
+        "p95": 17.1,
+        "max": 21
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F065",
+      "operationId": "getVendorFigures",
+      "class": "FUNCTION",
+      "path": "/vendor/figures",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 15,
+        "p50": 16.3,
+        "p95": 19.8,
+        "max": 21.2
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F066",
+      "operationId": "listMneObligations",
+      "class": "FUNCTION",
+      "path": "/mne-obligations",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 4.7,
+        "p50": 16,
+        "p95": 17.5,
+        "max": 19.8
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F067",
+      "operationId": "listAuditEngagements",
+      "class": "FUNCTION",
+      "path": "/audit-engagements",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 2.8,
+        "p50": 15.3,
+        "p95": 16.6,
+        "max": 16.8
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F068",
+      "operationId": "getEnterpriseSnapshot",
+      "class": "FUNCTION",
+      "path": "/enterprise-snapshots/{id}",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 23.3,
+        "p50": 32.5,
+        "p95": 38.2,
+        "max": 41.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 800
+    },
+    {
+      "id": "PB-F069",
+      "operationId": "getLeaderRates",
+      "class": "FUNCTION",
+      "path": "/leader/rates",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 10.8,
+        "p50": 16,
+        "p95": 21.3,
+        "max": 25.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 800
+    },
+    {
+      "id": "PB-F070",
+      "operationId": "getReportingCalendar",
+      "class": "FUNCTION",
+      "path": "/reporting-calendar",
+      "status": "SKIPPED",
+      "reason": "missing variables: periodYear",
+      "limit": 5000
+    },
+    {
+      "id": "PB-F071",
+      "operationId": "getReportingCalendarBoard",
+      "class": "FUNCTION",
+      "path": "/reporting-calendar/periods/{id}/board",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 6.5,
+        "p50": 16,
+        "p95": 19.8,
+        "max": 20
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 5000
+    },
+    {
+      "id": "PB-R001",
+      "operationId": "exportHomeFigures",
+      "class": "REPORT",
+      "path": "/home/command-center/export",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 10.2,
+        "p50": 16.2,
+        "p95": 22.7,
+        "max": 23
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R002",
+      "operationId": "exportPackageWorkflowReport",
+      "class": "REPORT",
+      "path": "/package-workflows/statistics/export",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 98.4,
+        "p50": 111.7,
+        "p95": 118.7,
+        "max": 141.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R003",
+      "operationId": "getContractScheduleSCurve",
+      "class": "REPORT",
+      "path": "/contracts/analytics/reports/schedule-delay/s-curve",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 9.7,
+        "p50": 15.7,
+        "p95": 18.2,
+        "max": 22.2
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R004",
+      "operationId": "exportProjectSCurve",
+      "class": "REPORT",
+      "path": "/projects/{id}/s-curve/export",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 7.2,
+        "p50": 16.1,
+        "p95": 20.7,
+        "max": 23.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R005",
+      "operationId": "exportContractReport",
+      "class": "REPORT",
+      "path": "/contracts/analytics/reports/{code}/export",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 17.9,
+        "p50": 31.1,
+        "p95": 34,
+        "max": 35.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R006",
+      "operationId": "getContractReport",
+      "class": "REPORT",
+      "path": "/contracts/analytics/reports/{code}",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 23.6,
+        "p50": 32.1,
+        "p95": 35.8,
+        "max": 36.7
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R007",
+      "operationId": "getReportDraftFile",
+      "class": "REPORT",
+      "path": "/report-engine/drafts/{id}/files/{format}",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3,
+        "p50": 15.8,
+        "p95": 19,
+        "max": 20.3
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R008",
+      "operationId": "getReportIssueFile",
+      "class": "REPORT",
+      "path": "/report-engine/issues/{id}/files/{format}",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 3.4,
+        "p50": 16.2,
+        "p95": 18,
+        "max": 18.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R009",
+      "operationId": "getReportExportDownload",
+      "class": "REPORT",
+      "path": "/report-exports/{id}/download",
+      "status": "SKIPPED",
+      "reason": "missing variables: reportExportId",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R010",
+      "operationId": "getDirectivesForReport",
+      "class": "REPORT",
+      "path": "/directives/for-report",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 15,
+        "p50": 16.4,
+        "p95": 17.6,
+        "max": 18.5
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R011",
+      "operationId": "getMneReport",
+      "class": "REPORT",
+      "path": "/mne-reports/{id}",
+      "status": "SKIPPED",
+      "reason": "missing variables: mneReportId",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R012",
+      "operationId": "getEvaluationReport",
+      "class": "REPORT",
+      "path": "/evaluation-reports/{id}",
+      "status": "SKIPPED",
+      "reason": "missing variables: evaluationReportId",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R013",
+      "operationId": "getAlertCoverageReport",
+      "class": "REPORT",
+      "path": "/home/alert-coverage",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 6.1,
+        "p50": 16.3,
+        "p95": 17.9,
+        "max": 18.4
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R014",
+      "operationId": "exportPortalOc4ids",
+      "class": "REPORT",
+      "path": "/portal/oc4ids",
+      "stats": {
+        "samples": 20,
+        "failed": 20,
+        "statuses": [
+          409
+        ],
+        "min": 2.3,
+        "p50": 15.8,
+        "p95": 17.6,
+        "max": 18.1
+      },
+      "status": "FAIL",
+      "reason": "20 of 20 samples failed (status 409)",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R015",
+      "operationId": "exportVendorOcdsParties",
+      "class": "REPORT",
+      "path": "/vendor/ocds/parties",
+      "stats": {
+        "samples": 20,
+        "failed": 0,
+        "statuses": [],
+        "min": 8.9,
+        "p50": 16.2,
+        "p95": 17.3,
+        "max": 20.1
+      },
+      "status": "PASS",
+      "reason": "",
+      "limit": 20000
+    },
+    {
+      "id": "PB-R016",
+      "operationId": "getReportCrosscheck",
+      "class": "REPORT",
+      "path": "/report-engine/crosscheck",
+      "status": "SKIPPED",
+      "reason": "missing variables: periodYear, periodMonth",
+      "limit": 20000
+    }
+  ]
+}

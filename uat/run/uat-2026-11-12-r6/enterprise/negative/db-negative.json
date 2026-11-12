@@ -1,0 +1,15 @@
+{
+  "checks": [
+    {
+      "tc_id": "NEG-DB-1",
+      "name": "negative: wrong expected value",
+      "status": "FAIL",
+      "reason": "du-lieu-sai",
+      "reasons": [
+        "ô đầu tiên: mong đợi «-1», thực tế «6»"
+      ],
+      "duration_ms": 3
+    }
+  ],
+  "dsn_kind": "postgresql"
+}

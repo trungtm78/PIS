@@ -1,0 +1,82 @@
+{
+  "seed": 3,
+  "url": "http://127.0.0.1:4173/uat-negative-monkey.html",
+  "actions_done": 15,
+  "ended": "du-so-thao-tac",
+  "duration_s": 1,
+  "console_errors": 6,
+  "anomalies": [
+    {
+      "type": "pageerror",
+      "severity": "S2",
+      "message": "uat negative control",
+      "url": "http://127.0.0.1:4173/uat-negative-monkey.html",
+      "step": 2,
+      "count": 8,
+      "last_actions": [
+        {
+          "step": 1,
+          "action": "click",
+          "target": "throws an uncaught error",
+          "ms": 66
+        },
+        {
+          "step": 2,
+          "action": "click",
+          "target": "throws an uncaught error",
+          "ms": 75
+        }
+      ],
+      "screenshot": "monkey-negative\\shots\\s3-b2-pageerror.png"
+    },
+    {
+      "type": "console.error",
+      "severity": "S3",
+      "message": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+      "url": "http://127.0.0.1:4173/uat-negative-monkey.html",
+      "step": 6,
+      "count": 6,
+      "last_actions": [
+        {
+          "step": 1,
+          "action": "click",
+          "target": "throws an uncaught error",
+          "ms": 66
+        },
+        {
+          "step": 2,
+          "action": "click",
+          "target": "throws an uncaught error",
+          "ms": 75
+        },
+        {
+          "step": 3,
+          "action": "click",
+          "target": "throws an uncaught error",
+          "ms": 16
+        },
+        {
+          "step": 4,
+          "action": "click",
+          "target": "throws an uncaught error",
+          "ms": 36
+        },
+        {
+          "step": 5,
+          "action": "click",
+          "target": "calls",
+          "ms": 34
+        },
+        {
+          "step": 6,
+          "action": "click",
+          "target": "throws an uncaught error",
+          "ms": 62
+        }
+      ],
+      "screenshot": "monkey-negative\\shots\\s3-b6-console.error.png"
+    }
+  ],
+  "blocking": 1,
+  "replay": "node <skill>/scripts/monkey_web.mjs --url http://127.0.0.1:4173/uat-negative-monkey.html --seed 3 --actions <bước>"
+}

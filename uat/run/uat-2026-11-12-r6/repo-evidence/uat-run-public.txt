@@ -1,0 +1,1 @@
+Lượt chạy r6-public: 706 ca PASS (20 chưa đủ bằng chứng), 0 ca FAIL, 0 ca bị bỏ qua

@@ -1,0 +1,1783 @@
+[
+ {
+  "step": 1,
+  "action": "no-candidate",
+  "ms": 41
+ },
+ {
+  "step": 2,
+  "action": "no-candidate",
+  "ms": 73
+ },
+ {
+  "step": 3,
+  "action": "no-candidate",
+  "ms": 29
+ },
+ {
+  "step": 4,
+  "action": "no-candidate",
+  "ms": 29
+ },
+ {
+  "step": 5,
+  "action": "no-candidate",
+  "ms": 30
+ },
+ {
+  "step": 6,
+  "action": "back"
+ },
+ {
+  "step": 6,
+  "action": "lac-origin",
+  "url": "about:blank",
+  "ms": 25
+ },
+ {
+  "step": 7,
+  "action": "no-candidate",
+  "ms": 29
+ },
+ {
+  "step": 8,
+  "action": "no-candidate",
+  "ms": 28
+ },
+ {
+  "step": 9,
+  "action": "no-candidate",
+  "ms": 25
+ },
+ {
+  "step": 10,
+  "action": "no-candidate",
+  "ms": 34
+ },
+ {
+  "step": 11,
+  "action": "no-candidate",
+  "ms": 31
+ },
+ {
+  "step": 12,
+  "action": "no-candidate",
+  "ms": 30
+ },
+ {
+  "step": 13,
+  "action": "no-candidate",
+  "ms": 30
+ },
+ {
+  "step": 14,
+  "action": "no-candidate",
+  "ms": 26
+ },
+ {
+  "step": 15,
+  "action": "no-candidate",
+  "ms": 27
+ },
+ {
+  "step": 16,
+  "action": "no-candidate",
+  "ms": 26
+ },
+ {
+  "step": 17,
+  "action": "scroll",
+  "dy": 199,
+  "ms": 17
+ },
+ {
+  "step": 18,
+  "action": "no-candidate",
+  "ms": 49
+ },
+ {
+  "step": 19,
+  "action": "no-candidate",
+  "ms": 29
+ },
+ {
+  "step": 20,
+  "action": "no-candidate",
+  "ms": 38
+ },
+ {
+  "step": 21,
+  "action": "scroll",
+  "dy": 191,
+  "ms": 14
+ },
+ {
+  "step": 22,
+  "action": "no-candidate",
+  "ms": 27
+ },
+ {
+  "step": 23,
+  "action": "no-candidate",
+  "ms": 32
+ },
+ {
+  "step": 24,
+  "action": "no-candidate",
+  "ms": 31
+ },
+ {
+  "step": 25,
+  "action": "key",
+  "key": "Tab",
+  "ms": 6
+ },
+ {
+  "step": 26,
+  "action": "scroll",
+  "dy": 764,
+  "ms": 5
+ },
+ {
+  "step": 27,
+  "action": "no-candidate",
+  "ms": 45
+ },
+ {
+  "step": 28,
+  "action": "scroll",
+  "dy": -371,
+  "ms": 5
+ },
+ {
+  "step": 29,
+  "action": "no-candidate",
+  "ms": 41
+ },
+ {
+  "step": 30,
+  "action": "no-candidate",
+  "ms": 29
+ },
+ {
+  "step": 31,
+  "action": "scroll",
+  "dy": 128,
+  "ms": 14
+ },
+ {
+  "step": 32,
+  "action": "no-candidate",
+  "ms": 31
+ },
+ {
+  "step": 33,
+  "action": "scroll",
+  "dy": 672,
+  "ms": 17
+ },
+ {
+  "step": 34,
+  "action": "no-candidate",
+  "ms": 24
+ },
+ {
+  "step": 35,
+  "action": "scroll",
+  "dy": -376,
+  "ms": 13
+ },
+ {
+  "step": 36,
+  "action": "key",
+  "key": "Tab",
+  "ms": 4
+ },
+ {
+  "step": 37,
+  "action": "no-candidate",
+  "ms": 26
+ },
+ {
+  "step": 38,
+  "action": "no-candidate",
+  "ms": 27
+ },
+ {
+  "step": 39,
+  "action": "no-candidate",
+  "ms": 26
+ },
+ {
+  "step": 40,
+  "action": "no-candidate",
+  "ms": 28
+ },
+ {
+  "step": 41,
+  "action": "no-candidate",
+  "ms": 25
+ },
+ {
+  "step": 42,
+  "action": "scroll",
+  "dy": 843,
+  "ms": 14
+ },
+ {
+  "step": 43,
+  "action": "no-candidate",
+  "ms": 37
+ },
+ {
+  "step": 44,
+  "action": "no-candidate",
+  "ms": 26
+ },
+ {
+  "step": 45,
+  "action": "key",
+  "key": "Space",
+  "ms": 3
+ },
+ {
+  "step": 46,
+  "action": "key",
+  "key": "Enter",
+  "ms": 1
+ },
+ {
+  "step": 47,
+  "action": "no-candidate",
+  "ms": 21
+ },
+ {
+  "step": 48,
+  "action": "no-candidate",
+  "ms": 26
+ },
+ {
+  "step": 49,
+  "action": "scroll",
+  "dy": 66,
+  "ms": 19
+ },
+ {
+  "step": 50,
+  "action": "scroll",
+  "dy": 1025,
+  "ms": 64
+ },
+ {
+  "step": 51,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Hợp đồng",
+  "ms": 139
+ },
+ {
+  "step": 52,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 70
+ },
+ {
+  "step": 53,
+  "action": "key",
+  "key": "ArrowDown",
+  "ms": 2
+ },
+ {
+  "step": 54,
+  "action": "click",
+  "target": "Kế hoạch vốn",
+  "ms": 3005
+ },
+ {
+  "step": 55,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3006
+ },
+ {
+  "step": 56,
+  "action": "key",
+  "key": "Escape",
+  "ms": 6
+ },
+ {
+  "step": 57,
+  "action": "select",
+  "target": "Toàn bộ phạm vi của tôi\nCB-HQ Ủy ban nhân dân tỉnh Cao Bằng\n",
+  "index": 2,
+  "ms": 23
+ },
+ {
+  "step": 58,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 31
+ },
+ {
+  "step": 59,
+  "action": "click",
+  "target": "Nhật ký công trường",
+  "ms": 58
+ },
+ {
+  "step": 60,
+  "action": "click",
+  "target": "CB CB: trang chủ Cao Bằng",
+  "ms": 86
+ },
+ {
+  "step": 61,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 57
+ },
+ {
+  "step": 62,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 95
+ },
+ {
+  "step": 63,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Tài khoản & hỗ trợ",
+  "ms": 26
+ },
+ {
+  "step": 64,
+  "action": "click",
+  "target": "VA\nNguyễn Văn An\nCán bộ quản lý · Bản mẫu\n··· VA Nguyễn Văn ",
+  "ms": 37
+ },
+ {
+  "step": 65,
+  "action": "click",
+  "target": "Nhật ký công trường",
+  "ms": 60
+ },
+ {
+  "step": 66,
+  "action": "click",
+  "target": "Hợp đồng",
+  "ms": 45
+ },
+ {
+  "step": 67,
+  "action": "click",
+  "target": "Dashboard của tôi",
+  "ms": 60
+ },
+ {
+  "step": 68,
+  "action": "click",
+  "target": "Quyết toán",
+  "ms": 250
+ },
+ {
+  "step": 69,
+  "action": "click",
+  "target": "Nghiệm thu",
+  "ms": 35
+ },
+ {
+  "step": 70,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Dự án",
+  "ms": 47
+ },
+ {
+  "step": 71,
+  "action": "click",
+  "target": "Tất cả chức năng",
+  "ms": 45
+ },
+ {
+  "step": 72,
+  "action": "click",
+  "target": "Không gian thực hiện hợp đồng\nChi tiết & thao tác",
+  "ms": 50
+ },
+ {
+  "step": 73,
+  "action": "click",
+  "target": "Kế hoạch vốn",
+  "ms": 52
+ },
+ {
+  "step": 74,
+  "action": "click",
+  "target": "Nhật ký công trường",
+  "ms": 40
+ },
+ {
+  "step": 75,
+  "action": "click",
+  "target": "Chủ trương đầu tư",
+  "ms": 49
+ },
+ {
+  "step": 76,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Kế hoạch vốn",
+  "ms": 29
+ },
+ {
+  "step": 77,
+  "action": "scroll",
+  "dy": 708,
+  "ms": 12
+ },
+ {
+  "step": 78,
+  "action": "click",
+  "target": "VA\nNguyễn Văn An\nCán bộ quản lý · Bản mẫu\n··· VA Nguyễn Văn ",
+  "ms": 45
+ },
+ {
+  "step": 79,
+  "action": "click",
+  "target": "Múi giờ",
+  "ms": 43
+ },
+ {
+  "step": 80,
+  "action": "fill",
+  "target": "profile-phone",
+  "value": "\" onmouseover=\"x",
+  "ms": 12
+ },
+ {
+  "step": 81,
+  "action": "click",
+  "target": "Múi giờ",
+  "ms": 36
+ },
+ {
+  "step": 82,
+  "action": "click",
+  "target": "Quyết toán",
+  "ms": 41
+ },
+ {
+  "step": 83,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Giải ngân",
+  "ms": 28
+ },
+ {
+  "step": 84,
+  "action": "click",
+  "target": "Thuyết minh tháng",
+  "ms": 42
+ },
+ {
+  "step": 85,
+  "action": "click",
+  "target": "Cần xử lý\n17\n9 khẩn Cần xử lý 17, 9 khẩn",
+  "ms": 46
+ },
+ {
+  "step": 86,
+  "action": "click",
+  "target": "Quyết toán",
+  "ms": 3016
+ },
+ {
+  "step": 87,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 59
+ },
+ {
+  "step": 88,
+  "action": "click",
+  "target": "Hợp đồng",
+  "ms": 3006
+ },
+ {
+  "step": 89,
+  "action": "click",
+  "target": "Bắt đầu báo cáo tháng",
+  "ms": 3015
+ },
+ {
+  "step": 90,
+  "action": "click",
+  "target": "Tháng báo cáo",
+  "ms": 3009
+ },
+ {
+  "step": 91,
+  "action": "click",
+  "target": "Hợp đồng",
+  "ms": 3006
+ },
+ {
+  "step": 92,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 31
+ },
+ {
+  "step": 93,
+  "action": "click",
+  "target": "Quyết toán",
+  "ms": 3010
+ },
+ {
+  "step": 94,
+  "action": "click",
+  "target": "Tổng quan",
+  "ms": 3018
+ },
+ {
+  "step": 95,
+  "action": "click",
+  "target": "Của tôi",
+  "ms": 3006
+ },
+ {
+  "step": 96,
+  "action": "click",
+  "target": "Thông báo\n3",
+  "ms": 3010
+ },
+ {
+  "step": 97,
+  "action": "click",
+  "target": "Phân bổ vốn",
+  "ms": 3012
+ },
+ {
+  "step": 98,
+  "action": "key",
+  "key": "Escape",
+  "ms": 16
+ },
+ {
+  "step": 99,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 3005
+ },
+ {
+  "step": 100,
+  "action": "click",
+  "target": "Cần xử lý\n17\n9 khẩn Cần xử lý 17, 9 khẩn",
+  "ms": 3020
+ },
+ {
+  "step": 101,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 36
+ },
+ {
+  "step": 102,
+  "action": "click",
+  "target": "Quản trị & cấu hình",
+  "ms": 3006
+ },
+ {
+  "step": 103,
+  "action": "click",
+  "target": "Hệ thống quản lý đầu tư công Hệ thống quản lý đầu tư công: t",
+  "ms": 3008
+ },
+ {
+  "step": 104,
+  "action": "click",
+  "target": "Đăng thông báo mời thầu lên hệ thống mạng đấu thầu quốc gia:",
+  "ms": 3010
+ },
+ {
+  "step": 105,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Kế hoạch vốn",
+  "ms": 3008
+ },
+ {
+  "step": 106,
+  "action": "click",
+  "target": "Thông báo\n3",
+  "ms": 3010
+ },
+ {
+  "step": 107,
+  "action": "key",
+  "key": "Escape",
+  "ms": 14
+ },
+ {
+  "step": 108,
+  "action": "click",
+  "target": "Cần xử lý\n17\n9 khẩn Cần xử lý 17, 9 khẩn",
+  "ms": 3007
+ },
+ {
+  "step": 109,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 36
+ },
+ {
+  "step": 110,
+  "action": "click",
+  "target": "Kế hoạch vốn",
+  "ms": 3009
+ },
+ {
+  "step": 111,
+  "action": "key",
+  "key": "Enter",
+  "ms": 12
+ },
+ {
+  "step": 112,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 3009
+ },
+ {
+  "step": 113,
+  "action": "click",
+  "target": "Quản trị & cấu hình",
+  "ms": 3013
+ },
+ {
+  "step": 114,
+  "action": "click",
+  "target": "Việc của tôi\n17",
+  "ms": 3007
+ },
+ {
+  "step": 115,
+  "action": "select",
+  "target": "Chọn lý do\nChờ bên ngoài\nĐang bị giữ theo pháp lý hoặc kiểm ",
+  "index": 5,
+  "ms": 12
+ },
+ {
+  "step": 116,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3013
+ },
+ {
+  "step": 117,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 3009
+ },
+ {
+  "step": 118,
+  "action": "click",
+  "target": "Khẩn\n9",
+  "ms": 3016
+ },
+ {
+  "step": 119,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Giải ngân",
+  "ms": 3008
+ },
+ {
+  "step": 120,
+  "action": "click",
+  "target": "Người cho phép",
+  "ms": 27
+ },
+ {
+  "step": 121,
+  "action": "click",
+  "target": "Người cho phép",
+  "ms": 30
+ },
+ {
+  "step": 122,
+  "action": "click",
+  "target": "Đăng thông báo mời thầu lên hệ thống mạng đấu thầu quốc gia:",
+  "ms": 3018
+ },
+ {
+  "step": 123,
+  "action": "click",
+  "target": "Giải thích (bắt buộc)",
+  "ms": 16
+ },
+ {
+  "step": 124,
+  "action": "click",
+  "target": "Hồ sơ pháp lý",
+  "ms": 3015
+ },
+ {
+  "step": 125,
+  "action": "click",
+  "target": "Hiện hoặc ẩn chức năng Kế hoạch vốn",
+  "ms": 3010
+ },
+ {
+  "step": 126,
+  "action": "click",
+  "target": "CB CB: trang chủ Cao Bằng",
+  "ms": 3008
+ },
+ {
+  "step": 127,
+  "action": "click",
+  "target": "Tạm dừng",
+  "ms": 37
+ },
+ {
+  "step": 128,
+  "action": "click",
+  "target": "Hồ sơ pháp lý",
+  "ms": 3018
+ },
+ {
+  "step": 129,
+  "action": "click",
+  "target": "Báo cáo giải ngân",
+  "ms": 3008
+ },
+ {
+  "step": 130,
+  "action": "fill",
+  "target": ":r4r:",
+  "value": "31/12/9999",
+  "ms": 12
+ },
+ {
+  "step": 131,
+  "action": "key",
+  "key": "ArrowUp",
+  "ms": 3
+ },
+ {
+  "step": 132,
+  "action": "key",
+  "key": "Tab",
+  "ms": 2
+ },
+ {
+  "step": 133,
+  "action": "click",
+  "target": "Lý do tạm dừng",
+  "ms": 38
+ },
+ {
+  "step": 134,
+  "action": "key",
+  "key": "Escape",
+  "ms": 13
+ },
+ {
+  "step": 135,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 61
+ },
+ {
+  "step": 136,
+  "action": "back",
+  "ms": 5
+ },
+ {
+  "step": 137,
+  "action": "click",
+  "target": "Chủ trương đầu tư",
+  "ms": 3029
+ },
+ {
+  "step": 138,
+  "action": "click",
+  "target": "CB CB: trang chủ Cao Bằng",
+  "ms": 3006
+ },
+ {
+  "step": 139,
+  "action": "click",
+  "target": "Kế hoạch năm",
+  "ms": 3011
+ },
+ {
+  "step": 140,
+  "action": "fill",
+  "target": "topbar-search-input",
+  "value": "a",
+  "ms": 23
+ },
+ {
+  "step": 141,
+  "action": "click",
+  "target": "Thông báo\n3",
+  "ms": 3011
+ },
+ {
+  "step": 142,
+  "action": "key",
+  "key": "Enter",
+  "ms": 21
+ },
+ {
+  "step": 143,
+  "action": "click",
+  "target": "Hồ sơ pháp lý",
+  "ms": 3007
+ },
+ {
+  "step": 144,
+  "action": "fill",
+  "target": "a    search-query",
+  "value": "999999999999",
+  "ms": 12
+ },
+ {
+  "step": 145,
+  "action": "click",
+  "target": "Thông báo\n3",
+  "ms": 3012
+ },
+ {
+  "step": 146,
+  "action": "click",
+  "target": "Quyết toán",
+  "ms": 3006
+ },
+ {
+  "step": 147,
+  "action": "click",
+  "target": "Quyết toán",
+  "ms": 3007
+ },
+ {
+  "step": 148,
+  "action": "viewport",
+  "width": 820,
+  "height": 1180,
+  "ms": 16
+ },
+ {
+  "step": 149,
+  "action": "click",
+  "target": "Quản trị & cấu hình",
+  "ms": 3006
+ },
+ {
+  "step": 150,
+  "action": "scroll",
+  "dy": -337,
+  "ms": 3
+ },
+ {
+  "step": 151,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 104
+ },
+ {
+  "step": 152,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3008
+ },
+ {
+  "step": 153,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 42
+ },
+ {
+  "step": 154,
+  "action": "select",
+  "target": "Chọn lý do\nKhông áp dụng cho trường hợp này\nSố liệu sai\nTrùn",
+  "index": 2,
+  "ms": 10
+ },
+ {
+  "step": 155,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 3013
+ },
+ {
+  "step": 156,
+  "action": "click",
+  "target": "Tất cả",
+  "ms": 3022
+ },
+ {
+  "step": 157,
+  "action": "click",
+  "target": "Loại hồ sơ",
+  "ms": 3006
+ },
+ {
+  "step": 158,
+  "action": "fill",
+  "target": "999999999999    search-query",
+  "value": "1e9",
+  "ms": 9
+ },
+ {
+  "step": 159,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3013
+ },
+ {
+  "step": 160,
+  "action": "click",
+  "target": "Theo dõi\n47",
+  "ms": 3007
+ },
+ {
+  "step": 161,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3017
+ },
+ {
+  "step": 162,
+  "action": "click",
+  "target": "Ghi chú (bắt buộc khi chọn lý do khác)",
+  "ms": 30
+ },
+ {
+  "step": 163,
+  "action": "click",
+  "target": "Từ khóa",
+  "ms": 3010
+ },
+ {
+  "step": 164,
+  "action": "key",
+  "key": "Space",
+  "ms": 3
+ },
+ {
+  "step": 165,
+  "action": "click",
+  "target": "Loại hồ sơ",
+  "ms": 3013
+ },
+ {
+  "step": 166,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3011
+ },
+ {
+  "step": 167,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3010
+ },
+ {
+  "step": 168,
+  "action": "click",
+  "target": "Của tôi",
+  "ms": 3021
+ },
+ {
+  "step": 169,
+  "action": "click",
+  "target": "Đăng thông báo mời thầu lên hệ thống mạng đấu thầu quốc gia:",
+  "ms": 3018
+ },
+ {
+  "step": 170,
+  "action": "click",
+  "target": "Lý do\nChọn lý do\nKhông áp dụng cho trường hợp này\nSố liệu sa",
+  "ms": 21
+ },
+ {
+  "step": 171,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3006
+ },
+ {
+  "step": 172,
+  "action": "click",
+  "target": "Việc đang bị hoãn",
+  "ms": 3017
+ },
+ {
+  "step": 173,
+  "action": "click",
+  "target": "Loại hồ sơ",
+  "ms": 3011
+ },
+ {
+  "step": 174,
+  "action": "click",
+  "target": "Theo dõi\n47",
+  "ms": 3017
+ },
+ {
+  "step": 175,
+  "action": "key",
+  "key": "Tab",
+  "ms": 4
+ },
+ {
+  "step": 176,
+  "action": "click",
+  "target": "Loại hồ sơ",
+  "ms": 3006
+ },
+ {
+  "step": 177,
+  "action": "fill",
+  "target": ":r7n:",
+  "value": "../../etc/passwd",
+  "ms": 10
+ },
+ {
+  "step": 178,
+  "action": "click",
+  "target": "Tất cả",
+  "ms": 3013
+ },
+ {
+  "step": 179,
+  "action": "click",
+  "target": "Từ khóa",
+  "ms": 3008
+ },
+ {
+  "step": 180,
+  "action": "back",
+  "ms": 51
+ },
+ {
+  "step": 181,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3008
+ },
+ {
+  "step": 182,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 3006
+ },
+ {
+  "step": 183,
+  "action": "click",
+  "target": "Việc đang bị hoãn",
+  "ms": 3008
+ },
+ {
+  "step": 184,
+  "action": "select",
+  "target": "Chọn lý do\nKhông áp dụng cho trường hợp này\nSố liệu sai\nTrùn",
+  "index": 6,
+  "ms": 9
+ },
+ {
+  "step": 185,
+  "action": "click",
+  "target": "Mở menu",
+  "ms": 3015
+ },
+ {
+  "step": 186,
+  "action": "scroll",
+  "dy": -58,
+  "ms": 14
+ },
+ {
+  "step": 187,
+  "action": "key",
+  "key": "Enter",
+  "ms": 3
+ },
+ {
+  "step": 188,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3018
+ },
+ {
+  "step": 189,
+  "action": "key",
+  "key": "ArrowUp",
+  "ms": 2
+ },
+ {
+  "step": 190,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 3007
+ },
+ {
+  "step": 191,
+  "action": "click",
+  "target": "Theo dõi\n47",
+  "ms": 3011
+ },
+ {
+  "step": 192,
+  "action": "click",
+  "target": "Việc đang bị hoãn",
+  "ms": 3007
+ },
+ {
+  "step": 193,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3006
+ },
+ {
+  "step": 194,
+  "action": "scroll",
+  "dy": 813,
+  "ms": 2
+ },
+ {
+  "step": 195,
+  "action": "key",
+  "key": "Enter",
+  "ms": 2
+ },
+ {
+  "step": 196,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3008
+ },
+ {
+  "step": 197,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3019
+ },
+ {
+  "step": 198,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3007
+ },
+ {
+  "step": 199,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 3011
+ },
+ {
+  "step": 200,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3014
+ },
+ {
+  "step": 201,
+  "action": "click",
+  "target": "Khẩn\n23",
+  "ms": 3009
+ },
+ {
+  "step": 202,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3011
+ },
+ {
+  "step": 203,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3015
+ },
+ {
+  "step": 204,
+  "action": "click",
+  "target": "Đăng thông báo mời thầu lên hệ thống mạng đấu thầu quốc gia:",
+  "ms": 3016
+ },
+ {
+  "step": 205,
+  "action": "click",
+  "target": "Theo dõi\n47",
+  "ms": 3016
+ },
+ {
+  "step": 206,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3004
+ },
+ {
+  "step": 207,
+  "action": "select",
+  "target": "Chọn tháng\nM2026-12 (2026-12-01 đến 2026-12-31)\nM2026-11 (20",
+  "index": 6,
+  "ms": 10
+ },
+ {
+  "step": 208,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 3018
+ },
+ {
+  "step": 209,
+  "action": "click",
+  "target": "Bắt đầu báo cáo tháng",
+  "ms": 3006
+ },
+ {
+  "step": 210,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 3007
+ },
+ {
+  "step": 211,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 3016
+ },
+ {
+  "step": 212,
+  "action": "select",
+  "target": "Chọn tháng\nM2026-12 (2026-12-01 đến 2026-12-31)\nM2026-11 (20",
+  "index": 8,
+  "ms": 9
+ },
+ {
+  "step": 213,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 3018
+ },
+ {
+  "step": 214,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3019
+ },
+ {
+  "step": 215,
+  "action": "click",
+  "target": "Gửi báo cáo",
+  "ms": 30
+ },
+ {
+  "step": 216,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 386
+ },
+ {
+  "step": 217,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3005
+ },
+ {
+  "step": 218,
+  "action": "scroll",
+  "dy": -55,
+  "ms": 1
+ },
+ {
+  "step": 219,
+  "action": "fill",
+  "target": ":r85:",
+  "value": "\" onmouseover=\"x",
+  "ms": 12
+ },
+ {
+  "step": 220,
+  "action": "select",
+  "target": "Chọn người cho phép\nHoàng Thị Lan\nLê Minh Cường\nNgô Thanh Sơ",
+  "index": 1,
+  "ms": 13
+ },
+ {
+  "step": 221,
+  "action": "click",
+  "target": "Báo cáo giải ngân",
+  "ms": 3017
+ },
+ {
+  "step": 222,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 3005
+ },
+ {
+  "step": 223,
+  "action": "scroll",
+  "dy": -59,
+  "ms": 2
+ },
+ {
+  "step": 224,
+  "action": "key",
+  "key": "Enter",
+  "ms": 8
+ },
+ {
+  "step": 225,
+  "action": "click",
+  "target": "VA VA: tài khoản của Nguyễn Văn An",
+  "ms": 3014
+ },
+ {
+  "step": 226,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3019
+ },
+ {
+  "step": 227,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3016
+ },
+ {
+  "step": 228,
+  "action": "click",
+  "target": "Lý do tạm dừng",
+  "ms": 17
+ },
+ {
+  "step": 229,
+  "action": "click",
+  "target": "Tất cả",
+  "ms": 3008
+ },
+ {
+  "step": 230,
+  "action": "key",
+  "key": "ArrowDown",
+  "ms": 7
+ },
+ {
+  "step": 231,
+  "action": "click",
+  "target": "Mở menu",
+  "ms": 3017
+ },
+ {
+  "step": 232,
+  "action": "click",
+  "target": "Lý do tạm dừng",
+  "ms": 16
+ },
+ {
+  "step": 233,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3007
+ },
+ {
+  "step": 234,
+  "action": "scroll",
+  "dy": -255,
+  "ms": 1
+ },
+ {
+  "step": 235,
+  "action": "click",
+  "target": "Giải thích (bắt buộc)",
+  "ms": 43
+ },
+ {
+  "step": 236,
+  "action": "click",
+  "target": "Bắt đầu báo cáo tháng",
+  "ms": 3013
+ },
+ {
+  "step": 237,
+  "action": "click",
+  "target": "Việc đang bị hoãn",
+  "ms": 3005
+ },
+ {
+  "step": 238,
+  "action": "click",
+  "target": "Dự án",
+  "ms": 3019
+ },
+ {
+  "step": 239,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3014
+ },
+ {
+  "step": 240,
+  "action": "click",
+  "target": "Hủy",
+  "ms": 56
+ },
+ {
+  "step": 241,
+  "action": "scroll",
+  "dy": 71,
+  "ms": 4
+ },
+ {
+  "step": 242,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3014
+ },
+ {
+  "step": 243,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 23
+ },
+ {
+  "step": 244,
+  "action": "click",
+  "target": "Xem tất cả",
+  "ms": 43
+ },
+ {
+  "step": 245,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 51
+ },
+ {
+  "step": 246,
+  "action": "click",
+  "target": "Đăng thông báo mời thầu lên hệ thống mạng đấu thầu quốc gia:",
+  "ms": 3017
+ },
+ {
+  "step": 247,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3004
+ },
+ {
+  "step": 248,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3005
+ },
+ {
+  "step": 249,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3018
+ },
+ {
+  "step": 250,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3010
+ },
+ {
+  "step": 251,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3009
+ },
+ {
+  "step": 252,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3007
+ },
+ {
+  "step": 253,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3016
+ },
+ {
+  "step": 254,
+  "action": "key",
+  "key": "Enter",
+  "ms": 4
+ },
+ {
+  "step": 255,
+  "action": "back",
+  "ms": 3
+ },
+ {
+  "step": 256,
+  "action": "click",
+  "target": "Mở menu",
+  "ms": 3016
+ },
+ {
+  "step": 257,
+  "action": "click",
+  "target": "18\n9 khẩn Cần xử lý 18, 9 khẩn",
+  "ms": 129
+ },
+ {
+  "step": 258,
+  "action": "scroll",
+  "dy": 680,
+  "ms": 3
+ },
+ {
+  "step": 259,
+  "action": "click",
+  "target": "Tất cả",
+  "ms": 32
+ },
+ {
+  "step": 260,
+  "action": "key",
+  "key": "Enter",
+  "ms": 3
+ },
+ {
+  "step": 261,
+  "action": "click",
+  "target": "Bắt đầu báo cáo tháng",
+  "ms": 3010
+ },
+ {
+  "step": 262,
+  "action": "click",
+  "target": "Cảnh báo này không đúng",
+  "ms": 20
+ },
+ {
+  "step": 263,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3004
+ },
+ {
+  "step": 264,
+  "action": "click",
+  "target": "Báo cáo giải ngân",
+  "ms": 3012
+ },
+ {
+  "step": 265,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3018
+ },
+ {
+  "step": 266,
+  "action": "back",
+  "ms": 2
+ },
+ {
+  "step": 267,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3056
+ },
+ {
+  "step": 268,
+  "action": "click",
+  "target": "Nhận xử lý",
+  "ms": 3018
+ },
+ {
+  "step": 269,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 3006
+ },
+ {
+  "step": 270,
+  "action": "click",
+  "target": "Khẩn\n23",
+  "ms": 3005
+ },
+ {
+  "step": 271,
+  "action": "click",
+  "target": "Lý do\nChọn lý do\nKhông áp dụng cho trường hợp này\nSố liệu sa",
+  "ms": 47
+ },
+ {
+  "step": 272,
+  "action": "fill",
+  "target": "topbar-search-input",
+  "value": "-1",
+  "ms": 86
+ },
+ {
+  "step": 273,
+  "action": "click",
+  "target": "Giao cho",
+  "ms": 3007
+ },
+ {
+  "step": 274,
+  "action": "scroll",
+  "dy": 1050,
+  "ms": 16
+ },
+ {
+  "step": 275,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3007
+ },
+ {
+  "step": 276,
+  "action": "click",
+  "target": "Tất cả",
+  "ms": 3016
+ },
+ {
+  "step": 277,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3019
+ },
+ {
+  "step": 278,
+  "action": "click",
+  "target": "Từ khóa",
+  "ms": 3008
+ },
+ {
+  "step": 279,
+  "action": "click",
+  "target": "Tạm dừng đồng hồ",
+  "ms": 3008
+ },
+ {
+  "step": 280,
+  "action": "click",
+  "target": "Khẩn\n23",
+  "ms": 3020
+ },
+ {
+  "step": 281,
+  "action": "click",
+  "target": "Đóng",
+  "ms": 3007
+ },
+ {
+  "step": 282,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 3007
+ },
+ {
+  "step": 283,
+  "action": "click",
+  "target": "Mở menu",
+  "ms": 3008
+ },
+ {
+  "step": 284,
+  "action": "click",
+  "target": "Lý do\nChọn lý do\nKhông áp dụng cho trường hợp này\nSố liệu sa",
+  "ms": 24
+ },
+ {
+  "step": 285,
+  "action": "click",
+  "target": "Từ khóa",
+  "ms": 3009
+ },
+ {
+  "step": 286,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3017
+ },
+ {
+  "step": 287,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 3008
+ },
+ {
+  "step": 288,
+  "action": "scroll",
+  "dy": 1016,
+  "ms": 7
+ },
+ {
+  "step": 289,
+  "action": "key",
+  "key": "Enter",
+  "ms": 7
+ },
+ {
+  "step": 290,
+  "action": "click",
+  "target": "Cần xử lý\n61",
+  "ms": 3010
+ },
+ {
+  "step": 291,
+  "action": "click",
+  "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+  "ms": 3016
+ },
+ {
+  "step": 292,
+  "action": "click",
+  "target": "Hủy",
+  "ms": 24
+ },
+ {
+  "step": 293,
+  "action": "click",
+  "target": "Trong phạm vi",
+  "ms": 30
+ },
+ {
+  "step": 294,
+  "action": "key",
+  "key": "Escape",
+  "ms": 3
+ },
+ {
+  "step": 295,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 34
+ },
+ {
+  "step": 296,
+  "action": "click",
+  "target": "Từ khóa",
+  "ms": 3003
+ },
+ {
+  "step": 297,
+  "action": "key",
+  "key": "Enter",
+  "ms": 2
+ },
+ {
+  "step": 298,
+  "action": "click",
+  "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+  "ms": 27
+ },
+ {
+  "step": 299,
+  "action": "click",
+  "target": "Mở trung tâm trợ giúp",
+  "ms": 40
+ },
+ {
+  "step": 300,
+  "action": "click",
+  "target": "Ghim màn hình Ghim vào thanh bên  pin-current-screen",
+  "ms": 44
+ }
+]

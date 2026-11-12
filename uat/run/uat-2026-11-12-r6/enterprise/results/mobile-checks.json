@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "tc_id": "TC-UI-MOB-02",
+      "name": "06_sign_in_test_idp",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "2 run(s): PASS, PASS. Android 15 emulator guide, debug APK of the enterprise edition, test identity provider of the stack. Not a phone of the device matrix."
+      ],
+      "duration_ms": 0,
+      "log": "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+    },
+    {
+      "tc_id": "TC-UI-MOB-03",
+      "name": "06_sign_in_test_idp",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "2 run(s): PASS, PASS. Android 15 emulator guide, debug APK of the enterprise edition, test identity provider of the stack. Not a phone of the device matrix."
+      ],
+      "duration_ms": 0,
+      "log": "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+    },
+    {
+      "tc_id": "TC-UI-MOB-04",
+      "name": "06_sign_in_test_idp",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "2 run(s): PASS, PASS. Android 15 emulator guide, debug APK of the enterprise edition, test identity provider of the stack. Not a phone of the device matrix."
+      ],
+      "duration_ms": 0,
+      "log": "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+    },
+    {
+      "tc_id": "TC-UI-MOB-07",
+      "name": "06_sign_in_test_idp",
+      "status": "PASS",
+      "reason": "",
+      "reasons": [
+        "2 run(s): PASS, PASS. Android 15 emulator guide, debug APK of the enterprise edition, test identity provider of the stack. Not a phone of the device matrix."
+      ],
+      "duration_ms": 0,
+      "log": "uat/run/uat-2026-11-12-r6/logs/maestro-06.log"
+    },
+    {
+      "tc_id": "TC-UAT-NFR-PERFORMANCE-02",
+      "name": "20_cold_start_main_content",
+      "status": "FAIL",
+      "reason": "failed",
+      "reasons": [
+        "1 run(s): FAIL. The heading of the loaded home was not visible within 2500 ms after a cold start on a debug build with software graphics; the flow itself says the emulator gives no verdict for a phone."
+      ],
+      "duration_ms": 0,
+      "log": "uat/run/uat-2026-11-12-r6/logs/maestro-20_cold_start_main_content.log"
+    },
+    {
+      "tc_id": "TC-UAT-AC502",
+      "name": "30_flapping_and_kill_during_submit",
+      "status": "KHONG_CHAY",
+      "reason": "thieu-du-lieu-seed",
+      "reasons": [
+        "The flow needs the push registration of the device, which a build without Firebase only gets from a local edit of the product (push_port.dart); product code may not be edited in this run."
+      ],
+      "duration_ms": 0,
+      "log": ""
+    }
+  ]
+}

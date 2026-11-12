@@ -1,0 +1,5 @@
+(node:1732) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+the sign-in did not reach the home screen: the walk stops
+0 visits, 0 screens of the catalogue, 0 not in it
+walk-exit 1

@@ -1,0 +1,852 @@
+(node:16612) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///D:/PIS-uat6/packages/db/src/test-hygiene.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\D:\PIS-uat6\packages\db\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25644) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21556) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:19868) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25968) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/dis/report.test.ts (17.448 s)
+PASS test/doc/dossiers.test.ts (19.634 s)
+PASS test/dis/report-decision.test.ts (20.122 s)
+PASS test/dgv/dgv-maturity.test.ts (14.563 s)
+PASS test/dgv/dgv-contract.test.ts (13.263 s)
+PASS test/doc/incoming.test.ts (16.79 s)
+PASS test/isolation/isolation.test.ts (31.777 s)
+PASS test/llm/llm-gateway.test.ts (40.962 s)
+PASS test/omni/conversation-messages.test.ts (25.183 s)
+PASS test/bid/analysis.test.ts (33.475 s)
+PASS test/qms/diary.test.ts (26.766 s)
+PASS test/mdm/master-merge.test.ts (24.523 s)
+PASS test/home/alert-centre.test.ts (34.93 s)
+PASS test/llm/llm-finops.test.ts (14.349 s)
+PASS test/notifications/campaigns.test.ts (23.474 s)
+PASS test/members.test.ts (13.312 s)
+(node:25644) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/doc/outgoing-drafts.test.ts (15.991 s)
+PASS test/doc/interop.test.ts (64.912 s)
+PASS test/cap/reallocation.test.ts (19.153 s)
+PASS test/ctr/contract-lifecycle.test.ts (34.744 s)
+PASS test/lnd/land-parcels.test.ts (9.323 s)
+PASS test/bid/egp-posting.test.ts (8.858 s)
+PASS test/editions/hpm.enterprise.test.ts (8.153 s)
+PASS test/bid/package-workflow.test.ts (14.49 s)
+PASS test/editions/ebs.enterprise.test.ts (8.023 s)
+PASS test/int/int.test.ts (8.191 s)
+PASS test/bi/bi-exports.test.ts (61.224 s)
+PASS test/prj/baseline-evm.test.ts (17.57 s)
+PASS test/ctr/contract-analytics-money.test.ts (8.568 s)
+DIS-009-5 reads: p95 1468 ms, budget 2100 ms (machine 1.05x the reference: 372/378 ms against 360 ms)
+PASS test/dis/snapshot.test.ts (65.805 s)
+PASS test/pmt/permit-dossier.test.ts (10.754 s)
+PASS test/lnd/household.test.ts (7.912 s)
+PASS test/ctr/change-chain.test.ts (29.763 s)
+PASS test/bi/bi-query-jobs.test.ts (15.092 s)
+PASS test/gov12/gov12.test.ts (7.347 s)
+PASS test/doc/repository.test.ts (10.879 s)
+PASS test/bid/egp.test.ts (7.365 s)
+PASS test/session/select-tenant.test.ts (8.549 s)
+PASS test/roles-and-grants.test.ts (9.878 s)
+PASS test/bi/bi-queries.test.ts (11.253 s)
+PASS test/committee/committee.test.ts (8.363 s)
+PASS test/home/work-governance.test.ts (30.784 s)
+PASS test/lnd/enforcement.test.ts (24.395 s)
+PASS test/llm/llm-eval.test.ts (15.658 s)
+PASS test/llm/llm-knowledge.test.ts (16.166 s)
+[31m[Nest] 19868  - [39m11/12/2026, 3:01:39 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: permission denied for view contract_fact
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at ClientTx.query (D:\PIS-uat6\packages\db\src\tenant-database.ts:18:20)
+    at CtrFactStore.page (D:\PIS-uat6\packages\db\src\ctr-fact-store.ts:510:18)
+    at ContractAnalyticsController.reportBody [90m(D:\PIS-uat6\apps\api\[39msrc\modules\ctr\analytics.controller.ts:644:18[90m)[39m
+    at runInTransaction (D:\PIS-uat6\packages\db\src\tenant-database.ts:51:20)
+    at TenantDatabase.withTenant (D:\PIS-uat6\packages\db\src\tenant-database.ts:79:12) {
+  length: [33m100[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'42501'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [90mundefined[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'aclchk.c'[39m,
+  line: [32m'2795'[39m,
+  routine: [32m'aclcheck_error'[39m
+}
+5bbf5367-23a2-4695-8ad2-818c4984326e
+[31m[Nest] 19868  - [39m11/12/2026, 3:01:39 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: permission denied for view contract_fact
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at ClientTx.query (D:\PIS-uat6\packages\db\src\tenant-database.ts:18:20)
+    at CtrFactStore.page (D:\PIS-uat6\packages\db\src\ctr-fact-store.ts:510:18)
+    at ContractAnalyticsController.reportBody [90m(D:\PIS-uat6\apps\api\[39msrc\modules\ctr\analytics.controller.ts:644:18[90m)[39m
+    at runInTransaction (D:\PIS-uat6\packages\db\src\tenant-database.ts:51:20)
+    at TenantDatabase.withTenant (D:\PIS-uat6\packages\db\src\tenant-database.ts:79:12) {
+  length: [33m100[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'42501'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [90mundefined[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'aclchk.c'[39m,
+  line: [32m'2795'[39m,
+  routine: [32m'aclcheck_error'[39m
+}
+7d3ecfec-0860-426e-b677-dffcc771cca1
+[31m[Nest] 19868  - [39m11/12/2026, 3:01:39 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: permission denied for view contract_fact
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at ClientTx.query (D:\PIS-uat6\packages\db\src\tenant-database.ts:18:20)
+    at CtrFactStore.concentrationInputs (D:\PIS-uat6\packages\db\src\ctr-fact-store.ts:562:18)
+    at ContractAnalyticsController.concentrationOf [90m(D:\PIS-uat6\apps\api\[39msrc\modules\ctr\analytics.controller.ts:685:20[90m)[39m
+    at ContractAnalyticsController.concentrationBody [90m(D:\PIS-uat6\apps\api\[39msrc\modules\ctr\analytics.controller.ts:690:19[90m)[39m
+    at runInTransaction (D:\PIS-uat6\packages\db\src\tenant-database.ts:51:20)
+    at TenantDatabase.withTenant (D:\PIS-uat6\packages\db\src\tenant-database.ts:79:12) {
+  length: [33m100[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'42501'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [90mundefined[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'aclchk.c'[39m,
+  line: [32m'2795'[39m,
+  routine: [32m'aclcheck_error'[39m
+}
+9edfade9-a0db-4b91-aaef-11046045ae1d
+PASS test/ctr/contract-analytics.test.ts (9.015 s)
+PASS test/licenses.test.ts (14.8 s)
+PASS test/home/analytics-governance.test.ts (14.035 s)
+PASS test/prj/explanation.test.ts (9.117 s)
+PASS test/ctr/contract-register.test.ts (8.471 s)
+PASS test/guest-contractors.test.ts (11.599 s)
+PASS test/home/alert-governance.test.ts (36.843 s)
+PASS test/cap/scenario.test.ts (16.946 s)
+PASS test/dir/directive.test.ts (9.216 s)
+PASS test/dgv/dgv-incident.test.ts (11.172 s)
+PASS test/prj/project-stage.test.ts (16.646 s)
+PASS test/adm/iam2.test.ts (9.072 s)
+(node:19868) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/doc/outgoing.test.ts (16.552 s)
+PASS test/prj/fin-appraisal.test.ts (11.292 s)
+PASS test/cap/capital-plan.test.ts (11.698 s)
+(node:21556) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/bid/vendor.test.ts (9.297 s)
+PASS test/omni/conversations.test.ts (11.658 s)
+PASS test/ast/claim.test.ts (24.896 s)
+PASS test/llm/ai-assist.test.ts (28.194 s)
+PASS test/cap/plan-publication.test.ts (14.013 s)
+PASS test/lnd/payment.test.ts (8.6 s)
+PASS test/iss/iss-issue.test.ts (7.487 s)
+PASS test/bid/report.test.ts (27.506 s)
+PASS test/theme.test.ts (14.632 s)
+PASS test/bid/proposal.test.ts (10.394 s)
+PASS test/bid/procurement-plan.test.ts (11.084 s)
+PASS test/gov/governance-rules.test.ts (9.863 s)
+(node:19868) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/doc/signed-documents.test.ts (18.931 s)
+PASS test/aud/recommendation.test.ts (12.213 s)
+PASS test/bi/bi-publications.test.ts (15.198 s)
+PASS test/prj/revision.test.ts (10.494 s)
+PASS test/bid/ocr.test.ts (10.304 s)
+PASS test/prj/project-appraisal.test.ts (10.308 s)
+PASS test/bid/portal2.test.ts (7.48 s)
+PASS test/ctr/contractor-scorecard.test.ts (9.768 s)
+PASS test/omni/contacts.test.ts (9.791 s)
+PASS test/ctr/contract-analytics-registers.test.ts (7.294 s)
+PASS test/gov/treasury-daily-recon.test.ts (7.15 s)
+(node:25968) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/ctr/boq-import.test.ts (9.984 s)
+PASS test/aud/report.test.ts (24.502 s)
+PASS test/prj/transfer.test.ts (8.301 s)
+PASS test/qms/material.test.ts (18.926 s)
+(node:22604) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/dgv/dgv-lineage.test.ts (7.769 s)
+PASS test/adm/migration-batch.test.ts (7.184 s)
+PASS test/ast/evaluation.test.ts (28.07 s)
+PASS test/ctr/measurement.test.ts (18.381 s)
+PASS test/prj/risk.test.ts (7.298 s)
+PASS test/subscriptions.test.ts (20.344 s)
+PASS test/ind/ind.test.ts (6.24 s)
+PASS test/gov/payment-integrity.test.ts (15.475 s)
+[31m[Nest] 22604  - [39m11/12/2026, 3:05:55 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: database is restarting
+    at StubOperations.measure [90m(D:\PIS-uat6\apps\api\[39mtest\sync\sync-batches.test.ts:84:33[90m)[39m
+    at D:\PIS\node_modules\[4m@nestjs\core[24m\router\router-execution-context.js:39:29
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+770449fb-a0c5-4b9a-ae97-f87b1c6beec7
+[31m[Nest] 22604  - [39m11/12/2026, 3:05:55 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: database is restarting
+    at StubOperations.measure [90m(D:\PIS-uat6\apps\api\[39mtest\sync\sync-batches.test.ts:84:33[90m)[39m
+    at D:\PIS\node_modules\[4m@nestjs\core[24m\router\router-execution-context.js:39:29
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+d8be6d42-584e-460e-9624-b346369d9bc5
+PASS test/home/drill.test.ts (9.421 s)
+PASS test/sync/sync-batches.test.ts (8.083 s)
+PASS test/dgv/dgv-quality.test.ts (11.618 s)
+PASS test/lnd/plan-posting.test.ts (7.844 s)
+PASS test/ctr/acceptance.test.ts (25.634 s)
+PASS test/notifications/delivery-flow.test.ts (15.207 s)
+PASS test/finance-feed/finance-feed.test.ts (5.725 s)
+PASS test/lnd/plan.test.ts (6.942 s)
+PASS test/tenant-export.test.ts (142.62 s)
+PASS test/authz/negative-matrix.test.ts (625.845 s)
+PASS test/aud/conclusion.test.ts (7.288 s)
+(node:25968) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/hub/hub.test.ts (6.089 s)
+PASS test/doc/issue-requests.test.ts (14.804 s)
+[31m[Nest] 25968  - [39m11/12/2026, 3:07:03 PM [31m  ERROR[39m [38;5;3m[ContractorController] [39m[31mthe identity lookup of contractor 3a669c5d-d84a-4668-894d-09a389906b70 failed (Error)[39m
+PASS test/mdm/master-data.test.ts (8.945 s)
+PASS test/bid/contractor-registry.test.ts (9.578 s)
+(node:25644) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/doc/supersession.test.ts (50.423 s)
+(node:13976) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/cap/avc-policy.test.ts (9.23 s)
+PASS test/gov/sod.test.ts (18.037 s)
+PASS test/mne/mne-export.test.ts (17.463 s)
+PASS test/reports/report-engine.test.ts (12.272 s)
+PASS test/dis/warning.test.ts (9.095 s)
+PASS test/prj/national-code.test.ts (9.388 s)
+PASS test/qms/photo.test.ts (8.395 s)
+PASS test/ast/asset.test.ts (15.821 s)
+PASS test/qms/acceptance.test.ts (13.017 s)
+PASS test/ast/handover.test.ts (12.157 s)
+PASS test/adm/unit-reorganization.test.ts (7.524 s)
+PASS test/mne/mne-issue.test.ts (14.733 s)
+PASS test/llm/llm-reconcile.test.ts (13.558 s)
+PASS test/bi/bi-datasets.test.ts (11.121 s)
+PASS test/doc/templates.test.ts (13.196 s)
+PASS test/ctr/money-control.test.ts (10.774 s)
+(node:8760) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/prj/wbs.test.ts (8.731 s)
+PASS test/mne/mne-evaluations.test.ts (10.583 s)
+llm key: litellm failed with Error
+llm key: vault failed with Error
+[31m[Nest] 25968  - [39m11/12/2026, 3:08:05 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: vault did not answer
+    at InMemoryPushTokenVault.put [90m(D:\PIS-uat6\apps\api\[39msrc\notifications\devices\push-vault.ts:33:13[90m)[39m
+    at DeviceRegistrationsController.put [as register] [90m(D:\PIS-uat6\apps\api\[39msrc\notifications\devices\devices.controller.ts:105:24[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+d0db97a1-0907-40d6-b33d-66be02e252d7
+[31m[Nest] 25968  - [39m11/12/2026, 3:08:05 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: vault did not answer
+    at InMemoryPushTokenVault.put [90m(D:\PIS-uat6\apps\api\[39msrc\notifications\devices\push-vault.ts:33:13[90m)[39m
+    at DeviceRegistrationsController.put [as register] [90m(D:\PIS-uat6\apps\api\[39msrc\notifications\devices\devices.controller.ts:105:24[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+f259ae63-ea49-48c3-8f9b-6793dc0f052c
+[31m[Nest] 25968  - [39m11/12/2026, 3:08:06 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: vault did not answer
+    at InMemoryPushTokenVault.put [90m(D:\PIS-uat6\apps\api\[39msrc\notifications\devices\push-vault.ts:33:13[90m)[39m
+    at DeviceRegistrationsController.put [as register] [90m(D:\PIS-uat6\apps\api\[39msrc\notifications\devices\devices.controller.ts:105:24[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+548e4ff8-079c-4055-892f-3a6cc85e7c85
+[31m[Nest] 25968  - [39m11/12/2026, 3:08:06 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: vault unavailable
+    at InMemoryPushTokenVault.put [90m(D:\PIS-uat6\apps\api\[39msrc\notifications\devices\push-vault.ts:27:13[90m)[39m
+    at DeviceRegistrationsController.put [as register] [90m(D:\PIS-uat6\apps\api\[39msrc\notifications\devices\devices.controller.ts:105:24[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+490cad69-f543-4ca0-beca-30b9b2570fde
+[31m[Nest] 8760  - [39m11/12/2026, 3:08:06 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: refused for the test
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at ClientTx.query (D:\PIS-uat6\packages\db\src\tenant-database.ts:18:20)
+    at LlmKeyStore.insert (D:\PIS-uat6\packages\db\src\llm-key-store.ts:132:5)
+    at LlmKeyController.rotate [90m(D:\PIS-uat6\apps\api\[39msrc\modules\llm\key.controller.ts:194:21[90m)[39m {
+  length: [33m152[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'P0001'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [32m'PL/pgSQL function machvon.llm_test_refuse_rotation() line 1 at RAISE'[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'pl_exec.c'[39m,
+  line: [32m'3923'[39m,
+  routine: [32m'exec_stmt_raise'[39m
+}
+68d931a2-87f3-474b-b64c-13a294be2581
+[31m[Nest] 8760  - [39m11/12/2026, 3:08:06 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: refused for the test
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at ClientTx.query (D:\PIS-uat6\packages\db\src\tenant-database.ts:18:20)
+    at LlmKeyStore.insert (D:\PIS-uat6\packages\db\src\llm-key-store.ts:132:5)
+    at LlmKeyController.create [90m(D:\PIS-uat6\apps\api\[39msrc\modules\llm\key.controller.ts:138:21[90m)[39m {
+  length: [33m147[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'P0001'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [32m'PL/pgSQL function machvon.llm_test_refuse_key() line 1 at RAISE'[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'pl_exec.c'[39m,
+  line: [32m'3923'[39m,
+  routine: [32m'exec_stmt_raise'[39m
+}
+acf1a00c-219f-4e23-a81f-240e9aa4cc3a
+[31m[Nest] 8760  - [39m11/12/2026, 3:08:06 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: refused at the commit for the test
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at runInTransaction (D:\PIS-uat6\packages\db\src\tenant-database.ts:52:5)
+    at TenantDatabase.withTenant (D:\PIS-uat6\packages\db\src\tenant-database.ts:79:12)
+    at CommandInterceptor.run [90m(D:\PIS-uat6\apps\api\[39msrc\command.interceptor.ts:152:20[90m)[39m {
+  length: [33m164[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'P0001'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [32m'PL/pgSQL function machvon.llm_test_refuse_commit() line 1 at RAISE'[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'pl_exec.c'[39m,
+  line: [32m'3923'[39m,
+  routine: [32m'exec_stmt_raise'[39m
+}
+0703f313-e696-403f-aca4-43bde2ae3db4
+PASS test/notifications/devices.test.ts (7.881 s)
+[31m[Nest] 8760  - [39m11/12/2026, 3:08:07 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: refused at the commit for the test
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at runInTransaction (D:\PIS-uat6\packages\db\src\tenant-database.ts:52:5)
+    at TenantDatabase.withTenant (D:\PIS-uat6\packages\db\src\tenant-database.ts:79:12)
+    at CommandInterceptor.run [90m(D:\PIS-uat6\apps\api\[39msrc\command.interceptor.ts:152:20[90m)[39m {
+  length: [33m164[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'P0001'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [32m'PL/pgSQL function machvon.llm_test_refuse_commit() line 1 at RAISE'[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'pl_exec.c'[39m,
+  line: [32m'3923'[39m,
+  routine: [32m'exec_stmt_raise'[39m
+}
+9356472b-cd3d-4e6c-b355-cf00bc986b80
+[31m[Nest] 8760  - [39m11/12/2026, 3:08:07 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: the database went away
+    at LlmKeyStore._db.LlmKeyStore.markRevoked [90m(D:\PIS-uat6\apps\api\[39mtest\llm\llm-keys.test.ts:327:30[90m)[39m
+    at LlmKeyController.markRevoked [as revoke] [90m(D:\PIS-uat6\apps\api\[39msrc\modules\llm\key.controller.ts:249:37[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+a693a7d0-cfda-476a-85cc-0c782d55b9d8
+llm key: litellm failed with Error
+PASS test/notifications/push.test.ts (7.027 s)
+PASS test/llm/llm-keys.test.ts (12.003 s)
+PASS test/mne/mne-reports.test.ts (10.844 s)
+PASS test/aud/engagement.test.ts (7.506 s)
+PASS test/dgv/dgv-product.test.ts (11.559 s)
+PASS test/prj/project-register.test.ts (9.235 s)
+PASS test/provisioning/provisioning-steps.test.ts (14.54 s)
+PASS test/ctr/guarantee-register.test.ts (8.016 s)
+PASS test/cap/allocation-extension.test.ts (10.652 s)
+PASS test/ctr/retroactive-adjustment.test.ts (15.057 s)
+PASS test/bid/procurement-import.test.ts (6.829 s)
+PASS test/notifications/templates.test.ts (8.266 s)
+PASS test/dis/period-reopen.test.ts (7.601 s)
+PASS test/home/warnings-rankings.test.ts (7.668 s)
+PASS test/lnd/resettlement.test.ts (14.169 s)
+PASS test/payments.test.ts (8.842 s)
+PASS test/omni/routing-policy.test.ts (6.74 s)
+PASS test/bid/review.test.ts (11.441 s)
+PASS test/aud/recovery.test.ts (10.507 s)
+PASS test/lnd/inventory.test.ts (6.818 s)
+PASS test/pay/settlement.test.ts (21.784 s)
+PASS test/bid/clarification.test.ts (13.525 s)
+PASS test/prj/accountability.test.ts (7.548 s)
+PASS test/bid/vendor-controls-b.test.ts (7.711 s)
+PASS test/pay/treasury-import.test.ts (7.819 s)
+PASS test/pay/project-settlement.test.ts (19.328 s)
+PASS test/tenant-restore.test.ts (12.859 s)
+PASS test/omni/conversation-links.test.ts (9.453 s)
+PASS test/bid/result.test.ts (9.035 s)
+PASS test/pay/advance.test.ts (11.557 s)
+PASS test/ctr/contractor-export.test.ts (8.882 s)
+PASS test/billing.test.ts (9.817 s)
+PASS test/usage.test.ts (9.472 s)
+PASS test/fnd/figure.test.ts (6.325 s)
+PASS test/support-access.test.ts (8.564 s)
+PASS test/qms/inspection.test.ts (14.552 s)
+PASS test/ctr/claim-register.test.ts (6.894 s)
+PASS test/lnd/complaint.test.ts (6.982 s)
+PASS test/bid/vendor-portal.test.ts (6.569 s)
+PASS test/editions/org-pack.enterprise.test.ts (7.599 s)
+PASS test/pay/settlement-form.test.ts (19.568 s)
+PASS test/iss/iss-weekly-matrix.test.ts (6.724 s)
+PASS test/ast/warranty.test.ts (15.929 s)
+PASS test/cap/fiscal-year.test.ts (8.052 s)
+PASS test/bi/bi-metrics.test.ts (10.605 s)
+PASS test/bi/bi-two-stage.test.ts (8.018 s)
+PASS test/qms/nonconformance.test.ts (9.904 s)
+PASS test/cap/reservation.test.ts (17.436 s)
+PASS test/placement-migration.test.ts (27.464 s)
+PASS test/dis/report-export.test.ts (6.85 s)
+PASS test/adm/approval.test.ts (7.491 s)
+PASS test/cap/schedule.test.ts (7.28 s)
+PASS test/gov/cross-total.test.ts (8.182 s)
+PASS test/bid/vendor-controls-c.test.ts (7.817 s)
+PASS test/system-tenants.test.ts (10.16 s)
+PASS test/notifications/workflows.test.ts (6.212 s)
+PASS test/doa-matrices.test.ts (8.386 s)
+PASS test/omni/channel-accounts.test.ts (8.185 s)
+PASS test/llm/llm-registry.test.ts (10.487 s)
+PASS test/bid/criteria-version.test.ts (7.525 s)
+PASS test/doc/layout-profiles.test.ts (8.993 s)
+(node:13976) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/dis/approval-push-hpm.enterprise.test.ts (9.709 s)
+PASS test/doc/pdf-revisions.test.ts
+(node:8760) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/bid/vendor-investigation.test.ts (7.659 s)
+(node:22604) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/dis/reporting-period.test.ts (7.262 s)
+PASS test/notifications/preferences-consents.test.ts
+PASS test/bi/bi-dashboards.test.ts (9.119 s)
+PASS test/doc/recall.test.ts (25.85 s)
+[31m[Nest] 13976  - [39m11/12/2026, 3:11:05 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: the scanner crashed
+    at FsObjectStorage.storage.setScanStatus [90m(D:\PIS-uat6\apps\api\[39mtest\sync\sync-attachments.test.ts:268:15[90m)[39m
+    at FileService.setScanStatus [as scan] [90m(D:\PIS-uat6\apps\api\[39msrc\modules\files\file.service.ts:88:32[90m)[39m
+    at FileService.storeAndScan [90m(D:\PIS-uat6\apps\api\[39msrc\modules\files\file.service.ts:183:13[90m)[39m
+    at SyncAttachmentsController.complete [90m(D:\PIS-uat6\apps\api\[39msrc\sync\attachments.controller.ts:204:21[90m)[39m
+21d65f09-69f4-4a61-b64e-ea730fa82352
+PASS test/sync/sync-attachments.test.ts (8.228 s)
+PASS test/dis/report-staged-approval.test.ts (11.398 s)
+PASS test/pay/payment-request.test.ts (12.253 s)
+PASS test/doc/issuance.test.ts (33.067 s)
+PASS test/adm/delegation.test.ts (7.485 s)
+PASS test/dgv/dgv-source.test.ts (6.759 s)
+PASS test/cap/appropriation.test.ts (7.99 s)
+(node:25272) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/pmt/permit-dossier-reads.test.ts
+PASS test/omni/contact-consents.test.ts (7.653 s)
+PASS test/home/my-work.test.ts (12.459 s)
+PASS test/entitlement-overrides.test.ts (8.485 s)
+PASS test/org-units-commands.test.ts (9.234 s)
+[31m[Nest] 25272  - [39m11/12/2026, 3:11:34 PM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::56289[39m
+PASS test/workers/workers-runtime.test.ts (21.346 s)
+PASS test/mdm/master-succession.test.ts (9.871 s)
+PASS test/pmt/permit-type.test.ts (6.186 s)
+PASS test/notifications/delivery-commands.test.ts (7.63 s)
+PASS test/dis/forecast.test.ts (5.694 s)
+(node:13976) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/dis/registration.test.ts (8.608 s)
+PASS test/bi/bi-shares.test.ts (10.73 s)
+PASS test/pay/cumulative-ledger.test.ts (10.89 s)
+PASS test/bid/vendor-controls-a.test.ts (7.186 s)
+PASS test/plans.test.ts (11.158 s)
+[31m[Nest] 13976  - [39m11/12/2026, 3:12:02 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: no such BI login in this tenant
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at ClientTx.query (D:\PIS-uat6\packages\db\src\tenant-database.ts:18:20)
+    at BiReaderStore.rotatePassword (D:\PIS-uat6\packages\db\src\int-bi-reader-store.ts:154:7)
+    at BiReaderController.rotate [90m(D:\PIS-uat6\apps\api\[39msrc\modules\int\bi-reader.controller.ts:80:17[90m)[39m {
+  length: [33m168[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'P0002'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [32m'PL/pgSQL function rotate_reader_password(uuid,text,text) line 10 at RAISE'[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'pl_exec.c'[39m,
+  line: [32m'3923'[39m,
+  routine: [32m'exec_stmt_raise'[39m
+}
+3a88ba91-f39c-414e-9bf2-0b700e3884c0
+[31m[Nest] 13976  - [39m11/12/2026, 3:12:02 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39merror: no such BI login in this tenant
+    at D:\PIS\node_modules\[4mpg[24m\lib\client.js:694:17
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at ClientTx.query (D:\PIS-uat6\packages\db\src\tenant-database.ts:18:20)
+    at BiReaderStore.decide (D:\PIS-uat6\packages\db\src\int-bi-reader-store.ts:171:35)
+    at BiReaderController.decide [90m(D:\PIS-uat6\apps\api\[39msrc\modules\int\bi-reader.controller.ts:94:18[90m)[39m {
+  length: [33m153[39m,
+  severity: [32m'ERROR'[39m,
+  code: [32m'P0002'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [32m'PL/pgSQL function retire_reader(uuid,text) line 7 at RAISE'[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'pl_exec.c'[39m,
+  line: [32m'3923'[39m,
+  routine: [32m'exec_stmt_raise'[39m
+}
+661593dc-b282-419a-b088-22254db43ed9
+PASS test/iss/iss-escalation.test.ts (7.306 s)
+[31m[Nest] 13976  - [39m11/12/2026, 3:12:07 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mTypeError: Cannot read properties of undefined (reading 'find')
+    at LlmEvalStore.find [as assertRoutesInForce] (D:\PIS-uat6\packages\db\src\llm-eval-store.ts:412:28)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at LlmEvalStore.publish (D:\PIS-uat6\packages\db\src\llm-eval-store.ts:611:5)
+    at LlmEvalController.decide [90m(D:\PIS-uat6\apps\api\[39msrc\modules\llm\eval.controller.ts:311:23[90m)[39m
+dd82c9c0-482a-4db2-a8bd-4557382bbcd5
+PASS test/mdm/master-import.test.ts (8.444 s)
+[31m[Nest] 13976  - [39m11/12/2026, 3:12:12 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: a sealed field is not in a format this process opens
+    at FieldCipher.open (D:\PIS-uat6\packages\kernel\src\field-encryption.ts:89:95)
+    at LndHouseholdStore.open [as reveal] (D:\PIS-uat6\packages\db\src\lnd-household-store.ts:407:29)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at [90mD:\PIS-uat6\apps\api\[39msrc\modules\lnd\household.controller.ts:343:21
+    at runInTransaction (D:\PIS-uat6\packages\db\src\tenant-database.ts:51:20)
+    at TenantDatabase.withTenant (D:\PIS-uat6\packages\db\src\tenant-database.ts:79:12)
+    at AffectedHouseholdReadsController.reveal [90m(D:\PIS-uat6\apps\api\[39msrc\modules\lnd\household.controller.ts:339:22[90m)[39m
+8eb4da37-36b3-4322-9239-62ab119ba8b6
+PASS test/ctr/early-warning-register.test.ts (6.959 s)
+PASS test/pmt/permit-gate-waiver.test.ts (9.467 s)
+[31m[Nest] 13976  - [39m11/12/2026, 3:12:18 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mTypeError: Cannot read properties of undefined (reading 'id')
+    at id (D:\PIS-uat6\packages\db\src\vendor-independence-store.ts:219:41)
+    at VendorIndependenceStore.toFinding [as findFinding] (D:\PIS-uat6\packages\db\src\vendor-independence-store.ts:450:48)
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at VendorIndependenceStore.decide (D:\PIS-uat6\packages\db\src\vendor-independence-store.ts:470:13)
+    at VendorIndependenceController.decide [90m(D:\PIS-uat6\apps\api\[39msrc\modules\bid\vendor-independence.controller.ts:158:17[90m)[39m
+668723c3-c719-4965-9b1a-f2144f5c55c2
+PASS test/lnd/stage-progress.test.ts (5.93 s)
+PASS test/doc/pades-verifier.test.ts
+PASS test/isolation/reachability.test.ts (43.978 s)
+(node:25968) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/doc/distributions.test.ts (35.942 s)
+PASS test/iss/iss-issue-closure.test.ts (6.552 s)
+PASS test/notifications/notifications.test.ts (6.611 s)
+(node:23296) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/tenant-state.test.ts (8.862 s)
+PASS test/pmt/permit-gate.test.ts (6.613 s)
+PASS test/editions/hpm-adjustment.enterprise.test.ts (8.151 s)
+PASS test/iss/iss-intake.test.ts (8.59 s)
+PASS test/cap/plan-revision.test.ts (8.967 s)
+PASS test/effective-access.test.ts (5.426 s)
+PASS test/notifications/delivery-units.test.ts
+PASS test/fnd/enterprise-snapshot.test.ts (5.435 s)
+PASS test/pay/payment-form.test.ts (14.1 s)
+PASS test/bid/petition.test.ts (9.015 s)
+PASS test/notifications/web-push.test.ts
+PASS test/adm/integration-connectors.test.ts (6.01 s)
+PASS test/dis/mobile-sync.test.ts
+PASS test/prj/risk-signal-effect.test.ts (5.874 s)
+PASS test/ctr/retention.test.ts (17.96 s)
+PASS test/aud/report.consumer.test.ts (6.551 s)
+PASS test/home/command-center.test.ts (7.754 s)
+PASS test/editions/project-document-legal-type.enterprise.test.ts (8.752 s)
+(node:13976) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/pay/payment-claim.test.ts (13.796 s)
+PASS test/adm/approval-operations.test.ts (8.143 s)
+PASS test/qms/diary-coverage.test.ts (15.254 s)
+PASS test/policy-guard.test.ts
+PASS test/notifications/channel-limits-delivery.test.ts (6.34 s)
+PASS test/dgv/dgv-dataset.test.ts (5.431 s)
+PASS test/dgv/dgv-glossary.test.ts (5.482 s)
+PASS test/mne/mne-obligations.test.ts (9.861 s)
+PASS test/notifications/web-push-service.test.ts
+PASS test/adm/retention-integration-reads.test.ts
+PASS test/home/ana-bottleneck.test.ts (7.461 s)
+PASS test/reports/xlsx-template.test.ts
+PASS test/work-calendars.test.ts (6.663 s)
+PASS test/notifications/consumer.test.ts (5.186 s)
+PASS test/reports/report-engine.enterprise.test.ts (37.403 s)
+PASS test/mne/mne-correction.test.ts (13.926 s)
+PASS test/reports/enterprise-snapshot-publication.enterprise.test.ts (11.382 s)
+PASS test/ctr/contract-closure.test.ts (9.348 s)
+PASS test/mdm/master-crosswalk.test.ts (6.068 s)
+PASS test/doc/pades-hardening.test.ts
+PASS test/pay/treasury-transaction.test.ts (6.825 s)
+[31m[Nest] 23520  - [39m11/12/2026, 3:13:46 PM [31m  ERROR[39m [38;5;3m[CommandInterceptor] [39mError: cache down
+    at [90mD:\PIS-uat6\apps\api\[39mtest\command-interceptor.test.ts:146:40
+    at CommandInterceptor.callback [as runAfterCommit] [90m(D:\PIS-uat6\apps\api\[39msrc\command.interceptor.ts:234:15[90m)[39m
+    at CommandInterceptor.runAfterCommit [as run] [90m(D:\PIS-uat6\apps\api\[39msrc\command.interceptor.ts:200:18[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+c5654409-8877-4c78-b31e-931078af6110
+[31m[Nest] 23520  - [39m11/12/2026, 3:13:46 PM [31m  ERROR[39m [38;5;3m[CommandInterceptor] [39mError: the database is gone
+    at Object.<anonymous> [90m(D:\PIS-uat6\apps\api\[39mtest\command-interceptor.test.ts:272:57[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+0bf7c82c-f181-4d47-a665-668480dc1e72
+[31m[Nest] 23520  - [39m11/12/2026, 3:13:46 PM [31m  ERROR[39m [38;5;3m[CommandInterceptor] [39mError: LiteLLM down
+    at [90mD:\PIS-uat6\apps\api\[39mtest\command-interceptor.test.ts:285:50
+    at CommandInterceptor.callback [as runAfterRollback] [90m(D:\PIS-uat6\apps\api\[39msrc\command.interceptor.ts:255:15[90m)[39m
+    at CommandInterceptor.runAfterRollback [as run] [90m(D:\PIS-uat6\apps\api\[39msrc\command.interceptor.ts:214:49[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+2b8acb9b-bb97-4886-9770-e24ba4d6620d
+PASS test/command-interceptor.test.ts
+(node:23520) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/adm/audit-export.test.ts (5.272 s)
+PASS test/iss/iss-sla-policy.test.ts (5.97 s)
+PASS test/gov10/gov10.test.ts (6.851 s)
+PASS test/ctr/contract-completion.test.ts (8.249 s)
+PASS test/mdm/glossary.test.ts (6.79 s)
+PASS test/notifications/channel-limits.test.ts (10.883 s)
+PASS test/cap/plan-approval-workflow.test.ts (5.409 s)
+PASS test/bi/bi-sign-off.test.ts (8.714 s)
+PASS test/session/self-service.test.ts (5.696 s)
+PASS test/aud/pay-recovery.consumer.test.ts
+PASS test/legal-holds.test.ts (6.217 s)
+PASS test/signing-certificates.test.ts (5.834 s)
+PASS test/tenant-owner.test.ts (7.706 s)
+PASS test/auth/jwks-token-verifier.test.ts
+PASS test/llm/ai-external.enterprise.test.ts (17.173 s)
+PASS test/pay/payment-reversal.test.ts (9.437 s)
+PASS test/cap/ledger.test.ts
+PASS test/dis/weekly-plan.test.ts (5.912 s)
+PASS test/iam/support-ticket.test.ts
+PASS test/adm/retention-policies.test.ts (5.646 s)
+PASS test/doc/registers.test.ts (8.67 s)
+PASS test/entitlements.test.ts
+PASS test/dis/submission-progress.test.ts (5.689 s)
+(node:22092) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/bi/bi-contract-dataset.test.ts (6.858 s)
+PASS test/audit-events.test.ts
+PASS test/doc/documents.test.ts (10.745 s)
+PASS test/files/files.test.ts
+PASS test/feature-flags.test.ts (6.344 s)
+PASS test/notifications/smtp-adapter.test.ts
+PASS test/home/ana-decision.test.ts (8.339 s)
+PASS test/notifications/delivery-policy.test.ts
+PASS test/doc/signatures.test.ts (10.18 s)
+PASS test/prj/accountability-reads.test.ts
+PASS test/adm/backup-request.test.ts
+PASS test/dis/report-push-hold.test.ts (8.544 s)
+PASS test/reports/crosscheck.enterprise.test.ts (23.315 s)
+PASS test/provisioning/saga.test.ts
+PASS test/doc/text-extraction.test.ts
+[31m[Nest] 23520  - [39m11/12/2026, 3:14:51 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: database exploded: relation "secret_table" violates constraint
+    at WidgetController.fail [90m(D:\PIS-uat6\apps\api\[39mtest\command-test-controller.ts:90:35[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+61921e57-8084-4e4a-a871-b0cbe8f8015b
+[31m[Nest] 23520  - [39m11/12/2026, 3:14:51 PM [31m  ERROR[39m [38;5;3m[ProblemFilter] [39mError: command silentWidget wrote no audit entry
+    at [90mD:\PIS-uat6\apps\api\[39msrc\command.interceptor.ts:190:34
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at runInTransaction (D:\PIS-uat6\packages\db\src\tenant-database.ts:51:20)
+    at TenantDatabase.withTenant (D:\PIS-uat6\packages\db\src\tenant-database.ts:79:12)
+    at CommandInterceptor.run [90m(D:\PIS-uat6\apps\api\[39msrc\command.interceptor.ts:152:20[90m)[39m
+6efbdbff-fa1e-4f6a-a3e1-6c23c41675c0
+PASS test/command-pipeline.test.ts
+PASS test/security-policies.test.ts (6.572 s)
+PASS test/role-definitions.test.ts (5.303 s)
+PASS test/files/clamd-scan.test.ts
+PASS test/cap/payment-ledger-consumer.test.ts (6.781 s)
+PASS test/tenant-domain.test.ts (6.382 s)
+PASS test/mne/mne-forms.test.ts (7.093 s)
+PASS test/home/ana-ranking.test.ts (6.486 s)
+PASS test/auth/tenant-token-issuer.test.ts
+PASS test/bid/contractor-history.test.ts (8.613 s)
+PASS test/bi/bi-policies.test.ts (7.705 s)
+PASS test/ctr/guarantee-expiry-notification.test.ts
+PASS test/cap/plan-published-event.test.ts (5.155 s)
+PASS test/omni/channel-account-delivery.test.ts (5.383 s)
+PASS test/notifications/teams-webhook-adapter.test.ts
+PASS test/reports/report-engine.snapshot.enterprise.test.ts (15.28 s)
+PASS src/config/config.test.ts
+PASS test/notifications/push-receipt.test.ts (5.177 s)
+PASS test/doc/pdf-xref.test.ts
+PASS test/problem.filter.test.ts
+PASS test/doc/overview.test.ts (8.953 s)
+PASS test/editions/investment-profile.enterprise.test.ts (5.664 s)
+PASS test/session/tenant-runtime.test.ts
+PASS test/doc/interop-codec.test.ts
+PASS test/reports/docx-render.test.ts
+PASS test/dis/report-decision-characterisation.test.ts (7.841 s)
+PASS test/feature-flag-guard.test.ts (5.374 s)
+PASS test/orchestration/in-process-orchestrator.test.ts
+PASS test/bootstrap.test.ts (13.386 s)
+PASS test/home/channel-health.test.ts (5.67 s)
+PASS test/pay/payment-chain.test.ts (8.804 s)
+PASS test/request-validation.test.ts
+PASS test/ind/ind-staged-approval.test.ts (6.24 s)
+PASS test/e2e-stack/oidc-idp.test.ts
+PASS test/home/ana-trust.test.ts (5.716 s)
+PASS test/auth/auth-guard.test.ts
+PASS test/dis/definitions.test.ts
+PASS test/doc/pdf-objects.test.ts
+PASS test/notifications/catalog-and-definition.test.ts
+PASS test/home/ana-insight.test.ts (7.93 s)
+PASS test/llm/ai-assist-eval.enterprise.test.ts
+PASS test/iss/iss-escalation-notification.test.ts (6.387 s)
+PASS test/iss/iss-sla-policy-reads.test.ts
+PASS test/reports/demo-forms.enterprise.test.ts
+PASS test/notifications/resource-access-port.test.ts
+PASS test/isolation/channels.test.ts (15.295 s)
+PASS test/dis/ranking.test.ts
+PASS test/guest-contract-closed.test.ts (5.191 s)
+PASS test/license-reads.test.ts (5.724 s)
+PASS test/search.test.ts
+PASS test/authz/revocation-lag.test.ts (14.873 s)
+PASS test/doc/document-files.test.ts (10.512 s)
+PASS test/mne/form-pack.test.ts
+PASS test/editions/editions.test.ts
+PASS test/int/int-enterprise-datasets.test.ts
+PASS test/authz/control-matrix.test.ts
+(node:22092) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/workers/workers.test.ts
+PASS test/gov11a/reads.test.ts
+PASS test/doc/outgoing-rules.test.ts
+PASS test/auth/jwt.test.ts
+PASS test/workers/outbox-consumers.test.ts
+PASS test/theme-assets.test.ts
+(node:14112) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/bi/bi-query-performance.test.ts (22.399 s)
+PASS test/doc/distribution-rules.test.ts
+PASS test/reports/report-pdf.test.ts (6.339 s)
+PASS test/reports/file-name.test.ts
+PASS test/isolation/pagination.test.ts (5.118 s)
+PASS test/doc/signing-port.test.ts
+PASS test/doc/pdf-renderer.test.ts (15.375 s)
+PASS test/prj/national-code-file.test.ts
+PASS test/dis/golden.test.ts
+PASS test/doc/pdf-renderer-layout.test.ts
+PASS test/home/ana-forecast.test.ts (12.983 s)
+PASS test/reports/configured-forms.test.ts
+PASS test/isolation/suite.test.ts
+PASS test/license-signer.test.ts
+PASS test/notifications/my-test-push.test.ts
+PASS test/doc/outgoing-pdf.test.ts
+PASS test/doc/template-pack.test.ts
+PASS test/doc/template-render.test.ts
+PASS test/dto-mappers.test.ts
+PASS test/tenant-fairness.test.ts (26.163 s)
+PASS src/alerts/alert-sinks.test.ts
+PASS test/adm/final-command-registry.test.ts
+PASS test/modules.test.ts
+PASS test/auth/auth-module.test.ts
+(node:24664) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/notifications/teams-adapter.test.ts
+PASS test/dis/powersync-role.test.ts
+PASS test/notifications/preferences-read.test.ts
+PASS test/orchestration/orchestrator-activity.test.ts
+[31m[Nest] 23520  - [39m11/12/2026, 3:16:33 PM [31m  ERROR[39m [38;5;3m[PolicyGuard] [39mTypeError: this.database.withTenant is not a function
+    at AuditWriter.withTenant [as recordDenied] (D:\PIS-uat6\packages\db\src\audit-writer.ts:106:26)
+    at PolicyGuard.recordDenied [90m(D:\PIS-uat6\apps\api\[39msrc\policy.guard.ts:258:32[90m)[39m
+    at PolicyGuard.recordDenied [as canActivate] [90m(D:\PIS-uat6\apps\api\[39msrc\policy.guard.ts:183:18[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at GuardsConsumer.tryActivate (D:\PIS\node_modules\[4m@nestjs\core[24m\guards\guards-consumer.js:22:17)
+    at canActivateFn (D:\PIS\node_modules\[4m@nestjs\core[24m\router\router-execution-context.js:146:33)
+    at D:\PIS\node_modules\[4m@nestjs\core[24m\router\router-execution-context.js:43:31
+    at D:\PIS\node_modules\[4m@nestjs\core[24m\router\router-proxy.js:9:17
+9efb384e-db57-4f07-b37f-4016b2dfebd1
+PASS test/auth/control-policy.test.ts
+PASS test/my-feature-flags.test.ts
+PASS test/allowlist.pipe.test.ts
+PASS test/session/read-only-mode.guard.test.ts
+PASS test/doc/layout-geometry.test.ts
+PASS test/conformance/command-conformance.test.ts
+PASS test/mne/mne-scope.test.ts (5.658 s)
+PASS src/workers/outbox-publisher.test.ts
+PASS test/session/user-session-deny-list.test.ts
+PASS test/doc/doc-module.test.ts
+PASS test/editions/leader-rates.enterprise.test.ts
+PASS test/auth/powersync-token.test.ts
+PASS test/prj/pipeline-cache.test.ts
+PASS test/dis/export-pdf.test.ts (6.501 s)
+PASS test/doc/trust-anchors.test.ts
+PASS test/reports/export-docx.test.ts
+PASS test/entitlement-view.test.ts
+PASS test/doc/signing-adapters.test.ts
+PASS test/license-view.test.ts
+PASS test/isolation/enumerator.test.ts
+PASS test/orchestration/orchestration-module.test.ts
+PASS test/support-gate.test.ts
+PASS test/home/alert-cover-view.test.ts
+PASS test/membership-directory-snapshot.test.ts
+PASS test/invitation-token.test.ts
+PASS test/session/selection-rules.test.ts
+PASS src/security/security-headers.test.ts
+PASS test/ctr/summary-cache.test.ts
+PASS test/adm/staged-owners-boot.test.ts
+PASS test/bi/metric-bundle-source.test.ts
+PASS test/session/auth-guard-tenant.test.ts
+PASS test/ctr/contract-view.test.ts
+PASS test/editions/load-enterprise.test.ts
+PASS test/provisioning/mock-ports.test.ts
+PASS test/decorators.test.ts
+PASS test/mne/mne-export-pdf.test.ts (16.604 s)
+PASS test/files/registration.test.ts
+PASS test/files/file-service-remove.test.ts
+[31m[Nest] 24664  - [39m11/12/2026, 3:16:53 PM [31m  ERROR[39m [38;5;3m[InProcessWorkflowRunner] [39m[31mworkflow prov:default:1 failed[39m
+PASS test/provisioning/workflow-runner.test.ts
+PASS test/bi/drill-key.test.ts
+PASS test/principal-support.test.ts
+PASS test/bid/identity-port.test.ts
+PASS test/reports/form-registry-hide.test.ts
+PASS src/main.test.ts
+PASS test/doc/file-port.test.ts
+PASS src/telemetry/exporter-of.test.ts
+PASS test/app-module-metrics.test.ts
+PASS test/uat/dir.uat.test.ts (7.106 s)
+PASS test/uat/rpt.uat.test.ts (11.116 s)
+PASS test/uat/ebs.uat.test.ts (6.924 s)
+PASS test/uat/ent.uat.test.ts (6.652 s)
+PASS test/reports/report-pdf.golden.enterprise.test.ts (40.478 s)
+PASS test/uat/enterprise-authz.uat.test.ts (19.814 s)
+PASS test/uat/int.uat.test.ts (6.622 s)
+(node:24664) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+PASS test/uat/hub.uat.test.ts (6.481 s)
+PASS test/uat/ind.uat.test.ts (6.615 s)
+PASS test/uat/hpm.uat.test.ts (6.53 s)
+
+Test Suites: 455 passed, 455 total
+Tests:       7625 passed, 7625 total
+Snapshots:   0 total
+Time:        1256.71 s
+Ran all test suites.
+Error: ENOENT: no such file or directory, open 'D:\PIS-uat6\uat\run\uat-2026-11-12-r6\results\api-jest.json'
+    at Object.writeFileSync (node:fs:2483:20)
+    at processResults (D:\PIS\node_modules\@jest\core\build\index.js:3408:12)
+    at runJest (D:\PIS\node_modules\@jest\core\build\index.js:3595:9)
+    at async _run10000 (D:\PIS\node_modules\@jest\core\build\index.js:1556:5)
+    at async runCLI (D:\PIS\node_modules\@jest\core\build\index.js:1457:3)
+    at async Object.run (D:\PIS\node_modules\jest-cli\build\index.js:665:9)

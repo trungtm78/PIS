@@ -1,0 +1,94 @@
+found projectId = da0b5057-a716-4adf-986d-b3528a643d20
+found allocationLineId = 02b7f085-a51a-4623-bc09-3c79e6f0ad92
+not found reportDraftId: /report-engine/drafts has nothing at items.0.id (the tenant has no such row)
+not found reportIssueId: /report-engine/issues has nothing at items.0.id (the tenant has no such row)
+not found enterpriseSnapshotId: /enterprise-snapshots answered 404
+not found enterprisePeriodId: /enterprise-snapshots answered 404
+PASS    PB-F001  FUNCTION getCommandCenter                    p50 15.5 ms  p95 19.4 ms  max 25.1 ms           budget 5000 ms
+PASS    PB-F002  FUNCTION getMyWork                           p50 196.8 ms  p95 207.7 ms  max 211.2 ms        budget 5000 ms
+PASS    PB-F003  FUNCTION getMyWorkCounts                     p50 175.6 ms  p95 187.2 ms  max 188.1 ms        budget 5000 ms
+PASS    PB-F004  FUNCTION getHomeWarnings                     p50 15.7 ms  p95 23.4 ms  max 23.6 ms           budget 5000 ms
+PASS    PB-F005  FUNCTION getDisbursementRankings             p50 15.6 ms  p95 17.1 ms  max 17.3 ms           budget 5000 ms
+PASS    PB-F006  FUNCTION getMultiMetricRanking               p50 15.6 ms  p95 22.1 ms  max 24 ms             budget 5000 ms
+PASS    PB-F007  FUNCTION getHomeChanges                      p50 16.3 ms  p95 31.5 ms  max 32.7 ms           budget 5000 ms
+PASS    PB-F008  FUNCTION getDisbursementOutlook              p50 15.8 ms  p95 17.9 ms  max 23.4 ms           budget 5000 ms
+PASS    PB-F009  FUNCTION getKpiRegister                      p50 15.5 ms  p95 16.3 ms  max 17 ms             budget 5000 ms
+PASS    PB-F010  FUNCTION getRagReading                       p50 15.9 ms  p95 16.4 ms  max 16.6 ms           budget 5000 ms
+PASS    PB-F011  FUNCTION getBottleneckAnalysis               p50 15.8 ms  p95 16.6 ms  max 18.3 ms           budget 5000 ms
+PASS    PB-F012  FUNCTION getAnalyticsHeatmap                 p50 16.1 ms  p95 16.8 ms  max 17.2 ms           budget 5000 ms
+PASS    PB-F013  FUNCTION getAlertHealth                      p50 16.1 ms  p95 18.1 ms  max 21.4 ms           budget 5000 ms
+PASS    PB-F014  FUNCTION getCapitalAvailability              p50 31.3 ms  p95 32.2 ms  max 32.4 ms           budget 5000 ms
+PASS    PB-F015  FUNCTION listAppropriations                  p50 47.2 ms  p95 49.3 ms  max 51.3 ms           budget 5000 ms
+PASS    PB-F016  FUNCTION listFundReservations                p50 16 ms  p95 16.5 ms  max 16.8 ms             budget 5000 ms
+PASS    PB-F017  FUNCTION listCapitalLedger                   p50 15.8 ms  p95 23.8 ms  max 27.1 ms           budget 5000 ms
+PASS    PB-F018  FUNCTION listFiscalYears                     p50 15.9 ms  p95 16.4 ms  max 16.8 ms           budget 5000 ms
+PASS    PB-F019  FUNCTION getDisbursementRates                p50 15.8 ms  p95 16.7 ms  max 16.8 ms           budget 5000 ms
+PASS    PB-F020  FUNCTION getDisbursementForecast             p50 15.6 ms  p95 16.4 ms  max 20.1 ms           budget 5000 ms
+PASS    PB-F021  FUNCTION listEarlyWarnings                   p50 15.8 ms  p95 16.9 ms  max 17.2 ms           budget 5000 ms
+PASS    PB-F022  FUNCTION listProjectPipeline                 p50 15.8 ms  p95 16.3 ms  max 16.7 ms           budget 5000 ms
+PASS    PB-F023  FUNCTION listProjectTransfers                p50 15.3 ms  p95 16.1 ms  max 16.7 ms           budget 5000 ms
+PASS    PB-F024  FUNCTION getRiskSignalBoard                  p50 15.5 ms  p95 17.6 ms  max 24 ms             budget 5000 ms
+PASS    PB-F025  FUNCTION getContractPortfolio                p50 31.6 ms  p95 35.9 ms  max 44 ms             budget 5000 ms
+PASS    PB-F026  FUNCTION listContractFactSnapshots           p50 15.5 ms  p95 16.8 ms  max 17 ms             budget 5000 ms
+PASS    PB-F027  FUNCTION listContractEarlyWarnings           p50 15.6 ms  p95 17 ms  max 17.2 ms             budget 5000 ms
+PASS    PB-F028  FUNCTION listClaims                          p50 15.7 ms  p95 16.3 ms  max 17.2 ms           budget 5000 ms
+PASS    PB-F029  FUNCTION listProcurementPlans                p50 15.7 ms  p95 16.8 ms  max 17.4 ms           budget 5000 ms
+PASS    PB-F030  FUNCTION listPackageWorkflows                p50 1514.7 ms  p95 1528.5 ms  max 1555.4 ms     budget 5000 ms
+PASS    PB-F031  FUNCTION getPackageWorkflowBoard             p50 1509.7 ms  p95 1529.8 ms  max 1532.6 ms     budget 5000 ms
+PASS    PB-F032  FUNCTION getPackageProcessTree               p50 3003.7 ms  p95 3030.9 ms  max 3045.4 ms     budget 5000 ms
+PASS    PB-F033  FUNCTION getPackageWorkflowStatistics        p50 1498.3 ms  p95 1525.8 ms  max 1612.8 ms     budget 5000 ms
+PASS    PB-F034  FUNCTION getPackageWorkflowSummary           p50 1490.1 ms  p95 1505.3 ms  max 1517.4 ms     budget 5000 ms
+PASS    PB-F035  FUNCTION listAdvances                        p50 15.8 ms  p95 21.4 ms  max 23.3 ms           budget 5000 ms
+PASS    PB-F036  FUNCTION listOverdueAdvances                 p50 15.5 ms  p95 16.4 ms  max 16.8 ms           budget 5000 ms
+PASS    PB-F037  FUNCTION getPaymentChain                     p50 15.8 ms  p95 16.8 ms  max 16.9 ms           budget 5000 ms
+PASS    PB-F038  FUNCTION listReconciliationItems             p50 15.7 ms  p95 16.4 ms  max 18.4 ms           budget 5000 ms
+PASS    PB-F039  FUNCTION getTreasuryTracking                 p50 15.4 ms  p95 16.9 ms  max 17.2 ms           budget 5000 ms
+PASS    PB-F040  FUNCTION listIncomingDocuments               p50 31.3 ms  p95 32.6 ms  max 34.5 ms           budget 5000 ms
+PASS    PB-F041  FUNCTION listOutgoingDocuments               p50 15.7 ms  p95 16.4 ms  max 17 ms             budget 5000 ms
+PASS    PB-F042  FUNCTION listDossiers                        p50 15.8 ms  p95 16.6 ms  max 17.2 ms           budget 5000 ms
+PASS    PB-F043  FUNCTION getDocumentOverview                 p50 15.7 ms  p95 16.6 ms  max 17.3 ms           budget 5000 ms
+SKIPPED PB-F044  FUNCTION getIssueWeeklyMatrix                                                                budget 5000 ms  missing variables: isoWeek
+PASS    PB-F045  FUNCTION listIssueSlaBreaches                p50 15.6 ms  p95 16.6 ms  max 16.8 ms           budget 5000 ms
+PASS    PB-F046  FUNCTION listDirectives                      p50 15.2 ms  p95 16.5 ms  max 16.7 ms           budget 5000 ms
+PASS    PB-F047  FUNCTION getDirectiveSummary                 p50 15.5 ms  p95 16.7 ms  max 17.7 ms           budget 5000 ms
+PASS    PB-F048  FUNCTION listOverdueDirectives               p50 15.6 ms  p95 16.2 ms  max 16.7 ms           budget 5000 ms
+PASS    PB-F049  FUNCTION searchGlobal                        p50 15.7 ms  p95 16.4 ms  max 17.1 ms           budget 5000 ms
+PASS    PB-F050  FUNCTION listMyNotifications                 p50 15.6 ms  p95 16.5 ms  max 17.1 ms           budget 5000 ms
+PASS    PB-F051  FUNCTION getMyEffectiveAccess                p50 15.6 ms  p95 16.7 ms  max 17 ms             budget 5000 ms
+PASS    PB-F052  FUNCTION getMyProfile                        p50 15.8 ms  p95 16.5 ms  max 16.9 ms           budget 5000 ms
+PASS    PB-F053  FUNCTION listDashboards                      p50 15.7 ms  p95 16.4 ms  max 17.1 ms           budget 5000 ms
+PASS    PB-F054  FUNCTION listBiDatasets                      p50 15.7 ms  p95 16.5 ms  max 16.7 ms           budget 5000 ms
+PASS    PB-F055  FUNCTION getDataFreshness                    p50 15.3 ms  p95 17 ms  max 17.1 ms             budget 5000 ms
+PASS    PB-F056  FUNCTION getCommitteeWorkspace               p50 94.6 ms  p95 100.2 ms  max 100.5 ms         budget 5000 ms
+PASS    PB-F057  FUNCTION getCommitteeMeetingPack             p50 94.6 ms  p95 98.6 ms  max 99.1 ms           budget 5000 ms
+PASS    PB-F058  FUNCTION listGovernanceAlerts                p50 15.8 ms  p95 16.7 ms  max 17.2 ms           budget 5000 ms
+PASS    PB-F059  FUNCTION listAlertEscalations                p50 15.8 ms  p95 19.4 ms  max 19.5 ms           budget 5000 ms
+PASS    PB-F060  FUNCTION listAiAssistRuns                    p50 15.8 ms  p95 18.7 ms  max 26.1 ms           budget 5000 ms
+PASS    PB-F061  FUNCTION getFundingFigureBoard               p50 15.6 ms  p95 19.9 ms  max 19.9 ms           budget 5000 ms
+PASS    PB-F062  FUNCTION listReportCatalogue                 p50 30.7 ms  p95 43.6 ms  max 49.2 ms           budget 5000 ms
+PASS    PB-F063  FUNCTION listReportDrafts                    p50 15.8 ms  p95 16.5 ms  max 16.5 ms           budget 5000 ms
+PASS    PB-F064  FUNCTION listReportIssues                    p50 15.5 ms  p95 16.5 ms  max 17 ms             budget 5000 ms
+PASS    PB-F065  FUNCTION getVendorFigures                    p50 15.7 ms  p95 16.8 ms  max 19.3 ms           budget 5000 ms
+PASS    PB-F066  FUNCTION listMneObligations                  p50 15.9 ms  p95 16.6 ms  max 16.8 ms           budget 5000 ms
+PASS    PB-F067  FUNCTION listAuditEngagements                p50 15.5 ms  p95 16.5 ms  max 16.5 ms           budget 5000 ms
+SKIPPED PB-F068  FUNCTION getEnterpriseSnapshot                                                               budget 800 ms  missing variables: enterpriseSnapshotId
+SKIPPED PB-F069  FUNCTION getLeaderRates                                                                      budget 800 ms  missing variables: enterpriseSnapshotId
+SKIPPED PB-F070  FUNCTION getReportingCalendar                                                                budget 5000 ms  missing variables: periodYear
+SKIPPED PB-F071  FUNCTION getReportingCalendarBoard                                                           budget 5000 ms  missing variables: enterprisePeriodId
+PASS    PB-R001  REPORT   exportHomeFigures                   p50 15.8 ms  p95 20.1 ms  max 27.8 ms           budget 20000 ms
+PASS    PB-R002  REPORT   exportPackageWorkflowReport         p50 1498.7 ms  p95 1508.6 ms  max 1534.4 ms     budget 20000 ms
+PASS    PB-R003  REPORT   getContractScheduleSCurve           p50 15.2 ms  p95 16.2 ms  max 16.6 ms           budget 20000 ms
+FAIL    PB-R004  REPORT   exportProjectSCurve                 p50 15.6 ms  p95 16.2 ms  max 16.7 ms           budget 20000 ms  20 of 20 samples failed (status 422)
+PASS    PB-R005  REPORT   exportContractReport                p50 31.2 ms  p95 37.5 ms  max 41.9 ms           budget 20000 ms
+PASS    PB-R006  REPORT   getContractReport                   p50 46.5 ms  p95 47.9 ms  max 48 ms             budget 20000 ms
+SKIPPED PB-R007  REPORT   getReportDraftFile                                                                  budget 20000 ms  missing variables: reportDraftId
+SKIPPED PB-R008  REPORT   getReportIssueFile                                                                  budget 20000 ms  missing variables: reportIssueId
+SKIPPED PB-R009  REPORT   getReportExportDownload                                                             budget 20000 ms  missing variables: reportExportId
+PASS    PB-R010  REPORT   getDirectivesForReport              p50 15.3 ms  p95 16.6 ms  max 17.8 ms           budget 20000 ms
+SKIPPED PB-R011  REPORT   getMneReport                                                                        budget 20000 ms  missing variables: mneReportId
+SKIPPED PB-R012  REPORT   getEvaluationReport                                                                 budget 20000 ms  missing variables: evaluationReportId
+PASS    PB-R013  REPORT   getAlertCoverageReport              p50 15.8 ms  p95 16.4 ms  max 17 ms             budget 20000 ms
+FAIL    PB-R014  REPORT   exportPortalOc4ids                  p50 15.8 ms  p95 16.3 ms  max 17 ms             budget 20000 ms  20 of 20 samples failed (status 409)
+PASS    PB-R015  REPORT   exportVendorOcdsParties             p50 15.7 ms  p95 16.5 ms  max 16.6 ms           budget 20000 ms
+SKIPPED PB-R016  REPORT   getReportCrosscheck                                                                 budget 20000 ms  missing variables: periodYear, periodMonth
+87 operations: 74 within budget, 2 over budget or failed, 11 not measured

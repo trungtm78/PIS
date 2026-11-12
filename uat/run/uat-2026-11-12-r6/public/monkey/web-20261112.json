@@ -1,0 +1,276 @@
+{
+  "seed": 20261112,
+  "url": "http://127.0.0.1:4173/home/home-01?devUser=owner",
+  "actions_done": 300,
+  "ended": "du-so-thao-tac",
+  "duration_s": 415,
+  "console_errors": 56,
+  "anomalies": [
+    {
+      "type": "console.error",
+      "severity": "S3",
+      "message": "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)",
+      "url": "http://127.0.0.1:4173/ctr/ctr-17",
+      "step": 68,
+      "count": 54,
+      "last_actions": [
+        {
+          "step": 49,
+          "action": "scroll",
+          "dy": 66,
+          "ms": 19
+        },
+        {
+          "step": 50,
+          "action": "scroll",
+          "dy": 1025,
+          "ms": 64
+        },
+        {
+          "step": 51,
+          "action": "click",
+          "target": "Hiện hoặc ẩn chức năng Hợp đồng",
+          "ms": 139
+        },
+        {
+          "step": 52,
+          "action": "click",
+          "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+          "ms": 70
+        },
+        {
+          "step": 53,
+          "action": "key",
+          "key": "ArrowDown",
+          "ms": 2
+        },
+        {
+          "step": 54,
+          "action": "click",
+          "target": "Kế hoạch vốn",
+          "ms": 3005
+        },
+        {
+          "step": 55,
+          "action": "click",
+          "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+          "ms": 3006
+        },
+        {
+          "step": 56,
+          "action": "key",
+          "key": "Escape",
+          "ms": 6
+        },
+        {
+          "step": 57,
+          "action": "select",
+          "target": "Toàn bộ phạm vi của tôi\nCB-HQ Ủy ban nhân dân tỉnh Cao Bằng\n",
+          "index": 2,
+          "ms": 23
+        },
+        {
+          "step": 58,
+          "action": "click",
+          "target": "VA VA: tài khoản của Nguyễn Văn An",
+          "ms": 31
+        },
+        {
+          "step": 59,
+          "action": "click",
+          "target": "Nhật ký công trường",
+          "ms": 58
+        },
+        {
+          "step": 60,
+          "action": "click",
+          "target": "CB CB: trang chủ Cao Bằng",
+          "ms": 86
+        },
+        {
+          "step": 61,
+          "action": "click",
+          "target": "Dự án",
+          "ms": 57
+        },
+        {
+          "step": 62,
+          "action": "click",
+          "target": "VA VA: tài khoản của Nguyễn Văn An",
+          "ms": 95
+        },
+        {
+          "step": 63,
+          "action": "click",
+          "target": "Hiện hoặc ẩn chức năng Tài khoản & hỗ trợ",
+          "ms": 26
+        },
+        {
+          "step": 64,
+          "action": "click",
+          "target": "VA\nNguyễn Văn An\nCán bộ quản lý · Bản mẫu\n··· VA Nguyễn Văn ",
+          "ms": 37
+        },
+        {
+          "step": 65,
+          "action": "click",
+          "target": "Nhật ký công trường",
+          "ms": 60
+        },
+        {
+          "step": 66,
+          "action": "click",
+          "target": "Hợp đồng",
+          "ms": 45
+        },
+        {
+          "step": 67,
+          "action": "click",
+          "target": "Dashboard của tôi",
+          "ms": 60
+        },
+        {
+          "step": 68,
+          "action": "click",
+          "target": "Quyết toán",
+          "ms": 250
+        }
+      ],
+      "screenshot": "monkey\\shots\\s20261112-b68-console.error.png"
+    },
+    {
+      "type": "console.error",
+      "severity": "S3",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "url": "http://127.0.0.1:4173/ctr/ctr-17",
+      "step": 68,
+      "count": 2,
+      "last_actions": [
+        {
+          "step": 49,
+          "action": "scroll",
+          "dy": 66,
+          "ms": 19
+        },
+        {
+          "step": 50,
+          "action": "scroll",
+          "dy": 1025,
+          "ms": 64
+        },
+        {
+          "step": 51,
+          "action": "click",
+          "target": "Hiện hoặc ẩn chức năng Hợp đồng",
+          "ms": 139
+        },
+        {
+          "step": 52,
+          "action": "click",
+          "target": "Hướng dẫn màn hình này Hướng dẫn màn hình này (phím ?)  open",
+          "ms": 70
+        },
+        {
+          "step": 53,
+          "action": "key",
+          "key": "ArrowDown",
+          "ms": 2
+        },
+        {
+          "step": 54,
+          "action": "click",
+          "target": "Kế hoạch vốn",
+          "ms": 3005
+        },
+        {
+          "step": 55,
+          "action": "click",
+          "target": "Chỉ đạo quá hạn · GB-2026-001/CD-01 Mở hồ sơ: Chỉ đạo quá hạ",
+          "ms": 3006
+        },
+        {
+          "step": 56,
+          "action": "key",
+          "key": "Escape",
+          "ms": 6
+        },
+        {
+          "step": 57,
+          "action": "select",
+          "target": "Toàn bộ phạm vi của tôi\nCB-HQ Ủy ban nhân dân tỉnh Cao Bằng\n",
+          "index": 2,
+          "ms": 23
+        },
+        {
+          "step": 58,
+          "action": "click",
+          "target": "VA VA: tài khoản của Nguyễn Văn An",
+          "ms": 31
+        },
+        {
+          "step": 59,
+          "action": "click",
+          "target": "Nhật ký công trường",
+          "ms": 58
+        },
+        {
+          "step": 60,
+          "action": "click",
+          "target": "CB CB: trang chủ Cao Bằng",
+          "ms": 86
+        },
+        {
+          "step": 61,
+          "action": "click",
+          "target": "Dự án",
+          "ms": 57
+        },
+        {
+          "step": 62,
+          "action": "click",
+          "target": "VA VA: tài khoản của Nguyễn Văn An",
+          "ms": 95
+        },
+        {
+          "step": 63,
+          "action": "click",
+          "target": "Hiện hoặc ẩn chức năng Tài khoản & hỗ trợ",
+          "ms": 26
+        },
+        {
+          "step": 64,
+          "action": "click",
+          "target": "VA\nNguyễn Văn An\nCán bộ quản lý · Bản mẫu\n··· VA Nguyễn Văn ",
+          "ms": 37
+        },
+        {
+          "step": 65,
+          "action": "click",
+          "target": "Nhật ký công trường",
+          "ms": 60
+        },
+        {
+          "step": 66,
+          "action": "click",
+          "target": "Hợp đồng",
+          "ms": 45
+        },
+        {
+          "step": 67,
+          "action": "click",
+          "target": "Dashboard của tôi",
+          "ms": 60
+        },
+        {
+          "step": 68,
+          "action": "click",
+          "target": "Quyết toán",
+          "ms": 250
+        }
+      ],
+      "screenshot": "monkey\\shots\\s20261112-b68-console.error.png"
+    }
+  ],
+  "blocking": 0,
+  "replay": "node <skill>/scripts/monkey_web.mjs --url http://127.0.0.1:4173/home/home-01?devUser=owner --seed 20261112 --actions <bước>"
+}

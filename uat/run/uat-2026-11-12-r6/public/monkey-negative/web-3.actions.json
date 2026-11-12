@@ -1,0 +1,92 @@
+[
+ {
+  "step": 1,
+  "action": "click",
+  "target": "throws an uncaught error",
+  "ms": 110
+ },
+ {
+  "step": 2,
+  "action": "click",
+  "target": "throws an uncaught error",
+  "ms": 17
+ },
+ {
+  "step": 3,
+  "action": "click",
+  "target": "throws an uncaught error",
+  "ms": 33
+ },
+ {
+  "step": 4,
+  "action": "click",
+  "target": "throws an uncaught error",
+  "ms": 34
+ },
+ {
+  "step": 5,
+  "action": "click",
+  "target": "calls",
+  "ms": 36
+ },
+ {
+  "step": 6,
+  "action": "click",
+  "target": "throws an uncaught error",
+  "ms": 62
+ },
+ {
+  "step": 7,
+  "action": "click",
+  "target": "throws an uncaught error",
+  "ms": 19
+ },
+ {
+  "step": 8,
+  "action": "click",
+  "target": "calls",
+  "ms": 36
+ },
+ {
+  "step": 9,
+  "action": "click",
+  "target": "calls",
+  "ms": 31
+ },
+ {
+  "step": 10,
+  "action": "click",
+  "target": "calls",
+  "ms": 35
+ },
+ {
+  "step": 11,
+  "action": "click",
+  "target": "calls",
+  "ms": 34
+ },
+ {
+  "step": 12,
+  "action": "click",
+  "target": "throws an uncaught error",
+  "ms": 31
+ },
+ {
+  "step": 13,
+  "action": "click",
+  "target": "throws an uncaught error",
+  "ms": 34
+ },
+ {
+  "step": 14,
+  "action": "click",
+  "target": "calls",
+  "ms": 34
+ },
+ {
+  "step": 15,
+  "action": "click",
+  "target": "calls",
+  "ms": 31
+ }
+]
