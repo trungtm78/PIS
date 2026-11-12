@@ -91,6 +91,33 @@ export interface ProfileInput {
   planYear: number;
 }
 
+export interface PlanRevision {
+  id: string;
+  /** The code of the plan, which every revision of it keeps; null for a version of the legacy shape that has no capital plan. */
+  planCode: string | null;
+  status: string;
+  revision: number;
+}
+
+const IN_WORK = ['DRAFT', 'IN_REVIEW', 'APPROVED'];
+
+/**
+ * The revisions the split is read from: one per plan. Every revision of a plan keeps its plan code, so the plan is the code, not the row; the published revision stands for the plan, and only a caller who drafts or approves
+ * plans sees, when none is published, the newest revision still in work. A version without a plan code is a plan of its own.
+ */
+export function planRevisionsOf(candidates: readonly PlanRevision[], drafts: boolean): PlanRevision[] {
+  const groups = new Map<string, PlanRevision[]>();
+  for (const one of candidates) groups.set(one.planCode ?? `#${one.id}`, [...(groups.get(one.planCode ?? `#${one.id}`) ?? []), one]);
+  const chosen: PlanRevision[] = [];
+  for (const revisions of groups.values()) {
+    const published = revisions.filter((one) => one.status === 'PUBLISHED').sort((left, right) => right.revision - left.revision)[0];
+    const working = drafts ? revisions.filter((one) => IN_WORK.includes(one.status)).sort((left, right) => right.revision - left.revision)[0] : undefined;
+    const pick = published ?? working;
+    if (pick !== undefined) chosen.push(pick);
+  }
+  return chosen.sort((left, right) => (left.planCode ?? '').localeCompare(right.planCode ?? '') || left.id.localeCompare(right.id));
+}
+
 const STATE_OF: Readonly<Record<HeldMilestone['status'], MilestoneState>> = { DONE: 'REACHED', PLANNED: 'PLANNED', DELAYED: 'DELAYED', CANCELLED: 'CANCELLED' };
 const yearOf = (day: string): number => Number(day.slice(0, 4));
 

@@ -1,7 +1,7 @@
 import { MILESTONE_SEEDS } from './ent-catalogue.ts';
 import type { MilestoneEntry } from './ent-catalogue.ts';
-import { investmentProfileOf } from './investment-profile.ts';
-import type { HeldMilestone, OriginLine } from './investment-profile.ts';
+import { investmentProfileOf, planRevisionsOf } from './investment-profile.ts';
+import type { HeldMilestone, OriginLine, PlanRevision } from './investment-profile.ts';
 
 const CATALOGUE: MilestoneEntry[] = MILESTONE_SEEDS.map((seed) => ({
   code: seed.code,
@@ -104,5 +104,25 @@ describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
 
   it('holds a project without a type as null', () => {
     expect(profile({ projectType: null }).projectType).toBeNull();
+  });
+});
+
+describe('the revisions the split is read from', () => {
+  const revision = (id: string, planCode: string | null, status: string, number: number): PlanRevision => ({ id, planCode, status, revision: number });
+
+  it('takes one revision per plan code: every revision of a plan keeps the code, so a pending revision never counts twice with the published one', () => {
+    const chosen = planRevisionsOf([revision('a1', 'KH-A', 'PUBLISHED', 1), revision('a2', 'KH-A', 'DRAFT', 2), revision('b1', 'KH-B', 'PUBLISHED', 3), revision('b2', 'KH-B', 'PUBLISHED', 4)], true);
+    expect(chosen.map((one) => one.id)).toEqual(['a1', 'b2']);
+  });
+
+  it('shows the newest revision in work only to who drafts or approves, and only when the plan has no published revision', () => {
+    const all = [revision('a1', 'KH-A', 'DRAFT', 1), revision('a2', 'KH-A', 'IN_REVIEW', 2), revision('b1', 'KH-B', 'PUBLISHED', 1)];
+    expect(planRevisionsOf(all, true).map((one) => one.id)).toEqual(['a2', 'b1']);
+    expect(planRevisionsOf(all, false).map((one) => one.id)).toEqual(['b1']);
+    expect(planRevisionsOf([], true)).toEqual([]);
+  });
+
+  it('counts a version without a plan code as a plan of its own', () => {
+    expect(planRevisionsOf([revision('x', null, 'PUBLISHED', 1), revision('y', null, 'PUBLISHED', 1)], false).map((one) => one.id)).toEqual(['x', 'y']);
   });
 });

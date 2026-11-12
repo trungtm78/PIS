@@ -1,8 +1,8 @@
 import { GovernancePolicyPort } from '@machvon/db';
 import type { MasterLabel, TenantTx } from '@machvon/db';
 import { MILESTONE_RULE, milestonesOfResolved } from './ent-catalogue.ts';
-import { investmentProfileOf } from './investment-profile.ts';
-import type { HeldMilestone, InvestmentProfile, OriginLine } from './investment-profile.ts';
+import { investmentProfileOf, planRevisionsOf } from './investment-profile.ts';
+import type { HeldMilestone, InvestmentProfile, OriginLine, PlanRevision } from './investment-profile.ts';
 
 /**
  * The database half of the investment profile (MD.01, MD.02, CN.01): the milestones a project holds, the plan version the split is read from and the plan lines of that version with their origin and decision document
@@ -22,6 +22,8 @@ interface PlanSql {
   status: string;
   revision: number;
 }
+
+const planOf = (row: PlanSql): PlanRevision => ({ id: row.id, planCode: row.plan_code, status: row.status, revision: row.revision });
 
 interface OriginSql {
   origin: string;
@@ -53,18 +55,17 @@ export class InvestmentProfileStore {
   }
 
   /**
-   * The plan versions of the year the split is read from, one per ANNUAL plan of the project (a plan code has its own history of revisions, and a project may be in several plans of one year; a medium-term plan has a first
-   * year too, and its lines are not the capital of that year): in each history the published revision, else, for a caller who drafts or approves, the newest revision still in work. A rejected or superseded revision is no plan.
+   * The revisions of the ANNUAL plans of the project in the year that can be a plan at all (a medium-term plan has a first year too, and its lines are not the capital of that year; a rejected or superseded revision is no plan);
+   * which one stands for each plan is the rule of `planRevisionsOf`.
    */
-  private async plansOf(tx: TenantTx, projectId: string, planYear: number, drafts: boolean): Promise<PlanSql[]> {
-    const statuses = drafts ? ['DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED'] : ['PUBLISHED'];
-    return tx.query<PlanSql>(
-      `select distinct on (coalesce(pv.capital_plan_id, pv.id)) pv.id, cp.plan_code, pv.status, pv.revision
+  private async plansOf(tx: TenantTx, projectId: string, planYear: number, drafts: boolean): Promise<PlanRevision[]> {
+    const rows = await tx.query<PlanSql>(
+      `select pv.id, cp.plan_code, pv.status, pv.revision
          from machvon.plan_version pv left join machvon.capital_plan cp on cp.tenant_id = pv.tenant_id and cp.id = pv.capital_plan_id
-        where pv.project_id = $1::uuid and pv.fiscal_year = $2 and pv.status = any($3::text[]) and (pv.capital_plan_id is null or cp.plan_kind = 'ANNUAL')
-        order by coalesce(pv.capital_plan_id, pv.id), (pv.status = 'PUBLISHED') desc, pv.revision desc`,
-      [projectId, planYear, statuses],
+        where pv.project_id = $1::uuid and pv.fiscal_year = $2 and pv.status in ('DRAFT', 'IN_REVIEW', 'APPROVED', 'PUBLISHED') and (pv.capital_plan_id is null or cp.plan_kind = 'ANNUAL')`,
+      [projectId, planYear],
     );
+    return planRevisionsOf(rows.map(planOf), drafts);
   }
 
   async read(tx: TenantTx, request: ProfileRequest): Promise<InvestmentProfile> {
@@ -87,7 +88,7 @@ export class InvestmentProfileStore {
       projectType: await this.projectTypeOf(tx, request.projectType),
       projectStartYear: request.projectStartYear,
       held: held.map((one): HeldMilestone => ({ code: one.code, plannedOn: one.planned_on, actualOn: one.actual_on, status: one.status })),
-      plans: plans.map((one) => ({ planCode: one.plan_code, status: one.status, revision: one.revision })).sort((left, right) => (left.planCode ?? '').localeCompare(right.planCode ?? '')),
+      plans: plans.map((one) => ({ planCode: one.planCode, status: one.status, revision: one.revision })),
       origins: origins.map((one): OriginLine => ({ origin: one.origin, decisionKind: one.decision_kind, decisionSymbol: one.decision_symbol, decisionIssuedOn: one.decision_issued_on, issuingAuthority: one.issuing_authority, amountVnd: one.amount_vnd })),
       planYear: request.planYear,
     });
