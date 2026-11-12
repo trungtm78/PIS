@@ -1,6 +1,7 @@
 import { message } from '@machvon/kernel';
 import type { ExportDocument, NarrativeBlock } from '@machvon/kernel';
 import { renderDocx } from './docx-render';
+import { documentProducer } from '../../editions/product-identity';
 
 /** The media type of a Word document (what the object store and the download say). */
 export const DOCX_MEDIA_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -12,7 +13,6 @@ const NARROW_FONT_PT = 11;
 /** What a column needs, by the width of its words, as the PDF of the same document weighs them; a column that is not named takes the default. */
 const WEIGHTS: Readonly<Record<string, number>> = { label: 2.4, value: 3.2, unit: 1, source: 1.8, project_code: 1.1, project_name: 2.2, unit_code: 1, unit_name: 1.6, bucket: 1.1, budget_level: 0.9, rate_null_reason: 1.4, treasury_coverage: 0.9 };
 const DEFAULT_WEIGHT = 1.2;
-const CREATOR = 'MACHVON';
 
 export interface ExportDocxOptions {
   /** The mark a document that is not an official one carries on every page; none for an official one. */
@@ -37,7 +37,7 @@ export async function docxOf(document: ExportDocument, options: ExportDocxOption
   }
   return renderDocx(blocks, {
     title: document.title,
-    creator: CREATOR,
+    creator: documentProducer(),
     headerText: options.headerText ?? document.title,
     footerText: message('export.docx.footer'),
     stamp: options.stamp ?? null,
