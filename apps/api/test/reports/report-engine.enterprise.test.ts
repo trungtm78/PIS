@@ -159,6 +159,10 @@ describe('the demo forms of the enterprise edition over HTTP (RPT-1 part 2, R18)
       await publish('RECEIVING_AGENCY', 'NMD_PM_2', { agency_kind: 'INTERNAL_MEETING', channel: 'FILE', report_type_keys: ['PLANT_PHU_MY'], receiver_code: 'NMD-PM-2' });
       expect((await generate('PLANT-PHU-MY')).status).toBe(200);
       expect((await rows<{ receiver: string }>(`select receiver from machvon.report_layout where code = 'PLANT-PHU-MY'`))[0]?.receiver).toBe('NMD-PM-2');
+      // The catalogue the screens read says the same: the managed receiver where the tenant gave one, the one of the code elsewhere.
+      const listed = (await call('GET', '/report-engine/catalogue', { member: SENDER })).json.items as Array<{ code: string; receiver: string }>;
+      expect(listed.find((one) => one.code === 'PLANT-PHU-MY')?.receiver).toBe('NMD-PM-2');
+      expect(listed.find((one) => one.code === 'PVN-MONTHLY')?.receiver).toBe('PVN');
     });
   });
 

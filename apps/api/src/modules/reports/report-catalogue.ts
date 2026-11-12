@@ -23,3 +23,9 @@ export async function assertCatalogueReceiver(tx: TenantTx, layoutCode: string, 
   if (!isCatalogueForm(layoutCode)) return;
   assertReceiverKnown(reportCatalogueView(await catalogue.read(tx, today), REPORT_FORM_CATALOGUE), receiver);
 }
+
+/** The receiver the tenant's catalogue gives each form of the code that it speaks about, by the code of the form; the others are not in the map. */
+export async function catalogueReceivers(tx: TenantTx, today: string): Promise<Map<string, string>> {
+  const view = reportCatalogueView(await catalogue.read(tx, today), REPORT_FORM_CATALOGUE);
+  return new Map(view.forms.filter((form) => form.source === 'MANAGED').map((form) => [form.code, form.receiver]));
+}

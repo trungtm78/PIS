@@ -36,7 +36,8 @@ export function periodDto(period: FormPeriod): Schemas['RptPeriod'] {
   return { kind: period.kind, year: period.year, ...(period.index === undefined ? {} : { index: period.index }), ...(period.day === undefined ? {} : { day: period.day }) };
 }
 
-export function catalogueEntryDto(bundle: ReportFormBundle, registered: ReportLayoutRow | undefined, demoMode: boolean): Schemas['RptCatalogueEntry'] {
+/** `receiver` is the one the tenant's report catalogue gives the form (MD.03); absent, the bundle's own. */
+export function catalogueEntryDto(bundle: ReportFormBundle, registered: ReportLayoutRow | undefined, demoMode: boolean, receiver: string = bundle.receiver): Schemas['RptCatalogueEntry'] {
   const layout = bundle.layout;
   return {
     code: layout.code,
@@ -46,7 +47,7 @@ export function catalogueEntryDto(bundle: ReportFormBundle, registered: ReportLa
     status: layout.status,
     official: officialOf(layout.status, layout.formRef),
     form_ref: layout.formRef,
-    receiver: bundle.receiver,
+    receiver,
     period_kind: bundle.periodKind,
     has_narrative: bundle.narrative !== null,
     data_source: bundle.dataSource,
