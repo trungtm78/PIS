@@ -489,7 +489,7 @@ async function loadK6Lib(environment) {
 }
 
 test('the k6 library builds the same URLs as the node runner and leaves out an operation whose variable is missing', async () => {
-  const vars = { projectId: 'p-1', isoWeek: '2026-W42', reportDraftId: 'd-1', reportIssueId: 'i-1', reportExportId: 'e-1', mneReportId: 'm-1', evaluationReportId: 'v-1', allocationLineId: 'l-1', enterpriseSnapshotId: 's-1', enterprisePeriodId: 'q-1', periodYear: '2026', periodMonth: '10' };
+  const vars = { projectId: 'p-1', baselineProjectId: 'b-1', isoWeek: '2026-W42', reportDraftId: 'd-1', reportIssueId: 'i-1', reportExportId: 'e-1', mneReportId: 'm-1', evaluationReportId: 'v-1', allocationLineId: 'l-1', enterpriseSnapshotId: 's-1', enterprisePeriodId: 'q-1', periodYear: '2026', periodMonth: '10' };
   const { api } = await loadK6Lib({ BASE_URL: 'https://h/v1/', TOKEN: 't', VARS: JSON.stringify(vars) });
   assert.equal(api.operations.length, committed.operations.length);
   for (const item of api.operations) {
@@ -591,4 +591,21 @@ test('the table is refused when a verifying discovery names no rows, no {value} 
   assert.ok(problems.some((problem) => problem.includes('names none (rows)')));
   assert.ok(problems.some((problem) => problem.includes('no {value}')));
   assert.ok(problems.some((problem) => problem.includes('without what the answer must hold')));
+});
+
+test('a discovery with `where` keeps the rows that hold the value and takes the first of them (R6-ENT-05: the first line of the list belongs to a superseded plan, which has no availability)', async () => {
+  const filtering = {
+    ...discoveringBudget,
+    variables: { ...discoveringBudget.variables, lineId: 'a line' },
+    discovery: { lineId: { path: '/resources/allocation_line', query: { limit: '100' }, rows: 'items', pick: 'id', where: { pick: 'plan_status', equals: 'PUBLISHED' } } },
+  };
+  const rows = [{ id: 'l-1', plan_status: 'SUPERSEDED' }, { id: 'l-2', plan_status: 'PUBLISHED' }, { id: 'l-3', plan_status: 'PUBLISHED' }];
+  const picked = await discoverVariables({ budget: filtering, baseUrl: 'https://h/v1', fetchImpl: async () => jsonAnswer({ items: rows }) });
+  assert.deepEqual(picked.found, { lineId: 'l-2' });
+  const none = await discoverVariables({ budget: filtering, baseUrl: 'https://h/v1', fetchImpl: async () => jsonAnswer({ items: [rows[0]] }) });
+  assert.deepEqual(none.found, {});
+  assert.equal(none.problems[0], 'lineId: none of the 0 rows of /resources/allocation_line has plan_status = "PUBLISHED": the tenant has no such row');
+  const broken = budgetProblems({ ...filtering, discovery: { lineId: { path: '/resources/allocation_line', pick: 'id', where: { pick: '' } } } });
+  assert.ok(broken.some((problem) => problem.includes('filters rows without what a row must hold')));
+  assert.ok(broken.some((problem) => problem.includes('names none (rows)')));
 });

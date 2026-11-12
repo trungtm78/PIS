@@ -752,12 +752,9 @@
       },
       "module": "DIR",
       "db_assert": {
-        "resolve": {
-          "present": "SELECT 1 FROM machvon.directive WHERE code ~ '^GB-.*/CD-01$' LIMIT 1"
-        },
-        "query": "SELECT status FROM machvon.directive WHERE code ~ '^GB-.*/CD-01$' ORDER BY code LIMIT 1",
+        "query": "SELECT d.id FROM machvon.directive d JOIN machvon.audit_event a ON a.tenant_id = d.tenant_id AND a.resource_id = d.id AND a.action = 'directive.closed' WHERE d.status <> 'DONE'",
         "expect": {
-          "value": "DONE"
+          "rows": 0
         }
       },
       "audit_assert": {

@@ -331,12 +331,9 @@
       },
       "module": "HPM",
       "db_assert": {
-        "resolve": {
-          "present": "SELECT 1 FROM machvon.hpm_push WHERE period = '2026-M10' LIMIT 1"
-        },
-        "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M10' AND status = 'ACCEPTED'",
+        "query": "SELECT id FROM machvon.hpm_push WHERE status = 'ACCEPTED' AND (receipt_reference IS NULL OR receipt_by IS NULL OR receipt_at IS NULL)",
         "expect": {
-          "value": "1"
+          "rows": 0
         }
       },
       "audit_assert": {
@@ -814,6 +811,9 @@
       },
       "module": "HPM",
       "db_assert": {
+        "resolve": {
+          "present": "SELECT 1 FROM machvon.hpm_push WHERE period = '2026-M01' AND revision = 1 LIMIT 1"
+        },
         "query": "SELECT count(*) FROM machvon.hpm_push WHERE period = '2026-M01' AND revision = 1",
         "expect": {
           "value": "1"

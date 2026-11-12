@@ -25,7 +25,7 @@
     "reportExportId": "id of a finished report export",
     "mneReportId": "id of a monitoring and evaluation report",
     "evaluationReportId": "id of a bid evaluation report",
-    "allocationLineId": "id of a line of the capital plan (the availability of a line is asked for one line)",
+    "allocationLineId": "id of a line of a capital plan in force (the availability of a line is asked for one line; a line of a superseded revision has none and answers 404)",
     "baselineProjectId": "id of a project that has a baseline version: the S-curve export draws from it, and a project without one answers 422 BASELINE_MISSING, so the first project of the list is not a sample",
     "enterpriseSnapshotId": "id of a frozen enterprise period snapshot (ENT-3a); a tenant of the public edition has none, so the rows that need it are skipped",
     "enterprisePeriodId": "id of the reporting period of that snapshot (the board of the calendar is read for one period)",
@@ -34,7 +34,7 @@
   },
   "discovery": {
     "projectId": {"path": "/resources/project", "query": {"limit": "1"}, "pick": "items.0.id"},
-    "allocationLineId": {"path": "/resources/allocation_line", "query": {"limit": "1"}, "pick": "items.0.id"},
+    "allocationLineId": {"path": "/resources/allocation_line", "query": {"limit": "100"}, "rows": "items", "pick": "id", "where": {"pick": "plan_status", "equals": "PUBLISHED"}, "scan": 100},
     "baselineProjectId": {"path": "/resources/project", "query": {"limit": "100"}, "rows": "items", "pick": "id", "verify": {"path": "/projects/{value}/baseline", "pick": "has_baseline", "equals": true}, "scan": 100},
     "reportDraftId": {"path": "/report-engine/drafts", "query": {"limit": "1"}, "pick": "items.0.id"},
     "reportIssueId": {"path": "/report-engine/issues", "query": {"limit": "1"}, "pick": "items.0.id"},

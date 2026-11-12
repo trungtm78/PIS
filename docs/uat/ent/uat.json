@@ -1396,7 +1396,7 @@
       "module": "ENT",
       "idempotency": {
         "resolve": {
-          "period": "SELECT rp.id::text FROM machvon.reporting_period rp WHERE rp.tenant_id = '${tenant_id}' AND NOT EXISTS (SELECT 1 FROM machvon.period_snapshot s WHERE s.tenant_id = rp.tenant_id AND s.period_id = rp.id AND s.snapshot_kind = 'ENTERPRISE_CLOSE') ORDER BY rp.start_date DESC, rp.id LIMIT 1"
+          "period": "SELECT rp.id::text FROM machvon.reporting_period rp WHERE rp.tenant_id = '${tenant_id}' AND rp.code ~ '^ENT-M[0-9]{4}-[0-9]{2}$' AND rp.end_date < current_date AND rp.status <> 'OPEN' AND NOT EXISTS (SELECT 1 FROM machvon.period_snapshot s WHERE s.tenant_id = rp.tenant_id AND s.period_id = rp.id AND s.snapshot_kind = 'ENTERPRISE_CLOSE') ORDER BY rp.start_date DESC, rp.id LIMIT 1"
         },
         "url": "/enterprise-snapshots",
         "method": "POST",
