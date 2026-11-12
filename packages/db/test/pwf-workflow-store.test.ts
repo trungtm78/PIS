@@ -383,7 +383,7 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       const wf = await start((await project()).id);
       const c = await taskOf(wf.id, 'TC');
       await assign(c.id as string, WORKER);
-      await begin(wf.id, 'TC', WORKER, { earlyStartReason: 'The site crew is free and the design is signed' });
+      await begin(wf.id, 'TC', WORKER, { earlyStartReason: 'The site crew is free and the design is signed', mayStartEarly: true });
       const asked = await as((tx) => tasks.requestException(tx, { taskId: c.id as string, actor: memberId(WORKER), scopes, today: TODAY, kind: 'PAUSE', reason: 'Waiting for the site to be handed over' }), WORKER);
       const decide = (id: string, who: number, version = 1, decision = 'APPROVE') => as((tx) => tasks.decideException(tx, { exceptionId: id, expectedVersion: version, decision, actor: memberId(who), scopes, today: TODAY }), who);
       expect((await refusal(decide(asked.exceptionId, WORKER))).code).toBe('SELF_APPROVAL_DENIED');
@@ -430,9 +430,11 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       const wf = await start((await project()).id);
       const c = await taskOf(wf.id, 'TC');
       await assign(c.id as string, WORKER);
-      const early = (reason?: string) => as((tx) => tasks.start(tx, { taskId: c.id as string, expectedVersion: Number(c.version), actor: memberId(WORKER), scopes, today: TODAY, ...(reason === undefined ? {} : { earlyStartReason: reason }) }), WORKER);
+      const early = (reason?: string, mayStartEarly = true) => as((tx) => tasks.start(tx, { taskId: c.id as string, expectedVersion: Number(c.version), actor: memberId(WORKER), scopes, today: TODAY, mayStartEarly, ...(reason === undefined ? {} : { earlyStartReason: reason }) }), WORKER);
       expect(await refusal(early())).toMatchObject({ code: 'PWF_TASK_STATE_INVALID', status: 409 });
       expect((await refusal(early('too short'))).code).toBe('VALIDATION_FAILED');
+      // Whoever holds the task is not the one who may start it early: that is for a manager of the project.
+      expect(await refusal(early('The site crew is free and the design is signed', false))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
       expect((await early('The site crew is free and the design is signed')).status).toBe('IN_PROGRESS');
       expect((await taskOf(wf.id, 'TC')).early_start_reason).toBeTruthy();
     });

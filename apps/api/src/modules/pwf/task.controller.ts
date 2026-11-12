@@ -31,13 +31,19 @@ export class ProjectTaskController {
     return commandResult(scope, result.status, result.version, result.id);
   }
 
+  /** The project a task belongs to (the scope of a permission is judged on the project). */
+  private async projectOf(scope: CommandScope, taskId: string): Promise<string> {
+    const rows = await scope.tx.query<{ project_id: string }>('select project_id from machvon.project_task where id = $1::uuid', [taskId.toLowerCase()]);
+    return rows[0]?.project_id ?? taskId;
+  }
+
   @Post('project-tasks/:task_id/start')
   @HttpCode(200)
   @OperationId('startProjectTask')
   @Command({ operation: 'startProjectTask', versioned: true })
   async start(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Param('task_id', ParseUUIDPipe) taskId: string, @Body() body: Schemas['PwfTaskStart']): Promise<CommandResult> {
     const now = new Date();
-    const result = await this.tasks.start(scope.tx, { taskId, expectedVersion: scope.expectedVersion ?? 0, actor: scope.tenant.membershipId, scopes: scopesOf(access, PERMISSIONS.startProjectTask, now), today: vietnamToday(now), earlyStartReason: body.early_start_reason, actualStart: body.actual_start, note: body.note });
+    const result = await this.tasks.start(scope.tx, { taskId, expectedVersion: scope.expectedVersion ?? 0, actor: scope.tenant.membershipId, scopes: scopesOf(access, PERMISSIONS.startProjectTask, now), today: vietnamToday(now), earlyStartReason: body.early_start_reason, actualStart: body.actual_start, note: body.note, mayStartEarly: body.early_start_reason === undefined ? false : await projectInScope(scope.tx, await this.projectOf(scope, taskId), projectScope(access, PERMISSIONS.startProjectWorkflow, now)) });
     return this.done(scope, result, 'task.started', 'pwf.task.started.v1', now);
   }
 

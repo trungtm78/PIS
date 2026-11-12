@@ -44,7 +44,7 @@ interface Where {
   params: unknown[];
 }
 
-function conditionsOf(scope: ScopeBuilder, filter: BoardFilter, extra: string[] = []): Where {
+function conditionsOf(scope: ScopeBuilder, filter: BoardFilter, today: string, extra: string[] = []): Where {
   const predicate = scope(1);
   const params: unknown[] = [...predicate.params];
   const parts = [predicate.sql, OPEN, ...extra];
@@ -64,7 +64,9 @@ function conditionsOf(scope: ScopeBuilder, filter: BoardFilter, extra: string[] 
   if (filter.status !== undefined) parts.push(`t.status = ${bind(filter.status)}`);
   if (filter.assigneeId !== undefined) {
     if (!UUID.test(filter.assigneeId)) throw invalid('assignee_id');
-    parts.push(`exists (select 1 from machvon.project_task_assignment a where a.tenant_id = t.tenant_id and a.task_id = t.id and a.role = 'RESPONSIBLE' and a.membership_id = ${bind(filter.assigneeId.toLowerCase())}::uuid and a.valid_from <= current_date and (a.valid_to is null or a.valid_to >= current_date))`);
+    const member = bind(filter.assigneeId.toLowerCase());
+    const day = bind(today);
+    parts.push(`exists (select 1 from machvon.project_task_assignment a where a.tenant_id = t.tenant_id and a.task_id = t.id and a.role = 'RESPONSIBLE' and a.membership_id = ${member}::uuid and a.valid_from <= ${day}::date and (a.valid_to is null or a.valid_to >= ${day}::date))`);
   }
   if (filter.dueFrom !== undefined) {
     if (!DAY.test(filter.dueFrom)) throw invalid('due_from');
@@ -102,7 +104,7 @@ export class PwfDeadlineReads {
   async board(tx: TenantTx, scope: ScopeBuilder, filter: BoardFilter, page: { limit: number; after?: { code: string; id: string } | undefined }, now: Date): Promise<Record<string, unknown>> {
     if (filter.band !== undefined && !(BANDS as readonly string[]).includes(filter.band)) throw invalid('band');
     const resolver = await bandResolver(tx, this.policy, this.calendars, now);
-    const where = conditionsOf(scope, filter);
+    const where = conditionsOf(scope, filter, vietnamDateOf(now));
     const groups = await tx.query<GroupSql>(
       `select t.planned_finish::text as d, t.kind, t.priority, t.phase_code, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${where.sql} group by t.planned_finish, t.kind, t.priority, t.phase_code`,
@@ -139,7 +141,7 @@ export class PwfDeadlineReads {
       params,
     );
     const shown = rows.slice(0, page.limit);
-    const assignees = await this.assignees(tx, shown.map((row) => row.id));
+    const assignees = await this.assignees(tx, shown.map((row) => row.id), vietnamDateOf(now));
     const last = shown[shown.length - 1];
     return {
       items: shown.map((row) => ({
@@ -167,12 +169,12 @@ export class PwfDeadlineReads {
     };
   }
 
-  private async assignees(tx: TenantTx, taskIds: readonly string[]): Promise<Map<string, { membership_id: string; display_name: string }>> {
+  private async assignees(tx: TenantTx, taskIds: readonly string[], today: string): Promise<Map<string, { membership_id: string; display_name: string }>> {
     if (taskIds.length === 0) return new Map();
     const rows = await tx.query<{ task_id: string; membership_id: string; display_name: string | null }>(
       `select distinct on (a.task_id) a.task_id, a.membership_id, u.display_name from machvon.project_task_assignment a left join machvon.tenant_user_directory u on u.tenant_id = a.tenant_id and u.membership_id = a.membership_id
-        where a.task_id = any($1::uuid[]) and a.role = 'RESPONSIBLE' and a.valid_from <= current_date and (a.valid_to is null or a.valid_to >= current_date) order by a.task_id, a.valid_from desc, a.id`,
-      [[...taskIds]],
+        where a.task_id = any($1::uuid[]) and a.role = 'RESPONSIBLE' and a.valid_from <= $2::date and (a.valid_to is null or a.valid_to >= $2::date) order by a.task_id, a.valid_from desc, a.id`,
+      [[...taskIds], today],
     );
     return new Map(rows.map((row) => [row.task_id, { membership_id: row.membership_id, display_name: row.display_name ?? row.membership_id }]));
   }
@@ -184,7 +186,7 @@ export class PwfDeadlineReads {
     const from = `${month}-01`;
     const to = addDays(`${parsed[2] === '12' ? Number(parsed[1]) + 1 : parsed[1]}-${parsed[2] === '12' ? '01' : String(Number(parsed[2]) + 1).padStart(2, '0')}-01`, -1);
     const resolver = await bandResolver(tx, this.policy, this.calendars, now);
-    const where = conditionsOf(scope, { ...filter, dueFrom: from, dueTo: to });
+    const where = conditionsOf(scope, { ...filter, dueFrom: from, dueTo: to }, vietnamDateOf(now));
     const groups = await tx.query<GroupSql>(
       `select t.planned_finish::text as d, t.kind, t.priority, t.phase_code, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${where.sql} group by t.planned_finish, t.kind, t.priority, t.phase_code`,
@@ -226,7 +228,7 @@ export class PwfDeadlineReads {
     const today = vietnamDateOf(now);
     const to = addDays(today, days);
     const resolver = await bandResolver(tx, this.policy, this.calendars, now);
-    const where = conditionsOf(scope, { ...filter, dueFrom: today, dueTo: to }, [`t.kind = 'MILESTONE'`]);
+    const where = conditionsOf(scope, { ...filter, dueFrom: today, dueTo: to }, today, [`t.kind = 'MILESTONE'`]);
     const rows = await tx.query<{ id: string; milestone_id: string | null; task_code: string; name: string; project_id: string; project_code: string; planned_date: string; baseline_date: string | null; slip: number | null; critical: boolean; total_float: number | null; priority: GroupSql['priority']; phase_code: string; status: string }>(
       `select t.id, t.milestone_id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.planned_finish::text as planned_date, t.baseline_finish::text as baseline_date, (t.planned_finish - t.baseline_finish) as slip, t.critical, t.total_float, t.priority, t.phase_code, t.status
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id where ${where.sql} order by t.planned_finish, t.id limit ${MILESTONE_CAP}`,
@@ -263,7 +265,7 @@ export class PwfDeadlineReads {
     if (!DAY.test(given)) throw invalid('from');
     const monday = addDays(given, -((new Date(`${given}T00:00:00Z`).getUTCDay() + 6) % 7));
     const weeks = Array.from({ length: weeksCount }, (_, index) => addDays(monday, index * 7));
-    const where = conditionsOf(scope, filter);
+    const where = conditionsOf(scope, filter, today);
     const end = addDays(weeks[weeks.length - 1] as string, 6);
     const params = [...where.params, monday, end];
     const rows = await tx.query<{ membership_id: string; display_name: string | null; task_id: string; planned_start: string | null; planned_finish: string | null; share_pct: number; valid_from: string; valid_to: string | null }>(

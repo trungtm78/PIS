@@ -103,7 +103,7 @@ export class PwfTaskStore {
 
   // ---- commands --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  async start(tx: TenantTx, request: TaskCommand & { earlyStartReason?: string | undefined; actualStart?: string | undefined; note?: string | undefined }): Promise<TaskResult> {
+  async start(tx: TenantTx, request: TaskCommand & { earlyStartReason?: string | undefined; actualStart?: string | undefined; note?: string | undefined; mayStartEarly?: boolean | undefined }): Promise<TaskResult> {
     const locked = await this.lock(tx, request.taskId, request.scopes, 'task_id');
     const { task } = locked;
     this.assertVersion(task, request.expectedVersion);
@@ -116,6 +116,8 @@ export class PwfTaskStore {
     let reason: string | null = null;
     if (early) {
       if (request.earlyStartReason === undefined) throw stateInvalid('PREDECESSORS_NOT_READY', { blocking });
+      // Starting before the predecessors are ready is a decision of a manager of the project, not of whoever holds the task.
+      if (request.mayStartEarly !== true) throw new DomainError('SCOPE_DENIED', 403, 'early_start_reason');
       reason = textOf(request.earlyStartReason, 'early_start_reason', MIN_REASON, 500);
     }
     await this.update(tx, task, { status: 'IN_PROGRESS', actual_start: start, early_start_reason: reason }, request.actor);
@@ -360,8 +362,12 @@ export class PwfTaskStore {
   private async lock(tx: TenantTx, taskId: string, scopes: StageScopes, field: string): Promise<Locked> {
     const id = idOf(taskId, field);
     // The commands that publish the schedule of a workflow (a completion, a decision on a proposal) are one at a time per project: the same lock, taken before any row of the workflow is read (BR-PWF-28).
+    // The order is the one of every command on the project: the row of the project first, then the lock of the publication, then the rows of the workflow.
     const owning = await tx.query<{ project_id: string }>('select project_id from machvon.project_task where id = $1::uuid', [id]);
-    if (owning[0] !== undefined) await tx.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [`pwf:${owning[0].project_id}`]);
+    if (owning[0] !== undefined) {
+      await tx.query('select id from machvon.project where id = $1::uuid for update', [owning[0].project_id]);
+      await tx.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [`pwf:${owning[0].project_id}`]);
+    }
     const act = scopes.act(2);
     const rows = await tx.query<LockSql & Record<string, unknown>>(
       `select ${TASK_COLUMNS}, w.status as workflow_status, w.template, w.planned_start_date::text as planned_start_date, w.schedule_version, w.version as workflow_version, w.calendar_pins, w.facts, p.code as project_code
