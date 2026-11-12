@@ -22,7 +22,7 @@ const CHECK_VIOLATION = '23514';
 const ISO = `'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'`;
 
 /** The aliases of the project scope: `d` the document, `p` its project, `ou` the owner unit and `iu` the investor unit. */
-const SCOPE_JOINS = `join machvon.project p on p.tenant_id = d.tenant_id and p.id = d.project_id
+export const PROJECT_DOCUMENT_SCOPE_JOINS = `join machvon.project p on p.tenant_id = d.tenant_id and p.id = d.project_id
   join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
   left join machvon.organization_unit iu on iu.tenant_id = p.tenant_id and iu.id = p.investor_unit_id`;
 
@@ -114,7 +114,7 @@ const HEADER_COLUMNS = `d.id, d.project_id, p.code as project_code, p.name as pr
        d.version::text as version, to_char(d.created_at at time zone 'UTC', ${ISO}) as created_at, ${timestampKey('d.created_at')} as created_at_key, d.created_by,
        to_char(d.updated_at at time zone 'UTC', ${ISO}) as updated_at, d.updated_by`;
 
-const HEADER_FROM = `machvon.project_document d ${SCOPE_JOINS}
+const HEADER_FROM = `machvon.project_document d ${PROJECT_DOCUMENT_SCOPE_JOINS}
   left join machvon.contract c on c.tenant_id = d.tenant_id and c.id = d.contract_id
   left join machvon.procurement_package pk on pk.tenant_id = d.tenant_id and pk.id = d.package_id
   left join machvon.project_document_version cv on cv.tenant_id = d.tenant_id and cv.id = d.current_version_id
@@ -334,7 +334,7 @@ export class DocumentRepositoryStore {
   async findVersion(tx: TenantTx, versionId: string, scope: ScopeBuilder, now: Date): Promise<{ version: VersionHeader; document: DocumentHeader } | undefined> {
     const predicate = scope(2);
     const found = await tx.query<{ document_id: string }>(
-      `select v.document_id from machvon.project_document_version v join machvon.project_document d on d.tenant_id = v.tenant_id and d.id = v.document_id ${SCOPE_JOINS} where v.id = $1::uuid and ${predicate.sql}`,
+      `select v.document_id from machvon.project_document_version v join machvon.project_document d on d.tenant_id = v.tenant_id and d.id = v.document_id ${PROJECT_DOCUMENT_SCOPE_JOINS} where v.id = $1::uuid and ${predicate.sql}`,
       [versionId, ...predicate.params],
     );
     if (found[0] === undefined) return undefined;

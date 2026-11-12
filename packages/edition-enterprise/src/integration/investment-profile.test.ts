@@ -1,7 +1,7 @@
-import { MILESTONE_SEEDS } from './ent-catalogue.ts';
-import type { MilestoneEntry } from './ent-catalogue.ts';
-import { investmentProfileOf, planRevisionsOf } from './investment-profile.ts';
-import type { HeldMilestone, OriginLine, PlanRevision } from './investment-profile.ts';
+import { LEGAL_DOC_TYPE_SEEDS, MILESTONE_SEEDS } from './ent-catalogue.ts';
+import type { LegalDocTypeEntry, MilestoneEntry } from './ent-catalogue.ts';
+import { LEGAL_DOCUMENTS_PER_TYPE, investmentProfileOf, legalDocumentsOf, planRevisionsOf } from './investment-profile.ts';
+import type { HeldMilestone, LegalDocumentRow, OriginLine, PlanRevision } from './investment-profile.ts';
 
 const CATALOGUE: MilestoneEntry[] = MILESTONE_SEEDS.map((seed) => ({
   code: seed.code,
@@ -15,7 +15,7 @@ const PROJECT_TYPE = { code: 'ENT_MAJOR_REPAIR', label: 'Sua chua lon', kind: 'M
 
 const held = (code: string, plannedOn: string, actualOn: string | null = null, status: HeldMilestone['status'] = actualOn === null ? 'PLANNED' : 'DONE'): HeldMilestone => ({ code, plannedOn, actualOn, status });
 const line = (origin: string, amountVnd: string, symbol: string | null, kind: string | null = null): OriginLine => ({ origin, decisionKind: kind, decisionSymbol: symbol, decisionIssuedOn: symbol === null ? null : '2026-01-15', issuingAuthority: symbol === null ? null : 'AUTH', amountVnd });
-const profile = (patch: Partial<Parameters<typeof investmentProfileOf>[0]> = {}) => investmentProfileOf({ catalogue: CATALOGUE, projectType: PROJECT_TYPE, projectStartYear: null, held: [], plans: [], origins: [], planYear: 2026, ...patch });
+const profile = (patch: Partial<Parameters<typeof investmentProfileOf>[0]> = {}) => investmentProfileOf({ catalogue: CATALOGUE, projectType: PROJECT_TYPE, projectStartYear: null, held: [], plans: [], origins: [], planYear: 2026, legalTypes: [], legalDocuments: [], ...patch });
 
 describe('the investment profile of a project (MD.01, MD.02, CN.01)', () => {
   it('lists every milestone of the catalogue in its order, and says which the project has not got', () => {
@@ -124,5 +124,52 @@ describe('the revisions the split is read from', () => {
 
   it('counts a version without a plan code as a plan of its own', () => {
     expect(planRevisionsOf([revision('x', null, 'PUBLISHED', 1), revision('y', null, 'PUBLISHED', 1)], false).map((one) => one.id)).toEqual(['x', 'y']);
+  });
+});
+
+describe('the legal documents of a project by type (MD.02)', () => {
+  const TYPES: LegalDocTypeEntry[] = [
+    ...LEGAL_DOC_TYPE_SEEDS.map((seed) => ({ code: seed.code, label: seed.params.label as string, issuer: seed.params.issuer as LegalDocTypeEntry['issuer'], purpose: seed.params.purpose as LegalDocTypeEntry['purpose'] })),
+    { code: 'ZZ_TENANT_NOTICE', label: 'Tenant notice', issuer: 'OTHER', purpose: 'LIFECYCLE_EVIDENCE' },
+    { code: 'AA_TENANT_NOTICE', label: 'Early tenant notice', issuer: 'OTHER', purpose: 'LIFECYCLE_EVIDENCE' },
+  ];
+  const doc = (id: string, legalDocType: string, patch: Partial<LegalDocumentRow> = {}): LegalDocumentRow => ({ id, legalDocType, title: `Title ${id}`, reference: null, effectiveFrom: null, effectiveTo: null, effectiveState: 'UNDATED', status: 'ACTIVE', ...patch });
+
+  it('has no group for a project with no typed document', () => {
+    expect(legalDocumentsOf(TYPES, [])).toEqual([]);
+    expect(profile().legalDocuments).toEqual([]);
+  });
+
+  it('groups the documents by type with the label, issuer and purpose of the catalogue, keeping the order they come in', () => {
+    const groups = legalDocumentsOf(TYPES, [doc('d3', 'GROUP_RESOLUTION'), doc('d2', 'GROUP_RESOLUTION', { reference: '12/NQ-PVN', effectiveFrom: '2026-01-01', effectiveState: 'IN_FORCE' }), doc('d1', 'FS_APPROVAL_DECISION')]);
+    expect(groups.map((one) => one.legalDocType)).toEqual(['GROUP_RESOLUTION', 'FS_APPROVAL_DECISION']);
+    expect(groups[0]).toMatchObject({ issuer: 'GROUP', purpose: 'CAPITAL_ASSIGNMENT', count: 2 });
+    expect(groups[0]?.label).toBe(TYPES.find((one) => one.code === 'GROUP_RESOLUTION')?.label);
+    expect(groups[0]?.documents.map((one) => one.id)).toEqual(['d3', 'd2']);
+    expect(groups[0]?.documents[1]).toEqual({ id: 'd2', title: 'Title d2', reference: '12/NQ-PVN', effectiveFrom: '2026-01-01', effectiveTo: null, effectiveState: 'IN_FORCE', status: 'ACTIVE' });
+  });
+
+  it('orders the types of the pack as the pack lists them, then the codes a tenant added by code, then a type that left the catalogue', () => {
+    const groups = legalDocumentsOf(TYPES, [doc('a', 'GONE_TYPE'), doc('b', 'ZZ_TENANT_NOTICE'), doc('c', 'ACCEPTANCE_RECORD'), doc('d', 'AA_TENANT_NOTICE'), doc('e', 'GROUP_DECISION')]);
+    expect(groups.map((one) => one.legalDocType)).toEqual(['GROUP_DECISION', 'ACCEPTANCE_RECORD', 'AA_TENANT_NOTICE', 'ZZ_TENANT_NOTICE', 'GONE_TYPE']);
+  });
+
+  it('shows a type that left the catalogue under its code, with no issuer or purpose', () => {
+    expect(legalDocumentsOf(TYPES, [doc('a', 'GONE_TYPE')])).toEqual([
+      { legalDocType: 'GONE_TYPE', label: 'GONE_TYPE', issuer: null, purpose: null, count: 1, documents: [expect.objectContaining({ id: 'a' })] },
+    ]);
+  });
+
+  it('leaves an archived document out and lists at most the cap while counting them all', () => {
+    const many = Array.from({ length: LEGAL_DOCUMENTS_PER_TYPE + 5 }, (_, at) => doc(`m${at}`, 'GROUP_RESOLUTION'));
+    const [group] = legalDocumentsOf(TYPES, [...many, doc('old', 'GROUP_RESOLUTION', { status: 'ARCHIVED' }), doc('only-old', 'GROUP_DECISION', { status: 'ARCHIVED' })]);
+    expect(group).toMatchObject({ legalDocType: 'GROUP_RESOLUTION', count: LEGAL_DOCUMENTS_PER_TYPE + 5 });
+    expect(group?.documents).toHaveLength(LEGAL_DOCUMENTS_PER_TYPE);
+    expect(group?.documents.map((one) => one.id)).not.toContain('old');
+    expect(legalDocumentsOf(TYPES, [doc('only-old', 'GROUP_DECISION', { status: 'ARCHIVED' })])).toEqual([]);
+  });
+
+  it('puts the groups on the profile', () => {
+    expect(profile({ legalTypes: TYPES, legalDocuments: [doc('d1', 'GROUP_RESOLUTION')] }).legalDocuments).toMatchObject([{ legalDocType: 'GROUP_RESOLUTION', count: 1 }]);
   });
 });

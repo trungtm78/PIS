@@ -43,6 +43,22 @@ export function investmentProfileView(projectId: string, asOf: string, profile: 
       actual_on: one.actualOn,
     })),
     findings: profile.findings,
+    legal_documents: profile.legalDocuments.map((group) => ({
+      legal_doc_type: group.legalDocType,
+      label: group.label,
+      issuer: group.issuer,
+      purpose: group.purpose,
+      count: group.count,
+      documents: group.documents.map((one) => ({
+        id: one.id,
+        title: one.title,
+        reference: one.reference,
+        effective_from: one.effectiveFrom,
+        effective_to: one.effectiveTo,
+        effective_state: one.effectiveState,
+        status: one.status,
+      })),
+    })),
     origin_split: {
       total_vnd: profile.originSplit.totalVnd,
       group_assigned_vnd: profile.originSplit.groupAssignedVnd,
@@ -89,7 +105,9 @@ export class InvestmentProfileController {
       if (project === undefined) return undefined;
       // The revisions of a plan that are still in work are seen by who drafts or approves plans, as everywhere else in CAP.
       const { drafts } = planReadScope(access, PERMISSIONS.getProjectInvestmentProfile, now);
-      return this.profiles.read(tx, { projectId: project.id, projectType: project.projectType, projectStartYear: project.startYear, planYear: year, today, drafts });
+      // The legal documents are listed in the scope the document reads apply, not in the one of the project read: whoever may see the project but not its documents sees none.
+      const documentScope = projectScope(access, PERMISSIONS.listProjectDocuments, now);
+      return this.profiles.read(tx, { projectId: project.id, projectType: project.projectType, projectStartYear: project.startYear, planYear: year, today, drafts, documentScope });
     });
     if (profile === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     return investmentProfileView(id, today, profile);

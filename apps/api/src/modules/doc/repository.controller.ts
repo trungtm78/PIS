@@ -1,8 +1,8 @@
-import { Body, Controller, HttpCode, Inject, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { DocumentRepositoryStore, projectScope } from '@machvon/db';
-import type { ExtractionRecord } from '@machvon/db';
-import { DomainError, projectDocumentChangeOf, projectDocumentInputOf } from '@machvon/kernel';
+import { DocumentRepositoryStore, PublicProjectDocumentExtension, projectScope } from '@machvon/db';
+import type { ExtractionRecord, LegalDocTypeChange, ProjectDocumentExtension } from '@machvon/db';
+import { DomainError, projectDocumentChangeOf, projectDocumentInputOf, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -15,6 +15,7 @@ import { DocumentFileUploadGuard, UploadedBytes } from '../sas/theme-assets';
 import type { UploadedFile } from '../sas/theme-assets';
 import { pageCountOf } from './external-signature';
 import { RepositoryFiles } from './repository-files';
+import { PROJECT_DOCUMENT_EXTENSION } from './tokens';
 
 const DOCUMENT_RESOURCE = 'project_document';
 const VERSION_RESOURCE = 'project_document_version';
@@ -75,8 +76,15 @@ export class ProjectDocumentFilesController {
 @Controller()
 export class ProjectDocumentsController {
   private readonly store = new DocumentRepositoryStore();
+  private readonly extension: ProjectDocumentExtension;
 
-  constructor(@Inject(RepositoryFiles) private readonly repositoryFiles: RepositoryFiles) {}
+  constructor(
+    @Inject(RepositoryFiles) private readonly repositoryFiles: RepositoryFiles,
+    // What the edition adds to a document (the legal-document type of the enterprise edition); the public edition binds none and refuses the member.
+    @Optional() @Inject(PROJECT_DOCUMENT_EXTENSION) extension?: ProjectDocumentExtension,
+  ) {
+    this.extension = extension ?? new PublicProjectDocumentExtension();
+  }
 
   @Post('project-documents')
   @HttpCode(200)
@@ -86,6 +94,8 @@ export class ProjectDocumentsController {
     const now = new Date();
     const input = projectDocumentInputOf(body as unknown as Record<string, unknown>);
     const changeNote = noteOf(body.change_note, 'change_note');
+    // The edition judges the legal type before the file is opened and before anything is written.
+    const legal = await this.extension.legalDocType(scope.tx, (body as Record<string, unknown>).legal_doc_type, vietnamDateOf(now));
     const opened = await this.repositoryFiles.open(scope.tenant, body.file_object_key, body.file_sha256);
     const { record, facts } = await this.repositoryFiles.read(opened);
     const { document, version } = await this.store.create(scope.tx, input, facts, record, changeNote, scope.tenant.membershipId, projectScope(access, PERMISSIONS.createProjectDocument, now), now);
@@ -99,6 +109,7 @@ export class ProjectDocumentsController {
       effective_to: document.effectiveTo,
     }, now);
     await this.versionWritten(scope, document.id, document.project.id, document.securityClass, version.id, version.versionNo, version.fileSha256, version.extractionStatus, record, now);
+    await this.legalTypeRecorded(scope, document.id, document.project.id, document.securityClass, legal);
     return commandResult(scope, 'CREATED', document.version, document.id);
   }
 
@@ -111,10 +122,15 @@ export class ProjectDocumentsController {
     const documentScope = projectScope(access, PERMISSIONS.updateProjectDocument, now);
     const current = await this.store.find(scope.tx, idOf(id), documentScope, now);
     if (current === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    const change = projectDocumentChangeOf(body as unknown as Record<string, unknown>, current);
+    const { legal_doc_type: legalRaw, ...described } = body as unknown as Record<string, unknown>;
+    const legal = await this.extension.legalDocType(scope.tx, legalRaw, vietnamDateOf(now));
+    // A change that names the legal type alone still moves the version of the document (the type is part of what the document says it is): the note is written back as it stands.
+    const change = legal.set && Object.keys(described).length === 0 ? { note: current.note } : projectDocumentChangeOf(described, current);
     const done = await this.store.update(scope.tx, idOf(id), scope.expectedVersion ?? 0, change, scope.tenant.membershipId, documentScope, now);
+    await this.legalTypeRecorded(scope, id, done.after.project.id, done.after.securityClass, legal);
     // The trail says which members changed and from what to what for the fields that are not free text; the title and the note are named, never copied.
-    const fields = Object.keys(change).map((key) => key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`));
+    const fields = Object.keys(described).length === 0 ? [] : Object.keys(change).map((key) => key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`));
+    if (legal.set) fields.push('legal_doc_type');
     await this.written(scope, 'doc.repo.document_updated', id, done.after.securityClass, done.after.version, {
       project_id: done.after.project.id,
       fields,
@@ -183,6 +199,14 @@ export class ProjectDocumentsController {
     const done = await this.store.reextract(scope.tx, idOf(id), record, documentScope, now);
     await this.versionWritten(scope, done.document.id, done.document.project.id, done.document.securityClass, done.after.id, done.after.versionNo, done.after.fileSha256, done.after.extractionStatus, record, now, 'doc.repo.version_extracted');
     return commandResult(scope, done.after.extractionStatus, done.after.versionNo, done.after.id);
+  }
+
+  /** Keeps the legal type the request named and says so in the trail; nothing happens for a request that did not name one (the public edition always). */
+  private async legalTypeRecorded(scope: CommandScope, documentId: string, projectId: string, securityClass: string, legal: LegalDocTypeChange): Promise<void> {
+    if (!legal.set) return;
+    const moved = await this.extension.recordLegalDocType(scope.tx, documentId, legal.code, scope.tenant.membershipId);
+    if (moved.from === moved.to) return;
+    await scope.audit({ action: 'doc.repo.document_legal_type_set', resourceType: DOCUMENT_RESOURCE, resourceId: documentId, classification: classificationOf(securityClass), diff: { project_id: projectId, legal_doc_type: { from: moved.from, to: moved.to } } });
   }
 
   private async written(scope: CommandScope, action: string, id: string, securityClass: string, version: number, diff: Record<string, unknown>, now: Date, reason?: string): Promise<void> {

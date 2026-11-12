@@ -191,6 +191,13 @@ export function legalDocTypesOf(rules: readonly GovernanceRuleVersion[], asOf: s
   });
 }
 
+/** The legal-document types as the resolver of the governance rules hands them (a rule of the tenant in force, else the built-in default), in the order of the codes. */
+export function legalDocTypesOfResolved(resolved: ReadonlyArray<{ code: string; params: RuleParams }>): LegalDocTypeEntry[] {
+  return resolved
+    .map((one) => ({ code: one.code, label: one.params.label as string, issuer: one.params.issuer as LegalDocTypeEntry['issuer'], purpose: one.params.purpose as LegalDocTypeEntry['purpose'] }))
+    .sort((left, right) => left.code.localeCompare(right.code));
+}
+
 /**
  * What is wrong across the entries of the catalogues (a rule judges one entry, not the set): two milestones with one sequence number, a milestone whose evidence names a type of document the catalogue does not hold or
  * one that assigns capital rather than proves a milestone. Returns the problems as `kind:code` texts; empty when the set is sound.
