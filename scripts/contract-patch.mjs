@@ -14,9 +14,28 @@ export const FILES = {
   errorCodes: 'Design/MACHVON_Design/03_Engineering/error_codes.json',
   screens: 'Design/MACHVON_Design/03_Engineering/screen_catalog.json',
   blocks: 'db/migrations/blocks.json',
+  plan: 'Design/MACHVON_Design/03_Engineering/implementation_plan.json',
+  tests: 'Design/MACHVON_Design/03_Engineering/test_cases.json',
+  trace: 'Design/MACHVON_Design/03_Engineering/traceability.json',
+  backlog: 'Design/MACHVON_Design/03_Engineering/implementation_backlog.json',
+  navigation: 'Design/MACHVON_Design/03_Engineering/navigation_architecture.json',
 };
 /** The command that edits each file. */
-const TARGET_OF = { 'add-operation': 'openapi', 'add-schema': 'openapi', 'add-error-code': 'errorCodes', 'add-screen': 'screens', 'register-block': 'blocks' };
+const TARGET_OF = {
+  'add-operation': 'openapi',
+  'add-schema': 'openapi',
+  'add-error-code': 'errorCodes',
+  'add-screen': 'screens',
+  'register-block': 'blocks',
+  'add-epic': 'plan',
+  'add-feature': 'plan',
+  'add-story': 'plan',
+  'add-test-case': 'tests',
+  'add-trace': 'trace',
+  'add-backlog': 'backlog',
+  'add-route': 'navigation',
+  'add-nav-group': 'navigation',
+};
 export const COMMANDS = Object.keys(TARGET_OF);
 
 const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
@@ -320,8 +339,195 @@ export function registerBlock(doc, step) {
   return { status: 'added', name: slice };
 }
 
-const MUTATORS = { 'add-operation': addOperation, 'add-schema': addSchema, 'add-error-code': addErrorCode, 'add-screen': addScreen, 'register-block': registerBlock };
-const KINDS = { 'add-operation': 'operation', 'add-schema': 'schema', 'add-error-code': 'error code', 'add-screen': 'screen', 'register-block': 'block' };
+// ---------------------------------------------------------------------------------------------------------------------
+// Registry records: plan, test cases, traceability, backlog and navigation (the design package of 03_Engineering)
+
+/**
+ * Appends `record` to `list` (or leaves it, or replaces it) keyed by `record[key]`. An existing record with the same key and
+ * the same content is `unchanged`; with other content it is an error until the step says `replace`.
+ */
+function upsertRecord(list, key, record, step, kind) {
+  const name = String(record[key]);
+  const at = list.findIndex((entry) => entry[key] === record[key]);
+  if (at < 0) {
+    list.push(record);
+    return { status: 'added', name };
+  }
+  if (sameJson(list[at], record)) return { status: 'unchanged', name };
+  if (step.replace !== true) throw new PatchError('recordExists', { kind, name });
+  list[at] = record;
+  return { status: 'replaced', name };
+}
+
+/** The object a step carries under `field`, with every name of `required` present and non-empty. */
+function recordOf(step, field, required) {
+  const record = need(step, field);
+  if (!isRecord(record)) throw invalid(field, record);
+  for (const name of required) {
+    if (record[name] === undefined || record[name] === null || record[name] === '') throw new PatchError('missingOption', { option: `${field}.${name}` });
+  }
+  return record;
+}
+
+function listOf(doc, collection, file) {
+  if (!isRecord(doc) || !Array.isArray(doc[collection])) throw new PatchError('notJson', { file, reason: `${collection} expected` });
+  return doc[collection];
+}
+
+function arrayOf(doc, file) {
+  if (!Array.isArray(doc)) throw new PatchError('notJson', { file, reason: 'array expected' });
+  return doc;
+}
+
+function idShape(record, pattern, option) {
+  if (!pattern.test(record.id)) throw invalid(option, record.id);
+}
+
+function knownRef(list, id, what, name) {
+  if (!list.some((entry) => entry.id === id)) throw new PatchError('refUnknown', { name, what, value: id });
+}
+
+export function addEpic(doc, step) {
+  const epic = recordOf(step, 'epic', ['id', 'module', 'title', 'goal']);
+  idShape(epic, /^EP-[A-Z][A-Z0-9]*$/, 'epic.id');
+  return upsertRecord(listOf(doc, 'epics', FILES.plan), 'id', epic, step, 'epic');
+}
+
+export function addFeature(doc, step) {
+  const feature = recordOf(step, 'feature', ['id', 'epic', 'title']);
+  idShape(feature, /^FT-[A-Z][A-Z0-9]*-\d+$/, 'feature.id');
+  knownRef(listOf(doc, 'epics', FILES.plan), feature.epic, 'epic', feature.id);
+  return upsertRecord(listOf(doc, 'features', FILES.plan), 'id', feature, step, 'feature');
+}
+
+export function addStory(doc, step) {
+  const story = recordOf(step, 'story', ['id', 'epic', 'feature', 'module', 'title', 'narrative', 'release', 'screens', 'operations', 'acceptance', 'review', 'effort', 'tasks']);
+  idShape(story, /^ST-[A-Z][A-Z0-9]*-\d+$/, 'story.id');
+  if (!Array.isArray(story.acceptance) || !Array.isArray(story.tasks)) throw invalid('story', story.id);
+  knownRef(listOf(doc, 'epics', FILES.plan), story.epic, 'epic', story.id);
+  const feature = listOf(doc, 'features', FILES.plan).find((entry) => entry.id === story.feature);
+  if (feature === undefined || feature.epic !== story.epic) throw new PatchError('refUnknown', { name: story.id, what: `feature of ${story.epic}`, value: story.feature });
+  return upsertRecord(listOf(doc, 'stories', FILES.plan), 'id', story, step, 'story');
+}
+
+export function addTestCase(doc, step) {
+  const test = recordOf(step, 'test', ['id', 'type', 'priority', 'setup', 'steps', 'expected']);
+  if (!Array.isArray(test.steps) || test.steps.length === 0) throw invalid('test.steps', test.steps);
+  return upsertRecord(arrayOf(doc, FILES.tests), 'id', test, step, 'test case');
+}
+
+export function addTrace(doc, step) {
+  const row = recordOf(step, 'trace', ['requirement', 'screen', 'title', 'backlog_id', 'test_ids']);
+  if (!Array.isArray(row.test_ids)) throw invalid('trace.test_ids', row.test_ids);
+  return upsertRecord(arrayOf(doc, FILES.trace), 'requirement', row, step, 'traceability row');
+}
+
+export function addBacklog(doc, step) {
+  const row = recordOf(step, 'backlog', ['id', 'requirement', 'screen', 'title', 'module', 'platform', 'test_ids']);
+  if (!Array.isArray(row.test_ids)) throw invalid('backlog.test_ids', row.test_ids);
+  return upsertRecord(arrayOf(doc, FILES.backlog), 'id', row, step, 'backlog row');
+}
+
+const ROUTE_LISTS = { web: 'webRoutes', mobile: 'mobileRoutes' };
+
+/** Keeps the counters of `coverage` equal to what the file holds (the routes are the catalogue: every catalogued screen has one). */
+function refreshCoverage(doc) {
+  if (!isRecord(doc.coverage)) return;
+  const web = doc.webRoutes ?? [];
+  const mobile = doc.mobileRoutes ?? [];
+  Object.assign(doc.coverage, {
+    webRoutes: web.length,
+    webCatalog: web.length,
+    webModules: new Set(web.map((route) => route.module)).size,
+    mobileRoutes: mobile.length,
+    mobileCatalog: mobile.length,
+    modulesTotal: Object.keys(doc.modules ?? {}).length,
+  });
+}
+
+/** A route goes after the last route of its own module (the file keeps a module's routes together), or at the end of the list. */
+export function addRoute(doc, step) {
+  const platform = need(step, 'platform');
+  if (!Object.hasOwn(ROUTE_LISTS, platform)) throw invalid('platform', platform);
+  const route = recordOf(step, 'route', ['id', 'title', 'kind']);
+  const list = doc[ROUTE_LISTS[platform]];
+  if (!Array.isArray(list)) throw new PatchError('notJson', { file: FILES.navigation, reason: `${ROUTE_LISTS[platform]} expected` });
+  const at = list.findIndex((entry) => entry.id === route.id);
+  const name = route.id;
+  if (at >= 0) {
+    if (sameJson(list[at], route)) return { status: 'unchanged', name };
+    if (step.replace !== true) throw new PatchError('recordExists', { kind: 'route', name });
+    list[at] = route;
+    return { status: 'replaced', name };
+  }
+  const sameModule = list.map((entry, index) => (entry.module === route.module ? index : -1)).filter((index) => index >= 0);
+  const position = route.module === undefined || sameModule.length === 0 ? list.length : sameModule.at(-1) + 1;
+  list.splice(position, 0, route);
+  refreshCoverage(doc);
+  return { status: 'added', name };
+}
+
+const unique = (values) => [...new Set(values)];
+
+/**
+ * Adds the screens of a task group to a module of the navigation: the group is created when its title is new, otherwise the
+ * ids, the primary ids and the parents are merged into it. `shortcuts` ([number, label]) join the contextual shortcuts of the module.
+ */
+export function addNavGroup(doc, step) {
+  const module = need(step, 'module');
+  const group = recordOf(step, 'group', ['title', 'ids']);
+  const target = doc.modules?.[module];
+  if (!isRecord(target) || !Array.isArray(target.groups)) throw new PatchError('refUnknown', { name: group.title, what: 'navigation module', value: module });
+  const wanted = { title: group.title, description: group.description, ids: group.ids, primary: group.primary ?? group.ids, parents: group.parents ?? {} };
+  const before = JSON.stringify([target, doc.contextualShortcuts?.[module]]);
+  const existing = target.groups.find((entry) => entry.title === group.title);
+  if (existing === undefined) {
+    if (!isNonEmptyString(wanted.description)) throw new PatchError('missingOption', { option: 'group.description' });
+    target.groups.push(wanted);
+  } else {
+    existing.ids = unique([...existing.ids, ...wanted.ids]);
+    existing.primary = unique([...existing.primary, ...wanted.primary]);
+    existing.parents = { ...existing.parents, ...wanted.parents };
+  }
+  if (Array.isArray(step.shortcuts)) {
+    doc.contextualShortcuts ??= {};
+    const shortcuts = (doc.contextualShortcuts[module] ??= []);
+    for (const shortcut of step.shortcuts) if (!shortcuts.some((entry) => entry[0] === shortcut[0])) shortcuts.push(shortcut);
+  }
+  if (before === JSON.stringify([target, doc.contextualShortcuts?.[module]])) return { status: 'unchanged', name: group.title };
+  return { status: existing === undefined ? 'added' : 'replaced', name: group.title };
+}
+
+const MUTATORS = {
+  'add-operation': addOperation,
+  'add-schema': addSchema,
+  'add-error-code': addErrorCode,
+  'add-screen': addScreen,
+  'register-block': registerBlock,
+  'add-epic': addEpic,
+  'add-feature': addFeature,
+  'add-story': addStory,
+  'add-test-case': addTestCase,
+  'add-trace': addTrace,
+  'add-backlog': addBacklog,
+  'add-route': addRoute,
+  'add-nav-group': addNavGroup,
+};
+const KINDS = {
+  'add-operation': 'operation',
+  'add-schema': 'schema',
+  'add-error-code': 'error code',
+  'add-screen': 'screen',
+  'register-block': 'block',
+  'add-epic': 'epic',
+  'add-feature': 'feature',
+  'add-story': 'story',
+  'add-test-case': 'test case',
+  'add-trace': 'traceability row',
+  'add-backlog': 'backlog row',
+  'add-route': 'route',
+  'add-nav-group': 'navigation group',
+};
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Cross-checks on the patched documents
@@ -656,6 +862,8 @@ const OPTIONS = {
   req: { type: 'string' },
   // register-block
   slice: { type: 'string' },
+  // registry commands: the JSON record of the step
+  'record-file': { type: 'string' },
   from: { type: 'string' },
 };
 
@@ -681,6 +889,9 @@ function parsePathParam(value) {
   const [name, format] = value.split(':');
   return [name, format];
 }
+
+/** The step field that holds the JSON record of each registry command (read from --record-file). */
+const RECORD_FIELD = { 'add-epic': 'epic', 'add-feature': 'feature', 'add-story': 'story', 'add-test-case': 'test', 'add-trace': 'trace', 'add-backlog': 'backlog', 'add-route': 'route', 'add-nav-group': 'group' };
 
 /** The step a command line stands for; the same object a `--spec` file lists. */
 export function stepFromOptions(command, values) {
@@ -722,6 +933,10 @@ export function stepFromOptions(command, values) {
     for (const key of ['id', 'module', 'title', 'kind', 'role', 'rule', 'phase', 'platform', 'req', 'source']) copy(key);
     copy('moduleName', 'module-name');
     if (values.fields !== undefined) step.fields = list(values.fields, ';');
+  } else if (Object.hasOwn(RECORD_FIELD, command)) {
+    step[RECORD_FIELD[command]] = readJsonFile(need(values, 'record-file'));
+    copy('platform');
+    copy('module');
   } else if (command === 'register-block') {
     copy('slice');
     copy('from');

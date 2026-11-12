@@ -245,6 +245,8 @@
   "contractPatch.error.codeReserved": "Code {code} belongs to canonical, aliases or excluded of the error registry; it is not added to the registry",
   "contractPatch.error.screenExists": "Screen {id} ({title}) exists with different content; add --replace to overwrite",
   "contractPatch.error.screenIdTaken": "Screen id {id} already belongs to the screen \"{title}\"",
+  "contractPatch.error.recordExists": "{kind} {name} exists with different content; add --replace to overwrite",
+  "contractPatch.error.refUnknown": "{name} refers to {what} {value}, which the registry does not hold (add it first or in the same batch)",
   "contractPatch.error.blockMoved": "Block {slice} is registered at {from}-{to}; it does not move",
   "contractPatch.error.blockOverlap": "Block {slice} {from}-{to} overlaps {other} ({otherFrom}-{otherTo}); the first number after the last block is {free}",
   "contractPatch.error.refMissing": "{name} references {ref} but that schema does not exist (add the schema first or in the same batch)",

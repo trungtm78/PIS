@@ -221,6 +221,8 @@
   "contractPatch.error.codeReserved": "Mã {code} thuộc canonical, aliases hoặc excluded của danh mục mã lỗi; không thêm vào registry",
   "contractPatch.error.screenExists": "Màn hình {id} ({title}) đã có với nội dung khác; thêm --replace để thay",
   "contractPatch.error.screenIdTaken": "Mã màn hình {id} đã là của màn hình \"{title}\"",
+  "contractPatch.error.recordExists": "{kind} {name} đã có với nội dung khác; thêm --replace để ghi đè",
+  "contractPatch.error.refUnknown": "{name} tham chiếu {what} {value} nhưng sổ đăng ký chưa có (thêm trước hoặc trong cùng lô)",
   "contractPatch.error.blockMoved": "Khối {slice} đã đăng ký tại {from}-{to}; không đổi chỗ",
   "contractPatch.error.blockOverlap": "Khối {slice} {from}-{to} chồng lên {other} ({otherFrom}-{otherTo}); số sau khối cuối cùng là {free}",
   "contractPatch.error.refMissing": "{name} tham chiếu {ref} nhưng schema này chưa có (thêm schema trước hoặc trong cùng lô)",

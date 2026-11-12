@@ -10,8 +10,16 @@ import { setTimeout as delay } from 'node:timers/promises';
 import {
   FILES,
   PatchError,
+  addBacklog,
+  addEpic,
   addErrorCode,
+  addFeature,
+  addNavGroup,
   addOperation,
+  addRoute,
+  addStory,
+  addTestCase,
+  addTrace,
   addSchema,
   addScreen,
   applySteps,
@@ -61,6 +69,42 @@ const SCREENS = [
   { id: 'PAY-01', module: 'PAY', moduleName: 'Thanh toán', title: 'Một', kind: 'table', fields: ['A'], role: 'R', rule: 'r', phase: 'P1', platform: 'web', req: 'FR-PAY-01', source: 's' },
   { id: 'PAY-02', module: 'PAY', moduleName: 'Thanh toán', title: 'Hai', kind: 'form', fields: ['A', 'B'], role: 'R', rule: 'r', phase: 'P1', platform: 'web', req: 'FR-PAY-02', source: 's' },
 ];
+const STORY = {
+  id: 'ST-AAA-001',
+  epic: 'EP-AAA',
+  feature: 'FT-AAA-01',
+  module: 'AAA',
+  title: 'T',
+  narrative: 'N',
+  release: 'R1',
+  screens: ['AAA-01'],
+  operations: ['listThings'],
+  tables: [],
+  nfr: [],
+  cxn: [],
+  spikes: [],
+  acceptance: [{ id: 'AC-ST-AAA-001-1', given: 'g', when: 'w', then: 't', test_id: 'T-AAA-01' }],
+  dependencies: [],
+  review: { required: ['authorization'], hours: { min: 1, max: 2 } },
+  effort: { agent_hours: { min: 1, max: 2 }, confidence: 'medium', assumption: 'a' },
+  mobile: 'none',
+  tasks: [{ id: 'TK-AAA-001-1', kind: 'qa', title: 'q', test_ids: ['T-AAA-01'] }],
+};
+const PLAN = { epics: [{ id: 'EP-AAA', module: 'AAA', title: 'E', goal: 'G' }], features: [{ id: 'FT-AAA-01', epic: 'EP-AAA', title: 'F' }], stories: [] };
+const TEST_CASE = { id: 'T-AAA-01', source: 's', type: 'domain', priority: 'P0', setup: 'x', steps: ['a'], expected: 'e', status: 'NOT_RUN', evidence: null, covers: ['FR-AAA-01'] };
+const TESTS = [{ ...TEST_CASE, id: 'T-AAA-00' }];
+const TRACE_ROW = { requirement: 'FR-AAA-01', screen: 'AAA-01', title: 'T', use_cases: [], source: 's', phase: 'P1', design_status: 'specified-m1', implementation_status: 'not-built', verification: 'v', backlog_id: 'BL-AAA-01', test_ids: ['T-AAA-01'] };
+const TRACE = [{ ...TRACE_ROW, requirement: 'FR-AAA-00', backlog_id: 'BL-AAA-00' }];
+const BACKLOG_ROW = { id: 'BL-AAA-01', requirement: 'FR-AAA-01', screen: 'AAA-01', title: 'T', module: 'AAA', platform: 'web', test_ids: ['T-AAA-01'] };
+const BACKLOG = [{ ...BACKLOG_ROW, id: 'BL-AAA-00', requirement: 'FR-AAA-00' }];
+const route = (id, module) => ({ id, title: id, kind: 'table', area: 'investment', module, group: 'G', role: 'workspace', parent: null });
+const NAVIGATION = {
+  coverage: { webRoutes: 3, webCatalog: 3, webModules: 2, mobileRoutes: 1, mobileCatalog: 1, modulesTotal: 2 },
+  modules: { AAA: { name: 'A', groups: [{ title: 'G', description: 'd', ids: [1], primary: [1], parents: {} }] }, BBB: { name: 'B', groups: [] } },
+  contextualShortcuts: { AAA: [[1, 'One']] },
+  webRoutes: [route('AAA-01', 'AAA'), route('BBB-01', 'BBB'), route('AAA-02', 'AAA')],
+  mobileRoutes: [{ id: 'MOB-01', title: 'M', kind: 'list', bottomNavigation: 'home', tabRoot: 'MOB-07' }],
+};
 const BLOCKS = { platform: { from: 3, to: 99, retired: [5] }, slices: [{ slice: 'KERNEL-1', from: 1000, to: 1019 }, { slice: 'GOV-1', from: 1850, to: 1869 }] };
 
 /** A temp root laid out like the repository: LF files, and blocks.json with CRLF as the real one has. */
@@ -74,6 +118,11 @@ function fixture() {
   put(FILES.errorCodes, render(ERROR_CODES));
   put(FILES.screens, render(SCREENS));
   put(FILES.blocks, render(BLOCKS, { eol: '\r\n' }));
+  put(FILES.plan, render(PLAN, { eol: '\r\n' }));
+  put(FILES.tests, render(TESTS, { eol: '\r\n' }));
+  put(FILES.trace, render(TRACE));
+  put(FILES.backlog, render(BACKLOG));
+  put(FILES.navigation, render(NAVIGATION, { eol: '\r\n' }));
   const read = (target) => readFileSync(join(root, FILES[target]), 'utf8');
   const json = (target) => JSON.parse(read(target));
   return { root, read, json, cleanup: () => rmSync(root, { recursive: true, force: true }) };
@@ -103,7 +152,7 @@ test('a file that is not the exact canonical rendering is refused rather than re
 test('checkFiles reports each shared file', () => {
   const f = fixture();
   try {
-    assert.deepEqual(checkFiles(f.root).map((report) => report.ok), [true, true, true, true]);
+    assert.deepEqual(checkFiles(f.root).map((report) => report.ok), [true, true, true, true, true, true, true, true, true]);
     writeFileSync(join(f.root, FILES.blocks), '{"platform": {}}');
     assert.equal(checkFiles(f.root).filter((report) => !report.ok).length, 1);
   } finally {
@@ -640,7 +689,7 @@ test('a spec may be a plain array; errors exit 1 with the message; usage and che
 
     const ok = capture();
     assert.equal(await main(['check', ...base], ok.io), 0);
-    assert.equal(ok.out.length, 4);
+    assert.equal(ok.out.length, 9);
     writeFileSync(join(f.root, FILES.blocks), '{"a":1}');
     const broken = capture();
     assert.equal(await main(['check', ...base], broken.io), 1);
@@ -653,6 +702,142 @@ test('a spec may be a plain array; errors exit 1 with the message; usage and che
 test('stepFromOptions maps flags to the step a spec would carry', () => {
   const step = stepFromOptions('add-error-code', { code: 'A', status: '409', vi: 'v', en: 'e', module: 'M', 'status-basis': 'plan', 'other-statuses': '422', replace: true });
   assert.deepEqual(step, { command: 'add-error-code', replace: true, code: 'A', status: '409', vi: 'v', en: 'e', module: 'M', statusBasis: 'plan', otherStatuses: '422' });
+});
+
+// --- registry records ------------------------------------------------------------------------------------------------
+
+test('an epic, a feature and a story are appended to the plan; the same record again changes nothing; other content needs --replace', () => {
+  const doc = clone(PLAN);
+  const epic = { id: 'EP-BBB', module: 'BBB', title: 'E', goal: 'G' };
+  assert.deepEqual(addEpic(doc, { epic }), { status: 'added', name: 'EP-BBB' });
+  assert.deepEqual(doc.epics.map((entry) => entry.id), ['EP-AAA', 'EP-BBB']);
+  assert.equal(addEpic(doc, { epic }).status, 'unchanged');
+  assert.throws(() => addEpic(doc, { epic: { ...epic, title: 'Other' } }), rejects('recordExists'));
+  assert.equal(addEpic(doc, { epic: { ...epic, title: 'Other' }, replace: true }).status, 'replaced');
+  assert.equal(doc.epics.at(-1).title, 'Other');
+  assert.throws(() => addEpic(doc, { epic: { ...epic, id: 'bad' } }), rejects('invalidValue'));
+  assert.throws(() => addEpic(doc, { epic: { id: 'EP-CCC', module: 'C', title: 'T' } }), rejects('missingOption'));
+  assert.throws(() => addEpic(doc, { epic: 'x' }), rejects('invalidValue'));
+  assert.throws(() => addEpic(doc, {}), rejects('missingOption'));
+
+  const feature = { id: 'FT-BBB-01', epic: 'EP-BBB', title: 'F' };
+  assert.equal(addFeature(doc, { feature }).status, 'added');
+  assert.throws(() => addFeature(doc, { feature: { ...feature, id: 'FT-BBB-02', epic: 'EP-NONE' } }), rejects('refUnknown'));
+  assert.throws(() => addFeature(doc, { feature: { ...feature, id: 'x' } }), rejects('invalidValue'));
+
+  assert.equal(addStory(doc, { story: STORY }).status, 'added');
+  assert.equal(addStory(doc, { story: STORY }).status, 'unchanged');
+  assert.deepEqual(doc.stories.map((entry) => entry.id), ['ST-AAA-001']);
+  assert.throws(() => addStory(doc, { story: { ...STORY, id: 'ST-AAA-002', epic: 'EP-NONE' } }), rejects('refUnknown'));
+  assert.throws(() => addStory(doc, { story: { ...STORY, id: 'ST-AAA-002', feature: 'FT-NONE-01' } }), rejects('refUnknown'));
+  assert.throws(() => addStory(doc, { story: { ...STORY, id: 'ST-AAA-002', feature: 'FT-BBB-01' } }), rejects('refUnknown'));
+  assert.throws(() => addStory(doc, { story: { ...STORY, id: 'ST-AAA-002', acceptance: 'x' } }), rejects('invalidValue'));
+  assert.throws(() => addStory(doc, { story: { ...STORY, id: 'bad' } }), rejects('invalidValue'));
+  assert.throws(() => addStory({}, { story: STORY }), rejects('notJson'));
+});
+
+test('a test case, a traceability row and a backlog row are appended keyed by their id; the shape is checked', () => {
+  const tests = clone(TESTS);
+  assert.deepEqual(addTestCase(tests, { test: TEST_CASE }), { status: 'added', name: 'T-AAA-01' });
+  assert.equal(addTestCase(tests, { test: TEST_CASE }).status, 'unchanged');
+  assert.throws(() => addTestCase(tests, { test: { ...TEST_CASE, expected: 'other' } }), rejects('recordExists'));
+  assert.throws(() => addTestCase(tests, { test: { ...TEST_CASE, steps: [] } }), rejects('invalidValue'));
+  assert.throws(() => addTestCase(tests, { test: { ...TEST_CASE, expected: '' } }), rejects('missingOption'));
+  assert.throws(() => addTestCase({}, { test: TEST_CASE }), rejects('notJson'));
+
+  const trace = clone(TRACE);
+  assert.equal(addTrace(trace, { trace: TRACE_ROW }).status, 'added');
+  assert.equal(addTrace(trace, { trace: TRACE_ROW }).status, 'unchanged');
+  assert.equal(addTrace(trace, { trace: { ...TRACE_ROW, title: 'New' }, replace: true }).status, 'replaced');
+  assert.deepEqual(trace.map((row) => row.requirement), ['FR-AAA-00', 'FR-AAA-01']);
+  assert.throws(() => addTrace(trace, { trace: { ...TRACE_ROW, test_ids: 'x' } }), rejects('invalidValue'));
+
+  const backlog = clone(BACKLOG);
+  assert.equal(addBacklog(backlog, { backlog: BACKLOG_ROW }).status, 'added');
+  assert.throws(() => addBacklog(backlog, { backlog: { ...BACKLOG_ROW, title: 'Other' } }), rejects('recordExists'));
+  assert.throws(() => addBacklog(backlog, { backlog: { ...BACKLOG_ROW, test_ids: null } }), rejects('missingOption'));
+  assert.throws(() => addBacklog(backlog, { backlog: { ...BACKLOG_ROW, test_ids: 'x' } }), rejects('invalidValue'));
+});
+
+test('a route goes after the last route of its module, the counters follow, a second add changes nothing', () => {
+  const doc = clone(NAVIGATION);
+  assert.equal(addRoute(doc, { platform: 'web', route: route('AAA-03', 'AAA') }).status, 'added');
+  assert.deepEqual(doc.webRoutes.map((entry) => entry.id), ['AAA-01', 'BBB-01', 'AAA-02', 'AAA-03']);
+  assert.equal(addRoute(doc, { platform: 'web', route: route('CCC-01', 'CCC') }).status, 'added');
+  assert.equal(doc.webRoutes.at(-1).id, 'CCC-01');
+  assert.deepEqual(doc.coverage, { webRoutes: 5, webCatalog: 5, webModules: 3, mobileRoutes: 1, mobileCatalog: 1, modulesTotal: 2 });
+  assert.equal(addRoute(doc, { platform: 'web', route: route('CCC-01', 'CCC') }).status, 'unchanged');
+  assert.throws(() => addRoute(doc, { platform: 'web', route: { ...route('CCC-01', 'CCC'), title: 'Other' } }), rejects('recordExists'));
+  assert.equal(addRoute(doc, { platform: 'web', route: { ...route('CCC-01', 'CCC'), title: 'Other' }, replace: true }).status, 'replaced');
+  const mobile = { id: 'MOB-02', title: 'M2', kind: 'list', bottomNavigation: 'home', tabRoot: 'MOB-07' };
+  assert.equal(addRoute(doc, { platform: 'mobile', route: mobile }).status, 'added');
+  assert.equal(doc.coverage.mobileRoutes, 2);
+  assert.throws(() => addRoute(doc, { platform: 'tablet', route: mobile }), rejects('invalidValue'));
+  assert.throws(() => addRoute(doc, { platform: 'web', route: { id: 'X' } }), rejects('missingOption'));
+  assert.throws(() => addRoute({}, { platform: 'web', route: route('A-01', 'A') }), rejects('notJson'));
+  const bare = { webRoutes: [], mobileRoutes: [] };
+  assert.equal(addRoute(bare, { platform: 'web', route: { id: 'A-01', title: 'A', kind: 'table' } }).status, 'added');
+  assert.deepEqual(bare.webRoutes.map((entry) => entry.id), ['A-01']);
+  assert.equal(bare.coverage, undefined);
+});
+
+test('a navigation group is created, merged into by title, and its shortcuts are added once', () => {
+  const doc = clone(NAVIGATION);
+  const group = { title: 'New', description: 'Desc', ids: [3, 4], primary: [3], parents: { 4: 3 } };
+  assert.equal(addNavGroup(doc, { module: 'AAA', group, shortcuts: [[3, 'Three']] }).status, 'added');
+  assert.deepEqual(doc.modules.AAA.groups.at(-1), group);
+  assert.deepEqual(doc.contextualShortcuts.AAA, [[1, 'One'], [3, 'Three']]);
+  assert.equal(addNavGroup(doc, { module: 'AAA', group, shortcuts: [[3, 'Three']] }).status, 'unchanged');
+  const merged = addNavGroup(doc, { module: 'AAA', group: { title: 'G', ids: [1, 2], parents: { 2: 1 } } });
+  assert.equal(merged.status, 'replaced');
+  assert.deepEqual(doc.modules.AAA.groups[0], { title: 'G', description: 'd', ids: [1, 2], primary: [1, 2], parents: { 2: 1 } });
+  const plain = { modules: { AAA: { groups: [] } } };
+  addNavGroup(plain, { module: 'AAA', group, shortcuts: [[3, 'Three']] });
+  assert.deepEqual(plain.contextualShortcuts.AAA, [[3, 'Three']]);
+  assert.throws(() => addNavGroup(doc, { module: 'ZZZ', group }), rejects('refUnknown'));
+  assert.throws(() => addNavGroup(doc, { module: 'AAA', group: { title: 'Fresh', ids: [9] } }), rejects('missingOption'));
+});
+
+test('the registry commands run from a spec and from --record-file, and a second run writes nothing', async () => {
+  const f = fixture();
+  try {
+    const base = ['--root', f.root, '--locale', 'en'];
+    const steps = [
+      { command: 'add-story', story: STORY },
+      { command: 'add-test-case', test: TEST_CASE },
+      { command: 'add-trace', trace: TRACE_ROW },
+      { command: 'add-backlog', backlog: BACKLOG_ROW },
+      { command: 'add-route', platform: 'web', route: route('AAA-03', 'AAA') },
+      { command: 'add-nav-group', module: 'AAA', group: { title: 'G', ids: [3], parents: { 3: 1 } } },
+    ];
+    const spec = specFile(f, steps);
+    const first = capture();
+    assert.equal(await main(['apply', '--spec', spec, ...base], first.io), 0);
+    assert.equal(first.out.filter((line) => line.startsWith('Added')).length, 5);
+    assert.equal(first.out.filter((line) => line.startsWith('Replaced')).length, 1, 'the group of the module is merged into');
+    assert.equal(f.json('plan').stories[0].id, 'ST-AAA-001');
+    assert.equal(f.json('tests').at(-1).id, 'T-AAA-01');
+    assert.equal(f.json('navigation').webRoutes[3].id, 'AAA-03');
+    assert.equal(f.read('plan').includes('\r\n'), true, 'the CRLF of the plan survives');
+    const before = ['plan', 'tests', 'trace', 'backlog', 'navigation'].map((target) => f.read(target));
+    const again = capture();
+    assert.equal(await main(['apply', '--spec', spec, ...base], again.io), 0);
+    assert.deepEqual(['plan', 'tests', 'trace', 'backlog', 'navigation'].map((target) => f.read(target)), before);
+    assert.match(again.out.join('\n'), /Wrote 0 file/);
+
+    const recordFile = join(f.root, 'record.json');
+    writeFileSync(recordFile, JSON.stringify({ ...TEST_CASE, id: 'T-AAA-02' }));
+    assert.equal(await main(['add-test-case', '--record-file', recordFile, ...base], capture().io), 0);
+    assert.equal(f.json('tests').at(-1).id, 'T-AAA-02');
+    writeFileSync(recordFile, JSON.stringify(route('AAA-09', 'AAA')));
+    assert.equal(await main(['add-route', '--platform', 'web', '--record-file', recordFile, ...base], capture().io), 0);
+    writeFileSync(recordFile, JSON.stringify({ title: 'Cli', description: 'd', ids: [9] }));
+    assert.equal(await main(['add-nav-group', '--module', 'AAA', '--record-file', recordFile, ...base], capture().io), 0);
+    assert.equal(await main(['add-route', '--platform', 'web', ...base], capture().io), 1);
+    assert.deepEqual(stepFromOptions('add-epic', { 'record-file': recordFile }).epic.title, 'Cli');
+  } finally {
+    f.cleanup();
+  }
 });
 
 // --- the real files --------------------------------------------------------------------------------------------------
@@ -680,11 +865,21 @@ test('on temp copies of the real contract files: canonical, patched and idempote
       { command: 'add-error-code', code: 'CONTRACT_PATCH_PROBE', status: 422, en: 'Probe', vi: 'Thăm dò', module: 'KERNEL' },
       { command: 'add-screen', module: 'PAY', title: 'Màn hình thăm dò', kind: 'table', fields: ['A'], role: 'R', rule: 'r', phase: 'P1', source: 's' },
       { command: 'register-block', slice: 'PROBE-1', from: 9000 },
+      { command: 'add-epic', epic: { id: 'EP-PROBE', module: 'PROBE', title: 'Probe', goal: 'Probe goal' } },
+      { command: 'add-feature', feature: { id: 'FT-PROBE-01', epic: 'EP-PROBE', title: 'Probe feature' } },
+      { command: 'add-story', story: { ...STORY, id: 'ST-PROBE-001', epic: 'EP-PROBE', feature: 'FT-PROBE-01', module: 'PROBE' } },
+      { command: 'add-test-case', test: { ...TEST_CASE, id: 'T-PROBE-01' } },
+      { command: 'add-trace', trace: { ...TRACE_ROW, requirement: 'FR-PROBE-01', backlog_id: 'BL-PROBE-01' } },
+      { command: 'add-backlog', backlog: { ...BACKLOG_ROW, id: 'BL-PROBE-01', requirement: 'FR-PROBE-01' } },
+      { command: 'add-route', platform: 'web', route: route('PROBE-01', 'PROBE') },
+      { command: 'add-nav-group', module: 'PWF', group: { title: 'Probe group', description: 'Probe', ids: [90] } },
     ];
     const first = await applySteps(steps, { root });
-    assert.deepEqual(first.results.map((r) => r.status), ['added', 'added', 'added', 'added', 'added']);
+    assert.deepEqual(first.results.map((r) => r.status), steps.map(() => 'added'));
     // The diff of an addition to a real file is the addition (a closing line gains a comma), not a rewrite of what follows.
-    for (const diff of first.diffs) assert.ok(diff.split(/\r?\n/).filter((line) => line.startsWith('-') && !line.startsWith('---')).length <= 3, diff.slice(0, 600));
+    // (The navigation file also gets the counters of its coverage block brought in line with its routes.)
+    const removed = (diff) => diff.split(/\r?\n/).filter((line) => line.startsWith('-') && !line.startsWith('---')).length;
+    for (const diff of first.diffs) assert.ok(removed(diff) <= (diff.includes('navigation_architecture') ? 9 : 3), diff.slice(0, 600));
     const copies = Object.values(FILES).map((file) => readFileSync(join(root, file), 'utf8'));
     for (const text of copies) parseDocument(text);
     const second = await applySteps(steps, { root });
