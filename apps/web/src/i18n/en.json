@@ -38459,5 +38459,20 @@
   "prj.wsTab.plan.pkgStatus.awarded": "Awarded",
   "prj.wsTab.plan.pkgStatus.noBid": "No acceptable bid",
   "prj.wsTab.plan.pkgStatus.cancelled": "Cancelled",
-  "dis.default.option": "{project} · {period} · rev {revision} · {status}"
+  "dis.default.option": "{project} · {period} · rev {revision} · {status}",
+  "shell.nav.entRpt.label": "Reports to the Group",
+  "shell.nav.entRpt.catalogue.label": "Report form catalogue",
+  "shell.nav.entRpt.drafts.label": "Report drafts",
+  "shell.nav.entRpt.released.label": "Released reports",
+  "shell.nav.entRpt.compare.label": "Cross-comparison",
+  "shell.nav.entHpm.label": "HPM push and EBS reconciliation",
+  "shell.nav.entHpm.push.label": "Push report to HPM",
+  "shell.nav.entHpm.correct.label": "Correct a received period",
+  "shell.nav.entEbs.connection.label": "Oracle EBS connection",
+  "shell.nav.entEbs.reconcile.label": "Reconcile EBS by project code",
+  "shell.nav.entDir.label": "Directions and meetings",
+  "shell.nav.entDir.meetings.label": "Meetings",
+  "shell.nav.entDir.tracking.label": "Direction tracking board",
+  "shell.nav.entDir.period.label": "Directions of the reporting period",
+  "bi.board.tile.elsewhere": "A metric of another dataset: the disbursement snapshot of this board does not measure it. Open the workbench to read it on its own dataset."
 }

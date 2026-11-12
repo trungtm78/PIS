@@ -38459,5 +38459,20 @@
   "prj.wsTab.plan.pkgStatus.awarded": "Đã chọn nhà thầu",
   "prj.wsTab.plan.pkgStatus.noBid": "Không có hồ sơ đạt",
   "prj.wsTab.plan.pkgStatus.cancelled": "Đã hủy",
-  "dis.default.option": "{project} · {period} · lần {revision} · {status}"
+  "dis.default.option": "{project} · {period} · lần {revision} · {status}",
+  "shell.nav.entRpt.label": "Báo cáo gửi Tập đoàn",
+  "shell.nav.entRpt.catalogue.label": "Danh mục biểu mẫu",
+  "shell.nav.entRpt.drafts.label": "Bản nháp báo cáo",
+  "shell.nav.entRpt.released.label": "Bản đã phát hành",
+  "shell.nav.entRpt.compare.label": "So sánh chéo",
+  "shell.nav.entHpm.label": "Đẩy HPM và đối chiếu EBS",
+  "shell.nav.entHpm.push.label": "Đẩy báo cáo lên HPM",
+  "shell.nav.entHpm.correct.label": "Đính chính kỳ đã nhận",
+  "shell.nav.entEbs.connection.label": "Kết nối Oracle EBS",
+  "shell.nav.entEbs.reconcile.label": "Đối chiếu EBS theo mã dự án",
+  "shell.nav.entDir.label": "Chỉ đạo và giao ban",
+  "shell.nav.entDir.meetings.label": "Các cuộc giao ban",
+  "shell.nav.entDir.tracking.label": "Bảng theo dõi chỉ đạo",
+  "shell.nav.entDir.period.label": "Chỉ đạo của kỳ báo cáo",
+  "bi.board.tile.elsewhere": "Chỉ tiêu của bộ dữ liệu khác: ảnh chụp giải ngân của bảng này không đo được. Mở bàn phân tích để đọc theo bộ dữ liệu của chỉ tiêu."
 }
