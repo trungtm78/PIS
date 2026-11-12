@@ -204,7 +204,7 @@ export function factsInPage(minTextPx: number): ScreenFacts {
   const all = (scope: ParentNode, selector: string): Element[] => Array.prototype.slice.call(scope.querySelectorAll(selector)) as Element[];
   const root: Element = document.querySelector('[data-screen-id]') ?? document.querySelector('main') ?? document.body;
   const cards = all(document, '.statecard').filter(visible);
-  const outsideShell = 'nav, [role="navigation"], [role="tablist"], .sidebar, .workspace-topbar, .topbar, header, [role="search"], .ui-filter, [role="dialog"], .statecard';
+  const outsideShell = 'nav, [role="navigation"], [role="tablist"], .sidebar, .workspace-topbar, .topbar, [role="search"], .ui-filter, [role="dialog"], .statecard';
   const writeActions = all(root, 'button, a[href], input[type="submit"], [role="button"]')
     .filter((element) => visible(element) && !element.closest(outsideShell))
     .filter((element) => !(element as HTMLButtonElement).disabled && element.getAttribute('aria-disabled') !== 'true')
@@ -243,7 +243,7 @@ export function factsInPage(minTextPx: number): ScreenFacts {
     stateCards: cards.map(textOf),
     hasContent: cards.length === 0,
     dataRows: all(root, 'table tbody tr').some((row) => visible(row) && row.querySelectorAll('td').length >= 2) || all(root, 'dl dd').some(visible),
-    formFields: all(root, 'input:not([type="hidden"]), select, textarea').some((field) => visible(field) && !field.closest('.ui-filter, [role="search"], nav, .sidebar, header, .workspace-topbar')),
+    formFields: all(root, 'input:not([type="hidden"]), select, textarea').some((field) => visible(field) && !field.closest('.ui-filter, [role="search"], nav, .sidebar, .workspace-topbar')),
     writeActions,
     screenText,
     tokens: {
