@@ -10,6 +10,7 @@ export const enterpriseScreens: Readonly<Record<string, ScreenLoader>> = {
   'EBS-01': () => import('./screens/ebs/ConnectionScreen'),
   'EBS-02': () => import('./screens/ebs/DifferencesScreen'),
   'RML-01': () => import('./screens/mail/MailSchedulesScreen'),
+  'IPF-01': () => import('./screens/ipf/ProfileScreen'),
   'ORG-01': () => import('./screens/org/OrgPackScreen'),
   'EQP-01': () => import('./screens/eqp/ListScreen'),
   'EQP-02': () => import('./screens/eqp/DetailScreen'),
