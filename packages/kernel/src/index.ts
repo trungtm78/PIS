@@ -2333,6 +2333,8 @@ export {
   OPEN_API_SCOPES,
   OPEN_API_SCOPE_CODES,
   OPEN_ACCESS_OUTCOMES,
+  ENTERPRISE_BI_DATASETS,
+  ENTERPRISE_BI_DATASET_DEFINITIONS,
   OPEN_DATASETS,
   OPEN_DATASET_DEFINITIONS,
   PROJECT_CODE_EXTERNAL_TYPE,
@@ -2341,6 +2343,8 @@ export {
   assertDatasetOpen,
   assertExternalCodeFits,
   assertOpenScope,
+  biDatasetFacts,
+  biDatasetsOfEdition,
   biLoginName,
   biReaderMove,
   biReaderRequestOf,
@@ -2352,6 +2356,7 @@ export {
   graceEndsAt,
   graceHoursOf,
   isBiLoginName,
+  isBiDatasetOfEdition,
   isBiReaderMove,
   isMachineAccountMove,
   isOpenApiScope,
@@ -2369,12 +2374,16 @@ export {
   sourceSystemRequestOf,
 } from './open-api.ts';
 export type {
+  BiDatasetCode,
   BiReaderMove,
   BiReaderRequest,
   BiReaderStatus,
+  BiView,
   DataProductCertification,
   DatasetGateInput,
   DatasetGateReason,
+  EnterpriseBiDatasetCode,
+  EnterpriseBiDatasetDefinition,
   MachineAccountMove,
   MachineAccountRequest,
   MachineAccountStatus,
@@ -3270,6 +3279,8 @@ export { BASIS_OF, CALENDAR_ITEM_KINDS, CALENDAR_ESCALATION_EVENT, CALENDAR_REMI
 export type { CalendarItemKind, DueReminder, ScheduleReminderKind, ScheduleBasis, ScheduleCode, SchedulePeriod, SchedulePolicy, ScheduleStep, ScheduleStepKind, StepDeadline, ScheduleStepState } from './reporting-schedule.ts';
 export { buildBoard, chainStepFact } from './reporting-board.ts';
 export type { ChainStepCount, PeriodStepFacts, ScheduleBoardResult, ScheduleBoardStep, ScheduleBoardUnit, UnitPeriodFacts } from './reporting-board.ts';
+export { LOCK_HOLDS, periodLockVerdict } from './reporting-lock-gate.ts';
+export type { LockHold, LockProgress, LockVerdict } from './reporting-lock-gate.ts';
 export {
   AUDIT_DETAIL_DEFAULT_BYTES,
   AUDIT_DETAIL_MAX_BYTES,

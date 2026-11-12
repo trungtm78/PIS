@@ -1,0 +1,10 @@
+[Unit]
+Description=MACHVON daily shipping of the BI port audit log
+
+[Timer]
+OnCalendar=*-*-* 01:10:00
+Persistent=true
+Unit=machvon-bi-audit-ship.service
+
+[Install]
+WantedBy=timers.target

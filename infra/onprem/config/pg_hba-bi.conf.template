@@ -1,0 +1,15 @@
+# pg_hba.conf of the database while the OPT-IN read-only BI port is on (compose.bi.yaml). Rendered by config/bi-render.sh: the marker line below is replaced by one `hostssl` line per allowed
+# address (BI_ALLOWED_CIDRS). Rules are read top to bottom and the first match decides. Checked by `npm run infra:check` (scripts/infra-bi-port.mjs).
+#
+#   1. the local socket (health check, install.sh, pgBackRest) is trusted as in the image;
+#   2. a BI login (member of the group role machvon_bi_reader) is accepted only over TLS from an allowed address, only into the application database, only with a SCRAM password;
+#   3. a BI login from anywhere else, or without TLS, is rejected here and never reaches rule 4;
+#   4. every other role (the application, the control plane, the outbox relay, Keycloak, the owner) is accepted only from the networks of the compose set (samenet), never from outside;
+#   5. everything else is rejected.
+#
+# TYPE      DATABASE   USER                 ADDRESS           METHOD
+local       all        all                                    trust
+@BI_HOSTSSL_LINES@
+host        all        +machvon_bi_reader   all               reject
+host        all        all                  samenet           scram-sha-256
+host        all        all                  all               reject

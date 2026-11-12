@@ -1,0 +1,104 @@
+# OPT-IN read-only port of the database for BI tools (Power BI gateway, Data Lakehouse ingest): INT-2, TH.02. Closed by default: this file is added only by `install.sh --with-bi`
+# (or by hand: `docker compose -f compose.yaml -f compose.bi.yaml ...`), never by `docker compose up` of compose.yaml alone. docs/runbooks/infra/bi-port.md says how and why.
+#
+# Rules this file keeps (checked by `npm run infra:check`, scripts/infra-bi-port.mjs):
+#   - the port is published on ONE address that the operator names (BI_LISTEN_ADDRESS, required, no default, never 0.0.0.0 or ::) and only the database publishes anything;
+#   - only TLS 1.2 or newer, only SCRAM-SHA-256, and a pg_hba.conf rendered from BI_ALLOWED_CIDRS (config/bi-render.sh): the BI logins of the group role machvon_bi_reader are accepted over
+#     `hostssl` from the allowed addresses and from nowhere else, every other role is accepted from the compose networks only, and nothing is `trust` but the local socket;
+#   - the certificate and the key of the port are secret files (secrets-bi.json), copied to a tmpfs owned by postgres at start (docker/bi-tls-prepare.sh);
+#   - the audit trail is pgaudit in object mode on the audit role machvon_bi_auditor (the views of schema machvon_bi are granted to it by config/bi-audit-setup.sql), the connections and
+#     disconnections are logged, and the server log goes to a daily file that config/bi-audit-ship.sh ships off the host (and removes after the retention only once shipped);
+#   - the db command repeats every setting of compose.yaml (a compose override replaces a command list, it does not extend it): a drift test fails when the two differ.
+#
+# What it does NOT do: it does not open the host firewall (config/bi-firewall.sh does, and install.sh refuses to start the port without that chain), it does not make a login (INT-04 does,
+# through machvon_bi.provision_reader: one login per tenant and per application, with its connection limit and statement timeout) and it does not choose the network path (PX-11).
+services:
+  db:
+    # compose merges `ports`, `volumes`, `secrets` and `tmpfs` with those of compose.yaml and replaces `entrypoint` and `command`.
+    entrypoint: ["/usr/local/bin/secret-env", "/usr/local/bin/bi-tls-prepare", "docker-entrypoint.sh"]
+    ports:
+      - "${BI_LISTEN_ADDRESS:?set BI_LISTEN_ADDRESS to the one address the BI port listens on (never 0.0.0.0)}:${BI_PORT}:5432"
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_timeout=60s
+      - -c
+      - archive_command=pgbackrest --stanza=machvon archive-push %p
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - shared_buffers=${DB_SHARED_BUFFERS}
+      - -c
+      - max_connections=${DB_MAX_CONNECTIONS}
+      - -c
+      - shared_preload_libraries=pgaudit
+      # Authentication: the file rendered from BI_ALLOWED_CIDRS, SCRAM only, a short time to authenticate.
+      - -c
+      - hba_file=/etc/machvon-bi/pg_hba.conf
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - authentication_timeout=10s
+      # TLS 1.2 or newer with ECDHE suites; the certificate and the key are copied by bi-tls-prepare.
+      - -c
+      - ssl=on
+      - -c
+      - ssl_cert_file=/run/machvon-bi-tls/server.crt
+      - -c
+      - ssl_key_file=/run/machvon-bi-tls/server.key
+      - -c
+      - ssl_min_protocol_version=TLSv1.2
+      - -c
+      - ssl_prefer_server_ciphers=on
+      - -c
+      - ssl_ciphers=ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256
+      # Audit: object mode on the audit role (only reads of the BI views are logged, not every query of the application), every connection and disconnection, and a daily file.
+      - -c
+      - pgaudit.role=machvon_bi_auditor
+      - -c
+      - pgaudit.log_catalog=off
+      - -c
+      - pgaudit.log_parameter=off
+      - -c
+      - log_connections=on
+      - -c
+      - log_disconnections=on
+      - -c
+      - logging_collector=on
+      - -c
+      - log_destination=stderr
+      - -c
+      - log_directory=/var/log/machvon-audit
+      - -c
+      - log_filename=db-%Y-%m-%d.log
+      - -c
+      - log_rotation_age=1d
+      - -c
+      - log_rotation_size=0
+      - -c
+      - log_file_mode=0640
+      - -c
+      - "log_line_prefix=%m [%p] %u@%d %h|"
+    volumes:
+      - "${BI_CONFIG_DIR:?set BI_CONFIG_DIR to the directory bi-render.sh writes pg_hba.conf to}/pg_hba.conf:/etc/machvon-bi/pg_hba.conf:ro"
+      - dbaudit:/var/log/machvon-audit
+    tmpfs:
+      - /run/machvon-bi-tls:size=1m,mode=0700
+    secrets:
+      - db_tls_cert
+      - db_tls_key
+
+volumes:
+  dbaudit: {}
+
+secrets:
+  db_tls_cert:
+    file: ${MACHVON_SECRETS_DIR}/db_tls_cert
+  db_tls_key:
+    file: ${MACHVON_SECRETS_DIR}/db_tls_key

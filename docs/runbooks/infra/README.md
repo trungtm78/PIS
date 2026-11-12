@@ -19,7 +19,7 @@ Nothing in `infra/` provisions anything: it states what a provisioner must creat
 
 Environment guide: [environments.md](environments.md). Rotation: [secrets-rotation.md](secrets-rotation.md).
 Releases: [rollback.md](rollback.md).
-On-prem: [onprem-install.md](onprem-install.md), [onprem-upgrade-rollback.md](onprem-upgrade-rollback.md). Backups: [backup-immutable.md](backup-immutable.md), [restore-drill.md](restore-drill.md).
+On-prem: [onprem-install.md](onprem-install.md), [onprem-upgrade-rollback.md](onprem-upgrade-rollback.md), the opt-in read-only BI port of the database [bi-port.md](bi-port.md). Backups: [backup-immutable.md](backup-immutable.md), [restore-drill.md](restore-drill.md).
 Security: [tls-headers.md](tls-headers.md), [security-scanning.md](security-scanning.md), `docs/security/pentest-readiness.md`, `docs/security/identity-test-plan.md`.
 
 ## The entry gate (ST-KERNEL-015)

@@ -337,3 +337,11 @@ test('the paths named by the runbooks and the security documents exist', () => {
   }
   assert.deepEqual(missing, []);
 });
+
+test('BI port (INT-2): the opt-in read-only database port is judged with the other artefacts, and a port open on every address is a finding', () => {
+  assert.ok(ARTEFACT_FINDING_CODES.includes('BI_PORT'));
+  const open = scratch((s) => s.text('infra/onprem/compose/compose.bi.yaml', (t) => t.replace(/- "\$\{BI_LISTEN_ADDRESS:\?[^"]*"/, '- "0.0.0.0:${BI_PORT}:5432"')));
+  found(open, 'BI_PORT', /exactly one port/);
+  found(scratch((s) => s.remove('infra/onprem/config/bi-firewall.sh')), 'ARTEFACT_MISSING', /bi-firewall\.sh/);
+  found(scratch((s) => s.remove('docs/runbooks/infra/bi-port.md')), 'ARTEFACT_MISSING', /bi-port\.md/);
+});

@@ -35,6 +35,10 @@ done
 
 COMPOSE="docker compose --env-file ${ENV_FILE} -f ${PREVIOUS}/infra/onprem/compose/compose.yaml"
 export MACHVON_VERSION="${VERSION}"
+# The OPT-IN BI port stays as the operator left it: with MACHVON_BI=on the same override is used, so the database is not recreated without its port (and never with one it did not have).
+if [ "$(sed -n 's/^MACHVON_BI=//p' "${ENV_FILE}" | tail -n 1 | tr -d '\r')" = "on" ] && [ -f "${PREVIOUS}/infra/onprem/compose/compose.bi.yaml" ]; then
+  COMPOSE="${COMPOSE} -f ${PREVIOUS}/infra/onprem/compose/compose.bi.yaml"
+fi
 
 say "starting release ${VERSION} (the database is left as it is)"
 ${COMPOSE} up --detach --wait --wait-timeout 300 api workers web keycloak

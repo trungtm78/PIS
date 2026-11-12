@@ -91,5 +91,6 @@
   "infra.MALWARE_SCAN": "the malware scan is not wired as required (clamav service on the app network, the API and workers told to use it): {detail}",
   "infra.EGRESS_RULES": "the egress firewall script does not end in a drop of everything not allowlisted: {detail}",
   "infra.RANSOMWARE_CATALOGUE": "the ransomware scenario catalogue is incomplete or cites evidence that does not exist: {detail}",
-  "infra.REALM_IMPORT": "the Keycloak realm file breaks an import rule: {detail}"
+  "infra.REALM_IMPORT": "the Keycloak realm file breaks an import rule: {detail}",
+  "infra.BI_PORT": "the opt-in read-only database port for BI tools (closed by default) breaks a rule: {detail}"
 }

@@ -91,5 +91,6 @@
   "infra.MALWARE_SCAN": "quét mã độc chưa được nối đúng yêu cầu (dịch vụ clamav trên mạng app, API và workers dùng nó): {detail}",
   "infra.EGRESS_RULES": "script tường lửa đầu ra không kết thúc bằng việc chặn mọi đích ngoài danh sách cho phép: {detail}",
   "infra.RANSOMWARE_CATALOGUE": "danh mục kịch bản ransomware chưa đủ hoặc dẫn chứng không tồn tại: {detail}",
-  "infra.REALM_IMPORT": "tệp realm Keycloak vi phạm quy tắc nhập: {detail}"
+  "infra.REALM_IMPORT": "tệp realm Keycloak vi phạm quy tắc nhập: {detail}",
+  "infra.BI_PORT": "cổng chỉ-đọc của cơ sở dữ liệu cho công cụ BI (tùy chọn, mặc định đóng) vi phạm một quy tắc: {detail}"
 }

@@ -14,12 +14,12 @@ const RESTRICTIVE_POLICY = 'tenant_boundary';
 // The design adds a second restrictive guard on a few project-scoped tables (owner unit scope).
 const SCOPE_POLICY = 'scope_units_guard';
 const SCOPE_PREDICATE_MARKER = "current_setting('app.scope_units'::text, true)";
-// INT-1 (V2202, eng-review R13): the BI logins read four snapshot tables through certified views. Each of those tables carries ONE more restrictive policy for the group role of the BI logins, bound to the tenant
+// INT-1 (V2202, eng-review R13): the BI logins read four snapshot tables through certified views (INT-2, V2960, adds the long-format figures of the enterprise snapshot, the fifth). Each of those tables carries ONE more restrictive policy for the group role of the BI logins, bound to the tenant
 // of the login by its own name (machvon_bi.tenant_of(current_user)), so a login that changes app.tenant_id reads nothing. No other table may carry it, and no other table may be readable by the group role.
 export const BI_ROLE = 'machvon_bi_reader';
 const BI_POLICY = 'bi_reader_boundary';
 const BI_PREDICATE_MARKER = 'machvon_bi.tenant_of(';
-export const BI_TABLES: readonly string[] = ['contract_fact_snapshot', 'contract_fact_snapshot_line', 'period_snapshot', 'period_snapshot_line'];
+export const BI_TABLES: readonly string[] = ['contract_fact_snapshot', 'contract_fact_snapshot_line', 'period_snapshot', 'period_snapshot_figure', 'period_snapshot_line'];
 
 /** The tenant predicate exactly as PostgreSQL prints it (pg_get_expr), for USING and WITH CHECK alike. */
 export const TENANT_PREDICATE = "(tenant_id = (NULLIF(current_setting('app.tenant_id'::text, true), ''::text))::uuid)";

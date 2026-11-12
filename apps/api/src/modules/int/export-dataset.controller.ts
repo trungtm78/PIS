@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Post } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { ExportDatasetStore, TenantDatabase } from '@machvon/db';
-import { DomainError, asUuid, egpReasonOf, isOpenDataset } from '@machvon/kernel';
+import { DomainError, asUuid, biDatasetsOfEdition, egpReasonOf, isBiDatasetOfEdition, resolveEdition } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -30,13 +30,14 @@ export class ExportDatasetController {
   @Command({ operation: 'setExportDataset', versioned: true })
   async set(@Scope() scope: CommandScope, @CurrentAccess() access: EffectiveAccess, @Body() body: Schemas['ExportDatasetSet']): Promise<CommandResult> {
     if (!holdsOnWholeTenant(access, PERMISSIONS.setExportDataset)) throw new DomainError('SCOPE_DENIED', 403);
-    if (!isOpenDataset(body.dataset_code)) throw new DomainError('VALIDATION_FAILED', 422, 'dataset_code');
+    const edition = resolveEdition(process.env);
+    if (!isBiDatasetOfEdition(body.dataset_code, edition)) throw new DomainError('VALIDATION_FAILED', 422, 'dataset_code');
     if (typeof body.enabled !== 'boolean') throw new DomainError('VALIDATION_FAILED', 422, 'enabled');
     const productId = body.product_id === undefined ? null : (asUuid(body.product_id) ?? null);
     if (body.product_id !== undefined && productId === null) throw new DomainError('VALIDATION_FAILED', 422, 'product_id');
     const reason = egpReasonOf(body.reason);
     const now = new Date();
-    const done = await this.datasets.set(scope.tx, body.dataset_code, scope.expectedVersion ?? 0, { enabled: body.enabled, productId, reason }, scope.tenant.membershipId, now);
+    const done = await this.datasets.set(scope.tx, body.dataset_code, scope.expectedVersion ?? 0, { enabled: body.enabled, productId, reason }, scope.tenant.membershipId, now, biDatasetsOfEdition(edition));
     const id = done.row.id as string;
     await scope.audit({
       action: 'int.export_dataset_set',
@@ -72,7 +73,7 @@ export class ExportDatasetReadsController {
     const now = new Date();
     const maySet = holdsOnWholeTenant(access, PERMISSIONS.setExportDataset);
     return this.database.withTenant(tenant, async (tx) => ({
-      items: (await this.datasets.state(tx, now)).map((row) => exportDatasetDto(row, maySet)),
+      items: (await this.datasets.state(tx, now, biDatasetsOfEdition(resolveEdition(process.env)))).map((row) => exportDatasetDto(row, maySet)),
       products: (await this.datasets.products(tx)).map(productChoiceDto),
       as_of: now.toISOString(),
     }));

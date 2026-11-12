@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { BiReaderStore, BidWorkflowReads, ExportDatasetStore, TenantDatabase } from '@machvon/db';
-import { BI_READER_STATUSES, DomainError, OPEN_DATASET_DEFINITIONS, OPEN_DATASETS, biReaderRequestOf, egpReasonOf, generateBiPassword, isBiReaderMove, scramVerifierOf } from '@machvon/kernel';
+import { BI_READER_STATUSES, DomainError, biDatasetFacts, biDatasetsOfEdition, biReaderRequestOf, egpReasonOf, generateBiPassword, isBiReaderMove, resolveEdition, scramVerifierOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -126,18 +126,21 @@ export class BiReaderReadsController {
       const rows = await this.readers.list(tx, { status: status as 'ACTIVE' | 'SUSPENDED' | 'RETIRED' | undefined }, { limit: request.limit + 1, after: request.after === undefined ? undefined : { key: request.after.code, id: request.after.id } });
       const shown = rows.slice(0, request.limit);
       const last = shown[shown.length - 1];
-      const states = await this.datasets.state(tx, now);
+      const codes = biDatasetsOfEdition(resolveEdition(process.env));
+      const states = await this.datasets.state(tx, now, codes);
       return {
         items: shown.map((row) => biReaderDto(row, caller)),
         next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.createdAtKey, id: last.id }) : null,
         counts: await this.readers.counts(tx),
-        views: OPEN_DATASETS.map((code) => ({
-          dataset_code: code,
-          view: OPEN_DATASET_DEFINITIONS[code].view,
-          grain: OPEN_DATASET_DEFINITIONS[code].grain,
-          columns: [...OPEN_DATASET_DEFINITIONS[code].columns],
-          open: states.find((state) => state.datasetCode === code)?.gate.open === true,
-        })),
+        views: codes.flatMap((code) =>
+          biDatasetFacts(code).views.map((one) => ({
+            dataset_code: code,
+            view: one.view,
+            grain: one.grain,
+            columns: [...one.columns],
+            open: states.find((state) => state.datasetCode === code)?.gate.open === true,
+          })),
+        ),
         schema_name: BI_SCHEMA,
         can_create: holdsOnWholeTenant(access, PERMISSIONS.createBiReader),
         as_of: now.toISOString(),
