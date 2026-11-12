@@ -1,4 +1,5 @@
 import type { EnterpriseFigureReader } from '@machvon/kernel/src/enterprise-snapshot.ts';
+import type { ProjectNarrativeText } from '@machvon/kernel/src/ent-narrative.ts';
 import { ratioOf } from '@machvon/kernel/src/fnd-figures.ts';
 import { periodRange } from '@machvon/kernel/src/report-layout.ts';
 import type { FormPeriod, ReportFigure, ReportFillData, ReportScalar } from '@machvon/kernel/src/report-layout.ts';
@@ -117,9 +118,17 @@ export function snapshotFigures(reader: EnterpriseFigureReader, asOf: string): R
 
 /**
  * The fill data of one demo form for one period, from the frozen snapshot read by `reader`. `names` has the code and the name of every project of the snapshot; `orgName` is the name printed in the title block. The
- * facts of the signature block that the system cannot know (the parent group, the people who sign) are left empty for the people to write.
+ * facts of the signature block that the system cannot know (the parent group, the people who sign) are left empty for the people to write. `narratives` are the words the units wrote and the approver accepted for the period
+ * (ENT-3b): the Word document lays them out at the token of its skeleton; without them the token says there is none, nothing is invented.
  */
-export function snapshotFillData(form: DemoFormSpec, period: FormPeriod, reader: EnterpriseFigureReader, names: ReadonlyMap<string, SnapshotProjectName>, orgName: string): ReportFillData {
+export function snapshotFillData(
+  form: DemoFormSpec,
+  period: FormPeriod,
+  reader: EnterpriseFigureReader,
+  names: ReadonlyMap<string, SnapshotProjectName>,
+  orgName: string,
+  narratives?: readonly ProjectNarrativeText[],
+): ReportFillData {
   const day = periodRange(period).to;
   const rows = reader
     .projectIds()
@@ -135,5 +144,6 @@ export function snapshotFillData(form: DemoFormSpec, period: FormPeriod, reader:
     definitions: ENTERPRISE_DEFINITIONS,
     figures: snapshotFigures(reader, reader.view.asOfDate),
     datasets,
+    ...(narratives === undefined ? {} : { narratives }),
   };
 }

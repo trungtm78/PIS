@@ -1,7 +1,8 @@
-import { NARRATIVE_IMPORT_FAULTS, NARRATIVE_PACK_ENTERPRISE } from '@machvon/kernel';
-import type { EnterpriseNarrative, NarrativeInput, NarrativeRowFault, ParsedNarrativeImport } from '@machvon/kernel';
+import { NARRATIVE_IMPORT_FAULTS, NARRATIVE_PACK_ENTERPRISE, directiveLine } from '@machvon/kernel';
+import type { EnterpriseNarrative, NarrativeInput, NarrativeRowFault, ParsedNarrativeImport, ProjectNarrativeText } from '@machvon/kernel';
 import { PACK_SELECT, enterpriseBlockOf } from './ent-narrative-codec.ts';
 import type { PackColumns } from './ent-narrative-codec.ts';
+import { DirDirectiveStore } from './dir-directive-store.ts';
 import { DisImportStore } from './dis-import-store.ts';
 import type { ImportBatchRow } from './dis-import-store.ts';
 import { DisPeriodStore } from './dis-period-store.ts';
@@ -55,6 +56,7 @@ export class EntNarrativeStore {
   private readonly reports = new DisReportStore();
   private readonly periods = new DisPeriodStore();
   private readonly imports = new DisImportStore();
+  private readonly directives = new DirDirectiveStore();
 
   /** The enterprise block of a report revision; undefined when it has none. */
   async blockOf(tx: TenantTx, reportId: string): Promise<EnterpriseNarrative | undefined> {
@@ -122,6 +124,39 @@ export class EntNarrativeStore {
         order by p.code`,
       [periodId, ...visible.params],
     );
+  }
+
+  /**
+   * The words of the units for the Word document of a form (BC.01, CN.02, CN.03): for each of the projects named, the enterprise narrative of its latest report whose period lies inside `[from, to]`, that was accepted and is
+   * still the current one. A report that is a draft, was only handed in, was taken back or replaced is never read: a form carries what the unit approver accepted. Each item has the words as written, the names of the
+   * standard causes picked from the list and one line for each directive that was rolled up (what was asked, who is to do it, the state on the last day of the period and the result noted), as the register shows it
+   * for the period of that report. Projects with no such report are left out; the items are in the order of the project codes.
+   */
+  async acceptedForForm(tx: TenantTx, projectIds: readonly string[], range: { from: string; to: string }): Promise<ProjectNarrativeText[]> {
+    if (projectIds.length === 0) return [];
+    const rows = await tx.query<PackColumns & { project_id: string; project_code: string; project_name: string; period_start: string; period_end: string }>(
+      `select distinct on (r.project_id) r.project_id, p.code as project_code, p.name as project_name, rp.start_date::text as period_start, rp.end_date::text as period_end, ${PACK_SELECT}
+         from machvon.report_revision r
+         join machvon.reporting_period rp on rp.tenant_id = r.tenant_id and rp.id = r.period_id
+         join machvon.project p on p.tenant_id = r.tenant_id and p.id = r.project_id
+         join machvon.report_narrative n on n.tenant_id = r.tenant_id and n.report_revision_id = r.id and n.pack_code = $4
+        where r.project_id = any($1::uuid[]) and r.status = 'ACCEPTED' and r.is_current and r.deleted_at is null and rp.start_date >= $2::date and rp.end_date <= $3::date
+        order by r.project_id, rp.end_date desc, r.revision desc`,
+      [[...projectIds], range.from, range.to, NARRATIVE_PACK_ENTERPRISE],
+    );
+    const everything: ScopeBuilder = () => ({ sql: 'true', params: [] });
+    const items: ProjectNarrativeText[] = [];
+    for (const row of rows) {
+      const block = enterpriseBlockOf(row);
+      if (block === undefined) continue;
+      const rolled = new Set(block.directiveRefs.map((ref) => ref.id));
+      const view = rolled.size === 0 ? undefined : await this.directives.forReport(tx, everything, { from: row.period_start, to: row.period_end }, { projectId: row.project_id });
+      const directiveLines = (view?.items ?? [])
+        .filter((item) => rolled.has(item.id))
+        .map((item) => directiveLine({ id: item.id, code: item.code, meetingDate: item.meeting.meetingDate, text: item.text, assigneeUnitName: item.assigneeUnit.name, dueOnAtEnd: item.dueOnAtEnd, statusAtEnd: item.statusAtEnd, lastNote: item.lastNote }));
+      items.push({ projectCode: row.project_code, projectName: row.project_name, fields: block.fields, causeLabels: await this.labelsOf(tx, block.causeCodes), directiveLines });
+    }
+    return items.sort((left, right) => left.projectCode.localeCompare(right.projectCode));
   }
 
   /** The names of the causes by code, in the order given (a code that left the list keeps its code as its name). */
