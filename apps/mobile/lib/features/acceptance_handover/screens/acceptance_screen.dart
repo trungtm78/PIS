@@ -215,17 +215,16 @@ class _MinutesBodyState extends ConsumerState<_MinutesBody> with CommandFlow<_Mi
     setState(() => _problems = problems);
     if (problems.isNotEmpty) return;
     final Minutes minutes = widget.minutes;
-    final String prefix = approve ? 'mob.acceptance.confirm.approve' : 'mob.acceptance.confirm.reject';
     final bool confirmed = await showConfirmSheet(
       context,
-      title: context.t('$prefix.title'),
+      title: approve ? context.t('mob.acceptance.confirm.approve.title') : context.t('mob.acceptance.confirm.reject.title'),
       facts: <String>[
         context.t('mob.acceptance.confirm.fact.minutes', <String, Object>{'no': minutes.recordNo, 'contract': minutes.contractCode}),
         context.t('mob.acceptance.confirm.fact.signatures', <String, Object>{'signed': _signedCount, 'total': minutes.requiredRoles.length}),
         context.t('mob.acceptance.confirm.fact.opinion', <String, Object>{'reason': _reason.text.trim()}),
         context.t('mob.acceptance.confirm.fact.status', <String, Object>{'status': statusLabel(context, approve ? 'APPROVED' : 'REJECTED')}),
       ],
-      confirmLabel: context.t('$prefix.action'),
+      confirmLabel: approve ? context.t('mob.acceptance.confirm.approve.action') : context.t('mob.acceptance.confirm.reject.action'),
       cancelLabel: context.t('mob.acceptance.confirm.cancel'),
       auditNote: context.t('mob.acceptance.confirm.audit'),
       destructive: !approve,
