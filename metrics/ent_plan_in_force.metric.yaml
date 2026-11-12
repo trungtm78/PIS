@@ -1,0 +1,15 @@
+# A metric of the enterprise period snapshot as code (INT-2, ST-BI-001). It is the certified meaning of the figure for Power BI and the Lakehouse: the fields are the columns of the view v_enterprise_plan_actual of the dataset DS-ENT
+# (docs/integration/power-bi-model.md), a test pins every field and dimension to those columns. A rate is made from sums, never from the rates of its parts, and is empty (never zero) when its plan is not positive.
+# Changing what the number means (grain, unit, kind, expression, numerator, denominator) under this code needs a later effective_from, or a new code.
+# Plan of the year in force at the end of the period. A stock: it adds up over the groups of one snapshot, never over periods.
+code: ent_plan_in_force
+grain: project_class
+aggregation_type: semi_additive
+expression:
+  op: sum
+  args:
+    - { op: field, name: PLAN_IN_FORCE }
+unit: VND
+null_policy: NULL_NOT_ZERO
+dimensions: [unit, project, class, tier, measure]
+effective_from: "2026-11-12"
