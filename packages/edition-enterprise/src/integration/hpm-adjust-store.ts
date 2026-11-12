@@ -101,7 +101,7 @@ export class HpmAdjustmentStore {
     return rows.map(adjustmentOf);
   }
 
-  private async journal(tx: TenantTx, adjustmentId: string, kind: HpmAdjustmentState, actor: string, reason: string | null, now: Date): Promise<void> {
+  private async journal(tx: TenantTx, adjustmentId: string, kind: HpmAdjustmentState | 'RELEASED', actor: string, reason: string | null, now: Date): Promise<void> {
     await tx.query(
       `insert into machvon.hpm_adjustment_entry (tenant_id, id, adjustment_id, kind, actor_id, reason, at) values (${TENANT}, gen_random_uuid(), $1::uuid, $2, $3::uuid, $4, $5::timestamptz)`,
       [adjustmentId, kind, actor, reason, now.toISOString()],
@@ -109,8 +109,8 @@ export class HpmAdjustmentStore {
   }
 
   /** The journal of an adjustment, oldest first. */
-  async journalOf(tx: TenantTx, adjustmentId: string): Promise<Array<{ kind: HpmAdjustmentState; actorId: string; reason: string | null; at: string }>> {
-    const rows = await tx.query<{ kind: HpmAdjustmentState; actor_id: string; reason: string | null; at: string }>(
+  async journalOf(tx: TenantTx, adjustmentId: string): Promise<Array<{ kind: HpmAdjustmentState | 'RELEASED'; actorId: string; reason: string | null; at: string }>> {
+    const rows = await tx.query<{ kind: HpmAdjustmentState | 'RELEASED'; actor_id: string; reason: string | null; at: string }>(
       `select kind, actor_id, reason, to_char(at at time zone 'UTC', ${ISO}) as at from machvon.hpm_adjustment_entry where adjustment_id = $1::uuid order by at, kind`,
       [adjustmentId],
     );
@@ -126,6 +126,13 @@ export class HpmAdjustmentStore {
     const [source] = await tx.query<{ revision: number }>(`select max(revision) as revision from machvon.hpm_push where layout_code = $1 and period = $2 and status = 'ACCEPTED'`, [request.layoutCode, request.sourcePeriod]);
     const [target] = await tx.query<{ found: boolean }>(`select exists (select 1 from machvon.hpm_push where layout_code = $1 and period = $2 and status = 'ACCEPTED') as found`, [request.layoutCode, request.targetPeriod]);
     assertAdjustable({ acceptedRevision: source?.revision ?? undefined, targetAccepted: target?.found === true }, request);
+    // A subject of the period whose adjustment rides on a push that nobody has answered yet is still open: the receiver may reject that push and the adjustment comes back (`release`).
+    const [riding] = await tx.query<{ found: boolean }>(
+      `select exists (select 1 from machvon.hpm_adjustment a join machvon.hpm_push p on p.id = a.applied_push_id
+                       where a.layout_code = $1 and a.source_period = $2 and a.subject_code = $3 and a.state = 'APPLIED' and p.status in ('PENDING', 'WRITTEN', 'FAILED')) as found`,
+      [request.layoutCode, request.sourcePeriod, request.subjectCode],
+    );
+    if (riding?.found === true) throw new DomainError('HPM_ADJUSTMENT_STATE_INVALID', 409, 'state');
     try {
       const rows = await tx.query<AdjustmentSql>(
         `with inserted as (
@@ -180,5 +187,20 @@ export class HpmAdjustmentStore {
       await tx.query(`update machvon.hpm_adjustment set state = 'APPLIED', applied_push_id = $2::uuid, applied_at = $3::timestamptz, version = version + 1, updated_at = $3::timestamptz where id = $1::uuid and state = 'APPROVED'`, [adjustment.id, pushId, now.toISOString()]);
       await this.journal(tx, adjustment.id, 'APPLIED', actor, null, now);
     }
+  }
+  /**
+   * The receiver rejected the push: what it carried is given back (APPLIED to APPROVED, the link to the push cleared, one journal entry RELEASED by the person who recorded the receipt), so the next push of the target
+   * period carries it again and no figure is lost. A push that was accepted releases nothing. Returns the adjustments given back.
+   */
+  async release(tx: TenantTx, pushId: string, actor: string, now: Date): Promise<HpmAdjustmentRow[]> {
+    const carried = await tx.query<AdjustmentSql>(`${SELECT} where a.applied_push_id = $1::uuid and a.state = 'APPLIED' order by a.created_at, a.id for update of a`, [pushId]);
+    for (const row of carried) {
+      await tx.query(
+        `update machvon.hpm_adjustment set state = 'APPROVED', applied_push_id = null, applied_at = null, version = version + 1, updated_at = $2::timestamptz where id = $1::uuid and state = 'APPLIED'`,
+        [row.id, now.toISOString()],
+      );
+      await this.journal(tx, row.id, 'RELEASED', actor, null, now);
+    }
+    return Promise.all(carried.map(async (row) => (await this.find(tx, row.id)) as HpmAdjustmentRow));
   }
 }

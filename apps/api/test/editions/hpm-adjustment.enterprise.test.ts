@@ -233,4 +233,34 @@ describe('the adjustment in the next period (ENT-3c, TH.01)', () => {
     expect((await receipt(RECEIVER, row.id, row.version, { outcome: 'ACCEPTED', reference: 'HPM-2026-M11' })).status).toBe(200);
     expect(await adjust(PROPOSER, { subject_code: 'LATE_SUBJECT' })).toMatchObject({ status: 409, json: { code: 'HPM_ADJUSTMENT_STATE_INVALID' } });
   });
+  it('gives an adjustment back when the receiver rejects the push that carried it, so the next push of the period carries it again and no figure is lost', async () => {
+    await accepted('2026-M07', 1);
+    const proposed = await adjust(PROPOSER, { period: '2026-M07', subject_code: 'RELEASED_SUBJECT', amount_vnd: '2500000' });
+    expect(proposed.status).toBe(200);
+    const id = proposed.json.id as string;
+    expect((await decide(DECIDER, id, proposed.json.version as number, 'APPROVE')).status).toBe(200);
+    // The first push of the target period carries it.
+    const first = await push(PUSHER, await report('aug,first'), '2026-M08', 1);
+    expect(first.status).toBe(200);
+    expect((await stateOf(id))[0]).toMatchObject({ state: 'APPLIED', applied_push_id: pushOf(first).id });
+    // While the package waits for the receipt, the subject of the period cannot be proposed again: a rejection would give the first back next to the second.
+    expect(await adjust(PROPOSER, { period: '2026-M07', subject_code: 'RELEASED_SUBJECT', amount_vnd: '100' })).toMatchObject({ status: 409, json: { code: 'HPM_ADJUSTMENT_STATE_INVALID' } });
+    // The receiver rejects that package: the adjustment is the receiver's no longer, it waits again, with the reason in the journal.
+    const rejected = await receipt(RECEIVER, pushOf(first).id as string, pushOf(first).version as number, { outcome: 'REJECTED', reference: 'HPM-2026-M08-R1', note: 'The package does not match the layout' });
+    expect(rejected).toMatchObject({ status: 200, json: { status: 'REJECTED' } });
+    expect((await stateOf(id))[0]).toEqual({ state: 'APPROVED', applied_push_id: null });
+    expect((await journal(id)).map((row) => row.kind)).toEqual(['PROPOSED', 'APPROVED', 'APPLIED', 'RELEASED']);
+    expect((await audits(id, 'hpm.adjustment_released'))[0]).toMatchObject({ actor_id: memberId(RECEIVER) });
+    // The corrected package of the period (the next revision, another key) carries it once more.
+    const before = written.length;
+    const second = await push(PUSHER, await report('aug,second'), '2026-M08', 2);
+    expect(second.status).toBe(200);
+    const unpacked = unzipSync(written.slice(before).find((entry) => entry.name === packageName('2026-M08', 2))?.bytes as Uint8Array);
+    const carried = JSON.parse(strFromU8(unpacked[Object.keys(unpacked).find((entry) => entry.endsWith('adjustments.json')) as string] as Uint8Array)) as { adjustments: Array<{ id: string; amount_vnd: string }> };
+    expect(carried.adjustments).toEqual([expect.objectContaining({ id, amount_vnd: '2500000' })]);
+    expect((await stateOf(id))[0]).toMatchObject({ state: 'APPLIED', applied_push_id: pushOf(second).id });
+    // A push that the receiver accepted keeps what it carried: nothing is released by an acceptance.
+    expect((await receipt(RECEIVER, pushOf(second).id as string, pushOf(second).version as number, { outcome: 'ACCEPTED', reference: 'HPM-2026-M08-R2' })).status).toBe(200);
+    expect((await stateOf(id))[0]).toMatchObject({ state: 'APPLIED', applied_push_id: pushOf(second).id });
+  });
 });

@@ -416,6 +416,12 @@ export class HpmPushController {
     const { row } = done;
     // The PUSH step of an approval waits for this answer (R22): an acceptance finishes the decision of the person who held the step, a rejection ends the hold. A push that is not a step of an approval has no hold.
     await this.holds?.receive(scope, { pushId: row.id, outcome: row.status as 'ACCEPTED' | 'REJECTED', reference: row.receiptReference as string, now });
+    // A rejected package gives back the adjustments in the next period it carried (TH.01): the receiver did not take them, so the next push of the period carries them again.
+    if (row.status === 'REJECTED') {
+      for (const released of await this.adjustments.release(scope.tx, row.id, scope.tenant.membershipId, now)) {
+        await scope.audit({ action: 'hpm.adjustment_released', resourceType: ADJUSTMENT_RESOURCE, resourceId: released.id, classification: CLASSIFICATION, diff: { push_id: row.id, layout_code: released.layoutCode, target_period: released.targetPeriod, subject_code: released.subjectCode } });
+      }
+    }
     // The answer of HPM is also the answer in the delivery log of the report engine, for the copy the push delivered.
     if (row.issueId !== null) await this.issued.answered(scope.tx, row.issueId, row.status as 'ACCEPTED' | 'REJECTED', scope.tenant.membershipId, row.receiptReference as string, row.receiptNote);
     await scope.audit({
