@@ -33,6 +33,25 @@ describe('the operations that queued commands stand for (ST-MOB-005)', () => {
     expect(refusal(() => planOf('inspection.result', result))).toEqual({ code: 'VALIDATION_FAILED', detail: 'inspection_id' });
   });
 
+  it('sends the work on a task of a project to the operations of the workflow, over the version the phone read, and never carries a decision (PWF, MOB-79)', () => {
+    expect(planOf('pwf.task.start', { task_id: ID.toUpperCase(), note: 'on site' }, 5)).toEqual({ path: `/project-tasks/${ID}/start`, body: { note: 'on site' }, versioned: true });
+    expect(planOf('pwf.task.checklist.complete', { task_id: ID, item_code: 'C-1.a', note: 'done' })).toEqual({ path: `/project-tasks/${ID}/checklist/C-1.a/complete`, body: { note: 'done' }, versioned: true });
+    expect(planOf('pwf.task.complete', { task_id: ID, note: 'all in' })).toEqual({ path: `/project-tasks/${ID}/complete`, body: { note: 'all in' }, versioned: true });
+    // Evidence and a request for an exception do not move the version of the task: no If-Match.
+    expect(planOf('pwf.task.evidence.attach', { task_id: ID, evidence_kind: 'DOCUMENT', external_ref: 'QD-12' })).toEqual({ path: `/project-tasks/${ID}/evidence`, body: { evidence_kind: 'DOCUMENT', external_ref: 'QD-12' }, versioned: false });
+    expect(planOf('pwf.task.exception.request', { task_id: ID, kind: 'PAUSE', reason: 'the site is flooded for a week' })).toEqual({ path: `/project-tasks/${ID}/exceptions`, body: { kind: 'PAUSE', reason: 'the site is flooded for a week' }, versioned: false });
+    for (const decision of ['pwf.task.approve', 'pwf.task.return', 'pwf.exception.decide']) expect(refusal(() => planOf(decision, { task_id: ID }))).toEqual({ code: 'VALIDATION_FAILED', detail: 'command_type' });
+  });
+
+  it('puts only a task id that is a UUID and an item code that is a code into the path of a task command', () => {
+    for (const type of ['pwf.task.start', 'pwf.task.complete', 'pwf.task.evidence.attach', 'pwf.task.exception.request']) {
+      expect(refusal(() => planOf(type, { task_id: '../../admin' }))).toEqual({ code: 'VALIDATION_FAILED', detail: 'task_id' });
+    }
+    for (const bad of ['../x', 'a/b', '', 'a b', 7, undefined, 'x'.repeat(61)]) {
+      expect(refusal(() => planOf('pwf.task.checklist.complete', { task_id: ID, item_code: bad }))).toEqual({ code: 'VALIDATION_FAILED', detail: 'item_code' });
+    }
+  });
+
   it('never puts anything but a UUID into a path, and refuses a type it does not carry and a payload that is not an object', () => {
     for (const bad of ['../../admin', `${ID}/extra`, '', 7, undefined]) {
       expect(refusal(() => planOf('report.submit', { report_id: bad }))).toEqual({ code: 'VALIDATION_FAILED', detail: 'report_id' });

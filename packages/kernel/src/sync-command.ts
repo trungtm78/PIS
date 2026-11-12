@@ -5,13 +5,15 @@ import { DomainError } from './errors.ts';
  * The commands a phone queues offline (ST-MOB-005, MOB 4, 6, 7). Each carries the key it was given on the phone (a local UUID, at least 16 characters) and is carried out by the operation of the platform that
  * it stands for, exactly as if it had been sent online: the same permission, scope, license, period and version rules decide it. The rules below are pure.
  */
-export const SYNC_COMMAND_TYPES = ['report.submit', 'report.draft.save', 'issue.create', 'site_diary.append', 'measurement.record', 'inspection.result'] as const;
+export const SYNC_COMMAND_TYPES = ['report.submit', 'report.draft.save', 'issue.create', 'site_diary.append', 'measurement.record', 'inspection.result', 'pwf.task.start', 'pwf.task.checklist.complete', 'pwf.task.evidence.attach', 'pwf.task.complete', 'pwf.task.exception.request'] as const;
 export type SyncCommandType = (typeof SYNC_COMMAND_TYPES)[number];
 export const MAX_BATCH_ITEMS = 50;
 export const MIN_KEY_LENGTH = 16;
 export const MAX_KEY_LENGTH = 128;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** A checklist item code goes into a path: only the characters of a code, never a separator. */
+const ITEM_CODE = /^[A-Za-z0-9_.:-]{1,60}$/;
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
 /** The request that stands for a queued command: a POST to one operation, at the version the phone saw when it is a change to a record that has one. */
@@ -64,6 +66,31 @@ export function planOf(commandType: string, payload: unknown, baseServerVersion 
       // The result of an inspection is recorded over the version of the inspection the phone read (`If-Match`).
       const { id, rest } = split(payload, 'inspection_id');
       return { path: `/inspections/${id}/result`, body: rest, versioned: true };
+    }
+    // The work on a task of the workflow of a project (PWF, MOB-79). A task is changed over the version the phone read (`If-Match`); evidence and a request for an exception do not change the version. An approval, a return and a signing
+    // are never queued: they are decisions of another person and are made online.
+    case 'pwf.task.start': {
+      const { id, rest } = split(payload, 'task_id');
+      return { path: `/project-tasks/${id}/start`, body: rest, versioned: true };
+    }
+    case 'pwf.task.checklist.complete': {
+      const { id, rest } = split(payload, 'task_id');
+      const item = rest.item_code;
+      if (typeof item !== 'string' || !ITEM_CODE.test(item)) throw invalid('item_code');
+      delete rest.item_code;
+      return { path: `/project-tasks/${id}/checklist/${item}/complete`, body: rest, versioned: true };
+    }
+    case 'pwf.task.evidence.attach': {
+      const { id, rest } = split(payload, 'task_id');
+      return { path: `/project-tasks/${id}/evidence`, body: rest, versioned: false };
+    }
+    case 'pwf.task.complete': {
+      const { id, rest } = split(payload, 'task_id');
+      return { path: `/project-tasks/${id}/complete`, body: rest, versioned: true };
+    }
+    case 'pwf.task.exception.request': {
+      const { id, rest } = split(payload, 'task_id');
+      return { path: `/project-tasks/${id}/exceptions`, body: rest, versioned: false };
     }
     default:
       throw invalid('command_type');
