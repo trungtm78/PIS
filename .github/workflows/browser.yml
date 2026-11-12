@@ -77,7 +77,14 @@ jobs:
           fi
 
       - name: Route walk, flows and visual regions
-        run: npm run e2e -w @machvon/web
+        shell: bash
+        run: |
+          npm run e2e -w @machvon/web 2>&1 | tee "$RUNNER_TEMP/e2e.log"; exit "${PIPESTATUS[0]}"
+
+      # A failed step names its failing tests in one public annotation (scripts/ci-annotate.mjs); the job log itself needs admin rights to read.
+      - name: Name the failures (Browser route walk and flows)
+        if: failure()
+        run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/e2e.log" playwright --title "Browser route walk and flows"
 
       - name: Summary of the browser report
         if: always()

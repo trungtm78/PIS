@@ -75,9 +75,16 @@ jobs:
       # machines they were written on). A hosted runner is UTC, which reads every such moment 7 hours early, so the run is given the zone of the people the application is for.
       - name: Test (with coverage)
         working-directory: apps/mobile
+        shell: bash
         env:
           TZ: Asia/Ho_Chi_Minh
-        run: flutter test --coverage
+        run: |
+          flutter test --coverage 2>&1 | tee "$RUNNER_TEMP/dart-tests.log"; exit "${PIPESTATUS[0]}"
+
+      # A failed step names its failing tests in one public annotation (scripts/ci-annotate.mjs); the job log itself needs admin rights to read.
+      - name: Name the failures (Dart tests)
+        if: failure()
+        run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/dart-tests.log" dart --title "Dart tests"
 
       - name: Coverage floor (90 percent of lines)
         working-directory: apps/mobile

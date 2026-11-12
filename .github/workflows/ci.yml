@@ -55,9 +55,14 @@ jobs:
           cache: true
 
       - name: Product typecheck and tests (90% line coverage floor)
+        shell: bash
         run: |
-          npm run typecheck
-          npm test
+          { npm run typecheck && npm test; } 2>&1 | tee "$RUNNER_TEMP/product-tests.log"; exit "${PIPESTATUS[0]}"
+
+      # A failed step names its failing tests in one public annotation (scripts/ci-annotate.mjs); the job log itself needs admin rights to read.
+      - name: Name the failures (Product tests x86)
+        if: failure()
+        run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/product-tests.log" jest --title "Product tests x86"
 
       - name: Gate tests (90% line coverage floor)
         working-directory: ci
@@ -71,9 +76,16 @@ jobs:
         run: npm run contracts:compat -w @machvon/contracts -- --base-ref "$BASE_SHA"
 
       - name: Protocol gates on this change set (includes sql-verify on a real PostgreSQL)
+        shell: bash
         env:
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-        run: node ci/src/verify-cli.mjs --base "$BASE_SHA" --locale en
+        run: |
+          node ci/src/verify-cli.mjs --base "$BASE_SHA" --locale en 2>&1 | tee "$RUNNER_TEMP/gates.log"; exit "${PIPESTATUS[0]}"
+
+      # A failed step names its failing tests in one public annotation (scripts/ci-annotate.mjs); the job log itself needs admin rights to read.
+      - name: Name the failures (Protocol gates)
+        if: failure()
+        run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/gates.log" gates --title "Protocol gates"
 
       # Supply chain gate (docs/runbooks/supply-chain.md): pinned sources, a lockfile that matches every manifest, the
       # CycloneDX SBOM of the lockfile, and the production dependency audit (reported as SKIPPED when the registry is
@@ -214,9 +226,14 @@ jobs:
         run: npm run native-deps:check -- --list --locale en
 
       - name: Typecheck and unit tests
+        shell: bash
         run: |
-          npm run typecheck
-          npm test
+          { npm run typecheck && npm test; } 2>&1 | tee "$RUNNER_TEMP/arm64-tests.log"; exit "${PIPESTATUS[0]}"
+
+      # A failed step names its failing tests in one public annotation (scripts/ci-annotate.mjs); the job log itself needs admin rights to read.
+      - name: Name the failures (Unit tests ARM64)
+        if: failure()
+        run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/arm64-tests.log" jest --title "Unit tests ARM64"
 
       - name: Web build
         working-directory: apps/web
