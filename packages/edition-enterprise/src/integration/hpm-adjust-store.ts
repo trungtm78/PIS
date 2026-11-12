@@ -126,6 +126,7 @@ export class HpmAdjustmentStore {
     const [source] = await tx.query<{ revision: number }>(`select max(revision) as revision from machvon.hpm_push where layout_code = $1 and period = $2 and status = 'ACCEPTED'`, [request.layoutCode, request.sourcePeriod]);
     const [target] = await tx.query<{ found: boolean }>(`select exists (select 1 from machvon.hpm_push where layout_code = $1 and period = $2 and status = 'ACCEPTED') as found`, [request.layoutCode, request.targetPeriod]);
     assertAdjustable({ acceptedRevision: source?.revision ?? undefined, targetAccepted: target?.found === true }, request);
+    await this.serialise(tx, request.layoutCode, request.sourcePeriod, request.subjectCode);
     // A subject of the period whose adjustment rides on a push that nobody has answered yet is still open: the receiver may reject that push and the adjustment comes back (`release`).
     const [riding] = await tx.query<{ found: boolean }>(
       `select exists (select 1 from machvon.hpm_adjustment a join machvon.hpm_push p on p.id = a.applied_push_id
@@ -181,9 +182,15 @@ export class HpmAdjustmentStore {
     return rows.map(adjustmentOf);
   }
 
+  /** One proposal, one application and one release of a subject of a period at a time: the check of a proposal and the move to APPLIED cannot interleave (the lock ends with the transaction). */
+  private async serialise(tx: TenantTx, layoutCode: string, sourcePeriod: string, subjectCode: string): Promise<void> {
+    await tx.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [`hpm_adjustment|${layoutCode}|${sourcePeriod}|${subjectCode}`]);
+  }
+
   /** The first push of the target period uses the approved adjustments, once (APPROVED to APPLIED, named for the push). */
   async apply(tx: TenantTx, adjustments: readonly HpmAdjustmentRow[], pushId: string, actor: string, now: Date): Promise<void> {
     for (const adjustment of adjustments) {
+      await this.serialise(tx, adjustment.layoutCode, adjustment.sourcePeriod, adjustment.subjectCode);
       await tx.query(`update machvon.hpm_adjustment set state = 'APPLIED', applied_push_id = $2::uuid, applied_at = $3::timestamptz, version = version + 1, updated_at = $3::timestamptz where id = $1::uuid and state = 'APPROVED'`, [adjustment.id, pushId, now.toISOString()]);
       await this.journal(tx, adjustment.id, 'APPLIED', actor, null, now);
     }
@@ -195,6 +202,7 @@ export class HpmAdjustmentStore {
   async release(tx: TenantTx, pushId: string, actor: string, now: Date): Promise<HpmAdjustmentRow[]> {
     const carried = await tx.query<AdjustmentSql>(`${SELECT} where a.applied_push_id = $1::uuid and a.state = 'APPLIED' order by a.created_at, a.id for update of a`, [pushId]);
     for (const row of carried) {
+      await this.serialise(tx, row.layout_code, row.source_period, row.subject_code);
       await tx.query(
         `update machvon.hpm_adjustment set state = 'APPROVED', applied_push_id = null, applied_at = null, version = version + 1, updated_at = $2::timestamptz where id = $1::uuid and state = 'APPLIED'`,
         [row.id, now.toISOString()],
