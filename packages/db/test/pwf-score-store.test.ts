@@ -4,13 +4,16 @@ import { BASELINE_PACK, applyBaseline } from '../src/master-baseline';
 import { PrjProjectStore } from '../src/prj-project-store';
 import { PwfKpiStore } from '../src/pwf-kpi-store';
 import { verifySnapshot } from '../src/pwf-score-compute';
+import { factsOf, loadTaskBundles, readingOf } from '../src/pwf-score-facts';
+import type { TaskBundle } from '../src/pwf-score-facts';
 import { PwfScoreAdjustmentStore } from '../src/pwf-score-adjustment-store';
+import { WORKER_MEMBERSHIP_ID } from '../src/consumer-inbox';
 import { PwfScoreMaintenanceJob } from '../src/pwf-score-job';
 import { AuditWriter } from '../src/audit-writer';
 import { PwfScoreReads } from '../src/pwf-score-reads';
 import type { Viewer } from '../src/pwf-score-reads';
 import { PwfScoreStore } from '../src/pwf-score-store';
-import { NO_SCORE_SCOPE, withScoreScope } from '../src/pwf-score-support';
+import { NO_SCORE_SCOPE, SYSTEM_SCORE_SCOPE, withScoreScope } from '../src/pwf-score-support';
 import { PwfWorkflowStore } from '../src/pwf-workflow-store';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
@@ -145,8 +148,14 @@ async function seedTask(wf: { id: string; projectId: string }, code: string, see
       seed.estimate ?? null, seed.actual ?? null, seed.createdAt ?? null, memberId(MANAGER),
     ],
   );
-  return (rows[0] as { id: string }).id;
+  const id = (rows[0] as { id: string }).id;
+  // A task sent back has an entry of the log for every return, on the day it happened: the counts of a period are read from the log, never from the present counter.
+  for (let n = 0; n < (seed.returns ?? 0); n += 1) await logReturn(wf.id, id, `${seed.baselineStart ?? seed.baselineFinish}T03:00:00Z`);
+  return id;
 }
+
+const logReturn = (workflowId: string, taskId: string, at: string): Promise<unknown> =>
+  owner("insert into machvon.project_task_log (tenant_id, workflow_id, task_id, kind, at, actor, subject) values ($1, $2::uuid, $3::uuid, 'RETURNED', $4::timestamptz, $5::uuid, '{}'::jsonb)", [TENANT_A, workflowId, taskId, at, memberId(MANAGER)]);
 
 const hold = (taskId: string, who: number, over: { role?: string; from?: string; to?: string | null; share?: number } = {}): Promise<unknown> =>
   owner(
@@ -559,13 +568,19 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
         expect(await as((tx) => scores.expire(tx, periodId))).toBe(false);
         expect((await owner<{ erased_at: string | null }>('select erased_at::text from machvon.staff_score_period where id = $1::uuid', [periodId]))[0]?.erased_at).toBeNull();
         await owner("update machvon.staff_score_period set snapshot = jsonb_set(snapshot, '{policy,params,retention_months}', '12'::jsonb) where id = $1::uuid", [periodId]);
+        const held = await owner('select 1 from machvon.staff_score_response r join machvon.staff_score_line l on l.tenant_id = r.tenant_id and l.id = r.line_id where l.period_id = $1::uuid', [periodId]);
+        expect(held.length).toBeGreaterThan(0);
         expect(await as((tx) => scores.expire(tx, periodId))).toBe(true);
-        const lines = await owner<{ membership_id: string | null; contributions: unknown[]; score_computed: string | null }>('select membership_id, contributions, score_computed::text from machvon.staff_score_line where period_id = $1::uuid', [periodId]);
-        expect(lines.every((row) => row.membership_id === null && row.contributions.length === 0 && (row.score_computed !== null || row.membership_id === null))).toBe(true);
+        // Nothing that could put a person back together with a score is left: no line, no response, no adjustment, no signal of the period, and the approval instance that was started for a response points at nothing.
+        const left = (table: string, column = 'period_id'): Promise<unknown[]> => owner(`select 1 from machvon.${table} where ${column} = $1::uuid`, [periodId]);
+        expect(await left('staff_score_line')).toHaveLength(0);
+        expect(await left('staff_score_signal')).toHaveLength(0);
+        expect((await owner('select 1 from machvon.staff_score_response r where r.line_id = $1::uuid or r.line_id = $2::uuid', [workerLine, otherLine])).length).toBe(0);
+        expect((await owner('select 1 from machvon.staff_score_adjustment a where a.line_id = $1::uuid or a.line_id = $2::uuid', [workerLine, otherLine])).length).toBe(0);
         const [period] = await owner<{ snapshot: unknown; snapshot_hash: string; erased_at: string | null; summary: { people: number } }>('select snapshot, snapshot_hash, erased_at::text, summary from machvon.staff_score_period where id = $1::uuid', [periodId]);
         expect(period).toMatchObject({ snapshot: { erased: true }, summary: { people: 3 } });
         expect(period?.snapshot_hash).toMatch(/^[0-9a-f]{64}$/);
-        expect((await owner<{ body: string }>('select r.body from machvon.staff_score_response r join machvon.staff_score_line l on l.id = r.line_id where l.period_id = $1::uuid', [periodId])).every((row) => row.body === '[erased]')).toBe(true);
+        expect(JSON.stringify(period)).not.toContain(memberId(WORKER));
         expect(await refusal(as((tx) => reads.line(tx, viewer(WORKER, { readUnits: '*' }), workerLine, everything)))).toMatchObject({ status: 404 });
         expect(await refusal(as((tx) => scores.verify(tx, periodId)))).toMatchObject({ status: 404 });
         expect(await as((tx) => scores.expire(tx, periodId))).toBe(false);
@@ -694,13 +709,17 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       const task = await seedTask(wf, 'J1', { baselineFinish: `${Y - 3}-05-13`, actualFinish: `${Y - 3}-05-13` });
       await hold(task, WORKER);
       const job = new PwfScoreMaintenanceJob(new AuditWriter(harness.tenants));
-      const run = () => as((tx) => job.run(tx, memberId(HR), new Date()), HR);
+      // The job runs as the worker of the platform, which has no membership row: officialization must not depend on a human actor (V3035).
+      const run = () => harness.tenants.withTenant({ tenantId: TENANT_A, membershipId: WORKER_MEMBERSHIP_ID, scopeVersion: 0 }, (tx) => job.run(tx, WORKER_MEMBERSHIP_ID, new Date()));
       const first = await run();
       expect(first.tasks).toBeGreaterThanOrEqual(1);
       expect(first.results).toBeGreaterThanOrEqual(6);
       expect(await run()).toMatchObject({ tasks: 0, results: 0, officialized: 0, expired: 0 });
       const preview = await compute({ from: `${Y - 3}-04-01`, to: `${Y - 3}-06-30` });
       await lockIt(preview.period.id, preview.period.version);
+      // The worker of the platform may only make a locked period official; nobody else who is not a membership of the tenant may be named as an actor either (V3035).
+      expect(await sqlState(owner('update machvon.staff_score_period set updated_by = $2::uuid where id = $1::uuid', [preview.period.id, WORKER_MEMBERSHIP_ID]))).toBe('23503');
+      expect(await sqlState(owner('update machvon.staff_score_period set updated_by = $2::uuid where id = $1::uuid', [preview.period.id, randomUUID()]))).toBe('23503');
       // Inside the window nothing happens; once the window has ended the period is official and its event and audit row are written.
       expect((await run()).officialized).toBe(0);
       await owner("update machvon.staff_score_period set locked_at = now() - interval '30 days' where id = $1::uuid", [preview.period.id]);
@@ -713,6 +732,65 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect((await run()).expired).toBe(1);
       expect((await owner<{ erased_at: string | null }>('select erased_at::text from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]?.erased_at).not.toBeNull();
       expect(await run()).toMatchObject({ officialized: 0, expired: 0 });
+    });
+  });
+
+  describe('a past period is read as it stood then (R34)', () => {
+    const QUARTER = { from: `${Y - 1}-10-01`, to: `${Y - 1}-12-31` };
+    const factsAt = (id: string, cutoff: string) =>
+      as((tx) =>
+        withScoreScope(tx, SYSTEM_SCORE_SCOPE, async () => {
+          const bundle = (await loadTaskBundles(tx, [id])).get(id) as TaskBundle;
+          return factsOf(bundle, readingOf(bundle.row, cutoff), cutoff);
+        }),
+      );
+
+    it('takes the returns, the evidence, the reschedules and the baseline of a task as of the end of the period: what happens in the next quarter cannot change the inputs, the hash or the lock', async () => {
+      const wf = await workflow();
+      const [stored] = await owner<{ template: typeof TESTFLOW }>('select template from machvon.project_workflow where id = $1::uuid', [wf.id]);
+      const template = JSON.parse(JSON.stringify(stored?.template)) as typeof TESTFLOW;
+      // The tasks of the test are not the one the workflow made on start: TZ asks for two items, TY for none.
+      const base = template.tasks[0] as (typeof TESTFLOW.tasks)[number];
+      template.tasks.push(
+        { ...base, code: 'TZ', checklist: [{ code: 'CHK1', name: 'First', required: true, evidence_kinds: [] }, { code: 'CHK2', name: 'Second', required: true, evidence_kinds: [] }] } as never,
+        { ...base, code: 'TY' },
+      );
+      await owner('update machvon.project_workflow set template = $2::jsonb where id = $1::uuid', [wf.id, JSON.stringify(template)]);
+      // TZ: closed inside the quarter; TY: still open at the end of it and done in January.
+      const closed = await seedTask(wf, 'TZ', { baselineFinish: `${Y - 1}-11-14`, actualFinish: `${Y - 1}-11-14`, baselineStart: `${Y - 1}-11-03`, returns: 1 });
+      await hold(closed, WORKER);
+      const open = await seedTask(wf, 'TY', { baselineFinish: `${Y - 1}-12-15`, baselineStart: `${Y - 1}-12-01`, actualStart: `${Y - 1}-12-01`, actualFinish: `${Y}-01-20`, returns: 1 });
+      await hold(open, OTHER);
+      const done = (taskId: string, code: string, at: string) =>
+        owner("insert into machvon.project_task_checklist_item (tenant_id, task_id, item_code, name, required, evidence_kinds, done, done_by, done_at) values ($1, $2::uuid, $3, $3, true, '{}', true, $4::uuid, $5::timestamptz)", [TENANT_A, taskId, code, memberId(WORKER), at]);
+      await done(closed, 'CHK1', `${Y - 1}-11-12T03:00:00Z`);
+      await owner('update machvon.project_task set return_count = 1 where id = any($1::uuid[])', [[closed, open]]);
+      const before = { closed: await factsAt(closed, QUARTER.to), open: await factsAt(open, QUARTER.to) };
+      expect(before.closed).toMatchObject({ returnCount: 1, requiredEvidence: 2, providedEvidence: 1, rescheduleCount: 0, baselineDueCurrent: `${Y - 1}-11-14` });
+      expect(before.open).toMatchObject({ returnCount: 1 });
+      const draft = await compute(QUARTER);
+
+      // The next quarter: a second return, the second item done and evidence attached, a decided move of the schedule and a later baseline. Each raises the present counters of the task.
+      await logReturn(wf.id, closed, `${Y}-01-10T03:00:00Z`);
+      await logReturn(wf.id, open, `${Y}-01-10T03:00:00Z`);
+      await done(closed, 'CHK2', `${Y}-01-12T03:00:00Z`);
+      await owner("insert into machvon.project_task_evidence (tenant_id, task_id, item_code, evidence_kind, external_ref, attached_by, attached_at) values ($1, $2::uuid, 'CHK2', 'NOTE', 'ref', $3::uuid, $4::timestamptz)", [TENANT_A, closed, memberId(WORKER), `${Y}-01-13T03:00:00Z`]);
+      await owner(
+        "insert into machvon.project_reschedule_proposal (tenant_id, workflow_id, status, base_version, base_schedule_version, input, preview, input_hash, result_hash, reason, proposed_by, proposed_at, decided_by, decided_at, decision_note) values ($1, $2::uuid, 'APPROVED', 1, 1, '{}'::jsonb, $3::jsonb, repeat('a', 64), repeat('b', 64), 'A later move of the schedule in the next quarter', $4::uuid, $5::timestamptz, $6::uuid, $5::timestamptz, 'Approved later')",
+        [TENANT_A, wf.id, JSON.stringify({ changes: [{ code: 'TZ', finishShiftDays: 3 }, { code: 'TY', finishShiftDays: 2 }] }), memberId(MANAGER), `${Y}-01-15T03:00:00Z`, memberId(CHECKER)],
+      );
+      const later = await owner<{ id: string }>('insert into machvon.project_workflow_baseline (tenant_id, workflow_id, version, reason, planned_start, planned_finish, schedule_version, taken_by, taken_at, approved_by) values ($1, $2::uuid, 2, $3, $4::date, $5::date, 1, $6::uuid, $7::timestamptz, $8::uuid) returning id', [TENANT_A, wf.id, 'A later baseline for the test', `${Y - 1}-10-01`, `${Y}-03-31`, memberId(MANAGER), `${Y}-01-20T03:00:00Z`, memberId(CHECKER)]);
+      await owner('insert into machvon.project_task_baseline (tenant_id, baseline_id, task_id, start_day, finish_day) values ($1, $2::uuid, $3::uuid, $4::date, $5::date)', [TENANT_A, later[0]?.id, closed, `${Y - 1}-11-03`, `${Y}-01-30`]);
+      await owner('update machvon.project_task set return_count = 2, reschedule_count = 1, version = version + 1 where id = any($1::uuid[])', [[closed, open]]);
+
+      // The inputs of the period are the same as before; the later quarter, read at its own end, does see the later records.
+      expect({ closed: await factsAt(closed, QUARTER.to), open: await factsAt(open, QUARTER.to) }).toEqual(before);
+      expect(await factsAt(open, `${Y}-01-31`)).toMatchObject({ returnCount: 2, rescheduleCount: 1 });
+      const again = await compute(QUARTER);
+      expect(again.previewHash).toBe(draft.previewHash);
+      const locked = await lockIt(again.period.id, again.period.version);
+      expect(locked.facts.snapshot_hash).toMatch(/^[0-9a-f]{64}$/);
+      expect(await as((tx) => scores.verify(tx, again.period.id))).toEqual({ reproducible: true, hashMatches: true, figuresMatch: true });
     });
   });
 

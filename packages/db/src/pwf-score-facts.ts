@@ -118,6 +118,27 @@ const toRow = (row: TaskSql): TaskFactsRow => ({
   kpiRecordedCalendars: row.kpi_recorded_calendars,
 });
 
+/** One version of the baseline of a workflow, with the Vietnam day it was taken on and the finish it gave the task. */
+export interface BaselineStep {
+  takenOn: string;
+  version: number;
+  finish: string;
+}
+
+/** What happened to a task, each fact with the Vietnam day it was recorded on, so that a past period is read as it stood then and never as it stands now (R34). */
+export interface TaskHistory {
+  /** The days the task was sent back (an entry of the log each). */
+  returns: readonly string[];
+  /** The days a decided move of the schedule pushed the finish of the task later. */
+  reschedules: readonly string[];
+  /** The checklist as made with the task: the day each item was done (null: not yet). */
+  checklist: ReadonlyArray<{ itemCode: string; doneOn: string | null }>;
+  /** The evidence attached, in the order it was attached, with the day. */
+  evidence: ReadonlyArray<{ itemCode: string | null; kind: string; legalDocType: string | null; formTemplateCode: string | null; on: string }>;
+  /** The baselines of the workflow that gave the task a finish, oldest version first. */
+  baselines: readonly BaselineStep[];
+}
+
 /** One line of the ledger of assignments, with the id of the row. */
 export interface BundleAssignment extends pwfKpi.LedgerAssignment {
   id: string;
@@ -133,9 +154,8 @@ export interface TaskBundle {
   row: TaskFactsRow;
   workflow: WorkflowFacts;
   definition: pwfWorkflow.TemplateTask | undefined;
-  /** Required evidence (checklist items, legal documents, forms) and how many of them the task has. */
-  requiredEvidence: number;
-  providedEvidence: number;
+  /** Everything that happened to the task with its day: the counts of a period are taken from it as of a day. */
+  history: TaskHistory;
   excusals: ReadonlyArray<{ kind: pwfKpi.ExcusalKind; from: string; to: string | null }>;
   assignments: readonly BundleAssignment[];
 }
@@ -165,6 +185,13 @@ const moneyOf = (value: string | null): number | null => {
   return Number.isSafeInteger(parsed) && parsed <= MAX_SAFE ? parsed : null;
 };
 
+/** The finish the baseline gave the task on a day: the newest version taken by then, else the first baseline of the task. */
+export function baselineAt(bundle: TaskBundle, day: string): string | null {
+  let found: BaselineStep | undefined;
+  for (const step of bundle.history.baselines) if (step.takenOn <= day && (found === undefined || step.version > found.version)) found = step;
+  return found?.finish ?? bundle.row.baselineFirst;
+}
+
 /** The facts of the kernel for a task read at `cutoff`: `asOf` is the day it was closed for a final reading and the cutoff for an open one, so that a final figure never moves with the day it is computed on. */
 export function factsOf(bundle: TaskBundle, reading: TaskReading, cutoff: string): pwfKpi.TaskFacts {
   const { row } = bundle;
@@ -173,10 +200,12 @@ export function factsOf(bundle: TaskBundle, reading: TaskReading, cutoff: string
     .map((one) => ({ kind: one.kind, from: one.from, to: one.to === null || one.to > asOf ? asOf : one.to }))
     .filter((one) => one.from <= one.to);
   const responsible = bundle.assignments.filter((one) => one.role === 'RESPONSIBLE').map((one) => one.membershipId);
+  // Every count below is taken as of `asOf`: the records of a later day (evidence attached in April, a task sent back in May) cannot change the figures of March.
+  const evidence = evidenceCounts(bundle.definition, bundle.history, asOf);
   return {
     taskCode: row.code,
     baselineDueFirst: row.baselineFirst,
-    baselineDueCurrent: row.baselineCurrent,
+    baselineDueCurrent: baselineAt(bundle, asOf),
     actualFinish: reading.actualFinish,
     actualStart: row.actualStart,
     status: reading.status,
@@ -184,10 +213,10 @@ export function factsOf(bundle: TaskBundle, reading: TaskReading, cutoff: string
     asOf,
     estimateVnd: moneyOf(row.estimateVnd),
     actualVnd: moneyOf(row.actualVnd),
-    returnCount: row.returnCount,
-    requiredEvidence: bundle.requiredEvidence,
-    providedEvidence: bundle.providedEvidence,
-    rescheduleCount: row.rescheduleCount,
+    returnCount: bundle.history.returns.filter((day) => day <= asOf).length,
+    requiredEvidence: evidence.required,
+    providedEvidence: evidence.provided,
+    rescheduleCount: bundle.history.reschedules.filter((day) => day <= asOf).length,
     excusals,
     priority: row.priority,
     plannedWorkingDays: row.plannedWorkingDays,
@@ -307,19 +336,47 @@ interface AssignmentSql {
 interface ChecklistSql {
   task_id: string;
   item_code: string;
-  done: boolean;
-  kinds: string[] | null;
+  done_on: string | null;
 }
 
 interface EvidenceSql {
   task_id: string;
+  item_code: string | null;
+  evidence_kind: string;
   legal_doc_type: string | null;
   form_template_code: string | null;
+  attached_on: string;
 }
 
-/** How many of the requirements a task has (required checklist items with their evidence, legal documents, forms) it has met. A requirement is one item, one type of document or one form. */
-function evidenceCounts(definition: pwfWorkflow.TemplateTask | undefined, checklist: readonly ChecklistSql[], evidence: readonly EvidenceSql[]): { required: number; provided: number } {
+interface DaySql {
+  task_id: string;
+  day: string;
+}
+
+interface BaselineSql {
+  task_id: string;
+  version: number;
+  taken_on: string;
+  finish: string;
+}
+
+/** How many of the requirements a task has (required checklist items with their evidence, legal documents, forms) it had met by `day`. A requirement is one item, one type of document or one form. */
+export function evidenceCounts(definition: pwfWorkflow.TemplateTask | undefined, history: TaskHistory, day: string): { required: number; provided: number } {
   if (definition === undefined) return { required: 0, provided: 0 };
+  const evidence = history.evidence.filter((one) => one.on <= day);
+  const checklist = history.checklist.map((item) => ({
+    item_code: item.itemCode,
+    done: item.doneOn !== null && item.doneOn <= day,
+    kinds: [...new Set(evidence.filter((one) => one.itemCode === item.itemCode).map((one) => one.kind))],
+  }));
+  return countEvidence(definition, checklist, evidence.map((one) => ({ legal_doc_type: one.legalDocType, form_template_code: one.formTemplateCode })));
+}
+
+function countEvidence(
+  definition: pwfWorkflow.TemplateTask,
+  checklist: ReadonlyArray<{ item_code: string; done: boolean; kinds: string[] }>,
+  evidence: ReadonlyArray<{ legal_doc_type: string | null; form_template_code: string | null }>,
+): { required: number; provided: number } {
   const required = definition.checklist.filter((item) => item.required).length + definition.legalDocTypes.length + definition.formTemplates.length;
   const assessment = pwfWorkflow.assessTaskCompletion(
     { ...definition, approverRole: null },
@@ -327,7 +384,7 @@ function evidenceCounts(definition: pwfWorkflow.TemplateTask | undefined, checkl
       performer: '',
       approver: null,
       makers: [],
-      checklist: checklist.map((item) => ({ code: item.item_code, done: item.done, evidenceKinds: item.kinds ?? [] })),
+      checklist: checklist.map((item) => ({ code: item.item_code, done: item.done, evidenceKinds: item.kinds })),
       legalDocTypes: evidence.map((row) => row.legal_doc_type).filter((value): value is string => value !== null),
       formTemplates: evidence.map((row) => row.form_template_code).filter((value): value is string => value !== null),
       exceptionApproved: false,
@@ -346,7 +403,7 @@ export async function loadTaskBundles(tx: TenantTx, taskIds: readonly string[]):
   const workflowIds = [...new Set(tasks.map((task) => task.workflow_id))];
   const workflows = await tx.query<WorkflowSql>('select id, template_code, template from machvon.project_workflow where id = any($1::uuid[])', [workflowIds]);
   const parsed = new Map<string, WorkflowFacts>(workflows.map((one) => [one.id, { id: one.id, templateCode: one.template_code, template: pwfWorkflow.parseProjectWorkflowTemplate(one.template) }] as const));
-  const [exceptions, assignments, checklist, evidence] = await Promise.all([
+  const [exceptions, assignments, checklist, evidence, returns, reschedules, baselines] = await Promise.all([
     tx.query<ExceptionSql>(
       `select task_id, kind, valid_from::text as valid_from, valid_to::text as valid_to from machvon.project_task_exception where task_id = any($1::uuid[]) and kind in ('PAUSE', 'EXTERNAL_DELAY') and status in ('APPROVED', 'USED')`,
       [ids],
@@ -355,11 +412,25 @@ export async function loadTaskBundles(tx: TenantTx, taskIds: readonly string[]):
       `select id, task_id, membership_id, role, valid_from::text as valid_from, valid_to::text as valid_to, share_pct from machvon.project_task_assignment where task_id = any($1::uuid[]) order by valid_from, id`,
       [ids],
     ),
-    tx.query<ChecklistSql>(
-      `select i.task_id, i.item_code, i.done, (select array_agg(distinct e.evidence_kind) from machvon.project_task_evidence e where e.task_id = i.task_id and e.item_code = i.item_code) as kinds from machvon.project_task_checklist_item i where i.task_id = any($1::uuid[])`,
+    tx.query<ChecklistSql>(`select i.task_id, i.item_code, ${VIETNAM_DAY('i.done_at')} as done_on from machvon.project_task_checklist_item i where i.task_id = any($1::uuid[])`, [ids]),
+    tx.query<EvidenceSql>(
+      `select e.task_id, e.item_code, e.evidence_kind, e.legal_doc_type, e.form_template_code, ${VIETNAM_DAY('e.attached_at')} as attached_on from machvon.project_task_evidence e where e.task_id = any($1::uuid[]) order by e.attached_at, e.id`,
       [ids],
     ),
-    tx.query<EvidenceSql>('select task_id, legal_doc_type, form_template_code from machvon.project_task_evidence where task_id = any($1::uuid[])', [ids]),
+    tx.query<DaySql>(`select l.task_id, ${VIETNAM_DAY('l.at')} as day from machvon.project_task_log l where l.kind = 'RETURNED' and l.task_id = any($1::uuid[]) order by l.at, l.id`, [ids]),
+    // A decided move of the schedule counts for a task on the day it was decided, when the task finishes later than it did (the rule that raises the count of the task).
+    tx.query<DaySql>(
+      `select t.id as task_id, ${VIETNAM_DAY('p.decided_at')} as day from machvon.project_reschedule_proposal p join machvon.project_task t on t.tenant_id = p.tenant_id and t.workflow_id = p.workflow_id
+        where t.id = any($1::uuid[]) and p.status = 'APPROVED'
+          and exists (select 1 from jsonb_array_elements(p.preview -> 'changes') c where c ->> 'code' = t.task_code and coalesce((c ->> 'finishShiftDays')::numeric, 0) > 0)
+        order by p.decided_at, p.id`,
+      [ids],
+    ),
+    tx.query<BaselineSql>(
+      `select b.task_id, wb.version, ${VIETNAM_DAY('wb.taken_at')} as taken_on, b.finish_day::text as finish from machvon.project_task_baseline b join machvon.project_workflow_baseline wb on wb.tenant_id = b.tenant_id and wb.id = b.baseline_id
+        where b.task_id = any($1::uuid[]) and b.finish_day is not null order by wb.version`,
+      [ids],
+    ),
   ]);
   const group = <T extends { task_id: string }>(rows: readonly T[]): Map<string, T[]> => {
     const map = new Map<string, T[]>();
@@ -370,17 +441,24 @@ export async function loadTaskBundles(tx: TenantTx, taskIds: readonly string[]):
   const byAssignment = group(assignments);
   const byChecklist = group(checklist);
   const byEvidence = group(evidence);
+  const byReturn = group(returns);
+  const byReschedule = group(reschedules);
+  const byBaseline = group(baselines);
   for (const task of tasks) {
     const workflow = parsed.get(task.workflow_id) as WorkflowFacts;
     const row = toRow(task);
     const definition = workflow.template.tasks.find((one) => one.code === row.code);
-    const counts = evidenceCounts(definition, byChecklist.get(row.id) ?? [], byEvidence.get(row.id) ?? []);
     bundles.set(row.id, {
       row,
       workflow,
       definition,
-      requiredEvidence: counts.required,
-      providedEvidence: counts.provided,
+      history: {
+        returns: (byReturn.get(row.id) ?? []).map((one) => one.day),
+        reschedules: (byReschedule.get(row.id) ?? []).map((one) => one.day),
+        checklist: (byChecklist.get(row.id) ?? []).map((one) => ({ itemCode: one.item_code, doneOn: one.done_on })),
+        evidence: (byEvidence.get(row.id) ?? []).map((one) => ({ itemCode: one.item_code, kind: one.evidence_kind, legalDocType: one.legal_doc_type, formTemplateCode: one.form_template_code, on: one.attached_on })),
+        baselines: (byBaseline.get(row.id) ?? []).map((one) => ({ takenOn: one.taken_on, version: one.version, finish: one.finish })),
+      },
       excusals: (byException.get(row.id) ?? []).map((one) => ({ kind: one.kind === 'PAUSE' ? ('APPROVED_PAUSE' as const) : ('APPROVED_EXTERNAL_DELAY' as const), from: one.valid_from, to: one.valid_to })),
       assignments: (byAssignment.get(row.id) ?? []).map((one) => ({ id: one.id, membershipId: one.membership_id, role: one.role, from: one.valid_from, to: one.valid_to, sharePct: one.share_pct })),
     });

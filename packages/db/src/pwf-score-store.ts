@@ -187,7 +187,7 @@ export class PwfScoreStore {
     await this.kpis.record(tx, behind, now);
     const heads = await this.kpis.heads(tx, finals, false);
     const span = yearSpanOf(
-      ordered.flatMap((bundle) => [bundle.row.baselineFirst, bundle.row.baselineCurrent, bundle.row.baselineStart, bundle.row.plannedStart, bundle.row.actualStart, bundle.row.actualFinish, bundle.row.cancelledOn]),
+      ordered.flatMap((bundle) => [bundle.row.baselineFirst, bundle.row.baselineCurrent, ...bundle.history.baselines.map((step) => step.finish), bundle.row.baselineStart, bundle.row.plannedStart, bundle.row.actualStart, bundle.row.actualFinish, bundle.row.cancelledOn]),
       request.to,
     );
     const calendars = await loadCalendars(tx, Math.min(span.from, Number(request.from.slice(0, 4))), span.to);
@@ -209,8 +209,9 @@ export class PwfScoreStore {
     }
     const workflowIds = [...new Set(tasks.map((task) => task.workflow_id))].sort();
     const baselines = workflowIds.length === 0 ? [] : await tx.query<{ workflow_id: string; version: number; taken_on: string }>(
-      `select workflow_id, version, (taken_at at time zone 'Asia/Ho_Chi_Minh')::date::text as taken_on from machvon.project_workflow_baseline where workflow_id = any($1::uuid[]) order by workflow_id, version`,
-      [workflowIds],
+      `select workflow_id, version, (taken_at at time zone 'Asia/Ho_Chi_Minh')::date::text as taken_on from machvon.project_workflow_baseline where workflow_id = any($1::uuid[]) and (taken_at at time zone 'Asia/Ho_Chi_Minh')::date <= $2::date order by workflow_id, version`,
+      // A baseline taken after the end of the period is not an input of it.
+      [workflowIds, request.to],
     );
     const inputs: SnapshotInputs = {
       version: 1,

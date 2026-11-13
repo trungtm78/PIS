@@ -172,7 +172,7 @@ export class PwfKpiStore {
     }
     if (readings.size === 0) return summary;
     const span = yearSpanOf(
-      closed.flatMap((bundle) => [bundle.row.baselineFirst, bundle.row.baselineCurrent, bundle.row.actualFinish, bundle.row.cancelledOn]),
+      closed.flatMap((bundle) => [bundle.row.baselineFirst, bundle.row.baselineCurrent, ...bundle.history.baselines.map((step) => step.finish), bundle.row.actualFinish, bundle.row.cancelledOn]),
       today,
     );
     const calendars = await loadCalendars(tx, span.from, span.to);
