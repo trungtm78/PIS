@@ -35,12 +35,15 @@ import '../diary_widgets.dart';
 /// the quantity, the quality check, the photographs and the milestones are quiet actions under it. Opening anything of a contract makes it
 /// the contract the quick "Report" sheet offers first.
 Widget buildContractsScreen(BuildContext context, ScreenContext screen) =>
-    ContractsScreen(contractId: screen.queryParameters['contract']);
+    ContractsScreen(contractId: screen.queryParameters['contract'], next: screen.queryParameters['next']);
 
 class ContractsScreen extends ConsumerStatefulWidget {
-  const ContractsScreen({this.contractId, super.key});
+  const ContractsScreen({this.contractId, this.next, super.key});
 
   final String? contractId;
+
+  /// What a tap on a contract opens: `quantity` (MOB-63) or `photo` (QMS-10) when the list was opened by the quick report to choose the contract for that kind; else the diary.
+  final String? next;
 
   @override
   ConsumerState<ContractsScreen> createState() => _ContractsScreenState();
@@ -76,23 +79,24 @@ class _ContractsScreenState extends ConsumerState<ContractsScreen> {
               reloadKey: _reload,
               read: readContracts,
               parse: (Object? raw) => parseContracts(raw),
-              builder: (BuildContext context, Loaded<List<ContractLine>> loaded) => _List(contracts: loaded.value, onReload: () => setState(() => _reload += 1)),
+              builder: (BuildContext context, Loaded<List<ContractLine>> loaded) => _List(contracts: loaded.value, next: widget.next, onReload: () => setState(() => _reload += 1)),
             )
           : DataView<ContractLine>(
               cacheKey: 'diary.contract.$id',
               reloadKey: _reload,
               read: (MachvonApiClient client) => client.getResourcesContractId(id: id),
               parse: parseContract,
-              builder: (BuildContext context, Loaded<ContractLine> loaded) => _List(contracts: <ContractLine>[loaded.value], onReload: () => setState(() => _reload += 1)),
+              builder: (BuildContext context, Loaded<ContractLine> loaded) => _List(contracts: <ContractLine>[loaded.value], next: widget.next, onReload: () => setState(() => _reload += 1)),
             ),
     );
   }
 }
 
 class _List extends StatelessWidget {
-  const _List({required this.contracts, required this.onReload});
+  const _List({required this.contracts, required this.onReload, this.next});
 
   final List<ContractLine> contracts;
+  final String? next;
   final VoidCallback onReload;
 
   @override
@@ -108,7 +112,7 @@ class _List extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
-        for (int position = 0; position < contracts.length; position += 1) _ContractBlock(contract: contracts[position], first: position == 0),
+        for (int position = 0; position < contracts.length; position += 1) _ContractBlock(contract: contracts[position], first: position == 0, next: next),
       ],
     );
   }
@@ -117,9 +121,10 @@ class _List extends StatelessWidget {
 /// One contract: its row, its facts, what else can be done and, on request, its milestones (read when they are opened: a contract may have
 /// many lines, and most are never opened).
 class _ContractBlock extends ConsumerStatefulWidget {
-  const _ContractBlock({required this.contract, required this.first});
+  const _ContractBlock({required this.contract, required this.first, this.next});
 
   final ContractLine contract;
+  final String? next;
   final bool first;
 
   @override
@@ -174,7 +179,11 @@ class _ContractBlockState extends ConsumerState<_ContractBlock> {
           trailing: StatusPill(label: status, tone: contractTone(contract.status)),
           semanticLabel: <String>[context.t('mob.dry.contract.aria', <String, Object>{'code': contract.code, 'status': status}), ?contract.projectName].join('. '),
           dividerAbove: !widget.first,
-          onTap: () => _go('MOB-62', pathSuffix: '/${contract.id}'),
+          onTap: () => switch (widget.next) {
+            'quantity' => _go('MOB-63', pathSuffix: '/${contract.id}'),
+            'photo' => _go('QMS-10', query: <String, String>{'contract': contract.id}),
+            _ => _go('MOB-62', pathSuffix: '/${contract.id}'),
+          },
         ),
         InfoRow(label: context.t('mob.dry.contract.contractor'), value: contract.contractorName),
         InfoRow(label: context.t('mob.dry.contract.due'), value: contract.completionDue == null ? null : formatDay(contract.completionDue!)),

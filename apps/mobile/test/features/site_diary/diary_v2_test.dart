@@ -40,6 +40,16 @@ void main() {
       expect(world.container.read(lastFieldContractProvider), 'c-1', reason: 'opening the diary makes its contract the one the Report sheet offers');
     });
 
+    testWidgets('the contracts list opened by the quick report for a quantity opens the quantity, not the diary', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final FieldWorld world = await _open(tester, location: '/projects/mob-61?next=quantity');
+      await tester.tap(find.textContaining('HD-A-001').first);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(world.container.read(lastFieldContractProvider), 'c-1');
+      expect(find.widgetWithText(FilledButton, 'Lưu nhật ký'), findsNothing, reason: 'the diary form is not what was asked for');
+    });
+
     testWidgets('a number that is not one is said under its field as it is typed, before anything is saved', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldWorld world = await _open(tester);

@@ -52,7 +52,7 @@ void openFieldReport(BuildContext context, FieldReportKind kind, String? contrac
     case FieldReportKind.diary:
       contractId == null ? openScreen(context, 'MOB-61', stacked: true) : openScreen(context, 'MOB-62', pathSuffix: '/$contractId', stacked: true);
     case FieldReportKind.quantity:
-      contractId == null ? openScreen(context, 'MOB-61', stacked: true) : openScreen(context, 'MOB-63', pathSuffix: '/$contractId', stacked: true);
+      contractId == null ? openScreen(context, 'MOB-61', query: <String, String>{'next': 'quantity'}, stacked: true) : openScreen(context, 'MOB-63', pathSuffix: '/$contractId', stacked: true);
   }
 }
 
