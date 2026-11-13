@@ -103,21 +103,28 @@ class PwfTaskService {
     return command;
   }
 
-  /// The person looked at the task as it is now and chose to send their commands again on it. The commands in conflict go back to the queue in the
-  /// order they were made, each on the version the server holds plus the versioned commands before it. Nothing is written over: the server
-  /// checks every version again. [serverVersion] is the version of the task they were looking at (it must be newer than the command's base).
+  /// The person looked at the task as it is now and chose to send their commands again on it. From the first command in conflict on, the commands
+  /// that have not been taken go back to the queue in the order they were made, each on the version the server holds plus the versioned commands
+  /// before it, under a new key (the old one is settled on the server as a conflict). Nothing is written over: the server checks every version again.
+  /// A command that follows one the server refused was based on a version the server never reached, so its new base can be lower than its old one;
+  /// the queue does not renew a command on a lower base, so such a command is dropped and made again. [serverVersion] is the version of the task they
+  /// were looking at.
   Future<int> resendConflicts(String taskId, int serverVersion) async {
     final CommandQueue queue = await _ref.read(commandQueueProvider.future);
     final List<QueuedCommand> mine = pwfCommandsOf(queue.commands(), taskId);
+    final int first = mine.indexWhere((QueuedCommand c) => c.state == CommandState.conflict);
+    if (first < 0) return 0;
+    final int ahead = mine.take(first).where((QueuedCommand c) => c.state != CommandState.rejected && kPwfVersionedCommands.contains(c.commandType)).length;
     int resent = 0;
-    int ahead = 0;
-    for (final QueuedCommand command in mine) {
-      final bool versioned = kPwfVersionedCommands.contains(command.commandType);
-      if (command.state == CommandState.conflict) {
-        queue.resolveConflict(command.id, payload: command.payload!, baseServerVersion: serverVersion + ahead);
-        resent += 1;
-      }
-      if (versioned && command.state != CommandState.rejected) ahead += 1;
+    int before = ahead;
+    for (final QueuedCommand command in mine.skip(first)) {
+      if (command.state != CommandState.conflict && command.state != CommandState.queued) continue;
+      final int base = serverVersion + before;
+      final Map<String, Object?> payload = command.payload!;
+      queue.discard(command.id);
+      queue.enqueue(commandType: command.commandType, payload: payload, baseServerVersion: base, attempt: CommandAttempt.fresh());
+      resent += 1;
+      if (kPwfVersionedCommands.contains(command.commandType)) before += 1;
     }
     (await _ref.read(queueRunnerProvider.future)).trigger();
     return resent;

@@ -269,6 +269,32 @@ void main() {
       expect(await phone.pending(), isEmpty);
     });
 
+    testWidgets('a command that follows one the server refused was based on a version the server never reached: it is a conflict, and sending it again rebases it on the version the server holds', (WidgetTester tester) async {
+      final _Phone phone = await _open(tester, TaskState());
+      await phone.goOffline();
+      // The person ticks an item and completes: the completion is based on the version the item would leave.
+      await tester.tap(find.text('Dự thảo hồ sơ mời thầu'));
+      await settleReal(tester, rounds: 10);
+      await tester.tap(find.text('Đánh dấu mục này đã xong'));
+      await settleReal(tester, rounds: 10);
+      await phone.sheet('Đánh dấu đã xong');
+      await phone.bar('Hoàn thành việc');
+      await phone.sheet('Hoàn thành việc');
+      expect((await phone.pending()).map((QueuedCommand c) => c.baseServerVersion), <int>[3, 4]);
+      // The server refuses the item (it does not allow it now): the version stays at 3 and the completion, based on 4, comes back in conflict.
+      phone.server.refuses.add(kPwfChecklistCommand);
+      await phone.goOnline();
+      await phone.flush();
+      expect((await phone.pending()).map((QueuedCommand c) => c.state), <CommandState>[CommandState.rejected, CommandState.conflict]);
+      expect(find.text('Công việc đã thay đổi'), findsOneWidget);
+      phone.server.refuses.clear();
+      await tester.tap(find.text('Gửi lại trên bản mới'));
+      await settleReal(tester, rounds: 14);
+      await phone.flush();
+      expect(phone.server.applied.single, (type: kPwfCompleteCommand, base: 3), reason: 'the refused item does not count: the completion is based on what the server holds');
+      expect(phone.server.state.status, 'AWAITING_APPROVAL');
+    });
+
     testWidgets('the person can drop what they did instead: the task on the server is left as it is', (WidgetTester tester) async {
       final _Phone phone = await _open(tester, TaskState());
       await phone.goOffline();

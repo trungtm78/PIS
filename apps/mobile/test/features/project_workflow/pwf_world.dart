@@ -29,6 +29,9 @@ class PwfTaskServer {
   late final ScriptedServer api;
   late final FieldServer field;
 
+  /// Command types the server refuses for good (the state of the task does not allow them), as it would.
+  final Set<String> refuses = <String>{};
+
   /// What the completion still lacks, as the read says it.
   List<Map<String, Object?>>? blockers;
 
@@ -49,7 +52,8 @@ class PwfTaskServer {
     final int base = item['base_server_version']! as int;
     final Map<String, Object?> payload = item['payload']! as Map<String, Object?>;
     if (kPwfVersionedCommands.contains(type) && base != state.version) return ServerOutcome.conflict(version: state.version);
-    String? refusal;
+    String? refusal = refuses.contains(type) ? 'PWF_TASK_STATE_INVALID' : null;
+    if (refusal != null) return ServerOutcome.rejected(refusal);
     switch (type) {
       case kPwfStartCommand:
         if (state.status != 'NOT_STARTED') {
