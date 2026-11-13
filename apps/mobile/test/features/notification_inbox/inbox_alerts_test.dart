@@ -88,6 +88,11 @@ void main() {
       final ProviderContainer container = await _open(tester, server, '/inbox');
       expect(find.text('Tất cả 4'), findsOneWidget, reason: 'the inbox was seen on its events');
 
+      await _openWorkTab(tester);
+      await tester.tap(find.text('Sự kiện'));
+      await tester.pumpAndSettle();
+      expect(find.text('Tất cả 4'), findsOneWidget, reason: 'the person chose the events after the link');
+
       container.read(routerProvider).go('/home');
       await tester.pumpAndSettle();
       await tester.tap(find.text('Xem tất cả'));

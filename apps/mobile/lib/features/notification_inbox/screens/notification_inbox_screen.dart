@@ -94,7 +94,11 @@ class _NotificationInboxScreenState extends ConsumerState<NotificationInboxScree
               TabOption(label: context.t('mob.ntf.inbox.tab.work'), count: alerts != null && alerts.needsDoing > 0 ? alerts.needsDoing : null),
             ],
             index: _tab,
-            onChanged: (int index) => setState(() => _tab = index),
+            // The tab is part of the location, so a later link to the other tab is a change of the location and not a repeat of it.
+            onChanged: (int index) {
+              setState(() => _tab = index);
+              openScreen(context, 'MOB-32', query: index == 1 ? const <String, String>{inboxTabParameter: inboxTabWork} : const <String, String>{});
+            },
           ),
           // Both tabs stay mounted: the alerts are read once and keep their place while the person looks at the events.
           Expanded(

@@ -163,7 +163,6 @@ class _HomeBand extends StatelessWidget {
     for (final Tile tile in center.amountTiles) {
       if (tile.metricCode == 'DISBURSED_TREASURY') amount = tile;
     }
-    amount ??= center.amountTiles.isEmpty ? null : center.amountTiles.first;
     final bool amountKnown = amount != null && amount.value != null;
     final ({String figure, String unit}) split = amountKnown ? _figureOf(context, amount.value) : (figure: amount == null ? context.t('mob.home.tile.nullReason.other') : _nullReasonText(context, amount.nullReason), unit: '');
     final String? totalValue = pair?.total.value;

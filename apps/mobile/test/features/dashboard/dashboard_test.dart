@@ -75,6 +75,26 @@ void main() {
       expect(pm.width, total.width, reason: 'one under the other, the same width');
     });
 
+    testWidgets('the band never shows another amount under the label of the Treasury disbursement: without that tile it says there is no figure', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer()
+        ..on(
+          'GET',
+          '/home/command-center',
+          (_) => commandCenter(tiles: <Map<String, Object?>>[
+            tile('DISBURSEMENT_RATE_PM', value: '14.0000', numerator: '140000000', denominator: '1000000000'),
+            tile('DISBURSEMENT_RATE_TOTAL', value: '12.5000', numerator: '140000000', denominator: '1120000000'),
+            tile('PLAN_TOTAL', value: '1120000000', unit: 'VND'),
+          ]),
+        );
+      await _open(tester, server, '/home');
+
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      expect(find.bySemanticsLabel(RegExp(r'^Giải ngân lũy kế theo Kho bạc: Chưa có số liệu')), findsOneWidget, reason: 'the plan is not the disbursement');
+      expect(find.bySemanticsLabel(RegExp(r'^Giải ngân lũy kế theo Kho bạc: 1,12')), findsNothing);
+      semantics.dispose();
+    });
+
     testWidgets('G0-4: the phone shows the digits the API gives as display_value (the text of the web and of the Excel file), not its own rounding', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer()
