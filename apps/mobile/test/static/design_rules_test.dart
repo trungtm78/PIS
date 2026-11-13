@@ -2,20 +2,33 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'design_rules_scan.dart';
 
-/// The ceiling of the allow-list, per rule, as it was when the rules began (MUX-1). Lower a number when the list gets shorter; never raise
-/// one: a screen that needs what a rule forbids gets a shared widget, not an entry in the list. Wave D of MUX-3 ends at zero everywhere.
+/// The ceiling of the allow-list, per rule: what the regenerated baseline holds today (MUX-3). Lower a number when the list gets shorter; never raise
+/// one: a screen that needs what a rule forbids gets a shared widget, not an entry in the list. Every rule is at zero but the one use of a bare spacing
+/// in the process tree screen; wave D of MUX-3 ends at zero everywhere.
 const Map<String, int> kBaselineCeiling = <String, int>{
-  'AppBar(': 11,
-  'BoxDecoration(': 5,
-  'Card(': 6,
-  'Colors.': 1,
-  'MachvonColors.': 28,
-  'EdgeInsets-number': 17,
-  'Scaffold(': 11,
-  'TextStyle(': 8,
+  'AppBar(': 0,
+  'BoxDecoration(': 0,
+  'Card(': 0,
+  'Colors.': 0,
+  'MachvonColors.': 0,
+  'EdgeInsets-number': 1,
+  'Scaffold(': 0,
+  'TextStyle(': 0,
   'fontSize:': 0,
-  'toStringAsFixed(': 7,
+  'toStringAsFixed(': 0,
 };
+
+/// The rules for which the allow-list holds more than its ceiling gives, as messages (empty: the list is within the ceiling).
+List<String> ceilingBreaches(Map<String, Map<String, int>> allowed, Map<String, int> ceiling) {
+  final Map<String, int> totals = <String, int>{};
+  for (final Map<String, int> counts in allowed.values) {
+    counts.forEach((String rule, int count) => totals[rule] = (totals[rule] ?? 0) + count);
+  }
+  return <String>[
+    for (final MapEntry<String, int> total in totals.entries)
+      if (total.value > (ceiling[total.key] ?? 0)) 'the list allows ${total.value} uses of ${total.key}, the ceiling is ${ceiling[total.key] ?? 0}',
+  ];
+}
 
 String _howToFix(String rule) {
   final DesignRule found = kDesignRules.firstWhere((DesignRule r) => r.id == rule);
@@ -110,14 +123,28 @@ final g = EdgeInsets.symmetric(horizontal: MachvonV2Space.s16);
     });
 
     test('the list is not longer than its ceiling: raising a ceiling is not how a new violation gets in', () {
-      final Map<String, int> totals = <String, int>{};
-      for (final Map<String, int> counts in allowed.values) {
-        counts.forEach((String rule, int count) => totals[rule] = (totals[rule] ?? 0) + count);
-      }
-      for (final MapEntry<String, int> total in totals.entries) {
-        expect(total.value, lessThanOrEqualTo(kBaselineCeiling[total.key] ?? 0), reason: 'the list allows ${total.value} uses of ${total.key}, the ceiling is ${kBaselineCeiling[total.key] ?? 0}');
-      }
-      expect(kBaselineCeiling.keys.toSet().containsAll(kDesignRules.map((DesignRule rule) => rule.id).where((String id) => totals.containsKey(id))), isTrue);
+      expect(ceilingBreaches(allowed, kBaselineCeiling), isEmpty);
+      final Set<String> used = <String>{for (final Map<String, int> counts in allowed.values) ...counts.keys};
+      expect(kBaselineCeiling.keys.toSet().containsAll(kDesignRules.map((DesignRule rule) => rule.id).where(used.contains)), isTrue);
+    });
+
+    test('the ceiling ratchets: every rule is at zero but the one use the baseline holds, so a regenerated baseline with a new violation fails the check', () {
+      expect(<String, int>{...kBaselineCeiling}..removeWhere((String rule, int limit) => limit == 0), <String, int>{'EdgeInsets-number': 1});
+      final Map<String, int> held = <String, int>{};
+      allowed.forEach((String path, Map<String, int> counts) => counts.forEach((String rule, int count) => held[rule] = (held[rule] ?? 0) + count));
+      expect(held, <String, int>{'EdgeInsets-number': 1});
+      // The baseline tool writes whatever the code holds: a new Card( in a screen, written into the list, is above its ceiling of zero.
+      final Map<String, Map<String, int>> regenerated = <String, Map<String, int>>{
+        ...allowed,
+        'lib/features/example/new_screen.dart': <String, int>{'Card(': 1},
+      };
+      expect(ceilingBreaches(regenerated, kBaselineCeiling), <String>['the list allows 1 uses of Card(, the ceiling is 0']);
+      // A second bare spacing is above the ceiling of one as well.
+      final Map<String, Map<String, int>> spacing = <String, Map<String, int>>{
+        ...allowed,
+        'lib/features/example/other_screen.dart': <String, int>{'EdgeInsets-number': 1},
+      };
+      expect(ceilingBreaches(spacing, kBaselineCeiling), hasLength(1));
     });
 
     test('the baseline file is what the tool writes for the code as it is (sorted, with its totals)', () {
