@@ -105,6 +105,10 @@
         {
           "text": "Đối chiếu số liệu giải ngân với hệ thống kế toán trước kỳ báo cáo",
           "dueIn": -3
+        },
+        {
+          "text": "Nộp hồ sơ đề nghị thẩm duyệt phòng cháy chữa cháy của kho thành phẩm",
+          "dueIn": -6
         }
       ]
     },
