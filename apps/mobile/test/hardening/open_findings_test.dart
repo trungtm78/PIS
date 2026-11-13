@@ -52,7 +52,7 @@ void main() {
     test('NAV-01 FIXED the account screen links MOB-41 and MOB-43 beside MOB-48 to 51, and the sync banner is a button', () {
       final String account = _read('lib/features/account/screens/account_screen.dart');
       for (final String linked in <String>['MOB-41', 'MOB-43', 'MOB-48', 'MOB-49', 'MOB-50', 'MOB-51']) {
-        expect(account, contains("locationOf('$linked')"));
+        expect(account, matches(RegExp('location(Of)?\\(\'$linked\'\\)')), reason: 'the account opens $linked');
       }
       final String banners = _read('lib/core/state/status_banners.dart');
       expect(banners, contains('StatusBanner'), reason: 'the strip is drawn by the shared banner');

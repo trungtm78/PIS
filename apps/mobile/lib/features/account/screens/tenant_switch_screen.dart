@@ -13,6 +13,10 @@ import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../../core/state/state_card.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/nav_row.dart';
+import '../../../core/widgets/section_panel.dart';
+import '../../read_support/widgets.dart' show ScreenFrame;
 import '../../session/auth/auth_service.dart';
 import '../../session/auth/identity_api.dart';
 import '../../session/auth/session_vault.dart';
@@ -113,151 +117,127 @@ class _TenantSwitchScreenState extends ConsumerState<TenantSwitchScreen> {
         : loaded.state;
     final List<MembershipChoice> items =
         choices.asData?.value ?? const <MembershipChoice>[];
-    final ThemeData theme = Theme.of(context);
     final bool alone = items
         .where(
           (MembershipChoice m) =>
               m.selectable && !isCurrentMembership(m, session),
         )
         .isEmpty;
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t('mob.tenantSwitch.title.text'))),
-      body: SafeArea(
-        child: StateBoundary(
-          state: state,
-          problem: flow.problem ?? loaded.problem,
-          onRetry: state == ScreenState.loading
-              ? null
-              : () => ref.invalidate(myMembershipsProvider),
-          child: items.isNotEmpty && alone
-              ? StateCard(
-                  icon: Icons.apartment_outlined,
-                  title: context.t('mob.tenantSwitch.empty.title'),
-                  body: context.t('mob.tenantSwitch.empty.body'),
-                  announcement:
-                      '${context.t('mob.tenantSwitch.empty.title')}. ${context.t('mob.tenantSwitch.empty.body')}',
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(MachvonSpace.space16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Text(context.t('mob.tenantSwitch.body.text')),
-                      const SizedBox(height: MachvonSpace.space12),
-                      RadioGroup<MembershipChoice>(
-                        groupValue: _chosen,
-                        onChanged: (MembershipChoice? value) => setState(() {
-                          _chosen = value;
-                          _blockedBy = null;
-                        }),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return ScreenFrame(
+      title: context.t('mob.tenantSwitch.title.text'),
+      body: StateBoundary(
+        state: state,
+        problem: flow.problem ?? loaded.problem,
+        onRetry: state == ScreenState.loading
+            ? null
+            : () => ref.invalidate(myMembershipsProvider),
+        child: items.isNotEmpty && alone
+            ? StateCard(
+                icon: Icons.apartment_outlined,
+                title: context.t('mob.tenantSwitch.empty.title'),
+                body: context.t('mob.tenantSwitch.empty.body'),
+                announcement:
+                    '${context.t('mob.tenantSwitch.empty.title')}. ${context.t('mob.tenantSwitch.empty.body')}',
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(MachvonSpace.space16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Text(
+                      context.t('mob.tenantSwitch.body.text'),
+                      style: context.v2text.body,
+                    ),
+                    const SizedBox(height: MachvonSpace.space12),
+                    RadioGroup<MembershipChoice>(
+                      groupValue: _chosen,
+                      onChanged: (MembershipChoice? value) => setState(() {
+                        _chosen = value;
+                        _blockedBy = null;
+                      }),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          for (final MembershipChoice item in items)
+                            _Option(
+                              item: item,
+                              current: isCurrentMembership(item, session),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: MachvonSpace.space8),
+                    SwitchRow(
+                      label: context.t('mob.tenantSwitch.cache.title'),
+                      help: policy == LocalDataPolicy.purge
+                          ? context.t('mob.tenantSwitch.cache.on')
+                          : context.t('mob.tenantSwitch.cache.off'),
+                      value: policy == LocalDataPolicy.purge,
+                      onChanged: (bool on) async {
+                        await ref
+                            .read(authServiceProvider)
+                            .setLocalDataPolicy(
+                              on
+                                  ? LocalDataPolicy.purge
+                                  : LocalDataPolicy.keepEncrypted,
+                            );
+                        ref.invalidate(_policyProvider);
+                      },
+                    ),
+                    if (_blockedBy != null) ...<Widget>[
+                      const SizedBox(height: MachvonSpace.space8),
+                      Semantics(
+                        liveRegion: true,
+                        container: true,
+                        child: SectionPanel(
+                          title: context.t('mob.tenantSwitch.blocked.title'),
+                          padded: false,
                           children: <Widget>[
-                            for (final MembershipChoice item in items)
-                              _Option(
-                                item: item,
-                                current: isCurrentMembership(item, session),
+                            Text(
+                              context.t(
+                                'mob.tenantSwitch.blocked.body',
+                                <String, Object>{'count': _blockedBy!},
+                              ),
+                              style: context.v2text.body,
+                            ),
+                            if (_sendFailed)
+                              Text(
+                                context.t('mob.tenantSwitch.sendFailed.text'),
+                                style: context.v2text.body,
                               ),
                           ],
                         ),
                       ),
                       const SizedBox(height: MachvonSpace.space8),
-                      SwitchListTile(
-                        title: Text(context.t('mob.tenantSwitch.cache.title')),
-                        subtitle: Text(
-                          policy == LocalDataPolicy.purge
-                              ? context.t('mob.tenantSwitch.cache.on')
-                              : context.t('mob.tenantSwitch.cache.off'),
-                        ),
-                        value: policy == LocalDataPolicy.purge,
-                        onChanged: (bool on) async {
-                          await ref
-                              .read(authServiceProvider)
-                              .setLocalDataPolicy(
-                                on
-                                    ? LocalDataPolicy.purge
-                                    : LocalDataPolicy.keepEncrypted,
-                              );
-                          ref.invalidate(_policyProvider);
-                        },
+                      FilledButton(
+                        onPressed: _sendNow,
+                        child: Text(context.t('mob.tenantSwitch.send.action')),
                       ),
-                      if (_blockedBy != null) ...<Widget>[
-                        const SizedBox(height: MachvonSpace.space8),
-                        Semantics(
-                          liveRegion: true,
-                          container: true,
-                          child: Card(
-                            color: theme.colorScheme.errorContainer,
-                            child: Padding(
-                              padding: const EdgeInsets.all(
-                                MachvonSpace.space16,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    context.t('mob.tenantSwitch.blocked.title'),
-                                    style: theme.textTheme.titleSmall?.copyWith(
-                                      color: theme.colorScheme.onErrorContainer,
-                                    ),
-                                  ),
-                                  Text(
-                                    context.t(
-                                      'mob.tenantSwitch.blocked.body',
-                                      <String, Object>{'count': _blockedBy!},
-                                    ),
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onErrorContainer,
-                                    ),
-                                  ),
-                                  if (_sendFailed)
-                                    Text(
-                                      context.t(
-                                        'mob.tenantSwitch.sendFailed.text',
-                                      ),
-                                      style: TextStyle(
-                                        color:
-                                            theme.colorScheme.onErrorContainer,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
+                      const SizedBox(height: MachvonSpace.space8),
+                      OutlinedButton(
+                        onPressed: () => _switch(discard: true),
+                        child: Text(
+                          context.t(
+                            'mob.tenantSwitch.discard.action',
+                            <String, Object>{'count': _blockedBy!},
                           ),
                         ),
-                        const SizedBox(height: MachvonSpace.space8),
-                        FilledButton(
-                          onPressed: _sendNow,
-                          child: Text(
-                            context.t('mob.tenantSwitch.send.action'),
-                          ),
+                      ),
+                    ] else ...<Widget>[
+                      const SizedBox(height: MachvonSpace.space8),
+                      FilledButton(
+                        onPressed:
+                            _chosen == null || state == ScreenState.loading
+                            ? null
+                            : () => _switch(discard: false),
+                        child: Text(
+                          context.t('mob.tenantSwitch.confirm.action'),
                         ),
-                        const SizedBox(height: MachvonSpace.space8),
-                        OutlinedButton(
-                          onPressed: () => _switch(discard: true),
-                          child: Text(
-                            context.t(
-                              'mob.tenantSwitch.discard.action',
-                              <String, Object>{'count': _blockedBy!},
-                            ),
-                          ),
-                        ),
-                      ] else ...<Widget>[
-                        const SizedBox(height: MachvonSpace.space8),
-                        FilledButton(
-                          onPressed:
-                              _chosen == null || state == ScreenState.loading
-                              ? null
-                              : () => _switch(discard: false),
-                          child: Text(
-                            context.t('mob.tenantSwitch.confirm.action'),
-                          ),
-                        ),
-                      ],
+                      ),
                     ],
-                  ),
+                  ],
                 ),
-        ),
+              ),
       ),
     );
   }
@@ -272,36 +252,44 @@ class _Option extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool enabled = item.selectable && !current;
-    return Card(
-      child: RadioListTile<MembershipChoice>(
-        value: item,
-        enabled: enabled,
-        title: Text(item.tenantName),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              context.t('mob.account.role.label', <String, Object>{
-                'role': membershipTypeLabel(context, item.membershipType),
-              }),
-            ),
-            if (current)
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        RadioListTile<MembershipChoice>(
+          value: item,
+          enabled: enabled,
+          title: Text(item.tenantName),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
               Text(
-                context.t('mob.tenantSwitch.current.label'),
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-            if (!item.selectable)
-              Text(
-                context.t('mob.tenantSwitch.unavailable.text', <String, Object>{
-                  'status': item.status == 'Active'
-                      ? item.tenantStatus
-                      : item.status,
+                context.t('mob.account.role.label', <String, Object>{
+                  'role': membershipTypeLabel(context, item.membershipType),
                 }),
-                style: Theme.of(context).textTheme.bodySmall,
+                style: context.v2text.caption,
               ),
-          ],
+              if (current)
+                Text(
+                  context.t('mob.tenantSwitch.current.label'),
+                  style: context.v2text.label,
+                ),
+              if (!item.selectable)
+                Text(
+                  context.t(
+                    'mob.tenantSwitch.unavailable.text',
+                    <String, Object>{
+                      'status': item.status == 'Active'
+                          ? item.tenantStatus
+                          : item.status,
+                    },
+                  ),
+                  style: context.v2text.caption,
+                ),
+            ],
+          ),
         ),
-      ),
+        const RowRule(inset: 0),
+      ],
     );
   }
 }

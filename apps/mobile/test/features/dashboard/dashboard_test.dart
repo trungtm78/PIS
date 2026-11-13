@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_api_client/machvon_api_client.dart' show HttpCall;
 import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/core/widgets/bottom_nav.dart' show AppBottomNav;
+import 'package:machvon_mobile/core/widgets/work_row.dart' show GroupHeader;
 import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
 import 'package:machvon_mobile/features/dashboard/screens/leader_home_screen.dart';
 
@@ -25,7 +27,7 @@ void _healthyCenter(ScriptedServer server) => server.on('GET', '/home/command-ce
 
 void main() {
   group('AC-ST-MOB-040-2 UAT-NFR-PERFORMANCE-02 the marker the cold start is timed to is on the home screen only once its content is loaded', () {
-    const String marker = 'Hai tỷ lệ giải ngân';
+    const String marker = 'Số liệu và công thức';
 
     testWidgets('not while the answer is awaited, not when it failed, and there when it came', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
@@ -52,7 +54,7 @@ void main() {
   });
 
   group('AC-ST-MOB-010-3 UAT-AC242 MOB-07 the leader sees two rates side by side, each with its numerator and denominator', () {
-    testWidgets('the two rates are on one line, 14 percent from 140 over 1000 and not the average of the projects', (WidgetTester tester) async {
+    testWidgets('the two rates are in the band and in the block of figures, 14 percent from 140 over 1000 and not the average of the projects', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _healthyCenter(server);
@@ -63,10 +65,34 @@ void main() {
       expect(find.text('30,0000%'), findsNothing, reason: 'the mean of 50% and 10% is not a figure of the screen');
       expect(find.textContaining('Tử số 140 triệu đồng · mẫu số 1 tỷ đồng'), findsOneWidget);
       expect(find.textContaining('Tử số 140 triệu đồng · mẫu số 1,12 tỷ đồng'), findsOneWidget);
+      // The band names both rates in its two notes and draws the one on the total plan as its bar.
+      expect(find.text('Tỷ lệ theo kế hoạch Thủ tướng giao: 14,0000%'), findsOneWidget);
+      expect(find.text('Tỷ lệ theo tổng kế hoạch vốn: 12,5000%'), findsOneWidget);
+      // In the block of figures each rate is a row of its own, with its sums and its formula, the rate on the plan of the Prime Minister first.
       final Rect pm = tester.getRect(find.ancestor(of: find.text('14,0000%'), matching: find.byType(MetricTileCard)));
       final Rect total = tester.getRect(find.ancestor(of: find.text('12,5000%'), matching: find.byType(MetricTileCard)));
-      expect(pm.top, total.top, reason: 'side by side');
-      expect(pm.right, lessThan(total.left));
+      expect(pm.bottom, lessThanOrEqualTo(total.top));
+      expect(pm.width, total.width, reason: 'one under the other, the same width');
+    });
+
+    testWidgets('the band never shows another amount under the label of the Treasury disbursement: without that tile it says there is no figure', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer()
+        ..on(
+          'GET',
+          '/home/command-center',
+          (_) => commandCenter(tiles: <Map<String, Object?>>[
+            tile('DISBURSEMENT_RATE_PM', value: '14.0000', numerator: '140000000', denominator: '1000000000'),
+            tile('DISBURSEMENT_RATE_TOTAL', value: '12.5000', numerator: '140000000', denominator: '1120000000'),
+            tile('PLAN_TOTAL', value: '1120000000', unit: 'VND'),
+          ]),
+        );
+      await _open(tester, server, '/home');
+
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      expect(find.bySemanticsLabel(RegExp(r'^Giải ngân lũy kế theo Kho bạc: Chưa có số liệu')), findsOneWidget, reason: 'the plan is not the disbursement');
+      expect(find.bySemanticsLabel(RegExp(r'^Giải ngân lũy kế theo Kho bạc: 1,12')), findsNothing);
+      semantics.dispose();
     });
 
     testWidgets('G0-4: the phone shows the digits the API gives as display_value (the text of the web and of the Excel file), not its own rounding', (WidgetTester tester) async {
@@ -110,12 +136,13 @@ void main() {
       final ScriptedServer server = ScriptedServer()..on('GET', '/home/command-center', (_) => commandCenter(projects: 2, unitId: 'u-bql1'));
       await _open(tester, server, '/home');
 
-      expect(find.text('Một đơn vị và các đơn vị trực thuộc (2 dự án)'), findsOneWidget);
-      expect(find.text('31/10/2026'), findsOneWidget);
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      expect(find.textContaining('Một đơn vị · 2 dự án · Số liệu tại 31/10/2026'), findsOneWidget, reason: 'the scope and the day are one line of context, said once');
       expect(find.text('3f2b6c1e…00a1'), findsOneWidget);
       expect(find.text('1 dự án chưa có dữ liệu'), findsOneWidget);
-      expect(find.text('3 cảnh báo sớm đang mở'), findsOneWidget);
-      expect(find.text('2 đề xuất điều chuyển vốn chờ quyết định'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^3 Cảnh báo đang mở')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^2 Điều chuyển chờ duyệt')), findsOneWidget);
+      semantics.dispose();
       expect(server.callsTo('GET', '/home/command-center'), hasLength(1));
     });
 
@@ -172,7 +199,7 @@ void main() {
 
       expect(find.text('14.0000%'), findsOneWidget);
       expect(find.textContaining('Numerator 140 million dong · denominator 1 billion dong'), findsOneWidget);
-      expect(find.text('The two disbursement rates'), findsOneWidget);
+      expect(find.text('Figures and formulas'), findsOneWidget);
     });
 
     testWidgets('the links lead to the officer home, the funding structure and the unreported projects', (WidgetTester tester) async {
@@ -223,7 +250,7 @@ void main() {
         open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/home'),
         script: StateScript(
           healthy: _healthyCenter,
-          content: find.text('Điều hành'),
+          content: find.text('Tổng quan'),
           empty: (ScriptedServer server) => server.refuse('GET', '/home/command-center', 404, 'RESOURCE_NOT_FOUND'),
         ),
       );
@@ -231,6 +258,71 @@ void main() {
 
     testWidgets('three devices, 200 percent text: no overflow, tap targets, labels and contrast', (WidgetTester tester) async {
       await expectScreenContract(tester, open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/home'), healthy: _healthyCenter);
+    });
+  });
+
+  group('R39 the home between the tabs and without a connection', () {
+    testWidgets('the home keeps its place when another tab is opened and the home is chosen again; the other tab is a screen of its own', (WidgetTester tester) async {
+      useDevice(tester, const Size(390, 600));
+      final ScriptedServer server = ScriptedServer();
+      _healthyCenter(server);
+      server
+        ..on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[alertItem('a-1', title: 'Việc một'), alertItem('a-2', title: 'Việc hai'), alertItem('a-3', title: 'Việc ba')]))
+        ..on('GET', '/home/my-work/counts', (_) => alertCounts(urgent: 0, action: 3));
+      final ProviderContainer container = await _open(tester, server, '/home');
+      final Finder list = find.byType(Scrollable).first;
+      await tester.drag(list, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      final double before = tester.state<ScrollableState>(list).position.pixels;
+      expect(before, greaterThan(0));
+
+      await tester.tap(find.descendant(of: find.byType(AppBottomNav), matching: find.text('Dự án')));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/projects');
+      await tester.tap(find.descendant(of: find.byType(AppBottomNav), matching: find.text('Trang chủ')));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/home');
+      expect(tester.state<ScrollableState>(find.byType(Scrollable).first).position.pixels, before, reason: 'a tab keeps its scroll while another is open');
+      expect(server.callsTo('GET', '/home/command-center'), hasLength(1), reason: 'going back to a tab reads nothing again');
+    });
+
+    testWidgets('offline with a copy: the connection is told once, by the strip of the shell; the line of context says it is a saved copy and stays', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      DateTime now = kNow;
+      final ScriptedServer server = ScriptedServer();
+      _healthyCenter(server);
+      server
+        ..on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[alertItem('a-1', title: 'Việc một')]))
+        ..on('GET', '/home/my-work/counts', (_) => alertCounts(action: 1));
+      await pumpWithServer(tester, features: <MobileFeature>[dashboard.feature], server: server, location: '/home', now: () => now);
+
+      server.offline = true;
+      now = kNow.add(const Duration(hours: 2));
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Bạn đang ngoại tuyến'), findsOneWidget, reason: 'one strip, not one per screen');
+      expect(find.textContaining('ngoại tuyến'), findsOneWidget, reason: 'no other line says "offline" again');
+      expect(find.textContaining('dữ liệu đã lưu'), findsWidgets, reason: 'the copy says it is a copy');
+      expect(find.text('14,0000%'), findsOneWidget, reason: 'the copy of the figures is still readable');
+      expect(find.widgetWithText(FilledButton, 'Xử lý'), findsNothing, reason: 'a copy offers no act');
+    });
+
+    testWidgets('stale: a copy older than its time to live is marked out of date in the one line of context', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      DateTime now = kNow;
+      final ScriptedServer server = ScriptedServer();
+      _healthyCenter(server);
+      server.on('GET', '/home/my-work', (_) => alertWork(<Map<String, Object?>>[]));
+      await pumpWithServer(tester, features: <MobileFeature>[dashboard.feature], server: server, location: '/home', now: () => now);
+
+      server.offline = true;
+      now = kNow.add(const Duration(days: 3));
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Số liệu cũ'), findsOneWidget, reason: 'the stale badge of the line of context');
+      expect(find.textContaining('Bản lưu đã quá 12 giờ'), findsOneWidget);
     });
   });
 
@@ -250,13 +342,21 @@ void main() {
       healthy(server);
       await _open(tester, server, '/home/mob-08');
 
-      expect(find.text('4 việc, trong đó 2 quá hạn'), findsOneWidget);
-      expect(find.text('Hạn nộp (1)'), findsOneWidget);
-      expect(find.text('Bản nháp (1)'), findsOneWidget);
-      expect(find.text('Việc giao (2)'), findsOneWidget);
-      expect(find.text('Hạn 30/10/2026, trễ 4 ngày, hạn ban đầu 28/10/2026'), findsOneWidget);
-      expect(find.text('Không có hạn'), findsNWidgets(2), reason: 'the card of the alert and the line of the group');
-      expect(find.text('Hạn 05/11/2026'), findsOneWidget);
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      expect(find.bySemanticsLabel(RegExp(r'^4 Việc đang mở')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'^2 Việc trễ hạn')), findsOneWidget);
+      semantics.dispose();
+      // One list, under one heading per band: late first, then soon, and the work with no due day last.
+      expect(find.descendant(of: find.byType(GroupHeader), matching: find.text('Quá hạn')), findsOneWidget);
+      expect(find.text('Sắp đến hạn'), findsOneWidget);
+      expect(find.text('Chưa có hạn'), findsOneWidget);
+      expect(find.text('Còn thời gian'), findsNothing, reason: 'a group with nothing in it has no heading');
+      final double late4 = tester.getTopLeft(find.text('Trễ 4 ngày')).dy;
+      final double late2 = tester.getTopLeft(find.text('Trễ 2 ngày')).dy;
+      final double soon = tester.getTopLeft(find.text('Còn 2 ngày')).dy;
+      final double none = tester.getTopLeft(find.text('Giải trình chậm giải ngân')).dy;
+      expect(<double>[late4, late2, soon, none], orderedEquals(<double>[late4, late2, soon, none]..sort()), reason: 'by due day, the latest first');
+      expect(find.text('hạn 30/10'), findsOneWidget, reason: 'the real day beside the words');
     });
 
     testWidgets('only an approval task opens, in the approval detail; the other kinds are done in their own module', (WidgetTester tester) async {
@@ -265,7 +365,7 @@ void main() {
       healthy(server);
       final ProviderContainer container = await _open(tester, server, '/home/mob-08');
 
-      await tester.tap(find.text('Phê duyệt kế hoạch vốn').last);
+      await tester.tap(find.widgetWithText(FilledButton, 'Xử lý'));
       await tester.pumpAndSettle();
       expect(currentLocation(container), '/approval/mob-24/w-approval');
       expect(find.text('task w-approval'), findsOneWidget);

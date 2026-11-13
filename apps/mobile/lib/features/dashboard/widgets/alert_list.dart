@@ -7,11 +7,19 @@ import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart' show ScreenSpec;
 import '../../../core/navigation/route_table.dart' show RouteTable;
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/components.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/deadline.dart';
+import '../../../core/widgets/sheets.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../read_support/clock.dart';
 import '../../read_support/navigate.dart';
 import '../alert_commands.dart';
 import '../alerts.dart';
 import 'alert_card.dart';
+import 'alert_row.dart';
 import 'alert_sheets.dart';
 
 /// The time of day of a moment, for "checked at 07:05".
@@ -20,7 +28,7 @@ String _timeOf(DateTime moment) {
   return full.substring(full.length - 5);
 }
 
-/// A grey shape where the alerts will be while they load: never a figure, never a 0 (the counts are unknown, not nought).
+/// Rows in the shape of the alerts where they will be while they load: never a figure, never a 0 (the counts are unknown, not nought).
 class AlertListSkeleton extends StatelessWidget {
   const AlertListSkeleton({super.key});
 
@@ -29,29 +37,23 @@ class AlertListSkeleton extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       label: context.t('mob.alert.list.loading.label'),
-      child: ExcludeSemantics(
-        child: Column(
-          children: <Widget>[
-            for (int index = 0; index < 2; index += 1)
-              const Card(
-                margin: EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space4),
-                child: SizedBox(height: 112, width: double.infinity, child: DecoratedBox(decoration: BoxDecoration(color: MachvonColors.neutralSoft, borderRadius: BorderRadius.all(Radius.circular(MachvonRadius.card))))),
-              ),
-          ],
-        ),
-      ),
+      child: const ExcludeSemantics(child: Column(children: <Widget>[WorkRowSkeleton(), WorkRowSkeleton()])),
     );
   }
 }
 
-/// The block "Needs action now": the alerts of the person (or of the scope), the most important [limit] of them, each with one
-/// primary action and a menu for taking it, giving it and reminding later. It draws every state of the data it is given:
+/// The block "Needs action now": the alerts of the person (or of the scope), the most important [limit] of them, each a row with its
+/// deadline and one primary action; a tap on the row opens the whole alert in a sheet (the clocks, who holds it, what follows, and the
+/// acts of taking it, giving it and reminding later). It draws every state of the data it is given:
 ///
 ///  * no feed and no error: the skeleton;
 ///  * [errorCode] and no feed: the failing source is named, with the stable code and a retry in place;
 ///  * a feed that names unavailable sources: they are listed, and "nothing to do" is never said while one is missing;
 ///  * a feed with no alerts: "No urgent work left" with the time of the check;
 ///  * [stale] says "Stale figures"; [readOnly] (a copy kept on the device) offers no act and says when it was last synced.
+///
+/// With [groupByDeadline] the rows are ordered by their due day and grouped under the three bands (late, soon, with time) and a group of
+/// the alerts that have no due day: the "work of today" of an officer.
 class AlertsPanel extends ConsumerStatefulWidget {
   const AlertsPanel({
     required this.feed,
@@ -64,6 +66,7 @@ class AlertsPanel extends ConsumerStatefulWidget {
     this.scopeRefused = false,
     this.allowAssign = true,
     this.showSeeAll = true,
+    this.groupByDeadline = false,
     this.title,
     super.key,
   });
@@ -80,6 +83,7 @@ class AlertsPanel extends ConsumerStatefulWidget {
   final bool scopeRefused;
   final bool allowAssign;
   final bool showSeeAll;
+  final bool groupByDeadline;
 
   /// The heading of the block; "Needs action now" when the screen gives none.
   final String? title;
@@ -158,85 +162,143 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
     ref.read(alertsChangedProvider.notifier).bump();
   }
 
+  /// The whole alert in a sheet: every line of it and its acts. An act closes the sheet first, so what it opens (the record, a sheet to
+  /// choose a person or a time) is not laid over it.
+  void _openDetail(AlertItem item) {
+    showActionSheet<void>(
+      context,
+      builder: (BuildContext sheet) {
+        void closeThen(VoidCallback act) {
+          Navigator.of(sheet).pop();
+          act();
+        }
+
+        return AlertCard(
+          key: ValueKey<String>('alert-${item.id}'),
+          item: item,
+          now: _now(),
+          busy: _busy.contains(item.id),
+          onOpen: widget.readOnly || _screenOf(item) == null ? null : () => closeThen(() => _open(item)),
+          onClaim: widget.readOnly ? null : () => closeThen(() => _claim(item)),
+          onAssign: widget.readOnly || !widget.allowAssign ? null : () => closeThen(() => _assign(item)),
+          onSnooze: widget.readOnly ? null : () => closeThen(() => _snooze(item)),
+        );
+      },
+    );
+  }
+
+  Widget _row(AlertItem item, DateTime now, {required bool first}) {
+    final bool canOpen = !widget.readOnly && _screenOf(item) != null;
+    final bool canClaim = !widget.readOnly && item.canClaim;
+    final String? label = canOpen
+        ? context.t('mob.alert.action.open.label')
+        : (canClaim ? (item.needsReclaim ? context.t('mob.alert.action.reclaim.label') : context.t('mob.alert.action.claim.label')) : null);
+    return AlertRow(
+      key: ValueKey<String>('alert-row-${item.id}'),
+      item: item,
+      now: now,
+      busy: _busy.contains(item.id),
+      primaryLabel: label,
+      onPrimary: canOpen ? () => _open(item) : (canClaim ? () => _claim(item) : null),
+      onTap: () => _openDetail(item),
+      dividerAbove: !first,
+    );
+  }
+
+  /// The rows ordered by due day, nearest first and late first, under one heading per band; the alerts without a due day come last.
+  List<Widget> _grouped(List<AlertItem> items, DateTime now) {
+    final List<(AlertItem, AlertDeadline?)> ordered = <(AlertItem, AlertDeadline?)>[
+      for (final AlertItem item in items) (item, alertDeadline(item, now)),
+    ]..sort(((AlertItem, AlertDeadline?) a, (AlertItem, AlertDeadline?) b) {
+        final AlertDeadline? da = a.$2;
+        final AlertDeadline? db = b.$2;
+        if (da == null || db == null) return da == db ? compareAlerts(a.$1, b.$1) : (da == null ? 1 : -1);
+        final int byDays = da.days.compareTo(db.days);
+        return byDays != 0 ? byDays : compareAlerts(a.$1, b.$1);
+      });
+    final List<Widget> out = <Widget>[];
+    for (final DeadlineBand? band in <DeadlineBand?>[DeadlineBand.late, DeadlineBand.soon, DeadlineBand.ok, null]) {
+      final List<(AlertItem, AlertDeadline?)> group = <(AlertItem, AlertDeadline?)>[
+        for (final (AlertItem, AlertDeadline?) entry in ordered)
+          if (entry.$2?.band == band) entry,
+      ];
+      if (group.isEmpty) continue;
+      out.add(GroupHeader(title: band == null ? context.t('mob.alert.group.none.label') : deadlineBandName(context, band), count: group.length));
+      for (int index = 0; index < group.length; index += 1) {
+        out.add(_row(group[index].$1, now, first: index == 0));
+      }
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
     final AlertFeed? feed = widget.feed;
     final DateTime now = _now();
     final bool counted = feed != null;
     final String checked = _timeOf(widget.fetchedAt ?? now);
+    final List<AlertItem> shown = counted ? feed.top(widget.limit) : const <AlertItem>[];
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s8),
+            child: Row(
               children: <Widget>[
-                Semantics(header: true, child: Text(widget.title ?? context.t('mob.alert.list.title.label'), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700))),
+                Expanded(child: Semantics(header: true, child: Text(widget.title ?? context.t('mob.alert.list.title.label'), style: text.heading))),
                 if (counted && widget.showSeeAll && !feed.isEmpty)
-                  TextButton(
-                    onPressed: () => openScreen(context, 'MOB-32'),
-                    child: Text(context.t('mob.alert.list.seeAll.action')),
-                  ),
+                  TextButton(onPressed: () => openScreen(context, 'MOB-32', query: const <String, String>{'tab': 'work'}), child: Text(context.t('mob.alert.list.seeAll.action'))),
               ],
             ),
           ),
           if (counted && !feed.isEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, 0, MachvonSpace.space16, MachvonSpace.space4),
-              child: Wrap(
-                spacing: MachvonSpace.space8,
-                runSpacing: MachvonSpace.space4,
-                children: <Widget>[
-                  for (final AlertSeverity severity in AlertSeverity.values)
-                    if (feed.counts.of(severity) > 0) SeverityChip(severity: severity, count: feed.counts.of(severity)),
-                ],
+              padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s4, MachvonV2Space.s16, MachvonV2Space.s8),
+              child: Semantics(
+                container: true,
+                child: Text(
+                  <String>[
+                    for (final AlertSeverity severity in AlertSeverity.values)
+                      if (feed.counts.of(severity) > 0) context.t('mob.alert.list.tally.chip', <String, Object>{'label': severityLabel(context, severity), 'count': feed.counts.of(severity)}),
+                  ].join(' · '),
+                  style: text.caption,
+                ),
               ),
             ),
-          if (widget.readOnly) _Note(text: context.t('mob.alert.list.offline.note', <String, Object>{'time': formatMoment(widget.fetchedAt?.toUtc().toIso8601String() ?? now.toIso8601String())}), live: true),
-          if (widget.stale) _Note(text: context.t('mob.alert.list.stale.note'), warn: true),
+          if (widget.readOnly) _Note(text: context.t('mob.alert.list.offline.note', <String, Object>{'time': formatMoment(widget.fetchedAt?.toUtc().toIso8601String() ?? now.toIso8601String())})),
+          if (widget.stale) StatusBanner(tone: BannerTone.warning, icon: Icons.info_outline, text: context.t('mob.alert.list.stale.note')),
           if (widget.scopeRefused) _Note(text: context.t('mob.alert.list.scopeRefused.note')),
           if (counted && feed.unavailableSources.isNotEmpty)
-            _Note(
+            StatusBanner(
+              tone: BannerTone.warning,
+              icon: Icons.info_outline,
               text: context.t('mob.alert.list.unavailable.note', <String, Object>{'sources': feed.unavailableSources.map((String s) => alertSourceLabel(context, s)).join(', ')}),
-              warn: true,
-              live: true,
             ),
           if (feed == null && widget.errorCode == null) const AlertListSkeleton(),
           if (feed == null && widget.errorCode != null) _ErrorBlock(code: widget.errorCode!, onRetry: widget.onReload),
           if (counted && feed.isEmpty && feed.unavailableSources.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
+              padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
               child: MergeSemantics(
                 child: Row(
                   children: <Widget>[
-                    const Icon(Icons.check_circle_outline, color: MachvonColors.success),
-                    const SizedBox(width: MachvonSpace.space8),
-                    Expanded(child: Text(context.t('mob.alert.list.empty.line', <String, Object>{'time': checked}), style: theme.textTheme.bodyMedium)),
+                    Icon(Icons.check_circle_outline, color: v2.palette.okFg),
+                    const SizedBox(width: MachvonV2Space.s8),
+                    Expanded(child: Text(context.t('mob.alert.list.empty.line', <String, Object>{'time': checked}), style: text.body)),
                   ],
                 ),
               ),
             ),
           if (counted)
-            for (final AlertItem item in feed.top(widget.limit))
-              AlertCard(
-                key: ValueKey<String>('alert-${item.id}'),
-                item: item,
-                now: now,
-                busy: _busy.contains(item.id),
-                onOpen: widget.readOnly || _screenOf(item) == null ? null : () => _open(item),
-                onClaim: widget.readOnly ? null : () => _claim(item),
-                onAssign: widget.readOnly || !widget.allowAssign ? null : () => _assign(item),
-                onSnooze: widget.readOnly ? null : () => _snooze(item),
-              ),
+            if (widget.groupByDeadline) ..._grouped(shown, now) else for (int index = 0; index < shown.length; index += 1) _row(shown[index], now, first: index == 0),
           if (counted && feed.items.length > widget.limit || (counted && feed.truncated))
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space4),
-              child: Text(context.t('mob.alert.list.more.note', <String, Object>{'count': feed.counts.total > widget.limit ? feed.counts.total - widget.limit : feed.items.length - widget.limit}), style: theme.textTheme.bodySmall),
+              padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s4),
+              child: Text(context.t('mob.alert.list.more.note', <String, Object>{'count': feed.counts.total > widget.limit ? feed.counts.total - widget.limit : feed.items.length - widget.limit}), style: text.caption),
             ),
         ],
       ),
@@ -244,37 +306,19 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
   }
 }
 
+/// A line of explanation under the heading: why the acts are locked, where the list came from.
 class _Note extends StatelessWidget {
-  const _Note({required this.text, this.warn = false, this.live = false});
+  const _Note({required this.text});
 
   final String text;
-  final bool warn;
-  final bool live;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      liveRegion: live,
       container: true,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space4),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: warn ? MachvonColors.warningSoft : MachvonColors.neutralSoft,
-            borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(MachvonSpace.space8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                ExcludeSemantics(child: Icon(warn ? Icons.info_outline : Icons.cloud_off_outlined, size: 18, color: warn ? MachvonColors.warning : MachvonColors.neutral)),
-                const SizedBox(width: MachvonSpace.space8),
-                Expanded(child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: MachvonColors.ink))),
-              ],
-            ),
-          ),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s4),
+        child: Text(text, style: context.v2text.caption),
       ),
     );
   }
@@ -288,19 +332,20 @@ class _ErrorBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
+      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
       child: Semantics(
         liveRegion: true,
         container: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(context.t('mob.alert.list.error.title'), style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-            Text(context.t('mob.alert.list.error.body', <String, Object>{'code': code}), style: theme.textTheme.bodyMedium),
-            const SizedBox(height: MachvonSpace.space8),
-            OutlinedButton(onPressed: onRetry, child: Text(context.t('mob.alert.list.retry.action'))),
+            Text(context.t('mob.alert.list.error.title'), style: text.bodyStrong),
+            Text(context.t('mob.alert.list.error.body', <String, Object>{'code': code}), style: text.body),
+            const SizedBox(height: MachvonV2Space.s8),
+            OutlinedButton(onPressed: onRetry, style: v2QuietButtonStyle(v2), child: Text(context.t('mob.alert.list.retry.action'))),
           ],
         ),
       ),

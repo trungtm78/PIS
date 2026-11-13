@@ -456,7 +456,7 @@ void main() {
       final List<File> owned = <File>[for (final EvidencePhoto photo in capture.record.photos) File(photo.path)].where((File file) => file.existsSync()).toList();
       expect(owned, isNotEmpty, reason: 'the capture that is kept refers to a file that is still there');
 
-      await world.go(tester, '/projects/mob-41');
+      await world.go(tester, '/account/mob-41');
       await settleReal(tester, rounds: 8);
       for (final File file in owned) {
         expect(file.existsSync(), isTrue, reason: 'the capture kept on the phone still refers to ${file.path}');

@@ -7,6 +7,8 @@ import '../../../core/di/providers.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/session/session.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
 import '../../../core/widgets/figure_info.dart';
 import '../../../core/widgets/skeleton.dart';
 import '../../read_support/navigate.dart';
@@ -138,7 +140,7 @@ class _OpenDashboard extends StatelessWidget {
       onTap: () => openScreen(context, 'MOB-72', stacked: true),
       child: Row(
         children: <Widget>[
-          Expanded(child: Text(context.t('mob.home.committee.open.action'), style: const TextStyle(color: MachvonColors.primary))),
+          Expanded(child: Text(context.t('mob.home.committee.open.action'), style: context.v2text.body.copyWith(color: context.v2.palette.primaryStrong))),
           const ExcludeSemantics(child: Icon(Icons.chevron_right)),
         ],
       ),

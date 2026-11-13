@@ -41,11 +41,29 @@ Future<ScriptedServer> _openSheet(WidgetTester tester, Map<String, Object?> aler
     server.on('GET', '/home/work-clocks/policies', (_) => policies ?? workClockPolicies());
   }
   await pumpWithServer(tester, features: <MobileFeature>[dashboard.feature, _approvalStub], server: server, location: '/home');
-  await tester.tap(find.byTooltip('Thao tác với việc này'));
+  await openAlertSheet(tester);
   await tester.pumpAndSettle();
   await tester.tap(find.text('Nhắc lại sau'));
   await tester.pumpAndSettle();
   return server;
+}
+
+/// Opens the sheet of each of the first [count] rows in turn and gathers the words and the icons of its alert card: the whole alert is in the sheet, the row says only its deadline.
+Future<({Set<String> texts, Set<IconData> icons})> _inTheSheets(WidgetTester tester, int count) async {
+  final Set<String> texts = <String>{};
+  final Set<IconData> icons = <IconData>{};
+  for (int index = 0; index < count; index += 1) {
+    await openAlertSheet(tester, index: index);
+    for (final Element element in find.descendant(of: find.byType(AlertCard), matching: find.byType(Text)).evaluate()) {
+      texts.add((element.widget as Text).data ?? '');
+    }
+    for (final Element element in find.descendant(of: find.byType(AlertCard), matching: find.byType(Icon)).evaluate()) {
+      final IconData? icon = (element.widget as Icon).icon;
+      if (icon != null) icons.add(icon);
+    }
+    await pressBack(tester);
+  }
+  return (texts: texts, icons: icons);
 }
 
 Finder get _submit => find.descendant(of: find.byType(BottomSheet), matching: find.widgetWithText(FilledButton, 'Hoãn việc'));
@@ -409,12 +427,13 @@ void main() {
       final ScriptedServer server = await _openHome(tester, <Map<String, Object?>>[
         alertItem('x-1', screen: 'DIS-03', title: 'Tạm ứng quá hạn', lifecycle: 'CLAIMED', claimedBy: <String, Object?>{'name': 'Lê Văn B'}, extra: <String, Object?>{'needs_reclaim': true}),
       ]);
-      expect(find.descendant(of: find.byType(AlertCard), matching: find.text('Cần nhận lại')), findsOneWidget);
-      expect(find.descendant(of: find.byType(AlertCard), matching: find.byIcon(Icons.replay)), findsOneWidget, reason: 'not the colour alone');
       expect(find.widgetWithText(FilledButton, 'Nhận lại'), findsOneWidget);
       expect(find.text('Nhận xử lý'), findsNothing);
+      await openAlertSheet(tester);
+      expect(find.descendant(of: find.byType(AlertCard), matching: find.text('Cần nhận lại')), findsOneWidget);
+      expect(find.descendant(of: find.byType(AlertCard), matching: find.byIcon(Icons.replay)), findsOneWidget, reason: 'not the colour alone');
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Nhận lại'));
+      await tester.tap(find.descendant(of: find.byType(AlertCard), matching: find.widgetWithText(FilledButton, 'Nhận lại')));
       await tester.pumpAndSettle();
       expect(server.callsTo('POST', '/home/work-actions/claim'), hasLength(1));
       expect(find.text('Đã nhận lại: Tạm ứng quá hạn'), findsOneWidget);
@@ -454,14 +473,17 @@ void main() {
           },
         }),
       ]);
-      expect(find.text('Nhận việc: còn 2 giờ · 12:00'), findsOneWidget);
-      expect(find.text('Xử lý: còn 3 ngày · 06/11'), findsOneWidget);
-      expect(find.text('Nhận việc: quá hạn 2 giờ'), findsOneWidget);
-      expect(find.text('Xử lý: tạm dừng · hạn 06/11/2026 10:00'), findsOneWidget);
-      expect(find.text('Nhận việc: đạt lúc 03/11/2026 08:30'), findsOneWidget);
-      expect(find.text('Xử lý: đạt nhưng trễ, lúc 03/11/2026 09:00'), findsOneWidget);
+      final ({Set<String> texts, Set<IconData> icons}) sheets = await _inTheSheets(tester, 3);
+      expect(sheets.texts, containsAll(<String>[
+        'Nhận việc: còn 2 giờ · 12:00',
+        'Xử lý: còn 3 ngày · 06/11',
+        'Nhận việc: quá hạn 2 giờ',
+        'Xử lý: tạm dừng · hạn 06/11/2026 10:00',
+        'Nhận việc: đạt lúc 03/11/2026 08:30',
+        'Xử lý: đạt nhưng trễ, lúc 03/11/2026 09:00',
+      ]));
       for (final IconData icon in <IconData>[Icons.timer_outlined, Icons.error_outline, Icons.pause_circle_outline, Icons.check_circle_outline, Icons.watch_later_outlined]) {
-        expect(find.descendant(of: find.byType(AlertCard), matching: find.byIcon(icon)), findsWidgets, reason: 'every state has an icon: $icon');
+        expect(sheets.icons, contains(icon), reason: 'every state has an icon: $icon');
       }
     });
 
@@ -471,6 +493,7 @@ void main() {
           'clocks': <String, Object?>{'basis': 'CALENDAR_UNAVAILABLE', 'claim': null, 'resolve': null, 'paused': false, 'needs_reclaim': false},
         }),
       ]);
+      await openAlertSheet(tester);
       expect(find.text('Chưa có lịch làm việc đã công bố nên chưa tính được hạn'), findsOneWidget);
       expect(find.text('Không có hạn'), findsNothing);
       expect(find.descendant(of: find.byType(AlertCard), matching: find.byIcon(Icons.event_busy_outlined)), findsOneWidget);
@@ -489,12 +512,15 @@ void main() {
           'reminders': <String, Object?>{'sent': 3, 'next_at': null, 'due': false, 'exhausted': true},
         }),
       ]);
-      expect(find.text('Hoãn lần 1/2 · Chờ bên thứ ba · đến 03/11/2026 17:00'), findsOneWidget);
-      expect(find.text('Hoãn lần 2/2 · PROBABLY_NEW · đến 03/11/2026 17:00 · lần hoãn cuối'), findsOneWidget);
-      expect(find.text('Đồng hồ tạm dừng đến 04/11/2026 08:00'), findsOneWidget);
-      expect(find.text('Đã nhắc 2 lần · nhắc tiếp lúc 03/11/2026 13:00'), findsOneWidget);
-      expect(find.text('Đã nhắc hết số lần (3)'), findsOneWidget);
-      expect(find.text('Cần làm: Gọi chủ đầu tư'), findsOneWidget);
+      final ({Set<String> texts, Set<IconData> icons}) sheets = await _inTheSheets(tester, 2);
+      expect(sheets.texts, containsAll(<String>[
+        'Hoãn lần 1/2 · Chờ bên thứ ba · đến 03/11/2026 17:00',
+        'Hoãn lần 2/2 · PROBABLY_NEW · đến 03/11/2026 17:00 · lần hoãn cuối',
+        'Đồng hồ tạm dừng đến 04/11/2026 08:00',
+        'Đã nhắc 2 lần · nhắc tiếp lúc 03/11/2026 13:00',
+        'Đã nhắc hết số lần (3)',
+        'Cần làm: Gọi chủ đầu tư',
+      ]));
     });
 
     testWidgets('a source the phone does not know is shown with its code and does not crash; the clock source has a word of its own', (WidgetTester tester) async {
@@ -504,9 +530,11 @@ void main() {
         alertItem('x-3', source: 'MONEY_CONTROL', title: 'Ba'),
       ]);
       expect(tester.takeException(), isNull);
-      expect(find.textContaining('Nguồn: Nguồn khác (FUTURE_SOURCE)'), findsOneWidget);
-      expect(find.textContaining('Nguồn: Đồng hồ nghĩa vụ'), findsOneWidget);
-      expect(find.textContaining('Nguồn: Kiểm soát vốn'), findsOneWidget);
+      expect(find.textContaining('Nguồn khác (FUTURE_SOURCE)'), findsWidgets, reason: 'a source the phone does not know shows its code in the row');
+      final ({Set<String> texts, Set<IconData> icons}) sheets = await _inTheSheets(tester, 3);
+      expect(sheets.texts.where((String text) => text.startsWith('Nguồn: Nguồn khác (FUTURE_SOURCE)')), isNotEmpty);
+      expect(sheets.texts.where((String text) => text.startsWith('Nguồn: Đồng hồ nghĩa vụ')), isNotEmpty);
+      expect(sheets.texts.where((String text) => text.startsWith('Nguồn: Kiểm soát vốn')), isNotEmpty);
     });
 
     testWidgets('three devices, 200 percent text: no overflow, tap targets and labels with the new lines on the cards', (WidgetTester tester) async {

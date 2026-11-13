@@ -136,11 +136,11 @@ void main() {
     test('the cold start is timed to the content of the home screen once loaded, not to the tab label that is there before it', () {
       final StringCatalogue catalogue = _catalogue();
       final Set<String> tabs = <String>{for (final String tab in <String>['home', 'projects', 'approval', 'inbox', 'account']) catalogue.lookup('vi', 'mob.shell.tab.$tab')!};
-      final String loaded = catalogue.lookup('vi', 'mob.alert.list.title.label')!;
+      final String loaded = catalogue.lookup('vi', 'mob.home.decide.title')!;
       final String script = File('qa/device/scripts/run_cold_start_samples.sh').readAsStringSync();
       final String marker = RegExp(r'^marker="([^"]+)"', multiLine: true).firstMatch(script)!.group(1)!;
       expect(tabs, isNot(contains(marker)), reason: 'the tab bar is drawn before the dashboard has asked the server for anything');
-      expect(marker, loaded, reason: 'the heading "Cần xử lý ngay" at the top of the loaded home: the body is built only once the dashboard has its answer, so it is on no loading, empty or failed screen');
+      expect(marker, loaded, reason: 'the heading "Cần bạn quyết định" of the alerts of the loaded home: the body is built only once the dashboard has its answer, so it is on no loading, empty or failed screen');
       final String flow = File('qa/device/flows/20_cold_start_main_content.yaml').readAsStringSync();
       final Set<String> waited = <String>{for (final RegExpMatch m in RegExp(r"visible:\s*'([^']+)'").allMatches(flow)) m.group(1)!};
       expect(waited, <String>{loaded});

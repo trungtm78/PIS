@@ -5,6 +5,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/theme/colors.dart';
 import '../alert_commands.dart';
 import '../alerts.dart';
 import '../work_policy.dart';
@@ -175,7 +176,7 @@ class _SnoozeSheetState extends ConsumerState<_SnoozeSheet> {
     final SnoozePolicyView? view = policy.value;
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(MachvonSpace.space16, 0, MachvonSpace.space16, MediaQuery.viewInsetsOf(context).bottom + MachvonSpace.space16),
+        padding: EdgeInsets.only(left: MachvonSpace.space16, right: MachvonSpace.space16, bottom: MediaQuery.viewInsetsOf(context).bottom + MachvonSpace.space16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
@@ -248,9 +249,9 @@ class _SnoozeSheetState extends ConsumerState<_SnoozeSheet> {
           ].join(' · '),
           style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
-        if (exhausted) _Notice(icon: Icons.block, text: context.t('mob.alert.snooze.exhausted.note', <String, Object>{'of': policy.maxConsecutive}), color: MachvonColors.danger),
-        if (pastDue && !exhausted) _Notice(icon: Icons.block, text: context.t('mob.alert.snooze.pastDue.note'), color: MachvonColors.danger),
-        if (last) _Notice(icon: Icons.warning_amber_rounded, text: policy.finalNotifies ? context.t('mob.alert.snooze.final.warn') : context.t('mob.alert.snooze.finalQuiet.note'), color: MachvonColors.warning),
+        if (exhausted) _Notice(icon: Icons.block, text: context.t('mob.alert.snooze.exhausted.note', <String, Object>{'of': policy.maxConsecutive}), color: context.v2.palette.lateFg),
+        if (pastDue && !exhausted) _Notice(icon: Icons.block, text: context.t('mob.alert.snooze.pastDue.note'), color: context.v2.palette.lateFg),
+        if (last) _Notice(icon: Icons.warning_amber_rounded, text: policy.finalNotifies ? context.t('mob.alert.snooze.final.warn') : context.t('mob.alert.snooze.finalQuiet.note'), color: context.v2.palette.soonFg),
         const SizedBox(height: MachvonSpace.space8),
         Semantics(header: true, child: Text(context.t('mob.alert.snooze.reason.title'), style: theme.textTheme.labelLarge)),
         for (final String code in policy.reasons)
@@ -381,7 +382,7 @@ class _FieldError extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) => _Notice(icon: Icons.error_outline, text: text, color: MachvonColors.danger);
+  Widget build(BuildContext context) => _Notice(icon: Icons.error_outline, text: text, color: context.v2.palette.lateFg);
 }
 
 class _PolicyError extends StatelessWidget {
@@ -395,7 +396,7 @@ class _PolicyError extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _Notice(icon: Icons.error_outline, text: context.t('mob.alert.snooze.policy.error', <String, Object>{'code': code}), color: MachvonColors.danger),
+        _Notice(icon: Icons.error_outline, text: context.t('mob.alert.snooze.policy.error', <String, Object>{'code': code}), color: context.v2.palette.lateFg),
         const SizedBox(height: MachvonSpace.space8),
         OutlinedButton(onPressed: onRetry, child: Text(context.t('mob.alert.snooze.policyRetry.action'))),
       ],
@@ -469,7 +470,7 @@ class _AssignSheetState extends State<_AssignSheet> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(MachvonSpace.space16, 0, MachvonSpace.space16, MediaQuery.viewInsetsOf(context).bottom + MachvonSpace.space16),
+        padding: EdgeInsets.only(left: MachvonSpace.space16, right: MachvonSpace.space16, bottom: MediaQuery.viewInsetsOf(context).bottom + MachvonSpace.space16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,

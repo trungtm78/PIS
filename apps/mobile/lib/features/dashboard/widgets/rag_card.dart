@@ -3,6 +3,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/widgets/section_panel.dart';
 import '../../read_support/widgets.dart';
 import '../home_insight.dart';
 
@@ -10,15 +11,7 @@ import '../home_insight.dart';
 const int ragUnitsShown = 3;
 
 /// A number as the screen writes it: at most two decimals, the decimal sign of the language.
-String ragNumber(double value, String language) {
-  String text = value.toStringAsFixed(2);
-  if (text.contains('.')) {
-    text = text
-        .replaceFirst(RegExp(r'0+$'), '')
-        .replaceFirst(RegExp(r'\.$'), '');
-  }
-  return language == 'en' ? text : text.replaceAll('.', ',');
-}
+String ragNumber(double value, String language) => formatMeasure(value, language);
 
 /// The name of a colour in words: a colour is never told by its tint alone.
 String ragBandLabel(BuildContext context, RagBand band) {
@@ -275,13 +268,7 @@ class _UnitBlock extends StatelessWidget {
     final RagOverride? override = unit.override;
     return Padding(
       padding: const EdgeInsets.only(top: MachvonSpace.space12),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border.all(color: MachvonColors.border),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(MachvonRadius.control),
-          ),
-        ),
+      child: OutlinedBlock(
         child: Padding(
           padding: const EdgeInsets.all(MachvonSpace.space12),
           child: Column(

@@ -23,6 +23,7 @@ class StateBoundary extends StatelessWidget {
     this.onRetry,
     this.activeFilters = const <String>[],
     this.onClearFilters,
+    this.emptyBuilder,
     this.keepContent = true,
     super.key,
   });
@@ -35,6 +36,9 @@ class StateBoundary extends StatelessWidget {
   final VoidCallback? onRetry;
   final List<String> activeFilters;
   final VoidCallback? onClearFilters;
+
+  /// The empty state of a screen that has its own words and next step ("You are done for today"); null draws the standard one.
+  final WidgetBuilder? emptyBuilder;
   final bool keepContent;
 
   @override
@@ -57,7 +61,7 @@ class StateBoundary extends StatelessWidget {
       case ScreenState.loading:
         return LoadingView(label: context.t('mob.states.loading.label'));
       case ScreenState.empty:
-        return EmptyStateView(activeFilters: activeFilters, onClearFilters: onClearFilters);
+        return emptyBuilder?.call(context) ?? EmptyStateView(activeFilters: activeFilters, onClearFilters: onClearFilters);
       case ScreenState.error:
       case ScreenState.denied:
       case ScreenState.expired:

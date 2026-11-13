@@ -76,7 +76,7 @@ void main() {
       expect(container.read(reachabilityProvider), Reachability.offline);
       expect(find.text('title Báo cáo tuần'), findsOneWidget);
       expect(find.textContaining('Đang hiển thị dữ liệu đã lưu trên máy, số liệu tại 31/10/2026'), findsOneWidget);
-      expect(find.text('Số tiền chỉ để tham khảo, không sửa được.'), findsOneWidget);
+      expect(find.textContaining('Số tiền chỉ để tham khảo, không sửa được.'), findsOneWidget);
       expect(find.textContaining('mới nhất'), findsNothing);
       expect(find.textContaining('latest'), findsNothing);
       expect(find.textContaining('quá'), findsNothing, reason: 'a copy of today is not out of date');
@@ -94,7 +94,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Showing the copy kept on this device, as of 31/10/2026'), findsOneWidget);
-      expect(find.text('This copy is older than 12 hours. Connect to check it again.'), findsOneWidget);
+      expect(find.textContaining('This copy is older than 12 hours. Connect to check it again.'), findsOneWidget);
       expect(find.textContaining('latest'), findsNothing);
       expect(find.textContaining('newest'), findsNothing);
     });

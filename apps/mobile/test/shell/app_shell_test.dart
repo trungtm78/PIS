@@ -215,13 +215,13 @@ void main() {
 
       await tester.tap(find.text('2 thay đổi đang chờ gửi'));
       await tester.pumpAndSettle();
-      expect(currentLocation(container), '/projects/mob-41');
+      expect(currentLocation(container), '/account/mob-41');
 
       await tester.tap(find.text('2 thay đổi đang chờ gửi'));
       await tester.pumpAndSettle();
-      expect(currentLocation(container), '/projects/mob-41');
+      expect(currentLocation(container), '/account/mob-41');
       await pressBack(tester);
-      expect(currentLocation(container), '/projects', reason: 'one back press leaves the queue for the tab: the banner did not stack a second copy');
+      expect(currentLocation(container), '/account', reason: 'one back press leaves the queue for the tab: the banner did not stack a second copy');
     });
 
     testWidgets('AC-ST-MOB-040-3 NAV-01 the conflict banner opens the queue too', (WidgetTester tester) async {
@@ -231,7 +231,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('1 thay đổi cần bạn chọn cách xử lý xung đột'));
       await tester.pumpAndSettle();
-      expect(currentLocation(container), '/projects/mob-41');
+      expect(currentLocation(container), '/account/mob-41');
     });
 
     testWidgets('AC-ST-MOB-041-1 INTEG-01 a phone that looks modified is told once: the notice says what changes, and closing it keeps it closed', (WidgetTester tester) async {
