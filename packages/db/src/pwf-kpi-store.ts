@@ -1,6 +1,6 @@
 import { DomainError, pwfKpi } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
-import { calendarFingerprint, dayOfInstant, factsOf, itemsFor, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
+import { EXCUSAL_MARK_SQL, calendarFingerprint, dayOfInstant, factsOf, itemsFor, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
 import type { CalendarSet, ResolvedKpiSet, TaskBundle, TaskReading } from './pwf-score-facts.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { scoreIdOf } from './pwf-score-support.ts';
@@ -142,7 +142,7 @@ export class PwfKpiStore {
     const rows = await tx.query<{ id: string }>(
       `select t.id from machvon.project_task t
         where t.tracked and not t.excluded and t.kind = 'TASK' and t.status in ('DONE', 'CANCELLED')
-          and (t.kpi_recorded_version is null or t.kpi_recorded_version <> t.version or t.kpi_recorded_calendars is distinct from $2)
+          and (t.kpi_recorded_version is null or t.kpi_recorded_version <> t.version or t.kpi_recorded_calendars is distinct from $2 || '|' || ${EXCUSAL_MARK_SQL})
         order by t.updated_at, t.id limit $1`,
       [limit, fingerprint],
     );
@@ -223,7 +223,7 @@ export class PwfKpiStore {
       );
     }
     summary.written = rows.length;
-    await tx.query('update machvon.project_task set kpi_recorded_version = version, kpi_recorded_calendars = $2 where id = any($1::uuid[])', [[...readings.keys()], fingerprint]);
+    await tx.query(`update machvon.project_task t set kpi_recorded_version = t.version, kpi_recorded_calendars = $2 || '|' || ${EXCUSAL_MARK_SQL} where t.id = any($1::uuid[])`, [[...readings.keys()], fingerprint]);
     return summary;
   }
 

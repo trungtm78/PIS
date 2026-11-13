@@ -4,7 +4,7 @@ import type { ResolvedGovernanceRule } from '@machvon/kernel';
 import { PwfKpiStore, scoreBundle } from './pwf-kpi-store.ts';
 import { computeFigures, previewHashOf, snapshotHashOf, snapshotOf, verifySnapshot } from './pwf-score-compute.ts';
 import type { PeriodFigures, PeriodSnapshot, SnapshotInputs, SnapshotKpi, SnapshotTask } from './pwf-score-compute.ts';
-import { calendarFingerprint, dayOfInstant, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
+import { calendarFingerprint, excusalMark, dayOfInstant, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
 import type { CalendarSet, TaskBundle } from './pwf-score-facts.ts';
 import { SYSTEM_SCORE_SCOPE, checkVersion, lockPeriod, lockPeriodKey, notFound, scoreIdOf, unitReached, withScoreScope } from './pwf-score-support.ts';
 import type { ScoreUnits } from './pwf-score-support.ts';
@@ -182,7 +182,7 @@ export class PwfScoreStore {
     const fingerprint = await calendarFingerprint(tx);
     const behind = finals.filter((id) => {
       const row = (bundles.get(id) as TaskBundle).row;
-      return row.kpiRecordedVersion !== row.version || row.kpiRecordedCalendars !== fingerprint;
+      return row.kpiRecordedVersion !== row.version || row.kpiRecordedCalendars !== `${fingerprint}|${excusalMark((bundles.get(id) as TaskBundle).excusals)}`;
     });
     await this.kpis.record(tx, behind, now);
     const heads = await this.kpis.heads(tx, finals, false);

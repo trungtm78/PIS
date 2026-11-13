@@ -162,6 +162,12 @@ export function computeFigures(inputs: SnapshotInputs, policy: pwfKpi.StaffScori
       }),
     });
   }
+  // A member of the unit who held nothing in the period is still on the roster: NOT_RATED, never missing.
+  const present = new Set(lines.map((line) => line.membership_id));
+  for (const member of [...inputs.members].sort((left, right) => (left.membership_id < right.membership_id ? -1 : 1))) {
+    if (!present.has(member.membership_id)) lines.push({ membership_id: member.membership_id, unit_id: member.unit_id, score_computed: null, rating: null, state: 'NOT_RATED', rated_task_count: 0, effective_weight: 0, contributions: [], excluded: [] });
+  }
+  lines.sort((left, right) => (left.membership_id < right.membership_id ? -1 : left.membership_id > right.membership_id ? 1 : 0));
   const signals = signalsOf(inputs, tasks, unitOf);
   const scored = lines.filter((line) => line.score_computed !== null);
   return {

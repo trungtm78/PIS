@@ -226,6 +226,15 @@ export async function loadCalendars(tx: TenantTx, fromYear: number, toYear: numb
   };
 }
 
+/** The part of the watermark that stands for the approved pauses and outside delays of a task (count and latest end): a decision on one, or the end of a pause, makes the results of a closed task stale. SQL form, for the pending query and the update. */
+export const EXCUSAL_MARK_SQL = "(select count(*)::text || coalesce(max(e.valid_to)::text, '') from machvon.project_task_exception e where e.tenant_id = t.tenant_id and e.task_id = t.id and e.kind in ('PAUSE', 'EXTERNAL_DELAY') and e.status in ('APPROVED', 'USED'))";
+
+/** The same mark from the excusals a bundle holds. */
+export function excusalMark(excusals: ReadonlyArray<{ to: string | null }>): string {
+  const ends = excusals.map((one) => one.to).filter((to): to is string => to !== null);
+  return `${excusals.length}${ends.length === 0 ? '' : ends.reduce((latest, to) => (to > latest ? to : latest))}`;
+}
+
 /** A fingerprint of the published working calendars (year and revision of each): when it changes, the results counted on the old ones are read again. */
 export async function calendarFingerprint(tx: TenantTx): Promise<string> {
   const rows = await tx.query<{ f: string }>("select md5(coalesce(string_agg(year::text || ':' || revision::text, ',' order by year, revision), '')) as f from machvon.work_calendar_version where calendar_code = 'WORKDAY_VN' and status = 'Published'");

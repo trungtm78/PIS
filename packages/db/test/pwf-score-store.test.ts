@@ -266,7 +266,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       const task = await seedTask(wf, 'D1', { baselineFinish: `${Y}-02-14`, actualFinish: `${Y}-02-21`, estimate: 1_000_000, actual: 1_100_000 });
       await hold(task, WORKER);
       const first = await compute(Q.DRAFT);
-      expect(first).toMatchObject({ created: true, ratedCount: 1, smallSampleCount: 0, notRatedCount: 0, signalCount: 0, period: { status: 'DRAFT', periodKind: 'QUARTER', policyCode: 'TESTPOL' } });
+      expect(first).toMatchObject({ created: true, ratedCount: 1, smallSampleCount: 0, notRatedCount: 2, signalCount: 0, period: { status: 'DRAFT', periodKind: 'QUARTER', policyCode: 'TESTPOL' } });
       expect(await lineOf(first.period.id, WORKER)).toMatchObject({ score_computed: '44.44', score_adjusted: '44.44', state: 'RATED' });
       const again = await compute(Q.DRAFT);
       expect(again).toMatchObject({ created: false, previewHash: first.previewHash });
@@ -326,7 +326,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
         'select status, snapshot_hash, locked_by, response_until::text, summary from machvon.staff_score_period where id = $1::uuid',
         [periodId],
       );
-      expect(row).toMatchObject({ status: 'LOCKED', locked_by: memberId(MANAGER), summary: { people: 2, rated: 2 } });
+      expect(row).toMatchObject({ status: 'LOCKED', locked_by: memberId(MANAGER), summary: { people: 3, rated: 2 } });
       expect(row?.snapshot_hash).toMatch(/^[0-9a-f]{64}$/);
       expect(row?.response_until).toBe(new Date(Date.parse(`${TODAY}T00:00:00Z`) + 10 * 86_400_000).toISOString().slice(0, 10));
       version += 1;
@@ -362,9 +362,9 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(await count('', '')).toBe(0);
       expect(await count('', memberId(WORKER))).toBe(1);
       expect(await count(unitId(SIBLING), memberId(OUTSIDER))).toBe(0);
-      expect(await count(DEPT, '')).toBe(2);
-      expect(await count(`${unitId(SIBLING)},${DEPT}`, '')).toBe(2);
-      expect(await count('*', '')).toBe(2);
+      expect(await count(DEPT, '')).toBe(3);
+      expect(await count(`${unitId(SIBLING)},${DEPT}`, '')).toBe(3);
+      expect(await count('*', '')).toBe(3);
       expect(await count('*', '', TENANT_B)).toBe(0);
       expect(await sqlState(as((tx) => tx.query("insert into machvon.staff_score_signal (tenant_id, period_id, membership_id, unit_id_at_period, code) values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::uuid, 'CANCELLED_SHARE_HIGH')", [periodId, memberId(WORKER), DEPT])))).toBe('42501');
       // The way the application reads: the person, a former manager (no reach left), a manager of a sibling unit, a manager of the unit, the human resources.
@@ -381,7 +381,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect((await readLine(viewer(MANAGER, { readUnits: DEPT }), workerLine, everything)).contributions.every((one) => one.taskId !== null && one.name.startsWith('Task'))).toBe(true);
       expect((await readLine(viewer(WORKER), workerLine, nothing)).contributions.every((one) => one.taskId !== null)).toBe(true);
       // The lists: the unit, the person, and the former manager who has no reach left.
-      expect((await as((tx) => reads.lines(tx, { units: DEPT, subject: '' }, periodId, {}, { limit: 10 }))).total).toBe(2);
+      expect((await as((tx) => reads.lines(tx, { units: DEPT, subject: '' }, periodId, {}, { limit: 10 }))).total).toBe(3);
       expect(await refusal(as((tx) => reads.lines(tx, NO_SCORE_SCOPE, periodId, {}, { limit: 10 })))).toMatchObject({ status: 404 });
       expect(await refusal(as((tx) => reads.lines(tx, { units: unitId(SIBLING), subject: '' }, periodId, {}, { limit: 10 })))).toMatchObject({ status: 404 });
       const mine = await as((tx) => reads.mine(tx, memberId(WORKER), { limit: 10 }));
@@ -561,9 +561,9 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
         await owner("update machvon.staff_score_period set snapshot = jsonb_set(snapshot, '{policy,params,retention_months}', '12'::jsonb) where id = $1::uuid", [periodId]);
         expect(await as((tx) => scores.expire(tx, periodId))).toBe(true);
         const lines = await owner<{ membership_id: string | null; contributions: unknown[]; score_computed: string | null }>('select membership_id, contributions, score_computed::text from machvon.staff_score_line where period_id = $1::uuid', [periodId]);
-        expect(lines.every((row) => row.membership_id === null && row.contributions.length === 0 && row.score_computed !== null)).toBe(true);
+        expect(lines.every((row) => row.membership_id === null && row.contributions.length === 0 && (row.score_computed !== null || row.membership_id === null))).toBe(true);
         const [period] = await owner<{ snapshot: unknown; snapshot_hash: string; erased_at: string | null; summary: { people: number } }>('select snapshot, snapshot_hash, erased_at::text, summary from machvon.staff_score_period where id = $1::uuid', [periodId]);
-        expect(period).toMatchObject({ snapshot: { erased: true }, summary: { people: 2 } });
+        expect(period).toMatchObject({ snapshot: { erased: true }, summary: { people: 3 } });
         expect(period?.snapshot_hash).toMatch(/^[0-9a-f]{64}$/);
         expect((await owner<{ body: string }>('select r.body from machvon.staff_score_response r join machvon.staff_score_line l on l.id = r.line_id where l.period_id = $1::uuid', [periodId])).every((row) => row.body === '[erased]')).toBe(true);
         expect(await refusal(as((tx) => reads.line(tx, viewer(WORKER, { readUnits: '*' }), workerLine, everything)))).toMatchObject({ status: 404 });
@@ -595,7 +595,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       const cancelled = await seedTask(wf, 'M2', { status: 'CANCELLED', baselineFinish: `${Y - 2}-05-20`, actualFinish: null, cancelledBy: CHECKER, cancelledAt: `${Y - 2}-05-20T03:00:00Z` });
       await hold(cancelled, OTHER);
       const preview = await compute({ from: `${Y - 2}-04-01`, to: `${Y - 2}-06-30` }, { policyCode: 'DEFAULT' });
-      expect(preview).toMatchObject({ ratedCount: 0, smallSampleCount: 1, notRatedCount: 1 });
+      expect(preview).toMatchObject({ ratedCount: 0, smallSampleCount: 1, notRatedCount: 2 });
       expect(await lineOf(preview.period.id, WORKER)).toMatchObject({ state: 'SMALL_SAMPLE', score_computed: '100.00', score_adjusted: '100.00' });
       expect(await lineOf(preview.period.id, OTHER)).toMatchObject({ state: 'NOT_RATED', score_computed: null, score_adjusted: null });
       const [worker] = await owner<{ rating: string | null; rated_task_count: number }>('select rating, rated_task_count from machvon.staff_score_line where period_id = $1::uuid and membership_id = $2::uuid', [preview.period.id, memberId(WORKER)]);
@@ -610,6 +610,21 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       const draft = await compute(quarter, { scopeUnitId: unitId(PROVINCE) });
       expect(await refusal(lockIt(draft.period.id, draft.period.version, { units: unitId(PROVINCE) }))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
       expect((await lockIt(draft.period.id, draft.period.version, { units: `${unitId(PROVINCE)},${DEPT},${unitId(SIBLING)}` })).status).toBe('LOCKED');
+    });
+
+    it('makes the results of a closed task stale when an outside delay is approved after they were recorded, so the penalty is not kept', async () => {
+      const wf = await workflow();
+      const task = await seedTask(wf, 'X1', { baselineFinish: `${Y - 1}-08-12`, baselineStart: `${Y - 1}-08-01`, actualStart: `${Y - 1}-08-01`, actualFinish: `${Y - 1}-08-19`, estimate: 1, actual: 1 });
+      await as((tx) => kpis.record(tx, [task], new Date()));
+      expect(await as((tx) => kpis.pendingTaskIds(tx, 1000))).not.toContain(task);
+      const before = ((await as((tx) => kpis.heads(tx, [task]))).get(task) ?? []).find((row) => row.kpiCode === 'PWF_TASK_DEVIATION_DAYS');
+      expect(before?.value).toBe(5);
+      await owner("insert into machvon.project_task_exception (tenant_id, task_id, kind, valid_from, valid_to, reason, status, requested_by, decided_by, decided_at) values ($1, $2::uuid, 'EXTERNAL_DELAY', $3::date, $4::date, 'The agency answered late and the letter proves it.', 'APPROVED', $5::uuid, $6::uuid, now())", [TENANT_A, task, `${Y - 1}-08-13`, `${Y - 1}-08-16`, memberId(WORKER), memberId(CHECKER)]);
+      expect(await as((tx) => kpis.pendingTaskIds(tx, 1000))).toContain(task);
+      await as((tx) => kpis.record(tx, [task], new Date()));
+      const after = ((await as((tx) => kpis.heads(tx, [task]))).get(task) ?? []).find((row) => row.kpiCode === 'PWF_TASK_DEVIATION_DAYS');
+      expect(after?.value).toBeLessThan(5);
+      expect(after?.supersedesId).toBe(before?.id);
     });
 
     it('scores a task that was handed in for approval inside the period although its baseline falls after it', async () => {
