@@ -1,67 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/offline/drafts/local_draft.dart';
+import '../../../core/widgets/notice_panel.dart';
+import '../../../core/widgets/state_view.dart';
 import '../../read_support/navigate.dart';
 import '../data/report_drafts.dart';
 import '../data/submit_flow.dart';
 import '../labels.dart';
 
-/// A line of text that tells something about the draft. It is one live region, so a screen reader says it when it appears, and
-/// it never hides the form: the person goes on with the draft they have.
-class NoticeLine extends StatelessWidget {
-  const NoticeLine({required this.text, this.icon = Icons.info_outline, this.action, this.error = false, super.key});
+/// The strips above a draft: no connection and a tenant that is read only. Each is one live strip (a [StatusBanner]) under the context of the
+/// draft, never a second line saying the same; the draft stays in view below them, because a person in the field goes on with the draft they have.
+class DraftBanners extends StatelessWidget {
+  const DraftBanners({required this.offline, required this.readOnlySession, super.key});
 
-  final String text;
-  final IconData icon;
-  final Widget? action;
-  final bool error;
+  final bool offline;
+  final bool readOnlySession;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: MachvonSpace.space8),
-      child: Semantics(
-        container: true,
-        liveRegion: true,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: error ? theme.colorScheme.errorContainer : MachvonColors.surface2,
-            borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(MachvonSpace.space12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    ExcludeSemantics(child: Icon(icon, size: MachvonSpace.space20, color: error ? theme.colorScheme.onErrorContainer : theme.colorScheme.primary)),
-                    const SizedBox(width: MachvonSpace.space8),
-                    Expanded(child: Text(text, style: theme.textTheme.bodyMedium?.copyWith(color: error ? theme.colorScheme.onErrorContainer : MachvonColors.ink))),
-                  ],
-                ),
-                if (action != null) action!,
-              ],
-            ),
-          ),
-        ),
-      ),
+    if (!offline && !readOnlySession) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        if (offline) StatusBanner(text: context.t('mob.rep.offline.notice.body')),
+        if (readOnlySession) StatusBanner(text: context.t('mob.rep.readOnly.notice.body'), tone: BannerTone.warning, icon: Icons.lock_outline),
+      ],
     );
   }
 }
 
-/// What the person must know about the draft above its form: no connection, a tenant that is read only, the draft waiting in the
-/// queue, the last refusal of the server, and what the server said while the reference figures were read.
+/// What the person must know about the draft above its form: the draft waiting in the queue, the last refusal of the server, and what the
+/// server said while the reference figures were read. Each is a [NoticePanel], one live region with the stable code and the way out.
 class DraftNotices extends StatelessWidget {
   const DraftNotices({
     required this.snapshot,
     required this.status,
-    required this.readOnlySession,
-    required this.offline,
     required this.referenceProblem,
     this.tellsSending = false,
     super.key,
@@ -69,8 +43,6 @@ class DraftNotices extends StatelessWidget {
 
   final DraftSnapshot snapshot;
   final SubmitStatus status;
-  final bool readOnlySession;
-  final bool offline;
   final ReportProblem? referenceProblem;
 
   /// The screen tells the sending itself (MOB-20), so the notices about the queue and the refusal are left to it.
@@ -83,24 +55,20 @@ class DraftNotices extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (offline) NoticeLine(icon: Icons.cloud_off_outlined, text: context.t('mob.rep.offline.notice.body')),
-        if (readOnlySession) NoticeLine(icon: Icons.lock_outline, text: context.t('mob.rep.readOnly.notice.body')),
         if (status.isPending && !tellsSending)
-          NoticeLine(
+          NoticePanel(
+            title: context.t('mob.rep.pending.notice.body'),
             icon: Icons.sync,
-            text: context.t('mob.rep.pending.notice.body'),
-            action: TextButton(
-              onPressed: () => openScreen(context, 'MOB-41', stacked: true),
-              child: Text(context.t('mob.rep.pending.queue.action')),
-            ),
+            actionLabel: context.t('mob.rep.pending.queue.action'),
+            onAction: () => openScreen(context, 'MOB-41', stacked: true),
           ),
         if (blockedCode != null && !tellsSending)
-          NoticeLine(
-            icon: Icons.error_outline,
-            error: true,
-            text: '${problemMessage(context, problemOfCode(blockedCode))} ${context.t('mob.rep.problem.code.label', <String, Object>{'code': blockedCode})}',
+          NoticePanel(
+            tone: NoticeTone.problem,
+            title: problemMessage(context, problemOfCode(blockedCode)),
+            code: context.t('mob.rep.problem.code.label', <String, Object>{'code': blockedCode}),
           ),
-        if (referenceProblem != null) NoticeLine(icon: Icons.warning_amber_outlined, text: problemMessage(context, referenceProblem!)),
+        if (referenceProblem != null) NoticePanel(tone: NoticeTone.warning, title: problemMessage(context, referenceProblem!)),
       ],
     );
   }

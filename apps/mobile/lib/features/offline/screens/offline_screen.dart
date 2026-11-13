@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
@@ -14,6 +15,11 @@ import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/offline/store/local_store.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/work_row.dart';
 import '../offline_problem.dart';
 
 /// MOB-43: what the person can do without a network, the drafts that are on the device, and how old the data on the device
@@ -36,16 +42,14 @@ class OfflineScreen extends ConsumerWidget {
     } else if (!store.hasValue) {
       state = ScreenState.loading;
     }
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t('mob.offline.title.label'))),
-      body: SafeArea(
-        child: StateBoundary(
-          state: state,
-          problem: problem,
-          onRetry: () => ref.invalidate(localStoreProvider),
-          keepContent: false,
-          child: store.hasValue ? _Guide(store: store.requireValue, offline: reachability == Reachability.offline) : const SizedBox.shrink(),
-        ),
+    return AppScaffold(
+      title: context.t('mob.offline.title.label'),
+      body: StateBoundary(
+        state: state,
+        problem: problem,
+        onRetry: () => ref.invalidate(localStoreProvider),
+        keepContent: false,
+        child: store.hasValue ? _Guide(store: store.requireValue, offline: reachability == Reachability.offline) : const SizedBox.shrink(),
       ),
     );
   }
@@ -63,51 +67,73 @@ class _Guide extends ConsumerWidget {
     final DateTime? asOf = store.dataAsOf;
     final List<LocalDraft> drafts = store.drafts.all();
     final int waiting = (ref.watch(queuedCommandsProvider).value ?? const <QueuedCommand>[]).where((QueuedCommand c) => c.state.isPending).length;
-    final ThemeData theme = Theme.of(context);
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
+    final String queueLabel = context.t('mob.offline.queue.link.action', <String, Object>{'count': waiting});
+    Widget heading(String title) => Padding(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s24, MachvonV2Space.s16, MachvonV2Space.s8),
+          child: Semantics(header: true, child: Text(title, style: text.heading)),
+        );
+    Widget bullet(String line) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ExcludeSemantics(child: Icon(Icons.check_circle_outline, size: 18, color: v2.palette.primaryStrong)),
+              const SizedBox(width: MachvonV2Space.s8),
+              Expanded(child: Text(line, style: text.body)),
+            ],
+          ),
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Semantics(
-          container: true,
-          liveRegion: true,
-          child: Text(
-            offline ? context.t('mob.offline.status.offline.title') : context.t('mob.offline.status.online.title'),
-            style: theme.textTheme.titleLarge,
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s8),
+                child: Semantics(
+                  container: true,
+                  liveRegion: true,
+                  child: Text(offline ? context.t('mob.offline.status.offline.title') : context.t('mob.offline.status.online.title'), style: text.title),
+                ),
+              ),
+              if (asOf == null)
+                Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16), child: Text(context.t('mob.offline.asof.none'), style: text.body))
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(context.t('mob.offline.asof.label', <String, Object>{'time': formatInstant(asOf, language: language)}), style: text.bodyStrong),
+                      Text(context.t('mob.offline.asof.notice'), style: text.caption.copyWith(color: v2.palette.ink2)),
+                    ],
+                  ),
+                ),
+              heading(context.t('mob.offline.available.title')),
+              Padding(padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s8), child: Text(context.t('mob.offline.available.body'), style: text.body)),
+              bullet(context.t('mob.offline.available.item.report')),
+              bullet(context.t('mob.offline.available.item.issue')),
+              bullet(context.t('mob.offline.available.item.diary')),
+              bullet(context.t('mob.offline.available.item.measurement')),
+              heading(context.t('mob.offline.online.title')),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16), child: Text(context.t('mob.offline.online.body'), style: text.body)),
+              heading(context.t('mob.offline.drafts.title', <String, Object>{'count': drafts.length})),
+              if (drafts.isEmpty) Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16), child: Text(context.t('mob.offline.drafts.empty'), style: text.body)),
+              for (int i = 0; i < drafts.length; i += 1)
+                WorkRow(
+                  key: ValueKey<String>(drafts[i].id),
+                  title: _kindLabel(context, drafts[i].kind),
+                  subtitle: context.t('mob.offline.draft.saved.label', <String, Object>{'time': formatInstant(DateTime.fromMillisecondsSinceEpoch(drafts[i].updatedAt, isUtc: true), language: language)}),
+                  dividerAbove: i > 0,
+                ),
+            ],
           ),
         ),
-        const SizedBox(height: 8),
-        if (asOf == null)
-          Text(context.t('mob.offline.asof.none'))
-        else ...<Widget>[
-          Text(context.t('mob.offline.asof.label', <String, Object>{'time': formatInstant(asOf, language: language)}), style: const TextStyle(fontWeight: FontWeight.w600)),
-          Text(context.t('mob.offline.asof.notice')),
-        ],
-        const SizedBox(height: 16),
-        Text(context.t('mob.offline.available.title'), style: theme.textTheme.titleMedium),
-        Text(context.t('mob.offline.available.body')),
-        const SizedBox(height: 4),
-        _Bullet(context.t('mob.offline.available.item.report')),
-        _Bullet(context.t('mob.offline.available.item.issue')),
-        _Bullet(context.t('mob.offline.available.item.diary')),
-        _Bullet(context.t('mob.offline.available.item.measurement')),
-        const SizedBox(height: 16),
-        Text(context.t('mob.offline.online.title'), style: theme.textTheme.titleMedium),
-        Text(context.t('mob.offline.online.body')),
-        const SizedBox(height: 16),
-        Text(context.t('mob.offline.drafts.title', <String, Object>{'count': drafts.length}), style: theme.textTheme.titleMedium),
-        if (drafts.isEmpty) Text(context.t('mob.offline.drafts.empty')),
-        for (final LocalDraft draft in drafts)
-          ListTile(
-            key: ValueKey<String>(draft.id),
-            contentPadding: EdgeInsets.zero,
-            title: Text(_kindLabel(context, draft.kind)),
-            subtitle: Text(context.t('mob.offline.draft.saved.label', <String, Object>{'time': formatInstant(DateTime.fromMillisecondsSinceEpoch(draft.updatedAt, isUtc: true), language: language)})),
-          ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: () => context.push(ref.read(routeTableProvider).locationOf('MOB-41')),
-          child: Text(context.t('mob.offline.queue.link.action', <String, Object>{'count': waiting})),
-        ),
+        ActionBar(primary: ActionBarButton(label: queueLabel, icon: Icons.outbox_outlined, onPressed: () => context.push(ref.read(routeTableProvider).locationOf('MOB-41')))),
       ],
     );
   }
@@ -124,22 +150,4 @@ class _Guide extends ConsumerWidget {
         return context.t('mob.offline.draft.kind.other');
     }
   }
-}
-
-class _Bullet extends StatelessWidget {
-  const _Bullet(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const Text('•  '),
-            Expanded(child: Text(text)),
-          ],
-        ),
-      );
 }

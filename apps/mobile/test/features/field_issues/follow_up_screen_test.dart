@@ -71,7 +71,7 @@ void main() {
     testWidgets('shows the stored position to a reader who may see it, and says it is hidden from one who may not', (WidgetTester tester) async {
       useDevice(tester, kTall);
       await _open(tester, issue: issueView('iss-1', geoConsent: true, geo: <String, Object?>{'lat': '10.800000', 'lng': '106.700000', 'accuracy_m': '90.00', 'low_accuracy': true}));
-      expect(find.text('10.800000, 106.700000'), findsOneWidget);
+      expect(find.text('10,800000; 106,700000'), findsOneWidget, reason: 'the decimal comma of the language, the digits of the server');
       expect(find.text('Độ chính xác thấp (trên 50 m): vị trí chỉ để tham khảo.'), findsOneWidget);
     });
 

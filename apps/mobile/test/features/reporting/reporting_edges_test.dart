@@ -140,7 +140,7 @@ void main() {
       await app.open(tester, location: '/projects/mob-13');
       await press(tester, 'Danh sách nháp');
       expect(find.text('Danh sách nháp'), findsWidgets);
-      expect(find.text('Chưa có dữ liệu'), findsOneWidget);
+      expect(find.text('Chưa có bản nháp báo cáo'), findsOneWidget);
     });
   });
 
@@ -261,7 +261,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
       await tester.pump(const Duration(milliseconds: 50));
       expect(find.text('Đang gửi lên máy chủ...'), findsOneWidget);
-      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Đang nộp...')).onPressed, isNull);
+      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Đang gửi…')).onPressed, isNull);
       app.server.hold = null;
       gate.complete();
       await tester.pumpAndSettle();

@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../core/l10n/app_strings.dart';
 import '../field_evidence/field_place.dart';
+import '../field_evidence/place_format.dart';
 import 'issue_comments.dart';
 import 'issue_draft.dart';
 import 'issue_follow_up.dart';
@@ -68,9 +69,9 @@ String placeSummary(BuildContext context, FieldPlace place) {
     case PlaceSource.device:
       final DevicePosition position = place.position!;
       return context.t('mob.fld.place.device.summary', <String, Object>{
-        'lat': position.latitude.toStringAsFixed(6),
-        'lng': position.longitude.toStringAsFixed(6),
-        'accuracy': position.accuracyMetres.round(),
+        'lat': coordinateLabel(context, latitudeText(position)),
+        'lng': coordinateLabel(context, longitudeText(position)),
+        'accuracy': metresLabel(context, position.accuracyMetres),
       });
   }
 }

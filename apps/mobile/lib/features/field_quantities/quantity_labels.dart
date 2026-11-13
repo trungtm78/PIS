@@ -1,17 +1,14 @@
 import 'package:flutter/widgets.dart';
 
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
-import '../../core/offline/drafts/decimal.dart';
+import '../../core/theme/machvon_semantic.dart';
 import 'quantity_commands.dart';
 import 'quantity_models.dart';
 
-/// A quantity in the language of the interface: the digits grouped, the decimals marked, nothing turned into a float.
-String quantityLabel(BuildContext context, String value) {
-  final Decimal? parsed = Decimal.tryParse(value);
-  if (parsed == null) return value;
-  final bool vietnamese = AppStrings.of(context).language == 'vi';
-  return parsed.format(separator: vietnamese ? '.' : ',', decimalMark: vietnamese ? ',' : '.');
-}
+/// A quantity in the language of the interface: the digits grouped, the decimals marked, nothing turned into a float; what is not a number is
+/// returned as typed (the one formatter of the phone, `lib/core/format`).
+String quantityLabel(BuildContext context, String value) => formatNumber(value, AppStrings.of(context).language);
 
 String quantityProblemText(BuildContext context, QuantityProblem problem) {
   switch (problem) {
@@ -40,6 +37,20 @@ String measurementStatusText(BuildContext context, String status) {
       return context.t('mob.qty.status.superseded');
     default:
       return context.t('mob.qty.status.draft');
+  }
+}
+
+/// The tone of the pill of a recorded quantity: a draft waits, a sent one is with the approver, an approved one is done, a rejected one needs the maker.
+MachvonTone measurementTone(String status) {
+  switch (status) {
+    case 'SUBMITTED':
+      return MachvonTone.info;
+    case 'APPROVED':
+      return MachvonTone.success;
+    case 'REJECTED':
+      return MachvonTone.danger;
+    default:
+      return MachvonTone.neutral;
   }
 }
 

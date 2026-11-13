@@ -314,7 +314,7 @@ void main() {
       final DraftStore store = (await tester.runAsync(() => world.container.read(draftStoreProvider.future)))!;
       expect(ResultDraft.fromJson(store.list(kind: kInspectionDraftKind).single.fields)!.place.consent, isFalse, reason: 'the withdrawal is already written to the phone');
 
-      await settleReal(tester, rounds: 8);
+      await waitUntil(tester, () async => tester.widget<FilledButton>(save).onPressed != null);
       expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
       final ResultDraft after = ResultDraft.fromJson(store.list(kind: kInspectionDraftKind).single.fields)!;
       expect(readJpegMetadata(File(after.photos.single.path).readAsBytesSync()).carriesPlaceOrTime, isFalse);

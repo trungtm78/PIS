@@ -13,8 +13,17 @@ import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/machvon_semantic.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/sheets.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/status_pill.dart';
+import '../../../core/widgets/tap_target.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/widgets.dart';
 import '../data/report_drafts.dart';
 import '../data/report_providers.dart';
 import '../data/submit_flow.dart';
@@ -36,22 +45,21 @@ class DraftsScreen extends ConsumerStatefulWidget {
 
 class _DraftsScreenState extends ConsumerState<DraftsScreen> {
   Future<void> _discard(ReportDrafts drafts, DraftSnapshot snapshot) async {
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialog) => AlertDialog(
-        title: Text(dialog.t('mob.rep.drafts.discard.title')),
-        content: Text(snapshot.reportId == null ? dialog.t('mob.rep.drafts.discardLocal.body') : dialog.t('mob.rep.drafts.discardServer.body')),
-        actions: <Widget>[
-          TextButton(onPressed: () => Navigator.of(dialog).pop(false), child: Text(dialog.t('mob.rep.drafts.discardCancel.action'))),
-          TextButton(onPressed: () => Navigator.of(dialog).pop(true), child: Text(dialog.t('mob.rep.drafts.discardConfirm.action'))),
-        ],
-      ),
+    final bool confirmed = await showConfirmSheet(
+      context,
+      title: context.t('mob.rep.drafts.discard.title'),
+      facts: <String>[snapshot.reportId == null ? context.t('mob.rep.drafts.discardLocal.body') : context.t('mob.rep.drafts.discardServer.body')],
+      confirmLabel: context.t('mob.rep.drafts.discardConfirm.action'),
+      cancelLabel: context.t('mob.rep.drafts.discardCancel.action'),
+      destructive: true,
     );
-    if (confirmed ?? false) {
+    if (confirmed) {
       drafts.discard(snapshot.id);
       if (mounted) setState(() {});
     }
   }
+
+  void _start() => openScreen(context, 'MOB-13', stacked: true);
 
   @override
   Widget build(BuildContext context) {
@@ -69,40 +77,48 @@ class _DraftsScreenState extends ConsumerState<DraftsScreen> {
       state = ScreenState.loading;
     } else {
       drafts = opened.requireValue.all();
-      if (drafts.isEmpty) state = ScreenState.empty;
     }
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t('mob.rep.drafts.title'))),
-      floatingActionButton: state == ScreenState.signedOut || readOnly
-          ? null
-          : FloatingActionButton.extended(
-              onPressed: () => openScreen(context, 'MOB-13', stacked: true),
-              icon: const Icon(Icons.add),
-              label: Text(context.t('mob.rep.drafts.new.action')),
-            ),
-      body: SafeArea(
-        child: StateBoundary(
-          state: state,
-          problem: problem,
-          onRetry: () => ref.invalidate(reportDraftsProvider),
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, MachvonSpace.space16, MachvonSpace.space16, 96),
-            children: <Widget>[
-              Text(context.t('mob.rep.drafts.summary.label', <String, Object>{'count': drafts.length}), style: Theme.of(context).textTheme.titleMedium),
-              if (reachability == Reachability.offline) NoticeLine(icon: Icons.cloud_off_outlined, text: context.t('mob.rep.offline.notice.body')),
-              if (readOnly) NoticeLine(icon: Icons.lock_outline, text: context.t('mob.rep.readOnly.notice.body')),
-              const SizedBox(height: 8),
-              for (final DraftSnapshot snapshot in drafts)
-                _DraftTile(
-                  key: ValueKey<String>(snapshot.id),
-                  snapshot: snapshot,
-                  status: submitStatusOf(commands, snapshot.id),
-                  onDiscard: opened.hasValue ? () => _discard(opened.requireValue, snapshot) : null,
-                ),
-            ],
-          ),
-        ),
+    final bool canStart = state != ScreenState.signedOut && !readOnly;
+    final bool listed = state == ScreenState.defaultState && drafts.isNotEmpty;
+    return AppScaffold(
+      title: context.t('mob.rep.drafts.title'),
+      contextLine: DraftBanners(offline: reachability == Reachability.offline, readOnlySession: readOnly),
+      bottomBar: listed && canStart ? ActionBar(primary: ActionBarButton(label: context.t('mob.rep.drafts.new.action'), icon: Icons.add, onPressed: _start)) : null,
+      body: StateBoundary(
+        state: state,
+        problem: problem,
+        onRetry: () => ref.invalidate(reportDraftsProvider),
+        child: state != ScreenState.defaultState
+            ? const SizedBox.shrink()
+            : drafts.isEmpty
+                ? DraftsEmpty(canStart: canStart, onStart: _start)
+                : DraftsList(
+                    entries: <DraftEntry>[
+                      for (final DraftSnapshot snapshot in drafts) _entryOf(context, snapshot, submitStatusOf(commands, snapshot.id), opened.requireValue),
+                    ],
+                  ),
       ),
+    );
+  }
+
+  DraftEntry _entryOf(BuildContext context, DraftSnapshot snapshot, SubmitStatus status, ReportDrafts drafts) {
+    final String project = snapshot.context?.projectCode ?? snapshot.form.projectId;
+    final String period = snapshot.context?.periodCode ?? snapshot.form.periodId;
+    final bool pending = status.isPending;
+    return DraftEntry(
+      id: snapshot.id,
+      title: context.t('mob.rep.header.context.label', <String, Object>{'project': project, 'period': period}),
+      projectName: snapshot.context?.projectName ?? '',
+      standing: _standing(context, snapshot, status),
+      tone: _toneOf(snapshot, status),
+      saved: context.t('mob.rep.drafts.saved.label', <String, Object>{
+        'time': formatMoment(DateTime.fromMillisecondsSinceEpoch(snapshot.draft.updatedAt, isUtc: true).toIso8601String()),
+        'id': snapshot.shortId,
+      }),
+      total: moneyLabel(context, sumTyped(<String>[for (final CellKey key in kCells) snapshot.form.cell(key).cumulative])),
+      pending: pending,
+      onOpen: () => pending ? openScreen(context, 'MOB-20', pathSuffix: '/${snapshot.id}', stacked: true) : openScreen(context, 'MOB-14', pathSuffix: '/${snapshot.id}', stacked: true),
+      onDiscard: pending ? null : () => _discard(drafts, snapshot),
     );
   }
 }
@@ -134,65 +150,161 @@ String _standing(BuildContext context, DraftSnapshot snapshot, SubmitStatus stat
   }
 }
 
-class _DraftTile extends StatelessWidget {
-  const _DraftTile({required this.snapshot, required this.status, required this.onDiscard, super.key});
+/// The tone of the state pill: what needs the person is red, what waits for the network or the answer is blue or amber, what is done is green.
+MachvonTone _toneOf(DraftSnapshot snapshot, SubmitStatus status) {
+  switch (status.stage) {
+    case SubmitStage.queued:
+    case SubmitStage.sending:
+      return MachvonTone.info;
+    case SubmitStage.unknown:
+      return MachvonTone.warning;
+    case SubmitStage.rejected:
+    case SubmitStage.conflict:
+      return MachvonTone.danger;
+    case SubmitStage.submitted:
+      return MachvonTone.success;
+    case SubmitStage.idle:
+      switch (snapshot.draft.status) {
+        case DraftStatus.synced:
+          return MachvonTone.success;
+        case DraftStatus.blocked:
+          return MachvonTone.danger;
+        case DraftStatus.queued:
+          return MachvonTone.info;
+        case DraftStatus.editing:
+          return MachvonTone.neutral;
+      }
+  }
+}
 
-  final DraftSnapshot snapshot;
-  final SubmitStatus status;
+/// What a row of the list of drafts shows and does; the screen makes it from the draft and the queue, a test makes it by hand.
+final class DraftEntry {
+  const DraftEntry({
+    required this.id,
+    required this.title,
+    required this.projectName,
+    required this.standing,
+    required this.tone,
+    required this.saved,
+    required this.total,
+    required this.pending,
+    required this.onOpen,
+    this.onDiscard,
+  });
+
+  final String id;
+  final String title;
+  final String projectName;
+  final String standing;
+  final MachvonTone tone;
+  final String saved;
+  final String total;
+
+  /// The draft waits in the queue: it opens at its sending, and it cannot be dropped.
+  final bool pending;
+  final VoidCallback onOpen;
   final VoidCallback? onDiscard;
+}
+
+/// The drafts as rows with hairlines: the project and the period with the state of the draft at the end, when it was saved and the total under
+/// them, then the two things to do (open it, drop it) as 48 high links. The whole row opens the draft.
+class DraftsList extends StatelessWidget {
+  const DraftsList({required this.entries, super.key});
+
+  final List<DraftEntry> entries;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final String project = snapshot.context?.projectCode ?? snapshot.form.projectId;
-    final String period = snapshot.context?.periodCode ?? snapshot.form.periodId;
-    final String standing = _standing(context, snapshot, status);
-    final String saved = context.t('mob.rep.drafts.saved.label', <String, Object>{
-      'time': formatMoment(DateTime.fromMillisecondsSinceEpoch(snapshot.draft.updatedAt, isUtc: true).toIso8601String()),
-      'id': snapshot.shortId,
-    });
-    final String total = moneyLabel(context, sumTyped(<String>[for (final CellKey key in kCells) snapshot.form.cell(key).cumulative]));
-    final bool pending = status.isPending;
-    final String title = context.t('mob.rep.header.context.label', <String, Object>{'project': project, 'period': period});
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Semantics(
-              container: true,
-              label: <String>[title, snapshot.context?.projectName ?? '', standing, saved, total].where((String part) => part.isNotEmpty).join('. '),
-              excludeSemantics: true,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(title, style: theme.textTheme.titleMedium),
-                  if ((snapshot.context?.projectName ?? '').isNotEmpty) Text(snapshot.context!.projectName),
-                  const SizedBox(height: 4),
-                  StatusPill(label: standing, warn: status.stage == SubmitStage.rejected || status.stage == SubmitStage.conflict || snapshot.draft.status == DraftStatus.blocked),
-                  Text(saved, style: theme.textTheme.bodySmall),
-                  Text(total, style: theme.textTheme.bodySmall),
-                ],
-              ),
-            ),
-            Wrap(
-              spacing: 8,
-              children: <Widget>[
-                TextButton(
-                  onPressed: () => pending ? openScreen(context, 'MOB-20', pathSuffix: '/${snapshot.id}', stacked: true) : openScreen(context, 'MOB-14', pathSuffix: '/${snapshot.id}', stacked: true),
-                  child: Text(pending ? context.t('mob.rep.drafts.status.action') : context.t('mob.rep.drafts.open.action')),
-                ),
-                if (!pending)
-                  TextButton(
-                    onPressed: onDiscard,
-                    child: Text(context.t('mob.rep.drafts.discard.action')),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return ListView(
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s16),
+      children: <Widget>[
+        GroupHeader(title: context.t('mob.rep.drafts.summary.label', <String, Object>{'count': entries.length})),
+        for (int index = 0; index < entries.length; index += 1) _DraftRow(key: ValueKey<String>(entries[index].id), entry: entries[index], dividerAbove: index > 0),
+      ],
     );
   }
+}
+
+class _DraftRow extends StatelessWidget {
+  const _DraftRow({required this.entry, required this.dividerAbove, super.key});
+
+  final DraftEntry entry;
+  final bool dividerAbove;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
+    final String spoken = <String>[entry.title, entry.projectName, entry.standing, entry.saved, entry.total].where((String part) => part.isNotEmpty).join('. ');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        WorkRow(
+          title: entry.title,
+          subtitle: entry.projectName.isEmpty ? null : entry.projectName,
+          trailing: Align(alignment: Alignment.topRight, child: StatusPill(label: entry.standing, tone: entry.tone)),
+          dividerAbove: dividerAbove,
+          semanticLabel: spoken,
+          onTap: entry.onOpen,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(entry.saved, style: text.caption.copyWith(color: v2.palette.ink2)),
+              Text(entry.total, style: text.caption.copyWith(color: v2.palette.ink2)),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s4),
+          child: Wrap(
+            children: <Widget>[
+              _Link(label: entry.pending ? context.t('mob.rep.drafts.status.action') : context.t('mob.rep.drafts.open.action'), color: v2.palette.primaryStrong, onTap: entry.onOpen),
+              if (!entry.pending) _Link(label: context.t('mob.rep.drafts.discard.action'), color: v2.palette.lateFg, onTap: entry.onDiscard),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Link extends StatelessWidget {
+  const _Link({required this.label, required this.color, required this.onTap});
+
+  final String label;
+  final Color color;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => TapTarget(
+        onTap: onTap,
+        semanticLabel: label,
+        minHeight: MachvonV2Size.actionButton,
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s12),
+          child: Text(label, style: context.v2text.label.copyWith(color: onTap == null ? context.v2.palette.ink3 : color)),
+        ),
+      );
+}
+
+/// No draft on the phone: what a draft is, and the one thing that fixes the emptiness, starting a report. A tenant that is read only cannot start
+/// one, so it is told why instead of being offered a button.
+class DraftsEmpty extends StatelessWidget {
+  const DraftsEmpty({required this.canStart, required this.onStart, super.key});
+
+  final bool canStart;
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) => StateView(
+        kind: StateKind.empty,
+        title: context.t('mob.rep.drafts.empty.title'),
+        body: canStart ? context.t('mob.rep.drafts.empty.body') : context.t('mob.rep.readOnly.notice.body'),
+        actionLabel: canStart ? context.t('mob.rep.drafts.start.action') : null,
+        onAction: canStart ? onStart : null,
+      );
 }

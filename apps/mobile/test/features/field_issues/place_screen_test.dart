@@ -139,7 +139,7 @@ void main() {
       await waitUntil(tester, () async => world.position.asked == 1);
       await settleReal(tester, rounds: 8);
 
-      expect(find.textContaining('Vị trí đo bằng điện thoại: 10.800000, 106.700000'), findsOneWidget);
+      expect(find.textContaining('Vị trí đo bằng điện thoại: 10,800000; 106,700000'), findsOneWidget);
       expect(find.text('Độ chính xác chấp nhận được.'), findsOneWidget);
       await tapText(tester, 'Gửi báo cáo');
       await waitUntil(tester, () async => world.server.sync.batchPosts > 0);

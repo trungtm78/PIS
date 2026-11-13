@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/connectivity/reachability.dart';
+import '../../core/theme/colors.dart';
 import '../../core/theme/typography.dart';
-import '../../core/widgets/section_panel.dart';
+import '../../core/widgets/notice_panel.dart';
 import 'command_outcome.dart';
 
 /// Whether the device can reach the server now; asked before every send.
@@ -34,9 +35,10 @@ mixin CommandFlow<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 }
 
 /// A message about a command, outside the form (a refusal never makes the form disappear, so what the person wrote is still
-/// there to send again). The card is a live region: a screen reader announces it when it appears.
+/// there to send again). The panel is a live region: a screen reader announces it when it appears. With a [code] it is a refusal
+/// (the problem tone); [tone] says otherwise (done, a lost answer).
 class OutcomeCard extends StatelessWidget {
-  const OutcomeCard({required this.title, this.lines = const <String>[], this.code, this.actionLabel, this.onAction, super.key});
+  const OutcomeCard({required this.title, this.lines = const <String>[], this.code, this.actionLabel, this.onAction, this.tone, super.key});
 
   final String title;
   final List<String> lines;
@@ -45,35 +47,17 @@ class OutcomeCard extends StatelessWidget {
   final String? code;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final NoticeTone? tone;
 
   @override
-  Widget build(BuildContext context) {
-    final MachvonV2Text text = context.v2text;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
-      child: OutlinedBlock(
-        child: Padding(
-          padding: const EdgeInsets.all(MachvonV2Space.s16),
-          child: Semantics(
-            liveRegion: true,
-            container: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Text(title, style: text.heading),
-                for (final String line in lines) Text(line, style: text.body),
-                if (code != null) Text(code!, style: text.caption),
-                if (actionLabel != null && onAction != null) ...<Widget>[
-                  const SizedBox(height: MachvonV2Space.s12),
-                  OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => NoticePanel(
+        title: title,
+        lines: lines,
+        code: code,
+        actionLabel: actionLabel,
+        onAction: onAction,
+        tone: tone ?? (code != null ? NoticeTone.problem : NoticeTone.info),
+      );
 }
 
 /// Says why an action is off, next to the disabled button, as a live region (a disabled button alone says nothing).
@@ -86,7 +70,7 @@ class GateNote extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       liveRegion: true,
-      child: Padding(padding: const EdgeInsets.only(bottom: MachvonV2Space.s8), child: Text(text, style: context.v2text.body)),
+      child: Padding(padding: const EdgeInsets.only(bottom: MachvonV2Space.s8), child: Text(text, style: context.v2text.caption.copyWith(color: context.v2.palette.lateFg))),
     );
   }
 }

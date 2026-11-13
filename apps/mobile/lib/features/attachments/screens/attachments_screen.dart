@@ -20,10 +20,12 @@ import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/theme/machvon_semantic.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/action_bar.dart';
 import '../../../core/widgets/app_scaffold.dart';
-import '../../../core/widgets/section_panel.dart';
+import '../../../core/widgets/notice_panel.dart';
+import '../../command_support/field_widgets.dart';
 import '../../read_support/navigate.dart';
 
 /// MOB-19: the files of a record on their way to the server, each with its size, its progress in chunks, its state
@@ -114,16 +116,11 @@ class _AttachmentsScreenState extends ConsumerState<AttachmentsScreen> {
         children: <Widget>[
           // Outside the boundary: a refusal of the first file leaves the list empty, and the boundary hides its content then.
           if (_refusal != null)
-            Semantics(
-              liveRegion: true,
-              container: true,
-              child: Padding(
-                padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s16, right: MachvonV2Space.s16),
-                child: Text(
-                  '${context.t('mob.attach.refused.title')}. ${_reason(context, _refusal)} ${context.t('mob.attach.item.code.label', <String, Object>{'code': _refusal!})}',
-                  style: context.v2text.body.copyWith(color: context.v2.palette.lateFg),
-                ),
-              ),
+            NoticePanel(
+              tone: NoticeTone.problem,
+              title: context.t('mob.attach.refused.title'),
+              lines: <String>[_reason(context, _refusal)],
+              code: context.t('mob.attach.item.code.label', <String, Object>{'code': _refusal!}),
             ),
           Expanded(
             child: StateBoundary(
@@ -131,12 +128,13 @@ class _AttachmentsScreenState extends ConsumerState<AttachmentsScreen> {
               problem: problem,
               onRetry: () => ref.invalidate(attachmentUploaderProvider),
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Size.fab + MachvonV2Space.s32),
+                padding: const EdgeInsets.only(bottom: MachvonV2Size.fab + MachvonV2Space.s32),
                 children: <Widget>[
-                  Text(context.t('mob.attach.summary.label', <String, Object>{'count': shown.length}), style: context.v2text.heading),
-                  const SizedBox(height: MachvonV2Space.s8),
-                  for (final AttachmentUpload upload in shown)
-                    _UploadTile(key: ValueKey<String>(upload.id), upload: upload, onResume: () => _resume(upload), onCancel: () => _cancel(upload)),
+                  Padding(
+                    padding: const EdgeInsets.all(MachvonV2Space.s16),
+                    child: Semantics(header: true, child: Text(context.t('mob.attach.summary.label', <String, Object>{'count': shown.length}), style: context.v2text.heading)),
+                  ),
+                  for (int i = 0; i < shown.length; i += 1) _UploadTile(key: ValueKey<String>(shown[i].id), upload: shown[i], first: i == 0, onResume: () => _resume(shown[i]), onCancel: () => _cancel(shown[i])),
                 ],
               ),
             ),
@@ -161,19 +159,16 @@ class _ReportFooter extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        ColoredBox(
-          color: context.v2.palette.bg,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
-            child: Text(context.t('mob.attach.optional.body'), style: context.v2text.caption),
-          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s8, MachvonV2Space.s16, MachvonV2Space.s8),
+          child: Text(context.t('mob.attach.optional.body'), style: context.v2text.caption.copyWith(color: context.v2.palette.ink2)),
         ),
         ActionBar(
-          secondary: ActionBarButton(label: context.t('mob.attach.back.action'), onPressed: () => context.canPop() ? context.pop() : openScreen(context, 'MOB-22')),
           primary: ActionBarButton(
             label: fromReview ? context.t('mob.attach.review.action') : context.t('mob.attach.next.action'),
             onPressed: () => fromReview && context.canPop() ? context.pop() : openScreen(context, 'MOB-20', pathSuffix: '/$draftId', stacked: true),
           ),
+          secondary: ActionBarButton(label: context.t('mob.attach.back.action'), onPressed: () => context.canPop() ? context.pop() : openScreen(context, 'MOB-22')),
         ),
       ],
     );
@@ -219,70 +214,52 @@ String _reason(BuildContext context, String? code) {
 }
 
 class _UploadTile extends StatelessWidget {
-  const _UploadTile({required this.upload, required this.onResume, required this.onCancel, super.key});
+  const _UploadTile({required this.upload, required this.first, required this.onResume, required this.onCancel, super.key});
 
   final AttachmentUpload upload;
+  final bool first;
   final VoidCallback onResume;
   final VoidCallback onCancel;
 
+  MachvonTone get _tone {
+    switch (upload.state) {
+      case UploadState.clean:
+        return MachvonTone.success;
+      case UploadState.failed:
+      case UploadState.infected:
+        return MachvonTone.danger;
+      case UploadState.uploading:
+      case UploadState.scanning:
+        return MachvonTone.info;
+      case UploadState.pending:
+      case UploadState.cancelled:
+        return MachvonTone.neutral;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final String state = _state(context, upload.state);
     final String size = context.t('mob.attach.item.size.label', <String, Object>{'size': formatBytes(upload.sizeBytes, language: AppStrings.of(context).language)});
     final bool waiting = upload.state == UploadState.pending;
     final bool problem = upload.state == UploadState.failed || upload.state == UploadState.infected;
     final String? reason = problem ? _reason(context, upload.errorCode) : (waiting && upload.errorCode != null ? context.t('mob.attach.reason.waiting.body') : null);
     final String? code = (problem || waiting) && upload.errorCode != null ? context.t('mob.attach.item.code.label', <String, Object>{'code': upload.errorCode!}) : null;
-    final double? progress = upload.progress;
-    final String? chunks = upload.chunkCount == null ? null : context.t('mob.attach.item.progress.label', <String, Object>{'done': upload.sentChunks.length, 'total': upload.chunkCount!});
-    final MachvonV2Text text = context.v2text;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
-      child: OutlinedBlock(
-        child: Padding(
-          padding: const EdgeInsets.all(MachvonV2Space.s16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Semantics(
-                container: true,
-                label: <String>[upload.fileName, state, size, ?chunks, ?reason, ?code].join('. '),
-                excludeSemantics: true,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(upload.fileName, style: text.heading),
-                    Text(state, style: text.bodyStrong),
-                    Text(size, style: text.body),
-                    if (progress != null && upload.state != UploadState.clean) LinearProgressIndicator(value: progress),
-                    if (chunks != null && upload.state != UploadState.clean) Text(chunks, style: text.caption),
-                    if (reason != null) Text(reason, style: text.body),
-                    if (code != null) Text(code, style: text.caption),
-                  ],
-                ),
-              ),
-              Wrap(
-                spacing: MachvonV2Space.s8,
-                children: <Widget>[
-                  if (waiting) _Action(label: context.t('mob.attach.item.resume.action'), onPressed: onResume),
-                  if (problem) _Action(label: context.t('mob.attach.item.retry.action'), onPressed: onResume),
-                  if (!upload.state.isFinal) _Action(label: context.t('mob.attach.item.cancel.action'), onPressed: onCancel),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+    final bool showProgress = upload.state != UploadState.clean;
+    return UploadRow(
+      title: upload.fileName,
+      stateLabel: _state(context, upload.state),
+      tone: _tone,
+      size: size,
+      progress: showProgress ? upload.progress : null,
+      progressText: showProgress && upload.chunkCount != null ? context.t('mob.attach.item.progress.label', <String, Object>{'done': upload.sentChunks.length, 'total': upload.chunkCount!}) : null,
+      reason: reason,
+      code: code,
+      dividerAbove: !first,
+      actions: <RowAction>[
+        if (waiting) RowAction(label: context.t('mob.attach.item.resume.action'), onPressed: onResume),
+        if (problem) RowAction(label: context.t('mob.attach.item.retry.action'), onPressed: onResume),
+        if (!upload.state.isFinal) RowAction(label: context.t('mob.attach.item.cancel.action'), onPressed: onCancel),
+      ],
     );
   }
-}
-
-class _Action extends StatelessWidget {
-  const _Action({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) => TextButton(onPressed: onPressed, child: Text(label));
 }

@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/api/problem.dart';
+import '../../core/l10n/app_strings.dart';
 import '../../core/offline/offline_providers.dart';
 import '../../core/state/screen_state.dart';
 import '../../core/state/state_boundary.dart';
+import '../../core/theme/colors.dart';
+import '../../core/theme/typography.dart';
+import '../../core/widgets/state_view.dart';
+import '../read_support/navigate.dart';
 import 'issue_service.dart';
 
 /// One draft of an issue, read from the device. Whoever changes the draft invalidates it.
@@ -24,7 +29,8 @@ const String kDraftNotFound = 'DRAFT_NOT_FOUND';
 
 /// The state of a screen that works on a draft of the device: while it is read, when it cannot be read (the local store is
 /// closed because nobody is signed in, or it failed to open) and when it is not there. The content is built only when the draft
-/// is.
+/// is. A draft that is not there (it was sent, dropped, or belongs to another person) is an empty state with its code and the way
+/// out: record an obstacle.
 class DraftBoundary extends ConsumerWidget {
   const DraftBoundary({
     required this.draftId,
@@ -61,17 +67,25 @@ class DraftBoundary extends ConsumerWidget {
         keepContent: false,
         child: const SizedBox.shrink(),
       ),
-      data: (StoredIssueDraft? stored) => stored == null
-          ? const StateBoundary(
-              state: ScreenState.error,
-              problem: ProblemView(
-                state: ScreenState.error,
-                code: kDraftNotFound,
-              ),
-              keepContent: false,
-              child: SizedBox.shrink(),
-            )
-          : builder(context, stored),
+      data: (StoredIssueDraft? stored) => stored == null ? const _DraftMissing() : builder(context, stored),
+    );
+  }
+}
+
+/// The draft a screen was opened for is not on this phone: what that means, its stable code, and the one action that fixes it.
+class _DraftMissing extends StatelessWidget {
+  const _DraftMissing();
+
+  @override
+  Widget build(BuildContext context) {
+    return StateView(
+      kind: StateKind.empty,
+      icon: Icons.edit_off_outlined,
+      title: context.t('mob.fld.draft.missing.title'),
+      body: context.t('mob.fld.draft.missing.body'),
+      details: <Widget>[Text(kDraftNotFound, textAlign: TextAlign.center, style: context.v2text.caption.copyWith(color: context.v2.palette.ink2))],
+      actionLabel: context.t('mob.fld.capture.title'),
+      onAction: () => openScreen(context, 'MOB-28'),
     );
   }
 }

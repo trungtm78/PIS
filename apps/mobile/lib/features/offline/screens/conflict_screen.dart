@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/api/problem.dart';
 import '../../../core/connectivity/reachability.dart';
@@ -19,6 +20,10 @@ import '../../../core/offline/queue/queue_runner.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../command_support/field_widgets.dart';
 import '../offline_labels.dart';
 import '../offline_problem.dart';
 
@@ -102,49 +107,57 @@ class _ConflictScreenState extends ConsumerState<ConflictScreen> {
       state = ScreenState.loading;
     }
     final LoadedConflict? loaded = _loaded;
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t('mob.conflict.title.label'))),
-      body: SafeArea(
-        child: StateBoundary(
-          state: state,
-          problem: problem,
-          onRetry: _load,
-          keepContent: false,
-          child: loaded == null ? const SizedBox.shrink() : _content(context, loaded),
-        ),
+    final bool ready = loaded != null && _choices.length >= loaded.conflict.differences.length;
+    return AppScaffold(
+      title: context.t('mob.conflict.title.label'),
+      bottomBar: loaded == null
+          ? null
+          : ActionBar(
+              primary: ActionBarButton(label: context.t('mob.conflict.save.action'), onPressed: !ready || _saving ? null : () => _save(loaded)),
+              why: ready ? null : context.t('mob.conflict.remaining.label', <String, Object>{'count': loaded.conflict.differences.where((FieldDifference d) => !_choices.containsKey(d.path)).length}),
+            ),
+      body: StateBoundary(
+        state: state,
+        problem: problem,
+        onRetry: _load,
+        keepContent: false,
+        child: loaded == null ? const SizedBox.shrink() : _content(context, loaded),
       ),
     );
   }
 
   Widget _content(BuildContext context, LoadedConflict loaded) {
     final List<FieldDifference> differences = loaded.conflict.differences;
-    final int remaining = differences.where((FieldDifference d) => !_choices.containsKey(d.path)).length;
     final String language = Localizations.localeOf(context).languageCode;
+    final MachvonV2Text text = context.v2text;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
-        Text(context.t('mob.conflict.intro.body')),
-        const SizedBox(height: 12),
-        if (differences.isEmpty) Text(context.t('mob.conflict.same.body')),
-        if (differences.any((FieldDifference d) => !d.isMoney)) ...<Widget>[
-          _BulkButton(label: context.t('mob.conflict.allMine.action'), onPressed: () => _chooseAll(differences, FieldChoice.mine)),
-          _BulkButton(label: context.t('mob.conflict.allServer.action'), onPressed: () => _chooseAll(differences, FieldChoice.server)),
-        ],
-        for (final FieldDifference difference in differences)
-          _DifferenceCard(
-            key: ValueKey<String>(difference.path),
-            difference: difference,
-            language: language,
-            choice: _choices[difference.path],
-            onChoice: (FieldChoice choice) => setState(() => _choices[difference.path] = choice),
-          ),
-        const SizedBox(height: 8),
-        if (remaining > 0) Semantics(liveRegion: true, child: Text(context.t('mob.conflict.remaining.label', <String, Object>{'count': remaining}))),
-        const SizedBox(height: 8),
-        FilledButton(
-          onPressed: remaining > 0 || _saving ? null : () => _save(loaded),
-          child: Text(context.t('mob.conflict.save.action')),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s8),
+          child: Text(context.t('mob.conflict.intro.body'), style: text.body),
         ),
+        if (differences.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.conflict.same.body'), style: text.body)),
+        if (differences.any((FieldDifference d) => !d.isMoney))
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16),
+            child: Wrap(
+              spacing: MachvonV2Space.s8,
+              children: <Widget>[
+                _BulkButton(label: context.t('mob.conflict.allMine.action'), onPressed: () => _chooseAll(differences, FieldChoice.mine)),
+                _BulkButton(label: context.t('mob.conflict.allServer.action'), onPressed: () => _chooseAll(differences, FieldChoice.server)),
+              ],
+            ),
+          ),
+        for (int i = 0; i < differences.length; i += 1)
+          _DifferenceCard(
+            key: ValueKey<String>(differences[i].path),
+            difference: differences[i],
+            first: i == 0,
+            language: language,
+            choice: _choices[differences[i].path],
+            onChoice: (FieldChoice choice) => setState(() => _choices[differences[i].path] = choice),
+          ),
       ],
     );
   }
@@ -164,16 +177,14 @@ class _BulkButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) => Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: TextButton(onPressed: onPressed, child: Text(label)),
-      );
+  Widget build(BuildContext context) => OutlinedButton(onPressed: onPressed, child: Text(label, textAlign: TextAlign.center));
 }
 
 class _DifferenceCard extends StatelessWidget {
-  const _DifferenceCard({required this.difference, required this.language, required this.choice, required this.onChoice, super.key});
+  const _DifferenceCard({required this.difference, required this.first, required this.language, required this.choice, required this.onChoice, super.key});
 
   final FieldDifference difference;
+  final bool first;
   final String language;
   final FieldChoice? choice;
   final ValueChanged<FieldChoice> onChoice;
@@ -186,48 +197,43 @@ class _DifferenceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
     final String label = fieldLabel(context, difference.path);
     final String mine = _show(context, difference.mine);
     final String server = _show(context, difference.server);
     final Decimal? delta = difference.moneyDelta;
     final String? deltaText = delta == null ? null : context.t('mob.conflict.delta.label', <String, Object>{'delta': formatNumber(delta.toPlainString(), language, signed: true)});
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(label, style: Theme.of(context).textTheme.titleMedium),
-            if (difference.isMoney) Text(context.t('mob.conflict.money.label')),
-            const SizedBox(height: 8),
-            Semantics(
-              container: true,
-              label: '${context.t('mob.conflict.mine.label')}: $mine. ${context.t('mob.conflict.server.label')}: $server.${deltaText == null ? '' : ' $deltaText'}',
-              excludeSemantics: true,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('${context.t('mob.conflict.mine.label')}: $mine'),
-                  Text('${context.t('mob.conflict.server.label')}: $server'),
-                  if (deltaText != null) Text(deltaText, style: const TextStyle(fontWeight: FontWeight.w600)),
-                ],
-              ),
-            ),
-            RadioGroup<FieldChoice>(
-              groupValue: choice,
-              onChanged: (FieldChoice? value) {
-                if (value != null) onChoice(value);
-              },
-              child: Column(
-                children: <Widget>[
-                  RadioListTile<FieldChoice>(key: ValueKey<String>('${difference.path}:mine'), value: FieldChoice.mine, title: Text(context.t('mob.conflict.choose.mine.action'))),
-                  RadioListTile<FieldChoice>(key: ValueKey<String>('${difference.path}:server'), value: FieldChoice.server, title: Text(context.t('mob.conflict.choose.server.action'))),
-                ],
-              ),
-            ),
-          ],
+    return FormSection(
+      title: label,
+      first: first,
+      caption: difference.isMoney ? context.t('mob.conflict.money.label') : null,
+      children: <Widget>[
+        Semantics(
+          container: true,
+          label: '${context.t('mob.conflict.mine.label')}: $mine. ${context.t('mob.conflict.server.label')}: $server.${deltaText == null ? '' : ' $deltaText'}',
+          excludeSemantics: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text('${context.t('mob.conflict.mine.label')}: $mine', style: text.body),
+              Text('${context.t('mob.conflict.server.label')}: $server', style: text.body),
+              if (deltaText != null) Text(deltaText, style: text.bodyStrong),
+            ],
+          ),
         ),
-      ),
+        RadioGroup<FieldChoice>(
+          groupValue: choice,
+          onChanged: (FieldChoice? value) {
+            if (value != null) onChoice(value);
+          },
+          child: Column(
+            children: <Widget>[
+              RadioListTile<FieldChoice>(key: ValueKey<String>('${difference.path}:mine'), value: FieldChoice.mine, title: Text(context.t('mob.conflict.choose.mine.action'))),
+              RadioListTile<FieldChoice>(key: ValueKey<String>('${difference.path}:server'), value: FieldChoice.server, title: Text(context.t('mob.conflict.choose.server.action'))),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

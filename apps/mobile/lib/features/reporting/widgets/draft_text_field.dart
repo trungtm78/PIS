@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:machvon_tokens/machvon_tokens.dart';
 
-/// A box for words (or a number that is not an amount of dong, such as a percent) whose text is kept by the draft. A value that
-/// comes from elsewhere replaces the text; what the person is typing never does.
+/// A box for words (or a number that is not an amount of dong, such as a percent) whose text is kept by the draft: 48 high at least, the
+/// label on the box, the helper and the error under it (the error is shown the moment it is known), a number pad when [keyboardType] says so.
+/// A value that comes from elsewhere replaces the text; what the person is typing never does.
 class DraftTextField extends StatefulWidget {
   const DraftTextField({
     required this.label,
@@ -47,14 +49,16 @@ class _DraftTextFieldState extends State<DraftTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final bool multiline = widget.maxLines > 1;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
       child: TextField(
         controller: _controller,
         enabled: widget.enabled,
-        minLines: widget.maxLines > 1 ? (widget.maxLines < 3 ? widget.maxLines : 3) : 1,
+        minLines: multiline ? (widget.maxLines < 3 ? widget.maxLines : 3) : 1,
         maxLines: widget.maxLines,
-        keyboardType: widget.keyboardType ?? (widget.maxLines > 1 ? TextInputType.multiline : TextInputType.text),
+        keyboardType: widget.keyboardType ?? (multiline ? TextInputType.multiline : TextInputType.text),
+        textInputAction: multiline ? TextInputAction.newline : TextInputAction.next,
         onChanged: widget.onChanged,
         decoration: InputDecoration(
           labelText: widget.label,
@@ -63,7 +67,8 @@ class _DraftTextFieldState extends State<DraftTextField> {
           errorMaxLines: 3,
           helperText: widget.helper,
           helperMaxLines: 4,
-          alignLabelWithHint: widget.maxLines > 1,
+          alignLabelWithHint: multiline,
+          constraints: const BoxConstraints(minHeight: MachvonV2Size.actionButton),
         ),
       ),
     );

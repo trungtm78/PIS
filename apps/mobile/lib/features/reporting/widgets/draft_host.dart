@@ -16,6 +16,10 @@ import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../read_support/navigate.dart';
 import '../data/report_drafts.dart';
 import '../data/report_providers.dart';
@@ -29,7 +33,7 @@ const List<String> kSteps = <String>['MOB-14', 'MOB-15', 'MOB-16', 'MOB-17', 'MO
 
 /// What a step screen is given: the draft as it stands, whether it can be changed, and how to change it.
 final class DraftSession {
-  const DraftSession({required this.snapshot, required this.editable, required this.status, required this.update});
+  const DraftSession({required this.snapshot, required this.editable, required this.status, required this.update, this.referenceProblem, this.scrollingContext});
 
   final DraftSnapshot snapshot;
 
@@ -40,6 +44,13 @@ final class DraftSession {
   /// Changes the form and writes the draft on the device at once; the screen is rebuilt with the new draft.
   final void Function(ReportForm Function(ReportForm form) change) update;
 
+  /// What the server said while the reference figures were read, or null; a screen that owns its bar shows it with [DraftNotices].
+  final ReportProblem? referenceProblem;
+
+  /// The context of the draft when the text is large: it then scrolls with the content instead of taking the top of the screen. A screen that owns
+  /// its bar puts it first in its list.
+  final Widget? scrollingContext;
+
   ReportForm get form => snapshot.form;
 }
 
@@ -48,8 +59,12 @@ final class DraftSession {
 /// standard ones for what is on the device (loading, not found, no session, store failure); what the server says while the
 /// reference figures are read (no connection, no right, licence expired) is told above the form, which stays, because a person in
 /// the field must be able to go on with the draft they have.
+///
+/// The frame is an [AppScaffold]: the title of the step, a compact context line (project, period, `Step n/8`, last saved), one strip for
+/// the connection and a sticky bar at the foot (Back quiet, Next primary), so the way on is always under the thumb. A step that sends something
+/// (MOB-20, MOB-56) owns its bar ([ownBar]) and its body then fills the area and scrolls itself.
 class DraftHost extends ConsumerStatefulWidget {
-  const DraftHost({required this.draftId, required this.screenId, required this.title, required this.body, this.step, this.tellsSending = false, super.key});
+  const DraftHost({required this.draftId, required this.screenId, required this.title, required this.body, this.step, this.tellsSending = false, this.ownBar = false, super.key});
 
   final String draftId;
   final String screenId;
@@ -60,6 +75,9 @@ class DraftHost extends ConsumerStatefulWidget {
 
   /// The screen tells where the sending of the draft stands (waiting, unknown, refused) in its own words, so the frame does not.
   final bool tellsSending;
+
+  /// The body owns the sticky bar at the foot and scrolls itself: the frame draws neither the Back/Next bar nor the notices, nor the list.
+  final bool ownBar;
   final Widget Function(BuildContext context, DraftSession session) body;
 
   @override
@@ -131,6 +149,22 @@ class _DraftHostState extends ConsumerState<DraftHost> {
     setState(() => _snapshot = drafts.read(widget.draftId));
   }
 
+  /// The context of the draft as the frame shows it: the project and the period, the name of the project, the step and when it was saved.
+  Widget _contextOf(BuildContext context, DraftSnapshot snapshot) {
+    final int? step = widget.step;
+    return DraftContext(
+      line: snapshot.context == null
+          ? null
+          : context.t('mob.rep.header.context.label', <String, Object>{'project': snapshot.context!.projectCode, 'period': snapshot.context!.periodCode}),
+      name: snapshot.context?.projectName,
+      step: step == null ? null : context.t('mob.rep.step.position.label', <String, Object>{'n': step, 'total': kSteps.length}),
+      saved: context.t('mob.rep.saved.label', <String, Object>{
+        'time': formatMoment(DateTime.fromMillisecondsSinceEpoch(snapshot.draft.updatedAt, isUtc: true).toIso8601String()),
+        'id': snapshot.shortId,
+      }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<List<QueuedCommand>>>(queuedCommandsProvider, (AsyncValue<List<QueuedCommand>>? previous, AsyncValue<List<QueuedCommand>> next) => _reload());
@@ -155,34 +189,43 @@ class _DraftHostState extends ConsumerState<DraftHost> {
     final DraftSnapshot? snapshot = _snapshot;
     final SubmitStatus status = submitStatusOf(commands, widget.draftId);
     final bool editable = snapshot != null && !status.isPending && status.stage != SubmitStage.submitted && !session.isReadOnly;
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
-      body: SafeArea(
-        child: StateBoundary(
-          state: state,
-          problem: problem,
-          onRetry: () => ref.invalidate(reportDraftsProvider),
-          child: snapshot == null
-              ? const SizedBox.shrink()
-              : ListView(
-                  padding: const EdgeInsets.all(MachvonSpace.space16),
-                  children: <Widget>[
-                    _Header(snapshot: snapshot, step: widget.step),
-                    DraftNotices(
-                      snapshot: snapshot,
-                      status: status,
-                      readOnlySession: session.isReadOnly,
-                      offline: reachability == Reachability.offline,
-                      referenceProblem: _referenceProblem,
-                      tellsSending: widget.tellsSending,
-                    ),
-                    const SizedBox(height: MachvonSpace.space8),
-                    widget.body(context, DraftSession(snapshot: snapshot, editable: editable, status: status, update: _update)),
-                    const SizedBox(height: MachvonSpace.space16),
-                    _Footer(screenId: widget.screenId, draftId: widget.draftId),
-                  ],
-                ),
-        ),
+    final bool offline = reachability == Reachability.offline;
+    // At a large text scale the context would take the screen, so it scrolls with the content.
+    final bool large = largeText(context);
+    final Widget? draftContext = snapshot == null ? null : _contextOf(context, snapshot);
+    final Widget? content = snapshot == null
+        ? null
+        : widget.body(context, DraftSession(snapshot: snapshot, editable: editable, status: status, update: _update, referenceProblem: _referenceProblem, scrollingContext: large ? draftContext : null));
+    return AppScaffold(
+      title: widget.title,
+      contextLine: snapshot == null
+          ? null
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                if (!large) draftContext!,
+                DraftBanners(offline: offline, readOnlySession: session.isReadOnly),
+              ],
+            ),
+      bottomBar: snapshot == null || widget.ownBar ? null : _StepBar(screenId: widget.screenId, draftId: widget.draftId),
+      body: StateBoundary(
+        state: state,
+        problem: problem,
+        onRetry: () => ref.invalidate(reportDraftsProvider),
+        child: content == null
+            ? const SizedBox.shrink()
+            : widget.ownBar
+                ? content
+                : ListView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.only(bottom: MachvonV2Space.s16),
+                    children: <Widget>[
+                      ?(large ? draftContext : null),
+                      DraftNotices(snapshot: snapshot!, status: status, referenceProblem: _referenceProblem, tellsSending: widget.tellsSending),
+                      content,
+                    ],
+                  ),
       ),
     );
   }
@@ -199,36 +242,59 @@ ProblemView storeProblemOf(Object error, Reachability reachability) {
   return ProblemView.from(cause, reachability: reachability);
 }
 
-class _Header extends StatelessWidget {
-  const _Header({required this.snapshot, required this.step});
+/// Where the draft stands, in a few lines under the title: the project and the period with the step it is at, the name of the project, and the time it
+/// was last saved on the phone (a live region, so a screen reader says it when it changes). It takes the words it shows, so a test can hold it with no
+/// draft behind it, and it wraps at a large text scale instead of being cut.
+class DraftContext extends StatelessWidget {
+  const DraftContext({required this.saved, this.line, this.name, this.step, super.key});
 
-  final DraftSnapshot snapshot;
-  final int? step;
+  /// `Project DA-1 · Period W45`.
+  final String? line;
+  final String? name;
+
+  /// `Step 2/8`.
+  final String? step;
+  final String saved;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final String? line = snapshot.context == null
-        ? null
-        : context.t('mob.rep.header.context.label', <String, Object>{'project': snapshot.context!.projectCode, 'period': snapshot.context!.periodCode});
-    final String saved = context.t('mob.rep.saved.label', <String, Object>{
-      'time': formatMoment(DateTime.fromMillisecondsSinceEpoch(snapshot.draft.updatedAt, isUtc: true).toIso8601String()),
-      'id': snapshot.shortId,
-    });
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
+    final bool large = largeText(context);
+    final TextOverflow overflow = large ? TextOverflow.visible : TextOverflow.ellipsis;
+    final int? lines = large ? null : 1;
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (line != null) Text(line, style: theme.textTheme.titleMedium),
-        if (snapshot.context != null && snapshot.context!.projectName.isNotEmpty) Text(snapshot.context!.projectName, style: theme.textTheme.bodyMedium),
-        if (step != null) Text(context.t('mob.rep.step.position.label', <String, Object>{'n': step!, 'total': kSteps.length}), style: theme.textTheme.bodySmall),
-        Semantics(liveRegion: true, container: true, child: Text(saved, style: theme.textTheme.bodySmall)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  if (line != null) Expanded(child: Text(line!, style: text.label, maxLines: lines, overflow: overflow)) else const Spacer(),
+                  if (step != null) ...<Widget>[
+                    const SizedBox(width: MachvonV2Space.s8),
+                    Text(step!, style: text.captionStrong.copyWith(color: v2.palette.primaryStrong)),
+                  ],
+                ],
+              ),
+              if (name != null && name!.isNotEmpty) Text(name!, style: text.caption.copyWith(color: v2.palette.ink2), maxLines: lines, overflow: overflow),
+              Semantics(liveRegion: true, container: true, child: Text(saved, style: text.caption.copyWith(color: v2.palette.ink2), maxLines: lines, overflow: overflow)),
+            ],
+          ),
+        ),
+        Divider(height: 1, thickness: 1, color: v2.palette.line),
       ],
     );
   }
 }
 
-class _Footer extends StatelessWidget {
-  const _Footer({required this.screenId, required this.draftId});
+/// The sticky bar of a step: Back (quiet) and Next (primary). The last step of the sequence and a step outside it have Back only.
+class _StepBar extends StatelessWidget {
+  const _StepBar({required this.screenId, required this.draftId});
 
   final String screenId;
   final String draftId;
@@ -237,20 +303,11 @@ class _Footer extends StatelessWidget {
   Widget build(BuildContext context) {
     final int index = kSteps.indexOf(screenId);
     final String? next = index >= 0 && index < kSteps.length - 1 ? kSteps[index + 1] : null;
-    return Wrap(
-      spacing: MachvonSpace.space8,
-      runSpacing: MachvonSpace.space8,
-      children: <Widget>[
-        OutlinedButton(
-          onPressed: () => context.canPop() ? context.pop() : openScreen(context, 'MOB-22'),
-          child: Text(context.t('mob.rep.step.back.action')),
-        ),
-        if (next != null)
-          FilledButton(
-            onPressed: () => openStep(context, next, draftId),
-            child: Text(context.t('mob.rep.step.next.action')),
-          ),
-      ],
+    final ActionBarButton back = ActionBarButton(label: context.t('mob.rep.step.back.action'), onPressed: () => context.canPop() ? context.pop() : openScreen(context, 'MOB-22'));
+    if (next == null) return ActionBar(primary: back);
+    return ActionBar(
+      primary: ActionBarButton(label: context.t('mob.rep.step.next.action'), onPressed: () => openStep(context, next, draftId)),
+      secondary: back,
     );
   }
 }

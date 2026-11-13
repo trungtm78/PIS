@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/colors.dart';
+import '../../core/widgets/filter_chips.dart';
 import 'annotation.dart';
 
 /// The photograph with the marks of the person on it. The person draws with a finger; every stroke is kept in the picture's own
@@ -127,52 +129,31 @@ class _AnnotationCanvasState extends State<AnnotationCanvas> {
               ),
             ),
           ),
-        const SizedBox(height: MachvonSpace.space8),
-        Wrap(
-          spacing: MachvonSpace.space8,
-          runSpacing: MachvonSpace.space4,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        const SizedBox(height: MachvonV2Space.s8),
+        FilterChips<AnnotationColor>(
+          padding: EdgeInsets.zero,
+          options: <ChipOption<AnnotationColor>>[for (final AnnotationColor color in AnnotationColor.values) ChipOption<AnnotationColor>(value: color, label: _colorLabel(context, color))],
+          selected: _color,
+          onChanged: (AnnotationColor color) => setState(() => _color = color),
+        ),
+        Row(
           children: <Widget>[
-            for (final AnnotationColor color in AnnotationColor.values)
-              ChoiceChip(
-                label: Text(_colorLabel(context, color)),
-                selected: _color == color,
-                onSelected: (bool _) => setState(() => _color = color),
+            Expanded(
+              child: FilterChips<double>(
+                padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
+                options: <ChipOption<double>>[for (final double width in kPenWidths) ChipOption<double>(value: width, label: _penLabel(context, width))],
+                selected: _width,
+                onChanged: (double width) => setState(() => _width = width),
               ),
+            ),
           ],
         ),
-        Wrap(
-          spacing: MachvonSpace.space8,
-          runSpacing: MachvonSpace.space4,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            for (final double width in kPenWidths)
-              ChoiceChip(
-                label: Text(_penLabel(context, width)),
-                selected: _width == width,
-                onSelected: (bool _) => setState(() => _width = width),
-              ),
-            IconButton(
-              onPressed: widget.marks.canUndo
-                  ? () => widget.onChanged(widget.marks.undo())
-                  : null,
-              tooltip: context.t('mob.evd.undo.action'),
-              icon: const Icon(Icons.undo),
-            ),
-            IconButton(
-              onPressed: widget.marks.canRedo
-                  ? () => widget.onChanged(widget.marks.redoStroke())
-                  : null,
-              tooltip: context.t('mob.evd.redo.action'),
-              icon: const Icon(Icons.redo),
-            ),
-            IconButton(
-              onPressed: widget.marks.isEmpty
-                  ? null
-                  : () => widget.onChanged(widget.marks.clear()),
-              tooltip: context.t('mob.evd.clear.action'),
-              icon: const Icon(Icons.delete_outline),
-            ),
+            _ToolButton(icon: Icons.undo, label: context.t('mob.evd.undo.action'), onPressed: widget.marks.canUndo ? () => widget.onChanged(widget.marks.undo()) : null),
+            _ToolButton(icon: Icons.redo, label: context.t('mob.evd.redo.action'), onPressed: widget.marks.canRedo ? () => widget.onChanged(widget.marks.redoStroke()) : null),
+            _ToolButton(icon: Icons.delete_outline, label: context.t('mob.evd.clear.action'), onPressed: widget.marks.isEmpty ? null : () => widget.onChanged(widget.marks.clear())),
           ],
         ),
       ],
@@ -196,6 +177,25 @@ String _colorLabel(BuildContext context, AnnotationColor color) {
       return context.t('mob.evd.color.blue');
     case AnnotationColor.white:
       return context.t('mob.evd.color.white');
+  }
+}
+
+/// One tool of the marking toolbar: a 48 by 48 icon button in the colours of the theme, named by its tooltip for a screen reader.
+class _ToolButton extends StatelessWidget {
+  const _ToolButton({required this.icon, required this.label, required this.onPressed});
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2 v2 = context.v2;
+    return SizedBox(
+      width: MachvonV2Size.actionButton,
+      height: MachvonV2Size.actionButton,
+      child: IconButton(onPressed: onPressed, tooltip: label, color: v2.palette.ink, disabledColor: v2.palette.ink3, icon: Icon(icon)),
+    );
   }
 }
 

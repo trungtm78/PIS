@@ -12,7 +12,17 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_upload.dart';
 import '../../../core/offline/offline_providers.dart';
 import '../../../core/session/session.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/machvon_semantic.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/notice_panel.dart';
+import '../../../core/widgets/sheets.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../command_support/command_flow.dart';
+import '../../command_support/field_contract.dart';
+import '../../command_support/field_widgets.dart';
 import '../../field_evidence/evidence_photos.dart';
 import '../../field_evidence/evidence_photos_field.dart';
 import '../../field_evidence/field_place.dart';
@@ -20,7 +30,7 @@ import '../../field_evidence/place_consent_field.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/widgets.dart';
+import '../../read_support/offline.dart';
 import '../../site_diary/contract_models.dart';
 import '../photo_models.dart';
 import '../photo_service.dart';
@@ -31,6 +41,10 @@ import '../photo_service.dart';
 /// only after the person agreed (the rationale of MOB-06 first), and taking the consent back takes the place and the time out of the
 /// photographs at once (UAT-AC367). A flag is a note for review and never stops a photograph.
 ///
+/// The camera comes first: the photographs are the first block, the contract and the caption follow, and the one action is in the sticky
+/// bar at the foot ("Save and upload"; with no connection "Save, send when online"). Choosing a contract makes it the contract the quick
+/// "Report" sheet offers first.
+///
 /// Saving works with no connection: the capture is kept in the encrypted store and its photographs go up in chunks, are scanned, and wait
 /// as clean uploads (MOB-19). The registration in the site photo register (`registerSitePhoto`) is not made from the phone, because it
 /// takes the key of a file in the file service and the server gives the phone none for a site photograph: the capture is kept with
@@ -38,22 +52,36 @@ import '../photo_service.dart';
 Widget buildPhotoScreen(BuildContext context, ScreenContext screen) =>
     PhotoScreen(contractId: screen.queryParameters['contract'], diaryId: screen.queryParameters['diary']);
 
-class PhotoScreen extends StatelessWidget {
+class PhotoScreen extends StatefulWidget {
   const PhotoScreen({this.contractId, this.diaryId, super.key});
 
   final String? contractId;
   final String? diaryId;
 
   @override
+  State<PhotoScreen> createState() => _PhotoScreenState();
+}
+
+class _PhotoScreenState extends State<PhotoScreen> {
+  int _reload = 0;
+
+  @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.sitepic.title'),
       body: DataView<List<ContractLine>>(
         cacheKey: 'diary.contracts',
+        reloadKey: _reload,
         read: readContracts,
         parse: (Object? raw) => parseContracts(raw),
-        isEmpty: (List<ContractLine> contracts) => contracts.isEmpty,
-        builder: (BuildContext context, Loaded<List<ContractLine>> loaded) => _CaptureForm(contracts: loaded.value, initialContract: contractId, initialDiary: diaryId),
+        builder: (BuildContext context, Loaded<List<ContractLine>> loaded) => loaded.value.isEmpty
+            ? StateView(
+                kind: StateKind.empty,
+                body: context.t('mob.sitepic.contracts.empty.body'),
+                actionLabel: context.t('mob.states.retry.action'),
+                onAction: () => setState(() => _reload += 1),
+              )
+            : _CaptureForm(contracts: loaded.value, initialContract: widget.contractId, initialDiary: widget.diaryId),
       ),
     );
   }
@@ -114,6 +142,7 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
     if (widget.contracts.any((ContractLine contract) => contract.id == widget.initialContract)) {
       _contractId = widget.initialContract;
       _diaryId = widget.initialDiary;
+      _remember(widget.initialContract!);
     }
   }
 
@@ -123,6 +152,13 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
     // Photographs that were prepared and never kept leave nothing behind; those of a capture that is kept (or being kept) stay with it.
     if (_photos.isNotEmpty) unawaited(_service.discardUnkept(_operationId, _photos));
     super.dispose();
+  }
+
+  /// The contract the person works on is the one the quick "Report" sheet offers next.
+  void _remember(String contractId) {
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted) ref.read(lastFieldContractProvider.notifier).remember(contractId);
+    });
   }
 
   void _touched() {
@@ -245,8 +281,9 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final bool readOnly = ref.watch(sessionProvider).isReadOnly;
+    final bool offline = isOffline(ref);
     final bool enabled = !readOnly && !_saving;
     final bool settled = enabled && !_sanitizing;
     final String? contractId = _contractId;
@@ -255,119 +292,144 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
     final Set<String>? known = registered.value;
     final CaptureFlags flags = flagsOf(_photos, _place, duplicateIds: _duplicateIds(known), duplicatesChecked: contractId == null || (registered.hasValue && known != null));
     final List<DiaryOption> options = diaries.value ?? const <DiaryOption>[];
-    return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(MachvonSpace.space16),
-          child: Text(context.t('mob.sitepic.intro'), style: theme.textTheme.bodyMedium),
-        ),
-        if (_saved != null) OutcomeCard(title: context.t('mob.sitepic.result.title', <String, Object>{'count': _saved!}), lines: <String>[context.t('mob.sitepic.result.body')]),
-        if (_failed) OutcomeCard(title: context.t('mob.sitepic.result.failed')),
-        if (readOnly) Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16), child: GateNote(text: context.t('mob.sitepic.gate.readOnly'))),
-        SectionCard(
-          title: context.t('mob.sitepic.contract.label'),
-          children: <Widget>[
-            DropdownButtonFormField<String>(
-              initialValue: _contractId,
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: context.t('mob.sitepic.contract.label'),
-                hintText: context.t('mob.sitepic.contract.choose'),
-                errorText: _problems['contract'] == null ? null : _problemText(context, _problems['contract']!),
-              ),
-              items: <DropdownMenuItem<String>>[
-                for (final ContractLine contract in widget.contracts) DropdownMenuItem<String>(value: contract.id, child: Text(contract.label, overflow: TextOverflow.ellipsis)),
-              ],
-              onChanged: enabled
-                  ? (String? id) => setState(() {
-                        _contractId = id;
-                        _diaryId = null;
-                        _problems = const <String, CaptureProblem>{};
-                        _touched();
-                      })
-                  : null,
-            ),
-            if (contractId != null && diaries.hasValue && diaries.value == null) ...<Widget>[
-              const SizedBox(height: MachvonSpace.space8),
-              Text(context.t('mob.sitepic.diary.unavailable'), style: theme.textTheme.bodySmall),
-            ],
-            if (contractId != null && options.isNotEmpty) ...<Widget>[
-              const SizedBox(height: MachvonSpace.space12),
-              DropdownButtonFormField<String?>(
-                initialValue: options.any((DiaryOption option) => option.id == _diaryId) ? _diaryId : null,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: context.t('mob.sitepic.diary.label')),
-                items: <DropdownMenuItem<String?>>[
-                  DropdownMenuItem<String?>(child: Text(context.t('mob.sitepic.diary.none'))),
-                  for (final DiaryOption option in options)
-                    DropdownMenuItem<String?>(
-                      value: option.id,
-                      child: Text(context.t('mob.sitepic.diary.option', <String, Object>{'date': formatDay(option.recordDate), 'no': option.diaryNo}), overflow: TextOverflow.ellipsis),
-                    ),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
+            children: <Widget>[
+              if (_saved != null)
+                OutcomeCard(
+                  title: context.t('mob.sitepic.result.title', <String, Object>{'count': _saved!}),
+                  lines: <String>[context.t('mob.sitepic.result.body')],
+                  tone: offline ? NoticeTone.info : NoticeTone.ok,
+                ),
+              if (_failed) OutcomeCard(title: context.t('mob.sitepic.result.failed'), tone: NoticeTone.problem),
+              FormSection(
+                first: true,
+                title: context.t('mob.sitepic.photos.title'),
+                caption: context.t('mob.sitepic.intro'),
+                children: <Widget>[
+                  EvidencePhotosField(photos: _photos, keepPlaceAndTime: _place.consent, place: _place, enabled: settled, onChanged: _photosChanged),
+                  if (_problems['photos'] != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: GateNote(text: _problemText(context, _problems['photos']!))),
                 ],
-                onChanged: enabled
-                    ? (String? id) => setState(() {
-                          _diaryId = id;
-                          _touched();
-                        })
-                    : null,
               ),
+              FormSection(
+                title: context.t('mob.sitepic.contract.label'),
+                children: <Widget>[
+                  DropdownButtonFormField<String>(
+                    initialValue: _contractId,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      labelText: context.t('mob.sitepic.contract.label'),
+                      hintText: context.t('mob.sitepic.contract.choose'),
+                      errorText: _problems['contract'] == null ? null : _problemText(context, _problems['contract']!),
+                    ),
+                    items: <DropdownMenuItem<String>>[
+                      for (final ContractLine contract in widget.contracts) DropdownMenuItem<String>(value: contract.id, child: Text(contract.label, overflow: TextOverflow.ellipsis)),
+                    ],
+                    onChanged: enabled
+                        ? (String? id) {
+                            if (id != null) _remember(id);
+                            setState(() {
+                              _contractId = id;
+                              _diaryId = null;
+                              _problems = const <String, CaptureProblem>{};
+                              _touched();
+                            });
+                          }
+                        : null,
+                  ),
+                  if (contractId != null && diaries.hasValue && diaries.value == null) ...<Widget>[
+                    const SizedBox(height: MachvonV2Space.s8),
+                    Text(context.t('mob.sitepic.diary.unavailable'), style: text.caption.copyWith(color: context.v2.palette.ink2)),
+                  ],
+                  if (contractId != null && options.isNotEmpty) ...<Widget>[
+                    const SizedBox(height: MachvonV2Space.s12),
+                    DropdownButtonFormField<String?>(
+                      initialValue: options.any((DiaryOption option) => option.id == _diaryId) ? _diaryId : null,
+                      isExpanded: true,
+                      decoration: InputDecoration(labelText: context.t('mob.sitepic.diary.label')),
+                      items: <DropdownMenuItem<String?>>[
+                        DropdownMenuItem<String?>(child: Text(context.t('mob.sitepic.diary.none'))),
+                        for (final DiaryOption option in options)
+                          DropdownMenuItem<String?>(
+                            value: option.id,
+                            child: Text(context.t('mob.sitepic.diary.option', <String, Object>{'date': formatDay(option.recordDate), 'no': option.diaryNo}), overflow: TextOverflow.ellipsis),
+                          ),
+                      ],
+                      onChanged: enabled
+                          ? (String? id) => setState(() {
+                                _diaryId = id;
+                                _touched();
+                              })
+                          : null,
+                    ),
+                  ],
+                  const SizedBox(height: MachvonV2Space.s12),
+                  TextField(
+                    controller: _caption,
+                    readOnly: !enabled,
+                    minLines: 2,
+                    maxLines: 5,
+                    textCapitalization: TextCapitalization.sentences,
+                    onChanged: (String _) => setState(() {
+                      _problems = const <String, CaptureProblem>{};
+                      _touched();
+                    }),
+                    decoration: InputDecoration(labelText: context.t('mob.sitepic.caption.label'), errorText: _problems['caption'] == null ? null : _problemText(context, _problems['caption']!)),
+                  ),
+                ],
+              ),
+              FormSection(
+                title: context.t('mob.sitepic.place.title'),
+                children: <Widget>[PlaceConsentField(place: _place, enabled: settled, onChanged: _placeChanged)],
+              ),
+              FormSection(title: context.t('mob.sitepic.flags.title'), children: _flagWidgets(context, flags)),
+              _Records(revision: _revision),
             ],
-            const SizedBox(height: MachvonSpace.space12),
-            TextField(
-              controller: _caption,
-              readOnly: !enabled,
-              minLines: 2,
-              maxLines: 5,
-              textCapitalization: TextCapitalization.sentences,
-              onChanged: (String _) => setState(() {
-                _problems = const <String, CaptureProblem>{};
-                _touched();
-              }),
-              decoration: InputDecoration(labelText: context.t('mob.sitepic.caption.label'), errorText: _problems['caption'] == null ? null : _problemText(context, _problems['caption']!)),
-            ),
-          ],
-        ),
-        SectionCard(
-          title: context.t('mob.sitepic.photos.title'),
-          children: <Widget>[
-            EvidencePhotosField(photos: _photos, keepPlaceAndTime: _place.consent, place: _place, enabled: settled, onChanged: _photosChanged),
-            if (_problems['photos'] != null)
-              Semantics(liveRegion: true, child: Text(_problemText(context, _problems['photos']!), style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error))),
-          ],
-        ),
-        SectionCard(
-          title: context.t('mob.sitepic.place.title'),
-          children: <Widget>[PlaceConsentField(place: _place, enabled: settled, onChanged: _placeChanged)],
-        ),
-        SectionCard(title: context.t('mob.sitepic.flags.title'), children: _flagLines(context, flags)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-          child: FilledButton(
-            onPressed: settled ? _save : null,
-            child: Text(_saving ? context.t('mob.sitepic.submit.sending') : context.t('mob.sitepic.submit.action')),
           ),
         ),
-        _Records(revision: _revision),
+        FieldSendBar(
+          label: context.t('mob.sitepic.submit.action'),
+          onSend: settled ? _save : null,
+          sending: _saving,
+          offline: offline,
+          why: readOnly ? context.t('mob.sitepic.gate.readOnly') : (_sanitizing ? context.t('mob.sitepic.gate.sanitizing') : null),
+        ),
       ],
     );
   }
 
-  List<Widget> _flagLines(BuildContext context, CaptureFlags flags) {
-    final TextStyle? style = Theme.of(context).textTheme.bodyMedium;
+  /// The flags of the capture: what the phone can already tell about the photographs. They are notes for review, never a refusal.
+  List<Widget> _flagWidgets(BuildContext context, CaptureFlags flags) {
+    final MachvonV2Text text = context.v2text;
+    const Widget gap = SizedBox(height: MachvonV2Space.s8);
     return <Widget>[
       if (flags.photos == 0)
-        Text(context.t('mob.sitepic.flags.none'), style: style)
+        Text(context.t('mob.sitepic.flags.none'), style: text.body)
       else ...<Widget>[
-        if (flags.placeMissing > 0) Text(context.t('mob.sitepic.flags.place', <String, Object>{'count': flags.placeMissing}), style: style),
-        if (flags.timeMissing > 0) Text(context.t('mob.sitepic.flags.time', <String, Object>{'count': flags.timeMissing}), style: style),
-        if (flags.duplicates > 0) Text(context.t('mob.sitepic.flags.duplicate', <String, Object>{'count': flags.duplicates}), style: style),
-        if (!flags.duplicatesChecked) Text(context.t('mob.sitepic.flags.unchecked'), style: style),
-        if (!flags.hasAny && flags.duplicatesChecked) Text(context.t('mob.sitepic.flags.clear'), style: style),
+        if (flags.hasAny)
+          NoticePanel(
+            tone: NoticeTone.warning,
+            title: context.t('mob.sitepic.flags.review'),
+            lines: <String>[
+              if (flags.placeMissing > 0) context.t('mob.sitepic.flags.place', <String, Object>{'count': flags.placeMissing}),
+              if (flags.timeMissing > 0) context.t('mob.sitepic.flags.time', <String, Object>{'count': flags.timeMissing}),
+              if (flags.duplicates > 0) context.t('mob.sitepic.flags.duplicate', <String, Object>{'count': flags.duplicates}),
+            ],
+            live: false,
+            margin: EdgeInsets.zero,
+          ),
+        if (!flags.duplicatesChecked) ...<Widget>[
+          if (flags.hasAny) gap,
+          NoticePanel(tone: NoticeTone.info, title: context.t('mob.sitepic.flags.unchecked'), live: false, margin: EdgeInsets.zero),
+        ],
+        if (!flags.hasAny && flags.duplicatesChecked) NoticePanel(tone: NoticeTone.ok, title: context.t('mob.sitepic.flags.clear'), live: false, margin: EdgeInsets.zero),
       ],
-      const SizedBox(height: MachvonSpace.space8),
-      Text(context.t('mob.sitepic.flags.note'), style: Theme.of(context).textTheme.bodySmall),
+      gap,
+      Text(context.t('mob.sitepic.flags.note'), style: text.caption.copyWith(color: context.v2.palette.ink2)),
     ];
   }
 }
@@ -410,18 +472,15 @@ class _RecordsState extends ConsumerState<_Records> {
   }
 
   Future<void> _drop(StoredCapture capture) async {
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialog) => AlertDialog(
-        title: Text(dialog.t('mob.sitepic.record.drop.title')),
-        content: Text(dialog.t('mob.sitepic.record.drop.body')),
-        actions: <Widget>[
-          TextButton(onPressed: () => Navigator.of(dialog).pop(false), child: Text(dialog.t('mob.sitepic.record.drop.cancel'))),
-          TextButton(onPressed: () => Navigator.of(dialog).pop(true), child: Text(dialog.t('mob.sitepic.record.drop.confirm'))),
-        ],
-      ),
+    final bool confirmed = await showConfirmSheet(
+      context,
+      title: context.t('mob.sitepic.record.drop.title'),
+      facts: <String>[context.t('mob.sitepic.record.drop.body')],
+      confirmLabel: context.t('mob.sitepic.record.drop.confirm'),
+      cancelLabel: context.t('mob.sitepic.record.drop.cancel'),
+      destructive: true,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     await ref.read(sitePhotoServiceProvider).drop(capture);
     await _load();
   }
@@ -430,26 +489,34 @@ class _RecordsState extends ConsumerState<_Records> {
   Widget build(BuildContext context) {
     if (_captures.isEmpty) return const SizedBox.shrink();
     final List<AttachmentUpload> uploads = ref.watch(attachmentUploadsProvider).value ?? const <AttachmentUpload>[];
-    return SectionCard(
-      title: context.t('mob.sitepic.records.title'),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Text(context.t('mob.sitepic.records.note'), style: Theme.of(context).textTheme.bodySmall),
-        for (final StoredCapture capture in _captures) _RecordRow(capture: capture, summary: summaryOf(uploads, capture.record.operationId), onDrop: () => _drop(capture)),
+        const SizedBox(height: MachvonV2Space.s16),
+        GroupHeader(title: context.t('mob.sitepic.records.title'), count: _captures.length),
+        Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Text(context.t('mob.sitepic.records.note'), style: context.v2text.caption.copyWith(color: context.v2.palette.ink2)),
+        ),
+        for (int position = 0; position < _captures.length; position += 1)
+          _RecordRow(capture: _captures[position], summary: summaryOf(uploads, _captures[position].record.operationId), first: position == 0, onDrop: () => _drop(_captures[position])),
       ],
     );
   }
 }
 
 class _RecordRow extends StatelessWidget {
-  const _RecordRow({required this.capture, required this.summary, required this.onDrop});
+  const _RecordRow({required this.capture, required this.summary, required this.first, required this.onDrop});
 
   final StoredCapture capture;
   final UploadSummary summary;
+  final bool first;
   final VoidCallback onDrop;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2 v2 = context.v2;
     final PhotoRecord record = capture.record;
     final String upload = summary.total == 0
         ? ''
@@ -458,35 +525,40 @@ class _RecordRow extends StatelessWidget {
             : summary.isDone
                 ? context.t('mob.sitepic.record.upload.done', <String, Object>{'total': summary.total})
                 : context.t('mob.sitepic.record.upload.waiting', <String, Object>{'clean': summary.clean, 'total': summary.total, 'waiting': summary.waiting});
-    return Padding(
-      padding: const EdgeInsets.only(top: MachvonSpace.space12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          MergeSemantics(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(context.t('mob.sitepic.record.title', <String, Object>{'contract': record.contractCode, 'count': record.photos.length}), style: theme.textTheme.bodyLarge),
-                if (record.diaryDate != null) Text(context.t('mob.sitepic.record.diary', <String, Object>{'date': formatDay(record.diaryDate!)}), style: theme.textTheme.bodyMedium),
-                if (record.caption.isNotEmpty) Text(record.caption, style: theme.textTheme.bodyMedium),
-                Text(record.place.hasDevicePosition ? context.t('mob.sitepic.record.place.kept') : context.t('mob.sitepic.record.place.none'), style: theme.textTheme.bodyMedium),
-                if (upload.isNotEmpty) Text(upload, style: theme.textTheme.bodyMedium),
-              ],
-            ),
-          ),
-          Wrap(
-            spacing: MachvonSpace.space8,
+    final (String state, MachvonTone tone) = summary.problems > 0
+        ? (context.t('mob.sitepic.record.state.problems'), MachvonTone.danger)
+        : summary.isDone
+            ? (context.t('mob.sitepic.record.state.done'), MachvonTone.success)
+            : (context.t('mob.sitepic.record.state.waiting'), MachvonTone.info);
+    void uploads() => openScreen(context, 'MOB-19', query: <String, String>{'owner': kSitePhotoKind, 'ref': record.operationId}, stacked: true);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        UploadRow(
+          title: context.t('mob.sitepic.record.title', <String, Object>{'contract': record.contractCode, 'count': record.photos.length}),
+          stateLabel: state,
+          tone: tone,
+          progress: summary.total == 0 ? null : summary.clean / summary.total,
+          progressText: upload.isEmpty ? null : upload,
+          dividerAbove: !first,
+          actions: <RowAction>[
+            if (summary.problems > 0) RowAction(label: context.t('mob.sitepic.record.retry.action'), onPressed: uploads),
+            RowAction(label: context.t('mob.sitepic.record.uploads.action'), onPressed: uploads),
+            RowAction(label: context.t('mob.sitepic.record.drop.action'), onPressed: onDrop),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              OutlinedButton(
-                onPressed: () => openScreen(context, 'MOB-19', query: <String, String>{'owner': kSitePhotoKind, 'ref': record.operationId}, stacked: true),
-                child: Text(context.t('mob.sitepic.record.uploads.action')),
-              ),
-              TextButton(onPressed: onDrop, child: Text(context.t('mob.sitepic.record.drop.action'))),
+              if (record.diaryDate != null) Text(context.t('mob.sitepic.record.diary', <String, Object>{'date': formatDay(record.diaryDate!)}), style: text.caption.copyWith(color: v2.palette.ink2)),
+              if (record.caption.isNotEmpty) Text(record.caption, style: text.body),
+              Text(record.place.hasDevicePosition ? context.t('mob.sitepic.record.place.kept') : context.t('mob.sitepic.record.place.none'), style: text.caption.copyWith(color: v2.palette.ink2)),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

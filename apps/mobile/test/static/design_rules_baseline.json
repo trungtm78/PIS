@@ -1,87 +1,11 @@
 {
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
-    "AppBar(": 8,
-    "BoxDecoration(": 1,
-    "Card(": 5,
-    "EdgeInsets-number": 17,
-    "MachvonColors.": 2,
-    "Scaffold(": 8,
-    "TextStyle(": 7,
-    "toStringAsFixed(": 5
+    "EdgeInsets-number": 1
   },
   "files": {
-    "lib/features/diary_hub/screens/hub_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/field_evidence/field_place.dart": {
-      "toStringAsFixed(": 3
-    },
-    "lib/features/field_issues/issue_labels.dart": {
-      "toStringAsFixed(": 2
-    },
-    "lib/features/field_quantities/screens/inspection_screen.dart": {
-      "TextStyle(": 3
-    },
-    "lib/features/offline/screens/conflict_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 1,
-      "EdgeInsets-number": 2,
-      "Scaffold(": 1,
-      "TextStyle(": 1
-    },
-    "lib/features/offline/screens/offline_screen.dart": {
-      "AppBar(": 1,
-      "EdgeInsets-number": 2,
-      "Scaffold(": 1,
-      "TextStyle(": 1
-    },
-    "lib/features/offline/screens/queue_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 2,
-      "EdgeInsets-number": 4,
-      "Scaffold(": 1,
-      "TextStyle(": 2
-    },
     "lib/features/procurement_workflow/screens/process_tree_screen.dart": {
       "EdgeInsets-number": 1
-    },
-    "lib/features/reporting/screens/drafts_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 1,
-      "EdgeInsets-number": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/reporting/screens/funding_screen.dart": {
-      "EdgeInsets-number": 2
-    },
-    "lib/features/reporting/screens/period_screen.dart": {
-      "AppBar(": 1,
-      "EdgeInsets-number": 2,
-      "Scaffold(": 1
-    },
-    "lib/features/reporting/screens/result_screen.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/reporting/screens/review_screen.dart": {
-      "EdgeInsets-number": 1
-    },
-    "lib/features/reporting/widgets/draft_host.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/reporting/widgets/draft_text_field.dart": {
-      "EdgeInsets-number": 1
-    },
-    "lib/features/reporting/widgets/money_field.dart": {
-      "EdgeInsets-number": 1
-    },
-    "lib/features/reporting/widgets/notices.dart": {
-      "BoxDecoration(": 1,
-      "MachvonColors.": 2
     }
   }
 }
