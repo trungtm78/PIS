@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { DataTable, FilterPanel, StatusPill } from '../../../ui';
@@ -31,9 +32,13 @@ export default function AdvanceListScreen({ route }: ScreenProps) {
 
 type Dialog = { kind: 'recovery' | 'cancel'; advance: Advance };
 
+/** The rights of the two commands of the list (openapi `x-permission` of POST /advances/{id}/recoveries and POST /advances/{id}/cancel). */
+const RECOVER_PERMISSION = 'advance.recover';
+const CANCEL_PERMISSION = 'advance.cancel';
+
 function AdvanceListContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
   const [search, setSearch] = useSearchParams();
   const contractId = search.get('contract');
   const status = search.get('status');
@@ -45,6 +50,9 @@ function AdvanceListContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: advances.isLoading, error: advances.error, data: advances.data, isEmpty: () => false });
   const money = (value: string): string => signedAmountText(value, locale) ?? value;
   const writable = mode !== 'READ_ONLY';
+  // The server says what each advance allows the membership; the session says what the person holds (a person who only reads holds neither right).
+  const mayRecover = writable && holds(permissions, RECOVER_PERMISSION);
+  const mayCancel = writable && holds(permissions, CANCEL_PERMISSION);
   const setFilter = (name: 'contract' | 'status', value: string): void => {
     const next = new URLSearchParams(search);
     if (value === '') next.delete(name);
@@ -102,12 +110,12 @@ function AdvanceListContent({ route }: ScreenProps) {
       header: t('pay.advance.column.actions'),
       render: (advance) => (
         <div className="pay-row-actions">
-          {writable && advance.actions.recordRecovery ? (
+          {mayRecover && advance.actions.recordRecovery ? (
             <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setDialog({ kind: 'recovery', advance })} data-action="recover">
               {t('pay.advance.action.recover')}
             </button>
           ) : null}
-          {writable && advance.actions.cancel ? (
+          {mayCancel && advance.actions.cancel ? (
             <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => setDialog({ kind: 'cancel', advance })} data-action="cancel">
               {t('pay.advance.action.cancel')}
             </button>

@@ -13,6 +13,7 @@ import { CloseDialog, ExceptionDialog, OpenDialog, RefreshDialog, SubmitDialog, 
 import { FINDINGS_PERMISSION, OPEN_PERMISSION, READ_PERMISSION, STATUSES, daysLeft, owes, settlementLink, urgencyOf, vietnamDay, vndText } from './model';
 import type { Answer, Outcome, Settlement } from './model';
 import '../pay.css';
+import { ScrollRegion } from '../../scroll-region';
 import { SectionCard } from '../../../ui';
 
 type Dialog = { kind: 'open' } | { kind: 'refresh' } | { kind: 'submit' } | { kind: 'verify'; outcome: Outcome } | { kind: 'exception' } | { kind: 'close' };
@@ -91,11 +92,7 @@ function SettlementContent({ route }: ScreenProps) {
               </select>
             </div>
             <StateBoundary state={state} onRetry={() => void list.refetch()}>
-              {(list.data ?? []).length === 0 ? (
-                <p className="sub" role="status" data-testid="none">
-                  {t('pay.settlement.list.empty')}
-                </p>
-              ) : (
+              <ScrollRegion label={t('pay.settlement.list.title')}>
                 <table className="table" data-testid="settlements">
                   <thead>
                     <tr>
@@ -113,16 +110,23 @@ function SettlementContent({ route }: ScreenProps) {
                         {t('pay.settlement.column.unrecovered')}
                       </th>
                       <th scope="col">{t('pay.settlement.column.due')}</th>
+                      <th scope="col">{t('scr2.pay.settlement.column.exception')}</th>
                       <th scope="col">{t('pay.settlement.column.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(list.data ?? []).map((row) => (
-                      <SettlementRow key={row.id} row={row} today={today} picked={row.id === picked} money={money} />
-                    ))}
+                    {(list.data ?? []).length === 0 ? (
+                      <tr>
+                        <td colSpan={COLUMNS} className="sub" role="status" data-testid="none">
+                          {t('pay.settlement.list.empty')}
+                        </td>
+                      </tr>
+                    ) : (
+                      (list.data ?? []).map((row) => <SettlementRow key={row.id} row={row} today={today} picked={row.id === picked} money={money} />)
+                    )}
                   </tbody>
                 </table>
-              )}
+              </ScrollRegion>
             </StateBoundary>
           </SectionCard>
           {picked === null ? (
@@ -180,6 +184,15 @@ function verifyDone(t: ReturnType<typeof useTranslation>['t'], outcome: Outcome)
   }
 }
 
+/** The columns of the list, for the row that says the list is empty. */
+const COLUMNS = 10;
+
+/** Whether the file may close: an exception approved by a third person, one still needed because something is owed, or none needed. */
+function exceptionLabel(t: ReturnType<typeof useTranslation>['t'], row: Settlement): string {
+  if (row.exceptionApprovedAt !== null) return t('scr2.pay.settlement.exception.approved');
+  return owes(row) ? t('scr2.pay.settlement.exception.needed') : t('scr2.pay.settlement.exception.none');
+}
+
 interface RowProps {
   row: Settlement;
   today: string;
@@ -219,6 +232,7 @@ function SettlementRow({ row, today, picked, money }: RowProps) {
           </span>
         )}
       </td>
+      <td data-testid="exception">{exceptionLabel(t, row)}</td>
       <td>
         <Link to={settlementLink(row.id)} data-testid="open">
           {t('pay.settlement.action.pick')}

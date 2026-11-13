@@ -7,6 +7,7 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { errorIdOf, hintIdOf, wireControl } from '../field-wiring';
+import { ScrollRegion } from '../scroll-region';
 import { useImportStatement, useTreasuryImport, useTreasuryImports, useUploadStatementFile } from './hooks';
 import {
   adapterStatusLabel,
@@ -325,11 +326,7 @@ function RecentImports({ items, current, onOpen }: { items: readonly ImportListI
   return (
     <div className="card" data-testid="recent">
       <h2>{t('pay.import.recent.title')}</h2>
-      {items.length === 0 ? (
-        <p className="callout" role="status" data-testid="recent-empty">
-          {t('pay.import.recent.empty')}
-        </p>
-      ) : (
+      <ScrollRegion label={t('pay.import.recent.title')}>
         <table className="table">
           <thead>
             <tr>
@@ -338,6 +335,8 @@ function RecentImports({ items, current, onOpen }: { items: readonly ImportListI
               <th scope="col">{t('pay.import.summary.importedBy.label')}</th>
               <th scope="col">{t('pay.import.summary.status.label')}</th>
               <th scope="col">{t('pay.import.counts.new.label')}</th>
+              <th scope="col">{t('pay.import.counts.duplicate.label')}</th>
+              <th scope="col">{t('pay.import.counts.conflict.label')}</th>
               <th scope="col">{t('pay.import.counts.error.label')}</th>
               <th scope="col">
                 <span className="pay-sr-only">{t('pay.import.recent.open.action')}</span>
@@ -345,6 +344,13 @@ function RecentImports({ items, current, onOpen }: { items: readonly ImportListI
             </tr>
           </thead>
           <tbody>
+            {items.length === 0 ? (
+              <tr>
+                <td colSpan={9} role="status" data-testid="recent-empty">
+                  {t('pay.import.recent.empty')}
+                </td>
+              </tr>
+            ) : null}
             {items.map((item) => (
               <tr key={item.id} data-testid="recent-row" data-import-id={item.id} aria-current={item.id === current ? 'true' : undefined}>
                 <td>{item.fileName}</td>
@@ -354,6 +360,8 @@ function RecentImports({ items, current, onOpen }: { items: readonly ImportListI
                   <span className={item.status === 'APPLIED' ? 'pay-badge' : 'pay-badge warning'}>{importStatusLabel(t, item.status)}</span>
                 </td>
                 <td className="pay-amount">{item.counts.new}</td>
+                <td className="pay-amount" data-testid="recent-duplicate">{item.counts.duplicate}</td>
+                <td className="pay-amount" data-testid="recent-conflict">{item.counts.conflict}</td>
                 <td className="pay-amount">{item.counts.error}</td>
                 <td>
                   <button type="button" className="button" onClick={() => onOpen(item.id)} aria-label={t('pay.import.recent.open.label', { name: item.fileName })}>
@@ -364,7 +372,7 @@ function RecentImports({ items, current, onOpen }: { items: readonly ImportListI
             ))}
           </tbody>
         </table>
-      )}
+      </ScrollRegion>
     </div>
   );
 }
