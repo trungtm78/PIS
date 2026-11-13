@@ -1,6 +1,6 @@
 import { DomainError, pwfKpi } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
-import { EXCUSAL_MARK_SQL, calendarFingerprint, dayOfInstant, factsOf, itemsFor, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
+import { EXCUSAL_MARK_SQL, calendarFingerprint, dayOfInstant, excusalMark, factsOf, itemsFor, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
 import type { CalendarSet, ResolvedKpiSet, TaskBundle, TaskReading } from './pwf-score-facts.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { scoreIdOf } from './pwf-score-support.ts';
@@ -223,7 +223,13 @@ export class PwfKpiStore {
       );
     }
     summary.written = rows.length;
-    await tx.query(`update machvon.project_task t set kpi_recorded_version = t.version, kpi_recorded_calendars = $2 || '|' || ${EXCUSAL_MARK_SQL} where t.id = any($1::uuid[])`, [[...readings.keys()], fingerprint]);
+    // The watermark is that of the facts that were read, not of what the database holds by now: a decision taken meanwhile leaves the task pending.
+    const evaluated = closed.filter((bundle) => readings.has(bundle.row.id));
+    await tx.query('update machvon.project_task t set kpi_recorded_version = x.version, kpi_recorded_calendars = x.mark from unnest($1::uuid[], $2::int[], $3::text[]) as x(id, version, mark) where t.id = x.id', [
+      evaluated.map((bundle) => bundle.row.id),
+      evaluated.map((bundle) => bundle.row.version),
+      evaluated.map((bundle) => `${fingerprint}|${excusalMark(bundle.excusals)}`),
+    ]);
     return summary;
   }
 

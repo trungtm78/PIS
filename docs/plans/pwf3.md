@@ -28,3 +28,5 @@ Branch `lane/pwf3` (from main 39c7d7738). Spec: `Design/MACHVON_Design/01_Docume
 - `ALERT_TYPE` `PWF_SCORE_RESPONSE_OPEN`: the response shows in the alert centre as a native clock (`CLOCK_DEADLINE`); a typed alert needs a `WORK_SOURCES` entry, which is the lane of pwf2.
 - Phone screens (MOB-81) and PWF-15.
 - WEB-E2E cases UAT-PWF-10, 11, 12, 14 stay PLANNED (they need the e2e stack, which this lane does not run).
+- Route guard: the generated contract gives `getStaffScoreLine`, `compareStaffScoreLines` and the period reads ONE permission each (`read_own` or `read_unit`), while the spec lets `read_own` OR `read_unit` OR `read_hr` in. A manager or HR reader who holds only the scoped permission is stopped at the guard before the scoped checks run. Needs an alternative-permission form in `PolicyGuard` and the contract (Codex round 6, P2, left open).
+- Codex review: six rounds run; the findings of rounds 1 to 6 were fixed except the guard item above.
