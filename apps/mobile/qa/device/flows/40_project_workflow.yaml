@@ -1,0 +1,38 @@
+# STATUS: NOT RUN. Written against the screens MOB-78 to MOB-82 (lane pwfmob); it has not been run on an emulator or a device yet.
+# Supports: TC-UAT-PWF-15 (my tasks by deadline, the task, my score) and TC-UAT-PWF-OFF-01 (a command sent again after the task changed).
+# Needs: a build installed on the device, a signed-in session (run 05_sign_in.yaml first) of a tenant with a project that has a workflow and a task
+# assigned to the user, Vietnamese interface. The offline half needs the airplane mode, which Maestro sets with the commands below.
+# Run:   maestro test --format junit --output results/<device>/40_workflow.xml flows/40_project_workflow.yaml
+appId: vn.machvon.app
+---
+- launchApp
+- tapOn: 'Cá nhân.*'
+- tapOn: 'Việc của tôi theo hạn'
+- assertVisible: 'Việc của tôi'
+# The colours are the person's own: the screen says so and every row carries its real day.
+- assertVisible: '.*Theo cài đặt của bạn.*'
+- assertVisible: 'hạn [0-9]{2}/[0-9]{2}'
+- takeScreenshot: 40_my_tasks
+- tapOn: 'Màu chính thức'
+- assertNotVisible: '.*Theo cài đặt của bạn.*'
+- tapOn: 'Màu của bạn'
+# Open the first task and complete it with no connection.
+- tapOn:
+    index: 1
+    text: '.*hạn.*'
+- assertVisible: 'Chi tiết việc'
+- takeScreenshot: 40_task
+- setAirplaneMode: enabled
+- tapOn: 'Hoàn thành việc'
+- tapOn: 'Hoàn thành việc'
+- assertVisible: '.*sẽ gửi khi có mạng.*'
+- takeScreenshot: 40_task_queued
+- setAirplaneMode: disabled
+- assertVisible: 'Chờ duyệt hoàn thành|Đã xong|Công việc đã thay đổi'
+- takeScreenshot: 40_task_sent
+- back
+- back
+# My score: only the person's own, a basis for support.
+- tapOn: 'Điểm KPI của tôi'
+- assertVisible: '.*căn cứ hỗ trợ.*'
+- takeScreenshot: 40_my_score
