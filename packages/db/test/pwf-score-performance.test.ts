@@ -15,6 +15,8 @@ import { ScoreFixtures } from './support/pwf-score-fixtures';
 jest.setTimeout(1_800_000);
 
 const PEOPLE = 5_000;
+/** The three members the fixtures seed for the maker, the submitter and the checker of the rules: they are members of the root unit, so they are on its roster too (every member of the unit has a line, rated or not). */
+const FIXTURE_MEMBERS = 3;
 const TASKS_PER_PERSON = 3;
 const UNITS = 10;
 const BUDGET_MS = 20_000;
@@ -93,7 +95,7 @@ describe(`the close of a scoring period at the size of a province (R35: ${PEOPLE
     const [row] = await harness.owner<{ people: string; tasks: string; held: string }>(TENANT_A, [
       ['select (select count(*) from machvon.membership)::text as people, (select count(*) from machvon.project_task)::text as tasks, (select count(*) from machvon.project_task_assignment)::text as held'],
     ]);
-    expect(Number(row?.people)).toBeGreaterThanOrEqual(PEOPLE);
+    expect(Number(row?.people)).toBe(PEOPLE + FIXTURE_MEMBERS);
     // The task of the template of the workflow is one more.
     expect(Number(row?.tasks)).toBe(PEOPLE * TASKS_PER_PERSON + 1);
     expect(Number(row?.held)).toBe(PEOPLE * TASKS_PER_PERSON);
@@ -131,7 +133,8 @@ describe(`the close of a scoring period at the size of a province (R35: ${PEOPLE
       `R35 period close: ${close.toFixed(0)} ms (draft ${(computed - started).toFixed(0)} ms, lock ${(finished - computed).toFixed(0)} ms), budget ${decision.budgetMs.toFixed(0)} ms (machine ${decision.factor.toFixed(2)}x the reference: ${before.toFixed(0)}/${after.toFixed(0)} ms against ${REFERENCE_MACHINE_MS} ms)\n`,
     );
     if (decision.tooSlow) throw new Error(`this machine measured more than five times slower than the reference (${Math.max(before, after).toFixed(0)} ms against ${REFERENCE_MACHINE_MS} ms): no verdict can be given, run it again when the machine is quiet`);
-    expect(draft.ratedCount + draft.smallSampleCount + draft.notRatedCount).toBe(PEOPLE);
+    // The people the period is about are the 5,000 of the load and the members of the fixtures, each with a line.
+    expect(draft.ratedCount + draft.smallSampleCount + draft.notRatedCount).toBe(PEOPLE + FIXTURE_MEMBERS);
     expect(locked.status).toBe('LOCKED');
     expect(close).toBeLessThanOrEqual(decision.budgetMs);
     // The period is what it says: reproducible from its snapshot to the same hash.

@@ -3199,6 +3199,8 @@ export async function snapshotTenant(ownerUrl: string, tenant: TenantName): Prom
   try {
     await client.query('begin');
     await client.query("select set_config('app.tenant_id', $1, true)", [TENANT_IDS[tenant]]);
+    // The rows of the scores of staff are also bound to the units of the reader: the snapshot reads every unit.
+    await client.query("select set_config('app.scope_units', '*', true)");
     const parts: unknown[] = [];
     for (const table of new Set<string>(SNAPSHOT_TABLES)) {
       const { rows } = await client.query<{ row: unknown }>(`select to_jsonb(t) as row from machvon.${table} t order by id`);

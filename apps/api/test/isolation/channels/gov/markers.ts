@@ -12,6 +12,7 @@ import { homeMarkers } from './home.fixtures';
 import { hubAgentMarkers } from './hub.fixtures';
 import { mr1Markers } from './mr1.fixtures';
 import { payctlMarkers } from './payctl.fixtures';
+import { pwfMarkers } from './pwf.fixtures';
 import { ratingMarkers } from './rating.fixtures';
 import { reserveMarkers } from './reserve.fixtures';
 import type { Marker } from './support';
@@ -36,5 +37,6 @@ export function governanceMarkers(tenant: TenantName): Marker[] {
     ...feedMarkers(tenant),
     ...gov10Markers(tenant),
     ...hubAgentMarkers(tenant),
+    ...pwfMarkers(tenant),
   ];
 }
