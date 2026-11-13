@@ -191,7 +191,8 @@ void main() {
       expect(readJpegMetadata(File(photo.path).readAsBytesSync()).hasGps, isTrue);
 
       await tester.tap(find.byType(SwitchListTile));
-      await settleReal(tester, rounds: 12);
+      await waitUntil(tester, () async => !readJpegMetadata(File(photo.path).readAsBytesSync()).carriesPlaceOrTime);
+      await settleReal(tester, rounds: 6);
 
       final IssueDraft draft = await _draft(tester, world, id);
       expect(draft.place.hasDevicePosition, isFalse);
