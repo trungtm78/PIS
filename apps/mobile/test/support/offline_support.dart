@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/offline/store/database_key.dart';
 import 'package:machvon_mobile/core/offline/store/local_store.dart';
+import 'temp_dirs.dart';
 
 /// A key store in memory: the secure storage of the phone needs a device, the rest of the store does not.
 class MemoryKeyStore implements DatabaseKeyStore {
@@ -35,7 +36,7 @@ class TestStorage {
       try {
         await storage.purgeAll();
       } finally {
-        if (directory.existsSync()) directory.deleteSync(recursive: true);
+        await removeTempDirectory(directory);
       }
     });
     return TestStorage._(directory, keys, storage);

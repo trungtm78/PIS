@@ -29,6 +29,7 @@ import '../../support/fake_attachment_server.dart';
 import '../../support/fake_sync_server.dart';
 import '../../support/harness.dart';
 import '../../support/offline_support.dart';
+import '../../support/temp_dirs.dart';
 import '../session/support/world.dart' show MemorySecureStore;
 import '../support/scripted_server.dart';
 
@@ -81,7 +82,7 @@ class FakePhotos implements PhotoSource {
   @override
   Future<void> discard(File picked) async {
     discarded.add(picked.path);
-    if (picked.existsSync()) picked.deleteSync();
+    await removeTempFile(picked);
   }
 }
 
@@ -187,9 +188,7 @@ class FieldWorld {
 
   static FieldWorld create({FieldServer? server}) {
     final Directory folder = Directory.systemTemp.createTempSync('machvon-field-');
-    addTearDown(() {
-      if (folder.existsSync()) folder.deleteSync(recursive: true);
-    });
+    addTearDown(() => removeTempDirectory(folder));
     return FieldWorld._(TestStorage.create(), server ?? FieldServer(), folder);
   }
 

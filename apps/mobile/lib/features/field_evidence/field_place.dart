@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../permissions/permission_service.dart';
 
 /// Where a place came from. The label is part of the record (BR-MOB-06): a place typed by a person is never presented as one the
@@ -137,8 +139,17 @@ final class FieldPlace {
 /// The measurements as the server reads them (`geo_lat` is a decimal text, at most 15 decimals): six decimals are about ten
 /// centimetres, more than a phone can know.
 String latitudeText(DevicePosition position) =>
-    position.latitude.toStringAsFixed(6);
+    fixedDecimal(position.latitude, 6);
 String longitudeText(DevicePosition position) =>
-    position.longitude.toStringAsFixed(6);
+    fixedDecimal(position.longitude, 6);
 String accuracyText(DevicePosition position) =>
-    position.accuracyMetres.toStringAsFixed(2);
+    fixedDecimal(position.accuracyMetres, 2);
+
+/// A number with exactly [digits] decimals and a dot: the decimal text of the wire (`geo_lat`, `geo_accuracy_m`), which the server reads as it
+/// is written here whatever the language of the screen. What a person reads is made from it by `coordinateLabel`.
+String fixedDecimal(double value, int digits) {
+  final int scaled = (value.abs() * math.pow(10, digits)).round();
+  final String padded = scaled.toString().padLeft(digits + 1, '0');
+  final String sign = value < 0 && scaled != 0 ? '-' : '';
+  return '$sign${padded.substring(0, padded.length - digits)}.${padded.substring(padded.length - digits)}';
+}
