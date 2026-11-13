@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
-import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
@@ -11,27 +10,30 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_policy.dart';
 import '../../../core/offline/offline_providers.dart';
-import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/notice_panel.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
+import '../../command_support/field_contract.dart';
+import '../../command_support/field_widgets.dart';
 import '../../field_evidence/evidence_photos.dart';
 import '../../field_evidence/evidence_photos_field.dart';
 import '../../field_evidence/field_place.dart';
 import '../../field_evidence/place_consent_field.dart';
-import '../../offline/offline_labels.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/offline.dart';
-import '../../read_support/widgets.dart';
 import '../quantity_commands.dart';
 import '../quantity_labels.dart';
 import '../quantity_models.dart';
 import '../quantity_reads.dart';
 import '../quantity_service.dart';
+import '../waiting_command_row.dart';
+import 'quantity_view.dart';
 
 /// MOB-63: a quantity measured on site, recorded with its evidence. The item is one line of the bill of quantities of the revision in
 /// force, the quantity is exact decimal text, and the record is kept on the phone as a draft and queued as one command with a key the
@@ -56,7 +58,7 @@ class _QuantityScreenState extends State<QuantityScreen> {
   @override
   Widget build(BuildContext context) {
     final String id = widget.contractId;
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.qty.title'),
       body: DataView<QuantityContext>(
         cacheKey: 'quantities.$id',
@@ -112,6 +114,10 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
   @override
   void initState() {
     super.initState();
+    // The quick "Report" sheet takes this contract as the one the person works on.
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted) ref.read(lastFieldContractProvider.notifier).remember(_data.contract.id);
+    });
     unawaited(_open());
   }
 
@@ -243,132 +249,108 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
     return run(() => _commands.submit(measurement, retryAfterUnknown: again), onDone: widget.onChanged);
   }
 
+  /// What is wrong, in words, by field: what the save found, and at once what is already known of the quantity typed (a text that is not
+  /// a number, a zero), except while the person is still typing a decimal point.
+  Map<String, String> _errors(BuildContext context, QuantityDraft draft) {
+    final Map<String, String> errors = <String, String>{for (final MapEntry<String, QuantityProblem> entry in _problems.entries) entry.key: quantityProblemText(context, entry.value)};
+    final QuantityProblem? typed = checkQuantity(draft.form, periodsKnown: _data.periods != null)['quantity'];
+    final String text = draft.form.quantity.trim();
+    if (typed != null && text.isNotEmpty && !text.endsWith('.')) errors.putIfAbsent('quantity', () => quantityProblemText(context, typed));
+    return errors;
+  }
+
   @override
   Widget build(BuildContext context) {
     final QuantityDraft? draft = _draft;
     if (draft == null) return const Center(child: CircularProgressIndicator());
-    final ThemeData theme = Theme.of(context);
     final bool readOnly = ref.watch(sessionProvider).isReadOnly;
     final bool offline = isOffline(ref);
     final List<QueuedCommand> waiting = <QueuedCommand>[
       for (final QueuedCommand command in ref.watch(queuedCommandsProvider).asData?.value ?? const <QueuedCommand>[])
-        if (command.commandType == kMeasurementRecordCommand && command.payload?['contract_id'] == _data.contract.id) command,
+        if (command.commandType == kMeasurementRecordCommand &&
+            command.payload?['contract_id'] == _data.contract.id &&
+            command.state != CommandState.accepted &&
+            command.state != CommandState.discarded)
+          command,
     ];
     ref.listen<AsyncValue<List<QueuedCommand>>>(queuedCommandsProvider, (AsyncValue<List<QueuedCommand>>? previous, AsyncValue<List<QueuedCommand>> next) {
       int accepted(AsyncValue<List<QueuedCommand>>? value) => value?.asData?.value.where((QueuedCommand c) => c.commandType == kMeasurementRecordCommand && c.state == CommandState.accepted).length ?? 0;
       if (accepted(next) > accepted(previous)) widget.onChanged();
     });
     final BoqItem? chosen = _items.cast<BoqItem?>().firstWhere((BoqItem? item) => item!.lineId == draft.form.itemLineId, orElse: () => null);
-    String? error(String field) => _problems[field] == null ? null : quantityProblemText(context, _problems[field]!);
+    final Map<String, String> errors = _errors(context, draft);
+    final bool typedIsNumber = draft.form.quantity.trim().isNotEmpty && checkQuantity(draft.form, periodsKnown: _data.periods != null)['quantity'] == null;
     final CommandOutcome? result = outcome;
-    return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
-      children: <Widget>[
-        SectionCard(
-          title: _data.contract.label,
-          children: <Widget>[
-            StatusPill(label: _data.contract.status),
-            if (widget.fromCopy) Text(context.t('mob.qty.copy.notice')),
-          ],
-        ),
-        if (_storeFailed) GateNote(text: context.t('mob.qty.store.notice')),
-        if (_queued) GateNote(text: offline ? context.t('mob.qty.saved.offline') : context.t('mob.qty.saved')),
-        if (_notRecordable) GateNote(text: context.t('mob.qty.item.notRecordable')),
-        if (_unverifiable) GateNote(text: context.t('mob.queue.reason.unverifiable.body')),
-        if (_photoRefusal != null) GateNote(text: '${evidenceRefusalText(context, _photoRefusal!)} $_photoRefusal'),
-        for (final QueuedCommand command in waiting) if (command.state != CommandState.accepted && command.state != CommandState.discarded) _Waiting(command: command),
-        SectionCard(
-          title: context.t('mob.qty.form.title'),
-          children: <Widget>[
-            if (_items.isEmpty) Text(context.t('mob.qty.items.none'))
-            else
-              DropdownButtonFormField<String>(
-                key: ValueKey<String>('item-${draft.form.itemLineId}'),
-                initialValue: _items.any((BoqItem item) => item.lineId == draft.form.itemLineId) ? draft.form.itemLineId : null,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: context.t('mob.qty.form.item'), errorText: error('item')),
-                items: <DropdownMenuItem<String>>[for (final BoqItem item in _items) DropdownMenuItem<String>(value: item.lineId, child: Text(item.label, overflow: TextOverflow.ellipsis))],
-                onChanged: _saving ? null : (String? id) => _change(draft.copyWith(form: draft.form.copyWith(itemLineId: id ?? ''))),
-              ),
-            if (chosen != null)
-              Padding(
-                padding: const EdgeInsets.only(top: MachvonSpace.space4),
-                child: Text(context.t('mob.qty.item.left', <String, Object>{'left': quantityLabel(context, _data.remainingOf(chosen)), 'unit': chosen.unitCode}), style: theme.textTheme.bodySmall),
-              ),
-            const SizedBox(height: MachvonSpace.space12),
-            if (_data.periods != null)
-              DropdownButtonFormField<String>(
-                key: ValueKey<String>('period-${draft.form.periodId}'),
-                initialValue: _data.periods!.any((MeasurePeriod period) => period.id == draft.form.periodId) ? draft.form.periodId : null,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: context.t('mob.qty.form.period'), errorText: error('period')),
-                items: <DropdownMenuItem<String>>[for (final MeasurePeriod period in _data.periods!) DropdownMenuItem<String>(value: period.id, child: Text(period.code))],
-                onChanged: _saving ? null : (String? id) => _change(draft.copyWith(form: draft.form.copyWith(periodId: id ?? ''))),
-              )
-            else
-              TextField(
-                controller: _periodId,
-                readOnly: _saving,
-                decoration: InputDecoration(labelText: context.t('mob.qty.form.periodId'), helperText: context.t('mob.qty.form.periodId.hint'), errorText: error('period')),
-                onChanged: (String value) => _change(draft.copyWith(form: draft.form.copyWith(periodId: value))),
-              ),
-            const SizedBox(height: MachvonSpace.space12),
-            TextField(
-              controller: _quantity,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              readOnly: _saving,
-              decoration: InputDecoration(
-                labelText: chosen == null || chosen.unitCode.isEmpty ? context.t('mob.qty.form.quantity') : context.t('mob.qty.form.quantity.unit', <String, Object>{'unit': chosen.unitCode}),
-                helperText: context.t('mob.qty.form.quantity.hint'),
-                errorText: error('quantity'),
-              ),
-              onChanged: (String value) => _change(draft.copyWith(form: draft.form.copyWith(quantity: value))),
-            ),
-            const SizedBox(height: MachvonSpace.space12),
-            TextField(
-              controller: _reference,
-              readOnly: _saving,
-              decoration: InputDecoration(labelText: context.t('mob.qty.form.reference'), errorText: error('reference')),
-              onChanged: (String value) => _change(draft.copyWith(form: draft.form.copyWith(referenceNo: value))),
-            ),
-            const SizedBox(height: MachvonSpace.space12),
-            TextField(
-              controller: _override,
-              readOnly: _saving,
-              decoration: InputDecoration(labelText: context.t('mob.qty.form.override'), helperText: context.t('mob.qty.form.override.hint'), errorText: error('override')),
-              onChanged: (String value) => _change(draft.copyWith(form: draft.form.copyWith(overrideReason: value))),
-            ),
-          ],
-        ),
-        SectionCard(title: context.t('mob.qty.place.title'), children: <Widget>[PlaceConsentField(place: draft.place, enabled: !_saving && !_sanitizing, onChanged: _placeChanged)]),
-        SectionCard(
-          title: context.t('mob.qty.photos.title'),
-          children: <Widget>[
-            EvidencePhotosField(photos: draft.photos, keepPlaceAndTime: draft.place.consent, place: draft.place, enabled: !_saving && !_sanitizing, onChanged: (List<EvidencePhoto> photos) => _change(draft.copyWith(photos: photos))),
-            const SizedBox(height: MachvonSpace.space8),
-            Text(context.t('mob.qty.photos.note'), style: theme.textTheme.bodySmall),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              if (readOnly) GateNote(text: context.t('mob.qty.gate.readOnly')),
-              FilledButton(onPressed: readOnly || _saving || _sanitizing ? null : _record, child: Text(_saving ? context.t('mob.qty.save.pending') : context.t('mob.qty.save.action'))),
-            ],
-          ),
-        ),
-        if (result != null) _outcomeCard(context, result),
-        SectionCard(
-          title: context.t('mob.qty.recorded.title'),
-          children: <Widget>[
-            if (_data.measurements.isEmpty) Text(context.t('mob.qty.recorded.none')),
-            for (final Measurement measurement in _data.measurements) _MeasurementRow(measurement: measurement, onSubmit: measurement.canSubmit ? () => _submit(measurement) : null, gate: _gate(context, offline, readOnly), busy: sending),
-          ],
-        ),
+    final String? why = _gate(context, offline, readOnly);
+    return QuantityEntryView(
+      contractLabel: _data.contract.label,
+      contractStatus: _data.contract.status,
+      fromCopy: widget.fromCopy,
+      items: _items,
+      periods: _data.periods,
+      form: draft.form,
+      fields: QuantityFields(quantity: _quantity, reference: _reference, override: _override, periodId: _periodId),
+      errors: errors,
+      saving: _saving,
+      onItem: (String id) => _change(draft.copyWith(form: draft.form.copyWith(itemLineId: id))),
+      onPeriod: (String id) => _change(draft.copyWith(form: draft.form.copyWith(periodId: id))),
+      onPeriodText: (String value) => _change(draft.copyWith(form: draft.form.copyWith(periodId: value))),
+      onQuantity: (String value) => _change(draft.copyWith(form: draft.form.copyWith(quantity: value))),
+      onReference: (String value) => _change(draft.copyWith(form: draft.form.copyWith(referenceNo: value))),
+      onOverride: (String value) => _change(draft.copyWith(form: draft.form.copyWith(overrideReason: value))),
+      remaining: chosen == null ? null : quantityLabel(context, _data.remainingOf(chosen)),
+      unit: chosen?.unitCode,
+      echo: typedIsNumber ? quantityLabel(context, draft.form.quantity.trim()) : null,
+      notices: <Widget>[
+        if (_storeFailed) NoticePanel(tone: NoticeTone.warning, title: context.t('mob.qty.store.notice')),
+        if (_queued && offline) SavedForLaterPanel(onOpenQueue: _openQueue),
+        if (_queued && !offline) NoticePanel(tone: NoticeTone.ok, title: context.t('mob.qty.saved')),
+        if (_notRecordable) NoticePanel(tone: NoticeTone.warning, title: context.t('mob.qty.item.notRecordable')),
+        if (_unverifiable) NoticePanel(tone: NoticeTone.warning, title: context.t('mob.queue.reason.unverifiable.body')),
+        if (_photoRefusal != null) NoticePanel(tone: NoticeTone.problem, title: evidenceRefusalText(context, _photoRefusal!), code: _photoRefusal),
       ],
+      waiting: <Widget>[
+        for (int index = 0; index < waiting.length; index += 1)
+          WaitingCommandRow(
+            title: _waitingTitle(context, waiting[index]),
+            command: waiting[index],
+            dividerAbove: index > 0,
+            refusalText: (BuildContext context, String code) => quantityRefusalText(context, refusalOfCode(code)),
+            queueActionLabel: context.t('mob.qty.waiting.queue.action'),
+            onOpenQueue: _openQueue,
+          ),
+      ],
+      placeField: PlaceConsentField(place: draft.place, enabled: !_saving && !_sanitizing, onChanged: _placeChanged),
+      photosField: EvidencePhotosField(
+        photos: draft.photos,
+        keepPlaceAndTime: draft.place.consent,
+        place: draft.place,
+        enabled: !_saving && !_sanitizing,
+        onChanged: (List<EvidencePhoto> photos) => _change(draft.copyWith(photos: photos)),
+      ),
+      measurements: _data.measurements,
+      submitWhy: why,
+      busy: sending,
+      onSubmit: _submit,
+      onReload: widget.onChanged,
+      outcome: result == null ? null : _outcomeCard(context, result),
+      bar: FieldSendBar(
+        label: _saving ? context.t('mob.qty.save.pending') : context.t('mob.qty.save.action'),
+        offline: offline,
+        onSend: readOnly || _saving || _sanitizing ? null : _record,
+        why: readOnly ? context.t('mob.qty.gate.readOnly') : (_sanitizing ? context.t('mob.qty.sanitizing.why') : null),
+      ),
     );
+  }
+
+  void _openQueue() => openScreen(context, 'MOB-41', stacked: true);
+
+  String _waitingTitle(BuildContext context, QueuedCommand command) {
+    final Object? quantity = command.payload?['quantity_period'];
+    return <String>[
+      '${command.payload?['reference_no'] ?? ''}',
+      if (quantity is String) quantityLabel(context, quantity),
+    ].where((String part) => part.isNotEmpty).join(' · ');
   }
 
   String? _gate(BuildContext context, bool offline, bool readOnly) {
@@ -380,11 +362,12 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
   Widget _outcomeCard(BuildContext context, CommandOutcome result) {
     switch (result) {
       case CommandDone():
-        return OutcomeCard(title: context.t('mob.qty.result.done'));
+        return OutcomeCard(title: context.t('mob.qty.result.done'), tone: NoticeTone.ok);
       case CommandUnknown():
         return OutcomeCard(
           title: context.t('mob.qty.result.unknown.title'),
           lines: <String>[context.t('mob.qty.result.unknown.body')],
+          tone: NoticeTone.warning,
           actionLabel: context.t('mob.qty.result.unknown.action'),
           onAction: () {
             final String? id = _lastSubmitted;
@@ -394,74 +377,11 @@ class _QuantityBodyState extends ConsumerState<_QuantityBody> with CommandFlow<_
           },
         );
       case CommandOffline():
-        return OutcomeCard(title: context.t('mob.qty.gate.offline'));
+        return OutcomeCard(title: context.t('mob.qty.gate.offline'), tone: NoticeTone.info);
       case CommandRefused():
         return OutcomeCard(title: quantityRefusalText(context, refusalOfCode(result.code, reason: result.extensions['reason'])), code: result.code);
     }
   }
 
   String? _lastSubmitted;
-}
-
-class _MeasurementRow extends StatelessWidget {
-  const _MeasurementRow({required this.measurement, required this.onSubmit, required this.gate, required this.busy});
-
-  final Measurement measurement;
-  final VoidCallback? onSubmit;
-  final String? gate;
-  final bool busy;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          MergeSemantics(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  context.t('mob.qty.recorded.line', <String, Object>{'item': measurement.itemKey, 'quantity': quantityLabel(context, measurement.quantityPeriod), 'unit': measurement.unitCode, 'period': measurement.periodCode}),
-                  style: theme.textTheme.titleSmall,
-                ),
-                StatusPill(label: measurementStatusText(context, measurement.status)),
-                Text(context.t('mob.qty.recorded.evidence', <String, Object>{'count': measurement.evidenceCount}), style: theme.textTheme.bodySmall),
-              ],
-            ),
-          ),
-          if (onSubmit != null) ...<Widget>[
-            if (gate != null) GateNote(text: gate!),
-            OutlinedButton(onPressed: gate == null && !busy ? onSubmit : null, child: Text(context.t('mob.qty.submit.action'))),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// A quantity of this phone that is on its way: where it stands, and why when it was refused.
-class _Waiting extends StatelessWidget {
-  const _Waiting({required this.command});
-
-  final QueuedCommand command;
-
-  @override
-  Widget build(BuildContext context) {
-    final String? code = command.errorCode;
-    final String? reason = command.state == CommandState.rejected && code != null && code != kResultUnverifiable ? quantityRefusalText(context, refusalOfCode(code)) : reasonOf(context, command);
-    return SectionCard(
-      title: context.t('mob.qty.waiting.title'),
-      children: <Widget>[
-        Text('${command.payload?['reference_no'] ?? ''} · ${command.payload?['quantity_period'] ?? ''}'),
-        Semantics(liveRegion: true, child: StatusPill(label: stateLabel(context, command.state), warn: command.state == CommandState.rejected || command.state == CommandState.conflict)),
-        if (reason != null) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space8), child: Text(reason)),
-        if (code != null) Text(code, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: MachvonSpace.space8),
-        OutlinedButton(onPressed: () => openScreen(context, 'MOB-41', stacked: true), child: Text(context.t('mob.qty.waiting.queue.action'))),
-      ],
-    );
-  }
 }

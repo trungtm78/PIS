@@ -140,7 +140,7 @@ void main() {
       await tester.tap(find.text('Hộ HH-A-001'));
       await tester.pumpAndSettle();
       expect(currentLocation(container), _task);
-      expect(find.text('Mã hộ:'), findsOneWidget);
+      expect(find.text('Mã hộ'), findsOneWidget);
     });
 
     testWidgets('no name, identity number, telephone or address of a household is ever on the screen, although the server sent masked ones', (WidgetTester tester) async {
@@ -167,8 +167,7 @@ void main() {
       expect(find.text('HH-A-001'), findsOneWidget);
       expect(find.text('Đã kiểm đếm'), findsOneWidget);
       expect(find.text('4'), findsOneWidget);
-      expect(find.text('Sự đồng ý của hộ'), findsOneWidget, reason: 'the basis');
-      expect(find.text('Sự đồng ý của hộ:'), findsOneWidget, reason: 'the line about the consent record');
+      expect(find.text('Sự đồng ý của hộ'), findsNWidgets(2), reason: 'the basis, and the label of the line about the consent record');
       expect(find.text('Đã có biên bản đồng ý'), findsOneWidget);
       expect(find.text('Thửa TH-001: chủ sử dụng'), findsOneWidget);
       expect(find.text('Nhà: Nhà cấp 4, tường gạch'), findsOneWidget);

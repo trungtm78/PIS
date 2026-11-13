@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
-import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
@@ -11,27 +10,32 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/offline/attachments/attachment_policy.dart';
 import '../../../core/offline/offline_providers.dart';
-import '../../../core/offline/queue/offline_codes.dart';
 import '../../../core/offline/queue/queue_results.dart';
 import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/notice_panel.dart';
+import '../../../core/widgets/state_view.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
+import '../../command_support/field_contract.dart';
+import '../../command_support/field_widgets.dart';
 import '../../field_evidence/evidence_photos.dart';
 import '../../field_evidence/evidence_photos_field.dart';
 import '../../field_evidence/field_place.dart';
 import '../../field_evidence/place_consent_field.dart';
-import '../../offline/offline_labels.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/offline.dart';
-import '../../read_support/widgets.dart';
 import '../inspection_commands.dart';
 import '../inspection_labels.dart';
 import '../inspection_models.dart';
 import '../inspection_reads.dart';
 import '../inspection_service.dart';
+import '../waiting_command_row.dart';
+import 'inspection_view.dart';
 
 /// MOB-64: the result of a field quality inspection. The checklist the inspection was given is answered item by item (pass, fail,
 /// not applicable), the overall result and its words are written, and photographs follow the consent to keep the position. The
@@ -58,16 +62,17 @@ class _InspectionScreenState extends State<InspectionScreen> {
   @override
   Widget build(BuildContext context) {
     final String id = widget.contractId;
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.chk.title'),
       body: DataView<InspectionContext>(
         cacheKey: 'inspections.$id',
         reloadKey: _reload,
         read: (MachvonApiClient client) => readInspectionContext(client, id),
         parse: parseInspectionContext,
-        isEmpty: (InspectionContext data) => data.inspections.isEmpty,
         builder: (BuildContext context, Loaded<InspectionContext> loaded) {
           final InspectionContext data = loaded.value;
+          // An empty list is drawn here and not by the read, so the state has the action that may fix it.
+          if (data.inspections.isEmpty) return StateView(kind: StateKind.empty, actionLabel: context.t('mob.states.retry.action'), onAction: () => setState(() => _reload += 1));
           final String? wanted = _chosen ?? widget.requestedInspection;
           Inspection? selected;
           for (final Inspection inspection in data.inspections) {
@@ -130,6 +135,10 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
   @override
   void initState() {
     super.initState();
+    // The quick "Report" sheet takes this contract as the one the person works on.
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted) ref.read(lastFieldContractProvider.notifier).remember(widget.data.contract.id);
+    });
     unawaited(_open());
   }
 
@@ -248,7 +257,15 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
     return run(() => _requests.request(_inspection, recordNo: _record.text, documentVersionId: _document.text, retryAfterUnknown: again), onDone: widget.onChanged);
   }
 
-  String? _problemText(BuildContext context, String key) => _problems[key] == null ? null : resultProblemText(context, _problems[key]!);
+  /// What is wrong, in words, by field: what the save found, and at once the contradiction between the overall result and the answers once
+  /// every item is answered and a result is chosen.
+  Map<String, String> _errors(BuildContext context, ResultDraft draft) {
+    final Map<String, String> errors = <String, String>{for (final MapEntry<String, ResultProblem> entry in _problems.entries) entry.key: resultProblemText(context, entry.value)};
+    final Map<String, ResultProblem> live = checkResult(draft.form, _inspection.checklist);
+    final bool answered = _inspection.checklist.isNotEmpty && !live.keys.any((String key) => key.startsWith('answer:') && live[key] == ResultProblem.unanswered);
+    if (answered && live['whole'] == ResultProblem.contradiction) errors.putIfAbsent('whole', () => resultProblemText(context, ResultProblem.contradiction));
+    return errors;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -266,221 +283,99 @@ class _InspectionBodyState extends ConsumerState<_InspectionBody> with CommandFl
       if (accepted(next) > accepted(previous)) widget.onChanged();
     });
     final bool waiting = pending != null && pending.state != CommandState.accepted && pending.state != CommandState.discarded;
+    final bool formOpen = inspection.isOpen && !waiting;
     final CommandOutcome? result = outcome;
-    final List<Nonconformance> raised = widget.data.raisedBy(inspection.id);
-    return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
-      children: <Widget>[
-        SectionCard(
-          title: widget.data.contract.label,
-          children: <Widget>[
-            DropdownButtonFormField<String>(
-              key: ValueKey<String>('inspection-${inspection.id}'),
-              initialValue: inspection.id,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: context.t('mob.chk.pick')),
-              items: <DropdownMenuItem<String>>[
-                for (final Inspection other in widget.data.inspections) DropdownMenuItem<String>(value: other.id, child: Text('${other.inspectionNo} · ${other.title}', overflow: TextOverflow.ellipsis)),
-              ],
-              onChanged: (String? id) {
-                if (id != null) widget.onPick(id);
-              },
-            ),
-            const SizedBox(height: MachvonSpace.space8),
-            StatusPill(label: inspectionStatusText(context, inspection.status)),
-            if (inspection.locationText != null) FactLine(label: context.t('mob.chk.location'), value: inspection.locationText!),
-            if (widget.fromCopy) Text(context.t('mob.chk.copy.notice')),
-          ],
-        ),
-        if (_storeFailed) GateNote(text: context.t('mob.chk.store.notice')),
-        if (_queued) GateNote(text: offline ? context.t('mob.chk.saved.offline') : context.t('mob.chk.saved')),
-        if (_unverifiable) GateNote(text: context.t('mob.queue.reason.unverifiable.body')),
-        if (_photoRefusal != null) GateNote(text: '${evidenceRefusalText(context, _photoRefusal!)} $_photoRefusal'),
-        if (pending != null && waiting) _Waiting(command: pending),
-        if (inspection.isOpen && !waiting) ..._form(context, draft, readOnly) else if (!inspection.isOpen) _recorded(context, inspection),
-        if (raised.isNotEmpty) _nonconformances(context, raised),
-        if (inspection.mayRequestAcceptance) _acceptance(context, offline || widget.fromCopy, readOnly),
-        if (result != null) _outcomeCard(context, result),
+    final bool needsNetwork = offline || widget.fromCopy;
+    final Widget? bar;
+    if (formOpen) {
+      bar = FieldSendBar(
+        label: _saving ? context.t('mob.chk.save.pending') : context.t('mob.chk.save.action'),
+        offline: offline,
+        onSend: readOnly || _saving || _sanitizing ? null : _save,
+        why: readOnly ? context.t('mob.chk.gate.readOnly') : (_sanitizing ? context.t('mob.chk.sanitizing.why') : null),
+      );
+    } else if (inspection.mayRequestAcceptance) {
+      bar = ActionBar(
+        primary: ActionBarButton(label: sending ? context.t('mob.chk.accept.pending') : context.t('mob.chk.accept.action'), onPressed: needsNetwork || readOnly || sending ? null : _requestAcceptance),
+        why: needsNetwork ? context.t('mob.chk.gate.offline') : (readOnly ? context.t('mob.chk.gate.readOnly') : null),
+      );
+    } else {
+      bar = null;
+    }
+    return InspectionEntryView(
+      contractLabel: widget.data.contract.label,
+      inspections: widget.data.inspections,
+      inspection: inspection,
+      onPick: widget.onPick,
+      fromCopy: widget.fromCopy,
+      formOpen: formOpen,
+      form: draft.form,
+      itemNotes: _itemNotes,
+      resultNote: _note,
+      errors: _errors(context, draft),
+      saving: _saving,
+      onOutcome: (String code, String outcome) => _change(draft.copyWith(form: draft.form.withAnswer(code, draft.form.answerOf(code).copyWith(outcome: outcome)))),
+      onItemNote: (String code, String note) => _change(draft.copyWith(form: draft.form.withAnswer(code, draft.form.answerOf(code).copyWith(note: note)))),
+      onResult: (String value) => _change(draft.copyWith(form: draft.form.copyWith(result: value))),
+      onResultNote: (String value) => _change(draft.copyWith(form: draft.form.copyWith(resultNote: value))),
+      placeField: PlaceConsentField(place: draft.place, enabled: !_saving && !_sanitizing, onChanged: _placeChanged),
+      photosField: EvidencePhotosField(
+        photos: draft.photos,
+        keepPlaceAndTime: draft.place.consent,
+        place: draft.place,
+        enabled: !_saving && !_sanitizing,
+        onChanged: (List<EvidencePhoto> photos) => _change(draft.copyWith(photos: photos)),
+      ),
+      raised: widget.data.raisedBy(inspection.id),
+      notices: <Widget>[
+        if (_storeFailed) NoticePanel(tone: NoticeTone.warning, title: context.t('mob.chk.store.notice')),
+        if (_queued && offline) SavedForLaterPanel(onOpenQueue: _openQueue),
+        if (_queued && !offline) NoticePanel(tone: NoticeTone.ok, title: context.t('mob.chk.saved')),
+        if (_unverifiable) NoticePanel(tone: NoticeTone.warning, title: context.t('mob.queue.reason.unverifiable.body')),
+        if (_photoRefusal != null) NoticePanel(tone: NoticeTone.problem, title: evidenceRefusalText(context, _photoRefusal!), code: _photoRefusal),
       ],
-    );
-  }
-
-  List<Widget> _form(BuildContext context, ResultDraft draft, bool readOnly) {
-    return <Widget>[
-      SectionCard(
-        title: context.t('mob.chk.checklist.title'),
-        children: <Widget>[
-          for (final ChecklistItem item in _inspection.checklist)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Semantics(header: true, child: Text(item.label, style: Theme.of(context).textTheme.titleSmall)),
-                  Wrap(
-                    spacing: MachvonSpace.space8,
-                    children: <Widget>[
-                      for (final String outcome in kOutcomes)
-                        ChoiceChip(
-                          label: Text(outcomeText(context, outcome)),
-                          selected: draft.form.answerOf(item.code).outcome == outcome,
-                          onSelected: _saving ? null : (bool _) => _change(draft.copyWith(form: draft.form.withAnswer(item.code, draft.form.answerOf(item.code).copyWith(outcome: outcome)))),
-                        ),
-                    ],
-                  ),
-                  if (_problems['answer:${item.code}'] != null) Text(resultProblemText(context, _problems['answer:${item.code}']!), style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                  TextField(
-                    controller: _itemNotes[item.code],
-                    readOnly: _saving,
-                    decoration: InputDecoration(labelText: context.t('mob.chk.item.note', <String, Object>{'item': item.label})),
-                    onChanged: (String value) => _change(draft.copyWith(form: draft.form.withAnswer(item.code, draft.form.answerOf(item.code).copyWith(note: value)))),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-      SectionCard(
-        title: context.t('mob.chk.result.title'),
-        children: <Widget>[
-          Wrap(
-            spacing: MachvonSpace.space8,
-            children: <Widget>[
-              for (final String result in kResults)
-                ChoiceChip(
-                  label: Text(resultText(context, result)),
-                  selected: draft.form.result == result,
-                  onSelected: _saving ? null : (bool _) => _change(draft.copyWith(form: draft.form.copyWith(result: result))),
-                ),
-            ],
-          ),
-          if (_problemText(context, 'result') != null) Text(_problemText(context, 'result')!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-          if (_problemText(context, 'whole') != null) Semantics(liveRegion: true, child: Text(_problemText(context, 'whole')!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
-          const SizedBox(height: MachvonSpace.space8),
-          TextField(
-            controller: _note,
-            maxLines: 3,
-            readOnly: _saving,
-            decoration: InputDecoration(labelText: context.t('mob.chk.result.note'), errorText: _problemText(context, 'resultNote')),
-            onChanged: (String value) => _change(draft.copyWith(form: draft.form.copyWith(resultNote: value))),
-          ),
-        ],
-      ),
-      SectionCard(title: context.t('mob.chk.place.title'), children: <Widget>[PlaceConsentField(place: draft.place, enabled: !_saving && !_sanitizing, onChanged: _placeChanged)]),
-      SectionCard(
-        title: context.t('mob.chk.photos.title'),
-        children: <Widget>[
-          EvidencePhotosField(photos: draft.photos, keepPlaceAndTime: draft.place.consent, place: draft.place, enabled: !_saving && !_sanitizing, onChanged: (List<EvidencePhoto> photos) => _change(draft.copyWith(photos: photos))),
-          const SizedBox(height: MachvonSpace.space8),
-          Text(context.t('mob.chk.photos.note'), style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            if (readOnly) GateNote(text: context.t('mob.chk.gate.readOnly')),
-            FilledButton(onPressed: readOnly || _saving || _sanitizing ? null : _save, child: Text(_saving ? context.t('mob.chk.save.pending') : context.t('mob.chk.save.action'))),
-          ],
-        ),
-      ),
-    ];
-  }
-
-  Widget _recorded(BuildContext context, Inspection inspection) {
-    return SectionCard(
-      title: context.t('mob.chk.recorded.title'),
-      children: <Widget>[
-        if (inspection.result != null) FactLine(label: context.t('mob.chk.result.title'), value: resultText(context, inspection.result!)),
-        if (inspection.status != 'RESULT_RECORDED') Text(context.t('mob.chk.recorded.notOpen')),
-      ],
-    );
-  }
-
-  Widget _nonconformances(BuildContext context, List<Nonconformance> raised) {
-    return SectionCard(
-      title: context.t('mob.chk.ncr.title'),
-      children: <Widget>[
-        for (final Nonconformance ncr in raised)
-          MergeSemantics(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(context.t('mob.chk.ncr.line', <String, Object>{'no': ncr.ncrNo, 'title': ncr.title}), style: Theme.of(context).textTheme.titleSmall),
-                  Wrap(
-                    spacing: MachvonSpace.space8,
-                    children: <Widget>[
-                      StatusPill(label: severityOfNcrText(context, ncr.severity), warn: ncr.severity == 'CRITICAL'),
-                      if (ncr.blocksAcceptance && ncr.isOpen) StatusPill(label: context.t('mob.chk.ncr.blocks'), warn: true),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+      waiting: <Widget>[
+        if (pending != null && waiting)
+          WaitingCommandRow(
+            title: '${inspection.inspectionNo} · ${inspection.title}',
+            command: pending,
+            dividerAbove: false,
+            refusalText: (BuildContext context, String code) => inspectionRefusalText(context, inspectionRefusalOf(code)),
+            queueActionLabel: context.t('mob.chk.waiting.queue.action'),
+            onOpenQueue: _openQueue,
           ),
       ],
+      acceptance: inspection.mayRequestAcceptance
+          ? AcceptanceFormSection(
+              record: _record,
+              document: _document,
+              errors: <String, String>{for (final MapEntry<String, RequestProblem> entry in _requestProblems.entries) entry.key: requestProblemText(context, entry.value)},
+              sending: sending,
+            )
+          : null,
+      outcome: result == null ? null : _outcomeCard(context, result),
+      bar: bar,
     );
   }
 
-  Widget _acceptance(BuildContext context, bool needsNetwork, bool readOnly) {
-    String? error(String key) => _requestProblems[key] == null ? null : requestProblemText(context, _requestProblems[key]!);
-    return SectionCard(
-      title: context.t('mob.chk.accept.title'),
-      children: <Widget>[
-        Text(context.t('mob.chk.accept.hint')),
-        const SizedBox(height: MachvonSpace.space8),
-        TextField(controller: _record, readOnly: sending, decoration: InputDecoration(labelText: context.t('mob.chk.accept.record'), errorText: error('record'))),
-        const SizedBox(height: MachvonSpace.space12),
-        TextField(controller: _document, readOnly: sending, decoration: InputDecoration(labelText: context.t('mob.chk.accept.document'), helperText: context.t('mob.chk.accept.document.hint'), errorText: error('document'))),
-        if (needsNetwork) GateNote(text: context.t('mob.chk.gate.offline')),
-        if (readOnly) GateNote(text: context.t('mob.chk.gate.readOnly')),
-        const SizedBox(height: MachvonSpace.space8),
-        FilledButton(onPressed: needsNetwork || readOnly || sending ? null : _requestAcceptance, child: Text(sending ? context.t('mob.chk.accept.pending') : context.t('mob.chk.accept.action'))),
-      ],
-    );
-  }
+  void _openQueue() => openScreen(context, 'MOB-41', stacked: true);
 
   Widget _outcomeCard(BuildContext context, CommandOutcome result) {
     switch (result) {
       case CommandDone():
-        return OutcomeCard(title: context.t('mob.chk.accept.done'));
+        return OutcomeCard(title: context.t('mob.chk.accept.done'), tone: NoticeTone.ok);
       case CommandUnknown():
         return OutcomeCard(
           title: context.t('mob.chk.result.unknown.title'),
           lines: <String>[context.t('mob.chk.result.unknown.body')],
+          tone: NoticeTone.warning,
           actionLabel: context.t('mob.chk.result.unknown.action'),
           onAction: () => _requestAcceptance(again: true),
         );
       case CommandOffline():
-        return OutcomeCard(title: context.t('mob.chk.gate.offline'));
+        return OutcomeCard(title: context.t('mob.chk.gate.offline'), tone: NoticeTone.info);
       case CommandRefused():
         return OutcomeCard(title: inspectionRefusalText(context, inspectionRefusalOf(result.code)), code: result.code);
     }
-  }
-}
-
-/// The result of this inspection that is on its way: where it stands, and why when it was refused.
-class _Waiting extends StatelessWidget {
-  const _Waiting({required this.command});
-
-  final QueuedCommand command;
-
-  @override
-  Widget build(BuildContext context) {
-    final String? code = command.errorCode;
-    final String? reason = command.state == CommandState.rejected && code != null && code != kResultUnverifiable ? inspectionRefusalText(context, inspectionRefusalOf(code)) : reasonOf(context, command);
-    return SectionCard(
-      title: context.t('mob.chk.waiting.title'),
-      children: <Widget>[
-        Semantics(liveRegion: true, child: StatusPill(label: stateLabel(context, command.state), warn: command.state == CommandState.rejected || command.state == CommandState.conflict)),
-        if (reason != null) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space8), child: Text(reason)),
-        if (code != null) Text(code, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: MachvonSpace.space8),
-        OutlinedButton(onPressed: () => openScreen(context, 'MOB-41', stacked: true), child: Text(context.t('mob.chk.waiting.queue.action'))),
-      ],
-    );
   }
 }
