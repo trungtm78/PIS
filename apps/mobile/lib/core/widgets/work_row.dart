@@ -23,6 +23,7 @@ class WorkRow extends StatelessWidget {
     this.onTap,
     this.semanticLabel,
     this.dividerAbove = false,
+    this.quiet = false,
     super.key,
   });
 
@@ -69,6 +70,10 @@ class WorkRow extends StatelessWidget {
   /// A hairline above the row, inset to the start of the text: the separator between two rows.
   final bool dividerAbove;
 
+  /// A row that is done with (a notification already read): the title is drawn in the body weight and the secondary ink, so what is new
+  /// stands out without a colour.
+  final bool quiet;
+
   @override
   Widget build(BuildContext context) {
     final MachvonV2 v2 = context.v2;
@@ -78,7 +83,7 @@ class WorkRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text(title, style: text.bodyStrong, maxLines: large ? null : 2, overflow: large ? TextOverflow.visible : TextOverflow.ellipsis),
+        Text(title, style: quiet ? text.body.copyWith(color: v2.palette.ink2) : text.bodyStrong, maxLines: large ? null : 2, overflow: large ? TextOverflow.visible : TextOverflow.ellipsis),
         if (subtitle != null) Text(subtitle!, style: text.caption, maxLines: large ? null : 1, overflow: large ? TextOverflow.visible : TextOverflow.ellipsis),
       ],
     );

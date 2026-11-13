@@ -8,6 +8,12 @@ import '../../../core/di/providers.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/nav_row.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
@@ -104,18 +110,15 @@ class _NotFound extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return ListView(
-      padding: const EdgeInsets.all(MachvonSpace.space16),
-      children: <Widget>[
-        Semantics(liveRegion: true, container: true, child: Text(context.t('mob.ntf.detail.closed.title'), style: theme.textTheme.titleMedium)),
-        const SizedBox(height: MachvonSpace.space4),
-        Text(context.t('mob.ntf.detail.notFound.title'), style: theme.textTheme.bodyLarge),
-        const SizedBox(height: MachvonSpace.space8),
-        Text(context.t('mob.ntf.detail.notFound.body')),
-        const SizedBox(height: MachvonSpace.space16),
-        FilledButton(onPressed: () => openScreen(context, 'MOB-32'), child: Text(context.t('mob.ntf.detail.back.action'))),
-      ],
+    // Not found says nothing of what the notification was: another tenant, another member and a removed one look the same.
+    return StateView(
+      kind: StateKind.denied,
+      icon: Icons.search_off_outlined,
+      title: context.t('mob.ntf.detail.notFound.title'),
+      body: context.t('mob.ntf.detail.notFound.body'),
+      details: <Widget>[Text(context.t('mob.ntf.detail.closed.title'), textAlign: TextAlign.center, style: context.v2text.caption)],
+      actionLabel: context.t('mob.ntf.detail.back.action'),
+      onAction: () => openScreen(context, 'MOB-32'),
     );
   }
 }
@@ -192,72 +195,92 @@ class _DetailState extends ConsumerState<_Detail> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final NotificationItem item = widget.item;
     final String? recordLocation = item.isUnavailable ? null : recordLocationOf(item.resourceRef, (String id) => ref.read(routeTableProvider).locationOf(id));
     final bool canAcknowledge = item.needsAction && !item.isUnavailable && !_acknowledged;
-    return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+    final bool locked = item.isUnread || _acknowledging;
+    final Widget content = ListView(
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
-        SectionCard(
-          title: titleOf(context, item),
-          children: <Widget>[
-            Wrap(spacing: MachvonSpace.space8, children: <Widget>[StatusPill(label: stateLabel(context, item), warn: item.needsAction)]),
-            if (item.isUnavailable)
-              Padding(
-                padding: const EdgeInsets.only(top: MachvonSpace.space8),
-                child: Semantics(
-                  liveRegion: true,
-                  container: true,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(context.t('mob.ntf.detail.closed.title'), style: theme.textTheme.titleSmall),
-                      Text(context.t('mob.ntf.detail.unavailable.body'), style: theme.textTheme.bodyMedium),
-                    ],
-                  ),
-                ),
-              )
-            else ...<Widget>[
-              FactLine(label: context.t('mob.ntf.detail.priority.label'), value: priorityLabel(context, item.priority)),
-              if (item.readAt != null) FactLine(label: context.t('mob.ntf.detail.readAt.label'), value: formatMoment(item.readAt!)),
-              if (item.acknowledgedAt != null) FactLine(label: context.t('mob.ntf.detail.acknowledgedAt.label'), value: formatMoment(item.acknowledgedAt!)),
-              if (item.acknowledgedAt == null) Text(context.t('mob.ntf.detail.readNote'), style: theme.textTheme.bodySmall),
-            ],
-            if (_markFailed)
-              Semantics(
-                liveRegion: true,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(context.t('mob.ntf.detail.read.error'), style: theme.textTheme.bodyMedium),
-                    TextButton(onPressed: () => _send(item), child: Text(context.t('mob.ntf.detail.read.retry'))),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        if (recordLocation != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-            child: OutlinedButton(onPressed: () => context.push(recordLocation), child: Text(context.t('mob.ntf.detail.open.action'))),
-          ),
-        if (canAcknowledge)
-          SectionCard(
-            title: context.t('mob.ntf.detail.ack.required'),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s8, MachvonV2Space.s16, MachvonV2Space.s12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              TextField(controller: _comment, maxLength: 1000, maxLines: 3, readOnly: _acknowledging, decoration: InputDecoration(labelText: context.t('mob.ntf.detail.ack.comment'))),
-              if (_acknowledgeError != null) Semantics(liveRegion: true, child: Text(_acknowledgeError!, style: theme.textTheme.bodyMedium)),
-              const SizedBox(height: MachvonSpace.space8),
-              FilledButton(
-                onPressed: item.isUnread || _acknowledging ? null : () => _acknowledge(item),
-                child: Text(context.t('mob.ntf.detail.ack.action')),
-              ),
+              Semantics(header: true, child: Text(titleOf(context, item), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+              const SizedBox(height: MachvonV2Space.s8),
+              Wrap(spacing: MachvonV2Space.s8, children: <Widget>[StatusPill(label: stateLabel(context, item), warn: item.needsAction)]),
             ],
           ),
-        if (_acknowledged) SectionCard(title: context.t('mob.ntf.detail.ack.done'), children: const <Widget>[]),
+        ),
+        if (item.isUnavailable)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16),
+            child: Semantics(
+              liveRegion: true,
+              container: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(context.t('mob.ntf.detail.closed.title'), style: text.heading),
+                  Text(context.t('mob.ntf.detail.unavailable.body'), style: text.body),
+                ],
+              ),
+            ),
+          )
+        else ...<Widget>[
+          InfoRow(label: context.t('mob.ntf.detail.priority.label'), value: priorityLabel(context, item.priority)),
+          InfoRow(label: context.t('mob.ntf.detail.readAt.label'), value: item.readAt == null ? null : formatMoment(item.readAt!)),
+          InfoRow(label: context.t('mob.ntf.detail.acknowledgedAt.label'), value: item.acknowledgedAt == null ? null : formatMoment(item.acknowledgedAt!)),
+          if (item.acknowledgedAt == null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+              child: Text(context.t('mob.ntf.detail.readNote'), style: text.caption),
+            ),
+        ],
+        if (_markFailed)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16),
+            child: Semantics(
+              liveRegion: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(context.t('mob.ntf.detail.read.error'), style: text.body),
+                  TextButton(onPressed: () => _send(item), child: Text(context.t('mob.ntf.detail.read.retry'))),
+                ],
+              ),
+            ),
+          ),
+        if (recordLocation != null) NavRow(icon: Icons.folder_open_outlined, label: context.t('mob.ntf.detail.open.action'), dividerAbove: true, onTap: () => context.push(recordLocation)),
+        if (canAcknowledge) ...<Widget>[
+          GroupHeader(title: context.t('mob.ntf.detail.ack.required')),
+          Padding(
+            padding: const EdgeInsets.all(MachvonV2Space.s16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                TextField(controller: _comment, maxLength: 1000, maxLines: 3, readOnly: _acknowledging, decoration: InputDecoration(labelText: context.t('mob.ntf.detail.ack.comment'))),
+                if (_acknowledgeError != null) Semantics(liveRegion: true, child: Text(_acknowledgeError!, style: text.body)),
+              ],
+            ),
+          ),
+        ],
+        if (_acknowledged) StatusBanner(text: context.t('mob.ntf.detail.ack.done'), icon: Icons.check_circle_outline),
+      ],
+    );
+    if (!canAcknowledge) return content;
+    // One primary act at the foot of the screen: locked while the notification is not yet read (read is not acknowledged) or while it is sent.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Expanded(child: content),
+        ActionBar(
+          primary: ActionBarButton(label: context.t('mob.ntf.detail.ack.action'), onPressed: locked ? null : () => _acknowledge(item)),
+          why: item.isUnread ? context.t('mob.ntf.detail.ack.unreadWhy') : null,
+        ),
       ],
     );
   }
-
 }

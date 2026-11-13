@@ -41,7 +41,7 @@ void main() {
       useDevice(tester, kDeviceSizes[1]);
       final QueueRig rig = await realClockRig();
       final QueuedCommand command = submit(rig);
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       expect(find.text('Nộp báo cáo'), findsOneWidget);
       expect(find.text('Chờ gửi'), findsOneWidget);
 
@@ -67,7 +67,7 @@ void main() {
       final QueueRig rig = await realClockRig(server: FakeSyncServer(decide: (Map<String, Object?> item) => item['base_server_version'] == 1 ? const ServerOutcome.rejected('PERIOD_LOCKED') : const ServerOutcome.accepted()));
       submit(rig, version: 1);
       submit(rig, version: 2);
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       expect(find.textContaining('2 thay đổi chưa gửi xong'), findsOneWidget);
       expect(find.textContaining('Dung lượng chờ gửi:'), findsOneWidget);
       await press(tester, 'Gửi ngay');
@@ -85,7 +85,7 @@ void main() {
       bool locked = true;
       final QueueRig rig = await realClockRig(server: FakeSyncServer(decide: (Map<String, Object?> item) => locked ? const ServerOutcome.rejected('PERIOD_LOCKED') : const ServerOutcome.accepted()));
       final QueuedCommand command = submit(rig);
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       await press(tester, 'Gửi ngay');
       expect(find.text('Bị từ chối'), findsOneWidget);
       locked = false;
@@ -100,7 +100,7 @@ void main() {
       final QueueRig rig = await realClockRig();
       rig.store.drafts.upsert(const LocalDraft(id: 'draft-1', tenantId: 'tenant-a', userId: 'user-1', kind: 'report', fields: <String, Object?>{'a': 1}, baseServerVersion: 1, status: DraftStatus.editing, createdAt: 1, updatedAt: 1));
       final QueuedCommand command = rig.queue.enqueue(commandType: 'report.draft.save', payload: <String, Object?>{'a': 1}, draftId: 'draft-1');
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       await press(tester, 'Bỏ');
       expect(find.text('Bỏ thao tác này?'), findsOneWidget);
       await press(tester, 'Giữ lại');
@@ -116,19 +116,19 @@ void main() {
       useDevice(tester, kDeviceSizes[1]);
       final QueueRig rig = await realClockRig(server: FakeSyncServer(decide: (Map<String, Object?> item) => const ServerOutcome.conflict(code: 'DRAFT_VERSION_CONFLICT')));
       final QueuedCommand command = submit(rig);
-      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/account/mob-41');
       await press(tester, 'Gửi ngay');
       expect(find.text('Cần bạn chọn'), findsOneWidget);
       expect(container.read(syncStatusProvider).conflicts, 1, reason: 'the banner is written by the publisher, which runs with the signed-in application');
       await press(tester, 'Xem và chọn');
-      expect(currentLocation(container), '/projects/mob-42/${command.id}');
+      expect(currentLocation(container), '/account/mob-42/${command.id}');
 
       final QueueRig other = await realClockRig();
       final QueuedCommand lost = submit(other);
       other.server.offline = true;
       await other.queue.flush();
       expect(other.queue.command(lost.id)!.state, CommandState.unknown);
-      await openOfflineApp(tester, other, location: '/projects/mob-41');
+      await openOfflineApp(tester, other, location: '/account/mob-41');
       expect(find.text('Bỏ'), findsNothing);
       expect(find.text('Kiểm tra kết quả'), findsOneWidget);
     });
@@ -137,7 +137,7 @@ void main() {
       useDevice(tester, kDeviceSizes[1]);
       final QueueRig rig = await realClockRig(server: FakeSyncServer(decide: (Map<String, Object?> item) => item['base_server_version'] == 1 ? const ServerOutcome.conflict() : const ServerOutcome.accepted()));
       submit(rig, version: 2);
-      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/account/mob-41');
       container.read(syncStatusPublisherProvider);
       await settle(tester);
       expect(find.text('1 thay đổi đang chờ gửi'), findsOneWidget);
@@ -154,13 +154,13 @@ void main() {
       useDevice(tester, kDeviceSizes[1]);
       // empty
       QueueRig rig = await realClockRig();
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       expect(find.text('Chưa có dữ liệu'), findsOneWidget, reason: 'empty');
 
       // default
       rig = await realClockRig();
       submit(rig);
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       expect(find.text('Nộp báo cáo'), findsOneWidget, reason: 'default');
 
       // loading: the store is still being opened
@@ -169,7 +169,7 @@ void main() {
       await openOfflineApp(
         tester,
         rig,
-        location: '/projects/mob-41',
+        location: '/account/mob-41',
         overrides: [localStoreProvider.overrideWith((Ref ref) async {
           await gate.passed;
           return rig.store;
@@ -182,20 +182,20 @@ void main() {
 
       // error: the store cannot be opened
       rig = await realClockRig();
-      await openOfflineApp(tester, rig, location: '/projects/mob-41', overrides: [localStoreProvider.overrideWith((Ref ref) async => throw StateError('disk'))]);
+      await openOfflineApp(tester, rig, location: '/account/mob-41', overrides: [localStoreProvider.overrideWith((Ref ref) async => throw StateError('disk'))]);
       expect(find.text('Chưa thể tải dữ liệu'), findsOneWidget, reason: 'error');
       expect(find.text('CLIENT_ERROR'), findsOneWidget);
 
       // the session ended
       rig = await realClockRig();
-      await openOfflineApp(tester, rig, location: '/projects/mob-41', overrides: [localStoreProvider.overrideWith((Ref ref) async => throw const OfflineUnavailable())]);
+      await openOfflineApp(tester, rig, location: '/account/mob-41', overrides: [localStoreProvider.overrideWith((Ref ref) async => throw const OfflineUnavailable())]);
       expect(find.text('Phiên làm việc đã hết hạn'), findsOneWidget, reason: 'signed out');
       expect(find.text('SESSION_EXPIRED'), findsOneWidget);
 
       // offline: the list stays, the notice says the changes are kept
       rig = await realClockRig();
       submit(rig);
-      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/account/mob-41');
       container.read(reachabilityProvider.notifier).report(Reachability.offline);
       await settle(tester);
       expect(find.textContaining('Thay đổi được giữ trên máy và gửi khi có mạng'), findsOneWidget, reason: 'offline');
@@ -204,7 +204,7 @@ void main() {
       // denied: the server refuses the device
       rig = await realClockRig();
       submit(rig);
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       rig.server.failNext = (status: 403, code: 'SCOPE_DENIED');
       await press(tester, 'Gửi ngay');
       expect(find.textContaining('chưa được phép đồng bộ'), findsOneWidget, reason: 'denied');
@@ -213,7 +213,7 @@ void main() {
       // expired licence: the server refuses everything with LICENSE_EXPIRED; the data stays
       rig = await realClockRig();
       submit(rig);
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       rig.server.failNext = (status: 422, code: 'LICENSE_EXPIRED');
       await press(tester, 'Gửi ngay');
       expect(find.textContaining('License đã hết hạn'), findsOneWidget, reason: 'expired');
@@ -222,7 +222,7 @@ void main() {
       // the server failed after it may have started: the notice says the result is looked up later
       rig = await realClockRig();
       submit(rig);
-      await openOfflineApp(tester, rig, location: '/projects/mob-41');
+      await openOfflineApp(tester, rig, location: '/account/mob-41');
       rig.server.failNext = (status: 500, code: 'INTERNAL_ERROR');
       await press(tester, 'Gửi ngay');
       expect(find.textContaining('Máy chủ gặp lỗi'), findsOneWidget);
@@ -235,7 +235,7 @@ void main() {
       submit(rig);
       rig.server.offline = true;
       await rig.queue.flush();
-      await openOfflineApp(tester, rig, location: '/projects/mob-41', locale: const Locale('en'));
+      await openOfflineApp(tester, rig, location: '/account/mob-41', locale: const Locale('en'));
       expect(find.text('Send queue'), findsOneWidget);
       expect(find.text('Result unknown'), findsOneWidget);
       expect(find.text('Submit report'), findsOneWidget);
@@ -254,7 +254,7 @@ void main() {
         rig.server.offline = false;
         expect(rig.queue.command(lost.id)!.state, CommandState.unknown);
         rig.queue.enqueue(commandType: 'site_diary.append', payload: <String, Object?>{'n': 2});
-        await openOfflineApp(t, rig, location: '/projects/mob-41');
+        await openOfflineApp(t, rig, location: '/account/mob-41');
         expect(find.text('Bị từ chối', skipOffstage: false), findsOneWidget);
       });
     });

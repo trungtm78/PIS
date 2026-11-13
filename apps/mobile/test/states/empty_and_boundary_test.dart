@@ -10,6 +10,7 @@ import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/state/empty_state_view.dart';
 import 'package:machvon_mobile/core/state/screen_state.dart';
 import 'package:machvon_mobile/core/state/state_boundary.dart';
+import 'package:machvon_mobile/core/widgets/work_row.dart';
 import 'package:machvon_mobile/features/foundation/foundation_feature.dart' as foundation;
 
 import '../support/harness.dart';
@@ -132,13 +133,13 @@ void main() {
       expect(find.text('Chưa có dữ liệu'), findsNothing);
     });
 
-    testWidgets('loading shows seven skeleton bars announced as loading, and hides the content', (WidgetTester tester) async {
+    testWidgets('loading shows seven skeleton rows announced as loading, and hides the content', (WidgetTester tester) async {
       useDevice(tester, kDeviceSizes[1]);
       final SemanticsHandle semantics = tester.ensureSemantics();
       await pumpState(tester, ScreenState.loading);
 
       expect(find.text('content'), findsNothing);
-      expect(find.byType(DecoratedBox).evaluate().where((e) => (e.widget as DecoratedBox).decoration is BoxDecoration && ((e.widget as DecoratedBox).decoration as BoxDecoration).borderRadius != null), hasLength(7));
+      expect(find.byType(WorkRowSkeleton), findsNWidgets(7));
       expect(find.bySemanticsLabel('Đang tải'), findsOneWidget);
       semantics.dispose();
     });

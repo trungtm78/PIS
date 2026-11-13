@@ -20,7 +20,7 @@ class ChipOption<T> {
 ///
 /// It is single choice: tapping the chosen chip again keeps it, which is what a filter that always has a value ("All") wants.
 class FilterChips<T> extends StatelessWidget {
-  const FilterChips({required this.options, required this.selected, required this.onChanged, this.padding = const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8), super.key});
+  const FilterChips({required this.options, required this.selected, required this.onChanged, this.padding = const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: 6), super.key});
 
   final List<ChipOption<T>> options;
   final T selected;
@@ -68,7 +68,8 @@ class _Chip extends StatelessWidget {
       selected: selected,
       semanticLabel: label,
       radius: MachvonV2Radius.chip,
-      minHeight: MachvonV2Size.touchMin,
+      // The chip is drawn 44 high; its tap target is 48, the Android minimum, so the padding above and below is 2 less and the row keeps its height.
+      minHeight: 48,
       alignment: Alignment.center,
       child: DecoratedBox(
         decoration: BoxDecoration(

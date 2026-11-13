@@ -257,7 +257,7 @@ void main() {
       await waitUntil(tester, () async => queue.commands().any((QueuedCommand c) => c.state == CommandState.conflict));
       final QueuedCommand command = queue.commands().single;
 
-      await world.go(tester, '/projects/mob-42/${command.id}');
+      await world.go(tester, '/account/mob-42/${command.id}');
       expect(find.text('Bản trên máy: FAIL'), findsWidgets);
       expect(find.text('Bản trên server: PASS'), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('checklist[K1].outcome:mine')), findsOneWidget, reason: 'the items of the checklist are compared by their code');

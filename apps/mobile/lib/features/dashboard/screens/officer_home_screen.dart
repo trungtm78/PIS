@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
-import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/widgets/nav_row.dart';
+import '../../../core/widgets/stat_strip.dart';
+import '../../../core/widgets/state_view.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
@@ -20,11 +23,12 @@ import '../widgets/edition_cards.dart';
 /// The page size of the work list; the screen follows the pages to the end (or to the limit of pages).
 const int workPageSize = 50;
 
-/// MOB-08: the home of a reporting officer. What is due comes first: the alerts of the person ("Due work", the same source as
-/// the home of a leader, view `mine`), each with one primary action. Under them what is asked of the person in every module, in one
-/// place: the report deadlines and the reports that came back, the drafts past their period, and the work given to them. Late first.
-/// Each task is done in the screen of its module; only an approval task opens here (MOB-24).
-Widget buildOfficerHomeScreen(BuildContext context, ScreenContext screen) => const OfficerHomeScreen();
+/// MOB-08: "Today's work" of a reporting officer. One list, ordered by due day and grouped under the three bands (overdue, due soon, with
+/// time), each a row with its deadline and one primary action; the report deadlines, the reports that came back, the drafts past their period
+/// and the work given to the person are all in it, once, because they are one list of the server read in two vocabularies. A tap on a row
+/// opens the whole alert (the clocks, who holds it, the other acts). Above the list, how many are open and how many are late.
+Widget buildOfficerHomeScreen(BuildContext context, ScreenContext screen) =>
+    const OfficerHomeScreen();
 
 /// The work of the person read once: as groups by kind and as alerts by level.
 final class OfficerHome {
@@ -37,11 +41,10 @@ final class OfficerHome {
 OfficerHome? parseOfficerHome(Object? raw) {
   final MyWork? work = parseMyWork(raw);
   final AlertFeed? alerts = parseAlertFeed(raw);
-  return work == null || alerts == null ? null : OfficerHome(work: work, alerts: alerts);
+  return work == null || alerts == null
+      ? null
+      : OfficerHome(work: work, alerts: alerts);
 }
-
-/// The alerts shown above the groups.
-const int officerAlertLimit = 5;
 
 class OfficerHomeScreen extends ConsumerStatefulWidget {
   const OfficerHomeScreen({super.key});
@@ -66,20 +69,30 @@ class _OfficerHomeScreenState extends ConsumerState<OfficerHomeScreen> {
       body: DataView<OfficerHome>(
         cacheKey: 'home.work',
         reloadKey: (_retry, ref.watch(alertsChangedProvider)),
-        read: (MachvonApiClient client) => readMerged(client, 'getMyWork', query: <String, Object?>{'view': 'mine', 'limit': workPageSize}),
+        read: (MachvonApiClient client) => readMerged(
+          client,
+          'getMyWork',
+          query: <String, Object?>{'view': 'mine', 'limit': workPageSize},
+        ),
         parse: parseOfficerHome,
         asOf: (OfficerHome home) => home.alerts.asOf,
-        builder: (BuildContext context, Loaded<OfficerHome> loaded) => _WorkBody(home: loaded.value, loaded: loaded, onRetry: () => setState(() => _retry += 1)),
+        builder: (BuildContext context, Loaded<OfficerHome> loaded) =>
+            _WorkBody(
+              home: loaded.value,
+              loaded: loaded,
+              onRetry: () => setState(() => _retry += 1),
+            ),
       ),
     );
   }
 }
 
-const Set<WorkKind> _deadlineKinds = <WorkKind>{WorkKind.reportReturned, WorkKind.mneObligation};
-const Set<WorkKind> _draftKinds = <WorkKind>{WorkKind.reportDraftOverdue};
-
 class _WorkBody extends StatelessWidget {
-  const _WorkBody({required this.home, required this.loaded, required this.onRetry});
+  const _WorkBody({
+    required this.home,
+    required this.loaded,
+    required this.onRetry,
+  });
 
   final OfficerHome home;
   final Loaded<OfficerHome> loaded;
@@ -89,142 +102,67 @@ class _WorkBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<WorkItem> deadlines = work.ofKinds(_deadlineKinds);
-    final List<WorkItem> drafts = work.ofKinds(_draftKinds);
-    final List<WorkItem> assigned = <WorkItem>[
-      for (final WorkItem item in work.items)
-        if (!_deadlineKinds.contains(item.kind) && !_draftKinds.contains(item.kind)) item,
-    ];
+    // Nothing is waiting and every source was read: the day is done. The edition's own cards stay, they read their own status.
+    final bool done = home.alerts.isEmpty && home.alerts.isComplete;
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         const EditionHomeHeader(),
-        AlertsPanel(
-          feed: home.alerts,
-          onReload: onRetry,
-          limit: officerAlertLimit,
-          title: context.t('mob.alert.list.titleDue.label'),
-          allowAssign: false,
-          readOnly: loaded.fromCache,
-          stale: loaded.fromCache && loaded.stale,
-          fetchedAt: loaded.fetchedAt,
-        ),
-        const EditionHomeCards(),
-        if (work.total > 0) SectionCard(
-          title: context.t('mob.home.work.summary', <String, Object>{'total': work.total, 'overdue': work.overdue}),
-          children: <Widget>[
-            if (work.truncated) StatusPill(label: context.t('mob.home.work.truncated'), warn: true),
-            for (final WorkKind kind in WorkKind.values)
-              if (work.countOf(_countKey(kind)) > 0) FactLine(label: _kindLabel(context, kind), value: '${work.countOf(_countKey(kind))}'),
-          ],
-        ),
-        _Group(title: context.t('mob.home.work.deadlines.title'), items: deadlines),
-        _Group(title: context.t('mob.home.work.drafts.title'), items: drafts),
-        _Group(title: context.t('mob.home.work.assigned.title'), items: assigned),
-        TappableRow(
-          semanticLabel: context.t('mob.home.link.unreported'),
-          onTap: () => openScreen(context, 'MOB-57'),
-          child: Row(
-            children: <Widget>[
-              Expanded(child: Text(context.t('mob.home.link.unreported'), style: Theme.of(context).textTheme.bodyLarge)),
-              const ExcludeSemantics(child: Icon(Icons.chevron_right)),
+        if (work.total > 0)
+          StatStrip(
+            cells: <StatCell>[
+              StatCell(
+                value: '${work.total}',
+                label: context.t('mob.home.officer.openCount.label'),
+              ),
+              StatCell(
+                value: '${work.overdue}',
+                label: context.t('mob.home.officer.lateCount.label'),
+                band: work.overdue > 0 ? DeadlineBand.late : null,
+                bandText: context.t('mob.home.work.bucket.overdue'),
+              ),
             ],
           ),
-        ),
+        if (work.truncated)
+          StatusBanner(
+            tone: BannerTone.warning,
+            icon: Icons.info_outline,
+            text: context.t('mob.home.work.truncated'),
+          ),
+        if (done)
+          SizedBox(
+            height: 360,
+            child: StateView(
+              kind: StateKind.empty,
+              icon: Icons.check_circle_outline,
+              title: context.t('mob.home.officer.done.title'),
+              body: context.t('mob.home.officer.done.body'),
+              actionLabel: context.t('mob.home.link.unreported'),
+              onAction: () => openScreen(context, 'MOB-57'),
+            ),
+          )
+        else
+          AlertsPanel(
+            feed: home.alerts,
+            onReload: onRetry,
+            // Every alert that was read is shown: the page size of the read is not a limit of the display.
+            limit: home.alerts.items.isEmpty ? 1 : home.alerts.items.length,
+            groupByDeadline: true,
+            title: context.t('mob.alert.list.titleDue.label'),
+            allowAssign: false,
+            showSeeAll: false,
+            readOnly: loaded.fromCache,
+            stale: loaded.fromCache && loaded.stale,
+            fetchedAt: loaded.fetchedAt,
+          ),
+        const EditionHomeCards(),
+        if (!done)
+          NavRow(
+            label: context.t('mob.home.link.unreported'),
+            icon: Icons.assignment_late_outlined,
+            onTap: () => openScreen(context, 'MOB-57'),
+          ),
       ],
-    );
-  }
-}
-
-String _countKey(WorkKind kind) {
-  switch (kind) {
-    case WorkKind.approval:
-      return 'APPROVAL';
-    case WorkKind.explanation:
-      return 'EXPLANATION';
-    case WorkKind.reportReturned:
-      return 'REPORT_RETURNED';
-    case WorkKind.reportDraftOverdue:
-      return 'REPORT_DRAFT_OVERDUE';
-    case WorkKind.explanationReview:
-      return 'EXPLANATION_REVIEW';
-    case WorkKind.mneObligation:
-      return 'MNE_OBLIGATION';
-  }
-}
-
-String _kindLabel(BuildContext context, WorkKind kind) {
-  switch (kind) {
-    case WorkKind.approval:
-      return context.t('mob.home.work.kind.approval');
-    case WorkKind.explanation:
-      return context.t('mob.home.work.kind.explanation');
-    case WorkKind.reportReturned:
-      return context.t('mob.home.work.kind.reportReturned');
-    case WorkKind.reportDraftOverdue:
-      return context.t('mob.home.work.kind.reportDraft');
-    case WorkKind.explanationReview:
-      return context.t('mob.home.work.kind.explanationReview');
-    case WorkKind.mneObligation:
-      return context.t('mob.home.work.kind.mne');
-  }
-}
-
-String _bucketLabel(BuildContext context, WorkBucket bucket) {
-  switch (bucket) {
-    case WorkBucket.overdue:
-      return context.t('mob.home.work.bucket.overdue');
-    case WorkBucket.near:
-      return context.t('mob.home.work.bucket.near');
-    case WorkBucket.later:
-      return context.t('mob.home.work.bucket.later');
-  }
-}
-
-class _Group extends StatelessWidget {
-  const _Group({required this.title, required this.items});
-
-  final String title;
-  final List<WorkItem> items;
-
-  @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) return const SizedBox.shrink();
-    return SectionCard(
-      title: '$title (${items.length})',
-      children: <Widget>[for (final WorkItem item in items) _WorkCard(item: item)],
-    );
-  }
-}
-
-class _WorkCard extends StatelessWidget {
-  const _WorkCard({required this.item});
-
-  final WorkItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final String due = item.dueOn == null ? context.t('mob.home.work.due.none') : context.t('mob.home.work.due.on', <String, Object>{'date': asOfLabel(item.dueOn!)});
-    final String late = item.bucket == WorkBucket.overdue ? ', ${context.t('mob.home.work.due.late', <String, Object>{'days': item.daysLate})}' : '';
-    final String moved = item.dueMoved ? ', ${context.t('mob.home.work.due.original', <String, Object>{'date': asOfLabel(item.originalDueOn!)})}' : '';
-    final String kind = _kindLabel(context, item.kind);
-    final Widget body = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Wrap(spacing: MachvonSpace.space8, children: <Widget>[StatusPill(label: kind), StatusPill(label: _bucketLabel(context, item.bucket), warn: item.bucket == WorkBucket.overdue)]),
-        Text(item.title, style: theme.textTheme.bodyLarge),
-        if (item.subtitle != null) Text(item.subtitle!, style: theme.textTheme.bodySmall),
-        Text('$due$late$moved', style: theme.textTheme.bodySmall),
-      ],
-    );
-    if (!item.opensApproval) {
-      return Padding(padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8), child: body);
-    }
-    return TappableRow(
-      semanticLabel: context.t('mob.home.work.open.aria', <String, Object>{'title': item.title}),
-      onTap: () => openScreen(context, 'MOB-24', pathSuffix: '/${Uri.encodeComponent(item.targetId)}'),
-      child: Row(children: <Widget>[Expanded(child: body), const ExcludeSemantics(child: Icon(Icons.chevron_right))]),
     );
   }
 }

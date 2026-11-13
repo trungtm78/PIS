@@ -7,6 +7,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
+import '../../../core/widgets/state_view.dart' show BannerTone, StatusBanner;
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/offline.dart';
@@ -239,10 +240,8 @@ class _Notice extends StatelessWidget {
     final String message = result.ok
         ? context.t('mob.ntf.pref.save.done')
         : preferenceProblemText(context, result.lost ? PreferenceProblem.general : preferenceProblemOf(result.code ?? ''));
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      child: Padding(padding: const EdgeInsets.all(MachvonSpace.space12), child: Semantics(liveRegion: true, container: true, child: Text(message))),
-    );
+    // One strip with an icon and the sentence: a saved choice is told as information, a refusal as a warning; both are live regions.
+    return StatusBanner(text: message, tone: result.ok ? BannerTone.info : BannerTone.warning, icon: result.ok ? Icons.check_circle_outline : null);
   }
 }
 

@@ -27,7 +27,7 @@ import 'field_world.dart';
 
 Future<(FieldWorld, String)> _open(WidgetTester tester, {bool consent = false, String title = 'Sạt lở taluy km3', FieldPlace? place, List<IssuePhoto> photos = const <IssuePhoto>[], FieldServer? server, FakeSession? session}) async {
   final FieldWorld world = FieldWorld.create(server: server);
-  await world.open(tester, '/projects/mob-41', session: session);
+  await world.open(tester, '/account/mob-41', session: session);
   final String id = await world.seedDraft(tester, consent: consent, title: title, place: place, photos: photos);
   await world.go(tester, '/projects/mob-30/$id');
   return (world, id);
@@ -180,7 +180,7 @@ void main() {
     testWidgets('taking the consent back takes the position away, and the place and time out of the photographs', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldWorld world = FieldWorld.create();
-      await world.open(tester, '/projects/mob-41');
+      await world.open(tester, '/account/mob-41');
       final IssuePhoto photo = _photo(world, 'gate', geotaggedJpeg(), keeps: true);
       final String id = await world.seedDraft(
         tester,
@@ -205,7 +205,7 @@ void main() {
       useDevice(tester, kTall);
       final FieldWorld world = FieldWorld.create();
       _GatedIssueService? gated;
-      await world.open(tester, '/projects/mob-41', overrides: <Override>[issueServiceProvider.overrideWith((Ref ref) => gated = _GatedIssueService(ref))]);
+      await world.open(tester, '/account/mob-41', overrides: <Override>[issueServiceProvider.overrideWith((Ref ref) => gated = _GatedIssueService(ref))]);
       final IssuePhoto photo = _photo(world, 'gate', geotaggedJpeg(), keeps: true);
       final String id = await world.seedDraft(
         tester,
@@ -249,7 +249,7 @@ void main() {
     testWidgets('a photograph taken without the consent goes up without them, and the upload is the prepared copy', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldWorld world = FieldWorld.create();
-      await world.open(tester, '/projects/mob-41');
+      await world.open(tester, '/account/mob-41');
       // The photograph was prepared while the consent was not given: no place, no time.
       final Uint8List stripped = stripJpegMetadata(geotaggedJpeg());
       final String id = await world.seedDraft(tester, photos: <IssuePhoto>[_photo(world, 'gate', stripped, keeps: false)]);
@@ -267,7 +267,7 @@ void main() {
     testWidgets('a photograph that still says where, with the consent taken back, is stripped before it goes up', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldWorld world = FieldWorld.create();
-      await world.open(tester, '/projects/mob-41');
+      await world.open(tester, '/account/mob-41');
       final Uint8List tagged = geotaggedJpeg();
       // The draft holds a photograph that keeps its place although the consent is gone (a draft from an older version of the form).
       final String id = await world.seedDraft(tester, photos: <IssuePhoto>[_photo(world, 'gate', tagged, keeps: true)]);
@@ -361,7 +361,7 @@ void main() {
         healthy: (ScriptedServer server) {},
         open: (WidgetTester tester, ScriptedServer server) async {
           final FieldWorld world = FieldWorld.create(server: FieldServer(api: server));
-          await world.open(tester, '/projects/mob-41');
+          await world.open(tester, '/account/mob-41');
           final String id = await world.seedDraft(tester, consent: true);
           await world.go(tester, '/projects/mob-30/$id');
         },

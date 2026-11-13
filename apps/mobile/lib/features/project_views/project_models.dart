@@ -29,6 +29,7 @@ final class ProjectLine {
     this.projectGroup,
     this.nationalCode,
     this.leaderName,
+    this.progress,
   });
 
   final String id;
@@ -40,6 +41,10 @@ final class ProjectLine {
   final String? projectGroup;
   final String? nationalCode;
   final String? leaderName;
+
+  /// How far the project has got, 0 to 1, when the server gives it. The register does not carry it yet, so it stays null and a row draws no
+  /// bar; the field is where the progress of the workflow of the project (PWF) will come in.
+  final double? progress;
 
   /// The unit the project is looked after by: the investor when there is one.
   String get unitName => investorUnitName ?? ownerUnitName;
@@ -63,6 +68,44 @@ ProjectLine? parseProjectLine(Object? raw) {
     nationalCode: filled(row['national_project_code']),
     leaderName: filled(asRecord(row['leader_in_charge'])?['display_name']),
   );
+}
+
+/// The six segments of the strip that shows where a project is in its life: preparation, appraisal, funding, implementation, acceptance,
+/// settlement.
+const int kStageStripSegments = 6;
+
+/// Where a stage stands on the strip: the segment in progress (1 to [kStageStripSegments]) and whether the work of that segment is over.
+final class StripPosition {
+  const StripPosition(this.current, {this.finished = false});
+
+  final int current;
+  final bool finished;
+}
+
+/// The place of a stage on the strip of six: the concept is the first, the appraisal the second, the pipeline and the budgeted the third,
+/// the implementation (also while suspended) the fourth, the completed the fifth, the settled and the closed the sixth, the last two
+/// finished. A project that was rejected or cancelled left the cycle: it has no place and the screen shows its status only.
+StripPosition? stripPositionOf(ProjectStage stage) {
+  switch (stage) {
+    case ProjectStage.concept:
+      return const StripPosition(1);
+    case ProjectStage.appraisal:
+      return const StripPosition(2);
+    case ProjectStage.pipeline:
+    case ProjectStage.budgeted:
+      return const StripPosition(3);
+    case ProjectStage.implementation:
+    case ProjectStage.suspended:
+      return const StripPosition(4);
+    case ProjectStage.completed:
+      return const StripPosition(5);
+    case ProjectStage.settled:
+    case ProjectStage.closed:
+      return const StripPosition(6, finished: true);
+    case ProjectStage.rejected:
+    case ProjectStage.cancelled:
+      return null;
+  }
 }
 
 /// The register as the list reads it, and the moment it describes.
@@ -142,6 +185,31 @@ final class Milestone {
   final String status;
   final int delayDays;
   final bool delayed;
+
+  bool get isDone => status == 'DONE';
+  bool get isCancelled => status == 'CANCELLED';
+
+  /// Late and still to do: what the Progress tab puts first.
+  bool get needsAttention => delayed && !isDone && !isCancelled;
+}
+
+/// The milestones of a project as the Progress tab groups them: the ones that need attention, the ones to come, the ones over (done or
+/// cancelled).
+enum MilestoneGroup { attention, upcoming, over }
+
+MilestoneGroup milestoneGroupOf(Milestone milestone) {
+  if (milestone.needsAttention) return MilestoneGroup.attention;
+  if (milestone.isDone || milestone.isCancelled) return MilestoneGroup.over;
+  return MilestoneGroup.upcoming;
+}
+
+/// How far a project has got by its milestones, 0 to 1 (the milestones that are done over those that count: a cancelled one does not), or
+/// null when it has none that count.
+double? milestoneFraction(List<Milestone>? milestones) {
+  if (milestones == null) return null;
+  final List<Milestone> counted = <Milestone>[for (final Milestone milestone in milestones) if (!milestone.isCancelled) milestone];
+  if (counted.isEmpty) return null;
+  return counted.where((Milestone milestone) => milestone.isDone).length / counted.length;
 }
 
 Milestone? _milestone(Object? raw) {

@@ -3,6 +3,10 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/components.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/tint_chip.dart';
 import '../alerts.dart';
 
 /// The word of a level (`Urgent`, `Needs action`, `Watch`).
@@ -17,14 +21,15 @@ String severityLabel(BuildContext context, AlertSeverity severity) {
   }
 }
 
-({Color ink, Color fill, IconData icon}) _look(AlertSeverity severity) {
+({Color ink, Color fill, IconData icon}) severityLook(BuildContext context, AlertSeverity severity) {
+  final MachvonV2Palette p = context.v2.palette;
   switch (severity) {
     case AlertSeverity.urgent:
-      return (ink: MachvonColors.danger, fill: MachvonColors.dangerSoft, icon: Icons.error);
+      return (ink: p.lateFg, fill: p.lateBg, icon: Icons.error);
     case AlertSeverity.action:
-      return (ink: MachvonColors.warning, fill: MachvonColors.warningSoft, icon: Icons.warning_amber_rounded);
+      return (ink: p.soonFg, fill: p.soonBg, icon: Icons.warning_amber_rounded);
     case AlertSeverity.watch:
-      return (ink: MachvonColors.info, fill: MachvonColors.infoSoft, icon: Icons.visibility_outlined);
+      return (ink: p.infoFg, fill: p.infoBg, icon: Icons.visibility_outlined);
   }
 }
 
@@ -38,32 +43,10 @@ class SeverityChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ({Color ink, Color fill, IconData icon}) look = _look(severity);
+    final ({Color ink, Color fill, IconData icon}) look = severityLook(context, severity);
     final String label = severityLabel(context, severity);
     final String text = count == null ? label : context.t('mob.alert.list.tally.chip', <String, Object>{'label': label, 'count': count!});
-    return Semantics(
-      container: true,
-      label: text,
-      excludeSemantics: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: look.fill,
-          border: Border.all(color: look.ink),
-          borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.pill)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space8, vertical: MachvonSpace.space4),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(look.icon, size: 16, color: look.ink),
-              const SizedBox(width: MachvonSpace.space4),
-              Flexible(child: Text(text, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: look.ink, fontWeight: FontWeight.w700))),
-            ],
-          ),
-        ),
-      ),
-    );
+    return TintChip(label: text, icon: look.icon, ink: look.ink, fill: look.fill);
   }
 }
 
@@ -225,9 +208,10 @@ String dueLine(BuildContext context, AlertDue due) {
   }
 }
 
-/// One alert: its level (icon and word), title, source, countdown, who holds it, what follows if it is not done, and one primary
-/// action. The other acts (take, give, remind later) are in a menu with a button of its own: nothing here is reached by a gesture alone.
-/// A card in the read-only state (a copy kept on the device) offers no act.
+/// One alert in full: its level (icon and word), title, source, countdown, the two clocks, who holds it, what follows if it is not done,
+/// and its acts: one primary button (open the record, or take the alert when there is no record to open) and, below it, the other acts
+/// (take, give, remind later) as buttons of their own, each at least 48 high: nothing here is reached by a gesture alone. It is the body of
+/// the sheet a row of the list opens. A card in the read-only state (a copy kept on the device) offers no act.
 class AlertCard extends StatelessWidget {
   const AlertCard({
     required this.item,
@@ -254,114 +238,72 @@ class AlertCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final ({Color ink, Color fill, IconData icon}) look = _look(item.severity);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Palette p = v2.palette;
+    final MachvonV2Text text = context.v2text;
     final AlertDue due = describeDue(item, now);
     final bool canClaim = onClaim != null && item.canClaim;
     final String claimLabel = item.needsReclaim ? context.t('mob.alert.action.reclaim.label') : context.t('mob.alert.action.claim.label');
     final bool canSnooze = onSnooze != null && item.canSnooze;
-    final bool hasMenu = canClaim || onAssign != null || canSnooze;
     final String owner = _ownerLine(context);
     final String? escalation = _escalationLine(context);
     final String? snooze = _snoozeLine(context);
     final String? reminders = _remindersLine(context);
     final String title = item.title.isEmpty ? alertSourceLabel(context, item.source) : item.title;
+    final bool claimIsPrimary = onOpen == null && canClaim;
     final Widget? primary = onOpen != null
-        ? FilledButton(
-            onPressed: busy ? null : onOpen,
-            child: Text(context.t('mob.alert.action.open.label')),
-          )
-        : (canClaim ? FilledButton(onPressed: busy ? null : onClaim, child: Text(claimLabel)) : null);
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space4),
-      shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.card)),
-        side: BorderSide(color: look.ink.withValues(alpha: 0.5)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, MachvonSpace.space12, MachvonSpace.space8, MachvonSpace.space12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Expanded(
-                  child: Wrap(
-                    spacing: MachvonSpace.space8,
-                    runSpacing: MachvonSpace.space4,
-                    children: <Widget>[
-                      SeverityChip(severity: item.severity),
-                      if (item.lifecycle != AlertLifecycle.fresh) _Pill(label: _lifecycleLabel(context, item.lifecycle)),
-                      if (item.needsReclaim) _Pill(label: context.t('mob.alert.card.reclaim.chip'), icon: Icons.replay, ink: MachvonColors.warning, fill: MachvonColors.warningSoft),
-                    ],
-                  ),
-                ),
-                if (hasMenu)
-                  PopupMenuButton<String>(
-                    tooltip: context.t('mob.alert.action.menu.label'),
-                    enabled: !busy,
-                    icon: const Icon(Icons.more_vert),
-                    onSelected: (String action) {
-                      if (action == 'claim') onClaim?.call();
-                      if (action == 'assign') onAssign?.call();
-                      if (action == 'snooze') onSnooze?.call();
-                    },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      if (canClaim) PopupMenuItem<String>(value: 'claim', child: Text(claimLabel)),
-                      if (onAssign != null) PopupMenuItem<String>(value: 'assign', child: Text(context.t('mob.alert.action.assign.label'))),
-                      if (canSnooze) PopupMenuItem<String>(value: 'snooze', child: Text(context.t('mob.alert.action.snooze.label'))),
-                    ],
-                  )
-                else
-                  const SizedBox(height: MachvonSpace.space8),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: MachvonSpace.space8),
-              child: Column(
+        ? FilledButton(onPressed: busy ? null : onOpen, style: v2PrimaryButtonStyle(v2), child: Text(context.t('mob.alert.action.open.label')))
+        : (canClaim ? FilledButton(onPressed: busy ? null : onClaim, style: v2PrimaryButtonStyle(v2), child: Text(claimLabel)) : null);
+    final List<Widget> others = <Widget>[
+      if (canClaim && !claimIsPrimary) OutlinedButton(onPressed: busy ? null : onClaim, style: v2QuietButtonStyle(v2), child: Text(claimLabel)),
+      if (onAssign != null) OutlinedButton(onPressed: busy ? null : onAssign, style: v2QuietButtonStyle(v2), child: Text(context.t('mob.alert.action.assign.label'))),
+      if (canSnooze) OutlinedButton(onPressed: busy ? null : onSnooze, style: v2QuietButtonStyle(v2), child: Text(context.t('mob.alert.action.snooze.label'))),
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Wrap(
+            spacing: MachvonV2Space.s8,
+            runSpacing: MachvonV2Space.s4,
+            children: <Widget>[
+              SeverityChip(severity: item.severity),
+              if (item.lifecycle != AlertLifecycle.fresh) _Pill(label: _lifecycleLabel(context, item.lifecycle)),
+              if (item.needsReclaim) _Pill(label: context.t('mob.alert.card.reclaim.chip'), icon: Icons.replay, ink: p.soonFg, fill: p.soonBg),
+            ],
+          ),
+          const SizedBox(height: MachvonV2Space.s8),
+          Text(title, style: text.heading),
+          Text(
+            <String>[context.t('mob.alert.card.source.line', <String, Object>{'source': alertSourceLabel(context, item.source)}), if (item.subtitle != null) item.subtitle!].join(' · '),
+            style: text.caption,
+          ),
+          const SizedBox(height: MachvonV2Space.s8),
+          // Without a published working calendar the due time is unknown, never "no due day": the clock line says so.
+          if (!(item.clocks?.basis == ClockBasis.calendarUnavailable && due.kind == AlertDueKind.none))
+            MergeSemantics(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(title, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-                  Text(
-                    <String>[context.t('mob.alert.card.source.line', <String, Object>{'source': alertSourceLabel(context, item.source)}), if (item.subtitle != null) item.subtitle!].join(' · '),
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: MachvonSpace.space4),
-                  // Without a published working calendar the due time is unknown, never "no due day": the clock line says so.
-                  if (!(item.clocks?.basis == ClockBasis.calendarUnavailable && due.kind == AlertDueKind.none))
-                  MergeSemantics(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Icon(due.isOverdue ? Icons.schedule : Icons.event_outlined, size: 16, color: due.isOverdue ? MachvonColors.danger : MachvonColors.neutral),
-                        const SizedBox(width: MachvonSpace.space4),
-                        Expanded(
-                          child: Text(
-                            dueLine(context, due),
-                            style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: due.isOverdue ? MachvonColors.danger : null),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ..._clockLines(context),
-                  Text(owner, style: theme.textTheme.bodySmall),
-                  if (snooze != null) Text(snooze, style: theme.textTheme.bodySmall),
-                  if (item.pausedUntil != null) Text(context.t('mob.alert.card.paused.line', <String, Object>{'at': formatMoment(item.pausedUntil!)}), style: theme.textTheme.bodySmall),
-                  if (reminders != null) Text(reminders, style: theme.textTheme.bodySmall),
-                  if (escalation != null) Text(escalation, style: theme.textTheme.bodySmall),
-                  if (item.expectedAction != null) Text(context.t('mob.alert.card.expected.line', <String, Object>{'text': item.expectedAction!}), style: theme.textTheme.bodySmall),
-                  if (item.consequence != null) Text(context.t('mob.alert.card.consequence.line', <String, Object>{'text': item.consequence!}), style: theme.textTheme.bodySmall),
-                  if (primary != null) ...<Widget>[
-                    const SizedBox(height: MachvonSpace.space8),
-                    Align(alignment: Alignment.centerLeft, child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 48), child: primary)),
-                  ],
+                  Icon(due.isOverdue ? Icons.schedule : Icons.event_outlined, size: 16, color: due.isOverdue ? p.lateFg : p.ink2),
+                  const SizedBox(width: MachvonV2Space.s4),
+                  Expanded(child: Text(dueLine(context, due), style: text.label.copyWith(color: due.isOverdue ? p.lateFg : p.ink))),
                 ],
               ),
             ),
-          ],
-        ),
+          if (item.originalDueOn != null) Text(context.t('mob.alert.card.originalDue.line', <String, Object>{'date': asOfLabel(item.originalDueOn!)}), style: text.caption),
+          ..._clockLines(context),
+          Text(owner, style: text.caption),
+          if (snooze != null) Text(snooze, style: text.caption),
+          if (item.pausedUntil != null) Text(context.t('mob.alert.card.paused.line', <String, Object>{'at': formatMoment(item.pausedUntil!)}), style: text.caption),
+          if (reminders != null) Text(reminders, style: text.caption),
+          if (escalation != null) Text(escalation, style: text.caption),
+          if (item.expectedAction != null) Text(context.t('mob.alert.card.expected.line', <String, Object>{'text': item.expectedAction!}), style: text.caption),
+          if (item.consequence != null) Text(context.t('mob.alert.card.consequence.line', <String, Object>{'text': item.consequence!}), style: text.caption),
+          if (primary != null) ...<Widget>[const SizedBox(height: MachvonV2Space.s16), primary],
+          for (final Widget other in others) ...<Widget>[const SizedBox(height: MachvonV2Space.s8), other],
+        ],
       ),
     );
   }
@@ -409,6 +351,7 @@ class AlertCard extends StatelessWidget {
   List<Widget> _clockLines(BuildContext context) {
     final AlertClocks? clocks = item.clocks;
     if (clocks == null) return const <Widget>[];
+    final MachvonV2Palette p = context.v2.palette;
     final AlertClock? claim = clocks.claim;
     final AlertClock? resolve = clocks.resolve;
     final List<Widget> lines = <Widget>[
@@ -418,15 +361,16 @@ class AlertCard extends StatelessWidget {
     if (lines.isNotEmpty) return lines;
     switch (clocks.basis) {
       case ClockBasis.calendarUnavailable:
-        return <Widget>[_ClockLine(icon: Icons.event_busy_outlined, color: MachvonColors.warning, text: context.t('mob.alert.clock.calendar.line'))];
+        return <Widget>[_ClockLine(icon: Icons.event_busy_outlined, color: p.soonFg, text: context.t('mob.alert.clock.calendar.line'))];
       case ClockBasis.noStart:
-        return <Widget>[_ClockLine(icon: Icons.hourglass_empty, color: MachvonColors.neutral, text: context.t('mob.alert.clock.noStart.line'))];
+        return <Widget>[_ClockLine(icon: Icons.hourglass_empty, color: p.ink2, text: context.t('mob.alert.clock.noStart.line'))];
       case ClockBasis.workingTime:
         return const <Widget>[];
     }
   }
 
   Widget _clockLine(BuildContext context, String label, AlertClock clock) {
+    final MachvonV2Palette p = context.v2.palette;
     final AlertDue? due = clock.dueAt == null ? null : describeInstant(clock.dueAt!, now);
     final String at = clock.dueAt == null ? '' : formatMoment(clock.dueAt!);
     final String metAt = clock.metAt == null ? '' : formatMoment(clock.metAt!);
@@ -437,23 +381,23 @@ class AlertCard extends StatelessWidget {
       case ClockState.running:
         final bool late = due != null && due.isOverdue;
         icon = late ? Icons.error_outline : Icons.timer_outlined;
-        color = late ? MachvonColors.danger : MachvonColors.neutral;
+        color = late ? p.lateFg : p.ink2;
         state = due == null || due.kind == AlertDueKind.none ? context.t('mob.alert.clock.running.text') : _lowerFirst(dueLine(context, due));
       case ClockState.paused:
         icon = Icons.pause_circle_outline;
-        color = MachvonColors.neutral;
+        color = p.ink2;
         state = clock.dueAt == null ? context.t('mob.alert.clock.pausedNoDue.text') : context.t('mob.alert.clock.paused.text', <String, Object>{'at': at});
       case ClockState.met:
         icon = Icons.check_circle_outline;
-        color = MachvonColors.success;
+        color = p.okFg;
         state = clock.metAt == null ? context.t('mob.alert.clock.metNoTime.text') : context.t('mob.alert.clock.met.text', <String, Object>{'at': metAt});
       case ClockState.metLate:
         icon = Icons.watch_later_outlined;
-        color = MachvonColors.warning;
+        color = p.soonFg;
         state = clock.metAt == null ? context.t('mob.alert.clock.metLateNoTime.text') : context.t('mob.alert.clock.metLate.text', <String, Object>{'at': metAt});
       case ClockState.breached:
         icon = Icons.error_outline;
-        color = MachvonColors.danger;
+        color = p.lateFg;
         state = due != null && due.isOverdue ? _lowerFirst(dueLine(context, due)) : context.t('mob.alert.clock.breached.text');
     }
     return _ClockLine(icon: icon, color: color, text: context.t('mob.alert.clock.state.line', <String, Object>{'label': label, 'state': state}));
@@ -467,30 +411,19 @@ class AlertCard extends StatelessWidget {
   }
 }
 
-/// A state as a word on a soft ground; with an [icon] it is an icon and a word, so the meaning never rests on the colour alone.
+/// A state of the life of an alert as a word on a soft ground; with an [icon] it is an icon and a word, so the meaning never rests on the colour alone.
 class _Pill extends StatelessWidget {
-  const _Pill({required this.label, this.icon, this.ink = MachvonColors.neutral, this.fill = MachvonColors.neutralSoft});
+  const _Pill({required this.label, this.icon, this.ink, this.fill});
 
   final String label;
   final IconData? icon;
-  final Color ink;
-  final Color fill;
+  final Color? ink;
+  final Color? fill;
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(color: fill, borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.pill))),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space8, vertical: MachvonSpace.space4),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            if (icon != null) ...<Widget>[ExcludeSemantics(child: Icon(icon, size: 16, color: ink)), const SizedBox(width: MachvonSpace.space4)],
-            Flexible(child: Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: ink, fontWeight: icon == null ? null : FontWeight.w700))),
-          ],
-        ),
-      ),
-    );
+    final MachvonV2Palette p = context.v2.palette;
+    return TintChip(label: label, icon: icon, ink: ink ?? p.ink2, fill: fill ?? p.sunken);
   }
 }
 
@@ -506,13 +439,13 @@ class _ClockLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return MergeSemantics(
       child: Padding(
-        padding: const EdgeInsets.only(top: MachvonSpace.space4),
+        padding: const EdgeInsets.only(top: MachvonV2Space.s4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Icon(icon, size: 16, color: color),
-            const SizedBox(width: MachvonSpace.space4),
-            Expanded(child: Text(text, style: Theme.of(context).textTheme.bodySmall)),
+            const SizedBox(width: MachvonV2Space.s4),
+            Expanded(child: Text(text, style: context.v2text.caption)),
           ],
         ),
       ),

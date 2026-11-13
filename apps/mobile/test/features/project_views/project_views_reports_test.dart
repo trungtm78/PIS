@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/features/project_views/issue_models.dart';
 import 'package:machvon_mobile/features/project_views/project_views_feature.dart' as project_views;
+import 'package:machvon_mobile/features/read_support/widgets.dart' show SectionCard;
 
 import '../../support/harness.dart';
 import '../support/screen_contract.dart';
@@ -165,7 +166,7 @@ void main() {
       expect(find.text('Ban QLDA giao thông: Vật liệu'), findsOneWidget);
       expect(find.text('Tồn cuối tuần:'), findsNWidgets(2), reason: 'a line of each group');
       expect(find.text('Tồn cuối tuần'), findsOneWidget, reason: 'the figure of the totals (KpiTile)');
-      final Finder totals = find.ancestor(of: find.text('Toàn bộ phạm vi'), matching: find.byType(Card));
+      final Finder totals = find.ancestor(of: find.text('Toàn bộ phạm vi'), matching: find.byType(SectionCard));
       expect(find.descendant(of: totals, matching: find.text('12')), findsOneWidget, reason: 'the backlog of the whole scope');
       expect(find.descendant(of: totals, matching: find.text('15')), findsOneWidget, reason: 'what was open at the start of the week');
     });
