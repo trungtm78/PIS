@@ -6,7 +6,7 @@ import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { Field } from './components';
 import { useObligations } from './hooks';
-import { progressLabel, roleLabel } from './labels';
+import { progressLabel, reportStatusLabel, roleLabel } from './labels';
 import { vietnamToday, yearsAround } from './model';
 import { isFiled, progressOf, summarize, worstFirst } from './progress-model';
 import type { ProgressKind } from './progress-model';
@@ -135,6 +135,7 @@ function progressColumns(t: Translate): DataTableColumn<ObligationView>[] {
       header: t('mne.progress.column.filed'),
       render: (item) => <span data-testid={`filed-${item.reportId}`}>{item.filedOn ?? (isFiled(item) ? t('mne.progress.filed.unknown') : t('mne.progress.filed.none'))}</span>,
     },
+    { key: 'status', header: t('scr2.mne.progress.column.status'), render: (item) => <span data-testid={`status-${item.reportId}`}>{reportStatusLabel(t, item.status)}</span> },
     {
       key: 'progress',
       header: t('mne.progress.column.progress'),

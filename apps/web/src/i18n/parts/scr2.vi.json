@@ -66,5 +66,19 @@
   "scr2.qms.photo.column.taken": "Thời gian chụp (EXIF)",
   "scr2.qms.photo.link.diary": "Nhật ký công trường",
   "scr2.qms.photo.link.inspection": "Đề nghị kiểm tra",
-  "scr2.qms.photo.link.ncr": "Không phù hợp (NCR)"
+  "scr2.qms.photo.link.ncr": "Không phù hợp (NCR)",
+  "scr2.sas.correction.column.kind": "Loại xử lý",
+  "scr2.sas.correction.column.lines": "Dòng điều chỉnh",
+  "scr2.sas.correction.column.original": "Hóa đơn gốc",
+  "scr2.sas.correction.column.reason": "Lý do",
+  "scr2.sas.correction.column.standing": "Tổng sau điều chỉnh (VND)",
+  "scr2.sas.correction.lines.count": "{count} dòng",
+  "scr2.sas.correction.page.subtitle": "Hóa đơn đã phát hành không bao giờ bị hủy hay sửa. Mỗi hóa đơn sửa sai gắn với hóa đơn gốc, có loại xử lý (điều chỉnh hoặc thay thế), lý do và văn bản thỏa thuận của người mua; các dòng điều chỉnh cộng vào tổng sau điều chỉnh của hóa đơn gốc.",
+  "scr2.sas.entitlements.col.approver": "Người duyệt",
+  "scr2.sas.entitlements.col.grace": "Chế độ khi grace",
+  "scr2.sas.entitlements.col.overrideWindow": "Hiệu lực ghi đè",
+  "scr2.sas.entitlements.overrideWindow.value": "{from} → {until}",
+  "scr2.sas.promotion.result.match": "Khớp",
+  "scr2.sas.promotion.result.mismatch": "Lệch",
+  "scr2.sas.promotion.result.pending": "Chưa đối chiếu"
 }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
@@ -18,6 +19,7 @@ import { StatusPill } from '../../ui';
 import { reportStatusTone } from './tones';
 import './mne.css';
 import './mne-kit.css';
+import { ScrollRegion } from '../scroll-region';
 
 type Done = 'saved' | 'submitted';
 
@@ -95,13 +97,16 @@ function ReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
         </Field>
       </div>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
-        <div className="tablewrap">
+        <ScrollRegion label={t('mne.report.picker.title')}>
           <table>
             <thead>
               <tr>
                 <th scope="col">{t('mne.report.picker.column.period')}</th>
                 <th scope="col">{t('mne.report.picker.column.unit')}</th>
+                <th scope="col">{t('scr2.mne.report.column.scope')}</th>
                 <th scope="col">{t('mne.report.picker.column.form')}</th>
+                <th scope="col">{t('scr2.mne.report.column.snapshot')}</th>
+                <th scope="col">{t('scr2.mne.report.column.auto')}</th>
                 <th scope="col">{t('mne.report.picker.column.due')}</th>
                 <th scope="col">{t('mne.report.picker.column.status')}</th>
                 <th scope="col" />
@@ -114,9 +119,11 @@ function ReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
                   <td>
                     {item.unitCode} <span className="sub">{item.unitName}</span>
                   </td>
-                  <td>
-                    {item.formCode} <span className="sub">{item.formTitle}</span>
-                  </td>
+                  <ReportFacts reportId={item.reportId}>
+                    <td>
+                      {item.formCode} <span className="sub">{item.formTitle}</span>
+                    </td>
+                  </ReportFacts>
                   <td>{item.dueDate}</td>
                   <td>{reportStatusLabel(t, item.status)}</td>
                   <td>
@@ -128,7 +135,7 @@ function ReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
         {list.hasNextPage ? (
           <div className="mne-actions">
             <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
@@ -138,6 +145,26 @@ function ReportPicker({ onOpen }: { onOpen: (id: string) => void }) {
         ) : null}
       </StateBoundary>
     </div>
+  );
+}
+
+/**
+ * The scope, the snapshot and the share of the cells filled from their source of one draft, read from the report itself: the scope (a unit or one project), the frozen snapshot the
+ * figures come from (none yet until one is attached) and how many cells are locked to their source. The form of the report sits between, in the order of the catalogue.
+ */
+function ReportFacts({ reportId, children }: { reportId: string; children: ReactNode }) {
+  const { t } = useTranslation();
+  const report = useReport(reportId);
+  const none = report.isLoading ? t('scr2.mne.report.reading') : t('scr2.mne.report.unread');
+  const data = report.data;
+  const locked = data?.fields.filter((field) => field.locked).length ?? 0;
+  return (
+    <>
+      <td data-testid="report-scope">{data === undefined ? none : data.projectId === null ? t('scr2.mne.report.scope.unit', { unit: data.unitName }) : t('scr2.mne.report.scope.project')}</td>
+      {children}
+      <td data-testid="report-snapshot-date">{data === undefined ? none : data.asOfDate === null ? t('mne.report.header.noSnapshot') : t('mne.report.header.snapshot', { date: data.asOfDate })}</td>
+      <td data-testid="report-auto">{data === undefined ? none : t('scr2.mne.report.auto.value', { locked, total: data.fields.length })}</td>
+    </>
   );
 }
 

@@ -66,5 +66,19 @@
   "scr2.qms.photo.column.taken": "Taken (EXIF)",
   "scr2.qms.photo.link.diary": "Site diary",
   "scr2.qms.photo.link.inspection": "Inspection request",
-  "scr2.qms.photo.link.ncr": "Non-conformance"
+  "scr2.qms.photo.link.ncr": "Non-conformance",
+  "scr2.sas.correction.column.kind": "Kind of correction",
+  "scr2.sas.correction.column.lines": "Adjustment lines",
+  "scr2.sas.correction.column.original": "Original invoice",
+  "scr2.sas.correction.column.reason": "Reason",
+  "scr2.sas.correction.column.standing": "Total after adjustment (VND)",
+  "scr2.sas.correction.lines.count": "{count} lines",
+  "scr2.sas.correction.page.subtitle": "An issued invoice is never cancelled or edited. Each correcting invoice is linked to the original invoice and carries its kind (adjustment or replacement), the reason and the buyer's written agreement; its adjustment lines add up to the total after adjustment of the original.",
+  "scr2.sas.entitlements.col.approver": "Approved by",
+  "scr2.sas.entitlements.col.grace": "Mode in grace",
+  "scr2.sas.entitlements.col.overrideWindow": "Override in force",
+  "scr2.sas.entitlements.overrideWindow.value": "{from} → {until}",
+  "scr2.sas.promotion.result.match": "Match",
+  "scr2.sas.promotion.result.mismatch": "Mismatch",
+  "scr2.sas.promotion.result.pending": "Not reconciled yet"
 }
