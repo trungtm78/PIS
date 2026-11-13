@@ -8,12 +8,17 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/route_catalogue.dart';
 import '../../../core/navigation/tab_badges.dart';
-import '../../../core/state/empty_state_view.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/deadline.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/paged.dart';
-import '../../read_support/widgets.dart';
 import '../../read_support/wire.dart';
 import '../approval_models.dart';
 import '../approval_support.dart';
@@ -34,12 +39,12 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
-      title: context.t('mob.apv.inbox.title'),
+    return AppScaffold(
+      largeTitle: context.t('mob.apv.inbox.title'),
       actions: <Widget>[
-        IconButton(tooltip: context.t('mob.apv.inbox.acceptance.action'), icon: const Icon(Icons.fact_check_outlined), onPressed: () => openScreen(context, 'MOB-65', stacked: true)),
-        IconButton(tooltip: context.t('mob.apv.inbox.signDocs.action'), icon: const Icon(Icons.draw_outlined), onPressed: () => openScreen(context, 'DOC-22', stacked: true)),
-        IconButton(tooltip: context.t('mob.apv.inbox.incomingDocs.action'), icon: const Icon(Icons.move_to_inbox_outlined), onPressed: () => openScreen(context, 'DOC-23', stacked: true)),
+        AppBarAction(icon: Icons.fact_check_outlined, label: context.t('mob.apv.inbox.acceptance.action'), onPressed: () => openScreen(context, 'MOB-65', stacked: true)),
+        AppBarAction(icon: Icons.draw_outlined, label: context.t('mob.apv.inbox.signDocs.action'), onPressed: () => openScreen(context, 'DOC-22', stacked: true)),
+        AppBarAction(icon: Icons.move_to_inbox_outlined, label: context.t('mob.apv.inbox.incomingDocs.action'), onPressed: () => openScreen(context, 'DOC-23', stacked: true)),
       ],
       body: DataView<ApprovalInbox>(
         cacheKey: 'approvals.inbox',
@@ -74,6 +79,22 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
   }
 }
 
+/// The chip that is on: every task, the late ones, or one kind of record. One chip at a time; the late ones always head the list, so a kind
+/// of record keeps its late tasks on top.
+const String _chipAll = '';
+const String _chipLate = '!late';
+
+InboxFilter _filterOfChip(String chip) {
+  if (chip == _chipAll) return const InboxFilter();
+  if (chip == _chipLate) return const InboxFilter(onlyOverdue: true);
+  return InboxFilter(businessType: chip);
+}
+
+String _chipOfFilter(InboxFilter filter) {
+  if (filter.businessType != null) return filter.businessType!;
+  return filter.onlyOverdue ? _chipLate : _chipAll;
+}
+
 class _InboxBody extends StatelessWidget {
   const _InboxBody({required this.inbox, required this.filter, required this.onFilter});
 
@@ -84,96 +105,105 @@ class _InboxBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<ApprovalTask> shown = applyInboxFilter(inbox.tasks, filter);
-    final List<Widget> header = <Widget>[
-      Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text(context.t('mob.apv.inbox.counts', <String, Object>{'open': inbox.tasks.length, 'late': inbox.overdueCount}), style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: MachvonSpace.space12),
-            DropdownButtonFormField<String?>(
-              initialValue: filter.businessType,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: context.t('mob.apv.inbox.filter.type')),
-              items: <DropdownMenuItem<String?>>[
-                DropdownMenuItem<String?>(child: Text(context.t('mob.apv.inbox.filter.all'))),
-                for (final String type in businessTypes) DropdownMenuItem<String?>(value: type, child: Text(businessTypeLabel(context, type))),
-              ],
-              onChanged: (String? type) => onFilter(InboxFilter(businessType: type, onlyOverdue: filter.onlyOverdue)),
-            ),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              value: filter.onlyOverdue,
-              title: Text(context.t('mob.apv.inbox.filter.late')),
-              onChanged: (bool? value) => onFilter(InboxFilter(businessType: filter.businessType, onlyOverdue: value ?? false)),
-            ),
-          ],
-        ),
-      ),
+    final List<ApprovalTask> late = <ApprovalTask>[for (final ApprovalTask task in shown) if (task.overdue) task];
+    final List<ApprovalTask> open = <ApprovalTask>[for (final ApprovalTask task in shown) if (!task.overdue) task];
+    final List<ChipOption<String>> chips = <ChipOption<String>>[
+      ChipOption<String>(value: _chipAll, label: context.t('mob.apv.inbox.filter.all'), count: inbox.tasks.length),
+      if (inbox.overdueCount > 0) ChipOption<String>(value: _chipLate, label: context.t('mob.apv.inbox.chip.late'), count: inbox.overdueCount),
+      for (final String type in businessTypes)
+        if (inbox.tasks.any((ApprovalTask task) => task.businessType == type))
+          ChipOption<String>(value: type, label: businessTypeLabel(context, type), count: inbox.tasks.where((ApprovalTask task) => task.businessType == type).length),
     ];
-    if (shown.isEmpty) {
-      return Column(
-        children: <Widget>[
-          ...header,
-          Expanded(
-            child: EmptyStateView(
-              activeFilters: <String>[
-                if (filter.businessType != null) businessTypeLabel(context, filter.businessType!),
-                if (filter.onlyOverdue) context.t('mob.apv.inbox.filter.late'),
-              ],
-              onClearFilters: () => onFilter(const InboxFilter()),
+    final String chip = _chipOfFilter(filter);
+    final MachvonV2Text text = context.v2text;
+    return ListView(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, 0, MachvonV2Space.s16, MachvonV2Space.s4),
+          child: Text(
+            context.t('mob.apv.inbox.counts', <String, Object>{'open': inbox.tasks.length, 'late': inbox.overdueCount}),
+            style: text.caption.copyWith(color: context.v2.palette.ink2),
+          ),
+        ),
+        FilterChips<String>(options: chips, selected: chip, onChanged: (String next) => onFilter(_filterOfChip(next))),
+        if (shown.isEmpty)
+          SizedBox(
+            height: 360,
+            child: StateView(
+              kind: StateKind.empty,
+              title: context.t('mob.apv.inbox.empty.title'),
+              body: context.t('mob.apv.inbox.empty.body', <String, Object>{
+                'filters': <String>[
+                  if (filter.businessType != null) businessTypeLabel(context, filter.businessType!),
+                  if (filter.onlyOverdue) context.t('mob.apv.inbox.chip.late'),
+                ].join(', '),
+              }),
+              actionLabel: context.t('mob.apv.inbox.empty.clear'),
+              onAction: () => onFilter(const InboxFilter()),
             ),
           ),
-        ],
-      );
-    }
-    return ListView.builder(
-      itemCount: header.length + shown.length,
-      itemBuilder: (BuildContext context, int index) => index < header.length ? header[index] : _TaskRow(task: shown[index - header.length], unitName: inbox.unitNames[shown[index - header.length].unitId]),
+        if (late.isNotEmpty) GroupHeader(title: context.t('mob.apv.inbox.group.late'), count: late.length),
+        for (int index = 0; index < late.length; index += 1) ApprovalRow(task: late[index], unitName: inbox.unitNames[late[index].unitId], dividerAbove: index > 0),
+        if (open.isNotEmpty) GroupHeader(title: context.t('mob.apv.inbox.group.open'), count: open.length),
+        for (int index = 0; index < open.length; index += 1) ApprovalRow(task: open[index], unitName: inbox.unitNames[open[index].unitId], dividerAbove: index > 0),
+      ],
     );
   }
 }
 
-class _TaskRow extends StatelessWidget {
-  const _TaskRow({required this.task, required this.unitName});
+/// One approval waiting: the kind of record, the step, the unit and the amount (rounded to one decimal; the detail says it in full), the
+/// deadline with its real day and whether it is overdue (the server's word, never the clock of the phone). It carries what a person needs
+/// to know whether to open it; the decision itself is made on the detail, behind a confirmation.
+class ApprovalRow extends StatelessWidget {
+  const ApprovalRow({required this.task, required this.unitName, this.dividerAbove = false, super.key});
 
   final ApprovalTask task;
   final String? unitName;
+  final bool dividerAbove;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final String type = businessTypeLabel(context, task.businessType);
     final String due = formatMoment(task.dueAt);
-    return TappableRow(
-      semanticLabel: context.t('mob.apv.inbox.row.aria', <String, Object>{'type': type, 'step': task.stepName, 'time': due}),
-      onTap: () => openScreen(context, 'MOB-24', pathSuffix: '/${Uri.encodeComponent(task.id)}'),
-      child: Row(
+    final String? amount = task.amountVnd == null ? null : moneyLabel(context, task.amountVnd, decimals: 1);
+    final DeadlineBand band = approvalBandOf(task);
+    final MachvonV2Text text = context.v2text;
+    final String subtitle = <String>[
+      if (task.stepName.isNotEmpty) task.stepName,
+      if (unitName != null) unitName!,
+      ?amount,
+    ].join(' · ');
+    final String spoken = <String>[
+      type,
+      if (task.stepName.isNotEmpty) task.stepName,
+      if (unitName != null) context.t('mob.apv.inbox.row.unit', <String, Object>{'unit': unitName!}),
+      if (task.amountVnd != null) context.t('mob.apv.inbox.row.amount', <String, Object>{'value': moneyLabel(context, task.amountVnd)}),
+      if (task.overdue) context.t('mob.apv.inbox.row.late'),
+      if (task.escalated) context.t('mob.apv.inbox.row.escalated'),
+      if (!task.canDecide) context.t('mob.apv.inbox.row.cannot'),
+      context.t('mob.apv.inbox.row.due', <String, Object>{'time': due}),
+    ].join('. ');
+    return WorkRow(
+      title: type,
+      subtitle: subtitle.isEmpty ? null : subtitle,
+      leading: DeadlineGlyph(band: band),
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(type, style: theme.textTheme.bodyLarge),
-                if (task.stepName.isNotEmpty) Text(task.stepName, style: theme.textTheme.bodyMedium),
-                Wrap(
-                  spacing: MachvonSpace.space8,
-                  children: <Widget>[
-                    if (task.overdue) StatusPill(label: context.t('mob.apv.inbox.row.late'), warn: true),
-                    if (task.escalated) StatusPill(label: context.t('mob.apv.inbox.row.escalated')),
-                    if (!task.canDecide) StatusPill(label: context.t('mob.apv.inbox.row.cannot')),
-                  ],
-                ),
-                if (task.amountVnd != null) Text(context.t('mob.apv.inbox.row.amount', <String, Object>{'value': moneyLabel(context, task.amountVnd)}), style: theme.textTheme.bodySmall),
-                if (unitName != null) Text(context.t('mob.apv.inbox.row.unit', <String, Object>{'unit': unitName!}), style: theme.textTheme.bodySmall),
-                Text(context.t('mob.apv.inbox.row.due', <String, Object>{'time': due}), style: theme.textTheme.bodySmall),
-              ],
-            ),
+          DeadlineLabel(
+            band: band,
+            text: task.overdue ? context.t('mob.apv.inbox.row.late') : context.t('mob.apv.inbox.row.dueShort', <String, Object>{'day': formatDayShort(task.dueAt)}),
+            dueDay: task.dueAt,
           ),
-          const ExcludeSemantics(child: Icon(Icons.chevron_right)),
+          if (task.overdue) Text(context.t('mob.apv.inbox.row.dueShort', <String, Object>{'day': formatDayShort(task.dueAt)}), style: text.caption),
+          if (task.escalated) Text(context.t('mob.apv.inbox.row.escalated'), style: text.caption, textAlign: TextAlign.end),
+          if (!task.canDecide) Text(context.t('mob.apv.inbox.row.viewOnly'), style: text.caption),
         ],
       ),
+      semanticLabel: spoken,
+      dividerAbove: dividerAbove,
+      onTap: () => openScreen(context, 'MOB-24', pathSuffix: '/${Uri.encodeComponent(task.id)}'),
     );
   }
 }

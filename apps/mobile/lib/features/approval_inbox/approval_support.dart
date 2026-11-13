@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
+import '../../core/widgets/deadline.dart' show DeadlineBand;
 import 'approval_commands.dart';
 import 'approval_models.dart';
 
@@ -17,6 +18,10 @@ class ApprovalsChanged extends Notifier<int> {
 }
 
 final NotifierProvider<ApprovalsChanged, int> approvalsChangedProvider = NotifierProvider<ApprovalsChanged, int>(ApprovalsChanged.new);
+
+/// The band of the deadline of a task: red when the server says it is overdue, otherwise the clock. The server has no count of days left
+/// for a task and the phone never counts them from its own clock, so there is no yellow here.
+DeadlineBand approvalBandOf(ApprovalTask task) => task.overdue ? DeadlineBand.late : DeadlineBand.ok;
 
 /// Why a decision cannot be made now. The reason is always written beside the disabled button, never left to be guessed.
 enum DecisionGate { open, offline, notAssigned, notPending, readOnly }
