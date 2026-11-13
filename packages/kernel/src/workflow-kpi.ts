@@ -21,6 +21,10 @@ export const DEFAULT_KPI_SET_CODE = 'DEFAULT_PROJECT_WORKFLOW';
 /** The template the built-in set belongs to: a reference to a `PROJECT_WORKFLOW_TEMPLATE` code, checked by `governance:check`, never a definition. */
 export const DEFAULT_KPI_SET_TEMPLATE = 'PUBLIC_INVESTMENT';
 
+/** The business type of the ADM engine under which the response of a person to their score is handled, and what the engine calls the record (R43). */
+export const SCORE_RESPONSE_BUSINESS_TYPE = 'score.response';
+export const SCORE_RESPONSE_RESOURCE = 'staff_score_response';
+
 export const KPI_OPERATION_CODES = ['DAYS_DEVIATION', 'ON_TIME_RATE', 'AMOUNT_VARIANCE_PCT', 'RETURN_COUNT', 'EVIDENCE_COMPLETENESS', 'RESCHEDULE_COUNT'] as const;
 export type KpiOperationCode = (typeof KPI_OPERATION_CODES)[number];
 export const KPI_UNITS_USED = ['PERCENT', 'VND', 'COUNT', 'DAYS', 'RATIO'] as const;
@@ -791,15 +795,22 @@ export interface AdjustmentRequest {
   subjectMembershipId: string;
 }
 
-/** An adjustment of a score by the manager: bounded, with a reason, requested by somebody other than the person scored, and approved by a second person who is neither the maker nor the person scored. Fails with 422 `STAFF_SCORE_ADJUSTMENT_INVALID` naming the field. */
-export function assertAdjustmentAllowed(policy: StaffScoringPolicy, request: AdjustmentRequest): void {
+/** An adjustment that can be asked for: bounded, with a reason, by somebody other than the person scored. Fails with 422 `STAFF_SCORE_ADJUSTMENT_INVALID` naming the field. */
+export function assertAdjustmentRequestable(policy: StaffScoringPolicy, request: Pick<AdjustmentRequest, 'points' | 'reason' | 'requestedBy' | 'subjectMembershipId'>): void {
   const fail = (field: string): never => {
     throw new DomainError('STAFF_SCORE_ADJUSTMENT_INVALID', 422, field);
   };
-  if (!Number.isFinite(request.points) || Math.abs(request.points) > policy.calibration.maxAdjustmentPoints) fail('points');
+  if (!Number.isFinite(request.points) || request.points === 0 || Math.abs(request.points) > policy.calibration.maxAdjustmentPoints) fail('points');
   if (request.reason.trim().length < policy.calibration.minReasonLength) fail('reason');
   if (request.requestedBy === request.subjectMembershipId) fail('requestedBy');
-  if (request.approvedBy === null ? policy.calibration.requiresSecondApprover : request.approvedBy === request.requestedBy || request.approvedBy === request.subjectMembershipId) fail('approvedBy');
+}
+
+/** An adjustment of a score by the manager: bounded, with a reason, requested by somebody other than the person scored, and approved by a second person who is neither the maker nor the person scored. Fails with 422 `STAFF_SCORE_ADJUSTMENT_INVALID` naming the field. */
+export function assertAdjustmentAllowed(policy: StaffScoringPolicy, request: AdjustmentRequest): void {
+  assertAdjustmentRequestable(policy, request);
+  if (request.approvedBy === null ? policy.calibration.requiresSecondApprover : request.approvedBy === request.requestedBy || request.approvedBy === request.subjectMembershipId) {
+    throw new DomainError('STAFF_SCORE_ADJUSTMENT_INVALID', 422, 'approvedBy');
+  }
 }
 
 /** A score moved by `points`, kept inside 0 to 100. */

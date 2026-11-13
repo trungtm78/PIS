@@ -97,6 +97,7 @@ import {
   sharedMockEInvoiceProvider,
   runCalendarReminders,
   standardJobs,
+  PwfScoreMaintenanceJob,
 } from '@machvon/db';
 import type { ControlDatabase, DomainPorts, EInvoiceProviderPort, InboxHandlerRegistry, JobName, OutboxDelivery, PayloadRemover, PlacementMover, ReorganizationProjectPort, TenantDatabase, TenantRestoreEngine } from '@machvon/db';
 import { IntervalScheduler, vietnamDateOf } from '@machvon/kernel';
@@ -205,6 +206,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
   const unitReorganization = new UnitReorganizationJob(deps.tenants, audit, deps.reorganizationProjects ?? new UnboundProjectTransferPort());
   const delegationLifecycle = new DelegationLifecycleJob(audit, deps.metrics === undefined ? {} : { metrics: deps.metrics });
   const supportAccessLifecycle = new SupportAccessJob(audit);
+  const pwfScores = new PwfScoreMaintenanceJob(audit);
   const domains = new TenantDomainJob(audit, deps.domainPorts ?? sharedMockDomainPorts());
   const placementMigrations = new PlacementMigrationRunner({ control: deps.control, tenants: deps.tenants, mover: deps.placementMover ?? defaultPlacementMover(process.env.MACHVON_ENVIRONMENT), audit });
   const restores = new TenantRestoreJob(deps.tenants, audit, deps.restoreEngine ?? defaultRestoreEngine(deps.tenants, process.env.MACHVON_ENVIRONMENT));
@@ -302,6 +304,7 @@ export function startWorkers(deps: WorkersDeps, options: WorkersOptions = {}): R
         })()),
     delegationLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => delegationLifecycle.run(tx, ctx.membershipId, now)) },
     supportAccessLifecycle: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => supportAccessLifecycle.run(tx, ctx.membershipId, now)) },
+    pwfScoreMaintenance: { run: (ctx, now) => deps.tenants.withTenant(ctx, (tx) => pwfScores.run(tx, ctx.membershipId, now)) },
     ...(deps.exportFiles === undefined ? {} : { tenantExport: new TenantExportJob(deps.tenants, deps.exportFiles, audit, deps.documentFiles) }),
     // The exports of BI are files too: the schedules are run, and the files are taken away after their days, with the same object store.
     ...(deps.exportFiles === undefined

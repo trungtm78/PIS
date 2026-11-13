@@ -635,6 +635,7 @@ export const OPERATIONS = {
   "getSodException": { method: "get", path: "/sod-exceptions/{id}", versioned: false, stepUp: null, permission: "adm.sod.read" },
   "getSodMatrix": { method: "get", path: "/sod-matrix", versioned: false, stepUp: null, permission: "adm.sod.read" },
   "getStaffScoreLine": { method: "get", path: "/staff-score-lines/{id}", versioned: false, stepUp: null, permission: "staff_score.read_own" },
+  "getStaffScoreOverview": { method: "get", path: "/staff-score-periods/{id}/overview", versioned: false, stepUp: null, permission: "staff_score.read_hr" },
   "getStaffScorePeriod": { method: "get", path: "/staff-score-periods/{id}", versioned: false, stepUp: null, permission: "staff_score.read_unit" },
   "getSteeringMeeting": { method: "get", path: "/steering-meetings/{id}", versioned: false, stepUp: null, permission: "directive.read" },
   "getSubmissionProgress": { method: "get", path: "/reporting-periods/{id}/submission-progress", versioned: false, stepUp: null, permission: "report.read" },

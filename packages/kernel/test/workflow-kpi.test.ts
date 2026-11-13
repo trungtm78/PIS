@@ -7,6 +7,7 @@ import {
   aggregateStaffPeriod,
   applyAdjustment,
   assertAdjustmentAllowed,
+  assertAdjustmentRequestable,
   canOfficialize,
   convertScore,
   gamingSignals,
@@ -740,6 +741,24 @@ describe('calibration, the lock of a period and the window of response', () => {
     const relaxed = { ...policy, calibration: { ...policy.calibration, requiresSecondApprover: false } };
     expect(() => assertAdjustmentAllowed(relaxed, { ...adjustment, approvedBy: null })).not.toThrow();
     expect(() => assertAdjustmentAllowed(relaxed, { ...adjustment, approvedBy: 'ann' })).toThrow(DomainError);
+  });
+
+  it('judges a request before there is an approver: bounded, reasoned, not for oneself, and never of nothing', () => {
+    const asked = { points: 5, reason: adjustment.reason, requestedBy: 'manager', subjectMembershipId: 'ann' };
+    const failsRequest = (patch: Record<string, unknown>): string | undefined => {
+      try {
+        assertAdjustmentRequestable(policy, { ...asked, ...patch });
+        return undefined;
+      } catch (failure) {
+        expect(failure).toMatchObject({ code: 'STAFF_SCORE_ADJUSTMENT_INVALID', status: 422 });
+        return (failure as DomainError).detail;
+      }
+    };
+    expect(failsRequest({})).toBeUndefined();
+    expect(failsRequest({ points: 0 })).toBe('points');
+    expect(failsRequest({ points: 12 })).toBe('points');
+    expect(failsRequest({ reason: 'ngắn' })).toBe('reason');
+    expect(failsRequest({ requestedBy: 'ann' })).toBe('requestedBy');
   });
 
   it('applies an adjustment inside 0 to 100', () => {
