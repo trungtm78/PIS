@@ -90,6 +90,7 @@ function WarrantyContent({ route }: ScreenProps) {
               <thead>
                 <tr>
                   <th scope="col">{t('ast.warranty.column.obligation')}</th>
+                  <th scope="col">{t('ast.warranty.column.scope')}</th>
                   <th scope="col">{t('ast.warranty.column.term')}</th>
                   <th scope="col">{t('ast.warranty.column.guarantee')}</th>
                   <th scope="col">{t('ast.warranty.column.retention')}</th>
@@ -106,10 +107,10 @@ function WarrantyContent({ route }: ScreenProps) {
                   return (
                     <tr key={line.id} data-warranty={line.id} data-status={line.status}>
                       <td>
-                        <strong data-testid="scope">{line.scope}</strong>
-                        <small className="sub qms-regime" data-testid="handover">{`${line.handover.handoverNo ?? ''} · ${line.contract.code}`}</small>
+                        <strong data-testid="handover">{`${line.handover.handoverNo ?? ''} · ${line.contract.code}`}</strong>
                         {line.asset === null ? null : <small className="sub qms-regime" data-testid="asset">{`${line.asset.assetCode} · ${line.asset.name ?? ''}`}</small>}
                       </td>
+                      <td data-testid="scope">{line.scope}</td>
                       <td>
                         <span data-testid="term">{t('ast.warranty.term.range', { from: line.startsOn, to: line.endsOn })}</span>
                         <small className="sub qms-regime">{`${t('ast.warranty.term.months', { months: line.periodMonths })} · ${gradeLabel(t, line.constructionGrade)}`}</small>

@@ -37,6 +37,10 @@ export interface AssetLine {
   transferredOn: string | null;
   warrantyUntil: string | null;
   externalAssetId: string | null;
+  /** The asset class of the master data (its version), the group the asset belongs to; null until it is classified. */
+  assetClassId: string | null;
+  /** Where the asset comes from (the funding that formed it), as the register recorded it. */
+  fundingOrigin: string | null;
   canTransfer: boolean;
   version: number;
 }
@@ -66,6 +70,8 @@ export function toAsset(raw: unknown): AssetLine | undefined {
     transferredOn: nullableText(row.transferred_on),
     warrantyUntil: nullableText(row.warranty_until),
     externalAssetId: nullableText(row.external_asset_id),
+    assetClassId: nullableText(row.asset_class_master_version_id),
+    fundingOrigin: nullableText(row.funding_origin),
     canTransfer: asRecord(row.allowed)?.transfer === true,
     version,
   };

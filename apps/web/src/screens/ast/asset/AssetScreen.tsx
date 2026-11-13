@@ -117,16 +117,31 @@ function AssetTable({ lines, writable, money, onTransfer }: AssetTableProps) {
   const columns: DataTableColumn<AssetLine>[] = [
     {
       key: 'asset',
-      header: t('ast.asset.column.asset'),
+      header: t('ast.asset.column.code'),
       pinned: true,
       render: (line) => (
         <>
-          <strong data-testid="code">{line.assetCode}</strong> <span data-testid="name">{line.name ?? ''}</span>
+          <strong data-testid="code">{line.assetCode}</strong>
           {line.warrantyUntil === null ? null : <small className="sub qms-regime">{t('ast.asset.warranty.until', { day: line.warrantyUntil })}</small>}
         </>
       ),
     },
-    { key: 'handover', header: t('ast.asset.column.handover'), render: (line) => <span data-testid="handover">{`${line.handover.handoverNo ?? ''} · ${line.contract.code}`}</span> },
+    { key: 'name', header: t('ast.asset.column.name'), render: (line) => <span data-testid="name">{line.name ?? ''}</span> },
+    {
+      key: 'group',
+      header: t('ast.asset.column.group'),
+      render: (line) => <span data-testid="group">{line.assetClassId === null ? t('ast.asset.group.none') : <code title={line.assetClassId}>{line.assetClassId.slice(0, 8)}</code>}</span>,
+    },
+    {
+      key: 'origin',
+      header: t('ast.asset.column.origin'),
+      render: (line) => (
+        <>
+          <span data-testid="origin">{line.fundingOrigin ?? t('ast.asset.origin.none')}</span>
+          <small className="sub qms-regime" data-testid="handover">{`${line.handover.handoverNo ?? ''} · ${line.contract.code}`}</small>
+        </>
+      ),
+    },
     { key: 'unit', header: t('ast.asset.column.unit'), render: (line) => <span data-testid="unit">{line.recipientUnit.name}</span> },
     {
       key: 'value',

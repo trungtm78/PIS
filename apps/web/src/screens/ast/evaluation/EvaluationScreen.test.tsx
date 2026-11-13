@@ -72,6 +72,10 @@ describe('EvaluationScreen (AST-07): the trigger of the evaluation after the inv
     await waitFor(() => expect((document.getElementById('evaluation-project') as HTMLSelectElement).options.length).toBe(3));
     expect(screen.getByTestId('scope-note').textContent).toBe(text('ast.evaluation.scope.note'));
     expect(document.querySelector('[data-testid="schedule-form"]')).toBeNull();
+    // The columns of the triggers stand before a project is chosen, with no row.
+    const table = screen.getByTestId('triggers');
+    expect(Array.from(table.querySelectorAll('th')).map((cell) => cell.textContent)).toEqual(['ast.evaluation.col.kind', 'ast.evaluation.col.handover', 'ast.evaluation.col.due', 'ast.evaluation.col.status', 'ast.evaluation.col.evaluation'].map((key) => text(key)));
+    expect(table.querySelectorAll('tbody tr')).toHaveLength(0);
   });
 
   it('UI-AST-07: lists the triggers of the project with the kind, the handover, the day, the status and the evaluation', async () => {
