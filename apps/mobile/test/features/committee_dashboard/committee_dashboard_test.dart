@@ -220,6 +220,7 @@ void main() {
       await tester.tap(find.text('Chủ đầu tư'));
       await tester.pumpAndSettle();
       expect(find.text('Ban quản lý 1'), findsWidgets);
+      await tester.ensureVisible(find.text('Nguồn vốn'));
       await tester.tap(find.text('Nguồn vốn'));
       await tester.pumpAndSettle();
       expect(find.text('Ngân sách trung ương'), findsOneWidget);
