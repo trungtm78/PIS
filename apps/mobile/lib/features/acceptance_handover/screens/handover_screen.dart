@@ -11,7 +11,7 @@ import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/deadline.dart';
 import '../../../core/widgets/filter_chips.dart';
 import '../../../core/widgets/info_row.dart';
-import '../../../core/widgets/stage_strip.dart';
+import '../../../core/widgets/progress.dart';
 import '../../../core/widgets/state_view.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
@@ -223,7 +223,7 @@ class _TraceBody extends StatelessWidget {
         if (total > 0)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
-            child: StageStrip(total: total, current: done, currentFraction: 1, label: context.t('mob.handover.detail.punch.progress', <String, Object>{'done': done, 'total': total})),
+            child: ProgressMeter(value: done / total, label: context.t('mob.handover.detail.punch.progress', <String, Object>{'done': done, 'total': total})),
           ),
         SectionCard(
           title: context.t('mob.handover.detail.punch.title'),

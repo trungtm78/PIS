@@ -76,7 +76,7 @@ class _BodyState extends State<_Body> {
         StatCell(value: '${live.score}', label: context.t('mob.vnd.stat.score'), band: bandOfTier(live.tier), bandText: tierWord(context, live.tier)),
       if (performance != null) ...<StatCell>[
         StatCell(value: '${performance.streak}', label: context.t('mob.vnd.stat.streak'), band: performance.streak > 0 ? DeadlineBand.soon : null, bandText: performance.streak > 0 ? context.t('mob.vnd.stat.streak.note') : null),
-        StatCell(value: '${performance.lines.length}', label: context.t('mob.vnd.stat.rated')),
+        StatCell(value: '${performance.lines.map((VendorPerformanceLine line) => line.contractCode).toSet().length}', label: context.t('mob.vnd.stat.rated')),
       ],
     ];
   }
