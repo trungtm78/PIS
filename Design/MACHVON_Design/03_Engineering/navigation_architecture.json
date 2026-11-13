@@ -2663,44 +2663,6 @@
             "13": 12,
             "14": 12
           }
-        },
-        {
-          "title": "Hạn ba màu",
-          "description": "Bảng deadline toàn danh mục, chính sách ngưỡng xanh, vàng, đỏ và nhắc hạn riêng của mỗi người",
-          "ids": [
-            7,
-            8,
-            15
-          ],
-          "primary": [
-            7,
-            15
-          ],
-          "parents": {
-            "8": 7
-          }
-        },
-        {
-          "title": "KPI và chấm điểm nhân viên",
-          "description": "Bộ KPI và chính sách chấm điểm, bảng điểm của tôi và của đơn vị, chi tiết điểm, kỳ chấm điểm",
-          "ids": [
-            9,
-            10,
-            11,
-            12,
-            13,
-            14
-          ],
-          "primary": [
-            9,
-            11,
-            12
-          ],
-          "parents": {
-            "10": 9,
-            "13": 12,
-            "14": 12
-          }
         }
       ]
     }
