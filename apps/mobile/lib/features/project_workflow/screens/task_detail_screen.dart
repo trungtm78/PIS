@@ -25,6 +25,7 @@ import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../pwf_commands.dart';
 import '../pwf_models.dart';
+import '../pwf_process_widgets.dart';
 import '../pwf_task_service.dart';
 import '../pwf_task_sheets.dart';
 import '../pwf_widgets.dart';
@@ -391,6 +392,8 @@ class _TaskBody extends StatelessWidget {
               if (detail.actualFinish != null) InfoRow(label: context.t('mob.pwf.fact.actualFinish'), value: formatDay(detail.actualFinish!, language: language)),
               if (detail.critical) InfoRow(label: context.t('mob.pwf.fact.critical'), value: context.t('mob.pwf.fact.critical.value')),
               if (detail.returnCount > 0) InfoRow(label: context.t('mob.pwf.fact.returns'), value: '${detail.returnCount}'),
+              if (detail.step != null) InfoRow(label: context.t('mob.pwf.process.fact.step'), value: context.t('mob.pwf.process.fact.step.value', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
+              if (detail.step?.responsibleRole != null) InfoRow(label: context.t('mob.pwf.process.fact.stepRole'), value: detail.step!.responsibleRole),
               if (detail.blockers.isNotEmpty && !detail.status.isFinal) ...<Widget>[
                 GroupHeader(title: context.t('mob.pwf.blockers.title'), count: detail.blockers.length),
                 for (int index = 0; index < detail.blockers.length; index += 1) _blocker(context, detail.blockers[index], index > 0),
@@ -403,6 +406,19 @@ class _TaskBody extends StatelessWidget {
                 GroupHeader(title: context.t('mob.pwf.requirements.title'), count: detail.legalDocTypes.length + detail.formTemplates.length),
                 for (int index = 0; index < detail.legalDocTypes.length; index += 1) _requirement(context, detail.legalDocTypes[index], context.t('mob.pwf.requirements.legal'), index > 0),
                 for (int index = 0; index < detail.formTemplates.length; index += 1) _requirement(context, detail.formTemplates[index], context.t('mob.pwf.requirements.form'), true),
+              ],
+              // PWF-4: the legal grounds of the task and of its step (read only), and the revision of each form with a warning when the form was revised since.
+              if (detail.legalBasis.isNotEmpty) ...<Widget>[
+                GroupHeader(title: context.t('mob.pwf.process.legal.task'), count: detail.legalBasis.length),
+                for (int index = 0; index < detail.legalBasis.length; index += 1) PwfLegalBasisRow(basis: detail.legalBasis[index], dividerAbove: index > 0),
+              ],
+              if (detail.stepLegalBasis.isNotEmpty) ...<Widget>[
+                GroupHeader(title: context.t('mob.pwf.process.legal.step'), count: detail.stepLegalBasis.length),
+                for (int index = 0; index < detail.stepLegalBasis.length; index += 1) PwfLegalBasisRow(basis: detail.stepLegalBasis[index], dividerAbove: index > 0),
+              ],
+              if (detail.formRevisions.isNotEmpty) ...<Widget>[
+                GroupHeader(title: context.t('mob.pwf.process.forms.title'), count: detail.formRevisions.length),
+                for (int index = 0; index < detail.formRevisions.length; index += 1) PwfFormRevisionRow(form: detail.formRevisions[index], dividerAbove: index > 0),
               ],
               GroupHeader(title: context.t('mob.pwf.evidence.section'), count: detail.evidence.length),
               if (detail.evidence.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.evidence.none'), style: text.body)),

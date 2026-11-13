@@ -56,6 +56,8 @@ import { gov12RuleTypes } from './gov12-rule-types.ts';
 import { ENT4C_ALERT_SEEDS, ent4cScheduleType } from './ent4c-rule-types.ts';
 import { ent4aCrosscheckType } from './ent4a-rule-types.ts';
 import { registerDeadlineBandRules } from './deadline-band.ts';
+import { registerLegalDocumentRules } from './legal-document.ts';
+import { registerWorkflowAssignmentRules } from './project-workflow-assignment.ts';
 import { registerProjectWorkflowRules } from './project-workflow.ts';
 import { registerWorkflowKpiRules } from './workflow-kpi.ts';
 import { ENT4C_TEXT } from './messages/ent4c-texts.ts';
@@ -2554,6 +2556,8 @@ export const registerProjectWorkflowModuleRules = (): void =>
     registerProjectWorkflowRules(registry);
     registerDeadlineBandRules(registry);
     registerWorkflowKpiRules(registry);
+    registerLegalDocumentRules(registry);
+    registerWorkflowAssignmentRules(registry);
   });
 
 /** Runs every registration in order (each is idempotent): the platform calls this once when the module loads, and a test or a script may call it again. */

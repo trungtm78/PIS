@@ -27552,7 +27552,7 @@
     "/projects": {
       "post": {
         "operationId": "createProject",
-        "summary": "Tạo dự án ở giai đoạn CONCEPT",
+        "summary": "Tạo dự án ở giai đoạn CONCEPT; kèm loại quy trình và ngày dự định bắt đầu thì khởi tạo workflow trong cùng giao dịch (R47)",
         "tags": [
           "PRJ"
         ],
@@ -27673,11 +27673,16 @@
           "PROJECT_CODE_DUPLICATE",
           "SCOPE_DENIED",
           "MASTER_NOT_EFFECTIVE",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "PWF_TEMPLATE_NOT_ASSIGNED",
+          "PWF_SELECTION_REASON_REQUIRED",
+          "PWF_TEMPLATE_NOT_FOUND",
+          "PWF_FACTS_REQUIRED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
-          "project.created.v1"
+          "project.created.v1",
+          "pwf.workflow.started.v1"
         ],
         "requestBody": {
           "required": true,
@@ -234142,7 +234147,8 @@
           "PWF_TEMPLATE_NOT_FOUND",
           "PWF_FACTS_REQUIRED",
           "SCOPE_DENIED",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "PWF_TEMPLATE_NOT_ASSIGNED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -234403,7 +234409,10 @@
           "PWF_WORKFLOW_EXISTS",
           "PWF_ADOPT_INVALID",
           "SCOPE_DENIED",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "PWF_TEMPLATE_NOT_ASSIGNED",
+          "PWF_TEMPLATE_NOT_FOUND",
+          "PWF_FACTS_REQUIRED"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-domain-events": [
@@ -235242,7 +235251,8 @@
         "x-error-codes": [
           "PWF_TASK_STATE_INVALID",
           "LEGAL_DOC_TYPE_UNKNOWN",
-          "VALIDATION_FAILED"
+          "VALIDATION_FAILED",
+          "PWF_FORM_REVISION_UNAVAILABLE"
         ],
         "x-idempotency": "tenant + actor + operationId + key; same key & same request hash → original response; different hash → 409 IDEMPOTENCY_CONFLICT",
         "x-state-guard": "việc IN_PROGRESS hoặc AWAITING_APPROVAL; loại chứng từ phải phân giải được theo bản"
@@ -240560,6 +240570,188 @@
           "RESOURCE_NOT_FOUND"
         ]
       }
+    },
+    "/project-workflow/suggestion": {
+      "get": {
+        "operationId": "suggestProjectWorkflow",
+        "summary": "Đề xuất loại quy trình cho dự án theo quy tắc ánh xạ, kèm danh sách loại quy trình và bản xem trước lịch (PRJ-02, PWF-05; R47)",
+        "tags": [
+          "PWF"
+        ],
+        "x-permission": "pwf.read",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Dự án đã có (PWF-05): lấy loại, nhóm và đơn vị của dự án"
+          },
+          {
+            "name": "owner_unit_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Đơn vị quản lý của dự án đang đăng ký (PRJ-02): quy tắc của đơn vị gần nhất thắng"
+          },
+          {
+            "name": "project_type_master_version_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "project_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "project_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "funding_source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "template_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Loại quy trình người dùng đang chọn; bỏ trống: xem trước loại được đề xuất"
+          },
+          {
+            "name": "planned_start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "x-read-model": true,
+        "x-exposure": "dto",
+        "x-exposure-reason": "Read model riêng của phân hệ (DTO allowlist, mask theo scope); không phải GET scaffold.",
+        "responses": {
+          "200": {
+            "description": "Scoped DTO; amounts as decimal strings; carries as_of",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PwfWorkflowSuggestion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request / field not allowed (DTO allowlist)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / scope / self-approval / entitlement",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found within scope (never discloses other tenants)",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version / state / idempotency conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Domain invariant failure",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Dependency unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "x-error-codes": [
+          "VALIDATION_FAILED",
+          "PWF_TEMPLATE_NOT_FOUND"
+        ]
+      }
     }
   },
   "components": {
@@ -242756,6 +242948,51 @@
               "INTERNAL",
               "CONFIDENTIAL"
             ]
+          },
+          "workflow": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "planned_start_date"
+            ],
+            "description": "Loại quy trình và ngày dự định bắt đầu (R47): có thì workflow được khởi tạo trong cùng giao dịch tạo dự án (cần quyền pwf.workflow.manage); không có thì dự án được tạo như trước và workflow khởi tạo sau ở PWF-05",
+            "properties": {
+              "template_code": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]{1,39}$",
+                "description": "Bỏ trống: lấy đề xuất của quy tắc ánh xạ"
+              },
+              "template_version": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "planned_start_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "facts": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                  "project_group": {
+                    "type": "string"
+                  },
+                  "funding_source": {
+                    "type": "string"
+                  },
+                  "project_type": {
+                    "type": "string"
+                  }
+                }
+              },
+              "selection_reason": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 500,
+                "description": "Bắt buộc khi chọn khác đề xuất (PWF_SELECTION_REASON_REQUIRED)"
+              }
+            }
           }
         }
       },
@@ -325104,6 +325341,48 @@
             "minItems": 1,
             "maxItems": 12
           },
+          "steps": {
+            "type": "array",
+            "maxItems": 80,
+            "description": "Các bước của từng giai đoạn (R44). Bỏ trống: mỗi giai đoạn là một bước ngầm định, băm của mẫu không đổi",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "phase"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "phase": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+                },
+                "responsible_role": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "legal_basis": {
+                  "type": "array",
+                  "maxItems": 12,
+                  "items": {
+                    "$ref": "#/components/schemas/PwfLegalBasis"
+                  }
+                }
+              }
+            }
+          },
           "tasks": {
             "type": "array",
             "items": {
@@ -325305,6 +325584,53 @@
                       }
                     }
                   }
+                },
+                "step": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Mã bước của giai đoạn; bắt buộc khi mẫu khai bước"
+                },
+                "legal_basis": {
+                  "type": "array",
+                  "maxItems": 12,
+                  "items": {
+                    "$ref": "#/components/schemas/PwfLegalBasis"
+                  }
+                },
+                "form_policies": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "description": "Chính sách phiên bản biểu mẫu (R46); biểu mẫu không khai dùng LATEST_APPROVED",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "form",
+                      "policy"
+                    ],
+                    "properties": {
+                      "form": {
+                        "type": "string",
+                        "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+                      },
+                      "policy": {
+                        "type": "string",
+                        "enum": [
+                          "LATEST_APPROVED",
+                          "PINNED"
+                        ]
+                      },
+                      "revision": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "minimum": 1
+                      }
+                    }
+                  }
                 }
               }
             },
@@ -325312,7 +325638,7 @@
             "maxItems": 400
           }
         },
-        "description": "Tham số của quy tắc PROJECT_WORKFLOW_TEMPLATE: tối đa 400 việc, 12 giai đoạn, 20 liên kết mỗi việc, chuỗi dài nhất 100 (BR-PWF-12)"
+        "description": "Tham số của quy tắc PROJECT_WORKFLOW_TEMPLATE: giai đoạn, bước, công việc và danh mục kiểm của từng việc; tối đa 400 việc, 12 giai đoạn, 80 bước, 20 liên kết mỗi việc, chuỗi dài nhất 100 (BR-PWF-12, R44)"
       },
       "PwfTemplateValidation": {
         "type": "object",
@@ -325729,13 +326055,13 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "template_code",
           "planned_start_date"
         ],
         "properties": {
           "template_code": {
             "type": "string",
-            "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$",
+            "description": "Bỏ trống: hệ thống chọn theo quy tắc PROJECT_WORKFLOW_ASSIGNMENT (R47); không có đề xuất: PWF_TEMPLATE_NOT_ASSIGNED"
           },
           "template_version": {
             "type": "integer",
@@ -325761,6 +326087,12 @@
                 "type": "string"
               }
             }
+          },
+          "selection_reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 500,
+            "description": "Lý do chọn loại quy trình khác đề xuất"
           }
         }
       },
@@ -325768,7 +326100,6 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "template_code",
           "planned_start_date",
           "effective_date",
           "dry_run"
@@ -325776,7 +326107,8 @@
         "properties": {
           "template_code": {
             "type": "string",
-            "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+            "pattern": "^[A-Z][A-Z0-9_]{1,39}$",
+            "description": "Bỏ trống: hệ thống chọn theo quy tắc PROJECT_WORKFLOW_ASSIGNMENT (R47); không có đề xuất: PWF_TEMPLATE_NOT_ASSIGNED"
           },
           "template_version": {
             "type": "integer",
@@ -325885,6 +326217,12 @@
               }
             },
             "description": "Việc đang dở: ngày bắt đầu thực và thời lượng còn lại"
+          },
+          "selection_reason": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 500,
+            "description": "Lý do chọn loại quy trình khác đề xuất"
           }
         }
       },
@@ -326005,6 +326343,9 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "selection": {
+            "$ref": "#/components/schemas/PwfWorkflowSelection"
           }
         }
       },
@@ -326337,6 +326678,20 @@
                 },
                 "version": {
                   "type": "integer"
+                },
+                "step_code": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "checklist_total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "checklist_done": {
+                  "type": "integer",
+                  "minimum": 0
                 }
               }
             }
@@ -326421,6 +326776,136 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "steps": {
+            "type": "array",
+            "description": "Các bước theo thứ tự giai đoạn (R44); mẫu không khai bước: mỗi giai đoạn một bước ngầm định",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "phase_code",
+                "order",
+                "implicit",
+                "responsible_role",
+                "status",
+                "standard_working_days",
+                "planned_start",
+                "planned_finish",
+                "task_total",
+                "task_done",
+                "required_total",
+                "required_done",
+                "checklist_total",
+                "checklist_done",
+                "legal_basis"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "phase_code": {
+                  "type": "string"
+                },
+                "order": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "implicit": {
+                  "type": "boolean"
+                },
+                "responsible_role": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "NOT_APPLICABLE",
+                    "NOT_STARTED",
+                    "IN_PROGRESS",
+                    "DONE"
+                  ]
+                },
+                "standard_working_days": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Thời hạn chuẩn của bước, suy từ lịch các việc của nó trên tuần làm việc chuẩn"
+                },
+                "planned_start": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "planned_finish": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "task_total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "task_done": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "required_total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "required_done": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "checklist_total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "checklist_done": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "legal_basis": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PwfLegalBasisView"
+                  }
+                }
+              }
+            }
+          },
+          "standard_working_days": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "lapsed_legal_documents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Mã văn bản mà workflow viện dẫn đã hết hiệu lực hoặc bị thay thế hôm nay (R45)"
+          },
+          "selection": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PwfWorkflowSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       },
@@ -327481,6 +327966,56 @@
                     "null"
                   ],
                   "format": "uuid"
+                },
+                "policy": {
+                  "type": "string",
+                  "enum": [
+                    "LATEST_APPROVED",
+                    "PINNED"
+                  ]
+                },
+                "pinned_revision": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "current_revision": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "Revision đã duyệt mới nhất đang hiệu lực hôm nay"
+                },
+                "current_title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "current_effective_from": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date"
+                },
+                "used_revision": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "Revision mà bằng chứng mới nhất của việc đã dùng"
+                },
+                "used_sha256": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "newer_available": {
+                  "type": "boolean",
+                  "description": "Biểu mẫu có bản mới sau khi việc đã sinh tài liệu"
                 }
               }
             }
@@ -327554,6 +328089,18 @@
                 "attached_at": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "form_template_revision": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "form_template_sha256": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
                 }
               }
             }
@@ -327972,6 +328519,57 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "step": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "name",
+              "phase_code",
+              "order",
+              "implicit",
+              "responsible_role"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "phase_code": {
+                "type": "string"
+              },
+              "order": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "implicit": {
+                "type": "boolean"
+              },
+              "responsible_role": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "legal_basis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PwfLegalBasisView"
+            }
+          },
+          "step_legal_basis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PwfLegalBasisView"
+            }
           }
         }
       },
@@ -330875,6 +331473,630 @@
           }
         },
         "description": "Tổng hợp một kỳ chấm điểm theo đơn vị của từng người tại thời điểm của kỳ, cho bộ phận nhân sự (toàn tenant); không có tên người, không có điểm từng người"
+      },
+      "PwfLegalBasis": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document",
+          "verification"
+        ],
+        "properties": {
+          "document": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+            "description": "Mã văn bản trong danh mục LEGAL_DOCUMENT (không chép nội dung văn bản vào mẫu)"
+          },
+          "article": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "description": "Điều, khoản, điểm; bỏ trống khi chưa chắc (không đoán)"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400
+          },
+          "verification": {
+            "type": "string",
+            "enum": [
+              "VERIFIED",
+              "UNVERIFIED"
+            ]
+          }
+        },
+        "description": "Một căn cứ pháp lý của bước hoặc công việc (R45)"
+      },
+      "PwfLegalBasisView": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document_code",
+          "article",
+          "note",
+          "verification",
+          "doc_kind",
+          "number",
+          "title",
+          "issuer",
+          "effective_from",
+          "effective_to",
+          "superseded_by",
+          "document_verification",
+          "document_id",
+          "url",
+          "state"
+        ],
+        "properties": {
+          "document_code": {
+            "type": "string"
+          },
+          "article": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verification": {
+            "type": "string",
+            "enum": [
+              "VERIFIED",
+              "UNVERIFIED"
+            ]
+          },
+          "doc_kind": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "LAW",
+              "RESOLUTION",
+              "DECREE",
+              "DECISION",
+              "CIRCULAR",
+              "DIRECTIVE",
+              "OTHER",
+              null
+            ]
+          },
+          "number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "issuer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "effective_from": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "effective_to": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "superseded_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "document_verification": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "VERIFIED",
+              "UNVERIFIED",
+              null
+            ]
+          },
+          "document_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "NOT_YET_IN_FORCE",
+              "IN_FORCE",
+              "EXPIRED",
+              "SUPERSEDED",
+              "UNKNOWN"
+            ],
+            "description": "Tình trạng của văn bản hôm nay theo danh mục; UNKNOWN khi danh mục không còn mã"
+          }
+        },
+        "description": "Căn cứ pháp lý kèm văn bản của danh mục mà nó viện dẫn và tình trạng hiệu lực hôm nay (R45)"
+      },
+      "PwfWorkflowSelection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "chosen_template_code",
+          "suggested_template_code",
+          "basis",
+          "line",
+          "rule_id",
+          "rule_version",
+          "rule_unit_id",
+          "reason"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "AUTO",
+              "CONFIRMED",
+              "OVERRIDE",
+              "MANUAL"
+            ]
+          },
+          "chosen_template_code": {
+            "type": "string"
+          },
+          "suggested_template_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "PROJECT_TYPE",
+              "DEFAULT",
+              "NONE"
+            ]
+          },
+          "line": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rule_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "rule_version": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rule_unit_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "description": "Loại quy trình được chọn thế nào: đề xuất của quy tắc PROJECT_WORKFLOW_ASSIGNMENT, lựa chọn, cách chọn và lý do (R47)"
+      },
+      "PwfWorkflowSuggestion": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "suggested_template_code",
+          "basis",
+          "line",
+          "rule",
+          "candidates",
+          "unknown_templates",
+          "templates",
+          "facts",
+          "preview",
+          "can_start",
+          "as_of"
+        ],
+        "properties": {
+          "suggested_template_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "PROJECT_TYPE",
+              "DEFAULT",
+              "NONE"
+            ]
+          },
+          "line": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rule": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rule_id",
+              "version",
+              "unit_id",
+              "unverified"
+            ],
+            "properties": {
+              "rule_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uuid"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "unit_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uuid"
+              },
+              "unverified": {
+                "type": "boolean"
+              }
+            }
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "template_code",
+                "basis",
+                "line"
+              ],
+              "properties": {
+                "template_code": {
+                  "type": "string"
+                },
+                "basis": {
+                  "type": "string",
+                  "enum": [
+                    "RULE",
+                    "PROJECT_TYPE",
+                    "DEFAULT"
+                  ]
+                },
+                "line": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "unknown_templates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "templates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "name",
+                "project_type",
+                "version",
+                "unverified",
+                "phase_count",
+                "step_count",
+                "task_count",
+                "fact_fields"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "project_type": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "unverified": {
+                  "type": "boolean"
+                },
+                "phase_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "step_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "task_count": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "fact_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "project_group",
+                      "funding_source",
+                      "project_type"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "facts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [],
+            "properties": {
+              "project_group": {
+                "type": "string"
+              },
+              "funding_source": {
+                "type": "string"
+              },
+              "project_type": {
+                "type": "string"
+              }
+            }
+          },
+          "preview": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "template_code",
+              "template_version",
+              "template_hash",
+              "planned_start_date",
+              "project_start",
+              "project_finish",
+              "total_working_days",
+              "standard_working_days",
+              "phase_count",
+              "step_count",
+              "task_count",
+              "excluded_tasks",
+              "missing_facts",
+              "findings",
+              "steps"
+            ],
+            "description": "Xem trước lịch của loại quy trình được chọn (hoặc được đề xuất) từ ngày dự định bắt đầu; null khi chưa có ngày hoặc không có loại quy trình",
+            "properties": {
+              "template_code": {
+                "type": "string"
+              },
+              "template_version": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "template_hash": {
+                "type": "string"
+              },
+              "planned_start_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "project_start": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              },
+              "project_finish": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              },
+              "total_working_days": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "description": "Số ngày làm việc từ đầu việc đầu tiên tới cuối việc cuối cùng trên lịch làm việc đã công bố; null khi thiếu dữ kiện hoặc thiếu lịch"
+              },
+              "standard_working_days": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "phase_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "step_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "task_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "excluded_tasks": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "missing_facts": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "project_group",
+                    "funding_source",
+                    "project_type"
+                  ]
+                },
+                "description": "Dữ kiện mà nhánh của mẫu cần và chưa biết: chưa tính được lịch"
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code",
+                    "task"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "task": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "year": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code",
+                    "name",
+                    "phase_code",
+                    "order",
+                    "implicit",
+                    "start",
+                    "finish",
+                    "duration_working_days",
+                    "task_count"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "phase_code": {
+                      "type": "string"
+                    },
+                    "order": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "implicit": {
+                      "type": "boolean"
+                    },
+                    "start": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date"
+                    },
+                    "finish": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date"
+                    },
+                    "duration_working_days": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "task_count": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "can_start": {
+            "type": "boolean",
+            "description": "Người gọi có quyền khởi tạo workflow (pwf.workflow.manage) hay không"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Đề xuất loại quy trình cho một dự án theo quy tắc ánh xạ, danh sách loại quy trình và bản xem trước lịch (R47)"
       }
     }
   }

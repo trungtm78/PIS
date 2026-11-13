@@ -1,4 +1,5 @@
 import { ApiError } from '@machvon/api-client';
+import type { WorkflowChoiceBody } from '../pwf/process/model';
 
 /** The permissions that gate the buttons of these screens; the server decides again on every request (scope included). */
 export const READ_PERMISSION = 'project.read';
@@ -308,7 +309,8 @@ export function createBody(form: ProjectForm) {
   };
 }
 
-export type CreateBody = ReturnType<typeof createBody>;
+/** The body of `createProject`: the profile, and the kind of workflow with its planned start when the person chose to start the workflow with the registration (R47). */
+export type CreateBody = ReturnType<typeof createBody> & { workflow?: WorkflowChoiceBody };
 
 /** The form as it stands for a project that is opened to be changed. */
 export function formOf(project: ProjectView): ProjectForm {

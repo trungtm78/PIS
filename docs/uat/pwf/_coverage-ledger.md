@@ -34,6 +34,10 @@ M2=0 · FP=0 · risk=HIGH
 | COV-ST-PWF-018 | AC/Requirement | ST-PWF-018: Điểm đơn vị, điều chỉnh có duyệt, xuất tệp | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-12, TC-UAT-PWF-13, TC-UAT-PWF-14, TC-UAT-PWF-BND-10, TC-UAT-PWF-BND-11, TC-UAT-PWF-CON-03, TC-UAT-PWF-SEC-02, TC-UAT-PWF-SEC-03, TC-UAT-PWF-SEC-04, TC-UAT-PWF-SEC-05, TC-UAT-PWF-SEC-08, TC-UAT-PWF-SEC-11, TC-UAT-PWF-OFF-02, TC-UAT-PWF-RET-01 | ✅ |
 | COV-ST-PWF-019 | AC/Requirement | ST-PWF-019: Theo dõi việc trên điện thoại | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-09, TC-UAT-PWF-15, TC-UAT-PWF-OFF-01, TC-UAT-PWF-OFF-02 | ✅ |
 | COV-ST-PWF-020 | AC/Requirement | ST-PWF-020: Tải công việc theo người | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-PERF-01, TC-UAT-PWF-WRK-01 | ✅ |
+| COV-ST-PWF-021 | AC/Requirement | ST-PWF-021: Loại quy trình ba tầng: giai đoạn, bước, công việc có danh mục kiểm | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-PRC-01, TC-UAT-PWF-PRC-02, TC-UAT-PWF-PRC-03 | ✅ |
+| COV-ST-PWF-022 | AC/Requirement | ST-PWF-022: Căn cứ pháp lý của bước và công việc theo danh mục văn bản dùng chung | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-PRC-04, TC-UAT-PWF-PRC-05 | ✅ |
+| COV-ST-PWF-023 | AC/Requirement | ST-PWF-023: Phiên bản biểu mẫu: mới nhất đã duyệt hoặc ghim, ghi vào bằng chứng | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-PRC-06 | ✅ |
+| COV-ST-PWF-024 | AC/Requirement | ST-PWF-024: Chọn loại quy trình khi đăng ký dự án theo quy tắc ánh xạ | Design/MACHVON_Design/01_Documents/05_modules/PWF.md mục 14 | TC-UAT-PWF-PRC-07, TC-UAT-PWF-PRC-08, TC-UAT-PWF-PRC-09, TC-UAT-PWF-PRC-10 | ✅ |
 
 ## Tiêu chí nghiệm thu (mục 11) và ca phủ
 

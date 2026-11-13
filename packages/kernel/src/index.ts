@@ -3327,6 +3327,8 @@ export { ENT4A_TEXT, fillCrosscheckText } from './messages/ent4a-texts.ts';
 export * as pwfWorkflow from './project-workflow.ts';
 export * as pwfSchedule from './project-schedule.ts';
 export * as pwfQuality from './project-workflow-quality.ts';
+export * as pwfAssignment from './project-workflow-assignment.ts';
+export * as legalDocument from './legal-document.ts';
 export * as pwfDeadlineBand from './deadline-band.ts';
 export * as pwfKpi from './workflow-kpi.ts';
 export * as processCore from './process-core.ts';

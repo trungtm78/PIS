@@ -138,6 +138,8 @@ WorkRow pwfTaskRow(BuildContext context, PwfTaskRow task, {VoidCallback? onTap, 
     if (task.assignee != null) task.assignee!,
     if (task.status == PwfTaskStatus.inProgress || task.status == PwfTaskStatus.awaitingApproval) pwfStatusLabel(context, task.status),
     if (task.returnCount > 0) context.t('mob.pwf.row.returned', <String, Object>{'count': task.returnCount}),
+    // PWF-4: the checklist of the task itself, counted by the server.
+    if (task.checklistTotal > 0) context.t('mob.pwf.process.row.checklist', <String, Object>{'done': task.checklistDone, 'total': task.checklistTotal}),
   ];
   return WorkRow(
     title: task.name,

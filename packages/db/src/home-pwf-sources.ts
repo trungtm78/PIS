@@ -1,9 +1,10 @@
-import { message, pwfDeadlineBand } from '@machvon/kernel';
+import { legalDocument, message, pwfDeadlineBand } from '@machvon/kernel';
 import type { WorkCalendarSource, WorkKind } from '@machvon/kernel';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
 import { PROJECT_JOINS, Params, SOURCE_LIMIT, addDays, base, reach, startOfDay } from './home-work-sources.ts';
 import type { SourceContext, SourceRow } from './home-work-sources.ts';
+import { PwfAssignmentReads } from './pwf-assignment.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { windowEdge } from './pwf-horizon.ts';
 import type { BandPolicySet } from './pwf-band-policies.ts';
@@ -35,7 +36,53 @@ export class HomePwfSources {
   async items(context: SourceContext): Promise<SourceRow[]> {
     const due = await this.dueTasks(context);
     const milestones = await this.milestonesAtRisk(context);
-    return [...due, ...milestones];
+    const lapsed = await this.lapsedLegalGrounds(context);
+    return [...due, ...milestones, ...lapsed];
+  }
+
+  /**
+   * `PWF_LEGAL_BASIS_LAPSED` (PWF-4, R45; owner: the one who answers for the project): a running workflow cites, on a step or a task of its frozen template, a document the shared catalogue says has expired or was replaced. One
+   * item per workflow and document (`<workflow>:<document>`, the id the decisions of people name: taking the item up or handing it over keeps it theirs), however many steps and tasks cite the document. The catalogue is read first: when
+   * no document of it has lapsed nothing is asked of the workflows at all.
+   */
+  private async lapsedLegalGrounds(context: SourceContext): Promise<SourceRow[]> {
+    const catalogue = await new PwfAssignmentReads().legalDocuments(context.tx, context.today);
+    const lapsed = [...catalogue.values()].filter((document) => legalDocument.isLapsed(document.state));
+    if (lapsed.length === 0) return [];
+    const params = new Params();
+    const codes = params.add(lapsed.map((document) => document.code));
+    const visible = reach(params, context, { source: 'PROJECT_TASK', id: `(w.id::text || ':' || d.code)`, tenant: 'w', responsible: [], unit: false });
+    const rows = await context.tx.query<{ workflow_id: string; code: string; project_id: string; project_code: string }>(
+      `select w.id as workflow_id, d.code, p.id as project_id, p.code as project_code
+         from machvon.project_workflow w
+         cross join lateral (select distinct cited as code from unnest(w.cited_legal_documents) as cited) d
+         ${PROJECT_JOINS('w', 'w.project_id')}
+        where w.status = 'ACTIVE' and w.cited_legal_documents && ${codes}::text[] and d.code = any(${codes}::text[]) and ${visible}
+        order by p.code, d.code limit ${SOURCE_LIMIT}`,
+      params.values,
+    );
+    return rows.map((row): SourceRow => {
+      const document = catalogue.get(row.code) as NonNullable<ReturnType<typeof catalogue.get>>;
+      const since = document.effectiveTo ?? context.today;
+      return {
+        ...base('PWF_LEGAL_BASIS_LAPSED'),
+        id: `${row.workflow_id}:${row.code}`,
+        dueOn: since,
+        originalDueOn: since,
+        title: message('home.source.pwf.legal.title', { document: document.number, project: row.project_code }),
+        subtitle:
+          document.supersededBy === null
+            ? message('home.source.pwf.legal.detail', { number: document.number, date: since })
+            : message('home.source.pwf.legal.detail.replaced', { number: document.number, replacement: catalogue.get(document.supersededBy)?.number ?? document.supersededBy }),
+        status: 'AT_RISK',
+        severity: severityOf('PROJECT_TASK', 'LEGAL_BASIS_LAPSED', context.rules),
+        lifecycle: 'NEW',
+        consequence: CONSEQUENCES.PWF_LEGAL_BASIS_LAPSED ?? null,
+        causeKey: `pwf-legal:${row.workflow_id}:${row.code}`,
+        startedAt: null,
+        target: { screen: 'PWF-03', id: row.project_id },
+      };
+    });
   }
 
   /** The last day a task can be due on and still be within the widest green line: the day before the working day that comes after the line, on the published calendar of the tenant (whatever its weekdays and holidays are). Without a calendar nothing but today can be counted. */

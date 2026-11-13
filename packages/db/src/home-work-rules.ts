@@ -115,6 +115,7 @@ export const SOURCE_OF_KIND: Readonly<Record<WorkKind, WorkSource>> = {
   PWF_TASK_DUE_SOON: 'PROJECT_TASK',
   PWF_TASK_OVERDUE: 'PROJECT_TASK',
   PWF_MILESTONE_AT_RISK: 'PROJECT_TASK',
+  PWF_LEGAL_BASIS_LAPSED: 'PROJECT_TASK',
 };
 
 /**
@@ -198,7 +199,7 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   // BAN-1: the committee alert row carries its own severity (the policy of the committee decides it), so the facet is that severity.
   COMMITTEE: { URGENT: 'URGENT', ACTION: 'ACTION', WATCH: 'WATCH' },
   // PWF-2: the facet is the official colour of the deadline of a task (green and yellow are to be watched, red is to be acted on), a task past its day is to be acted on and urgent from the day the rule says it goes up; a milestone forecast past its baseline is to be acted on.
-  PROJECT_TASK: { GREEN: 'WATCH', YELLOW: 'WATCH', RED: 'ACTION', OVERDUE: 'ACTION', OVERDUE_ESCALATED: 'URGENT', MILESTONE_AT_RISK: 'ACTION' },
+  PROJECT_TASK: { GREEN: 'WATCH', YELLOW: 'WATCH', RED: 'ACTION', OVERDUE: 'ACTION', OVERDUE_ESCALATED: 'URGENT', MILESTONE_AT_RISK: 'ACTION', LEGAL_BASIS_LAPSED: 'WATCH' },
   // The work that was there before the alert centre has no severity of its own: what is late or due within the week is to be acted on, the rest is to be watched.
   APPROVAL: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
   EXPLANATION: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
@@ -320,5 +321,6 @@ const CONSEQUENCE_KEYS = [
   'PWF_TASK_DUE_SOON',
   'PWF_TASK_OVERDUE',
   'PWF_MILESTONE_AT_RISK',
+  'PWF_LEGAL_BASIS_LAPSED',
 ] as const;
 export const CONSEQUENCES: Readonly<Record<string, string>> = Object.fromEntries(CONSEQUENCE_KEYS.map((key) => [key, message(`home.consequence.${key.toLowerCase()}`)]));

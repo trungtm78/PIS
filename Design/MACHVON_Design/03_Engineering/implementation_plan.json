@@ -1208,6 +1208,11 @@
       "id": "FT-PWF-08",
       "epic": "EP-PWF",
       "title": "Project workflow on the phone (MOB-78 to MOB-80)"
+    },
+    {
+      "id": "FT-PWF-09",
+      "epic": "EP-PWF",
+      "title": "Processing workflow kinds: steps, legal grounds, form revisions and the kind chosen at project registration (PRJ-02, PWF-01 to PWF-05, MOB-78, MOB-79)"
     }
   ],
   "stories": [
@@ -62237,6 +62242,479 @@
             "T-PWF-20",
             "UAT-PWF-PERF-01",
             "UAT-PWF-WRK-01"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-021",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-09",
+      "module": "PWF",
+      "title": "Lay a workflow kind out in three tiers: phase, step, task with its checklist",
+      "narrative": "As the keeper of the procedures I describe a kind of workflow as phases, the steps of each phase and the tasks of each step with their checklists, so that the people who run a project follow the procedure the way the agency words it and see the progress of every tier.",
+      "release": "R2",
+      "screens": [
+        "PWF-01",
+        "PWF-02",
+        "PWF-03",
+        "PWF-04",
+        "MOB-78",
+        "MOB-79"
+      ],
+      "operations": [
+        "validateProjectWorkflowTemplate",
+        "previewProjectWorkflowTemplate",
+        "getProjectWorkflow",
+        "getProjectTask"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-ACCESSIBILITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-021-1",
+          "given": "A template that names steps, each in one phase, and the step of every task",
+          "when": "it is validated, approved and a project starts from it",
+          "then": "the workflow shows phase, step, task and checklist with the progress of each tier, and the standard time of a step is what the schedule of its tasks gives",
+          "test_id": "T-PWF-22"
+        },
+        {
+          "id": "AC-ST-PWF-021-2",
+          "given": "A template written before steps existed and a project that froze it",
+          "when": "the workflow and its template are read after the upgrade",
+          "then": "every phase is one step, the params and the hash the project froze are unchanged, and nothing of the running workflow moved",
+          "test_id": "T-PWF-22"
+        },
+        {
+          "id": "AC-ST-PWF-021-3",
+          "given": "A task with a required checklist item that is open",
+          "when": "its completion is asked for",
+          "then": "the completion is refused with the open item named, an optional item never blocks, and an approved exception covers what it names",
+          "test_id": "T-PWF-22"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-001",
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 12,
+          "max": 30
+        },
+        "confidence": "medium",
+        "assumption": "A step has no data of its own in the database: it is read from the frozen template, and its progress is counted from the tasks and checklist items of the project."
+      },
+      "mobile": "read",
+      "tasks": [
+        {
+          "id": "TK-PWF-021-1",
+          "kind": "backend",
+          "title": "Steps in the rule type PROJECT_WORKFLOW_TEMPLATE: schema, defects, stepsOf, stepSpans, standardTimes; hash of older templates unchanged",
+          "test_ids": [
+            "T-PWF-22"
+          ]
+        },
+        {
+          "id": "TK-PWF-021-2",
+          "kind": "backend",
+          "title": "Steps with progress, standard time and checklist counts in getProjectWorkflow; the step of a task in getProjectTask",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-021-3",
+          "kind": "web",
+          "title": "PWF-02 edits the steps of each phase and the step of each task; PWF-03 and the project tab show phase, step, task, checklist",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-021-4",
+          "kind": "mobile",
+          "title": "MOB-78 lists the tasks of the open phase under their steps; MOB-79 names the step of the task",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-021-5",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the steps on PWF-02, PWF-03, PWF-04, MOB-78 and MOB-79; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-021-6",
+          "kind": "qa",
+          "title": "Kernel, database, API, web and phone cases of the acceptance criteria",
+          "test_ids": [
+            "T-PWF-22",
+            "UAT-PWF-PRC-01",
+            "UAT-PWF-PRC-02",
+            "UAT-PWF-PRC-03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-022",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-09",
+      "module": "PWF",
+      "title": "Cite the legal grounds of a step and of a task from one catalogue of legal documents",
+      "narrative": "As the keeper of the procedures I cite, for a step or a task, a document of the shared catalogue of legal documents and its article, so that everyone sees the ground of what they do and is told when a document lapses or is replaced.",
+      "release": "R2",
+      "screens": [
+        "PWF-02",
+        "PWF-03",
+        "PWF-04",
+        "HOME-02",
+        "MOB-78",
+        "MOB-79"
+      ],
+      "operations": [
+        "validateProjectWorkflowTemplate",
+        "getProjectWorkflow",
+        "getProjectTask"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-LEGAL-02"
+      ],
+      "cxn": [
+        "CXN-13"
+      ],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-022-1",
+          "given": "A catalogue entry of the rule type LEGAL_DOCUMENT and a template whose step cites it with an article",
+          "when": "the workflow of a project that froze the template is read",
+          "then": "the ground shows the document as the catalogue names it, the article, whether the citation is verified and that the document is in force",
+          "test_id": "T-PWF-23"
+        },
+        {
+          "id": "AC-ST-PWF-022-2",
+          "given": "A running workflow that cites a document",
+          "when": "an approved version of the catalogue entry says the document was replaced",
+          "then": "the workflow shows the ground as replaced with the code of what replaced it, the alert centre holds one item per workflow and document for the one who answers for the project, and the frozen template and its hash are unchanged",
+          "test_id": "T-PWF-23"
+        },
+        {
+          "id": "AC-ST-PWF-022-3",
+          "given": "A template that cites a code the catalogue does not have",
+          "when": "it is validated",
+          "then": "the check is an error that names the field, and a document that lapsed is a warning that does not block",
+          "test_id": "T-PWF-23"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-001",
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 12,
+          "max": 30
+        },
+        "confidence": "medium",
+        "assumption": "The legal documents of the default templates are the best knowledge of the writers and stay UNVERIFIED until the legal officer of the agency confirms them; an article is cited only where it was read named."
+      },
+      "mobile": "read",
+      "tasks": [
+        {
+          "id": "TK-PWF-022-1",
+          "kind": "backend",
+          "title": "Rule type LEGAL_DOCUMENT with the documents of the public edition (UNVERIFIED) and the alert type PWF_LEGAL_BASIS_LAPSED",
+          "test_ids": [
+            "T-PWF-23"
+          ]
+        },
+        {
+          "id": "TK-PWF-022-2",
+          "kind": "backend",
+          "title": "Legal grounds of steps and tasks in the template, resolved against the catalogue in the reads; the alert source of lapsed grounds",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-022-3",
+          "kind": "web",
+          "title": "PWF-02 edits the legal grounds of a step and a task; PWF-03 and PWF-04 show them with their state",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-022-4",
+          "kind": "mobile",
+          "title": "MOB-78 and MOB-79 show the legal grounds, read only",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-022-5",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the legal grounds; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-022-6",
+          "kind": "qa",
+          "title": "Kernel, database, API, web and phone cases of the acceptance criteria",
+          "test_ids": [
+            "T-PWF-23",
+            "UAT-PWF-PRC-04",
+            "UAT-PWF-PRC-05"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-023",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-09",
+      "module": "PWF",
+      "title": "Use a form at its newest approved revision, or pinned to one, and keep what was used",
+      "narrative": "As a person who does a task I make its documents from the newest approved revision of each form unless the procedure pins one, so that what a document was made from can be found again and I am told when a form was revised since.",
+      "release": "R2",
+      "screens": [
+        "PWF-02",
+        "PWF-04",
+        "MOB-79"
+      ],
+      "operations": [
+        "attachProjectTaskEvidence",
+        "getProjectTask",
+        "validateProjectWorkflowTemplate"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-ACCESSIBILITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-023-1",
+          "given": "A form with an approved revision and a task whose template names the form without a policy",
+          "when": "evidence of the form is attached",
+          "then": "the evidence keeps the revision in force that day and the hash of its content, and the log of the task says so",
+          "test_id": "T-PWF-24"
+        },
+        {
+          "id": "AC-ST-PWF-023-2",
+          "given": "Evidence made from revision 1 of a form",
+          "when": "revision 2 is published",
+          "then": "the task says a newer revision exists, the evidence keeps revision 1, and a form made afterwards is made from revision 2",
+          "test_id": "T-PWF-24"
+        },
+        {
+          "id": "AC-ST-PWF-023-3",
+          "given": "A template that pins a form to a revision",
+          "when": "evidence is attached after later revisions were published, or the pinned revision does not exist",
+          "then": "the evidence keeps the pinned revision, and a pin without an approved revision is refused with PWF_FORM_REVISION_UNAVAILABLE",
+          "test_id": "T-PWF-24"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-001",
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 12,
+          "max": 30
+        },
+        "confidence": "medium",
+        "assumption": "A form whose code the document store has no approved revision of is recorded without a revision, as evidence was before revisions were kept."
+      },
+      "mobile": "read",
+      "tasks": [
+        {
+          "id": "TK-PWF-023-1",
+          "kind": "db",
+          "title": "V3040 (expand): form_template_revision and form_template_sha256 on project_task_evidence, with their check",
+          "test_ids": [
+            "T-PWF-24"
+          ]
+        },
+        {
+          "id": "TK-PWF-023-2",
+          "kind": "backend",
+          "title": "Form policy in the template (LATEST_APPROVED, PINNED) and the revision resolved when evidence is attached",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-023-3",
+          "kind": "web",
+          "title": "PWF-02 sets the policy of each form; PWF-04 shows the revision in force, the one used and a newer one",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-023-4",
+          "kind": "mobile",
+          "title": "MOB-79 shows the revision of each form and the warning of a newer one",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-023-5",
+          "kind": "qa",
+          "title": "Kernel, database, API, web and phone cases of the acceptance criteria",
+          "test_ids": [
+            "T-PWF-24",
+            "UAT-PWF-PRC-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-024",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-09",
+      "module": "PWF",
+      "title": "Choose the workflow kind when a project is registered, by a rule that maps projects to kinds",
+      "narrative": "As the person who registers a project I get the kind of workflow the rule of my agency suggests for the type, the group, the source of capital and the unit of the project, confirm it or choose another with a reason, and see the schedule it gives before I save, so that the project starts with its procedure and nobody picks a template by hand without a trace.",
+      "release": "R2",
+      "screens": [
+        "PRJ-02",
+        "PWF-05"
+      ],
+      "operations": [
+        "createProject",
+        "suggestProjectWorkflow",
+        "startProjectWorkflow",
+        "adoptProjectWorkflow"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-ACCESSIBILITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-024-1",
+          "given": "An approved rule PROJECT_WORKFLOW_ASSIGNMENT and a project being registered with a planned start",
+          "when": "the project is saved with no template chosen",
+          "then": "the project and its workflow are created in one transaction with the template the rule names, once per idempotency key, and the workflow records what was suggested, by which version of the rule, and the mode AUTO",
+          "test_id": "T-PWF-25"
+        },
+        {
+          "id": "AC-ST-PWF-024-2",
+          "given": "A suggestion of the rule",
+          "when": "another template is chosen without a reason at registration",
+          "then": "nothing is registered and the refusal is PWF_SELECTION_REASON_REQUIRED; with a reason the workflow records the mode OVERRIDE and the reason is in the audit row",
+          "test_id": "T-PWF-25"
+        },
+        {
+          "id": "AC-ST-PWF-024-3",
+          "given": "A project whose workflow cannot start (no template suggested, a fact a branch reads is missing, a year without a calendar, or no right to start workflows)",
+          "when": "the registration form is saved",
+          "then": "the screen says what is missing, the project can still be registered without a workflow, and the workflow starts later on PWF-05 by the same rule",
+          "test_id": "T-PWF-25"
+        },
+        {
+          "id": "AC-ST-PWF-024-4",
+          "given": "A unit with a rule of its own and its parent with another",
+          "when": "the suggestion is read for a project of the unit",
+          "then": "the rule of the nearest unit decides, and the maker of a rule is never its approver",
+          "test_id": "T-PWF-25"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002",
+        "ST-PWF-003",
+        "ST-PRJ-001"
+      ],
+      "review": {
+        "required": [
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 12,
+          "max": 30
+        },
+        "confidence": "medium",
+        "assumption": "The built-in rule sends purchases and repairs to their templates by the type of the project and everything else to the construction workflow; the table of the agency is not confirmed (UNVERIFIED)."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-024-1",
+          "kind": "backend",
+          "title": "Rule type PROJECT_WORKFLOW_ASSIGNMENT with the built-in rule of the public edition; suggestWorkflowTemplate and the selection modes",
+          "test_ids": [
+            "T-PWF-25"
+          ]
+        },
+        {
+          "id": "TK-PWF-024-2",
+          "kind": "db",
+          "title": "V3040 (expand): project_workflow.selection; the start and the adoption record the selection",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-024-3",
+          "kind": "backend",
+          "title": "suggestProjectWorkflow with the preview of the schedule; createProject starts the workflow in its own transaction",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-024-4",
+          "kind": "web",
+          "title": "PRJ-02: workflow kind, planned start, facts, reason and preview; PWF-05: the suggestion and the reason of an override",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-024-5",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for the section on PRJ-02 and PWF-05; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-024-6",
+          "kind": "qa",
+          "title": "Kernel, database, API and web cases of the acceptance criteria",
+          "test_ids": [
+            "T-PWF-25",
+            "UAT-PWF-PRC-07",
+            "UAT-PWF-PRC-08",
+            "UAT-PWF-PRC-09",
+            "UAT-PWF-PRC-10"
           ]
         }
       ]

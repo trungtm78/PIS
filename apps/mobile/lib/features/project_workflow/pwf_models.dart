@@ -1,4 +1,7 @@
 import '../read_support/wire.dart';
+import 'pwf_process_models.dart';
+
+export 'pwf_process_models.dart';
 
 /// What the phone reads of the workflow of a project (PWF, MOB-78 to MOB-82). Every figure and every day comes from the server: the phone
 /// never counts a deadline from its own clock. An answer that lacks what makes a row citable is refused as a whole (null), and the screen shows
@@ -90,6 +93,9 @@ final class PwfTaskRow {
     this.missingYear,
     this.assignee,
     this.returnCount = 0,
+    this.stepCode,
+    this.checklistTotal = 0,
+    this.checklistDone = 0,
   });
 
   final String id;
@@ -97,6 +103,13 @@ final class PwfTaskRow {
   final String name;
   final String phaseCode;
   final bool isMilestone;
+
+  /// The step of the phase the task belongs to; null for a task the project added itself, or in an answer from before steps existed.
+  final String? stepCode;
+
+  /// The items of the checklist of this task and how many are done.
+  final int checklistTotal;
+  final int checklistDone;
 
   /// The workflow requires this task before the stage can close.
   final bool mandatory;
@@ -142,6 +155,9 @@ PwfTaskRow? parsePwfTaskRow(Object? raw) {
     missingYear: whole(record['missing_year']),
     assignee: filled(asRecord(record['assignee'])?['display_name']),
     returnCount: count(record['return_count']),
+    stepCode: filled(record['step_code']),
+    checklistTotal: count(record['checklist_total']),
+    checklistDone: count(record['checklist_done']),
   );
 }
 
@@ -179,10 +195,33 @@ final class PwfWorkflow {
     required this.asOf,
     this.openPhase,
     this.plannedStart,
+    this.steps = const <PwfStep>[],
+    this.standardWorkingDays,
+    this.lapsedLegalDocuments = const <String>[],
   });
 
   final String status;
   final String templateCode;
+
+  /// The steps of the phases (PWF-4), in the order of each phase; empty in an answer from before steps existed.
+  final List<PwfStep> steps;
+
+  /// The standard time of the whole workflow in working days, as the server counts it.
+  final int? standardWorkingDays;
+
+  /// The codes of the legal documents the workflow cites that lapsed or were replaced.
+  final List<String> lapsedLegalDocuments;
+
+  List<PwfStep> stepsOf(String phaseCode) => <PwfStep>[for (final PwfStep step in steps) if (step.phaseCode == phaseCode) step];
+
+  /// The tasks of a step, and with a null step the tasks of the phase that belong to none of its steps.
+  List<PwfTaskRow> tasksOfStep(String phaseCode, String? stepCode) {
+    final Set<String> known = <String>{for (final PwfStep step in stepsOf(phaseCode)) step.code};
+    return <PwfTaskRow>[
+      for (final PwfTaskRow task in tasksOf(phaseCode))
+        if (stepCode == null ? (task.stepCode == null || !known.contains(task.stepCode)) : task.stepCode == stepCode) task,
+    ];
+  }
 
   /// The template is a default that the customer has not confirmed: the screen says so.
   final bool unverified;
@@ -265,6 +304,9 @@ PwfWorkflowView? parsePwfWorkflowView(Object? raw) {
       asOf: asOf,
       openPhase: filled(record['open_phase']),
       plannedStart: day(record['planned_start_date']),
+      steps: parsePwfSteps(record['steps']),
+      standardWorkingDays: whole(record['standard_working_days']),
+      lapsedLegalDocuments: <String>[for (final Object? code in listOf(record['lapsed_legal_documents'])) ?filled(code)],
       countsByBand: <PwfBandKind, int>{
         PwfBandKind.none: count(counts['NONE']),
         PwfBandKind.green: count(counts['GREEN']),
@@ -460,6 +502,10 @@ final class PwfTaskDetail {
     this.returnCount = 0,
     this.missingYear,
     this.percentComplete,
+    this.step,
+    this.legalBasis = const <PwfLegalBasis>[],
+    this.stepLegalBasis = const <PwfLegalBasis>[],
+    this.formRevisions = const <PwfFormRevision>[],
   });
 
   final String id;
@@ -469,6 +515,16 @@ final class PwfTaskDetail {
   final bool isMilestone;
   final bool mandatory;
   final PwfTaskStatus status;
+
+  /// The step the task belongs to (PWF-4); null for a task of the project itself or an answer from before steps existed.
+  final PwfTaskStep? step;
+
+  /// The legal grounds of the task itself, and those of its step.
+  final List<PwfLegalBasis> legalBasis;
+  final List<PwfLegalBasis> stepLegalBasis;
+
+  /// The revision of each form of the task that the server says something of.
+  final List<PwfFormRevision> formRevisions;
 
   /// The official band, the only one a shared screen shows.
   final PwfBand band;
@@ -551,6 +607,10 @@ PwfTaskDetail? parsePwfTaskDetail(Object? raw) {
     checklist: checklist,
     legalDocTypes: requirements(record['legal_doc_types']),
     formTemplates: requirements(record['form_templates']),
+    step: parsePwfTaskStep(record['step']),
+    legalBasis: parsePwfLegalBasisList(record['legal_basis']),
+    stepLegalBasis: parsePwfLegalBasisList(record['step_legal_basis']),
+    formRevisions: parsePwfFormRevisions(record['form_templates']),
     evidence: <PwfEvidence>[
       for (final Object? entry in listOf(record['evidence']))
         if (asRecord(entry) case final Json item when filled(item['id']) != null && filled(item['evidence_kind']) != null && filled(item['attached_at']) != null)

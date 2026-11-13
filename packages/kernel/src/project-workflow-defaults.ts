@@ -1,3 +1,4 @@
+import { PWF_PROCESS_TEXT as P } from './messages/pwf-process-texts.ts';
 import { PWF_TEXT as T } from './messages/pwf-texts.ts';
 
 /**
@@ -197,3 +198,115 @@ export const PUBLIC_REPAIR_TEMPLATE: Params = {
     task('SET_CLOSED', T.set_closed, 'SETTLEMENT', { milestone: true, after: [fs('SET_APPROVE')] }),
   ],
 };
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// PWF-4 (R44, R45): the steps of each phase, the legal grounds of the steps and of some tasks, and more items on the checklists. The grounds cite the catalogue `LEGAL_DOCUMENT` (legal-document.ts) by code and are all `UNVERIFIED`:
+// an article is written only where the writers have read it named, and is left out everywhere else (never a guess); the legal officer of the agency confirms them. The items added to the checklists are not required, so that what
+// a task needed to be completed before is what it needs now.
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+interface StepSpec {
+  code: string;
+  name: string;
+  phase: string;
+  role?: string;
+  basis?: readonly Params[];
+  tasks: readonly string[];
+}
+
+const cite = (document: string, article?: string, note?: string): Params => ({ document, ...(article === undefined ? {} : { article }), ...(note === undefined ? {} : { note }), verification: 'UNVERIFIED' });
+const optional = (code: string, name: string, evidence: readonly string[] = []): Params => ({ code, name, required: false, evidence_kinds: evidence });
+
+const INVESTMENT_LAW = cite('LAW_58_2024_QH15', undefined, P.note_order);
+const INVESTMENT_DECREE = cite('DECREE_85_2025_ND_CP', undefined, P.note_order);
+const BIDDING_LAW = cite('LAW_22_2023_QH15', undefined, P.note_order);
+const BIDDING_DECREE = cite('DECREE_214_2025_ND_CP', undefined, P.note_order);
+const CONSTRUCTION_LAW = cite('LAW_50_2014_QH13', undefined, P.note_order);
+const CONSTRUCTION_DECREE = cite('DECREE_175_2024_ND_CP', undefined, P.note_order);
+const QUALITY_DECREE = cite('DECREE_06_2021_ND_CP', undefined, P.note_order);
+const SETTLEMENT_DECREE = cite('DECREE_99_2021_ND_CP', undefined, P.note_order);
+const ASSETS_LAW = cite('LAW_15_2017_QH14', undefined, P.note_order);
+
+/** The legal grounds of single tasks (those of a step are on the step). */
+const TASK_BASIS: Readonly<Record<string, readonly Params[]>> = {
+  FEAS_APPRAISAL: [cite('DECREE_85_2025_ND_CP', P.article_appraisal_time, P.note_appraisal_time)],
+};
+
+/** Items added to the checklist of a task, none of them required. */
+const TASK_CHECKS: Readonly<Record<string, readonly Params[]>> = {
+  PREP_NEEDS: [optional('SCOPE_DEFINED', P.check_scope)],
+  PREP_PROPOSAL: [optional('CAPITAL_SOURCE', P.check_capital_source)],
+  FEAS_APPRAISAL: [optional('OPINIONS_COLLECTED', P.check_appraisal_opinions), optional('APPRAISAL_REPORT', P.check_appraisal_report, ['DOCUMENT'])],
+  IMPL_DESIGN: [optional('ESTIMATE_REVIEWED', P.check_design_estimate)],
+  IMPL_PROCUREMENT: [optional('NOTICE_POSTED', P.check_bid_notice), optional('EVALUATION_REPORT', P.check_bid_evaluation, ['DOCUMENT'])],
+  IMPL_CONTRACT: [optional('PERFORMANCE_GUARANTEE', P.check_contract_guarantee)],
+  IMPL_EXECUTION: [optional('SITE_DIARY', P.check_site_diary), optional('VOLUME_CONFIRMED', P.check_volume_confirmed)],
+  IMPL_DELIVERY: [optional('DELIVERY_MINUTES', P.check_delivery_minutes, ['DOCUMENT'])],
+  ACC_PREPARE: [optional('AS_BUILT', P.check_asbuilt)],
+  SET_DOSSIER: [optional('SETTLEMENT_TABLES', P.check_settlement_tables), optional('DEBTS_RECONCILED', P.check_debts_reconciled)],
+};
+
+/** A template with its steps: every task is given the step that lists it, the legal grounds of its own and the added items of its checklist. A step that lists no task of the template is dropped, a task no step lists is a defect of this file. */
+function withSteps(base: Params, steps: readonly StepSpec[]): Params {
+  const tasks = base.tasks as Params[];
+  const codes = new Set(tasks.map((one) => one.code as string));
+  const used = steps.filter((step) => step.tasks.some((code) => codes.has(code)));
+  return {
+    ...base,
+    steps: used.map((step) => ({ code: step.code, name: step.name, phase: step.phase, ...(step.role === undefined ? {} : { responsible_role: step.role }), ...(step.basis === undefined ? {} : { legal_basis: [...step.basis] }) })),
+    tasks: tasks.map((one) => {
+      const step = used.find((entry) => entry.tasks.includes(one.code as string));
+      if (step === undefined) throw new Error(`project workflow defaults: task ${String(one.code)} belongs to no step`);
+      const basis = TASK_BASIS[one.code as string];
+      const checks = TASK_CHECKS[one.code as string] ?? [];
+      return { ...one, step: step.code, ...(basis === undefined ? {} : { legal_basis: [...basis] }), checklist: [...(one.checklist as Params[]), ...checks] };
+    }),
+  };
+}
+
+const STEPS: readonly StepSpec[] = [
+  { code: 'STEP_POLICY', name: P.step_policy, phase: 'PREPARATION', role: OWNER, basis: [INVESTMENT_LAW, INVESTMENT_DECREE], tasks: ['PREP_NEEDS', 'PREP_PRE_FEASIBILITY', 'PREP_POLICY_APPRAISAL', 'PREP_POLICY_DECISION'] },
+  { code: 'STEP_PROPOSAL', name: P.step_proposal, phase: 'PREPARATION', role: 'PMB_PLANNER', basis: [INVESTMENT_LAW], tasks: ['PREP_PROPOSAL', 'PREP_DONE'] },
+  { code: 'STEP_STUDY', name: P.step_study, phase: 'FEASIBILITY', role: 'PMB_PLANNER', basis: [INVESTMENT_LAW, CONSTRUCTION_LAW, CONSTRUCTION_DECREE], tasks: ['FEAS_STUDY', 'FEAS_ODA_AGREEMENT'] },
+  { code: 'STEP_APPRAISAL', name: P.step_appraisal, phase: 'FEASIBILITY', role: 'DPI_APPRAISER', basis: [INVESTMENT_LAW, INVESTMENT_DECREE], tasks: ['FEAS_APPRAISAL', 'FEAS_FINANCE_CHECK', 'FEAS_DONE'] },
+  { code: 'STEP_DECISION', name: P.step_decision, phase: 'APPROVAL', role: OWNER, basis: [INVESTMENT_LAW, INVESTMENT_DECREE], tasks: ['APPR_DOSSIER', 'APPR_DECISION'] },
+  { code: 'STEP_CAPITAL', name: P.step_capital, phase: 'APPROVAL', role: 'PMB_PLANNER', basis: [INVESTMENT_LAW], tasks: ['APPR_CAPITAL_PLAN', 'APPR_DONE'] },
+  { code: 'STEP_DESIGN', name: P.step_design, phase: 'IMPLEMENTATION', role: 'PMB_MANAGER', basis: [CONSTRUCTION_LAW, CONSTRUCTION_DECREE], tasks: ['IMPL_DESIGN'] },
+  { code: 'STEP_BIDDING', name: P.step_bidding, phase: 'IMPLEMENTATION', role: 'PROCUREMENT_OFFICER', basis: [BIDDING_LAW, BIDDING_DECREE], tasks: ['IMPL_BID_PLAN', 'IMPL_PROCUREMENT', 'IMPL_CONTRACT'] },
+  { code: 'STEP_EXECUTION', name: P.step_execution, phase: 'IMPLEMENTATION', role: 'PMB_MANAGER', basis: [QUALITY_DECREE, SETTLEMENT_DECREE], tasks: ['IMPL_SITE', 'IMPL_EXECUTION', 'IMPL_SUPERVISION', 'IMPL_PAYMENT', 'IMPL_DONE'] },
+  { code: 'STEP_ACCEPTANCE', name: P.step_acceptance, phase: 'ACCEPTANCE', role: 'SUPERVISOR', basis: [QUALITY_DECREE], tasks: ['ACC_PREPARE', 'ACC_INSPECT'] },
+  { code: 'STEP_HANDOVER', name: P.step_handover, phase: 'ACCEPTANCE', role: 'PMB_MANAGER', basis: [QUALITY_DECREE], tasks: ['ACC_HANDOVER', 'ACC_DONE'] },
+  { code: 'STEP_SETTLEMENT', name: P.step_settlement, phase: 'SETTLEMENT', role: 'PMB_ACCOUNTANT', basis: [SETTLEMENT_DECREE], tasks: ['SET_DOSSIER', 'SET_AUDIT', 'SET_REVIEW', 'SET_APPROVE'] },
+  { code: 'STEP_CLOSING', name: P.step_closing, phase: 'SETTLEMENT', role: OWNER, basis: [INVESTMENT_LAW], tasks: ['SET_EVALUATION', 'SET_CLOSED'] },
+];
+
+/** Purchase of assets: no design; delivery in place of construction, and the law on public assets beside the law on bidding. */
+const PROCUREMENT_STEPS: readonly StepSpec[] = [
+  { code: 'STEP_PROPOSAL', name: P.step_proposal, phase: 'PREPARATION', role: 'PMB_PLANNER', basis: [INVESTMENT_LAW, ASSETS_LAW], tasks: ['PREP_PROPOSAL', 'PREP_DONE'] },
+  { code: 'STEP_STUDY', name: P.step_study, phase: 'FEASIBILITY', role: 'PMB_PLANNER', basis: [INVESTMENT_LAW], tasks: ['FEAS_STUDY'] },
+  { code: 'STEP_APPRAISAL', name: P.step_appraisal, phase: 'FEASIBILITY', role: 'DPI_APPRAISER', basis: [INVESTMENT_LAW, INVESTMENT_DECREE], tasks: ['FEAS_APPRAISAL', 'FEAS_DONE'] },
+  { code: 'STEP_DECISION', name: P.step_decision, phase: 'APPROVAL', role: OWNER, basis: [INVESTMENT_LAW, INVESTMENT_DECREE], tasks: ['APPR_DECISION'] },
+  { code: 'STEP_CAPITAL', name: P.step_capital, phase: 'APPROVAL', role: 'PMB_PLANNER', basis: [INVESTMENT_LAW], tasks: ['APPR_CAPITAL_PLAN', 'APPR_DONE'] },
+  { code: 'STEP_BIDDING', name: P.step_bidding, phase: 'IMPLEMENTATION', role: 'PROCUREMENT_OFFICER', basis: [BIDDING_LAW, BIDDING_DECREE], tasks: ['IMPL_BID_PLAN', 'IMPL_PROCUREMENT', 'IMPL_CONTRACT'] },
+  { code: 'STEP_DELIVERY', name: P.step_delivery, phase: 'IMPLEMENTATION', role: 'PMB_MANAGER', basis: [SETTLEMENT_DECREE, ASSETS_LAW], tasks: ['IMPL_DELIVERY', 'IMPL_PAYMENT', 'IMPL_DONE'] },
+  { code: 'STEP_ACCEPTANCE', name: P.step_acceptance, phase: 'ACCEPTANCE', role: 'PMB_MANAGER', basis: [ASSETS_LAW], tasks: ['ACC_INSPECT', 'ACC_DONE'] },
+  { code: 'STEP_SETTLEMENT', name: P.step_settlement, phase: 'SETTLEMENT', role: 'PMB_ACCOUNTANT', basis: [SETTLEMENT_DECREE], tasks: ['SET_DOSSIER', 'SET_APPROVE', 'SET_CLOSED'] },
+];
+
+/** Major repair: a survey in place of the study, design and bidding as for construction. */
+const REPAIR_STEPS: readonly StepSpec[] = [
+  { code: 'STEP_PROPOSAL', name: P.step_proposal, phase: 'PREPARATION', role: 'PMB_PLANNER', basis: [INVESTMENT_LAW], tasks: ['PREP_NEEDS', 'PREP_DONE'] },
+  { code: 'STEP_SURVEY', name: P.step_survey, phase: 'FEASIBILITY', role: 'SITE_ENGINEER', basis: [CONSTRUCTION_LAW, CONSTRUCTION_DECREE], tasks: ['FEAS_STUDY'] },
+  { code: 'STEP_APPRAISAL', name: P.step_appraisal, phase: 'FEASIBILITY', role: 'DPI_APPRAISER', basis: [INVESTMENT_LAW, INVESTMENT_DECREE], tasks: ['FEAS_APPRAISAL', 'FEAS_DONE'] },
+  { code: 'STEP_DECISION', name: P.step_decision, phase: 'APPROVAL', role: OWNER, basis: [INVESTMENT_LAW, INVESTMENT_DECREE], tasks: ['APPR_DECISION', 'APPR_DONE'] },
+  { code: 'STEP_DESIGN', name: P.step_design, phase: 'IMPLEMENTATION', role: 'PMB_MANAGER', basis: [CONSTRUCTION_LAW, CONSTRUCTION_DECREE], tasks: ['IMPL_DESIGN'] },
+  { code: 'STEP_BIDDING', name: P.step_bidding, phase: 'IMPLEMENTATION', role: 'PROCUREMENT_OFFICER', basis: [BIDDING_LAW, BIDDING_DECREE], tasks: ['IMPL_PROCUREMENT'] },
+  { code: 'STEP_EXECUTION', name: P.step_execution, phase: 'IMPLEMENTATION', role: 'PMB_MANAGER', basis: [QUALITY_DECREE, SETTLEMENT_DECREE], tasks: ['IMPL_EXECUTION', 'IMPL_SUPERVISION', 'IMPL_DONE'] },
+  { code: 'STEP_ACCEPTANCE', name: P.step_acceptance, phase: 'ACCEPTANCE', role: 'SUPERVISOR', basis: [QUALITY_DECREE], tasks: ['ACC_INSPECT', 'ACC_DONE'] },
+  { code: 'STEP_SETTLEMENT', name: P.step_settlement, phase: 'SETTLEMENT', role: 'PMB_ACCOUNTANT', basis: [SETTLEMENT_DECREE], tasks: ['SET_DOSSIER', 'SET_APPROVE', 'SET_CLOSED'] },
+];
+
+/** The three templates as the rule type registers them: the tasks, links and days above, in three tiers (phase, step, task) with their legal grounds. */
+export const PUBLIC_INVESTMENT_PROCESS: Params = withSteps(PUBLIC_INVESTMENT_TEMPLATE, STEPS);
+export const PUBLIC_PROCUREMENT_PROCESS: Params = withSteps(PUBLIC_PROCUREMENT_TEMPLATE, PROCUREMENT_STEPS);
+export const PUBLIC_REPAIR_PROCESS: Params = withSteps(PUBLIC_REPAIR_TEMPLATE, REPAIR_STEPS);

@@ -6,6 +6,9 @@ import { PrjBaselineStore } from './prj-baseline-store.ts';
 import { TERMINAL_STAGES } from './prj-stage-machine.ts';
 import { dateOf, lockProject } from './prj-stage-support.ts';
 import type { LockedProject, StageScopes } from './prj-stage-support.ts';
+import { PwfAssignmentReads, selectionRecordOf } from './pwf-assignment.ts';
+import type { SelectionRecord, SuggestionView } from './pwf-assignment.ts';
+import { resolveFormRevision } from './pwf-form-revision.ts';
 import { DEFAULT_ASSIGNMENT_REASON, earliestYear, inputHashOf, pinPublishedCalendars } from './pwf-schedule-support.ts';
 import type { PinnedCalendar } from './pwf-schedule-support.ts';
 import { logWorkflow, publishSchedule } from './pwf-publish.ts';
@@ -35,10 +38,17 @@ export interface EvidenceDraft {
 
 export interface StartRequest {
   projectId: string;
-  templateCode: string;
+  /** The template the person chose; left out, the rule `PROJECT_WORKFLOW_ASSIGNMENT` chooses (R47). */
+  templateCode?: string | undefined;
   templateVersion?: number | undefined;
   plannedStartDate: string;
   facts?: Record<string, string> | undefined;
+  /** Why the person chose another template than the rule suggests. */
+  selectionReason?: string | undefined;
+  /** Whether choosing against the rule needs a reason (the registration of a project asks for one; the older commands record one when it is given). */
+  reasonRequired?: boolean | undefined;
+  /** Facts the caller already knows of the project and the row does not say yet (the group the register suggests for a project that is being created). */
+  knownFacts?: Record<string, string> | undefined;
   actor: string;
   scopes: StageScopes;
   now: Date;
@@ -64,6 +74,7 @@ export interface WorkflowResult {
   plannedStartDate: string;
   taskCount: number;
   facts: Record<string, unknown>;
+  selection: SelectionRecord;
 }
 
 export interface AdoptTaskView {
@@ -87,6 +98,7 @@ export interface AdoptOutcome {
   calendars: readonly PinnedCalendar[];
   excluded: string[];
   findings: Array<{ code: string; task: string | null }>;
+  selection: SelectionRecord;
 }
 
 export interface ResolvedTemplate {
@@ -107,13 +119,16 @@ interface Plan {
   result: pwfSchedule.ScheduleResult;
   inputHash: string;
   statusDate: string | null;
+  selection: SelectionRecord;
 }
 
 const checkedDay = (value: string, field: string): string => dateOf(value, field);
 
 /** The facts of the branches as the request gives them and the project knows them; a field a branch reads that is still unknown is 422 `PWF_FACTS_REQUIRED` (never a guess). */
-export function factsOf(template: pwfWorkflow.ProjectWorkflowTemplate, project: Pick<LockedProject, 'projectGroup'>, given: Record<string, string> | undefined): pwfWorkflow.ProjectFacts {
+export function factsOf(template: pwfWorkflow.ProjectWorkflowTemplate, project: Pick<LockedProject, 'projectGroup'>, given: Record<string, string> | undefined, known: Record<string, string> = {}): pwfWorkflow.ProjectFacts {
   const facts: Record<string, string> = {};
+  // What the project is known by (its type in the master data, the group the register suggests) comes first, the group the project was decided to be next, and what the person says last.
+  for (const [field, value] of Object.entries(known)) if ((pwfWorkflow.CONDITION_FIELDS as readonly string[]).includes(field) && FACT_VALUE.test(value)) facts[field] = value;
   if (project.projectGroup !== null) facts.project_group = project.projectGroup;
   for (const [field, value] of Object.entries(given ?? {})) {
     if (!(pwfWorkflow.CONDITION_FIELDS as readonly string[]).includes(field) || !FACT_VALUE.test(value)) throw invalid(`facts.${field}`);
@@ -128,10 +143,25 @@ export function factsOf(template: pwfWorkflow.ProjectWorkflowTemplate, project: 
 export class PwfWorkflowStore {
   private readonly policy: GovernancePolicyPort;
   private readonly baseline: PrjBaselineStore;
+  private readonly assignment: PwfAssignmentReads;
 
   constructor(policy: GovernancePolicyPort = new GovernancePolicyPort(), baseline: PrjBaselineStore = new PrjBaselineStore()) {
     this.policy = policy;
     this.baseline = baseline;
+    this.assignment = new PwfAssignmentReads(policy);
+  }
+
+  /**
+   * The template of a request (R47): what the rule `PROJECT_WORKFLOW_ASSIGNMENT` suggests for the project (its type in the master data, its group, the facts the person gives, the rule of the nearest unit), what the person chose
+   * and how. With no template chosen and none suggested: 422 `PWF_TEMPLATE_NOT_ASSIGNED` (never a guess).
+   */
+  private async select(tx: TenantTx, project: LockedProject, request: StartRequest, today: string): Promise<{ selection: SelectionRecord; known: Record<string, string>; view: SuggestionView }> {
+    const own = await this.assignment.projectFacts(tx, project.id);
+    const known = { ...own.facts, ...(request.knownFacts ?? {}) };
+    // A fact that is not one is refused where it always was (`factsOf`, after the template is found): the suggestion reads only what can be a fact.
+    const said = Object.fromEntries(Object.entries(request.facts ?? {}).filter(([field, value]) => (pwfWorkflow.CONDITION_FIELDS as readonly string[]).includes(field) && FACT_VALUE.test(value)));
+    const view = await this.assignment.suggest(tx, { facts: { ...known, ...(project.projectGroup === null ? {} : { project_group: project.projectGroup }), ...said }, unitId: own.ownerUnitId, asOf: today });
+    return { selection: selectionRecordOf(view, request.templateCode, request.selectionReason, request.reasonRequired === true), known, view };
   }
 
   /** The template of a code: the version asked for (approved), else the rule in force on the day, else the built-in default; 404 `PWF_TEMPLATE_NOT_FOUND` when there is none. */
@@ -164,9 +194,10 @@ export class PwfWorkflowStore {
   async start(tx: TenantTx, request: StartRequest): Promise<WorkflowResult> {
     const project = await this.lockFreeProject(tx, request);
     const today = vietnamDateOf(request.now);
-    const resolved = await this.resolveTemplate(tx, request.templateCode, request.templateVersion, today);
-    const facts = factsOf(resolved.template, project, request.facts);
-    const plan = await this.plan(tx, resolved, facts, checkedDay(request.plannedStartDate, 'planned_start_date'), {}, null);
+    const { selection, known } = await this.select(tx, project, request, today);
+    const resolved = await this.resolveTemplate(tx, selection.chosen_template_code, request.templateVersion, today);
+    const facts = factsOf(resolved.template, project, request.facts, known);
+    const plan = await this.plan(tx, resolved, facts, checkedDay(request.plannedStartDate, 'planned_start_date'), {}, null, selection);
     return this.write(tx, project, request, plan, { progress: {} }, 'INITIAL', today);
   }
 
@@ -176,14 +207,15 @@ export class PwfWorkflowStore {
     const today = vietnamDateOf(request.now);
     const effectiveDate = checkedDay(request.effectiveDate, 'effective_date');
     const plannedStart = checkedDay(request.plannedStartDate, 'planned_start_date');
-    const resolved = await this.resolveTemplate(tx, request.templateCode, request.templateVersion, today);
-    const facts = factsOf(resolved.template, project, request.facts);
+    const { selection, known } = await this.select(tx, project, request, today);
+    const resolved = await this.resolveTemplate(tx, selection.chosen_template_code, request.templateVersion, today);
+    const facts = factsOf(resolved.template, project, request.facts, known);
     // What would have ended before the effective date if the project had run to plan: those tasks need a decision (BR-PWF-17), and a task taken in as past without its real dates ends where the plan put it.
     const planned = await this.previewTemplate(tx, resolved.template, plannedStart, facts);
     const decisions = this.decisionsOf(resolved.template, facts, request, new Map(planned.result.tasks.map((one) => [one.code, { start: one.start, finish: one.finish }] as const)));
     const past = new Set(planned.result.tasks.filter((one) => one.state !== 'PASS_THROUGH' && one.finish !== null && one.finish < effectiveDate).map((one) => one.code));
     const undecided = [...past].filter((code) => !decisions.progress[code] && !decisions.notTracked.has(code));
-    const plan = await this.plan(tx, resolved, facts, plannedStart, decisions.progress, effectiveDate);
+    const plan = await this.plan(tx, resolved, facts, plannedStart, decisions.progress, effectiveDate, selection);
     const byTemplate = new Map(resolved.template.tasks.map((one) => [one.code, one] as const));
     const tasks: AdoptTaskView[] = plan.result.tasks.map((scheduled) => {
       const code = scheduled.code;
@@ -195,12 +227,12 @@ export class PwfWorkflowStore {
     const short = this.evidenceShortfalls(resolved.template, decisions.evidence);
     const findings = [...plan.result.findings.map((one) => ({ code: one.code, task: one.task })), ...undecided.map((code) => ({ code: 'PAST_TASK_UNDECIDED', task: code })), ...short.map((code) => ({ code: 'EVIDENCE_MISSING', task: code }))];
     if (request.dryRun) {
-      return { dryRun: true, applied: false, workflow: null, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings };
+      return { dryRun: true, applied: false, workflow: null, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings, selection };
     }
     if (undecided.length > 0) throw new DomainError('PWF_ADOPT_INVALID', 422, 'past_tasks', { extensions: { tasks: undecided } });
     if (short.length > 0) throw new DomainError('PWF_ADOPT_INVALID', 422, 'past_tasks', { extensions: { tasks: short, reason: 'EVIDENCE_MISSING' } });
     const workflow = await this.write(tx, project, request, plan, decisions, 'ADOPTION', today, effectiveDate);
-    return { dryRun: false, applied: true, workflow, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings };
+    return { dryRun: false, applied: true, workflow, templateCode: resolved.code, templateHash: resolved.hash, effectiveDate, tasks, schedule: plan.result, calendars: plan.calendars, excluded: plan.excluded, findings, selection };
   }
 
   // ---- internals ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -259,11 +291,11 @@ export class PwfWorkflowStore {
     return short.sort();
   }
 
-  private async plan(tx: TenantTx, resolved: ResolvedTemplate, facts: pwfWorkflow.ProjectFacts, plannedStart: string, progress: Record<string, pwfSchedule.TaskProgress>, statusDate: string | null): Promise<Plan> {
+  private async plan(tx: TenantTx, resolved: ResolvedTemplate, facts: pwfWorkflow.ProjectFacts, plannedStart: string, progress: Record<string, pwfSchedule.TaskProgress>, statusDate: string | null, selection: SelectionRecord): Promise<Plan> {
     const calendars = await pinPublishedCalendars(tx, earliestYear([plannedStart, statusDate, ...Object.values(progress).flatMap((one) => [one.actualStart, one.actualFinish])]));
     const tasks = pwfSchedule.tasksFromTemplate(resolved.template, facts, progress);
     const result = pwfSchedule.scheduleProject({ tasks, plannedStart, calendars, ...(statusDate === null ? {} : { statusDate }) });
-    return { resolved, facts, tasks, excluded: pwfWorkflow.activeTasks(resolved.template, facts).excluded, calendars, result, inputHash: inputHashOf({ tasks, plannedStart, statusDate, calendars }), statusDate };
+    return { resolved, facts, tasks, excluded: pwfWorkflow.activeTasks(resolved.template, facts).excluded, calendars, result, inputHash: inputHashOf({ tasks, plannedStart, statusDate, calendars }), statusDate, selection };
   }
 
   private async write(
@@ -281,11 +313,11 @@ export class PwfWorkflowStore {
     const baselines = await tx.query<{ id: string }>('select id from machvon.project_baseline where project_id = $1::uuid and version = 0', [project.id]);
     const workflowId = randomUUID();
     await tx.query(
-      `insert into machvon.project_workflow (tenant_id, id, project_id, template_code, template_rule_id, template_rule_version, template_hash, template, facts, planned_start_date, project_baseline_id, adopted_on, created_by, updated_by, status)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4::uuid, $5::int, $6, $7::jsonb, $8::jsonb, $9::date, $10::uuid, $11::date, $12::uuid, $12::uuid, $13)`,
-      [workflowId, project.id, resolved.code, resolved.ruleId, resolved.version, resolved.hash, JSON.stringify(pwfWorkflow.templateParamsOf(resolved.template)), JSON.stringify(plan.facts), plannedStart, baselines[0]?.id ?? null, adoptedOn, request.actor, project.status === 'SUSPENDED' ? 'ON_HOLD' : 'ACTIVE'],
+      `insert into machvon.project_workflow (tenant_id, id, project_id, template_code, template_rule_id, template_rule_version, template_hash, template, facts, planned_start_date, project_baseline_id, adopted_on, created_by, updated_by, status, selection, cited_legal_documents)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4::uuid, $5::int, $6, $7::jsonb, $8::jsonb, $9::date, $10::uuid, $11::date, $12::uuid, $12::uuid, $13, $14::jsonb, $15::text[])`,
+      [workflowId, project.id, resolved.code, resolved.ruleId, resolved.version, resolved.hash, JSON.stringify(pwfWorkflow.templateParamsOf(resolved.template)), JSON.stringify(plan.facts), plannedStart, baselines[0]?.id ?? null, adoptedOn, request.actor, project.status === 'SUSPENDED' ? 'ON_HOLD' : 'ACTIVE', JSON.stringify(plan.selection), pwfWorkflow.citedLegalDocuments(resolved.template)],
     );
-    await this.insertTasks(tx, workflowId, project.id, plan, decisions, request.actor, adoptedOn);
+    await this.insertTasks(tx, workflowId, project.id, plan, decisions, request.actor, adoptedOn, today);
     await this.defaultAssignments(tx, workflowId, project.id, plannedStart, today, request.actor);
     await tx.query('update machvon.project set planned_start_date = $2::date, updated_at = now(), updated_by = $3::uuid where id = $1::uuid', [project.id, plannedStart, request.actor]);
     const published = await publishSchedule(tx, {
@@ -301,7 +333,7 @@ export class PwfWorkflowStore {
       today,
       baseline: this.baseline,
     });
-    await logWorkflow(tx, { workflowId, kind: kind === 'INITIAL' ? 'WORKFLOW_STARTED' : 'ADOPTED', actor: request.actor, subject: { template_code: resolved.code, template_version: resolved.version, template_hash: resolved.hash, schedule_version: published.scheduleVersion, ...(adoptedOn === null ? {} : { effective_date: adoptedOn }) } });
+    await logWorkflow(tx, { workflowId, kind: kind === 'INITIAL' ? 'WORKFLOW_STARTED' : 'ADOPTED', actor: request.actor, subject: { template_code: resolved.code, template_version: resolved.version, template_hash: resolved.hash, schedule_version: published.scheduleVersion, ...(adoptedOn === null ? {} : { effective_date: adoptedOn }), selection: { ...plan.selection } }, reason: plan.selection.reason });
     return {
       id: workflowId,
       projectId: project.id,
@@ -315,6 +347,7 @@ export class PwfWorkflowStore {
       plannedStartDate: plannedStart,
       taskCount: plan.tasks.length,
       facts: { ...plan.facts },
+      selection: plan.selection,
     };
   }
 
@@ -326,6 +359,7 @@ export class PwfWorkflowStore {
     decisions: { progress: Record<string, pwfSchedule.TaskProgress>; notTracked?: Set<string>; evidence?: Map<string, readonly EvidenceDraft[]> },
     actor: string,
     adoptedOn: string | null,
+    today: string,
   ): Promise<void> {
     const left = new Set(plan.excluded);
     const rows = plan.resolved.template.tasks.map((one, index) => {
@@ -387,12 +421,15 @@ export class PwfWorkflowStore {
         [workflowId, JSON.stringify(items)],
       );
     }
+    const definitions = new Map(plan.resolved.template.tasks.map((one) => [one.code, one] as const));
     for (const [code, given] of decisions.evidence ?? []) {
       for (const one of given) {
+        // R46: the revision of the form the evidence was made from, by the policy of the template (the newest approved one, or the pinned one).
+        const form = one.formTemplateCode === undefined ? null : await resolveFormRevision(tx, { code: one.formTemplateCode, policy: pwfWorkflow.formPolicyOf(definitions.get(code) ?? {}, one.formTemplateCode), documentId: one.documentId ?? null, today });
         await tx.query(
-          `insert into machvon.project_task_evidence (tenant_id, id, task_id, evidence_kind, document_id, legal_doc_type, form_template_code, external_ref, note, attached_by)
-           select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), t.id, $2, $3::uuid, $4, $5, $6, $7, $8::uuid from machvon.project_task t where t.workflow_id = $1::uuid and t.task_code = $9`,
-          [workflowId, one.evidenceKind, one.documentId ?? null, one.legalDocType ?? null, one.formTemplateCode ?? null, one.externalRef ?? (one.documentId === undefined && one.formTemplateCode === undefined ? 'ADOPTED' : null), one.note ?? null, actor, code],
+          `insert into machvon.project_task_evidence (tenant_id, id, task_id, evidence_kind, document_id, legal_doc_type, form_template_code, external_ref, note, attached_by, form_template_revision, form_template_sha256)
+           select nullif(current_setting('app.tenant_id', true), '')::uuid, gen_random_uuid(), t.id, $2, $3::uuid, $4, $5, $6, $7, $8::uuid, $10::int, $11 from machvon.project_task t where t.workflow_id = $1::uuid and t.task_code = $9`,
+          [workflowId, one.evidenceKind, one.documentId ?? null, one.legalDocType ?? null, one.formTemplateCode ?? null, one.externalRef ?? (one.documentId === undefined && one.formTemplateCode === undefined ? 'ADOPTED' : null), one.note ?? null, actor, code, form?.revision ?? null, form?.sha256 ?? null],
         );
       }
     }

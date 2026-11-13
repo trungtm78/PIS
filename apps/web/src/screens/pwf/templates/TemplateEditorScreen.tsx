@@ -11,6 +11,7 @@ import { isRuleCode, isUuid, textParam } from '../../adm/governance/model';
 import { UnverifiedLabel } from '../components';
 import { PATHS, PERMISSIONS, RULE_PERMISSIONS, TEMPLATE_RULE_TYPE, editorLink, holds } from '../model';
 import type { SchedulePreview, TemplateValidation } from '../model';
+import { StepsEditor } from './editor-steps';
 import { PhasesPanel, TasksPanel } from './editor-panels';
 import { PreviewPanel, ValidationPanel } from './editor-checks';
 import { TextField, problemMapOf } from './editor-fields';
@@ -150,6 +151,7 @@ function EditorContent({ route }: ScreenProps) {
           </div>
         </SectionCard>
         <PhasesPanel template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} />
+        <StepsEditor template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} />
         <TasksPanel template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} selected={selected} onSelect={setSelected} />
         <ValidationPanel
           local={local}

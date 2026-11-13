@@ -7,6 +7,7 @@ import type { StageScopes } from './prj-stage-support.ts';
 import { logWorkflow, publishSchedule, resultHashOf, syncMilestones } from './pwf-publish.ts';
 import { TASK_COLUMNS, baselineOfRows, earliestYear, ownTaskDefinition, inputHashOf, loadLinks, loadPinnedCalendars, loadTasks, pinPublishedCalendars, pinsFromJson, resultOfRows, scheduleTasksOf, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow } from './pwf-schedule-support.ts';
+import { resolveFormRevision } from './pwf-form-revision.ts';
 import type { TenantTx } from './tenant-database.ts';
 
 /**
@@ -142,13 +143,21 @@ export class PwfTaskStore {
       const found = await tx.query<{ id: string }>('select id from machvon.document where id = $1::uuid', [documentId]);
       if (found[0] === undefined) throw invalid('document_id');
     }
+    // R46: the revision of the form the evidence was made from (the newest approved one on this day, or the one the template pins), kept with the hash of its content.
+    const form = input.formTemplateCode === undefined ? null : await resolveFormRevision(tx, { code: input.formTemplateCode, policy: pwfWorkflow.formPolicyOf(definition ?? {}, input.formTemplateCode), documentId, today: request.today });
     const id = randomUUID();
     await tx.query(
-      `insert into machvon.project_task_evidence (tenant_id, id, task_id, item_code, evidence_kind, document_id, legal_doc_type, form_template_code, external_ref, note, attached_by)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5::uuid, $6, $7, $8, $9, $10::uuid)`,
-      [id, task.id, input.itemCode ?? null, kind, documentId, input.legalDocType ?? null, input.formTemplateCode ?? null, input.externalRef ?? null, input.note ?? null, request.actor],
+      `insert into machvon.project_task_evidence (tenant_id, id, task_id, item_code, evidence_kind, document_id, legal_doc_type, form_template_code, external_ref, note, attached_by, form_template_revision, form_template_sha256)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5::uuid, $6, $7, $8, $9, $10::uuid, $11::int, $12)`,
+      [id, task.id, input.itemCode ?? null, kind, documentId, input.legalDocType ?? null, input.formTemplateCode ?? null, input.externalRef ?? null, input.note ?? null, request.actor, form?.revision ?? null, form?.sha256 ?? null],
     );
-    await logWorkflow(tx, { workflowId: task.workflowId, taskId: task.id, kind: 'EVIDENCE_ATTACHED', actor: request.actor, subject: { task_code: task.code, evidence_kind: kind, item_code: input.itemCode ?? null, legal_doc_type: input.legalDocType ?? null } });
+    await logWorkflow(tx, {
+      workflowId: task.workflowId,
+      taskId: task.id,
+      kind: 'EVIDENCE_ATTACHED',
+      actor: request.actor,
+      subject: { task_code: task.code, evidence_kind: kind, item_code: input.itemCode ?? null, legal_doc_type: input.legalDocType ?? null, ...(form === null ? {} : { form_template_code: input.formTemplateCode, form_template_revision: form.revision, form_template_sha256: form.sha256 }) },
+    });
     return { ...this.result(locked, task.status, task.status, task.version, { evidence_kind: kind }), evidenceId: id };
   }
 

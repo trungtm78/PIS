@@ -5,7 +5,7 @@
   "domain_pack": "docs/uat/_domain-pack.md",
   "coverage_ledger": "docs/uat/pwf/_coverage-ledger.md",
   "evidence_profile": "signoff",
-  "tc_count": 76,
+  "tc_count": 86,
   "test_cases": [
     {
       "tc_id": "TC-UAT-PWF-01",
@@ -1083,11 +1083,6 @@
         "T-PWF-08"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
-      "automation": {
         "state": "AUTOMATED",
         "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
@@ -1148,11 +1143,6 @@
         "T-PWF-08"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
-      "automation": {
         "state": "AUTOMATED",
         "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
@@ -1212,11 +1202,6 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/kernel/test/deadline-band-personal.test.ts"
@@ -1279,11 +1264,6 @@
         "T-PWF-08"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
-      "automation": {
         "state": "AUTOMATED",
         "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
@@ -1344,11 +1324,6 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/kernel/test/deadline-band-personal.test.ts"
@@ -1411,11 +1386,6 @@
         "T-PWF-08"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
-      "automation": {
         "state": "AUTOMATED",
         "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
@@ -1477,11 +1447,6 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/kernel/test/deadline-band-personal.test.ts"
@@ -2360,11 +2325,6 @@
         "T-PWF-08"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
-      "automation": {
         "state": "AUTOMATED",
         "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
@@ -3199,11 +3159,6 @@
         "T-PWF-21"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
-      "automation": {
         "state": "AUTOMATED",
         "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
@@ -3264,11 +3219,6 @@
       "linked_tests": [
         "T-PWF-15"
       ],
-      "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "apps/api/test/pwf/deadline-preference.test.ts"
@@ -4607,11 +4557,6 @@
         "T-PWF-15"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "KERNEL",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
-      "automation": {
         "state": "AUTOMATED",
         "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
@@ -5115,6 +5060,620 @@
       ],
       "linked_tests": [
         "T-PWF-12"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "API-JEST",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-01",
+      "title": "Soạn loại quy trình ba tầng: giai đoạn, bước, công việc có danh mục kiểm; xem trước thời hạn từng bước",
+      "type": "E2E",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "happy-path",
+      "persona": "quan-tri-quy-trinh-du-an",
+      "journey_ref": "J-PWF-F1",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-43",
+      "oracle_source": "Claim → BR-PWF-43; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-43, mục 11 AC-ST-PWF-021-1, mục 10 T-PWF-22)",
+      "catches_bug": "Bước không lưu khi sửa mẫu; công việc lọt khỏi bước; thời hạn bước nhập tay lệch lịch",
+      "coverage_ids": [
+        "COV-ST-PWF-021"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-quy-trinh-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A (bản công); người soạn có quyền pwf.template.manage; mẫu PUBLIC_INVESTMENT mặc định",
+      "steps": "Chuẩn bị: Tenant TNT-A (bản công); người soạn có quyền pwf.template.manage; mẫu PUBLIC_INVESTMENT mặc định\n1. Mở PWF-02 với mẫu PUBLIC_INVESTMENT, xem mục \"Bước của giai đoạn\"\n2. Thêm một bước vào giai đoạn chuẩn bị, đặt tên, chuyển một công việc sang bước mới\n3. Thêm một mục kiểm bắt buộc cho công việc đó\n4. Bấm kiểm tra và xem trước lịch với ngày bắt đầu 02/11/2026",
+      "expected": "Mẫu hợp lệ; mỗi công việc thuộc đúng một bước của giai đoạn của nó; bước không có công việc bị báo lỗi tại chỗ; bản xem trước cho ngày của từng công việc; lưu nháp giữ nguyên bước, căn cứ pháp lý và chính sách biểu mẫu.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "tags": [
+        "pwf",
+        "happy-path",
+        "planned",
+        "playwright"
+      ],
+      "module": "PWF",
+      "screen_id": "PWF-02",
+      "story_ids": [
+        "ST-PWF-021"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-021-1"
+      ],
+      "linked_rules": [
+        "BR-PWF-43"
+      ],
+      "linked_tests": [
+        "T-PWF-22"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "PLAYWRIGHT",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-02",
+      "title": "Workflow dự án hiển thị giai đoạn, bước, công việc, mục kiểm với tiến độ từng tầng trên web và điện thoại",
+      "type": "E2E",
+      "platform": "web",
+      "platform_scope": "web+mobile",
+      "category": "happy-path",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-PWF-F2",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-43",
+      "oracle_source": "Claim → BR-PWF-43; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-43, mục 11 AC-ST-PWF-021-1, AC-ST-PWF-021-3, mục 10 T-PWF-22)",
+      "catches_bug": "Tiến độ bước đếm sai; mục kiểm bắt buộc không chặn hoàn thành; điện thoại không thấy bước",
+      "coverage_ids": [
+        "COV-ST-PWF-021"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Dự án có workflow từ mẫu ba tầng; một công việc có hai mục kiểm (một bắt buộc)",
+      "steps": "Chuẩn bị: Dự án có workflow từ mẫu ba tầng; một công việc có hai mục kiểm (một bắt buộc)\n1. Mở tab Workflow của dự án (PRJ-03) và PWF-03\n2. Mở công việc, đánh dấu mục kiểm không bắt buộc, bấm hoàn thành\n3. Đính bằng chứng đúng loại, đánh dấu mục bắt buộc, hoàn thành và duyệt\n4. Mở MOB-78 và MOB-79 của cùng dự án",
+      "expected": "Mục \"Giai đoạn, bước, công việc\" cho trạng thái, số việc xong và số mục kiểm xong của từng bước cùng thời hạn chuẩn; hoàn thành bị từ chối khi mục bắt buộc còn mở (PWF_TASK_COMPLETION_BLOCKED nêu mục); sau khi đủ, bước chuyển sang đang thực hiện rồi đã xong; điện thoại hiển thị công việc theo bước và danh mục kiểm của từng việc.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "tags": [
+        "pwf",
+        "happy-path",
+        "planned",
+        "playwright"
+      ],
+      "module": "PWF",
+      "screen_id": "PWF-03",
+      "story_ids": [
+        "ST-PWF-021"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-021-1",
+        "AC-ST-PWF-021-3"
+      ],
+      "linked_rules": [
+        "BR-PWF-43"
+      ],
+      "linked_tests": [
+        "T-PWF-22"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "PLAYWRIGHT",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-03",
+      "title": "Mẫu và workflow có từ trước khi có bước vẫn chạy: một bước ngầm định mỗi giai đoạn, băm không đổi",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "platform_scope": "web",
+      "category": "regression",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-PWF-F2",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-43",
+      "oracle_source": "Claim → BR-PWF-43; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-43, mục 11 AC-ST-PWF-021-2, mục 10 T-PWF-22)",
+      "catches_bug": "Nâng cấp làm đổi băm mẫu đã đóng băng; workflow cũ không đọc được",
+      "coverage_ids": [
+        "COV-ST-PWF-021"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Một quy tắc mẫu đã duyệt không khai bước và một dự án đã đóng băng mẫu đó trước khi nâng cấp",
+      "steps": "Chuẩn bị: Một quy tắc mẫu đã duyệt không khai bước và một dự án đã đóng băng mẫu đó trước khi nâng cấp\n1. Đọc getProjectWorkflow của dự án\n2. So template_hash với băm tính lại từ bản mẫu đóng băng\n3. Mở mẫu ở PWF-02 và lưu nháp không sửa gì",
+      "expected": "Mỗi giai đoạn có một bước mang mã và tên giai đoạn (implicit); băm đóng băng bằng băm tính lại; tham số bản nháp không có khóa steps, step, legal_basis, form_policies.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "tags": [
+        "pwf",
+        "regression",
+        "planned",
+        "api-jest"
+      ],
+      "module": "PWF",
+      "screen_id": "PWF-03",
+      "story_ids": [
+        "ST-PWF-021"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-021-2"
+      ],
+      "linked_rules": [
+        "BR-PWF-43"
+      ],
+      "linked_tests": [
+        "T-PWF-22"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "API-JEST",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-04",
+      "title": "Căn cứ pháp lý của bước và công việc lấy từ danh mục văn bản dùng chung, hiển thị trạng thái hiệu lực",
+      "type": "E2E",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "happy-path",
+      "persona": "quan-tri-quy-trinh-du-an",
+      "journey_ref": "J-PWF-F1",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-44",
+      "oracle_source": "Claim → BR-PWF-44; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-44, mục 11 AC-ST-PWF-022-1, AC-ST-PWF-022-3, mục 10 T-PWF-23)",
+      "catches_bug": "Chép chữ văn bản vào mẫu; mã văn bản lạ lọt qua; điều khoản bịa",
+      "coverage_ids": [
+        "COV-ST-PWF-022"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-quy-trinh-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Danh mục LEGAL_DOCUMENT có Luật 58/2024/QH15 và Nghị định 85/2025/NĐ-CP (UNVERIFIED)",
+      "steps": "Chuẩn bị: Danh mục LEGAL_DOCUMENT có Luật 58/2024/QH15 và Nghị định 85/2025/NĐ-CP (UNVERIFIED)\n1. Ở PWF-02 thêm căn cứ pháp lý cho một bước: chọn LAW_58_2024_QH15 từ danh mục, bỏ trống điều khoản\n2. Thêm căn cứ cho một công việc với mã không có trong danh mục rồi bấm kiểm tra\n3. Sửa thành DECREE_85_2025_ND_CP, nhập điều khoản, lưu và duyệt mẫu bởi người khác\n4. Khởi tạo workflow cho dự án và mở PWF-03, PWF-04",
+      "expected": "Mã lạ bị báo lỗi LEGAL_DOCUMENT_UNKNOWN tại đúng trường; căn cứ hiển thị loại, số ký hiệu, tên, cơ quan ban hành, ngày hiệu lực, điều khoản (hoặc \"chưa ghi điều khoản, chờ pháp chế xác nhận\"), nhãn chưa kiểm chứng và trạng thái còn hiệu lực.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "tags": [
+        "pwf",
+        "happy-path",
+        "planned",
+        "playwright"
+      ],
+      "module": "PWF",
+      "screen_id": "PWF-02",
+      "story_ids": [
+        "ST-PWF-022"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-022-1",
+        "AC-ST-PWF-022-3"
+      ],
+      "linked_rules": [
+        "BR-PWF-44"
+      ],
+      "linked_tests": [
+        "T-PWF-23"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "PLAYWRIGHT",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-05",
+      "title": "Văn bản bị thay thế sau khi dự án đã chạy: workflow báo, trung tâm cảnh báo có việc cho người chịu trách nhiệm dự án",
+      "type": "E2E",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "edge-case",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-PWF-F5",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-44",
+      "oracle_source": "Claim → BR-PWF-44; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-44, mục 11 AC-ST-PWF-022-2, mục 10 T-PWF-23)",
+      "catches_bug": "Dự án tiếp tục viện dẫn văn bản hết hiệu lực mà không ai biết; cảnh báo lặp theo từng công việc",
+      "coverage_ids": [
+        "COV-ST-PWF-022"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Dự án đang chạy workflow viện dẫn một văn bản; người quản trị danh mục và người duyệt là hai người khác nhau",
+      "steps": "Chuẩn bị: Dự án đang chạy workflow viện dẫn một văn bản; người quản trị danh mục và người duyệt là hai người khác nhau\n1. Soạn phiên bản mới của mục danh mục: ngày hết hiệu lực và văn bản thay thế\n2. Người khác duyệt phiên bản\n3. Mở PWF-03 của dự án và trung tâm cảnh báo (HOME-02)",
+      "expected": "Workflow có thông báo số văn bản cần xem lại và căn cứ ghi \"Đã bị thay thế\" kèm mã văn bản thay thế; trung tâm cảnh báo có đúng một việc PWF_LEGAL_BASIS_LAPSED cho mỗi cặp workflow và văn bản, mở tới workflow của dự án; mẫu đóng băng và băm không đổi.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "tags": [
+        "pwf",
+        "edge-case",
+        "planned",
+        "playwright"
+      ],
+      "module": "PWF",
+      "screen_id": "PWF-03",
+      "story_ids": [
+        "ST-PWF-022"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-022-2"
+      ],
+      "linked_rules": [
+        "BR-PWF-44"
+      ],
+      "linked_tests": [
+        "T-PWF-23"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "PLAYWRIGHT",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-06",
+      "title": "Biểu mẫu dùng bản đã duyệt mới nhất, ghi phiên bản và mã băm vào bằng chứng; báo khi có bản mới; biểu mẫu ghim giữ đúng bản",
+      "type": "E2E",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "happy-path",
+      "persona": "nguoi-thuc-hien",
+      "journey_ref": "J-PWF-F4",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-45",
+      "oracle_source": "Claim → BR-PWF-45; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-45, mục 11 AC-ST-PWF-023-1, AC-ST-PWF-023-2, AC-ST-PWF-023-3, mục 10 T-PWF-24)",
+      "catches_bug": "Không truy được tài liệu lập từ bản biểu mẫu nào; biểu mẫu ghim bị thay bằng bản mới",
+      "coverage_ids": [
+        "COV-ST-PWF-023"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-thuc-hien",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Biểu mẫu BM_01 có bản 1 đã công bố; công việc đang làm có BM_01 (bản mới nhất) và BM_02 (ghim bản 1)",
+      "steps": "Chuẩn bị: Biểu mẫu BM_01 có bản 1 đã công bố; công việc đang làm có BM_01 (bản mới nhất) và BM_02 (ghim bản 1)\n1. Ở PWF-04 đính bằng chứng biểu mẫu BM_01\n2. Công bố bản 2 của BM_01 và BM_02\n3. Mở lại PWF-04 và MOB-79\n4. Đính bằng chứng BM_02",
+      "expected": "Bằng chứng BM_01 ghi bản 1 và mã băm; sau khi có bản 2, công việc báo \"biểu mẫu đã có bản 2 sau khi lập tài liệu từ bản 1\"; bằng chứng BM_02 ghi bản 1 dù bản 2 đang hiệu lực; nhật ký công việc ghi phiên bản và mã băm.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "tags": [
+        "pwf",
+        "happy-path",
+        "planned",
+        "playwright"
+      ],
+      "module": "PWF",
+      "screen_id": "PWF-04",
+      "story_ids": [
+        "ST-PWF-023"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-023-1",
+        "AC-ST-PWF-023-2",
+        "AC-ST-PWF-023-3"
+      ],
+      "linked_rules": [
+        "BR-PWF-45"
+      ],
+      "linked_tests": [
+        "T-PWF-24"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "PLAYWRIGHT",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-07",
+      "title": "Đăng ký dự án: hệ thống đề xuất loại quy trình theo quy tắc ánh xạ, xem trước lịch, tạo dự án và workflow trong một giao dịch",
+      "type": "E2E",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "happy-path",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-PWF-F2",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-46",
+      "oracle_source": "Claim → BR-PWF-46; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-46, mục 11 AC-ST-PWF-024-1, mục 10 T-PWF-25)",
+      "catches_bug": "Dự án tạo xong mà workflow không có; chọn mẫu tay không dấu vết; bấm hai lần sinh hai workflow",
+      "coverage_ids": [
+        "COV-ST-PWF-024"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Quy tắc PROJECT_WORKFLOW_ASSIGNMENT đã duyệt; người dùng có quyền project.create và pwf.workflow.manage; lịch làm việc 2026 đến 2028 đã công bố",
+      "steps": "Chuẩn bị: Quy tắc PROJECT_WORKFLOW_ASSIGNMENT đã duyệt; người dùng có quyền project.create và pwf.workflow.manage; lịch làm việc 2026 đến 2028 đã công bố\n1. Mở PRJ-02, nhập thông tin dự án và chọn đơn vị quản lý\n2. Xem mục \"Loại quy trình xử lý\": đề xuất, căn cứ đề xuất, phiên bản quy tắc\n3. Nhập ngày dự định bắt đầu, chọn nhóm dự án và nguồn vốn, xem bản xem trước\n4. Bấm lưu; bấm lưu lần nữa với cùng thao tác",
+      "expected": "Đề xuất nêu mã loại quy trình và lý do (dòng quy tắc, loại dự án hoặc mặc định); bản xem trước cho ngày dự kiến hoàn thành, tổng số ngày làm việc, số giai đoạn, bước, công việc và thời gian từng bước; dự án và workflow được tạo cùng lúc, một lần; workflow ghi mode AUTO, mẫu được đề xuất và phiên bản quy tắc; có liên kết mở workflow.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "tags": [
+        "pwf",
+        "happy-path",
+        "planned",
+        "playwright"
+      ],
+      "module": "PWF",
+      "screen_id": "PRJ-02",
+      "story_ids": [
+        "ST-PWF-024"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-024-1"
+      ],
+      "linked_rules": [
+        "BR-PWF-46"
+      ],
+      "linked_tests": [
+        "T-PWF-25"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "PLAYWRIGHT",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-08",
+      "title": "Chọn loại quy trình khác đề xuất phải có lý do; lý do vào nhật ký",
+      "type": "E2E",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "negative",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-PWF-F2",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-46",
+      "oracle_source": "Claim → BR-PWF-46; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-46, mục 11 AC-ST-PWF-024-2, mục 10 T-PWF-25)",
+      "catches_bug": "Ghi đè đề xuất không cần lý do; dự án tạo dở khi workflow bị từ chối",
+      "coverage_ids": [
+        "COV-ST-PWF-024"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Như TC-UAT-PWF-PRC-07",
+      "steps": "Chuẩn bị: Như TC-UAT-PWF-PRC-07\n1. Ở PRJ-02 chọn loại quy trình khác loại được đề xuất, nhập ngày bắt đầu, bấm lưu\n2. Gọi createProject trực tiếp với template_code khác đề xuất và không có selection_reason\n3. Nhập lý do từ 10 ký tự và lưu\n4. Mở workflow của dự án",
+      "expected": "Màn hình yêu cầu lý do trước khi gửi; API trả 422 PWF_SELECTION_REASON_REQUIRED và không tạo dự án; sau khi có lý do, workflow ghi mode OVERRIDE, loại được đề xuất và lý do; dòng audit workflow.started có lý do.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "tags": [
+        "pwf",
+        "negative",
+        "planned",
+        "playwright"
+      ],
+      "module": "PWF",
+      "screen_id": "PRJ-02",
+      "story_ids": [
+        "ST-PWF-024"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-024-2"
+      ],
+      "linked_rules": [
+        "BR-PWF-46"
+      ],
+      "linked_tests": [
+        "T-PWF-25"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "PLAYWRIGHT",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-09",
+      "title": "Không khởi tạo được workflow thì nói rõ, vẫn tạo được dự án và khởi tạo sau ở PWF-05 bằng cùng quy tắc",
+      "type": "E2E",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "edge-case",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-PWF-F2",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-46",
+      "oracle_source": "Claim → BR-PWF-46; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-46, mục 11 AC-ST-PWF-024-3, mục 10 T-PWF-25)",
+      "catches_bug": "Im lặng bỏ workflow; chặn tạo dự án vì thiếu lịch làm việc",
+      "coverage_ids": [
+        "COV-ST-PWF-024"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Ba tình huống: quy tắc không đề xuất loại nào; thiếu nguồn vốn cho mẫu rẽ nhánh; lịch làm việc chưa công bố tới năm cuối; và một người dùng không có quyền pwf.workflow.manage",
+      "steps": "Chuẩn bị: Ba tình huống: quy tắc không đề xuất loại nào; thiếu nguồn vốn cho mẫu rẽ nhánh; lịch làm việc chưa công bố tới năm cuối; và một người dùng không có quyền pwf.workflow.manage\n1. Ở PRJ-02 nhập ngày dự định bắt đầu trong từng tình huống và bấm lưu\n2. Bỏ trống ngày dự định bắt đầu và lưu\n3. Mở PWF-05 của dự án vừa tạo\n4. Đăng nhập người không có quyền khởi tạo quy trình và mở PRJ-02",
+      "expected": "Từng tình huống có thông báo riêng (chọn loại quy trình; chọn nguồn vốn; lịch làm việc chưa công bố) và không gửi gì; bỏ trống ngày thì dự án được tạo không có workflow kèm hướng dẫn khởi tạo sau; PWF-05 hiển thị cùng đề xuất và nút \"Dùng loại quy trình đề xuất\"; người không có quyền thấy thông báo và vẫn tạo được dự án.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "e2e",
+      "tags": [
+        "pwf",
+        "edge-case",
+        "planned",
+        "playwright"
+      ],
+      "module": "PWF",
+      "screen_id": "PRJ-02",
+      "story_ids": [
+        "ST-PWF-024"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-024-3"
+      ],
+      "linked_rules": [
+        "BR-PWF-46"
+      ],
+      "linked_tests": [
+        "T-PWF-25"
+      ],
+      "automation": {
+        "state": "PLANNED",
+        "layer": "PLAYWRIGHT",
+        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UAT-PWF-PRC-10",
+      "title": "Quy tắc ánh xạ theo đơn vị: đơn vị gần nhất thắng; người lập khác người duyệt",
+      "type": "INTEGRATION",
+      "platform": "api",
+      "platform_scope": "web",
+      "category": "security",
+      "persona": "quan-tri-quy-trinh-du-an",
+      "journey_ref": "J-PWF-SOD",
+      "priority": "P0",
+      "severity_if_fail": "S1",
+      "oracle_type": "Claim",
+      "rule_ref": "BR-PWF-46",
+      "oracle_source": "Claim → BR-PWF-46; đặc tả Design/MACHVON_Design/01_Documents/05_modules/PWF.md (mục 5 BR-PWF-46, mục 11 AC-ST-PWF-024-4, mục 10 T-PWF-25)",
+      "catches_bug": "Quy tắc của đơn vị cha đè đơn vị con; người lập tự duyệt quy tắc ánh xạ",
+      "coverage_ids": [
+        "COV-ST-PWF-024"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-quy-trinh-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Quy tắc của tenant (mặc định A) và quy tắc riêng của một sở (nhóm B → mẫu B); người lập và người duyệt khác nhau",
+      "steps": "Chuẩn bị: Quy tắc của tenant (mặc định A) và quy tắc riêng của một sở (nhóm B → mẫu B); người lập và người duyệt khác nhau\n1. Người lập nộp quy tắc của sở và tự duyệt\n2. Người khác duyệt\n3. Đọc suggestProjectWorkflow cho dự án của sở, của đơn vị cha và của đơn vị khác nhánh\n4. Gửi dữ kiện không hợp lệ (ký tự lạ) và mã đơn vị không tồn tại",
+      "expected": "Tự duyệt bị từ chối 403; dự án của sở nhận mẫu theo quy tắc của sở (basis RULE, phiên bản và đơn vị của quy tắc), đơn vị cha và đơn vị khác nhánh nhận quy tắc tenant; dữ kiện sai trả 422 VALIDATION_FAILED nêu trường; dự án ngoài phạm vi đọc trả 404.",
+      "evidence_required": [
+        "trace",
+        "response-bodies"
+      ],
+      "design_evidence": null,
+      "design_type": "integration",
+      "tags": [
+        "pwf",
+        "security",
+        "planned",
+        "api-jest"
+      ],
+      "module": "PWF",
+      "screen_id": "PWF-05",
+      "story_ids": [
+        "ST-PWF-024"
+      ],
+      "linked_acs": [
+        "AC-ST-PWF-024-4"
+      ],
+      "linked_rules": [
+        "BR-PWF-46"
+      ],
+      "linked_tests": [
+        "T-PWF-25"
       ],
       "automation": {
         "state": "PLANNED",

@@ -1,7 +1,7 @@
 import { canonicalJson, sha256Hex } from './canonical-json.ts';
 import { DomainError } from './errors.ts';
 import { dayNumber, dayText, isWorkflowDay } from './process-core.ts';
-import { activeTasks, topologicalOrder } from './project-workflow.ts';
+import { activeTasks, stepSpans, topologicalOrder } from './project-workflow.ts';
 import type { ConstraintKind, DependencyKind, ProjectFacts, ProjectWorkflowTemplate } from './project-workflow.ts';
 import { isWorkingDay } from './working-time.ts';
 import type { WorkCalendarContent } from './working-time.ts';
@@ -598,4 +598,34 @@ export function applyOverrides(tasks: readonly ScheduleTask[], overrides: Projec
   for (const code of overrides.remove ?? []) if (!known.has(code)) throw invalid('remove');
   const removed = new Set(overrides.remove ?? []);
   return [...tasks, ...(overrides.add ?? [])].map((one) => ({ ...one, ...(overrides.change?.[one.code] ?? {}), ...(removed.has(one.code) ? { excluded: true } : {}) }));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// The standard time of a template and of its steps (PWF-4, R44).
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+export interface StandardTimes {
+  /** The working days from the start of the first task to the end of the last one, for a project with these facts. */
+  totalWorkingDays: number;
+  steps: Array<{ step: string; phase: string; durationWorkingDays: number; taskCount: number }>;
+}
+
+const STANDARD_FIRST_YEAR = 2001;
+const STANDARD_WORKING_DAYS_A_YEAR = 250;
+const STANDARD_MAX_YEARS = 80;
+
+/**
+ * The standard time of a template and of each of its steps, in working days, for a project with these facts: the template is laid on a line of plain working weeks (Monday to Friday, no holiday), so the answer depends on the
+ * durations, the links and the branches only, never on the calendar of a year. It is what a step "takes" by the template; the days of a real project are counted on its own pinned calendars.
+ */
+export function standardTimes(template: ProjectWorkflowTemplate, facts: ProjectFacts): StandardTimes {
+  const tasks = tasksFromTemplate(template, facts);
+  const reach = template.tasks.reduce((sum, one) => sum + one.durationWorkingDays + one.predecessors.reduce((lags, link) => lags + Math.abs(link.lagWorkingDays), 0) + (one.constraint?.offsetWorkingDays ?? 0), 0);
+  const years = Math.min(STANDARD_MAX_YEARS, Math.ceil(reach / STANDARD_WORKING_DAYS_A_YEAR) + 2);
+  const calendars: PinnedCalendar[] = Array.from({ length: years }, (_unused, index) => ({ year: STANDARD_FIRST_YEAR + index, version: 1, content: { calendar_code: 'STANDARD', year: STANDARD_FIRST_YEAR + index, working_days: [1, 2, 3, 4, 5], holidays: [], legal_basis_ref: 'standard working weeks' } }));
+  const result = scheduleProject({ tasks, plannedStart: `${STANDARD_FIRST_YEAR}-01-01`, calendars });
+  const scheduled = result.tasks.map((one) => ({ code: one.code, start: one.start, finish: one.finish, startSlot: one.startSlot, endSlot: one.endSlot, passThrough: one.state === 'PASS_THROUGH' }));
+  const live = scheduled.filter((one) => !one.passThrough);
+  const total = live.length === 0 ? 0 : Math.max(...live.map((one) => one.endSlot)) - Math.min(...live.map((one) => one.startSlot));
+  return { totalWorkingDays: Math.max(0, total), steps: stepSpans(template, scheduled).map((one) => ({ step: one.step, phase: one.phase, durationWorkingDays: one.durationWorkingDays, taskCount: one.taskCount })) };
 }

@@ -7,6 +7,7 @@ Ngày nghiên cứu: 2026-11-12. Làn `pwfspec`. Tài liệu này là căn cứ 
 - Phần A: lập lịch, phụ thuộc, đường găng, tự dời lịch, ngưỡng nhắc, màu đỏ/vàng/xanh, tải công việc ở MS Project, Primavera P6, Asana, Jira, Monday, Smartsheet, ClickUp, Procore, Autodesk Build, Fieldwire, kèm PRINCE2 và PMBOK.
 - Phần B: chấm điểm con người ở OKR, Balanced Scorecard, SAP SuccessFactors, Workday, Lattice, 15Five, Culture Amp, Betterworks; các bẫy công bằng (trễ có lý do, việc chung, thao túng, calibration, mẫu nhỏ), pháp lý dữ liệu cá nhân, tiền lệ DORA, EVM, CPARS.
 - Phần C: quyết định thiết kế của PWF (nhận hay bỏ, vì sao, nằm ở đâu trong đặc tả và mã).
+- Phần D (làn `pwf4`, 2026-11-14): loại quy trình gắn với loại dự án lúc đăng ký, căn cứ pháp lý theo bước, phiên bản biểu mẫu; quyết định D-43 đến D-52.
 - Mỗi liên kết ghi mức tin cậy: đã đọc trang, chỉ thấy tóm tắt trong kết quả tìm kiếm, hoặc bài của cộng đồng (không phải tài liệu chính thức). Trang trả 403/404 được ghi rõ; không có liên kết nào được bịa. Phần các điều khoản pháp luật cần luật sư của cơ quan sử dụng rà soát trước khi đưa vào quy chế.
 - Bối cảnh sản phẩm: bản công "Hệ thống quản lý đầu tư công" của cơ quan nhà nước cấp tỉnh/bộ; bản doanh nghiệp chỉ thêm gói mẫu qua cơ chế bản (không đổi mã dùng chung).
 
@@ -514,3 +515,97 @@ Quy ước: mã D-nn được dẫn trong `PWF.md` (cột "Căn cứ") và trong
 - Ngưỡng và trọng số mặc định, số ngày của mẫu, số việc tối thiểu để xếp loại đều là giá trị khởi đầu `UNVERIFIED` đã gắn nguồn, ngày và công thức; cơ quan sử dụng duyệt theo quy trình quy tắc.
 - Số hiệu nghị định hướng dẫn Luật Đầu tư công 58/2024/QH15 và các điều khoản Bộ luật Lao động về đánh giá chưa được kiểm chứng trong nghiên cứu này; cần luật sư của cơ quan sử dụng.
 - Mã biểu mẫu `document_template` của DOC do từng tenant công bố; mẫu mặc định không tham chiếu biểu mẫu cụ thể, và việc gắn biểu mẫu được kiểm bằng `FORM_TEMPLATE_UNKNOWN`.
+
+
+## Phần D. Loại quy trình theo loại dự án, căn cứ pháp lý theo bước, phiên bản biểu mẫu (làn `pwf4`)
+
+Ngày nghiên cứu: 2026-11-14. Câu hỏi của chủ sở hữu: quản lý workflow theo dự án cần một **bộ quy trình xử lý** (trình tự các bước, thời gian thực hiện, quy định pháp lý, biểu mẫu mới nhất), **chọn loại quy trình ngay khi đăng ký dự án** để hệ thống tự ánh xạ, và **danh mục kiểm cho từng công việc trong một bước**. Phần này xem các hệ thống lớn gắn "loại quy trình" với "loại dự án" lúc tạo dự án thế nào, quản lý căn cứ pháp lý và phiên bản biểu mẫu ra sao, rồi rút quyết định D-43 đến D-52.
+
+Độ tin cậy: mọi liên kết của phần này là **[chỉ snippet]** (đọc tóm tắt của kết quả tìm kiếm ngày 2026-11-14, chưa tải toàn văn trang), trừ khi ghi khác. Phần pháp luật Việt Nam chỉ lấy tên, số hiệu và ngày hiệu lực mà nhiều nguồn thứ cấp cùng nêu; **không điều khoản nào được coi là đã kiểm chứng**, và mọi mục danh mục trong mã mang `UNVERIFIED`.
+
+### D.1 SAP PS: project profile, standard WBS, standard network
+
+- Project profile giữ giá trị mặc định và tham số điều khiển của dự án; standard WBS và standard network (liên kết với nhau) tạo thành **mẫu dự án**; dự án tác nghiệp được tạo bằng cách sao chép mẫu, toàn bộ hoặc một phần. Standard WBS chỉ dùng làm mẫu được khi ở trạng thái đã tạo hoặc đã phát hành, mẫu đã đóng thì không.
+  - https://learning.sap.com/learning-journeys/carrying-out-the-basic-configuration-of-sap-s-4hana-project-system/creating-standard-work-breakdown-structures
+  - https://learning.sap.com/courses/carrying-out-the-basic-configuration-of-sap-s-4hana-project-system/customizing-wbs
+  - https://help.sap.com/saphelp_46C/helpdata/EN/88/98520941e911d4b5b8006094b90caa/content.htm (Creating a Project with Template)
+  - https://help.sap.com/saphelp_46C/helpdata/EN/4c/225c2a46e611d189470000e829fbbd/content.htm (Creating Standard Networks)
+- Người dùng phàn nàn [cộng đồng]: sao chép dự án từ standard WBS chỉ ra WBS mà mất network khi hai cấu trúc chuẩn chưa gắn và chưa phát hành đủ (https://archive.sap.com/discussions/thread/3197251).
+- Rút ra: loại dự án quyết định mẫu ngay lúc tạo; mẫu phải ở trạng thái "được phép dùng" (đã duyệt); cấu trúc và mạng công việc phải là MỘT mẫu, không phải hai thứ gắn lỏng.
+
+### D.2 Jira: workflow scheme ánh xạ loại vấn đề sang workflow
+
+- Workflow scheme là bảng ánh xạ giữa loại vấn đề và workflow; một scheme dùng cho nhiều dự án; mỗi loại vấn đề chỉ ánh xạ tới một workflow; loại không có ánh xạ riêng rơi về **workflow mặc định**. Scheme đang dùng không sửa trực tiếp mà qua **bản nháp rồi công bố**.
+  - https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-workflow-schemes/
+  - https://confluence.atlassian.com/adminjiraserver0815/configuring-workflow-schemes-1050546987.html
+  - https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-workflow-scheme-drafts/
+- Điểm yếu [cộng đồng, https://ones.com/blog/?p=1073550]: công bố scheme mới chuyển cả vấn đề đang chạy sang workflow mới, phải ánh xạ lại trạng thái.
+- Rút ra: bảng ánh xạ là DỮ LIỆU có phiên bản, có dòng mặc định, nháp rồi công bố; nhưng khác Jira, việc đang chạy phải giữ bản đã đóng băng.
+
+### D.3 Procore: workflow template cấp công ty, gán và đặt mặc định ở dự án
+
+- Mẫu workflow tạo và công bố ở cấp công ty, sau đó **gán cho dự án** và đặt một mẫu làm **Default** cho công cụ; cần quyền riêng ("Configure Workflow Templates"); người được giao phải có trong danh bạ dự án.
+  - https://v2.support.procore.com/process-guides/workflows-user-guide/configure-workflow-templates-on-projects
+  - https://en-au.support.procore.com/products/online/user-guide/company-level/workflows/tutorials/configure-a-workflow-template-on-a-project
+- Project template lưu cấu hình chung (công cụ bật, người dùng) và chỉ áp dụng lúc tạo dự án (nguồn bên thứ ba: https://sync-docs.agaveapi.com/docs/procore/project-templates). Không tìm thấy tài liệu chính thức nói project template mang sẵn workflow mặc định: đây là khoảng trống, không suy diễn.
+- Rút ra: tách quyền quản lý mẫu khỏi quyền dùng; "mặc định" là một lựa chọn có chủ, không phải ngầm định trong mã.
+
+### D.4 Oracle Primavera Unifier: business process và shell template
+
+- Business process (biểu mẫu và workflow) được thiết kế trong uDesigner, cấu hình ở cấp công ty hoặc ở từng shell/dự án; shell template mang sẵn cấu hình BP và workflow, nhập giữa các shell cùng loại; có nút kiểm lỗi workflow sau khi cấu hình; khuyến cáo không xóa workflow đã thiết kế.
+  - https://docs.oracle.com/cd/F37129_01/English/unifier_modules/74399.htm (Configuring Business Processes)
+  - https://docs.oracle.com/cd/F37129_01/English/unifier_modules/74421.htm (Workflow Setup)
+  - https://docs.oracle.com/cd/F37129_01/English/unifier_modules/74442.htm (Import a Setup for a BP to a Project/Shell Template)
+  - https://docs.oracle.com/cd/F50962_01/help/uDesigner/en/77757.htm (Designing Workflows)
+- Rút ra: loại shell (loại dự án) quyết định bộ quy trình; biểu mẫu là một phần của quy trình và có phiên bản; cấu hình có bước "kiểm lỗi" trước khi dùng.
+
+### D.5 ServiceNow, Planview, Clarity (stage-gate) — không tìm được nguồn chính thức trong đợt này
+
+Không có kết quả tìm kiếm nào của đợt này dẫn tới tài liệu chính thức của ServiceNow (flow theo loại bản ghi), Planview hay Clarity (stage-gate theo loại đầu tư). Mô hình chung mà giới PPM gọi là stage-gate (giai đoạn, cổng, danh mục sản phẩm bàn giao của từng cổng) đã được PWF dùng từ trước (D-12, cổng giai đoạn). Mục này **không có nguồn**, nên không quyết định nào dưới đây dựa vào nó.
+
+### D.6 Pháp luật Việt Nam: trình tự đầu tư công, quản lý dự án xây dựng, đấu thầu
+
+- Luật Đầu tư công số 58/2024/QH15 (hiệu lực 01/01/2025) và Nghị định 85/2025/NĐ-CP (ban hành và hiệu lực 08/04/2025) quy định chi tiết: mục lục nghị định được nhiều nguồn nêu có điều về hồ sơ, nội dung thẩm định (Điều 20, 21), **thời gian thẩm định (Điều 22)**, hồ sơ trình (Điều 23), nội dung và thời gian quyết định đầu tư nhóm A, B, C (Điều 24); nghị định đã được **sửa đổi bởi Nghị định 275/2025/NĐ-CP** và đang có dự thảo sửa tiếp theo Luật 90/2025/QH15.
+  - https://thuvienphapluat.vn/van-ban/Dau-tu/Nghi-dinh-85-2025-ND-CP-huong-dan-Luat-Dau-tu-cong-651162.aspx
+  - https://hethongphapluat.com/nghi-dinh-85-2025-nd-cp-huong-dan-luat-dau-tu-cong/dieu-21
+  - https://thuvienphapluat.vn/van-ban/Dau-tu/Decree-275-2025-ND-CP-amendments-to-Government-s-Decree-85-2025-ND-CP-680146.aspx
+  - https://vcci.com.vn/tin-tuc/khan-truong-trinh-du-thao-sua-doi-bo-sung-nghi-dinh-85-2025-nd-cp-quy-dinh-chi-tiet-luat-dau-tu-cong
+- Luật Đấu thầu số 22/2023/QH15 (hiệu lực 01/01/2024, đã sửa bởi Luật 57/2024/QH15 và Luật 90/2025/QH15); Nghị định 214/2025/NĐ-CP về lựa chọn nhà thầu (hiệu lực 04/08/2025, 14 chương 146 điều) **thay thế Nghị định 24/2024/NĐ-CP**.
+  - https://baodauthau.vn/nhieu-diem-moi-uu-viet-cua-nghi-dinh-2142025nd-cp-ve-lua-chon-nha-thau-post183024.html
+  - https://english.luatvietnam.vn/legal-updates/decree-no-214-2025-nd-cp-on-contractor-selection-under-the-law-on-bidding-892-103356-article.html
+- Nghị định 175/2024/NĐ-CP về quản lý hoạt động xây dựng: chỉ xác nhận được tên văn bản; **không tìm thấy nguồn xác nhận** nó thay thế Nghị định 15/2021/NĐ-CP. Nghị định 06/2021/NĐ-CP (chất lượng, thi công, bảo trì), Nghị định 99/2021/NĐ-CP (thanh toán, quyết toán vốn đầu tư công), Luật Xây dựng 50/2014/QH13, Luật Quản lý, sử dụng tài sản công 15/2017/QH14: lấy theo hiểu biết của người soạn, **chưa tra cứu lại trong đợt này**.
+- Rút ra (quan trọng nhất của phần này): chỉ trong 20 tháng, nghị định về đấu thầu bị thay một lần và nghị định về đầu tư công bị sửa một lần, đang sửa tiếp. **Căn cứ pháp lý của một bước là dữ liệu sống**: phải nằm ở một danh mục dùng chung có ngày hiệu lực, ngày hết hiệu lực và văn bản thay thế, được viện dẫn bằng mã, và hệ thống phải báo cho dự án đang chạy khi văn bản đổi. Chép chữ "theo Nghị định 24/2024" vào từng công việc là cách chắc chắn sai sau vài tháng.
+
+### D.7 Bảng so sánh
+
+| Hệ thống | Loại quy trình gắn với gì lúc tạo | Mặc định khi không khớp | Việc đang chạy khi mẫu đổi | Biểu mẫu | Căn cứ pháp lý |
+|---|---|---|---|---|---|
+| SAP PS | Project profile và mẫu (standard WBS + network) | Người tạo chọn mẫu | Bản sao độc lập | Ngoài phạm vi | Không có |
+| Jira | Workflow scheme theo loại vấn đề | Workflow mặc định của scheme | Bị chuyển sang workflow mới khi công bố | Màn hình theo scheme | Không có |
+| Procore | Mẫu cấp công ty gán cho dự án, một mẫu Default mỗi công cụ | Mẫu Default | Không thấy tài liệu | Biểu mẫu của công cụ | Không có |
+| Unifier | Shell template mang BP và workflow | Theo shell template | Bản của shell | Thiết kế trong uDesigner, có phiên bản | Không có |
+| PWF (đợt này) | Quy tắc ánh xạ có phiên bản theo loại, nhóm, nguồn vốn, đơn vị | Dòng mặc định của quy tắc, rồi mới tới "không đề xuất" | Giữ bản đóng băng kèm băm | Mới nhất đã duyệt hoặc ghim, ghi phiên bản và băm vào bằng chứng | Danh mục văn bản dùng chung, viện dẫn bằng mã, báo khi hết hiệu lực |
+
+Không hệ thống nào trong bốn hệ thống trên quản lý căn cứ pháp lý theo bước: đây là yêu cầu riêng của khu vực công Việt Nam, phải tự thiết kế.
+
+### D.8 Quyết định thiết kế (nối tiếp Phần C)
+
+| Mã | Quyết định | Nhận/Bỏ | Nguồn | Nằm ở |
+|---|---|---|---|---|
+| D-43 | "Loại quy trình" chính là mẫu workflow có phiên bản (không thêm một thực thể thứ hai): mẫu được nâng thành ba tầng giai đoạn, bước, công việc; danh mục kiểm thuộc từng công việc | Nhận SAP PS (một mẫu gồm cấu trúc và mạng); bỏ hai cấu trúc gắn lỏng | D.1 | `project-workflow.ts` (`steps`, `stepsOf`), R44 |
+| D-44 | Bước không có thời lượng nhập tay: thời hạn chuẩn của bước suy từ lịch các công việc của nó (khoảng ô ngày làm việc từ việc bắt đầu sớm nhất tới việc kết thúc muộn nhất trên tuần làm việc chuẩn) | Nhận nguyên tắc "một nguồn sự thật cho ngày" của D-01, D-10 | Phần A | `stepSpans`, `standardTimes`, R44 |
+| D-45 | Mẫu cũ không khai bước vẫn hợp lệ: mỗi giai đoạn là một bước ngầm định; tham số và băm của mẫu đã đóng băng không đổi | Nhận (tương thích ngược là điều kiện, không phải tùy chọn) | D.2 (Jira làm vỡ việc đang chạy) | `templateParamsOf`, test băm cũ, R44 |
+| D-46 | Căn cứ pháp lý của bước và công việc viện dẫn MÃ của danh mục văn bản dùng chung `LEGAL_DOCUMENT` (loại, số ký hiệu, tên, cơ quan ban hành, hiệu lực từ, đến, văn bản thay thế, trạng thái kiểm chứng, liên kết kho hồ sơ); điều khoản để trống khi chưa chắc | Nhận (không hệ thống nào có sẵn; thiết kế theo D.6) | D.6 | `legal-document.ts`, R45 |
+| D-47 | Văn bản hết hiệu lực hoặc bị thay thế: cảnh báo ở màn soạn mẫu (không chặn), ở workflow đang chạy và ở trung tâm cảnh báo (`PWF_LEGAL_BASIS_LAPSED`, chủ là người chịu trách nhiệm dự án, có hành động và hậu quả); mẫu đóng băng không tự đổi | Nhận | D.6 | `home-pwf-sources.ts`, R45 |
+| D-48 | Biểu mẫu: mặc định `LATEST_APPROVED` (dùng bản đã duyệt mới nhất tại ngày lập tài liệu), tùy chọn `PINNED` (ghim một bản); bằng chứng ghi phiên bản và mã băm; công việc báo khi biểu mẫu có bản mới sau khi đã lập tài liệu | Nhận Unifier (biểu mẫu có phiên bản), thêm truy vết | D.4 | `pwf-form-revision.ts`, V3040, R46 |
+| D-49 | Ánh xạ loại dự án sang loại quy trình là quy tắc có phiên bản `PROJECT_WORKFLOW_ASSIGNMENT`: các dòng theo thứ tự ưu tiên (loại dự án, nhóm, nguồn vốn), dòng mặc định, quy tắc riêng theo đơn vị (đơn vị gần nhất thắng), người lập khác người duyệt | Nhận Jira (scheme có mặc định, nháp rồi công bố), Procore (mặc định có chủ) | D.2, D.3 | `project-workflow-assignment.ts`, R47 |
+| D-50 | Hệ thống ĐỀ XUẤT, người đăng ký xác nhận hoặc đổi có lý do; lựa chọn được ghi (đề xuất gì, theo phiên bản quy tắc nào, chọn gì, cách chọn `AUTO`/`CONFIRMED`/`OVERRIDE`/`MANUAL`, lý do); không đề xuất được thì không đoán | Nhận (quản trị sâu hơn cả bốn hệ thống: không hệ thống nào ghi lý do ghi đè) | D.1 đến D.4 | `selectionRecordOf`, `project_workflow.selection`, R47 |
+| D-51 | Tạo dự án và khởi tạo workflow trong CÙNG giao dịch khi yêu cầu kèm loại quy trình và ngày dự định bắt đầu; xem trước lịch, tổng thời gian, số bước trước khi lưu; không khởi tạo được thì nói rõ và vẫn cho tạo dự án không kèm workflow | Nhận SAP PS (dự án ra đời cùng mạng công việc), sửa điểm yếu "ra WBS mà mất network" bằng tính nguyên tử | D.1 | `createProject`, `suggestProjectWorkflow`, R48 |
+| D-52 | `project_type` của mẫu là dữ liệu thật: khi không dòng nào của quy tắc khớp và đúng một mẫu khai loại dự án trùng với dự án thì mẫu đó được đề xuất trước dòng mặc định | Nhận | D.1 | `suggestWorkflowTemplate`, R47 |
+
+### D.9 Điểm còn mở của phần này
+
+- Toàn bộ số hiệu, ngày hiệu lực và quan hệ thay thế của mười văn bản trong danh mục mặc định là hiểu biết của người soạn kèm tóm tắt tìm kiếm: **cần pháp chế của cơ quan sử dụng xác nhận** trước khi đổi `UNVERIFIED` thành `VERIFIED`. Riêng: Nghị định 85/2025/NĐ-CP đã bị sửa bởi Nghị định 275/2025/NĐ-CP (chưa đưa vào danh mục vì chưa đọc nội dung sửa); Nghị định 175/2024/NĐ-CP có thay Nghị định 15/2021/NĐ-CP hay không; Nghị định 99/2021/NĐ-CP còn hiệu lực hay đã bị thay.
+- Chỉ một điều khoản được ghi trong mẫu mặc định (Điều 22 Nghị định 85/2025/NĐ-CP về thời gian thẩm định, theo mục lục mà nguồn thứ cấp nêu), đánh dấu `UNVERIFIED`; mọi căn cứ khác để trống điều khoản.
+- Bảng ánh xạ mặc định (mua sắm, sửa chữa theo loại dự án; còn lại là đầu tư xây dựng) là giá trị khởi đầu; mã loại dự án thật do danh mục dùng chung của từng cơ quan quyết định.
+- ServiceNow, Planview, Clarity: chưa có nguồn (D.5).

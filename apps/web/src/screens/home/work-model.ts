@@ -114,6 +114,8 @@ export const WORK_KINDS = [
   'PWF_TASK_DUE_SOON',
   'PWF_TASK_OVERDUE',
   'PWF_MILESTONE_AT_RISK',
+  // The legal grounds of a project workflow (lane PWF-4): a document a running workflow cites has lapsed or was replaced.
+  'PWF_LEGAL_BASIS_LAPSED',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
@@ -243,6 +245,9 @@ export function pathOf(item: Pick<WorkItem, 'target'>): string | undefined {
     // The tasks of the project workflow (lane PWF-2): the item names the task, whose detail opens by its id.
     case 'PWF-04':
       return `/pwf/pwf-04?id=${item.target.id}`;
+    // The legal grounds of a workflow (lane PWF-4): the item names the project, whose workflow shows the grounds of each step.
+    case 'PWF-03':
+      return `/pwf/pwf-03?id=${item.target.id}`;
     default:
       return undefined;
   }

@@ -5035,6 +5035,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> submitWhistleReport(SubmitWhistleReport body, {required String slug, CommandAttempt? attempt}) =>
       execute('submitWhistleReport', path: <String, Object?>{'slug': slug}, body: body, attempt: attempt);
 
+  Future<Object?> suggestProjectWorkflow({Map<String, Object?>? query}) =>
+      execute('suggestProjectWorkflow', query: query);
+
   Future<Object?> suspendContract(CtrSuspendContract body, {required String id, required int ifMatchVersion, CommandAttempt? attempt}) =>
       execute('suspendContract', path: <String, Object?>{'id': id}, body: body, ifMatchVersion: ifMatchVersion, attempt: attempt);
 

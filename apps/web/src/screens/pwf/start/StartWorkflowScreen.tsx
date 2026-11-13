@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEdition } from '../../../editions/EditionContext';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -14,6 +15,9 @@ import { CalendarMissingNote, FigureInfo, ProblemBanner, UnverifiedLabel } from 
 import { formProblemText, problemText } from '../labels';
 import { PATHS, PERMISSIONS, TEMPLATE_RULE_TYPE, dayText, describeProblem, factsOf, holds, missingYears, workflowLink } from '../model';
 import type { AdoptResult, Problem, TemplateParams } from '../model';
+import { useWorkflowSuggestion } from '../process/hooks';
+import { basisText } from '../process/labels';
+import { FACT_VALUE, MAX_SELECTION_REASON, MIN_SELECTION_REASON } from '../process/model';
 import { AdoptResultView } from './AdoptResultView';
 import { useApplyAdoption, useDryRunAdoption, usePreviewTemplate, useStartWorkflow, useTemplateCatalogue, useTemplateRule } from './hooks';
 import { FACT_FIELDS, MAX_FACT, adoptBody, decisionsValid, dryRunKey, emptyForm, factsOfProject, hasErrors, readiness, startBody, summarizeTemplate, templateCodes, validateForm } from './model';
@@ -111,6 +115,17 @@ function StartPanel({ project }: { project: ProjectView }) {
   const [problem, setProblem] = useState<Problem | undefined>(undefined);
   const [dry, setDry] = useState<{ result: AdoptResult; key: string } | undefined>(undefined);
   const [confirming, setConfirming] = useState(false);
+  const [reason, setReason] = useState('');
+
+  // R47: what the rule PROJECT_WORKFLOW_ASSIGNMENT suggests for this project and the facts typed. The suggestion is a help: when it cannot be read the form works as it always did.
+  const suggestionQuery: Record<string, string> = { project_id: project.id };
+  for (const field of FACT_FIELDS) if (FACT_VALUE.test(form.facts[field].trim())) suggestionQuery[field] = form.facts[field].trim();
+  // Asked in the public edition only: another edition keeps the screen it has.
+  const suggestion = useWorkflowSuggestion(suggestionQuery, useEdition().manifest.edition === 'public');
+  const suggested = suggestion.data?.suggested_template_code ?? null;
+  const overriding = suggested !== null && form.templateCode !== '' && form.templateCode !== suggested;
+  const reasonMissing = overriding && (reason.trim().length < MIN_SELECTION_REASON || reason.trim().length > MAX_SELECTION_REASON);
+  const withReason = <Body extends object>(body: Body): Body => (overriding && reason.trim() !== '' ? { ...body, selection_reason: reason.trim() } : body);
 
   const catalogue = useTemplateCatalogue(true);
   const entry = catalogue.data?.find((item) => item.ruleType === TEMPLATE_RULE_TYPE);
@@ -150,9 +165,9 @@ function StartPanel({ project }: { project: ProjectView }) {
 
   const submitStart = async (): Promise<void> => {
     setAttempted(true);
-    if (hasErrors(validateForm(form))) return;
+    if (hasErrors(validateForm(form)) || reasonMissing) return;
     try {
-      await start.mutateAsync({ projectId: project.id, body: startBody(form) });
+      await start.mutateAsync({ projectId: project.id, body: withReason(startBody(form)) });
       goToWorkflow();
     } catch (error) {
       fail(error);
@@ -161,9 +176,9 @@ function StartPanel({ project }: { project: ProjectView }) {
 
   const runDry = async (): Promise<void> => {
     setAttempted(true);
-    if (hasErrors(validateForm(form)) || !decisionsValid(decisions)) return;
+    if (hasErrors(validateForm(form)) || !decisionsValid(decisions) || reasonMissing) return;
     try {
-      const result = await dryRun.mutateAsync({ projectId: project.id, body: adoptBody(form, decisions, true) });
+      const result = await dryRun.mutateAsync({ projectId: project.id, body: withReason(adoptBody(form, decisions, true)) });
       setDry({ result, key: dryRunKey(form, decisions) });
       setProblem(undefined);
     } catch (error) {
@@ -173,7 +188,7 @@ function StartPanel({ project }: { project: ProjectView }) {
 
   const applyAdoption = async (): Promise<void> => {
     try {
-      await apply.mutateAsync({ projectId: project.id, body: adoptBody(form, decisions, false) });
+      await apply.mutateAsync({ projectId: project.id, body: withReason(adoptBody(form, decisions, false)) });
       setConfirming(false);
       goToWorkflow();
     } catch (error) {
@@ -249,6 +264,32 @@ function StartPanel({ project }: { project: ProjectView }) {
               </LabelledField>
             ) : null}
           </div>
+          {suggestion.data === undefined ? null : (
+            <div className="pwf-suggestion" data-testid="suggestion">
+              <p role="status" aria-live="polite">
+                {suggested === null ? (
+                  basisText(t, 'NONE', null)
+                ) : (
+                  <>
+                    <strong>{t('pwf.process.kind.suggested.text', { code: suggested, name: suggestion.data.templates.find((one) => one.code === suggested)?.name ?? '' })}</strong> {basisText(t, suggestion.data.basis, suggestion.data.line)}{' '}
+                    {t('pwf.process.kind.ruleVersion.text', { version: suggestion.data.rule.version })}
+                  </>
+                )}
+              </p>
+              {suggested !== null && form.templateCode !== suggested ? (
+                <p>
+                  <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="use-suggestion" onClick={() => edit({ templateCode: suggested })}>
+                    {t('pwf.process.kind.useSuggested.action')}
+                  </button>
+                </p>
+              ) : null}
+              {overriding ? (
+                <LabelledField label={t('pwf.process.kind.reason.label')} testId="selectionReason" error={attempted && reasonMissing ? t('pwf.process.problem.reasonRequired.text') : undefined} hint={t('pwf.process.kind.reason.hint', { code: suggested ?? '' })}>
+                  {({ id, invalid, describedBy }) => <textarea id={id} rows={2} data-testid="selection-reason" value={reason} aria-invalid={invalid} aria-describedby={describedBy} onChange={(event) => setReason(event.target.value)} />}
+                </LabelledField>
+              ) : null}
+            </div>
+          )}
           {entry !== undefined && codes.length === 0 ? (
             <p className="callout warning" role="status" data-testid="no-template">
               {t('pwf.start.template.empty.notice')}

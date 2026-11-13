@@ -13188,6 +13188,7 @@ final class PrjProjectCreate implements RequestModel {
     this.startYear,
     this.endYear,
     this.classification,
+    this.workflow,
   });
 
   final String code;
@@ -13203,6 +13204,7 @@ final class PrjProjectCreate implements RequestModel {
   final int? startYear;
   final int? endYear;
   final String? classification;
+  final PrjProjectCreateWorkflow? workflow;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -13219,6 +13221,51 @@ final class PrjProjectCreate implements RequestModel {
         if (startYear != null) 'start_year': startYear,
         if (endYear != null) 'end_year': endYear,
         if (classification != null) 'classification': classification,
+        if (workflow != null) 'workflow': workflow,
+      };
+}
+
+final class PrjProjectCreateWorkflow implements RequestModel {
+  const PrjProjectCreateWorkflow({
+    required this.plannedStartDate,
+    this.templateCode,
+    this.templateVersion,
+    this.facts,
+    this.selectionReason,
+  });
+
+  final String? templateCode;
+  final int? templateVersion;
+  final String plannedStartDate;
+  final PrjProjectCreateWorkflowFacts? facts;
+  final String? selectionReason;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (templateCode != null) 'template_code': templateCode,
+        if (templateVersion != null) 'template_version': templateVersion,
+        'planned_start_date': plannedStartDate,
+        if (facts != null) 'facts': facts,
+        if (selectionReason != null) 'selection_reason': selectionReason,
+      };
+}
+
+final class PrjProjectCreateWorkflowFacts implements RequestModel {
+  const PrjProjectCreateWorkflowFacts({
+    this.projectGroup,
+    this.fundingSource,
+    this.projectType,
+  });
+
+  final String? projectGroup;
+  final String? fundingSource;
+  final String? projectType;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        if (projectGroup != null) 'project_group': projectGroup,
+        if (fundingSource != null) 'funding_source': fundingSource,
+        if (projectType != null) 'project_type': projectType,
       };
 }
 
@@ -13980,6 +14027,28 @@ final class PwfExceptionRequest implements RequestModel {
       };
 }
 
+final class PwfLegalBasis implements RequestModel {
+  const PwfLegalBasis({
+    required this.document,
+    required this.verification,
+    this.article,
+    this.note,
+  });
+
+  final String document;
+  final String? article;
+  final String? note;
+  final String verification;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'document': document,
+        if (article != null) 'article': article,
+        if (note != null) 'note': note,
+        'verification': verification,
+      };
+}
+
 final class PwfRescheduleRequest implements RequestModel {
   const PwfRescheduleRequest({
     required this.reason,
@@ -14194,11 +14263,13 @@ final class PwfTemplateParams implements RequestModel {
     required this.projectType,
     required this.phases,
     required this.tasks,
+    this.steps,
   });
 
   final String name;
   final Object? projectType;
   final List<PwfTemplateParamsPhasesItem> phases;
+  final List<PwfTemplateParamsStepsItem>? steps;
   final List<PwfTemplateParamsTasksItem> tasks;
 
   @override
@@ -14206,6 +14277,7 @@ final class PwfTemplateParams implements RequestModel {
         'name': name,
         'project_type': projectType,
         'phases': phases,
+        if (steps != null) 'steps': steps,
         'tasks': tasks,
       };
 }
@@ -14229,6 +14301,31 @@ final class PwfTemplateParamsPhasesItem implements RequestModel {
       };
 }
 
+final class PwfTemplateParamsStepsItem implements RequestModel {
+  const PwfTemplateParamsStepsItem({
+    required this.code,
+    required this.name,
+    required this.phase,
+    this.responsibleRole,
+    this.legalBasis,
+  });
+
+  final String code;
+  final String name;
+  final String phase;
+  final Object? responsibleRole;
+  final List<PwfLegalBasis>? legalBasis;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'code': code,
+        'name': name,
+        'phase': phase,
+        if (responsibleRole != null) 'responsible_role': responsibleRole,
+        if (legalBasis != null) 'legal_basis': legalBasis,
+      };
+}
+
 final class PwfTemplateParamsTasksItem implements RequestModel {
   const PwfTemplateParamsTasksItem({
     required this.code,
@@ -14247,6 +14344,9 @@ final class PwfTemplateParamsTasksItem implements RequestModel {
     this.checklist,
     this.kpiCodes,
     this.when_,
+    this.step,
+    this.legalBasis,
+    this.formPolicies,
   });
 
   final String code;
@@ -14265,6 +14365,9 @@ final class PwfTemplateParamsTasksItem implements RequestModel {
   final List<PwfTemplateParamsTasksItemChecklistItem>? checklist;
   final List<String>? kpiCodes;
   final List<PwfTemplateParamsTasksItemWhenItem>? when_;
+  final Object? step;
+  final List<PwfLegalBasis>? legalBasis;
+  final List<PwfTemplateParamsTasksItemFormPoliciesItem>? formPolicies;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
@@ -14284,6 +14387,9 @@ final class PwfTemplateParamsTasksItem implements RequestModel {
         if (checklist != null) 'checklist': checklist,
         if (kpiCodes != null) 'kpi_codes': kpiCodes,
         if (when_ != null) 'when': when_,
+        if (step != null) 'step': step,
+        if (legalBasis != null) 'legal_basis': legalBasis,
+        if (formPolicies != null) 'form_policies': formPolicies,
       };
 }
 
@@ -14306,6 +14412,25 @@ final class PwfTemplateParamsTasksItemChecklistItem implements RequestModel {
         'name': name,
         'required': required_,
         'evidence_kinds': evidenceKinds,
+      };
+}
+
+final class PwfTemplateParamsTasksItemFormPoliciesItem implements RequestModel {
+  const PwfTemplateParamsTasksItemFormPoliciesItem({
+    required this.form,
+    required this.policy,
+    this.revision,
+  });
+
+  final String form;
+  final String policy;
+  final Object? revision;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'form': form,
+        'policy': policy,
+        if (revision != null) 'revision': revision,
       };
 }
 
@@ -14384,17 +14509,18 @@ final class PwfTemplatePreviewRequestFacts implements RequestModel {
 
 final class PwfWorkflowAdopt implements RequestModel {
   const PwfWorkflowAdopt({
-    required this.templateCode,
     required this.plannedStartDate,
     required this.effectiveDate,
     required this.dryRun,
+    this.templateCode,
     this.templateVersion,
     this.facts,
     this.pastTasks,
     this.inProgressTasks,
+    this.selectionReason,
   });
 
-  final String templateCode;
+  final String? templateCode;
   final int? templateVersion;
   final String plannedStartDate;
   final String effectiveDate;
@@ -14402,10 +14528,11 @@ final class PwfWorkflowAdopt implements RequestModel {
   final PwfWorkflowAdoptFacts? facts;
   final List<PwfWorkflowAdoptPastTasksItem>? pastTasks;
   final List<PwfWorkflowAdoptInProgressTasksItem>? inProgressTasks;
+  final String? selectionReason;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'template_code': templateCode,
+        if (templateCode != null) 'template_code': templateCode,
         if (templateVersion != null) 'template_version': templateVersion,
         'planned_start_date': plannedStartDate,
         'effective_date': effectiveDate,
@@ -14413,6 +14540,7 @@ final class PwfWorkflowAdopt implements RequestModel {
         if (facts != null) 'facts': facts,
         if (pastTasks != null) 'past_tasks': pastTasks,
         if (inProgressTasks != null) 'in_progress_tasks': inProgressTasks,
+        if (selectionReason != null) 'selection_reason': selectionReason,
       };
 }
 
@@ -14484,23 +14612,26 @@ final class PwfWorkflowAdoptPastTasksItem implements RequestModel {
 
 final class PwfWorkflowStart implements RequestModel {
   const PwfWorkflowStart({
-    required this.templateCode,
     required this.plannedStartDate,
+    this.templateCode,
     this.templateVersion,
     this.facts,
+    this.selectionReason,
   });
 
-  final String templateCode;
+  final String? templateCode;
   final int? templateVersion;
   final String plannedStartDate;
   final PwfWorkflowStartFacts? facts;
+  final String? selectionReason;
 
   @override
   Map<String, Object?> toJson() => <String, Object?>{
-        'template_code': templateCode,
+        if (templateCode != null) 'template_code': templateCode,
         if (templateVersion != null) 'template_version': templateVersion,
         'planned_start_date': plannedStartDate,
         if (facts != null) 'facts': facts,
+        if (selectionReason != null) 'selection_reason': selectionReason,
       };
 }
 
