@@ -10,7 +10,12 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
-import '../../command_support/command_flow.dart' show GateNote;
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/machvon_semantic.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/tap_target.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/offline.dart';
 import '../../read_support/paged.dart';
@@ -38,7 +43,7 @@ class _PackagePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.ai.qa.title'),
       body: FreshRead<PackageList>(
         resource: 'packages',
@@ -48,32 +53,21 @@ class _PackagePicker extends StatelessWidget {
           children: <Widget>[
             const AiNotice(),
             Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
-              child: Text(context.t('mob.ai.qa.scope.intro'), style: Theme.of(context).textTheme.bodyMedium),
+              padding: const EdgeInsets.all(MachvonV2Space.s16),
+              child: Text(context.t('mob.ai.qa.scope.intro'), style: context.v2text.body),
             ),
-            for (final PackageChoice choice in list.packages)
-              TappableRow(
-                semanticLabel: context.t('mob.ai.qa.scope.aria', <String, Object>{'code': choice.code, 'title': choice.title}),
-                onTap: () => openScreen(context, 'MOB-37', query: <String, String>{'package': choice.id}, stacked: true),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(choice.code, style: Theme.of(context).textTheme.bodyLarge),
-                          Text(choice.title, style: Theme.of(context).textTheme.bodyMedium),
-                        ],
-                      ),
-                    ),
-                    const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-                  ],
-                ),
+            for (int index = 0; index < list.packages.length; index += 1)
+              AiRow(
+                title: list.packages[index].code,
+                subtitle: list.packages[index].title,
+                dividerAbove: index > 0,
+                semanticLabel: context.t('mob.ai.qa.scope.aria', <String, Object>{'code': list.packages[index].code, 'title': list.packages[index].title}),
+                onTap: () => openScreen(context, 'MOB-37', query: <String, String>{'package': list.packages[index].id}, stacked: true),
               ),
             if (list.more)
               Padding(
-                padding: const EdgeInsets.all(MachvonSpace.space16),
-                child: Text(context.t('mob.ai.qa.scope.more'), style: Theme.of(context).textTheme.bodySmall),
+                padding: const EdgeInsets.all(MachvonV2Space.s16),
+                child: Text(context.t('mob.ai.qa.scope.more'), style: context.v2text.caption),
               ),
           ],
         ),
@@ -151,13 +145,15 @@ class _ThreadState extends ConsumerState<_Thread> {
   Widget build(BuildContext context) {
     ref.listen<SessionSnapshot>(sessionProvider, _sessionChanged);
     final bool offline = isOffline(ref);
-    final ThemeData theme = Theme.of(context);
-    return ScreenFrame(
+    final MachvonV2Text text = context.v2text;
+    return AppScaffold(
       title: context.t('mob.ai.qa.title'),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+        padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
         children: <Widget>[
           const AiNotice(),
+          // A question is asked on the server and never from a copy: with no connection the button is off and the reason is said, as a live region.
+          if (offline) StatusBanner(text: context.t('mob.ai.qa.gate.offline'), icon: Icons.cloud_off_outlined),
           SectionCard(
             title: context.t('mob.ai.qa.ask.title'),
             children: <Widget>[
@@ -174,8 +170,7 @@ class _ThreadState extends ConsumerState<_Thread> {
                   errorText: switch (_problem) { null => null, QuestionProblem.empty => context.t('mob.ai.qa.question.empty'), QuestionProblem.tooLong => context.t('mob.ai.qa.question.tooLong') },
                 ),
               ),
-              if (offline) GateNote(text: context.t('mob.ai.qa.gate.offline')),
-              const SizedBox(height: MachvonSpace.space8),
+              const SizedBox(height: MachvonV2Space.s8),
               FilledButton(
                 onPressed: offline || _busy ? null : _submit,
                 child: Text(_busy ? context.t('mob.ai.qa.ask.pending') : context.t('mob.ai.qa.ask.action')),
@@ -184,8 +179,8 @@ class _ThreadState extends ConsumerState<_Thread> {
           ),
           if (_turns.isEmpty)
             Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
-              child: Text(context.t('mob.ai.qa.thread.empty'), style: theme.textTheme.bodyMedium),
+              padding: const EdgeInsets.all(MachvonV2Space.s16),
+              child: Text(context.t('mob.ai.qa.thread.empty'), style: text.body),
             ),
           for (final _Turn turn in _turns) _TurnCard(turn: turn, packageId: widget.packageId, offline: offline, onRetry: () => _retry(turn)),
         ],
@@ -212,15 +207,15 @@ class _TurnCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final QaResult? result = turn.result;
     return SectionCard(
       title: context.t('mob.ai.qa.turn.title'),
       children: <Widget>[
-        Text(turn.question, style: theme.textTheme.bodyLarge),
-        const SizedBox(height: MachvonSpace.space8),
+        Text(turn.question, style: text.bodyStrong),
+        const SizedBox(height: MachvonV2Space.s8),
         if (result == null)
-          Semantics(liveRegion: true, child: Text(context.t('mob.ai.qa.turn.searching'), style: theme.textTheme.bodyMedium))
+          Semantics(liveRegion: true, child: Text(context.t('mob.ai.qa.turn.searching'), style: text.body))
         else
           switch (result) {
             QaPassages() => _Passages(passages: result.passages, packageId: packageId),
@@ -241,41 +236,38 @@ class _Passages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Semantics(header: true, child: Text(context.t('mob.ai.qa.answer.title', <String, Object>{'count': passages.length}), style: theme.textTheme.titleSmall)),
-        Text(context.t('mob.ai.qa.answer.note'), style: theme.textTheme.bodySmall),
-        const SizedBox(height: MachvonSpace.space8),
-        for (final Passage passage in passages)
-          Padding(
-            padding: const EdgeInsets.only(bottom: MachvonSpace.space8),
-            child: DecoratedBox(
-              decoration: BoxDecoration(border: Border.all(color: MachvonColors.border), borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control))),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        Semantics(header: true, child: Text(context.t('mob.ai.qa.answer.title', <String, Object>{'count': passages.length}), style: text.heading)),
+        Text(context.t('mob.ai.qa.answer.note'), style: text.caption),
+        const SizedBox(height: MachvonV2Space.s8),
+        for (final Passage passage in passages) ...<Widget>[
+          SizedBox(height: 1, child: ColoredBox(color: v2.palette.line)),
+          TapTarget(
+            semanticLabel: context.t('mob.ai.qa.chip.aria', <String, Object>{'file': shortId(passage.documentVersionId), 'page': passage.pageIndex + 1}),
+            onTap: () => openScreen(context, 'MOB-39', query: <String, String>{'package': packageId, 'doc': passage.documentVersionId, 'page': '${passage.pageIndex}'}, stacked: true),
+            radius: 0,
+            minHeight: 48,
+            child: SizedBox(
+              width: double.infinity,
+              child: Row(
                 children: <Widget>[
-                  TappableRow(
-                    semanticLabel: context.t('mob.ai.qa.chip.aria', <String, Object>{'file': shortId(passage.documentVersionId), 'page': passage.pageIndex + 1}),
-                    onTap: () => openScreen(context, 'MOB-39', query: <String, String>{'package': packageId, 'doc': passage.documentVersionId, 'page': '${passage.pageIndex}'}, stacked: true),
-                    child: Row(
-                      children: <Widget>[
-                        const ExcludeSemantics(child: Icon(Icons.description_outlined)),
-                        const SizedBox(width: MachvonSpace.space8),
-                        Expanded(child: Text(context.t('mob.ai.qa.chip.label', <String, Object>{'file': shortId(passage.documentVersionId), 'page': passage.pageIndex + 1}), style: theme.textTheme.titleSmall)),
-                        const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, 0, MachvonSpace.space16, MachvonSpace.space12),
-                    child: Text(passage.text, maxLines: 8, style: theme.textTheme.bodyMedium),
-                  ),
+                  ExcludeSemantics(child: Icon(Icons.description_outlined, color: v2.palette.primaryStrong)),
+                  const SizedBox(width: MachvonV2Space.s8),
+                  Expanded(child: Text(context.t('mob.ai.qa.chip.label', <String, Object>{'file': shortId(passage.documentVersionId), 'page': passage.pageIndex + 1}), style: text.label.copyWith(color: v2.palette.primaryStrong))),
+                  ExcludeSemantics(child: Icon(Icons.chevron_right, color: v2.palette.ink2)),
                 ],
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s12),
+            child: Text(passage.text, maxLines: 8, overflow: TextOverflow.ellipsis, style: text.body),
+          ),
+        ],
       ],
     );
   }
@@ -290,16 +282,25 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return Semantics(
       liveRegion: true,
       container: true,
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(title, style: theme.textTheme.titleSmall),
-          Text(body, style: theme.textTheme.bodyMedium),
-          Text(code, style: theme.textTheme.bodySmall),
+          ExcludeSemantics(child: SizedBox(height: 22, child: Center(child: Icon(Icons.info_outline, size: 20, color: context.semantic.onSoft(MachvonTone.info))))),
+          const SizedBox(width: MachvonV2Space.s8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(title, style: text.bodyStrong),
+                Text(body, style: text.body),
+                Text(code, style: text.caption),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -331,9 +332,9 @@ class _Failure extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         _Message(title: context.t('mob.ai.qa.failed.title'), body: body, code: problem.code),
-        if (problem.correlationId != null && problem.correlationId!.isNotEmpty) Text(problem.correlationId!, style: Theme.of(context).textTheme.bodySmall),
+        if (problem.correlationId != null && problem.correlationId!.isNotEmpty) Text(problem.correlationId!, style: context.v2text.caption),
         if (retryable) ...<Widget>[
-          const SizedBox(height: MachvonSpace.space8),
+          const SizedBox(height: MachvonV2Space.s8),
           OutlinedButton(onPressed: offline ? null : onRetry, child: Text(context.t('mob.ai.qa.failed.retry'))),
         ],
       ],

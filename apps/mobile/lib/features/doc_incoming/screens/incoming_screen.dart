@@ -8,36 +8,70 @@ import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
-import '../../command_support/command_flow.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/deadline.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/status_pill.dart';
+import '../../../core/widgets/timeline.dart';
+import '../../../core/widgets/work_row.dart';
+import '../../command_support/command_flow.dart' show CommandFlow, deviceIsOnline;
 import '../../command_support/command_outcome.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/widgets.dart';
 import '../incoming_commands.dart';
 import '../incoming_models.dart';
 import '../incoming_support.dart';
 
 /// DOC-23: the incoming letters the person has to deal with, on the phone (ST-DOC-020, DOC 4, UAT-AC420). Without a parameter it lists
-/// them, the late ones first, each with its number, its subject, the leader's directive, its deadline and its status; with
-/// `?doc=<id>` it opens one letter, where it can be started and resolved.
+/// them, the late ones first and grouped under their own heading, each with its number, its sender, the day it was received, its deadline
+/// and its urgency, and chips that narrow the list to the late, the newly assigned and the ones being worked on; with `?doc=<id>` it opens
+/// one letter, where it can be started and resolved.
 ///
 /// Personal data and the files of letters are not kept on the device: the reads of this screen are never kept as a copy (a lost
 /// connection is the offline state, not an old list), and the letter's file is not read here. Starting and resolving are one request
 /// each, sent at once under an idempotency key of their own and never queued (a command without a key would be refused by the server).
-/// What the person may do is what the server says for this letter (`actions`); the server judges each command again.
+/// What the person may do is what the server says for this letter (`actions`); the server judges each command again. The phone never
+/// counts the days to a deadline itself: it shows the day the server gives and, for a late letter, the days the server counts.
 Widget buildIncomingScreen(BuildContext context, ScreenContext screen) {
   final String? id = screen.queryParameters['doc'];
   return id == null || id.isEmpty ? const _ListScreen() : _LetterScreen(letterId: id);
 }
 
-class _ListScreen extends ConsumerWidget {
+/// What the chips of the list narrow it to.
+enum _Show { all, late, assigned, processing }
+
+List<IncomingLetter> _narrowed(List<IncomingLetter> letters, _Show show) {
+  switch (show) {
+    case _Show.all:
+      return letters;
+    case _Show.late:
+      return <IncomingLetter>[for (final IncomingLetter letter in letters) if (letter.isOverdue) letter];
+    case _Show.assigned:
+      return <IncomingLetter>[for (final IncomingLetter letter in letters) if (letter.status == 'ASSIGNED') letter];
+    case _Show.processing:
+      return <IncomingLetter>[for (final IncomingLetter letter in letters) if (letter.status == 'PROCESSING') letter];
+  }
+}
+
+class _ListScreen extends ConsumerStatefulWidget {
   const _ListScreen();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ListScreen> createState() => _ListScreenState();
+}
+
+class _ListScreenState extends ConsumerState<_ListScreen> {
+  _Show _show = _Show.all;
+
+  @override
+  Widget build(BuildContext context) {
     final String? membership = ref.watch(sessionProvider).membershipId;
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.docin.list.title'),
       body: DataView<IncomingList>(
         cacheKey: 'doc.incoming.mine',
@@ -49,18 +83,41 @@ class _ListScreen extends ConsumerWidget {
         isEmpty: (IncomingList list) => lettersToHandle(list.letters, membership).isEmpty,
         builder: (BuildContext context, Loaded<IncomingList> loaded) {
           final List<IncomingLetter> letters = lettersToHandle(loaded.value.letters, membership);
+          final List<IncomingLetter> shown = _narrowed(letters, _show);
+          final List<IncomingLetter> late = <IncomingLetter>[for (final IncomingLetter letter in shown) if (letter.isOverdue) letter];
+          final List<IncomingLetter> open = <IncomingLetter>[for (final IncomingLetter letter in shown) if (!letter.isOverdue) letter];
           return ListView(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(MachvonSpace.space16),
-                child: Text(context.t('mob.docin.list.intro'), style: Theme.of(context).textTheme.bodyMedium),
+                padding: const EdgeInsets.all(MachvonV2Space.s16),
+                child: Text(context.t('mob.docin.list.intro'), style: context.v2text.caption.copyWith(color: context.v2.palette.ink2)),
               ),
-              for (final IncomingLetter letter in letters) _LetterRow(letter: letter),
-              if (loaded.value.more)
-                Padding(
-                  padding: const EdgeInsets.all(MachvonSpace.space16),
-                  child: Text(context.t('mob.docin.list.more'), style: Theme.of(context).textTheme.bodySmall),
+              FilterChips<_Show>(
+                options: <ChipOption<_Show>>[
+                  ChipOption<_Show>(value: _Show.all, label: context.t('mob.docin.filter.all'), count: letters.length),
+                  ChipOption<_Show>(value: _Show.late, label: context.t('mob.docin.filter.late'), count: _narrowed(letters, _Show.late).length),
+                  ChipOption<_Show>(value: _Show.assigned, label: context.t('mob.docin.filter.assigned'), count: _narrowed(letters, _Show.assigned).length),
+                  ChipOption<_Show>(value: _Show.processing, label: context.t('mob.docin.filter.processing'), count: _narrowed(letters, _Show.processing).length),
+                ],
+                selected: _show,
+                onChanged: (_Show next) => setState(() => _show = next),
+              ),
+              if (shown.isEmpty)
+                SizedBox(
+                  height: 360,
+                  child: StateView(
+                    kind: StateKind.empty,
+                    title: context.t('mob.docin.list.filtered.title'),
+                    body: context.t('mob.docin.list.filtered.body'),
+                    actionLabel: context.t('mob.docin.list.filtered.action'),
+                    onAction: () => setState(() => _show = _Show.all),
+                  ),
                 ),
+              if (late.isNotEmpty) GroupHeader(title: context.t('mob.docin.list.group.late'), count: late.length),
+              for (int index = 0; index < late.length; index += 1) _LetterRow(letter: late[index], dividerAbove: index > 0),
+              if (open.isNotEmpty && late.isNotEmpty) GroupHeader(title: context.t('mob.docin.list.group.open'), count: open.length),
+              for (int index = 0; index < open.length; index += 1) _LetterRow(letter: open[index], dividerAbove: index > 0),
+              if (loaded.value.more) StatusBanner(text: context.t('mob.docin.list.more'), tone: BannerTone.warning),
             ],
           );
         },
@@ -78,46 +135,61 @@ String _overdueText(BuildContext context, IncomingLetter letter) =>
 String _numberText(BuildContext context, IncomingLetter letter) =>
     letter.numberLabel == null ? context.t('mob.docin.number.none') : context.t('mob.docin.number', <String, Object>{'number': letter.numberLabel!});
 
-String _directiveText(BuildContext context, IncomingLetter letter) =>
-    letter.leaderDirective == null ? context.t('mob.docin.directive.none') : context.t('mob.docin.directive.text', <String, Object>{'text': letter.leaderDirective!});
-
-class _LetterRow extends StatelessWidget {
-  const _LetterRow({required this.letter});
+/// The glyph of a row: the late band when the server counts the letter late, otherwise a plain letter (the phone does not judge the band of a
+/// deadline the server did not count).
+class _LetterGlyph extends StatelessWidget {
+  const _LetterGlyph({required this.letter});
 
   final IncomingLetter letter;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    if (letter.isOverdue) return const DeadlineGlyph(band: DeadlineBand.late);
+    final MachvonV2Palette p = context.v2.palette;
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: MachvonV2Size.glyph,
+        height: MachvonV2Size.glyph,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(MachvonV2Radius.glyph),
+          child: ColoredBox(color: p.sunken, child: Icon(Icons.mail_outline, size: 22, color: p.ink2)),
+        ),
+      ),
+    );
+  }
+}
+
+class _LetterRow extends StatelessWidget {
+  const _LetterRow({required this.letter, required this.dividerAbove});
+
+  final IncomingLetter letter;
+  final bool dividerAbove;
+
+  @override
+  Widget build(BuildContext context) {
     final String status = statusLabel(context, letter.status);
     final String due = letter.isOverdue ? _overdueText(context, letter) : _dueText(context, letter);
-    return TappableRow(
+    final String received = context.t('mob.docin.list.received', <String, Object>{'date': formatDayShort(letter.receivedAt)});
+    final List<String> facts = <String>[_numberText(context, letter), if (letter.senderName.isNotEmpty) letter.senderName, received];
+    final Widget trailing = Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        if (letter.isOverdue)
+          DeadlineLabel(band: DeadlineBand.late, text: context.t('mob.docin.overdue.days', <String, Object>{'days': letter.overdueDays ?? 0}), dueDay: letter.dueOn)
+        else
+          Text(letter.dueOn == null ? context.t('mob.docin.due.none') : formatDayShort(letter.dueOn!), style: context.v2text.label, textAlign: TextAlign.end),
+        if (letter.urgency != 'NORMAL') Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: StatusPill(label: urgencyLabel(context, letter.urgency), warn: true)),
+      ],
+    );
+    return WorkRow(
+      title: letter.title,
+      subtitle: facts.join(' · '),
+      leading: _LetterGlyph(letter: letter),
+      trailing: trailing,
       semanticLabel: context.t('mob.docin.list.row.aria', <String, Object>{'title': letter.title, 'status': status, 'due': due}),
+      dividerAbove: dividerAbove,
       onTap: () => openScreen(context, 'DOC-23', query: <String, String>{'doc': letter.id}, stacked: true),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(letter.title, style: theme.textTheme.bodyLarge),
-                Text('${_numberText(context, letter)} · ${letter.senderName}', style: theme.textTheme.bodyMedium),
-                Text(_directiveText(context, letter), style: theme.textTheme.bodyMedium),
-                Text(_dueText(context, letter), style: theme.textTheme.bodyMedium),
-                Wrap(
-                  spacing: MachvonSpace.space8,
-                  children: <Widget>[
-                    StatusPill(label: status),
-                    if (letter.urgency != 'NORMAL') StatusPill(label: urgencyLabel(context, letter.urgency), warn: true),
-                    if (letter.isOverdue) StatusPill(label: _overdueText(context, letter), warn: true),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-        ],
-      ),
     );
   }
 }
@@ -136,7 +208,7 @@ class _LetterScreenState extends ConsumerState<_LetterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.docin.detail.title'),
       body: DataView<IncomingLetter>(
         cacheKey: 'doc.incoming.${widget.letterId}',
@@ -150,6 +222,47 @@ class _LetterScreenState extends ConsumerState<_LetterScreen> {
             ref.read(lettersChangedProvider.notifier).bump();
             setState(() => _changed += 1);
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// A message about a command, outside the form (a refusal never makes the form disappear): a band of the theme's colours, a live region.
+class _Notice extends StatelessWidget {
+  const _Notice({required this.title, required this.fill, required this.mark, this.lines = const <String>[], this.code, this.actionLabel, this.onAction});
+
+  final String title;
+  final Color fill;
+  final Color mark;
+  final List<String> lines;
+  final String? code;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: ColoredBox(
+        color: fill,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(title, style: text.bodyStrong.copyWith(color: mark)),
+              for (final String line in lines) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(line, style: text.body.copyWith(color: mark))),
+              if (code != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(code!, style: text.caption.copyWith(color: mark))),
+              if (actionLabel != null && onAction != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: MachvonV2Space.s12),
+                  child: Align(alignment: Alignment.centerLeft, child: OutlinedButton(onPressed: onAction, style: v2QuietButtonStyle(context.v2), child: Text(actionLabel!))),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -205,22 +318,27 @@ class _LetterBodyState extends ConsumerState<_LetterBody> with CommandFlow<_Lett
   }
 
   Widget _outcome(BuildContext context, CommandOutcome result) {
+    final MachvonV2Palette p = context.v2.palette;
     switch (result) {
       case CommandDone():
-        return OutcomeCard(title: context.t('mob.docin.result.done.title'), lines: <String>[context.t('mob.docin.result.done.body')]);
+        return _Notice(fill: p.okBg, mark: p.okFg, title: context.t('mob.docin.result.done.title'), lines: <String>[context.t('mob.docin.result.done.body')]);
       case CommandUnknown():
-        return OutcomeCard(
+        return _Notice(
+          fill: p.soonBg,
+          mark: p.soonFg,
           title: context.t('mob.docin.result.unknown.title'),
           lines: <String>[context.t('mob.docin.result.unknown.body')],
           actionLabel: context.t('mob.docin.result.unknown.action'),
           onAction: _last == null ? null : () => _send(_last!, again: true),
         );
       case CommandOffline():
-        return OutcomeCard(title: gateText(context, IncomingGate.offline));
+        return _Notice(fill: p.infoBg, mark: p.infoFg, title: gateText(context, IncomingGate.offline));
       case CommandRefused():
         final IncomingProblem problem = problemOf(result);
         final bool retry = isRetryable(problem) && _last != null;
-        return OutcomeCard(
+        return _Notice(
+          fill: p.lateBg,
+          mark: p.lateFg,
           title: problemText(context, problem),
           code: result.code,
           actionLabel: retry ? context.t('mob.docin.result.retry.action') : null,
@@ -234,163 +352,204 @@ class _LetterBodyState extends ConsumerState<_LetterBody> with CommandFlow<_Lett
     final IncomingLetter letter = widget.letter;
     final IncomingGate gate = gateOf(letter: letter, offline: isOffline(ref), session: ref.watch(sessionProvider));
     final CommandOutcome? result = outcome;
-    return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+    final bool actionable = letter.isHandling && (letter.canStart || letter.canResolve);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (result != null) _outcome(context, result),
-        _LetterCard(letter: letter),
-        _FileCard(letter: letter),
-        if (letter.assignments.isNotEmpty) _HistoryCard(letter: letter),
-        if (letter.resolutionSummary != null) _ResolutionCard(letter: letter),
-        _actionCard(context, letter, gate),
-      ],
-    );
-  }
-
-  Widget _actionCard(BuildContext context, IncomingLetter letter, IncomingGate gate) {
-    final bool ready = gate == IncomingGate.open && !sending;
-    return SectionCard(
-      title: context.t('mob.docin.act.title'),
-      children: <Widget>[
-        if (gate != IncomingGate.open) GateNote(text: gateText(context, gate)),
-        if (letter.isOverdue && gate == IncomingGate.open && letter.canResolve) GateNote(text: context.t('mob.docin.act.late', <String, Object>{'days': letter.overdueDays ?? 0})),
-        if (letter.canStart && letter.isHandling)
-          FilledButton(onPressed: ready ? _start : null, child: Text(sending && !_resolving ? context.t('mob.docin.act.sending') : context.t('mob.docin.act.start'))),
-        if (letter.canResolve && letter.isHandling && !_resolving) ...<Widget>[
-          const SizedBox(height: MachvonSpace.space8),
-          OutlinedButton(onPressed: ready ? () => setState(() => _resolving = true) : null, child: Text(context.t('mob.docin.act.resolve'))),
-        ],
-        if (letter.canResolve && letter.isHandling && _resolving) ...<Widget>[
-          const SizedBox(height: MachvonSpace.space8),
-          TextField(
-            controller: _summary,
-            readOnly: sending,
-            minLines: 3,
-            maxLines: 6,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: InputDecoration(labelText: context.t('mob.docin.act.summary.label'), errorText: _problem == null ? null : summaryProblemText(context, _problem!)),
-          ),
-          const SizedBox(height: MachvonSpace.space8),
-          FilledButton(onPressed: ready ? _resolve : null, child: Text(sending ? context.t('mob.docin.act.sending') : context.t('mob.docin.act.submit'))),
-          const SizedBox(height: MachvonSpace.space8),
-          TextButton(
-            onPressed: sending ? null : () => setState(() {
-              _resolving = false;
-              _problem = null;
-            }),
-            child: Text(context.t('mob.docin.act.cancel')),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _LetterCard extends StatelessWidget {
-  const _LetterCard({required this.letter});
-
-  final IncomingLetter letter;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return SectionCard(
-      title: context.t('mob.docin.letter.title'),
-      children: <Widget>[
-        Text(letter.title, style: theme.textTheme.bodyLarge),
-        Text(_numberText(context, letter), style: theme.textTheme.bodyMedium),
-        Text(_directiveText(context, letter), style: theme.textTheme.bodyMedium),
-        Text(_dueText(context, letter), style: theme.textTheme.bodyMedium),
-        if (letter.isOverdue) Text(_overdueText(context, letter), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
-        FactLine(label: context.t('mob.docin.letter.status'), value: statusLabel(context, letter.status)),
-        FactLine(label: context.t('mob.docin.letter.urgency'), value: urgencyLabel(context, letter.urgency)),
-        if (letter.senderName.isNotEmpty) FactLine(label: context.t('mob.docin.letter.sender'), value: letter.senderName),
-        if (letter.docTypeCode.isNotEmpty) FactLine(label: context.t('mob.docin.letter.type'), value: letter.docTypeCode),
-        if (letter.originalSymbol != null) FactLine(label: context.t('mob.docin.letter.symbol'), value: letter.originalSymbol!),
-        if (letter.assignedUnitName != null) FactLine(label: context.t('mob.docin.letter.unit'), value: letter.assignedUnitName!),
-        if (letter.assigneeName != null) FactLine(label: context.t('mob.docin.letter.assignee'), value: letter.assigneeName!),
-      ],
-    );
-  }
-}
-
-class _FileCard extends StatelessWidget {
-  const _FileCard({required this.letter});
-
-  final IncomingLetter letter;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final String? hash = letter.fileSha256;
-    return SectionCard(
-      title: context.t('mob.docin.file.title'),
-      children: <Widget>[
-        if (hash == null)
-          Text(context.t('mob.docin.file.none'), style: theme.textTheme.bodyMedium)
-        else ...<Widget>[
-          Text(context.t('mob.docin.file.hash', <String, Object>{'hash': hash.substring(0, hash.length < 12 ? hash.length : 12)}), style: theme.textTheme.bodyMedium),
-          Text(context.t('mob.docin.file.web'), style: theme.textTheme.bodySmall),
-        ],
-      ],
-    );
-  }
-}
-
-class _HistoryCard extends StatelessWidget {
-  const _HistoryCard({required this.letter});
-
-  final IncomingLetter letter;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return SectionCard(
-      title: context.t('mob.docin.history.title'),
-      children: <Widget>[
-        for (final IncomingAssignment entry in letter.assignments)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
-            child: MergeSemantics(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    context.t('mob.docin.history.row', <String, Object>{
-                      'unit': entry.unitName,
-                      'who': entry.assignee ?? context.t('mob.docin.history.unit'),
-                      'time': formatMoment(entry.assignedAt),
-                    }),
-                    style: theme.textTheme.bodyMedium,
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                if (result != null) _outcome(context, result),
+                if (letter.isOverdue) StatusBanner(tone: BannerTone.late, text: _overdueText(context, letter)),
+                if (letter.isOverdue && gate == IncomingGate.open && letter.canResolve)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+                    child: Semantics(liveRegion: true, child: Text(context.t('mob.docin.act.late', <String, Object>{'days': letter.overdueDays ?? 0}), style: context.v2text.body)),
                   ),
-                  if (entry.directive != null) Text(context.t('mob.docin.history.directive', <String, Object>{'text': entry.directive!}), style: theme.textTheme.bodySmall),
-                  if (entry.dueOn != null) Text(context.t('mob.docin.history.due', <String, Object>{'date': formatDay(entry.dueOn!)}), style: theme.textTheme.bodySmall),
-                ],
-              ),
+                if (gate != IncomingGate.open && !actionable) StatusBanner(text: gateText(context, gate)),
+                _LetterHead(letter: letter),
+                _FileBlock(letter: letter),
+                if (letter.assignments.isNotEmpty) _HistoryBlock(letter: letter),
+                if (letter.resolutionSummary != null) _ResolutionBlock(letter: letter),
+                if (actionable && letter.canResolve && _resolving) _summaryForm(context),
+              ],
             ),
           ),
+        ),
+        if (actionable) _bar(context, letter, gate),
       ],
     );
   }
+
+  Widget _summaryForm(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s16, right: MachvonV2Space.s16),
+      child: TextField(
+        controller: _summary,
+        readOnly: sending,
+        minLines: 3,
+        maxLines: 6,
+        textCapitalization: TextCapitalization.sentences,
+        decoration: InputDecoration(labelText: context.t('mob.docin.act.summary.label'), errorText: _problem == null ? null : summaryProblemText(context, _problem!)),
+      ),
+    );
+  }
+
+  /// The one bar of the screen: the primary action locked with its reason beside it when the gate is closed. While the summary is typed the
+  /// bar sends it, and the second button leaves the form.
+  Widget _bar(BuildContext context, IncomingLetter letter, IncomingGate gate) {
+    final bool ready = gate == IncomingGate.open && !sending;
+    final String sendingLabel = context.t('mob.docin.act.sending');
+    final String? why = gate == IncomingGate.open ? null : gateText(context, gate);
+    if (letter.canResolve && _resolving) {
+      return ActionBar(
+        primary: ActionBarButton(label: sending ? sendingLabel : context.t('mob.docin.act.submit'), onPressed: ready ? _resolve : null),
+        secondary: ActionBarButton(
+          label: context.t('mob.docin.act.cancel'),
+          onPressed: sending
+              ? null
+              : () => setState(() {
+                    _resolving = false;
+                    _problem = null;
+                  }),
+        ),
+        why: why,
+      );
+    }
+    void openForm() => setState(() => _resolving = true);
+    if (letter.canStart) {
+      return ActionBar(
+        primary: ActionBarButton(label: sending ? sendingLabel : context.t('mob.docin.act.start'), onPressed: ready ? _start : null),
+        secondary: letter.canResolve ? ActionBarButton(label: context.t('mob.docin.act.resolve'), onPressed: ready ? openForm : null) : null,
+        why: why,
+      );
+    }
+    return ActionBar(primary: ActionBarButton(label: context.t('mob.docin.act.resolve'), onPressed: ready ? openForm : null), why: why);
+  }
 }
 
-class _ResolutionCard extends StatelessWidget {
-  const _ResolutionCard({required this.letter});
+class _LetterHead extends StatelessWidget {
+  const _LetterHead({required this.letter});
 
   final IncomingLetter letter;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final int? late = letter.lateDays;
-    return SectionCard(
-      title: context.t('mob.docin.resolved.title'),
+    final MachvonV2Text text = context.v2text;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Text(
-          context.t('mob.docin.resolved.text', <String, Object>{'time': letter.resolvedAt == null ? '' : formatMoment(letter.resolvedAt!), 'summary': letter.resolutionSummary!}),
-          style: theme.textTheme.bodyMedium,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s8),
+          child: Semantics(header: true, child: Text(letter.title, style: text.heading)),
         ),
-        if (late != null && late > 0) Text(context.t('mob.docin.resolved.late', <String, Object>{'days': late}), style: theme.textTheme.bodyMedium),
+        InfoRow(label: context.t('mob.docin.letter.status'), value: statusLabel(context, letter.status), divider: false),
+        InfoRow(label: context.t('mob.docin.letter.urgency'), value: urgencyLabel(context, letter.urgency)),
+        InfoRow(label: context.t('mob.docin.letter.number'), value: letter.numberLabel),
+        InfoRow(label: context.t('mob.docin.letter.directive'), value: letter.leaderDirective),
+        InfoRow(label: context.t('mob.docin.letter.due'), value: letter.dueOn == null ? null : formatDay(letter.dueOn!)),
+        InfoRow(label: context.t('mob.docin.letter.received'), value: letter.receivedAt.isEmpty ? null : formatDay(letter.receivedAt)),
+        InfoRow(label: context.t('mob.docin.letter.sender'), value: letter.senderName),
+        InfoRow(label: context.t('mob.docin.letter.type'), value: letter.docTypeCode),
+        InfoRow(label: context.t('mob.docin.letter.symbol'), value: letter.originalSymbol),
+        InfoRow(label: context.t('mob.docin.letter.unit'), value: letter.assignedUnitName),
+        InfoRow(label: context.t('mob.docin.letter.assignee'), value: letter.assigneeName),
+      ],
+    );
+  }
+}
+
+class _FileBlock extends StatelessWidget {
+  const _FileBlock({required this.letter});
+
+  final IncomingLetter letter;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
+    final String? hash = letter.fileSha256;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        GroupHeader(title: context.t('mob.docin.file.title')),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
+          child: hash == null
+              ? Text(context.t('mob.docin.file.none'), style: text.body)
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Text(context.t('mob.docin.file.hash', <String, Object>{'hash': hash.substring(0, hash.length < 12 ? hash.length : 12)}), style: text.body),
+                    Text(context.t('mob.docin.file.web'), style: text.caption.copyWith(color: context.v2.palette.ink2)),
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HistoryBlock extends StatelessWidget {
+  const _HistoryBlock({required this.letter});
+
+  final IncomingLetter letter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        GroupHeader(title: context.t('mob.docin.history.title'), count: letter.assignments.length),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
+          child: TimelineList(
+            entries: <TimelineEntry>[
+              for (final IncomingAssignment entry in letter.assignments)
+                TimelineEntry(
+                  title: context.t('mob.docin.history.entry', <String, Object>{'unit': entry.unitName, 'who': entry.assignee ?? context.t('mob.docin.history.unit')}),
+                  when: formatMoment(entry.assignedAt),
+                  detail: <String>[
+                    if (entry.directive != null) context.t('mob.docin.history.directive', <String, Object>{'text': entry.directive!}),
+                    if (entry.dueOn != null) context.t('mob.docin.history.due', <String, Object>{'date': formatDay(entry.dueOn!)}),
+                  ].join(' · '),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ResolutionBlock extends StatelessWidget {
+  const _ResolutionBlock({required this.letter});
+
+  final IncomingLetter letter;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
+    final int? late = letter.lateDays;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        GroupHeader(title: context.t('mob.docin.resolved.title')),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                context.t('mob.docin.resolved.text', <String, Object>{'time': letter.resolvedAt == null ? '' : formatMoment(letter.resolvedAt!), 'summary': letter.resolutionSummary!}),
+                style: text.body,
+              ),
+              if (late != null && late > 0) Text(context.t('mob.docin.resolved.late', <String, Object>{'days': late}), style: text.bodyStrong.copyWith(color: context.v2.palette.lateFg)),
+            ],
+          ),
+        ),
       ],
     );
   }

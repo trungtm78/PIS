@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/colors.dart';
 import '../../core/theme/machvon_semantic.dart';
 import '../../core/widgets/status_pill.dart';
 import 'vendor_models.dart';
@@ -16,6 +17,19 @@ String tierWord(BuildContext context, VendorTier tier) {
       return context.t('mob.vnd.tier.high');
     case VendorTier.critical:
       return context.t('mob.vnd.tier.critical');
+  }
+}
+
+/// The band of the figure of a tier: a high or critical tier takes the shape of the late band, a medium one the soon band, a low one the ok band. The word travels with it.
+DeadlineBand bandOfTier(VendorTier tier) {
+  switch (tier) {
+    case VendorTier.low:
+      return DeadlineBand.ok;
+    case VendorTier.medium:
+      return DeadlineBand.soon;
+    case VendorTier.high:
+    case VendorTier.critical:
+      return DeadlineBand.late;
   }
 }
 

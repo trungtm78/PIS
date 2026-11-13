@@ -20,7 +20,7 @@ import '../support/scripted_server.dart';
 
 /// Opens one screen of the contractor controls on a scripted server, the way the application hosts it (theme, both languages, the strings of the core, of the
 /// read support and of the feature, a signed-in session), without the router: the screens take their navigation as a parameter.
-Future<ProviderContainer> openVendorScreen(WidgetTester tester, ScriptedServer server, Widget screen, {Locale locale = const Locale('vi')}) async {
+Future<ProviderContainer> openVendorScreen(WidgetTester tester, ScriptedServer server, Widget screen, {Locale locale = const Locale('vi'), Brightness brightness = Brightness.light}) async {
   final ProviderContainer container = ProviderContainer(
     overrides: <Override>[
       appConfigProvider.overrideWithValue(testConfig),
@@ -36,7 +36,7 @@ Future<ProviderContainer> openVendorScreen(WidgetTester tester, ScriptedServer s
       container: container,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: buildAppTheme(),
+        theme: buildAppTheme(brightness: brightness),
         locale: locale,
         supportedLocales: const <Locale>[Locale('vi'), Locale('en')],
         localizationsDelegates: <LocalizationsDelegate<Object?>>[

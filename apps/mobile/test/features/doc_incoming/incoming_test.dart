@@ -29,7 +29,7 @@ Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, Stri
 List<HttpCall> _posts(ScriptedServer server, String path) => server.callsTo('POST', path);
 
 Finder _start() => find.widgetWithText(FilledButton, 'Bắt đầu xử lý');
-Finder _resolve() => find.widgetWithText(OutlinedButton, 'Giải quyết');
+Finder _resolve() => find.ancestor(of: find.text('Giải quyết'), matching: find.byWidgetPredicate((Widget widget) => widget is FilledButton || widget is OutlinedButton));
 Finder _summary() => find.widgetWithText(TextField, 'Nội dung giải quyết');
 Finder _submit() => find.widgetWithText(FilledButton, 'Xác nhận đã giải quyết');
 
@@ -52,15 +52,16 @@ void main() {
       expect(top('Công văn số 2'), lessThan(top('Công văn số 6')), reason: 'the late one first');
       expect(top('Công văn số 6'), lessThan(top('Công văn số 1')), reason: 'then by deadline');
       expect(top('Công văn số 1'), lessThan(top('Công văn số 5')), reason: 'a letter with no deadline last');
-      expect(find.text('Số đến 10 · 10/REG-DEN-2026 · Sở Giao thông 1'), findsOneWidget);
-      expect(find.text('Bút phê: Chuẩn bị ý kiến.'), findsWidgets);
-      expect(find.text('Chưa có bút phê'), findsOneWidget);
-      expect(find.text('Chưa có số đến · Sở Giao thông 2'), findsOneWidget);
-      expect(find.text('Hạn xử lý: 27/10/2026'), findsOneWidget);
+      expect(find.text('Số đến 10 · 10/REG-DEN-2026 · Sở Giao thông 1 · Nhận 20/10'), findsOneWidget, reason: 'the number, the sender and the day it was received');
+      expect(find.text('Chưa có số đến · Sở Giao thông 2 · Nhận 20/10'), findsOneWidget);
+      expect(find.text('27/10'), findsOneWidget, reason: 'the day of the deadline of a letter that is not late');
       expect(find.text('Chưa đặt hạn xử lý'), findsOneWidget);
-      expect(find.text('Quá hạn 3 ngày (hạn 20/10/2026)'), findsWidgets);
-      expect(find.text('Đã giao xử lý'), findsWidgets);
-      expect(find.text('Đang xử lý'), findsOneWidget);
+      expect(find.text('Trễ 3 ngày'), findsOneWidget, reason: 'the days the server counts, on the late band');
+      expect(find.text('Quá hạn'), findsOneWidget, reason: 'the heading of the late group');
+      expect(find.text('Quá hạn 1'), findsOneWidget, reason: 'the chip that narrows the list to the late letters');
+      expect(find.text('Tất cả 4'), findsOneWidget);
+      expect(find.text('Mới giao 3'), findsOneWidget);
+      expect(find.text('Đang xử lý 1'), findsOneWidget);
       expect(find.text('Khẩn'), findsOneWidget);
 
       await tester.tap(find.text('Công văn số 6'));
@@ -108,7 +109,8 @@ void main() {
       expect(find.text('100/UBND'), findsOneWidget);
       expect(find.text('Phòng Quản lý dự án'), findsOneWidget);
       expect(find.text('Quá hạn 2 ngày (hạn 27/10/2026)'), findsOneWidget);
-      expect(find.text('Phòng Quản lý dự án · Lê Chuyên Viên · giao lúc 21/10/2026 09:00'), findsOneWidget);
+      expect(find.text('Phòng Quản lý dự án · Lê Chuyên Viên'), findsOneWidget, reason: 'the entry of the history');
+      expect(find.text('21/10/2026 09:00'), findsOneWidget, reason: 'when it was assigned');
       expect(find.text('Mã băm của tệp gốc: ab12cd34ef56'), findsOneWidget);
       expect(find.textContaining('Điện thoại không tải tệp của văn bản đến'), findsOneWidget);
       expect(server.calls.where((HttpCall call) => call.url.path.contains('download')), isEmpty, reason: 'the file of a letter is not read on the phone');
@@ -134,8 +136,9 @@ void main() {
       answerLetters(server, <Map<String, Object?>>[letter(1, overdueDays: 1)]);
       await _open(tester, server, _list, locale: const Locale('en'));
       expect(find.text('Incoming letters to handle'), findsOneWidget);
-      expect(find.text('Overdue by 1 day(s) (due 27/10/2026)'), findsWidgets);
-      expect(find.text('Directive: Chuẩn bị ý kiến.'), findsOneWidget);
+      expect(find.text('1 day(s) late'), findsOneWidget);
+      expect(find.textContaining('Received 20/10'), findsOneWidget);
+      expect(find.textContaining('Incoming no. 10'), findsOneWidget);
     });
 
     testWidgets('every state of the list and of a letter is drawn, and both views keep the screen contract', (WidgetTester tester) async {
@@ -458,6 +461,107 @@ void main() {
       expect(gateOf(letter: closed, offline: false, session: full), IncomingGate.notHandling);
       expect(gateOf(letter: open, offline: false, session: readOnly), IncomingGate.readOnly);
       expect(gateOf(letter: idle, offline: false, session: full), IncomingGate.noAction);
+    });
+  });
+
+  group('MUX-3 wave B UI-DOC-23 the chips narrow the list and an empty answer has its action', () {
+    testWidgets('each chip narrows the list to the late, the newly assigned or the ones being worked on, and "All" brings every letter back', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      answerLetters(server, <Map<String, Object?>>[
+        letter(1),
+        letter(2, overdueDays: 3, due: '2026-10-20'),
+        letter(5, status: 'PROCESSING', act: actions(resolve: true)),
+      ]);
+      await _open(tester, server, _list);
+      expect(find.text('Công văn số 1'), findsOneWidget);
+      expect(find.text('Công văn số 2'), findsOneWidget);
+      expect(find.text('Công văn số 5'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Quá hạn 1'));
+      await tester.tap(find.text('Quá hạn 1'));
+      await tester.pumpAndSettle();
+      expect(find.text('Công văn số 2'), findsOneWidget);
+      expect(find.text('Công văn số 1'), findsNothing);
+      expect(find.text('Công văn số 5'), findsNothing);
+
+      await tester.ensureVisible(find.text('Đang xử lý 1'));
+      await tester.tap(find.text('Đang xử lý 1'));
+      await tester.pumpAndSettle();
+      expect(find.text('Công văn số 5'), findsOneWidget);
+      expect(find.text('Công văn số 2'), findsNothing);
+
+      await tester.ensureVisible(find.text('Mới giao 2'));
+      await tester.tap(find.text('Mới giao 2'));
+      await tester.pumpAndSettle();
+      expect(find.text('Công văn số 1'), findsOneWidget);
+      expect(find.text('Công văn số 2'), findsOneWidget, reason: 'a late letter that is assigned is a newly assigned letter too');
+      expect(find.text('Công văn số 5'), findsNothing);
+
+      await tester.ensureVisible(find.text('Tất cả 3'));
+      await tester.tap(find.text('Tất cả 3'));
+      await tester.pumpAndSettle();
+      expect(find.text('Công văn số 5'), findsOneWidget);
+      expect(server.calls.where((HttpCall call) => call.method != 'GET'), isEmpty, reason: 'narrowing the list sends nothing');
+    });
+
+    testWidgets('a chip with no letter says so and offers "Clear the filter"', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      answerLetters(server, <Map<String, Object?>>[letter(1)]);
+      await _open(tester, server, _list);
+      expect(find.text('Quá hạn'), findsNothing, reason: 'no late letter, no late group');
+
+      await tester.ensureVisible(find.text('Quá hạn 0'));
+      await tester.tap(find.text('Quá hạn 0'));
+      await tester.pumpAndSettle();
+      expect(find.text('Không có văn bản phù hợp'), findsOneWidget);
+      expect(find.text('Công văn số 1'), findsNothing);
+      await tester.tap(find.widgetWithText(FilledButton, 'Xóa bộ lọc'));
+      await tester.pumpAndSettle();
+      expect(find.text('Công văn số 1'), findsOneWidget);
+      expect(find.text('Không có văn bản phù hợp'), findsNothing);
+    });
+
+    testWidgets('a late letter is under its own heading, the others under theirs', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      answerLetters(server, <Map<String, Object?>>[letter(1), letter(2, overdueDays: 3, due: '2026-10-20')]);
+      await _open(tester, server, _list);
+      expect(find.text('Đang chờ xử lý'), findsOneWidget);
+      expect(tester.getTopLeft(find.text('Quá hạn')).dy, lessThan(tester.getTopLeft(find.text('Công văn số 2')).dy));
+      expect(tester.getTopLeft(find.text('Công văn số 2')).dy, lessThan(tester.getTopLeft(find.text('Đang chờ xử lý')).dy));
+      expect(tester.getTopLeft(find.text('Đang chờ xử lý')).dy, lessThan(tester.getTopLeft(find.text('Công văn số 1')).dy));
+    });
+
+    testWidgets('the offline list has an action: try again reads the list when the connection is back', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      answerLetters(server, <Map<String, Object?>>[letter(1)]);
+      server.offline = true;
+      await _open(tester, server, _list);
+      expect(find.text('Bạn đang ngoại tuyến'), findsWidgets);
+      server.offline = false;
+      await tester.tap(find.widgetWithText(FilledButton, 'Thử lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Công văn số 1'), findsOneWidget);
+    });
+
+    testWidgets('the form of a resolution sits above the bar, and "Bỏ qua" leaves it without sending', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      answerLetters(server, <Map<String, Object?>>[letter(1, status: 'PROCESSING')]);
+      await _open(tester, server, _detail);
+
+      expect(find.widgetWithText(FilledButton, 'Giải quyết'), findsOneWidget, reason: 'a letter that can only be resolved has resolving as the primary action');
+      await tester.tap(_resolve());
+      await tester.pumpAndSettle();
+      expect(_summary(), findsOneWidget);
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Bỏ qua'));
+      await tester.pumpAndSettle();
+      expect(_summary(), findsNothing);
+      expect(find.widgetWithText(FilledButton, 'Giải quyết'), findsOneWidget);
+      expect(server.calls.where((HttpCall call) => call.method == 'POST'), isEmpty);
     });
   });
 

@@ -7,10 +7,16 @@ import '../../../core/di/providers.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/deadline.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/tap_target.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/widgets.dart';
 import '../labels.dart';
 import '../vendor_models.dart';
 
@@ -65,12 +71,16 @@ class _RiskListScreenState extends State<RiskListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.vnd.list.title'),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          _Filters(selected: _filter, onChanged: (_Filter value) => setState(() => _filter = value)),
+          FilterChips<_Filter>(
+            options: <ChipOption<_Filter>>[for (final _Filter filter in _Filter.values) ChipOption<_Filter>(value: filter, label: _filterWord(context, filter))],
+            selected: _filter,
+            onChanged: (_Filter value) => setState(() => _filter = value),
+          ),
           Expanded(
             child: DataView<VendorRiskPage>(
               cacheKey: 'vnd.risk.${_filter.name}',
@@ -105,45 +115,6 @@ String _filterWord(BuildContext context, _Filter filter) {
       return context.t('mob.vnd.list.filter.review');
     case _Filter.pending:
       return context.t('mob.vnd.list.filter.pending');
-  }
-}
-
-class _Filters extends StatelessWidget {
-  const _Filters({required this.selected, required this.onChanged});
-
-  final _Filter selected;
-  final ValueChanged<_Filter> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.textScalerOf(context).scale(48) + 16,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-        child: Row(
-          children: <Widget>[
-            for (final _Filter filter in _Filter.values)
-              Padding(
-                padding: const EdgeInsets.only(right: MachvonSpace.space8),
-                child: Semantics(
-                  button: true,
-                  selected: filter == selected,
-                  label: _filterWord(context, filter),
-                  onTap: () => onChanged(filter),
-                  excludeSemantics: true,
-                  child: ChoiceChip(
-                    label: Text(_filterWord(context, filter)),
-                    selected: filter == selected,
-                    onSelected: (_) => onChanged(filter),
-                    materialTapTargetSize: MaterialTapTargetSize.padded,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -224,81 +195,89 @@ class _ListState extends ConsumerState<_List> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final VendorRiskPage page = widget.page;
     return ListView.builder(
       itemCount: _items.length + 2,
       itemBuilder: (BuildContext context, int index) {
         if (index == 0) {
           return Padding(
-            padding: const EdgeInsets.all(MachvonSpace.space16),
+            padding: const EdgeInsets.all(MachvonV2Space.s16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(context.t('mob.vnd.list.readonly'), style: theme.textTheme.bodySmall),
-                for (final VendorFigure figure in page.figures) Text(context.t('mob.vnd.figure.line', <String, Object>{'code': figure.code, 'numerator': figure.numerator, 'denominator': figure.denominator}), style: theme.textTheme.bodySmall),
-                if (page.policy != null) Text(context.t('mob.vnd.policy.line', <String, Object>{'code': page.policy!.code, 'version': page.policy!.version}), style: theme.textTheme.bodySmall),
-                if (page.policy?.unverified == true) Text(context.t('mob.vnd.policy.unverified'), style: theme.textTheme.bodySmall),
+                Text(context.t('mob.vnd.list.readonly'), style: text.caption),
+                for (final VendorFigure figure in page.figures) Text(context.t('mob.vnd.figure.line', <String, Object>{'code': figure.code, 'numerator': figure.numerator, 'denominator': figure.denominator}), style: text.caption),
+                if (page.policy != null) Text(context.t('mob.vnd.policy.line', <String, Object>{'code': page.policy!.code, 'version': page.policy!.version}), style: text.caption),
+                if (page.policy?.unverified == true) Text(context.t('mob.vnd.policy.unverified'), style: text.caption),
                 const SizedBox(height: MachvonSpace.space4),
-                Text(context.t('mob.vnd.list.count', <String, Object>{'shown': _items.length}), style: theme.textTheme.titleSmall),
+                Text(context.t('mob.vnd.list.count', <String, Object>{'shown': _items.length}), style: text.heading),
               ],
             ),
           );
         }
         if (index == _items.length + 1) return _Footer(hasMore: _cursor != null, loading: _loading, failed: _failed, onMore: _more);
         final VendorRiskItem item = _items[index - 1];
-        return _RowTile(item: item, onTap: () => widget.open(context, item.contractorId));
+        return _RowTile(item: item, dividerAbove: index > 1, onTap: () => widget.open(context, item.contractorId));
       },
     );
   }
 }
 
 class _RowTile extends StatelessWidget {
-  const _RowTile({required this.item, required this.onTap});
+  const _RowTile({required this.item, required this.onTap, required this.dividerAbove});
 
   final VendorRiskItem item;
   final VoidCallback onTap;
+  final bool dividerAbove;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
     final String? review = item.nextReviewOn;
-    return TappableRow(
-      semanticLabel: context.t('mob.vnd.row.aria', <String, Object>{'name': item.name, 'tier': item.tier == null ? context.t('mob.vnd.tier.none') : tierWord(context, item.tier!)}),
-      onTap: onTap,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
+    // The review day is the server's; the phone does not count how far away it is, so it names only the two states it was told: overdue, or a day set.
+    final DeadlineBand reviewBand = item.reviewOverdue ? DeadlineBand.late : DeadlineBand.ok;
+    final String? reviewText = review == null ? null : item.reviewOverdue ? context.t('mob.vnd.row.reviewOverdue', <String, Object>{'day': formatDay(review)}) : context.t('mob.vnd.row.review', <String, Object>{'day': formatDay(review)});
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        if (dividerAbove) Padding(padding: const EdgeInsets.only(left: MachvonV2Space.s16), child: SizedBox(height: 1, child: ColoredBox(color: v2.palette.line))),
+        TapTarget(
+          onTap: onTap,
+          radius: 0,
+          semanticLabel: <String>[
+            context.t('mob.vnd.row.aria', <String, Object>{'name': item.name, 'tier': item.tier == null ? context.t('mob.vnd.tier.none') : tierWord(context, item.tier!)}),
+            ?reviewText,
+          ].join(', '),
+          child: SizedBox(
+            width: double.infinity,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text(item.name, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
-                if (item.taxId != null) Text(context.t('mob.vnd.row.tax', <String, Object>{'tax': item.taxId!}), style: theme.textTheme.bodySmall),
+                WorkRow(
+                  title: item.name,
+                  subtitle: item.taxId == null ? null : context.t('mob.vnd.row.tax', <String, Object>{'tax': item.taxId!}),
+                  trailing: Align(alignment: AlignmentDirectional.topEnd, child: TierPill(tier: item.tier)),
+                ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
-                  child: Wrap(
-                    spacing: MachvonSpace.space8,
-                    runSpacing: MachvonSpace.space4,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+                  padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      TierPill(tier: item.tier),
-                      if (item.score != null) Text(context.t('mob.vnd.row.score', <String, Object>{'score': item.score!}), style: theme.textTheme.bodyMedium),
+                      if (item.score != null) Text(context.t('mob.vnd.row.score', <String, Object>{'score': item.score!}), style: text.body),
+                      if (reviewText != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: DeadlineLabel(band: reviewBand, text: reviewText)),
+                      if (item.pendingTier != null) Text(context.t('mob.vnd.row.pending', <String, Object>{'tier': tierWord(context, item.pendingTier!)}), style: text.caption),
                     ],
                   ),
                 ),
-                if (review != null)
-                  Text(
-                    item.reviewOverdue ? context.t('mob.vnd.row.reviewOverdue', <String, Object>{'day': formatDay(review)}) : context.t('mob.vnd.row.review', <String, Object>{'day': formatDay(review)}),
-                    style: theme.textTheme.bodySmall?.copyWith(color: item.reviewOverdue ? MachvonColors.danger : null),
-                  ),
-                if (item.pendingTier != null) Text(context.t('mob.vnd.row.pending', <String, Object>{'tier': tierWord(context, item.pendingTier!)}), style: theme.textTheme.bodySmall),
               ],
             ),
           ),
-          const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -313,16 +292,16 @@ class _Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!hasMore) return const SizedBox(height: MachvonSpace.space24);
+    if (!hasMore) return const SizedBox(height: MachvonV2Space.s24);
     return Padding(
-      padding: const EdgeInsets.all(MachvonSpace.space16),
+      padding: const EdgeInsets.all(MachvonV2Space.s16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           if (failed)
             Padding(
-              padding: const EdgeInsets.only(bottom: MachvonSpace.space8),
-              child: Text(context.t('mob.vnd.list.more.error'), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: MachvonColors.danger)),
+              padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
+              child: Semantics(liveRegion: true, child: Text(context.t('mob.vnd.list.more.error'), style: context.v2text.caption.copyWith(color: context.v2.palette.lateFg))),
             ),
           if (loading)
             const LinearProgressIndicator(minHeight: 3)

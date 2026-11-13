@@ -91,6 +91,16 @@ void _reads(ScriptedServer server, {Map<String, Object?>? document}) {
 
 Finder _start() => find.widgetWithText(FilledButton, 'Bắt đầu ký');
 Finder _confirm() => find.widgetWithText(FilledButton, 'Xác nhận và ký');
+
+/// Taps "Xác nhận và ký", then the confirmation of the sheet that says what the signature does (it opens once the code, when one is typed, is there).
+Future<void> _signNow(WidgetTester tester) async {
+  await tester.tap(_confirm());
+  await tester.pumpAndSettle();
+  final Finder sheet = find.widgetWithText(FilledButton, 'Ký văn bản này');
+  if (sheet.evaluate().isEmpty) return;
+  await tester.tap(sheet);
+  await tester.pumpAndSettle();
+}
 Finder _otp() => find.widgetWithText(TextField, 'Mã xác nhận (OTP)');
 
 List<HttpCall> _posts(ScriptedServer server) => server.calls.where((HttpCall call) => call.method == 'POST').toList();
@@ -157,7 +167,7 @@ void main() {
       await tester.tap(_start());
       await tester.pumpAndSettle();
       await tester.enterText(_otp(), '482913');
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.text('Kết quả ký'), findsOneWidget);
 
@@ -235,13 +245,13 @@ void main() {
       expect(_otp(), findsOneWidget, reason: 'the session is open, the code is asked');
       expect(find.textContaining('Phiên ký đang mở, hết hạn lúc 03/11/2026 10:15'), findsOneWidget);
 
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.text('Bắt buộc nhập mã xác nhận.'), findsOneWidget);
       expect(_posts(server), hasLength(1), reason: 'no code, no completion');
 
       await tester.enterText(_otp(), ' 482913 ');
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       final HttpCall completed = _posts(server).last;
       expect(completed.url.path, endsWith('/signing-sessions/s-1/completion'));
@@ -291,7 +301,7 @@ void main() {
       await _open(tester, server, _detail);
       expect(find.widgetWithText(FilledButton, 'Mở phiên ký mới'), findsNothing, reason: 'while the screen does not know the session ran out it is open');
       await tester.enterText(_otp(), '482913');
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
 
       expect(find.text('SIGNING_SESSION_EXPIRED'), findsOneWidget);
@@ -317,7 +327,7 @@ void main() {
       });
       await _open(tester, server, _detail);
       await tester.enterText(_otp(), '482913');
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.text('Chưa xác định kết quả'), findsOneWidget);
 
@@ -343,7 +353,7 @@ void main() {
         ..answer('POST', '/outgoing-documents/d-1/leader-signing-sessions', (_) => problem(409, 'SIGNING_SESSION_OPEN'));
       await _open(tester, server, _detail);
       await tester.enterText(_otp(), '482913');
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
 
       expect(find.text('Phiên ký đã hết hạn. Hãy mở phiên mới để ký lại.'), findsOneWidget);
@@ -458,7 +468,7 @@ void main() {
       server.answer('POST', '/signing-sessions/s-1/completion', (_) => problem(503, 'PROVIDER_UNAVAILABLE'));
       await _open(tester, server, _detail);
       await tester.enterText(_otp(), '482913');
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
 
       expect(find.text('Chưa kết nối được nhà cung cấp chữ ký số. Văn bản giữ nguyên trạng thái, có thể thử lại.'), findsOneWidget);
@@ -524,7 +534,7 @@ void main() {
       final _Rig rig = _Rig();
       await _open(tester, server, _detail, rig: rig);
       await tester.enterText(_otp(), '482913');
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(rig.gate.asked, 0);
       expect(_posts(server).single.body, '{"otp_confirmation":"482913"}');
@@ -541,7 +551,7 @@ void main() {
       await _open(tester, server, _detail, rig: rig);
       expect(_otp(), findsNothing, reason: 'the SDK signs by itself, no code is typed');
 
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(rig.gate.asked, 1);
       expect(sdk.challenges.single.sessionId, 's-1');
@@ -563,7 +573,7 @@ void main() {
       rig.port = sdk;
       await _open(tester, server, _detail, rig: rig);
 
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
 
       expect(sdk.challenges.single.expectedSubject, 'CN=Lê Lãnh Đạo,O=UBND tỉnh A', reason: 'the certificate cert-1 the session was opened with, although cert-2 ends later');
@@ -581,7 +591,7 @@ void main() {
       rig.port = sdk;
       await _open(tester, server, _detail, rig: rig);
 
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
 
       expect(sdk.challenges.single.expectedSubject, isNull);
@@ -598,7 +608,7 @@ void main() {
       rig.port = sdk;
       await _open(tester, server, _detail, rig: rig);
 
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(rig.gate.asked, 1);
       expect(sdk.challenges, isEmpty, reason: 'the key was not used');
@@ -613,7 +623,7 @@ void main() {
       final _Rig rig = _Rig();
       rig.port = _Cancelled();
       await _open(tester, server, _detail, rig: rig);
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(rig.gate.asked, 1);
       expect(_posts(server), isEmpty);

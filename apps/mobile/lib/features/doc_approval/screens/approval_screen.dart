@@ -6,13 +6,15 @@ import '../../../core/di/providers.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
-import '../../command_support/command_flow.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../command_support/command_flow.dart' show CommandFlow, deviceIsOnline;
 import '../../command_support/command_outcome.dart';
+import '../../document_signing/screens/signing_notice.dart';
 import '../../document_signing/screens/signing_screen.dart';
 import '../../document_signing/signing_commands.dart' show SigningProblem, isRetryable, problemOf;
 import '../../document_signing/signing_models.dart';
 import '../../document_signing/signing_support.dart' show isOffline, problemText;
-import '../../read_support/widgets.dart';
 import '../return_commands.dart';
 
 /// DOC-22: a leader approves and signs a document on the phone (ST-DOC-020, DOC 4, CXN-DOC-07). It is the signing view of MOB-67 (the
@@ -103,19 +105,20 @@ class _ReturnCardState extends ConsumerState<ReturnCard> with CommandFlow<Return
   Widget _outcome(BuildContext context, CommandOutcome result) {
     switch (result) {
       case CommandDone():
-        return OutcomeCard(title: context.t('mob.docapv.return.done.title'), lines: <String>[context.t('mob.docapv.return.done.body')]);
+        return SigningNotice(tone: NoticeTone.done, title: context.t('mob.docapv.return.done.title'), lines: <String>[context.t('mob.docapv.return.done.body')]);
       case CommandUnknown():
-        return OutcomeCard(
+        return SigningNotice(
+          tone: NoticeTone.warning,
           title: context.t('mob.docapv.return.unknown.title'),
           lines: <String>[context.t('mob.docapv.return.unknown.body')],
           actionLabel: context.t('mob.docapv.return.unknown.action'),
           onAction: _sendAgain,
         );
       case CommandOffline():
-        return OutcomeCard(title: context.t('mob.docapv.return.gate.offline'));
+        return SigningNotice(tone: NoticeTone.info, title: context.t('mob.docapv.return.gate.offline'));
       case CommandRefused():
         final SigningProblem problem = problemOf(result, completing: false);
-        return OutcomeCard(
+        return SigningNotice(
           title: problemText(context, problem),
           code: result.code,
           actionLabel: isRetryable(problem) ? context.t('mob.docapv.return.retry.action') : null,
@@ -136,13 +139,14 @@ class _ReturnCardState extends ConsumerState<ReturnCard> with CommandFlow<Return
       children: <Widget>[
         if (result != null) _outcome(context, result),
         if (returnable)
-          SectionCard(
+          SigningSection(
             title: context.t('mob.docapv.return.title'),
+            padded: true,
             children: <Widget>[
-              Text(context.t('mob.docapv.return.intro'), style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: MachvonSpace.space8),
-              if (gate == ReturnGate.offline) GateNote(text: context.t('mob.docapv.return.gate.offline')),
-              if (gate == ReturnGate.readOnly) GateNote(text: context.t('mob.docapv.return.gate.readOnly')),
+              Text(context.t('mob.docapv.return.intro'), style: context.v2text.body),
+              const SizedBox(height: MachvonV2Space.s8),
+              if (gate == ReturnGate.offline) _GateReason(text: context.t('mob.docapv.return.gate.offline')),
+              if (gate == ReturnGate.readOnly) _GateReason(text: context.t('mob.docapv.return.gate.readOnly')),
               if (!_open)
                 OutlinedButton(onPressed: gate == ReturnGate.open ? () => setState(() => _open = true) : null, child: Text(context.t('mob.docapv.return.open')))
               else ...<Widget>[
@@ -154,9 +158,9 @@ class _ReturnCardState extends ConsumerState<ReturnCard> with CommandFlow<Return
                   textCapitalization: TextCapitalization.sentences,
                   decoration: InputDecoration(labelText: context.t('mob.docapv.return.reason.label'), errorText: _problem == null ? null : _problemLine(context, _problem!)),
                 ),
-                const SizedBox(height: MachvonSpace.space8),
+                const SizedBox(height: MachvonV2Space.s8),
                 FilledButton(onPressed: ready ? _submit : null, child: Text(sending ? context.t('mob.docapv.return.sending') : context.t('mob.docapv.return.submit'))),
-                const SizedBox(height: MachvonSpace.space8),
+                const SizedBox(height: MachvonV2Space.s8),
                 TextButton(
                   onPressed: sending ? null : () => setState(() {
                     _open = false;
@@ -168,6 +172,32 @@ class _ReturnCardState extends ConsumerState<ReturnCard> with CommandFlow<Return
             ],
           ),
       ],
+    );
+  }
+}
+
+/// Why the document cannot be given back now, next to the disabled button, as a live region.
+class _GateReason extends StatelessWidget {
+  const _GateReason({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2 v2 = context.v2;
+    return Semantics(
+      liveRegion: true,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            ExcludeSemantics(child: Icon(Icons.lock_outline, size: 18, color: v2.palette.soonFg)),
+            const SizedBox(width: MachvonV2Space.s8),
+            Expanded(child: Text(text, style: context.v2text.captionStrong.copyWith(color: v2.palette.soonFg))),
+          ],
+        ),
+      ),
     );
   }
 }

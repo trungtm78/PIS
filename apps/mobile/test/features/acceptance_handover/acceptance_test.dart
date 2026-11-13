@@ -35,6 +35,14 @@ List<HttpCall> _posts(ScriptedServer server, String path) => server.callsTo('POS
 
 Finder _approve() => find.widgetWithText(FilledButton, 'Duyệt biên bản');
 Finder _reject() => find.widgetWithText(OutlinedButton, 'Từ chối biên bản');
+/// Presses a decision or a signature, then confirms it in the sheet that says what it does (nothing is sent before the confirmation).
+Future<void> _decideAndConfirm(WidgetTester tester, Finder action, String confirmLabel) async {
+  await tester.tap(action);
+  await tester.pumpAndSettle();
+  await tester.tap(find.widgetWithText(FilledButton, confirmLabel));
+  await tester.pumpAndSettle();
+}
+
 Finder _opinion() => find.widgetWithText(TextField, 'Ý kiến của bạn (bắt buộc)');
 
 void main() {
@@ -102,7 +110,7 @@ void main() {
       await expectEveryState(
         tester,
         open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, _detail),
-        script: StateScript(healthy: _reads, content: find.text('Bằng chứng và chữ ký')),
+        script: StateScript(healthy: _reads, content: find.text('QA-W-001')),
       );
       await expectScreenContract(tester, open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, _detail), healthy: _reads);
       await expectEveryState(
@@ -209,8 +217,7 @@ void main() {
       await _open(tester, server, _detail);
 
       await tester.enterText(_opinion(), 'Đồng ý nghiệm thu');
-      await tester.tap(_approve());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
 
       expect(_posts(server, '/quality-acceptances/qa-1/decision'), hasLength(1));
       expect(find.text('Chưa đủ chữ ký, còn thiếu: Chủ đầu tư, Tư vấn thiết kế.'), findsOneWidget);
@@ -227,8 +234,7 @@ void main() {
       server.answer('POST', '/quality-acceptances/qa-1/decision', (_) => problem(422, 'SIGNATURES_INCOMPLETE'));
       await _open(tester, server, _detail);
       await tester.enterText(_opinion(), 'Đồng ý');
-      await tester.tap(_approve());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
       expect(find.text('Chưa đủ chữ ký theo quy chế.'), findsOneWidget);
     });
 
@@ -263,8 +269,7 @@ void main() {
       await _open(tester, server, _detail);
 
       await tester.enterText(_opinion(), '  Đồng ý nghiệm thu  ');
-      await tester.tap(_approve());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
 
       final List<HttpCall> calls = _posts(server, '/quality-acceptances/qa-1/decision');
       expect(calls, hasLength(1));
@@ -285,9 +290,69 @@ void main() {
       server.answer('POST', '/quality-acceptances/qa-1/decision', (_) => recorded('qa-1', status: 'REJECTED'));
       await _open(tester, server, _detail);
       await tester.enterText(_opinion(), 'Thiếu biên bản thử nghiệm');
+      await _decideAndConfirm(tester, _reject(), 'Xác nhận từ chối');
+      expect(_posts(server, '/quality-acceptances/qa-1/decision').single.body, contains('"decision":"reject"'));
+    });
+
+    testWidgets('the sheet says what the decision does and under whose name it is written; "review again" closes it and sends nothing', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      await _open(tester, server, _detail);
+      await tester.enterText(_opinion(), 'Đồng ý nghiệm thu');
+      await tester.tap(_approve());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Xác nhận duyệt biên bản'), findsOneWidget);
+      expect(find.text('Biên bản QA-W-001, hợp đồng HD-A-001'), findsOneWidget);
+      expect(find.text('Chữ ký đã có: 2/3'), findsOneWidget);
+      expect(find.text('Ý kiến của bạn: Đồng ý nghiệm thu'), findsOneWidget);
+      expect(find.text('Biên bản sẽ chuyển sang trạng thái: Đã duyệt'), findsOneWidget);
+      expect(find.text('Thao tác được ghi vào nhật ký kiểm toán dưới tên bạn.'), findsOneWidget);
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Xem lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Xác nhận duyệt biên bản'), findsNothing);
+      expect(server.calls.where((HttpCall call) => call.method == 'POST'), isEmpty, reason: 'nothing is sent before the person confirms');
+      expect(tester.widget<TextField>(_opinion()).controller!.text, 'Đồng ý nghiệm thu');
+
       await tester.tap(_reject());
       await tester.pumpAndSettle();
-      expect(_posts(server, '/quality-acceptances/qa-1/decision').single.body, contains('"decision":"reject"'));
+      expect(find.text('Biên bản sẽ chuyển sang trạng thái: Đã từ chối'), findsOneWidget);
+    });
+
+    testWidgets('R39 a version conflict is never overwritten: the minutes are read again, the opinion stays, and the new decision is under the new version and a new key', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      int reads = 0;
+      server.on('GET', '/quality-acceptances/qa-1', (_) {
+        reads += 1;
+        return reads == 1 ? minutes() : minutes(version: 4);
+      });
+      int attempt = 0;
+      server.answer('POST', '/quality-acceptances/qa-1/decision', (_) {
+        attempt += 1;
+        return attempt == 1 ? problem(409, 'VERSION_CONFLICT') : recorded('qa-1');
+      });
+      await _open(tester, server, _detail);
+
+      await tester.enterText(_opinion(), 'Đồng ý');
+      await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
+      expect(find.text('Biên bản đã được người khác thay đổi. Hãy mở lại để xem tình trạng hiện tại rồi thao tác.'), findsOneWidget);
+      expect(find.text('VERSION_CONFLICT'), findsOneWidget);
+      expect(_posts(server, '/quality-acceptances/qa-1/decision'), hasLength(1), reason: 'the refused decision is not replayed behind the person');
+
+      await tester.tap(find.text('Tải lại biên bản'));
+      await tester.pumpAndSettle();
+      expect(reads, 2, reason: 'the minutes are read again from the server');
+      expect(find.text('VERSION_CONFLICT'), findsNothing, reason: 'the old refusal is gone once the minutes are fresh');
+      expect(tester.widget<TextField>(_opinion()).controller!.text, 'Đồng ý', reason: 'what the person wrote is still there');
+
+      await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
+      final List<HttpCall> calls = _posts(server, '/quality-acceptances/qa-1/decision');
+      expect(calls, hasLength(2));
+      expect(calls[0].headers['if-match'], '"3"');
+      expect(calls[1].headers['if-match'], '"4"', reason: 'the new decision is made on the version that is there now');
+      expect(calls[1].headers['idempotency-key'], isNot(calls[0].headers['idempotency-key']), reason: 'another decision on another version is another intention');
     });
 
     testWidgets('a lost answer is "result unknown": sending the same decision again reuses the key and the version, so it is recorded once', (WidgetTester tester) async {
@@ -303,8 +368,7 @@ void main() {
       await _open(tester, server, _detail);
 
       await tester.enterText(_opinion(), 'Đồng ý');
-      await tester.tap(_approve());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
       expect(find.text('Chưa xác định kết quả'), findsOneWidget);
       expect(_approve(), findsOneWidget, reason: 'the form is still there');
 
@@ -328,11 +392,9 @@ void main() {
       });
       await _open(tester, server, _detail);
       await tester.enterText(_opinion(), 'Đồng ý');
-      await tester.tap(_approve());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
       expect(find.textContaining('Cần xác thực lại hai yếu tố. Thao tác chưa được ghi nhận'), findsOneWidget);
-      await tester.tap(_approve());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
       final List<HttpCall> calls = _posts(server, '/quality-acceptances/qa-1/decision');
       expect(calls, hasLength(2));
       expect(calls[0].headers['idempotency-key'], isNot(calls[1].headers['idempotency-key']));
@@ -361,8 +423,7 @@ void main() {
         server.answer('POST', '/quality-acceptances/qa-1/decision', (_) => problem(entry.key == 'SESSION_EXPIRED' ? 401 : 409, entry.key));
         await _open(tester, server, _detail);
         await tester.enterText(_opinion(), 'Đồng ý');
-        await tester.tap(_approve());
-        await tester.pumpAndSettle();
+        await _decideAndConfirm(tester, _approve(), 'Xác nhận duyệt');
         expect(find.text(entry.value), findsOneWidget, reason: entry.key);
       }
     });
@@ -390,8 +451,7 @@ void main() {
 
       await chooseMethod(tester, 'Chứng thư số');
       await tester.enterText(serial(), 'SN-0099');
-      await tester.tap(sign());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, sign(), 'Xác nhận ký');
 
       expect(_posts(server, '/quality-acceptances/qa-1/sign'), hasLength(1));
       expect(find.text('Phương thức ký không được chấp nhận: chứng thư số cần số sê-ri, các phương thức khác không có.'), findsOneWidget);
@@ -420,8 +480,7 @@ void main() {
       await _open(tester, server, _detail);
       expect(find.text('Xác nhận nội bộ (không phải chữ ký số)'), findsWidgets);
 
-      await tester.tap(sign());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, sign(), 'Xác nhận ký');
 
       final HttpCall call = _posts(server, '/quality-acceptances/qa-1/sign').single;
       expect(call.body, contains('"signer_role":"OWNER"'));
@@ -448,8 +507,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Tư vấn thiết kế').last);
       await tester.pumpAndSettle();
-      await tester.tap(sign());
-      await tester.pumpAndSettle();
+      await _decideAndConfirm(tester, sign(), 'Xác nhận ký');
       expect(_posts(server, '/quality-acceptances/qa-1/sign').single.body, contains('"signer_role":"DESIGNER"'));
       expect(find.text('Bạn không thể ký với vai trò này: nhà thầu ký cho nhà thầu, bên chủ đầu tư ký cho phía mình.'), findsOneWidget);
     });

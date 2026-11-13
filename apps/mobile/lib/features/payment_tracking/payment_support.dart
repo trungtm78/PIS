@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
+import '../../core/theme/machvon_semantic.dart';
 import 'reconciliation_commands.dart';
 
 export '../read_support/offline.dart' show isOffline;
@@ -135,3 +136,30 @@ String reconProblemText(BuildContext context, ReconciliationProblem problem) {
       return context.t('mob.treasury.problem.general');
   }
 }
+
+/// The tone of the pill of a payment request: the end of the way is green, a request that came back or was undone is red, the rest is in progress.
+MachvonTone paymentTone(String status) => switch (status) {
+      'SETTLED' => MachvonTone.success,
+      'RETURNED' || 'CANCELLED' || 'REVERSED' => MachvonTone.danger,
+      'DRAFT' => MachvonTone.neutral,
+      _ => MachvonTone.info,
+    };
+
+/// The step of a request on the way to the Treasury (1 of [paymentSteps]), or null for one that left the way (returned, cancelled, reversed).
+int? paymentStep(String status) => switch (status) {
+      'DRAFT' => 1,
+      'SUBMITTED' => 2,
+      'VERIFIED' => 3,
+      'SENT_TREASURY' => 4,
+      'SETTLED' => 5,
+      _ => null,
+    };
+
+const int paymentSteps = 5;
+
+/// The tone of the pill of a reconciliation item: closed is green, a write-off is neutral, one that waits is amber.
+MachvonTone reconTone(String status) => switch (status) {
+      'RESOLVED' => MachvonTone.success,
+      'WRITTEN_OFF_APPROVED' => MachvonTone.neutral,
+      _ => MachvonTone.warning,
+    };

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_mobile/core/widgets/deadline.dart';
+import 'package:machvon_mobile/core/widgets/stat_strip.dart';
 import 'package:machvon_mobile/features/vendor_controls/screens/contractor_screen.dart';
 import 'package:machvon_mobile/features/vendor_controls/screens/risk_list_screen.dart';
 import 'package:machvon_mobile/features/vendor_controls/vendor_models.dart';
@@ -17,6 +19,14 @@ const String _risk = '/vendor/contractors/c-1/risk';
 const String _performance = '/vendor/contractors/c-1/performance';
 
 const Size _veryTall = Size(390, 6000);
+
+/// Opens a tab of the contractor screen: the row of tabs scrolls, so the tab is brought into view first.
+Future<void> _openTab(WidgetTester tester, Finder tab) async {
+  await tester.ensureVisible(tab);
+  await tester.pumpAndSettle();
+  await tester.tap(tab);
+  await tester.pumpAndSettle();
+}
 
 void _registerList(ScriptedServer server, [Map<String, Object?>? page]) => server.on('GET', _list, (_) => page ?? riskPage(<Map<String, Object?>>[riskItem('c-1', 'Công ty Xây dựng An Phát', 'HIGH', 52, overdue: true, pending: 'CRITICAL'), riskItem('c-2', 'Công ty Cơ khí Bình Minh', 'LOW', 8)]));
 
@@ -90,7 +100,7 @@ void main() {
       expect(find.text('Quy tắc VENDOR_RISK, phiên bản 3'), findsOneWidget);
       expect(find.text('Các ngưỡng của quy tắc chưa được kiểm chứng.'), findsOneWidget);
       expect(find.textContaining('Chỉ đọc.'), findsOneWidget);
-      expect(find.bySemanticsLabel('Công ty Xây dựng An Phát, Cao'), findsOneWidget);
+      expect(find.bySemanticsLabel('Công ty Xây dựng An Phát, Cao, Quá hạn xét lại, hạn là 03/02/2027'), findsOneWidget);
     });
 
     testWidgets('a filter asks the server (tier, review overdue, waiting) and nothing is cut on the phone; "all" comes back', (WidgetTester tester) async {
@@ -247,7 +257,9 @@ void main() {
 
       expect(find.text('Mức đề xuất đang chờ'), findsOneWidget);
       expect(find.text('Người thứ hai quyết định trên máy tính; điện thoại chỉ cho xem.'), findsOneWidget);
-      expect(find.text('Nghiêm trọng, 81 điểm, ngày 20/10/2026'), findsWidgets);
+      expect(find.text('Nghiêm trọng, 81 điểm, ngày 20/10/2026'), findsOneWidget, reason: 'the proposal waiting');
+      await _openTab(tester, find.textContaining('Lịch sử'));
+      expect(find.text('Cao, 52 điểm, ngày 20/10/2026'), findsNWidgets(2), reason: 'the confirmed assessment and its line in the history');
       expect(find.text('Người chấm: Trần Thị Bình'), findsWidgets);
       expect(find.text('Người quyết định: Lê Văn Cường'), findsWidgets);
       expect(find.text('Đã được thay bằng lần chấm mới'), findsOneWidget);
@@ -262,6 +274,8 @@ void main() {
       final ScriptedServer server = ScriptedServer();
       _registerDetail(server);
       await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
+      expect(find.text('Hợp đồng có xếp loại'), findsOneWidget, reason: 'the figures at the top carry the run of poor ratings and the rated contracts');
+      await _openTab(tester, find.text('Kết quả'));
 
       expect(find.text('Xếp loại kém liên tiếp: 2'), findsOneWidget);
       expect(find.textContaining('Gợi ý: yêu cầu kế hoạch khắc phục.'), findsOneWidget);
@@ -284,8 +298,10 @@ void main() {
       server.refuse('GET', _performance, 403, 'SCOPE_DENIED');
       await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
 
-      expect(find.textContaining('Chưa đọc được kết quả thực hiện (mã SCOPE_DENIED)'), findsOneWidget);
       expect(find.text('Mức đã xác nhận: Cao'), findsOneWidget);
+      expect(find.text('Hợp đồng có xếp loại'), findsNothing, reason: 'no figure of a read that failed');
+      await _openTab(tester, find.text('Kết quả'));
+      expect(find.textContaining('Chưa đọc được kết quả thực hiện (mã SCOPE_DENIED)'), findsOneWidget);
     });
 
     testWidgets('a contractor with no rating and no pending grade says so instead of showing empty blocks', (WidgetTester tester) async {
@@ -298,10 +314,12 @@ void main() {
       _registerDetail(server, risk: risk, perf: performance(lines: <Map<String, Object?>>[], suggestion: 'NONE', streak: 0));
       await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
 
+      expect(find.text('Mức đề xuất đang chờ'), findsNothing);
+      await _openTab(tester, find.textContaining('Lịch sử'));
       expect(find.text('Chưa có lần chấm nào được xác nhận.'), findsOneWidget);
       expect(find.text('Chưa có lần chấm nào.'), findsOneWidget);
+      await _openTab(tester, find.text('Kết quả'));
       expect(find.text('Chưa có xếp loại nào được chấp thuận.'), findsOneWidget);
-      expect(find.text('Mức đề xuất đang chờ'), findsNothing);
       expect(find.textContaining('Gợi ý:'), findsNothing);
     });
 
@@ -317,6 +335,33 @@ void main() {
       expect(find.text('Chưa có mức rủi ro nào được xác nhận cho nhà thầu này.'), findsOneWidget);
       expect(find.text('Chưa xếp hạng'), findsOneWidget);
       expect(find.text('Mức đề xuất đang chờ'), findsOneWidget);
+    });
+
+    testWidgets('the figures at the top give the tier the shape of its band: high and critical late, medium soon, low ok; the run of poor ratings only when there is one', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      Future<List<DeadlineBand?>> bands(String tier, {int streak = 2}) async {
+        final ScriptedServer server = ScriptedServer();
+        final Map<String, Object?> risk = riskGrade();
+        (risk['live']! as Map<String, Object?>)['tier'] = tier;
+        _registerDetail(server, risk: risk, perf: performance(streak: streak));
+        await openVendorScreen(tester, server, const ContractorScreen(contractorId: 'c-1'));
+        final StatStrip strip = tester.widget<StatStrip>(find.byType(StatStrip));
+        return strip.cells.map((StatCell cell) => cell.band).toList();
+      }
+
+      expect(await bands('CRITICAL'), <DeadlineBand?>[DeadlineBand.late, DeadlineBand.soon, null]);
+      expect(await bands('HIGH', streak: 0), <DeadlineBand?>[DeadlineBand.late, null, null]);
+      expect(await bands('MEDIUM'), <DeadlineBand?>[DeadlineBand.soon, DeadlineBand.soon, null]);
+      expect(await bands('LOW'), <DeadlineBand?>[DeadlineBand.ok, DeadlineBand.soon, null]);
+    });
+
+    testWidgets('a review that is not overdue shows the ok band with its day, an overdue one the late band', (WidgetTester tester) async {
+      useDevice(tester, _veryTall);
+      final ScriptedServer server = ScriptedServer();
+      _registerList(server);
+      await openVendorScreen(tester, server, const RiskListScreen());
+      final List<DeadlineLabel> labels = tester.widgetList<DeadlineLabel>(find.byType(DeadlineLabel)).toList();
+      expect(labels.map((DeadlineLabel label) => label.band), <DeadlineBand>[DeadlineBand.late, DeadlineBand.ok]);
     });
 
     testWidgets('every state, and the screen contract at the three devices and at 200 percent text', (WidgetTester tester) async {

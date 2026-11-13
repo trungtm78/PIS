@@ -183,6 +183,8 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'Mã xác nhận (OTP)'), '123456');
       await tester.tap(find.widgetWithText(FilledButton, 'Xác nhận và ký'));
       await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Ký văn bản này'));
+      await tester.pumpAndSettle();
 
       expect(server.callsTo('POST', '/signing-sessions/s-1/completion'), hasLength(1));
       expect(find.text('SIGNING_SESSION_EXPIRED'), findsOneWidget);

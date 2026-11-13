@@ -5,7 +5,14 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../../core/state/empty_state_view.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/deadline.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/progress.dart';
+import '../../../core/widgets/state_view.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
@@ -14,6 +21,7 @@ import '../../read_support/widgets.dart';
 import '../../read_support/wire.dart';
 import '../handover_models.dart';
 import '../handover_support.dart';
+import '../widgets/fact_row.dart';
 
 /// MOB-66: the works handed over and the warranty they carry. Without a parameter it lists the handovers in the scope of the
 /// reader (recipient unit, defects still on the punch list, warranty), those with open critical defects first; with
@@ -48,6 +56,14 @@ Future<Object?> _readTrace(MachvonApiClient client, String id) async {
   return <String, Object?>{'trace': trace, 'warranties': warranties, 'warranties_refused': refused};
 }
 
+MachvonTone _handoverTone(String status) => switch (status) {
+      'ACCEPTED' => MachvonTone.success,
+      'REJECTED' || 'CANCELLED' => MachvonTone.danger,
+      'PUNCH_PENDING' => MachvonTone.warning,
+      'INSPECTING' => MachvonTone.info,
+      _ => MachvonTone.neutral,
+    };
+
 class _HandoverListScreen extends StatefulWidget {
   const _HandoverListScreen();
 
@@ -60,7 +76,7 @@ class _HandoverListScreenState extends State<_HandoverListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.handover.list.title'),
       body: DataView<HandoverRegister>(
         cacheKey: 'handover.register',
@@ -77,23 +93,27 @@ class _HandoverListScreenState extends State<_HandoverListScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              CheckboxListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-                value: _onlyOpen,
-                title: Text(context.t('mob.handover.list.filter.open')),
-                onChanged: (bool? value) => setState(() => _onlyOpen = value ?? false),
+              FilterChips<bool>(
+                options: <ChipOption<bool>>[
+                  ChipOption<bool>(value: false, label: context.t('mob.handover.list.filter.all')),
+                  ChipOption<bool>(value: true, label: context.t('mob.handover.list.filter.open')),
+                ],
+                selected: _onlyOpen,
+                onChanged: (bool value) => setState(() => _onlyOpen = value),
               ),
-              if (register.warrantiesRefused)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-                  child: Text(context.t('mob.handover.list.warrantyRefused'), style: Theme.of(context).textTheme.bodyMedium),
-                ),
+              if (register.warrantiesRefused) StatusBanner(text: context.t('mob.handover.list.warrantyRefused')),
               Expanded(
                 child: shown.isEmpty
-                    ? EmptyStateView(activeFilters: <String>[context.t('mob.handover.list.filter.open')], onClearFilters: () => setState(() => _onlyOpen = false))
+                    ? StateView(
+                        kind: StateKind.empty,
+                        details: <Widget>[Center(child: StatusPill(label: context.t('mob.handover.list.filter.open')))],
+                        actionLabel: context.t('mob.states.empty.clearFilters.action'),
+                        onAction: () => setState(() => _onlyOpen = false),
+                      )
                     : ListView(
                         children: <Widget>[
-                          for (final HandoverLine line in shown) _HandoverRow(line: line, warranties: register.warrantiesOf(line.id), warrantiesRefused: register.warrantiesRefused),
+                          for (int index = 0; index < shown.length; index += 1)
+                            _HandoverRow(line: shown[index], warranties: register.warrantiesOf(shown[index].id), warrantiesRefused: register.warrantiesRefused, dividerAbove: index > 0),
                         ],
                       ),
               ),
@@ -106,15 +126,15 @@ class _HandoverListScreenState extends State<_HandoverListScreen> {
 }
 
 class _HandoverRow extends StatelessWidget {
-  const _HandoverRow({required this.line, required this.warranties, required this.warrantiesRefused});
+  const _HandoverRow({required this.line, required this.warranties, required this.warrantiesRefused, required this.dividerAbove});
 
   final HandoverLine line;
   final List<WarrantyLine> warranties;
   final bool warrantiesRefused;
+  final bool dividerAbove;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final String status = handoverStatusLabel(context, line.status);
     final String defects = context.t('mob.handover.list.row.defects', <String, Object>{'count': line.itemCount, 'critical': line.openCriticalCount});
     final String warranty = warrantiesRefused
@@ -123,33 +143,29 @@ class _HandoverRow extends StatelessWidget {
             ? context.t('mob.handover.list.row.warrantyNone')
             : context.t('mob.handover.list.row.warranty', <String, Object>{'count': warranties.length, 'until': formatDay(_latestEnd(warranties))});
     final String unit = context.t('mob.handover.list.row.unit', <String, Object>{'unit': line.recipientName});
-    return TappableRow(
-      semanticLabel: context.t('mob.handover.list.row.aria', <String, Object>{'no': line.handoverNo, 'contract': line.contractCode, 'status': status, 'unit': line.recipientName, 'defects': defects, 'warranty': warranty}),
-      onTap: () => openScreen(context, 'MOB-66', query: <String, String>{'handover': line.id}, stacked: true),
-      child: Row(
+    return FactRow(
+      title: line.handoverNo,
+      icon: Icons.key_outlined,
+      lines: <String>[
+        context.t('mob.handover.list.row.facts', <String, Object>{'contract': line.contractCode, 'kind': handoverKindLabel(context, line.kind)}),
+        unit,
+        defects,
+        warranty,
+      ],
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(line.handoverNo, style: theme.textTheme.bodyLarge),
-                Text(context.t('mob.handover.list.row.facts', <String, Object>{'contract': line.contractCode, 'kind': handoverKindLabel(context, line.kind)}), style: theme.textTheme.bodyMedium),
-                Text(unit, style: theme.textTheme.bodyMedium),
-                Wrap(
-                  spacing: MachvonSpace.space8,
-                  children: <Widget>[
-                    StatusPill(label: status),
-                    if (line.openCriticalCount > 0) StatusPill(label: context.t('mob.handover.list.row.critical', <String, Object>{'count': line.openCriticalCount}), warn: true),
-                  ],
-                ),
-                Text(defects, style: theme.textTheme.bodySmall),
-                Text(warranty, style: theme.textTheme.bodySmall),
-              ],
-            ),
-          ),
-          const ExcludeSemantics(child: Icon(Icons.chevron_right)),
+          StatusPill(label: status, tone: _handoverTone(line.status)),
+          if (line.openCriticalCount > 0) ...<Widget>[
+            const SizedBox(height: MachvonV2Space.s4),
+            StatusPill(label: context.t('mob.handover.list.row.critical', <String, Object>{'count': line.openCriticalCount}), tone: MachvonTone.danger),
+          ],
         ],
       ),
+      dividerAbove: dividerAbove,
+      semanticLabel: context.t('mob.handover.list.row.aria', <String, Object>{'no': line.handoverNo, 'contract': line.contractCode, 'status': status, 'unit': line.recipientName, 'defects': defects, 'warranty': warranty}),
+      onTap: () => openScreen(context, 'MOB-66', query: <String, String>{'handover': line.id}, stacked: true),
     );
   }
 }
@@ -164,7 +180,7 @@ class _HandoverScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.handover.detail.title'),
       body: DataView<HandoverTrace>(
         cacheKey: 'handover.trace.$handoverId',
@@ -184,29 +200,36 @@ class _TraceBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HandoverLine line = trace.handover;
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
+    final int total = trace.items.length;
+    final int done = trace.items.where((PunchItem item) => !item.isOpen).length;
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         SectionCard(
           title: context.t('mob.handover.detail.summary.title'),
           children: <Widget>[
-            FactLine(label: context.t('mob.handover.detail.no'), value: line.handoverNo),
-            FactLine(label: context.t('mob.handover.detail.contract'), value: line.contractCode),
-            FactLine(label: context.t('mob.handover.detail.kind'), value: handoverKindLabel(context, line.kind)),
-            FactLine(label: context.t('mob.handover.detail.unit'), value: line.recipientName),
-            FactLine(label: context.t('mob.handover.detail.status'), value: handoverStatusLabel(context, line.status)),
-            if (line.plannedOn != null) FactLine(label: context.t('mob.handover.detail.planned'), value: formatDay(line.plannedOn!)),
-            if (line.handedOn != null) FactLine(label: context.t('mob.handover.detail.handed'), value: formatDay(line.handedOn!)),
-            if (line.acceptedAt != null) FactLine(label: context.t('mob.handover.detail.accepted'), value: formatMoment(line.acceptedAt!)),
-            if (line.rejectionReason != null) Text(context.t('mob.handover.detail.rejection', <String, Object>{'reason': line.rejectionReason!}), style: theme.textTheme.bodyMedium),
+            InfoRow(label: context.t('mob.handover.detail.no'), value: line.handoverNo, divider: false),
+            InfoRow(label: context.t('mob.handover.detail.contract'), value: line.contractCode),
+            InfoRow(label: context.t('mob.handover.detail.kind'), value: handoverKindLabel(context, line.kind)),
+            InfoRow(label: context.t('mob.handover.detail.unit'), value: line.recipientName),
+            InfoRow(label: context.t('mob.handover.detail.status'), value: handoverStatusLabel(context, line.status), valueWidget: StatusPill(label: handoverStatusLabel(context, line.status), tone: _handoverTone(line.status))),
+            InfoRow(label: context.t('mob.handover.detail.planned'), value: line.plannedOn == null ? null : formatDay(line.plannedOn!)),
+            InfoRow(label: context.t('mob.handover.detail.handed'), value: line.handedOn == null ? null : formatDay(line.handedOn!)),
+            InfoRow(label: context.t('mob.handover.detail.accepted'), value: line.acceptedAt == null ? null : formatMoment(line.acceptedAt!)),
+            if (line.rejectionReason != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.handover.detail.rejection', <String, Object>{'reason': line.rejectionReason!}), style: text.body)),
           ],
         ),
+        if (total > 0)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
+            child: ProgressMeter(value: done / total, label: context.t('mob.handover.detail.punch.progress', <String, Object>{'done': done, 'total': total})),
+          ),
         SectionCard(
           title: context.t('mob.handover.detail.punch.title'),
           children: <Widget>[
-            Text(context.t('mob.handover.detail.punch.counts', <String, Object>{'open': trace.openItems, 'total': trace.items.length, 'critical': line.openCriticalCount}), style: theme.textTheme.bodyMedium),
-            if (trace.items.isEmpty) Text(context.t('mob.handover.detail.punch.none'), style: theme.textTheme.bodyMedium),
+            Text(context.t('mob.handover.detail.punch.counts', <String, Object>{'open': trace.openItems, 'total': total, 'critical': line.openCriticalCount}), style: text.body),
+            if (trace.items.isEmpty) Text(context.t('mob.handover.detail.punch.none'), style: text.body),
             for (final PunchItem item in trace.items) _PunchLine(item: item),
           ],
         ),
@@ -214,9 +237,9 @@ class _TraceBody extends StatelessWidget {
           title: context.t('mob.handover.detail.warranty.title'),
           children: <Widget>[
             if (trace.warrantiesRefused)
-              Text(context.t('mob.handover.list.warrantyRefused'), style: theme.textTheme.bodyMedium)
+              Text(context.t('mob.handover.list.warrantyRefused'), style: text.body)
             else if (trace.warranties.isEmpty)
-              Text(context.t('mob.handover.detail.warranty.none'), style: theme.textTheme.bodyMedium),
+              Text(context.t('mob.handover.detail.warranty.none'), style: text.body),
             for (final WarrantyLine warranty in trace.warranties) _WarrantyLineView(warranty: warranty),
           ],
         ),
@@ -232,21 +255,27 @@ class _PunchLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
     final String severity = severityLabel(context, item.severity);
     final String status = punchStatusLabel(context, item.status);
+    final TextStyle small = text.caption.copyWith(color: v2.palette.ink2);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
       child: MergeSemantics(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(context.t('mob.handover.detail.punch.item', <String, Object>{'no': item.itemNo, 'description': item.description}), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-            Text(context.t('mob.handover.detail.punch.state', <String, Object>{'severity': severity, 'status': status}), style: theme.textTheme.bodySmall),
-            if (item.locationText != null) Text(context.t('mob.handover.detail.punch.place', <String, Object>{'place': item.locationText!}), style: theme.textTheme.bodySmall),
-            if (item.contractorName != null) Text(context.t('mob.handover.detail.punch.contractor', <String, Object>{'name': item.contractorName!}), style: theme.textTheme.bodySmall),
-            if (item.dueOn != null) Text(context.t('mob.handover.detail.punch.due', <String, Object>{'day': formatDay(item.dueOn!)}), style: theme.textTheme.bodySmall),
-            if (item.overdue && item.isOpen) Text(context.t('mob.handover.detail.punch.overdue'), style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w700)),
+            Text(context.t('mob.handover.detail.punch.item', <String, Object>{'no': item.itemNo, 'description': item.description}), style: text.bodyStrong),
+            Text(context.t('mob.handover.detail.punch.state', <String, Object>{'severity': severity, 'status': status}), style: small),
+            if (item.locationText != null) Text(context.t('mob.handover.detail.punch.place', <String, Object>{'place': item.locationText!}), style: small),
+            if (item.contractorName != null) Text(context.t('mob.handover.detail.punch.contractor', <String, Object>{'name': item.contractorName!}), style: small),
+            if (item.dueOn != null) Text(context.t('mob.handover.detail.punch.due', <String, Object>{'day': formatDay(item.dueOn!)}), style: small),
+            if (item.overdue && item.isOpen)
+              Padding(
+                padding: const EdgeInsets.only(top: MachvonV2Space.s4),
+                child: DeadlineLabel(band: DeadlineBand.late, text: context.t('mob.handover.detail.punch.overdue'), dueDay: item.dueOn),
+              ),
           ],
         ),
       ),
@@ -261,16 +290,18 @@ class _WarrantyLineView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
+    final TextStyle small = text.caption.copyWith(color: v2.palette.ink2);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
       child: MergeSemantics(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(warranty.assetName == null ? warranty.scope : context.t('mob.handover.detail.warranty.asset', <String, Object>{'scope': warranty.scope, 'asset': warranty.assetName!}), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-            Text(context.t('mob.handover.detail.warranty.term', <String, Object>{'from': formatDay(warranty.startsOn), 'to': formatDay(warranty.endsOn), 'months': warranty.periodMonths}), style: theme.textTheme.bodySmall),
-            Text(context.t('mob.handover.detail.warranty.state', <String, Object>{'status': warrantyStatusLabel(context, warranty.status), 'open': warranty.openClaims, 'total': warranty.totalClaims}), style: theme.textTheme.bodySmall),
+            Text(warranty.assetName == null ? warranty.scope : context.t('mob.handover.detail.warranty.asset', <String, Object>{'scope': warranty.scope, 'asset': warranty.assetName!}), style: text.bodyStrong),
+            Text(context.t('mob.handover.detail.warranty.term', <String, Object>{'from': formatDay(warranty.startsOn), 'to': formatDay(warranty.endsOn), 'months': warranty.periodMonths}), style: small),
+            Text(context.t('mob.handover.detail.warranty.state', <String, Object>{'status': warrantyStatusLabel(context, warranty.status), 'open': warranty.openClaims, 'total': warranty.totalClaims}), style: small),
           ],
         ),
       ),

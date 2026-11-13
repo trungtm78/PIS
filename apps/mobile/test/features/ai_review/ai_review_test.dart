@@ -316,6 +316,7 @@ void main() {
       expect(find.byType(FindingCard), findsOneWidget);
       expect(find.text('Tiêu chí C-FIN-02'), findsOneWidget);
 
+      await tester.ensureVisible(find.text('Thiếu nguồn').first);
       await tester.tap(find.text('Thiếu nguồn').first);
       await tester.pumpAndSettle();
       expect(find.byType(FindingCard), findsNothing);
@@ -413,7 +414,7 @@ void main() {
       expect(find.text('12'), findsOneWidget);
       expect(find.text('Có trên trang (máy chủ đã kiểm)'), findsOneWidget);
       final RichText page = tester.widget<RichText>(find.byWidgetPredicate((Widget w) => w is RichText && w.text.toPlainText() == kPageText));
-      final TextSpan marked = _leaves(page.text).singleWhere((TextSpan s) => s.style?.fontWeight == FontWeight.w700);
+      final TextSpan marked = _leaves(page.text).singleWhere((TextSpan s) => s.style?.backgroundColor != null);
       expect(marked.text, 'thực hiện hợp đồng tương tự\ntại tỉnh B', reason: 'the line break of the page stands for the space of the quotation');
       expect(_writes(server), isEmpty);
     });
@@ -481,7 +482,7 @@ void main() {
       expect(find.text('Không thấy trên trang'), findsOneWidget);
       expect(find.textContaining('đang chờ người xác nhận'), findsOneWidget);
       final RichText page = tester.widget<RichText>(find.byWidgetPredicate((Widget w) => w is RichText && w.text.toPlainText() == kPageText));
-      expect(_leaves(page.text).where((TextSpan s) => s.style?.fontWeight == FontWeight.w700), isEmpty, reason: 'words that are not in the text are not marked');
+      expect(_leaves(page.text).where((TextSpan s) => s.style?.backgroundColor != null), isEmpty, reason: 'words that are not in the text are not marked');
     });
 
     testWidgets('a passage of a question opens through the proposals of the package the person has the full view of', (WidgetTester tester) async {

@@ -87,6 +87,10 @@ void main() {
       await openPrcScreen(tester, server, const PackageListScreen());
 
       expect(find.text('Thống kê của bước đang xem'), findsOneWidget);
+      expect(find.text('10 gói, 2 trễ hạn'), findsOneWidget, reason: 'closed, the card is one line with the two counts');
+      expect(find.text('6,5 ngày làm việc'), findsNothing);
+      await tester.tap(find.text('Thống kê của bước đang xem'));
+      await tester.pumpAndSettle();
       expect(find.text('6,5 ngày làm việc'), findsOneWidget);
       expect(find.text('14 ngày làm việc'), findsOneWidget);
       expect(find.text('1 ngày làm việc'), findsOneWidget);
@@ -98,6 +102,9 @@ void main() {
       expect(server.callsTo('GET', '/package-workflows/process-tree/node').single.url.queryParameters['node_id'], 'M:OPEN_BIDDING');
       // The packages of the node are still there.
       expect(find.text('G-001 · Gói thầu xây lắp'), findsOneWidget);
+      await tester.tap(find.text('Thu gọn'));
+      await tester.pumpAndSettle();
+      expect(find.text('6,5 ngày làm việc'), findsNothing, reason: 'closed again');
     });
 
     testWidgets('a server that cannot give the statistics says so with the code and the packages stay', (WidgetTester tester) async {
@@ -123,7 +130,9 @@ void main() {
       await openPrcScreen(tester, server, const PackageListScreen(), locale: const Locale('en'));
 
       expect(find.text('Statistics of the step in view'), findsOneWidget);
-      expect(find.text('6,5 calendar days'), findsOneWidget);
+      await tester.tap(find.text('Statistics of the step in view'));
+      await tester.pumpAndSettle();
+      expect(find.text('6.5 calendar days'), findsOneWidget);
       expect(find.text('Week of 02/11/2026: in 3, out 1'), findsOneWidget);
     });
   });
