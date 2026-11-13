@@ -10,8 +10,9 @@ import { ConfirmDialog, ContextBar, DataTable, StatusPill } from '../../../ui';
 import type { DataTableColumn, Tone } from '../../../ui';
 import { useRuleMove, useVersions } from '../../adm/governance/hooks';
 import type { RuleVersion } from '../../adm/governance/model';
+import { personText } from '../../adm/governance/components';
 import { DemoBadge, refusalText } from '../components';
-import { useCatalogue } from '../hooks';
+import { useCatalogue, useIssues } from '../hooks';
 import { kindWord, statusWord, vietnamDateTime } from '../model';
 import type { Entry } from '../model';
 import '../rpt.css';
@@ -39,6 +40,9 @@ function ListContent({ route }: ScreenProps) {
   const [search, setSearch] = useSearchParams();
   const selected = search.get('code') ?? undefined;
   const catalogue = useCatalogue();
+  // The hash of a layout is fixed on the copies that were issued: the newest issued copy of each layout says it.
+  const issues = useIssues({ headsOnly: true, demo: undefined });
+  const issued = ((issues.data as { items?: IssueLine[] } | undefined)?.items ?? []).filter((issue) => issue.layout_sha256 !== null && issue.layout_sha256 !== undefined);
   const versions = useVersions(RULE_TYPE, selected, undefined, selected !== undefined);
   const move = useRuleMove();
   const [step, setStep] = useState<Step | undefined>(undefined);
@@ -51,6 +55,12 @@ function ListContent({ route }: ScreenProps) {
     { key: 'code', header: t('rpt.layout.col.code'), pinned: true, render: (row) => <strong>{row.code}</strong> },
     { key: 'name', header: t('rpt.layout.col.name'), render: (row) => row.name },
     { key: 'kind', header: t('rpt.layout.col.kind'), render: (row) => (row.receiver === 'INTERNAL' ? t('rpt.layout.kind.internal') : t('rpt.layout.kind.agencyRequest')) },
+    { key: 'inForce', header: t('scr2.rpt.layout.col.inForce'), render: (row) => <LayoutRuleCell code={row.code} show="version" /> },
+    { key: 'ruleStatus', header: t('scr2.rpt.layout.col.ruleStatus'), render: (row) => <LayoutRuleCell code={row.code} show="status" /> },
+    { key: 'maker', header: t('scr2.rpt.layout.col.maker'), render: (row) => <LayoutRuleCell code={row.code} show="maker" /> },
+    { key: 'approver', header: t('scr2.rpt.layout.col.approver'), render: (row) => <LayoutRuleCell code={row.code} show="approver" /> },
+    { key: 'effective', header: t('rpt.layout.col.from'), render: (row) => <LayoutRuleCell code={row.code} show="from" /> },
+    { key: 'hash', header: t('scr2.rpt.layout.col.hash'), render: (row) => <LayoutHashCell issues={issued} code={row.code} /> },
     { key: 'version', header: t('rpt.layout.col.version'), render: (row) => row.version },
     { key: 'status', header: t('rpt.layout.col.status'), render: (row) => (row.status === 'DEMO' ? <DemoBadge mark={row.demo_mark} /> : <StatusPill tone="success">{t(`rpt.common.status.${statusWord(row.status)}`)}</StatusPill>) },
     { key: 'receiver', header: t('rpt.layout.col.receiver'), render: (row) => row.receiver },
@@ -174,4 +184,36 @@ function ListContent({ route }: ScreenProps) {
       <p className="prototype-note">{t('rpt.common.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+type IssueLine = { layout_code: string; revision: number; issued_at: string | null; layout_sha256?: string | null };
+
+/** The version of the layout rule that is in force (else the newest), as one figure of it: the version, its status, who drafted it, who approved it, the day it takes effect. */
+function LayoutRuleCell({ code, show }: { code: string; show: 'version' | 'status' | 'maker' | 'approver' | 'from' }) {
+  const { t } = useTranslation();
+  const { tenant } = useSession();
+  const versions = useVersions(RULE_TYPE, code, undefined, true);
+  const all = versions.data ?? [];
+  const current = all.find((one) => one.phase === 'IN_FORCE') ?? [...all].sort((left, right) => right.version - left.version)[0];
+  if (versions.isLoading) return <span className="rpt-muted">…</span>;
+  if (current === undefined) return <span className="rpt-muted">{t('scr2.rpt.layout.noVersion')}</span>;
+  switch (show) {
+    case 'version':
+      return <>{current.phase === 'IN_FORCE' ? t('scr2.rpt.layout.inForce', { version: current.version }) : t('scr2.rpt.layout.notInForce', { version: current.version })}</>;
+    case 'status':
+      return <StatusPill tone={tone(current.status)}>{t(`rpt.layout.rule.${current.status.toLowerCase()}`)}</StatusPill>;
+    case 'maker':
+      return <>{personText(t, current.createdBy, tenant?.membershipId)}</>;
+    case 'approver':
+      return <>{personText(t, current.approvedBy, tenant?.membershipId)}</>;
+    case 'from':
+      return <>{current.effectiveFrom}</>;
+  }
+}
+
+/** The hash of the layout as the newest issued copy of it keeps it; a layout never issued has none yet. */
+function LayoutHashCell({ issues, code }: { issues: readonly IssueLine[]; code: string }) {
+  const { t } = useTranslation();
+  const newest = issues.filter((issue) => issue.layout_code === code).sort((left, right) => right.revision - left.revision)[0];
+  return newest?.layout_sha256 === undefined || newest.layout_sha256 === null ? <span className="rpt-muted">{t('scr2.rpt.layout.hash.none')}</span> : <code title={newest.layout_sha256}>{newest.layout_sha256.slice(0, 12)}</code>;
 }

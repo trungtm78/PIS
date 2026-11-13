@@ -116,7 +116,7 @@ function CatalogueContent({ route }: ScreenProps) {
   const columns: DataTableColumn<Entry>[] = [
     {
       key: 'form',
-      header: t('rpt.cat.col.form'),
+      header: t('scr2.rpt.cat.col.form'),
       pinned: true,
       render: (entry) => (
         <>
@@ -128,14 +128,15 @@ function CatalogueContent({ route }: ScreenProps) {
     },
     { key: 'version', header: t('rpt.cat.col.version'), render: (entry) => entry.version },
     { key: 'edition', header: t('rpt.cat.col.edition'), render: (entry) => t(`rpt.common.edition.${running === 'enterprise' ? 'enterprise' : entry.edition}`) },
-    { key: 'status', header: t('rpt.cat.col.status'), render: (entry) => <StatusPill tone={statusTone(entry.status)}>{t(`rpt.common.status.${statusWord(entry.status)}`)}</StatusPill> },
+    { key: 'status', header: t('scr2.rpt.cat.col.status'), render: (entry) => <StatusPill tone={statusTone(entry.status)}>{t(`rpt.common.status.${statusWord(entry.status)}`)}</StatusPill> },
     { key: 'official', header: t('rpt.cat.col.official'), render: (entry) => t(`rpt.common.official.${statusWord(entry.official)}`) },
     { key: 'receiver', header: t('rpt.cat.col.receiver'), render: (entry) => entry.receiver },
     { key: 'kind', header: t('rpt.cat.col.kind'), render: (entry) => t(`rpt.common.kind.${kindWord(entry.period_kind)}`) },
     { key: 'source', header: t('rpt.cat.col.source'), render: (entry) => t(`rpt.common.source.${entry.data_source.toLowerCase()}`) },
+    { key: 'issuable', header: t('scr2.rpt.cat.col.issuable'), render: (entry) => <span data-testid={`issuable-${entry.code}`}>{entry.issuable ? t('scr2.rpt.cat.issuable.yes') : t('scr2.rpt.cat.issuable.no')}</span> },
     {
       key: 'action',
-      header: t('rpt.cat.col.action'),
+      header: t('scr2.rpt.cat.col.action'),
       render: (entry) => {
         if (data?.can_generate !== true || !holds(permissions, GENERATE_PERMISSION)) return <span className="rpt-muted">{t('rpt.cat.action.noRight')}</span>;
         if (!entry.issuable) return <span className="rpt-muted" data-testid={`blocked-${entry.code}`}>{t('rpt.cat.action.demoOff')}</span>;

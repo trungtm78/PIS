@@ -91,6 +91,9 @@ function Body({ data, period, thousands }: { data: Crosscheck; period: PeriodCho
         </p>
       ) : null}
       {data.gate === null || data.gate === undefined ? null : <Gate gate={data.gate} />}
+      <p className="rpt-muted" data-testid="coverage-intro">
+        {t('scr2.rpt.crosscheck.coverage.intro')}
+      </p>
       <dl className="rpt-cc__coverage" data-testid="coverage">
         <Stat label={t('rpt.crosscheck.coverage.reports')} value={`${data.coverage.usable}/${data.coverage.reports}`} />
         <Stat label={t('rpt.crosscheck.coverage.rules')} value={data.coverage.rules_run} />
@@ -104,8 +107,14 @@ function Body({ data, period, thousands }: { data: Crosscheck; period: PeriodCho
         </p>
       ) : null}
       <h2>{t('rpt.crosscheck.reports.title')}</h2>
+      <p className="rpt-muted" data-testid="reports-intro">
+        {t('scr2.rpt.crosscheck.reports.intro')}
+      </p>
       <ReportsTable data={data} />
       <h2>{t('rpt.crosscheck.findings.title')}</h2>
+      <p className="rpt-muted" data-testid="findings-intro">
+        {t('scr2.rpt.crosscheck.findings.intro')}
+      </p>
       {findings.length === 0 ? (
         <p data-testid="no-findings">{data.coverage.comparisons === 0 ? t('rpt.crosscheck.findings.noneCompared') : t('rpt.crosscheck.findings.none')}</p>
       ) : (
