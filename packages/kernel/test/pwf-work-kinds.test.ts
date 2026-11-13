@@ -3,7 +3,7 @@ import type { WorkKind } from '../src/home-work';
 import { builtInCodes, builtInDefault, registerAllGovernanceRules } from '../src/governance-rules';
 import { message } from '../src/messages';
 
-const PWF_KINDS = ['PWF_TASK_DUE_SOON', 'PWF_TASK_OVERDUE', 'PWF_MILESTONE_AT_RISK'] as const;
+const PWF_KINDS = ['PWF_TASK_DUE_SOON', 'PWF_TASK_OVERDUE', 'PWF_MILESTONE_AT_RISK', 'PWF_LEGAL_BASIS_LAPSED'] as const;
 const entry = (kind: WorkKind) => ({ id: 'x', kind, dueOn: '2027-01-01', originalDueOn: '2027-01-01' });
 
 beforeAll(() => registerAllGovernanceRules());

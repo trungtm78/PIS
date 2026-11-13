@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { ND30_A4_STANDARD, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
+import { HomeWorkStore } from '../src/home-work-store';
+import type { WorkInput } from '../src/home-work-store';
 import { BASELINE_PACK, applyBaseline } from '../src/master-baseline';
 import { PrjProjectStore } from '../src/prj-project-store';
 import { PwfAssignmentReads } from '../src/pwf-assignment';
@@ -22,6 +24,7 @@ const tasks = new PwfTaskStore();
 const reads = new PwfWorkflowReads();
 const taskReads = new PwfTaskReads();
 const assignment = new PwfAssignmentReads();
+const work = new HomeWorkStore();
 
 const MANAGER = 1;
 const WORKER = 2;
@@ -348,6 +351,31 @@ describe('the processing workflow of a project (PWF-4)', () => {
       expect((view.steps as Array<{ legal_basis: Array<Record<string, unknown>> }>)[0]?.legal_basis[1]).toMatchObject({ state: 'SUPERSEDED', superseded_by: 'TEST_DECREE_NEW', effective_to: '2026-01-01' });
       const [frozen] = await owner<{ template_hash: string }>('select template_hash from machvon.project_workflow where id = $1::uuid', [done.id]);
       expect(frozen?.template_hash).toBe(done.templateHash);
+    });
+
+    it('tells the alert centre once per workflow and document that a legal ground lapsed, to whoever reads the project, and nothing while every document is in force', async () => {
+      const input = (over: Partial<WorkInput> = {}): WorkInput => ({ membershipId: memberId(MANAGER), now: now(), today: TODAY, unitScope: everything, projectScope: everything, mode: 'rows', view: 'scope', ...over });
+      const lapsed = async (over: Partial<WorkInput> = {}) => (await as((tx) => work.collect(tx, input(over)))).rows.filter((row) => row.kind === 'PWF_LEGAL_BASIS_LAPSED');
+      // The test before this one replaced TEST_DECREE_OLD: every running workflow of the stepped template cites it on its first step.
+      const p = await project();
+      const done = await start(p.id);
+      const rows = await lapsed();
+      const mine = rows.filter((row) => row.id.startsWith(done.id));
+      expect(mine).toHaveLength(1);
+      expect(mine[0]).toMatchObject({ id: `${done.id}:TEST_DECREE_OLD:2`, source: 'PROJECT_TASK', severity: 'WATCH', status: 'AT_RISK', target: { screen: 'PWF-03', id: p.id }, dueOn: '2026-01-01' });
+      expect(mine[0]?.title).toContain('1/2020/ND-CP');
+      expect(mine[0]?.title).toContain(p.code);
+      expect(mine[0]?.subtitle).toContain('2/2026/ND-CP');
+      expect(mine[0]?.consequence).toBeTruthy();
+      // One item per workflow and document, whatever the number of steps and tasks that cite it; a workflow that cites nothing lapsed has none.
+      expect(new Set(rows.map((row) => row.id)).size).toBe(rows.length);
+      const legacy = await start((await project()).id, { templateCode: 'LEGACY' });
+      expect((await lapsed()).some((row) => row.id.startsWith(legacy.id))).toBe(false);
+      // Out of the scope of the reader there is nothing.
+      expect(await lapsed({ projectScope: () => ({ sql: 'false', params: [] }), unitScope: () => ({ sql: 'false', params: [] }) })).toEqual([]);
+      // A workflow that is no longer running is not told.
+      await owner(`update machvon.project_workflow set status = 'CANCELLED' where id = $1::uuid`, [done.id]);
+      expect((await lapsed()).some((row) => row.id.startsWith(done.id))).toBe(false);
     });
 
     it('shows a ground whose document the catalogue does not have as unknown, never as in force', async () => {

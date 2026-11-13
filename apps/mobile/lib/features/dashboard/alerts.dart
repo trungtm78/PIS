@@ -569,6 +569,8 @@ const Map<String, AlertTargetRule> kAlertTargets = <String, AlertTargetRule>{
   'MOB-75': (screenId: 'MOB-75', withId: false),
   // the workflow of a project: the alert of a task that is due (PWF-04, the detail of a task) opens the task on the phone (MOB-79), keyed by the id of the task
   'PWF-04': (screenId: 'MOB-79', withId: true),
+  // a legal ground of a workflow that lapsed (PWF-03, the workflow of a project) opens the workflow of the project on the phone (MOB-78), keyed by the id of the project
+  'PWF-03': (screenId: 'MOB-78', withId: true),
   'MOB-79': (screenId: 'MOB-79', withId: true),
 };
 

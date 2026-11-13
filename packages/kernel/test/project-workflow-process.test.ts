@@ -284,7 +284,7 @@ describe('LEGAL_DOCUMENT: the shared catalogue of legal documents (R45)', () => 
 
   it('has an alert type with an owner, an action and a consequence for a legal ground that lapsed', () => {
     const alert = defaultGovernanceRule('ALERT_TYPE', LEGAL_BASIS_ALERT_CODE);
-    expect(alert?.params).toMatchObject({ source: 'LEGAL_BASIS', owner: 'PROJECT_MANAGER', default_severity: 'WATCH', enabled: true });
+    expect(alert?.params).toMatchObject({ source: 'PROJECT_TASK', owner: 'PROJECT_MANAGER', default_severity: 'WATCH', enabled: true });
     expect(String(alert?.params.expected_action).length).toBeGreaterThan(20);
     expect(String(alert?.params.consequence).length).toBeGreaterThan(20);
   });

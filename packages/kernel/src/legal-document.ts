@@ -160,7 +160,7 @@ export function registerLegalDocumentRules(registry: RuleRegistry): void {
   registry.registerRuleDefaults('ALERT_TYPE', {
     [LEGAL_BASIS_ALERT_CODE]: {
       params: {
-        source: 'LEGAL_BASIS',
+        source: 'PROJECT_TASK',
         owner: 'PROJECT_MANAGER',
         expected_action: T.basis_action,
         consequence: T.basis_consequence,
