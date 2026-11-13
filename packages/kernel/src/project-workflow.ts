@@ -5,7 +5,7 @@ import { DOCUMENT_CLASSES } from './doc-repository.ts';
 import { DomainError } from './errors.ts';
 import type { FieldSpec, RuleParams, RuleRegistry } from './governance-rules.ts';
 import { PWF_TEXT as T } from './messages/pwf-texts.ts';
-import { PUBLIC_INVESTMENT_TEMPLATE, PUBLIC_LEGAL_DOC_TYPES, PUBLIC_PROCUREMENT_TEMPLATE, PUBLIC_REPAIR_TEMPLATE } from './project-workflow-defaults.ts';
+import { PUBLIC_INVESTMENT_PROCESS, PUBLIC_LEGAL_DOC_TYPES, PUBLIC_PROCUREMENT_PROCESS, PUBLIC_REPAIR_PROCESS } from './project-workflow-defaults.ts';
 import { findingOf } from './rule-findings.ts';
 import type { RuleFinding } from './rule-findings.ts';
 
@@ -81,10 +81,56 @@ export interface TemplateChecklistItem {
   evidenceKinds: readonly string[];
 }
 
+/** How sure the citation is: a legal officer of the agency confirmed it, or it is the best reading of the people who wrote the template. */
+export const LEGAL_BASIS_VERIFICATIONS = ['VERIFIED', 'UNVERIFIED'] as const;
+export type LegalBasisVerification = (typeof LEGAL_BASIS_VERIFICATIONS)[number];
+
+/**
+ * One legal ground of a step or of a task (R44): the code of a document of the shared catalogue `LEGAL_DOCUMENT` (legal-document.ts: kind, number, title, issuer, days of effect, what replaced it), and what this step or task takes from
+ * it. The words of the document are never copied into a template: the catalogue answers for them, so a document that lapses or is replaced is told to every template and running project that cites it.
+ */
+export interface TemplateLegalBasis {
+  document: string;
+  /** The article, clause or point, as the citation is written; null when nobody is sure of it yet (never a guess). */
+  article: string | null;
+  note: string | null;
+  verification: LegalBasisVerification;
+}
+
+/** Which revision of a form a task uses (R46): the newest approved one on the day the form is used, or one revision the template pins. */
+export const FORM_VERSION_POLICIES = ['LATEST_APPROVED', 'PINNED'] as const;
+export type FormVersionPolicy = (typeof FORM_VERSION_POLICIES)[number];
+
+export interface TemplateFormPolicy {
+  form: string;
+  policy: FormVersionPolicy;
+  /** The pinned revision; null under LATEST_APPROVED. */
+  revision: number | null;
+}
+
+/**
+ * A step of a phase (R44): the unit of the procedure the law or the agency names ("appraise the feasibility study"), made of one or more tasks, each with a checklist of its own. A template written before steps existed has none:
+ * every phase is then one step that carries the code and the name of the phase (`stepsOf`), and nothing of the template, its params or its hash changes.
+ */
+export interface TemplateStep {
+  code: string;
+  name: string;
+  phase: string;
+  /** 1-based position in its phase. */
+  order: number;
+  /** The role that answers for the step as a whole; null when only the tasks have one. */
+  responsibleRole: string | null;
+  legalBasis: readonly TemplateLegalBasis[];
+  /** True for the step a phase without steps stands for. */
+  implicit: boolean;
+}
+
 export interface TemplateTask {
   code: string;
   name: string;
   phase: string;
+  /** The step of the phase the task belongs to; absent or null in a template without steps (the task then belongs to the step its phase stands for). */
+  step?: string | null;
   kind: (typeof TASK_KINDS)[number];
   durationWorkingDays: number;
   required: boolean;
@@ -98,6 +144,10 @@ export interface TemplateTask {
   legalDocTypes: readonly string[];
   /** Codes of the form templates (`document_template`) the task produces. */
   formTemplates: readonly string[];
+  /** The revision policy of the forms that have one; a form that is not listed uses the newest approved revision. */
+  formPolicies?: readonly TemplateFormPolicy[];
+  /** The legal grounds of this task itself (those of its step are on the step). */
+  legalBasis?: readonly TemplateLegalBasis[];
   checklist: readonly TemplateChecklistItem[];
   /** Codes of `KPI_DEFINITION` that are measured on this task. */
   kpiCodes: readonly string[];
@@ -118,6 +168,8 @@ export interface ProjectWorkflowTemplate {
   name: string;
   projectType: string | null;
   phases: readonly TemplatePhase[];
+  /** The steps the template names, in the order of the template; absent or empty in a template without steps. */
+  steps?: readonly TemplateStep[];
   tasks: readonly TemplateTask[];
 }
 
@@ -136,6 +188,32 @@ const DEPENDENCY: FieldSpec = object({
   lag_working_days: { kind: 'int', min: -365, max: 365 },
 });
 
+/** The code of a document of the catalogue `LEGAL_DOCUMENT` (a rule code). */
+const documentCode: FieldSpec = { kind: 'text', max: 64, pattern: '^[A-Z][A-Z0-9_]{1,63}$' };
+export const MAX_LEGAL_BASIS = 12;
+export const MAX_TEMPLATE_STEPS = 80;
+
+const LEGAL_BASIS: FieldSpec = object({
+  document: documentCode,
+  article: { kind: 'text', max: 160, optional: true },
+  note: { kind: 'text', max: 400, optional: true },
+  verification: { kind: 'enum', values: LEGAL_BASIS_VERIFICATIONS },
+});
+
+const FORM_POLICY: FieldSpec = object({
+  form: codeText(),
+  policy: { kind: 'enum', values: FORM_VERSION_POLICIES },
+  revision: { kind: 'int', min: 1, max: 100000, optional: true },
+});
+
+const STEP: FieldSpec = object({
+  code: codeText(),
+  name: { kind: 'text', max: 200 },
+  phase: codeText(),
+  responsible_role: codeText(true),
+  legal_basis: { ...list(LEGAL_BASIS, MAX_LEGAL_BASIS), optional: true },
+});
+
 const CHECKLIST_ITEM: FieldSpec = object({
   code: codeText(),
   name: { kind: 'text', max: 200 },
@@ -152,6 +230,7 @@ const TASK: FieldSpec = object({
   code: codeText(),
   name: { kind: 'text', max: 200 },
   phase: codeText(),
+  step: codeText(true),
   kind: { kind: 'enum', values: TASK_KINDS },
   duration_working_days: { kind: 'int', min: 0, max: 1095 },
   required: { kind: 'boolean' },
@@ -162,6 +241,8 @@ const TASK: FieldSpec = object({
   constraint: { ...object({ kind: { kind: 'enum', values: CONSTRAINT_KINDS }, offset_working_days: { kind: 'int', min: 0, max: 1095 } }), optional: true },
   legal_doc_types: list(codeText(), 10),
   form_templates: list(codeText(), 10),
+  form_policies: { ...list(FORM_POLICY, 10), optional: true },
+  legal_basis: { ...list(LEGAL_BASIS, MAX_LEGAL_BASIS), optional: true },
   checklist: list(CHECKLIST_ITEM, 30),
   kpi_codes: list(codeText(), 10),
   when: list(CONDITION, 5),
@@ -177,6 +258,7 @@ export const PROJECT_WORKFLOW_SCHEMA: Readonly<Record<string, FieldSpec>> = {
   name: { kind: 'text', max: 200 },
   project_type: codeText(true),
   phases: list(PHASE, MAX_TEMPLATE_PHASES, 1),
+  steps: { ...list(STEP, MAX_TEMPLATE_STEPS), optional: true },
   tasks: list(TASK, MAX_TEMPLATE_TASKS, 1),
 };
 
@@ -270,6 +352,18 @@ export function dependencyDepth(tasks: readonly GraphTask[]): number {
 
 const arrayOf = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
 
+/** A list of legal grounds cites a document and an article once: the same pair twice is a defect (the path under the list, or undefined). */
+function legalBasisDefect(value: unknown): string | undefined {
+  const seen = new Set<string>();
+  for (const [index, raw] of arrayOf(value).entries()) {
+    const one = isRecord(raw) ? raw : {};
+    const key = `${String(one.document)}|${typeof one.article === 'string' ? one.article : ''}`;
+    if (typeof one.document !== 'string' || seen.has(key)) return `[${index}].document`;
+    seen.add(key);
+  }
+  return undefined;
+}
+
 /** The first thing wrong with a template that the closed schema cannot say, as the path of the field (never a value), or undefined. Safe on any input. */
 export function templateDefect(params: unknown): string | undefined {
   if (!isRecord(params) || !Array.isArray(params.phases) || !Array.isArray(params.tasks)) return 'params';
@@ -286,6 +380,18 @@ export function templateDefect(params: unknown): string | undefined {
       gates.add(gate);
     }
   }
+  // The steps (R44): a template names none (every phase is one step) or it names the step of every task, and a step lies in one phase and has at least one task.
+  const steps = arrayOf(params.steps);
+  const stepPhase = new Map<string, string>();
+  for (const [index, raw] of steps.entries()) {
+    const step = isRecord(raw) ? raw : {};
+    if (typeof step.code !== 'string' || stepPhase.has(step.code)) return `steps[${index}].code`;
+    if (typeof step.phase !== 'string' || !phaseCodes.has(step.phase)) return `steps[${index}].phase`;
+    stepPhase.set(step.code, step.phase);
+    const defect = legalBasisDefect(step.legal_basis);
+    if (defect !== undefined) return `steps[${index}].legal_basis${defect}`;
+  }
+  const usedSteps = new Set<string>();
   const codes = new Set<string>();
   const usedPhases = new Set<string>();
   const parsed: GraphTask[] = [];
@@ -296,6 +402,17 @@ export function templateDefect(params: unknown): string | undefined {
     codes.add(one.code);
     if (typeof one.phase !== 'string' || !phaseCodes.has(one.phase)) return `${at}.phase`;
     usedPhases.add(one.phase);
+    if (steps.length === 0 ? one.step !== undefined && one.step !== null : typeof one.step !== 'string' || stepPhase.get(one.step) !== one.phase) return `${at}.step`;
+    if (typeof one.step === 'string') usedSteps.add(one.step);
+    const basis = legalBasisDefect(one.legal_basis);
+    if (basis !== undefined) return `${at}.legal_basis${basis}`;
+    const policies = new Set<unknown>();
+    for (const [position, entry] of arrayOf(one.form_policies).entries()) {
+      const policy = isRecord(entry) ? entry : {};
+      if (policies.has(policy.form) || !arrayOf(one.form_templates).includes(policy.form)) return `${at}.form_policies[${position}].form`;
+      policies.add(policy.form);
+      if ((policy.policy === 'PINNED') !== (typeof policy.revision === 'number')) return `${at}.form_policies[${position}].revision`;
+    }
     const duration = one.duration_working_days;
     if (one.kind === 'MILESTONE' ? duration !== 0 : typeof duration !== 'number' || duration < 1) return `${at}.duration_working_days`;
     const links = new Set<string>();
@@ -330,6 +447,7 @@ export function templateDefect(params: unknown): string | undefined {
     parsed.push({ code: one.code, predecessors: arrayOf(one.predecessors).map((link) => ({ task: String((link as { task?: unknown }).task) })) });
   }
   for (const [index, raw] of phases.entries()) if (!usedPhases.has((raw as { code: string }).code)) return `phases[${index}].code`;
+  for (const [index, raw] of steps.entries()) if (!usedSteps.has((raw as { code: string }).code)) return `steps[${index}].code`;
   for (const [index, one] of parsed.entries()) for (const [position, link] of one.predecessors.entries()) if (!codes.has(link.task)) return `tasks[${index}].predecessors[${position}].task`;
   const loop = findDependencyCycle(parsed);
   if (loop !== null) return `tasks[${parsed.findIndex((one) => one.code === loop[0])}].predecessors`;
@@ -340,12 +458,22 @@ export function templateDefect(params: unknown): string | undefined {
 const text = (value: unknown): string => String(value);
 const strings = (value: unknown): string[] => arrayOf(value).map(text);
 
+const legalBasisOf = (value: unknown): TemplateLegalBasis[] =>
+  arrayOf(value).map((entry) => {
+    const one = entry as Record<string, unknown>;
+    return { document: text(one.document), article: typeof one.article === 'string' ? one.article : null, note: typeof one.note === 'string' ? one.note : null, verification: one.verification === 'VERIFIED' ? 'VERIFIED' : 'UNVERIFIED' };
+  });
+
+const legalBasisParams = (basis: readonly TemplateLegalBasis[]): RuleParams[] =>
+  basis.map((one) => ({ document: one.document, ...(one.article === null ? {} : { article: one.article }), ...(one.note === null ? {} : { note: one.note }), verification: one.verification }));
+
 function taskOf(raw: Record<string, unknown>): TemplateTask {
   const constraint = isRecord(raw.constraint) ? { kind: raw.constraint.kind as ConstraintKind, offsetWorkingDays: raw.constraint.offset_working_days as number } : null;
   return {
     code: text(raw.code),
     name: text(raw.name),
     phase: text(raw.phase),
+    step: typeof raw.step === 'string' ? raw.step : null,
     kind: raw.kind as TemplateTask['kind'],
     durationWorkingDays: raw.duration_working_days as number,
     required: raw.required === true,
@@ -359,6 +487,11 @@ function taskOf(raw: Record<string, unknown>): TemplateTask {
     constraint,
     legalDocTypes: strings(raw.legal_doc_types),
     formTemplates: strings(raw.form_templates),
+    formPolicies: arrayOf(raw.form_policies).map((entry) => {
+      const policy = entry as Record<string, unknown>;
+      return { form: text(policy.form), policy: policy.policy === 'PINNED' ? 'PINNED' : 'LATEST_APPROVED', revision: typeof policy.revision === 'number' ? policy.revision : null };
+    }),
+    legalBasis: legalBasisOf(raw.legal_basis),
     checklist: arrayOf(raw.checklist).map((entry) => {
       const check = entry as Record<string, unknown>;
       return { code: text(check.code), name: text(check.name), required: check.required === true, evidenceKinds: strings(check.evidence_kinds) };
@@ -369,6 +502,17 @@ function taskOf(raw: Record<string, unknown>): TemplateTask {
       return { field: condition.field as ConditionField, in: strings(condition.in) };
     }),
   };
+}
+
+function explicitSteps(value: unknown): TemplateStep[] {
+  const position = new Map<string, number>();
+  return arrayOf(value).map((entry) => {
+    const step = entry as Record<string, unknown>;
+    const phase = text(step.phase);
+    const order = (position.get(phase) ?? 0) + 1;
+    position.set(phase, order);
+    return { code: text(step.code), name: text(step.name), phase, order, responsibleRole: typeof step.responsible_role === 'string' ? step.responsible_role : null, legalBasis: legalBasisOf(step.legal_basis), implicit: false };
+  });
 }
 
 /** Reads the params of a `PROJECT_WORKFLOW_TEMPLATE` rule (snake_case, as the governance store keeps them) into a template, refusing what the schema cannot say. 422 PROJECT_WORKFLOW_TEMPLATE_INVALID naming the first field. */
@@ -383,6 +527,7 @@ export function parseProjectWorkflowTemplate(params: unknown): ProjectWorkflowTe
       const phase = entry as Record<string, unknown>;
       return { code: text(phase.code), name: text(phase.name), order: index + 1, gates: strings(phase.gates) as GateTarget[] };
     }),
+    steps: explicitSteps(source.steps),
     tasks: arrayOf(source.tasks).map((entry) => taskOf(entry as Record<string, unknown>)),
   };
 }
@@ -393,10 +538,23 @@ export function templateParamsOf(template: ProjectWorkflowTemplate): RuleParams 
     name: template.name,
     ...(template.projectType === null ? {} : { project_type: template.projectType }),
     phases: template.phases.map((phase) => ({ code: phase.code, name: phase.name, gates: [...phase.gates] })),
+    // What a template written before steps, legal grounds and form policies has none of is left out, so that its params and its hash are what they always were (a running project keeps the hash it froze).
+    ...((template.steps ?? []).length === 0
+      ? {}
+      : {
+          steps: (template.steps ?? []).map((step) => ({
+            code: step.code,
+            name: step.name,
+            phase: step.phase,
+            ...(step.responsibleRole === null ? {} : { responsible_role: step.responsibleRole }),
+            ...(step.legalBasis.length === 0 ? {} : { legal_basis: legalBasisParams(step.legalBasis) }),
+          })),
+        }),
     tasks: template.tasks.map((one) => ({
       code: one.code,
       name: one.name,
       phase: one.phase,
+      ...(one.step === undefined || one.step === null ? {} : { step: one.step }),
       kind: one.kind,
       duration_working_days: one.durationWorkingDays,
       required: one.required,
@@ -407,6 +565,8 @@ export function templateParamsOf(template: ProjectWorkflowTemplate): RuleParams 
       ...(one.constraint === null ? {} : { constraint: { kind: one.constraint.kind, offset_working_days: one.constraint.offsetWorkingDays } }),
       legal_doc_types: [...one.legalDocTypes],
       form_templates: [...one.formTemplates],
+      ...((one.formPolicies ?? []).length === 0 ? {} : { form_policies: (one.formPolicies ?? []).map((policy) => ({ form: policy.form, policy: policy.policy, ...(policy.revision === null ? {} : { revision: policy.revision }) })) }),
+      ...((one.legalBasis ?? []).length === 0 ? {} : { legal_basis: legalBasisParams(one.legalBasis ?? []) }),
       checklist: one.checklist.map((item) => ({ code: item.code, name: item.name, required: item.required, evidence_kinds: [...item.evidenceKinds] })),
       kpi_codes: [...one.kpiCodes],
       when: one.when.map((condition) => ({ field: condition.field, in: [...condition.in] })),
@@ -416,6 +576,69 @@ export function templateParamsOf(template: ProjectWorkflowTemplate): RuleParams 
 
 /** The hash a project stores when it freezes a template: the same template gives the same hash whatever the order of the keys. */
 export const templateHash = (template: ProjectWorkflowTemplate): string => sha256Hex(canonicalJson(templateParamsOf(template)));
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Phase -> step -> task -> checklist (R44).
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/** The steps of a template in the order of its phases: the ones it names, or one per phase (the code and the name of the phase) when it names none. */
+export function stepsOf(template: ProjectWorkflowTemplate): TemplateStep[] {
+  const named = template.steps ?? [];
+  if (named.length === 0) return template.phases.map((phase) => ({ code: phase.code, name: phase.name, phase: phase.code, order: 1, responsibleRole: null, legalBasis: [], implicit: true }));
+  const phaseOrder = new Map(template.phases.map((phase) => [phase.code, phase.order] as const));
+  return [...named].sort((left, right) => (phaseOrder.get(left.phase) ?? 0) - (phaseOrder.get(right.phase) ?? 0) || left.order - right.order);
+}
+
+/** The code of the step a task belongs to: its own, or the step its phase stands for. */
+export const stepCodeOf = (template: ProjectWorkflowTemplate, task: Pick<TemplateTask, 'step' | 'phase'>): string => ((template.steps ?? []).length === 0 || task.step === undefined || task.step === null ? task.phase : task.step);
+
+/** The revision policy of a form of a task: what the template says, else the newest approved revision. */
+export function formPolicyOf(task: Pick<TemplateTask, 'formPolicies'>, form: string): TemplateFormPolicy {
+  return (task.formPolicies ?? []).find((one) => one.form === form) ?? { form, policy: 'LATEST_APPROVED', revision: null };
+}
+
+/** Every document of the catalogue a template cites, on its steps and its tasks, each once, in the order met. */
+export function citedLegalDocuments(template: ProjectWorkflowTemplate): string[] {
+  const seen = new Set<string>();
+  for (const step of template.steps ?? []) for (const one of step.legalBasis) seen.add(one.document);
+  for (const task of template.tasks) for (const one of task.legalBasis ?? []) seen.add(one.document);
+  return [...seen];
+}
+
+/** What the schedule knows of a task, as much as the roll-up of a step needs (the slots are working days counted from the start of the project). */
+export interface StepScheduleTask {
+  code: string;
+  start: string | null;
+  finish: string | null;
+  startSlot: number;
+  endSlot: number;
+  /** A task left out of the project (a branch, a cancellation) takes no time and is not counted. */
+  passThrough: boolean;
+}
+
+export interface StepSpan {
+  step: string;
+  phase: string;
+  start: string | null;
+  finish: string | null;
+  /** The standard time of the step (R44): the working days from the first slot one of its tasks starts in to the slot the last one ends in, which is what the dates of the tasks give and never a number typed twice. */
+  durationWorkingDays: number;
+  taskCount: number;
+}
+
+/** The time of each step, read from the schedule of its tasks: a step has no duration of its own to drift away from them. A step none of whose tasks is in the project has no dates and zero days. */
+export function stepSpans(template: ProjectWorkflowTemplate, scheduled: readonly StepScheduleTask[]): StepSpan[] {
+  const byCode = new Map(scheduled.map((one) => [one.code, one] as const));
+  return stepsOf(template).map((step) => {
+    const mine = template.tasks.filter((task) => stepCodeOf(template, task) === step.code && task.phase === step.phase);
+    const live = mine.map((task) => byCode.get(task.code)).filter((one): one is StepScheduleTask => one !== undefined && !one.passThrough);
+    const dated = live.filter((one) => one.start !== null && one.finish !== null);
+    const start = dated.reduce<string | null>((first, one) => (first === null || (one.start as string) < first ? one.start : first), null);
+    const finish = dated.reduce<string | null>((last, one) => (last === null || (one.finish as string) > last ? one.finish : last), null);
+    const duration = live.length === 0 ? 0 : Math.max(...live.map((one) => one.endSlot)) - Math.min(...live.map((one) => one.startSlot));
+    return { step: step.code, phase: step.phase, start, finish, durationWorkingDays: Math.max(0, duration), taskCount: live.length };
+  });
+}
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Branches by the facts of the project.
@@ -491,14 +714,27 @@ export interface TemplateReferences {
   formTemplate?: (code: string) => boolean;
   kpiCode?: (code: string) => boolean;
   role?: (code: string) => boolean;
+  /** Whether the catalogue `LEGAL_DOCUMENT` has the code (a rule in force or a built-in default). */
+  legalDocument?: (code: string) => boolean;
+  /** Whether the form has this revision, approved (asked for a pinned revision only). */
+  formRevision?: (code: string, revision: number) => boolean;
 }
 
 /** Every reference of a template to something that does not exist (R37, R42), with the path of the field. An empty list means every reference holds. */
 export function checkTemplateReferences(template: ProjectWorkflowTemplate, references: TemplateReferences): RuleFinding[] {
   const found: RuleFinding[] = [];
   const add = (field: string, code: string): number => found.push(findingOf('pwf.template.error', field, code));
+  const cited = (basis: readonly TemplateLegalBasis[], at: string): void => {
+    if (references.legalDocument !== undefined) basis.forEach((one, position) => references.legalDocument?.(one.document) === true || add(`${at}.legal_basis[${position}].document`, 'LEGAL_DOCUMENT_UNKNOWN'));
+  };
+  (template.steps ?? []).forEach((step, index) => {
+    cited(step.legalBasis, `steps[${index}]`);
+    if (references.role !== undefined && step.responsibleRole !== null && references.role(step.responsibleRole) !== true) add(`steps[${index}].responsible_role`, 'ROLE_UNKNOWN');
+  });
   template.tasks.forEach((one, index) => {
     const at = `tasks[${index}]`;
+    cited(one.legalBasis ?? [], at);
+    if (references.formRevision !== undefined) (one.formPolicies ?? []).forEach((policy, position) => policy.revision === null || references.formRevision?.(policy.form, policy.revision) === true || add(`${at}.form_policies[${position}].revision`, 'FORM_REVISION_UNKNOWN'));
     one.checklist.forEach((item, position) => item.evidenceKinds.forEach((kind, kindIndex) => isEvidenceKind(kind) || add(`${at}.checklist[${position}].evidence_kinds[${kindIndex}]`, 'EVIDENCE_KIND_UNKNOWN')));
     one.legalDocTypes.forEach((code, position) => resolveLegalDocType(code) === undefined && add(`${at}.legal_doc_types[${position}]`, 'LEGAL_DOC_TYPE_UNKNOWN'));
     if (references.formTemplate !== undefined) one.formTemplates.forEach((code, position) => references.formTemplate?.(code) === true || add(`${at}.form_templates[${position}]`, 'FORM_TEMPLATE_UNKNOWN'));
@@ -638,9 +874,9 @@ export function registerProjectWorkflowRules(registry: RuleRegistry): void {
     schema: PROJECT_WORKFLOW_SCHEMA,
     refine: templateDefect,
     defaults: {
-      PUBLIC_INVESTMENT: { params: PUBLIC_INVESTMENT_TEMPLATE, formula: T.investment_formula, source: T.default_source },
-      PUBLIC_PROCUREMENT: { params: PUBLIC_PROCUREMENT_TEMPLATE, formula: T.procurement_formula, source: T.default_source },
-      PUBLIC_REPAIR: { params: PUBLIC_REPAIR_TEMPLATE, formula: T.repair_formula, source: T.default_source },
+      PUBLIC_INVESTMENT: { params: PUBLIC_INVESTMENT_PROCESS, formula: T.investment_formula, source: T.default_source },
+      PUBLIC_PROCUREMENT: { params: PUBLIC_PROCUREMENT_PROCESS, formula: T.procurement_formula, source: T.default_source },
+      PUBLIC_REPAIR: { params: PUBLIC_REPAIR_PROCESS, formula: T.repair_formula, source: T.default_source },
     },
   });
 }
