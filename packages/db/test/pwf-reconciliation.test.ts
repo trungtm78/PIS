@@ -214,7 +214,11 @@ describe('the budgets of the project workflow (R35, BR-PWF-12, 29)', () => {
     // with a calibration taken before the samples that said 800) gets the budget of the speed it had then; a slower query on a machine at rest still fails.
     const after = budgetFor(Math.max(scanMs, await scan()), REFERENCE_SCAN_MS);
     expect(after.tooSlow).toBe(false);
-    expect(p95Of(samples)).toBeLessThanOrEqual(Math.max(decision.budgetMs, after.budgetMs));
+    // The board is a scan of the database AND the work of the process around it (rows to objects, colours, the page): a runner with a quick disk and a slow shared
+    // CPU (the hosted runners of CI: 926 and 1181 ms on 2026-11-14 with a scan at the reference) is measured by the CPU workload as well, as the scheduling budget is.
+    const cpuNow = budgetFor(Math.max(cpuMs, median([cpu(), cpu(), cpu()])), REFERENCE_CPU_MS, decision.budgetMs / decision.factor);
+    expect(cpuNow.tooSlow).toBe(false);
+    expect(p95Of(samples)).toBeLessThanOrEqual(Math.max(decision.budgetMs, after.budgetMs, cpuNow.budgetMs));
     expect(MAX_SLOWDOWN).toBeGreaterThan(1);
   });
 

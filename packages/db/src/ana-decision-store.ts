@@ -246,10 +246,11 @@ export class AnaDecisionStore {
     return rows.map((row) => ({ id: row.id, decisionId: row.decision_id, outcome: row.outcome, note: row.note, supersededBy: row.superseded_by, actor: { id: row.actor_membership_id, name: row.actor_name ?? '' }, at: row.created_at }));
   }
 
+  /** The moment of an outcome is the clock when it is written, AFTER the lock of its decision was taken: the start of the transaction (the default of the column) is earlier than the wait for the lock, so an outcome written second could stand before the first in the log. */
   async insertOutcome(tx: TenantTx, input: { decisionId: string; outcome: DecisionOutcome; note: string; supersededBy: string | null; actor: string }): Promise<{ id: string }> {
     const [row] = await tx.query<{ id: string }>(
-      `insert into machvon.analytics_decision_outcome (tenant_id, decision_id, outcome, note, superseded_by, actor_membership_id)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3, $4::uuid, $5::uuid) returning id`,
+      `insert into machvon.analytics_decision_outcome (tenant_id, decision_id, outcome, note, superseded_by, actor_membership_id, created_at)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2, $3, $4::uuid, $5::uuid, clock_timestamp()) returning id`,
       [input.decisionId, input.outcome, input.note, input.supersededBy, input.actor],
     );
     return { id: (row as { id: string }).id };
