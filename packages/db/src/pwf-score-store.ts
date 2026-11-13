@@ -234,6 +234,7 @@ export class PwfScoreStore {
     if (request.periodTo < request.periodFrom || processCore.workflowDaysBetween(request.periodFrom, request.periodTo) >= MAX_PERIOD_DAYS) throw invalid('period_to');
     if (!POLICY_CODE.test(request.policyCode)) throw invalid('policy_code');
     if (!unitReached(request.units, unitId)) throw notFound();
+    await this.assertSubtreeReached(tx, unitId, request.units);
     await lockPeriodKey(tx, unitId, request.periodFrom, request.periodTo);
     // The lock of the period comes before its row, as in `lock`: two commands on one draft never wait for each other in opposite orders.
     const existing = await tx.query<{ id: string }>('select id from machvon.staff_score_period where scope_unit_id = $1::uuid and period_from = $2::date and period_to = $3::date and supersedes_period_id is null', [unitId, request.periodFrom, request.periodTo]);
@@ -306,6 +307,16 @@ export class PwfScoreStore {
     }
   }
 
+  /** A period of a unit scores the people of every unit under it: the caller manages all of them, or none of the period is theirs (403 `SCOPE_DENIED`). */
+  private async assertSubtreeReached(tx: TenantTx, unitId: string, units: ScoreUnits): Promise<void> {
+    if (units === '*') return;
+    const below = await tx.query<{ id: string }>(
+      "select c.id from machvon.organization_unit c join machvon.organization_unit u on u.tenant_id = c.tenant_id and u.id = $1::uuid where starts_with(c.path, case when right(u.path, 1) = '/' then u.path else u.path || '/' end)",
+      [unitId],
+    );
+    if (below.some((one) => !unitReached(units, one.id))) throw new DomainError('SCOPE_DENIED', 403);
+  }
+
   private async locate(tx: TenantTx, periodId: string, units: ScoreUnits): Promise<PeriodRow> {
     const rows = await tx.query<PeriodSql>(`select ${PERIOD_COLUMNS} from machvon.staff_score_period p where p.id = $1::uuid for update`, [periodId]);
     const row = rows[0];
@@ -322,6 +333,7 @@ export class PwfScoreStore {
     await lockPeriod(tx, periodId);
     const period = await this.locate(tx, periodId, request.units);
     checkVersion(period.version, request.expectedVersion);
+    await this.assertSubtreeReached(tx, period.scopeUnitId, request.units);
     if (period.status !== 'DRAFT') throw new DomainError('STAFF_SCORE_PERIOD_LOCKED', 409, 'status', { extensions: { period_status: period.status } });
     const today = dayOfInstant(request.now);
     const built = await withScoreScope(tx, SYSTEM_SCORE_SCOPE, async () => {

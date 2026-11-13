@@ -604,6 +604,14 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(compared.points.every((one) => one.state === 'SMALL_SAMPLE' || one.state === 'RATED')).toBe(true);
     });
 
+    it('refuses to compute or lock a period of a unit whose subtree the caller does not manage whole (403 SCOPE_DENIED)', async () => {
+      const quarter = { from: `${Y - 5}-04-01`, to: `${Y - 5}-06-30` };
+      expect(await refusal(compute(quarter, { scopeUnitId: unitId(PROVINCE), units: unitId(PROVINCE) }))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
+      const draft = await compute(quarter, { scopeUnitId: unitId(PROVINCE) });
+      expect(await refusal(lockIt(draft.period.id, draft.period.version, { units: unitId(PROVINCE) }))).toMatchObject({ code: 'SCOPE_DENIED', status: 403 });
+      expect((await lockIt(draft.period.id, draft.period.version, { units: `${unitId(PROVINCE)},${DEPT},${unitId(SIBLING)}` })).status).toBe('LOCKED');
+    });
+
     it('UAT-PWF-NEG-09: refuses shares that add up to more than the whole of a task (422 STAFF_SCORE_SHARE_INVALID) instead of scoring them', async () => {
       const wf = await workflow();
       const task = await seedTask(wf, 'H1', { baselineFinish: `${Y - 2}-08-15`, actualFinish: `${Y - 2}-08-15` });

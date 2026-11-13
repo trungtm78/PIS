@@ -159,6 +159,8 @@ export class PwfKpiStore {
     if (taskIds.length === 0) return summary;
     // Two passes at once (the job and a period that asks for the results it needs) take turns: neither writes a head the other is about to write.
     await tx.query("select pg_advisory_xact_lock(hashtextextended('pwf-kpi:' || coalesce(current_setting('app.tenant_id', true), ''), 0))");
+    // Taken before the calendars are read: a calendar published meanwhile leaves the watermark older than the calendars, so the task is read again and never frozen on stale ones.
+    const fingerprint = await calendarFingerprint(tx);
     const bundles = await loadTaskBundles(tx, taskIds.map((id) => scoreIdOf(id, 'task_id')));
     const closed = [...bundles.values()].filter((bundle) => bundle.row.status === 'DONE' || bundle.row.status === 'CANCELLED');
     const today = dayOfInstant(now);
@@ -221,7 +223,7 @@ export class PwfKpiStore {
       );
     }
     summary.written = rows.length;
-    await tx.query('update machvon.project_task set kpi_recorded_version = version, kpi_recorded_calendars = $2 where id = any($1::uuid[])', [[...readings.keys()], await calendarFingerprint(tx)]);
+    await tx.query('update machvon.project_task set kpi_recorded_version = version, kpi_recorded_calendars = $2 where id = any($1::uuid[])', [[...readings.keys()], fingerprint]);
     return summary;
   }
 

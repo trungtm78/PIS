@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { Controller, Get, Header, Inject, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { AuditWriter, PwfScoreReads, TenantDatabase, projectScope } from '@machvon/db';
+import { AuditWriter, PwfScoreReads, TenantDatabase, projectScope, scoreUnitsOf } from '@machvon/db';
 import type { StaffScoreLineSummary } from '@machvon/db';
 import { DomainError, PWF_SCORE_TEXT, csvOf, vietnamDateOf, xlsxOf } from '@machvon/kernel';
 import type { EffectiveAccess, ExportDocument, TenantContext } from '@machvon/kernel';
@@ -183,7 +183,7 @@ export class StaffScoreReadsController {
     return this.database.withTenant(tenant, async (tx) => {
       const reach = await reachOf(tx, access, now);
       // The overview is the human resources' own: a grant of `staff_score.read_hr` over the whole tenant, never a unit.
-      if (reach.read !== '*') throw new DomainError('SCOPE_DENIED', 403);
+      if ((await scoreUnitsOf(tx, access, [READ_HR_PERMISSION], now)) !== '*') throw new DomainError('SCOPE_DENIED', 403);
       const units = await this.reads.overview(tx, { units: '*', subject: '' }, id.toLowerCase());
       await auditView(this.audit, tx, tenant, { action: 'score.overview_viewed', resourceType: PWF_RESOURCE_SCORE_PERIOD, resourceId: id.toLowerCase(), diff: { units: units.length, permission: READ_HR_PERMISSION } });
       return {

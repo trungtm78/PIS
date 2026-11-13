@@ -40,6 +40,7 @@ const APPROVER = 9; // approves in the department
 const BOTH = 10; // adjusts and approves in the department
 const OUTSIDE_PWF = 11; // read_own only, no pwf.read
 const B_HR = 12;
+const HR_OF_UNIT = 13; // read_hr over the department only, read_unit over the tenant
 const SYSTEM = '00000000-0000-4000-8000-000000000000';
 
 interface Reply {
@@ -84,6 +85,7 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
     for (const n of [MAKER, HR, UNIT_MANAGER, EXPORTER, FORMER_MANAGER, APPROVER, BOTH, OUTSIDE_PWF]) await harness.seedMembership(TENANT_A, n, PROVINCE);
     for (const n of [WORKER, OTHER_STAFF]) await harness.seedMembership(TENANT_A, n, DEPARTMENT);
     await harness.seedMembership(TENANT_A, SIBLING_MANAGER, SIBLING);
+    await harness.seedMembership(TENANT_A, HR_OF_UNIT, PROVINCE);
     await harness.seedMembership(TENANT_B, B_HR, PROVINCE);
     const hrPermissions = ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.read_hr', 'staff_score.export', 'staff_score.manage', 'staff_score.approve', 'staff_score.review', 'pwf.read'];
     await harness.seedRole(TENANT_A, 1, 'SCORE_HR', hrPermissions, 50);
@@ -93,6 +95,8 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
     await harness.seedRole(TENANT_A, 5, 'SCORE_SIBLING', ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.adjust', 'staff_score.export'], 30);
     await harness.seedRole(TENANT_A, 6, 'SCORE_APPROVER', ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.approve'], 30);
     await harness.seedRole(TENANT_A, 7, 'SCORE_BOTH', ['staff_score.read_own', 'staff_score.read_unit', 'staff_score.adjust', 'staff_score.approve'], 30);
+    await harness.seedRole(TENANT_A, 8, 'SCORE_HR_UNIT', ['staff_score.read_hr'], 30);
+    await harness.seedRole(TENANT_A, 9, 'SCORE_TENANT_READER', ['staff_score.read_unit'], 30);
     await harness.seedRole(TENANT_B, 1, 'SCORE_HR', hrPermissions, 50);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: HR, role: 1, kind: 'TENANT' },
@@ -105,6 +109,8 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       { n: 8, member: APPROVER, role: 6, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
       { n: 9, member: BOTH, role: 7, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
       { n: 10, member: OUTSIDE_PWF, role: 2, kind: 'TENANT' },
+      { n: 11, member: HR_OF_UNIT, role: 8, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
+      { n: 12, member: HR_OF_UNIT, role: 9, kind: 'TENANT' },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_HR, role: 1, kind: 'TENANT' }]);
     await fixtures.seed({ maker: MAKER, submitter: WORKER, checker: HR }, { ...pwfKpi.DEFAULT_STAFF_SCORING_PARAMS, min_rated_tasks: 1, min_effective_weight: 0.5 });
@@ -261,6 +267,8 @@ describe('the scores of staff over HTTP (PWF-3: periods, privacy in three roles,
       expect(overview).toMatchObject({ status: 200, json: { period_id: periodId } });
       expect(overview.json.units).toEqual([expect.objectContaining({ unit_id: unitId(DEPARTMENT), people: 2, rated: 2, mean_score: 84.69 })]);
       expect((await call('GET', `/staff-score-periods/${periodId}/overview`, { member: UNIT_MANAGER })).status).toBe(403);
+      // The overview asks for the grant of the human resources over the whole tenant on its own: a read of the whole tenant under another permission does not make it.
+      expect((await call('GET', `/staff-score-periods/${periodId}/overview`, { member: HR_OF_UNIT })).status).toBe(403);
       expect(JSON.stringify(overview.json)).not.toContain(memberId(WORKER));
     });
 
