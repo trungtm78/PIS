@@ -14,8 +14,8 @@ ProblemView _problem() => ProblemView.from(
     );
 
 void main() {
-  // The states are full of text, which Windows and Linux draw with different hinting: the tolerance of the text-heavy goldens.
-  useTolerantGoldens('test/golden/states_golden_test.dart', tolerance: kTextGoldenTolerance);
+  // The states are full of text, which Windows and Linux draw with different hinting: each OS compares with goldens of its own.
+  useOsGoldens('test/golden/states_golden_test.dart');
 
   group('TK-MOB-001-7 UI-MOB-52 UI-MOB-53 golden images of the empty and error states', () {
     for (final Size size in kDeviceSizes) {

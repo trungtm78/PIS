@@ -22,6 +22,12 @@ on:
       - 'Design/MACHVON_Design/03_Engineering/navigation_architecture.json'
       - 'Design/MACHVON_Design/03_Engineering/screen_catalog.json'
       - '.github/workflows/mobile.yml'
+  workflow_dispatch:
+    inputs:
+      update_goldens:
+        description: 'Render the Linux goldens (artifact mobile-goldens-linux) instead of running the tests'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -70,10 +76,44 @@ jobs:
         working-directory: apps/mobile
         run: flutter analyze
 
-      # Unit, widget and golden tests. The goldens use the test font and a small tolerance, so they hold on every OS.
+      # Unit, widget and golden tests. The committed goldens (test/*/goldens) were drawn on Windows. Text drawn with the test font cannot
+      # match across operating systems (each OS rasterises the glyphs with its own hinting: 3 to 5.6 percent on text-heavy screens), so
+      # each OS compares with goldens of its own (test/support/v2_support.dart, OsGoldenComparator), the decision of the web visual cases:
+      #  - while test/golden/goldens-linux does not exist, the golden comparisons are skipped here, each with its reason (never passed),
+      #    and the Windows run of the pre-push gate is the pixel gate; every other expectation of those tests still runs;
+      #  - a run started by hand with update_goldens renders the Linux goldens on this runner and uploads them (artifact
+      #    mobile-goldens-linux): look at them, then commit them under test/golden/goldens-linux and test/editions/goldens-linux
+      #    (docs/mobile-foundation.md, "Goldens of another OS"). From then on every run here compares with them.
+      - name: Choose the golden gate
+        working-directory: apps/mobile
+        run: |
+          if [ -d test/golden/goldens-linux ] && [ "${{ inputs.update_goldens }}" != "true" ]; then
+            echo "goldens are compared with the Linux goldens"
+          else
+            echo "::notice::golden images are not a pixel gate on this run (no Linux goldens yet, or they are being rendered); the Windows run is the pixel gate"
+          fi
+
+      - name: Render the Linux goldens
+        if: ${{ inputs.update_goldens }}
+        working-directory: apps/mobile
+        shell: bash
+        env:
+          TZ: Asia/Ho_Chi_Minh
+        run: |
+          flutter test --update-goldens test/golden test/editions/enterprise_home_golden_enterprise_test.dart 2>&1 | tee "$RUNNER_TEMP/dart-tests.log"; exit "${PIPESTATUS[0]}"
+
+      - name: Upload the Linux goldens
+        if: ${{ inputs.update_goldens }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-goldens-linux
+          path: apps/mobile/test/*/goldens-linux/
+          if-no-files-found: error
+
       # Several screens show a moment "in the time zone of the phone" (devices, release notice, context, offline queue) and their tests expect the Vietnam hour (UTC+7, as on the
       # machines they were written on). A hosted runner is UTC, which reads every such moment 7 hours early, so the run is given the zone of the people the application is for.
       - name: Test (with coverage)
+        if: ${{ !inputs.update_goldens }}
         working-directory: apps/mobile
         shell: bash
         env:
@@ -86,7 +126,17 @@ jobs:
         if: failure()
         run: node scripts/ci-annotate.mjs "$RUNNER_TEMP/dart-tests.log" dart --title "Dart tests"
 
+      # The images of a failed golden (the golden, the render and the difference) for whoever reads the failure.
+      - name: Upload the golden failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-golden-failures
+          path: apps/mobile/test/*/failures/
+          if-no-files-found: ignore
+
       - name: Coverage floor (90 percent of lines)
+        if: ${{ !inputs.update_goldens }}
         working-directory: apps/mobile
         run: |
           awk -F: '/^LF:/ {lf += $2} /^LH:/ {lh += $2} END {pct = 100 * lh / lf; printf "line coverage %.1f%%\n", pct; if (pct < 90) exit 1}' coverage/lcov.info
@@ -94,6 +144,7 @@ jobs:
   android:
     name: Build Android
     needs: test
+    if: ${{ !inputs.update_goldens }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -125,6 +176,7 @@ jobs:
   ios:
     name: Build iOS
     needs: test
+    if: ${{ !inputs.update_goldens }}
     runs-on: macos-latest
     timeout-minutes: 40
     steps:

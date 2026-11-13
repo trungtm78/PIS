@@ -16,7 +16,7 @@ import '../support/v2_support.dart';
 /// Golden images of the workflow screens of the phone (MOB-78 to MOB-82) in the states a person meets: the light and the dark mode, 200 percent text, the
 /// empty state and no connection. They are new, so no earlier image changes with them; a later change to a screen changes its images knowingly (the diff is
 /// reviewed, never refreshed to pass). Layout, sizes and touch targets are proved by the widget tests next to them, not by the pixels, which a Windows
-/// machine and a Linux runner draw a little differently: the text tolerance of the other v2 goldens applies.
+/// machine and a Linux runner draw differently: each OS compares with goldens of its own (useOsGoldens).
 String _at(String screenId, [String suffix = '']) => RouteTable(routes: kMobileRoutes, features: <MobileFeature>[pwf.feature]).locationOf(screenId) + suffix;
 
 Future<void> _open(WidgetTester tester, ScriptedServer server, String screenId, {String suffix = '', double scale = 1.0, Brightness brightness = Brightness.light, Size size = const Size(390, 844)}) async {
@@ -40,7 +40,7 @@ ScriptedServer _score() => ScriptedServer()..on('GET', '/me/staff-scores', (_) =
 ScriptedServer _preference() => ScriptedServer()..on('GET', '/me/deadline-preference', (_) => preferenceJson(green: 7, yellow: 3, red: 1, reminders: <int>[5, 2, 0]));
 
 void main() {
-  useTolerantGoldens('test/golden/pwf_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/pwf_golden_test.dart');
 
   final Map<String, ({ScriptedServer Function() server, String screen, String suffix})> screens = <String, ({ScriptedServer Function() server, String screen, String suffix})>{
     'workflow': (server: _workflow, screen: 'MOB-78', suffix: '/$kProjectId'),

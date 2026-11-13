@@ -108,7 +108,7 @@ Future<void> _snap(WidgetTester tester, String name) async {
 }
 
 void main() {
-  useTolerantGoldens('test/golden/site_diary_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/site_diary_golden_test.dart');
 
   const Map<_Screen, String> names = <_Screen, String>{_Screen.contracts: 'contracts', _Screen.diary: 'diary', _Screen.hub: 'hub_local', _Screen.photo: 'photo'};
 

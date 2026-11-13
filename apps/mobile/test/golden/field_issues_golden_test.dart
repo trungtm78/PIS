@@ -55,7 +55,7 @@ Widget _empty() => AppScaffold(
 Widget _sheet() => ProviderScope(child: Builder(builder: (BuildContext context) => FieldReportSheet(onChosen: (FieldReportKind kind, String? contract) {})));
 
 void main() {
-  useTolerantGoldens('test/golden/field_issues_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/field_issues_golden_test.dart');
 
   final Map<String, Widget Function()> views = <String, Widget Function()>{
     'form': _form,

@@ -23,7 +23,7 @@ import '../support/v2_support.dart';
 /// Golden images of the weekly report screens in the phone design (MUX-3 wave C): the review and send screen (MOB-20) and the list of drafts
 /// (MOB-22), in the light mode, the dark mode, at 200 percent text, with nothing in the list, and offline. The screens are hosted from their pure view
 /// widgets (`ReviewList`, `SendOutcomePanel`, `DraftsList`, `DraftsEmpty`, with the real sticky bar and the real frame), because the screens themselves
-/// open the encrypted store of the device, which a golden cannot. The pixels are judged with the tolerance the text goldens use; layout, sizes and tap
+/// open the encrypted store of the device, which a golden cannot. The pixels are compared with the goldens of the OS the test runs on (useOsGoldens); layout, sizes and tap
 /// targets are proved by the widget tests next to them.
 const List<StringTable> _tables = <StringTable>[reportingStrings, fieldEvidenceStrings];
 
@@ -170,7 +170,7 @@ Widget _draftsEmpty() => Builder(
     );
 
 void main() {
-  useTolerantGoldens('test/golden/reporting_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/reporting_golden_test.dart');
 
   final Map<String, Widget Function()> screens = <String, Widget Function()>{
     'review_blocked': () => _review(blocked: true),

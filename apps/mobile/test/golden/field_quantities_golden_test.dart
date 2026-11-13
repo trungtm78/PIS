@@ -34,7 +34,7 @@ Future<void> _openTask(WidgetTester tester, {required Size size, double scale = 
 }
 
 void main() {
-  useTolerantGoldens('test/golden/field_quantities_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/field_quantities_golden_test.dart');
 
   final Map<String, Widget Function(bool empty, bool offline)> screens = <String, Widget Function(bool empty, bool offline)>{
     'quantity': (bool empty, bool offline) => sampleQuantityScreen(empty: empty, offline: offline),

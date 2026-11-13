@@ -15,7 +15,7 @@ All from `apps/mobile`. Flutter is pinned to 3.47.7 (the same as `.github/workfl
 | all tests | `flutter test` (add `--coverage`; the CI floor is 90 percent of lines) |
 | regenerate the route table | `dart run tool/generate_routes.dart` (after `navigation_architecture.json` or `screen_catalog.json` change) |
 | regenerate the feature list | `dart run tool/generate_registry.dart` (after you add or remove a feature directory) |
-| refresh the golden images | `flutter test test/golden --update-goldens` (only when a shared state widget is meant to look different) |
+| refresh the golden images | `flutter test test/golden test/editions/enterprise_home_golden_enterprise_test.dart --update-goldens` on Windows (only when a screen is meant to look different); the Linux goldens are rendered by CI, see "Goldens of another OS" |
 | run | `flutter run --dart-define=MACHVON_API_BASE_URL=https://...` (the URL is required; plain http only for `localhost`, `127.0.0.1` or `10.0.2.2` in a debug build) |
 | build | `flutter build apk --debug`, `flutter build ios --release --no-codesign` (CI job `Mobile`, `.github/workflows/mobile.yml`) |
 
@@ -178,7 +178,20 @@ The foundation provides the places, not the queue (ST-MOB-005, ST-MOB-006, ST-MO
 - **Naming (required by the traceability script):** the ids (`AC-ST-MOB-001-1`, `UI-MOB-52`, `UAT-ACnnn`, `TK-MOB-001-n`) must appear in the title of a `group()` or `test()`. `scripts/uat-trace.mjs` does not read `testWidgets()` titles, so put the ids in the enclosing `group('AC-ST-MOB-001-1 UI-MOB-52 ...', () { testWidgets(...) })`. A `testWidgets` outside a group with an id is not traced.
 - **Harness:** `test/support/harness.dart` has `pumpApp` (the whole application on a feature list, a signed-in `FakeSession`, a fake transport, Vietnamese by default), `useDevice(tester, size, textScale:)` (`kDeviceSizes` are 360x800, 390x844, 430x932), `pressBack`, `currentLocation`. `test/support/widget_host.dart` hosts one shared widget without a router. A screen story tests its screen with `pumpApp(features: [feature])`, never against a real network.
 - **What every screen test checks:** no layout exception at the three sizes and at text scale 2.0 (`tester.takeException()` is null), `meetsGuideline(androidTapTargetGuideline)` and `iOSTapTargetGuideline` (with `debugDefaultTargetPlatformOverride`, reset in a `finally`), `labeledTapTargetGuideline`, `textContrastGuideline`, and the seven states of the screen where they apply.
-- **Goldens:** `test/golden` holds the images of MOB-52 and MOB-53 at the three sizes and at 200 percent text. They use the test font and a 0.5 percent pixel tolerance so they hold on every OS.
+- **Goldens:** `test/golden` (and `test/editions` for the enterprise home) holds the images of the screens and shared widgets: light, dark, 200 percent text, empty and offline where they apply. They use the test font and compare with the goldens of the OS they run on, with a 0.5 percent pixel tolerance (`useOsGoldens`, `test/support/v2_support.dart`).
+
+### Goldens of another OS
+
+Decision (2026-11-13, CI Mobile on the merge of PR 2, 37c2c9014): the committed goldens `test/*/goldens` were drawn on Windows. The glyph boxes of the test font are rasterised with the hinting of each OS, so a screen full of text differs from the Windows image on the Linux runner by an amount that grows with its text: 26 text-heavy goldens differed by 3.05 to 5.59 percent, beyond the cross-OS tolerance of 3 percent used until then, while every assertion and every Windows comparison passed. A share large enough for those screens would also let a real change of a label or a colour through, so the tolerance is not loosened; the same decision as the web visual cases (`docs/runbooks/web-e2e.md`, "Baselines of another OS"):
+
+| OS | Folder of the goldens |
+|---|---|
+| Windows (the pre-push gate) | `goldens` (committed) |
+| another OS | `goldens-<os>` (for example `goldens-linux`) |
+
+- While `test/golden/goldens-linux` does not exist, the golden comparisons on Linux are skipped, each with its reason in the output (never reported as passed); every other expectation of those tests still runs, and the Windows run of the pre-push gate (`flutter test`) is the pixel gate. The workflow prints a notice saying so.
+- To make the Linux goldens: run the workflow `Mobile` by hand with `update_goldens` ticked (Actions, Mobile, Run workflow, on the branch). It renders the goldens on the runner and uploads the artifact `mobile-goldens-linux`. Look at the images, unpack the artifact into `apps/mobile/test` (it holds `golden/goldens-linux` and `editions/goldens-linux`) and commit them. From then on every Linux run compares with them, and a golden missing from the folder fails.
+- After an intended change of a screen both sets are rewritten: `--update-goldens` on Windows, the run with `update_goldens` for Linux. A failed golden on CI uploads its images (artifact `mobile-golden-failures`).
 - **Mutation check:** break the rule, see the test go red, restore, `cmp` against the backup, as for the web.
 
 ## Release channel and CI

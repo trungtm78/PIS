@@ -18,8 +18,8 @@ import '../support/harness.dart';
 import '../support/v2_support.dart';
 
 /// Golden images of the signing screens of MUX-3 wave B (MOB-67): the list of the documents that wait, the document with its signature
-/// bar, an open session, the signed result, the file that cannot be read, the list offline. They are drawn with the test font; a difference
-/// of the antialiasing between Windows and Linux is accepted up to the tolerance of the text-heavy goldens, and layout and touch targets are
+/// bar, an open session, the signed result, the file that cannot be read, the list offline. They are drawn with the test font, which Windows
+/// and Linux rasterise differently, so each OS compares with goldens of its own (useOsGoldens), and layout and touch targets are
 /// proved by the widget tests of the screens.
 
 class _Dark extends ThemeModeNotifier {
@@ -66,7 +66,7 @@ const String _detail = '/approval/mob-67?doc=d-1';
 const String _list = '/approval/mob-67';
 
 void main() {
-  useTolerantGoldens('test/golden/signing_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/signing_golden_test.dart');
 
   group('MUX-3 wave B the documents waiting for the signature (MOB-67)', () {
     testWidgets('list, light', (WidgetTester tester) async {

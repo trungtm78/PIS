@@ -89,7 +89,7 @@ Future<void> _open(WidgetTester tester, {Brightness brightness = Brightness.ligh
 }
 
 void main() {
-  useTolerantGoldens('test/editions/enterprise_home_golden_enterprise_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/editions/enterprise_home_golden_enterprise_test.dart');
 
   testWidgets('the enterprise home, light', (WidgetTester tester) async {
     await _open(tester);

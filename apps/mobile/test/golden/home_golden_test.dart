@@ -12,8 +12,8 @@ import '../support/v2_support.dart';
 
 /// Golden images of the home screens of MUX-3 wave A: the home of a leader (the command band, the line of context, the figures that wait, the
 /// alerts as rows) in the light mode, the dark mode, at 200 percent text, with no snapshot yet and offline (the copy kept on the phone, one strip), the
-/// day list of an officer (the three bands) and its empty state, and the sheet of one alert. The texts are drawn with the test font, so a
-/// difference of the antialiasing between Windows and Linux is accepted up to the tolerance of the text-heavy goldens; layout and touch
+/// day list of an officer (the three bands) and its empty state, and the sheet of one alert. The texts are drawn with the test font, which
+/// Windows and Linux rasterise differently, so each OS compares with goldens of its own (useOsGoldens); layout and touch
 /// targets are proved by the widget tests of the screens.
 
 class _Dark extends ThemeModeNotifier {
@@ -55,7 +55,7 @@ Future<void> _open(WidgetTester tester, ScriptedServer server, String location, 
 }
 
 void main() {
-  useTolerantGoldens('test/golden/home_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/home_golden_test.dart');
 
   group('golden images of the home of a leader', () {
     testWidgets('light', (WidgetTester tester) async {

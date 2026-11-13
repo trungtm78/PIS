@@ -48,7 +48,7 @@ const String _list = '/approval/doc-23';
 const String _detail = '/approval/doc-23?doc=in-1';
 
 void main() {
-  useTolerantGoldens('test/golden/incoming_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/incoming_golden_test.dart');
 
   group('MUX-3 wave B the incoming letters to handle (DOC-23)', () {
     testWidgets('list, light', (WidgetTester tester) async {

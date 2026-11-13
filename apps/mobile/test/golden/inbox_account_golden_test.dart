@@ -22,8 +22,8 @@ import '../support/v2_support.dart';
 
 /// Golden images of the screens of MUX-3 wave A that belong to the notification inbox and the account tab: the inbox in the light mode, the
 /// dark mode, at 200 percent text, empty and offline (the copy kept on the phone), and the account in the light mode, the dark mode and at 200
-/// percent text. The texts are drawn with the test font, so a difference of the antialiasing between Windows and Linux is accepted up to
-/// the tolerance of the text-heavy goldens; layout and touch targets are proved by the widget tests of the screens.
+/// percent text. The texts are drawn with the test font, which Windows and Linux rasterise differently, so
+/// each OS compares with goldens of its own (useOsGoldens); layout and touch targets are proved by the widget tests of the screens.
 
 class _Dark extends ThemeModeNotifier {
   @override
@@ -90,7 +90,7 @@ Future<void> _account(WidgetTester tester, {bool dark = false, double scale = 1.
 }
 
 void main() {
-  useTolerantGoldens('test/golden/inbox_account_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/inbox_account_golden_test.dart');
 
   group('MUX-3 wave A the notification inbox (MOB-32)', () {
     testWidgets('light', (WidgetTester tester) async {

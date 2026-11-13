@@ -19,8 +19,8 @@ import '../support/v2_support.dart';
 
 /// Golden images of the screens of MUX-3 wave D that are not first-impression screens: the search (the recent keywords, the results), the
 /// conversations (the inbox and a thread), the library of dashboards and the help screen, each in the light mode and the dark mode, and the
-/// ones with the most text also at 200 percent. The texts are drawn with the test font, so a difference of the antialiasing between Windows and
-/// Linux is accepted up to the tolerance of the text-heavy goldens; layout and touch targets are proved by the widget tests of the screens.
+/// ones with the most text also at 200 percent. The texts are drawn with the test font, which Windows and
+/// Linux rasterise differently, so each OS compares with goldens of its own (useOsGoldens); layout and touch targets are proved by the widget tests of the screens.
 
 class _Dark extends ThemeModeNotifier {
   @override
@@ -74,7 +74,7 @@ ScriptedServer _search() {
 }
 
 void main() {
-  useTolerantGoldens('test/golden/wave_d_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/wave_d_golden_test.dart');
 
   final List<MobileFeature> searchFeatures = <MobileFeature>[phone_search.feature];
 

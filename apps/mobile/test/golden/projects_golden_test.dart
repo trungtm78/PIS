@@ -67,8 +67,8 @@ Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, Stri
 Future<void> _matches(WidgetTester tester, String name) => expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/$name.png'));
 
 void main() {
-  // The screens are full of text, which Windows and Linux draw with different hinting: the tolerance of the text-heavy goldens.
-  useTolerantGoldens('test/golden/projects_golden_test.dart', tolerance: kTextGoldenTolerance);
+  // The screens are full of text, which Windows and Linux draw with different hinting: each OS compares with goldens of its own.
+  useOsGoldens('test/golden/projects_golden_test.dart');
 
   group('golden images of the project list (MOB-09)', () {
     testWidgets('light', (WidgetTester tester) async {

@@ -12,8 +12,8 @@ import '../support/v2_support.dart';
 
 /// Golden images of the approvals (MUX-3 wave B): the inbox (grouped by overdue, with chips), the detail with the bar of decisions, the
 /// confirmation sheet, each in the light mode, the dark mode and at 200 percent text, plus the empty inbox and the copy kept on the phone
-/// (offline, decisions locked). The texts are drawn with the test font; the antialiasing difference between Windows and Linux is accepted up to
-/// the tolerance of the text-heavy goldens. Layout and touch targets are proved by the widget tests next to them.
+/// (offline, decisions locked). The texts are drawn with the test font, which Windows and Linux rasterise differently, so
+/// each OS compares with goldens of its own (useOsGoldens). Layout and touch targets are proved by the widget tests next to them.
 
 class _Dark extends ThemeModeNotifier {
   @override
@@ -58,7 +58,7 @@ Future<void> _sheet(WidgetTester tester) async {
 }
 
 void main() {
-  useTolerantGoldens('test/golden/approval_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/approval_golden_test.dart');
 
   group('the inbox', () {
     testWidgets('light', (WidgetTester tester) async {

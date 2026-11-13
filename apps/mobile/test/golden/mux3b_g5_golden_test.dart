@@ -17,7 +17,7 @@ import '../support/v2_support.dart';
 
 /// Golden images of the screens of MUX-3 wave B that belong to the directives (DIR-06), the AI review (MOB-38, MOB-37) and the committee
 /// dashboard (MOB-72): the light mode, the dark mode, 200 percent text, the empty state and the offline state of each. They are drawn with the
-/// test font, so the antialiasing of Windows and Linux may differ a little (the tolerance of the text-heavy goldens); layout and touch targets
+/// test font, which Windows and Linux rasterise differently, so each OS compares with goldens of its own (useOsGoldens); layout and touch targets
 /// are proved by the widget tests of the screens.
 
 class _Dark extends ThemeModeNotifier {
@@ -77,7 +77,7 @@ final List<MobileFeature> _aiFeatures = <MobileFeature>[ai.feature];
 final List<MobileFeature> _committeeFeatures = <MobileFeature>[dashboard.feature, committee.feature];
 
 void main() {
-  useTolerantGoldens('test/golden/mux3b_g5_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/mux3b_g5_golden_test.dart');
 
   group('MUX-3 wave B directives (DIR-06)', () {
     testWidgets('light', (WidgetTester tester) async {

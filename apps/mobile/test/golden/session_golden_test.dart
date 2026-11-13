@@ -18,8 +18,8 @@ import '../support/v2_support.dart';
 
 /// Golden images of the first-impression screens on the v2 frame (MUX-3 wave D): the welcome screen, the sign-in screen, the second factor,
 /// the unit and role choice and the session-expired screen, each in the light mode and the dark mode, with the sign-in and the welcome screen
-/// also at 200 percent text and the sign-in screen in its offline state. The texts are drawn with the test font, so a difference of the
-/// antialiasing between Windows and Linux is accepted up to the tolerance of the text-heavy goldens; layout and touch targets are proved by the
+/// also at 200 percent text and the sign-in screen in its offline state. The texts are drawn with the test font, which Windows and
+/// Linux rasterise differently, so each OS compares with goldens of its own (useOsGoldens); layout and touch targets are proved by the
 /// widget tests of the screens (`test/features/session`, `test/features/tenant_discovery`).
 
 class _Dark extends ThemeModeNotifier {
@@ -81,7 +81,7 @@ void main() {
   setUp(() => world = World());
   tearDown(() => world.dispose());
 
-  useTolerantGoldens('test/golden/session_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/session_golden_test.dart');
 
   group('MUX-3 wave D the welcome screen (MOB-01)', () {
     testWidgets('light', (WidgetTester tester) async {

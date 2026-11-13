@@ -15,7 +15,7 @@ import '../support/v2_support.dart';
 
 /// Golden images of the screens of MUX-3 wave B that belong to the procurement workflow (MOB-69, 70, 71) and to the contractor controls (MOB-73,
 /// 74): the light mode, the dark mode, 200 percent text, the empty list and the copy kept on the phone when it is offline. The texts are drawn with
-/// the test font, so the antialiasing of Windows and Linux is accepted up to the tolerance of the text-heavy goldens; layout and touch targets are
+/// the test font, which Windows and Linux rasterise differently, so each OS compares with goldens of its own (useOsGoldens); layout and touch targets are
 /// proved by the widget tests and the screen contract of the features.
 
 const Size _phone = Size(390, 844);
@@ -82,7 +82,7 @@ Future<void> _tab(WidgetTester tester, Finder tab) async {
 }
 
 void main() {
-  useTolerantGoldens('test/golden/procurement_vendor_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/procurement_vendor_golden_test.dart');
 
   group('MUX-3 wave B the packages by step (MOB-69)', () {
     testWidgets('light', (WidgetTester tester) async {

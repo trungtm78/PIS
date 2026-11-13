@@ -16,8 +16,8 @@ import '../support/v2_support.dart';
 
 /// Golden images of MUX-3 wave B for the acceptance and handover (MOB-65, 66), the payment tracking and reconciliation (MOB-27, 60) and the
 /// read views of governance (MOB-75, 76, 77): each key view in the light mode, the dark mode and at 200 percent text, the empty states and the
-/// copy kept on the phone (offline), and the confirmation sheet of a decision. The texts are drawn with the test font; the antialiasing
-/// difference between Windows and Linux is accepted up to the tolerance of the text-heavy goldens. Layout and touch targets are proved by the
+/// copy kept on the phone (offline), and the confirmation sheet of a decision. The texts are drawn with the test font, which Windows and
+/// Linux rasterise differently, so each OS compares with goldens of its own (useOsGoldens). Layout and touch targets are proved by the
 /// widget tests of the screens next to them.
 
 class _Dark extends ThemeModeNotifier {
@@ -129,7 +129,7 @@ void _governance(ScriptedServer server) {
 Future<void> _golden(String name) => expectLater(find.byType(MaterialApp), matchesGoldenFile('goldens/$name.png'));
 
 void main() {
-  useTolerantGoldens('test/golden/acceptance_payment_reads_golden_test.dart', tolerance: kTextGoldenTolerance);
+  useOsGoldens('test/golden/acceptance_payment_reads_golden_test.dart');
   final List<MobileFeature> acceptanceFeature = <MobileFeature>[acceptance.feature];
   final List<MobileFeature> paymentFeature = <MobileFeature>[payments.feature];
   final List<MobileFeature> readsFeature = <MobileFeature>[reads.feature];
