@@ -305,12 +305,17 @@ async function separation(ctx: SeedContext): Promise<void> {
   }
 }
 
-/** ADM-14: the security policy of the tenant (the owner drafts, the leader publishes). The limits are stored with the version; the list of roles for two-factor is the one the screen offers. */
+/**
+ * ADM-14: the security policy of the tenant (the owner drafts, the leader publishes). The limits are stored with the version. The roles that need a second factor are the ones of the default
+ * (BR-IAM-11: LEADER, SECURITY_ADMIN, TENANT_ADMIN, TENANT_OWNER): a published policy replaces the default list, so a policy that named two of them took the second factor away from the owner
+ * and the leaders of the demo tenant, and the phone let the owner in without it (UAT 2026-11-14, Maestro flow 06, MOB-04).
+ */
+const MFA_ROLES_OF_THE_POLICY: readonly string[] = ['LEADER', 'SECURITY_ADMIN', 'TENANT_ADMIN', 'TENANT_OWNER'];
 async function securityPolicy(ctx: SeedContext): Promise<void> {
   const known = await ctx.list<Obj>(OWNER, '/resources/security_policy_version');
   if (known.some((row) => row.status === 'Published')) return;
   const draft = known.find((row) => row.status === 'Draft') === undefined
-    ? await ctx.attempt(OWNER, 'POST', '/security-policies', { mfa_required_roles: ['SECURITY_ADMIN', 'TENANT_ADMIN'], session_idle_minutes: 30, session_max_hours: 8, download_ttl_minutes: 15, export_watermark: true })
+    ? await ctx.attempt(OWNER, 'POST', '/security-policies', { mfa_required_roles: [...MFA_ROLES_OF_THE_POLICY], session_idle_minutes: 30, session_max_hours: 8, download_ttl_minutes: 15, export_watermark: true })
     : undefined;
   const id = draft === undefined ? String(known.find((row) => row.status === 'Draft')?.id) : String(draft.json.resource_id);
   const version = draft === undefined ? Number(known.find((row) => row.status === 'Draft')?.version) : Number(draft.json.resource_version);
