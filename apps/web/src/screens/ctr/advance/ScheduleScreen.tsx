@@ -68,56 +68,58 @@ function ScheduleContent({ route }: ScreenProps) {
                 {t('ctr.advance.empty')}
               </p>
             ) : (
-              <table className="table" data-testid="advances">
-                <thead>
-                  <tr>
-                    <th scope="col">{t('ctr.advance.column.tranche')}</th>
-                    <th scope="col">{t('ctr.advance.column.member')}</th>
-                    <th scope="col" className="ctr-amount">
-                      {t('ctr.advance.column.amount')}
-                    </th>
-                    <th scope="col" className="ctr-amount">
-                      {t('ctr.advance.column.recovered')}
-                    </th>
-                    <th scope="col" className="ctr-amount">
-                      {t('ctr.advance.column.outstanding')}
-                    </th>
-                    <th scope="col">{t('ctr.advance.column.deadline')}</th>
-                    <th scope="col" className="ctr-amount">
-                      {t('ctr.advance.column.cap')}
-                    </th>
-                    <th scope="col">{t('ctr.advance.column.status')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {list.map((advance) => (
-                    <tr key={advance.id} data-advance={advance.id} aria-current={advance.id === inView?.id ? 'true' : undefined}>
-                      <td>
-                        <Link to={scheduleLink(advance.contract.id, advance.id)} data-testid="open">
-                          {t('ctr.advance.tranche', { no: advance.trancheNo, kind: kindLabel(t, advance.kind) })}
-                        </Link>
-                      </td>
-                      <td data-testid="member">
-                        {advance.party.name ?? advance.party.role} · {advance.party.role}
-                      </td>
-                      <td className="ctr-amount" data-testid="amount">
-                        {money(advance.amountVnd)}
-                      </td>
-                      <td className="ctr-amount" data-testid="recovered">
-                        {money(advance.recoveredVnd)}
-                      </td>
-                      <td className="ctr-amount" data-testid="outstanding">
-                        {money(advance.outstandingVnd)}
-                      </td>
-                      <td data-testid="deadline">{advance.recoveryDeadline ?? ''}</td>
-                      <td className="ctr-amount" data-testid="cap">
-                        {advance.capPct === null ? money(advance.capVnd) : t('ctr.advance.cap', { pct: advance.capPct, amount: money(advance.capVnd) })}
-                      </td>
-                      <td data-testid="status">{statusLabel(t, advance.status)}</td>
+              <div className="tablewrap">
+                <table className="table" data-testid="advances">
+                  <thead>
+                    <tr>
+                      <th scope="col">{t('ctr.advance.column.tranche')}</th>
+                      <th scope="col">{t('ctr.advance.column.member')}</th>
+                      <th scope="col" className="ctr-amount">
+                        {t('ctr.advance.column.amount')}
+                      </th>
+                      <th scope="col" className="ctr-amount">
+                        {t('ctr.advance.column.recovered')}
+                      </th>
+                      <th scope="col" className="ctr-amount">
+                        {t('ctr.advance.column.outstanding')}
+                      </th>
+                      <th scope="col">{t('ctr.advance.column.deadline')}</th>
+                      <th scope="col" className="ctr-amount">
+                        {t('ctr.advance.column.cap')}
+                      </th>
+                      <th scope="col">{t('ctr.advance.column.status')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {list.map((advance) => (
+                      <tr key={advance.id} data-advance={advance.id} aria-current={advance.id === inView?.id ? 'true' : undefined}>
+                        <td>
+                          <Link to={scheduleLink(advance.contract.id, advance.id)} data-testid="open">
+                            {t('ctr.advance.tranche', { no: advance.trancheNo, kind: kindLabel(t, advance.kind) })}
+                          </Link>
+                        </td>
+                        <td data-testid="member">
+                          {advance.party.name ?? advance.party.role} · {advance.party.role}
+                        </td>
+                        <td className="ctr-amount" data-testid="amount">
+                          {money(advance.amountVnd)}
+                        </td>
+                        <td className="ctr-amount" data-testid="recovered">
+                          {money(advance.recoveredVnd)}
+                        </td>
+                        <td className="ctr-amount" data-testid="outstanding">
+                          {money(advance.outstandingVnd)}
+                        </td>
+                        <td data-testid="deadline">{advance.recoveryDeadline ?? ''}</td>
+                        <td className="ctr-amount" data-testid="cap">
+                          {advance.capPct === null ? money(advance.capVnd) : t('ctr.advance.cap', { pct: advance.capPct, amount: money(advance.capVnd) })}
+                        </td>
+                        <td data-testid="status">{statusLabel(t, advance.status)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </SectionCard>
           {inView === undefined ? null : (
@@ -143,34 +145,36 @@ function ScheduleContent({ route }: ScreenProps) {
                     <dd data-testid="behind">{money(plan.data.behindVnd)}</dd>
                   </dl>
                   <progress max={100} value={recoveredShare(plan.data.advance)} aria-label={t('ctr.advance.share')} data-testid="share" />
-                  <table className="table" data-testid="milestones">
-                    <thead>
-                      <tr>
-                        <th scope="col" className="ctr-amount">
-                          {t('ctr.advance.milestone.share')}
-                        </th>
-                        <th scope="col" className="ctr-amount">
-                          {t('ctr.advance.milestone.gross')}
-                        </th>
-                        <th scope="col" className="ctr-amount">
-                          {t('ctr.advance.milestone.recovered')}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {plan.data.milestones.map((milestone) => (
-                        <tr key={milestone.atPct} data-milestone={milestone.atPct}>
-                          <td className="ctr-amount">{milestone.atPct}%</td>
-                          <td className="ctr-amount" data-testid="milestone-gross">
-                            {money(milestone.atGrossVnd)}
-                          </td>
-                          <td className="ctr-amount" data-testid="milestone-recovered">
-                            {money(milestone.recoveredVnd)}
-                          </td>
+                  <div className="tablewrap">
+                    <table className="table" data-testid="milestones">
+                      <thead>
+                        <tr>
+                          <th scope="col" className="ctr-amount">
+                            {t('ctr.advance.milestone.share')}
+                          </th>
+                          <th scope="col" className="ctr-amount">
+                            {t('ctr.advance.milestone.gross')}
+                          </th>
+                          <th scope="col" className="ctr-amount">
+                            {t('ctr.advance.milestone.recovered')}
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {plan.data.milestones.map((milestone) => (
+                          <tr key={milestone.atPct} data-milestone={milestone.atPct}>
+                            <td className="ctr-amount">{milestone.atPct}%</td>
+                            <td className="ctr-amount" data-testid="milestone-gross">
+                              {money(milestone.atGrossVnd)}
+                            </td>
+                            <td className="ctr-amount" data-testid="milestone-recovered">
+                              {money(milestone.recoveredVnd)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </>
               )}
             </SectionCard>

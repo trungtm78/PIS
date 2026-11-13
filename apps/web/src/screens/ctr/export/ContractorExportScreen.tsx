@@ -62,9 +62,9 @@ function ExportContent({ route }: ScreenProps) {
                 <p className="callout" role="status" data-testid="no-batches">
                   {t('ctr.export.batches.empty')}
                 </p>
-              ) : (
-                <Table items={view.items} writable={writable} onSubmit={setSubmitting} />
-              )}
+              ) : null}
+              {/* The columns of a batch stand before the first one: what each export will record is said by them. */}
+              <Table items={view.items} writable={writable} onSubmit={setSubmitting} />
               {batches.hasNextPage ? (
                 <button type="button" data-more disabled={batches.isFetchingNextPage} onClick={() => void batches.fetchNextPage()}>
                   {t('ctr.export.batches.more')}
@@ -155,11 +155,12 @@ function Table({ items, writable, onSubmit }: { items: readonly Batch[]; writabl
           {problemMessage(t, describeProblem(issue.error))}
         </p>
       ) : null}
+      <div className="tablewrap">
       <table className="table" data-testid="batches">
         <thead>
           <tr>
-            <th scope="col">{t('ctr.export.column.scope')}</th>
-            <th scope="col">{t('ctr.export.column.period')}</th>
+            <th scope="col">{t('ctr.export.column.reach')}</th>
+            <th scope="col">{t('ctr.export.column.fromTo')}</th>
             <th scope="col">{t('ctr.export.column.format')}</th>
             <th scope="col">{t('ctr.export.column.rows')}</th>
             <th scope="col">{t('ctr.export.column.sha')}</th>
@@ -209,6 +210,7 @@ function Table({ items, writable, onSubmit }: { items: readonly Batch[]; writabl
           ))}
         </tbody>
       </table>
+      </div>
     </>
   );
 }

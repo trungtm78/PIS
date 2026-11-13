@@ -59,6 +59,8 @@ export interface ChainConfig {
   lockedAt: string | null;
   /** The first request of the project, which fixed the number of tiers. */
   lockedBy: { id: string; code: string | null } | null;
+  /** The membership of the person who set the tiers. */
+  setBy: string | null;
   version: number;
 }
 
@@ -129,6 +131,7 @@ function toConfig(raw: unknown): ChainConfig | undefined {
     locked: row.locked === true,
     lockedAt: nullableText(row.locked_at),
     lockedBy: lockedId === undefined ? null : { id: lockedId, code: nullableText(lockedBy?.code) },
+    setBy: nullableText(row.set_by),
     version,
   };
 }

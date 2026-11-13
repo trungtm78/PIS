@@ -16,7 +16,7 @@ import type { FormProblem, HaltAction, Summary } from '../workspace/model';
 import { Field } from '../workspace/WorkspaceDialogs';
 import { useHalt } from './hooks';
 import { actionLabel, dayLabel, guaranteeLabel, impactLabel, submitLabel } from './labels';
-import { GUARANTEE_ACTIONS, emptyHalt, haltBody, validateHalt } from './model';
+import { GUARANTEE_ACTIONS, SUSPEND_PERMISSION, TERMINATE_PERMISSION, emptyHalt, haltBody, validateHalt } from './model';
 import type { GuaranteeAction, HaltForm } from './model';
 import '../ctr.css';
 import { SectionCard } from '../../../ui';
@@ -88,8 +88,11 @@ interface HaltProps {
 
 function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
   const { t } = useTranslation();
+  const { permissions } = useSession();
   const { contract } = summary;
-  const allowed = HALT_ACTIONS.filter((action) => !readOnly && summary.halts?.[action] === true);
+  // The server says what applies to the contract for the membership; the session of the person says what they may do: a command needs both.
+  const mayRun = (action: HaltAction): boolean => permissions === undefined || permissions.includes(action === 'terminate' ? TERMINATE_PERMISSION : SUSPEND_PERMISSION);
+  const allowed = HALT_ACTIONS.filter((action) => !readOnly && summary.halts?.[action] === true && mayRun(action));
   const halt = useHalt();
   const [form, setForm] = useState<HaltForm>(emptyHalt(today, allowed.length === 1 ? (allowed[0] ?? '') : ''));
   const [submitted, setSubmitted] = useState(false);
@@ -155,8 +158,8 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
                 </small>
               )}
             </fieldset>
-            {form.action === '' ? null : (
-              <>
+            {/* The fields of the command stand from the start, closed until an action is chosen, so the person reads what will be asked and what it does to the payments. */}
+            <fieldset className="ctr-plain" disabled={form.action === ''} data-testid="halt-fields">
                 <Field id="halt-reason" label={t('ctr.halt.field.reason')} problem={shown('reason')}>
                   {wireControl(<textarea id="halt-reason" rows={3} maxLength={MAX_TEXT} value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} />, 'halt-reason', {
                     hint: false,
@@ -170,7 +173,7 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
                       error: shown('documentVersionId') !== undefined,
                     })}
                   </Field>
-                  <Field id="halt-day" label={dayLabel(t, form.action)} problem={shown('day')}>
+                  <Field id="halt-day" label={form.action === '' ? t('ctr.halt.field.day.effective') : dayLabel(t, form.action)} problem={shown('day')}>
                     {wireControl(<input id="halt-day" type="date" value={form.day} onChange={(event) => setForm({ ...form, day: event.target.value })} />, 'halt-day', { hint: false, error: shown('day') !== undefined })}
                   </Field>
                   {form.action === 'resume' ? (
@@ -181,6 +184,12 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
                         { hint: false, error: shown('extensionDays') !== undefined },
                       )}
                     </Field>
+                  ) : null}
+                  {form.action !== 'terminate' ? (
+                    <dl className="ctr-facts" data-field="halt-guarantee">
+                      <dt>{t('ctr.halt.field.guarantee')}</dt>
+                      <dd data-testid="guarantee-kept">{t('ctr.halt.guarantee.kept')}</dd>
+                    </dl>
                   ) : null}
                   {form.action === 'terminate' ? (
                     <Field id="halt-guarantee" label={t('ctr.halt.field.guarantee')} problem={shown('guaranteeAction')} hint={t('ctr.halt.field.guarantee.hint')}>
@@ -200,7 +209,7 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
                   ) : null}
                 </div>
                 <p className="callout" data-testid="impact">
-                  <strong>{t('ctr.halt.impact.title')}</strong> {impactLabel(t, form.action)}
+                  <strong>{t('ctr.halt.impact.title')}</strong> {form.action === '' ? t('ctr.halt.impact.choose') : impactLabel(t, form.action)}
                 </p>
                 {form.action === 'terminate' ? (
                   <>
@@ -219,13 +228,14 @@ function Halt({ summary, locale, today, readOnly, done, onDone }: HaltProps) {
                     </div>
                   </>
                 ) : null}
-                <div className="formfooter">
-                  <button type="submit" className="primary" disabled={halt.isPending}>
-                    {halt.isPending ? t('ctr.workspace.dialog.pending') : submitLabel(t, form.action)}
-                  </button>
-                </div>
-              </>
-            )}
+                {form.action === '' ? null : (
+                  <div className="formfooter">
+                    <button type="submit" className="primary" disabled={halt.isPending}>
+                      {halt.isPending ? t('ctr.workspace.dialog.pending') : submitLabel(t, form.action)}
+                    </button>
+                  </div>
+                )}
+            </fieldset>
           </form>
         </SectionCard>
       )}
