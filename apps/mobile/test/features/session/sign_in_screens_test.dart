@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -410,6 +411,37 @@ void main() {
       expect(container.read(sessionProvider).membershipId, 'm-a2');
       final String token = (await container.read(sessionProvider.notifier).accessToken())!;
       expect(world.api.tenantTokens[token]!.membershipId, 'm-a2');
+    });
+
+    // UAT 2026-11-13 (MOB-02, 03, 04, 07 on the emulator): the heading flag of AuthHeading merged into its parent, so a screen reader
+    // announced the heading and the paragraph under it as one heading (and the device flow could not find the heading by its text).
+    testWidgets('the heading of the sign-in, the chooser and the second factor is a heading node of its own; the paragraph is not part of it', (WidgetTester tester) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      world = World(memberships: <String, List<FakeMembership>>{'sub-ana': <FakeMembership>[_needsMfa, _second]});
+      useDevice(tester, kDeviceSizes[1]);
+      await pumpSessionApp(tester, world);
+
+      void expectOwnHeading(String title, String bodyStart) {
+        final SemanticsData heading = tester.getSemantics(find.text(title)).getSemanticsData();
+        expect(heading.label, title);
+        expect(heading.flagsCollection.isHeader, isTrue, reason: '"$title" is announced as a heading');
+        final Finder body = find.textContaining(bodyStart);
+        expect(body, findsOneWidget);
+        final SemanticsData paragraph = tester.getSemantics(body).getSemanticsData();
+        expect(paragraph.label, isNot(contains(title)));
+        expect(paragraph.flagsCollection.isHeader, isFalse, reason: 'the paragraph under "$title" is not a heading');
+      }
+
+      expectOwnHeading('Đăng nhập', 'Bạn đăng nhập trong trình duyệt của hệ thống');
+      await tapText(tester, 'Đăng nhập bằng SSO');
+      await tester.pumpAndSettle();
+      expectOwnHeading('Chọn đơn vị và vai trò', 'Bạn có thể làm việc ở nhiều đơn vị');
+      await tapText(tester, 'Vai trò: LEADER');
+      await tester.pump();
+      await tapText(tester, 'Tiếp tục');
+      await tester.pumpAndSettle();
+      expectOwnHeading('Xác thực hai yếu tố', 'Vai trò của bạn cần thêm một yếu tố xác thực');
+      semantics.dispose();
     });
 
     testWidgets('a membership the server will not let in is listed and cannot be chosen; a suggestion by the domain is marked', (WidgetTester tester) async {

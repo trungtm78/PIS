@@ -106,6 +106,8 @@ class AuthPage extends StatelessWidget {
 }
 
 /// The heading of a sign-in screen and the sentence under it: the Title step (held at 1.3 times so it never takes the screen) and the body.
+/// Each is a semantics node of its own: the heading alone carries the heading flag, so a screen reader announces the title as the heading
+/// and reads the sentence as text (without `container` the flag and both texts merged into one node, UAT 2026-11-13 MOB-02 to 04).
 class AuthHeading extends StatelessWidget {
   const AuthHeading({required this.title, this.body, super.key});
 
@@ -118,10 +120,10 @@ class AuthHeading extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Semantics(header: true, child: Text(title, style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+        Semantics(container: true, header: true, child: Text(title, style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
         if (body != null) ...<Widget>[
           const SizedBox(height: MachvonV2Space.s8),
-          Text(body!, style: text.body.copyWith(color: context.v2.palette.ink2)),
+          Semantics(container: true, child: Text(body!, style: text.body.copyWith(color: context.v2.palette.ink2))),
         ],
       ],
     );
