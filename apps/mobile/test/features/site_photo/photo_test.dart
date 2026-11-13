@@ -270,7 +270,7 @@ void main() {
       expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isFalse, reason: 'the withdrawal is applied before the files are rewritten');
       expect(tester.widget<FilledButton>(_save()).onPressed, isNull, reason: 'no save while the photographs still say where they were taken');
 
-      await settleReal(tester, rounds: 8);
+      await waitUntil(tester, () async => tester.widget<FilledButton>(_save()).onPressed != null);
       expect(tester.widget<FilledButton>(_save()).onPressed, isNotNull, reason: 'the save is back once the photographs are clean');
       final Directory evidence = (await tester.runAsync(() => world.container.read(evidenceDirectoryProvider.future)))!;
       final File prepared = evidence.listSync().whereType<File>().firstWhere((File file) => !file.path.contains('original'));
