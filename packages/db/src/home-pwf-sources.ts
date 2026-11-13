@@ -5,7 +5,7 @@ import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
 import { PROJECT_JOINS, Params, SOURCE_LIMIT, addDays, base, reach, startOfDay } from './home-work-sources.ts';
 import type { SourceContext, SourceRow } from './home-work-sources.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
-import { workingDayOffset } from './pwf-horizon.ts';
+import { windowEdge } from './pwf-horizon.ts';
 import type { BandPolicySet } from './pwf-band-policies.ts';
 
 /** How many days ahead a milestone at risk is shown. */
@@ -42,8 +42,7 @@ export class HomePwfSources {
   private horizonOf(set: BandPolicySet, today: string, calendars: WorkCalendarSource | undefined): string | null {
     const widest = set.widestGreenDays;
     if (widest === null) return null;
-    const after = workingDayOffset(calendars, today, widest + 1);
-    return after === null ? today : addDays(after, -1);
+    return addDays(windowEdge(calendars, today, widest + 1), -1);
   }
 
   /** One chunk of the tasks in the window of the reader, in the order of their days, after the task a previous chunk ended with. */

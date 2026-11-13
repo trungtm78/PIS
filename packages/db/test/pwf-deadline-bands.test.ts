@@ -564,11 +564,16 @@ describe('the multi-point reminders (BR-PWF-24)', () => {
   it('looks back as far as the lowest point of the rules goes, whatever the calendar', async () => {
     const rule = await approvedRule(LADDER(5, 2, 0, { reminder_days: [5, 2, 0, -30] }));
     await task(-30);
-    // Further overdue than the lowest point has had its last point long ago: it is not looked at.
-    await task(-35);
+    // Far beyond the lowest point and the catch-up days: it has had its last point long ago and is not looked at.
+    await task(-80);
     const notices = await fire();
     expect(notices.map((notice) => notice.point)).toEqual([-30]);
     await retire(rule);
+  });
+
+  it('catches up on the points a missed pass owed to a task already past its last point', async () => {
+    await task(-3);
+    expect((await fire()).map((notice) => notice.point)).toEqual([-1]);
   });
 
   it('refuses a second row of the same point (the key of the reminder) and never changes one', async () => {

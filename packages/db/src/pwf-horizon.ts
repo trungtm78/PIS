@@ -20,3 +20,14 @@ export function workingDayOffset(calendars: WorkCalendarSource | undefined, from
   }
   return processCore.dayText(cursor);
 }
+
+/**
+ * The edge of a window of tasks `count` working days from `from`: the exact day when the calendars reach it, else a conservative number of calendar days (a task beyond the published calendars is judged one by one and the ones whose days cannot be counted
+ * are dropped there), so that a missing year ahead never hides the tasks that can still be counted.
+ */
+export function windowEdge(calendars: WorkCalendarSource | undefined, from: string, count: number): string {
+  const exact = workingDayOffset(calendars, from, count);
+  if (exact !== null) return exact;
+  const days = (Math.abs(count) + 1) * 7 + 30;
+  return processCore.dayText(processCore.dayNumber(from) + (count < 0 ? -days : days));
+}
