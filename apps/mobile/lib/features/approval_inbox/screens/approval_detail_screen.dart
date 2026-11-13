@@ -190,8 +190,7 @@ class _Comparison extends StatelessWidget {
           currentVnd: report.totalVnd,
           changeVnd: differenceDong(report.totalVnd, previous.totalVnd),
           changed: true,
-          strong: true,
-          spokenKey: 'mob.apv.detail.compare.total',
+          total: true,
         ),
         note(context.t('mob.apv.detail.compare.ctmtqg', <String, Object>{'value': moneyLabel(context, report.ctmtqgVnd)})),
       ],
@@ -202,15 +201,15 @@ class _Comparison extends StatelessWidget {
 /// One figure of two revisions: what the record says now, and under it what it said before and what changed (a fall carries a minus sign and
 /// a down arrow, a rise a plus sign and an up arrow: never colour alone). A screen reader gets the whole sentence.
 class _FigureRow extends StatelessWidget {
-  const _FigureRow({required this.label, required this.previousVnd, required this.currentVnd, required this.changeVnd, required this.changed, this.strong = false, this.spokenKey = 'mob.apv.detail.compare.cell'});
+  const _FigureRow({required this.label, required this.previousVnd, required this.currentVnd, required this.changeVnd, required this.changed, this.total = false});
 
   final String label;
   final String previousVnd;
   final String currentVnd;
   final String changeVnd;
   final bool changed;
-  final bool strong;
-  final String spokenKey;
+  /// The cumulative total: its label is a heading figure and its sentence has no cell name.
+  final bool total;
 
   @override
   Widget build(BuildContext context) {
@@ -221,9 +220,9 @@ class _FigureRow extends StatelessWidget {
     final String current = moneyLabel(context, currentVnd);
     final bool noChange = changeVnd == '0';
     final bool fall = changeVnd.startsWith('-');
-    final String spoken = spokenKey == 'mob.apv.detail.compare.total'
-        ? context.t(spokenKey, <String, Object>{'previous': previous, 'current': current, 'change': change})
-        : context.t(spokenKey, <String, Object>{'cell': label, 'previous': previous, 'current': current, 'change': change});
+    final String spoken = total
+        ? context.t('mob.apv.detail.compare.total', <String, Object>{'previous': previous, 'current': current, 'change': change})
+        : context.t('mob.apv.detail.compare.cell', <String, Object>{'cell': label, 'previous': previous, 'current': current, 'change': change});
     return Semantics(
       container: true,
       label: spoken,
@@ -237,7 +236,7 @@ class _FigureRow extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Expanded(flex: 3, child: Text(label, style: strong ? text.bodyStrong : text.body)),
+                Expanded(flex: 3, child: Text(label, style: total ? text.bodyStrong : text.body)),
                 const SizedBox(width: MachvonV2Space.s12),
                 Expanded(
                   flex: 4,

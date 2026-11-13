@@ -144,7 +144,7 @@ class _FindingsState extends State<_Findings> {
               value: '${run.missingSourceCount}',
               label: context.t('mob.ai.findings.stat.missing'),
               band: run.missingSourceCount > 0 ? DeadlineBand.soon : null,
-              bandText: run.missingSourceCount > 0 ? context.t('mob.ai.findings.stat.missing.band') : null,
+              bandText: run.missingSourceCount > 0 ? context.t('mob.ai.findings.stat.missingBand') : null,
             ),
           ],
         ),
