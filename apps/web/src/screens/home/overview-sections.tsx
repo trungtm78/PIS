@@ -150,7 +150,7 @@ export function Kpis({ center, waiting, counts }: { center: CommandCenter; waiti
         />
         )}
         <KpiTile
-          label={t('home.ov.kpi.warnings.label')}
+          label={t('home.ov.kpi.openWarnings.label')}
           value={warnings === undefined ? '—' : figureText(warnings)}
           tone={warningTone}
           sub={

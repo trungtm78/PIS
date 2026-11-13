@@ -280,7 +280,7 @@ describe('HOME-01 the leader home: work first, then the numbers (decision 2A)', 
       const kpis = await screen.findByTestId('home-kpis');
       expect(kpis.textContent).toContain('1250000000000');
       expect(kpis.textContent).toContain(fill(tr('govc.home.kpi.plan.sub'), { pm: '1000000000000' }));
-      expect(kpis.textContent).toContain(tr('home.ov.kpi.warnings.label'));
+      expect(kpis.textContent).toContain(tr('home.ov.kpi.openWarnings.label'));
       expect(kpis.textContent).toContain(fill(tr('home.ov.kpi.warnings.sub'), { count: 1 }));
       expect(kpis.textContent).toContain(tr('home.ov.kpi.realloc.label'));
       expect(kpis.textContent).toContain(tr('home.ov.kpi.coverage.title'));

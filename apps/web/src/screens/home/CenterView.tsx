@@ -101,7 +101,7 @@ function CenterContent({ route, variant }: ScreenProps & { variant: Variant }) {
   const contextItems = [
     { label: t('home.ov.context.scope'), value: context === undefined ? '—' : context.scope.unitId === null ? t('home.ov.context.unitAll', { projects: context.scope.projects }) : t('home.ov.context.unit', { unit: unitName ?? shortId(context.scope.unitId), projects: context.scope.projects }) },
     { label: t('home.ov.context.year'), value: context === undefined ? '—' : context.asOfDate.slice(0, 4) },
-    { label: t('home.ov.context.closing'), value: context === undefined ? '—' : dayText(context.asOfDate) },
+    { label: t('home.ov.context.asOf'), value: context === undefined ? '—' : dayText(context.asOfDate) },
   ];
 
   return (

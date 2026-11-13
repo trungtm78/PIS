@@ -152,7 +152,7 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
   it('counts what waits in the tiles and leads to the screen of each', async () => {
     mount(<CommandCenterScreen route={CC} />, client({ latest: () => body() }), { permissions: READER });
     const kpis = await screen.findByTestId('home-kpis');
-    const warnings = within(kpis).getByText(tr('home.ov.kpi.warnings.label')).closest('.ui-kpi') as HTMLElement;
+    const warnings = within(kpis).getByText(tr('home.ov.kpi.openWarnings.label')).closest('.ui-kpi') as HTMLElement;
     const reallocations = within(kpis).getByText(tr('home.ov.kpi.realloc.label')).closest('.ui-kpi') as HTMLElement;
     expect(warnings.textContent).toContain('3');
     expect(within(warnings).getByRole('link', { name: fill(tr('home.ov.kpi.warnings.sub'), { count: 2 }) }).getAttribute('href')).toBe('/home/home-02');
@@ -320,10 +320,10 @@ describe('HOME-09 command center (ST-HOME-001, BR-HOME-01)', () => {
     const view = mount(<CommandCenterScreen route={CC} />, client({ latest: () => latest }), { permissions: READER });
     const tileOf = (label: string): HTMLElement => within(screen.getByTestId('home-kpis')).getByText(tr(label)).closest('.ui-kpi') as HTMLElement;
     await screen.findByTestId('home-kpis');
-    expect(tileOf('home.ov.kpi.warnings.label').textContent).toContain('3');
+    expect(tileOf('home.ov.kpi.openWarnings.label').textContent).toContain('3');
     latest = body({ open_warnings: 1, overdue_explanations: 0, pending_reallocations: 4, tiles: [tile('DISBURSEMENT_RATE_PM', { value: '99.0000' }), tile('DISBURSEMENT_RATE_TOTAL', { value: '98.0000' })] });
     await view.queries.invalidateQueries({ queryKey: [...homeRoot(TENANT), 'latest'] });
-    await waitFor(() => expect(tileOf('home.ov.kpi.warnings.label').textContent).toContain(fill(tr('home.ov.kpi.warnings.sub'), { count: 0 })));
+    await waitFor(() => expect(tileOf('home.ov.kpi.openWarnings.label').textContent).toContain(fill(tr('home.ov.kpi.warnings.sub'), { count: 0 })));
     expect(tileOf('home.ov.kpi.realloc.label').textContent).toContain('4');
     // The figures belong to the snapshot, and the snapshot did not change.
     expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
@@ -384,7 +384,7 @@ describe('HOME-01 executive overview (ST-HOME-001)', () => {
     mount(<OverviewScreen route={OV} />, client({ latest: () => body(), units }), { permissions: READER });
     await screen.findByTestId('home-rates');
     expect(contextText()).toContain(`${tr('home.ov.context.year')}2027`);
-    expect(contextText()).toContain(`${tr('home.ov.context.closing')}12/10/2027`);
+    expect(contextText()).toContain(`${tr('home.ov.context.asOf')}12/10/2027`);
     expect(screen.getByLabelText(vi_['home.filter.unit.label'])).toBeTruthy();
     expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_PM').textContent).toBe('60.00%');
     expect(screen.getByTestId('tile-value-DISBURSEMENT_RATE_TOTAL').textContent).toBe('48.00%');

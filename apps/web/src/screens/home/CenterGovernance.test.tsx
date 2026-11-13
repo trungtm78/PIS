@@ -230,7 +230,7 @@ describe('every number of the center is the text of the server, with the "i" of 
     expect(block.textContent).not.toMatch(/\b0([.,]00)?%/);
     const kpis = screen.getByTestId('home-kpis');
     expect(kpis.textContent).toContain(tr('govc.home.reason.notCertified'));
-    const warnings = within(kpis).getByText(tr('home.ov.kpi.warnings.label')).closest('article') as HTMLElement;
+    const warnings = within(kpis).getByText(tr('home.ov.kpi.openWarnings.label')).closest('article') as HTMLElement;
     expect(warnings.textContent).not.toMatch(/(^|[^\d])0([^\d]|$)/);
   });
 
