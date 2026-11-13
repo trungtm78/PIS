@@ -50,7 +50,8 @@ function ConclusionContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const [params] = useSearchParams();
-  const engagementId = params.get('engagement') ?? undefined;
+  // An empty choice (`engagement=`) is none: the person asked to see no engagement.
+  const engagementId = params.get('engagement') || undefined;
   const engagement = useEngagement(engagementId);
   const conclusions = useConclusions(engagementId);
   const missing = engagement.error instanceof ApiError && engagement.error.status === 404;
@@ -81,12 +82,16 @@ function ConclusionContent({ route }: ScreenProps) {
       <p className="callout" data-testid="conclusion-rule">
         {t('aud.conclusion.rule.note')}
       </p>
-      <EngagementPicker selected={engagementId} />
+      <EngagementPicker selected={engagementId} preferred={awaitsConclusion} />
       <StateBoundary state={state} onRetry={retry}>
         {detail === undefined ? (
-          <p className="muted" data-testid="conclusion-choose">
-            {t('aud.conclusion.choose.text')}
-          </p>
+          <>
+            <p className="muted" data-testid="conclusion-choose">
+              {t('aud.conclusion.choose.text')}
+            </p>
+            {/* What will be asked once an engagement is chosen: the form stands closed until then. */}
+            <ConclusionFormPanel engagement={undefined} />
+          </>
         ) : (
           <>
             <EngagementCard engagement={detail} hasConclusion={current !== undefined} />
@@ -140,7 +145,7 @@ function NoConclusion({ engagement, mayRecord }: { engagement: EngagementDetail;
   return <ConclusionFormPanel engagement={engagement} />;
 }
 
-function ConclusionFormPanel({ engagement }: { engagement: EngagementDetail }) {
+function ConclusionFormPanel({ engagement }: { engagement: EngagementDetail | undefined }) {
   const { t } = useTranslation();
   const record = useRecordConclusion();
   const today = todayInVietnam();
@@ -151,18 +156,19 @@ function ConclusionFormPanel({ engagement }: { engagement: EngagementDetail }) {
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     setSubmitted(true);
-    if (record.isPending || Object.keys(problems).length > 0) return;
+    if (engagement === undefined || record.isPending || Object.keys(problems).length > 0) return;
     record.mutate({ engagementId: engagement.id, version: engagement.version, body: conclusionBody(form) });
   };
   const failure = record.isError ? describeProblem(record.error) : undefined;
   return (
-    <form className="card" onSubmit={submit} noValidate data-testid="conclusion-form">
+    <form className="card" onSubmit={submit} noValidate data-testid="conclusion-form" aria-label={t('aud.conclusion.form.title')}>
       <h2>{t('aud.conclusion.form.title')}</h2>
       {failure === undefined ? null : (
         <p className="callout warning" role="alert" data-testid="refusal">
           {conclusionProblemMessage(t, failure.problem, failure.remainingVnd)}
         </p>
       )}
+      <fieldset className="aud-plain" disabled={engagement === undefined}>
       <div className="aud-form-grid">
         <Field id="conclusion-kind" label={t('aud.conclusion.form.kind.label')} error={error('kind')}>
           <select id="conclusion-kind" value={form.kind} onChange={(event) => setForm({ ...form, kind: event.target.value as ConclusionForm['kind'] })}>
@@ -177,12 +183,15 @@ function ConclusionFormPanel({ engagement }: { engagement: EngagementDetail }) {
         <Field id="conclusion-document" label={t('aud.conclusion.form.document.label')} error={error('documentId')} hint={t('aud.conclusion.form.document.help')}>
           <input id="conclusion-document" value={form.documentId} onChange={(event) => setForm({ ...form, documentId: event.target.value })} />
         </Field>
-        <Field id="conclusion-issued-on" label={t('aud.conclusion.form.issuedOn.label')} error={error('issuedOn')}>
-          <input id="conclusion-issued-on" type="date" max={today} value={form.issuedOn} onChange={(event) => setForm({ ...form, issuedOn: event.target.value })} />
-        </Field>
-        <Field id="conclusion-received-on" label={t('aud.conclusion.form.receivedOn.label')} error={error('receivedOn')}>
-          <input id="conclusion-received-on" type="date" max={today} value={form.receivedOn} onChange={(event) => setForm({ ...form, receivedOn: event.target.value })} />
-        </Field>
+        <fieldset className="aud-dates wide">
+          <legend>{t('aud.conclusion.dates.title')}</legend>
+          <Field id="conclusion-issued-on" label={t('aud.conclusion.form.issuedOn.label')} error={error('issuedOn')}>
+            <input id="conclusion-issued-on" type="date" max={today} value={form.issuedOn} onChange={(event) => setForm({ ...form, issuedOn: event.target.value })} />
+          </Field>
+          <Field id="conclusion-received-on" label={t('aud.conclusion.form.receivedOn.label')} error={error('receivedOn')}>
+            <input id="conclusion-received-on" type="date" max={today} value={form.receivedOn} onChange={(event) => setForm({ ...form, receivedOn: event.target.value })} />
+          </Field>
+        </fieldset>
         <Field id="conclusion-implementation-due" label={t('aud.conclusion.form.implementationDue.label')} error={error('implementationDueOn')} hint={t('aud.conclusion.form.implementationDue.help')}>
           <input id="conclusion-implementation-due" type="date" value={form.implementationDueOn} onChange={(event) => setForm({ ...form, implementationDueOn: event.target.value })} />
         </Field>
@@ -209,6 +218,7 @@ function ConclusionFormPanel({ engagement }: { engagement: EngagementDetail }) {
           {record.isPending ? t('aud.conclusion.form.submit.pending') : t('aud.conclusion.form.submit.action')}
         </button>
       </div>
+      </fieldset>
     </form>
   );
 }
@@ -228,7 +238,7 @@ function ConclusionView({ conclusion, engagement, mayRecord }: { conclusion: Con
         <div className="card" data-testid="conclusion-card">
           <h2>{t('aud.conclusion.view.title', { revision: conclusion.revision })}</h2>
           <dl className="aud-facts">
-            <dt>{t('aud.conclusion.view.kind')}</dt>
+            <dt>{t('aud.conclusion.view.conclusionKind')}</dt>
             <dd>{conclusionKindLabel(t, conclusion.kind)}</dd>
             <dt>{t('aud.conclusion.view.status')}</dt>
             <dd>
@@ -238,10 +248,8 @@ function ConclusionView({ conclusion, engagement, mayRecord }: { conclusion: Con
             <dd>{conclusion.document.title === '' ? conclusion.document.id : conclusion.document.title}</dd>
             <dt>{t('aud.conclusion.view.symbol')}</dt>
             <dd>{conclusion.document.symbol ?? NONE}</dd>
-            <dt>{t('aud.conclusion.view.issuedOn')}</dt>
-            <dd>{conclusion.issuedOn}</dd>
-            <dt>{t('aud.conclusion.view.receivedOn')}</dt>
-            <dd>{conclusion.receivedOn}</dd>
+            <dt>{t('aud.conclusion.dates.title')}</dt>
+            <dd>{t('aud.conclusion.dates.value', { issued: conclusion.issuedOn, received: conclusion.receivedOn })}</dd>
             <dt>{t('aud.conclusion.view.implementationDue')}</dt>
             <dd>{conclusion.implementationDueOn ?? NONE}</dd>
             <dt>{t('aud.conclusion.view.reportDue')}</dt>
@@ -253,7 +261,7 @@ function ConclusionView({ conclusion, engagement, mayRecord }: { conclusion: Con
         <div className="card" data-testid="money-card">
           <h2>{t('aud.conclusion.money.title')}</h2>
           <dl className="aud-facts">
-            <dt>{t('aud.conclusion.money.total')}</dt>
+            <dt>{t('aud.conclusion.money.financialTotal')}</dt>
             <dd data-testid="money-total">{formatVnd(conclusion.totalVnd)}</dd>
             <dt>{t('aud.conclusion.money.recommended')}</dt>
             <dd data-testid="money-recommended">{formatVnd(conclusion.recommendedVnd)}</dd>

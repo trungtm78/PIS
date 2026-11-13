@@ -22,6 +22,9 @@ export interface EvidenceRow {
   note: string;
   documentId: string;
   doneOn: string | null;
+  /** Who attached the evidence (name, else the short id of the membership) and when; null when the server does not tell. */
+  attachedBy: string | null;
+  attachedAt: string | null;
 }
 
 /**
@@ -42,6 +45,8 @@ export function evidenceRows(items: readonly BoardItem[]): EvidenceRow[] {
               note: action.description,
               documentId: action.evidenceDocumentId,
               doneOn: action.completedOn,
+              attachedBy: action.evidenceAttachedBy === null ? null : action.evidenceAttachedBy.name !== '' ? action.evidenceAttachedBy.name : action.evidenceAttachedBy.id.slice(0, 8),
+              attachedAt: action.evidenceAttachedAt,
             },
           ]
         : [],

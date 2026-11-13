@@ -18,6 +18,9 @@ import type { BoardFilter } from './hooks';
 import { BOARD_PATH, canAssign, canDecide, canDispute, matching } from './model';
 import type { BoardItem, Caller } from './model';
 import { lateDays } from './model';
+
+/** The workspace of one issue of ISS (ISS-03), opened by its id. */
+const ISSUE_PATH = '/iss/iss-03';
 import { recommendationTone } from '../tones';
 
 type Dialog = { kind: 'assign' | 'dispute' | 'decide'; item: BoardItem };
@@ -129,10 +132,10 @@ function RecommendationTable({ items, caller, today, onDialog }: { items: BoardI
       ),
     },
     { key: 'type', header: t('aud.remediation.list.col.type'), render: (item) => recommendationTypeLabel(t, item.type) },
-    { key: 'amount', header: t('aud.remediation.list.col.amount'), align: 'right', render: (item) => <Money item={item} /> },
+    { key: 'amount', header: t('aud.remediation.list.col.money'), align: 'right', render: (item) => <Money item={item} /> },
     {
       key: 'owner',
-      header: t('aud.remediation.list.col.owner'),
+      header: t('aud.remediation.list.col.ownerRole'),
       render: (item) =>
         item.ownerUnit === null ? (
           t('aud.remediation.owner.none')
@@ -145,6 +148,11 @@ function RecommendationTable({ items, caller, today, onDialog }: { items: BoardI
     },
     { key: 'due', header: t('aud.remediation.list.col.due'), render: (item) => <DueDay item={item} today={today} /> },
     { key: 'status', header: t('aud.remediation.list.col.status'), render: (item) => <StatusPill tone={recommendationTone(item.status)}>{recommendationStatusLabel(t, item.status)}</StatusPill> },
+    {
+      key: 'issue',
+      header: t('aud.remediation.list.col.issue'),
+      render: (item) => (item.linkedIssueId === null ? t('aud.remediation.issue.none') : <Link to={`${ISSUE_PATH}?id=${item.linkedIssueId}`}>{t('aud.remediation.issue.open')}</Link>),
+    },
     {
       key: 'actions',
       header: t('aud.remediation.list.col.actions'),

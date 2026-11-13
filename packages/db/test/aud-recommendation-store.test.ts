@@ -630,7 +630,7 @@ describe('AudRecommendationStore (assignment, remediation, dispute and verificat
         status: 'IN_PROGRESS',
         isOverdue: false,
         evidenceCount: 1,
-        actions: [{ id: planned.actionId, actionCode: 'A-1', status: 'DONE', completedOn: '2026-10-24', evidenceDocumentId: EVIDENCE, version: 2 }],
+        actions: [{ id: planned.actionId, actionCode: 'A-1', status: 'DONE', completedOn: '2026-10-24', evidenceDocumentId: EVIDENCE, evidenceAttachedBy: { id: memberId(OWNER), name: 'User 2' }, evidenceAttachedAt: expect.any(String), version: 2 }],
       });
       expect(byId.get(second)).toMatchObject({ status: 'DISPUTED', disputeReason: 'The volumes were accepted on site by the supervisor.', disputedBy: memberId(OWNER), disputeOutcome: null, ownerUser: null, actions: [], evidenceCount: 1 });
       expect(byId.get(third)).toMatchObject({ status: 'OPEN', ownerUnit: null, amountVnd: '1000', recoveredVnd: '0', version: 1 });

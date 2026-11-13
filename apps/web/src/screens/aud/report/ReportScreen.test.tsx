@@ -1,5 +1,5 @@
 import { ApiError, NETWORK_ERROR_CODE } from '@machvon/api-client';
-import { cleanup, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
@@ -264,11 +264,17 @@ describe('AUD-10 report of the results and closure', () => {
   });
 
   describe('choosing the engagement and the seven states', () => {
-    it('with none chosen asks for one', async () => {
+    it('opened without a choice takes the first engagement that is followed up, and with "none" chosen asks for one and shows the columns of a report', async () => {
       mount(<ReportScreen route={ROUTE} />, client(stateOf({})), { permissions: READER, path: '/aud/aud-10' });
-      expect((await screen.findByTestId('report-choose')).textContent).toBe(vi_['aud.report.choose.text']);
       expect(heading().textContent).toBe(vi_['aud.report.page.title']);
       await waitFor(() => expect(screen.getAllByRole('option').length).toBe(2));
+      const picker = screen.getByLabelText(vi_['aud.conclusion.picker.label']) as HTMLSelectElement;
+      await waitFor(() => expect(picker.value).toBe(ID));
+      expect(await screen.findByTestId('report-engagement')).toBeTruthy();
+      fireEvent.change(picker, { target: { value: '' } });
+      expect((await screen.findByTestId('report-choose')).textContent).toBe(vi_['aud.report.choose.text']);
+      expect(screen.getByRole('columnheader', { name: (vi_ as Record<string, string>)['aud.report.col.payloadHash'] })).toBeTruthy();
+      expect(screen.getByTestId('no-reports').textContent).toBe(vi_['aud.report.list.none']);
     });
 
     it('says the engagement is not there for one that is not found (the same words as an engagement of another scope)', async () => {

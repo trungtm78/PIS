@@ -66,6 +66,9 @@ export interface ActionLine {
   completedOn: string | null;
   status: ActionStatus;
   evidenceDocumentId: string | null;
+  /** Who put the evidence of a done action in the register of evidence, and when (audit_evidence); null while there is none. */
+  evidenceAttachedBy: { id: string; name: string } | null;
+  evidenceAttachedAt: string | null;
   version: number;
 }
 
@@ -225,7 +228,19 @@ interface BoardSql {
   verification_note: string | null;
   submitted_by: string | null;
   disputed_by: string | null;
-  actions: Array<{ id: string; action_code: string; description: string; planned_on: string; completed_on: string | null; status: ActionStatus; evidence_document_id: string | null; version: number }>;
+  actions: Array<{
+    id: string;
+    action_code: string;
+    description: string;
+    planned_on: string;
+    completed_on: string | null;
+    status: ActionStatus;
+    evidence_document_id: string | null;
+    evidence_attached_by?: string | null;
+    evidence_attached_by_name?: string | null;
+    evidence_attached_at?: string | null;
+    version: number;
+  }>;
   evidence_count: string;
   created_at: string;
   version: string;
@@ -235,8 +250,14 @@ const BOARD_COLUMNS = `r.id, r.conclusion_id, c.engagement_id, e.engagement_code
   r.project_id, r.owner_unit_id, ow.code as owner_unit_code, ow.name as owner_unit_name, r.owner_user_id, od.display_name as owner_user_name, r.due_on::text as due_on, c.implementation_due_on::text as implementation_due_on, r.status, r.is_overdue,
   r.linked_issue_id, r.dispute_reason, r.dispute_outcome, r.verification_note, r.submitted_by, r.disputed_by,
   coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'action_code', a.action_code, 'description', a.description, 'planned_on', a.planned_on::text, 'completed_on', a.completed_on::text,
-                                                  'status', a.status, 'evidence_document_id', a.evidence_document_id, 'version', a.version) order by a.action_code)
-              from machvon.audit_remediation_action a where a.tenant_id = r.tenant_id and a.recommendation_id = r.id), '[]'::jsonb) as actions,
+                                                  'status', a.status, 'evidence_document_id', a.evidence_document_id, 'evidence_attached_by', ev.attached_by, 'evidence_attached_by_name', ev.display_name,
+                                                  'evidence_attached_at', ev.attached_at::text, 'version', a.version) order by a.action_code)
+              from machvon.audit_remediation_action a
+              left join lateral (select v.attached_by, v.attached_at, vd.display_name from machvon.audit_evidence v
+                                   left join machvon.tenant_user_directory vd on vd.tenant_id = v.tenant_id and vd.membership_id = v.attached_by
+                                  where v.tenant_id = a.tenant_id and v.owner_kind = 'ACTION' and v.owner_id = a.id and v.document_id = a.evidence_document_id
+                                  order by v.attached_at limit 1) ev on true
+             where a.tenant_id = r.tenant_id and a.recommendation_id = r.id), '[]'::jsonb) as actions,
   (select count(*) from machvon.audit_evidence v where v.tenant_id = r.tenant_id and ((v.owner_kind = 'RECOMMENDATION' and v.owner_id = r.id)
       or (v.owner_kind = 'ACTION' and v.owner_id in (select a.id from machvon.audit_remediation_action a where a.tenant_id = r.tenant_id and a.recommendation_id = r.id))))::text as evidence_count,
   r.created_at::text as created_at, r.version::text as version`;
@@ -277,6 +298,8 @@ const toBoard = (row: BoardSql): BoardLine => ({
     completedOn: action.completed_on,
     status: action.status,
     evidenceDocumentId: action.evidence_document_id,
+    evidenceAttachedBy: action.evidence_attached_by === undefined || action.evidence_attached_by === null ? null : { id: action.evidence_attached_by, name: action.evidence_attached_by_name ?? '' },
+    evidenceAttachedAt: action.evidence_attached_at ?? null,
     version: Number(action.version),
   })),
   evidenceCount: Number(row.evidence_count),

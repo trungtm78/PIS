@@ -21,6 +21,8 @@ describe('AUD-01 overview of inspections and audits', () => {
     open();
     expect(await screen.findByRole('heading', { level: 1, name: vi_['aud.overview.page.title'] })).toBeTruthy();
     await screen.findByTestId('tiles');
+    expect(text('tile-ongoing')).toContain((vi_ as Record<string, string>)['aud.overview.tile.ongoing']);
+    expect(text('tile-ongoing')).toContain('2');
     expect(text('tile-engagements')).toContain('5');
     expect(text('tile-engagements')).toContain(vi_['aud.overview.tile.engagements.parts'].replace('{ongoing}', '2').replace('{followUp}', '3'));
     expect(within(screen.getByTestId('tile-open')).getByText('7')).toBeTruthy();

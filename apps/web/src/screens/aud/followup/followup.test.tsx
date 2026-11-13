@@ -152,6 +152,29 @@ describe('AUD-09 evidence of the remediation', () => {
     expect(screen.getByRole('link', { name: word('aud.followup.board.link') }).getAttribute('href')).toBe('/aud/aud-07');
   });
 
+  it('says who attached the evidence and when, as the register of evidence keeps them', async () => {
+    openEvidence([
+      boardRecord(1, {
+        actions: [
+          actionRecord(1, {
+            status: 'DONE',
+            completed_on: '2026-11-01',
+            evidence_document_id: DOCUMENT,
+            evidence_attached_by: { id: '00000000-0000-4000-8000-0000000000b1', display_name: 'Chuyên viên An' },
+            evidence_attached_at: '2026-11-01T03:15:00.000Z',
+          }),
+        ],
+      }),
+    ]);
+    const table = await screen.findByTestId('evidence-table');
+    expect(within(table).getByRole('columnheader', { name: word('aud.evidence.column.attachedBy') })).toBeTruthy();
+    expect(within(table).getByRole('columnheader', { name: word('aud.evidence.column.attachedAt') })).toBeTruthy();
+    const row = within(table).getAllByRole('row')[1] as HTMLElement;
+    expect(within(row).getByText('Chuyên viên An')).toBeTruthy();
+    // 03:15 UTC is 10:15 in Vietnam.
+    expect(row.textContent).toContain('10:15');
+  });
+
   it('shows a done action without a day of completion with a dash, and narrows to the engagement of the address', async () => {
     const h = openEvidence(
       [boardRecord(1, { actions: [actionRecord(1, { status: 'DONE', completed_on: null, evidence_document_id: DOCUMENT })] })],
@@ -159,7 +182,8 @@ describe('AUD-09 evidence of the remediation', () => {
       '/aud/aud-09?engagement=00000000-0000-4000-8000-001000000001',
     );
     await screen.findByTestId('evidence-table');
-    expect(screen.getByText('—')).toBeTruthy();
+    // No day of completion, and the server told nobody who attached it nor when: three dashes in the row.
+    expect(screen.getAllByText('—')).toHaveLength(3);
     expect(screen.getByRole('link', { name: word('aud.followup.board.link') }).getAttribute('href')).toBe('/aud/aud-07?engagement=00000000-0000-4000-8000-001000000001');
     await waitFor(() => expect(readAllCalls(h)).toContain('listAuditRecommendations'));
     const asked = (h.client.readAll as unknown as { mock: { calls: Array<[string, { query?: Record<string, string> }]> } }).mock.calls.find((call) => call[0] === 'listAuditRecommendations');

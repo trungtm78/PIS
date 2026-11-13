@@ -78,6 +78,9 @@ function BoardContent({ route }: ScreenProps) {
           <KpiTile label={t('w2iss.aud.board.kpi.late')} value={String(late.length)} tone={late.length > 0 ? 'danger' : 'default'} />
           <KpiTile label={t('w2iss.aud.board.kpi.disputed')} value={String(disputed.length)} tone={disputed.length > 0 ? 'warning' : 'default'} />
         </KpiStrip>
+        <p className="sub" data-testid="board-legend">
+          {t('aud.remediation.board.legend')}
+        </p>
         <div className="aud-board" data-testid="board">
           {BOARD_COLUMNS.map((column) => (
             <Column key={column} column={column} items={inColumn(list.data ?? [], column)} caller={caller} today={today} onDialog={setDialog} />
@@ -116,7 +119,7 @@ function Card({ item, caller, today, onDialog }: { item: BoardItem; caller: Call
   // A recommendation that is past its day needs action; the board does not carry an escalation, so none is marked urgent here.
   const stripe = lateDays(item, today) > 0 ? 'ACTION' : null;
   return (
-    <article className="card aud-card" data-recommendation-id={item.id} {...(stripe === null ? {} : { 'data-stripe': stripe })}>
+    <article className="card aud-card" aria-label={t('aud.remediation.card.label', { code: item.code })} data-recommendation-id={item.id} {...(stripe === null ? {} : { 'data-stripe': stripe })}>
       {stripe === null ? null : <span className="ui-sr-only">{t('ui.dataTable.severityPrefix', { label: t('ui.dataTable.severity.action') })}. </span>}
       <p>
         <StatusPill tone="neutral">{recommendationTypeLabel(t, item.type)}</StatusPill>
@@ -126,7 +129,7 @@ function Card({ item, caller, today, onDialog }: { item: BoardItem; caller: Call
       <dl className="aud-facts">
         <dt>{t('aud.remediation.card.owner')}</dt>
         <dd>{item.ownerUser !== null ? item.ownerUser.name : item.ownerUnit !== null ? item.ownerUnit.name : t('aud.remediation.owner.none')}</dd>
-        <dt>{t('aud.remediation.card.due')}</dt>
+        <dt>{t('aud.remediation.card.dueLate')}</dt>
         <dd>
           <DueDay item={item} today={today} countdown />
         </dd>

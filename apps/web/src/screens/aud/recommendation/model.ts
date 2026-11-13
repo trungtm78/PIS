@@ -47,6 +47,9 @@ export interface ActionItem {
   completedOn: string | null;
   status: ActionStatus;
   evidenceDocumentId: string | null;
+  /** Who put the evidence in the register of evidence, and when; null when the server tells nobody. */
+  evidenceAttachedBy: { id: string; name: string } | null;
+  evidenceAttachedAt: string | null;
   version: number;
 }
 
@@ -64,6 +67,8 @@ export interface BoardItem {
   dueOn: string | null;
   implementationDueOn: string | null;
   status: RecommendationStatus;
+  /** The issue of ISS raised for the recommendation (an overdue one becomes an issue), or null. */
+  linkedIssueId: string | null;
   disputeReason: string | null;
   disputeOutcome: DisputeOutcome | null;
   verificationNote: string | null;
@@ -83,7 +88,20 @@ function toAction(raw: unknown): ActionItem | undefined {
   const status = oneOf(ACTION_STATUSES, row?.status);
   const version = whole(row?.version);
   if (row === undefined || id === undefined || code === undefined || description === undefined || plannedOn === undefined || status === undefined || version === undefined) return undefined;
-  return { id, code, description, plannedOn, completedOn: nullableText(row.completed_on), status, evidenceDocumentId: nullableText(row.evidence_document_id), version };
+  const attacher = asRecord(row.evidence_attached_by);
+  const attacherId = text(attacher?.id);
+  return {
+    id,
+    code,
+    description,
+    plannedOn,
+    completedOn: nullableText(row.completed_on),
+    status,
+    evidenceDocumentId: nullableText(row.evidence_document_id),
+    evidenceAttachedBy: attacherId === undefined ? null : { id: attacherId, name: text(attacher?.display_name) ?? '' },
+    evidenceAttachedAt: nullableText(row.evidence_attached_at),
+    version,
+  };
 }
 
 /** A recommendation the screen cannot read is dropped rather than shown half. */
@@ -115,6 +133,7 @@ export function toBoardItem(raw: unknown): BoardItem | undefined {
     dueOn: nullableText(row.due_on),
     implementationDueOn: nullableText(row.implementation_due_on),
     status,
+    linkedIssueId: nullableText(row.linked_issue_id),
     disputeReason: nullableText(row.dispute_reason),
     disputeOutcome: oneOf(DISPUTE_OUTCOMES, row.dispute_outcome) ?? null,
     verificationNote: nullableText(row.verification_note),

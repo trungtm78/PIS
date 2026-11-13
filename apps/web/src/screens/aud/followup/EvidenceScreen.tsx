@@ -72,6 +72,8 @@ function EvidenceList() {
                 <th scope="col">{t('aud.evidence.column.subject')}</th>
                 <th scope="col">{t('aud.evidence.column.document')}</th>
                 <th scope="col">{t('aud.evidence.column.note')}</th>
+                <th scope="col">{t('aud.evidence.column.attachedBy')}</th>
+                <th scope="col">{t('aud.evidence.column.attachedAt')}</th>
                 <th scope="col">{t('aud.evidence.column.done')}</th>
               </tr>
             </thead>
@@ -87,6 +89,12 @@ function EvidenceList() {
   );
 }
 
+/** A moment of the server as the people of the tenant read it (Vietnam time). */
+const momentOf = (value: string): string => {
+  const at = new Date(value);
+  return Number.isNaN(at.getTime()) ? value : at.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', dateStyle: 'short', timeStyle: 'short' });
+};
+
 function Row({ row }: { row: EvidenceRow }) {
   const { t } = useTranslation();
   return (
@@ -101,6 +109,8 @@ function Row({ row }: { row: EvidenceRow }) {
         <code data-testid="evidence-document">{row.documentId}</code>
       </td>
       <td className="aud-words">{row.note}</td>
+      <td>{row.attachedBy ?? '—'}</td>
+      <td>{row.attachedAt === null ? '—' : momentOf(row.attachedAt)}</td>
       <td>{row.doneOn ?? '—'}</td>
     </tr>
   );

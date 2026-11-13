@@ -136,7 +136,7 @@ function EngagementTable({ engagements }: { engagements: EngagementLine[] }) {
     { key: 'period', header: t('aud.engagements.col.period'), render: (engagement) => t('aud.engagements.period.text', { from: engagement.periodFrom, to: engagement.periodTo }) },
     { key: 'status', header: t('aud.engagements.col.status'), render: (engagement) => <StatusPill tone={engagementTone(engagement.status)}>{engagementStatusLabel(t, engagement.status)}</StatusPill> },
     { key: 'coordinator', header: t('aud.engagements.col.coordinator'), render: (engagement) => engagement.coordinatorName },
-    { key: 'hold', header: t('aud.engagements.col.hold'), render: (engagement) => <StatusPill tone={engagement.holdStatus === 'Active' ? 'warning' : 'neutral'}>{holdStatusLabel(t, engagement.holdStatus)}</StatusPill> },
+    { key: 'hold', header: t('aud.engagements.col.legalHold'), render: (engagement) => <StatusPill tone={engagement.holdStatus === 'Active' ? 'warning' : 'neutral'}>{holdStatusLabel(t, engagement.holdStatus)}</StatusPill> },
   ];
   return <DataTable caption={t('w2iss.aud.engagements.aria')} columns={columns} rows={engagements} rowKey={(engagement) => engagement.id} rowAttrs={(engagement) => ({ 'data-engagement-id': engagement.id })} />;
 }

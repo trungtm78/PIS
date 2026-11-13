@@ -43,7 +43,8 @@ function ReportContent({ route }: ScreenProps) {
   const { t } = useTranslation();
   const { permissions, mode } = useSession();
   const [params] = useSearchParams();
-  const engagementId = params.get('engagement') ?? undefined;
+  // An empty choice (`engagement=`) is none: the person asked to see no engagement.
+  const engagementId = params.get('engagement') || undefined;
   const engagement = useEngagement(engagementId);
   const reports = useReports(engagementId);
   const conclusions = useConclusions(engagementId);
@@ -88,12 +89,16 @@ function ReportContent({ route }: ScreenProps) {
       <p className="callout" data-testid="report-rule">
         {t('aud.report.rule.note')}
       </p>
-      <EngagementPicker selected={engagementId} />
+      <EngagementPicker selected={engagementId} preferred={(status) => reportable({ status })} />
       <StateBoundary state={state} onRetry={() => void Promise.all([engagement.refetch(), reports.refetch()])}>
         {detail === undefined ? (
-          <p className="muted" data-testid="report-choose">
-            {t('aud.report.choose.text')}
-          </p>
+          <>
+            <p className="muted" data-testid="report-choose">
+              {t('aud.report.choose.text')}
+            </p>
+            {/* The columns of the reports of an engagement, with none until one is chosen. */}
+            <Reports reports={[]} />
+          </>
         ) : (
           <>
             <Engagement detail={detail} conclusion={currentOf(conclusions.data ?? [])} />
@@ -141,25 +146,28 @@ function Reports({ reports }: { reports: readonly ReportLine[] }) {
   return (
     <div className="card">
       <h2>{t('aud.report.list.title')}</h2>
-      {reports.length === 0 ? (
-        <p className="muted" data-testid="no-reports">
-          {t('aud.report.list.none')}
-        </p>
-      ) : (
-        <div className="tablewrap">
+      {/* The columns of a report stand before the first one is asked for: what it will freeze is said by them. */}
+      <div className="tablewrap">
           <table>
             <thead>
               <tr>
-                <th>{t('aud.report.col.asOf')}</th>
+                <th>{t('aud.report.col.asOfDate')}</th>
                 <th>{t('aud.report.col.conclusion')}</th>
-                <th>{t('aud.report.col.figures')}</th>
-                <th>{t('aud.report.col.hash')}</th>
-                <th>{t('aud.report.col.status')}</th>
+                <th>{t('aud.report.col.summaryFigures')}</th>
+                <th>{t('aud.report.col.payloadHash')}</th>
+                <th>{t('aud.report.col.docStatus')}</th>
                 <th>{t('aud.report.col.document')}</th>
                 <th>{t('aud.report.col.people')}</th>
               </tr>
             </thead>
             <tbody>
+              {reports.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="muted" data-testid="no-reports">
+                    {t('aud.report.list.none')}
+                  </td>
+                </tr>
+              ) : null}
               {reports.map((report) => (
                 <tr key={report.id} data-report-id={report.id}>
                   <td>
@@ -198,7 +206,6 @@ function Reports({ reports }: { reports: readonly ReportLine[] }) {
             </tbody>
           </table>
         </div>
-      )}
     </div>
   );
 }
