@@ -1,16 +1,16 @@
 {
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
-    "AppBar(": 17,
-    "BoxDecoration(": 14,
-    "Card(": 23,
+    "AppBar(": 8,
+    "BoxDecoration(": 13,
+    "Card(": 16,
     "Colors.": 3,
-    "EdgeInsets-number": 29,
-    "MachvonColors.": 85,
-    "Scaffold(": 26,
-    "TextStyle(": 15,
+    "EdgeInsets-number": 9,
+    "MachvonColors.": 83,
+    "Scaffold(": 17,
+    "TextStyle(": 6,
     "fontSize:": 1,
-    "toStringAsFixed(": 9
+    "toStringAsFixed(": 4
   },
   "files": {
     "lib/editions/enterprise/enterprise_home.dart": {
@@ -46,16 +46,6 @@
       "MachvonColors.": 2
     },
     "lib/features/approval_inbox/decision_flow.dart": {
-      "Card(": 1
-    },
-    "lib/features/attachments/screens/attachments_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 1,
-      "EdgeInsets-number": 4,
-      "Scaffold(": 1,
-      "TextStyle(": 2
-    },
-    "lib/features/command_support/command_flow.dart": {
       "Card(": 1
     },
     "lib/features/conversations/screens/conversation_inbox_screen.dart": {
@@ -105,11 +95,6 @@
       "MachvonColors.": 1,
       "toStringAsFixed(": 1
     },
-    "lib/features/diary_hub/screens/hub_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 1,
-      "Scaffold(": 1
-    },
     "lib/features/directives/screens/directive_list_screen.dart": {
       "Colors.": 1
     },
@@ -119,15 +104,6 @@
       "MachvonColors.": 1,
       "Scaffold(": 3
     },
-    "lib/features/field_evidence/field_place.dart": {
-      "toStringAsFixed(": 3
-    },
-    "lib/features/field_issues/issue_labels.dart": {
-      "toStringAsFixed(": 2
-    },
-    "lib/features/field_quantities/screens/inspection_screen.dart": {
-      "TextStyle(": 3
-    },
     "lib/features/foundation/screens/empty_state_screen.dart": {
       "Scaffold(": 1
     },
@@ -136,26 +112,6 @@
     },
     "lib/features/notification_inbox/screens/notification_preferences_screen.dart": {
       "Card(": 1
-    },
-    "lib/features/offline/screens/conflict_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 1,
-      "EdgeInsets-number": 2,
-      "Scaffold(": 1,
-      "TextStyle(": 1
-    },
-    "lib/features/offline/screens/offline_screen.dart": {
-      "AppBar(": 1,
-      "EdgeInsets-number": 2,
-      "Scaffold(": 1,
-      "TextStyle(": 1
-    },
-    "lib/features/offline/screens/queue_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 2,
-      "EdgeInsets-number": 4,
-      "Scaffold(": 1,
-      "TextStyle(": 2
     },
     "lib/features/permissions/screens/error_screens.dart": {
       "Scaffold(": 2
@@ -214,41 +170,6 @@
     },
     "lib/features/release/screens/release_notice_screen.dart": {
       "Scaffold(": 3
-    },
-    "lib/features/reporting/screens/drafts_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 1,
-      "EdgeInsets-number": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/reporting/screens/funding_screen.dart": {
-      "EdgeInsets-number": 2
-    },
-    "lib/features/reporting/screens/period_screen.dart": {
-      "AppBar(": 1,
-      "EdgeInsets-number": 2,
-      "Scaffold(": 1
-    },
-    "lib/features/reporting/screens/result_screen.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/reporting/screens/review_screen.dart": {
-      "EdgeInsets-number": 1
-    },
-    "lib/features/reporting/widgets/draft_host.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/reporting/widgets/draft_text_field.dart": {
-      "EdgeInsets-number": 1
-    },
-    "lib/features/reporting/widgets/money_field.dart": {
-      "EdgeInsets-number": 1
-    },
-    "lib/features/reporting/widgets/notices.dart": {
-      "BoxDecoration(": 1,
-      "MachvonColors.": 2
     },
     "lib/features/session/flow.dart": {
       "Scaffold(": 1

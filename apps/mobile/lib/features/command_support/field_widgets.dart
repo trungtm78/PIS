@@ -184,7 +184,9 @@ class UploadRow extends StatelessWidget {
                       for (final RowAction action in actions)
                         TapTarget(
                           onTap: action.onPressed,
+                          semanticLabel: action.label,
                           minHeight: MachvonV2Size.actionButton,
+                          minWidth: MachvonV2Size.actionButton,
                           alignment: Alignment.center,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s12),
