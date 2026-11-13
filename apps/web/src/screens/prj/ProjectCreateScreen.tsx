@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
+import { holds } from '../../session/holds';
 import { useSession } from '../../session/SessionContext';
 import { SectionCard, StickyActions } from '../../ui';
 import { useWorkflowSuggestion } from '../pwf/process/hooks';
@@ -44,7 +45,8 @@ function ProjectCreateContent({ route }: ScreenProps) {
   // that registers the project. Without the right to start a workflow, or without a planned start, the project is registered as it always was and the workflow starts later (PWF-05).
   // The section belongs to the public edition (the product it was asked for); another edition keeps the registration screen it has.
   const edition = useEdition();
-  const seesKinds = edition.manifest.edition === 'public' && (permissions ?? []).includes('pwf.read');
+  // A session that lists no permissions is unknown, not empty (session/holds): the section is shown and the read of the suggestion, which the server judges, says the rest. A session that lists them and has no `pwf.read` sees no section.
+  const seesKinds = edition.manifest.edition === 'public' && holds(permissions, 'pwf.read');
   const [choice, setChoice] = useState<ChoiceForm>(EMPTY_CHOICE);
   const [choiceChecked, setChoiceChecked] = useState(false);
   const [withWorkflow, setWithWorkflow] = useState(false);
