@@ -62,6 +62,12 @@
 .ctr-facts dd {
   overflow-wrap: anywhere;
 }
+/* On a phone a long name of a fact would take the whole row and push its figure off the page: the name wraps inside half of the row and the figure keeps the rest. */
+@media (max-width: 640px) {
+  .ctr-facts {
+    grid-template-columns: fit-content(50%) minmax(0, 1fr);
+  }
+}
 .ctr-amount {
   text-align: right;
   font-variant-numeric: tabular-nums;
