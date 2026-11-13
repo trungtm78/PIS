@@ -1,5 +1,5 @@
 # STATUS: NOT RUN. Written against the screens MOB-78 to MOB-82 (lane pwfmob); it has not been run on an emulator or a device yet.
-# Supports: TC-UAT-PWF-15 (my tasks by deadline, the task, my score) and TC-UAT-PWF-OFF-01 (a command sent again after the task changed).
+# Supports: AC-ST-MOB-040-3 (the work of the person offline), TC-UAT-PWF-15 (my tasks by deadline, the task, my score) and TC-UAT-PWF-OFF-01 (a command sent again after the task changed).
 # Needs: a build installed on the device, a signed-in session (run 05_sign_in.yaml first) of a tenant with a project that has a workflow and a task
 # assigned to the user, Vietnamese interface. The offline half needs the airplane mode, which Maestro sets with the commands below.
 # Run:   maestro test --format junit --output results/<device>/40_workflow.xml flows/40_project_workflow.yaml

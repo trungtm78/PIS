@@ -46,13 +46,14 @@ void main() {
   final List<File> scripts = _files('qa/device/scripts', '.sh');
 
   group('AC-ST-MOB-040-1 AC-ST-MOB-040-2 AC-ST-MOB-040-3 TK-MOB-040-1 the device flows and scripts are marked as not run and stay in step with the application', () {
-    test('there are flows for sign-in (against a real provider and against the test provider of the e2e stack), the tabs, the cold start and the flapping case, and scripts for the cold start and the audit', () {
+    test('there are flows for sign-in (against a real provider and against the test provider of the e2e stack), the tabs, the cold start, the flapping case and the workflow of a project, and scripts for the cold start and the audit', () {
       expect(flows.map((File f) => f.uri.pathSegments.last), <String>[
         '05_sign_in.yaml',
         '06_sign_in_test_idp.yaml',
         '10_core_tabs_traversal.yaml',
         '20_cold_start_main_content.yaml',
         '30_flapping_and_kill_during_submit.yaml',
+        '40_project_workflow.yaml',
       ]);
       expect(scripts.map((File f) => f.uri.pathSegments.last), <String>['android_a11y_audit.sh', 'run_cold_start_samples.sh']);
     });
