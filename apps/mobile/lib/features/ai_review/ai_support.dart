@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/colors.dart';
+import '../../core/theme/typography.dart';
+import '../../core/widgets/state_view.dart';
+import '../../core/widgets/tap_target.dart';
 import '../read_support/widgets.dart';
 import 'ai_models.dart';
 
@@ -11,17 +15,68 @@ class AiNotice extends StatelessWidget {
   const AiNotice({super.key});
 
   @override
+  Widget build(BuildContext context) => StatusBanner(text: context.t('mob.ai.notice.text'), icon: Icons.auto_awesome_outlined);
+}
+
+/// The shape and the tone of what the model proposed, so that the verdict is never told by colour alone: a glyph, the words and the tone.
+({IconData icon, MachvonTone tone}) findingTone(String status) {
+  switch (status) {
+    case 'SUPPORTED':
+      return (icon: Icons.check_circle_outline, tone: MachvonTone.success);
+    case 'CONTRADICTED':
+      return (icon: Icons.error_outline, tone: MachvonTone.danger);
+    case 'MISSING':
+      return (icon: Icons.help_outline, tone: MachvonTone.warning);
+    default:
+      return (icon: Icons.hourglass_empty, tone: MachvonTone.info);
+  }
+}
+
+/// A row of a list of this feature: a title, the lines under it and, when it opens something, the chevron. At least 64 high, one tap
+/// target, read as one button with [semanticLabel].
+class AiRow extends StatelessWidget {
+  const AiRow({required this.title, this.subtitle, this.caption, this.onTap, this.semanticLabel, this.dividerAbove = true, super.key});
+
+  final String title;
+  final String? subtitle;
+  final String? caption;
+  final VoidCallback? onTap;
+  final String? semanticLabel;
+  final bool dividerAbove;
+
+  @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      color: MachvonColors.primarySoft,
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text text = context.v2text;
+    final Widget content = ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: MachvonV2Size.rowMinHeight),
       child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space12),
-        child: Semantics(
-          container: true,
-          child: Text(context.t('mob.ai.notice.text'), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: MachvonColors.ink)),
+        padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(title, style: text.bodyStrong),
+                  if (subtitle != null) Text(subtitle!, style: text.body),
+                  if (caption != null) Text(caption!, style: text.caption.copyWith(color: v2.palette.ink2)),
+                ],
+              ),
+            ),
+            if (onTap != null) ExcludeSemantics(child: Icon(Icons.chevron_right, color: v2.palette.ink2)),
+          ],
         ),
       ),
+    );
+    final Widget row = onTap == null
+        ? Semantics(container: true, label: semanticLabel, excludeSemantics: semanticLabel != null, child: content)
+        : TapTarget(onTap: onTap, semanticLabel: semanticLabel, radius: 0, child: SizedBox(width: double.infinity, child: content));
+    if (!dividerAbove) return row;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[SizedBox(height: 1, child: ColoredBox(color: v2.palette.line)), row],
     );
   }
 }
@@ -97,5 +152,5 @@ class Pills extends StatelessWidget {
   final List<StatusPill> pills;
 
   @override
-  Widget build(BuildContext context) => Wrap(spacing: MachvonSpace.space8, runSpacing: MachvonSpace.space4, children: pills);
+  Widget build(BuildContext context) => Wrap(spacing: MachvonV2Space.s8, runSpacing: MachvonV2Space.s4, children: pills);
 }
