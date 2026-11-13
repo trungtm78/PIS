@@ -40,7 +40,7 @@ class FormSection extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Semantics(header: true, child: Text(title, style: text.heading)),
+                Semantics(container: true, header: true, child: Text(title, style: text.heading)),
                 if (caption != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(caption!, style: text.caption.copyWith(color: v2.palette.ink2))),
               ],
             ),

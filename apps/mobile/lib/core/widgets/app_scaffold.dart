@@ -46,6 +46,7 @@ class AppTopBar extends StatelessWidget {
           if (title != null)
             Expanded(
               child: Semantics(
+                container: true,
                 header: true,
                 child: Text(title!, style: context.v2text.label.copyWith(color: onHeader ? v2.palette.onHeader2 : v2.palette.ink2), maxLines: 1, overflow: TextOverflow.ellipsis),
               ),
@@ -99,7 +100,9 @@ class LargeTitleHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          // A node of its own: without it the heading flag and the line under it merge into one heading (UAT 2026-11-13).
           Semantics(
+            container: true,
             header: true,
             child: Text(
               title,
@@ -110,7 +113,7 @@ class LargeTitleHeader extends StatelessWidget {
           if (subtitle != null)
             Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(subtitle!, style: text.caption.copyWith(color: onHeader ? v2.palette.onHeader2 : v2.palette.ink2)),
+              child: Semantics(container: true, child: Text(subtitle!, style: text.caption.copyWith(color: onHeader ? v2.palette.onHeader2 : v2.palette.ink2))),
             ),
         ],
       ),

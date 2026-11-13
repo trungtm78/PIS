@@ -178,7 +178,7 @@ class _Waiting extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Semantics(header: true, child: Text('${command.payload?['title'] ?? ''}', style: text.title)),
+                    Semantics(container: true, header: true, child: Text('${command.payload?['title'] ?? ''}', style: text.title)),
                     const SizedBox(height: MachvonV2Space.s8),
                     Semantics(liveRegion: true, child: StatusPill(label: stateLabel(context, command.state), warn: rejected)),
                   ],
@@ -336,7 +336,7 @@ class _IssueBodyState extends ConsumerState<_IssueBody> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Semantics(header: true, child: Text(issue.title, style: text.title)),
+                      Semantics(container: true, header: true, child: Text(issue.title, style: text.title)),
                       const SizedBox(height: MachvonV2Space.s8),
                       Wrap(
                         spacing: MachvonV2Space.s8,

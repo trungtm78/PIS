@@ -208,7 +208,7 @@ class _DetailState extends ConsumerState<_Detail> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Semantics(header: true, child: Text(titleOf(context, item), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+              Semantics(container: true, header: true, child: Text(titleOf(context, item), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
               const SizedBox(height: MachvonV2Space.s8),
               Wrap(spacing: MachvonV2Space.s8, children: <Widget>[StatusPill(label: stateLabel(context, item), warn: item.needsAction)]),
             ],

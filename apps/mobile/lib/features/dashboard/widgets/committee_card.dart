@@ -498,7 +498,7 @@ class _AttentionList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Semantics(header: true, child: Text(context.t('mob.home.committee.attention.title'), style: theme.textTheme.titleSmall)),
+        Semantics(container: true, header: true, child: Text(context.t('mob.home.committee.attention.title'), style: theme.textTheme.titleSmall)),
         const SizedBox(height: MachvonSpace.space4),
         if (items.isEmpty)
           Text(context.t('mob.home.committee.attention.none'))
@@ -553,7 +553,7 @@ class _AlertList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Semantics(header: true, child: Text(context.t('mob.home.committee.alerts.title'), style: theme.textTheme.titleSmall)),
+        Semantics(container: true, header: true, child: Text(context.t('mob.home.committee.alerts.title'), style: theme.textTheme.titleSmall)),
         const SizedBox(height: MachvonSpace.space4),
         if (shown.isEmpty)
           Text(context.t('mob.home.committee.alerts.none'))

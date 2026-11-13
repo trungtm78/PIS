@@ -125,7 +125,7 @@ class _Header extends StatelessWidget {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s8, MachvonV2Space.s16, MachvonV2Space.s12),
-          child: Semantics(header: true, child: Text(title.isEmpty ? detail.code : '${detail.code} · $title', style: context.v2text.title)),
+          child: Semantics(container: true, header: true, child: Text(title.isEmpty ? detail.code : '${detail.code} · $title', style: context.v2text.title)),
         ),
         InfoRow(label: context.t('mob.prc.info.project'), value: detail.projectName == null ? detail.projectCode : '${detail.projectCode} · ${detail.projectName}'),
         InfoRow(label: context.t('mob.prc.info.unit'), value: detail.unitName),

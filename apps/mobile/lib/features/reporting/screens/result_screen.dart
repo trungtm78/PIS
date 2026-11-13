@@ -94,6 +94,7 @@ class ResultBody extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s8),
                 child: Semantics(
+                  container: true,
                   header: true,
                   liveRegion: true,
                   child: Row(

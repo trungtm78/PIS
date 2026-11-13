@@ -76,7 +76,7 @@ class _Body extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: <Widget>[
-                    Semantics(header: true, child: Text(context.t('mob.prj.issues.week.label', <String, Object>{'week': matrix.week}), style: theme.textTheme.titleMedium)),
+                    Semantics(container: true, header: true, child: Text(context.t('mob.prj.issues.week.label', <String, Object>{'week': matrix.week}), style: theme.textTheme.titleMedium)),
                     if (matrix.from.isNotEmpty) Text(context.t('mob.prj.issues.week.range', <String, Object>{'from': asOfLabel(matrix.from), 'to': asOfLabel(matrix.to)}), style: theme.textTheme.bodySmall),
                   ],
                 ),

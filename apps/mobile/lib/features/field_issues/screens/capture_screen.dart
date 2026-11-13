@@ -384,7 +384,7 @@ class _ChoiceChips extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Semantics(header: true, child: Text(label, style: text.label.copyWith(color: v2.palette.ink2))),
+          Semantics(container: true, header: true, child: Text(label, style: text.label.copyWith(color: v2.palette.ink2))),
           FilterChips<String>(
             padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
             options: <ChipOption<String>>[for (final Choice choice in options) ChipOption<String>(value: choice.id, label: choice.label)],

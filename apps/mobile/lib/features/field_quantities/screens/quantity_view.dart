@@ -127,7 +127,7 @@ class QuantityEntryView extends StatelessWidget {
                   runSpacing: MachvonV2Space.s4,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: <Widget>[
-                    Semantics(header: true, child: Text(contractLabel, style: text.title)),
+                    Semantics(container: true, header: true, child: Text(contractLabel, style: text.title)),
                     StatusPill(label: contractStatus),
                   ],
                 ),

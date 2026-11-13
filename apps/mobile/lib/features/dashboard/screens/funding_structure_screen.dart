@@ -155,7 +155,7 @@ class _SourceCardView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Semantics(header: true, child: Text(_category(context, card.category), style: theme.textTheme.bodyLarge)),
+          Semantics(container: true, header: true, child: Text(_category(context, card.category), style: theme.textTheme.bodyLarge)),
           _Amount(vnd: card.vnd),
           if (card.count > 0) Text(context.t('mob.home.funding.card.count', <String, Object>{'count': card.count}), style: theme.textTheme.bodySmall),
           if (subset != null)
@@ -199,7 +199,7 @@ class _OriginCardView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Semantics(header: true, child: Text(_origin(context, card.origin), style: theme.textTheme.bodyLarge)),
+          Semantics(container: true, header: true, child: Text(_origin(context, card.origin), style: theme.textTheme.bodyLarge)),
           _Amount(vnd: card.vnd),
           if (card.count > 0) Text(context.t('mob.home.funding.card.count', <String, Object>{'count': card.count}), style: theme.textTheme.bodySmall),
         ],

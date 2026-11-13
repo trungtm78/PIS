@@ -217,7 +217,7 @@ class _PwfPreferenceFormState extends ConsumerState<PwfPreferenceForm> {
         const SizedBox(height: MachvonV2Space.s8),
         TextField(controller: _reminders, readOnly: locked, onChanged: (String _) => setState(() {}), decoration: InputDecoration(labelText: context.t('mob.pwf.pref.reminders'), helperText: context.t('mob.pwf.pref.reminders.help'))),
         const SizedBox(height: MachvonV2Space.s16),
-        Semantics(header: true, child: Text(context.t('mob.pwf.pref.preview'), style: text.heading)),
+        Semantics(container: true, header: true, child: Text(context.t('mob.pwf.pref.preview'), style: text.heading)),
         const SizedBox(height: MachvonV2Space.s8),
         if (problem != null || red == null || yellow == null)
           Text(_problemText(context, problem) ?? context.t('mob.pwf.pref.preview.none'), style: text.body.copyWith(color: v2.palette.lateFg))

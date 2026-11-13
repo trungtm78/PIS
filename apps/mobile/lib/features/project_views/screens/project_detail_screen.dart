@@ -130,7 +130,7 @@ class _Header extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Semantics(header: true, child: Text('${line.code} · ${line.name}', style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+          Semantics(container: true, header: true, child: Text('${line.code} · ${line.name}', style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
           const SizedBox(height: MachvonV2Space.s8),
           Wrap(
             spacing: MachvonV2Space.s8,

@@ -571,6 +571,7 @@ class _DiaryBodyState extends ConsumerState<_DiaryBody>
               child: Column(
                 children: <Widget>[
                   Semantics(
+                    container: true,
                     header: true,
                     child: Text(
                       context.t('mob.dry.diary.day.label', <String, Object>{'day': formatDay(widget.recordDate)}),

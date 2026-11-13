@@ -174,6 +174,7 @@ class FigureInfoSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Semantics(
+              container: true,
               header: true,
               child: Text(info.name, style: theme.textTheme.titleMedium),
             ),

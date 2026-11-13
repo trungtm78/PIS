@@ -279,7 +279,7 @@ class _TileCardState extends ConsumerState<TileCard> {
       if (line) LineSketch(values: values, area: widget.tile.kind == WidgetKind.area),
       if (current.children.isNotEmpty && widget.tile.kind != WidgetKind.kpi) ...<Widget>[
         const SizedBox(height: MachvonV2Space.s12),
-        if (current.dimension != null) Semantics(header: true, child: Text(dimensionLabel(context, current.dimension!), style: text.label)),
+        if (current.dimension != null) Semantics(container: true, header: true, child: Text(dimensionLabel(context, current.dimension!), style: text.label)),
         for (final Group group in shown) _GroupRow(group: group, unit: unit, fraction: bars ? fractionOf(double.tryParse(group.figure.value ?? '') ?? 0, widest) : null, negative: (double.tryParse(group.figure.value ?? '') ?? 0) < 0, onDrill: _fromCopy || group.drillToken == null || _explaining ? null : () => setState(() => _choosing = group)),
         if (current.children.length > tileRowsShown)
           Align(

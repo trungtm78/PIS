@@ -241,7 +241,7 @@ class _Passages extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Semantics(header: true, child: Text(context.t('mob.ai.qa.answer.title', <String, Object>{'count': passages.length}), style: text.heading)),
+        Semantics(container: true, header: true, child: Text(context.t('mob.ai.qa.answer.title', <String, Object>{'count': passages.length}), style: text.heading)),
         Text(context.t('mob.ai.qa.answer.note'), style: text.caption),
         const SizedBox(height: MachvonV2Space.s8),
         for (final Passage passage in passages) ...<Widget>[

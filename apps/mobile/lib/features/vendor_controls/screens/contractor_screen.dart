@@ -95,7 +95,7 @@ class _BodyState extends State<_Body> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Semantics(header: true, child: Text(risk.name, style: text.title)),
+              Semantics(container: true, header: true, child: Text(risk.name, style: text.title)),
               const SizedBox(height: MachvonV2Space.s4),
               Text(context.t('mob.vnd.list.readonly'), style: text.caption),
             ],

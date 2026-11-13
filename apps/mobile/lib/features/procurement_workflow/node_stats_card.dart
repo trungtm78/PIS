@@ -90,17 +90,17 @@ class _NodeStatsCardState extends State<NodeStatsCard> {
           Text(context.t('mob.prc.node.noDays'), style: text.caption),
         if (one.topOwners.isNotEmpty) ...<Widget>[
           const SizedBox(height: MachvonV2Space.s8),
-          Semantics(header: true, child: Text(context.t('mob.prc.node.owners'), style: text.heading)),
+          Semantics(container: true, header: true, child: Text(context.t('mob.prc.node.owners'), style: text.heading)),
           for (final PrcTopOwner owner in one.topOwners.take(kPrcNodeStatsShown)) Text(context.t('mob.prc.node.owner.line', <String, Object>{'name': owner.name, 'count': owner.count}), style: text.body),
         ],
         if (one.unfinished.isNotEmpty) ...<Widget>[
           const SizedBox(height: MachvonV2Space.s8),
-          Semantics(header: true, child: Text(context.t('mob.prc.node.unfinished'), style: text.heading)),
+          Semantics(container: true, header: true, child: Text(context.t('mob.prc.node.unfinished'), style: text.heading)),
           for (final PrcUnfinishedItem item in one.unfinished.take(kPrcNodeStatsShown)) Text(context.t('mob.prc.node.unfinished.line', <String, Object>{'name': item.label, 'count': item.count}), style: text.body),
         ],
         if (one.weeks.isNotEmpty) ...<Widget>[
           const SizedBox(height: MachvonV2Space.s8),
-          Semantics(header: true, child: Text(context.t('mob.prc.node.weeks'), style: text.heading)),
+          Semantics(container: true, header: true, child: Text(context.t('mob.prc.node.weeks'), style: text.heading)),
           for (final PrcWeek week in one.weeks.reversed.take(kPrcNodeStatsShown).toList().reversed)
             Text(context.t('mob.prc.node.week.line', <String, Object>{'day': formatDay(week.weekOf), 'in': week.arrivals, 'out': week.departures}), style: text.body),
         ],

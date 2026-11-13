@@ -573,7 +573,7 @@ class _Header extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Semantics(header: true, child: Text(detail.name, style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+          Semantics(container: true, header: true, child: Text(detail.name, style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
           const SizedBox(height: MachvonV2Space.s4),
           Text(
             <String>[detail.code, if (detail.isMilestone) context.t('mob.pwf.header.milestone'), if (detail.mandatory) context.t('mob.pwf.header.required')].join(' · '),

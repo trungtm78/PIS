@@ -718,6 +718,42 @@ void main() {
       final Text title = tester.widget<Text>(find.text('Việc hôm nay'));
       expect(title.textScaler!.scale(MachvonV2Type.display.size), closeTo(MachvonV2Type.display.size * MachvonV2Type.displayScaleCap, 0.01));
     });
+
+    // UAT 2026-11-13: a heading flag without its own node merged the line under it into the heading, which a screen reader then announced as one heading.
+    testWidgets('the large title and the top bar title are heading nodes of their own; the line under the large title is not part of the heading', (WidgetTester tester) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      // As a screen lays them out: each child of a list is a semantics node of its own, into which a heading flag without a node of its own merges.
+      await pumpV2(tester, ListView(children: const <Widget>[AppTopBar(title: 'DA-CB-017', showBack: false), LargeTitleHeader(title: 'Cá nhân', subtitle: 'Cao Bằng · Cán bộ'), Text('Nhắc hạn việc')]));
+      for (final String heading in <String>['DA-CB-017', 'Cá nhân']) {
+        final SemanticsData data = _node(tester, find.text(heading)).getSemanticsData();
+        expect(data.label, heading);
+        expect(data.flagsCollection.isHeader, isTrue);
+      }
+      final SemanticsData line = _node(tester, find.text('Cao Bằng · Cán bộ')).getSemanticsData();
+      expect(line.label, isNot(contains('Cá nhân')));
+      expect(line.flagsCollection.isHeader, isFalse);
+      semantics.dispose();
+    });
+
+    testWidgets('the title of a sheet is a heading node of its own, apart from the facts under it', (WidgetTester tester) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      await pumpV2(
+        tester,
+        Builder(
+          builder: (BuildContext context) => TextButton(
+            onPressed: () => showActionSheet<void>(context, title: 'Hoàn thành việc', builder: (_) => const Text('Việc chuyển sang chờ duyệt')),
+            child: const Text('mở'),
+          ),
+        ),
+      );
+      await tester.tap(find.text('mở'));
+      await tester.pumpAndSettle();
+      final SemanticsData title = _node(tester, find.text('Hoàn thành việc')).getSemanticsData();
+      expect(title.label, 'Hoàn thành việc');
+      expect(title.flagsCollection.isHeader, isTrue);
+      expect(_node(tester, find.text('Việc chuyển sang chờ duyệt')).getSemanticsData().flagsCollection.isHeader, isFalse);
+      semantics.dispose();
+    });
   });
 
   group('the dark mode draws every widget without an error and with the dark palette', () {

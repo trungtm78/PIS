@@ -275,6 +275,7 @@ class _UnitBlock extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Semantics(
+                container: true,
                 header: true,
                 child: Text(label, style: theme.textTheme.titleSmall),
               ),
@@ -414,6 +415,7 @@ class _UnitBlock extends StatelessWidget {
                 )
               else ...<Widget>[
                 Semantics(
+                  container: true,
                   header: true,
                   child: Text(
                     context.t('mob.home.rag.reasons.title'),

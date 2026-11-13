@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -138,6 +139,19 @@ void main() {
 
       final Uri read = server.callsTo('GET', '/home/my-work').single.url;
       expect(read.queryParameters['view'], 'scope', reason: 'a leader reads the whole scope');
+    });
+
+    // The device flow 20 and the cold-start script wait for this heading by its whole text, and a screen reader jumps to it by heading.
+    testWidgets('the heading of the alerts is a heading node of its own, with no other text in it', (WidgetTester tester) async {
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _healthy(server);
+      await _open(tester, server, '/home');
+      final SemanticsData heading = tester.getSemantics(find.text('Cần bạn quyết định')).getSemanticsData();
+      expect(heading.label, 'Cần bạn quyết định');
+      expect(heading.flagsCollection.isHeader, isTrue);
+      semantics.dispose();
     });
 
     testWidgets('a row says the deadline with its shape, its words and its day; the sheet of the alert has the level, the source, the owner and what follows', (WidgetTester tester) async {

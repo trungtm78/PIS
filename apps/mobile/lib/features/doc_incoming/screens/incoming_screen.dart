@@ -444,7 +444,7 @@ class _LetterHead extends StatelessWidget {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s8),
-          child: Semantics(header: true, child: Text(letter.title, style: text.heading)),
+          child: Semantics(container: true, header: true, child: Text(letter.title, style: text.heading)),
         ),
         InfoRow(label: context.t('mob.docin.letter.status'), value: statusLabel(context, letter.status), divider: false),
         InfoRow(label: context.t('mob.docin.letter.urgency'), value: urgencyLabel(context, letter.urgency)),

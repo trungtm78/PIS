@@ -249,7 +249,8 @@ class _AlertsPanelState extends ConsumerState<AlertsPanel> {
             padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s8),
             child: Row(
               children: <Widget>[
-                Expanded(child: Semantics(header: true, child: Text(widget.title ?? context.t('mob.alert.list.title.label'), style: text.heading))),
+                // A node of its own: the heading flag would otherwise merge the texts of the panel into one heading (UAT 2026-11-13).
+                Expanded(child: Semantics(container: true, header: true, child: Text(widget.title ?? context.t('mob.alert.list.title.label'), style: text.heading))),
                 if (counted && widget.showSeeAll && !feed.isEmpty)
                   TextButton(onPressed: () => openScreen(context, 'MOB-32', query: const <String, String>{'tab': 'work'}), child: Text(context.t('mob.alert.list.seeAll.action'))),
               ],

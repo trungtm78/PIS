@@ -72,7 +72,7 @@ class _Guide extends ConsumerWidget {
     final String queueLabel = context.t('mob.offline.queue.link.action', <String, Object>{'count': waiting});
     Widget heading(String title) => Padding(
           padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s24, MachvonV2Space.s16, MachvonV2Space.s8),
-          child: Semantics(header: true, child: Text(title, style: text.heading)),
+          child: Semantics(container: true, header: true, child: Text(title, style: text.heading)),
         );
     Widget bullet(String line) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s4),

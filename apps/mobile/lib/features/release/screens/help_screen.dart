@@ -147,7 +147,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                       Semantics(liveRegion: true, child: Text(context.t('mob.help.refused.text', <String, Object>{'code': _refusal!}), style: text.body.copyWith(color: p.lateFg))),
                     ],
                     const SizedBox(height: MachvonV2Space.s16),
-                    Semantics(header: true, child: Text(context.t('mob.help.topic.label'), style: text.label)),
+                    Semantics(container: true, header: true, child: Text(context.t('mob.help.topic.label'), style: text.label)),
                     // The topics scroll sideways like every row of chips; while a ticket is being sent a tap changes nothing.
                     FilterChips<String>(
                       padding: EdgeInsets.zero,
@@ -213,7 +213,7 @@ class _Sent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Semantics(header: true, liveRegion: true, child: Text(context.t('mob.help.sent.title'), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+          Semantics(container: true, header: true, liveRegion: true, child: Text(context.t('mob.help.sent.title'), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
           const SizedBox(height: MachvonV2Space.s8),
           Text(context.t('mob.help.sent.body'), style: text.body),
           const SizedBox(height: MachvonV2Space.s8),

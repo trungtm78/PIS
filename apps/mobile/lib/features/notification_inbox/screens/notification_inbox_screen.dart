@@ -319,7 +319,7 @@ class _FilterSheetState extends State<_FilterSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Semantics(header: true, child: Text(context.t('mob.ntf.inbox.priority.label'), style: text.label)),
+        Semantics(container: true, header: true, child: Text(context.t('mob.ntf.inbox.priority.label'), style: text.label)),
         FilterChips<String?>(
           padding: none,
           options: <ChipOption<String?>>[
@@ -331,7 +331,7 @@ class _FilterSheetState extends State<_FilterSheet> {
         ),
         if (widget.types.isNotEmpty) ...<Widget>[
           const SizedBox(height: MachvonV2Space.s12),
-          Semantics(header: true, child: Text(context.t('mob.ntf.inbox.type.label'), style: text.label)),
+          Semantics(container: true, header: true, child: Text(context.t('mob.ntf.inbox.type.label'), style: text.label)),
           FilterChips<String?>(
             padding: none,
             options: <ChipOption<String?>>[

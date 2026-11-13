@@ -132,7 +132,7 @@ class _AttachmentsScreenState extends ConsumerState<AttachmentsScreen> {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(MachvonV2Space.s16),
-                    child: Semantics(header: true, child: Text(context.t('mob.attach.summary.label', <String, Object>{'count': shown.length}), style: context.v2text.heading)),
+                    child: Semantics(container: true, header: true, child: Text(context.t('mob.attach.summary.label', <String, Object>{'count': shown.length}), style: context.v2text.heading)),
                   ),
                   for (int i = 0; i < shown.length; i += 1) _UploadTile(key: ValueKey<String>(shown[i].id), upload: shown[i], first: i == 0, onResume: () => _resume(shown[i]), onCancel: () => _cancel(shown[i])),
                 ],

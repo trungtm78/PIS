@@ -136,6 +136,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                   children: <Widget>[
                     if (person != null) ...<Widget>[
                       Semantics(
+                        container: true,
                         header: true,
                         child: Text(person.displayName, style: text.title),
                       ),
@@ -392,6 +393,7 @@ class _Choice extends StatelessWidget {
             right: MachvonV2Space.s16,
           ),
           child: Semantics(
+            container: true,
             header: true,
             child: Text(label, style: context.v2text.label),
           ),

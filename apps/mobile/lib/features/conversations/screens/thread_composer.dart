@@ -90,7 +90,7 @@ class _ThreadComposerState extends State<ThreadComposer> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Semantics(header: true, child: Text(_external ? context.t('mob.conv.composer.send.title') : context.t('mob.conv.composer.note.title'), style: text.heading)),
+                Semantics(container: true, header: true, child: Text(_external ? context.t('mob.conv.composer.send.title') : context.t('mob.conv.composer.note.title'), style: text.heading)),
                 if (widget.gate == ExternalGate.open)
                   SwitchRow(label: context.t('mob.conv.composer.note.switch'), value: _note, onChanged: widget.sending ? null : (bool value) => setState(() => _note = value))
                 else

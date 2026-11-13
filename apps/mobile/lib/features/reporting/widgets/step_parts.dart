@@ -41,7 +41,7 @@ class StepHeading extends StatelessWidget {
         if (!first) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Divider(height: 1, thickness: 1, color: v2.palette.line)),
         Padding(
           padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s12, MachvonV2Space.s16, MachvonV2Space.s4),
-          child: Semantics(header: true, child: Text(title, style: context.v2text.heading)),
+          child: Semantics(container: true, header: true, child: Text(title, style: context.v2text.heading)),
         ),
       ],
     );

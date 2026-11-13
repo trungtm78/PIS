@@ -66,7 +66,7 @@ class _TreeBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Semantics(header: true, child: Text(context.t('mob.prc.tree.total', <String, Object>{'count': tree.totalCount}), style: text.title)),
+              Semantics(container: true, header: true, child: Text(context.t('mob.prc.tree.total', <String, Object>{'count': tree.totalCount}), style: text.title)),
               Text(context.t('mob.prc.tree.period', <String, Object>{'from': formatDay(tree.periodFrom), 'to': formatDay(tree.periodTo)}), style: text.caption),
               if (tree.truncated) Text(context.t('mob.prc.tree.truncated'), style: text.caption),
             ],

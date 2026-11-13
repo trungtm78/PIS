@@ -206,7 +206,7 @@ class _PermissionCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Semantics(header: true, child: Text(_title(context), style: text.heading)),
+              Semantics(container: true, header: true, child: Text(_title(context), style: text.heading)),
               const SizedBox(height: MachvonV2Space.s8),
               Text(_why(context), style: text.body),
               const SizedBox(height: MachvonV2Space.s8),

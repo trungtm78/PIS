@@ -92,7 +92,7 @@ class InspectionEntryView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Semantics(header: true, child: Text(contractLabel, style: text.title)),
+                    Semantics(container: true, header: true, child: Text(contractLabel, style: text.title)),
                     const SizedBox(height: MachvonV2Space.s8),
                     if (inspections.length > 1)
                       DropdownButtonFormField<String>(
@@ -154,7 +154,7 @@ class InspectionEntryView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Semantics(header: true, child: Text(item.label, style: text.bodyStrong)),
+                  Semantics(container: true, header: true, child: Text(item.label, style: text.bodyStrong)),
                   const SizedBox(height: MachvonV2Space.s8),
                   _ChoiceRow(
                     values: kOutcomes,

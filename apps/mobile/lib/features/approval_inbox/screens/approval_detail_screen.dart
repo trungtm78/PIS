@@ -105,7 +105,7 @@ class _DetailBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Semantics(header: true, child: Text(businessTypeLabel(context, task.businessType), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+                    Semantics(container: true, header: true, child: Text(businessTypeLabel(context, task.businessType), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
                     if (task.amountVnd != null)
                       Padding(
                         padding: const EdgeInsets.only(top: MachvonV2Space.s4),

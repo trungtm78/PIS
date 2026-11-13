@@ -155,7 +155,7 @@ class _SummaryState extends State<_Summary> {
     final DirectiveSummary? summary = list.summary;
     final Widget heading = Padding(
       padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s8),
-      child: Semantics(header: true, child: Text(context.t('mob.dir.list.summary.title'), style: text.heading)),
+      child: Semantics(container: true, header: true, child: Text(context.t('mob.dir.list.summary.title'), style: text.heading)),
     );
     if (summary == null) {
       return Column(

@@ -25,7 +25,7 @@ class SectionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MachvonV2 v2 = context.v2;
-    final Widget heading = Semantics(header: true, child: Text(title, style: context.v2text.heading));
+    final Widget heading = Semantics(container: true, header: true, child: Text(title, style: context.v2text.heading));
     return Semantics(
       container: true,
       label: semanticLabel,

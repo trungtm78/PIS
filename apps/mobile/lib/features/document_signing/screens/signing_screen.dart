@@ -502,7 +502,7 @@ class _DocumentHeader extends StatelessWidget {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s8),
-          child: Semantics(header: true, child: Text(document.title, style: text.heading)),
+          child: Semantics(container: true, header: true, child: Text(document.title, style: text.heading)),
         ),
         if (document.isLeaderSigned || document.isSubmitted)
           StageStrip(

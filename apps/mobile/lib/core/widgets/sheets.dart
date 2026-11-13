@@ -55,7 +55,7 @@ class ActionSheet extends StatelessWidget {
               if (title != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: MachvonV2Space.s12),
-                  child: Semantics(header: true, child: Text(title!, style: context.v2text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+                  child: Semantics(container: true, header: true, child: Text(title!, style: context.v2text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
                 ),
               child,
             ],

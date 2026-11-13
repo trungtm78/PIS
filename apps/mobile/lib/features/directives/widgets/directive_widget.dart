@@ -147,6 +147,7 @@ class DirectiveWidgetCard extends StatelessWidget {
           )
         else ...<Widget>[
           Semantics(
+            container: true,
             header: true,
             child: Text(
               context.t('mob.dir.widget.items.label'),

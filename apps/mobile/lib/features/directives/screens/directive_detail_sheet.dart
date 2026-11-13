@@ -41,6 +41,7 @@ class DirectiveDetailSheet extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Semantics(
+                container: true,
                 header: true,
                 child: Text(context.t('mob.dir.detail.title', <String, Object>{'code': line.code}), style: context.v2text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap)),
               ),

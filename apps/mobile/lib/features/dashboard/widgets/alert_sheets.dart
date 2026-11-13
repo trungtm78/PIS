@@ -181,7 +181,7 @@ class _SnoozeSheetState extends ConsumerState<_SnoozeSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Semantics(header: true, child: Text(context.t('mob.alert.snooze.sheet.title'), style: theme.textTheme.titleMedium)),
+            Semantics(container: true, header: true, child: Text(context.t('mob.alert.snooze.sheet.title'), style: theme.textTheme.titleMedium)),
             const SizedBox(height: MachvonSpace.space4),
             Text(context.t('mob.alert.snooze.sheet.note'), style: theme.textTheme.bodySmall),
             const SizedBox(height: MachvonSpace.space8),
@@ -253,7 +253,7 @@ class _SnoozeSheetState extends ConsumerState<_SnoozeSheet> {
         if (pastDue && !exhausted) _Notice(icon: Icons.block, text: context.t('mob.alert.snooze.pastDue.note'), color: context.v2.palette.lateFg),
         if (last) _Notice(icon: Icons.warning_amber_rounded, text: policy.finalNotifies ? context.t('mob.alert.snooze.final.warn') : context.t('mob.alert.snooze.finalQuiet.note'), color: context.v2.palette.soonFg),
         const SizedBox(height: MachvonSpace.space8),
-        Semantics(header: true, child: Text(context.t('mob.alert.snooze.reason.title'), style: theme.textTheme.labelLarge)),
+        Semantics(container: true, header: true, child: Text(context.t('mob.alert.snooze.reason.title'), style: theme.textTheme.labelLarge)),
         for (final String code in policy.reasons)
           _ChoiceTile(
             key: ValueKey<String>('snooze-reason-$code'),
@@ -281,7 +281,7 @@ class _SnoozeSheetState extends ConsumerState<_SnoozeSheet> {
           ),
         ],
         const SizedBox(height: MachvonSpace.space8),
-        Semantics(header: true, child: Text(context.t('mob.alert.snooze.duration.title'), style: theme.textTheme.labelLarge)),
+        Semantics(container: true, header: true, child: Text(context.t('mob.alert.snooze.duration.title'), style: theme.textTheme.labelLarge)),
         _ChoiceTile(
           icon: Icons.schedule,
           label: context.t('mob.alert.snooze.hour.option'),
@@ -475,7 +475,7 @@ class _AssignSheetState extends State<_AssignSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Semantics(header: true, child: Text(context.t('mob.alert.assign.sheet.title'), style: Theme.of(context).textTheme.titleMedium)),
+            Semantics(container: true, header: true, child: Text(context.t('mob.alert.assign.sheet.title'), style: Theme.of(context).textTheme.titleMedium)),
             const SizedBox(height: MachvonSpace.space12),
             TextField(
               controller: _assignee,
