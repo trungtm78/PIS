@@ -309,8 +309,11 @@ describe('the advance of a contract over HTTP (ST-PAY-004)', () => {
       expect(items.find((item) => item.id === id)).toMatchObject({ last_alert_level: 3, overdue_since: '2026-08-01', acknowledgement: null, actions: { acknowledge_alert: false } });
       expect(await acknowledge(RECOVERER, id, await versionOf(id))).toMatchObject({ status: 200 });
       const asRecoverer = (await call('GET', '/advances/overdue?level=3', { member: RECOVERER })).json.items as Array<Record<string, unknown>>;
+      // The board names the person who answers (PAY-12 "Người xử lý"): the name the directory of the tenant holds for the membership.
+      const [named] = await rows<{ display_name: string }>('select u.display_name from machvon.membership m join machvon.user_account u on u.id = m.user_id where m.id = $1::uuid', [memberId(RECOVERER)]);
+      expect(named?.display_name).toEqual(expect.any(String));
       expect(asRecoverer.find((item) => item.id === id)).toMatchObject({
-        acknowledgement: { action_plan_due_on: '2999-01-31', acknowledged_by: memberId(RECOVERER) },
+        acknowledgement: { action_plan_due_on: '2999-01-31', acknowledged_by: memberId(RECOVERER), acknowledged_by_name: named?.display_name },
         actions: { acknowledge_alert: true },
       });
       expect(((await call('GET', '/advances/overdue?level=4', { member: RECOVERER })).json.items as Array<{ id: string }>).map((item) => item.id)).not.toContain(id);
