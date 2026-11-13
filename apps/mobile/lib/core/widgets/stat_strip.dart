@@ -80,13 +80,17 @@ class _Cell extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text.rich(
-                TextSpan(
-                  text: cell.value,
-                  children: <InlineSpan>[if (cell.of != null) TextSpan(text: cell.of, style: text.caption)],
+              // The "i" is drawn over the corner of the cell: the figure keeps clear of it.
+              Padding(
+                padding: EdgeInsets.only(right: cell.info == null ? 0 : 36),
+                child: Text.rich(
+                  TextSpan(
+                    text: cell.value,
+                    children: <InlineSpan>[if (cell.of != null) TextSpan(text: cell.of, style: text.caption)],
+                  ),
+                  style: text.title,
+                  textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap),
                 ),
-                style: text.title,
-                textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap),
               ),
               Text(cell.label, style: text.caption),
               if (cell.band != null)
