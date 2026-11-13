@@ -94,6 +94,7 @@ export const PWF_OPERATIONS: readonly string[] = [
   'getDeadlinePreference',
   'setDeadlinePreference',
   'previewDeadlineBand',
+  'suggestProjectWorkflow',
   'getKpiOperations',
   'listTaskKpiResults',
   'computeStaffScorePeriod',
