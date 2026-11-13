@@ -3,6 +3,7 @@ import { DomainError } from '@machvon/kernel';
 import type { AuditWriter } from './audit-writer.ts';
 import { PwfKpiStore } from './pwf-kpi-store.ts';
 import { PwfScoreStore } from './pwf-score-store.ts';
+import { SYSTEM_SCORE_SCOPE, withScoreScope } from './pwf-score-support.ts';
 import { enqueueOutbox } from './outbox.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -49,7 +50,7 @@ export class PwfScoreMaintenanceJob {
       // A task whose results were just evaluated is not pending any more; one that cannot be evaluated (no closing day) would come back for ever, so the loop ends when nothing moved.
       if (done.tasks === 0) break;
     }
-    const locked = await tx.query<{ id: string; version: number }>("select id, version from machvon.staff_score_period where status = 'LOCKED' order by locked_at, id limit 200");
+    const locked = await withScoreScope(tx, SYSTEM_SCORE_SCOPE, () => tx.query<{ id: string; version: number }>("select p.id, p.version from machvon.staff_score_period p where p.status = 'LOCKED' and not exists (select 1 from machvon.staff_score_response r join machvon.staff_score_line l on l.tenant_id = r.tenant_id and l.id = r.line_id where l.period_id = p.id and r.status = 'OPEN') order by p.locked_at, p.id limit 200"));
     for (const period of locked) {
       try {
         const officialized = await this.periods.officialize(tx, { periodId: period.id, expectedVersion: undefined, actor, units: '*', now });

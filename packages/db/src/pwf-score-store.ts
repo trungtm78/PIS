@@ -166,6 +166,7 @@ export class PwfScoreStore {
           and (
                (t.status = 'DONE' and t.actual_finish between $2::date and $3::date)
             or (t.status = 'CANCELLED' and (t.cancelled_at at time zone 'Asia/Ho_Chi_Minh')::date between $2::date and $3::date)
+            or (t.status = 'AWAITING_APPROVAL' and (t.completion_requested_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date)
             or (t.baseline_finish <= $3::date
                 and not (t.status = 'DONE' and t.actual_finish <= $3::date)
                 and not (t.status = 'CANCELLED' and (t.cancelled_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date))

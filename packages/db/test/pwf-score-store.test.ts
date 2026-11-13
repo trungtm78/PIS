@@ -612,6 +612,15 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect((await lockIt(draft.period.id, draft.period.version, { units: `${unitId(PROVINCE)},${DEPT},${unitId(SIBLING)}` })).status).toBe('LOCKED');
     });
 
+    it('scores a task that was handed in for approval inside the period although its baseline falls after it', async () => {
+      const wf = await workflow();
+      const task = await seedTask(wf, 'AW1', { status: 'AWAITING_APPROVAL', baselineFinish: `${Y - 1}-09-30`, baselineStart: `${Y - 1}-04-02`, actualStart: `${Y - 1}-04-02`, actualFinish: null });
+      await owner("update machvon.project_task set completion_requested_at = $2::timestamptz, completion_requested_by = $3::uuid where id = $1::uuid", [task, `${Y - 1}-05-06T03:00:00Z`, memberId(WORKER)]);
+      await hold(task, WORKER);
+      const preview = await compute({ from: `${Y - 1}-04-01`, to: `${Y - 1}-06-30` });
+      expect(preview.ratedCount + preview.smallSampleCount).toBe(1);
+    });
+
     it('UAT-PWF-NEG-09: refuses shares that add up to more than the whole of a task (422 STAFF_SCORE_SHARE_INVALID) instead of scoring them', async () => {
       const wf = await workflow();
       const task = await seedTask(wf, 'H1', { baselineFinish: `${Y - 2}-08-15`, actualFinish: `${Y - 2}-08-15` });
