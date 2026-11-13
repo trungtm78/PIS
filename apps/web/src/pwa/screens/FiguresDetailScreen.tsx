@@ -69,7 +69,7 @@ function FiguresContent() {
       <div className="heading">
         <div>
           <h1 id="screen-title">{t('pwa2.figures.page.title')}</h1>
-          <p>{t('pwa2.figures.page.subtitle')}</p>
+          <p>{t('scr4.pwa.figures.subtitle')}</p>
         </div>
       </div>
       {problem !== undefined && !revoked ? <ProblemCard problem={problem} /> : null}

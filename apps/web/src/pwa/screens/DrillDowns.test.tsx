@@ -109,6 +109,9 @@ describe('FiguresDetailScreen (PWA-08): the drill-down of the command center', (
     expect(amounts.textContent).toContain('600');
     expect(screen.getByTestId('figures-context').textContent).toContain('12/10/2027');
     expect(screen.getByTestId('figures-ranking')).toBeInTheDocument();
+    // The line under the title names the six groups of the screen, the causes of slow disbursement and the warning level among them (UI-PWA-08).
+    const subtitle = screen.getByText(word('scr4.pwa.figures.subtitle')).textContent?.toLowerCase() ?? '';
+    for (const group of ['số tiền theo bản chốt', 'xếp hạng', 'nguyên nhân chậm giải ngân', 'dòng tiền', 'thay đổi so với bản chốt trước', 'mức cảnh báo']) expect(subtitle).toContain(group);
     expect(h.read).toHaveBeenCalledWith('getCommandCenter', expect.anything());
   });
 
