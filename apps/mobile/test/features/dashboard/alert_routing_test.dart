@@ -108,6 +108,12 @@ void main() {
       expect(alertScreenOf(_item('COVERAGE', 'ADM-28', 'c-1'), has: has), (screenId: 'MOB-75', pathSuffix: ''));
     });
 
+    test('a task of the workflow of a project that is due opens the task on the phone, by its id', () {
+      expect(alertScreenOf(_item('PROJECT_TASK', 'PWF-04', 'task-1'), has: has, available: (String id) => id == 'MOB-79'), (screenId: 'MOB-79', pathSuffix: '/task-1'));
+      expect(alertScreenOf(_item('PROJECT_TASK', 'PWF-04', 'task-1'), has: has, available: (String id) => false), isNull, reason: 'a build without the workflow opens nothing');
+      expect(alertScreenOf(_item('PROJECT_TASK', 'PWF-04', ''), has: has), isNull, reason: 'a task alert without a task opens nothing');
+    });
+
     test('permits and audit have no phone screen: the alert is handled from its actions', () {
       for (final String screen in <String>['PMT-02', 'AUD-11', 'AUD-13', 'AUD-15']) {
         expect(alertScreenOf(_item('PERMIT', screen, 'x-1'), has: has), isNull, reason: screen);

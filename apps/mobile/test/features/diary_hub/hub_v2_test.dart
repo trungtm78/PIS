@@ -107,7 +107,7 @@ void main() {
       expect(find.text('Không có mạng: nhật ký được giữ trên máy và sẽ gửi khi có mạng.'), findsOneWidget);
       expect(tester.getSize(find.ancestor(of: find.text('Mở hàng đợi'), matching: find.byType(InkWell)).first).height, greaterThanOrEqualTo(48));
       await tapText(tester, 'Mở hàng đợi');
-      expect(currentLocation(world.container), '/projects/mob-41');
+      expect(currentLocation(world.container), '/account/mob-41');
     });
 
     testWidgets('nothing waits on the server: the tab says so and offers to write a diary', (WidgetTester tester) async {

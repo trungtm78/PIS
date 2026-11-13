@@ -78,7 +78,7 @@ void main() {
       expect(find.text('Sạt lở taluy km3'), findsOneWidget);
 
       await tapText(tester, 'Xem hàng đợi gửi');
-      expect(currentLocation(world.container), '/projects/mob-41');
+      expect(currentLocation(world.container), '/account/mob-41');
       await _quiesce(tester, world);
     });
 
@@ -145,7 +145,7 @@ void main() {
       expect(command.state, CommandState.unknown);
       expect(find.textContaining('Chưa xác định kết quả'), findsWidgets);
       expect(find.widgetWithText(FilledButton, 'Gửi lại'), findsNothing, reason: 'an unknown result is never sent again as a new one');
-      expect(find.text('Mở hàng đợi'), findsWidgets, reason: 'the way to the queue is there');
+      expect(find.text('Xem hàng đợi gửi'), findsOneWidget, reason: 'the cut of the network puts the phone offline: the receipt says it is saved and offers the way to the queue');
 
       await tester.runAsync(queue.flush);
       await settleReal(tester, rounds: 12);
@@ -200,7 +200,7 @@ void main() {
       expect(find.text('Báo cáo cần bạn chọn phiên bản ở màn hình hàng đợi.'), findsOneWidget);
       expect(find.widgetWithText(FilledButton, 'Gửi lại'), findsNothing, reason: 'a conflict is settled in the queue, not sent again');
       await tapText(tester, 'Mở hàng đợi');
-      expect(currentLocation(world.container), '/projects/mob-41');
+      expect(currentLocation(world.container), '/account/mob-41');
       await _quiesce(tester, world);
     });
   });

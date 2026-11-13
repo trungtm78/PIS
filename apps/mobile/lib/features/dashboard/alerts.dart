@@ -567,6 +567,9 @@ const Map<String, AlertTargetRule> kAlertTargets = <String, AlertTargetRule>{
   // the cover of an absence (alert coverage): the delegations and absences view
   'ADM-28': (screenId: 'MOB-75', withId: false),
   'MOB-75': (screenId: 'MOB-75', withId: false),
+  // the workflow of a project: the alert of a task that is due (PWF-04, the detail of a task) opens the task on the phone (MOB-79), keyed by the id of the task
+  'PWF-04': (screenId: 'MOB-79', withId: true),
+  'MOB-79': (screenId: 'MOB-79', withId: true),
 };
 
 /// The target screens of the server that the phone has no screen for, each once. The alert is then handled from its actions (claim, assign, snooze).

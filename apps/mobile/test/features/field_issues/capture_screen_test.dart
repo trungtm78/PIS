@@ -91,7 +91,7 @@ void main() {
       final FieldWorld world = await _open(tester);
       await _fillForm(tester);
 
-      world.container.read(routerProvider).go('/account/mob-41');
+      world.container.read(routerProvider).go('/projects/mob-31/none');
       await settleReal(tester, rounds: 6);
       world.container.read(routerProvider).go('/projects/mob-28');
       await settleReal(tester, rounds: 8);
