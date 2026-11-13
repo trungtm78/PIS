@@ -775,7 +775,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       as((tx) =>
         withScoreScope(tx, SYSTEM_SCORE_SCOPE, async () => {
           const bundle = (await loadTaskBundles(tx, [id])).get(id) as TaskBundle;
-          return factsOf(bundle, readingOf(bundle.row, cutoff), cutoff);
+          return factsOf(bundle, readingOf(bundle.row, cutoff, bundle.history), cutoff);
         }),
       );
 
@@ -826,6 +826,48 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(locked.facts.snapshot_hash).toMatch(/^[0-9a-f]{64}$/);
       expect(await as((tx) => scores.verify(tx, again.period.id))).toEqual({ reproducible: true, hashMatches: true, figuresMatch: true });
     });
+
+    it('reads a task awaiting approval on the last day as awaiting although it was sent back the next month: the score and the hash of the period do not move, and the task stays a candidate', async () => {
+      const wf = await workflow();
+      const lastDay = `${Y - 1}-09-30`;
+      // Due after the period, so only its standing at the end of the period makes it a candidate; handed in for approval on the last day.
+      const task = await seedTask(wf, 'RQ1', { status: 'AWAITING_APPROVAL', baselineFinish: `${Y - 1}-10-20`, baselineStart: `${Y - 1}-09-01`, actualStart: `${Y - 1}-09-01`, actualFinish: null });
+      await owner('update machvon.project_task set completion_requested_at = $2::timestamptz, completion_requested_by = $3::uuid where id = $1::uuid', [task, `${lastDay}T10:00:00Z`, memberId(WORKER)]);
+      await owner("insert into machvon.project_task_log (tenant_id, workflow_id, task_id, kind, at, actor, subject) values ($1, $2::uuid, $3::uuid, 'COMPLETE_REQUESTED', $4::timestamptz, $5::uuid, '{}'::jsonb)", [TENANT_A, wf.id, task, `${lastDay}T10:00:00Z`, memberId(WORKER)]);
+      await hold(task, WORKER);
+      const quarter = { from: `${Y - 1}-07-01`, to: lastDay };
+      const figures = async (periodId: string): Promise<unknown> => (await owner('select contributions, excluded, score_computed::text, state, rated_task_count from machvon.staff_score_line where period_id = $1::uuid and membership_id = $2::uuid', [periodId, memberId(WORKER)]))[0];
+      const before = await compute(quarter);
+      const worker = (await figures(before.period.id)) as { contributions: Array<{ task_code: string }> };
+      expect(worker.contributions.map((one) => one.task_code)).toContain('RQ1');
+      const factsBefore = await factsAt(task, lastDay);
+      expect(factsBefore).toMatchObject({ status: 'DONE', actualFinish: lastDay });
+
+      // The next month the approver sends it back: the status and the request of the task are cleared, and the log has the return.
+      await owner('update machvon.project_task set status = $2, actual_finish = null, completion_requested_at = null, completion_requested_by = null, return_count = 1 where id = $1::uuid', [task, 'IN_PROGRESS']);
+      await logReturn(wf.id, task, `${Y - 1}-10-06T03:00:00Z`);
+
+      expect(await factsAt(task, lastDay)).toEqual(factsBefore);
+      const again = await compute(quarter);
+      expect(again.previewHash).toBe(before.previewHash);
+      expect(await figures(again.period.id)).toEqual(worker);
+      expect(await factsAt(task, `${Y - 1}-10-31`)).toMatchObject({ status: 'IN_PROGRESS' });
+      const locked = await lockIt(again.period.id, again.period.version);
+      expect(locked.facts.snapshot_hash).toMatch(/^[0-9a-f]{64}$/);
+      expect(await as((tx) => scores.verify(tx, again.period.id))).toEqual({ reproducible: true, hashMatches: true, figuresMatch: true });
+    });
+
+    it('does not count a task as done at the end of the period when its finish was only declared after it: a request sent back before the end and made again later', async () => {
+      const wf = await workflow();
+      const task = await seedTask(wf, 'RQ2', { status: 'DONE', baselineFinish: `${Y - 1}-09-20`, baselineStart: `${Y - 1}-09-01`, actualStart: `${Y - 1}-09-01`, actualFinish: `${Y - 1}-09-29` });
+      await owner("insert into machvon.project_task_log (tenant_id, workflow_id, task_id, kind, at, actor, subject) values ($1, $2::uuid, $3::uuid, 'COMPLETE_REQUESTED', $4::timestamptz, $5::uuid, '{}'::jsonb)", [TENANT_A, wf.id, task, `${Y - 1}-09-25T03:00:00Z`, memberId(WORKER)]);
+      await logReturn(wf.id, task, `${Y - 1}-09-28T03:00:00Z`);
+      await owner("insert into machvon.project_task_log (tenant_id, workflow_id, task_id, kind, at, actor, subject) values ($1, $2::uuid, $3::uuid, 'COMPLETE_REQUESTED', $4::timestamptz, $5::uuid, '{}'::jsonb)", [TENANT_A, wf.id, task, `${Y - 1}-10-02T03:00:00Z`, memberId(WORKER)]);
+      // The row says done on 29 September, but the request that holds was made in October: at the end of September the task was in progress.
+      expect(await factsAt(task, `${Y - 1}-09-30`)).toMatchObject({ status: 'IN_PROGRESS', actualFinish: null });
+      expect(await factsAt(task, `${Y - 1}-10-31`)).toMatchObject({ status: 'DONE', actualFinish: `${Y - 1}-09-29` });
+    });
+
   });
 
   describe('the anti-gaming set (BR-PWF-37, R34)', () => {

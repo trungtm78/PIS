@@ -129,6 +129,8 @@ export interface BaselineStep {
 export interface TaskHistory {
   /** The days the task was sent back (an entry of the log each). */
   returns: readonly string[];
+  /** The requests to close the task, the sends back and the closes without approval, in the order of the log, each with its Vietnam day: the standing of the task at a cutoff is read from them, never from its present status. */
+  completion: ReadonlyArray<{ kind: 'COMPLETE_REQUESTED' | 'RETURNED' | 'COMPLETED'; on: string }>;
   /** The days a decided move of the schedule pushed the finish of the task later. */
   reschedules: readonly string[];
   /** The checklist as made with the task: the day each item was done (null: not yet). */
@@ -168,11 +170,29 @@ export interface TaskReading {
   actualFinish: string | null;
 }
 
-/** The reading of a task at the end of a period (`cutoff`): done or cancelled by then is final, awaiting an approval that was asked for by then counts as done on the day it was asked, anything else is open. */
-export function readingOf(row: TaskFactsRow, cutoff: string): TaskReading {
-  if (row.status === 'DONE' && row.actualFinish !== null && row.actualFinish <= cutoff) return { status: 'DONE', closedOn: row.actualFinish, final: true, actualFinish: row.actualFinish };
+/**
+ * What the log says about the closing of a task as of a cutoff: whether the log records its requests to close at all, and the last of its requests, sends back and closes by the cutoff. A task sent back in the next
+ * month (which clears its status and its request) was still awaiting approval at the end of this one, and a task whose finish was declared late was not done then.
+ */
+export function completionStanding(history: TaskHistory | undefined, cutoff: string): { logged: boolean; last: { kind: 'COMPLETE_REQUESTED' | 'RETURNED' | 'COMPLETED'; on: string } | undefined } {
+  const events = history?.completion ?? [];
+  let last: { kind: 'COMPLETE_REQUESTED' | 'RETURNED' | 'COMPLETED'; on: string } | undefined;
+  for (const event of events) if (event.on <= cutoff) last = event;
+  return { logged: events.some((event) => event.kind !== 'RETURNED'), last };
+}
+
+/**
+ * The reading of a task at the end of a period (`cutoff`): done or cancelled by then is final, awaiting an approval that was asked for by then counts as done on the day it was asked, anything else is open.
+ * With the history of the task the standing is the one the log gives at the cutoff, not the present status (a return of the next month does not undo a request of this one). A task whose log does not record the request
+ * (rows entered by hand) is read from its row.
+ */
+export function readingOf(row: TaskFactsRow, cutoff: string, history?: TaskHistory): TaskReading {
+  const { logged, last } = completionStanding(history, cutoff);
+  const closedAtCutoff = !logged || last?.kind === 'COMPLETE_REQUESTED' || last?.kind === 'COMPLETED';
+  if (row.status === 'DONE' && row.actualFinish !== null && row.actualFinish <= cutoff && closedAtCutoff) return { status: 'DONE', closedOn: row.actualFinish, final: true, actualFinish: row.actualFinish };
   if (row.status === 'CANCELLED' && row.cancelledOn !== null && row.cancelledOn <= cutoff) return { status: 'CANCELLED', closedOn: row.cancelledOn, final: true, actualFinish: null };
-  if (row.status === 'AWAITING_APPROVAL' && row.completionRequestedOn !== null && row.completionRequestedOn <= cutoff) {
+  if (logged && last?.kind === 'COMPLETE_REQUESTED') return { status: 'DONE', closedOn: null, final: false, actualFinish: last.on };
+  if (!logged && row.status === 'AWAITING_APPROVAL' && row.completionRequestedOn !== null && row.completionRequestedOn <= cutoff) {
     return { status: 'DONE', closedOn: null, final: false, actualFinish: row.completionRequestedOn };
   }
   const started = row.actualStart !== null && row.actualStart <= cutoff;
@@ -353,6 +373,10 @@ interface DaySql {
   day: string;
 }
 
+interface CompletionSql extends DaySql {
+  kind: 'COMPLETE_REQUESTED' | 'RETURNED' | 'COMPLETED';
+}
+
 interface BaselineSql {
   task_id: string;
   version: number;
@@ -403,7 +427,7 @@ export async function loadTaskBundles(tx: TenantTx, taskIds: readonly string[]):
   const workflowIds = [...new Set(tasks.map((task) => task.workflow_id))];
   const workflows = await tx.query<WorkflowSql>('select id, template_code, template from machvon.project_workflow where id = any($1::uuid[])', [workflowIds]);
   const parsed = new Map<string, WorkflowFacts>(workflows.map((one) => [one.id, { id: one.id, templateCode: one.template_code, template: pwfWorkflow.parseProjectWorkflowTemplate(one.template) }] as const));
-  const [exceptions, assignments, checklist, evidence, returns, reschedules, baselines] = await Promise.all([
+  const [exceptions, assignments, checklist, evidence, completion, reschedules, baselines] = await Promise.all([
     tx.query<ExceptionSql>(
       `select task_id, kind, valid_from::text as valid_from, valid_to::text as valid_to from machvon.project_task_exception where task_id = any($1::uuid[]) and kind in ('PAUSE', 'EXTERNAL_DELAY') and status in ('APPROVED', 'USED')`,
       [ids],
@@ -417,7 +441,7 @@ export async function loadTaskBundles(tx: TenantTx, taskIds: readonly string[]):
       `select e.task_id, e.item_code, e.evidence_kind, e.legal_doc_type, e.form_template_code, ${VIETNAM_DAY('e.attached_at')} as attached_on from machvon.project_task_evidence e where e.task_id = any($1::uuid[]) order by e.attached_at, e.id`,
       [ids],
     ),
-    tx.query<DaySql>(`select l.task_id, ${VIETNAM_DAY('l.at')} as day from machvon.project_task_log l where l.kind = 'RETURNED' and l.task_id = any($1::uuid[]) order by l.at, l.id`, [ids]),
+    tx.query<CompletionSql>(`select l.task_id, l.kind, ${VIETNAM_DAY('l.at')} as day from machvon.project_task_log l where l.kind in ('RETURNED', 'COMPLETE_REQUESTED', 'COMPLETED') and l.task_id = any($1::uuid[]) order by l.at, l.id`, [ids]),
     // A decided move of the schedule counts for a task on the day it was decided, when the task finishes later than it did (the rule that raises the count of the task).
     tx.query<DaySql>(
       `select t.id as task_id, ${VIETNAM_DAY('p.decided_at')} as day from machvon.project_reschedule_proposal p join machvon.project_task t on t.tenant_id = p.tenant_id and t.workflow_id = p.workflow_id
@@ -441,7 +465,7 @@ export async function loadTaskBundles(tx: TenantTx, taskIds: readonly string[]):
   const byAssignment = group(assignments);
   const byChecklist = group(checklist);
   const byEvidence = group(evidence);
-  const byReturn = group(returns);
+  const byCompletion = group(completion);
   const byReschedule = group(reschedules);
   const byBaseline = group(baselines);
   for (const task of tasks) {
@@ -453,7 +477,8 @@ export async function loadTaskBundles(tx: TenantTx, taskIds: readonly string[]):
       workflow,
       definition,
       history: {
-        returns: (byReturn.get(row.id) ?? []).map((one) => one.day),
+        returns: (byCompletion.get(row.id) ?? []).filter((one) => one.kind === 'RETURNED').map((one) => one.day),
+        completion: (byCompletion.get(row.id) ?? []).map((one) => ({ kind: one.kind, on: one.day })),
         reschedules: (byReschedule.get(row.id) ?? []).map((one) => one.day),
         checklist: (byChecklist.get(row.id) ?? []).map((one) => ({ itemCode: one.item_code, doneOn: one.done_on })),
         evidence: (byEvidence.get(row.id) ?? []).map((one) => ({ itemCode: one.item_code, kind: one.evidence_kind, legalDocType: one.legal_doc_type, formTemplateCode: one.form_template_code, on: one.attached_on })),

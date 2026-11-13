@@ -159,16 +159,24 @@ export class PwfScoreStore {
       'select m.id as membership_id, m.organization_id as unit_id from machvon.membership m join machvon.organization_unit u on u.tenant_id = m.tenant_id and u.id = m.organization_id where starts_with(u.path, $1) order by m.id',
       [prefix],
     );
+    // The standing of a task at the end of the period is read from the log of its requests to close, sends back and closes (as `readingOf` reads it), not from its present status: a task awaiting approval on the last day
+    // and sent back the next month is still a candidate, and one whose finish was declared after the period is not done in it. A task whose log does not record the request is read from its row.
     const candidates = await tx.query<{ id: string }>(
       `select t.id from machvon.project_task t
+        cross join lateral (
+          select exists (select 1 from machvon.project_task_log l where l.tenant_id = t.tenant_id and l.task_id = t.id and l.kind in ('COMPLETE_REQUESTED', 'COMPLETED')) as logged,
+                 (select l.kind from machvon.project_task_log l where l.tenant_id = t.tenant_id and l.task_id = t.id and l.kind in ('COMPLETE_REQUESTED', 'RETURNED', 'COMPLETED')
+                     and (l.at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date order by l.at desc, l.id desc limit 1) as last_kind
+        ) h
         where t.tracked and not t.excluded and t.kind = 'TASK'
           and exists (select 1 from machvon.project_task_assignment a where a.tenant_id = t.tenant_id and a.task_id = t.id and a.membership_id = any($1::uuid[]))
           and (
-               (t.status = 'DONE' and t.actual_finish between $2::date and $3::date)
+               (t.status = 'DONE' and t.actual_finish between $2::date and $3::date and (not h.logged or h.last_kind in ('COMPLETE_REQUESTED', 'COMPLETED')))
             or (t.status = 'CANCELLED' and (t.cancelled_at at time zone 'Asia/Ho_Chi_Minh')::date between $2::date and $3::date)
-            or (t.status = 'AWAITING_APPROVAL' and (t.completion_requested_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date)
+            or (h.logged and h.last_kind = 'COMPLETE_REQUESTED')
+            or (not h.logged and t.status = 'AWAITING_APPROVAL' and (t.completion_requested_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date)
             or (t.baseline_finish <= $3::date
-                and not (t.status = 'DONE' and t.actual_finish <= $3::date)
+                and not (t.status = 'DONE' and t.actual_finish <= $3::date and (not h.logged or h.last_kind in ('COMPLETE_REQUESTED', 'COMPLETED')))
                 and not (t.status = 'CANCELLED' and (t.cancelled_at at time zone 'Asia/Ho_Chi_Minh')::date <= $3::date))
           )
         order by t.id`,
@@ -176,7 +184,7 @@ export class PwfScoreStore {
     );
     const bundles = await loadTaskBundles(tx, candidates.map((row) => row.id));
     const ordered = [...bundles.values()].sort((left, right) => (left.row.id < right.row.id ? -1 : 1));
-    const readings = new Map(ordered.map((bundle) => [bundle.row.id, readingOf(bundle.row, request.to)] as const));
+    const readings = new Map(ordered.map((bundle) => [bundle.row.id, readingOf(bundle.row, request.to, bundle.history)] as const));
     const finals = ordered.filter((bundle) => readings.get(bundle.row.id)?.final === true).map((bundle) => bundle.row.id);
     // A task closed by the end of the period has its results recorded (idempotently) before the period reads them; one whose results were evaluated at its present version, on the present calendars, is not read again (the job keeps them current).
     const fingerprint = await calendarFingerprint(tx);
