@@ -53,6 +53,8 @@ function IntakeContent({ route }: ScreenProps) {
     const found = problems[field];
     return submitted && found !== undefined ? formProblemMessage(t, found) : undefined;
   };
+  // The server warned that the letter looks like one already there: the warning stays until the next try, and only then may a reason be given.
+  const warned = problem === 'duplicate' || copyOf !== undefined;
   const change = (patch: Partial<ReceiveForm>): void => {
     setForm({ ...form, ...patch });
     setProblem(undefined);
@@ -118,18 +120,19 @@ function IntakeContent({ route }: ScreenProps) {
         {problem === undefined ? null : (
           <p className="callout warning" role="alert" data-testid="refusal">
             {problemMessage(t, problem)}
-            {copyOf === undefined ? null : (
-              <>
-                {' '}
-                <Link to={handlingLink(copyOf)} data-testid="duplicate-link">
-                  {t('doc.incoming.intake.duplicateOf')}
-                </Link>
-              </>
-            )}
           </p>
         )}
         <fieldset className="incoming-fields" disabled={!writable || busy}>
-          <Field id="incoming-file" label={t('doc.incoming.field.file')} error={shown('file')} hint={t('doc.incoming.field.file.hint')}>
+          <Field id="incoming-channel" label={t('doc.incoming.intake.source')} error={shown('channel')}>
+            <select id="incoming-channel" value={form.channel} onChange={(event) => change({ channel: CHANNELS.find((channel) => channel === event.target.value) ?? '' })}>
+              {CHANNELS.map((channel) => (
+                <option key={channel} value={channel}>
+                  {channelLabel(t, channel)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field id="incoming-file" label={t('doc.incoming.intake.scan')} error={shown('file')} hint={t('doc.incoming.field.file.hint')}>
             <input key={fileInput} id="incoming-file" type="file" accept="application/pdf,.pdf" onChange={(event) => setFile(event.target.files?.[0])} />
           </Field>
           <Field id="incoming-title" label={t('doc.incoming.field.title')} error={shown('title')}>
@@ -149,25 +152,20 @@ function IntakeContent({ route }: ScreenProps) {
               </select>
             )}
           </Field>
-          <Field id="incoming-channel" label={t('doc.incoming.field.channel')} error={shown('channel')}>
-            <select id="incoming-channel" value={form.channel} onChange={(event) => change({ channel: CHANNELS.find((channel) => channel === event.target.value) ?? '' })}>
-              {CHANNELS.map((channel) => (
-                <option key={channel} value={channel}>
-                  {channelLabel(t, channel)}
-                </option>
-              ))}
-            </select>
-          </Field>
           <Field id="incoming-sender" label={t('doc.incoming.field.sender')} error={shown('senderName')}>
             <input id="incoming-sender" autoComplete="off" value={form.senderName} onChange={(event) => change({ senderName: event.target.value })} />
           </Field>
-          <Field id="incoming-symbol" label={t('doc.incoming.field.symbol')} error={shown('originalSymbol')}>
-            <input id="incoming-symbol" autoComplete="off" value={form.originalSymbol} onChange={(event) => change({ originalSymbol: event.target.value })} />
-          </Field>
-          <Field id="incoming-issued" label={t('doc.incoming.field.issuedOn')} error={shown('originalIssuedOn')}>
-            <input id="incoming-issued" type="date" max={today} value={form.originalIssuedOn} onChange={(event) => change({ originalIssuedOn: event.target.value })} />
-          </Field>
-          <Field id="incoming-urgency" label={t('doc.incoming.field.urgency')} error={undefined}>
+          {/* The symbol and the day written on the letter are one field of the catalogue: they are what a duplicate is recognised by (with the sender). */}
+          <fieldset className="incoming-fields incoming-original">
+            <legend>{t('doc.incoming.intake.original')}</legend>
+            <Field id="incoming-symbol" label={t('doc.incoming.field.symbol')} error={shown('originalSymbol')}>
+              <input id="incoming-symbol" autoComplete="off" value={form.originalSymbol} onChange={(event) => change({ originalSymbol: event.target.value })} />
+            </Field>
+            <Field id="incoming-issued" label={t('doc.incoming.field.issuedOn')} error={shown('originalIssuedOn')}>
+              <input id="incoming-issued" type="date" max={today} value={form.originalIssuedOn} onChange={(event) => change({ originalIssuedOn: event.target.value })} />
+            </Field>
+          </fieldset>
+          <Field id="incoming-urgency" label={t('doc.incoming.intake.urgency')} error={undefined}>
             <select id="incoming-urgency" value={form.urgency} onChange={(event) => change({ urgency: URGENCIES.find((urgency) => urgency === event.target.value) ?? 'NORMAL' })}>
               {URGENCIES.map((urgency) => (
                 <option key={urgency} value={urgency}>
@@ -176,11 +174,36 @@ function IntakeContent({ route }: ScreenProps) {
               ))}
             </select>
           </Field>
-          {problem === 'duplicate' || form.duplicateReason !== '' ? (
-            <Field id="incoming-reason" label={t('doc.incoming.field.duplicateReason')} error={shown('duplicateReason')} hint={t('doc.incoming.field.duplicateReason.hint')}>
-              <textarea id="incoming-reason" rows={2} value={form.duplicateReason} onChange={(event) => change({ duplicateReason: event.target.value })} />
-            </Field>
-          ) : null}
+          {/* The server compares sender, symbol and date when the letter is taken in; what it found is said here, with the letter it looks like. */}
+          <dl className="incoming-duplicate" data-testid="duplicate-check">
+            <dt>{t('doc.incoming.intake.duplicateCheck')}</dt>
+            <dd role="status">
+              {warned ? (
+                <>
+                  {t('doc.incoming.intake.duplicateFound')}
+                  {copyOf === undefined ? null : (
+                    <>
+                      {' '}
+                      <Link to={handlingLink(copyOf)} data-testid="duplicate-link">
+                        {t('doc.incoming.intake.duplicateOf')}
+                      </Link>
+                    </>
+                  )}
+                </>
+              ) : (
+                t('doc.incoming.intake.duplicateNone')
+              )}
+            </dd>
+          </dl>
+          {/* The reason is asked for once the server warned of a duplicate; until then the field stands closed so that nobody overrides a warning that was never given. */}
+          <Field
+            id="incoming-reason"
+            label={t('doc.incoming.intake.reason')}
+            error={shown('duplicateReason')}
+            hint={warned || form.duplicateReason !== '' ? t('doc.incoming.field.duplicateReason.hint') : t('doc.incoming.intake.reasonIdle')}
+          >
+            <textarea id="incoming-reason" rows={2} disabled={!warned && form.duplicateReason === ''} value={form.duplicateReason} onChange={(event) => change({ duplicateReason: event.target.value })} />
+          </Field>
         </fieldset>
         <div className="formfooter">
           <button type="submit" className="primary" disabled={!writable || busy}>

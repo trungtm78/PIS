@@ -206,8 +206,8 @@ function DocumentTemplatesContent({ route }: ScreenProps) {
                   <th>{t('doc.templates.col.group')}</th>
                   <th>{t('doc.templates.col.form')}</th>
                   <th>{t('doc.templates.col.legal')}</th>
-                  <th>{t('doc.templates.col.period')}</th>
-                  <th>{t('doc.templates.col.confirmation')}</th>
+                  <th>{t('doc.templates.col.effective')}</th>
+                  <th>{t('doc.templates.col.legalStatus')}</th>
                   <th>{t('doc.templates.col.module')}</th>
                   <th />
                 </tr>

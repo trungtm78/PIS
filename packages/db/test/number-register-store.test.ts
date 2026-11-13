@@ -235,6 +235,8 @@ describe('NumberRegisterStore', () => {
       const entries = await inA((tx) => registers.listEntries(tx, register.id, { limit: 100 }));
       expect(entries).toHaveLength(50);
       expect(new Set(entries.map((entry) => entry.symbol)).size).toBe(50);
+      // Each line of the log carries the summary of its document (DOC-10 "Trích yếu").
+      expect(new Set(entries.map((entry) => entry.title))).toEqual(new Set(['Decision']));
     }, 60_000);
 
     it('answers REGISTER_LOCK_TIMEOUT when another transaction holds the register row too long (AC-ST-DOC-002-3)', async () => {

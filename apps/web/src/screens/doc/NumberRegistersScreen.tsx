@@ -47,18 +47,21 @@ function NumberRegistersContent({ route }: ScreenProps) {
   const initial: Filter = { text: '', status: '', year: String(thisYear), direction: '' };
   const [draft, setDraft] = useState<Filter>(initial);
   const [applied, setApplied] = useState<Filter>(initial);
-  const [openId, setOpenId] = useState<string | undefined>(undefined);
+  // The register whose numbers are shown: by default the first one listed (the book the clerk keeps), none once closed by hand.
+  const [openChoice, setOpenChoice] = useState<string | null | undefined>(undefined);
   const [closing, setClosing] = useState<Register | undefined>(undefined);
   const [reason, setReason] = useState('');
   const [reasonRefused, setReasonRefused] = useState(false);
   const [closed, setClosed] = useState<string | undefined>(undefined);
   const [exported, setExported] = useState<{ code: string; count: number; hash: string } | undefined>(undefined);
   const list = useRegisters({ year: applied.year, direction: applied.direction });
-  const entries = useRegisterEntries(openId);
   const close = useCloseRegister();
   const ledger = useLedgerRead();
   const all = useMemo(() => list.data?.pages.flatMap((page) => page.items) ?? [], [list.data]);
   const shown = useMemo(() => all.filter((register) => matches(register, applied)), [all, applied]);
+  const openId = openChoice === undefined ? shown[0]?.id : (openChoice ?? undefined);
+  const setOpenId = (id: string | undefined): void => setOpenChoice(id ?? null);
+  const entries = useRegisterEntries(openId);
   // The state replaces the table, not the filters: a year or direction without registers can still be changed.
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data === undefined ? undefined : all });
   const opened = all.find((register) => register.id === openId);
@@ -69,7 +72,7 @@ function NumberRegistersContent({ route }: ScreenProps) {
   const submit = (event: FormEvent): void => {
     event.preventDefault();
     setApplied(draft);
-    setOpenId(undefined);
+    setOpenChoice(undefined);
   };
 
   const exportLedger = (register: Register): void => {
@@ -163,14 +166,15 @@ function NumberRegistersContent({ route }: ScreenProps) {
     { key: 'number', header: t('doc.registers.entries.col.number'), render: (entry) => <span data-entry-number={entry.number}>{entry.displayNumber}</span> },
     { key: 'symbol', header: t('doc.registers.entries.col.symbol'), render: (entry) => entry.symbol },
     { key: 'issuedOn', header: t('doc.registers.entries.col.issuedOn'), render: (entry) => entry.issuedOn },
-    { key: 'status', header: t('doc.registers.entries.col.status'), render: (entry) => entryStatusLabel(t, entry.status) },
+    { key: 'title', header: t('doc.registers.entries.col.title'), render: (entry) => entry.title ?? t('doc.registers.entries.noTitle') },
+    { key: 'status', header: t('doc.registers.entries.col.numberStatus'), render: (entry) => entryStatusLabel(t, entry.status) },
   ];
   const appliedCount = [applied.text, applied.status, applied.year, applied.direction].filter((value) => value !== '').length;
   const clearFilters = (): void => {
     const none: Filter = { text: '', status: '', year: '', direction: '' };
     setDraft(none);
     setApplied(none);
-    setOpenId(undefined);
+    setOpenChoice(undefined);
   };
 
   return (
@@ -317,10 +321,12 @@ function NumberRegistersContent({ route }: ScreenProps) {
             <p className="muted" role="status">
               {t('doc.registers.entries.loading')}
             </p>
-          ) : rows.length === 0 ? (
-            <p className="muted">{t('doc.registers.entries.empty')}</p>
           ) : (
-            <DataTable caption={t('w2doc.registers.entries.caption')} columns={entryColumns} rows={rows} rowKey={(entry) => entry.allocationId} />
+            <>
+              {rows.length === 0 ? <p className="muted">{t('doc.registers.entries.empty')}</p> : null}
+              {/* The columns of the book stand even before its first number. */}
+              <DataTable caption={t('w2doc.registers.entries.caption')} columns={entryColumns} rows={rows} rowKey={(entry) => entry.allocationId} />
+            </>
           )}
           {entries.hasNextPage ? (
             <button type="button" disabled={entries.isFetchingNextPage} onClick={() => void entries.fetchNextPage()}>

@@ -253,6 +253,52 @@ function SignedUploadContent({ route }: ScreenProps) {
             </div>
           )}
         </div>
+        {/* What is declared for the signed file, in the order of the catalogue: who signs, the number and symbol, the verdict of the signatures and the register that numbers it. */}
+        <div className="card" data-testid="declared">
+          <h2>{t('doc.signed.declared.title')}</h2>
+          <dl className="facts">
+            <div>
+              <dt>{t('doc.signed.declared.signer')}</dt>
+              <dd data-testid="declared-signer">
+                {mode === 'LEADER'
+                  ? chosen === undefined
+                    ? t('doc.signed.declared.chooseDocument')
+                    : chosen.signerUserId === null
+                      ? t('doc.signed.declared.noSigner')
+                      : shortId(chosen.signerUserId)
+                  : check === undefined
+                    ? t('doc.signed.declared.readFile')
+                    : check.signatures.length === 0
+                      ? t('doc.signed.result.none')
+                      : check.signatures.map((signature) => roleLabel(t, signature.role)).join(', ')}
+              </dd>
+            </div>
+            <div>
+              <dt>{t('doc.signed.declared.numberSymbol')}</dt>
+              <dd data-testid="declared-number">
+                {mode === 'LEADER'
+                  ? chosen === undefined || chosen.documentNumber === null
+                    ? t('doc.signed.declared.numberLater')
+                    : `${chosen.documentNumber} · ${chosen.symbol ?? ''}`
+                  : form.number.trim() === '' && form.symbol.trim() === ''
+                    ? t('doc.signed.declared.notEntered')
+                    : `${form.number.trim()} · ${form.symbol.trim()}`}
+              </dd>
+            </div>
+            <div>
+              <dt>{t('doc.signed.declared.verdict')}</dt>
+              <dd data-testid="declared-verdict">{check === undefined ? t('doc.signed.declared.readFile') : overallLabel(t, check.overall)}</dd>
+            </div>
+            <div>
+              <dt>{t('doc.signed.declared.register')}</dt>
+              <dd data-testid="declared-register">
+                {mode === 'LEADER'
+                  ? t('doc.signed.declared.registerLater')
+                  : (openRegisters.find((entry) => entry.id === form.registerId)?.registerCode ?? t('doc.signed.declared.notEntered'))}
+              </dd>
+            </div>
+          </dl>
+        </div>
         {mode === 'LEADER' ? (
           <div className="card" data-mode="LEADER">
             <h2>{t('doc.signed.leader.title')}</h2>

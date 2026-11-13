@@ -427,6 +427,28 @@ function EditorContent({ route }: ScreenProps) {
               </div>
             </div>
           </fieldset>
+          {/* The PDF preview of the draft (DOC-02 field 7): rendered from the chosen template, with the watermark on every page while the template or the layout is not confirmed by the legal team. */}
+          <section className="editor-preview" aria-labelledby="editor-preview-title">
+            <h2 id="editor-preview-title">{t('doc.editor.section.preview')}</h2>
+            {preview.data === undefined ? (
+              <p className="muted" data-testid="preview-empty">
+                {t('doc.editor.preview.none')}
+              </p>
+            ) : (
+              <div data-preview-of={preview.data.versionId} role="status">
+                <h3>{t('doc.editor.preview.title')}</h3>
+                {preview.data.watermarked ? <p className="callout warning">{t('doc.editor.preview.watermarked')}</p> : null}
+                <p className="sub">{t('doc.editor.preview.facts', { pages: preview.data.pageCount, sha: preview.data.sha256.slice(0, 16) })}</p>
+                {preview.data.url === undefined ? (
+                  <p className="muted">{t('doc.editor.preview.noLink')}</p>
+                ) : (
+                  <a href={preview.data.url} target="_blank" rel="noreferrer">
+                    {t('doc.editor.preview.open')}
+                  </a>
+                )}
+              </div>
+            )}
+          </section>
           {failed ? (
             <div className="callout warning" role="alert" data-problem={problem.reason}>
               <p>{problemMessage(t, problem)}</p>
@@ -473,20 +495,6 @@ function EditorContent({ route }: ScreenProps) {
             {problemMessage(t, describeProblem(preview.error))}
           </p>
         ) : null}
-        {preview.data === undefined ? null : (
-          <div className="card" data-preview-of={preview.data.versionId} role="status">
-            <h2>{t('doc.editor.preview.title')}</h2>
-            {preview.data.watermarked ? <p className="callout warning">{t('doc.editor.preview.watermarked')}</p> : null}
-            <p className="sub">{t('doc.editor.preview.facts', { pages: preview.data.pageCount, sha: preview.data.sha256.slice(0, 16) })}</p>
-            {preview.data.url === undefined ? (
-              <p className="muted">{t('doc.editor.preview.noLink')}</p>
-            ) : (
-              <a href={preview.data.url} target="_blank" rel="noreferrer">
-                {t('doc.editor.preview.open')}
-              </a>
-            )}
-          </div>
-        )}
         {cancelling && canCancel ? (
           <form className="card" onSubmit={confirmCancel} noValidate aria-label={t('doc.editor.cancel.title')}>
             <h2>{t('doc.editor.cancel.title')}</h2>

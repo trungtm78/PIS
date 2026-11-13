@@ -102,9 +102,9 @@ describe('number registers API (ST-DOC-002)', () => {
       });
       const page1 = await harnessApp.call('GET', `/document-number-registers/${registerId}/entries?limit=2`, { member: ADMIN });
       expect(page1.status).toBe(200);
-      expect((page1.json.items as Array<Record<string, unknown>>).map((row) => [row.number, row.display_number, row.symbol, row.issued_on, row.status])).toEqual([
-        [1, '01', '01/QD-ENTRY1', '2026-06-15', 'ALLOCATED'],
-        [2, '02', '02/QD-ENTRY1', '2026-06-15', 'ALLOCATED'],
+      expect((page1.json.items as Array<Record<string, unknown>>).map((row) => [row.number, row.display_number, row.symbol, row.issued_on, row.title, row.status])).toEqual([
+        [1, '01', '01/QD-ENTRY1', '2026-06-15', 'Numbered', 'ALLOCATED'],
+        [2, '02', '02/QD-ENTRY1', '2026-06-15', 'Numbered', 'ALLOCATED'],
       ]);
       expect(page1.json.register).toMatchObject({ id: registerId, last_number: 3, next_number: 4 });
       const page2 = await harnessApp.call('GET', `/document-number-registers/${registerId}/entries?limit=2&cursor=${String(page1.json.next_cursor)}`, { member: ADMIN });

@@ -35,3 +35,26 @@
   gap: 6px;
   align-items: center;
 }
+
+.incoming-original {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 0 16px;
+}
+
+.incoming-original legend {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.incoming-duplicate {
+  margin: 0 0 12px;
+}
+
+.incoming-duplicate dt {
+  font-weight: 600;
+}
+
+.incoming-duplicate dd {
+  margin: 2px 0 0;
+}

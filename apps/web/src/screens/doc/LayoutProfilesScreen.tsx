@@ -11,7 +11,7 @@ import { useCreateLayout, useLayoutProfiles, usePublishLayout } from './layout/h
 import { EMPTY_FORM, MARGINS, MARGIN_RANGES, SEAL_OVERLAP_TARGET, SEAL_OVERLAP_TOLERANCE, SIZE_RANGES, boxOfForm, canPublish, describeProblem, formFrom, hasProblems, layoutBody, sealOverlapRatio, validateForm } from './layout/rules';
 import type { BoxForm, FieldProblem, FormProblems, LayoutForm, LayoutProblem } from './layout/rules';
 import { APPROVE_LAYOUT_PERMISSION, ELEMENTS, MANAGE_LAYOUT_PERMISSION, READ_LAYOUT_PERMISSION } from './layout/types';
-import type { Element, LayoutStatus } from './layout/types';
+import type { Box, Element, LayoutProfile, LayoutStatus } from './layout/types';
 
 type T = Translator['t'];
 const TEMPLATES_PATH = '/doc/doc-14';
@@ -112,6 +112,68 @@ function fieldMessage(t: T, problem: FieldProblem | undefined): string | undefin
 
 const range = (min: number, max: number): string => (min === max ? String(min) : `${min}–${max}`);
 
+const isBox = (value: unknown): value is Box =>
+  typeof value === 'object' && value !== null && ['xMm', 'yMm', 'widthMm', 'heightMm'].every((key) => typeof (value as Record<string, unknown>)[key] === 'number');
+
+/** The place of a box on the page, in millimetres from the top left corner. */
+function boxText(t: T, box: Box | undefined): string {
+  return box === undefined ? NONE : t('doc.layout.detail.box', { x: box.xMm, y: box.yMm, width: box.widthMm, height: box.heightMm });
+}
+
+/** DOC-16 fields of the catalogue for one revision: the paper, the margins, the font and size of each part, where the leader signs and the seal goes, the number/symbol/date fields. */
+function ProfileDetail({ t, profile }: { t: T; profile: LayoutProfile }) {
+  const { leaderBox, sealBox } = profile.signatureLayout;
+  const field = (name: string): Box | undefined => {
+    const value = profile.numberFieldLayout[name];
+    return isBox(value) ? value : undefined;
+  };
+  const styleOf = (element: Element): string => {
+    const style = profile.elementStyles[element];
+    const marks = [style.bold ? t('doc.layout.detail.bold') : '', style.italic ? t('doc.layout.detail.italic') : '', style.uppercase ? t('doc.layout.detail.uppercase') : ''].filter((mark) => mark !== '');
+    return `${elementLabel(t, element)}: ${style.sizePt} pt${marks.length === 0 ? '' : ` (${marks.join(', ')})`}`;
+  };
+  return (
+    <section className="card" aria-labelledby="layout-detail-title" data-testid="profile-detail" data-profile={profile.id}>
+      <h2 id="layout-detail-title">{t('doc.layout.detail.title', { code: profile.profileCode, revision: profile.revision })}</h2>
+      <dl className="facts">
+        <div>
+          <dt>{t('doc.layout.detail.paper')}</dt>
+          <dd>{profile.pageSize === '' ? NONE : t('doc.layout.detail.paperValue', { size: profile.pageSize })}</dd>
+        </div>
+        <div>
+          <dt>{t('doc.layout.detail.margins')}</dt>
+          <dd>{MARGINS.map((margin) => `${marginLabel(t, margin)} ${profile.marginsMm[margin]} mm`).join(' · ')}</dd>
+        </div>
+        <div>
+          <dt>{t('doc.layout.detail.fonts')}</dt>
+          <dd>
+            {profile.fontSubstitute === null ? profile.fontFamily : t('doc.layout.detail.fontSubstitute', { font: profile.fontFamily, substitute: profile.fontSubstitute })}
+            <ul className="layout-styles">
+              {ELEMENTS.map((element) => (
+                <li key={element}>{styleOf(element)}</li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+        <div>
+          <dt>{t('doc.layout.detail.leader')}</dt>
+          <dd>{boxText(t, leaderBox)}</dd>
+        </div>
+        <div>
+          <dt>{t('doc.layout.detail.seal')}</dt>
+          <dd>
+            {boxText(t, sealBox)} · {t('doc.layout.seal.overlap', { share: (sealOverlapRatio(leaderBox, sealBox) * 100).toFixed(1) })}
+          </dd>
+        </div>
+        <div>
+          <dt>{t('doc.layout.detail.numberFields')}</dt>
+          <dd>{t('doc.layout.detail.numberFieldsValue', { number: boxText(t, field('number')), symbol: boxText(t, field('symbol')), date: boxText(t, field('date')) })}</dd>
+        </div>
+      </dl>
+    </section>
+  );
+}
+
 /** DOC-16: the formatting of Appendix I of Decree 30/2020 as data (ST-DOC-016, BR-DOC-13). A revision is drafted with every value inside its legal range and published by someone else. */
 export default function LayoutProfilesScreen({ route }: ScreenProps) {
   const tenantId = useSession().tenant?.id;
@@ -136,6 +198,7 @@ function LayoutProfilesContent({ route }: ScreenProps) {
   const profiles = list.data ?? [];
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
   const base = profiles.find((profile) => profile.id === form.baseId);
+  const inForce = profiles.find((profile) => profile.status === 'PUBLISHED') ?? profiles[0];
   const problems: FormProblems = attempted ? validateForm(form) : { margins: {}, sizes: {} };
   const leader = boxOfForm(form.leader);
   const seal = boxOfForm(form.seal);
@@ -188,7 +251,7 @@ function LayoutProfilesContent({ route }: ScreenProps) {
       ) : (
         <>
           <section className="card" aria-labelledby="layout-ranges-title">
-            <h2 id="layout-ranges-title">{t('doc.layout.ranges.title')}</h2>
+            <h2 id="layout-ranges-title">{t('doc.layout.ranges.legal')}</h2>
             <p className="sub">{t('doc.layout.ranges.hint')}</p>
             <div className="tablewrap">
               <table aria-label={t('doc.layout.ranges.title')} data-testid="ranges">
@@ -262,6 +325,8 @@ function LayoutProfilesContent({ route }: ScreenProps) {
                 </tbody>
               </table>
             </div>
+            {/* The revision in force (the published one, else the newest listed), shown field by field. */}
+            {inForce === undefined ? null : <ProfileDetail t={t} profile={inForce} />}
           </StateBoundary>
 
           {mayManage ? (

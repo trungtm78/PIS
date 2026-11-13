@@ -171,9 +171,11 @@ describe('parsing of the API answers', () => {
       symbol: '03/QD',
       documentId: 'd',
       issuedOn: '2026-06-15',
+      title: null,
       status: 'VOIDED',
     });
     expect(toEntry({ number: 12 })).toMatchObject({ displayNumber: '12', status: 'ALLOCATED' });
+    expect(toEntry({ number: 7, title: 'Quyết định phê duyệt dự án' })).toMatchObject({ title: 'Quyết định phê duyệt dự án' });
     expect(toEntry({ number: 5, status: 'RECALLED' })).toMatchObject({ displayNumber: '05', status: 'RECALLED' });
     expect(toDocType({ id: 't', code: 'QD', name: 'N', abbreviation: 'Q', symbol_kind: 'OFFICIAL_LETTER', symbol_pattern: 'p', register_code: 'R', effective_from: '2026-01-01', effective_until: null, status: 'PUBLISHED', version: 2 })).toMatchObject({
       symbolKind: 'OFFICIAL_LETTER',

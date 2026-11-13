@@ -31485,6 +31485,8 @@ export interface components {
             document_id: string;
             /** Format: date */
             issued_on: string;
+            /** @description Trích yếu of the numbered document (DOC-10) */
+            title?: string | null;
             status: string;
         };
         AudEngagementCreate: {

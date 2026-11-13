@@ -126,7 +126,8 @@ describe('NumberRegistersScreen (DOC-10)', () => {
     mount(<NumberRegistersScreen route={ROUTE} />, h);
     await screen.findByText('REG-1');
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }));
+    // The first register of the list is open from the start: its log is the book the clerk keeps.
+    expect(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }).getAttribute('aria-pressed')).toBe('true');
     expect(await screen.findByText('01/QD-UBND')).toBeTruthy();
     const voided = screen.getByText('02/QD-UBND').closest('tr') as HTMLElement;
     expect(within(voided).getByText(vi_['doc.registers.entryStatus.voided'])).toBeTruthy();
@@ -145,7 +146,8 @@ describe('NumberRegistersScreen (DOC-10)', () => {
     mount(<NumberRegistersScreen route={ROUTE} />, h);
     await screen.findByText('REG-1');
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }));
+    // The first register of the list is open from the start: its log is the book the clerk keeps.
+    expect(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }).getAttribute('aria-pressed')).toBe('true');
     expect(await screen.findByText(vi_['doc.registers.entries.empty'])).toBeTruthy();
     failing = true;
     await user.click(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }));
@@ -208,7 +210,8 @@ describe('NumberRegistersScreen (DOC-10)', () => {
     mount(<NumberRegistersScreen route={ROUTE} />, h);
     await screen.findByText('REG-1');
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }));
+    // The first register of the list is open from the start: its log is the book the clerk keeps.
+    expect(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }).getAttribute('aria-pressed')).toBe('true');
     await screen.findByText('01/QD-UBND');
     let blob: Blob | undefined;
     URL.createObjectURL = vi.fn((made: Blob) => {
@@ -243,7 +246,8 @@ describe('NumberRegistersScreen (DOC-10)', () => {
     mount(<NumberRegistersScreen route={ROUTE} />, h);
     await screen.findByText('REG-1');
     const user = userEvent.setup();
-    await user.click(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }));
+    // The first register of the list is open from the start: its log is the book the clerk keeps.
+    expect(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }).getAttribute('aria-pressed')).toBe('true');
     await screen.findByText('01/QD-UBND');
     failing = true;
     URL.createObjectURL = vi.fn(() => 'blob:none');
@@ -260,7 +264,10 @@ describe('NumberRegistersScreen (DOC-10)', () => {
     });
     mount(<NumberRegistersScreen route={ROUTE} />, h, CLERK);
     await screen.findByText('REG-1');
-    await userEvent.setup().click(screen.getByRole('button', { name: vi_['doc.registers.more.action'] }));
+    const user = userEvent.setup();
+    // The log of the first register, open from the start, has a button of its own with the same words: it is closed first.
+    await user.click(screen.getByRole('button', { name: vi_['doc.registers.entries.label'].replace('{code}', 'REG-1') }));
+    await user.click(screen.getByRole('button', { name: vi_['doc.registers.more.action'] }));
     expect(await screen.findByText('REG-3')).toBeTruthy();
     expect(screen.queryByRole('button', { name: vi_['doc.registers.more.action'] })).toBeNull();
   });

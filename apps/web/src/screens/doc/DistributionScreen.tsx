@@ -355,10 +355,8 @@ function DistributionContent({ route }: ScreenProps) {
                   {t('doc.distribution.progress.text', { reached: progress.reached, total: progress.total, acknowledged: progress.acknowledged })}
                 </p>
               )}
-              {doc.distributions.length === 0 ? (
-                <p className="callout">{sealed ? t('doc.distribution.table.notIssued') : t('doc.distribution.table.empty')}</p>
-              ) : (
-                <div className="tablewrap">
+              {/* The columns of the distribution stand even before the first dispatch: an empty table says so in its one row. */}
+              <div className="tablewrap">
                   <table>
                     <thead>
                       <tr>
@@ -372,6 +370,13 @@ function DistributionContent({ route }: ScreenProps) {
                       </tr>
                     </thead>
                     <tbody>
+                      {doc.distributions.length === 0 ? (
+                        <tr data-testid="distribution-empty">
+                          <td colSpan={7} className="muted">
+                            {sealed ? t('doc.distribution.table.notIssued') : t('doc.distribution.table.empty')}
+                          </td>
+                        </tr>
+                      ) : null}
                       {doc.distributions.flatMap((row) => [
                         <tr key={row.id} data-distribution-id={row.id} data-status={row.status}>
                           <td>
@@ -428,7 +433,6 @@ function DistributionContent({ route }: ScreenProps) {
                     </tbody>
                   </table>
                 </div>
-              )}
               <p className="callout">{t('doc.distribution.note.text')}</p>
             </div>
           )}
