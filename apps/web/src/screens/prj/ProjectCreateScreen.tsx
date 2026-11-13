@@ -5,6 +5,11 @@ import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { SectionCard, StickyActions } from '../../ui';
+import { useWorkflowSuggestion } from '../pwf/process/hooks';
+import { EMPTY_CHOICE, choiceProblems, startsWorkflow, suggestionQuery, workflowBodyOf } from '../pwf/process/model';
+import type { ChoiceForm } from '../pwf/process/model';
+import { ProcessKindSection } from '../pwf/process/ProcessKindSection';
+import { workflowLink } from '../pwf/model';
 import { BackLink, ProjectFormFields, SuggestionPanel } from './components';
 import { useCreateProject, useMasterOptions, useProject, useUnits } from './hooks';
 import { problemMessage } from './labels';
@@ -34,6 +39,13 @@ function ProjectCreateContent({ route }: ScreenProps) {
   const [errors, setErrors] = useState<Partial<Record<ProjectField, ReturnType<typeof validateForm>[ProjectField]>>>({});
   const [createdId, setCreatedId] = useState<string | undefined>(undefined);
   const created = useProject(createdId);
+  // R47: the kind of workflow and the planned start are chosen with the registration, for a person who may read workflows; the rule suggests, the person confirms or overrides with a reason, and the workflow starts in the transaction
+  // that registers the project. Without the right to start a workflow, or without a planned start, the project is registered as it always was and the workflow starts later (PWF-05).
+  const seesKinds = (permissions ?? []).includes('pwf.read');
+  const [choice, setChoice] = useState<ChoiceForm>(EMPTY_CHOICE);
+  const [choiceChecked, setChoiceChecked] = useState(false);
+  const [withWorkflow, setWithWorkflow] = useState(false);
+  const suggestion = useWorkflowSuggestion(suggestionQuery({ ownerUnitId: form.ownerUnitId, projectTypeVersionId: form.projectTypeVersionId }, choice), seesKinds && form.ownerUnitId !== '' && createdId === undefined);
   const problem = create.isError ? describeProblem(create.error) : undefined;
 
   const setField = (field: ProjectField, value: string): void => {
@@ -46,14 +58,21 @@ function ProjectCreateContent({ route }: ScreenProps) {
     if (create.isPending || !canCreate || createdId !== undefined) return;
     const found = validateForm(form, 'create');
     setErrors(found);
-    if (Object.keys(found).length > 0) return;
+    setChoiceChecked(true);
+    // A planned start that cannot start a workflow (no template, a missing fact, no reason for an override, a year without a calendar) is said before anything is sent.
+    const starting = seesKinds && suggestion.data?.can_start === true && choice.plannedStart.trim() !== '';
+    if (Object.keys(found).length > 0 || (starting && choiceProblems(choice, suggestion.data).length > 0)) return;
     // The investor is the owner unit unless another one is chosen.
     const body = createBody({
       ...form,
       investorUnitId: form.investorUnitId === '' ? form.ownerUnitId : form.investorUnitId,
     });
-    create.mutate(body, {
-      onSuccess: (result) => setCreatedId(result.resource_id),
+    const workflow = starting && startsWorkflow(choice, suggestion.data) ? workflowBodyOf(choice, suggestion.data) : undefined;
+    create.mutate(workflow === undefined ? body : { ...body, workflow }, {
+      onSuccess: (result) => {
+        setWithWorkflow(workflow !== undefined);
+        setCreatedId(result.resource_id);
+      },
     });
   };
 
@@ -91,6 +110,19 @@ function ProjectCreateContent({ route }: ScreenProps) {
               programs={programs.data ?? []}
               disabled={!canCreate || createdId !== undefined}
             />
+            {seesKinds ? (
+              <ProcessKindSection
+                form={choice}
+                onChange={(patch) => setChoice((current) => ({ ...current, ...patch }))}
+                suggestion={form.ownerUnitId === '' ? undefined : suggestion.data}
+                loading={suggestion.isLoading}
+                failed={suggestion.isError}
+                onRetry={() => void suggestion.refetch()}
+                disabled={!canCreate || createdId !== undefined || form.ownerUnitId === ''}
+                showProblems={choiceChecked}
+                withoutStart={t('pwf.process.kind.start.registerHint')}
+              />
+            ) : null}
             <StickyActions
               primary={
                 <button type="submit" className="ui-button ui-button--primary" disabled={!canCreate || create.isPending || createdId !== undefined}>
@@ -128,6 +160,11 @@ function ProjectCreateContent({ route }: ScreenProps) {
                 ) : (
                   <SuggestionPanel suggestion={created.data.suggestion} />
                 )}
+                {seesKinds ? (
+                  <p role="status" data-testid="created-workflow">
+                    {withWorkflow ? <Link to={workflowLink(createdId)}>{t('pwf.process.kind.created.started')}</Link> : t('pwf.process.kind.created.later')}
+                  </p>
+                ) : null}
                 <p>
                   <Link className="ui-button ui-button--primary" to={workspaceLink(createdId)}>
                     {t('prj.create.done.open')}

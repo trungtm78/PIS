@@ -147,7 +147,16 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
     {
       key: 'size',
       header: t('pwf.templates.col.size.header'),
-      render: (row) => (row.summary === null ? '–' : t('pwf.templates.lib.size.text', { phases: row.summary.phases, tasks: row.summary.tasks })),
+      render: (row) =>
+        row.summary === null ? (
+          '–'
+        ) : row.summary.steps === undefined ? (
+          t('pwf.templates.lib.size.text', { phases: row.summary.phases, tasks: row.summary.tasks })
+        ) : (
+          <>
+            {t('pwf.templates.lib.size.text', { phases: row.summary.phases, tasks: row.summary.tasks })} <span className="pwf-hint">{t('pwf.templates.lib.steps.text', { steps: row.summary.steps })}</span>
+          </>
+        ),
     },
     {
       key: 'actions',
@@ -302,6 +311,8 @@ function scopeWord(t: ReturnType<typeof useTranslation>['t'], scope: TemplateCha
       return t('pwf.templates.scope.template.word');
     case 'phase':
       return t('pwf.templates.scope.phase.word');
+    case 'step':
+      return t('pwf.templates.scope.step.word');
     case 'task':
       return t('pwf.templates.scope.task.word');
   }

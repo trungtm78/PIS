@@ -58423,7 +58423,7 @@ final class PwfAdoptResultResponse implements ResponseModel {
     required this.schedule,
     required this.findings,
     required this.asOf,
-    required this.selection,
+    this.selection,
     this.extra = const <String, Object?>{},
   });
 
@@ -58440,7 +58440,7 @@ final class PwfAdoptResultResponse implements ResponseModel {
       schedule: requiredField(map, path, 'schedule', PwfSchedulePreviewResponse.fromJson),
       findings: requiredField(map, path, 'findings', asList(PwfAdoptResultResponseFindingsItem.fromJson)),
       asOf: requiredField(map, path, 'as_of', asString),
-      selection: requiredField(map, path, 'selection', PwfWorkflowSelectionResponse.fromJson),
+      selection: optionalField(map, path, 'selection', PwfWorkflowSelectionResponse.fromJson),
       extra: unknownFields(map, path, const <String>{'dry_run', 'applied', 'workflow_id', 'template_code', 'template_hash', 'effective_date', 'tasks', 'schedule', 'findings', 'as_of', 'selection'}, strict: true),
     );
   }
@@ -58455,7 +58455,7 @@ final class PwfAdoptResultResponse implements ResponseModel {
   final PwfSchedulePreviewResponse schedule;
   final List<PwfAdoptResultResponseFindingsItem> findings;
   final String asOf;
-  final PwfWorkflowSelectionResponse selection;
+  final PwfWorkflowSelectionResponse? selection;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -58472,7 +58472,7 @@ final class PwfAdoptResultResponse implements ResponseModel {
         'schedule': schedule.toJson(),
         'findings': findings.map((e0) => e0.toJson()).toList(),
         'as_of': asOf,
-        'selection': selection.toJson(),
+        if (selection != null) 'selection': selection!.toJson(),
         ...extra,
       };
 }
@@ -60675,10 +60675,10 @@ final class PwfTaskDetailResponse implements ResponseModel {
     required this.canResume,
     required this.canAssign,
     required this.asOf,
-    required this.step,
-    required this.legalBasis,
-    required this.stepLegalBasis,
     this.kpiResults,
+    this.step,
+    this.legalBasis,
+    this.stepLegalBasis,
     this.extra = const <String, Object?>{},
   });
 
@@ -60740,9 +60740,9 @@ final class PwfTaskDetailResponse implements ResponseModel {
       canResume: requiredField(map, path, 'can_resume', asBool),
       canAssign: requiredField(map, path, 'can_assign', asBool),
       asOf: requiredField(map, path, 'as_of', asString),
-      step: requiredField(map, path, 'step', nullable(PwfTaskDetailResponseStep.fromJson)),
-      legalBasis: requiredField(map, path, 'legal_basis', asList(PwfLegalBasisViewResponse.fromJson)),
-      stepLegalBasis: requiredField(map, path, 'step_legal_basis', asList(PwfLegalBasisViewResponse.fromJson)),
+      step: optionalField(map, path, 'step', nullable(PwfTaskDetailResponseStep.fromJson)),
+      legalBasis: optionalField(map, path, 'legal_basis', asList(PwfLegalBasisViewResponse.fromJson)),
+      stepLegalBasis: optionalField(map, path, 'step_legal_basis', asList(PwfLegalBasisViewResponse.fromJson)),
       extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'responsible_role', 'approver_role', 'duration_working_days', 'baseline_start', 'finish_variance_days', 'late_start', 'late_finish', 'free_float', 'actual_start', 'actual_finish', 'remaining_working_days', 'percent_complete', 'reschedule_count', 'estimate_vnd', 'actual_vnd', 'milestone_id', 'predecessors', 'checklist', 'legal_doc_types', 'form_templates', 'evidence', 'completion', 'exceptions', 'assignments', 'history', 'kpi_results', 'can_start', 'can_complete', 'can_approve', 'can_return', 'can_request_exception', 'can_resume', 'can_assign', 'as_of', 'step', 'legal_basis', 'step_legal_basis'}, strict: true),
     );
   }
@@ -60803,8 +60803,8 @@ final class PwfTaskDetailResponse implements ResponseModel {
   final bool canAssign;
   final String asOf;
   final PwfTaskDetailResponseStep? step;
-  final List<PwfLegalBasisViewResponse> legalBasis;
-  final List<PwfLegalBasisViewResponse> stepLegalBasis;
+  final List<PwfLegalBasisViewResponse>? legalBasis;
+  final List<PwfLegalBasisViewResponse>? stepLegalBasis;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -60866,9 +60866,9 @@ final class PwfTaskDetailResponse implements ResponseModel {
         'can_resume': canResume,
         'can_assign': canAssign,
         'as_of': asOf,
-        'step': (step == null ? null : step!.toJson()),
-        'legal_basis': legalBasis.map((e0) => e0.toJson()).toList(),
-        'step_legal_basis': stepLegalBasis.map((e0) => e0.toJson()).toList(),
+        if (step != null) 'step': step!.toJson(),
+        if (legalBasis != null) 'legal_basis': legalBasis!.map((e0) => e0.toJson()).toList(),
+        if (stepLegalBasis != null) 'step_legal_basis': stepLegalBasis!.map((e0) => e0.toJson()).toList(),
         ...extra,
       };
 }
@@ -61167,8 +61167,8 @@ final class PwfTaskDetailResponseEvidenceItem implements ResponseModel {
     required this.note,
     required this.attachedBy,
     required this.attachedAt,
-    required this.formTemplateRevision,
-    required this.formTemplateSha256,
+    this.formTemplateRevision,
+    this.formTemplateSha256,
     this.extra = const <String, Object?>{},
   });
 
@@ -61185,8 +61185,8 @@ final class PwfTaskDetailResponseEvidenceItem implements ResponseModel {
       note: requiredField(map, path, 'note', nullable(asString)),
       attachedBy: requiredField(map, path, 'attached_by', asString),
       attachedAt: requiredField(map, path, 'attached_at', asString),
-      formTemplateRevision: requiredField(map, path, 'form_template_revision', nullable(asInt)),
-      formTemplateSha256: requiredField(map, path, 'form_template_sha256', nullable(asString)),
+      formTemplateRevision: optionalField(map, path, 'form_template_revision', nullable(asInt)),
+      formTemplateSha256: optionalField(map, path, 'form_template_sha256', nullable(asString)),
       extra: unknownFields(map, path, const <String>{'id', 'item_code', 'evidence_kind', 'document_id', 'legal_doc_type', 'form_template_code', 'external_ref', 'note', 'attached_by', 'attached_at', 'form_template_revision', 'form_template_sha256'}, strict: true),
     );
   }
@@ -61219,8 +61219,8 @@ final class PwfTaskDetailResponseEvidenceItem implements ResponseModel {
         'note': note,
         'attached_by': attachedBy,
         'attached_at': attachedAt,
-        'form_template_revision': formTemplateRevision,
-        'form_template_sha256': formTemplateSha256,
+        if (formTemplateRevision != null) 'form_template_revision': formTemplateRevision,
+        if (formTemplateSha256 != null) 'form_template_sha256': formTemplateSha256,
         ...extra,
       };
 }
@@ -61308,14 +61308,14 @@ final class PwfTaskDetailResponseFormTemplatesItem implements ResponseModel {
     required this.code,
     required this.satisfied,
     required this.documentId,
-    required this.policy,
-    required this.pinnedRevision,
-    required this.currentRevision,
-    required this.currentTitle,
-    required this.currentEffectiveFrom,
-    required this.usedRevision,
-    required this.usedSha256,
-    required this.newerAvailable,
+    this.policy,
+    this.pinnedRevision,
+    this.currentRevision,
+    this.currentTitle,
+    this.currentEffectiveFrom,
+    this.usedRevision,
+    this.usedSha256,
+    this.newerAvailable,
     this.extra = const <String, Object?>{},
   });
 
@@ -61325,14 +61325,14 @@ final class PwfTaskDetailResponseFormTemplatesItem implements ResponseModel {
       code: requiredField(map, path, 'code', asString),
       satisfied: requiredField(map, path, 'satisfied', asBool),
       documentId: requiredField(map, path, 'document_id', nullable(asString)),
-      policy: requiredField(map, path, 'policy', asString),
-      pinnedRevision: requiredField(map, path, 'pinned_revision', nullable(asInt)),
-      currentRevision: requiredField(map, path, 'current_revision', nullable(asInt)),
-      currentTitle: requiredField(map, path, 'current_title', nullable(asString)),
-      currentEffectiveFrom: requiredField(map, path, 'current_effective_from', nullable(asString)),
-      usedRevision: requiredField(map, path, 'used_revision', nullable(asInt)),
-      usedSha256: requiredField(map, path, 'used_sha256', nullable(asString)),
-      newerAvailable: requiredField(map, path, 'newer_available', asBool),
+      policy: optionalField(map, path, 'policy', asString),
+      pinnedRevision: optionalField(map, path, 'pinned_revision', nullable(asInt)),
+      currentRevision: optionalField(map, path, 'current_revision', nullable(asInt)),
+      currentTitle: optionalField(map, path, 'current_title', nullable(asString)),
+      currentEffectiveFrom: optionalField(map, path, 'current_effective_from', nullable(asString)),
+      usedRevision: optionalField(map, path, 'used_revision', nullable(asInt)),
+      usedSha256: optionalField(map, path, 'used_sha256', nullable(asString)),
+      newerAvailable: optionalField(map, path, 'newer_available', asBool),
       extra: unknownFields(map, path, const <String>{'code', 'satisfied', 'document_id', 'policy', 'pinned_revision', 'current_revision', 'current_title', 'current_effective_from', 'used_revision', 'used_sha256', 'newer_available'}, strict: true),
     );
   }
@@ -61340,14 +61340,14 @@ final class PwfTaskDetailResponseFormTemplatesItem implements ResponseModel {
   final String code;
   final bool satisfied;
   final String? documentId;
-  final String policy;
+  final String? policy;
   final int? pinnedRevision;
   final int? currentRevision;
   final String? currentTitle;
   final String? currentEffectiveFrom;
   final int? usedRevision;
   final String? usedSha256;
-  final bool newerAvailable;
+  final bool? newerAvailable;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -61357,14 +61357,14 @@ final class PwfTaskDetailResponseFormTemplatesItem implements ResponseModel {
         'code': code,
         'satisfied': satisfied,
         'document_id': documentId,
-        'policy': policy,
-        'pinned_revision': pinnedRevision,
-        'current_revision': currentRevision,
-        'current_title': currentTitle,
-        'current_effective_from': currentEffectiveFrom,
-        'used_revision': usedRevision,
-        'used_sha256': usedSha256,
-        'newer_available': newerAvailable,
+        if (policy != null) 'policy': policy,
+        if (pinnedRevision != null) 'pinned_revision': pinnedRevision,
+        if (currentRevision != null) 'current_revision': currentRevision,
+        if (currentTitle != null) 'current_title': currentTitle,
+        if (currentEffectiveFrom != null) 'current_effective_from': currentEffectiveFrom,
+        if (usedRevision != null) 'used_revision': usedRevision,
+        if (usedSha256 != null) 'used_sha256': usedSha256,
+        if (newerAvailable != null) 'newer_available': newerAvailable,
         ...extra,
       };
 }
@@ -61958,10 +61958,10 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
     required this.canProposeReschedule,
     required this.version,
     required this.asOf,
-    required this.steps,
-    required this.standardWorkingDays,
-    required this.lapsedLegalDocuments,
-    required this.selection,
+    this.steps,
+    this.standardWorkingDays,
+    this.lapsedLegalDocuments,
+    this.selection,
     this.extra = const <String, Object?>{},
   });
 
@@ -61987,10 +61987,10 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
       canProposeReschedule: requiredField(map, path, 'can_propose_reschedule', asBool),
       version: requiredField(map, path, 'version', asInt),
       asOf: requiredField(map, path, 'as_of', asString),
-      steps: requiredField(map, path, 'steps', asList(PwfWorkflowDetailResponseStepsItem.fromJson)),
-      standardWorkingDays: requiredField(map, path, 'standard_working_days', asInt),
-      lapsedLegalDocuments: requiredField(map, path, 'lapsed_legal_documents', asList(asString)),
-      selection: requiredField(map, path, 'selection', asAny),
+      steps: optionalField(map, path, 'steps', asList(PwfWorkflowDetailResponseStepsItem.fromJson)),
+      standardWorkingDays: optionalField(map, path, 'standard_working_days', asInt),
+      lapsedLegalDocuments: optionalField(map, path, 'lapsed_legal_documents', asList(asString)),
+      selection: optionalField(map, path, 'selection', asAny),
       extra: unknownFields(map, path, const <String>{'id', 'project_id', 'template_code', 'template_rule_version', 'template_hash', 'unverified', 'status', 'planned_start_date', 'schedule_version', 'adopted_on', 'open_phase', 'phases', 'tasks', 'gates', 'counts_by_band', 'can_manage', 'can_propose_reschedule', 'version', 'as_of', 'steps', 'standard_working_days', 'lapsed_legal_documents', 'selection'}, strict: true),
     );
   }
@@ -62014,9 +62014,9 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
   final bool canProposeReschedule;
   final int version;
   final String asOf;
-  final List<PwfWorkflowDetailResponseStepsItem> steps;
-  final int standardWorkingDays;
-  final List<String> lapsedLegalDocuments;
+  final List<PwfWorkflowDetailResponseStepsItem>? steps;
+  final int? standardWorkingDays;
+  final List<String>? lapsedLegalDocuments;
   final Object? selection;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
@@ -62043,10 +62043,10 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
         'can_propose_reschedule': canProposeReschedule,
         'version': version,
         'as_of': asOf,
-        'steps': steps.map((e0) => e0.toJson()).toList(),
-        'standard_working_days': standardWorkingDays,
-        'lapsed_legal_documents': lapsedLegalDocuments,
-        'selection': selection,
+        if (steps != null) 'steps': steps!.map((e0) => e0.toJson()).toList(),
+        if (standardWorkingDays != null) 'standard_working_days': standardWorkingDays,
+        if (lapsedLegalDocuments != null) 'lapsed_legal_documents': lapsedLegalDocuments,
+        if (selection != null) 'selection': selection,
         ...extra,
       };
 }
@@ -62290,9 +62290,9 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
     required this.assignee,
     required this.returnCount,
     required this.version,
-    required this.stepCode,
-    required this.checklistTotal,
-    required this.checklistDone,
+    this.stepCode,
+    this.checklistTotal,
+    this.checklistDone,
     this.extra = const <String, Object?>{},
   });
 
@@ -62320,9 +62320,9 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
       assignee: requiredField(map, path, 'assignee', nullable(PwfWorkflowDetailResponseTasksItemAssignee.fromJson)),
       returnCount: requiredField(map, path, 'return_count', asInt),
       version: requiredField(map, path, 'version', asInt),
-      stepCode: requiredField(map, path, 'step_code', nullable(asString)),
-      checklistTotal: requiredField(map, path, 'checklist_total', asInt),
-      checklistDone: requiredField(map, path, 'checklist_done', asInt),
+      stepCode: optionalField(map, path, 'step_code', nullable(asString)),
+      checklistTotal: optionalField(map, path, 'checklist_total', asInt),
+      checklistDone: optionalField(map, path, 'checklist_done', asInt),
       extra: unknownFields(map, path, const <String>{'id', 'task_code', 'name', 'phase_code', 'kind', 'required', 'priority', 'status', 'excluded', 'tracked', 'state', 'planned_start', 'planned_finish', 'baseline_finish', 'missing_year', 'total_float', 'critical', 'band', 'assignee', 'return_count', 'version', 'step_code', 'checklist_total', 'checklist_done'}, strict: true),
     );
   }
@@ -62349,8 +62349,8 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
   final int returnCount;
   final int version;
   final String? stepCode;
-  final int checklistTotal;
-  final int checklistDone;
+  final int? checklistTotal;
+  final int? checklistDone;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -62378,9 +62378,9 @@ final class PwfWorkflowDetailResponseTasksItem implements ResponseModel {
         'assignee': (assignee == null ? null : assignee!.toJson()),
         'return_count': returnCount,
         'version': version,
-        'step_code': stepCode,
-        'checklist_total': checklistTotal,
-        'checklist_done': checklistDone,
+        if (stepCode != null) 'step_code': stepCode,
+        if (checklistTotal != null) 'checklist_total': checklistTotal,
+        if (checklistDone != null) 'checklist_done': checklistDone,
         ...extra,
       };
 }

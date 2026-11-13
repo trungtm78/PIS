@@ -5,6 +5,7 @@ import { SectionCard, StatusPill } from '../../../ui';
 import { FigureInfo } from '../components';
 import { dependencyWord, gateWord, kindWord, priorityWord } from '../labels';
 import { CheckField, CodeListField, NumberField, SelectField, TextField } from './editor-fields';
+import { TaskProcessFields } from './editor-steps';
 import { KpiCodePicker } from './KpiCodePicker';
 import type { ProblemMap } from './editor-fields';
 import {
@@ -343,6 +344,7 @@ function TaskPanel({ template, index, task, onChange, problems, show, disabled, 
         </div>
         <KpiCodePicker taskCode={task.code} value={task.kpi_codes} disabled={disabled} enabled onChange={(value) => patch({ kpi_codes: value })} />
       </fieldset>
+      <TaskProcessFields template={template} index={index} task={task} onPatch={patch} problems={problems} show={show} disabled={disabled} />
       <fieldset className="pwf-tpl-sub">
         <legend>
           {t('pwf.templates.checklist.legend')} <Limit name={t('pwf.templates.checklist.legend')} count={task.checklist.length} max={MAX_CHECKLIST} />

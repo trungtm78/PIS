@@ -8,6 +8,12 @@ type Constraint = NonNullable<TemplateTask['constraint']>;
 type Checklist = NonNullable<TemplateTask['checklist']>[number];
 type Condition = NonNullable<TemplateTask['when']>[number];
 
+export type LegalBasisInput = NonNullable<TemplateTask['legal_basis']>[number];
+export type FormPolicy = NonNullable<TemplateTask['form_policies']>[number];
+export type FormPolicyKind = FormPolicy['policy'];
+/** A step of a phase as the editor holds it (R44): the role that answers for it and its legal grounds are optional. */
+export type EditorStep = NonNullable<TemplateParams['steps']>[number];
+
 export type ConstraintKind = Constraint['kind'];
 export type ConditionField = Condition['field'];
 
@@ -37,6 +43,12 @@ export const MAX_CONDITIONS = 5;
 export const MAX_CODES = 10;
 export const MAX_LAG = 365;
 export const MAX_DURATION = 1095;
+export const MAX_STEPS = 80;
+export const MAX_LEGAL_BASIS = 12;
+export const MAX_ARTICLE = 160;
+export const MAX_NOTE = 400;
+export const FORM_POLICY_KINDS: readonly FormPolicyKind[] = ['LATEST_APPROVED', 'PINNED'];
+export const DOCUMENT_CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,63}$/;
 export const CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,39}$/;
 const VALUE_PATTERN = /^[A-Za-z0-9_.-]{1,40}$/;
 
@@ -54,8 +66,13 @@ export interface Template {
   name: string;
   project_type: string | null;
   phases: TemplatePhase[];
+  /** The steps the template names (R44); absent or empty in a template without steps, where every phase is one step. */
+  steps?: EditorStep[];
   tasks: EditorTask[];
 }
+
+export const stepsOf = (template: Template): EditorStep[] => template.steps ?? [];
+export const hasSteps = (template: Template): boolean => stepsOf(template).length > 0;
 
 export const blankTemplate = (): Template => ({ name: '', project_type: null, phases: [], tasks: [] });
 
@@ -67,6 +84,25 @@ const text = (value: unknown): string => (typeof value === 'string' ? value : ''
 const strings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []);
 const count = (value: unknown): number => (typeof value === 'number' ? value : 0);
 const oneOf = <T extends string>(options: readonly T[], value: unknown, fallback: T): T => options.find((option) => option === value) ?? fallback;
+
+const readLegalBasis = (value: unknown): LegalBasisInput[] =>
+  records(value).map((item) => ({
+    document: text(item.document),
+    ...(typeof item.article === 'string' ? { article: item.article } : {}),
+    ...(typeof item.note === 'string' ? { note: item.note } : {}),
+    verification: item.verification === 'VERIFIED' ? 'VERIFIED' : 'UNVERIFIED',
+  }));
+
+const readFormPolicies = (value: unknown): FormPolicy[] => records(value).map((item) => ({ form: text(item.form), policy: oneOf(FORM_POLICY_KINDS, item.policy, 'LATEST_APPROVED'), ...(typeof item.revision === 'number' ? { revision: item.revision } : {}) }));
+
+/** The legal grounds as the rule keeps them: an article and a note that are empty are left out, never written as empty text. */
+const writeLegalBasis = (basis: readonly LegalBasisInput[]): LegalBasisInput[] =>
+  basis.map((one) => ({
+    document: one.document.trim(),
+    ...(one.article === undefined || one.article.trim() === '' ? {} : { article: one.article.trim() }),
+    ...(one.note === undefined || one.note.trim() === '' ? {} : { note: one.note.trim() }),
+    verification: one.verification,
+  }));
 
 function readTask(raw: Record<string, unknown>): EditorTask {
   const constraint = isRecord(raw.constraint) ? { kind: oneOf(CONSTRAINT_KINDS, raw.constraint.kind, 'SNET'), offset_working_days: count(raw.constraint.offset_working_days) } : null;
@@ -87,6 +123,10 @@ function readTask(raw: Record<string, unknown>): EditorTask {
     checklist: records(raw.checklist).map((item) => ({ code: text(item.code), name: text(item.name), required: item.required !== false, evidence_kinds: strings(item.evidence_kinds) })),
     kpi_codes: strings(raw.kpi_codes),
     when: records(raw.when).map((item) => ({ field: oneOf(CONDITION_FIELDS, item.field, 'project_group'), in: strings(item.in) })),
+    // What a template written before steps, legal grounds and form policies does not have is not added to it (its params stay what they were).
+    ...(typeof raw.step === 'string' && raw.step !== '' ? { step: raw.step } : {}),
+    ...(records(raw.legal_basis).length === 0 ? {} : { legal_basis: readLegalBasis(raw.legal_basis) }),
+    ...(records(raw.form_policies).length === 0 ? {} : { form_policies: readFormPolicies(raw.form_policies) }),
   };
 }
 
@@ -97,6 +137,17 @@ export function readTemplate(params: unknown): Template {
     name: text(params.name),
     project_type: typeof params.project_type === 'string' && params.project_type !== '' ? params.project_type : null,
     phases: records(params.phases).map((item) => ({ code: text(item.code), name: text(item.name), gates: GATE_TARGETS.filter((target) => strings(item.gates).includes(target)) })),
+    ...(records(params.steps).length === 0
+      ? {}
+      : {
+          steps: records(params.steps).map((item) => ({
+            code: text(item.code),
+            name: text(item.name),
+            phase: text(item.phase),
+            ...(typeof item.responsible_role === 'string' && item.responsible_role !== '' ? { responsible_role: item.responsible_role } : {}),
+            ...(records(item.legal_basis).length === 0 ? {} : { legal_basis: readLegalBasis(item.legal_basis) }),
+          })),
+        }),
     tasks: records(params.tasks).map(readTask),
   };
 }
@@ -107,11 +158,26 @@ export function paramsOfTemplate(template: Template): TemplateParams & Params {
     name: template.name.trim(),
     project_type: template.project_type === null || template.project_type.trim() === '' ? null : template.project_type.trim(),
     phases: template.phases.map((phase) => ({ code: phase.code, name: phase.name.trim(), gates: [...phase.gates] })),
-    tasks: template.tasks.map(({ constraint, approver_role: approver, ...task }) => ({
+    ...(hasSteps(template)
+      ? {
+          steps: stepsOf(template).map((step) => ({
+            code: step.code,
+            name: step.name.trim(),
+            phase: step.phase,
+            ...(step.responsible_role === undefined || step.responsible_role === null || step.responsible_role.trim() === '' ? {} : { responsible_role: step.responsible_role.trim() }),
+            ...((step.legal_basis ?? []).length === 0 ? {} : { legal_basis: writeLegalBasis(step.legal_basis ?? []) }),
+          })),
+        }
+      : {}),
+    tasks: template.tasks.map(({ constraint, approver_role: approver, step, legal_basis: basis, form_policies: policies, ...task }) => ({
       ...task,
       name: task.name.trim(),
       approver_role: approver === null || approver === '' ? null : approver,
       ...(constraint === null ? {} : { constraint }),
+      ...(hasSteps(template) && typeof step === 'string' && step !== '' ? { step } : {}),
+      ...((basis ?? []).length === 0 ? {} : { legal_basis: writeLegalBasis(basis ?? []) }),
+      // The policy of a form the task no longer has goes with the form.
+      ...((policies ?? []).some((policy) => task.form_templates.includes(policy.form)) ? { form_policies: (policies ?? []).filter((policy) => task.form_templates.includes(policy.form)).map((policy) => ({ form: policy.form, policy: policy.policy, ...(policy.policy === 'PINNED' && typeof policy.revision === 'number' ? { revision: policy.revision } : {}) })) } : {}),
     })),
   };
 }
@@ -120,6 +186,8 @@ export interface TemplateSummary {
   name: string;
   projectType: string | null;
   phases: number;
+  /** The steps the template names; absent for a template without steps (every phase is then one step). */
+  steps?: number;
   tasks: number;
 }
 
@@ -129,6 +197,7 @@ export function summaryOf(params: Params): TemplateSummary {
     name: text(params.name),
     projectType: typeof params.project_type === 'string' ? params.project_type : null,
     phases: Array.isArray(params.phases) ? params.phases.length : 0,
+    ...(Array.isArray(params.steps) && params.steps.length > 0 ? { steps: params.steps.length } : {}),
     tasks: Array.isArray(params.tasks) ? params.tasks.length : 0,
   };
 }
@@ -152,13 +221,23 @@ export function removePhase(template: Template, index: number): Template {
   if (phase === undefined) return template;
   const tasks = template.tasks.filter((task) => task.phase !== phase.code);
   const gone = new Set(template.tasks.filter((task) => task.phase === phase.code).map((task) => task.code));
-  return { ...template, phases: template.phases.filter((_, at) => at !== index), tasks: tasks.map((task) => ({ ...task, predecessors: task.predecessors.filter((link) => !gone.has(link.task)) })) };
+  return {
+    ...template,
+    phases: template.phases.filter((_, at) => at !== index),
+    ...(template.steps === undefined ? {} : { steps: template.steps.filter((step) => step.phase !== phase.code) }),
+    tasks: tasks.map((task) => ({ ...task, predecessors: task.predecessors.filter((link) => !gone.has(link.task)) })),
+  };
 }
 
 export function renamePhase(template: Template, index: number, code: string): Template {
   const old = template.phases[index]?.code;
   if (old === undefined) return template;
-  return { ...template, phases: template.phases.map((phase, at) => (at === index ? { ...phase, code } : phase)), tasks: template.tasks.map((task) => (task.phase === old ? { ...task, phase: code } : task)) };
+  return {
+    ...template,
+    phases: template.phases.map((phase, at) => (at === index ? { ...phase, code } : phase)),
+    ...(template.steps === undefined ? {} : { steps: template.steps.map((step) => (step.phase === old ? { ...step, phase: code } : step)) }),
+    tasks: template.tasks.map((task) => (task.phase === old ? { ...task, phase: code } : task)),
+  };
 }
 
 export function updatePhase(template: Template, index: number, patch: Partial<TemplatePhase>): Template {
@@ -185,7 +264,97 @@ export function addTask(template: Template, phase: string): Template {
     kpi_codes: [],
     when: [],
   };
-  return { ...template, tasks: [...template.tasks, task] };
+  // In a template with steps a new task goes to the first step of its phase (the person moves it).
+  const step = stepsOf(template).find((one) => one.phase === phase);
+  return { ...template, tasks: [...template.tasks, step === undefined ? task : { ...task, step: step.code }] };
+}
+
+// ---- the steps (R44) ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+/** Gives a template without steps one step per phase (the name of the phase) and puts every task in the step of its phase: the starting point from which steps are split. */
+export function enableSteps(template: Template): Template {
+  if (hasSteps(template)) return template;
+  const taken: string[] = [];
+  const byPhase = new Map<string, string>();
+  const steps: EditorStep[] = template.phases.map((phase) => {
+    const code = CODE_PATTERN.test(`S_${phase.code}`) && !taken.includes(`S_${phase.code}`) ? `S_${phase.code}` : nextCode('S', taken);
+    taken.push(code);
+    byPhase.set(phase.code, code);
+    return { code, name: phase.name, phase: phase.code };
+  });
+  return { ...template, steps, tasks: template.tasks.map((task) => (byPhase.has(task.phase) ? { ...task, step: byPhase.get(task.phase) as string } : task)) };
+}
+
+/** Takes the steps away again: the template is in two tiers as before, every phase standing for one step. The legal grounds of the steps go with them. */
+export function disableSteps(template: Template): Template {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the steps are what is dropped
+  const { steps, ...rest } = template;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the step of each task is what is dropped
+  return { ...rest, tasks: template.tasks.map(({ step, ...task }) => task) };
+}
+
+export function addStep(template: Template, phase: string): Template {
+  const steps = stepsOf(template);
+  if (steps.length >= MAX_STEPS) return template;
+  return { ...template, steps: [...steps, { code: nextCode('S', steps.map((step) => step.code)), name: '', phase }] };
+}
+
+export function updateStep(template: Template, index: number, patch: Partial<EditorStep>): Template {
+  const steps = stepsOf(template);
+  const old = steps[index];
+  if (old === undefined) return template;
+  const next = { ...old, ...patch };
+  // A step that moves to another phase leaves its tasks where they are: they now name a step of another phase, which the checks say.
+  return { ...template, steps: steps.map((step, at) => (at === index ? next : step)) };
+}
+
+/** A step code is changed in every task that names it. */
+export function renameStep(template: Template, index: number, code: string): Template {
+  const old = stepsOf(template)[index]?.code;
+  if (old === undefined) return template;
+  return { ...template, steps: stepsOf(template).map((step, at) => (at === index ? { ...step, code } : step)), tasks: template.tasks.map((task) => (task.step === old ? { ...task, step: code } : task)) };
+}
+
+/** A step is removed and its tasks go to another step of the same phase when there is one; removing the last step of the template takes the steps away altogether. */
+export function removeStep(template: Template, index: number): Template {
+  const steps = stepsOf(template);
+  const gone = steps[index];
+  if (gone === undefined) return template;
+  const left = steps.filter((_, at) => at !== index);
+  if (left.length === 0) return disableSteps(template);
+  const heir = left.find((step) => step.phase === gone.phase)?.code;
+  return {
+    ...template,
+    steps: left,
+    tasks: template.tasks.map((task) => {
+      if (task.step !== gone.code) return task;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- a task with no step left to go to names none (the checks say so)
+      const { step, ...rest } = task;
+      return heir === undefined ? rest : { ...rest, step: heir };
+    }),
+  };
+}
+
+export interface StepGroup {
+  phase: TemplatePhase | null;
+  steps: { index: number; step: EditorStep; tasks: number }[];
+}
+
+/** The steps under their phase in the order of the phases, each with how many tasks it has; steps of a phase that is not there are kept apart. */
+export function groupSteps(template: Template): StepGroup[] {
+  const indexed = stepsOf(template).map((step, index) => ({ index, step, tasks: template.tasks.filter((task) => task.step === step.code).length }));
+  const groups: StepGroup[] = template.phases.map((phase) => ({ phase, steps: indexed.filter((item) => item.step.phase === phase.code) }));
+  const orphans = indexed.filter((item) => !template.phases.some((phase) => phase.code === item.step.phase));
+  return orphans.length === 0 ? groups : [...groups, { phase: null, steps: orphans }];
+}
+
+/** The revision policy of a form of a task: what the task says, else the newest approved revision. */
+export const formPolicyOf = (task: Pick<EditorTask, 'form_policies'>, form: string): FormPolicy => (task.form_policies ?? []).find((one) => one.form === form) ?? { form, policy: 'LATEST_APPROVED' };
+
+/** Sets the policy of one form of a task; `LATEST_APPROVED` is the absence of a policy, so the list holds only the pinned forms. */
+export function setFormPolicy(task: EditorTask, form: string, policy: FormPolicyKind, revision: number | null): FormPolicy[] {
+  const others = (task.form_policies ?? []).filter((one) => one.form !== form && task.form_templates.includes(one.form));
+  return policy === 'PINNED' ? [...others, { form, policy, ...(revision === null ? {} : { revision }) }] : others;
 }
 
 export function updateTask(template: Template, index: number, patch: Partial<EditorTask>): Template {
@@ -298,10 +467,34 @@ function detailProblems(path: string, task: EditorTask): TemplateProblem[] {
   out.push(...codeListProblems(`${path}.legal_doc_types`, task.legal_doc_types));
   out.push(...codeListProblems(`${path}.form_templates`, task.form_templates));
   out.push(...codeListProblems(`${path}.kpi_codes`, task.kpi_codes));
+  out.push(...legalBasisProblems(path, task.legal_basis ?? []));
+  (task.form_policies ?? []).forEach((policy, at) => {
+    if (!task.form_templates.includes(policy.form)) return;
+    // A pinned form names the revision it is pinned to.
+    if (policy.policy === 'PINNED' && !(typeof policy.revision === 'number' && whole(policy.revision, 1, 100000))) out.push({ path: `${path}.form_policies[${at}].revision`, problem: 'range' });
+  });
   return out;
 }
 
-function taskProblems(task: EditorTask, index: number, taken: ReadonlySet<string>, codes: ReadonlySet<string>, phases: ReadonlySet<string>): TemplateProblem[] {
+/** A legal ground cites a document of the catalogue by its code, once per article; the article and the note keep within their length. */
+function legalBasisProblems(path: string, basis: readonly LegalBasisInput[]): TemplateProblem[] {
+  const out: TemplateProblem[] = [];
+  if (basis.length > MAX_LEGAL_BASIS) out.push({ path: `${path}.legal_basis`, problem: 'limit' });
+  const seen = new Set<string>();
+  basis.forEach((one, at) => {
+    const base = `${path}.legal_basis[${at}]`;
+    if (one.document.trim() === '') out.push({ path: `${base}.document`, problem: 'required' });
+    else if (!DOCUMENT_CODE_PATTERN.test(one.document)) out.push({ path: `${base}.document`, problem: 'pattern' });
+    const key = `${one.document}|${(one.article ?? '').trim()}`;
+    if (seen.has(key)) out.push({ path: `${base}.document`, problem: 'duplicate' });
+    seen.add(key);
+    if ((one.article ?? '').trim().length > MAX_ARTICLE) out.push({ path: `${base}.article`, problem: 'length' });
+    if ((one.note ?? '').trim().length > MAX_NOTE) out.push({ path: `${base}.note`, problem: 'length' });
+  });
+  return out;
+}
+
+function taskProblems(task: EditorTask, index: number, taken: ReadonlySet<string>, codes: ReadonlySet<string>, phases: ReadonlySet<string>, stepPhase: ReadonlyMap<string, string>): TemplateProblem[] {
   const path = `tasks[${index}]`;
   const out: TemplateProblem[] = [];
   const push = (problem: TemplateProblem | undefined): void => {
@@ -310,6 +503,11 @@ function taskProblems(task: EditorTask, index: number, taken: ReadonlySet<string
   push(codeProblem(`${path}.code`, task.code, taken));
   push(nameProblem(`${path}.name`, task.name, 200));
   if (!phases.has(task.phase)) out.push({ path: `${path}.phase`, problem: 'unknownRef' });
+  // In a template with steps every task names a step of its own phase (R44).
+  if (stepPhase.size > 0) {
+    if (task.step === undefined || task.step === null || task.step === '') out.push({ path: `${path}.step`, problem: 'required' });
+    else if (stepPhase.get(task.step) !== task.phase) out.push({ path: `${path}.step`, problem: 'unknownRef' });
+  }
   if (!whole(task.duration_working_days, 0, MAX_DURATION)) out.push({ path: `${path}.duration_working_days`, problem: 'range' });
   push(codeProblem(`${path}.responsible_role`, task.responsible_role));
   if (task.approver_role !== null && !CODE_PATTERN.test(task.approver_role)) out.push({ path: `${path}.approver_role`, problem: 'pattern' });
@@ -334,10 +532,28 @@ export function localProblems(template: Template): TemplateProblem[] {
     const label = nameProblem(`phases[${index}].name`, phase.name, 120);
     if (label !== undefined) out.push(label);
   });
+  const steps = stepsOf(template);
+  if (steps.length > MAX_STEPS) out.push({ path: 'steps', problem: 'limit' });
+  const stepCodes = new Set<string>();
+  const stepPhase = new Map<string, string>();
+  steps.forEach((step, index) => {
+    const at = `steps[${index}]`;
+    const code = codeProblem(`${at}.code`, step.code, stepCodes);
+    if (code !== undefined) out.push(code);
+    stepCodes.add(step.code);
+    stepPhase.set(step.code, step.phase);
+    const label = nameProblem(`${at}.name`, step.name, 200);
+    if (label !== undefined) out.push(label);
+    if (!phaseCodes.has(step.phase)) out.push({ path: `${at}.phase`, problem: 'unknownRef' });
+    if (typeof step.responsible_role === 'string' && step.responsible_role !== '' && !CODE_PATTERN.test(step.responsible_role)) out.push({ path: `${at}.responsible_role`, problem: 'pattern' });
+    // A step with no task is not a step of the procedure.
+    if (!template.tasks.some((task) => task.step === step.code)) out.push({ path: `${at}.tasks`, problem: 'required' });
+    out.push(...legalBasisProblems(at, step.legal_basis ?? []));
+  });
   const allCodes = new Set(template.tasks.map((task) => task.code));
   const taken = new Set<string>();
   template.tasks.forEach((task, index) => {
-    out.push(...taskProblems(task, index, taken, allCodes, phaseCodes));
+    out.push(...taskProblems(task, index, taken, allCodes, phaseCodes, stepPhase));
     taken.add(task.code);
   });
   return out;
@@ -346,18 +562,19 @@ export function localProblems(template: Template): TemplateProblem[] {
 // ---- comparing two versions -----------------------------------------------------------------------------------------------------------------------------------------
 
 export interface TemplateChange {
-  scope: 'template' | 'phase' | 'task';
+  scope: 'template' | 'phase' | 'step' | 'task';
   code: string;
   kind: 'added' | 'removed' | 'changed';
   /** The fields of the part that differ (empty for a part added or removed). */
   fields: string[];
 }
 
-const TASK_FIELDS = ['name', 'phase', 'kind', 'duration_working_days', 'required', 'responsible_role', 'approver_role', 'priority', 'predecessors', 'constraint', 'legal_doc_types', 'form_templates', 'checklist', 'kpi_codes', 'when'] as const;
+const TASK_FIELDS = ['name', 'phase', 'step', 'kind', 'duration_working_days', 'required', 'responsible_role', 'approver_role', 'priority', 'predecessors', 'constraint', 'legal_doc_types', 'form_templates', 'form_policies', 'legal_basis', 'checklist', 'kpi_codes', 'when'] as const;
+const STEP_FIELDS = ['name', 'phase', 'responsible_role', 'legal_basis'] as const;
 
 const differing = <T extends object>(before: T, after: T, fields: readonly (keyof T)[]): string[] => fields.filter((field) => JSON.stringify(before[field]) !== JSON.stringify(after[field])).map(String);
 
-function compareParts<T extends { code: string }>(scope: 'phase' | 'task', before: readonly T[], after: readonly T[], fields: readonly (keyof T)[]): TemplateChange[] {
+function compareParts<T extends { code: string }>(scope: 'phase' | 'step' | 'task', before: readonly T[], after: readonly T[], fields: readonly (keyof T)[]): TemplateChange[] {
   const old = new Map(before.map((item) => [item.code, item]));
   const next = new Map(after.map((item) => [item.code, item]));
   const changes: TemplateChange[] = [];
@@ -376,5 +593,5 @@ function compareParts<T extends { code: string }>(scope: 'phase' | 'task', befor
 /** What differs between two versions of a template: the template itself, then the phases and the tasks added, removed or changed. */
 export function compareTemplates(before: Template, after: Template): TemplateChange[] {
   const own = differing(before, after, ['name', 'project_type']);
-  return [...(own.length === 0 ? [] : [{ scope: 'template' as const, code: '', kind: 'changed' as const, fields: own }]), ...compareParts('phase', before.phases, after.phases, ['name', 'gates']), ...compareParts('task', before.tasks, after.tasks, TASK_FIELDS)];
+  return [...(own.length === 0 ? [] : [{ scope: 'template' as const, code: '', kind: 'changed' as const, fields: own }]), ...compareParts('phase', before.phases, after.phases, ['name', 'gates']), ...compareParts('step', stepsOf(before), stepsOf(after), STEP_FIELDS), ...compareParts('task', before.tasks, after.tasks, TASK_FIELDS)];
 }

@@ -18,6 +18,7 @@ import { actionsOf } from './model';
 import { RequirementsSection } from './RequirementsSection';
 import { TaskDialogs } from './TaskDialogs';
 import type { TaskDialog } from './TaskDialogs';
+import { TaskProcessSection } from '../process/TaskProcessSection';
 import { TaskHeader } from './TaskHeader';
 import '../pwf.css';
 
@@ -91,6 +92,7 @@ function TaskBody({ task }: { task: TaskDetail }) {
       )}
       <ActionsBar task={task} actions={actions} onOpen={setDialog} onWaive={(subject) => setPrefill({ items: subject, seq: (prefill?.seq ?? 0) + 1 })} />
       <TaskHeader task={task} />
+      <TaskProcessSection task={task} />
       <PredecessorsSection task={task} />
       <RequirementsSection task={task} canWork={actions.work} onTick={(itemCode, itemName) => setDialog({ kind: 'tick', itemCode, itemName })} onResult={onResult} />
       <ExceptionsSection task={task} canRequest={actions.requestException} canDecide={actions.decideException} prefill={prefill} onDecide={(exception, decision) => setDialog({ kind: 'decide', exception, decision })} onResult={onResult} />

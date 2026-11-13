@@ -326239,8 +326239,7 @@
           "tasks",
           "schedule",
           "findings",
-          "as_of",
-          "selection"
+          "as_of"
         ],
         "properties": {
           "dry_run": {
@@ -326372,11 +326371,7 @@
           "can_manage",
           "can_propose_reschedule",
           "version",
-          "as_of",
-          "steps",
-          "standard_working_days",
-          "lapsed_legal_documents",
-          "selection"
+          "as_of"
         ],
         "properties": {
           "id": {
@@ -326510,10 +326505,7 @@
                 "band",
                 "assignee",
                 "return_count",
-                "version",
-                "step_code",
-                "checklist_total",
-                "checklist_done"
+                "version"
               ],
               "properties": {
                 "id": {
@@ -327570,10 +327562,7 @@
           "can_request_exception",
           "can_resume",
           "can_assign",
-          "as_of",
-          "step",
-          "legal_basis",
-          "step_legal_basis"
+          "as_of"
         ],
         "properties": {
           "id": {
@@ -327962,15 +327951,7 @@
               "required": [
                 "code",
                 "satisfied",
-                "document_id",
-                "policy",
-                "pinned_revision",
-                "current_revision",
-                "current_title",
-                "current_effective_from",
-                "used_revision",
-                "used_sha256",
-                "newer_available"
+                "document_id"
               ],
               "properties": {
                 "code": {
@@ -328054,9 +328035,7 @@
                 "external_ref",
                 "note",
                 "attached_by",
-                "attached_at",
-                "form_template_revision",
-                "form_template_sha256"
+                "attached_at"
               ],
               "properties": {
                 "id": {

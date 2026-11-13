@@ -49140,7 +49140,7 @@ export interface components {
             }[];
             /** Format: date-time */
             as_of: string;
-            selection: components["schemas"]["PwfWorkflowSelection"];
+            selection?: components["schemas"]["PwfWorkflowSelection"];
         };
         PwfWorkflowDetail: {
             /** Format: uuid */
@@ -49211,9 +49211,9 @@ export interface components {
                 } | null;
                 return_count: number;
                 version: number;
-                step_code: string | null;
-                checklist_total: number;
-                checklist_done: number;
+                step_code?: string | null;
+                checklist_total?: number;
+                checklist_done?: number;
             }[];
             gates: {
                 /** @enum {string} */
@@ -49234,7 +49234,7 @@ export interface components {
             /** Format: date-time */
             as_of: string;
             /** @description Các bước theo thứ tự giai đoạn (R44); mẫu không khai bước: mỗi giai đoạn một bước ngầm định */
-            steps: {
+            steps?: {
                 code: string;
                 name: string;
                 phase_code: string;
@@ -49257,10 +49257,10 @@ export interface components {
                 checklist_done: number;
                 legal_basis: components["schemas"]["PwfLegalBasisView"][];
             }[];
-            standard_working_days: number;
+            standard_working_days?: number;
             /** @description Mã văn bản mà workflow viện dẫn đã hết hiệu lực hoặc bị thay thế hôm nay (R45) */
-            lapsed_legal_documents: string[];
-            selection: components["schemas"]["PwfWorkflowSelection"] | null;
+            lapsed_legal_documents?: string[];
+            selection?: components["schemas"]["PwfWorkflowSelection"] | null;
         };
         PwfTaskPage: {
             items: {
@@ -49481,18 +49481,18 @@ export interface components {
                 /** Format: uuid */
                 document_id: string | null;
                 /** @enum {string} */
-                policy: "LATEST_APPROVED" | "PINNED";
-                pinned_revision: number | null;
+                policy?: "LATEST_APPROVED" | "PINNED";
+                pinned_revision?: number | null;
                 /** @description Revision đã duyệt mới nhất đang hiệu lực hôm nay */
-                current_revision: number | null;
-                current_title: string | null;
+                current_revision?: number | null;
+                current_title?: string | null;
                 /** Format: date */
-                current_effective_from: string | null;
+                current_effective_from?: string | null;
                 /** @description Revision mà bằng chứng mới nhất của việc đã dùng */
-                used_revision: number | null;
-                used_sha256: string | null;
+                used_revision?: number | null;
+                used_sha256?: string | null;
                 /** @description Biểu mẫu có bản mới sau khi việc đã sinh tài liệu */
-                newer_available: boolean;
+                newer_available?: boolean;
             }[];
             evidence: {
                 /** Format: uuid */
@@ -49509,8 +49509,8 @@ export interface components {
                 attached_by: string;
                 /** Format: date-time */
                 attached_at: string;
-                form_template_revision: number | null;
-                form_template_sha256: string | null;
+                form_template_revision?: number | null;
+                form_template_sha256?: string | null;
             }[];
             completion: {
                 ok: boolean;
@@ -49615,7 +49615,7 @@ export interface components {
             can_assign: boolean;
             /** Format: date-time */
             as_of: string;
-            step: {
+            step?: {
                 code: string;
                 name: string;
                 phase_code: string;
@@ -49623,8 +49623,8 @@ export interface components {
                 implicit: boolean;
                 responsible_role: string | null;
             } | null;
-            legal_basis: components["schemas"]["PwfLegalBasisView"][];
-            step_legal_basis: components["schemas"]["PwfLegalBasisView"][];
+            legal_basis?: components["schemas"]["PwfLegalBasisView"][];
+            step_legal_basis?: components["schemas"]["PwfLegalBasisView"][];
         };
         PwfTaskStart: {
             /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */

@@ -6,6 +6,7 @@ import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard } from '../../../ui';
 import { PERMISSIONS, holds, startLink, taskLink } from '../model';
+import { StepsPanel } from '../process/StepsPanel';
 import type { WorkflowDetail } from '../model';
 import { Board } from './Board';
 import { GatesPanel } from './Gates';
@@ -86,6 +87,7 @@ function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: 
       ) : null}
       <Overview detail={detail} schedule={schedule.data} years={calendarYears(detail, schedule.data)} stale={stale} canReschedule={canReschedule} />
       <PhaseStepper detail={detail} version={version} />
+      <StepsPanel detail={detail} projectId={projectId} />
       <WorkflowTree detail={detail} version={version} selectedPhase={filter.phase} onPhase={(phase) => setFilter({ ...filter, phase })} onTask={(id) => navigate(taskLink(id, projectId))} />
       <Gantt detail={detail} version={version} schedule={schedule.data} loading={schedule.isLoading} failed={schedule.isError} onRetry={() => void schedule.refetch()} />
       <MilestoneTimeline detail={detail} version={version} />
