@@ -10,7 +10,7 @@ import { ImportFlow } from './ImportFlow';
 import { ImportHistory } from './ImportHistory';
 import { MappingDetail } from './MappingDetail';
 import { GovernanceLink, OriginBadge, StateNote } from './ind-components';
-import { useMappings } from './ind-hooks';
+import { useMappingDetail, useMappings } from './ind-hooks';
 import { layoutLabel, numberFormatLabel } from './ind-labels';
 import { DASH, PATH_DICTIONARY, PATH_RULES, vietnamDateTime } from './ind-model';
 import type { Mapping } from './ind-model';
@@ -65,6 +65,8 @@ function MappingsContent({ route }: ScreenProps) {
     },
     { key: 'origin', header: t('ind.map.column.origin'), render: (row) => <OriginBadge origin={row.origin} unverified={row.unverified} /> },
     { key: 'version', header: t('ind.map.column.version'), align: 'right', render: (row) => (row.version === 0 ? t('ind.map.column.versionDefault') : `v${row.version}`) },
+    { key: 'maker', header: t('scr2.ind.map.column.maker'), render: (row) => <VersionPerson code={row.code} version={row.version} who="maker" /> },
+    { key: 'approver', header: t('ind.versions.column.approver'), render: (row) => <VersionPerson code={row.code} version={row.version} who="approver" /> },
     { key: 'effective', header: t('ind.map.column.effective'), render: (row) => (row.effectiveFrom === null ? DASH : `${row.effectiveFrom} → ${row.effectiveTo ?? DASH}`) },
     {
       key: 'problems',
@@ -123,4 +125,12 @@ function MappingsContent({ route }: ScreenProps) {
       <p className="prototype-note">{t('ind.common.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
   );
+}
+
+/** Who drafted and who approved the version of the mapping in force, from its history (a template that no rule made has neither). */
+function VersionPerson({ code, version, who }: { code: string; version: number; who: 'maker' | 'approver' }) {
+  const detail = useMappingDetail(version === 0 ? undefined : code);
+  const entry = detail.data?.versions.find((one) => one.version === version);
+  const name = who === 'maker' ? entry?.createdByName : entry?.approvedByName;
+  return <span data-testid={`mapping-${who}`}>{name ?? DASH}</span>;
 }

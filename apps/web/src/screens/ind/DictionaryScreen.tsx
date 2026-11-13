@@ -63,6 +63,11 @@ function DictionaryContent({ route }: ScreenProps) {
     { key: 'owner', header: t('ind.dict.column.owner'), render: (row) => row.owner || DASH },
     { key: 'version', header: t('ind.dict.column.version'), align: 'right', render: (row) => (row.version === 0 ? t('ind.dict.column.versionDefault') : `v${row.version}`) },
     { key: 'origin', header: t('ind.dict.column.origin'), render: (row) => <OriginBadge origin={row.origin} unverified={row.unverified} /> },
+    {
+      key: 'confirmation',
+      header: t('scr2.ind.dict.column.confirmation'),
+      render: (row) => <span data-testid="confirmation">{row.unverified ? t('scr2.ind.dict.confirmation.pending') : t('scr2.ind.dict.confirmation.done')}</span>,
+    },
   ];
 
   const body = (() => {

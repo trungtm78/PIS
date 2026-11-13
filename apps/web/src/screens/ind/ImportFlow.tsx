@@ -164,7 +164,7 @@ export function ImportFlow() {
 
   return (
     <>
-      <SectionCard title={t('ind.imp.flow.title')}>
+      <SectionCard title={`${t('ind.imp.flow.title')}: ${t('scr2.ind.imp.flow.dryRunApply')}`}>
         {readOnly ? (
           <p className="callout" role="status" data-testid="import-readonly">
             {t('ind.imp.state.readOnly')}
