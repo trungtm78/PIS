@@ -392,7 +392,7 @@ class _TaskBody extends StatelessWidget {
               if (detail.actualFinish != null) InfoRow(label: context.t('mob.pwf.fact.actualFinish'), value: formatDay(detail.actualFinish!, language: language)),
               if (detail.critical) InfoRow(label: context.t('mob.pwf.fact.critical'), value: context.t('mob.pwf.fact.critical.value')),
               if (detail.returnCount > 0) InfoRow(label: context.t('mob.pwf.fact.returns'), value: '${detail.returnCount}'),
-              if (detail.step != null) InfoRow(label: context.t('mob.pwf.process.fact.step'), value: context.t('mob.pwf.process.fact.step.value', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
+              if (detail.step != null) InfoRow(label: context.t('mob.pwf.process.fact.step'), value: context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
               if (detail.step?.responsibleRole != null) InfoRow(label: context.t('mob.pwf.process.fact.stepRole'), value: detail.step!.responsibleRole),
               if (detail.blockers.isNotEmpty && !detail.status.isFinal) ...<Widget>[
                 GroupHeader(title: context.t('mob.pwf.blockers.title'), count: detail.blockers.length),
