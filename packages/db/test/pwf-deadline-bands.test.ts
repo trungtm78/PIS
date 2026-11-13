@@ -424,6 +424,16 @@ describe('the personal tier (R40): earlier only, and never the official colour',
   });
 });
 
+describe('the first save of a person', () => {
+  it('is one winner and one version conflict when two screens save for the first time together', async () => {
+    const save = (green: number): Promise<number> => as((tx) => preferences.save(tx, memberId(PEER), { green_days: green, yellow_days: null, red_days: null, reminder_days: [] }, 0, NOW), PEER);
+    const settled = await Promise.allSettled([save(7), save(8)]);
+    expect(settled.filter((one) => one.status === 'fulfilled')).toHaveLength(1);
+    const lost = settled.find((one) => one.status === 'rejected') as PromiseRejectedResult;
+    expect(lost.reason).toMatchObject({ code: 'VERSION_CONFLICT' });
+  });
+});
+
 describe('my tasks, bounded and exact', () => {
   it('pages by cursor without a gap or a repeat, filters by official colour with the exact total, and never shows a task of another person', async () => {
     for (let n = 0; n < 7; n += 1) await task(n - 2);
@@ -553,6 +563,8 @@ describe('the multi-point reminders (BR-PWF-24)', () => {
 
   it('looks back as far as the lowest point of the rules goes, whatever the calendar', async () => {
     const rule = await approvedRule(LADDER(5, 2, 0, { reminder_days: [5, 2, 0, -30] }));
+    await task(-30);
+    // Further overdue than the lowest point has had its last point long ago: it is not looked at.
     await task(-35);
     const notices = await fire();
     expect(notices.map((notice) => notice.point)).toEqual([-30]);

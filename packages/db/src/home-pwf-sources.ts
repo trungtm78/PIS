@@ -1,10 +1,11 @@
 import { message, pwfDeadlineBand } from '@machvon/kernel';
-import type { WorkKind } from '@machvon/kernel';
+import type { WorkCalendarSource, WorkKind } from '@machvon/kernel';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { CONSEQUENCES, severityOf } from './home-work-rules.ts';
 import { PROJECT_JOINS, Params, SOURCE_LIMIT, addDays, base, reach, startOfDay } from './home-work-sources.ts';
 import type { SourceContext, SourceRow } from './home-work-sources.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
+import { workingDayOffset } from './pwf-horizon.ts';
 import type { BandPolicySet } from './pwf-band-policies.ts';
 
 /** How many days ahead a milestone at risk is shown. */
@@ -37,10 +38,12 @@ export class HomePwfSources {
     return [...due, ...milestones];
   }
 
-  /** How many calendar days ahead the read has to look for a task whose working days left are within the widest green line: weekends and the longest holidays add to them, and a wider net costs only rows the exact count then drops. */
-  private horizonOf(set: BandPolicySet, today: string): string | null {
+  /** The last day a task can be due on and still be within the widest green line: the day before the working day that comes after the line, on the published calendar of the tenant (whatever its weekdays and holidays are). Without a calendar nothing but today can be counted. */
+  private horizonOf(set: BandPolicySet, today: string, calendars: WorkCalendarSource | undefined): string | null {
     const widest = set.widestGreenDays;
-    return widest === null ? null : addDays(today, Math.ceil(widest * 1.5) + 21);
+    if (widest === null) return null;
+    const after = workingDayOffset(calendars, today, widest + 1);
+    return after === null ? today : addDays(after, -1);
   }
 
   /** One chunk of the tasks in the window of the reader, in the order of their days, after the task a previous chunk ended with. */
@@ -71,7 +74,7 @@ export class HomePwfSources {
   private async dueTasks(context: SourceContext): Promise<SourceRow[]> {
     const set = await this.policies.load(context.tx, context.today);
     const calendars = await this.calendars.load(context.tx, WORK_CALENDAR_CODE, context.now);
-    const horizon = this.horizonOf(set, context.today);
+    const horizon = this.horizonOf(set, context.today, calendars);
     const items: SourceRow[] = [];
     let after: { day: string; id: string } | null = null;
     // The tasks are read in chunks of the limit of a source and the ones that have no colour yet are dropped, so that a chunk full of far tasks never hides the ones behind it, and a list that really has more than the limit says so by being exactly as long as it.

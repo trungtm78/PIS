@@ -5,6 +5,7 @@ import { severityOf } from './home-work-rules.ts';
 import type { WorkSeverity } from './home-work-rules.ts';
 import { addDays } from './home-work-sources.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
+import { workingDayOffset } from './pwf-horizon.ts';
 import type { BandPolicySet } from './pwf-band-policies.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -60,8 +61,6 @@ interface FiredSql {
   membership_id: string | null;
 }
 
-/** The days before the lowest point of the rules that are added to look back, and what a working day can stretch to on the calendar (weekends and holidays): a task that is further overdue than the lowest point of any rule has had its last point. */
-const LOOK_BACK_MARGIN_DAYS = 14;
 /** How many tasks a pass reads at a time; the window is read to its end, page after page. */
 const PAGE_SIZE = 5_000;
 
@@ -86,7 +85,10 @@ export class PwfTaskReminders {
     const set = await this.policies.load(tx, today);
     const calendars = await this.calendars.load(tx, WORK_CALENDAR_CODE, now);
     const widest = await this.widestPoint(tx, set.widestReminderDays);
-    const window = [addDays(today, -(Math.ceil(-set.lowestReminderDays * 1.5) + LOOK_BACK_MARGIN_DAYS)), addDays(today, Math.ceil(widest * 1.5) + 21)];
+    // The window is counted on the published calendar: from the working day that is one past the lowest point of the rules back (a task further overdue than that has had its last point) to the day before the working day past the farthest point ahead.
+    const back = workingDayOffset(calendars, today, set.lowestReminderDays - 1);
+    const ahead = workingDayOffset(calendars, today, widest + 1);
+    const window = [back === null ? today : addDays(back, 1), ahead === null ? today : addDays(ahead, -1)];
     const notices: PwfReminderNotice[] = [];
     let after: { day: string; id: string } | null = null;
     // The tasks of the window are read a page at a time, in the order of their days, so that a tenant with many of them is reached to the end and not only at its first rows.

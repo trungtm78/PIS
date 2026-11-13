@@ -97,12 +97,15 @@ export class PwfDeadlinePreferenceStore {
     if (current.version !== expectedVersion) throw versionConflict(current.version);
     const values = [input.green_days, input.yellow_days, input.red_days, [...input.reminder_days]];
     if (current.version === 0) {
-      await tx.query(
+      const created = await tx.query<{ version: string }>(
         `insert into machvon.alert_notification_profile (tenant_id, membership_id, deadline_green_days, deadline_yellow_days, deadline_red_days, personal_reminder_days)
-         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $5::uuid, $1::int, $2::int, $3::int, $4::int[])`,
+         values (nullif(current_setting('app.tenant_id', true), '')::uuid, $5::uuid, $1::int, $2::int, $3::int, $4::int[])
+         on conflict (tenant_id, membership_id) do nothing returning version::text as version`,
         [...values, membershipId.toLowerCase()],
       );
-      return 1;
+      // Somebody else made the row between the read and the insert (this person on another screen, or the profile of alerts): the version this save read is stale.
+      if (created[0] === undefined) throw new DomainError('VERSION_CONFLICT', 409);
+      return Number(created[0].version);
     }
     const updated = await tx.query<{ version: string }>(
       `update machvon.alert_notification_profile set deadline_green_days = $1::int, deadline_yellow_days = $2::int, deadline_red_days = $3::int, personal_reminder_days = $4::int[], version = version + 1, updated_at = now()
