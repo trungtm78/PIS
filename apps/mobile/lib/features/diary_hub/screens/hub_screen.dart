@@ -15,14 +15,25 @@ import '../../../core/offline/queue/queued_command.dart';
 import '../../../core/session/session.dart';
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/machvon_semantic.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/context_line.dart';
+import '../../../core/widgets/notice_panel.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/status_pill.dart';
+import '../../../core/widgets/underline_tabs.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
+import '../../command_support/field_widgets.dart';
 import '../../offline/offline_problem.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/widgets.dart';
 import '../../site_diary/diary_models.dart' show kDiaryDraftKind;
+import '../../site_diary/diary_widgets.dart';
 import '../hub_commands.dart';
 import '../hub_models.dart';
 import '../hub_support.dart';
@@ -39,35 +50,40 @@ Widget buildHubScreen(BuildContext context, ScreenContext screen) {
   return id == null || id.isEmpty ? const _HubScreen() : _ResolveScreen(diaryId: id);
 }
 
-class _HubScreen extends StatelessWidget {
+class _HubScreen extends StatefulWidget {
   const _HubScreen();
 
   @override
+  State<_HubScreen> createState() => _HubScreenState();
+}
+
+class _HubScreenState extends State<_HubScreen> {
+  int _tab = 0;
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(context.t('mob.dryhub.title')),
-          actions: <Widget>[
-            IconButton(
-              tooltip: context.t('mob.dryhub.local.new.action'),
-              icon: const Icon(Icons.add),
-              onPressed: () => openScreen(context, 'MOB-61', stacked: true),
-            ),
-          ],
-          bottom: TabBar(
-            tabs: <Widget>[
-              Tab(text: context.t('mob.dryhub.tab.local')),
-              Tab(text: context.t('mob.dryhub.tab.server')),
-            ],
-          ),
-        ),
-        body: const TabBarView(children: <Widget>[_LocalTab(), _ServerTab()]),
+    return AppScaffold(
+      title: context.t('mob.dryhub.title'),
+      actions: <Widget>[
+        AppBarAction(icon: Icons.add, label: context.t('mob.dryhub.local.new.action'), onPressed: () => openScreen(context, 'MOB-61', stacked: true)),
+      ],
+      contextLine: UnderlineTabs(
+        tabs: <TabOption>[TabOption(label: context.t('mob.dryhub.tab.local')), TabOption(label: context.t('mob.dryhub.tab.server'))],
+        index: _tab,
+        onChanged: (int next) => setState(() => _tab = next),
       ),
+      body: _tab == 0 ? const _LocalTab() : const _ServerTab(),
     );
   }
 }
+
+/// The state that has no diary to show: the way out is to write one.
+StateView _emptyView(BuildContext context, String body) => StateView(
+      kind: StateKind.empty,
+      body: body,
+      actionLabel: context.t('mob.dryhub.empty.action'),
+      onAction: () => openScreen(context, 'MOB-61', stacked: true),
+    );
 
 // ------------------------------------------------------------------------------------------------------------- on the phone
 
@@ -90,101 +106,134 @@ class _LocalTab extends ConsumerWidget {
       return const StateBoundary(state: ScreenState.loading, child: SizedBox.shrink());
     }
     final List<LocalDiary> diaries = localDiaries(drafts.requireValue.list(kind: kDiaryDraftKind), commands.requireValue);
-    if (diaries.isEmpty) return const StateBoundary(state: ScreenState.empty, child: SizedBox.shrink());
+    if (diaries.isEmpty) return _emptyView(context, context.t('mob.dryhub.local.empty.body'));
     final Map<String, String> codes = ref.watch(contractCodesProvider).value ?? const <String, String>{};
     final int unsent = unsentOf(diaries);
+    final bool offline = reachability == Reachability.offline;
+    void openQueue() => openScreen(context, 'MOB-41', stacked: true);
+    final List<LocalDiary> act = <LocalDiary>[for (final LocalDiary diary in diaries) if (diary.state.index <= LocalState.unknown.index) diary];
+    final List<LocalDiary> waiting = <LocalDiary>[for (final LocalDiary diary in diaries) if (diary.state.index > LocalState.unknown.index && diary.state != LocalState.sent) diary];
+    final List<LocalDiary> done = <LocalDiary>[for (final LocalDiary diary in diaries) if (diary.state == LocalState.sent) diary];
+    Iterable<Widget> group(String title, List<LocalDiary> rows) sync* {
+      if (rows.isEmpty) return;
+      yield GroupHeader(title: title, count: rows.length);
+      for (int position = 0; position < rows.length; position += 1) {
+        yield _LocalRow(diary: rows[position], contractCode: codes[rows[position].contractId], first: position == 0);
+      }
+    }
+
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
+        if (offline)
+          StatusBanner(text: context.t('mob.dryhub.local.offline'))
+        else
+          ContextLine(parts: <String>[context.t('mob.dryhub.local.online')]),
+        if (unsent > 0 && !offline)
+          StatusBanner(
+            text: context.t('mob.dryhub.local.unsent', <String, Object>{'count': unsent}),
+            tone: BannerTone.warning,
+          )
+        else
+          ContextLine(parts: <String>[unsent == 0 ? context.t('mob.dryhub.local.allSent') : context.t('mob.dryhub.local.unsent', <String, Object>{'count': unsent})]),
+        if (unsent > 0 || offline) ActionLinks(actions: <QuietAction>[QuietAction(label: context.t('mob.dryhub.local.queue.action'), onTap: openQueue)]),
+        ...group(context.t('mob.dryhub.group.act'), act),
+        ...group(context.t('mob.dryhub.group.waiting'), waiting),
+        ...group(context.t('mob.dryhub.group.done'), done),
         Padding(
-          padding: const EdgeInsets.all(MachvonSpace.space16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(context.t('mob.dryhub.local.intro'), style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: MachvonSpace.space8),
-              Semantics(
-                liveRegion: true,
-                child: Text(
-                  reachability == Reachability.offline ? context.t('mob.dryhub.local.offline') : context.t('mob.dryhub.local.online'),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(height: MachvonSpace.space4),
-              Text(
-                unsent == 0 ? context.t('mob.dryhub.local.allSent') : context.t('mob.dryhub.local.unsent', <String, Object>{'count': unsent}),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: MachvonSpace.space8),
-              OutlinedButton(onPressed: () => openScreen(context, 'MOB-41', stacked: true), child: Text(context.t('mob.dryhub.local.queue.action'))),
-            ],
-          ),
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Text(context.t('mob.dryhub.local.intro'), style: context.v2text.caption.copyWith(color: context.v2.palette.ink2)),
         ),
-        for (final LocalDiary diary in diaries) _LocalRow(diary: diary, contractCode: codes[diary.contractId]),
       ],
     );
   }
 }
 
+MachvonTone _toneOf(LocalState state) {
+  switch (state) {
+    case LocalState.conflict:
+    case LocalState.unknown:
+      return MachvonTone.warning;
+    case LocalState.rejected:
+      return MachvonTone.danger;
+    case LocalState.sending:
+    case LocalState.queued:
+      return MachvonTone.info;
+    case LocalState.draft:
+      return MachvonTone.neutral;
+    case LocalState.sent:
+      return MachvonTone.success;
+  }
+}
+
+IconData _iconOf(LocalState state) {
+  switch (state) {
+    case LocalState.conflict:
+      return Icons.sync_problem_outlined;
+    case LocalState.rejected:
+      return Icons.error_outline;
+    case LocalState.unknown:
+      return Icons.help_outline;
+    case LocalState.sending:
+      return Icons.cloud_upload_outlined;
+    case LocalState.queued:
+      return Icons.schedule;
+    case LocalState.draft:
+      return Icons.edit_note_outlined;
+    case LocalState.sent:
+      return Icons.cloud_done_outlined;
+  }
+}
+
 class _LocalRow extends StatelessWidget {
-  const _LocalRow({required this.diary, required this.contractCode});
+  const _LocalRow({required this.diary, required this.contractCode, required this.first});
 
   final LocalDiary diary;
   final String? contractCode;
+  final bool first;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String date = diary.recordDate == null ? context.t('mob.dryhub.row.unknownDate') : context.t('mob.dryhub.row.date', <String, Object>{'date': formatDay(diary.recordDate!)});
     final String contract = contractCode ?? context.t('mob.dryhub.row.contract.none');
     final String state = stateLabel(context, diary.state);
     final bool canOpen = diary.contractId != null && diary.recordDate != null;
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Semantics(
-              container: true,
-              label: context.t('mob.dryhub.row.aria', <String, Object>{'date': diary.recordDate == null ? date : formatDay(diary.recordDate!), 'contract': contract, 'state': state}),
-              excludeSemantics: true,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('$date · $contract', style: theme.textTheme.titleMedium),
-                  Text(diary.summary.isEmpty ? context.t('mob.dryhub.row.summary.none') : diary.summary, style: theme.textTheme.bodyMedium),
-                  const SizedBox(height: MachvonSpace.space4),
-                  Wrap(
-                    spacing: MachvonSpace.space8,
-                    runSpacing: MachvonSpace.space4,
-                    children: <Widget>[
-                      StatusPill(label: state, warn: diary.state.index <= LocalState.unknown.index),
-                      if (diary.photos > 0) StatusPill(label: context.t('mob.dryhub.row.photos', <String, Object>{'count': diary.photos})),
-                      if (diary.errorCode != null && diary.state != LocalState.queued && diary.state != LocalState.sent) Text(diary.errorCode!, style: theme.textTheme.bodySmall),
-                    ],
-                  ),
-                ],
+    final bool showCode = diary.errorCode != null && diary.state != LocalState.queued && diary.state != LocalState.sent;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        WorkRow(
+          title: '$date · $contract',
+          subtitle: diary.summary.isEmpty ? context.t('mob.dryhub.row.summary.none') : diary.summary,
+          leading: FieldGlyph(icon: _iconOf(diary.state), alert: diary.state.index <= LocalState.unknown.index),
+          trailing: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              StatusPill(label: state, tone: _toneOf(diary.state)),
+              if (diary.photos > 0) Text(context.t('mob.dryhub.row.photos', <String, Object>{'count': diary.photos}), style: text.caption),
+              if (showCode) Text(diary.errorCode!, style: text.caption),
+            ],
+          ),
+          semanticLabel: <String>[
+            context.t('mob.dryhub.row.aria', <String, Object>{'date': diary.recordDate == null ? date : formatDay(diary.recordDate!), 'contract': contract, 'state': state}),
+            if (showCode) diary.errorCode!,
+          ].join('. '),
+          dividerAbove: !first,
+        ),
+        ActionLinks(
+          actions: <QuietAction>[
+            if (diary.state == LocalState.conflict && diary.commandId != null)
+              QuietAction(label: context.t('mob.dryhub.row.resolve.action'), onTap: () => openScreen(context, 'MOB-42', pathSuffix: '/${diary.commandId}', stacked: true)),
+            if (canOpen)
+              QuietAction(
+                label: context.t('mob.dryhub.row.open.action'),
+                onTap: () => openScreen(context, 'MOB-62', pathSuffix: '/${diary.contractId}', query: <String, String>{'date': diary.recordDate!}, stacked: true),
               ),
-            ),
-            const SizedBox(height: MachvonSpace.space8),
-            Wrap(
-              spacing: MachvonSpace.space8,
-              runSpacing: MachvonSpace.space8,
-              children: <Widget>[
-                if (diary.state == LocalState.conflict && diary.commandId != null)
-                  FilledButton(onPressed: () => openScreen(context, 'MOB-42', pathSuffix: '/${diary.commandId}', stacked: true), child: Text(context.t('mob.dryhub.row.resolve.action'))),
-                if (canOpen)
-                  OutlinedButton(
-                    onPressed: () => openScreen(context, 'MOB-62', pathSuffix: '/${diary.contractId}', query: <String, String>{'date': diary.recordDate!}, stacked: true),
-                    child: Text(context.t('mob.dryhub.row.open.action')),
-                  ),
-              ],
-            ),
           ],
         ),
-      ),
+      ],
     );
   }
 }
@@ -202,30 +251,28 @@ class _ServerTab extends ConsumerWidget {
       read: readHubServer,
       parse: parseHubServer,
       asOf: (HubServer server) => server.asOf,
-      isEmpty: (HubServer server) => server.isEmpty,
       builder: (BuildContext context, Loaded<HubServer> loaded) {
         final HubServer server = loaded.value;
+        if (server.isEmpty) return _emptyView(context, context.t('mob.dryhub.server.empty.body'));
         return ListView(
-          padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+          padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
-              child: Text(context.t('mob.dryhub.server.intro'), style: Theme.of(context).textTheme.bodyMedium),
+              padding: const EdgeInsets.all(MachvonV2Space.s16),
+              child: Text(context.t('mob.dryhub.server.intro'), style: context.v2text.caption.copyWith(color: context.v2.palette.ink2)),
             ),
-            if (server.conflicts.isNotEmpty)
-              SectionCard(
-                title: context.t('mob.dryhub.server.conflicts.title'),
-                children: <Widget>[for (final ServerDiary diary in server.conflicts) _ServerRow(diary: diary, conflict: true)],
-              ),
-            if (server.toSign.isNotEmpty)
-              SectionCard(
-                title: context.t('mob.dryhub.server.sign.title'),
-                children: <Widget>[for (final ServerDiary diary in server.toSign) _ServerRow(diary: diary, conflict: false)],
-              ),
+            if (server.conflicts.isNotEmpty) ...<Widget>[
+              GroupHeader(title: context.t('mob.dryhub.server.conflicts.title'), count: server.conflicts.length),
+              for (int position = 0; position < server.conflicts.length; position += 1) _ServerRow(diary: server.conflicts[position], conflict: true, first: position == 0),
+            ],
+            if (server.toSign.isNotEmpty) ...<Widget>[
+              GroupHeader(title: context.t('mob.dryhub.server.sign.title'), count: server.toSign.length),
+              for (int position = 0; position < server.toSign.length; position += 1) _ServerRow(diary: server.toSign[position], conflict: false, first: position == 0),
+            ],
             if (server.more)
               Padding(
-                padding: const EdgeInsets.all(MachvonSpace.space16),
-                child: Text(context.t('mob.dryhub.server.more'), style: Theme.of(context).textTheme.bodySmall),
+                padding: const EdgeInsets.all(MachvonV2Space.s16),
+                child: Text(context.t('mob.dryhub.server.more'), style: context.v2text.caption.copyWith(color: context.v2.palette.ink2)),
               ),
           ],
         );
@@ -235,46 +282,38 @@ class _ServerTab extends ConsumerWidget {
 }
 
 class _ServerRow extends StatelessWidget {
-  const _ServerRow({required this.diary, required this.conflict});
+  const _ServerRow({required this.diary, required this.conflict, required this.first});
 
   final ServerDiary diary;
   final bool conflict;
+  final bool first;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final String date = formatDay(diary.record.recordDate);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Semantics(
-            container: true,
-            label: context.t('mob.dryhub.server.row.aria', <String, Object>{'no': diary.record.diaryNo, 'date': date, 'contract': diary.contractCode}),
-            excludeSemantics: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('${diary.record.diaryNo} · ${context.t('mob.dryhub.row.date', <String, Object>{'date': date})}', style: theme.textTheme.bodyLarge),
-                Text(diary.contractCode, style: theme.textTheme.bodyMedium),
-                if (conflict) Text(context.t('mob.dryhub.server.conflicts.count', <String, Object>{'count': diary.copies.length}), style: theme.textTheme.bodyMedium),
-              ],
-            ),
-          ),
-          const SizedBox(height: MachvonSpace.space8),
-          if (conflict)
-            FilledButton(
-              onPressed: () => openScreen(context, 'QMS-09', query: <String, String>{'diary': diary.record.id}, stacked: true),
-              child: Text(context.t('mob.dryhub.server.resolve.action')),
-            )
-          else
-            OutlinedButton(
-              onPressed: () => openScreen(context, 'MOB-62', pathSuffix: '/${diary.record.contractId}', query: <String, String>{'date': diary.record.recordDate}, stacked: true),
-              child: Text(context.t('mob.dryhub.server.sign.action')),
-            ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        WorkRow(
+          title: '${diary.record.diaryNo} · ${context.t('mob.dryhub.row.date', <String, Object>{'date': date})}',
+          subtitle: diary.contractCode,
+          leading: FieldGlyph(icon: conflict ? Icons.sync_problem_outlined : Icons.draw_outlined, alert: conflict),
+          trailing: conflict ? StatusPill(label: context.t('mob.dryhub.server.conflicts.count', <String, Object>{'count': diary.copies.length}), tone: MachvonTone.warning) : null,
+          semanticLabel: context.t('mob.dryhub.server.row.aria', <String, Object>{'no': diary.record.diaryNo, 'date': date, 'contract': diary.contractCode}),
+          dividerAbove: !first,
+        ),
+        ActionLinks(
+          actions: <QuietAction>[
+            if (conflict)
+              QuietAction(label: context.t('mob.dryhub.server.resolve.action'), onTap: () => openScreen(context, 'QMS-09', query: <String, String>{'diary': diary.record.id}, stacked: true))
+            else
+              QuietAction(
+                label: context.t('mob.dryhub.server.sign.action'),
+                onTap: () => openScreen(context, 'MOB-62', pathSuffix: '/${diary.record.contractId}', query: <String, String>{'date': diary.record.recordDate}, stacked: true),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -295,7 +334,7 @@ class _ResolveScreenState extends ConsumerState<_ResolveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.dryhub.resolve.title'),
       body: DataView<ServerDiary>(
         cacheKey: 'diaryhub.diary.${widget.diaryId}',
@@ -376,13 +415,14 @@ class _ResolveBodyState extends ConsumerState<_ResolveBody> with CommandFlow<_Re
   Widget _outcome(BuildContext context, CommandOutcome result) {
     switch (result) {
       case CommandDone():
-        return OutcomeCard(title: context.t('mob.dryhub.result.done.title'), lines: <String>[context.t('mob.dryhub.result.done.body')]);
+        return OutcomeCard(title: context.t('mob.dryhub.result.done.title'), lines: <String>[context.t('mob.dryhub.result.done.body')], tone: NoticeTone.ok);
       case CommandUnknown():
         return OutcomeCard(
           title: context.t('mob.dryhub.result.unknown.title'),
           lines: <String>[context.t('mob.dryhub.result.unknown.body')],
           actionLabel: context.t('mob.dryhub.result.unknown.action'),
           onAction: _last == null ? null : () => _send(_last!, again: true),
+          tone: NoticeTone.warning,
         );
       case CommandOffline():
         return OutcomeCard(title: gateText(context, ResolveGate.offline));
@@ -400,99 +440,112 @@ class _ResolveBodyState extends ConsumerState<_ResolveBody> with CommandFlow<_Re
 
   @override
   Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
     final ServerDiary diary = widget.diary;
     final ResolveGate gate = gateOf(diary: diary, offline: isOffline(ref), fromCopy: widget.fromCopy, session: ref.watch(sessionProvider));
     final CommandOutcome? result = outcome;
     final bool ready = gate == ResolveGate.open && !sending;
     final bool signed = diary.record.status != 'DRAFT';
-    return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+    String copyLabel(ConflictCopy copy) => context.t('mob.dryhub.resolve.copy.label', <String, Object>{'no': copy.diaryNo, 'author': copy.author, 'time': formatMoment(copy.createdAt)});
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (result != null) _outcome(context, result),
-        SectionCard(
-          title: context.t('mob.dryhub.resolve.diary.title'),
-          children: <Widget>[
-            Text('${diary.record.diaryNo} · ${context.t('mob.dryhub.row.date', <String, Object>{'date': formatDay(diary.record.recordDate)})} · ${diary.contractCode}', style: Theme.of(context).textTheme.bodyLarge),
-            ..._facts(context, diary.record.content),
-          ],
-        ),
-        for (final ConflictCopy copy in diary.copies)
-          SectionCard(
-            title: context.t('mob.dryhub.resolve.copy.title'),
-            semanticLabel: context.t('mob.dryhub.resolve.copy.label', <String, Object>{'no': copy.diaryNo, 'author': copy.author, 'time': formatMoment(copy.createdAt)}),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
             children: <Widget>[
-              Text(context.t('mob.dryhub.resolve.copy.label', <String, Object>{'no': copy.diaryNo, 'author': copy.author, 'time': formatMoment(copy.createdAt)}), style: Theme.of(context).textTheme.bodyLarge),
-              ..._facts(context, copy.content),
+              if (result != null) _outcome(context, result),
+              FormSection(
+                first: true,
+                title: context.t('mob.dryhub.resolve.diary.title'),
+                children: <Widget>[
+                  Text('${diary.record.diaryNo} · ${context.t('mob.dryhub.row.date', <String, Object>{'date': formatDay(diary.record.recordDate)})} · ${diary.contractCode}', style: text.bodyStrong),
+                  ..._facts(context, diary.record.content),
+                ],
+              ),
+              for (final ConflictCopy copy in diary.copies)
+                FormSection(
+                  title: context.t('mob.dryhub.resolve.copy.title'),
+                  children: <Widget>[
+                    Text(copyLabel(copy), style: text.bodyStrong),
+                    ..._facts(context, copy.content),
+                  ],
+                ),
+              if (diary.hasConflict)
+                FormSection(
+                  title: context.t('mob.dryhub.resolve.choice.title'),
+                  children: <Widget>[
+                    if (diary.copies.length > 1) ...<Widget>[
+                      DropdownButtonFormField<String>(
+                        initialValue: _copyId,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: context.t('mob.dryhub.resolve.copy.title'),
+                          errorText: _problems['copy'] == null ? null : resolveProblemText(context, _problems['copy']!),
+                        ),
+                        items: <DropdownMenuItem<String>>[
+                          for (final ConflictCopy copy in diary.copies) DropdownMenuItem<String>(value: copy.id, child: Text(copyLabel(copy), overflow: TextOverflow.ellipsis)),
+                        ],
+                        onChanged: ready ? (String? id) => setState(() => _copyId = id) : null,
+                      ),
+                      const SizedBox(height: MachvonV2Space.s12),
+                    ],
+                    DropdownButtonFormField<Resolution>(
+                      initialValue: _resolution,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: context.t('mob.dryhub.resolve.choice.title'),
+                        errorText: _problems['resolution'] == null ? null : resolveProblemText(context, _problems['resolution']!),
+                      ),
+                      items: <DropdownMenuItem<Resolution>>[
+                        DropdownMenuItem<Resolution>(value: Resolution.keepPrimary, child: Text(context.t('mob.dryhub.resolve.keep'), overflow: TextOverflow.ellipsis)),
+                        if (!signed) DropdownMenuItem<Resolution>(value: Resolution.adoptCopy, child: Text(context.t('mob.dryhub.resolve.adopt'), overflow: TextOverflow.ellipsis)),
+                      ],
+                      onChanged: ready ? (Resolution? choice) => setState(() => _resolution = choice) : null,
+                    ),
+                    if (signed) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.dryhub.resolve.onlyKeep'), style: text.caption)),
+                    Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.dryhub.resolve.merge'), style: text.caption)),
+                    const SizedBox(height: MachvonV2Space.s12),
+                    TextField(
+                      controller: _note,
+                      readOnly: sending,
+                      minLines: 3,
+                      maxLines: 6,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: InputDecoration(labelText: context.t('mob.dryhub.resolve.note.label'), errorText: _problems['note'] == null ? null : resolveProblemText(context, _problems['note']!)),
+                    ),
+                  ],
+                )
+              else
+                FormSection(
+                  title: context.t('mob.dryhub.resolve.choice.title'),
+                  children: <Widget>[NoticePanel(title: gateText(context, gate == ResolveGate.open ? ResolveGate.noCopy : gate), margin: EdgeInsets.zero)],
+                ),
             ],
           ),
+        ),
         if (diary.hasConflict)
-          SectionCard(
-            title: context.t('mob.dryhub.resolve.choice.title'),
-            children: <Widget>[
-              if (gate != ResolveGate.open) GateNote(text: gateText(context, gate)),
-              if (diary.copies.length > 1)
-                DropdownButtonFormField<String>(
-                  initialValue: _copyId,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: context.t('mob.dryhub.resolve.copy.title'),
-                    errorText: _problems['copy'] == null ? null : resolveProblemText(context, _problems['copy']!),
-                  ),
-                  items: <DropdownMenuItem<String>>[
-                    for (final ConflictCopy copy in diary.copies)
-                      DropdownMenuItem<String>(
-                        value: copy.id,
-                        child: Text(context.t('mob.dryhub.resolve.copy.label', <String, Object>{'no': copy.diaryNo, 'author': copy.author, 'time': formatMoment(copy.createdAt)}), overflow: TextOverflow.ellipsis),
-                      ),
-                  ],
-                  onChanged: ready ? (String? id) => setState(() => _copyId = id) : null,
-                ),
-              const SizedBox(height: MachvonSpace.space8),
-              DropdownButtonFormField<Resolution>(
-                initialValue: _resolution,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: context.t('mob.dryhub.resolve.choice.title'),
-                  errorText: _problems['resolution'] == null ? null : resolveProblemText(context, _problems['resolution']!),
-                ),
-                items: <DropdownMenuItem<Resolution>>[
-                  DropdownMenuItem<Resolution>(value: Resolution.keepPrimary, child: Text(context.t('mob.dryhub.resolve.keep'), overflow: TextOverflow.ellipsis)),
-                  if (!signed) DropdownMenuItem<Resolution>(value: Resolution.adoptCopy, child: Text(context.t('mob.dryhub.resolve.adopt'), overflow: TextOverflow.ellipsis)),
-                ],
-                onChanged: ready ? (Resolution? choice) => setState(() => _resolution = choice) : null,
-              ),
-              if (signed) Text(context.t('mob.dryhub.resolve.onlyKeep'), style: Theme.of(context).textTheme.bodySmall),
-              Text(context.t('mob.dryhub.resolve.merge'), style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: MachvonSpace.space8),
-              TextField(
-                controller: _note,
-                readOnly: sending,
-                minLines: 3,
-                maxLines: 6,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(labelText: context.t('mob.dryhub.resolve.note.label'), errorText: _problems['note'] == null ? null : resolveProblemText(context, _problems['note']!)),
-              ),
-              const SizedBox(height: MachvonSpace.space8),
-              FilledButton(onPressed: ready ? _submit : null, child: Text(sending ? context.t('mob.dryhub.resolve.sending') : context.t('mob.dryhub.resolve.submit'))),
-            ],
-          )
-        else
-          SectionCard(title: context.t('mob.dryhub.resolve.choice.title'), children: <Widget>[GateNote(text: gateText(context, gate == ResolveGate.open ? ResolveGate.noCopy : gate))]),
+          FieldSendBar(
+            label: context.t('mob.dryhub.resolve.submit'),
+            onSend: ready ? _submit : null,
+            sending: sending,
+            why: gate == ResolveGate.open ? null : gateText(context, gate),
+          ),
       ],
     );
   }
 
   /// What the content of a diary says that the person compares: the work of the day, the workforce and the notes.
   List<Widget> _facts(BuildContext context, Map<String, Object?> content) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final Object? summary = content['summary'];
     final Object? workforce = content['workforce_count'];
     final Object? notes = content['notes'];
     final List<Widget> lines = <Widget>[
-      if (summary is String && summary.isNotEmpty) Text(context.t('mob.dryhub.resolve.content.summary', <String, Object>{'text': summary}), style: theme.textTheme.bodyMedium),
-      if (workforce is int) Text(context.t('mob.dryhub.resolve.content.workforce', <String, Object>{'count': workforce}), style: theme.textTheme.bodyMedium),
-      if (notes is String && notes.isNotEmpty) Text(context.t('mob.dryhub.resolve.content.notes', <String, Object>{'text': notes}), style: theme.textTheme.bodyMedium),
+      if (summary is String && summary.isNotEmpty) Text(context.t('mob.dryhub.resolve.content.summary', <String, Object>{'text': summary}), style: text.body),
+      if (workforce is int) Text(context.t('mob.dryhub.resolve.content.workforce', <String, Object>{'count': workforce}), style: text.body),
+      if (notes is String && notes.isNotEmpty) Text(context.t('mob.dryhub.resolve.content.notes', <String, Object>{'text': notes}), style: text.body),
     ];
-    return lines.isEmpty ? <Widget>[Text(context.t('mob.dryhub.resolve.content.none'), style: theme.textTheme.bodyMedium)] : lines;
+    return lines.isEmpty ? <Widget>[Text(context.t('mob.dryhub.resolve.content.none'), style: text.body)] : lines;
   }
 }

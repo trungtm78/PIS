@@ -113,7 +113,7 @@ Future<void> _drain(WidgetTester tester) async {
 }
 
 Future<void> _tab(WidgetTester tester, String label) async {
-  await tester.tap(find.widgetWithText(Tab, label));
+  await tester.tap(find.text(label));
   await settleReal(tester, rounds: 8);
 }
 
