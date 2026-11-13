@@ -4,7 +4,7 @@ import type { TenantDatabase, TenantTx, WorkRow } from '@machvon/db';
 import { NOOP_METRICS, vietnamDateOf } from '@machvon/kernel';
 import type { MetricsSink, TenantContext } from '@machvon/kernel';
 import { REMINDER_EVENT, WORK_RESOURCE_TYPE } from './work-action-support';
-import { PROJECT_TASK_SOURCE, pwfTaskReminderPass } from './work-reminder-pwf';
+import { pwfTaskReminderPass } from './work-reminder-pwf';
 import { canReadScope, workScopes } from './work-scope';
 
 export const WORK_REMINDER_METRIC = 'home_work_reminder_total';
@@ -67,7 +67,7 @@ export async function workReminderPass(tx: TenantTx, tenant: TenantContext, now:
         if (row.lifecycle === 'RESOLVED' || row.reminders === null) continue;
         const policyVersion = collected.policies?.versions.reminder ?? 'builtin';
         // The tasks of a workflow are reminded at the points of their rule (below), not by the cadence of the severity: the two would remind the same person twice about the same day.
-        if (row.reminders.due && row.source !== PROJECT_TASK_SOURCE && sent < MAX_REMINDERS_PER_MEMBER) {
+        if (row.reminders.due && row.kind !== 'PWF_TASK_DUE_SOON' && row.kind !== 'PWF_TASK_OVERDUE' && sent < MAX_REMINDERS_PER_MEMBER) {
           const ordinal = row.reminders.sent + 1;
           const recorded = await reminders.record(tx, {
             source: row.source,

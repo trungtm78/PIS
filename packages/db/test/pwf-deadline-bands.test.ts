@@ -237,7 +237,7 @@ describe('the source PROJECT_TASK of the alert centre', () => {
     expect(first.consequence).toContain('đỏ');
     expect(first.lifecycle).toBe('NEW');
     // The points of the rule remind, not the cadence of the severity: the item never says a reminder is due by the cadence.
-    expect(rows.every((row) => row.reminders?.due === false && row.reminders.nextAt === null)).toBe(true);
+    expect(rows.filter((row) => row.kind !== 'PWF_MILESTONE_AT_RISK').every((row) => row.reminders?.due === false && row.reminders.nextAt === null)).toBe(true);
   });
 
   it('gives a task the reader answers for or does, never one of somebody else; the view scope has them all', async () => {
