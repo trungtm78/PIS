@@ -97,7 +97,9 @@ class PwfTaskService {
     final List<QueuedCommand> mine = pwfCommandsOf(queue.commands(), task.id);
     final QueuedCommand? same = mine.where((QueuedCommand c) => c.idempotencyKey == intention).firstOrNull;
     if (same == null && mine.any((QueuedCommand c) => c.state == CommandState.conflict || c.state == CommandState.rejected)) throw const PwfEarlierCommandUnresolved();
-    final int base = kPwfVersionedCommands.contains(commandType) ? pwfBaseVersion(task.version, mine.where((QueuedCommand c) => c.idempotencyKey != intention)) : task.version;
+    // The screen may still hold the task as it was before a command of the person was taken: the version the server answered to that command is newer.
+    final int known = queue.commands().where((QueuedCommand c) => isPwfCommand(c) && pwfTaskOf(c) == task.id && c.state == CommandState.accepted).fold<int>(task.version, (int most, QueuedCommand c) => c.serverVersion != null && c.serverVersion! > most ? c.serverVersion! : most);
+    final int base = kPwfVersionedCommands.contains(commandType) ? pwfBaseVersion(known, mine.where((QueuedCommand c) => c.idempotencyKey != intention)) : known;
     final QueuedCommand command = queue.enqueue(commandType: commandType, payload: payload, baseServerVersion: base, attempt: CommandAttempt(intention));
     (await _ref.read(queueRunnerProvider.future)).trigger();
     return command;
@@ -122,6 +124,8 @@ class PwfTaskService {
       final int base = serverVersion + before;
       final Map<String, Object?> payload = command.payload!;
       queue.discard(command.id);
+      // The queue sends commands in the order of their creation time, to the millisecond: a gap keeps the order of the chain.
+      await Future<void>.delayed(const Duration(milliseconds: 2));
       queue.enqueue(commandType: command.commandType, payload: payload, baseServerVersion: base, attempt: CommandAttempt.fresh());
       resent += 1;
       if (kPwfVersionedCommands.contains(command.commandType)) before += 1;
