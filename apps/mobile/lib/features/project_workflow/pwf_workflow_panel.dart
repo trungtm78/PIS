@@ -19,10 +19,13 @@ enum PwfBandFilter { all, red, yellow, green }
 /// each stage with their deadline bands (MOB-78, and the Progress tab of the project). It reads nothing itself: it draws the [workflow] it is given
 /// and calls [onOpenTask] when a row is tapped.
 class PwfWorkflowPanel extends StatefulWidget {
-  const PwfWorkflowPanel({required this.workflow, required this.onOpenTask, super.key});
+  const PwfWorkflowPanel({required this.workflow, required this.onOpenTask, this.showMilestones = true, super.key});
 
   final PwfWorkflow workflow;
   final ValueChanged<PwfTaskRow> onOpenTask;
+
+  /// The group of the milestones ahead; false where the screen already lists the milestones of the project (the Progress tab).
+  final bool showMilestones;
 
   @override
   State<PwfWorkflowPanel> createState() => _PwfWorkflowPanelState();
@@ -67,7 +70,7 @@ class _PwfWorkflowPanelState extends State<PwfWorkflowPanel> {
     final bool finished = workflow.currentIndex > 0 && current != null && !current.open && workflow.openPhase == null;
     final double fraction = current == null || current.requiredTotal == 0 ? (finished ? 1 : 0) : current.requiredDone / current.requiredTotal;
     final Map<PwfBandKind, int> counts = workflow.countsByBand;
-    final List<PwfTaskRow> milestones = _filter == PwfBandFilter.all ? workflow.upcomingMilestones() : const <PwfTaskRow>[];
+    final List<PwfTaskRow> milestones = widget.showMilestones && _filter == PwfBandFilter.all ? workflow.upcomingMilestones() : const <PwfTaskRow>[];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[

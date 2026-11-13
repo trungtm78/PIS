@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/l10n/string_table.dart';
@@ -17,11 +16,12 @@ import 'package:machvon_mobile/core/widgets/work_row.dart' show GroupHeader, Wor
 import 'package:machvon_mobile/features/project_views/labels.dart';
 import 'package:machvon_mobile/features/project_views/map_models.dart';
 import 'package:machvon_mobile/features/project_views/project_models.dart';
-import 'package:machvon_mobile/features/project_views/project_tasks.dart';
 import 'package:machvon_mobile/features/project_views/project_views_feature.dart' as project_views;
 import 'package:machvon_mobile/features/project_views/project_views_strings.dart';
 import 'package:machvon_mobile/features/project_views/screens/project_list_screen.dart' show kProjectWorkLinks;
 import 'package:machvon_mobile/features/project_views/screens/project_list_screen.dart' show projectFilterProvider;
+import 'package:machvon_mobile/features/project_workflow/project_workflow_feature.dart' as pwf;
+import 'package:machvon_mobile/features/project_workflow/pwf_progress_section.dart';
 
 import '../../support/harness.dart';
 import '../../support/widget_host.dart';
@@ -30,7 +30,7 @@ import '../support/scripted_server.dart';
 import 'project_fixtures.dart';
 
 Future<ProviderContainer> _open(WidgetTester tester, ScriptedServer server, String location, {Locale locale = const Locale('vi'), DateTime Function()? now}) =>
-    pumpWithServer(tester, features: <MobileFeature>[project_views.feature], server: server, location: location, locale: locale, now: now);
+    pumpWithServer(tester, features: <MobileFeature>[project_views.feature, pwf.feature], server: server, location: location, locale: locale, now: now);
 
 void _register(ScriptedServer server, [List<Map<String, Object?>>? projects]) => server.on('GET', '/resources/project', (_) => page(projects ?? twoProjects));
 
@@ -422,35 +422,32 @@ void main() {
       expect(find.descendant(of: done, matching: find.byIcon(Icons.warning_amber_rounded)), findsNothing);
     });
 
-    testWidgets('the task list of the workflow is an extension point: no source, nothing is drawn; a source gives rows with their deadline band', (WidgetTester tester) async {
+    testWidgets('a project with no workflow draws no task list: the milestones are the content of the tab', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       healthy(server);
       await _open(tester, server, '/projects/mob-10/p-1');
       await tab(tester, 'Tiến độ');
-      expect(find.byType(ProjectTaskList), findsOneWidget);
-      expect(find.descendant(of: find.byType(ProjectTaskList), matching: find.byType(WorkRow)), findsNothing);
-      expect(find.descendant(of: find.byType(ProjectTaskList), matching: find.byType(GroupHeader)), findsNothing);
+      expect(find.byType(PwfProgressSection), findsOneWidget);
+      expect(find.descendant(of: find.byType(PwfProgressSection), matching: find.byType(WorkRow)), findsNothing);
+      expect(find.descendant(of: find.byType(PwfProgressSection), matching: find.byType(GroupHeader)), findsNothing);
     });
 
-    testWidgets('a source of the workflow gives rows with their deadline band, late first', (WidgetTester tester) async {
+    testWidgets('the workflow of the project gives the stages and the tasks with the official deadline bands, late first; the milestones stay the ones of the project', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer withTasks = ScriptedServer();
       healthy(withTasks);
-      await pumpWithServer(
-        tester,
-        features: <MobileFeature>[project_views.feature],
-        server: withTasks,
-        location: '/projects/mob-10/p-1',
-        overrides: <Override>[projectTaskSourceProvider.overrideWithValue(const _TwoTasks())],
-      );
+      withTasks.on('GET', '/projects/:id/workflow', (_) => _workflow());
+      await _open(tester, withTasks, '/projects/mob-10/p-1');
       await tab(tester, 'Tiến độ');
-      expect(find.text('Công việc'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.text('Giai đoạn 1/2 · Thực hiện'), findsWidgets);
       expect(find.text('Hoàn thiện hồ sơ thiết kế'), findsOneWidget);
-      expect(find.text('Trễ 2 ngày'), findsOneWidget);
+      expect(find.text('Trễ 2 ngày làm việc'), findsOneWidget);
       expect(find.text('Nộp báo cáo khả thi'), findsOneWidget);
-      expect(find.text('Còn 8 ngày'), findsOneWidget);
+      expect(find.text('Còn 8 ngày làm việc'), findsOneWidget);
       expect(tester.getTopLeft(find.text('Hoàn thiện hồ sơ thiết kế')).dy, lessThan(tester.getTopLeft(find.text('Nộp báo cáo khả thi')).dy), reason: 'late first');
+      expect(find.text('Mốc sắp tới'), findsNothing, reason: 'the project lists its milestones above; the panel does not list them twice');
     });
 
     testWidgets('a project that was rejected has its status and no strip', (WidgetTester tester) async {
@@ -601,13 +598,57 @@ void main() {
   });
 }
 
-/// A source of the workflow that gives two tasks: one late, one coming.
-class _TwoTasks implements ProjectTaskSource {
-  const _TwoTasks();
-
-  @override
-  Future<List<ProjectTaskItem>> tasksOf(String projectId) async => const <ProjectTaskItem>[
-        ProjectTaskItem(id: 't-2', title: 'Nộp báo cáo khả thi', daysRemaining: 8, dueDay: '2026-11-12'),
-        ProjectTaskItem(id: 't-1', title: 'Hoàn thiện hồ sơ thiết kế', daysRemaining: -2, dueDay: '2026-11-01'),
-      ];
+/// The workflow of the project as the server answers it: one stage open, one task late and one coming.
+Map<String, Object?> _workflow() {
+  Map<String, Object?> band(String kind, int days) => <String, Object?>{'band': kind, 'remaining_days': days, 'unit': 'WORKING', 'overdue': days < 0};
+  Map<String, Object?> task(String id, String name, Map<String, Object?> official, String finish) => <String, Object?>{
+        'id': id,
+        'task_code': id.toUpperCase(),
+        'name': name,
+        'phase_code': 'P1',
+        'kind': 'TASK',
+        'required': true,
+        'priority': 'NORMAL',
+        'status': 'IN_PROGRESS',
+        'excluded': false,
+        'tracked': true,
+        'state': 'SCHEDULED',
+        'planned_start': '2026-10-20',
+        'planned_finish': finish,
+        'baseline_finish': finish,
+        'missing_year': null,
+        'total_float': 0,
+        'critical': false,
+        'band': official,
+        'assignee': null,
+        'return_count': 0,
+        'version': 1,
+      };
+  return <String, Object?>{
+    'id': 'w-1',
+    'project_id': 'p-1',
+    'template_code': 'PUBLIC_INVESTMENT',
+    'template_rule_version': 1,
+    'template_hash': 'h',
+    'unverified': false,
+    'status': 'ACTIVE',
+    'planned_start_date': '2026-10-01',
+    'schedule_version': 1,
+    'adopted_on': null,
+    'open_phase': 'P1',
+    'phases': <Object?>[
+      <String, Object?>{'code': 'P1', 'name': 'Thực hiện', 'order': 1, 'gates': <Object?>[], 'required_total': 2, 'required_done': 0, 'open': true},
+      <String, Object?>{'code': 'P2', 'name': 'Kết thúc', 'order': 2, 'gates': <Object?>[], 'required_total': 1, 'required_done': 0, 'open': false},
+    ],
+    'tasks': <Object?>[
+      task('t-2', 'Nộp báo cáo khả thi', band('GREEN', 8), '2026-11-12'),
+      task('t-1', 'Hoàn thiện hồ sơ thiết kế', band('RED', -2), '2026-11-01'),
+    ],
+    'gates': <Object?>[],
+    'counts_by_band': <String, Object?>{'NONE': 0, 'GREEN': 1, 'YELLOW': 0, 'RED': 1, 'UNKNOWN': 0},
+    'can_manage': false,
+    'can_propose_reschedule': false,
+    'version': 1,
+    'as_of': '2026-11-03T03:00:00Z',
+  };
 }

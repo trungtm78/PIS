@@ -5,6 +5,10 @@ import '../../core/l10n/string_table.dart';
 /// days) is written here: they come from the server.
 const StringTable pwfStrings = StringTable(
   vi: <String, String>{
+    // The entries of the account tab.
+    'mob.pwf.entry.tasks': 'Việc của tôi theo hạn',
+    'mob.pwf.entry.score': 'Điểm KPI của tôi',
+    'mob.pwf.entry.reminders': 'Cài đặt nhắc hạn của tôi',
     // Status of a task.
     'mob.pwf.status.notStarted': 'Chưa bắt đầu',
     'mob.pwf.status.inProgress': 'Đang làm',
@@ -290,6 +294,9 @@ const StringTable pwfStrings = StringTable(
     'mob.pwf.pref.readOnly': 'Đang xem bản lưu trên máy. Kết nối mạng để sửa.',
   },
   en: <String, String>{
+    'mob.pwf.entry.tasks': 'My tasks by deadline',
+    'mob.pwf.entry.score': 'My KPI score',
+    'mob.pwf.entry.reminders': 'My reminder settings',
     'mob.pwf.status.notStarted': 'Not started',
     'mob.pwf.status.inProgress': 'In progress',
     'mob.pwf.status.awaitingApproval': 'Awaiting approval',

@@ -63,9 +63,12 @@ final pwfWorkflowProvider = FutureProvider.autoDispose.family<Loaded<PwfWorkflow
 /// and the tasks of each stage. It is a column that sits inside the scroll of the screen that hosts it. A project that has no workflow, or a person who
 /// may not read it, draws nothing here: the milestones of the project are the content of the tab and a task list that is not there is not an empty state.
 class PwfProgressSection extends ConsumerWidget {
-  const PwfProgressSection({required this.projectId, super.key});
+  const PwfProgressSection({required this.projectId, this.showMilestones = true, super.key});
 
   final String projectId;
+
+  /// The milestones ahead are a group of their own in the panel; a screen that already lists the milestones of the project says false.
+  final bool showMilestones;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -102,7 +105,7 @@ class PwfProgressSection extends ConsumerWidget {
                   style: text.caption,
                 ),
               ),
-            PwfWorkflowPanel(workflow: view.workflow, onOpenTask: (PwfTaskRow task) => openScreen(context, 'MOB-79', pathSuffix: '/${Uri.encodeComponent(task.id)}', stacked: true)),
+            PwfWorkflowPanel(workflow: view.workflow, showMilestones: showMilestones, onOpenTask: (PwfTaskRow task) => openScreen(context, 'MOB-79', pathSuffix: '/${Uri.encodeComponent(task.id)}', stacked: true)),
           ],
         );
       },
