@@ -40,7 +40,7 @@ export default function ConsentHistoryScreen({ route }: ScreenProps) {
       <div className="heading">
         <div>
           <h1 id="screen-title">{t('not.consent.page.title')}</h1>
-          <p>{t('not.consent.page.subtitle')}</p>
+          <p>{t('scr2.not.consent.page.subtitle')}</p>
         </div>
       </div>
 
@@ -59,15 +59,6 @@ export default function ConsentHistoryScreen({ route }: ScreenProps) {
         </ul>
       </div>
 
-      <GrantForm
-        items={all}
-        disabled={readOnly || grant.isPending}
-        readOnly={readOnly}
-        problem={grant.isError ? problemMessage(t, problemReasonOf(grant.error)) : undefined}
-        onGrant={(channel, purpose) => grant.mutate({ channel, purpose })}
-        granted={grant.isSuccess}
-      />
-
       <div className="card">
         <h2>{t('not.consent.history.title')}</h2>
         <StateBoundary state={state} onRetry={() => void pages.refetch()}>
@@ -80,9 +71,7 @@ export default function ConsentHistoryScreen({ route }: ScreenProps) {
                   <th>{t('not.consent.col.status')}</th>
                   <th>{t('not.consent.col.since')}</th>
                   <th>{t('not.consent.col.text')}</th>
-                  <th>
-                    <span className="sr-only">{t('not.consent.col.actions')}</span>
-                  </th>
+                  <th>{t('not.consent.withdraw.title')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -137,6 +126,15 @@ export default function ConsentHistoryScreen({ route }: ScreenProps) {
           />
         )}
       </div>
+
+      <GrantForm
+        items={all}
+        disabled={readOnly || grant.isPending}
+        readOnly={readOnly}
+        problem={grant.isError ? problemMessage(t, problemReasonOf(grant.error)) : undefined}
+        onGrant={(channel, purpose) => grant.mutate({ channel, purpose })}
+        granted={grant.isSuccess}
+      />
     </section>
   );
 }
@@ -210,7 +208,7 @@ function GrantForm({ items, disabled, readOnly, problem, granted, onGrant }: Gra
       </div>
       {live ? (
         <p className="callout" role="status" data-testid="grant-live">
-          {t('not.consent.grant.live.message')}
+          {t('scr2.not.consent.grant.live.message')}
         </p>
       ) : null}
       <div className="field">
