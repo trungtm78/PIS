@@ -43,7 +43,6 @@ class DataView<T> extends ConsumerStatefulWidget {
     required this.parse,
     this.builder,
     this.contextBuilder,
-    this.emptyView,
     this.asOf,
     this.isEmpty,
     this.emptyOnCodes = const <String>{},
@@ -99,8 +98,6 @@ class DataView<T> extends ConsumerStatefulWidget {
   /// given to it and DataView draws none above the content.
   final Widget Function(BuildContext context, Loaded<T> data, Widget contextLine)? contextBuilder;
 
-  /// The empty state with the words and the next step of this screen, instead of the standard one.
-  final WidgetBuilder? emptyView;
 
   @override
   ConsumerState<DataView<T>> createState() => _DataViewState<T>();
@@ -274,7 +271,6 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
             onRetry: _load,
             activeFilters: widget.activeFilters,
             onClearFilters: widget.onClearFilters,
-            emptyBuilder: widget.emptyView,
             keepContent: false,
             child: data == null || _state != ScreenState.defaultState
                 ? const SizedBox.shrink()
