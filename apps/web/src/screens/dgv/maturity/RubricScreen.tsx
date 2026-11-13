@@ -85,7 +85,7 @@ function RubricView({ rubric, mayPublish }: { rubric: Rubric; mayPublish: boolea
           </dd>
         </div>
         <div>
-          <dt>{t('dgv.maturity.rubric.coverage')}</dt>
+          <dt>{t('dgv.maturity.rubric.minCoverage')}</dt>
           <dd data-testid="min-coverage">{rubric.minCoveragePct}%</dd>
         </div>
         <div>
@@ -120,7 +120,7 @@ function RubricView({ rubric, mayPublish }: { rubric: Rubric; mayPublish: boolea
                   {t('dgv.maturity.col.level', { level })}
                 </th>
               ))}
-              <th scope="col">{t('dgv.maturity.col.refs')}</th>
+              <th scope="col">{t('dgv.maturity.col.frameworkRefs')}</th>
             </tr>
           </thead>
           <tbody>
@@ -193,7 +193,7 @@ function DraftPanel() {
       <Field id="rubric-code" label={t('dgv.maturity.draft.code')} hint={t('dgv.maturity.draft.code.hint')} error={message(problems.code, t('dgv.maturity.draft.code.invalid'))}>
         <input id="rubric-code" value={form.code} aria-invalid={problems.code !== undefined} onChange={(event) => set({ code: event.target.value })} />
       </Field>
-      <Field id="rubric-coverage" label={t('dgv.maturity.draft.coverage')} error={message(problems.minCoveragePct, t('dgv.maturity.draft.coverage.invalid'))}>
+      <Field id="rubric-coverage" label={t('dgv.maturity.draft.minCoverage')} error={message(problems.minCoveragePct, t('dgv.maturity.draft.coverage.invalid'))}>
         <input id="rubric-coverage" value={form.minCoveragePct} aria-invalid={problems.minCoveragePct !== undefined} onChange={(event) => set({ minCoveragePct: event.target.value })} />
       </Field>
       <Field id="rubric-days" label={t('dgv.maturity.draft.days')} error={message(problems.evidenceTtlDays, t('dgv.maturity.draft.days.invalid'))}>
@@ -201,7 +201,7 @@ function DraftPanel() {
       </Field>
       <Field
         id="rubric-frameworks"
-        label={t('dgv.maturity.draft.frameworks')}
+        label={t('dgv.maturity.draft.frameworkMap')}
         hint={t('dgv.maturity.draft.frameworks.hint')}
         error={message(problems.frameworkRefs, t('dgv.maturity.draft.json.invalid'))}
       >
