@@ -1,4 +1,6 @@
 # STATUS: NOT RUN on a phone of the pilot device matrix (written for the emulator of the e2e stack; the host has not run it on a phone).
+# UAT 2026-11-13 (emulator "guide"): two runs stopped at the wait for 'Chọn đơn vị và vai trò': the heading of the chooser and the paragraph under it were one
+# semantics node, so the whole text did not match. The application now gives the heading a node of its own (AuthHeading, lib/features/session/flow.dart); not re-run since.
 # Sign-in against the test identity provider of the e2e stack (apps/api/test/e2e-stack), the way a tester runs it on the emulator.
 # Supports: MOB-02 sign-in, MOB-03 choice of unit, MOB-04 second factor, MOB-07 home (AC-ST-MOB-040-1). It replaces 05_sign_in.yaml
 # only where the provider is the test one: that one signs the first fixture person in at once (no page, no password) and grants

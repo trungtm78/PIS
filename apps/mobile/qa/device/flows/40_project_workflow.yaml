@@ -1,38 +1,61 @@
-# STATUS: NOT RUN. Written against the screens MOB-78 to MOB-82 (lane pwfmob); it has not been run on an emulator or a device yet.
+# STATUS: NOT RUN to the end. UAT 2026-11-13 (emulator "guide", public edition) ran the first version twice: it stopped at "Việc của tôi theo hạn"
+# after the tab Cá nhân opened, because that entry sits in the group "Công cụ" below the first screen of the tab and a tap does not scroll
+# (uat/run/uat-2026-11-13-merge/public/mobile/diag-after-40.png). This version scrolls to it; it has not been run since.
+# Written against the screens MOB-78 to MOB-82 (lane pwfmob).
 # Supports: AC-ST-MOB-040-3 (the work of the person offline), TC-UAT-PWF-15 (my tasks by deadline, the task, my score) and TC-UAT-PWF-OFF-01 (a command sent again after the task changed).
-# Needs: a build installed on the device, a signed-in session (run 05_sign_in.yaml first) of a tenant with a project that has a workflow and a task
-# assigned to the user, Vietnamese interface. The offline half needs the airplane mode, which Maestro sets with the commands below.
+# Needs: a build installed on the device, a signed-in session (05_sign_in.yaml, or 06_sign_in_test_idp.yaml on the e2e stack), Vietnamese interface, and a tenant
+# with a project that has a workflow and a task assigned to the user that is IN PROGRESS (the bar of a task not started offers "Bắt đầu", not "Hoàn thành việc").
+# The e2e stack and the clip seed create no project workflow (apps/api/test/e2e-stack/serve.stack.ts, scripts/clip-seed.mjs): start the workflow and
+# the task on the web first. The offline half needs the airplane mode, which Maestro sets with the commands below.
+# Matching: Maestro matches a regex against the whole text of a node, and a row of a list is one node whose text is its spoken label
+# ("<task>, <project>, <code>, <deadline words>, hạn dd/mm/yyyy, Theo cài đặt của bạn"), so the row texts are matched with ".*" around them.
 # Run:   maestro test --format junit --output results/<device>/40_workflow.xml flows/40_project_workflow.yaml
 appId: vn.machvon.app
 ---
 - launchApp
 - tapOn: 'Cá nhân.*'
+# MOB-80 and MOB-81 open from the group "Công cụ" of the tab Cá nhân, below the profile, the reminders and the appearance.
+- scrollUntilVisible:
+    element: 'Việc của tôi theo hạn'
+    centerElement: true
 - tapOn: 'Việc của tôi theo hạn'
-- assertVisible: 'Việc của tôi'
+- extendedWaitUntil:
+    visible: 'Việc của tôi'
+    timeout: 20000
 # The colours are the person's own: the screen says so and every row carries its real day.
 - assertVisible: '.*Theo cài đặt của bạn.*'
-- assertVisible: 'hạn [0-9]{2}/[0-9]{2}'
+- assertVisible: '.*hạn [0-9]{2}/[0-9]{2}.*'
 - takeScreenshot: 40_my_tasks
 - tapOn: 'Màu chính thức'
 - assertNotVisible: '.*Theo cài đặt của bạn.*'
 - tapOn: 'Màu của bạn'
-# Open the first task and complete it with no connection.
+# Open the first task (only a task row carries "hạn dd/mm"; the group headers say "Trễ hạn" and the settings row "Cài đặt nhắc hạn") and complete it with no connection.
 - tapOn:
-    index: 1
-    text: '.*hạn.*'
-- assertVisible: 'Chi tiết việc'
+    text: '.*hạn [0-9]{2}/[0-9]{2}.*'
+    index: 0
+- extendedWaitUntil:
+    visible: 'Chi tiết việc'
+    timeout: 20000
 - takeScreenshot: 40_task
 - setAirplaneMode: enabled
 - tapOn: 'Hoàn thành việc'
-- tapOn: 'Hoàn thành việc'
+# The sheet: its title (a heading) and its confirm button carry the same words; the button is the second (a tap waits until it is there).
+- tapOn:
+    text: 'Hoàn thành việc'
+    index: 1
 - assertVisible: '.*sẽ gửi khi có mạng.*'
 - takeScreenshot: 40_task_queued
 - setAirplaneMode: disabled
-- assertVisible: 'Chờ duyệt hoàn thành|Đã xong|Công việc đã thay đổi'
+- extendedWaitUntil:
+    visible: '.*(Chờ duyệt hoàn thành|Đã xong|Công việc đã thay đổi).*'
+    timeout: 60000
 - takeScreenshot: 40_task_sent
 - back
 - back
 # My score: only the person's own, a basis for support.
+- scrollUntilVisible:
+    element: 'Điểm KPI của tôi'
+    centerElement: true
 - tapOn: 'Điểm KPI của tôi'
 - assertVisible: '.*căn cứ hỗ trợ.*'
 - takeScreenshot: 40_my_score
