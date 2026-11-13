@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEdition } from '../../../editions/EditionContext';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -119,7 +120,8 @@ function StartPanel({ project }: { project: ProjectView }) {
   // R47: what the rule PROJECT_WORKFLOW_ASSIGNMENT suggests for this project and the facts typed. The suggestion is a help: when it cannot be read the form works as it always did.
   const suggestionQuery: Record<string, string> = { project_id: project.id };
   for (const field of FACT_FIELDS) if (FACT_VALUE.test(form.facts[field].trim())) suggestionQuery[field] = form.facts[field].trim();
-  const suggestion = useWorkflowSuggestion(suggestionQuery, true);
+  // Asked in the public edition only: another edition keeps the screen it has.
+  const suggestion = useWorkflowSuggestion(suggestionQuery, useEdition().manifest.edition === 'public');
   const suggested = suggestion.data?.suggested_template_code ?? null;
   const overriding = suggested !== null && form.templateCode !== '' && form.templateCode !== suggested;
   const reasonMissing = overriding && (reason.trim().length < MIN_SELECTION_REASON || reason.trim().length > MAX_SELECTION_REASON);

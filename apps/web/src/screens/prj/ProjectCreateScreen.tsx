@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useEdition } from '../../editions/EditionContext';
 import { useTranslation } from '../../i18n';
 import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
@@ -41,7 +42,9 @@ function ProjectCreateContent({ route }: ScreenProps) {
   const created = useProject(createdId);
   // R47: the kind of workflow and the planned start are chosen with the registration, for a person who may read workflows; the rule suggests, the person confirms or overrides with a reason, and the workflow starts in the transaction
   // that registers the project. Without the right to start a workflow, or without a planned start, the project is registered as it always was and the workflow starts later (PWF-05).
-  const seesKinds = (permissions ?? []).includes('pwf.read');
+  // The section belongs to the public edition (the product it was asked for); another edition keeps the registration screen it has.
+  const edition = useEdition();
+  const seesKinds = edition.manifest.edition === 'public' && (permissions ?? []).includes('pwf.read');
   const [choice, setChoice] = useState<ChoiceForm>(EMPTY_CHOICE);
   const [choiceChecked, setChoiceChecked] = useState(false);
   const [withWorkflow, setWithWorkflow] = useState(false);

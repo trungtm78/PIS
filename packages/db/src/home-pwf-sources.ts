@@ -42,7 +42,7 @@ export class HomePwfSources {
 
   /**
    * `PWF_LEGAL_BASIS_LAPSED` (PWF-4, R45; owner: the one who answers for the project): a running workflow cites, on a step or a task of its frozen template, a document the shared catalogue says has expired or was replaced. One
-   * item per workflow and document, whose identity carries the version of the catalogue entry (`<workflow>:<document>:<version>`), so a document that is corrected again is one new item, never two. The catalogue is read first: when
+   * item per workflow and document (`<workflow>:<document>`, the id the decisions of people name: taking the item up or handing it over keeps it theirs), however many steps and tasks cite the document. The catalogue is read first: when
    * no document of it has lapsed nothing is asked of the workflows at all.
    */
   private async lapsedLegalGrounds(context: SourceContext): Promise<SourceRow[]> {
@@ -55,15 +55,9 @@ export class HomePwfSources {
     const rows = await context.tx.query<{ workflow_id: string; code: string; project_id: string; project_code: string }>(
       `select w.id as workflow_id, d.code, p.id as project_id, p.code as project_code
          from machvon.project_workflow w
-         cross join lateral (
-           select distinct cited #>> '{}' as code
-             from jsonb_path_query(w.template, '$.steps[*].legal_basis[*].document') as cited
-           union
-           select distinct cited #>> '{}' as code
-             from jsonb_path_query(w.template, '$.tasks[*].legal_basis[*].document') as cited
-         ) d
+         cross join lateral (select distinct cited as code from unnest(w.cited_legal_documents) as cited) d
          ${PROJECT_JOINS('w', 'w.project_id')}
-        where w.status = 'ACTIVE' and d.code = any(${codes}::text[]) and ${visible}
+        where w.status = 'ACTIVE' and w.cited_legal_documents && ${codes}::text[] and d.code = any(${codes}::text[]) and ${visible}
         order by p.code, d.code limit ${SOURCE_LIMIT}`,
       params.values,
     );
@@ -72,7 +66,7 @@ export class HomePwfSources {
       const since = document.effectiveTo ?? context.today;
       return {
         ...base('PWF_LEGAL_BASIS_LAPSED'),
-        id: `${row.workflow_id}:${row.code}:${document.ruleVersion}`,
+        id: `${row.workflow_id}:${row.code}`,
         dueOn: since,
         originalDueOn: since,
         title: message('home.source.pwf.legal.title', { document: document.number, project: row.project_code }),

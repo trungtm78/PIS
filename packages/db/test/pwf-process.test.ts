@@ -362,15 +362,18 @@ describe('the processing workflow of a project (PWF-4)', () => {
       const rows = await lapsed();
       const mine = rows.filter((row) => row.id.startsWith(done.id));
       expect(mine).toHaveLength(1);
-      expect(mine[0]).toMatchObject({ id: `${done.id}:TEST_DECREE_OLD:2`, source: 'PROJECT_TASK', severity: 'WATCH', status: 'AT_RISK', target: { screen: 'PWF-03', id: p.id }, dueOn: '2026-01-01' });
+      expect(mine[0]).toMatchObject({ id: `${done.id}:TEST_DECREE_OLD`, source: 'PROJECT_TASK', severity: 'WATCH', status: 'AT_RISK', target: { screen: 'PWF-03', id: p.id }, dueOn: '2026-01-01' });
       expect(mine[0]?.title).toContain('1/2020/ND-CP');
       expect(mine[0]?.title).toContain(p.code);
       expect(mine[0]?.subtitle).toContain('2/2026/ND-CP');
       expect(mine[0]?.consequence).toBeTruthy();
       // One item per workflow and document, whatever the number of steps and tasks that cite it; a workflow that cites nothing lapsed has none.
       expect(new Set(rows.map((row) => row.id)).size).toBe(rows.length);
+      // The codes the frozen template cites are kept with the workflow, so the alert reads an index and not the JSON of every workflow.
+      expect((await owner<{ cited_legal_documents: string[] | null }>('select cited_legal_documents from machvon.project_workflow where id = $1::uuid', [done.id]))[0]?.cited_legal_documents).toEqual(['LAW_58_2024_QH15', 'TEST_DECREE_OLD', 'DECREE_85_2025_ND_CP']);
       const legacy = await start((await project()).id, { templateCode: 'LEGACY' });
       expect((await lapsed()).some((row) => row.id.startsWith(legacy.id))).toBe(false);
+      expect((await owner<{ cited_legal_documents: string[] | null }>('select cited_legal_documents from machvon.project_workflow where id = $1::uuid', [legacy.id]))[0]?.cited_legal_documents).toEqual([]);
       // Out of the scope of the reader there is nothing.
       expect(await lapsed({ projectScope: () => ({ sql: 'false', params: [] }), unitScope: () => ({ sql: 'false', params: [] }) })).toEqual([]);
       // A workflow that is no longer running is not told.

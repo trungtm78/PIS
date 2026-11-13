@@ -313,9 +313,9 @@ export class PwfWorkflowStore {
     const baselines = await tx.query<{ id: string }>('select id from machvon.project_baseline where project_id = $1::uuid and version = 0', [project.id]);
     const workflowId = randomUUID();
     await tx.query(
-      `insert into machvon.project_workflow (tenant_id, id, project_id, template_code, template_rule_id, template_rule_version, template_hash, template, facts, planned_start_date, project_baseline_id, adopted_on, created_by, updated_by, status, selection)
-       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4::uuid, $5::int, $6, $7::jsonb, $8::jsonb, $9::date, $10::uuid, $11::date, $12::uuid, $12::uuid, $13, $14::jsonb)`,
-      [workflowId, project.id, resolved.code, resolved.ruleId, resolved.version, resolved.hash, JSON.stringify(pwfWorkflow.templateParamsOf(resolved.template)), JSON.stringify(plan.facts), plannedStart, baselines[0]?.id ?? null, adoptedOn, request.actor, project.status === 'SUSPENDED' ? 'ON_HOLD' : 'ACTIVE', JSON.stringify(plan.selection)],
+      `insert into machvon.project_workflow (tenant_id, id, project_id, template_code, template_rule_id, template_rule_version, template_hash, template, facts, planned_start_date, project_baseline_id, adopted_on, created_by, updated_by, status, selection, cited_legal_documents)
+       values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4::uuid, $5::int, $6, $7::jsonb, $8::jsonb, $9::date, $10::uuid, $11::date, $12::uuid, $12::uuid, $13, $14::jsonb, $15::text[])`,
+      [workflowId, project.id, resolved.code, resolved.ruleId, resolved.version, resolved.hash, JSON.stringify(pwfWorkflow.templateParamsOf(resolved.template)), JSON.stringify(plan.facts), plannedStart, baselines[0]?.id ?? null, adoptedOn, request.actor, project.status === 'SUSPENDED' ? 'ON_HOLD' : 'ACTIVE', JSON.stringify(plan.selection), pwfWorkflow.citedLegalDocuments(resolved.template)],
     );
     await this.insertTasks(tx, workflowId, project.id, plan, decisions, request.actor, adoptedOn, today);
     await this.defaultAssignments(tx, workflowId, project.id, plannedStart, today, request.actor);
