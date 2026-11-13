@@ -126,6 +126,12 @@ export function NationalCodeImportPanel({ canImport, wholeTenant }: ImportPanelP
     <article className="card" aria-label={t('prj.reconcile.import.title')} data-testid="import-panel">
       <h2>{t('prj.reconcile.import.title')}</h2>
       <p className="sub">{t('prj.reconcile.import.layout.note')}</p>
+      <dl className="prj-facts" data-testid="import-summary">
+        <dt>{t('scr2.prj.reconcile.import.file')}</dt>
+        <dd data-testid="import-file-name">{file === undefined ? t('scr2.prj.reconcile.import.noFile') : file.name}</dd>
+        <dt>{t('scr2.prj.reconcile.import.errors')}</dt>
+        <dd data-testid="import-error-rows">{shown === undefined ? t('scr2.prj.reconcile.import.notChecked') : shown.counts.errors}</dd>
+      </dl>
       {!canImport ? (
         <p className="callout" role="status" data-testid="import-denied">
           {t('prj.reconcile.import.denied.notice')}
