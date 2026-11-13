@@ -65,7 +65,7 @@ export interface Advance {
   /** The highest level of the alert that went: 0 for none, 1 to 4 (PAY 3.2 step 4). */
   lastAlertLevel: number;
   /** The plan the person who answers gave for an advance that is overdue: a note and the day it is due. */
-  acknowledgement: { note: string; planDueOn: string; by: string; at: string } | null;
+  acknowledgement: { note: string; planDueOn: string; by: string; byName: string | null; at: string } | null;
   actions: { cancel: boolean; recordRecovery: boolean; acknowledgeAlert: boolean };
   version: number;
 }
@@ -121,7 +121,7 @@ export function toAdvance(raw: unknown): Advance | undefined {
     acknowledgement:
       text(acknowledged?.note) === undefined || text(acknowledged?.action_plan_due_on) === undefined
         ? null
-        : { note: text(acknowledged?.note) ?? '', planDueOn: text(acknowledged?.action_plan_due_on) ?? '', by: text(acknowledged?.acknowledged_by) ?? '', at: text(acknowledged?.acknowledged_at) ?? '' },
+        : { note: text(acknowledged?.note) ?? '', planDueOn: text(acknowledged?.action_plan_due_on) ?? '', by: text(acknowledged?.acknowledged_by) ?? '', byName: nullableText(acknowledged?.acknowledged_by_name), at: text(acknowledged?.acknowledged_at) ?? '' },
     actions: { cancel: actions?.cancel === true, recordRecovery: actions?.record_recovery === true, acknowledgeAlert: actions?.acknowledge_alert === true },
     version,
   };

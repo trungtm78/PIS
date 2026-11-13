@@ -116,7 +116,8 @@ export interface AdvanceView {
   overdueSince: string | null;
   lastAlertLevel: number;
   /** The plan the person who answers for the advance gave once it was overdue: a note and the day it is due, nothing that moves the amounts. */
-  acknowledgement: { note: string; planDueOn: string; by: string; at: string } | null;
+  /** `byName` is the name of the person who answered as the directory of the tenant holds it (null when the directory has no name for the membership). */
+  acknowledgement: { note: string; planDueOn: string; by: string; byName: string | null; at: string } | null;
   createdAt: string;
   updatedAt: string;
   reach: ContractPlace;
@@ -167,6 +168,7 @@ interface AdvanceSql {
   alert_note: string | null;
   alert_plan_due_on: string | null;
   alert_acknowledged_by: string | null;
+  alert_acknowledged_by_name: string | null;
   alert_acknowledged_at: string | null;
   created_at: string;
   updated_at: string;
@@ -180,7 +182,8 @@ const SELECT = `select a.id, a.version::text as version, a.status, c.id as contr
        c.advance_category, c.project_id, a.party_id, cp.role as party_role, k.legal_name as party_name, cp.work_value_vnd::text as work_value_vnd, a.tranche_no, a.kind,
        a.amount_vnd::text as amount_vnd, a.cap_vnd::text as cap_vnd, a.cap_rule_version_id, rv.attributes as rule_attributes, a.guarantee_id, a.allocation_line_id, a.paid_vnd::text as paid_vnd,
        a.recovered_vnd::text as recovered_vnd, a.outstanding_vnd::text as outstanding_vnd, a.paid_on::text as paid_on, a.recovery_threshold_pct::text as recovery_threshold_pct,
-       a.recovery_deadline::text as recovery_deadline, a.overdue_since::text as overdue_since, a.last_alert_level, a.alert_note, a.alert_plan_due_on::text as alert_plan_due_on, a.alert_acknowledged_by, ${TIMESTAMP('a.alert_acknowledged_at')} as alert_acknowledged_at,
+       a.recovery_deadline::text as recovery_deadline, a.overdue_since::text as overdue_since, a.last_alert_level, a.alert_note, a.alert_plan_due_on::text as alert_plan_due_on, a.alert_acknowledged_by,
+       (select u.display_name from machvon.tenant_user_directory u where u.tenant_id = a.tenant_id and u.membership_id = a.alert_acknowledged_by) as alert_acknowledged_by_name, ${TIMESTAMP('a.alert_acknowledged_at')} as alert_acknowledged_at,
        ${TIMESTAMP('a.created_at')} as created_at, ${TIMESTAMP('a.updated_at')} as updated_at,
        ou.id as owner_unit_id, ou.path as owner_unit_path, iu.id as investor_unit_id, iu.path as investor_unit_path
   from ${CONTRACT_SCOPE_FROM}
@@ -235,7 +238,7 @@ function toView(row: AdvanceSql): AdvanceView {
     acknowledgement:
       row.alert_note === null || row.alert_plan_due_on === null || row.alert_acknowledged_by === null || row.alert_acknowledged_at === null
         ? null
-        : { note: row.alert_note, planDueOn: row.alert_plan_due_on, by: row.alert_acknowledged_by, at: row.alert_acknowledged_at },
+        : { note: row.alert_note, planDueOn: row.alert_plan_due_on, by: row.alert_acknowledged_by, byName: row.alert_acknowledged_by_name, at: row.alert_acknowledged_at },
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     reach: {

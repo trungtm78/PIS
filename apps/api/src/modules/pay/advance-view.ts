@@ -57,7 +57,7 @@ export function advanceView(view: AdvanceView, access: EffectiveAccess, now: Dat
     // A land clearance advance is late from the day after its deadline; an advance of a contract from the day it was found overdue.
     overdue_days: late && view.recoveryDeadline !== null ? daysBetween(view.recoveryDeadline, today) : view.kind === 'CONTRACT' && owed && view.overdueSince !== null ? daysBetween(view.overdueSince, today) : null,
     last_alert_level: view.lastAlertLevel,
-    acknowledgement: view.acknowledgement === null ? null : { note: view.acknowledgement.note, action_plan_due_on: view.acknowledgement.planDueOn, acknowledged_by: view.acknowledgement.by, acknowledged_at: view.acknowledgement.at },
+    acknowledgement: view.acknowledgement === null ? null : { note: view.acknowledgement.note, action_plan_due_on: view.acknowledgement.planDueOn, acknowledged_by: view.acknowledgement.by, acknowledged_by_name: view.acknowledgement.byName, acknowledged_at: view.acknowledgement.at },
     created_at: view.createdAt,
     updated_at: view.updatedAt,
     actions: {

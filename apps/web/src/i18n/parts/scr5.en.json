@@ -1,0 +1,6 @@
+{
+  "pay.alert.table.label": "Table of the advances under alert",
+  "pay.alert.column.handler": "Handled by",
+  "pay.alert.handler.none": "Nobody has taken it up yet",
+  "pay.alert.handler.unnamed": "A person no longer in the directory"
+}

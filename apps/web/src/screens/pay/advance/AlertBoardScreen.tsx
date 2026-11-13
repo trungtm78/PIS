@@ -2,16 +2,18 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
+import { holds } from '../../../session/holds';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { AcknowledgeDialog, RecoveryDialog } from './AdvanceDialogs';
 import { useOverdueAdvances } from './hooks';
 import { kindLabel, levelLabel } from './labels';
-import { ALERT_LEVELS, scheduleLink, signedAmountText } from './model';
+import { ACKNOWLEDGE_PERMISSION, ALERT_LEVELS, RECOVER_PERMISSION, scheduleLink, signedAmountText } from './model';
 import type { Advance, AlertLevel } from './model';
 import '../pay.css';
 import { SectionCard } from '../../../ui';
+import { ScrollRegion } from '../../scroll-region';
 
 type Dialog = { kind: 'recovery' | 'acknowledge'; advance: Advance };
 
@@ -19,8 +21,8 @@ const levelOf = (value: string | null): AlertLevel | null => ALERT_LEVELS.find((
 
 /**
  * PAY-12: the advances that are owed past the day they had to be recovered by, or are about to be (ST-PAY-011, PAY 3.2 steps 4 and 5, UAT-AC328, UAT-AC329), narrowed by the level of the alert: seven days before the
- * deadline, the deadline, overdue, escalated to the leader. For each: the contract and the member, what is still owed, the deadline, the days late and the plan that was given. A person who may record a recovery or give a
- * plan has the buttons; a plan stores a note and a day and nothing else, and no button here marks an advance as recovered. The server judges each command again.
+ * deadline, the deadline, overdue, escalated to the leader. For each: the contract and the member, what is still owed, the deadline, the days late, the person who answers for it (the one who gave the plan) and the plan that was given. A person who holds the right to
+ * record a recovery or to give a plan has the buttons, one who only reads has none; a plan stores a note and a day and nothing else, and no button here marks an advance as recovered. The server judges each command again.
  */
 export default function AlertBoardScreen({ route }: ScreenProps) {
   const { tenant } = useSession();
@@ -30,7 +32,7 @@ export default function AlertBoardScreen({ route }: ScreenProps) {
 
 function AlertBoardContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
-  const { mode } = useSession();
+  const { mode, permissions } = useSession();
   const [search, setSearch] = useSearchParams();
   const level = levelOf(search.get('level'));
   const board = useOverdueAdvances(level);
@@ -39,6 +41,9 @@ function AlertBoardContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: board.isLoading, error: board.error, data: board.data, isEmpty: () => false });
   const money = (value: string): string => signedAmountText(value, locale) ?? value;
   const writable = mode !== 'READ_ONLY';
+  // The server says what each advance allows the membership; the session says what the person holds (a person who only reads holds neither right).
+  const mayRecover = writable && holds(permissions, RECOVER_PERMISSION);
+  const mayAcknowledge = writable && holds(permissions, ACKNOWLEDGE_PERMISSION);
   const choose = (value: string): void => setSearch(value === '' ? {} : { level: value }, { replace: true });
   const finished = (message: string) => (): void => {
     setDone(message);
@@ -81,6 +86,7 @@ function AlertBoardContent({ route }: ScreenProps) {
               {t('pay.alert.empty')}
             </p>
           ) : (
+            <ScrollRegion label={t('pay.alert.table.label')}>
             <table className="table" data-testid="alerts">
               <thead>
                 <tr>
@@ -94,6 +100,7 @@ function AlertBoardContent({ route }: ScreenProps) {
                     {t('pay.advance.column.overdue')}
                   </th>
                   <th scope="col">{t('pay.alert.column.level')}</th>
+                  <th scope="col">{t('pay.alert.column.handler')}</th>
                   <th scope="col">{t('pay.alert.column.plan')}</th>
                   <th scope="col">{t('pay.advance.column.actions')}</th>
                 </tr>
@@ -122,6 +129,7 @@ function AlertBoardContent({ route }: ScreenProps) {
                         {levelLabel(t, levelOf(String(advance.lastAlertLevel)) ?? 1)}
                       </span>
                     </td>
+                    <td data-testid="handler">{advance.acknowledgement === null ? t('pay.alert.handler.none') : (advance.acknowledgement.byName ?? t('pay.alert.handler.unnamed'))}</td>
                     <td data-testid="plan">
                       {advance.acknowledgement === null ? t('pay.alert.noPlan') : t('pay.alert.plan', { day: advance.acknowledgement.planDueOn })}
                       {advance.acknowledgement === null ? null : (
@@ -132,12 +140,12 @@ function AlertBoardContent({ route }: ScreenProps) {
                       )}
                     </td>
                     <td>
-                      {writable && advance.actions.recordRecovery ? (
+                      {mayRecover && advance.actions.recordRecovery ? (
                         <button type="button" onClick={() => setDialog({ kind: 'recovery', advance })} data-action="recover">
                           {t('pay.advance.action.recover')}
                         </button>
                       ) : null}{' '}
-                      {writable && advance.actions.acknowledgeAlert ? (
+                      {mayAcknowledge && advance.actions.acknowledgeAlert ? (
                         <button type="button" onClick={() => setDialog({ kind: 'acknowledge', advance })} data-action="acknowledge">
                           {t('pay.alert.action.acknowledge')}
                         </button>
@@ -147,6 +155,7 @@ function AlertBoardContent({ route }: ScreenProps) {
                 ))}
               </tbody>
             </table>
+            </ScrollRegion>
           )}
         </SectionCard>
       </StateBoundary>
