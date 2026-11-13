@@ -107,7 +107,7 @@ describe('PhotoGalleryScreen (QMS-08): the site photos and their review flags', 
     expect(within(first).getByTestId('photo').textContent).toContain('PRJ-A-001 · HD-A-002 · Pixel 8');
     expect(within(first).getByTestId('place').textContent).toContain('10.800200, 106.700300');
     expect(within(first).getByTestId('place').textContent).toContain(word('qms.photo.source.device'));
-    expect(within(first).getByTestId('place').textContent).toContain(text('qms.photo.accuracy', { value: 8 }));
+    expect(within(first).getByTestId('accuracy').textContent).toBe(text('qms.photo.accuracy', { value: 8 }));
     expect(Array.from(first.querySelectorAll('[data-check]')).map((item) => item.textContent)).toEqual([word('qms.photo.time.ok'), word('qms.photo.geofence.inside'), word('qms.photo.duplicate.unique'), word('qms.photo.exif.consistent')]);
     expect(within(first).getByTestId('summary').textContent).toBe(word('qms.photo.summary.pass'));
     const second = row(photoId(2));

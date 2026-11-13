@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { useContracts } from '../../ctr/hooks';
@@ -33,6 +34,15 @@ type Dialog =
   | { kind: 'close'; line: NcrLine }
   | { kind: 'reopen'; line: NcrLine };
 
+/** The rights of the commands on a non-conformance (openapi `x-permission`). */
+const RIGHTS = { assign: 'ncr.manage', respond: 'ncr.respond', verify: 'ncr.verify', close: 'ncr.close', reopen: 'ncr.close' } as const;
+
+/** What the server allows on the line, narrowed to the rights the person holds. */
+function withRights(line: NcrLine, permissions: readonly string[] | undefined): NcrLine {
+  const allowed = Object.fromEntries(Object.entries(line.allowed).map(([command, yes]) => [command, yes && holds(permissions, RIGHTS[command as keyof typeof RIGHTS])])) as NcrLine['allowed'];
+  return { ...line, allowed };
+}
+
 function NonconformanceContent({ route }: ScreenProps) {
   const { t, locale } = useTranslation();
   const { permissions, mode, tenant } = useSession();
@@ -47,7 +57,8 @@ function NonconformanceContent({ route }: ScreenProps) {
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   // A tenant with no non-conformance is not an empty screen: the supervisor still raises the first.
   const state = useScreenState({ isLoading: board.isLoading, error: board.error, data: board.data, isEmpty: () => false });
-  const lines = board.data ?? [];
+  // The server says what each non-conformance allows the membership; the session says what the person holds, and a right the person lacks is no button.
+  const lines = useMemo(() => (board.data ?? []).map((line) => withRights(line, permissions)), [board.data, permissions]);
   const active = useMemo(() => options.filter((contract) => contract.status === 'ACTIVE'), [options]);
   const moment = (iso: string): string => new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(iso));
   const choose = (id: string): void => setSearch(id === '' ? {} : { contract: id });

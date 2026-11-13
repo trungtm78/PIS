@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
@@ -11,6 +11,8 @@ import { duplicateLabel, exifLabel, flagMessage, geofenceLabel, problemMessage, 
 import { NO_FILTER, SUMMARIES, describeProblem } from './model';
 import type { PhotoFilter, PhotoLine } from './model';
 import '../qms.css';
+import { ScrollRegion } from '../../scroll-region';
+import { reviewLink } from '../diary/model';
 
 /**
  * QMS-08: the register of the photos of the site (ST-QMS-003, QMS 3.4, BR-QMS-06). Each photo shows when it was taken and received, where it was (only if the person consented to keeping the place) and the four review
@@ -72,30 +74,36 @@ function GalleryContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void list.refetch()}>
         <div className="card">
-          {lines.length === 0 ? (
-            <p className="callout" role="status" data-testid="no-photos">
-              {t('qms.photo.none.notice')}
-            </p>
-          ) : (
+          <ScrollRegion label={t('qms.photo.title')}>
             <table className="table" data-testid="photos">
               <thead>
                 <tr>
                   <th scope="col">{t('qms.photo.column.photo')}</th>
-                  <th scope="col">{t('qms.photo.column.time')}</th>
+                  <th scope="col">{t('scr2.qms.photo.column.taken')}</th>
+                  <th scope="col">{t('scr2.qms.photo.column.received')}</th>
                   <th scope="col">{t('qms.photo.column.place')}</th>
-                  <th scope="col">{t('qms.photo.column.checks')}</th>
+                  <th scope="col">{t('scr2.qms.photo.column.accuracy')}</th>
+                  <th scope="col">{t('scr2.qms.photo.column.checks')}</th>
+                  <th scope="col">{t('scr2.qms.photo.column.links')}</th>
                   <th scope="col">
                     <span className="sr-only">{t('qms.photo.column.actions')}</span>
                   </th>
                 </tr>
               </thead>
               <tbody>
+                {lines.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} role="status" data-testid="no-photos">
+                      {t('qms.photo.none.notice')}
+                    </td>
+                  </tr>
+                ) : null}
                 {lines.map((line) => (
                   <PhotoRow key={line.id} line={line} moment={moment} chosen={chosen === line.id} onChoose={() => setSearch({ photo: line.id })} />
                 ))}
               </tbody>
             </table>
-          )}
+          </ScrollRegion>
           {list.hasNextPage ? (
             <button type="button" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
               {t('qms.photo.more.action')}
@@ -121,23 +129,19 @@ function PhotoRow({ line, moment, chosen, onChoose }: { line: PhotoLine; moment:
           {line.deviceModel === null ? '' : ` · ${line.deviceModel}`}
         </small>
       </td>
-      <td data-testid="time">
-        <span>{moment(line.takenAtExif)}</span>
-        <small className="sub qms-regime">{t('qms.photo.received', { when: moment(line.receivedAt) })}</small>
-      </td>
+      <td data-testid="time">{moment(line.takenAtExif)}</td>
+      <td data-testid="received">{t('qms.photo.received', { when: moment(line.receivedAt) })}</td>
       <td data-testid="place">
         {line.place === null ? (
           <span className="sub">{line.geoConsent ? t('qms.photo.place.none') : t('qms.photo.place.noConsent')}</span>
         ) : (
           <span>
             {line.place.lat.toFixed(6)}, {line.place.lng.toFixed(6)}
-            <small className="sub qms-regime">
-              {sourceLabel(t, line.place.source)}
-              {line.place.accuracyM === null ? '' : ` · ${t('qms.photo.accuracy', { value: line.place.accuracyM })}`}
-            </small>
+            <small className="sub qms-regime">{sourceLabel(t, line.place.source)}</small>
           </span>
         )}
       </td>
+      <td data-testid="accuracy">{line.place === null || line.place.accuracyM === null ? NONE : t('qms.photo.accuracy', { value: line.place.accuracyM })}</td>
       <td data-testid="checks">
         <ul className="qms-signers">
           <li data-check="time">{timeLabel(t, line.checks.time)}</li>
@@ -149,6 +153,9 @@ function PhotoRow({ line, moment, chosen, onChoose }: { line: PhotoLine; moment:
           {summaryLabel(t, line.checks.summary)}
         </span>
       </td>
+      <td data-testid="links">
+        <PhotoLinks line={line} />
+      </td>
       <td>
         <button type="button" data-open={line.id} onClick={onChoose}>
           {t('qms.photo.open.action')}
@@ -157,6 +164,34 @@ function PhotoRow({ line, moment, chosen, onChoose }: { line: PhotoLine; moment:
     </tr>
   );
 }
+
+/** What the photo is evidence for: the site diary, the inspection request, the non-conformance; a dash when it stands alone. */
+function PhotoLinks({ line }: { line: PhotoLine }) {
+  const { t } = useTranslation();
+  const links = [
+    line.siteDiaryId === null ? null : (
+      <Link key="diary" to={reviewLink(line.siteDiaryId)}>
+        {t('scr2.qms.photo.link.diary')}
+      </Link>
+    ),
+    line.inspectionId === null ? null : (
+      <Link key="inspection" to={INSPECTIONS_PATH}>
+        {t('scr2.qms.photo.link.inspection')}
+      </Link>
+    ),
+    line.nonconformanceId === null ? null : (
+      <Link key="ncr" to={NONCONFORMANCES_PATH}>
+        {t('scr2.qms.photo.link.ncr')}
+      </Link>
+    ),
+  ].filter((link) => link !== null);
+  return links.length === 0 ? <>{NONE}</> : <ul className="qms-signers">{links.map((link) => <li key={link.key}>{link}</li>)}</ul>;
+}
+
+/** The screens a photo can be evidence for (QMS-04, QMS-07). */
+const INSPECTIONS_PATH = '/qms/qms-04';
+const NONCONFORMANCES_PATH = '/qms/qms-07';
+const NONE = '—';
 
 /** The checks of one photo, read on their own, with what each flag asks a reviewer to look at. */
 function Details({ id, moment, onClose }: { id: string; moment: (iso: string | null) => string; onClose(): void }) {
@@ -184,6 +219,8 @@ function Details({ id, moment, onClose }: { id: string; moment: (iso: string | n
               <dd data-testid="details-taken">{moment(view.takenAtExif)}</dd>
               <dt>{t('qms.photo.details.received')}</dt>
               <dd>{moment(view.receivedAt)}</dd>
+              <dt>{t('qms.photo.column.checks')}</dt>
+              <dd data-testid="details-summary">{summaryLabel(t, view.checks.summary)}</dd>
               <dt>{t('qms.photo.column.place')}</dt>
               <dd data-testid="details-place">{view.place === null ? (view.geoConsent ? t('qms.photo.place.none') : t('qms.photo.place.noConsent')) : `${view.place.lat.toFixed(6)}, ${view.place.lng.toFixed(6)}`}</dd>
             </dl>

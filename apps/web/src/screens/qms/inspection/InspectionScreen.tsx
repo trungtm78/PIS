@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { useContracts } from '../../ctr/hooks';
@@ -12,6 +13,8 @@ import { canRequest } from './model';
 import type { InspectionLine } from './model';
 import { CancelDialog, RequestDialog, ResultDialog, ScheduleDialog } from './InspectionDialogs';
 import '../qms.css';
+import { ScrollRegion } from '../../scroll-region';
+import { reviewLink } from '../diary/model';
 
 /**
  * QMS-04: ask for an inspection of work under a contract and follow it to its result (ST-QMS-004, QMS 3.2, BR-QMS-04). A contractor (a guest, in its own contract) or the supervisor
@@ -24,6 +27,11 @@ export default function InspectionScreen({ route }: ScreenProps) {
   // The inspections and the dialogs belong to one membership: a switch of tenant or of membership starts the screen over.
   return <InspectionContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
+
+/** The rights of the commands on a request (openapi `x-permission`): schedule and cancel, record the result. */
+const MANAGE_PERMISSION = 'inspection.manage';
+const RECORD_PERMISSION = 'inspection.record';
+const NONE = '—';
 
 type Dialog = { kind: 'request' } | { kind: 'schedule'; line: InspectionLine } | { kind: 'record'; line: InspectionLine } | { kind: 'cancel'; line: InspectionLine };
 
@@ -44,6 +52,9 @@ function InspectionContent({ route }: ScreenProps) {
   const active = useMemo(() => options.filter((contract) => contract.status === 'ACTIVE'), [options]);
   const day = (iso: string): string => new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`));
   const moment = (iso: string): string => new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(iso));
+  // The server says what each request allows the membership; the session says what the person holds.
+  const mayManage = holds(permissions, MANAGE_PERMISSION);
+  const mayRecord = holds(permissions, RECORD_PERMISSION);
   const choose = (id: string): void => setSearch(id === '' ? {} : { contract: id });
 
   return (
@@ -78,17 +89,18 @@ function InspectionContent({ route }: ScreenProps) {
       )}
       <StateBoundary state={state} onRetry={() => void inspections.refetch()}>
         <div className="card">
-          {lines.length === 0 ? (
-            <p className="callout" role="status" data-testid="no-inspections">
-              {t('qms.inspection.none.notice')}
-            </p>
-          ) : (
+          <ScrollRegion label={t('qms.inspection.page.title')}>
             <table className="table" data-testid="inspections">
               <thead>
                 <tr>
                   <th scope="col">{t('qms.inspection.column.no')}</th>
+                  <th scope="col">{t('qms.inspection.field.contract')}</th>
+                  <th scope="col">{t('qms.inspection.field.item')}</th>
+                  <th scope="col">{t('qms.inspection.field.type')}</th>
                   <th scope="col">{t('qms.inspection.column.inspection')}</th>
+                  <th scope="col">{t('qms.inspection.field.location')}</th>
                   <th scope="col">{t('qms.inspection.column.day')}</th>
+                  <th scope="col">{t('qms.inspection.field.diary')}</th>
                   <th scope="col">{t('qms.inspection.column.regime')}</th>
                   <th scope="col">{t('qms.inspection.column.status')}</th>
                   <th scope="col">
@@ -97,16 +109,21 @@ function InspectionContent({ route }: ScreenProps) {
                 </tr>
               </thead>
               <tbody>
+                {lines.length === 0 ? (
+                  <tr>
+                    <td colSpan={11} role="status" data-testid="no-inspections">
+                      {t('qms.inspection.none.notice')}
+                    </td>
+                  </tr>
+                ) : null}
                 {lines.map((line) => (
                   <tr key={line.id} data-inspection={line.id} data-status={line.status}>
                     <td data-testid="no">{line.inspectionNo}</td>
+                    <td data-testid="contract">{line.contract.code}</td>
+                    <td data-testid="boq">{line.boqItem === null ? NONE : line.boqItem.businessKey}</td>
+                    <td data-testid="type">{typeLabel(t, line.inspectionType)}</td>
                     <td data-testid="inspection">
                       <strong>{line.title}</strong>
-                      <small className="sub qms-regime">
-                        {line.contract.code} · {typeLabel(t, line.inspectionType)}
-                        {line.boqItem === null ? '' : ` · ${line.boqItem.businessKey}`}
-                        {line.locationText === null ? '' : ` · ${line.locationText}`}
-                      </small>
                       {line.status === 'CANCELLED' && line.cancelReason !== null ? (
                         <small className="sub qms-regime" data-testid="cancel-reason">
                           {t('qms.inspection.cancelled.reason', { reason: line.cancelReason })}
@@ -127,6 +144,7 @@ function InspectionContent({ route }: ScreenProps) {
                         </details>
                       ) : null}
                     </td>
+                    <td data-testid="location">{line.locationText ?? NONE}</td>
                     <td data-testid="day">
                       {day(line.requestedFor)}
                       {line.scheduledAt === null ? null : (
@@ -135,6 +153,7 @@ function InspectionContent({ route }: ScreenProps) {
                         </small>
                       )}
                     </td>
+                    <td data-testid="diary">{line.siteDiaryId === null ? NONE : <Link to={reviewLink(line.siteDiaryId)}>{t('scr2.qms.inspection.diary.open')}</Link>}</td>
                     <td data-testid="regime">
                       {line.regime.label ?? t('qms.inspection.regime.unknown')}
                       {line.regime.legalBasis === null ? null : <small className="sub qms-regime">{line.regime.legalBasis}</small>}
@@ -160,17 +179,17 @@ function InspectionContent({ route }: ScreenProps) {
                     <td>
                       {mode === 'READ_ONLY' ? null : (
                         <>
-                          {line.canSchedule ? (
+                          {line.canSchedule && mayManage ? (
                             <button type="button" data-schedule={line.id} onClick={() => setDialog({ kind: 'schedule', line })}>
                               {t('qms.inspection.schedule.action')}
                             </button>
                           ) : null}
-                          {line.canRecord ? (
+                          {line.canRecord && mayRecord ? (
                             <button type="button" data-record={line.id} onClick={() => setDialog({ kind: 'record', line })}>
                               {t('qms.inspection.record.action')}
                             </button>
                           ) : null}
-                          {line.canCancel ? (
+                          {line.canCancel && mayManage ? (
                             <button type="button" data-cancel={line.id} onClick={() => setDialog({ kind: 'cancel', line })}>
                               {t('qms.inspection.cancel.action')}
                             </button>
@@ -182,7 +201,7 @@ function InspectionContent({ route }: ScreenProps) {
                 ))}
               </tbody>
             </table>
-          )}
+          </ScrollRegion>
         </div>
       </StateBoundary>
       {dialog?.kind === 'request' ? <RequestDialog contracts={active} initialContractId={contractId} onClose={() => setDialog(undefined)} /> : null}
