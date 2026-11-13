@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
-import '../../read_support/widgets.dart';
+import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/work_row.dart';
+import '../../command_support/field_widgets.dart';
 import '../labels.dart';
 import '../model/fields.dart';
 import '../model/report_cells.dart';
@@ -13,6 +15,7 @@ import '../model/report_review.dart';
 import '../widgets/draft_host.dart';
 import '../widgets/draft_text_field.dart';
 import '../widgets/money_field.dart';
+import '../widgets/step_parts.dart';
 
 /// MOB-14: the volumes of the project as of the last day of the period (what was built, accepted, sent to the Treasury and is
 /// being prepared), the way the cumulative figures are read, and, under them, what the cumulative disbursement of the six cells
@@ -54,58 +57,64 @@ class _Volumes extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Text(context.t('mob.rep.volumes.note.body'), style: Theme.of(context).textTheme.bodyMedium),
-        const SizedBox(height: 8),
-        MoneyField(
-          label: context.t('mob.rep.volumes.construction.label'),
-          value: form.construction,
-          enabled: session.editable,
-          error: error('progress.construction_vnd'),
-          onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(construction: typed)),
+        StepNote(context.t('mob.rep.volumes.note.body')),
+        StepFields(
+          children: <Widget>[
+            MoneyField(
+              label: context.t('mob.rep.volumes.construction.label'),
+              value: form.construction,
+              enabled: session.editable,
+              error: error('progress.construction_vnd'),
+              onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(construction: typed)),
+            ),
+            MoneyField(
+              label: context.t('mob.rep.volumes.acceptance.label'),
+              value: form.acceptance,
+              enabled: session.editable,
+              error: error('progress.acceptance_vnd'),
+              onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(acceptance: typed)),
+            ),
+            MoneyField(
+              label: context.t('mob.rep.volumes.treasury.label'),
+              value: form.treasury,
+              enabled: session.editable,
+              error: error('progress.treasury_submitted_vnd'),
+              onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(treasury: typed)),
+            ),
+            MoneyField(
+              label: context.t('mob.rep.volumes.preparing.label'),
+              value: form.preparing,
+              enabled: session.editable,
+              error: error('progress.preparing_dossier_vnd'),
+              onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(preparing: typed)),
+            ),
+            DraftTextField(
+              label: context.t('mob.rep.volumes.percent.label'),
+              suffix: '%',
+              value: form.percent,
+              enabled: session.editable,
+              helper: context.t('mob.rep.volumes.percent.help'),
+              error: error('progress.physical_progress_pct'),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(percent: typed)),
+            ),
+          ],
         ),
-        MoneyField(
-          label: context.t('mob.rep.volumes.acceptance.label'),
-          value: form.acceptance,
-          enabled: session.editable,
-          error: error('progress.acceptance_vnd'),
-          onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(acceptance: typed)),
-        ),
-        MoneyField(
-          label: context.t('mob.rep.volumes.treasury.label'),
-          value: form.treasury,
-          enabled: session.editable,
-          error: error('progress.treasury_submitted_vnd'),
-          onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(treasury: typed)),
-        ),
-        MoneyField(
-          label: context.t('mob.rep.volumes.preparing.label'),
-          value: form.preparing,
-          enabled: session.editable,
-          error: error('progress.preparing_dossier_vnd'),
-          onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(preparing: typed)),
-        ),
-        DraftTextField(
-          label: context.t('mob.rep.volumes.percent.label'),
-          suffix: '%',
-          value: form.percent,
-          enabled: session.editable,
-          helper: context.t('mob.rep.volumes.percent.help'),
-          error: error('progress.physical_progress_pct'),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          onChanged: (String typed) => session.update((ReportForm f) => f.copyWith(percent: typed)),
-        ),
-        const SizedBox(height: 8),
-        Semantics(header: true, child: Text(context.t('mob.rep.basis.title'), style: Theme.of(context).textTheme.titleSmall)),
-        RadioGroup<String>(
-          groupValue: form.basis,
-          onChanged: (String? basis) {
-            if (basis != null && session.editable) session.update((ReportForm f) => f.copyWith(basis: basis));
-          },
-          child: Column(
-            children: <Widget>[
-              for (final String basis in kBases) RadioListTile<String>(value: basis, enabled: session.editable, title: Text(basisLabel(context, basis))),
-            ],
-          ),
+        FormSection(
+          title: context.t('mob.rep.basis.title'),
+          children: <Widget>[
+            RadioGroup<String>(
+              groupValue: form.basis,
+              onChanged: (String? basis) {
+                if (basis != null && session.editable) session.update((ReportForm f) => f.copyWith(basis: basis));
+              },
+              child: Column(
+                children: <Widget>[
+                  for (final String basis in kBases) RadioListTile<String>(value: basis, enabled: session.editable, contentPadding: EdgeInsets.zero, title: Text(basisLabel(context, basis))),
+                ],
+              ),
+            ),
+          ],
         ),
         _Cumulative(form: form, reportContext: session.snapshot.context),
       ],
@@ -125,13 +134,13 @@ class _Cumulative extends StatelessWidget {
   Widget build(BuildContext context) {
     final String cumulative = sumTyped(<String>[for (final CellKey key in kCells) form.cell(key).cumulative]);
     final String? previous = reportContext?.previousTotal;
-    return SectionCard(
-      title: context.t('mob.rep.cumulative.title'),
-      semanticLabel: null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        FactLine(label: context.t('mob.rep.cumulative.previous.label'), value: previous == null ? context.t('mob.rep.cumulative.noPrevious.body') : moneyLabel(context, previous)),
-        FactLine(label: context.t('mob.rep.cumulative.change.label'), value: previous == null ? context.t('mob.rep.cumulative.noPrevious.body') : signedMoneyLabel(context, differenceDong(cumulative, previous))),
-        FactLine(label: context.t('mob.rep.cumulative.total.label'), value: moneyLabel(context, cumulative)),
+        GroupHeader(title: context.t('mob.rep.cumulative.title')),
+        InfoRow(label: context.t('mob.rep.cumulative.previous.label'), value: previous == null ? context.t('mob.rep.cumulative.noPrevious.body') : moneyLabel(context, previous), divider: false),
+        InfoRow(label: context.t('mob.rep.cumulative.change.label'), value: previous == null ? context.t('mob.rep.cumulative.noPrevious.body') : signedMoneyLabel(context, differenceDong(cumulative, previous))),
+        InfoRow(label: context.t('mob.rep.cumulative.total.label'), value: moneyLabel(context, cumulative)),
       ],
     );
   }

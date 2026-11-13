@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/widgets.dart';
 import '../labels.dart';
 import '../model/fields.dart';
 import '../model/report_cells.dart';
@@ -13,6 +15,7 @@ import '../model/report_form.dart';
 import '../model/report_review.dart';
 import '../widgets/draft_host.dart';
 import '../widgets/money_field.dart';
+import '../widgets/step_parts.dart';
 import 'funding_screen.dart' show isNotApplicable;
 
 /// MOB-18: the money the project expects to disburse next month, by source, with the part that belongs to the national target
@@ -52,22 +55,19 @@ class _Registration extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (month != null) Text(context.t('mob.rep.registration.month.body', <String, Object>{'month': month.month, 'year': month.year}), style: Theme.of(context).textTheme.titleSmall),
+        if (month != null) StepNote(context.t('mob.rep.registration.month.body', <String, Object>{'month': month.month, 'year': month.year})),
         for (final CellKey key in kCells) _RegistrationCell(session: session, cell: key, problems: problems),
-        SectionCard(
-          title: context.t('mob.rep.totals.title'),
-          children: <Widget>[
-            FactLine(label: context.t('mob.rep.registration.total.label'), value: moneyLabel(context, total)),
-            FactLine(label: context.t('mob.rep.totals.ctmtqg.label'), value: moneyLabel(context, ctmtqg)),
-            Text(context.t('mob.rep.ctmtqg.note.body'), style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: () => openScreen(context, 'MOB-56', pathSuffix: '/${session.snapshot.id}', stacked: true),
-            child: Text(context.t('mob.rep.registration.estimate.action')),
-          ),
+        StepHeading(context.t('mob.rep.totals.title')),
+        InfoRow(label: context.t('mob.rep.registration.total.label'), value: moneyLabel(context, total), divider: false),
+        InfoRow(label: context.t('mob.rep.totals.ctmtqg.label'), value: moneyLabel(context, ctmtqg)),
+        StepNote(context.t('mob.rep.ctmtqg.note.body'), small: true),
+        const SizedBox(height: 8),
+        WorkRow(
+          title: context.t('mob.rep.registration.estimate.action'),
+          semanticLabel: context.t('mob.rep.registration.estimate.action'),
+          dividerAbove: true,
+          trailing: Align(alignment: Alignment.centerRight, child: Icon(Icons.chevron_right, color: context.v2.palette.ink2)),
+          onTap: () => openScreen(context, 'MOB-56', pathSuffix: '/${session.snapshot.id}', stacked: true),
         ),
       ],
     );
@@ -88,33 +88,37 @@ class _RegistrationCell extends StatelessWidget {
     final CellReference? reference = session.snapshot.context?.reference(cell);
     final bool notApplicable = isNotApplicable(cell, form, session.snapshot.context);
     final String? remaining = reference == null ? null : differenceDong(reference.allocated, sumTyped(<String>[entry.cumulative]));
-    return SectionCard(
-      title: cellLabel(context, cell),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (reference != null) FactLine(label: context.t('mob.rep.cell.allocated.label'), value: moneyLabel(context, reference.allocated)),
-        if (remaining != null) FactLine(label: context.t('mob.rep.registration.remaining.label'), value: moneyLabel(context, remaining)),
+        StepHeading(cellLabel(context, cell)),
+        if (reference != null) InfoRow(label: context.t('mob.rep.cell.allocated.label'), value: moneyLabel(context, reference.allocated), divider: false),
+        if (remaining != null) InfoRow(label: context.t('mob.rep.registration.remaining.label'), value: moneyLabel(context, remaining)),
         if (notApplicable)
-          Text(context.t('mob.rep.cell.notApplicable.body', <String, Object>{'level': levelLabel(context, cell.level)}), style: Theme.of(context).textTheme.bodyMedium)
-        else ...<Widget>[
-          MoneyField(
-            label: context.t('mob.rep.registration.nextMonth.label', <String, Object>{'cell': cellLabel(context, cell)}),
-            value: entry.nextMonth,
-            enabled: session.editable,
-            error: fieldError(context, problems[fieldOfCell(cell, 'next_month_vnd')]),
-            onChanged: (String typed) => session.update((ReportForm f) => f.withCell(cell, f.cell(cell).copyWith(nextMonth: typed))),
+          StepNote(context.t('mob.rep.cell.notApplicable.body', <String, Object>{'level': levelLabel(context, cell.level)}))
+        else
+          StepFields(
+            children: <Widget>[
+              MoneyField(
+                label: context.t('mob.rep.registration.nextMonth.label', <String, Object>{'cell': cellLabel(context, cell)}),
+                value: entry.nextMonth,
+                enabled: session.editable,
+                error: fieldError(context, problems[fieldOfCell(cell, 'next_month_vnd')]),
+                onChanged: (String typed) => session.update((ReportForm f) => f.withCell(cell, f.cell(cell).copyWith(nextMonth: typed))),
+              ),
+              if (takesCtmtqg(cell.bucket))
+                MoneyField(
+                  label: context.t('mob.rep.registration.ctmtqg.label', <String, Object>{'cell': cellLabel(context, cell)}),
+                  value: entry.nextCtmtqg,
+                  enabled: session.editable,
+                  hint: context.t('mob.rep.ctmtqg.note.body'),
+                  error: fieldError(context, problems[fieldOfCell(cell, 'next_month_ctmtqg_subset_vnd')]),
+                  onChanged: (String typed) => session.update((ReportForm f) => f.withCell(cell, f.cell(cell).copyWith(nextCtmtqg: typed))),
+                )
+              else
+                StepNote(context.t('mob.rep.cell.ctmtqgNotApplicable.body'), small: true),
+            ],
           ),
-          if (takesCtmtqg(cell.bucket))
-            MoneyField(
-              label: context.t('mob.rep.registration.ctmtqg.label', <String, Object>{'cell': cellLabel(context, cell)}),
-              value: entry.nextCtmtqg,
-              enabled: session.editable,
-              hint: context.t('mob.rep.ctmtqg.note.body'),
-              error: fieldError(context, problems[fieldOfCell(cell, 'next_month_ctmtqg_subset_vnd')]),
-              onChanged: (String typed) => session.update((ReportForm f) => f.withCell(cell, f.cell(cell).copyWith(nextCtmtqg: typed))),
-            )
-          else
-            Text(context.t('mob.rep.cell.ctmtqgNotApplicable.body'), style: Theme.of(context).textTheme.bodyMedium),
-        ],
       ],
     );
   }

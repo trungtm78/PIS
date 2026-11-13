@@ -293,13 +293,14 @@ void main() {
       app.server.offline = true;
       container.read(reachabilityProvider.notifier).report(Reachability.offline);
       await tester.pumpAndSettle();
-      expect(find.text('Đang ngoại tuyến: lệnh nộp sẽ được xếp hàng và gửi khi có mạng.'), findsOneWidget);
+      expect(find.text('Lưu, gửi khi có mạng'), findsOneWidget, reason: 'offline the primary action says it saves and sends when there is a network');
+      expect(find.text('Nộp báo cáo'), findsNothing);
 
-      await press(tester, 'Nộp báo cáo');
+      await pressSend(tester);
       expect(find.text('Lệnh nộp đã xếp hàng, sẽ gửi khi có mạng.'), findsOneWidget);
       expect(app.server.only().submissions, 0);
       expect(app.server.sync.batchPosts, 1, reason: 'only the save went before');
-      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Nộp báo cáo')).onPressed, isNull, reason: 'the report cannot be sent twice while its command waits');
+      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Lưu, gửi khi có mạng')).onPressed, isNull, reason: 'the report cannot be sent twice while its command waits');
 
       app.server.offline = false;
       await press(tester, 'Gửi ngay');
@@ -315,7 +316,7 @@ void main() {
       app.server.offline = true;
       container.read(reachabilityProvider.notifier).report(Reachability.offline);
       await tester.pumpAndSettle();
-      await press(tester, 'Nộp báo cáo');
+      await pressSend(tester);
       expect(find.textContaining('Chưa xác định kết quả'), findsOneWidget);
       expect(app.server.only().submissions, 0);
 
@@ -334,12 +335,12 @@ void main() {
       final String id = await completeUnsaved(tester, app, onServer: false);
       app.server.offline = true;
       await app.open(tester, location: '/projects/mob-20/$id');
-      await press(tester, 'Nộp báo cáo');
+      await pressSend(tester);
       expect(find.textContaining('cần kết nối mạng một lần để tạo'), findsOneWidget);
       expect((await app.container.read(commandQueueProvider.future)).commands(), isEmpty);
       expect((await app.drafts).read(id)!.form, isNotNull);
       app.server.offline = false;
-      await press(tester, 'Nộp báo cáo');
+      await pressSend(tester);
       expect(find.text('Báo cáo đã được gửi'), findsOneWidget);
       expect(app.server.created, 1);
     });
@@ -531,7 +532,7 @@ void main() {
       await tester.tap(find.text('Bỏ nháp').last);
       await tester.pumpAndSettle();
       expect((await app.drafts).read(local), isNull);
-      expect(find.text('Chưa có dữ liệu'), findsOneWidget);
+      expect(find.text('Chưa có bản nháp báo cáo'), findsOneWidget);
     });
 
     testWidgets('a draft that exists on the server says the server\'s copy stays', (WidgetTester tester) async {
@@ -548,10 +549,17 @@ void main() {
       expect(app.server.only().status, 'DRAFT');
     });
 
-    testWidgets('a new report is started from the list', (WidgetTester tester) async {
+    testWidgets('a new report is started from the empty list, and from the sticky bar when there are drafts', (WidgetTester tester) async {
       useDevice(tester, kTallPhone);
       final ReportingApp app = ReportingApp.create();
       await app.open(tester);
+      expect(find.text('Lập báo cáo mới'), findsNothing, reason: 'the empty state has its own action, the bar would say it twice');
+      await press(tester, 'Bắt đầu báo cáo');
+      expect(find.text('Chọn kỳ báo cáo'), findsOneWidget);
+
+      await newDraft(app, onServer: false);
+      await app.open(tester, location: '/projects/mob-22');
+      expect(find.text('Bắt đầu báo cáo'), findsNothing);
       await press(tester, 'Lập báo cáo mới');
       expect(find.text('Chọn kỳ báo cáo'), findsOneWidget);
     });
@@ -577,7 +585,8 @@ void main() {
       useDevice(tester, kDeviceSizes[1]);
       ReportingApp app = ReportingApp.create();
       await app.open(tester);
-      expect(find.text('Chưa có dữ liệu'), findsOneWidget, reason: 'empty');
+      expect(find.text('Chưa có bản nháp báo cáo'), findsOneWidget, reason: 'empty');
+      expect(find.text('Bắt đầu báo cáo'), findsOneWidget, reason: 'the emptiness has its way out: start a report');
       await newDraft(app, onServer: false);
       await app.open(tester, location: '/projects/mob-22');
       expect(find.text('Mở nháp'), findsOneWidget, reason: 'default');
@@ -642,7 +651,8 @@ void main() {
       final String id = await completeUnsaved(tester, app);
       for (final Size size in kDeviceSizes) {
         for (final double scale in <double>[1.0, 2.0]) {
-          useDevice(tester, size, textScale: scale);
+          // As tall as the report: the contrast of a row cut by the edge of the list cannot be told, so none is cut.
+          useDevice(tester, Size(size.width, 5000), textScale: scale);
           final SemanticsHandle semantics = tester.ensureSemantics();
           await app.open(tester, location: '/projects/mob-20/$id');
           await _expectContract(tester, '${size.width.toInt()}x${size.height.toInt()} at $scale');
@@ -661,6 +671,11 @@ void main() {
       expect(find.text('Phiên làm việc đã hết hạn'), findsOneWidget);
     });
   });
+}
+
+/// Sends the report from the sticky bar: its words are "Nộp báo cáo" online and "Lưu, gửi khi có mạng" while the phone is offline.
+Future<void> pressSend(WidgetTester tester) async {
+  await press(tester, find.text('Nộp báo cáo').evaluate().isNotEmpty ? 'Nộp báo cáo' : 'Lưu, gửi khi có mạng');
 }
 
 Future<void> _expectContract(WidgetTester tester, String where) async {

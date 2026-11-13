@@ -164,6 +164,9 @@ const StringTable reportingStrings = StringTable(
     'mob.rep.drafts.discardServer.body': 'Bản nháp trên máy này sẽ mất. Bản nháp trên máy chủ (nếu đã có) vẫn giữ nguyên; muốn xóa thì làm trên máy tính.',
     'mob.rep.drafts.discardCancel.action': 'Giữ lại',
     'mob.rep.drafts.discardConfirm.action': 'Bỏ nháp',
+    'mob.rep.drafts.empty.title': 'Chưa có bản nháp báo cáo',
+    'mob.rep.drafts.empty.body': 'Bản nháp được lưu trên máy này và gửi khi có mạng. Bắt đầu một báo cáo để nhập số liệu ngay, kể cả khi chưa có mạng.',
+    'mob.rep.drafts.start.action': 'Bắt đầu báo cáo',
 
     // MOB-20: the review and the sending.
     'mob.rep.review.title': 'Rà soát và gửi báo cáo',
@@ -187,7 +190,6 @@ const StringTable reportingStrings = StringTable(
     'mob.rep.review.blocked.body': 'Báo cáo còn lỗi nên chưa gửi được.',
     'mob.rep.review.submit.action': 'Nộp báo cáo',
     'mob.rep.review.submit.pending': 'Đang nộp...',
-    'mob.rep.review.offline.body': 'Đang ngoại tuyến: lệnh nộp sẽ được xếp hàng và gửi khi có mạng.',
     'mob.rep.review.savePending.body': 'Bản nháp chưa được lưu lên máy chủ. Việc lưu đang chờ trong hàng đợi; khi xong, bấm Nộp báo cáo lần nữa.',
     'mob.rep.review.needsConnection.body': 'Báo cáo chưa có trên máy chủ và cần kết nối mạng một lần để tạo. Bản nháp vẫn được giữ trên máy; có mạng thì bấm Nộp báo cáo lần nữa.',
     'mob.rep.review.moved.body': 'Báo cáo trên máy chủ đã khác với bản bạn vừa lưu (có người đã sửa). Chưa nộp gì cả và bản nháp vẫn được giữ trên máy. Hãy xem báo cáo trên máy chủ rồi nhập lại phần cần sửa.',
@@ -428,6 +430,9 @@ const StringTable reportingStrings = StringTable(
     'mob.rep.drafts.discardServer.body': 'The draft on this phone will be lost. The draft on the server, if there is one, stays as it is; delete it on a computer.',
     'mob.rep.drafts.discardCancel.action': 'Keep it',
     'mob.rep.drafts.discardConfirm.action': 'Discard',
+    'mob.rep.drafts.empty.title': 'No report drafts yet',
+    'mob.rep.drafts.empty.body': 'Drafts are kept on this phone and sent when there is a connection. Start a report to enter the figures now, even with no network.',
+    'mob.rep.drafts.start.action': 'Start a report',
 
     'mob.rep.review.title': 'Review and send the report',
     'mob.rep.review.errors.title': 'Errors to fix before sending',
@@ -450,7 +455,6 @@ const StringTable reportingStrings = StringTable(
     'mob.rep.review.blocked.body': 'The report still has errors, so it cannot be sent.',
     'mob.rep.review.submit.action': 'Submit the report',
     'mob.rep.review.submit.pending': 'Submitting...',
-    'mob.rep.review.offline.body': 'You are offline: the submit is queued and sent when the network is back.',
     'mob.rep.review.savePending.body': 'The draft is not saved on the server yet. The save is waiting in the queue; when it is done, tap Submit the report again.',
     'mob.rep.review.needsConnection.body': 'The report is not on the server yet and needs a network once to be made. The draft is kept on this phone; when there is one, tap Submit the report again.',
     'mob.rep.review.moved.body': 'The report on the server is no longer the copy you just saved (somebody changed it). Nothing was submitted and the draft is kept on this phone. Look at the report on the server and enter again what needs changing.',
