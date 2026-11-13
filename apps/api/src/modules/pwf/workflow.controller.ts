@@ -308,8 +308,9 @@ export class ProjectWorkflowReadsController {
         unitId = own.ownerUnitId;
         canStart = await projectInScope(tx, projectId, projectScope(access, PERMISSIONS.startProjectWorkflow, now));
       } else if (unitId !== null) {
+        // The rule of a unit (its id, its version, the line that matches) is read by who may read workflows IN that unit: a unit out of that scope does not exist for the caller, like one that is not there.
         const unit = await this.projects.unitRef(tx, unitId);
-        if (unit === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'owner_unit_id');
+        if (unit === undefined || !reaches(access, READ, unit, now)) throw new DomainError('RESOURCE_NOT_FOUND', 404);
         canStart = reaches(access, PERMISSIONS.startProjectWorkflow, unit, now);
       }
       if (typeVersion !== undefined) {

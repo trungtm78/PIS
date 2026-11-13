@@ -80,6 +80,8 @@ export function selectionModeWord(t: T, mode: SelectionMode): string {
 
 export function choiceProblemText(t: T, problem: ChoiceProblem, facts = ''): string {
   switch (problem) {
+    case 'suggestionUnavailable':
+      return t('pwf.process.problem.suggestionUnavailable.text');
     case 'startRequired':
       return t('pwf.process.problem.startRequired.text');
     case 'startInvalid':

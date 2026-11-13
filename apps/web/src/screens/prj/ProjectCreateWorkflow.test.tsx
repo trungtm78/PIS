@@ -81,7 +81,7 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
     fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
     fireEvent.change(screen.getByTestId('kind-template'), { target: { value: 'PUBLIC_REPAIR' } });
     submit();
-    expect(within(screen.getByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwf.process.problem.reasonRequired.text'));
+    expect(within(await screen.findByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwf.process.problem.reasonRequired.text'));
     expect(h.command).not.toHaveBeenCalled();
     fireEvent.change(screen.getByTestId('kind-reason'), { target: { value: 'Dự án sửa chữa theo quyết định của chủ đầu tư' } });
     submit();
@@ -105,7 +105,7 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
     await screen.findByTestId('kind-preview');
     fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
     submit();
-    expect(within(screen.getByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwf.process.problem.factsRequired.text', { facts: text('pwf.process.fact.funding.label') }));
+    expect(within(await screen.findByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwf.process.problem.factsRequired.text', { facts: text('pwf.process.fact.funding.label') }));
     expect(h.command).not.toHaveBeenCalled();
   });
 
@@ -124,6 +124,40 @@ describe('PRJ-02: the kind of workflow is chosen when the project is registered 
     submit();
     await screen.findByTestId('created');
     expect('workflow' in bodyOf(failed.h)).toBe(false);
+  });
+
+  it('does not register the project without the workflow that was asked for: a planned start given while the suggestion cannot be read stops the save and says why', async () => {
+    const { h } = open(() => new ApiError({ status: 503, code: 'DEPENDENCY_UNAVAILABLE', correlationId: 'c', extensions: {} }));
+    await fill();
+    await screen.findByTestId('kind-failed');
+    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
+    submit();
+    expect(within(await screen.findByTestId('kind-problems')).getByRole('listitem').textContent).toBe(text('pwf.process.problem.suggestionUnavailable.text'));
+    expect(h.command).not.toHaveBeenCalled();
+    // Without the planned start the project is registered, as the notice of the section says.
+    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '' } });
+    submit();
+    await screen.findByTestId('created');
+    expect('workflow' in bodyOf(h)).toBe(false);
+  });
+
+  it('holds the form still while the rule is asked once more for the save: what is sent is what the answer was for', async () => {
+    const { h } = open();
+    await fill();
+    await screen.findByTestId('kind-preview');
+    fireEvent.change(screen.getByTestId('kind-start'), { target: { value: '2026-12-01' } });
+    await waitFor(() => expect(screen.getByTestId('kind-preview')).toBeTruthy());
+    // From now on the rule takes its time to answer.
+    let answer: (value: unknown) => void = () => undefined;
+    const base = h.read.getMockImplementation() as (operation: string, input?: unknown) => Promise<unknown>;
+    h.read.mockImplementation((operation: string, input?: unknown) => (operation === 'suggestProjectWorkflow' ? new Promise((resolve) => (answer = resolve)) : base(operation, input)));
+    submit();
+    await waitFor(() => expect((screen.getByLabelText(vi_['prj.form.owner.label']) as HTMLSelectElement).disabled).toBe(true));
+    expect((screen.getByTestId('kind-start') as HTMLInputElement).disabled).toBe(true);
+    expect(h.command).not.toHaveBeenCalled();
+    answer(suggestion());
+    await screen.findByTestId('created');
+    expect(bodyOf(h)).toMatchObject({ owner_unit_id: UNIT_DEPARTMENT, workflow: { planned_start_date: '2026-12-01' } });
   });
 
   it('shows no section and asks nothing for a person who cannot read workflows (the screen is what it was)', async () => {

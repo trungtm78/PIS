@@ -134,7 +134,8 @@ export class PwfTaskReads {
       return {
         code,
         satisfied: used !== undefined,
-        document_id: evidence.find((one) => one.form_template_code === code)?.document_id ?? null,
+        // The document, the revision and the hash are those of ONE evidence: the newest one of the form.
+        document_id: used?.document_id ?? null,
         policy: policy.policy,
         pinned_revision: policy.revision,
         current_revision: now?.revision ?? null,

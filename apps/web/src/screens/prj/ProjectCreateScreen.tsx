@@ -7,7 +7,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { SectionCard, StickyActions } from '../../ui';
 import { useWorkflowSuggestion } from '../pwf/process/hooks';
-import { EMPTY_CHOICE, choiceProblems, startsWorkflow, suggestionQuery, workflowBodyOf } from '../pwf/process/model';
+import { EMPTY_CHOICE, registrationBlockers, startsWorkflow, suggestionQuery, workflowBodyOf } from '../pwf/process/model';
 import type { ChoiceForm } from '../pwf/process/model';
 import { ProcessKindSection } from '../pwf/process/ProcessKindSection';
 import { workflowLink } from '../pwf/model';
@@ -48,6 +48,9 @@ function ProjectCreateContent({ route }: ScreenProps) {
   const [choice, setChoice] = useState<ChoiceForm>(EMPTY_CHOICE);
   const [choiceChecked, setChoiceChecked] = useState(false);
   const [withWorkflow, setWithWorkflow] = useState(false);
+  const [saving, setSaving] = useState(false);
+  // The last save asked the rule for the form as it stood and got no answer.
+  const [unread, setUnread] = useState(false);
   const suggestion = useWorkflowSuggestion(suggestionQuery({ ownerUnitId: form.ownerUnitId, projectTypeVersionId: form.projectTypeVersionId }, choice), seesKinds && form.ownerUnitId !== '' && createdId === undefined);
   const problem = create.isError ? describeProblem(create.error) : undefined;
 
@@ -56,21 +59,35 @@ function ProjectCreateContent({ route }: ScreenProps) {
     setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
-  const save = (event: FormEvent): void => {
+  const save = async (event: FormEvent): Promise<void> => {
     event.preventDefault();
-    if (create.isPending || !canCreate || createdId !== undefined) return;
+    if (create.isPending || saving || !canCreate || createdId !== undefined) return;
     const found = validateForm(form, 'create');
     setErrors(found);
     setChoiceChecked(true);
-    // A planned start that cannot start a workflow (no template, a missing fact, no reason for an override, a year without a calendar) is said before anything is sent.
-    const starting = seesKinds && suggestion.data?.can_start === true && choice.plannedStart.trim() !== '';
-    if (Object.keys(found).length > 0 || (starting && choiceProblems(choice, suggestion.data).length > 0)) return;
+    if (Object.keys(found).length > 0) return;
+    // A planned start is the intent to start a workflow. The rule is asked once more for the form exactly as it stands (an answer for what was typed a moment ago is not one), and when the workflow cannot start (no template, a
+    // missing fact, no reason for an override, a year without a calendar) or the rule cannot be read, that is said and nothing is sent: the project is never registered without the workflow that was asked for. Only a caller the
+    // server says may not start workflows goes on without one, as the section tells them.
+    let answer = undefined as typeof suggestion.data;
+    if (seesKinds && choice.plannedStart.trim() !== '') {
+      setSaving(true);
+      try {
+        const read = await suggestion.refetch();
+        answer = read.isSuccess ? read.data : undefined;
+      } finally {
+        setSaving(false);
+      }
+      setUnread(answer === undefined);
+      if (registrationBlockers(choice, answer).length > 0) return;
+    }
+    const starting = seesKinds && answer?.can_start === true && choice.plannedStart.trim() !== '';
     // The investor is the owner unit unless another one is chosen.
     const body = createBody({
       ...form,
       investorUnitId: form.investorUnitId === '' ? form.ownerUnitId : form.investorUnitId,
     });
-    const workflow = starting && startsWorkflow(choice, suggestion.data) ? workflowBodyOf(choice, suggestion.data) : undefined;
+    const workflow = starting && startsWorkflow(choice, answer) ? workflowBodyOf(choice, answer) : undefined;
     create.mutate(workflow === undefined ? body : { ...body, workflow }, {
       onSuccess: (result) => {
         setWithWorkflow(workflow !== undefined);
@@ -89,7 +106,7 @@ function ProjectCreateContent({ route }: ScreenProps) {
         </div>
       </div>
       <div className="prj-grid">
-        <form onSubmit={save} noValidate aria-label={t('prj.create.form.title')}>
+        <form onSubmit={(event) => void save(event)} noValidate aria-label={t('prj.create.form.title')}>
           <SectionCard title={t('prj.create.form.title')}>
             {!canCreate ? (
               <p className="callout warning" role="status">
@@ -111,24 +128,29 @@ function ProjectCreateContent({ route }: ScreenProps) {
               sectors={sectors.data ?? []}
               projectTypes={projectTypes.data ?? []}
               programs={programs.data ?? []}
-              disabled={!canCreate || createdId !== undefined}
+              // While the rule is asked once more for the save, the form does not change under it (the answer must be the one of what is sent).
+              disabled={!canCreate || saving || createdId !== undefined}
             />
             {seesKinds ? (
               <ProcessKindSection
                 form={choice}
-                onChange={(patch) => setChoice((current) => ({ ...current, ...patch }))}
+                onChange={(patch) => {
+                  setUnread(false);
+                  setChoice((current) => ({ ...current, ...patch }));
+                }}
                 suggestion={form.ownerUnitId === '' ? undefined : suggestion.data}
+                current={!unread && !suggestion.isError}
                 loading={suggestion.isLoading}
                 failed={suggestion.isError}
                 onRetry={() => void suggestion.refetch()}
-                disabled={!canCreate || createdId !== undefined || form.ownerUnitId === ''}
+                disabled={!canCreate || saving || createdId !== undefined || form.ownerUnitId === ''}
                 showProblems={choiceChecked}
                 withoutStart={t('pwf.process.kind.start.registerHint')}
               />
             ) : null}
             <StickyActions
               primary={
-                <button type="submit" className="ui-button ui-button--primary" disabled={!canCreate || create.isPending || createdId !== undefined}>
+                <button type="submit" className="ui-button ui-button--primary" disabled={!canCreate || create.isPending || saving || createdId !== undefined}>
                   {create.isPending ? t('prj.create.submit.pending') : t('prj.create.submit.action')}
                 </button>
               }

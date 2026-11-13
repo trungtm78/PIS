@@ -50,32 +50,38 @@ export async function approvedFormRevision(tx: TenantTx, code: string, revision:
   return rows[0] === undefined ? undefined : { revision: rows[0].revision, sha256: rows[0].content_sha256.trim() };
 }
 
-/** The revision of the form a document was generated from, when its newest version names a template of that code. */
-async function revisionOfDocument(tx: TenantTx, documentId: string, code: string): Promise<FormRevision | undefined> {
-  const rows = await tx.query<RevisionSql>(
-    `select ${COLUMNS}
-       from machvon.document_version dv join machvon.document_template t on t.tenant_id = dv.tenant_id and t.id = dv.template_id
-      where dv.document_id = $1::uuid and t.template_code = $2
+/** What the NEWEST version of a document was generated from: the code and the revision of its form, or nothing when that version was not generated from a form (an uploaded file). An older version of the document never answers for the newest one. */
+async function templateOfDocument(tx: TenantTx, documentId: string): Promise<(FormRevision & { code: string }) | undefined> {
+  const rows = await tx.query<{ template_code: string | null; revision: number | null; content_sha256: string | null }>(
+    `select t.template_code, t.revision, t.content_sha256::text as content_sha256
+       from machvon.document_version dv left join machvon.document_template t on t.tenant_id = dv.tenant_id and t.id = dv.template_id
+      where dv.document_id = $1::uuid
       order by dv.version desc limit 1`,
-    [documentId, code],
+    [documentId],
   );
-  return rows[0] === undefined ? undefined : { revision: rows[0].revision, sha256: rows[0].content_sha256.trim() };
+  const row = rows[0];
+  return row === undefined || row.template_code === null || row.revision === null || row.content_sha256 === null ? undefined : { code: row.template_code, revision: row.revision, sha256: row.content_sha256.trim() };
 }
 
 /**
- * The revision an evidence of a form is recorded with. Under `PINNED` the revision must exist and be the one the document was made from (422 `PWF_FORM_REVISION_UNAVAILABLE` otherwise: a pinned form is never silently another one).
- * Under `LATEST_APPROVED` a form that has no approved revision in the document store of the tenant is recorded without one (as evidence always was before revisions were kept).
+ * The revision an evidence of a form is recorded with. Under `PINNED` the revision must exist, and a document that says what it was generated from must have been generated from that form at that revision (422
+ * `PWF_FORM_REVISION_UNAVAILABLE` otherwise: a pinned form is never silently another one). Under `LATEST_APPROVED` a document generated from the form says its revision itself; one generated from ANOTHER form is recorded without a
+ * revision (no screen may show a revision the document was not made from); a file that was uploaded, or no document at all, takes the newest approved revision of the day, and a form that has no approved revision in the document
+ * store of the tenant is recorded without one (as evidence always was before revisions were kept).
  */
 export async function resolveFormRevision(tx: TenantTx, input: { code: string; policy: pwfWorkflow.TemplateFormPolicy; documentId: string | null; today: string }): Promise<FormRevision | null> {
-  const made = input.documentId === null ? undefined : await revisionOfDocument(tx, input.documentId, input.code);
+  const source = input.documentId === null ? undefined : await templateOfDocument(tx, input.documentId);
+  const made = source !== undefined && source.code === input.code ? { revision: source.revision, sha256: source.sha256 } : undefined;
+  const otherForm = source !== undefined && source.code !== input.code;
   if (input.policy.policy === 'PINNED') {
     const pinned = input.policy.revision === null ? undefined : await approvedFormRevision(tx, input.code, input.policy.revision);
-    if (pinned === undefined || (made !== undefined && made.revision !== pinned.revision)) {
-      throw new DomainError('PWF_FORM_REVISION_UNAVAILABLE', 422, 'form_template_code', { extensions: { form_template_code: input.code, pinned_revision: input.policy.revision, document_revision: made?.revision ?? null } });
+    if (pinned === undefined || otherForm || (made !== undefined && made.revision !== pinned.revision)) {
+      throw new DomainError('PWF_FORM_REVISION_UNAVAILABLE', 422, 'form_template_code', { extensions: { form_template_code: input.code, pinned_revision: input.policy.revision, document_revision: made?.revision ?? null, document_form_code: source?.code ?? null } });
     }
     return pinned;
   }
   if (made !== undefined) return made;
+  if (otherForm) return null;
   const latest = (await currentFormRevisions(tx, [input.code], input.today)).get(input.code);
   return latest === undefined ? null : { revision: latest.revision, sha256: latest.sha256 };
 }

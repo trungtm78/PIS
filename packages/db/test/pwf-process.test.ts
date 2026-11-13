@@ -136,6 +136,13 @@ async function formRevision(code: string, revision: number, status: string, from
   return sha;
 }
 
+/** As `formRevision`, answering the id of the row (what a version of a document names as its template). */
+async function formRevisionId(code: string, revision: number, status: string, from: string, until: string | null): Promise<string> {
+  await formRevision(code, revision, status, from, until);
+  const rows = await owner<{ id: string }>('select id from machvon.document_template where tenant_id = $1 and template_code = $2 and revision = $3', [TENANT_A, code, revision]);
+  return rows[0]?.id as string;
+}
+
 async function document(): Promise<string> {
   const id = randomUUID();
   await owner(
@@ -427,6 +434,46 @@ describe('the processing workflow of a project (PWF-4)', () => {
       const other = await start((await project()).id, { templateCode: 'PINNED_GONE' });
       const otherTask = await working(other.id, 'TA');
       expect(await refusal(attach(otherTask, { evidenceKind: 'FORM', formTemplateCode: 'FORM_PINNED', externalRef: 'No such revision' }))).toMatchObject({ code: 'PWF_FORM_REVISION_UNAVAILABLE', status: 422, extensions: { form_template_code: 'FORM_PINNED', pinned_revision: 7 } });
+    });
+
+    it('reads what a document was made from on its NEWEST version only: an older version never answers, another form gives no revision, and a pin refuses both', async () => {
+      // FORM_VERSIONED has revision 1 (replaced) and revision 2 (in force). The document was first generated from revision 1, then replaced by an uploaded file.
+      const first = await formRevisionId('FORM_VERSIONED', 1, 'SUPERSEDED', '2020-01-01', TODAY);
+      await formRevision('FORM_VERSIONED', 2, 'PUBLISHED', TODAY, null);
+      const other = await formRevisionId('FORM_OTHER', 1, 'PUBLISHED', '2020-01-01', null);
+      const version = (documentId: string, n: number, templateId: string | null) =>
+        owner(
+          `insert into machvon.document_version (tenant_id, id, document_id, version, object_key, checksum, mime, page_count, classification, scan_status, acl_json, stage, template_id)
+           values ($1, gen_random_uuid(), $2, $3, $4, repeat('c', 64), 'application/pdf', 1, 'INTERNAL', 'CLEAN', '{}'::jsonb, 'RENDERED_FINAL', $5)`,
+          [TENANT_A, documentId, n, `tenants/pwf/${documentId}-${n}.pdf`, templateId],
+        );
+      const flow = (pinned: boolean) => ({ ...LEGACY, tasks: [one('TA', 'P1', undefined, { form_templates: ['FORM_VERSIONED'], ...(pinned ? { form_policies: [{ form: 'FORM_VERSIONED', policy: 'PINNED', revision: 1 }] } : {}) }), one('TB', 'P2', undefined, { predecessors: [fs('TA')] })] });
+      await approveRule('PROJECT_WORKFLOW_TEMPLATE', 'VERSIONED_LATEST', flow(false));
+      await approveRule('PROJECT_WORKFLOW_TEMPLATE', 'VERSIONED_PINNED', flow(true));
+      const revisionOf = async (evidenceId: string) => (await owner<{ form_template_revision: number | null }>('select form_template_revision from machvon.project_task_evidence where id = $1::uuid', [evidenceId]))[0]?.form_template_revision;
+      const latestTask = await working((await start((await project()).id, { templateCode: 'VERSIONED_LATEST' })).id, 'TA');
+      const pinnedTask = await working((await start((await project()).id, { templateCode: 'VERSIONED_PINNED' })).id, 'TA');
+
+      // Generated from revision 1 and nothing since: the document says revision 1 itself, whatever is in force today.
+      const generated = await document();
+      await version(generated, 1, first);
+      expect(await revisionOf((await attach(latestTask, { evidenceKind: 'FORM', formTemplateCode: 'FORM_VERSIONED', documentId: generated })).evidenceId)).toBe(1);
+      expect(await revisionOf((await attach(pinnedTask, { evidenceKind: 'FORM', formTemplateCode: 'FORM_VERSIONED', documentId: generated })).evidenceId)).toBe(1);
+
+      // Its newest version is an uploaded file: the old version does not answer any more, the revision of the day is recorded.
+      await version(generated, 2, null);
+      expect(await revisionOf((await attach(latestTask, { evidenceKind: 'FORM', formTemplateCode: 'FORM_VERSIONED', documentId: generated })).evidenceId)).toBe(2);
+
+      // Its newest version was generated from ANOTHER form: no revision of this form is claimed, and a pin refuses it.
+      const foreign = await document();
+      await version(foreign, 1, first);
+      await version(foreign, 2, other);
+      expect(await revisionOf((await attach(latestTask, { evidenceKind: 'FORM', formTemplateCode: 'FORM_VERSIONED', documentId: foreign })).evidenceId)).toBeNull();
+      expect(await refusal(attach(pinnedTask, { evidenceKind: 'FORM', formTemplateCode: 'FORM_VERSIONED', documentId: foreign }))).toMatchObject({ code: 'PWF_FORM_REVISION_UNAVAILABLE', extensions: { pinned_revision: 1, document_form_code: 'FORM_OTHER' } });
+
+      // The summary of the form on the task describes ONE evidence: the document, the revision and the hash of the newest one.
+      const summary = ((await taskDetail(latestTask)).form_templates as Array<Record<string, unknown>>)[0];
+      expect(summary).toMatchObject({ code: 'FORM_VERSIONED', document_id: foreign, used_revision: null, used_sha256: null, newer_available: false });
     });
 
     it('records no revision for a form the document store has no approved revision of, as evidence always was', async () => {

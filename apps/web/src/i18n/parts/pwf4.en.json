@@ -96,6 +96,7 @@
   "pwf.process.problem.reasonTooLong.text": "The reason is longer than 500 characters.",
   "pwf.process.problem.startInvalid.text": "The planned start is not a valid day.",
   "pwf.process.problem.startRequired.text": "Give the planned start.",
+  "pwf.process.problem.suggestionUnavailable.text": "The suggestion for what the form holds could not be read. Retry and save again, or clear the planned start to register the project without a workflow.",
   "pwf.process.problem.templateRequired.text": "Choose a workflow kind: the rule suggests none.",
   "pwf.process.progress.aria.label": "{label}: {done} of {total}",
   "pwf.process.progress.checklist.label": "Checklist items",

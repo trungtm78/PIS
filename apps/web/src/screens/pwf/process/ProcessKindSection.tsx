@@ -12,6 +12,8 @@ export interface ProcessKindSectionProps {
   onChange: (patch: Partial<ChoiceForm>) => void;
   /** What the rule answered for the form as it stands; undefined while the first answer is read. */
   suggestion: Suggestion | undefined;
+  /** Whether `suggestion` answers what the form holds NOW (false while a newer question is being read, or after it failed): the problems are judged on a current answer only. */
+  current?: boolean;
   loading: boolean;
   failed: boolean;
   onRetry: () => void;
@@ -26,13 +28,13 @@ export interface ProcessKindSectionProps {
  * The kind of workflow of a project and its planned start (R47): the rule `PROJECT_WORKFLOW_ASSIGNMENT` suggests a template for the type, the group, the source of capital and the unit of the project; the person keeps it or picks
  * another one and says why. Before anything is saved the section shows what the choice gives: the finish day, the working days in total, the number of steps and the time of each step, or what stops them from being told.
  */
-export function ProcessKindSection({ form, onChange, suggestion, loading, failed, onRetry, disabled, showProblems, withoutStart }: ProcessKindSectionProps) {
+export function ProcessKindSection({ form, onChange, suggestion, current = true, loading, failed, onRetry, disabled, showProblems, withoutStart }: ProcessKindSectionProps) {
   const { t } = useTranslation();
   const mode = selectionMode(form, suggestion);
   const chosen = effectiveTemplate(form, suggestion);
   const template = suggestion?.templates.find((one) => one.code === chosen);
   const preview = suggestion?.preview ?? null;
-  const problems = choiceProblems(form, suggestion);
+  const problems = suggestion?.can_start === false ? [] : choiceProblems(form, current ? suggestion : undefined);
   const needs = (field: 'project_group' | 'funding_source'): boolean => template === undefined || template.fact_fields.includes(field);
   const cannotStart = suggestion !== undefined && !suggestion.can_start;
   const locked = disabled || cannotStart;

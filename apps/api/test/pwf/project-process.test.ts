@@ -27,6 +27,7 @@ const CHECKER = 2;
 const READER = 3; // pwf.read only
 const REGISTRAR = 4; // project.create and pwf.read, but not pwf.workflow.manage
 const NOBODY = 5;
+const DEPARTMENT_READER = 6; // pwf.read over the department and what lies under it, nothing above
 const B_MANAGER = 1;
 const ROOT = 1;
 const DEPARTMENT = 2;
@@ -118,7 +119,7 @@ describe('the processing workflow of a project over HTTP (PWF-4)', () => {
       ]);
       await harness.tenants.withTenant({ tenantId: tenant, membershipId: WORKER_SYSTEM, scopeVersion: 0 }, (tx) => applyBaseline(tx, BASELINE_PACK, WORKER_SYSTEM, TODAY));
     }
-    for (const n of [MANAGER, CHECKER, READER, REGISTRAR, NOBODY]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [MANAGER, CHECKER, READER, REGISTRAR, NOBODY, DEPARTMENT_READER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_MANAGER, ROOT);
     const all = ['project.create', 'project.read', 'pwf.template.manage', 'pwf.workflow.manage', 'pwf.workflow.adopt', 'pwf.read', 'pwf.task.work', 'pwf.task.approve', 'pwf.task.assign'];
     await harness.seedRole(TENANT_A, 1, 'PWF_MANAGER', all, 40);
@@ -129,6 +130,7 @@ describe('the processing workflow of a project over HTTP (PWF-4)', () => {
       { n: 1, member: MANAGER, role: 1, kind: 'TENANT' },
       { n: 3, member: READER, role: 3, kind: 'TENANT' },
       { n: 4, member: REGISTRAR, role: 4, kind: 'TENANT' },
+      { n: 6, member: DEPARTMENT_READER, role: 3, kind: 'UNIT_SUBTREE', refs: [unitId(DEPARTMENT)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_MANAGER, role: 1, kind: 'TENANT' }]);
     const recordId = randomUUID();
@@ -213,6 +215,14 @@ describe('the processing workflow of a project over HTTP (PWF-4)', () => {
       expect((await suggestion(`project_id=${made.json.resource_id as string}`, B_MANAGER, TENANT_B)).status).toBe(404);
       expect((await suggestion('project_id=not-an-id')).json).toMatchObject({ code: 'VALIDATION_FAILED' });
       expect((await suggestion('project_group=B%3Bdrop')).json).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+
+    it('reads the rule of a unit only inside the scope of pwf.read: a unit above the scope does not exist for the caller, like one that is not there', async () => {
+      expect((await suggestion(`owner_unit_id=${unitId(DEPARTMENT)}&project_group=B`, DEPARTMENT_READER)).json).toMatchObject({ suggested_template_code: 'PROCESS', can_start: false });
+      const above = await suggestion(`owner_unit_id=${unitId(ROOT)}&project_group=B`, DEPARTMENT_READER);
+      expect(above).toMatchObject({ status: 404, json: { code: 'RESOURCE_NOT_FOUND' } });
+      expect(above.json.suggested_template_code).toBeUndefined();
+      expect((await suggestion(`owner_unit_id=${randomUUID()}&project_group=B`, MANAGER)).status).toBe(404);
     });
 
     it('reads the group, the type and the unit of a project that exists (PWF-05)', async () => {

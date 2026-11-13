@@ -75,7 +75,7 @@ export function selectionMode(form: ChoiceForm, suggestion: Suggestion | undefin
   return chosen === suggested ? 'CONFIRMED' : 'OVERRIDE';
 }
 
-export type ChoiceProblem = 'startRequired' | 'startInvalid' | 'templateRequired' | 'reasonRequired' | 'reasonTooLong' | 'factsRequired' | 'calendarMissing';
+export type ChoiceProblem = 'suggestionUnavailable' | 'startRequired' | 'startInvalid' | 'templateRequired' | 'reasonRequired' | 'reasonTooLong' | 'factsRequired' | 'calendarMissing';
 
 /**
  * What keeps the workflow from starting with the registration. An empty planned start is not a problem: the project is then registered without a workflow and the workflow starts later (PWF-05). With a day, the template must be
@@ -86,6 +86,8 @@ export function choiceProblems(form: ChoiceForm, suggestion: Suggestion | undefi
   if (day === '') return [];
   const found: ChoiceProblem[] = [];
   if (!isDay(day)) return ['startInvalid'];
+  // A planned start says "start the workflow": without the answer of the rule for what the form holds now, nothing can be promised, and nothing is sent as if no workflow had been asked for.
+  if (suggestion === undefined) return ['suggestionUnavailable'];
   if (effectiveTemplate(form, suggestion) === null) found.push('templateRequired');
   const reason = form.reason.trim();
   if (selectionMode(form, suggestion) === 'OVERRIDE' && reason.length < MIN_SELECTION_REASON) found.push('reasonRequired');
@@ -98,6 +100,15 @@ export function choiceProblems(form: ChoiceForm, suggestion: Suggestion | undefi
 
 /** Whether the registration carries a workflow: a planned start, the right to start one, and nothing in the way. */
 export const startsWorkflow = (form: ChoiceForm, suggestion: Suggestion | undefined): boolean => form.plannedStart.trim() !== '' && suggestion?.can_start === true && choiceProblems(form, suggestion).length === 0;
+
+/**
+ * What stops the registration because of the section: a planned start was given (the person asked for a workflow) and the workflow cannot start, or the rule has not answered for the form as it stands. A caller the server says may
+ * not start workflows is not stopped: the section says so and the project is registered without one.
+ */
+export function registrationBlockers(form: ChoiceForm, suggestion: Suggestion | undefined, denied = false): ChoiceProblem[] {
+  if (form.plannedStart.trim() === '' || denied || suggestion?.can_start === false) return [];
+  return choiceProblems(form, suggestion);
+}
 
 /** The `workflow` of `createProject`: the template only when the person chose one (left out, the rule chooses on the server, on the same day), the facts typed, and the reason of an override. */
 export function workflowBodyOf(form: ChoiceForm, suggestion: Suggestion | undefined): WorkflowChoiceBody {

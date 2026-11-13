@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { workflowDetail, workflowTask } from '../test/fixtures';
-import { EMPTY_CHOICE, attentionCount, choiceProblems, effectiveTemplate, isLapsed, needsAttention, percentOf, phaseGroups, selectionMode, startsWorkflow, suggestionQuery, workflowBodyOf } from './model';
+import { EMPTY_CHOICE, attentionCount, choiceProblems, effectiveTemplate, isLapsed, needsAttention, percentOf, phaseGroups, registrationBlockers, selectionMode, startsWorkflow, suggestionQuery, workflowBodyOf } from './model';
 import type { ChoiceForm, Suggestion } from './model';
 import { legalBasis, step, suggestion } from './test/fixtures';
 
@@ -50,6 +50,16 @@ describe('the kind of workflow of a project: what is asked and what is sent', ()
     expect(choiceProblems(form({ plannedStart: '2026-12-01' }), suggestion({ preview: { missing_facts: ['funding_source'] } }))).toEqual(['factsRequired']);
     expect(choiceProblems(form({ plannedStart: '2026-12-01' }), suggestion({ preview: { findings: [{ code: 'CALENDAR_UNAVAILABLE', task: 'T1', year: 2029 }] } }))).toEqual(['calendarMissing']);
     expect(choiceProblems(form({ plannedStart: '2026-12-01' }), suggestion())).toEqual([]);
+  });
+
+  it('never drops a planned start silently: without the answer of the rule the registration is stopped, and only a caller who may not start workflows goes on without one', () => {
+    expect(choiceProblems(form({ plannedStart: '2026-12-01' }), undefined)).toEqual(['suggestionUnavailable']);
+    expect(registrationBlockers(form({ plannedStart: '2026-12-01' }), undefined)).toEqual(['suggestionUnavailable']);
+    expect(registrationBlockers(form(), undefined)).toEqual([]);
+    expect(registrationBlockers(form({ plannedStart: '2026-12-01' }), suggestion({ can_start: false }))).toEqual([]);
+    expect(registrationBlockers(form({ plannedStart: '2026-12-01' }), undefined, true)).toEqual([]);
+    expect(registrationBlockers(form({ plannedStart: '2026-12-01', templateCode: 'PUBLIC_REPAIR' }), suggestion())).toEqual(['reasonRequired']);
+    expect(registrationBlockers(form({ plannedStart: '2026-12-01' }), suggestion())).toEqual([]);
   });
 
   it('starts the workflow only with a planned start, the right to start one and nothing in the way', () => {

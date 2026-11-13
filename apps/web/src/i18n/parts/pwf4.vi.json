@@ -96,6 +96,7 @@
   "pwf.process.problem.reasonTooLong.text": "Lý do dài quá 500 ký tự.",
   "pwf.process.problem.startInvalid.text": "Ngày dự định bắt đầu không hợp lệ.",
   "pwf.process.problem.startRequired.text": "Nhập ngày dự định bắt đầu.",
+  "pwf.process.problem.suggestionUnavailable.text": "Chưa đọc được đề xuất loại quy trình cho thông tin đang nhập. Bấm thử lại rồi lưu, hoặc bỏ trống ngày dự định bắt đầu để tạo dự án chưa kèm quy trình.",
   "pwf.process.problem.templateRequired.text": "Chọn loại quy trình: quy tắc không đề xuất loại nào.",
   "pwf.process.progress.aria.label": "{label}: {done} trên {total}",
   "pwf.process.progress.checklist.label": "Mục kiểm",
