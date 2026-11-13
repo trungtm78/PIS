@@ -223,7 +223,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
       expect(view.suggestion).toMatchObject({ templateCode: 'STEPPED', basis: 'PROJECT_TYPE' });
     });
 
-    it('reads the rule of the nearest unit before the rule of the tenant, and refuses a fact that is not one', async () => {
+    it('AC-ST-PWF-024-4: reads the rule of the nearest unit before the rule of the tenant, and refuses a fact that is not one', async () => {
       await approveRule('PROJECT_WORKFLOW_ASSIGNMENT', 'DEFAULT', { lines: [{ code: 'GROUP_B', priority: 10, template_code: 'STEPPED', when: [{ field: 'project_group', in: ['B'] }] }], default_template_code: 'LEGACY' }, DEPARTMENT);
       await approveRule('PROJECT_WORKFLOW_ASSIGNMENT', 'DEFAULT', { lines: [] }, ELSEWHERE);
       const department = await as((tx) => assignment.suggest(tx, { facts: { project_group: 'B' }, unitId: unitId(DEPARTMENT), asOf: TODAY }));
@@ -279,7 +279,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
   });
 
   describe('phase -> step -> task -> checklist (R44)', () => {
-    it('shows the steps of each phase with the progress of their tasks and checklists and their standard time, and the step of every task', async () => {
+    it('AC-ST-PWF-021-1: shows the steps of each phase with the progress of their tasks and checklists and their standard time, and the step of every task', async () => {
       const p = await project();
       const done = await start(p.id);
       const view = await detail(p.id);
@@ -303,7 +303,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
       expect(task.step).toEqual({ code: 'S_PREPARE', name: 'Prepare', phase_code: 'P1', order: 1, implicit: false, responsible_role: 'LEAD_ROLE' });
     });
 
-    it('still refuses the completion of a task while a required item of its checklist is open, and not for an optional one', async () => {
+    it('AC-ST-PWF-021-3: still refuses the completion of a task while a required item of its checklist is open, and not for an optional one', async () => {
       const p = await project();
       const done = await start(p.id);
       const taskId = await working(done.id, 'TA');
@@ -314,7 +314,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
       expect(await refusal(as((tx) => tasks.complete(tx, { taskId, expectedVersion: Number(t.version), actor: memberId(WORKER), scopes, today: TODAY }), WORKER))).toMatchObject({ code: 'PWF_TASK_COMPLETION_BLOCKED', status: 422 });
     });
 
-    it('gives a workflow of a template without steps one step per phase, and keeps the hash it froze', async () => {
+    it('AC-ST-PWF-021-2: gives a workflow of a template without steps one step per phase, and keeps the hash it froze', async () => {
       const p = await project();
       const done = await start(p.id, { templateCode: 'LEGACY' });
       expect(done.templateHash).toBe(pwfWorkflow.templateHash(pwfWorkflow.parseProjectWorkflowTemplate(LEGACY)));
@@ -329,7 +329,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
   });
 
   describe('the legal grounds of a step and of a task (R45)', () => {
-    it('shows each ground with the document of the catalogue it cites, and tells when a document is replaced after the project froze its template', async () => {
+    it('AC-ST-PWF-022-1: shows each ground with the document of the catalogue it cites, and tells when a document is replaced after the project froze its template', async () => {
       const p = await project();
       const done = await start(p.id);
       const first = ((await detail(p.id)).steps as Array<{ legal_basis: Array<Record<string, unknown>> }>)[0];
@@ -353,7 +353,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
       expect(frozen?.template_hash).toBe(done.templateHash);
     });
 
-    it('tells the alert centre once per workflow and document that a legal ground lapsed, to whoever reads the project, and nothing while every document is in force', async () => {
+    it('AC-ST-PWF-022-2: tells the alert centre once per workflow and document that a legal ground lapsed, to whoever reads the project, and nothing while every document is in force', async () => {
       const input = (over: Partial<WorkInput> = {}): WorkInput => ({ membershipId: memberId(MANAGER), now: now(), today: TODAY, unitScope: everything, projectScope: everything, mode: 'rows', view: 'scope', ...over });
       const lapsed = async (over: Partial<WorkInput> = {}) => (await as((tx) => work.collect(tx, input(over)))).rows.filter((row) => row.kind === 'PWF_LEGAL_BASIS_LAPSED');
       // The test before this one replaced TEST_DECREE_OLD: every running workflow of the stepped template cites it on its first step.
@@ -387,7 +387,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
   });
 
   describe('the revision of a form (R46)', () => {
-    it('records the newest approved revision and its hash with the evidence, and says when the form was revised since', async () => {
+    it('AC-ST-PWF-023-1, AC-ST-PWF-023-2: records the newest approved revision and its hash with the evidence, and says when the form was revised since', async () => {
       const p = await project();
       const done = await start(p.id);
       const taskId = await working(done.id, 'TA');
@@ -410,7 +410,7 @@ describe('the processing workflow of a project (PWF-4)', () => {
       expect(((await taskDetail(taskId)).form_templates as Array<Record<string, unknown>>).find((form) => form.code === 'FORM_LATEST')).toMatchObject({ used_revision: 2, newer_available: false });
     });
 
-    it('keeps a pinned form on its revision whatever is published later, and refuses a pin that names no approved revision', async () => {
+    it('AC-ST-PWF-023-3: keeps a pinned form on its revision whatever is published later, and refuses a pin that names no approved revision', async () => {
       await owner(`update machvon.document_template set status = 'SUPERSEDED', effective_until = $2::date where template_code = 'FORM_PINNED' and revision = 1 and tenant_id = $1`, [TENANT_A, TODAY]);
       await formRevision('FORM_PINNED', 2, 'PUBLISHED', TODAY, null);
       const p = await project();

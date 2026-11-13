@@ -152,7 +152,7 @@ Chuyển bị cấm: DONE sang trạng thái khác (sửa sau xong là một b�
 
 ## 6. Dữ liệu
 
-Khối migration **PWF-1: 3000–3019** (workflow, lịch, deadline, nhắc; PWF-2 dùng chung khối) và **PWF-3: 3020–3039** (KPI và điểm), đăng ký bằng `node scripts/contract-patch.mjs register-block`. Mọi bảng: `tenant_id`, RLS `tenant_access` FORCE, `created_at/by`, `updated_at/by`, `version` (If-Match) nếu sửa được. Phân loại: nội bộ; riêng bảng điểm: cá nhân (nhạy cảm).
+Khối migration **PWF-4: 3040–3059** (phiên bản biểu mẫu trên bằng chứng, lựa chọn loại quy trình) ở mục 16.3. Khối migration **PWF-1: 3000–3019** (workflow, lịch, deadline, nhắc; PWF-2 dùng chung khối) và **PWF-3: 3020–3039** (KPI và điểm), đăng ký bằng `node scripts/contract-patch.mjs register-block`. Mọi bảng: `tenant_id`, RLS `tenant_access` FORCE, `created_at/by`, `updated_at/by`, `version` (If-Match) nếu sửa được. Phân loại: nội bộ; riêng bảng điểm: cá nhân (nhạy cảm).
 
 **PWF-1 (V3000 đến V3019).**
 - `project` (mở rộng rồi thu): `planned_start_date date NULL` (V3000, expand-contract; lấy từ đường cơ sở hiệu lực khi có, BR-PWF-11).
@@ -350,6 +350,7 @@ Mỗi tiêu chí `AC-ST-PWF-nnn-m` gắn test ID ở mục 10 và câu chuyện 
 - AC-ST-PWF-018-1: Quản lý cũ, người khác đơn vị, xuất hàng loạt: không xem được bảng điểm ngoài quyền; mọi lần xem của người khác ghi ADM-11 (T-PWF-18, UAT-PWF-13). AC-ST-PWF-018-2: điều chỉnh cần người duyệt thứ hai khác người được chấm và nằm trong biên độ (T-PWF-19, UAT-PWF-12). AC-ST-PWF-018-3: mẫu nhỏ không xếp loại (T-PWF-09, UAT-PWF-14).
 - AC-ST-PWF-019-1: Điện thoại hiện workflow, việc của tôi theo hạn (màu cá nhân có nhãn và ngày thật), điểm của tôi; không lưu đệm bảng điểm người khác (T-PWF-21, UAT-PWF-15).
 - AC-ST-PWF-020-1: Tải công việc theo người chỉ hiển thị, không đổi lịch (T-PWF-20).
+- AC-ST-PWF-021-1 đến AC-ST-PWF-024-4 (làn `pwf4`): xem mục 16.6; ca T-PWF-22 đến T-PWF-25 và UAT-PWF-PRC-01 đến UAT-PWF-PRC-10.
 
 ## 12. Mức tối thiểu cho R1 và phần sâu hóa R2+
 
@@ -397,9 +398,73 @@ Không có câu hỏi nào chờ chủ sở hữu: mọi lựa chọn mở đã 
 | ST-PWF-018 | Là quản lý, tôi xem điểm đơn vị, đề nghị điều chỉnh có duyệt và xuất tệp | PWF-12, 13 | BR-PWF-36, 38, 40, 41, 42 | AC-ST-PWF-018-1, 018-2, 018-3 |
 | ST-PWF-019 | Là cán bộ, tôi theo dõi việc trên điện thoại | MOB-78 đến 80 | BR-PWF-23, 26 | AC-ST-PWF-019-1 |
 | ST-PWF-020 | Là lãnh đạo, tôi xem tải công việc theo người | PWF-07 | BR-PWF-18 | AC-ST-PWF-020-1 |
+| ST-PWF-021 | Là quản trị quy trình, tôi mô tả loại quy trình theo giai đoạn, bước, công việc có danh mục kiểm | PWF-01 đến 04, MOB-78, 79 | BR-PWF-43 | AC-ST-PWF-021-1, 021-2, 021-3 |
+| ST-PWF-022 | Là quản trị quy trình, tôi viện dẫn căn cứ pháp lý của bước và công việc từ danh mục văn bản dùng chung | PWF-02 đến 04, HOME-02, MOB-78, 79 | BR-PWF-44, 47 | AC-ST-PWF-022-1, 022-2, 022-3 |
+| ST-PWF-023 | Là người thực hiện, tôi lập tài liệu từ bản biểu mẫu mới nhất đã duyệt hoặc bản được ghim, có truy vết | PWF-02, 04, MOB-79 | BR-PWF-45 | AC-ST-PWF-023-1, 023-2, 023-3 |
+| ST-PWF-024 | Là người đăng ký dự án, tôi nhận đề xuất loại quy trình theo quy tắc ánh xạ và khởi tạo workflow cùng dự án | PRJ-02, PWF-05 | BR-PWF-46 | AC-ST-PWF-024-1, 024-2, 024-3, 024-4 |
 
 Đã đăng ký (làn `pwfreg`, 2026-11-13) vào `implementation_plan.json` (epic EP-PWF, tám feature FT-PWF-01..08, 20 câu chuyện), `test_cases.json` (T-PWF-01..21, UAT-PWF, UI-PWF-01..16, UI-MOB-78..82), `traceability.json` (FR-PWF-01..16, FR-MOB-78..82), `implementation_backlog.json` (BL-PWF-01..16, BL-MOB-78..82) và `navigation_architecture.json`, bằng `node scripts/contract-patch.mjs apply --spec docs/plans/pwf-register.json` (công cụ `contract-patch` có thêm các lệnh `add-epic`, `add-feature`, `add-story`, `add-test-case`, `add-trace`, `add-backlog`, `add-route`, `add-nav-group`); các ID trên là khóa của việc đó.
 
 ## 15. Kiểm chứng đã thực hiện trong làn này
 
 Lõi thuần (không DB): `process-core.ts` (hàm ngày và ngày làm việc dùng chung với PRC-1, `bid-workflow.ts` xuất lại, test PRC-1 không sửa), `project-workflow.ts` (kiểu mẫu, bộ kiểm, vòng lặp, nhánh, tham chiếu, bộ phân giải loại chứng từ theo bản, hoàn thành việc, cổng, ba mẫu mặc định công), `project-schedule.ts` (lượt xuôi và ngược, bốn kiểu liên kết, ràng buộc, tiến độ thực, lịch ghim, tính lại giữ cơ sở), `deadline-band.ts` (ba màu, ba tầng, nguồn khai đơn vị, nhắc nhiều mốc), `workflow-kpi.ts` (danh mục phép tính, quy đổi, tổng hợp theo kỳ, tín hiệu, điều chỉnh, băm); kiểm `governance:check` thêm tham chiếu `GOV_REFERENCE_MISSING`. Số test và độ phủ ở báo cáo của làn.
+
+
+## 16. Bộ quy trình xử lý: bước, căn cứ pháp lý, phiên bản biểu mẫu, chọn loại quy trình khi đăng ký dự án (làn `pwf4`, 14/11/2026)
+
+Yêu cầu của chủ sở hữu: phần quản lý workflow theo dự án cần **bộ quy trình xử lý** gồm trình tự các bước, thời gian thực hiện, quy định pháp lý, biểu mẫu mới nhất; **khi đăng ký dự án chọn loại quy trình** để hệ thống tự ánh xạ; và **danh mục kiểm cho từng công việc trong một bước**. Căn cứ nghiên cứu: `docs/pwf-research.md` Phần D (D-43 đến D-52). Mọi thay đổi là **mở rộng tương thích ngược**: mẫu và workflow có từ trước không đổi tham số, không đổi băm, không đổi hành vi.
+
+### 16.1 Quyết định (R44 đến R48)
+
+- **R44 (ba tầng, một mẫu).** "Loại quy trình" chính là mẫu `PROJECT_WORKFLOW_TEMPLATE` (không thêm thực thể thứ hai). Mẫu có thêm `steps[]` (mã, tên, giai đoạn, vai trò chịu trách nhiệm bước, căn cứ pháp lý) và mỗi công việc có `step`; cấu trúc là Giai đoạn → Bước → Công việc → Danh mục kiểm của công việc. Mẫu hoặc không khai bước nào (mỗi giai đoạn là một bước ngầm định mang mã và tên giai đoạn), hoặc khai bước cho MỌI công việc; bước thuộc đúng một giai đoạn và có ít nhất một công việc. **Bước không có thời lượng nhập tay**: thời hạn chuẩn của bước là số ô ngày làm việc từ lúc công việc đầu tiên của bước bắt đầu tới lúc công việc cuối cùng kết thúc, tính trên tuần làm việc chuẩn (`standardTimes`), còn ngày của dự án thật tính trên lịch đã ghim. Tham số nào mẫu cũ không có thì KHÔNG được ghi ra khi chuẩn hóa, nên băm của mẫu cũ và của workflow đã đóng băng không đổi (test ghim ba băm của ba mẫu mặc định trước đợt này). Bước không có bảng riêng: đọc từ mẫu đóng băng, tiến độ đếm từ công việc và mục kiểm của dự án. [D-43, D-44, D-45]
+- **R45 (căn cứ pháp lý viện dẫn danh mục).** Loại quy tắc mới `LEGAL_DOCUMENT`: mỗi mã là một văn bản (`doc_kind`, `number`, `title`, `issuer`, `issued_on`, `effective_from`, `effective_to`, `superseded_by`, `verification`, `document_id` tới kho DOC, `url`, `note`), có phiên bản và người duyệt khác người lập như mọi quy tắc. Bước và công việc khai `legal_basis[]` = {`document` (mã danh mục), `article` (để trống khi chưa chắc, không đoán), `note`, `verification`}; nội dung văn bản không chép vào mẫu. Trạng thái của văn bản tính theo ngày đọc: `NOT_YET_IN_FORCE`, `IN_FORCE`, `EXPIRED`, `SUPERSEDED`; mã không còn trong danh mục hiển thị `UNKNOWN`, không bao giờ là còn hiệu lực. Văn bản hết hiệu lực hoặc bị thay thế: màn soạn mẫu báo `LEGAL_BASIS_LAPSED` (cảnh báo, không chặn; mã lạ `LEGAL_DOCUMENT_UNKNOWN` là lỗi), workflow đang chạy hiển thị và liệt kê `lapsed_legal_documents`, trung tâm cảnh báo có việc `PWF_LEGAL_BASIS_LAPSED`. Mẫu đóng băng không tự đổi. "Sổ pháp lý" hiện có (`legal_confirmation_ledger.json`, cổng `cxn:check`) là sổ các mục CHỜ pháp chế xác nhận, không phải danh mục văn bản, nên không dùng làm danh mục; mười văn bản mặc định mang `UNVERIFIED` và thuộc mục mục CXN-13 của sổ đó. [D-46, D-47]
+- **R46 (phiên bản biểu mẫu).** Mỗi biểu mẫu của công việc có chính sách: mặc định `LATEST_APPROVED` (bản `PUBLISHED` đang hiệu lực mới nhất tại ngày lập), tùy chọn `PINNED` kèm `revision`. Khi đính bằng chứng có `form_template_code`, hệ thống ghi `form_template_revision` và `form_template_sha256` (theo thứ tự: bản mà tài liệu đính kèm thực sự được sinh ra, bản ghim, bản mới nhất đã duyệt); biểu mẫu ghim mà bản không tồn tại hoặc khác bản của tài liệu bị từ chối `PWF_FORM_REVISION_UNAVAILABLE`; biểu mẫu chưa có bản đã duyệt trong kho thì ghi rỗng như trước. Công việc hiển thị bản đang hiệu lực, bản đã dùng và `newer_available` khi biểu mẫu có bản mới sau khi đã lập tài liệu. [D-48]
+- **R47 (quy tắc ánh xạ và lựa chọn có dấu vết).** Loại quy tắc mới `PROJECT_WORKFLOW_ASSIGNMENT` (một mã `DEFAULT`; quy tắc riêng theo đơn vị qua phạm vi đơn vị của kho quy tắc, đơn vị gần nhất thắng): `lines[]` = {`code`, `priority` (nhỏ đọc trước, không trùng), `template_code`, `when[]` theo `project_type`, `project_group`, `funding_source`} và `default_template_code`. Thứ tự đề xuất: dòng đầu tiên mà mọi điều kiện đúng (`RULE`) → mẫu duy nhất có `project_type` trùng loại dự án (`PROJECT_TYPE`) → mặc định của quy tắc (`DEFAULT`) → không đề xuất (`NONE`, không đoán); dữ kiện chưa biết không bao giờ làm điều kiện đúng; dòng trỏ tới mẫu không tồn tại bị bỏ qua và được báo. Lựa chọn ghi vào `project_workflow.selection`: `mode` (`AUTO` hệ thống chọn, `CONFIRMED` người lập xác nhận, `OVERRIDE` chọn khác kèm lý do, `MANUAL` chọn khi quy tắc không đề xuất), mẫu được đề xuất, căn cứ, dòng, quy tắc và phiên bản, lý do; lý do vào nhật ký workflow và dòng audit. Loại dự án của dự án lấy từ mã danh mục dùng chung (`business_key`) và thành dữ kiện `project_type` của nhánh. [D-49, D-50, D-52]
+- **R48 (đăng ký dự án kèm workflow, một giao dịch).** `createProject` nhận `workflow` {`template_code?`, `template_version?`, `planned_start_date`, `facts?`, `selection_reason?`}: có thì dự án và workflow (đóng băng mẫu, cắt nhánh `when[]`, lập lịch từ ngày bắt đầu, đường cơ sở đầu) được tạo trong CÙNG giao dịch và cùng khóa idempotency; bất kỳ lý do nào làm workflow không khởi tạo được đều làm cả yêu cầu thất bại (không có dự án dở dang); chọn khác đề xuất mà không có lý do là `PWF_SELECTION_REASON_REQUIRED`; cần quyền `pwf.workflow.manage`. Không có `workflow` thì dự án được tạo như trước. `suggestProjectWorkflow` trả đề xuất, danh sách loại quy trình và bản xem trước (ngày hoàn thành, tổng ngày làm việc, số giai đoạn, bước, công việc, thời gian từng bước, dữ kiện còn thiếu, năm thiếu lịch) để màn hình nói rõ trước khi lưu. `startProjectWorkflow` và `adoptProjectWorkflow` cho phép bỏ `template_code` (hệ thống chọn theo cùng quy tắc; không có đề xuất: `PWF_TEMPLATE_NOT_ASSIGNED`). [D-51]
+
+### 16.2 Quy tắc nghiệp vụ
+
+- **BR-PWF-43 (bước).** R44. Trạng thái bước: `NOT_APPLICABLE` (không công việc nào của bước thuộc dự án), `DONE` (mọi công việc xong hoặc hủy), `IN_PROGRESS` (có công việc đã bắt đầu), `NOT_STARTED`. Phần trăm chỉ hiển thị khi mẫu số khác 0. Công việc dự án tự thêm không thuộc bước nào và được liệt kê riêng dưới giai đoạn.
+- **BR-PWF-44 (căn cứ pháp lý).** R45. Cùng một văn bản và điều khoản không khai hai lần trong một bước hoặc công việc; tối đa 12 căn cứ mỗi bước hoặc công việc, 80 bước mỗi mẫu.
+- **BR-PWF-45 (phiên bản biểu mẫu).** R46. `PINNED` phải có `revision` ≥ 1, `LATEST_APPROVED` không có; chính sách chỉ khai cho biểu mẫu thuộc `form_templates` của công việc.
+- **BR-PWF-46 (ánh xạ và lựa chọn).** R47, R48. Lý do ghi đè 10 đến 500 ký tự.
+- **BR-PWF-47 (cảnh báo căn cứ hết hiệu lực).** Một việc cho mỗi cặp (workflow đang `ACTIVE`, văn bản đã `EXPIRED` hoặc `SUPERSEDED`), định danh `<workflow>:<mã văn bản>:<phiên bản mục danh mục>`; đọc trực tiếp, không job; mức `WATCH`.
+
+### 16.3 Dữ liệu
+
+Khối migration **PWF-4: 3040–3059**. `V3040__pwf4_form_revision_and_selection.sql` (bước mở rộng của expand-contract, không có bước thu hẹp): `project_task_evidence.form_template_revision integer NULL`, `form_template_sha256 char(64) NULL` (ràng buộc: cả hai rỗng, hoặc có mã biểu mẫu, bản > 0 và băm 64 ký tự hex); `project_workflow.selection jsonb NULL` (ràng buộc `mode`). Không bảng mới.
+
+### 16.4 API
+
+| operationId | Method path | Quyền | Ghi chú |
+|---|---|---|---|
+| `suggestProjectWorkflow` (mới) | GET `/project-workflow/suggestion` | `pwf.read` | Query: `project_id` (dự án đã có) hoặc `owner_unit_id`, `project_type_master_version_id`; `project_type`, `project_group`, `funding_source`, `template_code`, `planned_start_date`. Trả `PwfWorkflowSuggestion`; không ghi gì; dự án ngoài phạm vi: 404 |
+| `createProject` | POST `/projects` | `project.create` (+ `pwf.workflow.manage` khi có `workflow`) | Thêm `workflow`; lỗi mới `PWF_TEMPLATE_NOT_ASSIGNED`, `PWF_SELECTION_REASON_REQUIRED`, `PWF_TEMPLATE_NOT_FOUND`, `PWF_FACTS_REQUIRED`; sự kiện thêm `pwf.workflow.started.v1` |
+| `startProjectWorkflow`, `adoptProjectWorkflow` | như cũ | như cũ | `template_code` thành tùy chọn; thêm `selection_reason`; kết quả tiếp nhận có `selection` |
+| `attachProjectTaskEvidence` | như cũ | như cũ | Lỗi mới `PWF_FORM_REVISION_UNAVAILABLE` |
+| `validateProjectWorkflowTemplate`, `previewProjectWorkflowTemplate` | như cũ | như cũ | `PwfTemplateParams` thêm `steps`, `tasks[].step`, `legal_basis`, `form_policies`; `valid` = không có lỗi mức `ERROR` |
+| `getProjectWorkflow`, `getProjectTask` | như cũ | như cũ | Thêm (tùy chọn, máy chủ luôn gửi) `steps`, `standard_working_days`, `lapsed_legal_documents`, `selection`, `tasks[].step_code`, `checklist_total`, `checklist_done`; `step`, `legal_basis`, `step_legal_basis`, phiên bản của từng biểu mẫu và của bằng chứng |
+
+Trường thêm vào bản đọc KHÔNG nằm trong `required`: máy khách còn giữ bản đọc cũ (điện thoại ngoại tuyến) vẫn đọc được.
+
+### 16.5 Giao diện
+
+- **PRJ-02** (người có `pwf.read`): mục "Loại quy trình xử lý" gồm đề xuất kèm lý do và phiên bản quy tắc, ô chọn loại quy trình (mặc định "Theo đề xuất của quy tắc"), ngày dự định bắt đầu, nhóm dự án và nguồn vốn (chỉ khi loại quy trình rẽ nhánh theo chúng), lý do khi chọn khác đề xuất, bản xem trước. Bỏ trống ngày bắt đầu: dự án tạo không kèm workflow và màn hình nói nơi khởi tạo sau. Không có quyền khởi tạo, không đọc được đề xuất, thiếu dữ kiện, thiếu lịch, không có đề xuất: mỗi trường hợp một thông báo riêng.
+- **PWF-05**: hiển thị đề xuất, nút "Dùng loại quy trình đề xuất", lý do bắt buộc trên màn hình khi chọn khác đề xuất; không đọc được đề xuất thì màn hình hoạt động như trước.
+- **PWF-01/02**: thư viện ghi số bước; trình soạn có mục "Bước của giai đoạn" (bật cấu trúc bước, thêm, đổi tên, đổi giai đoạn, vai trò, bỏ), căn cứ pháp lý của bước và của công việc (chọn mã từ danh mục, điều khoản, ghi chú, trạng thái kiểm chứng), chính sách phiên bản từng biểu mẫu, bước của công việc; so sánh phiên bản nêu bước thêm, bỏ, đổi.
+- **PWF-03 và tab Workflow của dự án**: mục "Giai đoạn, bước, công việc" với tiến độ từng tầng, thời hạn chuẩn và cửa sổ kế hoạch của bước, căn cứ pháp lý của bước, mục kiểm của từng công việc, thông báo khi căn cứ hết hiệu lực và khi loại quy trình được chọn khác đề xuất.
+- **PWF-04**: bước của công việc, căn cứ pháp lý của công việc và của bước, phiên bản từng biểu mẫu và cảnh báo có bản mới.
+- **MOB-78, MOB-79** (chỉ đọc): công việc của giai đoạn đang mở xếp theo bước (trạng thái, số việc, số mục kiểm, thời hạn chuẩn), chạm vào bước mở căn cứ pháp lý; dòng công việc ghi số mục kiểm; chi tiết công việc có bước, căn cứ pháp lý, phiên bản biểu mẫu.
+
+### 16.6 Kiểm thử, tiêu chí nghiệm thu, câu chuyện
+
+Feature `FT-PWF-09`; câu chuyện `ST-PWF-021` (ba tầng), `ST-PWF-022` (căn cứ pháp lý, mục CXN-13), `ST-PWF-023` (phiên bản biểu mẫu), `ST-PWF-024` (chọn loại quy trình khi đăng ký); ca `T-PWF-22` đến `T-PWF-25`; ca UAT `UAT-PWF-PRC-01` đến `UAT-PWF-PRC-10` (`docs/uat/pwf/uat.json`). Tiêu chí: AC-ST-PWF-021-1..3, 022-1..3, 023-1..3, 024-1..4 (văn bản đầy đủ trong `implementation_plan.json`).
+
+### 16.7 Điều cần pháp chế hoặc cơ quan sử dụng xác nhận
+
+| Mục | Owner | Điều kiện giải quyết |
+|---|---|---|
+| Số hiệu, ngày hiệu lực, quan hệ thay thế của mười văn bản trong danh mục mặc định (mục CXN-13); Nghị định 275/2025/NĐ-CP sửa Nghị định 85/2025/NĐ-CP chưa có trong danh mục; Nghị định 175/2024/NĐ-CP có thay Nghị định 15/2021/NĐ-CP không; Nghị định 99/2021/NĐ-CP còn hiệu lực không | Pháp chế của cơ quan sử dụng | Duyệt phiên bản mục danh mục với `verification = VERIFIED` |
+| Điều khoản của từng bước: chỉ Điều 22 Nghị định 85/2025/NĐ-CP (thời gian thẩm định) được ghi, theo mục lục của nguồn thứ cấp; mọi căn cứ khác để trống điều khoản | Pháp chế | Điền điều khoản khi duyệt phiên bản mẫu |
+| Cách chia bước của ba mẫu mặc định và các mục kiểm thêm (không bắt buộc) | Chủ đầu tư, ban quản lý dự án | Duyệt phiên bản mẫu của cơ quan |
+| Bảng ánh xạ mặc định và mã loại dự án, mã nguồn vốn dùng làm dữ kiện | Quản trị quy trình của cơ quan | Duyệt quy tắc `PROJECT_WORKFLOW_ASSIGNMENT` |

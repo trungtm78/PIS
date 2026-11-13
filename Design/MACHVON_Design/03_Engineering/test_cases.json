@@ -33348,5 +33348,280 @@
     "covers": [
       "FR-MOB-82"
     ]
+  },
+  {
+    "id": "T-PWF-22",
+    "source": "Design/MACHVON_Design/01_Documents/05_modules/PWF.md section 10 (lane pwf4); evidence packages/kernel/test/project-workflow-process.test.ts; packages/db/test/pwf-process.test.ts",
+    "type": "domain",
+    "priority": "P0",
+    "setup": "Mẫu ba tầng (giai đoạn, bước, công việc có danh mục kiểm) và mẫu cũ không khai bước",
+    "steps": [
+      "Chuẩn bị: Mẫu ba tầng (giai đoạn, bước, công việc có danh mục kiểm) và mẫu cũ không khai bước",
+      "Chạy: packages/kernel/test/project-workflow-process.test.ts; packages/db/test/pwf-process.test.ts"
+    ],
+    "expected": "Bước đọc đúng thứ tự, thời hạn chuẩn của bước suy từ lịch công việc; mẫu cũ có một bước ngầm định mỗi giai đoạn, băm không đổi; mục kiểm bắt buộc chặn hoàn thành",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-01",
+      "FR-PWF-03",
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "T-PWF-23",
+    "source": "Design/MACHVON_Design/01_Documents/05_modules/PWF.md section 10 (lane pwf4); evidence packages/db/test/pwf-process.test.ts; apps/api/test/pwf/project-process.test.ts",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Danh mục LEGAL_DOCUMENT; mẫu viện dẫn văn bản ở bước và công việc; một văn bản bị thay thế sau khi dự án đóng băng mẫu",
+    "steps": [
+      "Chuẩn bị: Danh mục LEGAL_DOCUMENT; mẫu viện dẫn văn bản ở bước và công việc; một văn bản bị thay thế sau khi dự án đóng băng mẫu",
+      "Chạy: packages/db/test/pwf-process.test.ts; apps/api/test/pwf/project-process.test.ts"
+    ],
+    "expected": "Căn cứ hiển thị theo danh mục kèm trạng thái; văn bản bị thay thế được báo trên workflow và ở trung tâm cảnh báo, băm mẫu đóng băng không đổi; mã lạ là lỗi, văn bản hết hiệu lực là cảnh báo không chặn",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-01",
+      "FR-PWF-03",
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "T-PWF-24",
+    "source": "Design/MACHVON_Design/01_Documents/05_modules/PWF.md section 10 (lane pwf4); evidence packages/db/test/pwf-process.test.ts",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Biểu mẫu có bản 1 đã duyệt rồi bản 2; mẫu workflow dùng LATEST_APPROVED và PINNED",
+    "steps": [
+      "Chuẩn bị: Biểu mẫu có bản 1 đã duyệt rồi bản 2; mẫu workflow dùng LATEST_APPROVED và PINNED",
+      "Chạy: packages/db/test/pwf-process.test.ts"
+    ],
+    "expected": "Bằng chứng ghi phiên bản và mã băm biểu mẫu; có bản mới thì công việc báo; biểu mẫu ghim giữ đúng bản; bản ghim không tồn tại bị từ chối PWF_FORM_REVISION_UNAVAILABLE",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "T-PWF-25",
+    "source": "Design/MACHVON_Design/01_Documents/05_modules/PWF.md section 10 (lane pwf4); evidence apps/api/test/pwf/project-process.test.ts; packages/db/test/pwf-process.test.ts; apps/web/src/screens/prj/ProjectCreateWorkflow.test.tsx",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Quy tắc PROJECT_WORKFLOW_ASSIGNMENT của tenant và của đơn vị; đăng ký dự án kèm loại quy trình và ngày dự định bắt đầu",
+    "steps": [
+      "Chuẩn bị: Quy tắc PROJECT_WORKFLOW_ASSIGNMENT của tenant và của đơn vị; đăng ký dự án kèm loại quy trình và ngày dự định bắt đầu",
+      "Chạy: apps/api/test/pwf/project-process.test.ts; packages/db/test/pwf-process.test.ts; apps/web/src/screens/prj/ProjectCreateWorkflow.test.tsx"
+    ],
+    "expected": "Dự án và workflow tạo trong một giao dịch, một lần theo khóa idempotency; chọn khác đề xuất cần lý do; không khởi tạo được thì không tạo gì khi có workflow trong yêu cầu, và vẫn tạo được dự án khi không gửi workflow; quy tắc của đơn vị gần nhất thắng",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-05",
+      "FR-PRJ-02"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-01",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-01)",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Tenant TNT-A (bản công); người soạn có quyền pwf.template.manage; mẫu PUBLIC_INVESTMENT mặc định",
+    "steps": [
+      "1. Mở PWF-02 với mẫu PUBLIC_INVESTMENT, xem mục \"Bước của giai đoạn\"",
+      "2. Thêm một bước vào giai đoạn chuẩn bị, đặt tên, chuyển một công việc sang bước mới",
+      "3. Thêm một mục kiểm bắt buộc cho công việc đó",
+      "4. Bấm kiểm tra và xem trước lịch với ngày bắt đầu 02/11/2026"
+    ],
+    "expected": "Mẫu hợp lệ; mỗi công việc thuộc đúng một bước của giai đoạn của nó; bước không có công việc bị báo lỗi tại chỗ; bản xem trước cho ngày của từng công việc; lưu nháp giữ nguyên bước, căn cứ pháp lý và chính sách biểu mẫu.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-01",
+      "FR-PWF-03",
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-02",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-02)",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Dự án có workflow từ mẫu ba tầng; một công việc có hai mục kiểm (một bắt buộc)",
+    "steps": [
+      "1. Mở tab Workflow của dự án (PRJ-03) và PWF-03",
+      "2. Mở công việc, đánh dấu mục kiểm không bắt buộc, bấm hoàn thành",
+      "3. Đính bằng chứng đúng loại, đánh dấu mục bắt buộc, hoàn thành và duyệt",
+      "4. Mở MOB-78 và MOB-79 của cùng dự án"
+    ],
+    "expected": "Mục \"Giai đoạn, bước, công việc\" cho trạng thái, số việc xong và số mục kiểm xong của từng bước cùng thời hạn chuẩn; hoàn thành bị từ chối khi mục bắt buộc còn mở (PWF_TASK_COMPLETION_BLOCKED nêu mục); sau khi đủ, bước chuyển sang đang thực hiện rồi đã xong; điện thoại hiển thị công việc theo bước và danh mục kiểm của từng việc.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-01",
+      "FR-PWF-03",
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-03",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-03)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Một quy tắc mẫu đã duyệt không khai bước và một dự án đã đóng băng mẫu đó trước khi nâng cấp",
+    "steps": [
+      "1. Đọc getProjectWorkflow của dự án",
+      "2. So template_hash với băm tính lại từ bản mẫu đóng băng",
+      "3. Mở mẫu ở PWF-02 và lưu nháp không sửa gì"
+    ],
+    "expected": "Mỗi giai đoạn có một bước mang mã và tên giai đoạn (implicit); băm đóng băng bằng băm tính lại; tham số bản nháp không có khóa steps, step, legal_basis, form_policies.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-01",
+      "FR-PWF-03",
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-04",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-04)",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Danh mục LEGAL_DOCUMENT có Luật 58/2024/QH15 và Nghị định 85/2025/NĐ-CP (UNVERIFIED)",
+    "steps": [
+      "1. Ở PWF-02 thêm căn cứ pháp lý cho một bước: chọn LAW_58_2024_QH15 từ danh mục, bỏ trống điều khoản",
+      "2. Thêm căn cứ cho một công việc với mã không có trong danh mục rồi bấm kiểm tra",
+      "3. Sửa thành DECREE_85_2025_ND_CP, nhập điều khoản, lưu và duyệt mẫu bởi người khác",
+      "4. Khởi tạo workflow cho dự án và mở PWF-03, PWF-04"
+    ],
+    "expected": "Mã lạ bị báo lỗi LEGAL_DOCUMENT_UNKNOWN tại đúng trường; căn cứ hiển thị loại, số ký hiệu, tên, cơ quan ban hành, ngày hiệu lực, điều khoản (hoặc \"chưa ghi điều khoản, chờ pháp chế xác nhận\"), nhãn chưa kiểm chứng và trạng thái còn hiệu lực.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-01",
+      "FR-PWF-03",
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-05",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-05)",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Dự án đang chạy workflow viện dẫn một văn bản; người quản trị danh mục và người duyệt là hai người khác nhau",
+    "steps": [
+      "1. Soạn phiên bản mới của mục danh mục: ngày hết hiệu lực và văn bản thay thế",
+      "2. Người khác duyệt phiên bản",
+      "3. Mở PWF-03 của dự án và trung tâm cảnh báo (HOME-02)"
+    ],
+    "expected": "Workflow có thông báo số văn bản cần xem lại và căn cứ ghi \"Đã bị thay thế\" kèm mã văn bản thay thế; trung tâm cảnh báo có đúng một việc PWF_LEGAL_BASIS_LAPSED cho mỗi cặp workflow và văn bản, mở tới workflow của dự án; mẫu đóng băng và băm không đổi.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-01",
+      "FR-PWF-03",
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-06",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-06)",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Biểu mẫu BM_01 có bản 1 đã công bố; công việc đang làm có BM_01 (bản mới nhất) và BM_02 (ghim bản 1)",
+    "steps": [
+      "1. Ở PWF-04 đính bằng chứng biểu mẫu BM_01",
+      "2. Công bố bản 2 của BM_01 và BM_02",
+      "3. Mở lại PWF-04 và MOB-79",
+      "4. Đính bằng chứng BM_02"
+    ],
+    "expected": "Bằng chứng BM_01 ghi bản 1 và mã băm; sau khi có bản 2, công việc báo \"biểu mẫu đã có bản 2 sau khi lập tài liệu từ bản 1\"; bằng chứng BM_02 ghi bản 1 dù bản 2 đang hiệu lực; nhật ký công việc ghi phiên bản và mã băm.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-04"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-07",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-07)",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Quy tắc PROJECT_WORKFLOW_ASSIGNMENT đã duyệt; người dùng có quyền project.create và pwf.workflow.manage; lịch làm việc 2026 đến 2028 đã công bố",
+    "steps": [
+      "1. Mở PRJ-02, nhập thông tin dự án và chọn đơn vị quản lý",
+      "2. Xem mục \"Loại quy trình xử lý\": đề xuất, căn cứ đề xuất, phiên bản quy tắc",
+      "3. Nhập ngày dự định bắt đầu, chọn nhóm dự án và nguồn vốn, xem bản xem trước",
+      "4. Bấm lưu; bấm lưu lần nữa với cùng thao tác"
+    ],
+    "expected": "Đề xuất nêu mã loại quy trình và lý do (dòng quy tắc, loại dự án hoặc mặc định); bản xem trước cho ngày dự kiến hoàn thành, tổng số ngày làm việc, số giai đoạn, bước, công việc và thời gian từng bước; dự án và workflow được tạo cùng lúc, một lần; workflow ghi mode AUTO, mẫu được đề xuất và phiên bản quy tắc; có liên kết mở workflow.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-05",
+      "FR-PRJ-02"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-08",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-08)",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Như TC-UAT-PWF-PRC-07",
+    "steps": [
+      "1. Ở PRJ-02 chọn loại quy trình khác loại được đề xuất, nhập ngày bắt đầu, bấm lưu",
+      "2. Gọi createProject trực tiếp với template_code khác đề xuất và không có selection_reason",
+      "3. Nhập lý do từ 10 ký tự và lưu",
+      "4. Mở workflow của dự án"
+    ],
+    "expected": "Màn hình yêu cầu lý do trước khi gửi; API trả 422 PWF_SELECTION_REASON_REQUIRED và không tạo dự án; sau khi có lý do, workflow ghi mode OVERRIDE, loại được đề xuất và lý do; dòng audit workflow.started có lý do.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-05",
+      "FR-PRJ-02"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-09",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-09)",
+    "type": "e2e",
+    "priority": "P0",
+    "setup": "Ba tình huống: quy tắc không đề xuất loại nào; thiếu nguồn vốn cho mẫu rẽ nhánh; lịch làm việc chưa công bố tới năm cuối; và một người dùng không có quyền pwf.workflow.manage",
+    "steps": [
+      "1. Ở PRJ-02 nhập ngày dự định bắt đầu trong từng tình huống và bấm lưu",
+      "2. Bỏ trống ngày dự định bắt đầu và lưu",
+      "3. Mở PWF-05 của dự án vừa tạo",
+      "4. Đăng nhập người không có quyền khởi tạo quy trình và mở PRJ-02"
+    ],
+    "expected": "Từng tình huống có thông báo riêng (chọn loại quy trình; chọn nguồn vốn; lịch làm việc chưa công bố) và không gửi gì; bỏ trống ngày thì dự án được tạo không có workflow kèm hướng dẫn khởi tạo sau; PWF-05 hiển thị cùng đề xuất và nút \"Dùng loại quy trình đề xuất\"; người không có quyền thấy thông báo và vẫn tạo được dự án.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-05",
+      "FR-PRJ-02"
+    ]
+  },
+  {
+    "id": "UAT-PWF-PRC-10",
+    "source": "UAT PWF (docs/uat/pwf/uat.json, TC-UAT-PWF-PRC-10)",
+    "type": "integration",
+    "priority": "P0",
+    "setup": "Quy tắc của tenant (mặc định A) và quy tắc riêng của một sở (nhóm B → mẫu B); người lập và người duyệt khác nhau",
+    "steps": [
+      "1. Người lập nộp quy tắc của sở và tự duyệt",
+      "2. Người khác duyệt",
+      "3. Đọc suggestProjectWorkflow cho dự án của sở, của đơn vị cha và của đơn vị khác nhánh",
+      "4. Gửi dữ kiện không hợp lệ (ký tự lạ) và mã đơn vị không tồn tại"
+    ],
+    "expected": "Tự duyệt bị từ chối 403; dự án của sở nhận mẫu theo quy tắc của sở (basis RULE, phiên bản và đơn vị của quy tắc), đơn vị cha và đơn vị khác nhánh nhận quy tắc tenant; dữ kiện sai trả 422 VALIDATION_FAILED nêu trường; dự án ngoài phạm vi đọc trả 404.",
+    "status": "NOT_RUN",
+    "evidence": null,
+    "covers": [
+      "FR-PWF-05",
+      "FR-PRJ-02"
+    ]
   }
 ]

@@ -224,7 +224,7 @@ describe('the processing workflow of a project over HTTP (PWF-4)', () => {
   });
 
   describe('createProject with the kind of workflow (one transaction)', () => {
-    it('registers the project and starts the workflow the rule names, once per idempotency key, with the audit rows and the events of both', async () => {
+    it('AC-ST-PWF-024-1: registers the project and starts the workflow the rule names, once per idempotency key, with the audit rows and the events of both', async () => {
       const code = codeOf();
       const key = `register-with-workflow-${randomUUID()}`;
       const first = await register(code, { planned_start_date: START, facts: { project_group: 'B' } }, MANAGER, key);
@@ -247,7 +247,7 @@ describe('the processing workflow of a project over HTTP (PWF-4)', () => {
       expect((await rows('select 1 from machvon.outbox_event where aggregate_id = $1 and type = $2', [id, 'project.created.v1'])).length).toBe(1);
     });
 
-    it('takes another template than the rule suggests only with a reason, and registers nothing when the reason is missing', async () => {
+    it('AC-ST-PWF-024-2: takes another template than the rule suggests only with a reason, and registers nothing when the reason is missing', async () => {
       const code = codeOf();
       const refused = await register(code, { template_code: 'PUBLIC_REPAIR', planned_start_date: START, facts: { project_group: 'B' } });
       expect(refused).toMatchObject({ status: 422, json: { code: 'PWF_SELECTION_REASON_REQUIRED' } });
@@ -275,7 +275,7 @@ describe('the processing workflow of a project over HTTP (PWF-4)', () => {
       expect(await projectsOf(bad)).toHaveLength(0);
     });
 
-    it('still registers a project without a workflow, for anyone who may register projects, and the workflow starts later by the same rule', async () => {
+    it('AC-ST-PWF-024-3: still registers a project without a workflow, for anyone who may register projects, and the workflow starts later by the same rule', async () => {
       const code = codeOf();
       const made = await register(code, undefined, REGISTRAR);
       expect(made.status).toBe(200);
@@ -314,7 +314,7 @@ describe('the processing workflow of a project over HTTP (PWF-4)', () => {
   });
 
   describe('the checks of a template (legal grounds and form revisions)', () => {
-    it('accepts a template in three tiers, refuses a document the catalogue does not have and a pinned revision that is not approved, and warns of a document that was replaced', async () => {
+    it('AC-ST-PWF-022-3: accepts a template in three tiers, refuses a document the catalogue does not have and a pinned revision that is not approved, and warns of a document that was replaced', async () => {
       expect((await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: PROCESS })).json).toMatchObject({ valid: true, findings: [], task_count: 4, phase_count: 2 });
       const withBasis = (basis: unknown[]) => ({ ...PROCESS, steps: [{ ...PROCESS.steps[0], legal_basis: basis }, ...PROCESS.steps.slice(1)] });
       const unknown = await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: withBasis([cite('NO_SUCH_DOCUMENT')]) });
