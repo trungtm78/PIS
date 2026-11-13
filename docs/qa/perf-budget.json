@@ -27,6 +27,7 @@
     "evaluationReportId": "id of a bid evaluation report",
     "allocationLineId": "id of a line of a capital plan in force (the availability of a line is asked for one line; a line of a superseded revision has none and answers 404)",
     "baselineProjectId": "id of a project that has a baseline version: the S-curve export draws from it, and a project without one answers 422 BASELINE_MISSING, so the first project of the list is not a sample",
+    "staffScorePeriodId": "id of a staff scoring period of the measured tenant (PWF-12): the export of its score sheet is read for one period; a tenant without a period leaves the row out",
     "enterpriseSnapshotId": "id of a frozen enterprise period snapshot (ENT-3a); a tenant of the public edition has none, so the rows that need it are skipped",
     "enterprisePeriodId": "id of the reporting period of that snapshot (the board of the calendar is read for one period)",
     "periodYear": "year of the enterprise period measured, such as 2026 (the calendar and the cross comparison are read for one year)",
@@ -38,6 +39,7 @@
     "baselineProjectId": {"path": "/resources/project", "query": {"limit": "100"}, "rows": "items", "pick": "id", "verify": {"path": "/projects/{value}/baseline", "pick": "has_baseline", "equals": true}, "scan": 100},
     "reportDraftId": {"path": "/report-engine/drafts", "query": {"limit": "1"}, "pick": "items.0.id"},
     "reportIssueId": {"path": "/report-engine/issues", "query": {"limit": "1"}, "pick": "items.0.id"},
+    "staffScorePeriodId": {"path": "/staff-score-periods", "query": {"limit": "1"}, "pick": "items.0.id"},
     "enterpriseSnapshotId": {"path": "/enterprise-snapshots", "query": {"status": "FROZEN", "limit": "1"}, "pick": "items.0.id"},
     "enterprisePeriodId": {"path": "/enterprise-snapshots", "query": {"limit": "1", "status": "FROZEN"}, "pick": "items.0.period_id"}
   },
@@ -134,6 +136,7 @@
     {"id":"PB-R013","operationId":"getAlertCoverageReport","method":"GET","path":"/home/alert-coverage","permission":"home.alert.health.read","class":"REPORT","area":"HOME"},
     {"id":"PB-R014","operationId":"exportPortalOc4ids","method":"GET","path":"/portal/oc4ids","permission":"project.portal.read","class":"REPORT","area":"PRJ"},
     {"id":"PB-R015","operationId":"exportVendorOcdsParties","method":"GET","path":"/vendor/ocds/parties","permission":"vnd.ocds.export","class":"REPORT","area":"VND"},
-    {"id":"PB-R016","operationId":"getReportCrosscheck","method":"GET","path":"/report-engine/crosscheck","permission":"rpt.crosscheck.read","class":"REPORT","area":"RPT","query":{"kind":"MONTH","year":"$periodYear","index":"$periodMonth"}}
+    {"id":"PB-R016","operationId":"getReportCrosscheck","method":"GET","path":"/report-engine/crosscheck","permission":"rpt.crosscheck.read","class":"REPORT","area":"RPT","query":{"kind":"MONTH","year":"$periodYear","index":"$periodMonth"}},
+    {"id":"PB-R017","operationId":"exportStaffScorePeriod","method":"GET","path":"/staff-score-periods/{id}/export","permission":"staff_score.export","class":"REPORT","area":"PWF","pathVars":{"id":"staffScorePeriodId"}}
   ]
 }
