@@ -216,6 +216,23 @@ void main() {
       expect(find.text('Việc số 0', skipOffstage: false), findsWidgets);
     });
 
+    testWidgets('a deadline that was moved keeps its first day in the sheet of the alert, and one that was not moved says nothing of it', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _healthy(server, alerts: <Map<String, Object?>>[
+        alertItem('a-moved', title: 'Đã dời hạn', dueOn: '2026-11-05', extra: <String, Object?>{'original_due_on': '2026-10-28'}),
+        alertItem('a-kept', title: 'Giữ hạn', dueOn: '2026-11-05', extra: <String, Object?>{'original_due_on': '2026-11-05'}),
+      ]);
+      await _open(tester, server, '/home');
+
+      // Same due day, so the rows are in the order of their ids: the one that was kept first.
+      await openAlertSheet(tester, index: 1);
+      expect(find.text('Hạn ban đầu 28/10/2026, đã được dời'), findsOneWidget);
+      await pressBack(tester);
+      await openAlertSheet(tester, index: 0);
+      expect(find.textContaining('Hạn ban đầu'), findsNothing);
+    });
+
     testWidgets('the primary action opens the record when the phone has a screen for it, and every act is also a button in the sheet (no gesture alone)', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();

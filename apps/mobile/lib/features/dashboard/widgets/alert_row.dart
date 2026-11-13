@@ -95,6 +95,8 @@ class AlertRow extends StatelessWidget {
         ? null
         : FilledButton(onPressed: busy ? null : onPrimary, style: v2PrimaryButtonStyle(v2), child: Text(primaryLabel!, textAlign: TextAlign.center));
     final bool large = largeText(context);
+    // A larger text wraps the words of the button, so its height is not a number to reserve: from 1.15 times it is laid out under the row, at its own height.
+    final bool stacked = MediaQuery.textScalerOf(context).scale(1) > 1.15;
     final Widget trailing = Column(
       crossAxisAlignment: large ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
@@ -108,8 +110,8 @@ class AlertRow extends StatelessWidget {
             ),
         ] else
           Text(severityLabel(context, item.severity), style: context.v2text.label.copyWith(color: look.ink)),
-        // The room the button takes: the button itself sits over the row (below), so it is a control of its own and not a part of the one the row is.
-        if (action != null) const SizedBox(height: MachvonV2Space.s8 + MachvonV2Size.touchMin, width: 1),
+        // The room the button takes at the normal text size: the button itself sits over the row (below), so it is a control of its own and not a part of the one the row is.
+        if (action != null && !stacked) const SizedBox(height: MachvonV2Space.s8 + MachvonV2Size.touchMin, width: 1),
       ],
     );
     final String spoken = <String>[
@@ -132,6 +134,19 @@ class AlertRow extends StatelessWidget {
       dividerAbove: dividerAbove,
     );
     if (action == null) return row;
+    if (stacked) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          row,
+          Padding(
+            padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
+            child: Align(alignment: Alignment.centerRight, child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 220), child: action)),
+          ),
+        ],
+      );
+    }
     return Stack(
       children: <Widget>[
         row,

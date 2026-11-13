@@ -290,6 +290,7 @@ class AlertCard extends StatelessWidget {
                 ],
               ),
             ),
+          if (item.originalDueOn != null) Text(context.t('mob.alert.card.originalDue.line', <String, Object>{'date': asOfLabel(item.originalDueOn!)}), style: text.caption),
           ..._clockLines(context),
           Text(owner, style: text.caption),
           if (snooze != null) Text(snooze, style: text.caption),

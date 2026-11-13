@@ -202,6 +202,7 @@ final class AlertItem {
     required this.targetId,
     this.subtitle,
     this.dueOn,
+    this.originalDueOn,
     this.consequence,
     this.claimedBy,
     this.assignee,
@@ -225,6 +226,9 @@ final class AlertItem {
   final String title;
   final String? subtitle;
   final String? dueOn;
+
+  /// The due day before it was moved; null when it was not moved.
+  final String? originalDueOn;
   final AlertLifecycle lifecycle;
   final bool overdue;
   final int daysLate;
@@ -283,6 +287,7 @@ AlertItem? _alertItem(Object? raw) {
     title: text(row['title']) ?? '',
     subtitle: filled(row['subtitle']),
     dueOn: filled(row['due_on']),
+    originalDueOn: filled(row['original_due_on']) == filled(row['due_on']) ? null : filled(row['original_due_on']),
     lifecycle: lifecycle,
     overdue: row['overdue'] == true || row['bucket'] == 'OVERDUE',
     daysLate: count(row['days_late']),
