@@ -15,3 +15,4 @@
 .hub-links { margin: var(--space-3, 12px) 0; }
 .hub-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 640px) { .hub-tabs { overflow-x: auto; flex-wrap: nowrap; } }
+.hub-kpi-title { margin: var(--mv-space-16) 0 var(--mv-space-8); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; color: var(--mv-color-text-secondary); }

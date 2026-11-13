@@ -44,7 +44,7 @@ function CatalogueContent({ route }: ScreenProps) {
   const columns: DataTableColumn<Summary>[] = [
     {
       key: 'connector',
-      header: t('hub.cat.col.connector'),
+      header: t('scr2.hub.cat.col.connector'),
       pinned: true,
       render: (row) => (
         <>
@@ -59,14 +59,15 @@ function CatalogueContent({ route }: ScreenProps) {
     { key: 'protocols', header: t('hub.cat.col.protocols'), render: (row) => row.protocols.join(', ') + (row.planned_protocols.length === 0 ? '' : ` (${t('hub.cat.planned')}: ${row.planned_protocols.join(', ')})`) },
     {
       key: 'status',
-      header: t('hub.cat.col.status'),
+      header: t('scr2.hub.cat.col.health'),
       render: (row) => (
         <>
-          <StatusBadge status={row.status} /> <AcceptanceBadge acceptance={row.acceptance} />
+          <StatusBadge status={row.status} />
           {row.alert === null ? null : <div className="hub-muted">{t(`hub.alert.${word(row.alert.code)}`)}</div>}
         </>
       ),
     },
+    { key: 'external', header: t('scr2.hub.cat.col.external'), render: (row) => <AcceptanceBadge acceptance={row.acceptance} /> },
     {
       key: 'age',
       header: t('hub.cat.col.age'),
@@ -110,6 +111,7 @@ function CatalogueContent({ route }: ScreenProps) {
           {refusalText(t, capture.error)}
         </p>
       ) : null}
+      <h2 className="hub-kpi-title">{t('scr2.hub.cat.kpi.title')}</h2>
       <KpiStrip label={t('hub.cat.kpi.label')}>
         <KpiTile
           label={t('hub.cat.kpi.healthy')}
