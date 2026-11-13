@@ -6,6 +6,10 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/glyph_square.dart';
+import '../../../core/widgets/nav_row.dart' show SwitchRow;
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
@@ -89,31 +93,23 @@ class _Filters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(MachvonSpace.space16, MachvonSpace.space8, MachvonSpace.space16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(context.t('mob.conv.inbox.intro'), style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: MachvonSpace.space8),
-          DropdownButtonFormField<ConversationStatus?>(
-            initialValue: status,
-            isExpanded: true,
-            decoration: InputDecoration(labelText: context.t('mob.conv.inbox.filterStatus.label')),
-            items: <DropdownMenuItem<ConversationStatus?>>[
-              DropdownMenuItem<ConversationStatus?>(child: Text(context.t('mob.conv.inbox.filterStatus.all'))),
-              for (final ConversationStatus value in ConversationStatus.values) DropdownMenuItem<ConversationStatus?>(value: value, child: Text(statusLabel(context, value))),
-            ],
-            onChanged: onStatus,
-          ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t('mob.conv.inbox.filterMine.label')),
-            value: mine,
-            onChanged: onMine,
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s4, right: MachvonV2Space.s16),
+          child: Text(context.t('mob.conv.inbox.intro'), style: context.v2text.caption),
+        ),
+        FilterChips<ConversationStatus?>(
+          options: <ChipOption<ConversationStatus?>>[
+            ChipOption<ConversationStatus?>(value: null, label: context.t('mob.conv.inbox.filterStatus.all')),
+            for (final ConversationStatus value in ConversationStatus.values) ChipOption<ConversationStatus?>(value: value, label: statusLabel(context, value)),
+          ],
+          selected: status,
+          onChanged: onStatus,
+        ),
+        SwitchRow(label: context.t('mob.conv.inbox.filterMine.label'), value: mine, onChanged: onMine),
+      ],
     );
   }
 }
@@ -125,17 +121,18 @@ class _List extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
     return ListView(
       children: <Widget>[
         for (final ConversationItem conversation in list.items) _Row(conversation: conversation),
         if (list.more)
           Padding(
-            padding: const EdgeInsets.all(MachvonSpace.space16),
-            child: Text(context.t('mob.conv.inbox.more'), style: Theme.of(context).textTheme.bodySmall),
+            padding: const EdgeInsets.all(MachvonV2Space.s16),
+            child: Text(context.t('mob.conv.inbox.more'), style: text.caption),
           ),
         Padding(
-          padding: const EdgeInsets.all(MachvonSpace.space16),
-          child: Text(context.t('mob.conv.inbox.privacy'), style: Theme.of(context).textTheme.bodySmall),
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Text(context.t('mob.conv.inbox.privacy'), style: text.caption),
         ),
       ],
     );
@@ -149,7 +146,7 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String kind = kindLabel(context, conversation);
     final String status = statusLabel(context, conversation.status);
     final String assignee = conversation.assigneeName ?? context.t('mob.conv.inbox.assignee.none');
@@ -158,16 +155,23 @@ class _Row extends StatelessWidget {
       semanticLabel: context.t('mob.conv.inbox.row.aria', <String, Object>{'name': conversation.contactName, 'kind': kind, 'status': status, 'assignee': assignee}),
       onTap: () => openScreen(context, 'MOB-36', pathSuffix: '/${Uri.encodeComponent(conversation.id)}', stacked: true),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          // Whether the conversation is with someone outside is told first, by the glyph and by the words of the pill beside it.
+          GlyphSquare(icon: conversation.isExternal ? Icons.forum_outlined : Icons.groups_outlined, tone: conversation.isExternal ? GlyphTone.attention : GlyphTone.primary),
+          const SizedBox(width: MachvonV2Space.s12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(conversation.contactName, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-                Wrap(spacing: MachvonSpace.space8, children: <Widget>[StatusPill(label: kind, warn: conversation.isExternal), StatusPill(label: status)]),
-                Text('$assignee${conversation.queueUnitName == null ? '' : ' · ${conversation.queueUnitName}'}', style: theme.textTheme.bodySmall),
-                if (window != null) Text(context.t('mob.conv.inbox.window.until', <String, Object>{'time': formatMoment(window)}), style: theme.textTheme.bodySmall),
-                Text(context.t('mob.conv.inbox.messages.count', <String, Object>{'count': conversation.messageCount}), style: theme.textTheme.bodySmall),
+                Text(conversation.contactName, style: text.bodyStrong),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4),
+                  child: Wrap(spacing: MachvonV2Space.s8, runSpacing: MachvonV2Space.s4, children: <Widget>[StatusPill(label: kind, warn: conversation.isExternal), StatusPill(label: status)]),
+                ),
+                Text('$assignee${conversation.queueUnitName == null ? '' : ' · ${conversation.queueUnitName}'}', style: text.caption),
+                if (window != null) Text(context.t('mob.conv.inbox.window.until', <String, Object>{'time': formatMoment(window)}), style: text.caption),
+                Text(context.t('mob.conv.inbox.messages.count', <String, Object>{'count': conversation.messageCount}), style: text.caption),
               ],
             ),
           ),

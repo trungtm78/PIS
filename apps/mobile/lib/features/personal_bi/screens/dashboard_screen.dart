@@ -7,6 +7,9 @@ import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/section_panel.dart';
 import '../../command_support/command_flow.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
@@ -60,9 +63,9 @@ class _LibraryList extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: <Widget>[
-        Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.pbi.library.intro'), style: Theme.of(context).textTheme.bodyMedium)),
+        Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pbi.library.intro'), style: context.v2text.body)),
         for (final DashboardSummary dashboard in library.items) _LibraryRow(dashboard: dashboard),
-        if (library.more) Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.pbi.library.more'), style: Theme.of(context).textTheme.bodySmall)),
+        if (library.more) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pbi.library.more'), style: context.v2text.caption)),
       ],
     );
   }
@@ -75,7 +78,7 @@ class _LibraryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final String owner = dashboard.mine ? context.t('mob.pbi.library.mine') : context.t('mob.pbi.library.owner', <String, Object>{'name': dashboard.ownerName ?? ''});
     final String version = dashboard.hasVersion ? context.t('mob.pbi.library.version', <String, Object>{'count': dashboard.metricCount}) : context.t('mob.pbi.library.noVersion');
     return TappableRow(
@@ -87,10 +90,10 @@ class _LibraryRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(dashboard.title, style: theme.textTheme.bodyLarge),
-                Text(owner, style: theme.textTheme.bodySmall),
+                Text(dashboard.title, style: text.bodyStrong),
+                Text(owner, style: text.caption),
                 Wrap(
-                  spacing: MachvonSpace.space8,
+                  spacing: MachvonV2Space.s8,
                   children: <Widget>[
                     StatusPill(label: version),
                     if (dashboard.hasVersion) StatusPill(label: dashboard.metricsCertified ? context.t('mob.pbi.library.certified') : context.t('mob.pbi.library.notCertified'), warn: !dashboard.metricsCertified),
@@ -227,10 +230,10 @@ class _DashboardBodyState extends ConsumerState<_DashboardBody> {
     final QueryResult? newer = _newer;
     final bool offline = ref.watch(reachabilityProvider) == Reachability.offline;
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         _Header(definition: definition, snapshot: snapshot, period: _results.values.isEmpty ? null : _results.values.first.asOfPeriod),
-        if (!definition.summary.metricsCertified) Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space4), child: GateNote(text: context.t('mob.pbi.dashboard.notCertified'))),
+        if (!definition.summary.metricsCertified) Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s4), child: GateNote(text: context.t('mob.pbi.dashboard.notCertified'))),
         if (newer != null)
           _NewDataBanner(
             shown: newer.snapshotId,
@@ -241,9 +244,9 @@ class _DashboardBodyState extends ConsumerState<_DashboardBody> {
           ),
         if (_renewFailure != null) OutcomeCard(title: queryProblemText(context, problemOfFailure(_renewFailure!)), code: problemCodeOf(_renewFailure!)),
         if (_renewedTo != null) OutcomeCard(title: context.t('mob.pbi.renew.done', <String, Object>{'snapshot': shortId(_renewedTo!)})),
-        if (version == null) Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.pbi.dashboard.noVersion')))
-        else if (version.widgets.isEmpty) Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.pbi.dashboard.noWidgets')))
-        else if (snapshot == null) Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.pbi.dashboard.noSnapshot')))
+        if (version == null) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pbi.dashboard.noVersion'), style: context.v2text.body))
+        else if (version.widgets.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pbi.dashboard.noWidgets'), style: context.v2text.body))
+        else if (snapshot == null) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pbi.dashboard.noSnapshot'), style: context.v2text.body))
         else
           for (final DashboardWidget tile in version.widgets)
             TileCard(key: ValueKey<String>('${tile.id}|$snapshot'), dashboardId: widget.dashboardId, tile: tile, snapshotId: snapshot, onResult: _onResult, onRenew: _renew),
@@ -297,23 +300,26 @@ class _NewDataBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      color: MachvonColors.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Semantics(
-          liveRegion: true,
-          container: true,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(context.t('mob.pbi.banner.newData.title'), key: const ValueKey<String>('new-data'), style: Theme.of(context).textTheme.titleSmall),
-              Text(context.t('mob.pbi.banner.newData.body', <String, Object>{'shown': shortId(shown), 'newer': newer == null ? '' : shortId(newer!)})),
-              const SizedBox(height: MachvonSpace.space8),
-              if (blockedReason != null) GateNote(text: blockedReason!),
-              FilledButton(onPressed: busy || blockedReason != null ? null : onRenew, child: Text(busy ? context.t('mob.pbi.renew.busy.label') : context.t('mob.pbi.renew.action'))),
-            ],
+    final MachvonV2Text text = context.v2text;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+      child: OutlinedBlock(
+        fill: context.v2.palette.primarySoft,
+        child: Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Semantics(
+            liveRegion: true,
+            container: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(context.t('mob.pbi.banner.newData.title'), key: const ValueKey<String>('new-data'), style: text.label),
+                Text(context.t('mob.pbi.banner.newData.body', <String, Object>{'shown': shortId(shown), 'newer': newer == null ? '' : shortId(newer!)}), style: text.body),
+                const SizedBox(height: MachvonV2Space.s8),
+                if (blockedReason != null) GateNote(text: blockedReason!),
+                FilledButton(onPressed: busy || blockedReason != null ? null : onRenew, child: Text(busy ? context.t('mob.pbi.renew.busy.label') : context.t('mob.pbi.renew.action'))),
+              ],
+            ),
           ),
         ),
       ),

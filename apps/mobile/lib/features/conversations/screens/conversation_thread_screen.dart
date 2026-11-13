@@ -8,6 +8,8 @@ import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
 import '../../read_support/data_view.dart';
@@ -144,7 +146,7 @@ class _ThreadBodyState extends ConsumerState<_ThreadBody> with CommandFlow<_Thre
     final ExternalGate gate = externalGateOf(conversation, enabled: ref.watch(externalReplyEnabledProvider));
     final CommandOutcome? result = outcome;
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         // Every part has a key: a part that appears or goes (the outcome of a command) must not hand its place, and its State, to the next one, or the words being written would be lost with it.
         _KindBanner(key: const ValueKey<String>('kind'), conversation: conversation),
@@ -154,8 +156,8 @@ class _ThreadBodyState extends ConsumerState<_ThreadBody> with CommandFlow<_Thre
           key: const ValueKey<String>('messages'),
           title: context.t('mob.conv.messages.title'),
           children: <Widget>[
-            if (thread.messages.isEmpty) Text(context.t('mob.conv.messages.none')),
-            if (thread.moreMessages) Text(context.t('mob.conv.messages.partial'), style: Theme.of(context).textTheme.bodySmall),
+            if (thread.messages.isEmpty) Text(context.t('mob.conv.messages.none'), style: context.v2text.body),
+            if (thread.moreMessages) Text(context.t('mob.conv.messages.partial'), style: context.v2text.caption),
             for (final ThreadMessage message in thread.messages) MessageTile(key: ValueKey<String>(message.id), message: message),
           ],
         ),
@@ -185,25 +187,27 @@ class _KindBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String kind = kindLabel(context, conversation);
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      color: conversation.isExternal ? null : MachvonColors.primarySoft,
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Semantics(
-          container: true,
+    final MachvonV2Text text = context.v2text;
+    // What the conversation is comes first and is set apart by a fill and a rule, not by a box: a conversation among colleagues is tinted.
+    return Semantics(
+      container: true,
+      child: ColoredBox(
+        color: conversation.isExternal ? context.v2.palette.surface : context.v2.palette.primarySoft,
+        child: Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               StatusPill(label: kind, warn: conversation.isExternal),
-              const SizedBox(height: MachvonSpace.space8),
+              const SizedBox(height: MachvonV2Space.s8),
               Text(
                 conversation.isExternal
                     ? context.t('mob.conv.banner.external', <String, Object>{'channel': channelLabel(context, conversation.channel), 'contact': conversation.contactName})
                     : context.t('mob.conv.banner.internal'),
+                style: text.body,
               ),
-              const SizedBox(height: MachvonSpace.space8),
-              Text(context.t('mob.conv.banner.petition'), style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: MachvonV2Space.s8),
+              Text(context.t('mob.conv.banner.petition'), style: text.caption),
             ],
           ),
         ),
@@ -228,7 +232,7 @@ class _Header extends StatelessWidget {
         FactLine(label: context.t('mob.conv.header.assignee.label'), value: '${conversation.assigneeName ?? context.t('mob.conv.inbox.assignee.none')}${conversation.queueUnitName == null ? '' : ' · ${conversation.queueUnitName}'}'),
         if (conversation.lastInboundAt != null) FactLine(label: context.t('mob.conv.header.last.label'), value: formatMoment(conversation.lastInboundAt!)),
         if (conversation.firstResponseDueAt != null) FactLine(label: context.t('mob.conv.header.sla.label'), value: formatMoment(conversation.firstResponseDueAt!)),
-        if (conversation.isExternal) Text(window == null ? context.t('mob.conv.header.window.none') : context.t('mob.conv.header.window.until', <String, Object>{'time': formatMoment(window)}), style: Theme.of(context).textTheme.bodySmall),
+        if (conversation.isExternal) Text(window == null ? context.t('mob.conv.header.window.none') : context.t('mob.conv.header.window.until', <String, Object>{'time': formatMoment(window)}), style: context.v2text.caption),
       ],
     );
   }
@@ -261,12 +265,12 @@ class _LinkRow extends StatelessWidget {
     final String detail = link.converted ? context.t('mob.conv.links.converted', <String, Object>{'kind': kind}) : kind;
     // Only a project has a screen on the phone; the screen it opens asks the server again whether the person may see it.
     if (link.kind != LinkedKind.project) {
-      return Padding(padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4), child: Text(context.t('mob.conv.links.noScreen', <String, Object>{'kind': detail})));
+      return Padding(padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4), child: Text(context.t('mob.conv.links.noScreen', <String, Object>{'kind': detail}), style: context.v2text.body));
     }
     return TappableRow(
       semanticLabel: context.t('mob.conv.links.open.aria', <String, Object>{'kind': detail}),
       onTap: () => openScreen(context, 'MOB-10', pathSuffix: '/${Uri.encodeComponent(link.id)}', stacked: true),
-      child: Row(children: <Widget>[Expanded(child: Text(detail)), const ExcludeSemantics(child: Icon(Icons.chevron_right))]),
+      child: Row(children: <Widget>[Expanded(child: Text(detail, style: context.v2text.body)), const ExcludeSemantics(child: Icon(Icons.chevron_right))]),
     );
   }
 }

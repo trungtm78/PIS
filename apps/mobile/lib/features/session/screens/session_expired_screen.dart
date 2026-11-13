@@ -11,6 +11,7 @@ import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
 import '../../../core/state/state_card.dart';
 import '../../../core/sync/sync_status.dart';
+import '../../../core/theme/typography.dart';
 import '../auth/auth_service.dart';
 import '../auth/oidc_client.dart';
 import '../flow.dart';
@@ -67,8 +68,8 @@ class SessionExpiredScreen extends ConsumerWidget {
           body: context.t('mob.expired.body.text'),
           announcement: '${context.t('mob.expired.title.text')}. ${context.t('mob.expired.body.text')} $code. $drafts',
           details: <Widget>[
-            Text(code, textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelLarge),
-            Text(drafts, textAlign: TextAlign.center),
+            Text(code, textAlign: TextAlign.center, style: context.v2text.label),
+            Text(drafts, textAlign: TextAlign.center, style: context.v2text.body),
           ],
           actions: <Widget>[
             FilledButton(onPressed: () => _signIn(context, ref), child: Text(context.t('mob.expired.submit.action'))),

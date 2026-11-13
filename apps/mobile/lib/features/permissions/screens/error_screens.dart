@@ -9,6 +9,8 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/router.dart' show homeLocation;
 import '../../../core/state/state_card.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../problem_routing.dart';
 
 const String _tenantMismatch = 'TENANT_MISMATCH';
@@ -62,33 +64,32 @@ class AccessDeniedScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final String reason = _reason(context);
     final String? refused = _action(context);
-    return Scaffold(
-      body: SafeArea(
-        child: StateCard(
-          icon: Icons.gpp_bad_outlined,
-          title: context.t('mob.access.title.text'),
-          body: reason,
-          announcement: <String>[
-            context.t('mob.access.title.text'),
-            reason,
-            if (refused != null) '${context.t('mob.access.action.label')}: $refused',
-            '${context.t('mob.problem.code.label')}: $code',
-            if (reference != null) '${context.t('mob.problem.reference.label')}: $reference',
-          ].join('. '),
-          details: <Widget>[
-            if (refused != null) _Fact(label: context.t('mob.access.action.label'), value: refused),
-            _Fact(label: context.t('mob.problem.code.label'), value: code),
-            if (reference != null) _Fact(label: context.t('mob.problem.reference.label'), value: reference!, copyable: true),
-            Text(context.t('mob.access.contact.hint'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
-          ],
-          actions: <Widget>[
-            FilledButton(
-              onPressed: () => context.push(Uri(path: ref.read(routeTableProvider).locationOf('MOB-50'), queryParameters: const <String, String>{'category': 'ACCESS'}).toString()),
-              child: Text(context.t('mob.access.contact.action')),
-            ),
-            OutlinedButton(onPressed: () => _back(context), child: Text(context.t('mob.access.back.action'))),
-          ],
-        ),
+    return AppScaffold(
+      showTopBar: false,
+      body: StateCard(
+        icon: Icons.gpp_bad_outlined,
+        title: context.t('mob.access.title.text'),
+        body: reason,
+        announcement: <String>[
+          context.t('mob.access.title.text'),
+          reason,
+          if (refused != null) '${context.t('mob.access.action.label')}: $refused',
+          '${context.t('mob.problem.code.label')}: $code',
+          if (reference != null) '${context.t('mob.problem.reference.label')}: $reference',
+        ].join('. '),
+        details: <Widget>[
+          if (refused != null) _Fact(label: context.t('mob.access.action.label'), value: refused),
+          _Fact(label: context.t('mob.problem.code.label'), value: code),
+          if (reference != null) _Fact(label: context.t('mob.problem.reference.label'), value: reference!, copyable: true),
+          Text(context.t('mob.access.contact.hint'), textAlign: TextAlign.center, style: context.v2text.caption),
+        ],
+        actions: <Widget>[
+          FilledButton(
+            onPressed: () => context.push(Uri(path: ref.read(routeTableProvider).locationOf('MOB-50'), queryParameters: const <String, String>{'category': 'ACCESS'}).toString()),
+            child: Text(context.t('mob.access.contact.action')),
+          ),
+          OutlinedButton(onPressed: () => _back(context), child: Text(context.t('mob.access.back.action'))),
+        ],
       ),
     );
   }
@@ -105,35 +106,34 @@ class LicenceExpiredScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final String status = context.t('mob.licence.status.value');
-    return Scaffold(
-      body: SafeArea(
-        child: StateCard(
-          icon: Icons.event_busy_outlined,
-          title: context.t('mob.licence.title.text'),
-          body: context.t('mob.licence.readOnly.body'),
-          announcement: <String>[
-            context.t('mob.licence.title.text'),
-            '${context.t('mob.licence.status.label')}: $status',
-            context.t('mob.licence.readOnly.title'),
-            context.t('mob.licence.readOnly.body'),
-            '${context.t('mob.problem.code.label')}: $code',
-            if (reference != null) '${context.t('mob.problem.reference.label')}: $reference',
-          ].join('. '),
-          details: <Widget>[
-            _Fact(label: context.t('mob.licence.status.label'), value: status),
-            Text(context.t('mob.licence.readOnly.title'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleSmall),
-            _Fact(label: context.t('mob.problem.code.label'), value: code),
-            if (reference != null) _Fact(label: context.t('mob.problem.reference.label'), value: reference!, copyable: true),
-            Text(context.t('mob.licence.contact.hint'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
-          ],
-          actions: <Widget>[
-            FilledButton(onPressed: () => context.go(homeLocation), child: Text(context.t('mob.licence.read.action'))),
-            OutlinedButton(
-              onPressed: () => context.push(Uri(path: ref.read(routeTableProvider).locationOf('MOB-50'), queryParameters: const <String, String>{'category': 'BILLING'}).toString()),
-              child: Text(context.t('mob.licence.contact.action')),
-            ),
-          ],
-        ),
+    return AppScaffold(
+      showTopBar: false,
+      body: StateCard(
+        icon: Icons.event_busy_outlined,
+        title: context.t('mob.licence.title.text'),
+        body: context.t('mob.licence.readOnly.body'),
+        announcement: <String>[
+          context.t('mob.licence.title.text'),
+          '${context.t('mob.licence.status.label')}: $status',
+          context.t('mob.licence.readOnly.title'),
+          context.t('mob.licence.readOnly.body'),
+          '${context.t('mob.problem.code.label')}: $code',
+          if (reference != null) '${context.t('mob.problem.reference.label')}: $reference',
+        ].join('. '),
+        details: <Widget>[
+          _Fact(label: context.t('mob.licence.status.label'), value: status),
+          Text(context.t('mob.licence.readOnly.title'), textAlign: TextAlign.center, style: context.v2text.label),
+          _Fact(label: context.t('mob.problem.code.label'), value: code),
+          if (reference != null) _Fact(label: context.t('mob.problem.reference.label'), value: reference!, copyable: true),
+          Text(context.t('mob.licence.contact.hint'), textAlign: TextAlign.center, style: context.v2text.caption),
+        ],
+        actions: <Widget>[
+          FilledButton(onPressed: () => context.go(homeLocation), child: Text(context.t('mob.licence.read.action'))),
+          OutlinedButton(
+            onPressed: () => context.push(Uri(path: ref.read(routeTableProvider).locationOf('MOB-50'), queryParameters: const <String, String>{'category': 'BILLING'}).toString()),
+            child: Text(context.t('mob.licence.contact.action')),
+          ),
+        ],
       ),
     );
   }
@@ -148,16 +148,16 @@ class _Fact extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
+      padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4),
       child: Wrap(
         alignment: WrapAlignment.center,
         crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: MachvonSpace.space8,
+        spacing: MachvonV2Space.s8,
         children: <Widget>[
-          Text('$label:', style: theme.textTheme.labelMedium),
-          SelectableText(value, style: theme.textTheme.bodyMedium?.copyWith(fontFamily: 'monospace')),
+          Text('$label:', style: text.label),
+          SelectableText(value, style: text.body.copyWith(fontFamily: 'monospace')),
           if (copyable)
             IconButton(
               tooltip: context.t('mob.problem.copy.action'),

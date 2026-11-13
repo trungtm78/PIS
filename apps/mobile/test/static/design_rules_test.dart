@@ -5,16 +5,16 @@ import 'design_rules_scan.dart';
 /// The ceiling of the allow-list, per rule, as it was when the rules began (MUX-1). Lower a number when the list gets shorter; never raise
 /// one: a screen that needs what a rule forbids gets a shared widget, not an entry in the list. Wave D of MUX-3 ends at zero everywhere.
 const Map<String, int> kBaselineCeiling = <String, int>{
-  'AppBar(': 17,
-  'BoxDecoration(': 14,
-  'Card(': 23,
-  'Colors.': 3,
-  'MachvonColors.': 85,
-  'EdgeInsets-number': 29,
-  'Scaffold(': 26,
-  'TextStyle(': 15,
-  'fontSize:': 1,
-  'toStringAsFixed(': 9,
+  'AppBar(': 11,
+  'BoxDecoration(': 5,
+  'Card(': 6,
+  'Colors.': 1,
+  'MachvonColors.': 28,
+  'EdgeInsets-number': 17,
+  'Scaffold(': 11,
+  'TextStyle(': 8,
+  'fontSize:': 0,
+  'toStringAsFixed(': 7,
 };
 
 String _howToFix(String rule) {

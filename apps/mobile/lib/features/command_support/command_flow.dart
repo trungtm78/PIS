@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../core/connectivity/reachability.dart';
+import '../../core/theme/typography.dart';
+import '../../core/widgets/section_panel.dart';
 import 'command_outcome.dart';
 
 /// Whether the device can reach the server now; asked before every send.
@@ -46,25 +48,27 @@ class OutcomeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Semantics(
-          liveRegion: true,
-          container: true,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(title, style: theme.textTheme.titleMedium),
-              for (final String line in lines) Text(line),
-              if (code != null) Text(code!, style: theme.textTheme.bodySmall),
-              if (actionLabel != null && onAction != null) ...<Widget>[
-                const SizedBox(height: MachvonSpace.space12),
-                OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
+    final MachvonV2Text text = context.v2text;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+      child: OutlinedBlock(
+        child: Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Semantics(
+            liveRegion: true,
+            container: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(title, style: text.heading),
+                for (final String line in lines) Text(line, style: text.body),
+                if (code != null) Text(code!, style: text.caption),
+                if (actionLabel != null && onAction != null) ...<Widget>[
+                  const SizedBox(height: MachvonV2Space.s12),
+                  OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -82,7 +86,7 @@ class GateNote extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       liveRegion: true,
-      child: Padding(padding: const EdgeInsets.only(bottom: MachvonSpace.space8), child: Text(text)),
+      child: Padding(padding: const EdgeInsets.only(bottom: MachvonV2Space.s8), child: Text(text, style: context.v2text.body)),
     );
   }
 }

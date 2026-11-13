@@ -1,44 +1,16 @@
 {
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
-    "AppBar(": 10,
-    "BoxDecoration(": 2,
-    "Card(": 13,
-    "EdgeInsets-number": 23,
-    "MachvonColors.": 13,
-    "Scaffold(": 19,
-    "TextStyle(": 11,
+    "AppBar(": 8,
+    "BoxDecoration(": 1,
+    "Card(": 5,
+    "EdgeInsets-number": 17,
+    "MachvonColors.": 2,
+    "Scaffold(": 8,
+    "TextStyle(": 7,
     "toStringAsFixed(": 5
   },
   "files": {
-    "lib/editions/enterprise/enterprise_home.dart": {
-      "EdgeInsets-number": 1
-    },
-    "lib/features/attachments/screens/attachments_screen.dart": {
-      "AppBar(": 1,
-      "Card(": 1,
-      "EdgeInsets-number": 4,
-      "Scaffold(": 1,
-      "TextStyle(": 2
-    },
-    "lib/features/command_support/command_flow.dart": {
-      "Card(": 1
-    },
-    "lib/features/conversations/screens/conversation_inbox_screen.dart": {
-      "EdgeInsets-number": 1
-    },
-    "lib/features/conversations/screens/conversation_thread_screen.dart": {
-      "Card(": 1,
-      "MachvonColors.": 1
-    },
-    "lib/features/conversations/screens/message_tile.dart": {
-      "BoxDecoration(": 1,
-      "MachvonColors.": 2
-    },
-    "lib/features/conversations/screens/thread_composer.dart": {
-      "Card(": 1,
-      "MachvonColors.": 1
-    },
     "lib/features/diary_hub/screens/hub_screen.dart": {
       "AppBar(": 1,
       "Card(": 1,
@@ -52,12 +24,6 @@
     },
     "lib/features/field_quantities/screens/inspection_screen.dart": {
       "TextStyle(": 3
-    },
-    "lib/features/foundation/screens/empty_state_screen.dart": {
-      "Scaffold(": 1
-    },
-    "lib/features/foundation/screens/error_state_screen.dart": {
-      "Scaffold(": 1
     },
     "lib/features/offline/screens/conflict_screen.dart": {
       "AppBar(": 1,
@@ -79,35 +45,8 @@
       "Scaffold(": 1,
       "TextStyle(": 2
     },
-    "lib/features/permissions/screens/error_screens.dart": {
-      "Scaffold(": 2
-    },
-    "lib/features/permissions/screens/permission_screen.dart": {
-      "Card(": 1,
-      "Scaffold(": 1
-    },
-    "lib/features/personal_bi/charts.dart": {
-      "MachvonColors.": 5
-    },
-    "lib/features/personal_bi/screens/dashboard_screen.dart": {
-      "Card(": 1,
-      "MachvonColors.": 1
-    },
-    "lib/features/personal_bi/tile_card.dart": {
-      "Card(": 1,
-      "MachvonColors.": 1,
-      "TextStyle(": 1
-    },
     "lib/features/procurement_workflow/screens/process_tree_screen.dart": {
       "EdgeInsets-number": 1
-    },
-    "lib/features/release/screens/help_screen.dart": {
-      "AppBar(": 1,
-      "Scaffold(": 1,
-      "TextStyle(": 1
-    },
-    "lib/features/release/screens/release_notice_screen.dart": {
-      "Scaffold(": 3
     },
     "lib/features/reporting/screens/drafts_screen.dart": {
       "AppBar(": 1,
@@ -143,12 +82,6 @@
     "lib/features/reporting/widgets/notices.dart": {
       "BoxDecoration(": 1,
       "MachvonColors.": 2
-    },
-    "lib/features/session/flow.dart": {
-      "Scaffold(": 1
-    },
-    "lib/features/session/screens/context_screen.dart": {
-      "Card(": 1
     }
   }
 }

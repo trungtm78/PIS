@@ -8,6 +8,9 @@ import '../../../core/connectivity/reachability.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/section_panel.dart';
 import '../../read_support/widgets.dart';
 import '../conversation_labels.dart';
 import '../conversation_models.dart';
@@ -58,7 +61,8 @@ class _MessageTileState extends ConsumerState<MessageTile> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2Palette p = context.v2.palette;
     final ThreadMessage message = widget.message;
     final String direction = directionLabel(context, message.direction);
     final String when = formatMoment(message.createdAt);
@@ -66,29 +70,29 @@ class _MessageTileState extends ConsumerState<MessageTile> {
     return Semantics(
       container: true,
       label: context.t('mob.conv.messages.item.aria', <String, Object>{'direction': direction, 'time': when, 'delivery': delivery ?? ''}),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: MachvonSpace.space8),
-        padding: const EdgeInsets.all(MachvonSpace.space12),
-        decoration: BoxDecoration(
-          color: message.isNote ? MachvonColors.primarySoft : null,
-          border: Border.all(color: MachvonColors.border),
-          borderRadius: const BorderRadius.all(Radius.circular(MachvonRadius.control)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Wrap(
-              spacing: MachvonSpace.space8,
-              runSpacing: MachvonSpace.space4,
-              crossAxisAlignment: WrapCrossAlignment.center,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: MachvonV2Space.s8),
+        child: OutlinedBlock(
+          fill: message.isNote ? p.primarySoft : null,
+          child: Padding(
+            padding: const EdgeInsets.all(MachvonV2Space.s12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Text(direction, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
-                Text(when, style: theme.textTheme.bodySmall),
-                if (delivery != null) StatusPill(label: delivery, warn: message.delivery == Delivery.failed),
+                Wrap(
+                  spacing: MachvonV2Space.s8,
+                  runSpacing: MachvonV2Space.s4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: <Widget>[
+                    Text(direction, style: text.bodyStrong),
+                    Text(when, style: text.caption),
+                    if (delivery != null) StatusPill(label: delivery, warn: message.delivery == Delivery.failed),
+                  ],
+                ),
+                _body(context),
               ],
             ),
-            _body(context),
-          ],
+          ),
         ),
       ),
     );
@@ -99,7 +103,7 @@ class _MessageTileState extends ConsumerState<MessageTile> {
       case _TextState.hidden:
         return Align(alignment: AlignmentDirectional.centerStart, child: TextButton(onPressed: _show, child: Text(context.t('mob.conv.text.show.action'))));
       case _TextState.loading:
-        return Semantics(liveRegion: true, child: Text(context.t('mob.conv.text.loading.label')));
+        return Semantics(liveRegion: true, child: Text(context.t('mob.conv.text.loading.label'), style: context.v2text.body));
       case _TextState.shown:
         return _TextBlock(text: _text ?? '', onHide: _hide);
       case _TextState.masked:
@@ -111,8 +115,8 @@ class _MessageTileState extends ConsumerState<MessageTile> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(context.t('mob.conv.text.failed.label')),
-              Text(_failure ?? '', style: Theme.of(context).textTheme.bodySmall),
+              Text(context.t('mob.conv.text.failed.label'), style: context.v2text.body),
+              Text(_failure ?? '', style: context.v2text.caption),
               TextButton(onPressed: _show, child: Text(context.t('mob.conv.text.retry.action'))),
             ],
           ),
@@ -132,7 +136,7 @@ class _TextBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Padding(padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4), child: Text(text)),
+        Padding(padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s4), child: Text(text, style: context.v2text.body)),
         TextButton(onPressed: onHide, child: Text(context.t('mob.conv.text.hide.action'))),
       ],
     );

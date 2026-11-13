@@ -12,7 +12,12 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/router.dart' show homeLocation;
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/section_panel.dart';
+import '../../../core/widgets/sheets.dart';
 import '../../notification_inbox/push_registration.dart' show pushRegistrationProvider;
+import '../../session/flow.dart' show AuthHeading;
 import '../permission_providers.dart';
 import '../permission_service.dart';
 
@@ -96,7 +101,7 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
   }
 
   Future<void> _manual() async {
-    final ManualLocation? entered = await showDialog<ManualLocation>(context: context, builder: (BuildContext context) => const _ManualLocationDialog());
+    final ManualLocation? entered = await showActionSheet<ManualLocation>(context, title: context.t('mob.permission.manual.title'), builder: (BuildContext context) => const _ManualLocationForm());
     if (entered == null || !mounted) return;
     setState(() {
       _manualLocation = entered;
@@ -130,44 +135,38 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
     final Map<AppPermission, PermissionState>? states = _states;
     final ScreenState state = _problem != null ? ScreenState.error : (states == null ? ScreenState.loading : ScreenState.defaultState);
     final bool allGranted = states != null && states.values.every((PermissionState s) => s == PermissionState.granted);
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: StateBoundary(
-              state: state,
-              problem: _problem,
-              onRetry: _read,
-              child: ListView(
-                padding: const EdgeInsets.all(MachvonSpace.space16),
-                children: <Widget>[
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      notifications ? context.t('mob.permission.notifications.title') : context.t('mob.permission.screen.title'),
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
+    return AppScaffold(
+      showTopBar: false,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: StateBoundary(
+            state: state,
+            problem: _problem,
+            onRetry: _read,
+            child: ListView(
+              padding: const EdgeInsets.all(MachvonV2Space.s16),
+              children: <Widget>[
+                AuthHeading(
+                  title: notifications ? context.t('mob.permission.notifications.title') : context.t('mob.permission.screen.title'),
+                  body: notifications ? context.t('mob.permission.notifications.body') : context.t('mob.permission.screen.body'),
+                ),
+                const SizedBox(height: MachvonV2Space.s16),
+                for (final AppPermission permission in widget.permissions)
+                  _PermissionCard(
+                    permission: permission,
+                    state: states?[permission] ?? PermissionState.notAsked,
+                    onAllow: () => _allow(permission),
+                    onSettings: () => ref.read(permissionServiceProvider).openSettings(),
+                    onAttach: _attach,
+                    onManual: _manual,
                   ),
-                  const SizedBox(height: MachvonSpace.space12),
-                  Text(notifications ? context.t('mob.permission.notifications.body') : context.t('mob.permission.screen.body')),
-                  const SizedBox(height: MachvonSpace.space16),
-                  for (final AppPermission permission in widget.permissions)
-                    _PermissionCard(
-                      permission: permission,
-                      state: states?[permission] ?? PermissionState.notAsked,
-                      onAllow: () => _allow(permission),
-                      onSettings: () => ref.read(permissionServiceProvider).openSettings(),
-                      onAttach: _attach,
-                      onManual: _manual,
-                    ),
-                  const SizedBox(height: MachvonSpace.space8),
-                  if (allGranted)
-                    FilledButton(onPressed: _finish, child: Text(context.t('mob.permission.done.action')))
-                  else
-                    OutlinedButton(onPressed: () => _finish(deferred: true), child: Text(context.t('mob.permission.later.action'))),
-                ],
-              ),
+                const SizedBox(height: MachvonV2Space.s8),
+                if (allGranted)
+                  FilledButton(onPressed: _finish, child: Text(context.t('mob.permission.done.action')))
+                else
+                  OutlinedButton(onPressed: () => _finish(deferred: true), child: Text(context.t('mob.permission.later.action'))),
+              ],
             ),
           ),
         ),
@@ -195,47 +194,49 @@ class _PermissionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final bool granted = state == PermissionState.granted;
     final bool blocked = state == PermissionState.blocked;
     final String status = _statusText(context);
-    return Card(
-      margin: const EdgeInsets.only(bottom: MachvonSpace.space12),
-      child: Padding(
-        padding: const EdgeInsets.all(MachvonSpace.space16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Semantics(header: true, child: Text(_title(context), style: theme.textTheme.titleMedium)),
-            const SizedBox(height: MachvonSpace.space8),
-            Text(_why(context)),
-            const SizedBox(height: MachvonSpace.space8),
-            Semantics(liveRegion: true, child: Text(status, style: theme.textTheme.labelLarge)),
-            if (blocked) ...<Widget>[
-              const SizedBox(height: MachvonSpace.space8),
-              Text(context.t('mob.permission.settings.hint'), style: theme.textTheme.bodySmall),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s12),
+      child: OutlinedBlock(
+        child: Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Semantics(header: true, child: Text(_title(context), style: text.heading)),
+              const SizedBox(height: MachvonV2Space.s8),
+              Text(_why(context), style: text.body),
+              const SizedBox(height: MachvonV2Space.s8),
+              Semantics(liveRegion: true, child: Text(status, style: text.label)),
+              if (blocked) ...<Widget>[
+                const SizedBox(height: MachvonV2Space.s8),
+                Text(context.t('mob.permission.settings.hint'), style: text.caption),
+              ],
+              if (permission == AppPermission.notifications && !granted) ...<Widget>[
+                const SizedBox(height: MachvonV2Space.s8),
+                Text(context.t('mob.permission.notifications.inApp'), style: text.caption),
+              ],
+              const SizedBox(height: MachvonV2Space.s12),
+              if (blocked)
+                FilledButton(onPressed: onSettings, child: Text(context.t('mob.permission.settings.action')))
+              else if (!granted)
+                FilledButton(
+                  onPressed: onAllow,
+                  child: Text(state == PermissionState.denied ? context.t('mob.permission.again.action') : context.t('mob.permission.allow.action')),
+                ),
+              if (!granted && permission == AppPermission.camera) ...<Widget>[
+                const SizedBox(height: MachvonV2Space.s8),
+                OutlinedButton(onPressed: onAttach, child: Text(context.t('mob.permission.camera.alternative'))),
+              ],
+              if (!granted && permission == AppPermission.location) ...<Widget>[
+                const SizedBox(height: MachvonV2Space.s8),
+                OutlinedButton(onPressed: onManual, child: Text(context.t('mob.permission.location.alternative'))),
+              ],
             ],
-            if (permission == AppPermission.notifications && !granted) ...<Widget>[
-              const SizedBox(height: MachvonSpace.space8),
-              Text(context.t('mob.permission.notifications.inApp'), style: theme.textTheme.bodySmall),
-            ],
-            const SizedBox(height: MachvonSpace.space12),
-            if (blocked)
-              FilledButton(onPressed: onSettings, child: Text(context.t('mob.permission.settings.action')))
-            else if (!granted)
-              FilledButton(
-                onPressed: onAllow,
-                child: Text(state == PermissionState.denied ? context.t('mob.permission.again.action') : context.t('mob.permission.allow.action')),
-              ),
-            if (!granted && permission == AppPermission.camera) ...<Widget>[
-              const SizedBox(height: MachvonSpace.space8),
-              OutlinedButton(onPressed: onAttach, child: Text(context.t('mob.permission.camera.alternative'))),
-            ],
-            if (!granted && permission == AppPermission.location) ...<Widget>[
-              const SizedBox(height: MachvonSpace.space8),
-              OutlinedButton(onPressed: onManual, child: Text(context.t('mob.permission.location.alternative'))),
-            ],
-          ],
+          ),
         ),
       ),
     );
@@ -278,14 +279,15 @@ class _PermissionCard extends StatelessWidget {
   }
 }
 
-class _ManualLocationDialog extends StatefulWidget {
-  const _ManualLocationDialog();
+/// The form of the place typed by hand, in a bottom sheet: the source of the text, the field, and the two buttons.
+class _ManualLocationForm extends StatefulWidget {
+  const _ManualLocationForm();
 
   @override
-  State<_ManualLocationDialog> createState() => _ManualLocationDialogState();
+  State<_ManualLocationForm> createState() => _ManualLocationFormState();
 }
 
-class _ManualLocationDialogState extends State<_ManualLocationDialog> {
+class _ManualLocationFormState extends State<_ManualLocationForm> {
   final TextEditingController _controller = TextEditingController();
   bool _invalid = false;
 
@@ -306,34 +308,29 @@ class _ManualLocationDialogState extends State<_ManualLocationDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(context.t('mob.permission.manual.title')),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(context.t('mob.permission.manual.source')),
-            const SizedBox(height: MachvonSpace.space12),
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              maxLength: ManualLocation.maxLength,
-              decoration: InputDecoration(
-                labelText: context.t('mob.permission.manual.label'),
-                hintText: context.t('mob.permission.manual.hint'),
-                errorText: _invalid ? context.t('mob.permission.manual.invalid') : null,
-              ),
-              onChanged: (String _) {
-                if (_invalid) setState(() => _invalid = false);
-              },
-            ),
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Text(context.t('mob.permission.manual.source'), style: context.v2text.body),
+        const SizedBox(height: MachvonV2Space.s12),
+        TextField(
+          controller: _controller,
+          autofocus: true,
+          maxLength: ManualLocation.maxLength,
+          decoration: InputDecoration(
+            labelText: context.t('mob.permission.manual.label'),
+            hintText: context.t('mob.permission.manual.hint'),
+            errorText: _invalid ? context.t('mob.permission.manual.invalid') : null,
+          ),
+          onChanged: (String _) {
+            if (_invalid) setState(() => _invalid = false);
+          },
         ),
-      ),
-      actions: <Widget>[
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.t('mob.permission.manual.cancel.action'))),
+        const SizedBox(height: MachvonV2Space.s12),
         FilledButton(onPressed: _save, child: Text(context.t('mob.permission.manual.save.action'))),
+        const SizedBox(height: MachvonV2Space.s8),
+        OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.t('mob.permission.manual.cancel.action'))),
       ],
     );
   }

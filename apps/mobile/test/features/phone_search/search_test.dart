@@ -9,8 +9,10 @@ import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/store/local_store.dart';
 import 'package:machvon_mobile/core/session/session.dart';
+import 'package:machvon_mobile/core/widgets/filter_chips.dart';
 import 'package:machvon_mobile/features/phone_search/phone_search_feature.dart' as phone_search;
 import 'package:machvon_mobile/features/phone_search/recent_searches.dart';
+import 'package:machvon_mobile/features/phone_search/screens/search_screen.dart' show searchTypingPause;
 import 'package:machvon_mobile/features/phone_search/search_models.dart';
 import 'package:machvon_mobile/features/project_views/project_views_feature.dart' as project_views;
 import 'package:machvon_mobile/features/read_support/read_cache.dart';
@@ -55,6 +57,13 @@ Future<void> _search(WidgetTester tester, String keyword) async {
   await tester.enterText(_field, keyword);
   await tester.tap(find.widgetWithText(FilledButton, 'Tìm kiếm'));
   await tester.pumpAndSettle();
+}
+
+/// The chips of the kinds scroll sideways when they do not fit: bring one into view, then tap it.
+Future<void> _chip(WidgetTester tester, String label) async {
+  final Finder chip = find.descendant(of: find.byType(FilterChips<String?>), matching: find.text(label));
+  await tester.ensureVisible(chip);
+  await tester.tap(chip);
 }
 
 void main() {
@@ -200,16 +209,16 @@ void main() {
       await _open(tester, server, '/account/mob-51');
       await _search(tester, 'dự');
 
-      expect(find.byType(ChoiceChip), findsNWidgets(3));
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Vướng mắc'));
+      expect(find.byType(FilterChips<String?>), findsOneWidget);
+      await _chip(tester, 'Vướng mắc');
       await tester.pumpAndSettle();
       expect(find.text('Vướng mắc B'), findsOneWidget);
       expect(find.text('Dự án A'), findsNothing);
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Tất cả loại hồ sơ'));
+      await _chip(tester, 'Tất cả loại hồ sơ');
       await tester.pumpAndSettle();
       expect(find.text('Dự án A'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Dự án'));
+      await _chip(tester, 'Dự án');
       await tester.pumpAndSettle();
       expect(find.text('Vướng mắc B'), findsNothing);
       await _search(tester, 'vướng');
@@ -233,6 +242,48 @@ void main() {
       expect(parseSearchResults(<String, Object?>{'next_cursor': null}), isNull);
       expect(openTargetOf(results.hits.single)!.screenId, 'MOB-10');
       expect(openTargetOf(const SearchHit(entityType: 'issue', entityId: 'x', classification: Classification.internal)), isNull);
+    });
+  });
+
+  group('AC-ST-MOB-027-2 the search follows the typing', () {
+    testWidgets('an acceptable keyword is searched after a pause without a press of the button, and is not remembered until a hit is opened', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final TestStorage storage = TestStorage.create();
+      final ScriptedServer server = ScriptedServer()..on('GET', '/search', (_) => hits(<Map<String, Object?>>[hit('conversation', idConversation, title: 'Hội thoại với hộ dân')]));
+      final ProviderContainer container = await _open(tester, server, '/account/mob-51', storage: storage);
+
+      await tester.enterText(_field, 'dân');
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(server.callsTo('GET', '/search'), isEmpty, reason: 'the field is still resting');
+      await tester.pumpAndSettle(searchTypingPause);
+      expect(server.callsTo('GET', '/search'), hasLength(1));
+      expect(find.text('Hội thoại với hộ dân'), findsOneWidget);
+      final LocalStore store = await storage.open();
+      expect(RecentSearches(store).read(), isEmpty, reason: 'a half-typed word is not a search the person made');
+
+      await tester.tap(find.text('Hội thoại với hộ dân'));
+      await tester.pumpAndSettle();
+      expect(currentLocation(container), '/inbox/mob-36/$idConversation');
+      expect(RecentSearches(store).read(), <String>['dân']);
+    });
+
+    testWidgets('a press of the button right after typing searches once: the pause does not search the same keyword again', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer()..on('GET', '/search', (_) => hits(<Map<String, Object?>>[hit('project', r1, title: 'Cầu Bình An')]));
+      await _open(tester, server, '/account/mob-51');
+      await _search(tester, 'cầu');
+      await tester.pump(searchTypingPause * 2);
+      expect(server.callsTo('GET', '/search'), hasLength(1));
+    });
+
+    testWidgets('a keyword that is too short waits: nothing is sent and no error is shown before the person presses search', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer()..on('GET', '/search', (_) => hits(<Map<String, Object?>>[]));
+      await _open(tester, server, '/account/mob-51');
+      await tester.enterText(_field, 'c');
+      await tester.pumpAndSettle(searchTypingPause);
+      expect(server.callsTo('GET', '/search'), isEmpty);
+      expect(find.text('Nhập ít nhất 2 ký tự.'), findsNothing);
     });
   });
 

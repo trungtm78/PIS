@@ -416,6 +416,7 @@ void main() {
       expect(find.text('Đính kèm tự động: app 1.4.0+27, android 14'), findsOneWidget);
       await tester.enterText(find.widgetWithText(TextField, 'Tiêu đề'), 'Không mở được màn hình');
       await tester.enterText(find.widgetWithText(TextField, 'Mô tả'), 'Màn hình trắng sau khi đăng nhập.');
+      await tester.ensureVisible(find.text('Sự cố'));
       await tester.tap(find.text('Sự cố'));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('Gửi yêu cầu'));
