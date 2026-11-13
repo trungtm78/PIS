@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import type { Browser, Locator, Page } from '@playwright/test';
-import vi from '../src/i18n/vi.json' with { type: 'json' };
+// The words of the edition under test: the enterprise overlay replaces some of the words these flows read (the national project code).
+import { terms as vi } from './support/edition-terms.ts';
 import { membershipOf, sql, stackInfo } from './support/stack.ts';
 
 /**
