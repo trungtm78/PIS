@@ -11,6 +11,7 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/info_row.dart';
 import '../../../core/widgets/notice_panel.dart';
@@ -18,6 +19,7 @@ import '../../../core/widgets/state_view.dart';
 import '../../../core/widgets/status_pill.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../command_support/field_contract.dart';
+import '../../diary_hub/field_report_sheet.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
@@ -67,6 +69,7 @@ class _ContractsScreenState extends ConsumerState<ContractsScreen> {
         AppBarAction(icon: Icons.edit_note_outlined, label: context.t('mob.dry.contracts.hub.action'), onPressed: () => openScreen(context, 'QMS-09', stacked: true)),
         AppBarAction(icon: Icons.photo_camera_outlined, label: context.t('mob.dry.contracts.photo.action'), onPressed: () => openScreen(context, 'QMS-10', stacked: true)),
       ],
+      floatingAction: FloatingPill(icon: Icons.add_a_photo_outlined, label: context.t('mob.field.report.title'), onPressed: () => showFieldReportSheet(context)),
       body: id == null
           ? DataView<List<ContractLine>>(
               cacheKey: 'diary.contracts',

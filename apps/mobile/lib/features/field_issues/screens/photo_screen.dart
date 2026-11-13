@@ -98,7 +98,7 @@ class _PhotosState extends ConsumerState<_Photos> {
     final String? start = widget.start;
     if (start == 'camera' || start == 'gallery') {
       WidgetsBinding.instance.addPostFrameCallback((Duration _) {
-        if (!mounted) return;
+        if (!mounted || _draft.photos.length >= kMaxPhotos) return;
         unawaited(start == 'camera' ? _take() : _choose());
       });
     }
@@ -170,7 +170,7 @@ class _PhotosState extends ConsumerState<_Photos> {
 
   Future<void> _use() async {
     final _Pending? pending = _pending;
-    if (pending == null || _working) return;
+    if (pending == null || _working || _draft.photos.length >= kMaxPhotos) return;
     setState(() => _working = true);
     try {
       final IssuePhoto photo = await _service.prepare(pending.file, keepPlaceAndTime: _draft.place.consent, marks: pending.marks);

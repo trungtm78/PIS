@@ -196,21 +196,21 @@ class _PlaceState extends ConsumerState<_Place> {
         NoticePanel(
           tone: NoticeTone.problem,
           title: context.t('mob.fld.check.flag.form'),
-          actionLabel: context.t('mob.fld.check.flag.form.action'),
+          actionLabel: context.t('mob.fld.check.flagEdit.action'),
           onAction: () => openScreen(context, 'MOB-28', query: <String, String>{'draft': id}),
         ),
       if (statusOf('metadata') != CheckStatus.ok)
         NoticePanel(
           tone: NoticeTone.problem,
           title: context.t('mob.fld.check.flag.metadata'),
-          actionLabel: context.t('mob.fld.check.flag.metadata.action'),
+          actionLabel: context.t('mob.fld.check.flagMetadata.action'),
           onAction: () => openScreen(context, 'MOB-29', pathSuffix: '/$id', stacked: true),
         ),
       if (statusOf('photo') != CheckStatus.ok)
         NoticePanel(
           tone: NoticeTone.warning,
           title: context.t('mob.fld.check.flag.photo'),
-          actionLabel: context.t('mob.fld.check.flag.photo.action'),
+          actionLabel: context.t('mob.fld.check.flagPhoto.action'),
           onAction: () => openScreen(context, 'MOB-29', pathSuffix: '/$id', query: <String, String>{'start': 'camera'}, stacked: true),
         ),
     ];

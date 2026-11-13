@@ -236,7 +236,7 @@ void main() {
       expect(find.text('Bắt buộc nhập.'), findsNothing);
     });
 
-    testWidgets('offline the bar offers to save for later, and online it says review and send', (WidgetTester tester) async {
+    testWidgets('offline the capture bar still says review: it only goes on to the check, the save for later is made there', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldWorld world = FieldWorld.create(server: FieldServer(api: (ScriptedServer()..let(answerLookups))));
       await world.open(tester, '/projects/mob-28', overrides: idleRunners);
@@ -245,8 +245,8 @@ void main() {
 
       _goOffline(world, offline: true);
       await tester.pump();
-      expect(find.widgetWithText(FilledButton, 'Lưu, gửi khi có mạng'), findsOneWidget);
-      expect(find.text('Xem lại và gửi'), findsNothing);
+      expect(find.widgetWithText(FilledButton, 'Xem lại và gửi'), findsOneWidget);
+      expect(find.text('Lưu, gửi khi có mạng'), findsNothing);
     });
 
     testWidgets('adding a photograph is one tap: the camera opens at once and the photograph is ready to be marked', (WidgetTester tester) async {

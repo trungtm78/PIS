@@ -24,7 +24,6 @@ import '../../offline/offline_labels.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/offline.dart';
 import '../issue_draft.dart';
 import '../issue_labels.dart';
 import '../issue_lookups.dart';
@@ -35,7 +34,7 @@ import '../issue_service.dart';
 /// what the server offers (kept on the device, so the form can be filled in without a network), the title and the description are written,
 /// the photographs are added from the same screen (one tap opens the camera) and everything is saved on the device as the person types: a
 /// report is a draft until it is sent (MOB-30), and a draft survives the app being closed. The one action stays in the bar at the foot
-/// ("Review and send", offline "Save, send when online"). A report that is waiting for the network is listed here, and opens in MOB-31.
+/// ("Review and send"). A report that is waiting for the network is listed here, and opens in MOB-31.
 Widget buildCaptureScreen(BuildContext context, ScreenContext screen) => CaptureScreen(draftId: screen.queryParameters['draft']);
 
 /// Categories are shown as chips while there are few of them; a long list of them is a menu.
@@ -186,7 +185,6 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
     if (draft == null) return const Center(child: CircularProgressIndicator());
     final IssueLookups lookups = widget.lookups;
     final bool readOnly = ref.watch(sessionProvider).isReadOnly;
-    final bool offline = isOffline(ref);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -296,7 +294,7 @@ class _CaptureFormState extends ConsumerState<_CaptureForm> {
             ],
           ),
         ),
-        FieldSendBar(label: context.t('mob.fld.capture.review.action'), onSend: _review, offline: offline),
+        FieldSendBar(label: context.t('mob.fld.capture.review.action'), onSend: _review),
       ],
     );
   }
