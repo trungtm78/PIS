@@ -1,16 +1,16 @@
 {
   "note": "The allow-list of the design rules (R38): today's violations in lib/features and lib/editions, per file. It only shrinks: a file that gets cleaner is lowered here (dart run tool/design_rules_baseline.dart), and a new violation is not added here, it is fixed with a shared widget. MUX-3 wave D ends at an empty list and deletes this file.",
   "totals": {
-    "AppBar(": 17,
-    "BoxDecoration(": 14,
-    "Card(": 23,
-    "Colors.": 3,
-    "EdgeInsets-number": 29,
-    "MachvonColors.": 85,
-    "Scaffold(": 26,
-    "TextStyle(": 15,
+    "AppBar(": 14,
+    "BoxDecoration(": 9,
+    "Card(": 20,
+    "Colors.": 1,
+    "EdgeInsets-number": 28,
+    "MachvonColors.": 54,
+    "Scaffold(": 23,
+    "TextStyle(": 14,
     "fontSize:": 1,
-    "toStringAsFixed(": 9
+    "toStringAsFixed(": 7
   },
   "files": {
     "lib/editions/enterprise/enterprise_home.dart": {
@@ -29,24 +29,6 @@
       "Card(": 2,
       "Scaffold(": 1,
       "TextStyle(": 2
-    },
-    "lib/features/ai_review/ai_support.dart": {
-      "Card(": 1,
-      "MachvonColors.": 2
-    },
-    "lib/features/ai_review/screens/findings_screen.dart": {
-      "Card(": 1
-    },
-    "lib/features/ai_review/screens/qa_screen.dart": {
-      "BoxDecoration(": 1,
-      "EdgeInsets-number": 1,
-      "MachvonColors.": 1
-    },
-    "lib/features/ai_review/screens/source_screen.dart": {
-      "MachvonColors.": 2
-    },
-    "lib/features/approval_inbox/decision_flow.dart": {
-      "Card(": 1
     },
     "lib/features/attachments/screens/attachments_screen.dart": {
       "AppBar(": 1,
@@ -110,15 +92,6 @@
       "Card(": 1,
       "Scaffold(": 1
     },
-    "lib/features/directives/screens/directive_list_screen.dart": {
-      "Colors.": 1
-    },
-    "lib/features/document_signing/screens/pdf_pages.dart": {
-      "AppBar(": 3,
-      "BoxDecoration(": 1,
-      "MachvonColors.": 1,
-      "Scaffold(": 3
-    },
     "lib/features/field_evidence/field_place.dart": {
       "toStringAsFixed(": 3
     },
@@ -176,26 +149,8 @@
       "MachvonColors.": 1,
       "TextStyle(": 1
     },
-    "lib/features/procurement_workflow/node_stats_card.dart": {
-      "toStringAsFixed(": 1
-    },
-    "lib/features/procurement_workflow/screens/package_detail_screen.dart": {
-      "BoxDecoration(": 2,
-      "MachvonColors.": 16
-    },
-    "lib/features/procurement_workflow/screens/package_list_screen.dart": {
-      "MachvonColors.": 1
-    },
     "lib/features/procurement_workflow/screens/process_tree_screen.dart": {
-      "BoxDecoration(": 1,
-      "Colors.": 1,
-      "EdgeInsets-number": 1,
-      "MachvonColors.": 3,
-      "TextStyle(": 1,
-      "toStringAsFixed(": 1
-    },
-    "lib/features/procurement_workflow/widgets.dart": {
-      "MachvonColors.": 3
+      "EdgeInsets-number": 1
     },
     "lib/features/project_views/screens/project_list_screen.dart": {
       "Colors.": 1
@@ -255,9 +210,6 @@
     },
     "lib/features/session/screens/context_screen.dart": {
       "Card(": 1
-    },
-    "lib/features/vendor_controls/screens/risk_list_screen.dart": {
-      "MachvonColors.": 2
     }
   }
 }

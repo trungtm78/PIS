@@ -119,7 +119,7 @@ class _InboxBody extends StatelessWidget {
     return ListView(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, 0, MachvonV2Space.s16, MachvonV2Space.s4),
+          padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s4),
           child: Text(
             context.t('mob.apv.inbox.counts', <String, Object>{'open': inbox.tasks.length, 'late': inbox.overdueCount}),
             style: text.caption.copyWith(color: context.v2.palette.ink2),

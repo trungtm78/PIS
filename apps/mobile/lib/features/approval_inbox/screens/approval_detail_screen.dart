@@ -233,7 +233,7 @@ class _FigureRow extends StatelessWidget {
         children: <Widget>[
           SizedBox(height: 1, child: ColoredBox(color: v2.palette.line)),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
