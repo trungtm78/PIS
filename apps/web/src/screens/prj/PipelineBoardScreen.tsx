@@ -148,7 +148,7 @@ function Card({ card, canMove, onMove }: { card: BoardCard; canMove: boolean; on
         <dd>{card.appraisalScore ?? t('prj.board.card.score.none')}</dd>
         <dt>{t('prj.board.card.leader.label')}</dt>
         <dd>{card.leaderName ?? t('prj.list.leader.none')}</dd>
-        <dt>{t('scr2.prj.board.card.nationalCode.label')}</dt>
+        <dt>{t('scr2.prj.boardCard.nationalCode.label')}</dt>
         <dd>
           <NationalCode code={card.nationalProjectCode} />
         </dd>
@@ -156,7 +156,7 @@ function Card({ card, canMove, onMove }: { card: BoardCard; canMove: boolean; on
       <p className="prj-card-badges">
         {card.capitalReady === null ? (
           <span className="prj-badge" data-testid="capital-ready-unknown">
-            {t('scr2.prj.board.card.readyUnknown.badge')}
+            {t('scr2.prj.boardCard.readyUnknown.badge')}
           </span>
         ) : (
           <span className={card.capitalReady ? 'prj-badge' : 'prj-badge warning'} data-testid="capital-ready">

@@ -44,8 +44,8 @@ test('clip 02: receive the decision, propose the areas, approve and publish them
   await clip.step('nhan-van-ban', async () => {
     await page.goto('/doc/doc-11?devUser=projectManager');
     await expect(page.getByRole('heading', { level: 1, name: vi['doc.incoming.intake.title'] })).toBeVisible();
-    await ui.point(page.getByLabel(vi['doc.incoming.field.file']));
-    await page.getByLabel(vi['doc.incoming.field.file']).setInputFiles({
+    await ui.point(page.getByLabel(vi['doc.incoming.intake.scan']));
+    await page.getByLabel(vi['doc.incoming.intake.scan']).setInputFiles({
       name: 'qd-128-cong-bo-dia-ban.pdf',
       mimeType: 'application/pdf',
       buffer: pdfWithText(['UY BAN NHAN DAN TINH CAO BANG', 'Quyet dinh so 128/QD-UBND', 'Ve viec cong bo danh muc dia ban hanh chinh dung chung']),

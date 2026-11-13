@@ -208,7 +208,7 @@ function GrantForm({ items, disabled, readOnly, problem, granted, onGrant }: Gra
       </div>
       {live ? (
         <p className="callout" role="status" data-testid="grant-live">
-          {t('scr2.not.consent.grant.live.message')}
+          {t('scr2.not.consent.grantLive.message')}
         </p>
       ) : null}
       <div className="field">
