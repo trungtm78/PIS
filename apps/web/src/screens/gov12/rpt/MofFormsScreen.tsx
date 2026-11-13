@@ -272,7 +272,11 @@ function MofFormsContent({ route }: ScreenProps) {
                   </button>
                 </p>
               ) : copies.length === 0 && !issues.truncated ? (
-                <p className="callout" data-testid="copies-empty">{t('rpt.mof.copies.empty')}</p>
+                <>
+                  {/* No copy yet: the columns of a copy stand over the notice, so the person sees what a copy will carry (its period, its signature, the lock of its period). */}
+                  <DataTable caption={t('rpt.mof.copies.caption')} columns={copyColumns} rows={[]} rowKey={(issue) => issue.id} state="empty" emptyKind="none" />
+                  <p className="callout" data-testid="copies-empty">{t('rpt.mof.copies.empty')}</p>
+                </>
               ) : (
                 <>
                   {copies.length > 0 ? <DataTable caption={t('rpt.mof.copies.caption')} columns={copyColumns} rows={copies} rowKey={(issue) => issue.id} /> : null}

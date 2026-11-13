@@ -92,6 +92,9 @@ describe('RPT-05, the forms for the Ministry of Finance', () => {
   it('says there is no copy yet when nothing was issued', async () => {
     open({ issues: page([]) });
     expect((await screen.findByTestId('copies-empty')).textContent).toBe(word('rpt.mof.copies.empty'));
+    // The columns of a copy stand over the notice: its period, its signature and the lock of its period (UI-RPT-05).
+    const copies = screen.getByRole('table', { name: word('rpt.mof.copies.caption') });
+    for (const key of ['rpt.mof.col.period', 'rpt.mof.col.signature', 'rpt.mof.col.lock']) expect(within(copies).getByRole('columnheader', { name: word(key) })).toBeTruthy();
   });
 
   it('offers to sign an unsigned copy to the person who holds the right, and not to a reader', async () => {
