@@ -144,6 +144,9 @@ export function FreshnessCard({ connection }: { connection: Connection }) {
           {health.age_hours === null ? NONE : t('ebs.health.age.value', { hours: numberText(health.age_hours, locale) })}{' '}
           <RuleFigure name={t('ebs.health.age.name')} rule={rule} asOf={vietnamStamp(connection.as_of)} fallbackFormula={t('ebs.health.age.formula')} fallbackSource={t('ebs.health.age.source')} />
         </Fact>
+        <Fact label={t('scr2.ebs.health.freshness.label')} testId="health-freshness">
+          {healthLabel(t, health.status)}
+        </Fact>
         <Fact label={t('ebs.health.last.label')} testId="health-last">
           {health.last_import_at === null ? t('ebs.health.last.never') : vietnamStamp(health.last_import_at)}
         </Fact>
@@ -183,6 +186,12 @@ export function LayoutSection({ connection }: { connection: Connection }) {
   return (
     <SectionCard title={t('ebs.layout.section.title')} status={<AcceptanceBadge acceptance={connection.acceptance} />}>
       <p className="ent2-note">{t('ebs.layout.note.text', { version: connection.layout_version })}</p>
+      <dl className="ent2-facts">
+        <Fact label={t('scr2.ebs.layout.version.label')} testId="layout-version">
+          {connection.layout_version}
+        </Fact>
+      </dl>
+      <h3 className="ent2-subtitle">{t('scr2.ebs.layout.required.label')}</h3>
       <ul className="ent2-columns" data-testid="layout-columns">
         {connection.columns.map((column) => (
           <li key={column}>
@@ -203,11 +212,16 @@ export function RunsSection({ connection }: { connection: Connection }) {
     { key: 'layout', header: t('ebs.runs.column.layout'), render: (row) => row.layout_version },
     { key: 'applied', header: t('ebs.runs.column.applied'), align: 'right', render: (row) => numberText(row.counts.applied, locale) },
     { key: 'quarantined', header: t('ebs.runs.column.quarantined'), align: 'right', render: (row) => numberText(row.counts.quarantined, locale) },
+    { key: 'duplicate', header: t('scr2.ebs.runs.column.duplicate'), align: 'right', render: (row) => numberText(row.counts.duplicate, locale) },
+    { key: 'conflict', header: t('scr2.ebs.runs.column.conflict'), align: 'right', render: (row) => numberText(row.counts.conflict, locale) },
     { key: 'by', header: t('ebs.runs.column.by'), render: (row) => row.imported_by_name ?? NONE },
     { key: 'hash', header: t('ebs.runs.column.hash'), render: (row) => <code className="ent2-key">{row.file_sha256.slice(0, 12)}</code> },
   ];
   return (
     <SectionCard title={t('ebs.runs.section.title')}>
+      <p className="ent2-note" data-testid="runs-note">
+        {t('scr2.ebs.runs.note')}
+      </p>
       {connection.last_runs.length === 0 ? (
         <p className="ent2-none" data-testid="runs-empty">
           {t('ebs.runs.empty.text')}

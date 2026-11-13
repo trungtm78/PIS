@@ -106,7 +106,7 @@ export function StatusCard({ connection }: { connection: Connection }) {
         <Fact label={t('hpm.status.mode.label')} testId="status-mode">
           {t('hpm.status.mode.fileExport')}
         </Fact>
-        <Fact label={t('hpm.status.format.label')} testId="status-format">
+        <Fact label={connection.acceptance === 'PENDING_EXTERNAL' ? t('scr2.hpm.status.format.assumed') : t('hpm.status.format.label')} testId="status-format">
           {connection.package_format} · {connection.acceptance === 'PENDING_EXTERNAL' ? t('hpm.status.format.pending') : t('hpm.status.format.accepted')}
         </Fact>
         <Fact label={t('hpm.status.registry.label')} testId="status-registry">
@@ -144,6 +144,9 @@ export function FreshnessCard({ connection }: { connection: Connection }) {
         {healthExplain(t, health.status)}
       </p>
       <dl className="ent2-facts">
+        <Fact label={t('scr2.hpm.health.freshness.label')} testId="health-freshness">
+          {healthLabel(t, health.status)}
+        </Fact>
         <Fact label={t('hpm.health.age.label')} testId="health-age">
           {health.age_hours === null ? NONE : t('hpm.health.age.value', { hours: numberText(health.age_hours, locale) })}{' '}
           <RuleFigure
@@ -273,6 +276,9 @@ export function PushLog({ rows, state, filter, onFilter, hasMore, loadingMore, o
   ];
   return (
     <SectionCard title={t('hpm.log.section.title')} status={attention.failed + attention.waiting > 0 ? <StatusPill tone="warning">{t('hpm.log.attention.text', { failed: attention.failed, waiting: attention.waiting })}</StatusPill> : undefined}>
+      <p className="ent2-note" data-testid="log-note">
+        {t('scr2.hpm.log.note')}
+      </p>
       <div className="ent2-filter">
         <label htmlFor={filterId}>{t('hpm.log.filter.label')}</label>
         <select id={filterId} value={filter ?? ''} onChange={(event) => onFilter(statusFilterOf(event.target.value))} data-testid="log-filter">

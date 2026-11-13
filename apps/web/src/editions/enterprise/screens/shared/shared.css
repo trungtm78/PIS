@@ -41,3 +41,4 @@
 .ent2-page tbody th[scope='row']:not(.ui-table__head) { position: static; background: var(--mv-color-surface); color: var(--mv-color-ink); font-size: 14px; border-bottom: 1px solid var(--mv-color-border); }
 .ent2-page tbody th[scope='row'] .sub { color: var(--mv-color-text-secondary); font-weight: 400; }
 .ent2-page .eqp-unit { min-width: 11rem; }
+.ent2-subtitle { margin: var(--mv-space-12) 0 var(--mv-space-4); font-size: 12px; font-weight: 700; color: var(--mv-color-text-secondary); }
