@@ -1,6 +1,7 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../../core/l10n/app_strings.dart';
+import '../../core/theme/colors.dart';
 import '../read_support/widgets.dart';
 import 'directive_models.dart';
 
@@ -55,6 +56,23 @@ String? directiveClockLabel(BuildContext context, DirectiveLine line) {
 /// The clock reads as a warning from the reminder days on, and as danger when the day has passed.
 MachvonTone directiveClockTone(DirectivePhase phase) => phase == DirectivePhase.overdue || phase == DirectivePhase.escalated ? MachvonTone.danger : MachvonTone.warning;
 
+/// The band of the clock of a directive, from the phase the server named: past or today is late, within the reminder days is soon, later is ok, and a directive
+/// that ended is done. The phone never counts the days itself.
+DeadlineBand directiveBandOf(DirectivePhase phase) {
+  switch (phase) {
+    case DirectivePhase.overdue:
+    case DirectivePhase.escalated:
+    case DirectivePhase.dueToday:
+      return DeadlineBand.late;
+    case DirectivePhase.dueSoon:
+      return DeadlineBand.soon;
+    case DirectivePhase.dueLater:
+      return DeadlineBand.ok;
+    case DirectivePhase.ended:
+      return DeadlineBand.done;
+  }
+}
+
 String directiveEventLabel(BuildContext context, DirectiveEventKind kind) {
   switch (kind) {
     case DirectiveEventKind.created:
@@ -77,6 +95,31 @@ String directiveEventLabel(BuildContext context, DirectiveEventKind kind) {
       return context.t('mob.dir.event.reopened');
   }
 }
+
+/// The glyph of an event on the timeline, so that what happened is told by a shape and the words, not by colour.
+IconData directiveEventIcon(DirectiveEventKind kind) {
+  switch (kind) {
+    case DirectiveEventKind.created:
+      return Icons.add_circle_outline;
+    case DirectiveEventKind.assigned:
+      return Icons.person_add_alt_outlined;
+    case DirectiveEventKind.progress:
+      return Icons.trending_up;
+    case DirectiveEventKind.extensionRequested:
+    case DirectiveEventKind.extensionApproved:
+    case DirectiveEventKind.extensionRejected:
+      return Icons.event_repeat_outlined;
+    case DirectiveEventKind.closed:
+      return Icons.task_alt;
+    case DirectiveEventKind.cancelled:
+      return Icons.cancel_outlined;
+    case DirectiveEventKind.reopened:
+      return Icons.replay;
+  }
+}
+
+/// A request to move the due day: approved is success, rejected is danger, waiting is warning.
+MachvonTone extensionStateTone(ExtensionState state) => state == ExtensionState.approved ? MachvonTone.success : (state == ExtensionState.rejected ? MachvonTone.danger : MachvonTone.warning);
 
 String extensionStateLabel(BuildContext context, ExtensionState state) {
   switch (state) {
