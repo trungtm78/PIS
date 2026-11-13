@@ -16,6 +16,32 @@ import type { Column, FilterField, LedgerFilter } from './model';
 type T = Translator['t'];
 const NONE = '—';
 
+/** The kind of the source document an entry was posted from (capital_ledger_entry.source_ref_kind); a kind this screen does not know is shown as it came. */
+function sourceLabel(t: T, kind: string): string {
+  switch (kind) {
+    case 'CAPITAL_PLAN':
+      return t('cap.ledger.source.capitalPlan');
+    case 'APPROPRIATION':
+      return t('cap.ledger.source.appropriation');
+    case 'RESERVATION':
+      return t('cap.ledger.source.reservation');
+    case 'PAYMENT_REQUEST':
+      return t('cap.ledger.source.paymentRequest');
+    case 'TREASURY_TRANSACTION':
+      return t('cap.ledger.source.treasury');
+    case 'REALLOCATION':
+      return t('cap.ledger.source.reallocation');
+    case 'EXTENSION':
+      return t('cap.ledger.source.extension');
+    case 'YEAR_CLOSE':
+      return t('cap.ledger.source.yearClose');
+    case 'CONTRACT':
+      return t('cap.ledger.source.contract');
+    default:
+      return kind === '' ? NONE : kind;
+  }
+}
+
 function typeLabel(t: T, type: string): string {
   switch (type) {
     case 'APPROPRIATE':
@@ -157,6 +183,8 @@ function LedgerContent({ route }: ScreenProps) {
                     <th scope="col">{t('cap.ledger.col.type')}</th>
                     <th scope="col">{t('cap.ledger.col.amount')}</th>
                     <th scope="col">{t('cap.ledger.col.project')}</th>
+                    <th scope="col">{t('cap.ledger.col.source')}</th>
+                    <th scope="col">{t('cap.ledger.col.reversalOf')}</th>
                     <th scope="col">{t('cap.ledger.col.reason')}</th>
                     <th scope="col">{t('cap.ledger.col.by')}</th>
                   </tr>
@@ -165,12 +193,14 @@ function LedgerContent({ route }: ScreenProps) {
                   {items.map((item) => (
                     <tr key={item.id} data-entry={item.id} data-type={item.entryType}>
                       <td>{item.postedAt}</td>
-                      <td>
-                        {typeLabel(t, item.entryType)}
-                        {item.reversalOfId === null ? null : <span className="prj-code">{t('cap.ledger.reversal.of', { id: item.reversalOfId })}</span>}
-                      </td>
+                      <td>{typeLabel(t, item.entryType)}</td>
                       <td>{money(item.amountVnd)}</td>
                       <td>{item.project === null ? NONE : `${item.project.code} ${item.project.name}`}</td>
+                      <td data-source={item.sourceRefKind}>
+                        {sourceLabel(t, item.sourceRefKind)}
+                        {item.sourceRefId === null ? null : <span className="prj-code" title={item.sourceRefId}>{item.sourceRefId.slice(0, 8)}</span>}
+                      </td>
+                      <td>{item.reversalOfId === null ? NONE : <span className="prj-code">{t('cap.ledger.reversal.of', { id: item.reversalOfId })}</span>}</td>
                       <td>{item.reason ?? NONE}</td>
                       <td>{item.postedBy}</td>
                     </tr>

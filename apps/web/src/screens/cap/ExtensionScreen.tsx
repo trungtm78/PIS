@@ -327,17 +327,13 @@ function ExtensionContent({ route }: ScreenProps) {
       <div className="card">
         <h2>{t('cap.extension.list.title')}</h2>
         <StateBoundary state={state} onRetry={() => void extensions.refetch()}>
-          {rows.length === 0 ? (
-            <p className="sub" role="status" data-extensions-empty>
-              {t('cap.extension.list.empty')}
-            </p>
-          ) : (
-            <div className="tablewrap cap-scroll">
+          {/* The columns stand before the first request: an empty list says so in its one row. */}
+          <div className="tablewrap cap-scroll">
               <table className="cap-table" aria-label={t('cap.extension.list.title')}>
                 <thead>
                   <tr>
                     <th>{t('cap.extension.col.project')}</th>
-                    <th>{t('cap.extension.col.years')}</th>
+                    <th>{t('cap.extension.col.sourceYear')}</th>
                     <th>{t('cap.extension.col.amount')}</th>
                     <th>{t('cap.extension.col.until')}</th>
                     <th>{t('cap.extension.col.reason')}</th>
@@ -347,6 +343,13 @@ function ExtensionContent({ route }: ScreenProps) {
                   </tr>
                 </thead>
                 <tbody>
+                  {rows.length === 0 ? (
+                    <tr>
+                      <td colSpan={canDecide ? 8 : 7} className="sub" role="status" data-extensions-empty>
+                        {t('cap.extension.list.empty')}
+                      </td>
+                    </tr>
+                  ) : null}
                   {rows.map((entry) => (
                     <tr key={entry.id} data-extension-id={entry.id} data-status={entry.status} data-version={entry.version}>
                       <td>{projectNames.get(entry.projectId) ?? entry.projectId.slice(0, 8)}</td>
@@ -390,7 +393,6 @@ function ExtensionContent({ route }: ScreenProps) {
                 </tbody>
               </table>
             </div>
-          )}
         </StateBoundary>
 
         {deciding === undefined ? null : (

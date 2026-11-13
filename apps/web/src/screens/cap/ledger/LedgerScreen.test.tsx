@@ -75,6 +75,11 @@ describe('LedgerScreen (CAP-21): the capital ledger', () => {
     expect(rows[0]?.textContent).toContain(vi_['cap.ledger.reversal.of'].replace('{id}', '00000000-0000-4000-8000-0000000000e2'));
     expect(rows[0]?.textContent).toContain('2.000.000.000 đồng');
     expect(rows[0]?.textContent).toContain('A payment was reversed');
+    // The source document of the entry and what it reverses stand in columns of their own (CAP-21 "Chứng từ nguồn", "Đảo của").
+    const words = vi_ as Record<string, string>;
+    for (const key of ['cap.ledger.col.source', 'cap.ledger.col.reversalOf']) expect(within(table).getByRole('columnheader', { name: words[key] })).toBeTruthy();
+    expect(rows[0]?.textContent).toContain(words['cap.ledger.source.capitalPlan']);
+    expect(rows[0]?.textContent).toContain('00000000');
     expect(rows[1]?.textContent).toContain(vi_['cap.ledger.type.release']);
     expect(rows[1]?.textContent).toContain('DA-2026-001 Dự án số 1');
     expect(rows[1]?.textContent).toContain('Nguyễn Văn An');
