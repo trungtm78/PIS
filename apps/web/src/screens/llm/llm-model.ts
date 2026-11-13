@@ -136,6 +136,8 @@ export interface PolicyEntry {
   legalBasis: string;
   effectiveFrom: string;
   status: PolicyStatus;
+  /** Who published the revision (someone other than whoever drafted it); null while it is a draft. */
+  approvedBy: string | null;
   createdBy: string;
   version: number;
 }
@@ -167,6 +169,7 @@ export function toPolicy(raw: unknown): PolicyEntry | undefined {
     legalBasis: text(row.legal_basis) ?? '',
     effectiveFrom: text(row.effective_from) ?? '',
     status,
+    approvedBy: nullableText(row.approved_by),
     createdBy: text(row.created_by) ?? '',
     version,
   };

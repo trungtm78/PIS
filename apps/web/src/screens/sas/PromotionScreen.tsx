@@ -266,59 +266,64 @@ function PromotionContent({ route, canManage }: ScreenProps & { canManage: boole
       <StateBoundary state={state} onRetry={() => void migrations.refetch()}>
         <SectionCard title={t('sas.promotion.list.title')}>
           <p className="sub">{t('sas.promotion.list.rule')}</p>
-          {items.length === 0 ? (
-            <p className="sub" role="status">
-              {t('sas.promotion.list.none')}
-            </p>
-          ) : (
-            <div className="promotion-scroll">
-              <KitTable caption={t('w2sas.promotion.table.migrations')} data-migrations>
-                <thead>
+          <div className="promotion-scroll">
+            <KitTable caption={t('w2sas.promotion.table.migrations')} data-migrations>
+              <thead>
+                <tr>
+                  <th scope="col">{t('sas.promotion.column.target')}</th>
+                  <th scope="col">{t('sas.promotion.column.freeze')}</th>
+                  <th scope="col">{t('sas.promotion.field.result')}</th>
+                  <th scope="col">{t('sas.promotion.field.approver')}</th>
+                  <th scope="col">{t('sas.promotion.column.status')}</th>
+                  <th scope="col">{t('sas.promotion.column.created')}</th>
+                  <th scope="col">
+                    <span className="visually-hidden">{t('sas.promotion.column.actions')}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.length === 0 ? (
                   <tr>
-                    <th scope="col">{t('sas.promotion.column.status')}</th>
-                    <th scope="col">{t('sas.promotion.column.target')}</th>
-                    <th scope="col">{t('sas.promotion.column.freeze')}</th>
-                    <th scope="col">{t('sas.promotion.column.created')}</th>
-                    <th scope="col">
-                      <span className="visually-hidden">{t('sas.promotion.column.actions')}</span>
-                    </th>
+                    <td colSpan={7} className="sub" role="status">
+                      {t('sas.promotion.list.none')}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {items.map((entry) => (
-                    <tr key={entry.id} data-migration-id={entry.id} data-status={entry.status} aria-current={entry.id === shownId ? 'true' : undefined}>
-                      <td>
-                        <StatusPill tone={toneOfPill(toneClass(statusTone(entry.status)))}>{statusLabel(t, entry.status)}</StatusPill>
-                      </td>
-                      <td>
-                        <code>{targetName(t, placements.data, entry.toPlacementId)}</code>
-                      </td>
-                      <td>
-                        {t('sas.promotion.freeze.minutes', {
-                          minutes: entry.writeFreezeMaxMinutes,
-                        })}
-                      </td>
-                      <td>{stamp(entry.createdAt)}</td>
-                      <td>
-                        <button
-                          type="button"
-                          disabled={entry.id === shownId}
-                          onClick={() =>
-                            setPicked({
-                              migrationId: entry.id,
-                              tenantId: choice.chosen,
-                            })
-                          }
-                        >
-                          {t('sas.promotion.list.open.action')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </KitTable>
-            </div>
-          )}
+                ) : null}
+                {items.map((entry) => (
+                  <tr key={entry.id} data-migration-id={entry.id} data-status={entry.status} aria-current={entry.id === shownId ? 'true' : undefined}>
+                    <td>
+                      <code>{targetName(t, placements.data, entry.toPlacementId)}</code>
+                    </td>
+                    <td>
+                      {t('sas.promotion.freeze.minutes', {
+                        minutes: entry.writeFreezeMaxMinutes,
+                      })}
+                    </td>
+                    <td data-list-field="result">{entry.checksumMatch === undefined ? t('sas.promotion.result.none') : entry.checksumMatch ? t('sas.promotion.result.match') : t('scr2.sas.promotion.result.mismatch')}</td>
+                    <td data-list-field="approver">{entry.cutoverApprovedBy === undefined ? '—' : <code>{entry.cutoverApprovedBy}</code>}</td>
+                    <td>
+                      <StatusPill tone={toneOfPill(toneClass(statusTone(entry.status)))}>{statusLabel(t, entry.status)}</StatusPill>
+                    </td>
+                    <td>{stamp(entry.createdAt)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        disabled={entry.id === shownId}
+                        onClick={() =>
+                          setPicked({
+                            migrationId: entry.id,
+                            tenantId: choice.chosen,
+                          })
+                        }
+                      >
+                        {t('sas.promotion.list.open.action')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </KitTable>
+          </div>
           {migrations.hasNextPage ? (
             <div className="row gap">
               <button type="button" disabled={migrations.isFetchingNextPage} onClick={() => void migrations.fetchNextPage()}>

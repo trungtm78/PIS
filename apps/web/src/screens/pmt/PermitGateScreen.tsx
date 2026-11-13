@@ -46,13 +46,7 @@ function PermitGateContent({ route }: ScreenProps) {
       </div>
       <StateBoundary state={state} onRetry={() => void rules.refetch()}>
         <div className="stack">
-          {(rules.data ?? []).length === 0 ? (
-            <p className="sub" data-testid="empty-rules">
-              {t('pmt.gate.empty.text')}
-            </p>
-          ) : (
-            <GateRulesTable rules={rules.data ?? []} today={today} mayRetire={mayManage} />
-          )}
+          <GateRulesTable rules={rules.data ?? []} today={today} mayRetire={mayManage} />
           <GateEvaluation />
           {mayManage ? <GateRuleForm today={today} types={groups} rules={rules.data ?? []} /> : <p className="sub">{t('pmt.gate.readonly.text')}</p>}
         </div>

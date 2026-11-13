@@ -57,6 +57,8 @@ export interface InspectionLine {
   inspectionType: InspectionType;
   title: string;
   locationText: string | null;
+  /** The site diary the request names (QMS-03), if any. */
+  siteDiaryId: string | null;
   requestedBy: Person | null;
   requestedFor: string;
   scheduledAt: string | null;
@@ -110,6 +112,7 @@ export function toInspectionLine(raw: unknown): InspectionLine | undefined {
     inspectionType: type,
     title: text(row.title) ?? '',
     locationText: nullableText(row.location_text),
+    siteDiaryId: nullableText(row.site_diary_id),
     requestedBy: toPerson(row.requested_by),
     requestedFor,
     scheduledAt: nullableText(row.scheduled_at),

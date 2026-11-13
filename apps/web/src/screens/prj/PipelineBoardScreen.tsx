@@ -148,10 +148,17 @@ function Card({ card, canMove, onMove }: { card: BoardCard; canMove: boolean; on
         <dd>{card.appraisalScore ?? t('prj.board.card.score.none')}</dd>
         <dt>{t('prj.board.card.leader.label')}</dt>
         <dd>{card.leaderName ?? t('prj.list.leader.none')}</dd>
+        <dt>{t('scr2.prj.board.card.nationalCode.label')}</dt>
+        <dd>
+          <NationalCode code={card.nationalProjectCode} />
+        </dd>
       </dl>
       <p className="prj-card-badges">
-        <NationalCode code={card.nationalProjectCode} />
-        {card.capitalReady === null ? null : (
+        {card.capitalReady === null ? (
+          <span className="prj-badge" data-testid="capital-ready-unknown">
+            {t('scr2.prj.board.card.readyUnknown.badge')}
+          </span>
+        ) : (
           <span className={card.capitalReady ? 'prj-badge' : 'prj-badge warning'} data-testid="capital-ready">
             {card.capitalReady ? t('prj.board.card.ready.badge') : t('prj.board.card.notReady.badge')}
           </span>

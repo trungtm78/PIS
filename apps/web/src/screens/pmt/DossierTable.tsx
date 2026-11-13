@@ -3,6 +3,8 @@ import { DataTable } from '../../ui';
 import type { DataTableColumn } from '../../ui';
 import { Pill } from './components';
 import { dossierStatusLabel } from './dossier-labels';
+import { useGateEvaluation } from './gate-hooks';
+import { gateLabel } from './gate-labels';
 import type { DossierLineView } from './dossier-model';
 import './pmt.css';
 
@@ -75,6 +77,7 @@ export function DossierTable({ dossiers, selectedId, onSelect }: DossierTablePro
       align: 'right',
       render: (dossier) => (dossier.expiringCount === 0 ? dossier.expiringCount : <Pill tone="warn">{dossier.expiringCount}</Pill>),
     },
+    { key: 'blocked', header: t('scr2.pmt.dossier.blocked.column'), render: (dossier) => <BlockedGates projectId={dossier.projectId} /> },
     { key: 'owner', header: t('pmt.dossier.owner.column'), render: (dossier) => dossier.owner?.displayName ?? dossier.ownerUnitName },
     {
       key: 'status',
@@ -95,5 +98,24 @@ export function DossierTable({ dossiers, selectedId, onSelect }: DossierTablePro
     <div data-testid="dossiers">
       <DataTable caption={t('pmt.dossier.table.aria')} columns={columns} rows={[...dossiers]} rowKey={(dossier) => dossier.id} rowAttrs={(dossier) => ({ 'data-dossier-id': dossier.id, 'data-selected': String(dossier.id === selectedId) })} />
     </div>
+  );
+}
+
+/** The gates that the permits of the project block today (PMT-04 rules, evaluated by the server), or that none does. */
+function BlockedGates({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
+  const evaluation = useGateEvaluation(projectId, undefined, undefined);
+  if (evaluation.isLoading) return <span className="sub">{t('scr2.pmt.dossier.blocked.loading')}</span>;
+  if (evaluation.isError || evaluation.data === undefined) return <span className="sub">{t('scr2.pmt.dossier.blocked.unknown')}</span>;
+  const blocked = evaluation.data.gates.filter((gate) => gate.status === 'BLOCKED');
+  if (blocked.length === 0) return <span data-testid="blocked-gates">{t('scr2.pmt.dossier.blocked.none')}</span>;
+  return (
+    <span data-testid="blocked-gates">
+      {blocked.map((gate) => (
+        <Pill key={gate.gateCode} tone="warn">
+          {gateLabel(t, gate.gateCode)}
+        </Pill>
+      ))}
+    </span>
   );
 }

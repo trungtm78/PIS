@@ -3,7 +3,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import NonconformanceScreen from './NonconformanceScreen';
-import { DOCUMENT, ME, PHOTO, RAISER, READER, action, actionId, allowed, client, contractId, memberId, mount, ncr, ncrId, routeOf, world } from './test-support';
+import { DOCUMENT, ME, PHOTO, HANDLER, RAISER, READER, action, actionId, allowed, client, contractId, memberId, mount, ncr, ncrId, routeOf, world } from './test-support';
 import type { World } from './test-support';
 
 const ROUTE = routeOf('QMS-07', 'FR-QMS-07');
@@ -148,7 +148,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
         ncr(6, { status: 'CLOSED' }),
       ],
     });
-    open(state, { permissions: RAISER });
+    open(state, { permissions: HANDLER });
     await screen.findByTestId('board');
     const buttons = (id: string): string[] =>
       within(card(id))
@@ -161,10 +161,15 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
     expect(buttons(ncrId(5))).toEqual([vi_['qms.ncr.reopen.action']]);
     expect(buttons(ncrId(6))).toEqual([]);
     cleanup();
-    open(state, { permissions: RAISER, mode: 'READ_ONLY' });
+    open(state, { permissions: HANDLER, mode: 'READ_ONLY' });
     await screen.findByTestId('board');
     expect(screen.queryByRole('button', { name: vi_['qms.ncr.raise.action'] })).toBeNull();
     expect(buttons(ncrId(1))).toEqual([]);
+    cleanup();
+    // UI-QMS-07: a person who only reads is offered nothing, even where the server allows the membership every step.
+    open(state, { permissions: READER });
+    await screen.findByTestId('board');
+    for (const n of [1, 2, 3, 4, 5]) expect(buttons(ncrId(n))).toEqual([]);
   });
 
   describe('raising', () => {
@@ -313,7 +318,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
 
     it('AC-ST-QMS-006-1, UAT-AC361: answers an action with a document or a photo and a note, and says why the server refused', async () => {
       const state = world({ nonconformances: [ncr(1, { status: 'ACTION_ASSIGNED', allowed: allowed({ respond: true }), actions: [action(1, { owner: mine })] })] });
-      const h = open(state, { permissions: RAISER });
+      const h = open(state, { permissions: HANDLER });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.evidence.action'] }));
       expect(within(dialog()).getByTestId('evidence-action').textContent).toContain('Đục bỏ');
       submit(vi_['qms.ncr.evidence.submit']);
@@ -332,7 +337,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
         ['EVIDENCE_REQUIRED', 'qms.ncr.error.evidenceRequired'],
         ['CORRECTIVE_ACTION_STATE_INVALID', 'qms.ncr.error.actionState'],
       ] as const) {
-        open(state, { permissions: RAISER, command: () => Promise.reject(refusal(code, 422)) });
+        open(state, { permissions: HANDLER, command: () => Promise.reject(refusal(code, 422)) });
         fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.evidence.action'] }));
         pick('ncr-evidence-photo', PHOTO);
         pick('ncr-evidence-note', 'Đã đổ lại');
@@ -340,7 +345,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
         expect((await within(dialog()).findByTestId('refusal')).textContent).toBe(vi_[key]);
         cleanup();
       }
-      const sent = open(state, { permissions: RAISER });
+      const sent = open(state, { permissions: HANDLER });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.evidence.action'] }));
       pick('ncr-evidence-document', DOCUMENT);
       pick('ncr-evidence-note', ' Đã đổ lại ');
@@ -353,7 +358,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
       const state = world({
         nonconformances: [ncr(1, { status: 'ACTION_SUBMITTED', allowed: allowed({ verify: true }), actions: [action(1, { status: 'SUBMITTED', evidence_note: 'Đã đổ lại, đo được 52 mm' })] })],
       });
-      const h = open(state, { permissions: RAISER });
+      const h = open(state, { permissions: HANDLER });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.verify.action'] }));
       expect(within(dialog()).getByTestId('verify-evidence').textContent).toBe(text('qms.ncr.verify.evidence', { note: 'Đã đổ lại, đo được 52 mm' }));
       submit(vi_['qms.ncr.verify.submit']);
@@ -365,7 +370,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       expect(commandsOf(h, 'verifyCorrectiveAction')).toEqual([{ path: { id: actionId(1) }, body: { outcome: 'REJECTED', verification_note: 'Vẫn thiếu 10 mm' }, attempt: expect.anything() }]);
       cleanup();
-      open(state, { permissions: RAISER, command: () => Promise.reject(refusal('SELF_APPROVAL_DENIED', 403)) });
+      open(state, { permissions: HANDLER, command: () => Promise.reject(refusal('SELF_APPROVAL_DENIED', 403)) });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.verify.action'] }));
       pick('ncr-verify-outcome', 'VERIFIED');
       pick('ncr-verify-note', 'Đạt');
@@ -374,7 +379,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
     });
 
     it('shows an answered action that has no words of evidence without the line of evidence', async () => {
-      open(world({ nonconformances: [ncr(1, { status: 'ACTION_SUBMITTED', allowed: allowed({ verify: true }), actions: [action(1, { status: 'SUBMITTED' })] })] }), { permissions: RAISER });
+      open(world({ nonconformances: [ncr(1, { status: 'ACTION_SUBMITTED', allowed: allowed({ verify: true }), actions: [action(1, { status: 'SUBMITTED' })] })] }), { permissions: HANDLER });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.verify.action'] }));
       expect(within(dialog()).queryByTestId('verify-evidence')).toBeNull();
     });
@@ -383,7 +388,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
   describe('closing and reopening', () => {
     it('AC-ST-QMS-006-1, UAT-AC361: closes a verified non-conformance under the version shown, with a note, and says when actions are still open', async () => {
       const state = world({ nonconformances: [ncr(1, { status: 'VERIFIED', version: 7, allowed: allowed({ close: true }) })] });
-      const h = open(state, { permissions: RAISER });
+      const h = open(state, { permissions: HANDLER });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.close.action'] }));
       submit(vi_['qms.ncr.close.submit']);
       expect(within(dialog()).getByText(vi_['qms.ncr.problem.required'])).toBeTruthy();
@@ -393,7 +398,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       expect(commandsOf(h, 'closeNonconformance')).toEqual([{ path: { id: ncrId(1) }, body: { closure_note: 'Đã xác nhận đủ' }, ifMatchVersion: 7, attempt: expect.anything() }]);
       cleanup();
-      open(state, { permissions: RAISER, command: () => Promise.reject(refusal('CORRECTIVE_ACTION_OPEN')) });
+      open(state, { permissions: HANDLER, command: () => Promise.reject(refusal('CORRECTIVE_ACTION_OPEN')) });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.close.action'] }));
       pick('ncr-closure-note', 'Xong');
       submit(vi_['qms.ncr.close.submit']);
@@ -402,7 +407,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
 
     it('reopens a closed non-conformance under the version shown, with the reason, and says when someone changed it first', async () => {
       const state = world({ nonconformances: [ncr(1, { status: 'CLOSED', version: 9, allowed: allowed({ reopen: true }) })] });
-      const h = open(state, { permissions: RAISER });
+      const h = open(state, { permissions: HANDLER });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.reopen.action'] }));
       submit(vi_['qms.ncr.reopen.submit']);
       expect(within(dialog()).getByText(vi_['qms.ncr.problem.required'])).toBeTruthy();
@@ -411,7 +416,7 @@ describe('NonconformanceScreen (QMS-07): the non-conformances and the actions th
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       expect(commandsOf(h, 'reopenNonconformance')).toEqual([{ path: { id: ncrId(1) }, body: { reason: 'Nứt lại' }, ifMatchVersion: 9, attempt: expect.anything() }]);
       cleanup();
-      open(state, { permissions: RAISER, command: () => Promise.reject(refusal('VERSION_CONFLICT', 409)) });
+      open(state, { permissions: HANDLER, command: () => Promise.reject(refusal('VERSION_CONFLICT', 409)) });
       fireEvent.click(await screen.findByRole('button', { name: vi_['qms.ncr.reopen.action'] }));
       pick('ncr-reopen-reason', 'Nứt lại');
       submit(vi_['qms.ncr.reopen.submit']);

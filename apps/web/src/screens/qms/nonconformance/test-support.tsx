@@ -9,6 +9,8 @@ export type { Harness };
 
 export const READER = ['quality_nonconformance.read'];
 export const RAISER = ['quality_nonconformance.read', 'ncr.raise', 'ncr.manage', 'contract.read', 'membership.read'];
+/** Whoever also answers, verifies, closes and reopens: each command needs its own right besides what the server allows on the line. */
+export const HANDLER = [...RAISER, 'ncr.respond', 'ncr.verify', 'ncr.close'];
 /** The membership the session signs in as. */
 export const ME = TENANT.membershipId;
 

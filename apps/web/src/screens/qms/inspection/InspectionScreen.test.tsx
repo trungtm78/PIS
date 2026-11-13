@@ -44,13 +44,15 @@ describe('InspectionScreen (QMS-04): the inspection requests', () => {
     const first = row(inspectionId(1));
     expect(within(first).getByTestId('no').textContent).toBe('KT-001');
     expect(within(first).getByTestId('inspection').textContent).toContain('Kiểm tra vật liệu đợt 1');
-    expect(within(first).getByTestId('inspection').textContent).toContain(`HD-A-002 · ${vi_['qms.inspection.type.materialEntry']}`);
+    expect(within(first).getByTestId('contract').textContent).toBe('HD-A-002');
+    expect(within(first).getByTestId('type').textContent).toBe(vi_['qms.inspection.type.materialEntry']);
     expect(within(first).getByTestId('regime').textContent).toContain('Nghị định 06/2021/NĐ-CP');
     expect(within(first).getByTestId('roles').textContent).toBe(text('qms.inspection.roles.label', { roles: `${vi_['qms.inspection.role.contractor']}, ${vi_['qms.inspection.role.supervisor']}, ${vi_['qms.inspection.role.owner']}` }));
     expect(within(first).queryByTestId('regime-warning')).toBeNull();
     expect(within(first).getByTestId('status').textContent).toBe(vi_['qms.inspection.status.requested']);
     const second = row(inspectionId(2));
-    expect(within(second).getByTestId('inspection').textContent).toContain('B01 · Trụ T1');
+    expect(within(second).getByTestId('boq').textContent).toBe('B01');
+    expect(within(second).getByTestId('location').textContent).toBe('Trụ T1');
     expect(within(second).getByTestId('scheduled').textContent).toContain('30');
     expect(within(second).getByTestId('status').textContent).toBe(vi_['qms.inspection.status.scheduled']);
   });

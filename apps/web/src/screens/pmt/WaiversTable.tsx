@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
+import { ScrollRegion } from '../scroll-region';
 import { Field, Pill } from './components';
 import { gateLabel } from './gate-labels';
 import { useRevokeWaiver } from './waiver-hooks';
@@ -14,38 +15,54 @@ export interface WaiversTableProps {
   today: string;
   /** Whether the caller may revoke a waiver (and the tenant is not frozen). */
   mayRevoke: boolean;
+  /** What the one row of an empty table says. */
+  empty: string;
 }
 
 /**
  * PMT-06: the waivers of the gates. A row is one decision: the project, the gate, the permit type it lets through, the reason and the last day. A waiver
  * is never extended or edited: it ends by its last day or by a revocation that gives its words, and a new decision is a new waiver.
  */
-export function WaiversTable({ waivers, today, mayRevoke }: WaiversTableProps) {
+export function WaiversTable({ waivers, today, mayRevoke, empty }: WaiversTableProps) {
   const { t } = useTranslation();
   const [revoking, setRevoking] = useState<string | undefined>(undefined);
   return (
-    <table className="table" data-testid="waivers" aria-label={t('pmt.waiver.table.aria')}>
-      <thead>
-        <tr>
-          <th scope="col">{t('pmt.waiver.column.project')}</th>
-          <th scope="col">{t('pmt.waiver.column.gate')}</th>
-          <th scope="col">{t('pmt.waiver.column.type')}</th>
-          <th scope="col">{t('pmt.waiver.column.reason')}</th>
-          <th scope="col">{t('pmt.waiver.column.until')}</th>
-          <th scope="col">{t('pmt.waiver.column.status')}</th>
-          <th scope="col">
-            <span className="sr-only">{t('pmt.waiver.column.actions')}</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {waivers.map((waiver) => (
-          <WaiverRow key={waiver.id} waiver={waiver} today={today} mayRevoke={mayRevoke} open={revoking === waiver.id} onOpen={() => setRevoking(waiver.id)} onClose={() => setRevoking(undefined)} />
-        ))}
-      </tbody>
-    </table>
+    <ScrollRegion label={t('pmt.waiver.table.aria')}>
+      <table className="table" data-testid="waivers" aria-label={t('pmt.waiver.table.aria')}>
+        <thead>
+          <tr>
+            <th scope="col">{t('pmt.waiver.column.project')}</th>
+            <th scope="col">{t('pmt.waiver.column.gate')}</th>
+            <th scope="col">{t('pmt.waiver.column.type')}</th>
+            <th scope="col">{t('scr2.pmt.waiver.column.basis')}</th>
+            <th scope="col">{t('scr2.pmt.waiver.column.document')}</th>
+            <th scope="col">{t('scr2.pmt.waiver.column.approver')}</th>
+            <th scope="col">{t('scr2.pmt.waiver.column.until')}</th>
+            <th scope="col">{t('pmt.waiver.column.status')}</th>
+            <th scope="col">
+              <span className="sr-only">{t('pmt.waiver.column.actions')}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {waivers.length === 0 ? (
+            <tr>
+              <td colSpan={COLUMNS} className="sub" data-testid="empty-waivers">
+                {empty}
+              </td>
+            </tr>
+          ) : null}
+          {waivers.map((waiver) => (
+            <WaiverRow key={waiver.id} waiver={waiver} today={today} mayRevoke={mayRevoke} open={revoking === waiver.id} onOpen={() => setRevoking(waiver.id)} onClose={() => setRevoking(undefined)} />
+          ))}
+        </tbody>
+      </table>
+    </ScrollRegion>
   );
 }
+
+/** The columns of the table, for the rows that span it. */
+const COLUMNS = 9;
 
 interface WaiverRowProps {
   waiver: WaiverView;
@@ -75,7 +92,7 @@ function WaiverRow({ waiver, today, mayRevoke, open, onOpen, onClose }: WaiverRo
           <small className="sub">{waiver.permitTypeName}</small>
         </td>
         <td>
-          {waiver.reason}
+          <span className="sub">{t('pmt.waiver.column.reason')}:</span> {waiver.reason}
           {waiver.revokedReason === null ? null : (
             <>
               <br />
@@ -84,7 +101,19 @@ function WaiverRow({ waiver, today, mayRevoke, open, onOpen, onClose }: WaiverRo
           )}
         </td>
         <td>
-          {waiver.validUntil}
+          <code data-testid="decision-document" title={waiver.decisionDocumentVersionId}>
+            {waiver.decisionDocumentVersionId.slice(0, 8)}
+          </code>
+          <br />
+          <small className="sub">{t('scr2.pmt.waiver.grantedOn', { date: waiver.grantedOn })}</small>
+        </td>
+        <td>
+          <small className="sub" data-testid="approver">
+            {t('scr2.pmt.waiver.approver.audit')}
+          </small>
+        </td>
+        <td>
+          <span className="sub">{t('pmt.waiver.column.until')}:</span> {waiver.validUntil}
           {phase === 'inForce' ? (
             <>
               <br />
@@ -109,7 +138,7 @@ function WaiverRow({ waiver, today, mayRevoke, open, onOpen, onClose }: WaiverRo
       </tr>
       {open ? (
         <tr data-revoke-for={waiver.id}>
-          <td colSpan={7}>
+          <td colSpan={COLUMNS}>
             <RevokeForm waiver={waiver} onClose={onClose} />
           </td>
         </tr>

@@ -198,7 +198,7 @@ function VerificationSection({ pack }: { pack: OrgPack }) {
 function UnitsSection({ pack }: { pack: OrgPack }) {
   const { t } = useTranslation();
   return (
-    <SectionCard title={t('org.units.title')}>
+    <SectionCard title={t('org.units.title')} status={<StatusPill tone="info">{t('scr2.org.units.points', { count: String(pack.units.filter((unit) => unit.unit_function === 'INPUT_POINT').length).padStart(2, '0') })}</StatusPill>}>
       <DataTable
         caption={t('org.units.caption')}
         rowKey={(row) => row.code}

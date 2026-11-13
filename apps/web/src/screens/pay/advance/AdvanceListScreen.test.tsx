@@ -93,6 +93,18 @@ describe('AdvanceListScreen (PAY-07): advances and recovery', () => {
     expect(within(rowOf(advanceId(2))).getByRole('button', { name: vi_['pay.advance.action.cancel'] })).toBeTruthy();
   });
 
+  it('UI-PAY-07: offers neither recovery nor cancel to a person who only reads, even where the server allows both on the membership', async () => {
+    open(world(), { permissions: READER });
+    await screen.findByTestId('advances');
+    expect(within(rowOf(advanceId(1))).getByTestId('outstanding').textContent).toBe('1.250.000.000');
+    expect(document.querySelectorAll('button[data-action]')).toHaveLength(0);
+    cleanup();
+    open(world(), { permissions: ['advance.read', 'advance.cancel'] });
+    await screen.findByTestId('advances');
+    expect(within(rowOf(advanceId(1))).queryByRole('button', { name: vi_['pay.advance.action.recover'] })).toBeNull();
+    expect(within(rowOf(advanceId(2))).getByRole('button', { name: vi_['pay.advance.action.cancel'] })).toBeTruthy();
+  });
+
   it('AC-ST-PAY-004-4: records a recovery with its basis and evidence, says how much is owed, and says it was recorded', async () => {
     const h = open(world(), { permissions: ACCOUNTANT, command: () => answer(1) });
     await screen.findByTestId('advances');

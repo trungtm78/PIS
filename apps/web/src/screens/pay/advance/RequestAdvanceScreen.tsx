@@ -6,10 +6,11 @@ import type { Translator } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { useLineChoices } from '../../bid/plan-hooks';
-import { BackLink, Field } from '../../ctr/components';
+import { BackLink, Fact, Field } from '../../ctr/components';
+import { useGuarantees } from '../../ctr/guarantee-hooks';
 import { useContract, useContracts } from '../../ctr/hooks';
 import { formProblemMessage } from '../payment/labels';
-import { useRequestAdvance } from './hooks';
+import { useAdvances, useRequestAdvance } from './hooks';
 import { kindLabel } from './labels';
 import { KINDS, LIST_PATH, REQUEST_PERMISSION, listLink, signedAmountText } from './model';
 import { EMPTY_REQUEST, describeRequestRefusal, requestBody, toRequested, validateRequest } from './request-model';
@@ -92,6 +93,9 @@ function RequestAdvanceContent({ route }: ScreenProps) {
   const contract = (contracts.data ?? []).find((candidate) => candidate.id === form.contractId);
   const parties = detail.data?.parties ?? [];
   const ofProject = (lines.data ?? []).filter((line) => contract !== undefined && line.projectId === contract.projectId);
+  // What the form may not take but the person must see before asking: the cap and the advance guarantee of the contract (the server checks both again).
+  const advances = useAdvances({ contractId: form.contractId === '' ? null : form.contractId });
+  const guarantees = useGuarantees();
   const problems = validateRequest(form);
   const shown = (field: keyof RequestForm): string | undefined => {
     const problem = problems[field];
@@ -101,6 +105,25 @@ function RequestAdvanceContent({ route }: ScreenProps) {
   const set = (patch: Partial<RequestForm>): void => {
     setForm({ ...form, ...patch });
     setDone(undefined);
+  };
+  /** The cap the server gave: on the advance just planned, on the refusal of an amount above it, or on an earlier advance of the same member of the contract. */
+  const capText = (): string => {
+    const refusal = request.isError ? describeRequestRefusal(request.error) : undefined;
+    if (refusal?.capVnd !== undefined && refusal.capVnd !== null) return money(refusal.capVnd);
+    if (done !== undefined) return done.capPct === null ? money(done.capVnd) : t('scr2.pay.request.cap.value', { cap: money(done.capVnd), pct: done.capPct });
+    if (form.contractId === '') return t('scr2.pay.request.chooseContract');
+    const earlier = (advances.data ?? []).find((advance) => advance.status !== 'CANCELLED' && (form.partyId === '' || advance.party.id === form.partyId));
+    if (earlier === undefined) return t('scr2.pay.request.cap.byServer');
+    return earlier.capPct === null ? money(earlier.capVnd) : t('scr2.pay.request.cap.value', { cap: money(earlier.capVnd), pct: earlier.capPct });
+  };
+  /** The advance guarantees of the chosen contract that are in force (CTR-05): number, issuer, amount and expiry. */
+  const guaranteeText = (): string => {
+    if (form.contractId === '') return t('scr2.pay.request.chooseContract');
+    if (guarantees.isError) return t('scr2.pay.request.guarantee.unreadable');
+    if (guarantees.isLoading) return t('scr2.pay.request.loading');
+    const held = (guarantees.data ?? []).filter((guarantee) => guarantee.contractId === form.contractId && guarantee.kind === 'ADVANCE' && guarantee.status === 'ACTIVE');
+    if (held.length === 0) return t('scr2.pay.request.guarantee.none');
+    return held.map((guarantee) => t('scr2.pay.request.guarantee.value', { no: guarantee.guaranteeNo ?? '', issuer: guarantee.issuer, amount: money(guarantee.amountVnd), expires: guarantee.expiresOn })).join('; ');
   };
   const may = (permissions === undefined || permissions.includes(REQUEST_PERMISSION)) && mode !== 'READ_ONLY';
   const send = (event: FormEvent): void => {
@@ -197,6 +220,14 @@ function RequestAdvanceContent({ route }: ScreenProps) {
             <input id="request-tranche" inputMode="numeric" autoComplete="off" value={form.trancheNo} onChange={(event) => set({ trancheNo: event.target.value })} />
           </Field>
         </div>
+        <dl className="pay-facts" data-testid="request-basis">
+          <Fact label={t('scr2.pay.request.cap')}>
+            <span data-testid="request-cap">{capText()}</span>
+          </Fact>
+          <Fact label={t('scr2.pay.request.guarantee')}>
+            <span data-testid="request-guarantee">{guaranteeText()}</span>
+          </Fact>
+        </dl>
         <StickyActions
           primary={
             <button type="submit" className="ui-button ui-button--primary" disabled={!may || request.isPending}>

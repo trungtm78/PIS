@@ -97,7 +97,7 @@ export default function PwaNotificationsScreen({ pushDeps }: PwaNotificationsScr
         </div>
       </div>
       <section className="card pwa-card-panel" aria-labelledby="webpush-state-title" data-testid="webpush-state-card">
-        <h2 id="webpush-state-title">{t('webpush.state.title')}</h2>
+        <h2 id="webpush-state-title">{`${t('webpush.state.title')}: ${t('scr2.webpush.state.register')}`}</h2>
         <dl className="pwa-facts">
           <dt>{t('webpush.permission.label')}</dt>
           <dd data-testid="webpush-permission" data-permission={permission ?? 'unknown'}>
@@ -123,7 +123,7 @@ export default function PwaNotificationsScreen({ pushDeps }: PwaNotificationsScr
         ) : null}
       </section>
       <section className="card pwa-card-panel" aria-labelledby="webpush-test-title" data-testid="webpush-test-card">
-        <h2 id="webpush-test-title">{t('webpush.test.title')}</h2>
+        <h2 id="webpush-test-title">{t('scr2.webpush.test.title')}</h2>
         <p>{t('webpush.test.hint')}</p>
         <button type="button" className="ui-button ui-button--primary pwa-touch" data-action="send-test" disabled={busy || push.state !== 'on'} onClick={() => void sendTest()}>
           {t('webpush.test.action.send')}

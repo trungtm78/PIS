@@ -1,4 +1,4 @@
-import { cleanup, screen } from '@testing-library/react';
+import { cleanup, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import vi_ from '../../i18n/vi.json';
 import { mountInSession } from '../adm/security/test-support';
@@ -29,10 +29,13 @@ describe('PermitTypeWorkspace (PMT-03): the catalogue of permit types as dated l
     expect(screen.getByTestId('unconfirmed-banner').textContent).toBe(vi_['pmt.type.unconfirmed.banner'].replace('{count}', '2'));
   });
 
-  it('says so when the catalogue is empty, and still offers the form', () => {
+  it('says so when the catalogue is empty, keeps the columns of the catalogue, and still offers the form', () => {
     mount([]);
     expect(screen.getByTestId('empty-catalogue').textContent).toBe(vi_['pmt.type.empty.text']);
-    expect(screen.queryByRole('table', { name: vi_['pmt.type.table.aria'] })).toBeNull();
+    const table = screen.getByRole('table', { name: vi_['pmt.type.table.aria'] });
+    expect(within(table).getByRole('columnheader', { name: vi_['pmt.type.applies.column'] })).toBeTruthy();
+    expect(within(table).getByRole('columnheader', { name: vi_['pmt.type.exempt.column'] })).toBeTruthy();
+    expect(table.querySelectorAll('tr[data-group-code]')).toHaveLength(0);
     expect(screen.getByRole('form', { name: vi_['pmt.type.form.aria'] })).toBeTruthy();
   });
 

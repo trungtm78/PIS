@@ -400,7 +400,8 @@ describe('MNE-03 periodic overall report (ST-MNE-002, MNE F3)', () => {
       const h = harness((operation) => (operation === 'listMneObligations' ? { items: [obligationRow(1)], next_cursor: null, as_of: '2026-10-24' } : new Error('unexpected read')));
       mount(<ReportScreen route={ROUTE} />, h, { permissions: PREPARE }, '/');
       await screen.findByText('CDT-1');
-      const query = (): Record<string, unknown> | undefined => (h.read.mock.calls.at(-1)?.[1] as { query?: Record<string, unknown> } | undefined)?.query;
+      // Each draft is read as well (its scope, snapshot and cells from source): the year is in the last read of the list.
+      const query = (): Record<string, unknown> | undefined => (h.read.mock.calls.filter((call) => call[0] === 'listMneObligations').at(-1)?.[1] as { query?: Record<string, unknown> } | undefined)?.query;
       expect(query()).toMatchObject({ report_year: String(year), status: 'DRAFT' });
       await user.selectOptions(screen.getByLabelText(vi_['mne.calendar.filter.year.label']), String(year - 1));
       await waitFor(() => expect(query()).toMatchObject({ report_year: String(year - 1), status: 'DRAFT' }));

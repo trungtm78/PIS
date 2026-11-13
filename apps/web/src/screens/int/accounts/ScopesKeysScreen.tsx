@@ -117,15 +117,21 @@ function AccountKeys({ accountId, accounts, page, detail }: { accountId: string 
     return (
       <SectionCard title={t('int.keys.pick.title')}>
         {accounts.length === 0 ? (
-          <EmptyBlock title={t('int.keys.pick.empty.title')} body={t('int.keys.pick.empty.body')} />
+          <>
+            <EmptyBlock title={t('int.keys.pick.empty.title')} body={t('int.keys.pick.empty.body')} />
+            <KeysOverview accounts={accounts} />
+          </>
         ) : (
-          <ul className="int-columns" aria-label={t('int.keys.pick.list.label')}>
-            {accounts.map((account) => (
-              <li key={account.id}>
-                <Link to={`${SCOPES_PATH}?account=${account.id}`}>{account.name}</Link>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="int-columns" aria-label={t('int.keys.pick.list.label')}>
+              {accounts.map((account) => (
+                <li key={account.id}>
+                  <Link to={`${SCOPES_PATH}?account=${account.id}`}>{account.name}</Link>
+                </li>
+              ))}
+            </ul>
+            <KeysOverview accounts={accounts} />
+          </>
         )}
       </SectionCard>
     );
@@ -160,6 +166,26 @@ function AccountKeys({ accountId, accounts, page, detail }: { accountId: string 
       </pre>
     </SectionCard>
   );
+}
+
+interface KeyRow {
+  account: MachineAccount;
+  credential: MachineCredential;
+}
+
+/** The keys of every account at a glance: the client id, the hint of the secret, the state of the key and, for a key replaced by a rotation, the end of its overlap. */
+function KeysOverview({ accounts }: { accounts: MachineAccount[] }) {
+  const { t } = useTranslation();
+  const none = t('int.keys.cell.none');
+  const rows: KeyRow[] = accounts.flatMap((account) => account.credentials.filter((credential) => credential.state !== 'REVOKED').map((credential) => ({ account, credential })));
+  const columns: Array<DataTableColumn<KeyRow>> = [
+    { key: 'account', header: t('scr2.int.keys.overview.account'), pinned: true, render: (row) => <Link to={`${SCOPES_PATH}?account=${row.account.id}`}>{row.account.name}</Link> },
+    { key: 'clientId', header: t('int.keys.credentials.column.clientId'), render: (row) => <span className="int-code">{row.credential.client_id}</span> },
+    { key: 'hint', header: t('scr2.int.keys.overview.hint'), render: (row) => <code>{row.credential.secret_hint}</code> },
+    { key: 'state', header: t('scr2.int.keys.overview.state'), render: (row) => <StatusPill tone={CREDENTIAL_TONE[row.credential.state] ?? 'neutral'}>{credentialStateLabel(t, row.credential.state)}</StatusPill> },
+    { key: 'overlap', header: t('scr2.int.keys.overview.overlap'), render: (row) => (row.credential.superseded_at === null || row.credential.expires_at === null ? none : instantText(row.credential.expires_at)) },
+  ];
+  return <DataTable caption={t('scr2.int.keys.overview.caption')} columns={columns} rows={rows} rowKey={(row) => row.credential.id} state="ready" emptyKind="none" />;
 }
 
 function credentialColumns(t: T): Array<DataTableColumn<MachineCredential>> {

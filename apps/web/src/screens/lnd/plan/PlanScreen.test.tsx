@@ -39,14 +39,15 @@ const worldOf = () =>
     ],
   });
 const rowOf = (n: number): HTMLElement => document.querySelector(`[data-plan-id="${planRecord(n).id}"]`) as HTMLElement;
-const ready = () => screen.findByTestId('plans');
+const ready = () => screen.findByRole('search', { name: vi_['lnd.plans.filters.title'] });
 const button = (row: HTMLElement, key: string, code: string, revision = 1) => within(row).getByRole('button', { name: vi_[key as keyof typeof vi_].replace('{code}', code).replace('{revision}', String(revision)) });
 
 describe('PlanScreen (LND-05): the plans of compensation, support and resettlement', () => {
   it('UI-LND-05: asks for a project first and lists the plans of the one chosen', async () => {
     mount(<PlanScreen route={ROUTE} />, client(worldOf()), { permissions: PLANNER, path: '/lnd/lnd-05' });
     expect((await screen.findByTestId('choose-project')).textContent).toBe(vi_['lnd.plans.project.notice']);
-    expect(screen.queryByTestId('plans')).toBeNull();
+    expect(document.querySelectorAll('[data-plan-id]')).toHaveLength(0);
+    expect(screen.getByTestId('plan-totals').textContent).toContain(vi_['lnd.plans.project.notice']);
     expect(screen.queryByRole('button', { name: vi_['lnd.plans.draft.action'] })).toBeNull();
     await screen.findByRole('option', { name: /DA-2026-001/ });
     fireEvent.change(screen.getByLabelText(vi_['lnd.plans.project.label']), { target: { value: PROJECT } });
@@ -71,6 +72,7 @@ describe('PlanScreen (LND-05): the plans of compensation, support and resettleme
       vi_['lnd.plans.column.resettlement'],
       vi_['lnd.plans.column.grand'],
       vi_['lnd.plans.column.status'],
+      'Quyết định',
       vi_['lnd.plans.column.action'],
     ]);
     const first = rowOf(1);

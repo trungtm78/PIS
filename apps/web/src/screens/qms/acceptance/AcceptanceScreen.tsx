@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
+import { holds } from '../../../session/holds';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { useContracts } from '../../ctr/hooks';
@@ -14,6 +15,7 @@ import { effectLabel, methodLabel, scopeLabel, statusLabel } from './labels';
 import { canDraft, draftable } from './model';
 import type { AcceptanceLine } from './model';
 import '../qms.css';
+import { ScrollRegion } from '../../scroll-region';
 
 /**
  * QMS-05: quality acceptance minutes (ST-QMS-005, QMS 3.2, BR-QMS-02, BR-QMS-03, BR-QMS-05). The supervisor drafts minutes from an inspection that passed; each role the regime of the
@@ -26,6 +28,14 @@ export default function AcceptanceScreen({ route }: ScreenProps) {
   // The minutes and the dialogs belong to one membership: a switch of tenant or of membership starts the screen over.
   return <AcceptanceContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
 }
+
+/** The rights of the commands on the minutes (openapi `x-permission`): the server says what each minute allows, the session what the person holds. */
+const SIGN_PERMISSION = 'qacceptance.sign';
+const APPROVE_PERMISSION = 'qacceptance.approve';
+const REVOKE_PERMISSION = 'qacceptance.revoke';
+
+/** The roles of the minutes that hold a valid signature. */
+const signedCount = (line: AcceptanceLine): number => line.requiredRoles.filter((role) => line.signatures.some((signature) => signature.role === role && signature.valid)).length;
 
 type Dialog = { kind: 'draft' } | { kind: 'sign'; line: AcceptanceLine } | { kind: 'decide'; line: AcceptanceLine } | { kind: 'revoke'; line: AcceptanceLine };
 
@@ -81,17 +91,15 @@ function AcceptanceContent({ route }: ScreenProps) {
       )}
       <StateBoundary state={state} onRetry={() => void acceptances.refetch()}>
         <div className="card">
-          {lines.length === 0 ? (
-            <p className="callout" role="status" data-testid="no-acceptances">
-              {t('qms.acceptance.none.notice')}
-            </p>
-          ) : (
+          <ScrollRegion label={t('qms.acceptance.page.title')}>
             <table className="table" data-testid="acceptances">
               <thead>
                 <tr>
                   <th scope="col">{t('qms.acceptance.column.record')}</th>
                   <th scope="col">{t('qms.acceptance.column.scope')}</th>
                   <th scope="col">{t('qms.acceptance.column.signatures')}</th>
+                  <th scope="col">{t('scr2.qms.acceptance.column.signed')}</th>
+                  <th scope="col">{t('scr2.qms.acceptance.column.ncr')}</th>
                   <th scope="col">{t('qms.acceptance.column.status')}</th>
                   <th scope="col">
                     <span className="sr-only">{t('qms.acceptance.column.actions')}</span>
@@ -99,6 +107,13 @@ function AcceptanceContent({ route }: ScreenProps) {
                 </tr>
               </thead>
               <tbody>
+                {lines.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} role="status" data-testid="no-acceptances">
+                      {t('qms.acceptance.none.notice')}
+                    </td>
+                  </tr>
+                ) : null}
                 {lines.map((line) => (
                   <tr key={line.id} data-acceptance={line.id} data-status={line.status}>
                     <td data-testid="record">
@@ -135,11 +150,16 @@ function AcceptanceContent({ route }: ScreenProps) {
                           );
                         })}
                       </ul>
+                    </td>
+                    <td data-testid="signed">{t('scr2.qms.acceptance.signed.value', { signed: signedCount(line), required: line.requiredRoles.length })}</td>
+                    <td data-testid="ncr">
                       {line.openCriticalNcr > 0 && (line.status === 'DRAFT' || line.status === 'SIGNING') ? (
                         <span className="qms-badge danger" data-testid="ncr-open" role="status">
                           {t('qms.acceptance.ncr.open', { count: line.openCriticalNcr })}
                         </span>
-                      ) : null}
+                      ) : (
+                        line.openCriticalNcr
+                      )}
                     </td>
                     <td>
                       <span className={line.status === 'APPROVED' ? 'qms-badge ok' : line.status === 'REJECTED' || line.status === 'REVOKED' ? 'qms-badge danger' : 'qms-badge'} data-testid="status">
@@ -159,17 +179,17 @@ function AcceptanceContent({ route }: ScreenProps) {
                     <td>
                       {mode === 'READ_ONLY' ? null : (
                         <>
-                          {line.canSign ? (
+                          {line.canSign && holds(permissions, SIGN_PERMISSION) ? (
                             <button type="button" data-sign={line.id} onClick={() => setDialog({ kind: 'sign', line })}>
                               {t('qms.acceptance.sign.action')}
                             </button>
                           ) : null}
-                          {line.canApprove || line.canReject ? (
+                          {(line.canApprove || line.canReject) && holds(permissions, APPROVE_PERMISSION) ? (
                             <button type="button" data-decide={line.id} onClick={() => setDialog({ kind: 'decide', line })}>
                               {t('qms.acceptance.decide.action')}
                             </button>
                           ) : null}
-                          {line.canRevoke ? (
+                          {line.canRevoke && holds(permissions, REVOKE_PERMISSION) ? (
                             <button type="button" data-revoke={line.id} onClick={() => setDialog({ kind: 'revoke', line })}>
                               {t('qms.acceptance.revoke.action')}
                             </button>
@@ -181,7 +201,7 @@ function AcceptanceContent({ route }: ScreenProps) {
                 ))}
               </tbody>
             </table>
-          )}
+          </ScrollRegion>
         </div>
       </StateBoundary>
       {dialog?.kind === 'draft' ? <DraftDialog inspections={candidates} onClose={() => setDialog(undefined)} /> : null}

@@ -19,6 +19,7 @@ import { formsLink } from '../forms/model';
 import { reversalLink } from '../reversal/model';
 import type { PaymentAnswer, PaymentRequest, WarningCode } from './model';
 import '../pay.css';
+import { ScrollRegion } from '../../scroll-region';
 import { SectionCard, StatusPill } from '../../../ui';
 import { IntegrityPanel } from '../integrity/IntegrityPanel';
 
@@ -250,30 +251,32 @@ function Detail({ request }: { request: PaymentRequest }) {
             {t('pay.payment.documents.empty')}
           </p>
         ) : (
-          <table className="table" data-testid="documents">
-            <thead>
-              <tr>
-                <th scope="col">{t('pay.payment.documents.kind')}</th>
-                <th scope="col">{t('pay.payment.documents.invoice')}</th>
-                <th scope="col">{t('pay.payment.documents.signed')}</th>
-                <th scope="col">{t('pay.payment.documents.checksum')}</th>
-                <th scope="col">{t('pay.payment.documents.override')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {request.documents.map((document) => (
-                <tr key={document.id} data-document={document.id}>
-                  <td data-testid="doc-kind">{docKindLabel(t, document.docKind)}</td>
-                  <td data-testid="doc-invoice">{document.invoiceNo === null ? '' : `${document.invoiceNo} · ${document.invoiceDate ?? ''}`}</td>
-                  <td>{document.signed ? t('pay.payment.documents.yes') : t('pay.payment.documents.no')}</td>
-                  <td>
-                    <code data-testid="doc-checksum">{document.checksum.slice(0, 12)}</code>
-                  </td>
-                  <td data-testid="doc-override">{document.duplicateOverrideReason ?? ''}</td>
+          <ScrollRegion label={t('pay.payment.documents.title')}>
+            <table className="table" data-testid="documents">
+              <thead>
+                <tr>
+                  <th scope="col">{t('pay.payment.documents.kind')}</th>
+                  <th scope="col">{t('pay.payment.documents.invoice')}</th>
+                  <th scope="col">{t('pay.payment.documents.signed')}</th>
+                  <th scope="col">{t('pay.payment.documents.checksum')}</th>
+                  <th scope="col">{t('pay.payment.documents.override')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {request.documents.map((document) => (
+                  <tr key={document.id} data-document={document.id}>
+                    <td data-testid="doc-kind">{docKindLabel(t, document.docKind)}</td>
+                    <td data-testid="doc-invoice">{document.invoiceNo === null ? '' : `${document.invoiceNo} · ${document.invoiceDate ?? ''}`}</td>
+                    <td>{document.signed ? t('pay.payment.documents.yes') : t('pay.payment.documents.no')}</td>
+                    <td>
+                      <code data-testid="doc-checksum">{document.checksum.slice(0, 12)}</code>
+                    </td>
+                    <td data-testid="doc-override">{document.duplicateOverrideReason ?? ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ScrollRegion>
         )}
       </SectionCard>
       <IntegrityPanel requestId={request.id} />

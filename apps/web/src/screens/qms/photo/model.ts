@@ -38,6 +38,9 @@ export interface PhotoLine {
   projectCode: string;
   contract: { id: string; code: string } | null;
   siteDiaryId: string | null;
+  /** The inspection request and the non-conformance the photo is evidence for, if any. */
+  inspectionId: string | null;
+  nonconformanceId: string | null;
   fileSha256: string;
   takenAtExif: string | null;
   receivedAt: string;
@@ -83,6 +86,8 @@ export function toPhotoLine(raw: unknown): PhotoLine | undefined {
     projectCode: text(project?.code) ?? '',
     contract: contract === undefined || text(contract.id) === undefined ? null : { id: text(contract.id) ?? '', code: text(contract.code) ?? '' },
     siteDiaryId: nullableText(row.site_diary_id),
+    inspectionId: nullableText(row.inspection_id),
+    nonconformanceId: nullableText(row.nonconformance_id),
     fileSha256: text(row.file_sha256) ?? '',
     takenAtExif: nullableText(row.taken_at_exif),
     receivedAt,

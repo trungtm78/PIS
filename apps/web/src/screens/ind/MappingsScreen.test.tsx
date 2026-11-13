@@ -122,8 +122,9 @@ describe('MappingsScreen (IND-03): the mappings', () => {
 
   it('says in words when the mapping detail cannot be read', async () => {
     const { state } = open();
-    await listed();
+    // The rows read the history of each mapping (who drafted and approved it) through the same read: it fails for them as well.
     state.failing.set('getIndicatorImportMapping', new Error('down'));
+    await listed();
     fireEvent.click(screen.getByRole('button', { name: word('ind.map.select.label', { code: 'MONTHLY_FORM' }) }));
     expect((await screen.findByTestId('mapping-detail-error')).textContent).toContain(word('ind.map.detail.error'));
   });

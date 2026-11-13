@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { useTranslation } from '../../i18n';
+import { ScrollRegion } from '../scroll-region';
 import { Field, Pill } from './components';
 import { SectionCard } from '../../ui';
 import { useRetireGateRule } from './gate-hooks';
@@ -28,35 +29,60 @@ const validity = (rule: GateRuleView): string => `${rule.effectiveFrom} → ${ru
 export function GateRulesTable({ rules, today, mayRetire }: GateRulesTableProps) {
   const { t } = useTranslation();
   const [retiring, setRetiring] = useState<string | undefined>(undefined);
+  const groups = rulesByGate(rules, today);
+  // A tenant with no rule yet still sees what a rule holds: the columns stand, and the one row says that a gate without a rule blocks nothing.
+  if (groups.length === 0) {
+    return (
+      <SectionCard title={t('scr2.pmt.gate.rules.title')}>
+        <RulesTable label={t('scr2.pmt.gate.rules.title')}>
+          <tr>
+            <td colSpan={7} className="sub" data-testid="empty-rules">
+              {t('pmt.gate.empty.text')}
+            </td>
+          </tr>
+        </RulesTable>
+      </SectionCard>
+    );
+  }
   return (
     <>
-      {rulesByGate(rules, today).map((group) => (
+      {groups.map((group) => (
         <div key={group.gateCode} data-gate={group.gateCode}>
           <SectionCard title={gateLabel(t, group.gateCode)}>
-          <table className="table" aria-label={t('pmt.gate.table.aria', { gate: gateLabel(t, group.gateCode) })}>
-            <thead>
-              <tr>
-                <th scope="col">{t('pmt.gate.column.type')}</th>
-                <th scope="col">{t('pmt.gate.column.milestone')}</th>
-                <th scope="col">{t('pmt.gate.column.requirement')}</th>
-                <th scope="col">{t('pmt.gate.column.applies')}</th>
-                <th scope="col">{t('pmt.gate.column.validity')}</th>
-                <th scope="col">{t('pmt.gate.column.basis')}</th>
-                <th scope="col">
-                  <span className="sr-only">{t('pmt.gate.column.actions')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+            <RulesTable label={t('pmt.gate.table.aria', { gate: gateLabel(t, group.gateCode) })}>
               {group.rules.map((rule) => (
                 <RuleRow key={rule.id} rule={rule} today={today} mayRetire={mayRetire} open={retiring === rule.id} onOpen={() => setRetiring(rule.id)} onClose={() => setRetiring(undefined)} />
               ))}
-            </tbody>
-          </table>
+            </RulesTable>
           </SectionCard>
         </div>
       ))}
     </>
+  );
+}
+
+/** The table of the rules of one gate, with its columns, in a region that scrolls sideways on a phone. */
+function RulesTable({ label, children }: { label: string; children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <ScrollRegion label={label}>
+      <table className="table" aria-label={label}>
+        <thead>
+          <tr>
+            <th scope="col">{t('pmt.gate.column.type')}</th>
+            <th scope="col">{t('pmt.gate.column.milestone')}</th>
+            <th scope="col">{t('pmt.gate.column.requirement')}</th>
+            <th scope="col">{t('pmt.gate.column.applies')}</th>
+            <th scope="col">{t('pmt.gate.column.validity')}</th>
+            <th scope="col">{t('pmt.gate.column.basis')}</th>
+            <th scope="col">
+              <span className="sr-only">{t('pmt.gate.column.actions')}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    </ScrollRegion>
   );
 }
 

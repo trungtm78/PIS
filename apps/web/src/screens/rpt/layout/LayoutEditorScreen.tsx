@@ -116,7 +116,7 @@ function EditorContent({ route }: ScreenProps) {
       )}
       <div className="rpt-lay">
         <div className="rpt-lay__form">
-          <SectionCard title={t('rpt.layout.section.form')}>
+          <SectionCard title={`${t('rpt.layout.section.form')}: ${t('scr2.rpt.layout.section.formKindName')}`}>
             <label>
               {t('rpt.layout.field.code')}
               <input type="text" maxLength={39} value={state.code} data-testid="field-code" readOnly={startCode !== undefined} onChange={(event) => set({ code: event.target.value.toUpperCase().trim() })} />
@@ -168,8 +168,14 @@ function EditorContent({ route }: ScreenProps) {
             </p>
           </SectionCard>
 
-          {state.kind === 'AGENCY_REQUEST' ? (
-            <SectionCard title={t('rpt.layout.section.agency')}>
+          {/* The agency and its request letter belong to a layout made at the request of a department; for an internal one they stand, closed, so that the form always says what it can hold. */}
+          <SectionCard title={`${t('rpt.layout.section.agency')} ${t('scr2.rpt.layout.section.agencyAnd')}`}>
+            {state.kind === 'AGENCY_REQUEST' ? null : (
+              <p className="callout" role="note" data-testid="agency-internal">
+                {t('scr2.rpt.layout.agency.internal')}
+              </p>
+            )}
+            <fieldset className="rpt-lay__fieldset" disabled={state.kind !== 'AGENCY_REQUEST'}>
               <label>
                 {t('rpt.layout.field.agency')}
                 <input type="text" maxLength={200} value={state.agencyName} data-testid="field-agency" onChange={(event) => set({ agencyName: event.target.value })} />
@@ -185,8 +191,8 @@ function EditorContent({ route }: ScreenProps) {
               <p className="callout" role="note">
                 {t('rpt.layout.field.receiver.hint')}
               </p>
-            </SectionCard>
-          ) : null}
+            </fieldset>
+          </SectionCard>
 
           <SectionCard title={t('rpt.layout.section.indicators')}>
             <ol className="rpt-lay__list" data-testid="indicators">
@@ -225,8 +231,14 @@ function EditorContent({ route }: ScreenProps) {
             </button>
           </SectionCard>
 
-          {state.groups.length > 0 ? (
-            <SectionCard title={t('rpt.layout.section.columns')}>
+          {state.groups.length === 0 ? (
+            <SectionCard title={t('scr2.rpt.layout.section.columnsOrder')}>
+              <p className="sub" data-testid="columns-need-group">
+                {t('scr2.rpt.layout.columns.needGroup')}
+              </p>
+            </SectionCard>
+          ) : (
+            <SectionCard title={`${t('rpt.layout.section.columns')} (${t('scr2.rpt.layout.section.columnsOrder')})`}>
               <ol className="rpt-lay__list" data-testid="columns">
                 {state.columns.map((one, index) => (
                   <li key={one.key} data-testid={`column-${index}`}>
@@ -248,7 +260,7 @@ function EditorContent({ route }: ScreenProps) {
                 </select>
               </label>
             </SectionCard>
-          ) : null}
+          )}
 
           <SectionCard title={t('rpt.layout.section.finish')}>
             <label className="rpt-lay__check">

@@ -74,7 +74,7 @@ function ConnectorContent({ route }: ScreenProps) {
             <div role="tablist" aria-label={t('hub.det.tabs.label')} className="hub-tabs" onKeyDown={onTabKey}>
               {DETAIL_TABS.map((one) => (
                 <button key={one} type="button" role="tab" id={`tab-${one}`} aria-selected={tab === one} aria-controls={`panel-${one}`} tabIndex={tab === one ? 0 : -1} data-testid={`tab-${one}`} className={`hub-tab${tab === one ? ' hub-tab--on' : ''}`} onClick={() => choose(one)}>
-                  {t(`hub.det.tab.${one}`)}
+                  {t(`scr2.hub.det.tab.${one}`)}
                 </button>
               ))}
             </div>
@@ -137,7 +137,8 @@ function Overview({ data, onSwitch }: { data: Detail; onSwitch: () => void }) {
           ]}
         />
         <p>
-          {summary.screens.length === 0 ? null : <strong>{t('hub.det.screens')}: </strong>}
+          <strong>{t('scr2.hub.det.screens')}: </strong>
+          {summary.screens.length === 0 ? <span className="hub-muted">{t('scr2.hub.det.screens.none')}</span> : null}
           {summary.screens.map((screen) => (
             <Link key={screen.code} to={screen.route} className="hub-chip" data-testid={`screen-${screen.code}`}>
               {screen.code}

@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useTranslation } from '../../i18n';
+import { ScrollRegion } from '../scroll-region';
 import { Field, Pill } from './components';
 import { useRetirePermitType } from './hooks';
 import { applicabilityText, categoryLabel, fieldProblemMessage, phaseLabel, problemMessage } from './labels';
@@ -46,73 +47,82 @@ export function PermitTypeTable({ groups, today, mayRetire }: PermitTypeTablePro
   const [retiring, setRetiring] = useState<string | undefined>(undefined);
 
   return (
-    <table className="table" aria-label={t('pmt.type.table.aria')}>
-      <thead>
-        <tr>
-          <th>{t('pmt.type.code.column')}</th>
-          <th>{t('pmt.type.name.column')}</th>
-          <th>{t('pmt.type.category.column')}</th>
-          <th>{t('pmt.type.legalBasis.column')}</th>
-          <th>{t('pmt.type.validity.column')}</th>
-          <th>{t('pmt.type.applies.column')}</th>
-          <th>{t('pmt.type.exempt.column')}</th>
-          <th>{t('pmt.type.status.column')}</th>
-          <th>
-            <span className="sr-only">{t('pmt.type.actions.column')}</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {groups.map((group) => {
-          const { current } = group;
-          const phase = phaseOf(current, today);
-          return (
-            <Fragment key={group.code}>
-              <tr data-group-code={group.code} data-type-id={current.id} data-phase={phase}>
-                <td>
-                  <code>{group.code}</code>
-                </td>
-                <td>{current.name}</td>
-                <td>{categoryLabel(t, current.category)}</td>
-                <td>
-                  <LegalBasis type={current} />
-                </td>
-                <td>{validity(current)}</td>
-                <td>{applicabilityText(t, current.appliesTo)}</td>
-                <td>{current.exemptionAllowed ? t('pmt.type.exempt.yes.text') : t('pmt.type.exempt.no.text')}</td>
-                <td>
-                  <Pill tone={phase === 'inForce' ? 'green' : 'gray'}>{phaseLabel(t, phase)}</Pill>
-                </td>
-                <td className="row-actions">
-                  <button type="button" aria-expanded={history === group.code} onClick={() => setHistory((previous) => (previous === group.code ? undefined : group.code))}>
-                    {t('pmt.type.history.action')}
-                  </button>
-                  {mayRetire && canRetire(current, today) ? (
-                    <button type="button" aria-expanded={retiring === current.id} onClick={() => setRetiring((previous) => (previous === current.id ? undefined : current.id))}>
-                      {t('pmt.type.retire.action')}
+    <ScrollRegion label={t('pmt.type.table.aria')}>
+      <table className="table" aria-label={t('pmt.type.table.aria')}>
+        <thead>
+          <tr>
+            <th>{t('pmt.type.code.column')}</th>
+            <th>{t('pmt.type.name.column')}</th>
+            <th>{t('pmt.type.category.column')}</th>
+            <th>{t('pmt.type.legalBasis.column')}</th>
+            <th>{t('pmt.type.validity.column')}</th>
+            <th>{t('pmt.type.applies.column')}</th>
+            <th>{t('pmt.type.exempt.column')}</th>
+            <th>{t('pmt.type.status.column')}</th>
+            <th>
+              <span className="sr-only">{t('pmt.type.actions.column')}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {groups.length === 0 ? (
+            <tr>
+              <td colSpan={9} className="sub" data-testid="empty-catalogue">
+                {t('pmt.type.empty.text')}
+              </td>
+            </tr>
+          ) : null}
+          {groups.map((group) => {
+            const { current } = group;
+            const phase = phaseOf(current, today);
+            return (
+              <Fragment key={group.code}>
+                <tr data-group-code={group.code} data-type-id={current.id} data-phase={phase}>
+                  <td>
+                    <code>{group.code}</code>
+                  </td>
+                  <td>{current.name}</td>
+                  <td>{categoryLabel(t, current.category)}</td>
+                  <td>
+                    <LegalBasis type={current} />
+                  </td>
+                  <td>{validity(current)}</td>
+                  <td>{applicabilityText(t, current.appliesTo)}</td>
+                  <td>{current.exemptionAllowed ? t('pmt.type.exempt.yes.text') : t('pmt.type.exempt.no.text')}</td>
+                  <td>
+                    <Pill tone={phase === 'inForce' ? 'green' : 'gray'}>{phaseLabel(t, phase)}</Pill>
+                  </td>
+                  <td className="row-actions">
+                    <button type="button" aria-expanded={history === group.code} onClick={() => setHistory((previous) => (previous === group.code ? undefined : group.code))}>
+                      {t('pmt.type.history.action')}
                     </button>
-                  ) : null}
-                </td>
-              </tr>
-              {retiring === current.id ? (
-                <tr>
-                  <td colSpan={9}>
-                    <RetireForm type={current} today={today} onDone={() => setRetiring(undefined)} />
+                    {mayRetire && canRetire(current, today) ? (
+                      <button type="button" aria-expanded={retiring === current.id} onClick={() => setRetiring((previous) => (previous === current.id ? undefined : current.id))}>
+                        {t('pmt.type.retire.action')}
+                      </button>
+                    ) : null}
                   </td>
                 </tr>
-              ) : null}
-              {history === group.code ? (
-                <tr>
-                  <td colSpan={9}>
-                    <VersionHistory group={group} today={today} />
-                  </td>
-                </tr>
-              ) : null}
-            </Fragment>
-          );
-        })}
-      </tbody>
-    </table>
+                {retiring === current.id ? (
+                  <tr>
+                    <td colSpan={9}>
+                      <RetireForm type={current} today={today} onDone={() => setRetiring(undefined)} />
+                    </td>
+                  </tr>
+                ) : null}
+                {history === group.code ? (
+                  <tr>
+                    <td colSpan={9}>
+                      <VersionHistory group={group} today={today} />
+                    </td>
+                  </tr>
+                ) : null}
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </ScrollRegion>
   );
 }
 

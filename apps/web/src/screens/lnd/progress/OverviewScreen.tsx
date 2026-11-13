@@ -54,9 +54,13 @@ function OverviewContent({ route }: ScreenProps) {
       <ProjectPicker id="overview-project" projects={projects.data ?? []} value={projectId} onChange={(id) => setParams(id === '' ? {} : { project: id })} />
       <UpcomingDeadlines onOpenProject={(id) => setParams({ project: id })} />
       {projectId === undefined ? (
-        <p className="callout" role="status" data-testid="choose-project">
-          {t('lnd.progress.project.notice')}
-        </p>
+        <>
+          <p className="callout" role="status" data-testid="choose-project">
+            {t('lnd.progress.project.notice')}
+          </p>
+          <Tiles totals={undefined} />
+          <Executors stages={undefined} />
+        </>
       ) : (
         <StateBoundary state={state} onRetry={() => void overview.refetch()}>
           {overview.data === undefined ? null : <Figures overview={overview.data} projectId={projectId} />}
@@ -72,6 +76,38 @@ function Tile({ id, label, value, unit, tone }: { id: string; label: string; val
     <div className="lnd-tile-wrap" data-testid={`tile-${id}`}>
       <KpiTile label={label} value={value} {...(unit === undefined ? {} : { unit })} {...(tone === undefined ? {} : { tone })} />
     </div>
+  );
+}
+
+/** The counts of the project, or a dash for each before a project is chosen (a dash, never a zero, for what was not read). */
+function Tiles({ totals }: { totals: Overview['totals'] | undefined }) {
+  const { t } = useTranslation();
+  const none = t('scr2.lnd.overview.none');
+  const of = (part: number | undefined, whole: number | undefined): string => (part === undefined || whole === undefined ? none : `${part} / ${whole}`);
+  return (
+    <div data-testid="tiles">
+      <KpiStrip label={t('w2iss.lnd.kpi.label')}>
+        <Tile id="parcels" label={t('lnd.overview.tile.parcels')} value={totals === undefined ? none : String(totals.parcels)} />
+        <Tile id="households" label={t('lnd.overview.tile.households')} value={totals === undefined ? none : String(totals.households)} />
+        <Tile id="posted" label={t('scr2.lnd.overview.tile.posted')} value={totals === undefined ? none : String(totals.plansPosted)} />
+        <Tile id="noticed" label={t('lnd.overview.tile.noticed')} value={of(totals?.parcelsNoticed, totals?.parcels)} />
+        <Tile id="paid" label={t('lnd.overview.tile.paid')} value={of(totals?.parcelsPaid, totals?.parcels)} />
+        <Tile id="area" label={t('lnd.overview.tile.area')} value={totals === undefined ? none : `${totals.handedAreaM2} / ${totals.requiredAreaM2}`} unit={t('w2iss.lnd.unit')} />
+        <Tile id="late" label={t('lnd.overview.tile.late')} value={totals === undefined ? none : String(totals.lateStages)} tone={totals !== undefined && totals.lateStages > 0 ? 'danger' : 'default'} />
+      </KpiStrip>
+    </div>
+  );
+}
+
+/** The units that execute the stages of the project, the land fund centre included, each with its kind (the rule: progress shows whoever executes). */
+function Executors({ stages }: { stages: readonly StageLine[] | undefined }) {
+  const { t } = useTranslation();
+  const names = stages === undefined ? [] : [...new Set(stages.map((stage) => `${stage.executorUnitName} (${executorKindLabel(t, stage.executorKind)})`))];
+  return (
+    <dl className="lnd-totals" data-testid="executors">
+      <dt>{t('lnd.progress.column.executor')}</dt>
+      <dd>{names.length === 0 ? t('scr2.lnd.overview.none') : names.join('; ')}</dd>
+    </dl>
   );
 }
 
@@ -102,16 +138,8 @@ function Figures({ overview, projectId }: { overview: Overview; projectId: strin
       <p className="sub" data-testid="as-of">
         {t('lnd.overview.asOf.text', { at: overview.asOf ?? '' })}
       </p>
-      <div data-testid="tiles">
-        <KpiStrip label={t('w2iss.lnd.kpi.label')}>
-          <Tile id="parcels" label={t('lnd.overview.tile.parcels')} value={String(totals.parcels)} />
-          <Tile id="households" label={t('lnd.overview.tile.households')} value={String(totals.households)} />
-          <Tile id="noticed" label={t('lnd.overview.tile.noticed')} value={`${totals.parcelsNoticed} / ${totals.parcels}`} />
-          <Tile id="paid" label={t('lnd.overview.tile.paid')} value={`${totals.parcelsPaid} / ${totals.parcels}`} />
-          <Tile id="area" label={t('lnd.overview.tile.area')} value={`${totals.handedAreaM2} / ${totals.requiredAreaM2}`} unit={t('w2iss.lnd.unit')} />
-          <Tile id="late" label={t('lnd.overview.tile.late')} value={String(totals.lateStages)} tone={totals.lateStages > 0 ? 'danger' : 'default'} />
-        </KpiStrip>
-      </div>
+      <Tiles totals={totals} />
+      <Executors stages={overview.stages} />
       <div className="lnd-stack">
         <div data-testid="late-stages">
           <SectionCard title={t('lnd.overview.late.title')}>

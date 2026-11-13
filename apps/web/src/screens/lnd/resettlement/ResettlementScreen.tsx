@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { Translator } from '../../../i18n';
@@ -11,6 +11,7 @@ import { Field } from '../../prj/components';
 import '../../prj/prj.css';
 import { useProjectOptions } from '../read-hooks';
 import '../lnd.css';
+import { ScrollRegion } from '../../scroll-region';
 import { useAllocate, useAllocations, useCandidates } from './hooks';
 import { CODE_MAX, EMPTY_FORM, SITE_MAX, UNIT_KINDS, allocationBody, canAllocate, describeRefusal, validateForm } from './model';
 import type { AllocationForm, Candidate, EligibilityReason, FormField, FormProblem, ItemKind, Refusal, Status, UnitKind } from './model';
@@ -133,58 +134,95 @@ function ResettlementContent({ route }: ScreenProps) {
         </div>
       </div>
       {projectId === undefined ? (
-        <p className="callout" role="status" data-testid="choose-project">
-          {t('lnd.resettlement.project.notice')}
-        </p>
+        <AllocationsTable empty={t('lnd.resettlement.project.notice')} emptyTestId="choose-project">
+          {null}
+        </AllocationsTable>
       ) : (
         <>
           {may ? <AllocatePanel candidates={candidates.data ?? []} loading={candidates.isLoading} failed={candidates.isError} onRetry={() => void candidates.refetch()} /> : null}
           <StateBoundary state={state} onRetry={() => void list.refetch()}>
-            {items.length === 0 ? (
-              <p className="callout" role="status" data-testid="empty">
-                {t('lnd.resettlement.empty.notice')}
-              </p>
-            ) : (
-              <div className="tablewrap">
-                <table className="table" aria-label={t('lnd.resettlement.list.aria')} data-testid="allocations">
-                  <thead>
-                    <tr>
-                      <th scope="col">{t('lnd.resettlement.col.household')}</th>
-                      <th scope="col">{t('lnd.resettlement.col.unit')}</th>
-                      <th scope="col">{t('lnd.resettlement.col.site')}</th>
-                      <th scope="col">{t('lnd.resettlement.col.area')}</th>
-                      <th scope="col">{t('lnd.resettlement.col.rank')}</th>
-                      <th scope="col">{t('lnd.resettlement.col.allocated')}</th>
-                      <th scope="col">{t('lnd.resettlement.col.status')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item) => (
-                      <tr key={item.id} data-allocation={item.id} data-status={item.status}>
-                        <td>
-                          <code>{item.household.code}</code> {item.household.headName}
-                        </td>
-                        <td>
-                          {unitText(t, item.unitKind)} <code>{item.unitCode}</code>
-                        </td>
-                        <td>{item.siteText}</td>
-                        <td>{item.areaM2 ?? NONE}</td>
-                        <td>{item.priorityRank ?? NONE}</td>
-                        <td>{item.allocatedOn ?? NONE}</td>
-                        <td>
-                          <span className={`pill ${item.status === 'ALLOCATED' || item.status === 'HANDED_OVER' ? 'green' : 'gray'}`}>{statusText(t, item.status)}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <AllocationsTable empty={items.length === 0 ? t('lnd.resettlement.empty.notice') : undefined} emptyTestId="empty">
+              {items.map((item) => (
+                <tr key={item.id} data-allocation={item.id} data-status={item.status}>
+                  <td>
+                    <code>{item.household.code}</code> {item.household.headName}
+                  </td>
+                  <td data-testid="unit-kind">{unitText(t, item.unitKind)}</td>
+                  <td>
+                    <code data-testid="unit-code">{item.unitCode}</code>
+                  </td>
+                  <td>{item.siteText}</td>
+                  <td>{item.areaM2 ?? NONE}</td>
+                  <td data-testid="rank">{item.priorityRank === null ? NONE : `${t('lnd.resettlement.col.rank')} ${item.priorityRank}`}</td>
+                  <td>{item.allocatedOn ?? NONE}</td>
+                  <td data-testid="handed-on">{item.handedOn ?? NONE}</td>
+                  <td>
+                    <span className={`pill ${item.status === 'ALLOCATED' || item.status === 'HANDED_OVER' ? 'green' : 'gray'}`}>{statusText(t, item.status)}</span>
+                  </td>
+                </tr>
+              ))}
+            </AllocationsTable>
           </StateBoundary>
         </>
       )}
       <p className="prototype-note">{t('lnd.resettlement.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
+  );
+}
+
+/** The columns of the allocations, for the one row that stands in for none. */
+const COLUMNS = 9;
+
+/** The allocations of a project: the columns stand before a project is chosen, the one row then says what to choose. */
+function AllocationsTable({ empty, emptyTestId, children }: { empty: string | undefined; emptyTestId: string; children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <ScrollRegion label={t('lnd.resettlement.list.aria')}>
+      <table className="table" aria-label={t('lnd.resettlement.list.aria')} data-testid="allocations">
+        <thead>
+          <tr>
+            <th scope="col" rowSpan={2}>
+              {t('lnd.resettlement.col.household')}
+            </th>
+            <th scope="colgroup" colSpan={2}>
+              {t('lnd.resettlement.col.unit')}
+            </th>
+            <th scope="col" rowSpan={2}>
+              {t('lnd.resettlement.col.site')}
+            </th>
+            <th scope="col" rowSpan={2}>
+              {t('lnd.resettlement.col.area')}
+            </th>
+            <th scope="col" rowSpan={2}>
+              {t('lnd.resettlement.field.rank.label')}
+            </th>
+            <th scope="col" rowSpan={2}>
+              {t('lnd.resettlement.col.allocated')}
+            </th>
+            <th scope="col" rowSpan={2}>
+              {t('scr2.lnd.resettlement.col.handedOn')}
+            </th>
+            <th scope="col" rowSpan={2}>
+              {t('lnd.resettlement.col.status')}
+            </th>
+          </tr>
+          <tr>
+            <th scope="col">{t('lnd.resettlement.field.kind.label')}</th>
+            <th scope="col">{t('lnd.resettlement.field.code.label')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {empty === undefined ? null : (
+            <tr>
+              <td colSpan={COLUMNS} role="status" data-testid={emptyTestId}>
+                {empty}
+              </td>
+            </tr>
+          )}
+          {children}
+        </tbody>
+      </table>
+    </ScrollRegion>
   );
 }
 

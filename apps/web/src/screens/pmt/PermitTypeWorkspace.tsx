@@ -35,13 +35,7 @@ export function PermitTypeWorkspace({ types, today: given }: PermitTypeWorkspace
           {t('pmt.type.unconfirmed.banner', { count: unconfirmed })}
         </p>
       )}
-      {groups.length === 0 ? (
-        <p className="sub" data-testid="empty-catalogue">
-          {t('pmt.type.empty.text')}
-        </p>
-      ) : (
-        <PermitTypeTable groups={groups} today={today} mayRetire={mayManage} />
-      )}
+      <PermitTypeTable groups={groups} today={today} mayRetire={mayManage} />
       {mayManage ? <PermitTypeForm today={today} existingCodes={existingCodes} /> : <p className="sub">{t('pmt.type.readonly.text')}</p>}
     </div>
   );

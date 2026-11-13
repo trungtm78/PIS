@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -12,6 +13,7 @@ import { usePlanItems, usePlans } from './hooks';
 import { executorKindLabel, planItemKindLabel, planStatusLabel } from './labels';
 import { PLAN_STATUSES, acceptsItems, canRevise, canWritePlan, formatVnd, plansOf } from './model';
 import type { PlanItem, PlanLine, PlanStatus } from './model';
+import { ScrollRegion } from '../../scroll-region';
 import '../lnd.css';
 
 type Dialog = { kind: 'draft' } | { kind: 'items'; plan: PlanLine } | { kind: 'revise'; plan: PlanLine };
@@ -83,10 +85,13 @@ function PlanContent({ route }: ScreenProps) {
           </select>
         </div>
       </div>
+      <PlanTotals plan={projectId === undefined ? undefined : inForce(plans.data ?? [])} />
       {projectId === undefined ? (
-        <p className="callout" role="status" data-testid="choose-project">
-          {t('lnd.plans.project.notice')}
-        </p>
+        <div className="card">
+          <PlansTable empty={t('lnd.plans.project.notice')} emptyTestId="choose-project">
+            {null}
+          </PlansTable>
+        </div>
       ) : (
         <StateBoundary state={state} onRetry={() => void plans.refetch()}>
           <div className="card">
@@ -103,41 +108,20 @@ function PlanContent({ route }: ScreenProps) {
                 </select>
               </div>
             </form>
-            {shown.length === 0 ? (
-              <p className="callout" role="status" data-testid="no-match">
-                {(plans.data ?? []).length === 0 ? t('lnd.plans.empty.notice') : t('lnd.plans.noMatch.notice')}
-              </p>
-            ) : (
-              <table className="table" data-testid="plans">
-                <thead>
-                  <tr>
-                    <th scope="col">{t('lnd.plans.column.code')}</th>
-                    <th scope="col">{t('lnd.plans.column.revision')}</th>
-                    <th scope="col">{t('lnd.plans.column.executor')}</th>
-                    <th scope="col">{t('lnd.plans.column.compensation')}</th>
-                    <th scope="col">{t('lnd.plans.column.support')}</th>
-                    <th scope="col">{t('lnd.plans.column.resettlement')}</th>
-                    <th scope="col">{t('lnd.plans.column.grand')}</th>
-                    <th scope="col">{t('lnd.plans.column.status')}</th>
-                    <th scope="col">{t('lnd.plans.column.action')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shown.map((plan) => (
-                    <PlanRow
-                      key={plan.id}
-                      plan={plan}
-                      open={plan.id === selected?.id}
-                      canAdd={mayWrite && acceptsItems(plan)}
-                      canReviseIt={mayWrite && canRevise(plan)}
-                      onOpen={() => setParams({ project: projectId, plan: plan.id })}
-                      onAdd={() => setDialog({ kind: 'items', plan })}
-                      onRevise={() => setDialog({ kind: 'revise', plan })}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            )}
+            <PlansTable empty={shown.length > 0 ? undefined : (plans.data ?? []).length === 0 ? t('lnd.plans.empty.notice') : t('lnd.plans.noMatch.notice')} emptyTestId="no-match">
+              {shown.map((plan) => (
+                <PlanRow
+                  key={plan.id}
+                  plan={plan}
+                  open={plan.id === selected?.id}
+                  canAdd={mayWrite && acceptsItems(plan)}
+                  canReviseIt={mayWrite && canRevise(plan)}
+                  onOpen={() => setParams({ project: projectId, plan: plan.id })}
+                  onAdd={() => setDialog({ kind: 'items', plan })}
+                  onRevise={() => setDialog({ kind: 'revise', plan })}
+                />
+              ))}
+            </PlansTable>
           </div>
           {selected === undefined ? null : <PlanDetail plan={selected} items={items.data ?? []} loading={items.isLoading} failed={items.isError} />}
         </StateBoundary>
@@ -147,6 +131,76 @@ function PlanContent({ route }: ScreenProps) {
       {dialog?.kind === 'revise' ? <ReviseDialog plan={dialog.plan} onClose={() => setDialog(undefined)} /> : null}
       <p className="prototype-note">{t('lnd.plans.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
+  );
+}
+
+/** The statuses of a plan that a decision approved (BR-LND-05): the plan in force is the newest revision among them. */
+const DECIDED: readonly PlanStatus[] = ['APPROVED', 'PAYING', 'COMPLETED'];
+
+/** The plan of the project that a decision approved, the newest revision first; none before the first approval. */
+function inForce(plans: readonly PlanLine[]): PlanLine | null {
+  return [...plans].filter((plan) => DECIDED.includes(plan.status)).sort((left, right) => right.revision - left.revision)[0] ?? null;
+}
+
+/** The totals of the plan in force: what the decision approved for compensation, support and resettlement, and the sum (computed by the server). */
+function PlanTotals({ plan }: { plan: PlanLine | null | undefined }) {
+  const { t } = useTranslation();
+  const value = (amount: string | undefined): string => (amount === undefined ? t('scr2.lnd.plans.totals.none') : formatVnd(amount));
+  return (
+    <div className="card" data-testid="plan-totals">
+      <h2>{t('scr2.lnd.plans.totals.title')}</h2>
+      <p className="sub">
+        {plan === undefined ? t('lnd.plans.project.notice') : plan === null ? t('scr2.lnd.plans.totals.noDecision') : t('scr2.lnd.plans.totals.of', { code: plan.planCode, revision: plan.revision })}
+      </p>
+      <dl className="lnd-totals">
+        <dt>{t('scr2.lnd.plans.totals.compensation')}</dt>
+        <dd className="lnd-numeric">{value(plan?.totalCompensationVnd)}</dd>
+        <dt>{t('scr2.lnd.plans.totals.support')}</dt>
+        <dd className="lnd-numeric">{value(plan?.totalSupportVnd)}</dd>
+        <dt>{t('scr2.lnd.plans.totals.resettlement')}</dt>
+        <dd className="lnd-numeric">{value(plan?.totalResettlementVnd)}</dd>
+        <dt>{t('scr2.lnd.plans.totals.grand')}</dt>
+        <dd className="lnd-numeric">{value(plan?.grandTotalVnd)}</dd>
+      </dl>
+    </div>
+  );
+}
+
+/** The columns of the plans, for the one row that stands in for none. */
+const COLUMNS = 10;
+
+/** The table of the plans of a project: its columns stand even before a project is chosen, and the one row then says what to choose. */
+function PlansTable({ empty, emptyTestId, children }: { empty: string | undefined; emptyTestId: string; children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <ScrollRegion label={t('lnd.plans.page.title')}>
+      <table className="table" data-testid="plans">
+        <thead>
+          <tr>
+            <th scope="col">{t('lnd.plans.column.code')}</th>
+            <th scope="col">{t('lnd.plans.column.revision')}</th>
+            <th scope="col">{t('lnd.plans.column.executor')}</th>
+            <th scope="col">{t('lnd.plans.column.compensation')}</th>
+            <th scope="col">{t('lnd.plans.column.support')}</th>
+            <th scope="col">{t('lnd.plans.column.resettlement')}</th>
+            <th scope="col">{t('lnd.plans.column.grand')}</th>
+            <th scope="col">{t('lnd.plans.column.status')}</th>
+            <th scope="col">{t('scr2.lnd.plans.column.decision')}</th>
+            <th scope="col">{t('lnd.plans.column.action')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {empty === undefined ? null : (
+            <tr>
+              <td colSpan={COLUMNS} role="status" data-testid={emptyTestId}>
+                {empty}
+              </td>
+            </tr>
+          )}
+          {children}
+        </tbody>
+      </table>
+    </ScrollRegion>
   );
 }
 
@@ -192,6 +246,7 @@ function PlanRow({ plan, open, canAdd, canReviseIt, onOpen, onAdd, onRevise }: R
           </>
         )}
       </td>
+      <td data-testid="decision">{plan.approvedOn === null ? t('scr2.lnd.plans.decision.none') : t('scr2.lnd.plans.decision.line', { on: plan.approvedOn, doc: plan.decisionDocumentVersionId?.slice(0, 8) ?? '' })}</td>
       <td>
         <button type="button" className="button" aria-label={t('lnd.plans.open.aria', { code: plan.planCode, revision: plan.revision })} onClick={onOpen}>
           {t('lnd.plans.open.action')}

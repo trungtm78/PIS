@@ -9,9 +9,10 @@ import '../mne.css';
 import { DecideDialog, PlanDialog, SubmitDialog } from './EvaluationDialogs';
 import { useEvaluationProjects, useEvaluations } from './hooks';
 import { conclusionLabel, evaluatorLabel, kindLabel, statusLabel } from './labels';
-import { READ_PERMISSION, STATUSES, canPlan, holds } from './model';
+import { KINDS, READ_PERMISSION, STATUSES, canPlan, holds } from './model';
 import type { Evaluation } from './model';
 import '../mne-kit.css';
+import { ScrollRegion } from '../../scroll-region';
 import { StatusPill } from '../../../ui';
 import { pillTone } from '../pill-tone';
 
@@ -36,6 +37,7 @@ function EvaluationContent({ route }: ScreenProps) {
   const [search, setSearch] = useSearchParams();
   const projectId = search.get('project') ?? '';
   const status = search.get('status') ?? '';
+  const kind = search.get('kind') ?? '';
   const mayRead = holds(permissions, READ_PERMISSION);
   const mayPlan = canPlan(permissions, mode);
   const writable = mode !== 'READ_ONLY';
@@ -43,10 +45,11 @@ function EvaluationContent({ route }: ScreenProps) {
   const list = useEvaluations(projectId, status, mayRead);
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
-  const lines = list.data ?? [];
+  // The kind narrows the list the server gave (the read is by project and status).
+  const lines = (list.data ?? []).filter((line) => kind === '' || line.kind === kind);
   // A dialog on an evaluation names the evaluation, not a copy of it: it is read again from the table each time it is drawn, so that a retry sends the version the table shows now.
   const target = dialog === undefined || dialog.kind === 'plan' ? undefined : lines.find((line) => line.id === dialog.evaluationId);
-  const filter = (name: 'project' | 'status', value: string): void => {
+  const filter = (name: 'project' | 'status' | 'kind', value: string): void => {
     const next = new URLSearchParams(search);
     if (value === '') next.delete(name);
     else next.set(name, value);
@@ -87,6 +90,17 @@ function EvaluationContent({ route }: ScreenProps) {
               </select>
             </div>
             <div className="field">
+              <label htmlFor="evaluation-filter-kind">{t('mne.evaluation.column.kind')}</label>
+              <select id="evaluation-filter-kind" value={kind} onChange={(event) => filter('kind', event.target.value)}>
+                <option value="">{t('mne.evaluation.filter.all')}</option>
+                {KINDS.map((value) => (
+                  <option key={value} value={value}>
+                    {kindLabel(t, value)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
               <label htmlFor="evaluation-filter-status">{t('mne.evaluation.column.status')}</label>
               <select id="evaluation-filter-status" value={status} onChange={(event) => filter('status', event.target.value)}>
                 <option value="">{t('mne.evaluation.filter.all')}</option>
@@ -99,39 +113,42 @@ function EvaluationContent({ route }: ScreenProps) {
             </div>
           </div>
           <StateBoundary state={state} onRetry={() => void list.refetch()}>
-            {lines.length === 0 ? (
-              <p className="callout" role="status" data-testid="empty">
-                {t('mne.evaluation.empty.notice')}
-              </p>
-            ) : (
-              <div className="tablewrap">
-                <table className="table" aria-label={t('mne.evaluation.list.aria')} data-testid="evaluations">
-                  <thead>
+            <ScrollRegion label={t('mne.evaluation.list.aria')}>
+              <table className="table" aria-label={t('mne.evaluation.list.aria')} data-testid="evaluations">
+                <thead>
+                  <tr>
+                    <th scope="col">{t('mne.evaluation.column.project')}</th>
+                    <th scope="col">{t('mne.evaluation.field.kind')}</th>
+                    <th scope="col">{t('mne.evaluation.column.evaluator')}</th>
+                    <th scope="col">{t('mne.evaluation.field.evaluatorKind')}</th>
+                    <th scope="col">{t('mne.evaluation.column.planned')}</th>
+                    <th scope="col">{t('mne.evaluation.column.status')}</th>
+                    <th scope="col">{t('mne.evaluation.column.conclusion')}</th>
+                    <th scope="col">{t('mne.evaluation.field.recommendations')}</th>
+                    <th scope="col">{t('mne.evaluation.column.completed')}</th>
+                    <th scope="col">{t('mne.evaluation.column.actions')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lines.length === 0 ? (
                     <tr>
-                      <th scope="col">{t('mne.evaluation.column.project')}</th>
-                      <th scope="col">{t('mne.evaluation.column.kind')}</th>
-                      <th scope="col">{t('mne.evaluation.column.evaluator')}</th>
-                      <th scope="col">{t('mne.evaluation.column.planned')}</th>
-                      <th scope="col">{t('mne.evaluation.column.status')}</th>
-                      <th scope="col">{t('mne.evaluation.column.conclusion')}</th>
-                      <th scope="col">{t('mne.evaluation.column.completed')}</th>
-                      <th scope="col">{t('mne.evaluation.column.actions')}</th>
+                      <td colSpan={10} role="status" data-testid="empty">
+                        {t('mne.evaluation.empty.notice')}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {lines.map((line) => (
-                      <EvaluationRow
-                        key={line.id}
-                        line={line}
-                        writable={writable}
-                        onSubmit={() => setDialog({ kind: 'submit', evaluationId: line.id })}
-                        onDecide={() => setDialog({ kind: 'decide', evaluationId: line.id })}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  ) : null}
+                  {lines.map((line) => (
+                    <EvaluationRow
+                      key={line.id}
+                      line={line}
+                      writable={writable}
+                      onSubmit={() => setDialog({ kind: 'submit', evaluationId: line.id })}
+                      onDecide={() => setDialog({ kind: 'decide', evaluationId: line.id })}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </ScrollRegion>
           </StateBoundary>
         </>
       )}
@@ -152,9 +169,8 @@ function EvaluationRow({ line, writable, onSubmit, onDecide }: { line: Evaluatio
         <code>{line.projectCode}</code> {line.projectName}
       </td>
       <td>{kindLabel(t, line.kind)}</td>
-      <td>
-        {line.evaluatorName} <small className="sub">{evaluatorLabel(t, line.evaluatorKind)}</small>
-      </td>
+      <td>{line.evaluatorName}</td>
+      <td data-testid="evaluator-kind">{evaluatorLabel(t, line.evaluatorKind)}</td>
       <td>{line.plannedDate}</td>
       <td>
         <StatusPill tone={pillTone(line.status === 'APPROVED' ? 'green' : 'gray')}>{statusLabel(t, line.status)}</StatusPill>
@@ -172,6 +188,7 @@ function EvaluationRow({ line, writable, onSubmit, onDecide }: { line: Evaluatio
         ) : null}
       </td>
       <td>{line.conclusion === null ? NONE : conclusionLabel(t, line.conclusion)}</td>
+      <td data-testid="recommendations">{line.recommendations === null || line.recommendations === '' ? NONE : line.recommendations}</td>
       <td>{line.completedDate ?? NONE}</td>
       <td>
         {writable && line.mayChange ? (
