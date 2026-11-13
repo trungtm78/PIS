@@ -1,4 +1,5 @@
 import { DomainError, canonicalJson, pwfKpi, processCore } from '@machvon/kernel';
+import { WORKER_MEMBERSHIP_ID } from './consumer-inbox.ts';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import type { ResolvedGovernanceRule } from '@machvon/kernel';
 import { PwfKpiStore, scoreBundle } from './pwf-kpi-store.ts';
@@ -381,7 +382,12 @@ export class PwfScoreStore {
     const today = dayOfInstant(request.now);
     const verdict = pwfKpi.canOfficialize({ lockedAt: dayOfInstant(new Date(period.lockedAt as string)), responseWindowDays: policy.responseWindowDays, responses, today });
     if (!verdict.official) throw new DomainError('STAFF_SCORE_PERIOD_LOCKED', 409, 'status', { extensions: { period_status: period.status, reason: verdict.reason } });
-    await tx.query(`update machvon.staff_score_period set status = 'OFFICIAL', official_at = $2::timestamptz, official_by = $3::uuid, version = version + 1, updated_at = now(), updated_by = $3::uuid where id = $1::uuid`, [periodId, request.now.toISOString(), request.actor]);
+    // The worker of the platform has no membership: it is recorded as the system (a discriminator, V3035), and a person as the membership, which keeps its foreign key.
+    const system = request.actor === WORKER_MEMBERSHIP_ID;
+    await tx.query(
+      `update machvon.staff_score_period set status = 'OFFICIAL', official_at = $2::timestamptz, official_by = $3::uuid, official_by_system = $4::boolean, version = version + 1, updated_at = now(), updated_by = $3::uuid, updated_by_system = $4::boolean where id = $1::uuid`,
+      [periodId, request.now.toISOString(), system ? null : request.actor, system],
+    );
     return { id: periodId, scopeUnitId: period.scopeUnitId, fromStatus: 'LOCKED', status: 'OFFICIAL', version: period.version + 1, facts: { period_from: period.periodFrom, period_to: period.periodTo, snapshot_hash: period.snapshotHash, reason: verdict.reason } };
   }
 

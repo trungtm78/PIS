@@ -35,6 +35,7 @@ const CHECKER = 3;
 const OTHER = 4;
 const OUTSIDER = 5;
 const HR = 6;
+const RETIRING = 7;
 const PROVINCE = 1;
 const DEPARTMENT = 2;
 const ELSEWHERE = 3;
@@ -188,6 +189,7 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
     for (const n of [WORKER, CHECKER, OTHER]) await harness.seedMembership(TENANT_A, n, DEPARTMENT);
     await harness.seedMembership(TENANT_A, OUTSIDER, SIBLING);
     await harness.seedMembership(TENANT_A, HR, PROVINCE);
+    await harness.seedMembership(TENANT_A, RETIRING, PROVINCE);
     areaVersion = await seedArea(TENANT_A);
     await harness.owner(
       TENANT_A,
@@ -717,21 +719,48 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect(await run()).toMatchObject({ tasks: 0, results: 0, officialized: 0, expired: 0 });
       const preview = await compute({ from: `${Y - 3}-04-01`, to: `${Y - 3}-06-30` });
       await lockIt(preview.period.id, preview.period.version);
-      // The worker of the platform may only make a locked period official; nobody else who is not a membership of the tenant may be named as an actor either (V3035).
+      // The worker of the platform has no membership, so it cannot be written as an actor column; it is the system, which only a locked period made official may carry (V3035). Nobody else who is not a membership of the tenant may be named either.
       expect(await sqlState(owner('update machvon.staff_score_period set updated_by = $2::uuid where id = $1::uuid', [preview.period.id, WORKER_MEMBERSHIP_ID]))).toBe('23503');
       expect(await sqlState(owner('update machvon.staff_score_period set updated_by = $2::uuid where id = $1::uuid', [preview.period.id, randomUUID()]))).toBe('23503');
+      expect(await sqlState(owner('update machvon.staff_score_period set updated_by = null, updated_by_system = true where id = $1::uuid', [preview.period.id]))).toBe('23514');
+      expect(await sqlState(owner("update machvon.staff_score_period set official_by_system = true where id = $1::uuid", [preview.period.id]))).toBe('23514');
       // Inside the window nothing happens; once the window has ended the period is official and its event and audit row are written.
       expect((await run()).officialized).toBe(0);
       await owner("update machvon.staff_score_period set locked_at = now() - interval '30 days' where id = $1::uuid", [preview.period.id]);
       const ended = await run();
       expect(ended.officialized).toBe(1);
       expect((await owner<{ status: string }>('select status from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]?.status).toBe('OFFICIAL');
+      expect((await owner('select official_by, official_by_system, updated_by, updated_by_system from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]).toEqual({ official_by: null, official_by_system: true, updated_by: null, updated_by_system: true });
       expect((await owner('select 1 from machvon.audit_event where action = $1 and resource_id = $2::uuid', ['score.period_officialized', preview.period.id])).length).toBe(1);
       expect((await owner('select 1 from machvon.outbox_event where aggregate_id = $1::uuid and type = $2', [preview.period.id, 'pwf.score.period.officialized.v1'])).length).toBe(1);
       await owner("update machvon.staff_score_period set snapshot = jsonb_set(snapshot, '{policy,params,retention_months}', '12'::jsonb) where id = $1::uuid", [preview.period.id]);
       expect((await run()).expired).toBe(1);
       expect((await owner<{ erased_at: string | null }>('select erased_at::text from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]?.erased_at).not.toBeNull();
       expect(await run()).toMatchObject({ officialized: 0, expired: 0 });
+    });
+
+    it('keeps the membership that made a period official: it can be neither deleted nor have its key changed (V3035), and the period names either that membership or the system, never both', async () => {
+      const wf = await workflow();
+      const task = await seedTask(wf, 'AC1', { baselineFinish: `${Y - 4}-02-13`, actualFinish: `${Y - 4}-02-13` });
+      await hold(task, WORKER);
+      const draft = await compute({ from: `${Y - 4}-01-01`, to: `${Y - 4}-03-31` });
+      await lockIt(draft.period.id, draft.period.version);
+      await owner("update machvon.staff_score_period set status = 'OFFICIAL', official_at = now(), official_by = $2::uuid where id = $1::uuid", [draft.period.id, memberId(RETIRING)]);
+      const refused = async (sql: string): Promise<{ code: string; constraint: string }> => {
+        try {
+          await owner(sql, [memberId(RETIRING)]);
+        } catch (error) {
+          const e = error as { code?: string; constraint?: string };
+          return { code: e.code ?? '', constraint: e.constraint ?? '' };
+        }
+        throw new Error('expected the database to refuse');
+      };
+      // The reference is a declarative foreign key of the tenant: a delete or a change of the key is refused, with no window between a check and the change.
+      expect(await refused('delete from machvon.membership where id = $1::uuid')).toEqual({ code: '23503', constraint: expect.stringMatching(/staff_score_period.*(official_by|updated_by)/) });
+      expect((await refused("update machvon.membership set id = gen_random_uuid() where id = $1::uuid")).code).toBe('23503');
+      expect((await owner('select count(*)::int as n from machvon.membership where id = $1::uuid', [memberId(RETIRING)]))[0]).toEqual({ n: 1 });
+      // The human and the system are exclusive.
+      expect(await sqlState(owner('update machvon.staff_score_period set official_by_system = true where id = $1::uuid', [draft.period.id]))).toBe('23514');
     });
 
     it('cleans a period that V3033 already marked erased while its lines, responses, signals and approval links were retained (an upgrade), without judging the retention again', async () => {
