@@ -1,6 +1,6 @@
 import { DomainError, pwfDeadlineBand, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
 import type { WorkCalendarSource } from '@machvon/kernel';
-import { GovernancePolicyPort } from './governance-policy-port.ts';
+import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { SqlProjectWorkflowGate } from './pwf-gate.ts';
@@ -16,7 +16,6 @@ import type { TenantTx } from './tenant-database.ts';
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const SOURCE = 'PROJECT_TASK';
 const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
 const invalid = (field: string): DomainError => new DomainError('VALIDATION_FAILED', 422, field);
 
@@ -62,19 +61,23 @@ export interface Can {
 
 /** The tier "official" of the colour of a task: the rule in force for the source of the project tasks (default 5, 2, 0 working days), with the overrides by kind, priority and phase. */
 export interface BandResolver {
-  of(task: Pick<TaskRow, 'status' | 'excluded' | 'tracked' | 'plannedFinish' | 'kind' | 'priority' | 'phaseCode'>): BandView;
-  policy: pwfDeadlineBand.BandPolicy;
+  /** The colour of a task under the rule of the unit that owns its project (`unitPath`, the path of that unit; null or absent: the rule of the whole tenant), the nearest unit with a rule of its own winning. */
+  of(task: Pick<TaskRow, 'status' | 'excluded' | 'tracked' | 'plannedFinish' | 'kind' | 'priority' | 'phaseCode'>, unitPath?: string | null): BandView;
 }
 
-export async function bandResolver(tx: TenantTx, policyPort: GovernancePolicyPort, calendars: HomeWorkCalendars, now: Date): Promise<BandResolver> {
+/** The path of the unit that owns a project (the unit whose rule judges the deadlines of its tasks), or null when it has none. */
+export async function unitPathOfProject(tx: TenantTx, projectId: string): Promise<string | null> {
+  const rows = await tx.query<{ path: string | null }>('select u.path from machvon.project p left join machvon.organization_unit u on u.tenant_id = p.tenant_id and u.id = p.owner_unit_id where p.id = $1::uuid', [projectId]);
+  return rows[0]?.path ?? null;
+}
+
+export async function bandResolver(tx: TenantTx, calendars: HomeWorkCalendars, now: Date): Promise<BandResolver> {
   const today = vietnamDateOf(now);
-  const resolved = await policyPort.get(tx, pwfDeadlineBand.DEADLINE_BAND_RULE_TYPE, SOURCE, today);
-  if (resolved === undefined) throw new DomainError('GOVERNANCE_RULE_NOT_FOUND', 404, 'code');
-  const policy = pwfDeadlineBand.bandPolicyOf(resolved, SOURCE);
+  const policies = await new PwfBandPolicies().load(tx, today);
   const source: WorkCalendarSource | undefined = await calendars.load(tx, WORK_CALENDAR_CODE, now);
   return {
-    policy,
-    of: (task): BandView => {
+    of: (task, unitPath = null): BandView => {
+      const policy = policies.forUnitPath(unitPath);
       // A task that is over, cancelled, left out of the project or not tracked has no colour.
       if (task.status === 'DONE' || task.status === 'CANCELLED' || task.excluded || !task.tracked) return { band: 'NONE', remaining_days: null, unit: policy.unit, overdue: false, reason: 'NO_DUE' };
       const thresholds = pwfDeadlineBand.thresholdsFor(policy, { taskKind: task.kind, priority: task.priority, phase: task.phaseCode });
@@ -135,12 +138,10 @@ export interface TaskFilter {
 }
 
 export class PwfWorkflowReads {
-  private readonly policy: GovernancePolicyPort;
   private readonly calendars: HomeWorkCalendars;
   private readonly gate = new SqlProjectWorkflowGate();
 
-  constructor(policy: GovernancePolicyPort = new GovernancePolicyPort(), calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
-    this.policy = policy;
+  constructor(calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
     this.calendars = calendars;
   }
 
@@ -168,9 +169,10 @@ export class PwfWorkflowReads {
     const template = pwfWorkflow.parseProjectWorkflowTemplate(row.template);
     const today = vietnamDateOf(now);
     const tasks = await this.tasksOf(tx, row.id as string);
-    const resolver = await bandResolver(tx, this.policy, this.calendars, now);
+    const resolver = await bandResolver(tx, this.calendars, now);
+    const unit = await unitPathOfProject(tx, projectId);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
-    const items = tasks.map((one) => taskItemOf(one, resolver.of(one), assignees.get(one.id)));
+    const items = tasks.map((one) => taskItemOf(one, resolver.of(one, unit), assignees.get(one.id)));
     const gated = new Set(template.phases.flatMap((phase) => phase.gates));
     const gates = [];
     for (const target of pwfWorkflow.WORKFLOW_GATE_TARGETS) {
@@ -215,10 +217,11 @@ export class PwfWorkflowReads {
   async listTasks(tx: TenantTx, scope: ScopeBuilder, projectId: string, filter: TaskFilter, page: { limit: number; after?: { code: string; id: string } | undefined }, now: Date): Promise<{ items: TaskListItem[]; next: { code: string; id: string } | null; total: number; asOf: string }> {
     const { row } = await this.workflowOf(tx, scope, projectId);
     const today = vietnamDateOf(now);
-    const resolver = await bandResolver(tx, this.policy, this.calendars, now);
+    const resolver = await bandResolver(tx, this.calendars, now);
+    const unit = await unitPathOfProject(tx, projectId);
     const tasks = await this.tasksOf(tx, row.id as string);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
-    const all = tasks.map((one) => taskItemOf(one, resolver.of(one), assignees.get(one.id)));
+    const all = tasks.map((one) => taskItemOf(one, resolver.of(one, unit), assignees.get(one.id)));
     const matching = all.filter(
       (item) =>
         (filter.phase === undefined || item.phase_code === filter.phase) &&

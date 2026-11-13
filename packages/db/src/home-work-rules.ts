@@ -5,7 +5,7 @@ export type WorkSeverity = 'URGENT' | 'ACTION' | 'WATCH';
 export const WORK_SEVERITIES: readonly WorkSeverity[] = ['URGENT', 'ACTION', 'WATCH'];
 
 /** The module source an item comes from (the `source` of `WorkActionTarget`). */
-export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR', 'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING', 'ESCALATION', 'COVERAGE', 'RED_FLAG', 'CONTRACT_CLOCK', 'DOC_REVIEW', 'DATA_FRESHNESS', 'ANOMALY', 'ALERT_FEEDBACK', 'PAYMENT_CLOCK', 'DISBURSEMENT_FORECAST', 'SETTLEMENT_CLOCK', 'CONTRACT_ADJUSTMENT', 'LOOK_AHEAD', 'LESSONS_LEARNED', 'PROJECT_RISK', 'COMMITTEE'] as const;
+export const WORK_SOURCES = ['APPROVAL', 'EXPLANATION', 'EXPLANATION_CONCLUDE', 'REPORT', 'OBLIGATION', 'EARLY_WARNING', 'ADVANCE', 'PERMIT', 'AUDIT_RECOMMENDATION', 'ISSUE', 'SITE_DIARY', 'GUARANTEE', 'MONEY_CONTROL', 'DIRECTIVE', 'CLOCK', 'PROCUREMENT_WORKFLOW', 'TREASURY_RECON', 'CROSS_TOTAL', 'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR', 'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING', 'ESCALATION', 'COVERAGE', 'RED_FLAG', 'CONTRACT_CLOCK', 'DOC_REVIEW', 'DATA_FRESHNESS', 'ANOMALY', 'ALERT_FEEDBACK', 'PAYMENT_CLOCK', 'DISBURSEMENT_FORECAST', 'SETTLEMENT_CLOCK', 'CONTRACT_ADJUSTMENT', 'LOOK_AHEAD', 'LESSONS_LEARNED', 'PROJECT_RISK', 'COMMITTEE', 'PROJECT_TASK'] as const;
 export type WorkSource = (typeof WORK_SOURCES)[number];
 
 /** Read is not handled: a new item, one somebody took up, one that is being worked on (given to someone, or in the hands of its module), and one that is done. */
@@ -112,6 +112,9 @@ export const SOURCE_OF_KIND: Readonly<Record<WorkKind, WorkSource>> = {
   COMMITTEE_SECTOR_BEHIND: 'COMMITTEE',
   COMMITTEE_UNIT_NOT_REPORTING: 'COMMITTEE',
   COMMITTEE_DIRECTIVE_OVERDUE: 'COMMITTEE',
+  PWF_TASK_DUE_SOON: 'PROJECT_TASK',
+  PWF_TASK_OVERDUE: 'PROJECT_TASK',
+  PWF_MILESTONE_AT_RISK: 'PROJECT_TASK',
 };
 
 /**
@@ -194,6 +197,8 @@ export const DEFAULT_SEVERITY_RULES: SeverityRules = {
   PROJECT_RISK: { CRITICAL: 'ACTION', JUMP: 'WATCH' },
   // BAN-1: the committee alert row carries its own severity (the policy of the committee decides it), so the facet is that severity.
   COMMITTEE: { URGENT: 'URGENT', ACTION: 'ACTION', WATCH: 'WATCH' },
+  // PWF-2: the facet is the official colour of the deadline of a task (green and yellow are to be watched, red is to be acted on), a task past its day is to be acted on and urgent from the day the rule says it goes up; a milestone forecast past its baseline is to be acted on.
+  PROJECT_TASK: { GREEN: 'WATCH', YELLOW: 'WATCH', RED: 'ACTION', OVERDUE: 'ACTION', OVERDUE_ESCALATED: 'URGENT', MILESTONE_AT_RISK: 'ACTION' },
   // The work that was there before the alert centre has no severity of its own: what is late or due within the week is to be acted on, the rest is to be watched.
   APPROVAL: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
   EXPLANATION: { OVERDUE: 'ACTION', NEAR: 'ACTION', LATER: 'WATCH' },
@@ -312,5 +317,8 @@ const CONSEQUENCE_KEYS = [
   'COMMITTEE_SECTOR_BEHIND',
   'COMMITTEE_UNIT_NOT_REPORTING',
   'COMMITTEE_DIRECTIVE_OVERDUE',
+  'PWF_TASK_DUE_SOON',
+  'PWF_TASK_OVERDUE',
+  'PWF_MILESTONE_AT_RISK',
 ] as const;
 export const CONSEQUENCES: Readonly<Record<string, string>> = Object.fromEntries(CONSEQUENCE_KEYS.map((key) => [key, message(`home.consequence.${key.toLowerCase()}`)]));

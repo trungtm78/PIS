@@ -1,5 +1,6 @@
 import { defineModule } from '../module-descriptor';
 import { PwfDeadlineReadsController } from './deadline.controller';
+import { PwfPreferenceController } from './preference.controller';
 import { ProjectRescheduleController } from './reschedule.controller';
 import { ProjectTaskController, ProjectTaskReadsController } from './task.controller';
 import { ProjectWorkflowController, ProjectWorkflowReadsController } from './workflow.controller';
@@ -11,5 +12,5 @@ import { ProjectWorkflowController, ProjectWorkflowReadsController } from './wor
  */
 export const pwfModule = defineModule({
   code: 'PWF',
-  controllers: [ProjectWorkflowController, ProjectWorkflowReadsController, ProjectTaskController, ProjectTaskReadsController, ProjectRescheduleController, PwfDeadlineReadsController],
+  controllers: [ProjectWorkflowController, ProjectWorkflowReadsController, ProjectTaskController, ProjectTaskReadsController, ProjectRescheduleController, PwfDeadlineReadsController, PwfPreferenceController],
 });

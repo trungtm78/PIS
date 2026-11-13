@@ -517,6 +517,7 @@
     "resumeWorkClock",
     "acknowledgeAlertEscalation",
     "updateMyAlertProfile",
+    "setDeadlinePreference",
     "declareAlertAbsence",
     "endAlertAbsence",
     "proposeAlertCover",

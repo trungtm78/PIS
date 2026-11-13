@@ -14,9 +14,10 @@ import { priorityWord, kindWord, unitWord } from '../labels';
 import { BAND_RULE_TYPE, PATHS, PERMISSIONS, RULE_PERMISSIONS, describeProblem, holds } from '../model';
 import type { BandUnit } from '../model';
 import { RuleSavePanel, RuleVersionList } from '../templates/store';
-import { OWNER_EXAMPLE, PRIORITIES, SOURCES, SOURCE_UNIT, TASK_KINDS, UNITS, addOverride, blankForm, formOf, paramsOf, problemsOf, removeOverride, sentenceOf, thresholdsOf, updateOverride } from './band-model';
+import { OWNER_EXAMPLE, PRIORITIES, SOURCES, SOURCE_UNIT, TASK_KINDS, UNITS, addOverride, blankForm, formOf, paramsOf, problemsOf, removeOverride, thresholdsOf, updateOverride } from './band-model';
 import type { BandForm, BandProblem, Ladder, OverrideForm, Source, Thresholds } from './band-model';
 import { useBandPreview } from './hooks';
+import { sentenceText } from './sentence';
 import '../pwf.css';
 import '../templates/templates.css';
 
@@ -52,17 +53,6 @@ function problemWord(t: T, problem: BandProblem): string {
     case 'reminderOrder':
       return t('pwf.bands.problem.reminderOrder.error');
   }
-}
-
-/** The ladder in the owner's words, with the unit of the source ("5 working days left: green, 2 working days left: yellow, under 1 working day: red"). */
-export function sentenceText(t: T, thresholds: Thresholds, unit: BandUnit): string {
-  const word = unitWord(t, unit);
-  const sentence = sentenceOf(thresholds);
-  const green = sentence.green.kind === 'upTo' ? t('pwf.bands.part.green.text', { days: sentence.green.days, unit: word }) : t('pwf.bands.part.greenOpen.text', { days: sentence.green.days, unit: word });
-  const yellow = t('pwf.bands.part.yellow.text', { days: sentence.yellow.days, unit: word });
-  const red = sentence.red.kind === 'under' ? t('pwf.bands.part.red.text', { days: sentence.red.days, unit: word }) : t('pwf.bands.part.redOverdue.text');
-  const text = [green, yellow, red].join(', ');
-  return `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 }
 
 /**

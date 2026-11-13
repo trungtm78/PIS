@@ -2663,6 +2663,22 @@
             "13": 12,
             "14": 12
           }
+        },
+        {
+          "title": "Hạn ba màu",
+          "description": "Bảng deadline toàn danh mục, chính sách ngưỡng xanh, vàng, đỏ và nhắc hạn riêng của mỗi người",
+          "ids": [
+            7,
+            8,
+            15
+          ],
+          "primary": [
+            7,
+            15
+          ],
+          "parents": {
+            "8": 7
+          }
         }
       ]
     }

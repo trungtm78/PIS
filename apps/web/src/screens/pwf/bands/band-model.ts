@@ -79,7 +79,7 @@ export function formOf(params: unknown): BandForm {
 
 const ladderParams = (ladder: Ladder): Params => ({ ...(ladder.green.trim() === '' ? {} : { green_days: Number(ladder.green) }), yellow_days: Number(ladder.yellow), red_days: Number(ladder.red) });
 
-const reminderList = (text: string): string[] => text.split(/[\s,;]+/).filter((item) => item !== '');
+export const reminderList = (text: string): string[] => text.split(/[\s,;]+/).filter((item) => item !== '');
 
 /** The params the rule store keeps; call it only for a form with no problem. */
 export function paramsOf(form: BandForm): Params {
@@ -135,7 +135,7 @@ function ladderProblems(prefix: string, ladder: Ladder): BandProblem[] {
   return [...found, ...order];
 }
 
-function reminderProblem(text: string): BandProblem | undefined {
+export function reminderProblem(text: string): BandProblem | undefined {
   const items = reminderList(text);
   if (items.some((item) => !WHOLE.test(item))) return { path: 'reminder_days', kind: 'integer' };
   if (items.length > MAX_REMINDERS) return { path: 'reminder_days', kind: 'listSize', max: MAX_REMINDERS };

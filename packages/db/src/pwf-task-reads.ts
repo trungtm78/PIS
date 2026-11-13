@@ -1,10 +1,9 @@
 import { DomainError, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
-import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { HomeWorkCalendars } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { TASK_COLUMNS, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow, TaskSql } from './pwf-schedule-support.ts';
-import { bandResolver, taskItemOf } from './pwf-workflow-reads.ts';
+import { bandResolver, taskItemOf, unitPathOfProject } from './pwf-workflow-reads.ts';
 import type { Can } from './pwf-workflow-reads.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -48,11 +47,9 @@ const ASSIGNMENT_SELECT = `select a.id, a.task_id, a.membership_id, u.display_na
   from machvon.project_task_assignment a left join machvon.tenant_user_directory u on u.tenant_id = a.tenant_id and u.membership_id = a.membership_id`;
 
 export class PwfTaskReads {
-  private readonly policy: GovernancePolicyPort;
   private readonly calendars: HomeWorkCalendars;
 
-  constructor(policy: GovernancePolicyPort = new GovernancePolicyPort(), calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
-    this.policy = policy;
+  constructor(calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
     this.calendars = calendars;
   }
 
@@ -75,7 +72,8 @@ export class PwfTaskReads {
     const template = pwfWorkflow.parseProjectWorkflowTemplate(raw);
     const definition = template.tasks.find((one) => one.code === task.code);
     const today = vietnamDateOf(now);
-    const resolver = await bandResolver(tx, this.policy, this.calendars, now);
+    const resolver = await bandResolver(tx, this.calendars, now);
+    const unit = await unitPathOfProject(tx, task.projectId);
     const assignmentRows = await tx.query<AssignmentSql>(`${ASSIGNMENT_SELECT} where a.task_id = $1::uuid order by a.valid_from, a.role, a.id`, [task.id]);
     const current = assignmentRows.find((row) => row.role === 'RESPONSIBLE' && row.valid_from <= today && (row.valid_to === null || row.valid_to >= today));
     const held = (roles: readonly string[]): boolean => assignmentRows.some((row) => row.membership_id === viewer && roles.includes(row.role) && row.valid_from <= today && (row.valid_to === null || row.valid_to >= today));
@@ -119,7 +117,7 @@ export class PwfTaskReads {
     const variance = task.baselineFinish === null || task.plannedFinish === null ? null : Math.round((Date.parse(`${task.plannedFinish}T00:00:00Z`) - Date.parse(`${task.baselineFinish}T00:00:00Z`)) / 86_400_000);
     const notMaker = !makers.has(viewer);
     return {
-      ...taskItemOf(task, resolver.of(task), assignee),
+      ...taskItemOf(task, resolver.of(task, unit), assignee),
       responsible_role: task.responsibleRole,
       approver_role: task.approverRole,
       duration_working_days: task.durationWorkingDays,

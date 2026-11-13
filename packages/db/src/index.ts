@@ -1943,5 +1943,15 @@ export { logWorkflow, milestoneCodeOf, publishSchedule, resultHashOf, syncMilest
 export { loadPinnedCalendars, pinPublishedCalendars } from './pwf-schedule-support.ts';
 export { PwfDeadlineReads } from './pwf-deadline-reads.ts';
 export type { BoardFilter as PwfBoardFilter } from './pwf-deadline-reads.ts';
+export { PwfBandPolicies, BAND_SOURCE as PWF_BAND_SOURCE } from './pwf-band-policies.ts';
+export type { BandPolicySet } from './pwf-band-policies.ts';
+export { PwfDeadlinePreferenceStore, hasPersonalLadder, personalThresholdsOf } from './pwf-deadline-preference.ts';
+export type { PreferenceReading, StoredPreference } from './pwf-deadline-preference.ts';
+export { workingDayOffset } from './pwf-horizon.ts';
+export { PwfMyTaskReads } from './pwf-my-tasks.ts';
+export type { MyTaskFilter } from './pwf-my-tasks.ts';
+export { HomePwfSources } from './home-pwf-sources.ts';
+export { PwfTaskReminders } from './pwf-task-reminders.ts';
+export type { PwfReminderNotice, RecipientEligibility as PwfRecipientEligibility } from './pwf-task-reminders.ts';
 export { SqlProjectScheduleReader } from './pwf-schedule-read.ts';
 export type { MilestoneFact as PwfMilestoneFact, MilestoneFigures, ProjectScheduleReadPort } from './pwf-schedule-read.ts';
