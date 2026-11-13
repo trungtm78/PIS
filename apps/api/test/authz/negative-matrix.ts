@@ -2345,12 +2345,13 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: () => ({ method: 'POST', path: `/project-reschedules/00000000-0000-4000-8000-0000000000ac/decide`, ifMatch: '"1"', body: { decision: 'APPROVE' } }),
   },
+  // The two checks of a template take the text of a template and, for the preview, a start date: they name no object of a tenant (the preview reads only the working calendar of the caller's own tenant through row-level security), so the wrong-tenant case judges that nothing leaks and nothing changes (there is no foreign object to be refused).
   validateProjectWorkflowTemplate: {
-    referencesTenantIds: true,
+    referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/project-workflow/templates/validate', body: { name: 'Matrix', project_type: null, phases: [{ code: 'P1', name: 'One', gates: [] }], tasks: [{ code: 'TA', name: 'A', phase: 'P1', kind: 'TASK', duration_working_days: 1, required: true, responsible_role: 'ROLE_A', approver_role: null, priority: 'NORMAL', predecessors: [] }] } }),
   },
   previewProjectWorkflowTemplate: {
-    referencesTenantIds: true,
+    referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/project-workflow/templates/preview', body: { planned_start_date: '2026-11-02', params: { name: 'Matrix', project_type: null, phases: [{ code: 'P1', name: 'One', gates: [] }], tasks: [{ code: 'TA', name: 'A', phase: 'P1', kind: 'TASK', duration_working_days: 1, required: true, responsible_role: 'ROLE_A', approver_role: null, priority: 'NORMAL', predecessors: [] }] } } }),
   },
   // The commands of the scores of staff (PWF-3): they name a unit, a period, a line, an adjustment or a response that does not exist in tenant A; a caller without the permission is refused before any lookup, and a caller of another tenant finds nothing.
