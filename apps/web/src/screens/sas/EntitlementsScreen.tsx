@@ -6,7 +6,12 @@ import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
 import { OverridesPanel } from './entitlements/OverridesPanel';
+import { useOverrides } from './entitlements/hooks';
 import { MANAGE_OVERRIDES_PERMISSION } from './entitlements/model';
+import type { OverrideEntry } from './entitlements/model';
+import { usePlans } from './plan/hooks';
+import { graceLabel } from './plan/labels';
+import type { GraceBehavior } from './plan/model';
 import { useEntitlements, useTenantList } from './tenants/hooks';
 import { featureLabel, licenseLabel, modeLabel, modeTone, sourceLabel, toneClass } from './tenants/labels';
 import { READ_TENANTS_PERMISSION } from './tenants/types';
@@ -33,6 +38,12 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
   const options = chosen !== undefined && !loaded.some((tenant) => tenant.id === chosen) ? [...loaded, { id: chosen, name: chosen, code: '' }] : loaded;
   // The control plane has no table of its own: it waits until it knows which tenant to read.
   const table = useEntitlements(chosen, !control || chosen !== undefined);
+  // What each feature does in grace is a term of the plan of the tenant (its published revision); who approved an override and its window are on the override in force.
+  const plans = usePlans(control);
+  const overrides = useOverrides(chosen, control && chosen !== undefined);
+  const planCode = loaded.find((candidate) => candidate.id === chosen)?.planCode;
+  const plan = useMemo(() => (plans.data ?? []).filter((row) => row.planCode === planCode && row.status === 'Published').sort((left, right) => right.revision - left.revision)[0], [plans.data, planCode]);
+  const inForce = useMemo(() => (overrides.data?.pages.flatMap((page) => page.items) ?? []).filter((entry) => entry.status === 'Active'), [overrides.data]);
   const waitingForTenants = control && chosen === undefined && tenants.isLoading;
   const state = useScreenState({
     isLoading: table.isLoading || waitingForTenants,
@@ -92,6 +103,9 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
                       <th>{t('sas.entitlements.col.limit')}</th>
                       <th>{t('sas.entitlements.col.used')}</th>
                       <th>{t('sas.entitlements.col.mode')}</th>
+                      <th>{t('scr2.sas.entitlements.col.grace')}</th>
+                      <th>{t('scr2.sas.entitlements.col.overrideWindow')}</th>
+                      <th>{t('scr2.sas.entitlements.col.approver')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -107,6 +121,10 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
                         <td>
                           <StatusPill tone={toneOfPill(toneClass(modeTone(feature.mode)))}>{modeLabel(t, feature.mode)}</StatusPill>
                         </td>
+                        <GraceAndOverride
+                          grace={plan?.features.find((entry) => entry.featureCode === feature.featureCode)?.graceBehavior}
+                          override={feature.source === 'OVERRIDE' ? inForce.find((entry) => entry.featureCode === feature.featureCode) : undefined}
+                        />
                       </tr>
                     ))}
                   </tbody>
@@ -118,5 +136,17 @@ export default function EntitlementsScreen({ route }: ScreenProps) {
       {control ? <OverridesPanel tenantId={chosen} canManage={permissions?.includes(MANAGE_OVERRIDES_PERMISSION) === true} membershipId={tenant?.membershipId} /> : null}
       <p className="prototype-note">{t('sas.entitlements.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
+  );
+}
+
+/** What the feature does while the licence is in grace (the term of the plan), and the window and the approver of the override in force; a dash for what does not apply or cannot be read. */
+function GraceAndOverride({ grace, override }: { grace: GraceBehavior | undefined; override: OverrideEntry | undefined }) {
+  const { t } = useTranslation();
+  return (
+    <>
+      <td data-field="grace">{grace === undefined ? '—' : graceLabel(t, grace)}</td>
+      <td data-field="override-window">{override === undefined ? '—' : t('scr2.sas.entitlements.overrideWindow.value', { from: override.validFrom.slice(0, 10), until: override.validUntil.slice(0, 10) })}</td>
+      <td data-field="override-approver">{override?.approvedBy === undefined ? '—' : <code>{override.approvedBy}</code>}</td>
+    </>
   );
 }

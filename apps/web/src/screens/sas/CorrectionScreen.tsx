@@ -118,7 +118,7 @@ function CorrectionContent({ route }: ScreenProps) {
       <div className="heading">
         <div>
           <h1 id="screen-title">{t('sas.correction.page.title')}</h1>
-          <p>{t('sas.correction.page.subtitle')}</p>
+          <p>{t('scr2.sas.correction.page.subtitle')}</p>
         </div>
       </div>
       <TenantPicker id="correction-tenant" label={t('sas.correction.tenant.label')} moreLabel={t('sas.correction.tenant.more.action')} choice={choice} />
@@ -132,55 +132,68 @@ function CorrectionContent({ route }: ScreenProps) {
               {done === 'ADJUSTMENT' ? t('sas.correction.done.adjustment') : t('sas.correction.done.replacement')}
             </p>
           )}
-          {items.length === 0 ? (
-            <p className="sub" role="status">
-              {t('sas.correction.invoices.none')}
-            </p>
-          ) : (
-            <KitTable caption={t('w2sas.correction.table.invoices')} data-invoices>
-              <thead>
+          <KitTable caption={t('w2sas.correction.table.invoices')} data-invoices>
+            <thead>
+              <tr>
+                <th scope="col">{t('sas.correction.column.invoice')}</th>
+                <th scope="col">{t('scr2.sas.correction.column.original')}</th>
+                <th scope="col">{t('scr2.sas.correction.column.kind')}</th>
+                <th scope="col">{t('scr2.sas.correction.column.reason')}</th>
+                <th scope="col">{t('sas.correction.column.agreement')}</th>
+                <th scope="col">{t('scr2.sas.correction.column.lines')}</th>
+                <th scope="col" className="amount">
+                  {t('sas.correction.column.total')}
+                </th>
+                <th scope="col" className="amount">
+                  {t('scr2.sas.correction.column.standing')}
+                </th>
+                <th scope="col">{t('sas.correction.column.status')}</th>
+                <th scope="col">
+                  <span className="visually-hidden">{t('sas.correction.column.actions')}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.length === 0 ? (
                 <tr>
-                  <th scope="col">{t('sas.correction.column.invoice')}</th>
-                  <th scope="col">{t('sas.correction.column.kind')}</th>
-                  <th scope="col">{t('sas.correction.column.status')}</th>
-                  <th scope="col" className="amount">
-                    {t('sas.correction.column.total')}
-                  </th>
-                  <th scope="col">{t('sas.correction.column.agreement')}</th>
-                  <th scope="col">
-                    <span className="visually-hidden">{t('sas.correction.column.actions')}</span>
-                  </th>
+                  <td colSpan={10} className="sub" role="status">
+                    {t('sas.correction.invoices.none')}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {items.map((invoice) => (
-                  <tr key={invoice.id} data-invoice-id={invoice.id} data-kind={invoice.kind} data-status={invoice.status}>
-                    <td>
-                      <code>{invoice.invoiceCode}</code>
-                      <br />
-                      <small className="sub">{t('sas.correction.period.text', { from: day(invoice.periodStart), until: day(invoice.periodEnd) })}</small>
-                    </td>
-                    <td>
-                      {kindLabel(t, invoice.kind)}
-                      {invoice.relatedInvoiceId === undefined ? null : <small className="sub"> {t('sas.correction.of.text', { code: items.find((entry) => entry.id === invoice.relatedInvoiceId)?.invoiceCode ?? '—' })}</small>}
-                    </td>
-                    <td>
-                      <StatusPill tone={toneOfPill(toneClass(invoiceStatusTone(invoice.status)))}>{invoiceStatusLabel(t, invoice.status)}</StatusPill>
-                    </td>
-                    <td className="amount">{money(invoice.totalVnd)}</td>
-                    <td>{invoice.agreementDocumentRef ?? '—'}</td>
-                    <td>
-                      {canCorrect && isCorrectable(invoice) ? (
-                        <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(invoice)}>
-                          {t('sas.correction.correct.action')}
-                        </button>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </KitTable>
-          )}
+              ) : null}
+              {items.map((invoice) => (
+                <tr key={invoice.id} data-invoice-id={invoice.id} data-kind={invoice.kind} data-status={invoice.status}>
+                  <td>
+                    <code>{invoice.invoiceCode}</code>
+                    <br />
+                    <small className="sub">{t('sas.correction.period.text', { from: day(invoice.periodStart), until: day(invoice.periodEnd) })}</small>
+                  </td>
+                  <td data-field="original">{invoice.relatedInvoiceId === undefined ? '—' : <code>{items.find((entry) => entry.id === invoice.relatedInvoiceId)?.invoiceCode ?? '—'}</code>}</td>
+                  <td data-field="kind">
+                    {kindLabel(t, invoice.kind)}
+                    {invoice.relatedInvoiceId === undefined ? null : <small className="sub"> {t('sas.correction.of.text', { code: items.find((entry) => entry.id === invoice.relatedInvoiceId)?.invoiceCode ?? '—' })}</small>}
+                  </td>
+                  <td data-field="reason">{invoice.correctionReason ?? '—'}</td>
+                  <td>{invoice.agreementDocumentRef ?? '—'}</td>
+                  <td data-field="lines">{invoice.relatedInvoiceId === undefined ? '—' : t('scr2.sas.correction.lines.count', { count: invoice.lines.length })}</td>
+                  <td className="amount">{money(invoice.totalVnd)}</td>
+                  <td className="amount" data-field="standing">
+                    {money(invoice.standingVnd)}
+                  </td>
+                  <td>
+                    <StatusPill tone={toneOfPill(toneClass(invoiceStatusTone(invoice.status)))}>{invoiceStatusLabel(t, invoice.status)}</StatusPill>
+                  </td>
+                  <td>
+                    {canCorrect && isCorrectable(invoice) ? (
+                      <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={() => open(invoice)}>
+                        {t('sas.correction.correct.action')}
+                      </button>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </KitTable>
           {invoices.hasNextPage ? (
             <div className="row gap">
               <button type="button" disabled={invoices.isFetchingNextPage} onClick={() => void invoices.fetchNextPage()}>
