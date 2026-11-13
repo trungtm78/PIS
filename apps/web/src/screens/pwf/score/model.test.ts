@@ -26,7 +26,8 @@ import {
   periodLink,
   pointsProblem,
   responseProblem,
-  samplesDiffer,
+  ratedSamplesDiffer,
+  rankingBlock,
   scoreText,
   validateAdjustment,
   validateHandle,
@@ -62,7 +63,7 @@ describe('what a score figure says', () => {
 describe('the order of a scoreboard (BR-PWF-36)', () => {
   it('numbers only the rated, highest first, and lists a small sample or an unrated person after them with no place', () => {
     const rows = [row(1, { score_computed: 70 }), row(2, { state: 'SMALL_SAMPLE', rating: null, score_computed: 99, rated_task_count: 2 }), row(3, { score_computed: 90 }), row(4, { state: 'NOT_RATED', rating: null, score_computed: null })];
-    const ordered = boardOrder(rows);
+    const ordered = boardOrder(rows, true);
     expect(ordered.map((item) => [item.row.display_name, item.place])).toEqual([
       ['Người 3', 1],
       ['Người 1', 2],
@@ -73,13 +74,26 @@ describe('the order of a scoreboard (BR-PWF-36)', () => {
 
   it('ranks by the adjusted score when there is one', () => {
     const rows = [row(1, { score_computed: 80, score_adjusted: 75, has_adjustment: true }), row(2, { score_computed: 78 })];
-    expect(boardOrder(rows).map((item) => item.row.display_name)).toEqual(['Người 2', 'Người 1']);
+    expect(boardOrder(rows, true).map((item) => item.row.display_name)).toEqual(['Người 2', 'Người 1']);
   });
 
-  it('says samples differ when two rated people were judged on different numbers of tasks, or anybody has a small sample', () => {
-    expect(samplesDiffer([row(1), row(2)])).toBe(false);
-    expect(samplesDiffer([row(1), row(2, { rated_task_count: 9 })])).toBe(true);
-    expect(samplesDiffer([row(1), row(2, { state: 'SMALL_SAMPLE', rating: null })])).toBe(true);
+  it('gives no place to anybody when the rated people were judged on different numbers of tasks, and keeps the order given', () => {
+    const rows = [row(1, { score_computed: 70, rated_task_count: 6 }), row(2, { score_computed: 90, rated_task_count: 9 })];
+    expect(boardOrder(rows, true).map((item) => [item.row.display_name, item.place])).toEqual([['Người 1', null], ['Người 2', null]]);
+    expect(rankingBlock(rows, true)).toBe('incomparable');
+  });
+
+  it('gives no place while the population is incomplete (the pages are cut by id, not by score)', () => {
+    const rows = [row(1, { score_computed: 70 }), row(2, { score_computed: 90 })];
+    expect(boardOrder(rows, false).every((item) => item.place === null)).toBe(true);
+    expect(rankingBlock(rows, false)).toBe('partial');
+    expect(rankingBlock(rows, true)).toBeNull();
+  });
+
+  it('says rated samples differ only for two rated people on different numbers of tasks: a small sample is not rated and is listed without a place anyway', () => {
+    expect(ratedSamplesDiffer([row(1), row(2)])).toBe(false);
+    expect(ratedSamplesDiffer([row(1), row(2, { rated_task_count: 9 })])).toBe(true);
+    expect(ratedSamplesDiffer([row(1), row(2, { state: 'SMALL_SAMPLE', rating: null, rated_task_count: 2 })])).toBe(false);
   });
 });
 
@@ -199,6 +213,12 @@ describe('the forms', () => {
     expect(validatePeriod(form)).toEqual({});
     expect(validatePeriod({ ...form, to: '2026-09-30' }).to).toBe('invalidDay');
     expect(validatePeriod({ ...form, from: '2026-02-30' }).from).toBe('invalidDay');
+    // A day that matches the shape but is no date at all must be a refusal, never an exception thrown while the form is drawn.
+    for (const bad of ['2026-13-01', '2026-00-10', '2026-01-32', '2026-01-00', '0000-00-00', '2026-99-99']) {
+      expect(() => validatePeriod({ ...form, from: bad })).not.toThrow();
+      expect(validatePeriod({ ...form, from: bad }).from).toBe('invalidDay');
+      expect(validatePeriod({ ...form, to: bad }).to).toBe('invalidDay');
+    }
     expect(validatePeriod({ ...form, policy: 'default' }).policy).toBe('required');
     expect(periodBody({ ...form, unitId: ` ${uuid(60).toUpperCase()} ` })).toEqual({ scope_unit_id: uuid(60), period_from: '2026-10-01', period_to: '2026-12-31', policy_code: 'DEFAULT' });
   });

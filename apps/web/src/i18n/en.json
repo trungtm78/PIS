@@ -39534,7 +39534,6 @@
   "pwfs.board.lines.title": "Score of each person",
   "pwfs.board.shown.text": "Showing {shown} of {total}",
   "pwfs.board.export.action": "Export to Excel",
-  "pwfs.board.noRanking.note": "People with different sample sizes are not ranked against each other: only rated people get a place, people with not enough data come after and have none.",
   "pwfs.board.filter.state.label": "State",
   "pwfs.board.filter.any.option": "All",
   "pwfs.board.filter.unit.label": "Unit id",

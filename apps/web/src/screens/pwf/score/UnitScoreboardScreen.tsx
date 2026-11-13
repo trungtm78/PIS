@@ -9,9 +9,9 @@ import { DataTable, SectionCard, StatusPill } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { dayText } from '../model';
 import { LineStatePill, PeriodStatusPill, ScoreProblemBanner, SupportNotice } from './components';
-import { useExportPeriod, usePeriodLines, usePeriods, useScoreCacheGuard } from './hooks';
+import { useExportPeriod, usePeriodLines, usePeriods, useScoreCacheGuard, useScoreIdentity } from './hooks';
 import { lineStateWord } from './labels';
-import { SCORE_PERMISSIONS, boardOrder, describeScoreProblem, exportBlob, lineLink, mayDo, periodLink, rangeText, samplesDiffer, scoreText, isRated } from './model';
+import { SCORE_PERMISSIONS, boardOrder, describeScoreProblem, exportBlob, lineLink, mayDo, periodLink, rangeText, rankingBlock, scoreText, isRated } from './model';
 import type { ScoreLineRow, ScorePeriod } from './model';
 import '../pwf.css';
 import './score.css';
@@ -21,8 +21,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** PWF-12: the scoreboard of a unit for the manager (the unit at the time of the period) and for the people department (the whole tenant). It does not rank people whose samples differ. */
 export default function UnitScoreboardScreen({ route }: ScreenProps) {
-  const { tenant } = useSession();
-  return <BoardContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
+  const identity = useScoreIdentity();
+  return <BoardContent key={identity} route={route} />;
 }
 
 function download(file: { file_name: string; content_type: string; content_base64: string }): void {
@@ -53,7 +53,10 @@ function BoardContent({ route }: ScreenProps) {
   const lines = usePeriodLines(chosen, { state: stateFilter === '' ? undefined : stateFilter, unitId: unitFilter.trim() === '' || !unitValid ? undefined : unitFilter.trim().toLowerCase() }, mayRead && chosen !== null);
   const rows = useMemo(() => (lines.data?.pages ?? []).flatMap((page) => page.items), [lines.data]);
   const total = lines.data?.pages[0]?.total ?? 0;
-  const ordered = useMemo(() => boardOrder(rows), [rows]);
+  // The population is complete once the last page is in; until then (or while a page is on the way) no place is given.
+  const complete = lines.data !== undefined && !lines.hasNextPage && !lines.isFetchingNextPage;
+  const block = rankingBlock(rows, complete);
+  const ordered = useMemo(() => boardOrder(rows, complete), [rows, complete]);
   const exporter = useExportPeriod();
   const [exportProblem, setExportProblem] = useState<ReturnType<typeof describeScoreProblem> | undefined>(undefined);
   const periodState = useScreenState({ isLoading: periods.isLoading, error: periods.error, data: periods.data, isEmpty: () => all.length === 0 });
@@ -128,11 +131,11 @@ function BoardContent({ route }: ScreenProps) {
           }
         >
           {exportProblem === undefined ? null : <ScoreProblemBanner problem={exportProblem} />}
-          {samplesDiffer(rows) ? (
+          {block === null || rows.length === 0 ? null : (
             <p className="callout" role="note" data-testid="no-ranking">
-              {t('pwfs.board.noRanking.note')}
+              {t(block === 'partial' ? 'pwfs.board.partial.note' : 'pwfs.board.differ.note')}
             </p>
-          ) : null}
+          )}
           <div className="pwf-filters">
             <div className="pwf-field">
               <label htmlFor="pwfs-filter-state">{t('pwfs.board.filter.state.label')}</label>

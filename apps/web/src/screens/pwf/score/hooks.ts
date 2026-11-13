@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useApiClient } from '../../../api/ApiClientContext';
 import type { AttemptRegistry } from '../../../api/attempt-registry';
 import { useSession } from '../../../session/SessionContext';
@@ -16,9 +16,22 @@ import type { AdjustmentRequest, Comparison, DecisionBody, KpiOperationList, Kpi
  */
 export const SCORE_ROOT = 'pwf-score';
 
-export function useScoreKey(): readonly [typeof SCORE_ROOT, string | undefined, string | undefined] {
-  const { tenant } = useSession();
-  return [SCORE_ROOT, tenant?.id, tenant?.membershipId];
+/** The rights a membership holds, as one string: a different set of rights is a different identity for everything that was read under them. */
+export const rightsSignature = (permissions: readonly string[] | undefined): string => [...(permissions ?? [])].sort().join(',');
+
+/** Who is reading and with which rights: the root of a screen that shows scores is keyed by it, so that a change of person or of rights remounts the screen and shows nothing read before. */
+export function useScoreIdentity(): string {
+  const { tenant, permissions } = useSession();
+  return `${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}:${rightsSignature(permissions)}`;
+}
+
+/**
+ * The prefix of every score query: the tenant, the membership AND the rights it reads with. A downgrade (read the unit to read only the own score) changes the key, so the observer of an open screen holds no data
+ * until the server has answered again under the new rights, and what was read under the old rights is never shown.
+ */
+export function useScoreKey(): readonly [typeof SCORE_ROOT, string | undefined, string | undefined, string] {
+  const { tenant, permissions } = useSession();
+  return [SCORE_ROOT, tenant?.id, tenant?.membershipId, rightsSignature(permissions)];
 }
 
 /** What a score query is: kept for no time at all after the last watcher goes, and read again every time a screen asks. */
@@ -27,8 +40,7 @@ const FRESH = { gcTime: 0, staleTime: 0, retry: false, refetchOnWindowFocus: fal
 /** Drops every score from the cache when the screen unmounts and when the membership or its rights change (a revoked right must not show a score the next render). */
 export function useScoreCacheGuard(): void {
   const queryClient = useQueryClient();
-  const { tenant, permissions } = useSession();
-  const signature = useMemo(() => `${tenant?.id ?? ''}:${tenant?.membershipId ?? ''}:${[...(permissions ?? [])].sort().join(',')}`, [tenant, permissions]);
+  const signature = useScoreIdentity();
   const previous = useRef(signature);
   useEffect(() => {
     if (previous.current !== signature) {

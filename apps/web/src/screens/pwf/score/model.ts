@@ -162,20 +162,29 @@ export const rangeText = (from: string, to: string): string => `${dayText(from)}
 
 // ---- the rows of a scoreboard ---------------------------------------------------------------------------------------------------------------------------------------------
 
+/** Whether the rated people of the rows were judged on different numbers of tasks: such people are never ranked against each other (BR-PWF-36). */
+export function ratedSamplesDiffer(rows: readonly Pick<ScoreLineRow, 'rated_task_count' | 'state'>[]): boolean {
+  return new Set(rows.filter(isRated).map((row) => row.rated_task_count)).size > 1;
+}
+
+/** Why a board shows no places, if it does not: `partial` when the pages loaded are not the whole population (an ordinal place among some of the people would be wrong), `incomparable` when the rated samples differ. */
+export type RankingBlock = 'partial' | 'incomparable' | null;
+
+export function rankingBlock(rows: readonly Pick<ScoreLineRow, 'rated_task_count' | 'state'>[], complete: boolean): RankingBlock {
+  if (!complete) return 'partial';
+  return ratedSamplesDiffer(rows) ? 'incomparable' : null;
+}
+
 /**
- * The order of a scoreboard: people with a rating by score, highest first; a small sample or an unrated person is listed after them, in the order the server gave, with no place number. Two people with
- * different samples are never ranked against each other (BR-PWF-36): only the rated are numbered, and a rated person is numbered only among the rated.
+ * The order of a scoreboard. Places are given only to a COMPLETE population of rated people who were judged on the same sample (BR-PWF-36): then the rated are numbered by score, highest first, and a small sample or
+ * an unrated person is listed after them with no place. Otherwise nobody is numbered and the rows stay as the server gave them: a place among the pages loaded so far, or across different samples, would be a ranking
+ * nobody may draw.
  */
-export function boardOrder(rows: readonly ScoreLineRow[]): Array<{ row: ScoreLineRow; place: number | null }> {
+export function boardOrder(rows: readonly ScoreLineRow[], complete: boolean): Array<{ row: ScoreLineRow; place: number | null }> {
+  if (rankingBlock(rows, complete) !== null) return rows.map((row) => ({ row, place: null }));
   const rated = rows.filter(isRated).sort((a, b) => (effectiveScore(b) ?? 0) - (effectiveScore(a) ?? 0) || a.display_name.localeCompare(b.display_name));
   const rest = rows.filter((row) => !isRated(row));
   return [...rated.map((row, at) => ({ row, place: at + 1 })), ...rest.map((row) => ({ row, place: null }))];
-}
-
-/** Whether the rows have different sample sizes, the reason the board says it does not rank across them. */
-export function samplesDiffer(rows: readonly Pick<ScoreLineRow, 'rated_task_count' | 'state'>[]): boolean {
-  const counts = new Set(rows.filter(isRated).map((row) => row.rated_task_count));
-  return counts.size > 1 || rows.some((row) => row.state === 'SMALL_SAMPLE');
 }
 
 // ---- who may do what on a line ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -362,7 +371,12 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CODE = /^[A-Z][A-Z0-9_]{1,39}$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
-const validDay = (value: string): boolean => DAY.test(value) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+/** A day that exists: the shape alone passes 2026-13-01, and `toISOString` of such a date throws, so the date must be a real one before it is formatted. */
+const validDay = (value: string): boolean => {
+  if (!DAY.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+};
 
 export function validatePeriod(form: PeriodForm): PeriodProblems {
   const problems: PeriodProblems = {};

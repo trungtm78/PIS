@@ -6,7 +6,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard } from '../../../ui';
 import { AdjustmentList, ContributionsTable, ExcludedList, PeriodStatusPill, ResponseList, ScoreFigure, ScoreInfo, SupportNotice } from './components';
 import { ResponseForm } from './forms';
-import { useMyScores, useReloadScores, useScoreCacheGuard, useSubmitResponse } from './hooks';
+import { useMyScores, useReloadScores, useScoreCacheGuard, useScoreIdentity, useSubmitResponse } from './hooks';
 import { Comparison } from './Comparison';
 import { SCORE_PERMISSIONS, mayDo, rangeText } from './model';
 import type { MyScore } from './model';
@@ -16,8 +16,8 @@ import './score.css';
 
 /** PWF-11: my score. Only the score of the signed-in person: every point traced to tasks and facts, the adjustments that moved it, the periods side by side and the response to the score. */
 export default function MyScoreScreen({ route }: ScreenProps) {
-  const { tenant } = useSession();
-  return <MyScoreContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
+  const identity = useScoreIdentity();
+  return <MyScoreContent key={identity} route={route} />;
 }
 
 function MyScoreContent({ route }: ScreenProps) {

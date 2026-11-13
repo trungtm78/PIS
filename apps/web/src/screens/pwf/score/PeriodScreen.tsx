@@ -9,7 +9,7 @@ import { ConfirmDialog, DataTable, SectionCard } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { dayText, stampText } from '../model';
 import { FlagList, FlagsNote, PeriodStatusPill, ScoreProblemBanner, SupportNotice } from './components';
-import { useComputePeriod, useLockPeriod, useOfficializePeriod, usePeriod, usePeriods, useReloadScores, useScoreCacheGuard, useSignals } from './hooks';
+import { useComputePeriod, useLockPeriod, useOfficializePeriod, usePeriod, usePeriods, useReloadScores, useScoreCacheGuard, useScoreIdentity, useSignals } from './hooks';
 import { scoreFormProblem } from './labels';
 import { EMPTY_PERIOD, SCORE_PERMISSIONS, describeScoreProblem, isScoreConflict, mayDo, mayWrite, periodBody, periodLink, rangeText, unitLink, validatePeriod } from './model';
 import type { PeriodForm, PeriodPreview, ScorePeriod, ScoreProblem } from './model';
@@ -18,8 +18,8 @@ import './score.css';
 
 /** PWF-14: the period of scoring. A draft is computed for a unit and a policy and can be computed again; locking it takes the snapshot and its hash and opens the window of response; it becomes official when the window has ended or every response was handled. */
 export default function PeriodScreen({ route }: ScreenProps) {
-  const { tenant } = useSession();
-  return <PeriodContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
+  const identity = useScoreIdentity();
+  return <PeriodContent key={identity} route={route} />;
 }
 
 function PeriodContent({ route }: ScreenProps) {

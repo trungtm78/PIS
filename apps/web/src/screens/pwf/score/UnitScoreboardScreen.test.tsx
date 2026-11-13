@@ -13,6 +13,7 @@ afterEach(() => {
 
 const route = routeOf('PWF-12');
 
+const comparable = () => [row(1, { score_computed: 70 }), row(2, { state: 'SMALL_SAMPLE', rating: null, score_computed: 99, rated_task_count: 2, effective_weight: 2 }), row(3, { score_computed: 91 }), row(4, { has_adjustment: true, score_adjusted: 74, score_computed: 71, has_open_response: true })];
 const people = () => [row(1, { score_computed: 70 }), row(2, { state: 'SMALL_SAMPLE', rating: null, score_computed: 99, rated_task_count: 2, effective_weight: 2 }), row(3, { score_computed: 91, rated_task_count: 8 }), row(4, { has_adjustment: true, score_adjusted: 74, score_computed: 71, has_open_response: true })];
 
 interface Setup {
@@ -37,7 +38,7 @@ const names = (): string[] => within(screen.getByRole('table')).getAllByRole('li
 
 describe('PWF-12: the scoreboard of a unit', () => {
   it('lists the lines of the first period, rated people ranked by score and the others after them with no place', async () => {
-    const h = open();
+    const h = open({ lines: linePage(comparable()) });
     await screen.findByRole('table');
     expect(h.read).toHaveBeenCalledWith('listStaffScoreLines', expect.objectContaining({ path: { id: PERIOD_ID } }));
     expect(names()).toEqual(['Người 3', 'Người 4', 'Người 1', 'Người 2']);
@@ -46,10 +47,13 @@ describe('PWF-12: the scoreboard of a unit', () => {
     expect(within(rows[4] as HTMLElement).getAllByRole('cell')[0]?.textContent).toBe('–');
   });
 
-  it('says it does not rank across different sample sizes and writes "not enough data" for a small sample', async () => {
+  it('gives no place to anybody when the rated people were judged on different samples, keeps the order of the server and writes "not enough data" for a small sample', async () => {
     open();
     await screen.findByRole('table');
-    expect(screen.getByTestId('no-ranking').textContent).toBe(text('pwfs.board.noRanking.note'));
+    expect(screen.getByTestId('no-ranking').textContent).toBe(text('pwfs.board.differ.note'));
+    expect(names()).toEqual(['Người 1', 'Người 2', 'Người 3', 'Người 4']);
+    const places = within(screen.getByRole('table')).getAllByRole('row').slice(1).map((one) => within(one).getAllByRole('cell')[0]?.textContent);
+    expect(places).toEqual(['–', '–', '–', '–']);
     expect(within(screen.getByRole('table')).getByText(text('pwfs.state.smallSample.word'))).toBeTruthy();
   });
 
@@ -58,6 +62,21 @@ describe('PWF-12: the scoreboard of a unit', () => {
     await screen.findByRole('table');
     expect(screen.getByText(text('pwfs.board.adjusted.word'))).toBeTruthy();
     expect(screen.getByText(text('pwfs.board.openResponse.word'))).toBeTruthy();
+  });
+
+  it('gives no place while only some pages of the population are loaded, and numbers the rated once the last page is in', async () => {
+    const pages = (input: Record<string, unknown>) => {
+      const query = input.query as { cursor?: string } | undefined;
+      return query?.cursor === undefined ? linePage(comparable().slice(0, 2), { total: 4, next_cursor: 'abc' }) : linePage(comparable().slice(2), { total: 4, next_cursor: null });
+    };
+    open({ lines: pages });
+    await screen.findByRole('table');
+    expect(screen.getByTestId('no-ranking').textContent).toBe(text('pwfs.board.partial.note'));
+    expect(within(screen.getByRole('table')).getAllByRole('row').slice(1).map((one) => within(one).getAllByRole('cell')[0]?.textContent)).toEqual(['–', '–']);
+    fireEvent.click(screen.getByRole('button', { name: text('pwfs.board.moreLines.action') }));
+    await waitFor(() => expect(screen.queryByTestId('no-ranking')).toBeNull());
+    expect(names()).toEqual(['Người 3', 'Người 4', 'Người 1', 'Người 2']);
+    expect(within(screen.getAllByRole('row')[1] as HTMLElement).getAllByRole('cell')[0]?.textContent).toBe('1');
   });
 
   it('says how many are shown of how many', async () => {

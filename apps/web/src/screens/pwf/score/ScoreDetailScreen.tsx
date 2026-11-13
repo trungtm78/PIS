@@ -7,7 +7,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard } from '../../../ui';
 import { AdjustmentList, ContributionsTable, ExcludedList, FlagList, FlagsNote, LineStatePill, PeriodStatusPill, ResponseList, ScoreFigure, ScoreInfo, SupportNotice } from './components';
 import { AdjustmentRequestForm, DecisionForm, HandleResponseForm, ResponseForm } from './forms';
-import { useDecideAdjustment, useHandleResponse, usePolicyLimits, useReloadScores, useRequestAdjustment, useScoreCacheGuard, useScoreLine, useSubmitResponse } from './hooks';
+import { useDecideAdjustment, useHandleResponse, usePolicyLimits, useReloadScores, useRequestAdjustment, useScoreCacheGuard, useScoreIdentity, useScoreLine, useSubmitResponse } from './hooks';
 import { SCORE_PATHS, SCORE_PERMISSIONS, actionsOf, isNotFound, mayDo, periodLink, unitLink } from './model';
 import type { ScoreLine } from './model';
 import '../pwf.css';
@@ -15,8 +15,8 @@ import './score.css';
 
 /** PWF-13: the detail of one score with the drill-through to tasks and facts, the adjustments, the responses and the flags. A line that is not there and a line the caller may not see are answered alike. */
 export default function ScoreDetailScreen({ route }: ScreenProps) {
-  const { tenant } = useSession();
-  return <DetailContent key={`${tenant?.id ?? 'none'}:${tenant?.membershipId ?? 'none'}`} route={route} />;
+  const identity = useScoreIdentity();
+  return <DetailContent key={identity} route={route} />;
 }
 
 function DetailContent({ route }: ScreenProps) {

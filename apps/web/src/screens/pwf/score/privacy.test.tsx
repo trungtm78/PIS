@@ -111,6 +111,7 @@ describe('scores are never left behind on the page (BR-PWF-40, R33)', () => {
     for (const query of cachedScores(queries)) {
       expect(query.queryKey[1]).toBe(PLATFORM_TENANT.id);
       expect(query.queryKey[2]).toBe(PLATFORM_TENANT.membershipId);
+      expect(query.queryKey[3]).toBe([...SCORE_ALL].sort().join(','));
     }
   });
 
@@ -134,13 +135,26 @@ describe('scores are never left behind on the page (BR-PWF-40, R33)', () => {
     await screen.findByRole('alert');
     expect(screen.queryByRole('table')).toBeNull();
     expect(screen.queryByText('Người 1')).toBeNull();
-    expect(cachedScores(view.queries).filter((query) => query.state.data !== undefined && query.queryKey[3] === 'lines')).toEqual([]);
+    expect(cachedScores(view.queries).filter((query) => query.state.data !== undefined && query.queryKey[4] === 'lines')).toEqual([]);
+  });
+
+  it('shows no score of another person while the rights are checked again after a downgrade from reading the unit to reading only the own score (the detail of a score)', async () => {
+    const view = render2({ permissions: ['staff_score.read_unit', 'pwf.read'] }, () => <ScoreDetailScreen route={routeOf('PWF-13')} />, `/pwf/pwf-13?id=${LINE_ID}`);
+    expect(await screen.findByText(/Trần Thị Bình/)).toBeTruthy();
+    expect(screen.getByTestId('detail')).toBeTruthy();
+    // The server has not answered yet under the new rights: nothing read under the old ones stays on the page.
+    view.h.read.mockImplementation(() => new Promise(() => undefined));
+    await view.change({ permissions: ['staff_score.read_own', 'pwf.read'] });
+    expect(screen.queryByText(/Trần Thị Bình/)).toBeNull();
+    expect(screen.queryByTestId('detail')).toBeNull();
+    expect(screen.queryByText(SECRET.repeat(3))).toBeNull();
+    expect(cachedScores(view.queries).filter((query) => query.queryKey[4] === 'line' && query.state.data !== undefined)).toEqual([]);
   });
 
   it('reads again every time a screen asks: a score is never served stale', async () => {
     const view = render2({}, () => <MyScoreScreen route={routeOf('PWF-11')} />);
     await screen.findByTestId('my-period');
-    const mine = cachedScores(view.queries).find((query) => query.queryKey[3] === 'mine');
+    const mine = cachedScores(view.queries).find((query) => query.queryKey[4] === 'mine');
     expect(mine?.isStale()).toBe(true);
     expect(mine?.options.gcTime).toBe(0);
   });

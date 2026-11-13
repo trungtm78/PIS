@@ -1,0 +1,4 @@
+{
+  "pwfs.board.partial.note": "Chưa tải hết kết quả của kỳ này nên chưa đánh số thứ hạng: thứ hạng chỉ có ý nghĩa khi đã có đủ mọi người. Hãy tải thêm cho đến hết.",
+  "pwfs.board.differ.note": "Không xếp hạng giữa người có mẫu chênh nhau (số công việc được chấm khác nhau): bảng giữ nguyên thứ tự máy chủ trả về và không có số thứ tự."
+}
