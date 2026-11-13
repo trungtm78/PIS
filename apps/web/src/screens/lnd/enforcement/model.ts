@@ -47,6 +47,8 @@ export interface CaseLine {
   step: Step;
   suspendedFrom: Step | null;
   startedOn: string;
+  /** The authority that carries the enforcement out (a unit of the tenant). */
+  authorityUnitId: string | null;
   decisionDocumentVersionId: string | null;
   plannedOn: string | null;
   executedOn: string | null;
@@ -83,6 +85,7 @@ export function toCase(raw: unknown): CaseLine | undefined {
     step,
     suspendedFrom: oneOf(STEPS, row.suspended_from) ?? null,
     startedOn,
+    authorityUnitId: nullableText(row.authority_unit_id),
     decisionDocumentVersionId: nullableText(row.decision_document_version_id),
     plannedOn: nullableText(row.planned_on),
     executedOn: nullableText(row.executed_on),

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -10,6 +11,7 @@ import { usePlans } from '../plan/hooks';
 import { useParcels, useProjectOptions, useUnits } from '../read-hooks';
 import '../../prj/prj.css';
 import '../lnd.css';
+import { ScrollRegion } from '../../scroll-region';
 import { AdvanceDialog, StartDialog } from './EnforcementDialogs';
 import { useCases } from './hooks';
 import { stepLabel } from './labels';
@@ -42,7 +44,9 @@ function EnforcementContent({ route }: ScreenProps) {
   const parcels = useParcels(may ? projectId : undefined);
   const households = useHouseholds(may ? projectId : undefined);
   const plans = usePlans(may ? projectId : undefined);
-  const units = useUnits(may && projectId !== undefined);
+  // The units name the authority of each case; the dialogs choose one from them.
+  const units = useUnits(projectId !== undefined);
+  const unitName = (id: string | null): string => (id === null ? NONE : (units.data ?? []).find((unit) => unit.id === id)?.name ?? NONE);
   const [dialog, setDialog] = useState<Dialog | undefined>(undefined);
   const state = useScreenState({ isLoading: list.isLoading, error: list.error, data: list.data, isEmpty: () => false });
   const lines = list.data ?? [];
@@ -84,37 +88,16 @@ function EnforcementContent({ route }: ScreenProps) {
         </div>
       </div>
       {projectId === undefined ? (
-        <p className="callout" role="status" data-testid="choose-project">
-          {t('lnd.enforcement.project.notice')}
-        </p>
+        <CasesTable empty={t('lnd.enforcement.project.notice')} emptyTestId="choose-project">
+          {null}
+        </CasesTable>
       ) : (
         <StateBoundary state={state} onRetry={() => void list.refetch()}>
-          {lines.length === 0 ? (
-            <p className="callout" role="status" data-testid="empty">
-              {t('lnd.enforcement.empty.notice')}
-            </p>
-          ) : (
-            <div className="tablewrap">
-              <table className="table" aria-label={t('lnd.enforcement.list.aria')} data-testid="cases">
-                <thead>
-                  <tr>
-                    <th scope="col">{t('lnd.enforcement.col.parcel')}</th>
-                    <th scope="col">{t('lnd.enforcement.col.household')}</th>
-                    <th scope="col">{t('lnd.enforcement.col.step')}</th>
-                    <th scope="col">{t('lnd.enforcement.col.started')}</th>
-                    <th scope="col">{t('lnd.enforcement.col.planned')}</th>
-                    <th scope="col">{t('lnd.enforcement.col.executed')}</th>
-                    <th scope="col">{t('lnd.enforcement.col.actions')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lines.map((line) => (
-                    <CaseRow key={line.id} line={line} may={may} onAdvance={() => setDialog({ kind: 'advance', caseId: line.id })} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <CasesTable empty={lines.length === 0 ? t('lnd.enforcement.empty.notice') : undefined} emptyTestId="empty">
+            {lines.map((line) => (
+              <CaseRow key={line.id} line={line} authority={unitName(line.authorityUnitId)} may={may} onAdvance={() => setDialog({ kind: 'advance', caseId: line.id })} />
+            ))}
+          </CasesTable>
         </StateBoundary>
       )}
       {dialog?.kind === 'start' && projectId !== undefined && may ? (
@@ -133,7 +116,44 @@ function EnforcementContent({ route }: ScreenProps) {
   );
 }
 
-function CaseRow({ line, may, onAdvance }: { line: CaseLine; may: boolean; onAdvance(): void }) {
+/** The columns of the cases, for the one row that stands in for none. */
+const COLUMNS = 9;
+
+/** The cases of a project: the columns stand before a project is chosen, the one row then says what to choose. */
+function CasesTable({ empty, emptyTestId, children }: { empty: string | undefined; emptyTestId: string; children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <ScrollRegion label={t('lnd.enforcement.list.aria')}>
+      <table className="table" aria-label={t('lnd.enforcement.list.aria')} data-testid="cases">
+        <thead>
+          <tr>
+            <th scope="col">{t('lnd.enforcement.col.parcel')}</th>
+            <th scope="col">{t('lnd.enforcement.col.household')}</th>
+            <th scope="col">{t('lnd.enforcement.col.step')}</th>
+            <th scope="col">{t('scr2.lnd.enforcement.col.authority')}</th>
+            <th scope="col">{t('scr2.lnd.enforcement.col.decision')}</th>
+            <th scope="col">{t('lnd.enforcement.col.started')}</th>
+            <th scope="col">{t('lnd.enforcement.col.planned')}</th>
+            <th scope="col">{t('lnd.enforcement.col.executed')}</th>
+            <th scope="col">{t('lnd.enforcement.col.actions')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {empty === undefined ? null : (
+            <tr>
+              <td colSpan={COLUMNS} role="status" data-testid={emptyTestId}>
+                {empty}
+              </td>
+            </tr>
+          )}
+          {children}
+        </tbody>
+      </table>
+    </ScrollRegion>
+  );
+}
+
+function CaseRow({ line, authority, may, onAdvance }: { line: CaseLine; authority: string; may: boolean; onAdvance(): void }) {
   const { t } = useTranslation();
   return (
     <tr data-case={line.id} data-step={line.step}>
@@ -156,6 +176,10 @@ function CaseRow({ line, may, onAdvance }: { line: CaseLine; may: boolean; onAdv
             {line.suspendReason}
           </small>
         ) : null}
+      </td>
+      <td data-testid="authority">{authority}</td>
+      <td data-testid="decision">
+        {line.decisionDocumentVersionId === null ? NONE : <code title={line.decisionDocumentVersionId}>{line.decisionDocumentVersionId.slice(0, 8)}</code>}
       </td>
       <td>{line.startedOn}</td>
       <td>{line.plannedOn ?? NONE}</td>

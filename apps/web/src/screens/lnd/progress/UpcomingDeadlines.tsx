@@ -8,6 +8,7 @@ import { useScopeKey } from '../hooks';
 import { timerLabel } from '../labels';
 import { TIMER_CODES } from '../model';
 import type { TimerCode } from '../model';
+import { ScrollRegion } from '../../scroll-region';
 
 const WINDOWS = ['7', '14', '30', '60'] as const;
 const PAGE = 50;
@@ -109,51 +110,53 @@ export function UpcomingDeadlines({ onOpenProject }: { onOpenProject: (projectId
         </p>
       ) : (
         <>
-          <table className="table" data-testid="deadlines-table">
-            <caption>{t('lookahead.prj.landDeadlines.title')}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{t('lookahead.prj.landDeadlines.subject')}</th>
-                <th scope="col">{t('lookahead.prj.landDeadlines.timer')}</th>
-                <th scope="col">{t('lookahead.prj.landDeadlines.due')}</th>
-                <th scope="col">{name}</th>
-                <th scope="col">{t('lookahead.prj.landDeadlines.status')}</th>
-                <th scope="col">
-                  <span className="ui-sr-only">{t('lookahead.prj.landDeadlines.open')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {query.data.lines.map((line) => (
-                <tr key={line.id} data-testid={`deadline-${line.id}`}>
-                  <th scope="row">{line.subjectLabel}</th>
-                  <td>{line.timerCode === null ? '–' : timerLabel(t, line.timerCode)}</td>
-                  <td>{dayText(line.dueOn)}</td>
-                  <td>
-                    <span data-testid={`deadline-left-${line.id}`}>{line.remainingDays}</span>{' '}
-                    <InfoFormula
-                      name={name}
-                      formula={t('lookahead.prj.landDeadlines.formula')}
-                      source={line.legalBasis ?? t('lookahead.prj.landDeadlines.source')}
-                      asOf={dayText(query.data.asOf.slice(0, 10))}
-                      owner={t('lookahead.prj.landDeadlines.owner')}
-                      version={t('lookahead.prj.landDeadlines.version')}
-                      unverified={line.awaitingConfirmation}
-                      labels={labels(name)}
-                    />
-                  </td>
-                  <td>
-                    <StatusPill tone={line.status === 'BREACHED' ? 'danger' : 'warning'}>{line.status === 'BREACHED' ? t('lookahead.prj.landDeadlines.status.breached') : t('lookahead.prj.landDeadlines.status.running')}</StatusPill>
-                  </td>
-                  <td>
-                    <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`deadline-open-${line.id}`} aria-label={t('lookahead.prj.landDeadlines.openFor', { subject: line.subjectLabel })} onClick={() => onOpenProject(line.projectId)}>
-                      {t('lookahead.prj.landDeadlines.open')}
-                    </button>
-                  </td>
+          <ScrollRegion label={t('lookahead.prj.landDeadlines.title')}>
+            <table className="table" data-testid="deadlines-table">
+              <caption>{t('lookahead.prj.landDeadlines.title')}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{t('lookahead.prj.landDeadlines.subject')}</th>
+                  <th scope="col">{t('lookahead.prj.landDeadlines.timer')}</th>
+                  <th scope="col">{t('lookahead.prj.landDeadlines.due')}</th>
+                  <th scope="col">{name}</th>
+                  <th scope="col">{t('lookahead.prj.landDeadlines.status')}</th>
+                  <th scope="col">
+                    <span className="ui-sr-only">{t('lookahead.prj.landDeadlines.open')}</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {query.data.lines.map((line) => (
+                  <tr key={line.id} data-testid={`deadline-${line.id}`}>
+                    <th scope="row">{line.subjectLabel}</th>
+                    <td>{line.timerCode === null ? '–' : timerLabel(t, line.timerCode)}</td>
+                    <td>{dayText(line.dueOn)}</td>
+                    <td>
+                      <span data-testid={`deadline-left-${line.id}`}>{line.remainingDays}</span>{' '}
+                      <InfoFormula
+                        name={name}
+                        formula={t('lookahead.prj.landDeadlines.formula')}
+                        source={line.legalBasis ?? t('lookahead.prj.landDeadlines.source')}
+                        asOf={dayText(query.data.asOf.slice(0, 10))}
+                        owner={t('lookahead.prj.landDeadlines.owner')}
+                        version={t('lookahead.prj.landDeadlines.version')}
+                        unverified={line.awaitingConfirmation}
+                        labels={labels(name)}
+                      />
+                    </td>
+                    <td>
+                      <StatusPill tone={line.status === 'BREACHED' ? 'danger' : 'warning'}>{line.status === 'BREACHED' ? t('lookahead.prj.landDeadlines.status.breached') : t('lookahead.prj.landDeadlines.status.running')}</StatusPill>
+                    </td>
+                    <td>
+                      <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid={`deadline-open-${line.id}`} aria-label={t('lookahead.prj.landDeadlines.openFor', { subject: line.subjectLabel })} onClick={() => onOpenProject(line.projectId)}>
+                        {t('lookahead.prj.landDeadlines.open')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </ScrollRegion>
           {query.data.hasMore ? (
             <p className="muted" data-testid="deadlines-more">
               {t('lookahead.prj.landDeadlines.more', { count: PAGE })}

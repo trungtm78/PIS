@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
 import type { ScreenProps } from '../../../routes/types';
@@ -14,6 +15,7 @@ import { useInventory } from './hooks';
 import { inventoryStatusLabel, itemKindLabel } from './labels';
 import { INVENTORY_STATUSES, canAnswer, canCount, confirmedTotal, formatVnd, recordsOf } from './model';
 import type { InventoryLine, InventoryStatus } from './model';
+import { ScrollRegion } from '../../scroll-region';
 import '../lnd.css';
 
 type Dialog = { kind: 'record' } | { kind: 'answer'; record: InventoryLine };
@@ -105,9 +107,11 @@ function InventoryContent({ route }: ScreenProps) {
         )}
       </div>
       {household === undefined ? (
-        <p className="callout" role="status" data-testid="choose-household">
-          {projectId === undefined ? t('lnd.inventory.project.notice') : t('lnd.inventory.household.notice')}
-        </p>
+        <div className="card">
+          <RecordsTable empty={projectId === undefined ? t('lnd.inventory.project.notice') : t('lnd.inventory.household.notice')} emptyTestId="choose-household">
+            {null}
+          </RecordsTable>
+        </div>
       ) : (
         <StateBoundary state={state} onRetry={() => void records.refetch()}>
           <div className="card">
@@ -127,33 +131,11 @@ function InventoryContent({ route }: ScreenProps) {
                 </select>
               </div>
             </form>
-            {shown.length === 0 ? (
-              <p className="callout" role="status" data-testid="no-match">
-                {(records.data ?? []).length === 0 ? t('lnd.inventory.empty.notice') : t('lnd.inventory.noMatch.notice')}
-              </p>
-            ) : (
-              <table className="table" data-testid="records">
-                <thead>
-                  <tr>
-                    <th scope="col">{t('lnd.inventory.column.parcel')}</th>
-                    <th scope="col">{t('lnd.inventory.column.kind')}</th>
-                    <th scope="col">{t('lnd.inventory.column.description')}</th>
-                    <th scope="col">{t('lnd.inventory.column.quantity')}</th>
-                    <th scope="col">{t('lnd.inventory.column.price')}</th>
-                    <th scope="col">{t('lnd.inventory.column.amount')}</th>
-                    <th scope="col">{t('lnd.inventory.column.decision')}</th>
-                    <th scope="col">{t('lnd.inventory.column.answer')}</th>
-                    <th scope="col">{t('lnd.inventory.column.status')}</th>
-                    <th scope="col">{t('lnd.inventory.column.action')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shown.map((record) => (
-                    <RecordRow key={record.id} record={record} canConfirm={canAnswer(record, tenant?.membershipId, permissions, mode)} onAnswer={() => setDialog({ kind: 'answer', record })} />
-                  ))}
-                </tbody>
-              </table>
-            )}
+            <RecordsTable empty={shown.length === 0 ? ((records.data ?? []).length === 0 ? t('lnd.inventory.empty.notice') : t('lnd.inventory.noMatch.notice')) : undefined} emptyTestId="no-match">
+              {shown.map((record) => (
+                <RecordRow key={record.id} record={record} canConfirm={canAnswer(record, tenant?.membershipId, permissions, mode)} onAnswer={() => setDialog({ kind: 'answer', record })} />
+              ))}
+            </RecordsTable>
             <p data-testid="confirmed-total">{t('lnd.inventory.total.text', { amount: formatVnd(confirmedTotal(records.data ?? [])) })}</p>
           </div>
         </StateBoundary>
@@ -162,6 +144,45 @@ function InventoryContent({ route }: ScreenProps) {
       {dialog?.kind === 'answer' ? <AnswerDialog record={dialog.record} today={today} onClose={() => setDialog(undefined)} /> : null}
       <p className="prototype-note">{t('lnd.inventory.footer.reference', { id: route.id, req: route.req ?? '' })}</p>
     </section>
+  );
+}
+
+/** The columns of the records, for the one row that stands in for none. */
+const COLUMNS = 11;
+
+/** The table of the records of a household: its columns stand even before a household is chosen, the one row then says what to choose. */
+function RecordsTable({ empty, emptyTestId, children }: { empty: string | undefined; emptyTestId: string; children: ReactNode }) {
+  const { t } = useTranslation();
+  return (
+    <ScrollRegion label={t('lnd.inventory.page.title')}>
+      <table className="table" data-testid="records">
+        <thead>
+          <tr>
+            <th scope="col">{t('lnd.inventory.column.parcel')}</th>
+            <th scope="col">{t('lnd.inventory.column.kind')}</th>
+            <th scope="col">{t('lnd.inventory.column.description')}</th>
+            <th scope="col">{t('lnd.inventory.column.quantity')}</th>
+            <th scope="col">{t('lnd.inventory.column.price')}</th>
+            <th scope="col">{t('lnd.inventory.column.amount')}</th>
+            <th scope="col">{t('lnd.inventory.column.decision')}</th>
+            <th scope="col">{t('scr2.lnd.inventory.column.confirmed')}</th>
+            <th scope="col">{t('lnd.inventory.column.answer')}</th>
+            <th scope="col">{t('lnd.inventory.column.status')}</th>
+            <th scope="col">{t('lnd.inventory.column.action')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {empty === undefined ? null : (
+            <tr>
+              <td colSpan={COLUMNS} role="status" data-testid={emptyTestId}>
+                {empty}
+              </td>
+            </tr>
+          )}
+          {children}
+        </tbody>
+      </table>
+    </ScrollRegion>
   );
 }
 
@@ -178,15 +199,12 @@ function RecordRow({ record, canConfirm, onAnswer }: { record: InventoryLine; ca
         {formatVnd(record.amountVnd)}
       </td>
       <td data-testid="decision">{record.priceDecisionRevision === null ? record.priceDecisionRef : t('lnd.inventory.decision.line', { ref: record.priceDecisionRef, revision: record.priceDecisionRevision })}</td>
+      <td data-testid="confirmed">{record.householdConfirmedOn === null ? t('lnd.inventory.answer.none') : t('lnd.inventory.answer.line', { on: record.householdConfirmedOn })}</td>
       <td data-testid="answer">
-        {record.householdConfirmedOn === null ? t('lnd.inventory.answer.none') : t('lnd.inventory.answer.line', { on: record.householdConfirmedOn })}
         {record.note === null ? null : (
-          <>
-            <br />
-            <small className="sub" data-testid="note">
-              {record.note}
-            </small>
-          </>
+          <small className="sub" data-testid="note">
+            {record.note}
+          </small>
         )}
       </td>
       <td>

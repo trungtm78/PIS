@@ -28,13 +28,13 @@ const worldOf = () =>
     ],
   });
 const rowOf = (n: number): HTMLElement => document.querySelector(`[data-record-id="${inventoryRecord(n).id}"]`) as HTMLElement;
-const ready = () => screen.findByTestId('records');
+const ready = () => screen.findByTestId('household-summary');
 
 describe('InventoryScreen (LND-04): the inventory of the assets of a household', () => {
   it('UI-LND-04: asks for a project and then a household before it shows anything', async () => {
     mount(<InventoryScreen route={ROUTE} />, client(worldOf()), { permissions: COUNTER, path: '/lnd/lnd-04' });
     expect((await screen.findByTestId('choose-household')).textContent).toBe(vi_['lnd.inventory.project.notice']);
-    expect(screen.queryByTestId('records')).toBeNull();
+    expect(document.querySelectorAll('[data-record-id]')).toHaveLength(0);
     expect(screen.queryByRole('button', { name: vi_['lnd.inventory.record.action'] })).toBeNull();
     await screen.findByRole('option', { name: /DA-2026-001/ });
     fireEvent.change(screen.getByLabelText(vi_['lnd.inventory.project.label']), { target: { value: PROJECT } });
@@ -63,6 +63,7 @@ describe('InventoryScreen (LND-04): the inventory of the assets of a household',
       vi_['lnd.inventory.column.price'],
       vi_['lnd.inventory.column.amount'],
       vi_['lnd.inventory.column.decision'],
+      'Hộ xác nhận',
       vi_['lnd.inventory.column.answer'],
       vi_['lnd.inventory.column.status'],
       vi_['lnd.inventory.column.action'],
@@ -72,9 +73,9 @@ describe('InventoryScreen (LND-04): the inventory of the assets of a household',
     expect(within(first).getByText(vi_['lnd.itemKind.house.label'])).toBeTruthy();
     expect(within(first).getByTestId('amount').textContent).toBe('360.000.000');
     expect(within(first).getByTestId('decision').textContent).toBe(vi_['lnd.inventory.decision.line'].replace('{ref}', 'QD-GIA-2024').replace('{revision}', '1'));
-    expect(within(first).getByTestId('answer').textContent).toBe(vi_['lnd.inventory.answer.none']);
+    expect(within(first).getByTestId('confirmed').textContent).toBe(vi_['lnd.inventory.answer.none']);
     expect(within(first).getByTestId('status').textContent).toBe(vi_['lnd.inventoryStatus.draft.label']);
-    expect(within(rowOf(3)).getByTestId('answer').textContent).toBe(vi_['lnd.inventory.answer.line'].replace('{on}', '2026-07-01'));
+    expect(within(rowOf(3)).getByTestId('confirmed').textContent).toBe(vi_['lnd.inventory.answer.line'].replace('{on}', '2026-07-01'));
     expect(within(rowOf(3)).getByTestId('status').textContent).toBe(vi_['lnd.inventoryStatus.confirmed.label']);
     expect(within(rowOf(4)).getByTestId('note').textContent).toBe('Diện tích nhà là 95 m2');
     expect(within(rowOf(4)).getByTestId('decision').textContent).toBe('QD-GIA-2024');
