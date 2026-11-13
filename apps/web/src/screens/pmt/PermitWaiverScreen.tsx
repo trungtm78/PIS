@@ -71,13 +71,7 @@ function PermitWaiverContent({ route }: ScreenProps) {
             </form>
           </FilterPanel>
           <div className="card">
-            {shown.length === 0 ? (
-              <p className="sub" data-testid="empty-waivers">
-                {t('pmt.waiver.empty.text')}
-              </p>
-            ) : (
-              <WaiversTable waivers={shown} today={today} mayRevoke={mayWaive} />
-            )}
+            <WaiversTable waivers={shown} today={today} mayRevoke={mayWaive} empty={t('pmt.waiver.empty.text')} />
           </div>
           {mayWaive ? <WaiverGrantForm today={today} types={groups} /> : <p className="sub">{t('pmt.waiver.readonly.text')}</p>}
         </div>
