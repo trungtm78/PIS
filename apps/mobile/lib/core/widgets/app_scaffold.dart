@@ -132,6 +132,7 @@ class AppScaffold extends StatelessWidget {
     this.floatingAction,
     this.showBack,
     this.safeTop = true,
+    this.showTopBar = true,
     super.key,
   });
 
@@ -158,6 +159,10 @@ class AppScaffold extends StatelessWidget {
   /// Whether to keep clear of the system status bar; false inside the shell, which does it once for every tab.
   final bool safeTop;
 
+  /// Whether to draw the slim top bar and the large title. A screen whose body brings its own top (the command band of a leader home) turns
+  /// them off.
+  final bool showTopBar;
+
   @override
   Widget build(BuildContext context) {
     final MachvonV2 v2 = context.v2;
@@ -169,8 +174,8 @@ class AppScaffold extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            AppTopBar(title: title, actions: actions, showBack: showBack),
-            if (largeTitle != null) LargeTitleHeader(title: largeTitle!, subtitle: subtitle),
+            if (showTopBar) AppTopBar(title: title, actions: actions, showBack: showBack),
+            if (showTopBar && largeTitle != null) LargeTitleHeader(title: largeTitle!, subtitle: subtitle),
             ?contextLine,
             Expanded(child: body),
           ],

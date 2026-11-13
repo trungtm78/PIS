@@ -20,6 +20,7 @@ import 'package:machvon_mobile/features/site_photo/photo_service.dart';
 
 import '../../support/harness.dart';
 import '../../support/offline_support.dart';
+import '../../support/temp_dirs.dart';
 import '../field_evidence/exif_fixtures.dart';
 import '../field_issues/field_world.dart';
 
@@ -39,9 +40,7 @@ class _Phone {
 
 Future<_Phone> _phone() async {
   final Directory folder = Directory.systemTemp.createTempSync('machvon-photo-service-');
-  addTearDown(() {
-    if (folder.existsSync()) folder.deleteSync(recursive: true);
-  });
+  addTearDown(() => removeTempDirectory(folder));
   final TestStorage storage = TestStorage.create();
   final FieldServer server = FieldServer()..offline = true;
   final ProviderContainer container = ProviderContainer(

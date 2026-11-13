@@ -4,6 +4,7 @@ import type { TenantDatabase, TenantTx, WorkRow } from '@machvon/db';
 import { NOOP_METRICS, vietnamDateOf } from '@machvon/kernel';
 import type { MetricsSink, TenantContext } from '@machvon/kernel';
 import { REMINDER_EVENT, WORK_RESOURCE_TYPE } from './work-action-support';
+import { pwfTaskReminderPass } from './work-reminder-pwf';
 import { canReadScope, workScopes } from './work-scope';
 
 export const WORK_REMINDER_METRIC = 'home_work_reminder_total';
@@ -22,6 +23,10 @@ export interface WorkReminderResult {
   items: number;
   reminders: number;
   reclaimNotices: number;
+  /** The reminders of the points of the deadline rule of the tasks of a workflow, and their own days (PWF-2): they are made by the points, not by the cadence. */
+  pointReminders: number;
+  /** The pass over the points could not be made; the reminders of the cadence were made and the next pass tries the points again. */
+  pointsFailed: boolean;
   /** The people whose list could not be read this pass: they are named by the count, and the next pass tries again. */
   failed: number;
 }
@@ -42,7 +47,7 @@ export async function workReminderPass(tx: TenantTx, tenant: TenantContext, now:
   const work = new HomeWorkStore();
   const reminders = new HomeWorkReminderStore();
   const today = vietnamDateOf(now);
-  const result: WorkReminderResult = { members: 0, items: 0, reminders: 0, reclaimNotices: 0, failed: 0 };
+  const result: WorkReminderResult = { members: 0, items: 0, reminders: 0, reclaimNotices: 0, pointReminders: 0, pointsFailed: false, failed: 0 };
   const members = await tx.query<{ id: string }>(
     `select m.id from machvon.membership m where m.status = 'Active' and m.valid_from <= $1::timestamptz and (m.valid_until is null or m.valid_until > $1::timestamptz) order by m.id limit ${MEMBER_LIMIT}`,
     [now.toISOString()],
@@ -61,7 +66,8 @@ export async function workReminderPass(tx: TenantTx, tenant: TenantContext, now:
         result.items += 1;
         if (row.lifecycle === 'RESOLVED' || row.reminders === null) continue;
         const policyVersion = collected.policies?.versions.reminder ?? 'builtin';
-        if (row.reminders.due && sent < MAX_REMINDERS_PER_MEMBER) {
+        // The tasks of a workflow are reminded at the points of their rule (below), not by the cadence of the severity: the two would remind the same person twice about the same day.
+        if (row.reminders.due && row.kind !== 'PWF_TASK_DUE_SOON' && row.kind !== 'PWF_TASK_OVERDUE' && sent < MAX_REMINDERS_PER_MEMBER) {
           const ordinal = row.reminders.sent + 1;
           const recorded = await reminders.record(tx, {
             source: row.source,
@@ -112,6 +118,9 @@ export async function workReminderPass(tx: TenantTx, tenant: TenantContext, now:
       result.failed += 1;
     }
   }
+  const points = await pwfTaskReminderPass(tx, tenant, now, metrics);
+  result.pointReminders = points.reminders;
+  result.pointsFailed = points.failed;
   return result;
 }
 

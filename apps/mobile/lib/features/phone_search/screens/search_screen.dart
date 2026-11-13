@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:machvon_api_client/machvon_api_client.dart';
@@ -5,6 +7,12 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/glyph_square.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/work_row.dart' show GroupHeader;
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
@@ -17,6 +25,10 @@ import '../search_models.dart';
 /// The page size of a search and the most pages the phone reads.
 const int searchPageSize = 50;
 const int searchMaxPages = 4;
+
+/// How long the field rests before what is typed is searched without a press of the button: a keyword that is acceptable is looked for while
+/// the person types, a pause later, and a press of the button or of the search key of the keyboard searches at once.
+const Duration searchTypingPause = Duration(milliseconds: 400);
 
 /// MOB-51: search across what the reader may see. The answer is what the server lets this person read: it filters by tenant and by
 /// scope before it ranks, so the phone filters nothing and adds nothing, and never shows a total (a number would show how much exists
@@ -40,6 +52,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   String? _asked;
   String? _type;
   KeywordProblem? _problem;
+  Timer? _pause;
 
   @override
   void initState() {
@@ -52,6 +65,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   /// An empty field is no search: the results go and the recent keywords come back.
   void _emptied() {
+    if (_text.text.trim().isEmpty) _pause?.cancel();
     if (_text.text.trim().isEmpty && (_asked != null || _problem != null)) {
       setState(() {
         _asked = null;
@@ -63,12 +77,32 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   void dispose() {
+    _pause?.cancel();
     _text.removeListener(_emptied);
     _text.dispose();
     super.dispose();
   }
 
+  /// While typing: an acceptable keyword is searched after a pause. It is not remembered (a half-typed word is not a search the person made);
+  /// pressing search or opening a hit remembers it.
+  void _typed(String keyword) {
+    _pause?.cancel();
+    if (keywordProblem(keyword) != null) {
+      if (_problem != null) setState(() => _problem = null);
+      return;
+    }
+    _pause = Timer(searchTypingPause, () {
+      if (!mounted || _asked == keyword.trim()) return;
+      setState(() {
+        _problem = null;
+        _asked = keyword.trim();
+        _type = null;
+      });
+    });
+  }
+
   void _run(String keyword) {
+    _pause?.cancel();
     final KeywordProblem? problem = keywordProblem(keyword);
     setState(() {
       _problem = problem;
@@ -90,24 +124,30 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget build(BuildContext context) {
     final String? asked = _asked;
     final List<String> recent = ref.watch(recentSearchesProvider);
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2Palette p = context.v2.palette;
     return ScreenFrame(
       title: context.t('mob.srch.title'),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          // The field comes first and takes the focus: the person came here to type.
           Padding(
-            padding: const EdgeInsets.all(MachvonSpace.space16),
+            padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s4, MachvonV2Space.s16, MachvonV2Space.s8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 TextField(
                   controller: _text,
+                  autofocus: widget.initialKeyword == null,
                   textInputAction: TextInputAction.search,
                   autocorrect: false,
                   onSubmitted: _run,
+                  onChanged: _typed,
                   decoration: InputDecoration(
                     labelText: context.t('mob.srch.query.label'),
                     helperText: context.t('mob.srch.query.hint'),
+                    prefixIcon: const ExcludeSemantics(child: Icon(Icons.search)),
                     errorText: switch (_problem) {
                       KeywordProblem.tooShort => context.t('mob.srch.query.tooShort'),
                       KeywordProblem.tooLong => context.t('mob.srch.query.tooLong'),
@@ -115,10 +155,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: MachvonSpace.space8),
+                const SizedBox(height: MachvonV2Space.s8),
                 FilledButton(onPressed: () => _run(_text.text), child: Text(context.t('mob.srch.submit.action'))),
-                const SizedBox(height: MachvonSpace.space8),
-                Text(context.t('mob.srch.scope.note'), style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: MachvonV2Space.s8),
+                Text(context.t('mob.srch.scope.note'), style: text.caption.copyWith(color: p.ink2)),
               ],
             ),
           ),
@@ -132,7 +172,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     parse: parseSearchResults,
                     isEmpty: (SearchResults results) => results.hits.isEmpty,
                     activeFilters: <String>[asked],
-                    builder: (BuildContext context, Loaded<SearchResults> loaded) => _Results(results: loaded.value, type: _type, onType: (String? type) => setState(() => _type = type)),
+                    builder: (BuildContext context, Loaded<SearchResults> loaded) => _Results(
+                      results: loaded.value,
+                      type: _type,
+                      onType: (String? type) => setState(() => _type = type),
+                      onOpened: () => ref.read(recentSearchesProvider.notifier).remember(asked),
+                    ),
                   ),
           ),
         ],
@@ -152,19 +197,16 @@ class _Recent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (recent.isEmpty) {
-      return Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.srch.pick.notice')));
+      return StateView(kind: StateKind.empty, icon: Icons.search, title: context.t('mob.srch.title'), body: context.t('mob.srch.pick.notice'));
     }
     return ListView(
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-          child: Semantics(header: true, child: Text(context.t('mob.srch.recent.title'), style: Theme.of(context).textTheme.titleMedium)),
-        ),
+        GroupHeader(title: context.t('mob.srch.recent.title'), count: recent.length),
         for (final String keyword in recent)
           TappableRow(
             semanticLabel: context.t('mob.srch.recent.item.aria', <String, Object>{'keyword': keyword}),
             onTap: () => onPick(keyword),
-            child: Row(children: <Widget>[const ExcludeSemantics(child: Icon(Icons.history)), const SizedBox(width: MachvonSpace.space12), Expanded(child: Text(keyword))]),
+            child: Row(children: <Widget>[const GlyphSquare(icon: Icons.history, tone: GlyphTone.neutral), const SizedBox(width: MachvonV2Space.s12), Expanded(child: Text(keyword, style: context.v2text.body))]),
           ),
         Align(alignment: AlignmentDirectional.centerStart, child: TextButton(onPressed: onClear, child: Text(context.t('mob.srch.recent.clear.action')))),
       ],
@@ -173,11 +215,14 @@ class _Recent extends StatelessWidget {
 }
 
 class _Results extends StatelessWidget {
-  const _Results({required this.results, required this.type, required this.onType});
+  const _Results({required this.results, required this.type, required this.onType, required this.onOpened});
 
   final SearchResults results;
   final String? type;
   final ValueChanged<String?> onType;
+
+  /// A hit was opened: the keyword is a search the person made, so it is remembered.
+  final VoidCallback onOpened;
 
   @override
   Widget build(BuildContext context) {
@@ -187,52 +232,77 @@ class _Results extends StatelessWidget {
     return ListView(
       children: <Widget>[
         if (types.length > 1)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16),
-            child: Wrap(
-              spacing: MachvonSpace.space8,
-              children: <Widget>[
-                ChoiceChip(label: Text(context.t('mob.srch.type.all')), selected: chosen == null, onSelected: (_) => onType(null)),
-                for (final String kind in types) ChoiceChip(label: Text(typeLabel(context, kind)), selected: chosen == kind, onSelected: (_) => onType(kind)),
-              ],
-            ),
+          FilterChips<String?>(
+            options: <ChipOption<String?>>[
+              ChipOption<String?>(value: null, label: context.t('mob.srch.type.all')),
+              for (final String kind in types) ChipOption<String?>(value: kind, label: typeLabel(context, kind)),
+            ],
+            selected: chosen,
+            onChanged: onType,
           ),
         Padding(
-          padding: const EdgeInsets.all(MachvonSpace.space16),
-          child: Text(context.t('mob.srch.noTotal.note'), style: Theme.of(context).textTheme.bodySmall),
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: Text(context.t('mob.srch.noTotal.note'), style: context.v2text.caption),
         ),
-        for (final SearchHit hit in shown) _HitRow(hit: hit),
-        if (results.more) Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.srch.more'), style: Theme.of(context).textTheme.bodySmall)),
+        for (final SearchHit hit in shown) _HitRow(hit: hit, onOpened: onOpened),
+        if (results.more) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.srch.more'), style: context.v2text.caption)),
       ],
     );
   }
 }
 
+/// The glyph that stands for a kind of record at the start of a hit.
+IconData _kindIcon(String entityType) => switch (entityType) {
+      'project' => Icons.account_tree_outlined,
+      'conversation' => Icons.forum_outlined,
+      'issue' => Icons.report_problem_outlined,
+      _ => Icons.description_outlined,
+    };
+
 class _HitRow extends StatelessWidget {
-  const _HitRow({required this.hit});
+  const _HitRow({required this.hit, required this.onOpened});
 
   final SearchHit hit;
+  final VoidCallback onOpened;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final ({String screenId, String pathSuffix})? target = openTargetOf(hit);
     final String title = hit.title ?? context.t('mob.srch.hidden.title');
     final String kind = typeLabel(context, hit.entityType);
     final String classification = classificationLabel(context, hit.classification);
     return TappableRow(
       semanticLabel: context.t('mob.srch.hit.aria', <String, Object>{'title': title, 'type': kind, 'classification': classification}),
-      onTap: target == null ? null : () => openScreen(context, target.screenId, pathSuffix: target.pathSuffix, stacked: true),
+      onTap: target == null
+          ? null
+          : () {
+              onOpened();
+              openScreen(context, target.screenId, pathSuffix: target.pathSuffix, stacked: true);
+            },
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          GlyphSquare(icon: _kindIcon(hit.entityType), tone: target == null ? GlyphTone.neutral : GlyphTone.primary),
+          const SizedBox(width: MachvonV2Space.s12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(title, style: theme.textTheme.bodyLarge),
-                Wrap(spacing: MachvonSpace.space8, children: <Widget>[StatusPill(label: kind), StatusPill(label: classification, warn: hit.classification != Classification.public && hit.classification != Classification.internal)]),
-                if (hit.snippet != null) Text(hit.snippet!, style: theme.textTheme.bodySmall),
-                if (target == null) Text(context.t('mob.srch.hit.noScreen'), style: theme.textTheme.bodySmall),
+                Text(title, style: text.bodyStrong),
+                if (hit.snippet != null) Text(hit.snippet!, style: text.caption, maxLines: 2, overflow: TextOverflow.ellipsis),
+                Padding(
+                  padding: const EdgeInsets.only(top: MachvonV2Space.s4),
+                  child: Wrap(
+                    spacing: MachvonV2Space.s8,
+                    runSpacing: MachvonV2Space.s4,
+                    children: <Widget>[
+                      StatusPill(label: kind),
+                      StatusPill(label: classification, warn: hit.classification != Classification.public && hit.classification != Classification.internal),
+                    ],
+                  ),
+                ),
+                if (target == null) Text(context.t('mob.srch.hit.noScreen'), style: text.caption),
               ],
             ),
           ),

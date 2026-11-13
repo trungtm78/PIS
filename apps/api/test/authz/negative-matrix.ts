@@ -2345,13 +2345,43 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
     referencesTenantIds: true,
     build: () => ({ method: 'POST', path: `/project-reschedules/00000000-0000-4000-8000-0000000000ac/decide`, ifMatch: '"1"', body: { decision: 'APPROVE' } }),
   },
+  // The two checks of a template take the text of a template and, for the preview, a start date: they name no object of a tenant (the preview reads only the working calendar of the caller's own tenant through row-level security), so the wrong-tenant case judges that nothing leaks and nothing changes (there is no foreign object to be refused).
   validateProjectWorkflowTemplate: {
-    referencesTenantIds: true,
+    referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/project-workflow/templates/validate', body: { name: 'Matrix', project_type: null, phases: [{ code: 'P1', name: 'One', gates: [] }], tasks: [{ code: 'TA', name: 'A', phase: 'P1', kind: 'TASK', duration_working_days: 1, required: true, responsible_role: 'ROLE_A', approver_role: null, priority: 'NORMAL', predecessors: [] }] } }),
   },
   previewProjectWorkflowTemplate: {
-    referencesTenantIds: true,
+    referencesTenantIds: false,
     build: () => ({ method: 'POST', path: '/project-workflow/templates/preview', body: { planned_start_date: '2026-11-02', params: { name: 'Matrix', project_type: null, phases: [{ code: 'P1', name: 'One', gates: [] }], tasks: [{ code: 'TA', name: 'A', phase: 'P1', kind: 'TASK', duration_working_days: 1, required: true, responsible_role: 'ROLE_A', approver_role: null, priority: 'NORMAL', predecessors: [] }] } } }),
+  },
+  // The commands of the scores of staff (PWF-3): they name a unit, a period, a line, an adjustment or a response that does not exist in tenant A; a caller without the permission is refused before any lookup, and a caller of another tenant finds nothing.
+  computeStaffScorePeriod: {
+    referencesTenantIds: true,
+    build: (t) => ({ method: 'POST', path: '/staff-score-periods', body: { scope_unit_id: t.unit2, period_from: '2025-07-01', period_to: '2025-09-30', policy_code: 'DEFAULT' } }),
+  },
+  lockStaffScorePeriod: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/staff-score-periods/00000000-0000-4000-8000-0000000000ad/lock`, ifMatch: '"1"', body: {} }),
+  },
+  officializeStaffScorePeriod: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/staff-score-periods/00000000-0000-4000-8000-0000000000ad/officialize`, ifMatch: '"1"', body: {} }),
+  },
+  requestStaffScoreAdjustment: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/staff-score-lines/00000000-0000-4000-8000-0000000000ad/adjustments`, body: { points: 3, reason: 'The task was late because of the agency, as the letter proves (matrix)' } }),
+  },
+  decideStaffScoreAdjustment: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/staff-score-adjustments/00000000-0000-4000-8000-0000000000ad/decide`, ifMatch: '"1"', body: { decision: 'APPROVE' } }),
+  },
+  submitStaffScoreResponse: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/staff-score-lines/00000000-0000-4000-8000-0000000000ad/responses`, body: { body: 'The delay came from the agency; here is the letter I sent them (matrix).' } }),
+  },
+  handleStaffScoreResponse: {
+    referencesTenantIds: true,
+    build: () => ({ method: 'POST', path: `/staff-score-responses/00000000-0000-4000-8000-0000000000ad/handle`, ifMatch: '"1"', body: { outcome: 'KEEP', conclusion: 'The score stands (matrix).' } }),
   },
   // The stage commands name the CONCEPT project of tenant A and the decision document of the matrix: a caller without the permission is refused before
   // any lookup, and a caller of another tenant finds no such project; the project is never moved.
@@ -2702,6 +2732,11 @@ export const COMMAND_FIXTURES: Readonly<Record<string, CommandFixture>> = {
   updateMyAlertProfile: {
     referencesTenantIds: false,
     build: () => ({ method: 'PUT', path: '/me/alert-profile', ifMatch: '"0"', body: { digest_enabled: true, push_cap_per_day: 1 } }),
+  },
+  // PWF-2: the own days of a person for the three colours of a deadline; it names no id of another tenant, it is the person's own row.
+  setDeadlinePreference: {
+    referencesTenantIds: false,
+    build: () => ({ method: 'PUT', path: '/me/deadline-preference', ifMatch: '"0"', body: { green_days: 7, yellow_days: 3, red_days: 1, reminder_days: [7, 3] } }),
   },
   declareAlertAbsence: {
     referencesTenantIds: false,

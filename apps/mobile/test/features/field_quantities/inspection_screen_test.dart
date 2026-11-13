@@ -257,7 +257,7 @@ void main() {
       await waitUntil(tester, () async => queue.commands().any((QueuedCommand c) => c.state == CommandState.conflict));
       final QueuedCommand command = queue.commands().single;
 
-      await world.go(tester, '/projects/mob-42/${command.id}');
+      await world.go(tester, '/account/mob-42/${command.id}');
       expect(find.text('Bản trên máy: FAIL'), findsWidgets);
       expect(find.text('Bản trên server: PASS'), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('checklist[K1].outcome:mine')), findsOneWidget, reason: 'the items of the checklist are compared by their code');
@@ -314,7 +314,7 @@ void main() {
       final DraftStore store = (await tester.runAsync(() => world.container.read(draftStoreProvider.future)))!;
       expect(ResultDraft.fromJson(store.list(kind: kInspectionDraftKind).single.fields)!.place.consent, isFalse, reason: 'the withdrawal is already written to the phone');
 
-      await settleReal(tester, rounds: 8);
+      await waitUntil(tester, () async => tester.widget<FilledButton>(save).onPressed != null);
       expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
       final ResultDraft after = ResultDraft.fromJson(store.list(kind: kInspectionDraftKind).single.fields)!;
       expect(readJpegMetadata(File(after.photos.single.path).readAsBytesSync()).carriesPlaceOrTime, isFalse);

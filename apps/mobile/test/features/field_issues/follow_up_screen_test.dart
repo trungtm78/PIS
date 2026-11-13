@@ -71,7 +71,7 @@ void main() {
     testWidgets('shows the stored position to a reader who may see it, and says it is hidden from one who may not', (WidgetTester tester) async {
       useDevice(tester, kTall);
       await _open(tester, issue: issueView('iss-1', geoConsent: true, geo: <String, Object?>{'lat': '10.800000', 'lng': '106.700000', 'accuracy_m': '90.00', 'low_accuracy': true}));
-      expect(find.text('10.800000, 106.700000'), findsOneWidget);
+      expect(find.text('10,800000; 106,700000'), findsOneWidget, reason: 'the decimal comma of the language, the digits of the server');
       expect(find.text('Độ chính xác thấp (trên 50 m): vị trí chỉ để tham khảo.'), findsOneWidget);
     });
 
@@ -219,7 +219,7 @@ void main() {
       final FieldServer server = FieldServer();
       server.sync.decide = (Map<String, Object?> item) => const ServerOutcome.rejected('SCOPE_DENIED');
       final FieldWorld world = FieldWorld.create(server: server);
-      await world.open(tester, '/projects/mob-41');
+      await world.open(tester, '/account/mob-41');
       final CommandQueue queue = (await tester.runAsync(() => world.container.read(commandQueueProvider.future)))!;
       final QueuedCommand command = queue.enqueue(commandType: kIssueCreateCommand, payload: <String, Object?>{'title': 'Cọc tiêu bị gãy', 'client_operation_id': 'op-1'});
       await tester.runAsync(queue.flush);
@@ -240,7 +240,7 @@ void main() {
       final FieldServer server = FieldServer();
       server.sync.decide = (Map<String, Object?> item) => const ServerOutcome.rejected('SCOPE_DENIED');
       final FieldWorld world = FieldWorld.create(server: server);
-      await world.open(tester, '/projects/mob-41');
+      await world.open(tester, '/account/mob-41');
       final CommandQueue queue = (await tester.runAsync(() => world.container.read(commandQueueProvider.future)))!;
       final LocalStore store = (await tester.runAsync(() => world.container.read(localStoreProvider.future)))!;
       final QueuedCommand command = queue.enqueue(commandType: kIssueCreateCommand, payload: <String, Object?>{'title': 'Cọc tiêu bị gãy', 'client_operation_id': 'op-1'});
@@ -263,7 +263,7 @@ void main() {
       final FieldServer server = FieldServer();
       server.offline = true;
       final FieldWorld world = FieldWorld.create(server: server);
-      await world.open(tester, '/projects/mob-41');
+      await world.open(tester, '/account/mob-41');
       final CommandQueue queue = (await tester.runAsync(() => world.container.read(commandQueueProvider.future)))!;
       final QueuedCommand command = queue.enqueue(commandType: kIssueCreateCommand, payload: <String, Object?>{'title': 'Cọc tiêu bị gãy', 'client_operation_id': 'op-1'});
       await world.go(tester, '/projects/mob-31/${command.id}');
@@ -276,7 +276,7 @@ void main() {
       server.api.on('GET', '/resources/issue/iss-9', (_) => issueView('iss-9'));
       server.sync.decide = (Map<String, Object?> item) => const ServerOutcome.accepted(resultRef: 'iss-9');
       final FieldWorld world = FieldWorld.create(server: server);
-      await world.open(tester, '/projects/mob-41');
+      await world.open(tester, '/account/mob-41');
       final CommandQueue queue = (await tester.runAsync(() => world.container.read(commandQueueProvider.future)))!;
       final QueuedCommand command = queue.enqueue(commandType: kIssueCreateCommand, payload: <String, Object?>{'title': 'Sạt lở taluy km3', 'client_operation_id': 'op-1'});
       await tester.runAsync(queue.flush);

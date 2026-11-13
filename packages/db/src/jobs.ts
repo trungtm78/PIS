@@ -74,6 +74,8 @@ export const JOB_INTERVAL_SECONDS = {
   'delegation-lifecycle': 60,
   // Every minute: an approved support access grant whose first instant has come is put in force, one whose window ended is Expired and a request nobody decided on within a week lapses (ST-SAS-015); the pass is idempotent.
   'support-access-lifecycle': 60,
+  // Hourly: the KPI results of the tasks that were closed, the periods of scores whose window ended, the personal data whose retention ended (PWF-3); the pass is incremental and idempotent.
+  'pwf-score-maintenance': 3600,
   // Every 5 minutes: a Verified domain gets its certificate and becomes Active, an Active custom domain is looked at again every week (the proof gone makes it Failed) and a certificate with 14 days left is renewed (ST-SAS-017); the pass is idempotent.
   'tenant-domain': 300,
   // Every minute: a promotion of a tenant to a silo is carried a step on - the copy begins at its window, is compared with the original and kept in step while the cutover waits, the last difference is sent and compared again once the cutover is approved, the routing is switched or the migration rolled back when the freeze ran out, a switched one is Completed after 24 hours, the copy of an ended one is destroyed and the old data of a completed one is deleted after 30 days unless a legal hold is in force (ST-SAS-018); every step is idempotent.
@@ -326,6 +328,8 @@ export interface StandardJobDeps {
   delegationLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DelegationPassResult> };
   /** The pass over the support access grants of a tenant (ST-SAS-015): puts the approved ones in force, ends the ones whose window is over, lapses the requests nobody decided on; tells how many are in force, for the gauge. */
   supportAccessLifecycle?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<SupportPassResult> };
+  /** The maintenance of the KPI results and the scoring periods (PWF-3). */
+  pwfScoreMaintenance?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<unknown> };
   /** The pass over the exports of a tenant (ST-SAS-016): makes the ones that wait, ends the links that are over; tells how many wait or run, for the gauge. */
   /** The pass over the domains of a tenant (ST-SAS-017), through the control role acting as the tenant; tells how many are failing, for the gauge. */
   tenantDomain?: { run(ctx: { tenantId: string; membershipId: string; scopeVersion: number }, now: Date): Promise<DomainPassResult> };
@@ -752,6 +756,16 @@ export function standardJobs(deps: StandardJobDeps): JobHandler[] {
           // The tenants that could be read still count: a failing tenant must not blank the gauge for the others.
           metrics.gauge(SUPPORT_ACCESS_ACTIVE_GAUGE, active);
         }
+      },
+    });
+  }
+  const pwfScores = deps.pwfScoreMaintenance;
+  if (pwfScores !== undefined) {
+    handlers.push({
+      name: 'pwf-score-maintenance',
+      run: async () => {
+        const now = (deps.clock ?? (() => new Date()))();
+        await eachTenant(await deps.tenantIds(), async (tenantId) => void (await pwfScores.run(workerContext(tenantId), now)));
       },
     });
   }

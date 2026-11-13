@@ -13,6 +13,7 @@ import { HOME_OPERATIONS, HOME_SNAPSHOT_TABLES, seedHome } from './home';
 import { HUB_OPERATIONS, HUB_SNAPSHOT_TABLES, HUB_SPECS, seedHub } from './hub';
 import { MR1_OPERATIONS, MR1_SNAPSHOT_TABLES, MR1_SPECS, seedMr1 } from './mr1';
 import { PAYCTL_OPERATIONS, PAYCTL_SNAPSHOT_TABLES, PAYCTL_SPECS, seedPayctl } from './payctl';
+import { PWF_OPERATIONS, PWF_SNAPSHOT_TABLES, PWF_SPECS, seedPwf } from './pwf';
 import { RATING_OPERATIONS, RATING_SNAPSHOT_TABLES, RATING_SPECS, seedRating } from './rating';
 import { RESERVE_OPERATIONS, RESERVE_SNAPSHOT_TABLES, RESERVE_SPECS, seedReserve } from './reserve';
 import { LANE_RIGHTS_OPERATIONS } from './rights';
@@ -36,6 +37,7 @@ export const GOVERNANCE_SPECS: readonly ForeignAttemptSpec[] = [
   ...GOV10_SPECS,
   ...HUB_SPECS,
   ...GOV12_SPECS,
+  ...PWF_SPECS,
 ];
 
 /** Every operation of these controllers: the test role of the suite holds the permission of each. */
@@ -56,6 +58,7 @@ export const GOVERNANCE_OPERATIONS: readonly string[] = [
   ...FEED_OPERATIONS,
   ...GOV10_OPERATIONS,
   ...HUB_OPERATIONS,
+  ...PWF_OPERATIONS,
   ...LANE_RIGHTS_OPERATIONS,
 ];
 
@@ -78,6 +81,7 @@ export const GOVERNANCE_SNAPSHOT_TABLES: readonly string[] = [
     ...FEED_SNAPSHOT_TABLES,
     ...GOV10_SNAPSHOT_TABLES,
     ...HUB_SNAPSHOT_TABLES,
+    ...PWF_SNAPSHOT_TABLES,
   ]),
 ];
 
@@ -99,4 +103,5 @@ export async function seedGovernance(client: Client, context: SeedContext): Prom
   await seedFeed(client, context);
   await seedGov10(client, context);
   await seedHub(client, context);
+  await seedPwf(client, context);
 }

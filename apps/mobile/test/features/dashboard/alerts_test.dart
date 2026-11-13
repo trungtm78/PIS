@@ -13,6 +13,7 @@ import 'package:machvon_mobile/features/dashboard/alert_badge.dart';
 import 'package:machvon_mobile/features/dashboard/alerts.dart';
 import 'package:machvon_mobile/features/dashboard/dashboard_feature.dart' as dashboard;
 import 'package:machvon_mobile/features/dashboard/widgets/alert_card.dart' show AlertCard;
+import 'package:machvon_mobile/features/dashboard/widgets/alert_row.dart' show AlertRow;
 import 'package:machvon_mobile/features/notification_inbox/push_registration.dart';
 
 import '../../support/harness.dart';
@@ -111,21 +112,21 @@ void main() {
   });
 
   group('MOB-07 the leader home: work before figures', () {
-    testWidgets('the order is context line, alerts, command block, shortcuts, summary; three alerts at most, the most important first', (WidgetTester tester) async {
+    testWidgets('the order is the command band, the line of context, the figures that wait, the alerts, the figures with their formulas, the shortcuts; three alerts at most, the most important first', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _healthy(server);
       await _open(tester, server, '/home');
 
-      final double context = tester.getTopLeft(find.textContaining('Cập nhật 10:00')).dy;
-      final double alerts = tester.getTopLeft(find.text('Cần xử lý ngay')).dy;
-      final double command = tester.getTopLeft(find.text('Điều hành')).dy;
+      final double band = tester.getTopLeft(find.text('Tổng quan')).dy;
+      final double context = tester.getTopLeft(find.textContaining('Số liệu tại 31/10/2026')).dy;
+      final double alerts = tester.getTopLeft(find.text('Cần bạn quyết định')).dy;
+      final double figures = tester.getTopLeft(find.text('Số liệu và công thức')).dy;
       final double shortcuts = tester.getTopLeft(find.text('Lối tắt')).dy;
-      final double summary = tester.getTopLeft(find.text('Tóm tắt số liệu')).dy;
-      expect(<double>[context, alerts, command, shortcuts, summary], orderedEquals(<double>[context, alerts, command, shortcuts, summary]..sort()));
+      expect(<double>[band, context, alerts, figures, shortcuts], orderedEquals(<double>[band, context, alerts, figures, shortcuts]..sort()));
 
-      expect(find.textContaining('Toàn bộ phạm vi · 2 dự án · Chốt 31/10/2026 · Cập nhật 10:00'), findsOneWidget);
-      expect(find.byType(AlertCard), findsNWidgets(3));
+      expect(find.textContaining('Toàn bộ phạm vi · 2 dự án · Số liệu tại 31/10/2026'), findsOneWidget, reason: 'one line of context, said once');
+      expect(find.byType(AlertRow), findsNWidgets(3));
       final double first = tester.getTopLeft(find.text('Báo cáo tuần 44: 3 chủ đầu tư quá hạn')).dy;
       final double second = tester.getTopLeft(find.text('Vướng mắc giải phóng mặt bằng')).dy;
       final double third = tester.getTopLeft(find.text('Tạm ứng quá hạn thanh toán')).dy;
@@ -133,15 +134,13 @@ void main() {
       expect(second, lessThan(third));
       expect(find.text('Giấy phép DA-DT205 sắp hết hạn'), findsNothing, reason: 'the fourth is not on the home');
       expect(find.textContaining('Còn 1 việc nữa'), findsOneWidget);
-      expect(find.text('Khẩn 1'), findsOneWidget);
-      expect(find.text('Cần xử lý 2'), findsOneWidget);
-      expect(find.text('Theo dõi 1'), findsOneWidget);
+      expect(find.text('Khẩn 1 · Cần xử lý 2 · Theo dõi 1'), findsOneWidget, reason: 'the tally is words, not chips that look like buttons');
 
       final Uri read = server.callsTo('GET', '/home/my-work').single.url;
       expect(read.queryParameters['view'], 'scope', reason: 'a leader reads the whole scope');
     });
 
-    testWidgets('each alert has the level as icon and word, its source, the countdown with the day, the owner and what follows', (WidgetTester tester) async {
+    testWidgets('a row says the deadline with its shape, its words and its day; the sheet of the alert has the level, the source, the owner and what follows', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _healthy(server, alerts: <Map<String, Object?>>[
@@ -151,31 +150,99 @@ void main() {
       ]);
       await _open(tester, server, '/home');
 
-      Finder inCards(Finder finder) => find.descendant(of: find.byType(AlertCard), matching: finder);
-      expect(inCards(find.byIcon(Icons.error)), findsOneWidget, reason: 'urgent has an icon');
-      expect(inCards(find.byIcon(Icons.warning_amber_rounded)), findsOneWidget);
-      expect(inCards(find.byIcon(Icons.visibility_outlined)), findsOneWidget);
-      expect(inCards(find.text('Khẩn')), findsOneWidget);
-      expect(inCards(find.text('Cần xử lý')), findsOneWidget);
-      expect(inCards(find.text('Theo dõi')), findsOneWidget);
-      expect(find.text('Quá hạn 3 ngày'), findsOneWidget);
-      expect(find.text('Còn 2 ngày · 05/11'), findsOneWidget);
-      expect(find.text('Còn 17 ngày · 20/11'), findsOneWidget);
-      expect(find.text('Nguồn: Báo cáo · Dự án đường vành đai'), findsOneWidget);
-      expect(find.text('Nếu không làm: Số liệu tuần không chốt được'), findsOneWidget);
-      expect(find.textContaining('Cấp 2/3 · lên cấp lúc 03/11/2026 16:00'), findsOneWidget);
-      expect(find.text('Đã nhận bởi Lê Văn B lúc 03/11/2026 08:30'), findsOneWidget);
-      expect(find.text('Giao cho Trần Thị C, hạn 10/11/2026'), findsOneWidget);
-      expect(find.text('Đã nhận'), findsOneWidget);
-      expect(find.text('Đang xử lý'), findsOneWidget);
-      expect(find.text('Chưa có người nhận'), findsOneWidget);
+      // The list: the band of the deadline is a shape and words (late is the octagon, soon the triangle, with time the clock), with the real day.
+      expect(find.text('Trễ 3 ngày'), findsOneWidget);
+      expect(find.text('Còn 2 ngày'), findsOneWidget);
+      expect(find.text('Còn 17 ngày'), findsOneWidget);
+      expect(find.text('hạn 31/10'), findsOneWidget);
+      expect(find.text('hạn 05/11'), findsOneWidget);
+      expect(find.text('Báo cáo · Dự án đường vành đai'), findsWidgets);
+      expect(find.byIcon(Icons.report_outlined), findsWidgets, reason: 'the late band has its own shape');
+      expect(find.byIcon(Icons.warning_amber_rounded), findsWidgets, reason: 'the soon band has its own shape');
+      expect(find.byIcon(Icons.schedule), findsWidgets, reason: 'the band with time is a clock');
+
+      // The sheet of the urgent alert: level as icon and word, source, countdown, what follows, the escalation.
+      await openAlertSheet(tester);
+      Finder inCard(Finder finder) => find.descendant(of: find.byType(AlertCard), matching: finder);
+      expect(inCard(find.byIcon(Icons.error)), findsOneWidget, reason: 'urgent has an icon');
+      expect(inCard(find.text('Khẩn')), findsOneWidget);
+      expect(inCard(find.text('Quá hạn 3 ngày')), findsOneWidget);
+      expect(inCard(find.text('Nguồn: Báo cáo · Dự án đường vành đai')), findsOneWidget);
+      expect(inCard(find.text('Nếu không làm: Số liệu tuần không chốt được')), findsOneWidget);
+      expect(inCard(find.textContaining('Cấp 2/3 · lên cấp lúc 03/11/2026 16:00')), findsOneWidget);
+      expect(inCard(find.text('Chưa có người nhận')), findsOneWidget);
+      await pressBack(tester);
+
+      // The alert somebody holds, and the one that was given to a person.
+      await openAlertSheet(tester, index: 1);
+      expect(inCard(find.byIcon(Icons.warning_amber_rounded)), findsOneWidget);
+      expect(inCard(find.text('Cần xử lý')), findsOneWidget);
+      expect(inCard(find.text('Còn 2 ngày · 05/11')), findsOneWidget);
+      expect(inCard(find.text('Đã nhận bởi Lê Văn B lúc 03/11/2026 08:30')), findsOneWidget);
+      expect(inCard(find.text('Đã nhận')), findsOneWidget);
+      await pressBack(tester);
+
+      await openAlertSheet(tester, index: 2);
+      expect(inCard(find.byIcon(Icons.visibility_outlined)), findsOneWidget);
+      expect(inCard(find.text('Theo dõi')), findsOneWidget);
+      expect(inCard(find.text('Còn 17 ngày · 20/11')), findsOneWidget);
+      expect(inCard(find.text('Giao cho Trần Thị C, hạn 10/11/2026')), findsOneWidget);
+      expect(inCard(find.text('Đang xử lý')), findsOneWidget);
     });
 
-    testWidgets('the primary action opens the record when the phone has a screen for it, and every act is also in a menu (no gesture alone)', (WidgetTester tester) async {
+    testWidgets('an alert that is late with no count of days says "Quá hạn", not an invented one day, and still sorts among the late ones', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _healthy(server, alerts: <Map<String, Object?>>[
+        alertItem('a-soon', title: 'Còn hai ngày'),
+        alertItem('a-late', title: 'Trễ không rõ ngày', dueOn: null, overdue: true, daysLate: 0),
+      ]);
+      await _open(tester, server, '/home');
+
+      expect(find.descendant(of: find.byType(AlertRow), matching: find.text('Quá hạn')), findsOneWidget);
+      expect(find.text('Trễ 1 ngày'), findsNothing);
+      final double late = tester.getTopLeft(find.text('Trễ không rõ ngày')).dy;
+      final double soon = tester.getTopLeft(find.text('Còn hai ngày')).dy;
+      expect(late, lessThan(soon), reason: 'the severity order puts the late one first as before');
+    });
+
+    testWidgets('every alert that was read is on the day list of an officer, not only the first page of the read', (WidgetTester tester) async {
+      useDevice(tester, const Size(390, 20000));
+      final ScriptedServer server = ScriptedServer();
+      _healthy(server, alerts: <Map<String, Object?>>[for (int index = 0; index < 55; index += 1) alertItem('a-$index', title: 'Việc số $index', dueOn: '2026-11-0${5 + index % 4}')]);
+      await _open(tester, server, '/home/mob-08');
+
+      expect(find.text('Việc số 54', skipOffstage: false), findsOneWidget, reason: 'the last of the 55 is on the list');
+      expect(find.text('Việc số 0', skipOffstage: false), findsWidgets);
+    });
+
+    testWidgets('a deadline that was moved keeps its first day in the sheet of the alert, and one that was not moved says nothing of it', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _healthy(server, alerts: <Map<String, Object?>>[
+        alertItem('a-moved', title: 'Đã dời hạn', dueOn: '2026-11-05', extra: <String, Object?>{'original_due_on': '2026-10-28'}),
+        alertItem('a-kept', title: 'Giữ hạn', dueOn: '2026-11-05', extra: <String, Object?>{'original_due_on': '2026-11-05'}),
+      ]);
+      await _open(tester, server, '/home');
+
+      // Same due day, so the rows are in the order of their ids: the one that was kept first.
+      await openAlertSheet(tester, index: 1);
+      expect(find.text('Hạn ban đầu 28/10/2026, đã được dời'), findsOneWidget);
+      await pressBack(tester);
+      await openAlertSheet(tester, index: 0);
+      expect(find.textContaining('Hạn ban đầu'), findsNothing);
+    });
+
+    testWidgets('the primary action opens the record when the phone has a screen for it, and every act is also a button in the sheet (no gesture alone)', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _healthy(server, alerts: <Map<String, Object?>>[alertItem('t-9', title: 'Phê duyệt kế hoạch vốn')]);
       final ProviderContainer container = await _open(tester, server, '/home');
+
+      await openAlertSheet(tester);
+      expect(find.text('Giao cho'), findsOneWidget, reason: 'the acts that are not primary are buttons of the sheet');
+      expect(find.text('Nhận xử lý'), findsOneWidget);
+      await pressBack(tester);
 
       await tester.tap(find.widgetWithText(FilledButton, 'Xử lý'));
       await tester.pumpAndSettle();
@@ -193,15 +260,14 @@ void main() {
       expect(find.widgetWithText(FilledButton, 'Nhận xử lý'), findsOneWidget);
     });
 
-    testWidgets('Nhắc lại is not offered for an urgent alert, and is for the others; the menu has its own labelled button', (WidgetTester tester) async {
+    testWidgets('Nhắc lại is not offered for an urgent alert, and is for the others; the sheet has its own labelled buttons', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _healthy(server, alerts: <Map<String, Object?>>[alertItem('a-urgent', severity: 'URGENT', title: 'Khẩn một')]);
       await _open(tester, server, '/home');
 
-      expect(find.byTooltip('Thao tác với việc này'), findsOneWidget);
-      await tester.tap(find.byTooltip('Thao tác với việc này'));
-      await tester.pumpAndSettle();
+      expect(find.byType(AlertRow), findsOneWidget);
+      await openAlertSheet(tester);
       expect(find.text('Nhận xử lý'), findsWidgets);
       expect(find.text('Giao cho'), findsOneWidget);
       expect(find.text('Nhắc lại sau'), findsNothing);
@@ -209,7 +275,7 @@ void main() {
       final ScriptedServer other = ScriptedServer();
       _healthy(other, alerts: <Map<String, Object?>>[alertItem('a-action', severity: 'ACTION', title: 'Cần làm')]);
       await _open(tester, other, '/home');
-      await tester.tap(find.byTooltip('Thao tác với việc này'));
+      await openAlertSheet(tester);
       await tester.pumpAndSettle();
       expect(find.text('Nhắc lại sau'), findsOneWidget);
     });
@@ -221,7 +287,7 @@ void main() {
       await _open(tester, server, '/home');
       final int reads = server.callsTo('GET', '/home/my-work').length;
 
-      await tester.tap(find.byTooltip('Thao tác với việc này'));
+      await openAlertSheet(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Nhận xử lý').last);
       await tester.pumpAndSettle();
@@ -240,7 +306,7 @@ void main() {
       _healthy(server, alerts: <Map<String, Object?>>[alertItem('a-1', severity: 'WATCH', title: 'Theo dõi giấy phép', source: 'PERMIT')]);
       await _open(tester, server, '/home');
 
-      await tester.tap(find.byTooltip('Thao tác với việc này'));
+      await openAlertSheet(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Nhắc lại sau'));
       await tester.pumpAndSettle();
@@ -267,7 +333,7 @@ void main() {
       _healthy(server, alerts: <Map<String, Object?>>[alertItem('a-1', source: 'ISSUE', title: 'Vướng mắc')]);
       await _open(tester, server, '/home');
 
-      await tester.tap(find.byTooltip('Thao tác với việc này'));
+      await openAlertSheet(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Giao cho'));
       await tester.pumpAndSettle();
@@ -299,7 +365,7 @@ void main() {
       await _open(tester, server, '/home');
       final int reads = server.callsTo('GET', '/home/my-work').length;
 
-      await tester.tap(find.byTooltip('Thao tác với việc này'));
+      await openAlertSheet(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Nhận xử lý').last);
       await tester.pumpAndSettle();
@@ -314,14 +380,14 @@ void main() {
       await _open(tester, server, '/home');
 
       server.offline = true;
-      await tester.tap(find.byTooltip('Thao tác với việc này'));
+      await openAlertSheet(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Nhận xử lý').last);
       await tester.pumpAndSettle();
       expect(find.textContaining('Chưa gửi được vì mất kết nối'), findsOneWidget);
       final String firstKey = server.callsTo('POST', '/home/work-actions/claim').single.headers['idempotency-key']!;
 
-      await tester.tap(find.byTooltip('Thao tác với việc này'));
+      await openAlertSheet(tester);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Nhận xử lý').last);
       await tester.pumpAndSettle();
@@ -376,7 +442,7 @@ void main() {
 
       expect(find.text('Chưa tải được việc cần xử lý'), findsOneWidget);
       expect(find.textContaining('Nguồn lỗi: danh sách việc cần xử lý (INTERNAL_ERROR)'), findsOneWidget);
-      expect(find.text('Điều hành'), findsOneWidget);
+      expect(find.text('Tổng quan'), findsOneWidget);
       expect(find.text('14,0000%'), findsOneWidget);
 
       server.on('GET', '/home/my-work', (_) => alertWork(_alerts));
@@ -427,7 +493,7 @@ void main() {
       final ScriptedServer server = ScriptedServer();
       _healthy(server);
       await pumpWithServer(tester, features: <MobileFeature>[dashboard.feature, _approvalStub], server: server, location: '/home', now: () => now);
-      expect(find.byTooltip('Thao tác với việc này'), findsWidgets);
+      expect(find.byType(AlertRow), findsWidgets);
 
       server.offline = true;
       now = kNow.add(const Duration(days: 1));
@@ -436,8 +502,12 @@ void main() {
 
       expect(find.textContaining('Đang xem bản đã lưu, đồng bộ lần cuối 03/11/2026 10:00. Chỉ đọc'), findsOneWidget);
       expect(find.text('Số liệu cũ: hãy kết nối mạng để kiểm tra lại.'), findsOneWidget);
-      expect(find.byTooltip('Thao tác với việc này'), findsNothing, reason: 'a copy cannot take, give or snooze');
       expect(find.widgetWithText(FilledButton, 'Xử lý'), findsNothing);
+      await openAlertSheet(tester);
+      expect(find.text('Giao cho'), findsNothing, reason: 'a copy cannot take, give or snooze');
+      expect(find.text('Nhắc lại sau'), findsNothing);
+      expect(find.text('Nhận xử lý'), findsNothing);
+      await pressBack(tester);
       expect(find.text('Báo cáo tuần 44: 3 chủ đầu tư quá hạn'), findsOneWidget, reason: 'it can still be read');
     });
   });
@@ -453,7 +523,7 @@ void main() {
         open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/home'),
         script: StateScript(
           healthy: _healthy,
-          content: find.text('Cần xử lý ngay'),
+          content: find.text('Cần bạn quyết định'),
           empty: (ScriptedServer server) {
             server
               ..refuse('GET', '/home/command-center', 404, 'RESOURCE_NOT_FOUND')
@@ -473,13 +543,14 @@ void main() {
 
       expect(server.callsTo('GET', '/home/my-work').any((HttpCall call) => call.url.queryParameters['view'] == 'mine' && call.url.queryParameters['limit'] == '50'), isTrue, reason: 'the officer reads the alerts of the person');
       expect(find.text('Việc đến hạn'), findsOneWidget);
-      expect(find.byType(AlertCard), findsNWidgets(4), reason: 'an officer sees up to five');
-      expect(find.byTooltip('Thao tác với việc này'), findsNWidgets(4));
+      expect(find.byType(AlertRow), findsNWidgets(4), reason: 'an officer sees the whole list of the day, grouped by deadline');
+      expect(find.text('Quá hạn'), findsOneWidget, reason: 'the late group has its heading');
 
       final ScriptedServer empty = ScriptedServer();
       _healthy(empty, alerts: <Map<String, Object?>>[]);
       await _open(tester, empty, '/home/mob-08');
-      expect(find.text('Không còn việc khẩn · đã kiểm tra lúc 10:00'), findsOneWidget);
+      expect(find.text('Hôm nay bạn đã xong việc'), findsOneWidget);
+      expect(find.text('Dự án chưa nộp báo cáo'), findsOneWidget, reason: 'the next step is offered');
     });
 
     testWidgets('three devices, 200 percent text', (WidgetTester tester) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
+import '../../core/theme/machvon_semantic.dart';
 import 'clearance_commands.dart';
 import 'clearance_models.dart';
 import 'inventory_rules.dart';
@@ -84,6 +85,22 @@ String householdStatusLabel(BuildContext context, String status) {
       return context.t('mob.clearance.household.status.disputed');
     default:
       return context.t('mob.clearance.household.status.registered');
+  }
+}
+
+/// The tone of the pill of a household's state: counted and listed are under way, paid and resettled are done, a dispute needs attention.
+MachvonTone householdStatusTone(String status) {
+  switch (status) {
+    case 'INVENTORIED':
+    case 'PLAN_LISTED':
+      return MachvonTone.info;
+    case 'COMPENSATED':
+    case 'RESETTLED':
+      return MachvonTone.success;
+    case 'DISPUTED':
+      return MachvonTone.danger;
+    default:
+      return MachvonTone.neutral;
   }
 }
 

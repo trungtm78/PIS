@@ -113,6 +113,10 @@ export const WORK_KINDS = [
   'COMMITTEE_SECTOR_BEHIND',
   'COMMITTEE_UNIT_NOT_REPORTING',
   'COMMITTEE_DIRECTIVE_OVERDUE',
+  // The tasks of the project workflow (lane PWF-2): a task within the days of its three-colour policy, a task past its day, and a milestone whose forecast is past its baseline.
+  'PWF_TASK_DUE_SOON',
+  'PWF_TASK_OVERDUE',
+  'PWF_MILESTONE_AT_RISK',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export type WorkBucket = 'OVERDUE' | 'NEAR' | 'LATER';
@@ -211,6 +215,9 @@ const PRIORITY: Readonly<Record<WorkKind, number>> = {
   COMMITTEE_SECTOR_BEHIND: 64,
   COMMITTEE_UNIT_NOT_REPORTING: 65,
   COMMITTEE_DIRECTIVE_OVERDUE: 66,
+  PWF_TASK_OVERDUE: 67,
+  PWF_MILESTONE_AT_RISK: 68,
+  PWF_TASK_DUE_SOON: 69,
 };
 
 export interface WorkItem {

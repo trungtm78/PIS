@@ -138,10 +138,17 @@ void main() {
       final SemanticsHandle semantics = tester.ensureSemantics();
       await _open(tester, server, const DelegationsScreen());
       expect(find.textContaining('Chỉ đọc'), findsOneWidget);
-      expect(find.textContaining('Công tác nước ngoài'), findsOneWidget);
-      expect(find.textContaining('Trần Thị Bình'), findsWidgets);
-      expect(find.text('Chưa có người thay'), findsOneWidget);
       expect(find.textContaining('Các ngưỡng của quy tắc chưa được kiểm chứng'), findsOneWidget);
+      expect(find.textContaining('Công tác nước ngoài'), findsOneWidget, reason: 'the first tab is the delegations');
+      expect(find.text('Chưa có người thay'), findsNothing, reason: 'the absences are on their own tab');
+      await tester.tap(find.textContaining('Vắng mặt'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Trần Thị Bình'), findsOneWidget);
+      expect(find.text('Chưa có người thay'), findsOneWidget, reason: 'an absence without cover is a red pill with words');
+      await tester.ensureVisible(find.textContaining('Thay thế'));
+      await tester.tap(find.textContaining('Thay thế'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Lê Văn Cường'), findsOneWidget);
       expect(find.byType(ElevatedButton), findsNothing);
       expect(find.byType(FilledButton), findsNothing);
       await _expectAccessible(tester);
@@ -154,7 +161,10 @@ void main() {
         ..on('GET', '/home/alert-absences', (_) => _absences());
       await _open(tester, server, const DelegationsScreen());
       expect(find.text('Phần này chưa đọc được hoặc bạn chưa có quyền xem.'), findsOneWidget);
-      expect(find.textContaining('Trần Thị Bình'), findsWidgets);
+      expect(find.text('Làm mới'), findsWidgets, reason: 'the part can be read again');
+      await tester.tap(find.textContaining('Vắng mặt'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Trần Thị Bình'), findsOneWidget);
     });
 
     testWidgets('MOB-76 shows the definition of each indicator with its version and certification', (WidgetTester tester) async {
@@ -194,6 +204,79 @@ void main() {
       expect(find.byType(ElevatedButton), findsNothing);
       await _expectAccessible(tester);
       semantics.dispose();
+    });
+  });
+  group('the states of the read views: a filter that hides everything, a part with nothing in it, and a part that cannot be read, each with an action', () {
+    testWidgets('MOB-76 a filter that hides every indicator says so and clears itself; the chips carry their counts', (WidgetTester tester) async {
+      final ScriptedServer server = ScriptedServer()
+        ..on('GET', '/home/kpi-register', (_) => <String, Object?>{
+              'as_of': '2026-11-03',
+              'definitions': <Object?>[
+                <String, Object?>{'code': 'DISB', 'name': 'Tỷ lệ giải ngân', 'version': 2, 'certification': <String, Object?>{'status': 'DRAFT'}},
+              ],
+            });
+      await _open(tester, server, const KpiRegisterScreen());
+      expect(find.text('Tất cả 1'), findsOneWidget);
+      expect(find.text('Đã chứng nhận 0'), findsOneWidget);
+      expect(find.text('Chưa chứng nhận 1'), findsOneWidget);
+
+      await tester.tap(find.text('Đã chứng nhận 0'));
+      await tester.pumpAndSettle();
+      expect(find.text('Tỷ lệ giải ngân'), findsNothing);
+      expect(find.text('Chưa có dòng nào.'), findsOneWidget);
+      await tester.tap(find.text('Xóa bộ lọc'));
+      await tester.pumpAndSettle();
+      expect(find.text('Tỷ lệ giải ngân'), findsOneWidget);
+    });
+
+    testWidgets('MOB-77 the forms that can be issued are a filter of their own, and a catalogue with none of them says so', (WidgetTester tester) async {
+      final ScriptedServer server = ScriptedServer()
+        ..on('GET', '/report-engine/catalogue', (_) => <String, Object?>{
+              'demo_mode': false,
+              'can_generate': false,
+              'as_of': '2026-11-03',
+              'items': <Object?>[
+                <String, Object?>{'code': 'BC01', 'name': 'Báo cáo giải ngân', 'version': '1', 'edition': 'PUBLIC', 'status': 'ACTIVE', 'official': 'OFFICIAL', 'form_ref': null, 'receiver': 'UBND tỉnh', 'period_kind': 'MONTH', 'has_narrative': false, 'registered': true, 'issuable': false},
+              ],
+            });
+      await _open(tester, server, const ReportCatalogueScreen());
+      expect(find.text('Báo cáo giải ngân'), findsOneWidget);
+      await tester.tap(find.text('Có thể phát hành 0'));
+      await tester.pumpAndSettle();
+      expect(find.text('Báo cáo giải ngân'), findsNothing);
+      expect(find.text('Chưa có dòng nào.'), findsOneWidget);
+      await tester.tap(find.text('Xóa bộ lọc'));
+      await tester.pumpAndSettle();
+      expect(find.text('Báo cáo giải ngân'), findsOneWidget);
+    });
+
+    testWidgets('MOB-75 a tab with nothing in it says why and offers to read again, which asks the server again', (WidgetTester tester) async {
+      int reads = 0;
+      final ScriptedServer server = ScriptedServer()
+        ..on('GET', '/resources/delegation_grant', (_) {
+          reads += 1;
+          return <String, Object?>{'items': <Object?>[], 'next_cursor': null, 'as_of': '2026-11-03T03:00:00.000Z'};
+        })
+        ..on('GET', '/home/alert-absences', (_) => _absences());
+      await _open(tester, server, const DelegationsScreen());
+      expect(find.text('Chưa có dòng nào.'), findsOneWidget);
+      expect(find.text('Mọi thay đổi làm trên máy tính; khi có dữ liệu, các dòng sẽ hiện ở đây.'), findsOneWidget);
+      expect(reads, 1);
+      await tester.tap(find.widgetWithText(FilledButton, 'Làm mới'));
+      await tester.pumpAndSettle();
+      expect(reads, 2);
+    });
+
+    testWidgets('MOB-75 in english the tabs, the absence span and the coverage are worded', (WidgetTester tester) async {
+      final ScriptedServer server = ScriptedServer()
+        ..on('GET', '/resources/delegation_grant', (_) => _grants())
+        ..on('GET', '/home/alert-absences', (_) => _absences());
+      await _open(tester, server, const DelegationsScreen(), locale: const Locale('en'));
+      expect(find.textContaining('Absences'), findsOneWidget);
+      await tester.tap(find.textContaining('Absences'));
+      await tester.pumpAndSettle();
+      expect(find.text('Not covered'), findsOneWidget);
+      expect(find.text('away, from 10/11/2026 to 20/11/2026'), findsOneWidget);
     });
   });
 }

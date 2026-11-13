@@ -86,6 +86,12 @@ const List<List<String>> _migrations = <List<String>>[
       updated_at INTEGER NOT NULL
     )''',
   ],
+  // 2: the record a command is about is kept beside its payload, which an accepted command no longer holds (the version it produced belongs to that record).
+  <String>[
+    'ALTER TABLE queued_command ADD COLUMN subject_ref TEXT',
+    "UPDATE queued_command SET subject_ref = json_extract(payload, '\$.task_id') WHERE command_type LIKE 'pwf.task.%' AND payload IS NOT NULL",
+    'CREATE INDEX queued_command_subject_idx ON queued_command (subject_ref) WHERE subject_ref IS NOT NULL',
+  ],
 ];
 
 /// The newest schema version of the local store.

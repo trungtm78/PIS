@@ -1,6 +1,6 @@
 # contract-patch: one tool for the shared contract files
 
-Several lanes add operations, schemas, error codes, screens and migration blocks at the same time. Hand edits of the big shared JSON files collide and reformat each other, so they go through `scripts/contract-patch.mjs` instead.
+Several lanes add operations, schemas, error codes, screens, migration blocks and the registry records of the design package (epics, stories, test cases, traceability, backlog, navigation) at the same time. Hand edits of the big shared JSON files collide and reformat each other, so they go through `scripts/contract-patch.mjs` instead.
 
 | File | Commands |
 |---|---|
@@ -8,14 +8,23 @@ Several lanes add operations, schemas, error codes, screens and migration blocks
 | `Design/MACHVON_Design/03_Engineering/error_codes.json` | `add-error-code` |
 | `Design/MACHVON_Design/03_Engineering/screen_catalog.json` | `add-screen` |
 | `db/migrations/blocks.json` | `register-block` |
+| `Design/MACHVON_Design/03_Engineering/implementation_plan.json` | `add-epic`, `add-feature`, `add-story` |
+| `Design/MACHVON_Design/03_Engineering/test_cases.json` | `add-test-case` |
+| `Design/MACHVON_Design/03_Engineering/traceability.json` | `add-trace` |
+| `Design/MACHVON_Design/03_Engineering/implementation_backlog.json` | `add-backlog` |
+| `Design/MACHVON_Design/03_Engineering/navigation_architecture.json` | `add-route`, `add-nav-group` |
 
 ## What it guarantees
 
-- **Exact formatting.** The four files are two-space `JSON.stringify` output (blocks.json with CRLF). The tool refuses a file that does not render back to exactly its own text (`check` tells you), patches the parsed data and writes it back, so only the added lines differ. Key order and line endings are kept. A new entry goes at the end of its container (new path at the end of `paths`, new schema at the end of `components.schemas`, new code at the end of `registry`).
+- **Exact formatting.** The nine files are two-space `JSON.stringify` output (blocks.json with CRLF). The tool refuses a file that does not render back to exactly its own text (`check` tells you), patches the parsed data and writes it back, so only the added lines differ. Key order and line endings are kept. A new entry goes at the end of its container (new path at the end of `paths`, new schema at the end of `components.schemas`, new code at the end of `registry`).
 - **Idempotent.** Running the same command again changes nothing and writes nothing (`Unchanged`). The same name with different content is an error until you pass `--replace`.
 - **Safe to run in parallel.** Each run takes `<file>.lock`, re-reads the file inside it, patches, re-parses what it wrote and renames it over the file. A lock of a dead process or older than 30 seconds is reclaimed.
 - **All or nothing.** In a batch every file is read, patched and checked before the first write; a failing step writes nothing.
-- **Checks.** operationId unique across the document; every `$ref` of an added operation or schema resolves to `components.schemas` (schemas of the same batch count); every `x-error-codes` entry is registered (codes of the same batch count); an error code is absent and not a canonical, alias or excluded name; a screen takes the next free `<MODULE>-NN`; a block is 20 numbers, overlaps nothing, and does not move once registered.
+- **Checks.** operationId unique across the document; every `$ref` of an added operation or schema resolves to `components.schemas` (schemas of the same batch count); every `x-error-codes` entry is registered (codes of the same batch count); an error code is absent and not a canonical, alias or excluded name; a screen takes the next free `<MODULE>-NN`; a block is 20 numbers, overlaps nothing, and does not move once registered. A feature names an existing epic, a story an existing epic and one of its features; a record is keyed by its id (a trace row by `requirement`); a route is placed after the last route of its module and the `coverage` counters of the navigation follow the lists.
+
+## Registry records
+
+The record is the JSON object that the file holds, given in a spec as `epic`, `feature`, `story`, `test`, `trace`, `backlog`, `route` (with `platform`: `web` or `mobile`) or `group` (with `module`; `shortcuts` optional). The shape of a story, its acceptance criteria and tasks is judged afterwards by `node Design/MACHVON_Design/work/tools/src/check-cli.mjs`, which this tool does not replace. From the command line the record comes from a file: `add-story --record-file story.json`; `add-route --platform web --record-file route.json`; `add-nav-group --module PWF --record-file group.json`. The PWF registration is kept as `docs/plans/pwf-register.json` and re-runs with `apply --spec`.
 
 The tool does not regenerate anything. After a contract change run `npm run contracts:generate`, then `npm run contracts:check`, `node scripts/lint-error-codes.mjs`, `npm run migrations:check`.
 
@@ -72,7 +81,9 @@ One file, applied under one lock round, one write per file. Steps use the same n
                  "requestRef": "ClearThing", "errorCodes": ["VALIDATION_FAILED", "PAY_X_DENIED"], "ifMatch": true } },
     { "command": "add-operation", "path": "/things", "method": "get", "operation": { "operationId": "listThings", "x-permission": "thing.read", "responses": { "200": { "description": "ok" } } } },
     { "command": "add-screen", "module": "PAY", "title": "...", "kind": "table", "fields": ["A"], "role": "...", "rule": "...", "phase": "P1", "source": "..." },
-    { "command": "register-block", "slice": "GOV-3", "from": 1790 }
+    { "command": "register-block", "slice": "GOV-3", "from": 1790 },
+    { "command": "add-test-case", "test": { "id": "T-PAY-01", "type": "domain", "priority": "P0", "setup": "...", "steps": ["..."], "expected": "...", "status": "NOT_RUN", "evidence": null } },
+    { "command": "add-route", "platform": "web", "route": { "id": "PAY-30", "title": "...", "kind": "table", "area": "money", "module": "PAY", "group": "...", "role": "workspace", "parent": null } }
   ]
 }
 ```

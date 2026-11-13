@@ -1,0 +1,58 @@
+.pwfs-figure {
+  display: grid;
+  gap: 4px;
+}
+.pwfs-figure__main {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.pwfs-figure__score--adjusted {
+  color: var(--mv-color-primary);
+}
+.pwfs-figure__rating {
+  margin: 0;
+}
+.pwfs-restricted {
+  color: var(--mv-color-text-secondary);
+  font-style: italic;
+}
+.pwfs-spans,
+.pwfs-list,
+.pwfs-flags,
+.pwfs-excluded,
+.pwfs-facts {
+  margin: 0;
+  padding-left: 18px;
+}
+.pwfs-list {
+  list-style: none;
+  padding-left: 0;
+  display: grid;
+  gap: 12px;
+}
+.pwfs-list > li {
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.pwfs-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+}
+.pwfs-board__place {
+  font-variant-numeric: tabular-nums;
+}
+.pwfs-curve {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+}
+.pwfs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}

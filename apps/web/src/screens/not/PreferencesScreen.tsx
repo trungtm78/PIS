@@ -5,6 +5,8 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { DeadlinePreferenceCard } from '../pwf/preference/DeadlinePreferenceCard';
+import { PATHS } from '../pwf/model';
 import { usePreferences, useSavePreferences } from './preferences/hooks';
 import { categoryName, channelName, digestName, problemMessage } from './preferences/labels';
 import { ALL_CATEGORIES, DIGEST_MODES, PREFERENCE_CHANNELS, TIME_ZONES, bodyOf, categoryIsValid, cellKey, draftOf, isLocked, problemReasonOf, quietProblem, tooManyItems } from './preferences/model';
@@ -33,6 +35,7 @@ export default function PreferencesScreen({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void preferences.refetch()}>
         {preferences.data === undefined ? null : <PreferencesForm key={preferences.data.version} view={preferences.data} save={save} />}
       </StateBoundary>
+      <DeadlinePreferenceCard fullLink={PATHS.preference} />
     </section>
   );
 }

@@ -5,6 +5,8 @@ import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/navigation/mobile_routes.generated.dart';
 import 'package:machvon_mobile/core/navigation/route_catalogue.dart';
+import 'package:machvon_mobile/core/widgets/tap_target.dart';
+import 'package:machvon_mobile/core/widgets/underline_tabs.dart';
 import 'package:machvon_mobile/features/directives/directives_feature.dart' as directives;
 import 'package:machvon_mobile/features/directives/directives_strings.dart';
 
@@ -22,7 +24,9 @@ void _register(ScriptedServer server, {List<Map<String, Object?>>? items, Map<St
     ..on('GET', '/directives/summary', (_) => summary ?? directiveSummary());
 }
 
-Finder _chip(String label) => find.widgetWithText(ChoiceChip, label);
+Finder _chip(String label) => find.descendant(of: find.byType(UnderlineTabs), matching: find.text(label));
+
+bool _selected(WidgetTester tester, String label) => tester.widget<TapTarget>(find.ancestor(of: _chip(label), matching: find.byType(TapTarget)).first).selected ?? false;
 
 void main() {
   group('DIR-06 is a screen of the Projects tab that the catalogue and the feature agree on', () {
@@ -119,8 +123,8 @@ void main() {
       await tester.tap(_chip('Tất cả'));
       await tester.pumpAndSettle();
       expect(server.callsTo('GET', '/directives').last.url.queryParameters, <String, String>{'limit': '50'});
-      expect(tester.widget<ChoiceChip>(_chip('Tất cả')).selected, isTrue);
-      expect(tester.widget<ChoiceChip>(_chip('Giao cho tôi')).selected, isFalse);
+      expect(_selected(tester, 'Tất cả'), isTrue);
+      expect(_selected(tester, 'Giao cho tôi'), isFalse);
     });
 
     testWidgets('reads the pages by cursor until the end and shows one list', (WidgetTester tester) async {
@@ -233,10 +237,10 @@ void main() {
       expect(find.text('Dòng thời gian'), findsOneWidget);
       expect(find.text('Giao chỉ đạo'), findsOneWidget);
       expect(find.text('Ghi tiến độ'), findsOneWidget);
-      expect(find.text('Tiến độ 40%'), findsOneWidget);
-      expect(find.text('Đã gửi hồ sơ cho sở.'), findsOneWidget);
+      expect(find.textContaining('Tiến độ 40%'), findsOneWidget);
+      expect(find.textContaining('Đã gửi hồ sơ cho sở.'), findsOneWidget);
       expect(find.text('Duyệt gia hạn'), findsOneWidget);
-      expect(find.text('Hạn 20/10/2026 thành 29/10/2026'), findsOneWidget);
+      expect(find.textContaining('Hạn 20/10/2026 thành 29/10/2026'), findsOneWidget);
       expect(find.text('Nguyễn Văn An · 10/10/2026 10:30'), findsOneWidget);
       expect(find.text('Đề nghị gia hạn'), findsOneWidget);
       expect(find.text('Từ 20/10/2026 đến 29/10/2026: Chờ ý kiến của sở xây dựng.'), findsOneWidget);

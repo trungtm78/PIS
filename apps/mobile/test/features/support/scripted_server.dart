@@ -11,6 +11,7 @@ import 'package:machvon_mobile/core/api/dart_io_transport.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/di/providers.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
+import 'package:machvon_mobile/core/session/session.dart';
 import 'package:machvon_mobile/features/read_support/clock.dart';
 import 'package:machvon_mobile/features/read_support/read_support_feature.dart' as read_support;
 
@@ -89,6 +90,13 @@ class _Route {
 /// The instant the tests treat as now: the clock of the phone is only used for the age of a copy.
 final DateTime kNow = DateTime.utc(2026, 11, 3, 3, 0);
 
+/// The correlation ids the client makes in a test: the same shape as a random one (a UUID), but counted, so that a state that shows the id
+/// of a failed call (the error code and the reference of a lost connection) draws the same text in every run, which a golden needs.
+String Function() countedCorrelationIds() {
+  int next = 0;
+  return () => '00000000-0000-4000-8000-${(next += 1).toString().padLeft(12, '0')}';
+}
+
 /// Starts the application on the given features and the support feature, with the server in place of the network (behind
 /// the same observer as the real transport, so a refused connection makes the application offline).
 Future<ProviderContainer> pumpWithServer(
@@ -110,6 +118,24 @@ Future<ProviderContainer> pumpWithServer(
     overrides: <Override>[
       httpTransportProvider.overrideWith((Ref ref) => ObservingTransport(server, ref.read(reachabilityProvider.notifier).report)),
       clockProvider.overrideWithValue(now ?? () => kNow),
+      apiClientProvider.overrideWith(
+        (Ref ref) => MachvonApiClient(
+          baseUrl: ref.watch(appConfigProvider).apiBaseUrl,
+          transport: ref.watch(apiTransportProvider),
+          token: () => ref.read(sessionProvider.notifier).accessToken(),
+          locale: () => ref.read(localeProvider).languageCode,
+          newCorrelationId: countedCorrelationIds(),
+        ),
+      ),
+      tenantApiClientProvider.overrideWith(
+        (Ref ref, String tenantId) => MachvonApiClient(
+          baseUrl: ref.watch(appConfigProvider).apiBaseUrl,
+          transport: ref.watch(apiTransportProvider),
+          token: () => ref.read(sessionProvider.notifier).accessTokenFor(tenantId),
+          locale: () => ref.read(localeProvider).languageCode,
+          newCorrelationId: countedCorrelationIds(),
+        ),
+      ),
       ...overrides,
     ],
   );

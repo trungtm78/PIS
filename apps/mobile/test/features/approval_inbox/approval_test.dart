@@ -13,6 +13,7 @@ import 'package:machvon_mobile/core/sync/sync_status.dart';
 import 'package:machvon_mobile/features/approval_inbox/approval_commands.dart';
 import 'package:machvon_mobile/features/approval_inbox/approval_inbox_feature.dart' as approval;
 import 'package:machvon_mobile/features/approval_inbox/approval_support.dart' show approvalsChangedProvider;
+import 'package:machvon_mobile/features/approval_inbox/screens/approval_inbox_screen.dart' show ApprovalRow;
 
 import '../../support/harness.dart';
 import '../support/screen_contract.dart';
@@ -63,10 +64,13 @@ void main() {
       final double payment = tester.getTopLeft(find.text('Duyệt thanh toán')).dy;
       expect(late, lessThan(payment), reason: 'the late one comes first');
       expect(find.text('Quá hạn'), findsOneWidget);
-      expect(find.text('Bạn chỉ xem, không quyết định'), findsOneWidget);
-      expect(find.text('Giá trị: 420 triệu đồng'), findsNWidgets(3));
-      expect(find.text('Đơn vị: Ban QLDA giao thông'), findsNWidgets(3));
-      expect(find.text('Hạn 01/11/2026 17:00'), findsOneWidget);
+      expect(find.text('Chỉ xem'), findsOneWidget);
+      expect(find.textContaining('420 triệu đồng'), findsNWidgets(3), reason: 'the amount is on the row, rounded to one decimal');
+      expect(find.textContaining('Ban QLDA giao thông'), findsNWidgets(3));
+      expect(find.text('Hạn 01/11'), findsOneWidget, reason: 'the late row says its real day');
+      final SemanticsHandle semantics = tester.ensureSemantics();
+      expect(find.bySemanticsLabel(RegExp('Hạn 01/11/2026 17:00')), findsOneWidget, reason: 'a screen reader gets the moment in full');
+      semantics.dispose();
       expect(container.read(tabBadgeProvider)[AppTab.approval], 3);
       expect(server.callsTo('GET', '/resources/approval_task').single.url.queryParameters, containsPair('mine', 'true'));
     });
@@ -124,25 +128,46 @@ void main() {
       expect(server.calls.where((HttpCall call) => call.method != 'GET'), isEmpty);
     });
 
-    testWidgets('the kind of record and the late ones narrow the list, and clearing the filters brings it back', (WidgetTester tester) async {
+    testWidgets('chips narrow the list to the late ones or to a kind of record, an empty result names the filter, and clearing it brings the list back', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
-      _reads(server, tasks: <Map<String, Object?>>[approvalTask('t-1'), approvalTask('t-2', businessType: 'payment.approve')]);
+      _reads(server, tasks: <Map<String, Object?>>[approvalTask('t-1', overdue: true), approvalTask('t-2', businessType: 'payment.approve')]);
       await _open(tester, server, '/approval');
+      expect(find.text('Quá hạn quyết định'), findsOneWidget, reason: 'the late ones are a group of their own');
+      expect(find.text('Chờ quyết định'), findsOneWidget);
 
-      await tester.tap(find.text('Chỉ việc quá hạn'));
+      await tester.tap(find.text('Quá hạn 1'));
       await tester.pumpAndSettle();
-      expect(find.text('Chưa có dữ liệu'), findsOneWidget);
-      expect(find.text('Chỉ việc quá hạn'), findsNWidgets(2), reason: 'the filter in use is named');
+      expect(find.byType(ApprovalRow), findsOneWidget);
+      expect(find.descendant(of: find.byType(ApprovalRow), matching: find.text('Nhận báo cáo')), findsOneWidget);
+
+      await tester.tap(find.text('Tất cả 2'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Duyệt thanh toán 1'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Duyệt thanh toán 1'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ApprovalRow), findsOneWidget);
+      expect(find.descendant(of: find.byType(ApprovalRow), matching: find.text('Duyệt thanh toán')), findsOneWidget);
+    });
+
+    testWidgets('a filter with no result says which filter it is and has an action that clears it', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      final List<Map<String, Object?>> waiting = <Map<String, Object?>>[approvalTask('t-1', overdue: true), approvalTask('t-2', businessType: 'payment.approve')];
+      _reads(server, tasks: waiting);
+      final ProviderContainer container = await _open(tester, server, '/approval');
+      // Only a late report is waiting: a kind of record that has none is not offered as a chip, so the empty result comes from the late chip
+      // on a list whose late tasks were all decided meanwhile. Here the list is read again without them.
+      await tester.tap(find.text('Quá hạn 1'));
+      await tester.pumpAndSettle();
+      waiting.removeAt(0);
+      container.read(approvalsChangedProvider.notifier).bump();
+      await tester.pumpAndSettle();
+      expect(find.text('Không có hồ sơ khớp bộ lọc'), findsOneWidget);
+      expect(find.textContaining('Đang lọc theo: Quá hạn'), findsOneWidget);
       await tester.tap(find.text('Xóa bộ lọc'));
       await tester.pumpAndSettle();
-      expect(find.text('Duyệt thanh toán'), findsOneWidget);
-
-      await tester.tap(find.text('Tất cả').first);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Duyệt thanh toán').last);
-      await tester.pumpAndSettle();
-      expect(find.text('Nhận báo cáo'), findsNothing);
       expect(find.text('Duyệt thanh toán'), findsWidgets);
     });
 
@@ -163,17 +188,24 @@ void main() {
       _reads(server);
       await _open(tester, server, '/approval/mob-24/t-1');
 
+      final SemanticsHandle semantics = tester.ensureSemantics();
       expect(find.text('Bản 2, so với bản 1'), findsOneWidget);
-      expect(find.text('Vốn năm, ngân sách trung ương: bản trước 100 triệu đồng, bản này 90 triệu đồng, thay đổi -10 triệu đồng'), findsOneWidget);
-      expect(find.text('Vốn năm, ngân sách địa phương: bản trước 200 triệu đồng, bản này 210 triệu đồng, thay đổi +10 triệu đồng'), findsOneWidget);
-      expect(find.textContaining('Vốn kéo dài, ngân sách trung ương: bản trước 30 triệu đồng, bản này 30 triệu đồng, thay đổi không đổi'), findsOneWidget);
-      expect(find.text('Tổng lũy kế: bản trước 400 triệu đồng, bản này 420 triệu đồng, thay đổi +20 triệu đồng'), findsOneWidget);
+      // A figure is read as one sentence by a screen reader; the screen shows the same facts as a figure with its previous value and change.
+      expect(find.bySemanticsLabel('Vốn năm, ngân sách trung ương: bản trước 100 triệu đồng, bản này 90 triệu đồng, thay đổi -10 triệu đồng'), findsOneWidget);
+      expect(find.bySemanticsLabel('Vốn năm, ngân sách địa phương: bản trước 200 triệu đồng, bản này 210 triệu đồng, thay đổi +10 triệu đồng'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('Vốn kéo dài, ngân sách trung ương: bản trước 30 triệu đồng, bản này 30 triệu đồng, thay đổi không đổi')), findsOneWidget);
+      expect(find.bySemanticsLabel('Tổng lũy kế: bản trước 400 triệu đồng, bản này 420 triệu đồng, thay đổi +20 triệu đồng'), findsOneWidget);
+      expect(find.text('bản trước 100 triệu đồng, thay đổi -10 triệu đồng'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_downward), findsOneWidget, reason: 'a fall has a down arrow and a minus: never colour alone');
       expect(find.text('trong đó CTMTQG 40 triệu đồng (đã nằm trong các ô, không cộng thêm)'), findsOneWidget);
       expect(find.textContaining('460'), findsNothing);
       expect(find.text('Lý do chỉnh sửa: Điều chỉnh số liệu vốn năm'), findsOneWidget);
-      expect(find.text('bao-cao-tuan-44.pdf, application/pdf, 200 KB'), findsOneWidget);
+      expect(find.text('bao-cao-tuan-44.pdf'), findsOneWidget);
+      expect(find.text('application/pdf, 200 KB'), findsOneWidget);
       expect(find.textContaining('SHA-256: a3f5c2d1e4b69788'), findsOneWidget);
       expect(find.text('Ban QLDA giao thông'), findsOneWidget);
+      expect(find.textContaining('420.000.000 đồng'), findsOneWidget, reason: 'the head of the detail states the amount in full');
+      semantics.dispose();
     });
 
     testWidgets('a first revision has nothing to compare, and another kind of record says it has no comparison yet', (WidgetTester tester) async {
@@ -192,7 +224,7 @@ void main() {
       expect(other.callsTo('GET', '/reports/rep-2'), isEmpty);
     });
 
-    testWidgets('online, the person who may decide has both buttons, and they lead to the confirmation and to the return form', (WidgetTester tester) async {
+    testWidgets('online, the person who may decide has both buttons on the bar, and they open the confirmation and the return form as sheets that decide nothing by themselves', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();
       _reads(server);
@@ -202,11 +234,19 @@ void main() {
       expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Phê duyệt')).onPressed, isNotNull);
       await tester.tap(find.widgetWithText(FilledButton, 'Phê duyệt'));
       await tester.pumpAndSettle();
-      expect(currentLocation(container), '/approval/mob-25/t-1');
-      await pressBack(tester);
+      expect(currentLocation(container), '/approval/mob-24/t-1', reason: 'the confirmation is a sheet over the detail');
+      expect(find.text('Xác nhận phê duyệt'), findsWidgets);
+      expect(find.textContaining('420.000.000 đồng'), findsWidgets, reason: 'the sheet states what is decided, the amount in full');
+      expect(find.textContaining('nhật ký kiểm toán'), findsOneWidget);
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Xem lại hồ sơ'));
+      await tester.pumpAndSettle();
+      expect(find.text('Xác nhận phê duyệt'), findsNothing);
+      expect(server.callsTo('POST', '/approval-tasks/t-1/decision'), isEmpty, reason: 'reviewing the record sends nothing');
+
       await tester.tap(find.widgetWithText(OutlinedButton, 'Trả lại để bổ sung'));
       await tester.pumpAndSettle();
-      expect(currentLocation(container), '/approval/mob-26/t-1');
+      expect(find.widgetWithText(FilledButton, 'Trả lại hồ sơ'), findsOneWidget);
+      expect(currentLocation(container), '/approval/mob-24/t-1');
     });
 
     testWidgets('offline the decision buttons are disabled with a visible explanation, nothing is queued, and the server holds no decision', (WidgetTester tester) async {
@@ -280,7 +320,7 @@ void main() {
       await expectEveryState(
         tester,
         open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/approval/mob-24/t-1'),
-        script: StateScript(healthy: _reads, content: find.text('So sánh với bản trước')),
+        script: StateScript(healthy: _reads, content: find.text('Nội dung')),
       );
       await expectScreenContract(tester, open: (WidgetTester tester, ScriptedServer server) => _open(tester, server, '/approval/mob-24/t-1'), healthy: _reads);
     });

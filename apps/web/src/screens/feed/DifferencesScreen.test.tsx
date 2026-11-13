@@ -1,5 +1,5 @@
 import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { translator } from '../../i18n';
 import DifferencesScreen from './DifferencesScreen';
 import { addDays, vietnamStamp, vietnamToday } from './feed-model';
@@ -8,7 +8,14 @@ import type { MountOptions, World } from './test/feed-test-support';
 
 const ROUTE = routeOf('FEED-04');
 
+// The fixtures of the worklist are drawn around AS_OF (a difference due on the 13th is not yet late, one due on the 1st is): the clock of the test is that day, not the day the suite runs.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(AS_OF));
+});
+
 afterEach(() => {
+  vi.useRealTimers();
   cleanup();
   translator.setLocale('vi');
   vi.restoreAllMocks();

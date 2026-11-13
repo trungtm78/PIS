@@ -46,13 +46,14 @@ void main() {
   final List<File> scripts = _files('qa/device/scripts', '.sh');
 
   group('AC-ST-MOB-040-1 AC-ST-MOB-040-2 AC-ST-MOB-040-3 TK-MOB-040-1 the device flows and scripts are marked as not run and stay in step with the application', () {
-    test('there are flows for sign-in (against a real provider and against the test provider of the e2e stack), the tabs, the cold start and the flapping case, and scripts for the cold start and the audit', () {
+    test('there are flows for sign-in (against a real provider and against the test provider of the e2e stack), the tabs, the cold start, the flapping case and the workflow of a project, and scripts for the cold start and the audit', () {
       expect(flows.map((File f) => f.uri.pathSegments.last), <String>[
         '05_sign_in.yaml',
         '06_sign_in_test_idp.yaml',
         '10_core_tabs_traversal.yaml',
         '20_cold_start_main_content.yaml',
         '30_flapping_and_kill_during_submit.yaml',
+        '40_project_workflow.yaml',
       ]);
       expect(scripts.map((File f) => f.uri.pathSegments.last), <String>['android_a11y_audit.sh', 'run_cold_start_samples.sh']);
     });
@@ -136,11 +137,11 @@ void main() {
     test('the cold start is timed to the content of the home screen once loaded, not to the tab label that is there before it', () {
       final StringCatalogue catalogue = _catalogue();
       final Set<String> tabs = <String>{for (final String tab in <String>['home', 'projects', 'approval', 'inbox', 'account']) catalogue.lookup('vi', 'mob.shell.tab.$tab')!};
-      final String loaded = catalogue.lookup('vi', 'mob.alert.list.title.label')!;
+      final String loaded = catalogue.lookup('vi', 'mob.home.decide.title')!;
       final String script = File('qa/device/scripts/run_cold_start_samples.sh').readAsStringSync();
       final String marker = RegExp(r'^marker="([^"]+)"', multiLine: true).firstMatch(script)!.group(1)!;
       expect(tabs, isNot(contains(marker)), reason: 'the tab bar is drawn before the dashboard has asked the server for anything');
-      expect(marker, loaded, reason: 'the heading "Cần xử lý ngay" at the top of the loaded home: the body is built only once the dashboard has its answer, so it is on no loading, empty or failed screen');
+      expect(marker, loaded, reason: 'the heading "Cần bạn quyết định" of the alerts of the loaded home: the body is built only once the dashboard has its answer, so it is on no loading, empty or failed screen');
       final String flow = File('qa/device/flows/20_cold_start_main_content.yaml').readAsStringSync();
       final Set<String> waited = <String>{for (final RegExpMatch m in RegExp(r"visible:\s*'([^']+)'").allMatches(flow)) m.group(1)!};
       expect(waited, <String>{loaded});

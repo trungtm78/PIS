@@ -70,7 +70,7 @@ Làm tay còn lại và lý do: trường `automation.reason` của từng ca; t
 
 ## Phân hệ PWF: workflow dự án, hạn ba màu, KPI và chấm điểm (lane pwfspec, 2026-11-13)
 
-`docs/uat/pwf/uat.json` (76 ca) và `_coverage-ledger.md`: 15 ca `UAT-PWF-01..15` của mục 10 đặc tả `Design/MACHVON_Design/01_Documents/05_modules/PWF.md` khai triển đủ, cộng ca âm tính, biên (ngưỡng 5/2/0 tại 6, 5, 3, 2, 1, 0, -1), đồng thời, idempotency, cách ly tenant, IDOR điểm nhân viên, tự duyệt, mẫu nhỏ, thiếu lịch năm, ngoại tuyến điện thoại, quyền riêng tư và hồi quy. Phủ đủ 20 câu chuyện ST-PWF và 29 tiêu chí AC-ST-PWF. Mọi ca là kế hoạch (`automation_intent.state = PLANNED`, một ca `MANUAL` có lý do): chưa có kịch bản, chưa chạy, không có bằng chứng. Câu chuyện ST-PWF chưa nằm trong `implementation_plan.json` nên ca dùng `linked_stories`, `linked_acs`, `linked_screens` thay cho `story_ids`, `screen_id`; khi làn tích hợp đăng ký xong thì đổi tên trường và chuyển `automation_intent` thành `automation`.
+`docs/uat/pwf/uat.json` (76 ca) và `_coverage-ledger.md`: 15 ca `UAT-PWF-01..15` của mục 10 đặc tả `Design/MACHVON_Design/01_Documents/05_modules/PWF.md` khai triển đủ, cộng ca âm tính, biên (ngưỡng 5/2/0 tại 6, 5, 3, 2, 1, 0, -1), đồng thời, idempotency, cách ly tenant, IDOR điểm nhân viên, tự duyệt, mẫu nhỏ, thiếu lịch năm, ngoại tuyến điện thoại, quyền riêng tư và hồi quy. Phủ đủ 20 câu chuyện ST-PWF và 29 tiêu chí AC-ST-PWF. Câu chuyện, màn hình, ca thiết kế, truy vết và backlog của PWF đã đăng ký (lane pwfreg, `docs/plans/pwf-register.json`); ca dùng `screen_id`, `story_ids`, `automation` theo chuẩn. Ca chưa có kịch bản mang `automation.state = PLANNED` (một ca `MANUAL` có lý do): chưa chạy, không có bằng chứng.
 
 ## Việc còn lại của writer (nợ có chủ đích)
 

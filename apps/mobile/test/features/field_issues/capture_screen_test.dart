@@ -32,11 +32,16 @@ Future<void> _choose(WidgetTester tester, int dropdown, String option) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _chip(WidgetTester tester, String label) async {
+  await tester.tap(find.widgetWithText(InkWell, label));
+  await tester.pumpAndSettle();
+}
+
 Future<void> _fillForm(WidgetTester tester) async {
   await _choose(tester, 0, 'PRJ-A-001 · Đường tỉnh ĐT.A1');
   await _choose(tester, 1, 'CDT-A-01 · Ban QLDA giao thông A');
-  await _choose(tester, 2, 'MAT_BANG · Mặt bằng');
-  await _choose(tester, 3, 'Cao');
+  await _chip(tester, 'MAT_BANG · Mặt bằng');
+  await _chip(tester, 'Cao');
   await tester.enterText(find.widgetWithText(TextField, 'Tiêu đề'), 'Sạt lở taluy km3');
   await tester.enterText(find.widgetWithText(TextField, 'Mô tả'), 'Đất đá đổ ra mặt đường, xe tải không qua được.');
   await settleReal(tester, rounds: 6);
@@ -86,7 +91,7 @@ void main() {
       final FieldWorld world = await _open(tester);
       await _fillForm(tester);
 
-      world.container.read(routerProvider).go('/projects/mob-41');
+      world.container.read(routerProvider).go('/projects/mob-31/none');
       await settleReal(tester, rounds: 6);
       world.container.read(routerProvider).go('/projects/mob-28');
       await settleReal(tester, rounds: 8);

@@ -128,7 +128,7 @@ void main() {
     testWidgets('a contract opens the site diary', (WidgetTester tester) async {
       useDevice(tester, kTall);
       final FieldWorld world = await _open(tester, _guestSees);
-      await tapText(tester, 'Viết nhật ký công trường');
+      await tapText(tester, 'HD-A-001 · Đường tỉnh ĐT.A1 km0-km12');
       expect(currentLocation(world.container), '/projects/mob-62/c-1');
     });
   });

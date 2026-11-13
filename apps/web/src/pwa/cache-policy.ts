@@ -25,7 +25,7 @@ export const STATIC_PATH_PREFIXES: readonly string[] = ['/assets/', '/fonts/', '
 /** Files at the root that are static too. */
 export const STATIC_ROOT_FILES: readonly string[] = ['/manifest.webmanifest', '/favicon.ico', '/favicon.svg'];
 /** Paths that are the API or the sign-in, whatever the method: a navigation to one of them is never answered with the shell. */
-export const NEVER_CACHE_PREFIXES: readonly string[] = ['/api/', '/v1/', '/resources/', '/me/', '/auth', '/oidc', '/.well-known/', '/sw.js'];
+export const NEVER_CACHE_PREFIXES: readonly string[] = ['/api/', '/v1/', '/resources/', '/me/', '/staff-score', '/auth', '/oidc', '/.well-known/', '/sw.js'];
 
 const STATIC_EXTENSION = /\.(?:js|mjs|css|woff2?|ttf|otf|svg|png|jpg|jpeg|webp|avif|gif|ico|webmanifest|map)$/i;
 const STATIC_CONTENT_TYPE = /^(?:text\/(?:javascript|css)|application\/(?:javascript|x-javascript|manifest\+json)|font\/|application\/font-|application\/vnd\.ms-fontobject|image\/)/i;

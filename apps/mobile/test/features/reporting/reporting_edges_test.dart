@@ -140,7 +140,7 @@ void main() {
       await app.open(tester, location: '/projects/mob-13');
       await press(tester, 'Danh sách nháp');
       expect(find.text('Danh sách nháp'), findsWidgets);
-      expect(find.text('Chưa có dữ liệu'), findsOneWidget);
+      expect(find.text('Chưa có bản nháp báo cáo'), findsOneWidget);
     });
   });
 
@@ -261,7 +261,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
       await tester.pump(const Duration(milliseconds: 50));
       expect(find.text('Đang gửi lên máy chủ...'), findsOneWidget);
-      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Đang nộp...')).onPressed, isNull);
+      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Đang gửi…')).onPressed, isNull);
       app.server.hold = null;
       gate.complete();
       await tester.pumpAndSettle();
@@ -277,7 +277,7 @@ void main() {
         ..on('GET', '/reports/:id', (HttpCall call) => serverReport(status: 'SUBMITTED', submittedAt: '2026-11-03T03:20:00.000Z', form: completeForm()));
       final ProviderContainer container = await pumpWithServer(tester, features: <MobileFeature>[reporting.feature], server: server, location: '/projects/mob-21/$reportId');
       await press(tester, 'Xem hàng đợi gửi');
-      expect(currentLocation(container), '/projects/mob-41');
+      expect(currentLocation(container), '/account/mob-41');
       await pressBack(tester);
       await press(tester, 'Về danh sách dự án');
       expect(currentLocation(container), '/projects');

@@ -88,6 +88,7 @@ final class QueuedCommand {
     this.resultRef,
     this.draftId,
     this.releaseDraft = false,
+    this.subjectRef,
     this.sentAt,
     this.settledAt,
   });
@@ -133,6 +134,10 @@ final class QueuedCommand {
 
   /// Whether the draft is removed when the command is accepted (a submit) or kept with the new version (a save).
   final bool releaseDraft;
+
+  /// The record the command is about (the id of a task, for instance), kept beside the payload: an accepted command keeps no payload, but the receipt still says which
+  /// record the version it produced belongs to.
+  final String? subjectRef;
   final int createdAt;
   final int updatedAt;
   final int? sentAt;
@@ -174,6 +179,7 @@ final class QueuedCommand {
         resultRef: resultRef ?? this.resultRef,
         draftId: draftId,
         releaseDraft: releaseDraft,
+        subjectRef: subjectRef,
         createdAt: createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         sentAt: sentAt ?? this.sentAt,

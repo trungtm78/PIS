@@ -35,6 +35,7 @@ class StateBoundary extends StatelessWidget {
   final VoidCallback? onRetry;
   final List<String> activeFilters;
   final VoidCallback? onClearFilters;
+
   final bool keepContent;
 
   @override

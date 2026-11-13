@@ -113,7 +113,7 @@ Future<void> _drain(WidgetTester tester) async {
 }
 
 Future<void> _tab(WidgetTester tester, String label) async {
-  await tester.tap(find.widgetWithText(Tab, label));
+  await tester.tap(find.text(label));
   await settleReal(tester, rounds: 8);
 }
 
@@ -168,7 +168,7 @@ void main() {
       expect(currentLocation(world.container), '/projects/mob-62/c-1?date=$_day');
       await world.go(tester, _hub);
       await tapText(tester, 'Chọn bản');
-      expect(currentLocation(world.container), '/projects/mob-42/${command.id}');
+      expect(currentLocation(world.container), '/account/mob-42/${command.id}');
     });
 
     testWidgets('a diary saved with no connection waits in the queue under its key and is not sent from here; the hub sends nothing', (WidgetTester tester) async {
@@ -231,7 +231,7 @@ void main() {
 
     Future<void> local(WidgetTester tester, ScriptedServer server) async {
       final FieldWorld world = FieldWorld.create(server: FieldServer(api: server));
-      await world.open(tester, '/projects/mob-41', extra: <MobileFeature>[hub.feature, site_diary.feature], session: _contractor(), overrides: idleRunners);
+      await world.open(tester, '/account/mob-41', extra: <MobileFeature>[hub.feature, site_diary.feature], session: _contractor(), overrides: idleRunners);
       await settleReal(tester, rounds: 6);
       await _write(tester, world);
       await world.go(tester, _hub);

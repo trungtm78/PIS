@@ -1,3 +1,7 @@
+import 'package:flutter/widgets.dart' show Text;
+import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_mobile/features/dashboard/widgets/alert_row.dart';
+
 /// The golden fixtures of the home reads: the same figures as the DIS fixtures FX-DIS-001 and FX-DIS-003.
 Map<String, Object?> tile(String metric, {String? value, String? displayValue, String? numerator, String? denominator, String? nullReason, String unit = 'PERCENT', String definition = 'PROPOSED_PENDING_SIGNOFF'}) => <String, Object?>{
       'metric_code': metric,
@@ -166,3 +170,9 @@ Map<String, Object?> workClockPolicies({
         },
       ],
     };
+
+/// Opens the sheet of the alert in row [index] of the list (the whole alert: its lines and its acts), the way a person does: a tap on the title of the row.
+Future<void> openAlertSheet(WidgetTester tester, {int index = 0}) async {
+  await tester.tap(find.descendant(of: find.byType(AlertRow).at(index), matching: find.byType(Text)).first);
+  await tester.pumpAndSettle();
+}

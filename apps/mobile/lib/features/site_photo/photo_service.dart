@@ -49,8 +49,10 @@ class SitePhotoService {
   /// it is written, even when the save that wrote it did not end well. A keep still running is waited for, because it may not have
   /// written the record yet.
   Future<void> discardUnkept(String operationId, List<EvidencePhoto> photos) async {
+    // The store is asked for before the wait: the screen that left is still there now, and the answer does not need the service after it.
+    final Future<DraftStore> drafts = _drafts;
     await _keeping[operationId];
-    if (_find(await _drafts, operationId) != null) return;
+    if (_find(await drafts, operationId) != null) return;
     for (final EvidencePhoto photo in photos) {
       await removePreparedFiles(photo);
     }

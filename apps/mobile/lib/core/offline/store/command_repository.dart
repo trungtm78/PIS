@@ -13,11 +13,11 @@ final class CommandRepository {
 
   static const String _columns =
       'id, tenant_id, user_id, command_type, payload, payload_bytes, base_server_version, idempotency_key, superseded_keys, state, attempts, '
-      'next_attempt_at, error_code, server_version, result_ref, draft_id, release_draft, created_at, updated_at, sent_at, settled_at';
+      'next_attempt_at, error_code, server_version, result_ref, draft_id, release_draft, subject_ref, created_at, updated_at, sent_at, settled_at';
 
   void insert(QueuedCommand command) {
     _database.execute(
-      'INSERT INTO queued_command ($_columns) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO queued_command ($_columns) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       _values(command),
     );
   }
@@ -146,6 +146,7 @@ final class CommandRepository {
         c.resultRef,
         c.draftId,
         c.releaseDraft ? 1 : 0,
+        c.subjectRef,
         c.createdAt,
         c.updatedAt,
         c.sentAt,
@@ -179,6 +180,7 @@ final class CommandRepository {
       resultRef: row['result_ref'] as String?,
       draftId: row['draft_id'] as String?,
       releaseDraft: (row['release_draft'] as int) == 1,
+      subjectRef: row['subject_ref'] as String?,
       createdAt: row['created_at'] as int,
       updatedAt: row['updated_at'] as int,
       sentAt: row['sent_at'] as int?,

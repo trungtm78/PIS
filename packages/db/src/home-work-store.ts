@@ -14,6 +14,7 @@ import { HomeVendorSources } from './home-vendor-sources.ts';
 import { HomeContractRegisterSources } from './home-contract-register-sources.ts';
 import { HomeGov11Sources } from './home-gov11-sources.ts';
 import { HomeRiskCommitteeSources } from './home-risk-committee-sources.ts';
+import { HomePwfSources } from './home-pwf-sources.ts';
 import { HomeDirectiveSources } from './home-directive-sources.ts';
 import { HomeAlertFeedbackSources } from './home-alert-feedback-sources.ts';
 import { HomeGov10Sources } from './home-gov10-sources.ts';
@@ -158,6 +159,7 @@ export class HomeWorkStore {
   private readonly feedback = new HomeAlertFeedbackSources();
   private readonly gov11 = new HomeGov11Sources();
   private readonly riskCommittee = new HomeRiskCommitteeSources();
+  private readonly pwfTasks = new HomePwfSources();
   private readonly clocks = new HomeClockSources();
   private readonly actions = new HomeWorkActionStore();
   private readonly policies = new WorkPolicyReader();
@@ -224,6 +226,7 @@ export class HomeWorkStore {
       ['LESSONS_LEARNED', () => this.gov11.lessonsMissing(context)],
       ['PROJECT_RISK', () => this.riskCommittee.projectRisk(context)],
       ['COMMITTEE', () => this.riskCommittee.committee(context)],
+      ['PROJECT_TASK', () => this.pwfTasks.items(context)],
     ];
     const read: SourceRow[][] = [];
     const unavailableSources: WorkSource[] = [];
@@ -314,7 +317,9 @@ export class HomeWorkStore {
         calendars,
       });
       row.clocks = clocks;
-      row.reminders = { ...reminder, sent: summary?.sent ?? 0, lastAt: summary?.lastAt ?? null };
+      // The tasks of a workflow are reminded at the points of their deadline rule (the pass of the reminder job over `project_task_reminder`), not by the cadence of the severity: the cadence never says one is due.
+      const cadence = row.kind === 'PWF_TASK_DUE_SOON' || row.kind === 'PWF_TASK_OVERDUE' ? { ...reminder, due: false, nextAt: null } : reminder;
+      row.reminders = { ...cadence, sent: summary?.sent ?? 0, lastAt: summary?.lastAt ?? null };
       row.notices = notices.get(key) ?? [];
       row.existingClock = EXISTING_CLOCKS.find((clock) => clock.source === row.source) ?? null;
       row.policyVersion = policies.versions.clock;

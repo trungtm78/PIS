@@ -10,6 +10,8 @@ import 'package:machvon_api_client/machvon_api_client.dart';
 import 'package:machvon_mobile/core/connectivity/reachability.dart';
 import 'package:machvon_mobile/core/navigation/feature.dart';
 import 'package:machvon_mobile/core/session/session.dart';
+import 'package:machvon_mobile/core/widgets/filter_chips.dart';
+import 'package:machvon_mobile/core/widgets/nav_row.dart' show SwitchRow;
 import 'package:machvon_mobile/features/conversations/conversation_models.dart' show ConversationStatus;
 import 'package:machvon_mobile/features/conversations/conversation_rules.dart';
 import 'package:machvon_mobile/features/conversations/conversations_feature.dart' as conversations;
@@ -74,14 +76,14 @@ void main() {
       expect(find.text('Bên ngoài · Zalo'), findsOneWidget);
       expect(find.text('Tổ giải phóng mặt bằng'), findsOneWidget);
       expect(find.text('Nội bộ'), findsOneWidget, reason: 'the internal conversation is labelled in the list');
-      expect(find.text('Đang xử lý'), findsOneWidget);
-      expect(find.text('Mới'), findsOneWidget);
+      expect(find.descendant(of: find.byType(TappableRow), matching: find.text('Đang xử lý')), findsOneWidget);
+      expect(find.descendant(of: find.byType(TappableRow), matching: find.text('Mới')), findsOneWidget);
       expect(find.text('Trần Thị Bình · Ban QLDA giao thông'), findsOneWidget);
       expect(find.text('Chưa giao'), findsOneWidget);
       expect(find.textContaining('Trả lời tự do đến 04/11/2026 09:00'), findsOneWidget, reason: 'the window in Vietnam time, as the server gave it');
       expect(find.text('3 tin'), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp('Nguyễn Văn An, Bên ngoài · Zalo, Đang xử lý')), findsOneWidget);
-      expect(find.byType(SwitchListTile), findsOneWidget, reason: 'the only switch is the filter');
+      expect(find.byType(SwitchRow), findsOneWidget, reason: 'the only switch is the filter');
     });
 
     testWidgets('the list asks only for what the person chose; the scope is the server\'s: the phone adds no queue of its own', (WidgetTester tester) async {
@@ -91,13 +93,13 @@ void main() {
       final HttpCall first = server.callsTo('GET', '/resources/conversation').single;
       expect(first.url.queryParameters, <String, String>{'limit': '50'});
 
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchRow));
       await tester.pumpAndSettle();
       expect(server.callsTo('GET', '/resources/conversation').last.url.queryParameters, <String, String>{'limit': '50', 'mine': 'true'});
 
-      await tester.tap(find.byType(DropdownButtonFormField<ConversationStatus?>));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Chờ người liên hệ').last);
+      final Finder chip = find.descendant(of: find.byType(FilterChips<ConversationStatus?>), matching: find.text('Chờ người liên hệ'));
+      await tester.ensureVisible(chip);
+      await tester.tap(chip);
       await tester.pumpAndSettle();
       expect(server.callsTo('GET', '/resources/conversation').last.url.queryParameters, <String, String>{'limit': '50', 'mine': 'true', 'status': 'PendingCustomer'});
     });
@@ -108,7 +110,7 @@ void main() {
       server.on('GET', '/resources/conversation', (HttpCall call) => call.url.queryParameters.containsKey('mine') ? page(<Map<String, Object?>>[]) : page(<Map<String, Object?>>[conversationJson(idZalo)]));
       await _open(tester, server, '/inbox/mob-35');
 
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchRow));
       await tester.pumpAndSettle();
       expect(find.text('Chưa có dữ liệu'), findsOneWidget);
       expect(find.text('Chỉ hội thoại giao cho tôi'), findsWidgets);
@@ -191,7 +193,7 @@ void main() {
       expect(find.textContaining('Hội thoại nội bộ: chỉ đồng nghiệp trong hệ thống thấy'), findsOneWidget);
       expect(find.textContaining('Ghi chú nội bộ, không gửi ra ngoài'), findsWidgets);
       expect(find.text('Hội thoại nội bộ: chỉ ghi chú cho đồng nghiệp được, không gửi ra ngoài.'), findsOneWidget);
-      expect(find.byType(SwitchListTile), findsNothing, reason: 'nothing to switch: it is only ever a note');
+      expect(find.byType(SwitchRow), findsNothing, reason: 'nothing to switch: it is only ever a note');
       expect(find.text('Mục đích'), findsNothing);
       expect(find.textContaining('Gửi cho'), findsNothing);
       expect(find.text('Lưu ghi chú nội bộ'), findsOneWidget);
@@ -220,7 +222,7 @@ void main() {
 
       expect(find.text('Bên ngoài · Zalo'), findsWidgets);
       expect(find.textContaining('Ứng dụng chưa bật trả lời ra ngoài'), findsOneWidget);
-      expect(find.byType(SwitchListTile), findsNothing);
+      expect(find.byType(SwitchRow), findsNothing);
       expect(find.text('Lưu ghi chú nội bộ'), findsOneWidget);
       expect(find.textContaining('Gửi cho'), findsNothing);
     });
@@ -229,7 +231,7 @@ void main() {
       useDevice(tester, kTallDevice);
       await _open(tester, conversationServer(conversation: conversationJson(idZalo, status: 'New', assignee: null)), _thread);
       expect(find.textContaining('chưa có người xử lý hoặc đã giải quyết'), findsOneWidget);
-      expect(find.byType(SwitchListTile), findsNothing);
+      expect(find.byType(SwitchRow), findsNothing);
 
       await _open(tester, conversationServer(conversation: conversationJson(idZalo, status: 'Closed')), _thread);
       expect(find.text('Hội thoại đã đóng: không ghi thêm gì được.'), findsOneWidget);
@@ -298,7 +300,7 @@ void main() {
       server.on('POST', '/conversations/$idZalo/messages', (_) => accepted(status: 'RECORDED'), status: 202);
       await _open(tester, server, _thread);
 
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(find.byType(SwitchRow));
       await tester.pumpAndSettle();
       expect(find.text('Mục đích'), findsNothing);
       expect(find.textContaining('không bao giờ được gửi cho người liên hệ'), findsOneWidget);
@@ -651,7 +653,7 @@ void main() {
       await _open(tester, server, '/inbox/mob-36/$idResolved');
 
       expect(find.widgetWithText(OutlinedButton, 'Đánh dấu đã giải quyết'), findsNothing);
-      expect(find.byType(SwitchListTile), findsNothing);
+      expect(find.byType(SwitchRow), findsNothing);
       await tester.tap(find.widgetWithText(OutlinedButton, 'Mở lại hội thoại'));
       await tester.pumpAndSettle();
       await _type(tester, 'Lý do (10 đến 2000 ký tự)', 'Người dân hỏi thêm');

@@ -4,12 +4,18 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/machvon_semantic.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/status_pill.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../project_views/project_models.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/paged.dart';
-import '../../read_support/widgets.dart';
 import '../../read_support/wire.dart';
 import '../clearance_models.dart';
 import '../clearance_support.dart';
@@ -52,122 +58,138 @@ Future<Object?> readHouseholdTask(MachvonApiClient client, String projectId, Str
   };
 }
 
-class _ProjectsScreen extends StatelessWidget {
+/// An empty list is drawn here and not by the read, so the state carries the action that may fix it (read again).
+Widget _empty(BuildContext context, VoidCallback reload) => StateView(kind: StateKind.empty, actionLabel: context.t('mob.states.retry.action'), onAction: reload);
+
+class _ProjectsScreen extends StatefulWidget {
   const _ProjectsScreen();
 
   @override
+  State<_ProjectsScreen> createState() => _ProjectsScreenState();
+}
+
+class _ProjectsScreenState extends State<_ProjectsScreen> {
+  int _reload = 0;
+
+  @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.clearance.projects.title'),
       body: DataView<ProjectRegister>(
         cacheKey: 'clearance.projects',
+        reloadKey: _reload,
         read: (MachvonApiClient client) => readMerged(client, 'get_resources_project', query: <String, Object?>{'limit': 200}),
         parse: parseProjectRegister,
         asOf: (ProjectRegister register) => register.asOf,
-        isEmpty: (ProjectRegister register) => register.projects.isEmpty,
-        builder: (BuildContext context, Loaded<ProjectRegister> loaded) => ListView(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
-              child: Text(context.t('mob.clearance.projects.intro'), style: Theme.of(context).textTheme.bodyMedium),
-            ),
-            for (final ProjectLine project in loaded.value.projects)
-              TappableRow(
-                semanticLabel: context.t('mob.clearance.projects.row.aria', <String, Object>{'code': project.code, 'name': project.name}),
-                onTap: () => openScreen(context, 'MOB-68', query: <String, String>{'project': project.id}, stacked: true),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(project.code, style: Theme.of(context).textTheme.bodyLarge),
-                          Text(project.name, style: Theme.of(context).textTheme.bodyMedium),
-                        ],
-                      ),
-                    ),
-                    const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-                  ],
-                ),
+        builder: (BuildContext context, Loaded<ProjectRegister> loaded) {
+          final List<ProjectLine> projects = loaded.value.projects;
+          if (projects.isEmpty) return _empty(context, () => setState(() => _reload += 1));
+          return ListView(
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s16),
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(MachvonV2Space.s16),
+                child: Text(context.t('mob.clearance.projects.intro'), style: context.v2text.body.copyWith(color: context.v2.palette.ink2)),
               ),
-          ],
-        ),
+              for (int index = 0; index < projects.length; index += 1)
+                WorkRow(
+                  title: projects[index].code,
+                  subtitle: projects[index].name,
+                  trailing: const Align(alignment: Alignment.centerRight, child: ExcludeSemantics(child: Icon(Icons.chevron_right))),
+                  dividerAbove: index > 0,
+                  semanticLabel: context.t('mob.clearance.projects.row.aria', <String, Object>{'code': projects[index].code, 'name': projects[index].name}),
+                  onTap: () => openScreen(context, 'MOB-68', query: <String, String>{'project': projects[index].id}, stacked: true),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class _HouseholdsScreen extends StatelessWidget {
+class _HouseholdsScreen extends StatefulWidget {
   const _HouseholdsScreen({required this.projectId});
 
   final String projectId;
 
   @override
+  State<_HouseholdsScreen> createState() => _HouseholdsScreenState();
+}
+
+class _HouseholdsScreenState extends State<_HouseholdsScreen> {
+  int _reload = 0;
+
+  @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.clearance.households.title'),
       body: DataView<HouseholdRegister>(
-        cacheKey: 'clearance.households.$projectId',
-        read: (MachvonApiClient client) => readHouseholdRegister(client, projectId),
+        cacheKey: 'clearance.households.${widget.projectId}',
+        reloadKey: _reload,
+        read: (MachvonApiClient client) => readHouseholdRegister(client, widget.projectId),
         parse: parseHouseholdRegister,
         asOf: (HouseholdRegister register) => register.asOf,
-        isEmpty: (HouseholdRegister register) => register.households.isEmpty,
-        builder: (BuildContext context, Loaded<HouseholdRegister> loaded) => ListView(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
-              child: Text(context.t('mob.clearance.households.privacy'), style: Theme.of(context).textTheme.bodyMedium),
-            ),
-            for (final Household household in loaded.value.households) _HouseholdRow(projectId: projectId, household: household),
-            if (loaded.value.more)
+        builder: (BuildContext context, Loaded<HouseholdRegister> loaded) {
+          if (loaded.value.households.isEmpty) return _empty(context, () => setState(() => _reload += 1));
+          // The households are grouped by where their work stands, in the order of the life of a household, so the officer finds those still to count first.
+          final List<Widget> rows = <Widget>[];
+          for (final String status in householdStatuses) {
+            final List<Household> group = <Household>[for (final Household household in loaded.value.households) if (household.status == status) household];
+            if (group.isEmpty) continue;
+            rows.add(GroupHeader(title: householdStatusLabel(context, status), count: group.length));
+            for (int index = 0; index < group.length; index += 1) {
+              rows.add(_HouseholdRow(projectId: widget.projectId, household: group[index], dividerAbove: index > 0));
+            }
+          }
+          return ListView(
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s16),
+            children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(MachvonSpace.space16),
-                child: Text(context.t('mob.clearance.households.more'), style: Theme.of(context).textTheme.bodySmall),
+                padding: const EdgeInsets.all(MachvonV2Space.s16),
+                child: Text(context.t('mob.clearance.households.privacy'), style: context.v2text.body.copyWith(color: context.v2.palette.ink2)),
               ),
-          ],
-        ),
+              ...rows,
+              if (loaded.value.more)
+                Padding(
+                  padding: const EdgeInsets.all(MachvonV2Space.s16),
+                  child: Text(context.t('mob.clearance.households.more'), style: context.v2text.caption),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
 class _HouseholdRow extends StatelessWidget {
-  const _HouseholdRow({required this.projectId, required this.household});
+  const _HouseholdRow({required this.projectId, required this.household, required this.dividerAbove});
 
   final String projectId;
   final Household household;
+  final bool dividerAbove;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final String status = householdStatusLabel(context, household.status);
     final String parcels = household.parcels.isEmpty
         ? context.t('mob.clearance.households.row.noParcel')
         : context.t('mob.clearance.households.row.parcels', <String, Object>{'codes': household.parcels.map((HouseholdParcel p) => p.parcelCode).join(', ')});
-    return TappableRow(
-      semanticLabel: context.t('mob.clearance.households.row.aria', <String, Object>{'code': household.code, 'status': status, 'parcels': parcels}),
-      onTap: () => openScreen(context, 'MOB-68', query: <String, String>{'project': projectId, 'household': household.id}, stacked: true),
-      child: Row(
+    return WorkRow(
+      title: context.t('mob.clearance.households.row.code', <String, Object>{'code': household.code}),
+      subtitle: parcels,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(context.t('mob.clearance.households.row.code', <String, Object>{'code': household.code}), style: theme.textTheme.bodyLarge),
-                Text(parcels, style: theme.textTheme.bodyMedium),
-                Wrap(
-                  spacing: MachvonSpace.space8,
-                  children: <Widget>[
-                    StatusPill(label: status),
-                    if (!household.workable) StatusPill(label: context.t('mob.clearance.households.row.restricted'), warn: true),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          if (!household.workable) Flexible(child: StatusPill(label: context.t('mob.clearance.households.row.restricted'), tone: MachvonTone.warning)),
           const ExcludeSemantics(child: Icon(Icons.chevron_right)),
         ],
       ),
+      dividerAbove: dividerAbove,
+      semanticLabel: context.t('mob.clearance.households.row.aria', <String, Object>{'code': household.code, 'status': status, 'parcels': parcels}),
+      onTap: () => openScreen(context, 'MOB-68', query: <String, String>{'project': projectId, 'household': household.id}, stacked: true),
     );
   }
 }
@@ -187,7 +209,7 @@ class _TaskScreenState extends State<_TaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.clearance.task.title'),
       body: DataView<HouseholdTask>(
         cacheKey: 'clearance.task.${widget.householdId}',

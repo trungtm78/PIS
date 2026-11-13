@@ -55,6 +55,7 @@ export const PERMISSIONS = {
   taskAssign: 'pwf.task.assign',
   schedulePropose: 'pwf.schedule.propose',
   scheduleApprove: 'pwf.schedule.approve',
+  preferenceOwn: 'pwf.preference.own',
 } as const;
 export type PwfPermission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
@@ -89,6 +90,7 @@ export const PATHS = {
   board: '/pwf/pwf-07',
   bandPolicy: '/pwf/pwf-08',
   assignments: '/pwf/pwf-16',
+  preference: '/pwf/pwf-15',
   project: '/prj/prj-03',
   ruleDiff: '/adm/adm-22',
   ruleDraft: '/adm/adm-21',

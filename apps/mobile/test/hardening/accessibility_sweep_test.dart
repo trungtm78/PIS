@@ -84,12 +84,12 @@ void main() {
   final List<({String screenId, String location})> screens = _registeredScreens();
 
   group('AC-ST-MOB-040-1 UAT-NFR-ACCESSIBILITY-02 the registry: every screen of the catalogue is implemented', () {
-    test('NAV-02 FIXED: all 82 screens of the navigation (77 MOB, QMS-09, QMS-10, DOC-22, DOC-23, DIR-06) are registered, the four web screens QMS-09, QMS-10, DOC-22 and DOC-23 and DIR-06 included', () {
+    test('NAV-02 FIXED: all 87 screens of the navigation (82 MOB, QMS-09, QMS-10, DOC-22, DOC-23, DIR-06) are registered, the four web screens QMS-09, QMS-10, DOC-22 and DOC-23 and DIR-06 included', () {
       final Set<String> registered = screens.map((s) => s.screenId).toSet();
       expect(screens, hasLength(registered.length), reason: 'a screen is registered once');
       final Set<String> missing = kMobileRoutes.map((MobileRoute r) => r.id).toSet().difference(registered);
       expect(missing, isEmpty);
-      expect(registered, hasLength(82));
+      expect(registered, hasLength(87));
       expect(registered, containsAll(<String>['QMS-09', 'QMS-10', 'DOC-22', 'DOC-23', 'DIR-06']));
     });
 

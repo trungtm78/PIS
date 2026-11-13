@@ -822,6 +822,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'getSodException': asObject,
   'getSodMatrix': asObject,
   'getStaffScoreLine': StaffScoreLineResponse.fromJson,
+  'getStaffScoreOverview': StaffScoreOverviewResponse.fromJson,
   'getStaffScorePeriod': StaffScorePeriodResponse.fromJson,
   'getSteeringMeeting': DirSteeringMeetingDetailResponse.fromJson,
   'getSubmissionProgress': DisSubmissionProgressResponse.fromJson,
@@ -66377,6 +66378,102 @@ final class StaffScoreLineResponseResponsesItem implements ResponseModel {
       };
 }
 
+final class StaffScoreOverviewResponse implements ResponseModel {
+  const StaffScoreOverviewResponse({
+    required this.periodId,
+    required this.units,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory StaffScoreOverviewResponse.fromJson(Object? json, [String path = 'StaffScoreOverviewResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return StaffScoreOverviewResponse(
+      periodId: requiredField(map, path, 'period_id', asString),
+      units: requiredField(map, path, 'units', asList(StaffScoreOverviewResponseUnitsItem.fromJson)),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'period_id', 'units', 'as_of'}, strict: true),
+    );
+  }
+
+  final String periodId;
+  final List<StaffScoreOverviewResponseUnitsItem> units;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'period_id': periodId,
+        'units': units.map((e0) => e0.toJson()).toList(),
+        'as_of': asOf,
+        ...extra,
+      };
+}
+
+final class StaffScoreOverviewResponseUnitsItem implements ResponseModel {
+  const StaffScoreOverviewResponseUnitsItem({
+    required this.unitId,
+    required this.unitCode,
+    required this.unitName,
+    required this.people,
+    required this.rated,
+    required this.smallSample,
+    required this.notRated,
+    required this.meanScore,
+    required this.adjustedCount,
+    required this.openResponseCount,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory StaffScoreOverviewResponseUnitsItem.fromJson(Object? json, [String path = 'StaffScoreOverviewResponseUnitsItem']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return StaffScoreOverviewResponseUnitsItem(
+      unitId: requiredField(map, path, 'unit_id', asString),
+      unitCode: requiredField(map, path, 'unit_code', asString),
+      unitName: requiredField(map, path, 'unit_name', asString),
+      people: requiredField(map, path, 'people', asInt),
+      rated: requiredField(map, path, 'rated', asInt),
+      smallSample: requiredField(map, path, 'small_sample', asInt),
+      notRated: requiredField(map, path, 'not_rated', asInt),
+      meanScore: requiredField(map, path, 'mean_score', nullable(asNum)),
+      adjustedCount: requiredField(map, path, 'adjusted_count', asInt),
+      openResponseCount: requiredField(map, path, 'open_response_count', asInt),
+      extra: unknownFields(map, path, const <String>{'unit_id', 'unit_code', 'unit_name', 'people', 'rated', 'small_sample', 'not_rated', 'mean_score', 'adjusted_count', 'open_response_count'}, strict: true),
+    );
+  }
+
+  final String unitId;
+  final String unitCode;
+  final String unitName;
+  final int people;
+  final int rated;
+  final int smallSample;
+  final int notRated;
+  final num? meanScore;
+  final int adjustedCount;
+  final int openResponseCount;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'unit_id': unitId,
+        'unit_code': unitCode,
+        'unit_name': unitName,
+        'people': people,
+        'rated': rated,
+        'small_sample': smallSample,
+        'not_rated': notRated,
+        'mean_score': meanScore,
+        'adjusted_count': adjustedCount,
+        'open_response_count': openResponseCount,
+        ...extra,
+      };
+}
+
 final class StaffScorePeriodExportResponse implements ResponseModel {
   const StaffScorePeriodExportResponse({
     required this.fileName,
@@ -66549,7 +66646,7 @@ final class StaffScorePeriodResponse implements ResponseModel {
       periodTo: requiredField(map, path, 'period_to', asString),
       status: requiredField(map, path, 'status', asString),
       policyCode: requiredField(map, path, 'policy_code', asString),
-      policyRuleId: requiredField(map, path, 'policy_rule_id', asString),
+      policyRuleId: requiredField(map, path, 'policy_rule_id', nullable(asString)),
       policyVersion: requiredField(map, path, 'policy_version', asInt),
       snapshotHash: requiredField(map, path, 'snapshot_hash', nullable(asString)),
       lockedBy: requiredField(map, path, 'locked_by', nullable(asString)),
@@ -66572,7 +66669,7 @@ final class StaffScorePeriodResponse implements ResponseModel {
   final String periodTo;
   final String status;
   final String policyCode;
-  final String policyRuleId;
+  final String? policyRuleId;
   final int policyVersion;
   final String? snapshotHash;
   final String? lockedBy;

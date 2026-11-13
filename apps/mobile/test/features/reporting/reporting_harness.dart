@@ -14,7 +14,9 @@ import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/backoff.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
 import 'package:machvon_mobile/core/offline/store/local_store.dart';
+import 'package:machvon_mobile/core/widgets/info_row.dart';
 import 'package:machvon_mobile/features/attachments/attachments_feature.dart' as attachments;
+import 'package:machvon_mobile/features/field_evidence/field_evidence_feature.dart' as field_evidence;
 import 'package:machvon_mobile/features/offline/offline_feature.dart' as offline;
 import 'package:machvon_mobile/features/read_support/clock.dart';
 import 'package:machvon_mobile/features/read_support/read_support_feature.dart' as read_support;
@@ -249,7 +251,7 @@ class ReportingApp {
     await store;
     container = await pumpApp(
       tester,
-      features: <MobileFeature>[read_support.feature, attachments.feature, offline.feature, reporting.feature],
+      features: <MobileFeature>[read_support.feature, attachments.feature, offline.feature, field_evidence.feature, reporting.feature],
       session: session,
       locale: locale,
       location: location,
@@ -377,4 +379,4 @@ Future<String> newDraft(ReportingApp app, {bool onServer = true, ReportForm Func
 
 /// A label and its value on a screen: a line of facts, or a figure of a [KpiTile] (the headline figures of a block).
 Finder fact(String label, String value) =>
-    find.byWidgetPredicate((Widget w) => (w is FactLine && w.label == label && w.value == value) || (w is KpiTile && w.label == label && w.value == value), description: '$label: $value');
+    find.byWidgetPredicate((Widget w) => (w is InfoRow && w.label == label && w.value == value) || (w is FactLine && w.label == label && w.value == value) || (w is KpiTile && w.label == label && w.value == value), description: '$label: $value');

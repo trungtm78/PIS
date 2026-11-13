@@ -147,8 +147,18 @@ final class _Rig {
 Finder _start() => find.widgetWithText(FilledButton, 'Bắt đầu ký');
 Finder _confirm() => find.widgetWithText(FilledButton, 'Xác nhận và ký');
 
+/// Taps "Xác nhận và ký", then the confirmation of the sheet that says what the signature does (it opens once the code, when one is typed, is there).
+Future<void> _signNow(WidgetTester tester) async {
+  await tester.tap(_confirm());
+  await tester.pumpAndSettle();
+  final Finder sheet = find.widgetWithText(FilledButton, 'Ký văn bản này');
+  if (sheet.evaluate().isEmpty) return;
+  await tester.tap(sheet);
+  await tester.pumpAndSettle();
+}
+
 /// The button as it stands while a signing step is on: its label changes to "sending", so it is found by what it is and not by the label.
-Finder _button(List<String> labels) => find.byWidgetPredicate((Widget widget) => widget is FilledButton && widget.child is Text && labels.contains((widget.child! as Text).data));
+Finder _button(List<String> labels) => find.byWidgetPredicate((Widget widget) => widget is FilledButton && labels.any((String label) => find.descendant(of: find.byWidget(widget), matching: find.text(label)).evaluate().isNotEmpty));
 Finder _confirmNow() => _button(<String>['Xác nhận và ký', 'Đang gửi…']);
 Finder _startNow() => _button(<String>['Bắt đầu ký', 'Đang gửi…']);
 
@@ -171,7 +181,7 @@ void main() {
       expect(started.body, contains('"certificate_id":"cert-1"'));
       expect(find.widgetWithText(TextField, 'Mã xác nhận (OTP)'), findsNothing, reason: 'the SDK signs by itself, no code is typed');
 
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(gate.asked, 1, reason: 'the credential is unlocked first');
       expect(sdk.signed, <String>[kDigest], reason: 'only the digest is given to the SDK, never the document');
@@ -194,7 +204,7 @@ void main() {
       await _open(tester, rig.server, FakeSdk(), _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.textContaining('KHÔNG phải chủ chứng thư đã đăng ký'), findsOneWidget);
       expect(find.text('Người ký trên chữ ký là chủ chứng thư đã đăng ký cho bạn.'), findsNothing);
@@ -207,7 +217,7 @@ void main() {
       await _open(tester, rig.server, sdk, _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.textContaining('không phải chứng thư đã đăng ký cho bạn'), findsOneWidget);
       expect(rig.completions, 0);
@@ -222,7 +232,7 @@ void main() {
       await _open(tester, rig.server, sdk, _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.textContaining('khác với nội dung máy chủ đã chốt'), findsOneWidget);
       expect(rig.completions, 0);
@@ -257,7 +267,7 @@ void main() {
       await _open(tester, rig.server, sdk, _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.textContaining('không phải chứng thư đã đăng ký cho bạn'), findsOneWidget);
       expect(rig.completions, 0);
@@ -280,7 +290,7 @@ void main() {
       await _open(tester, rig.server, sdk, _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(sdk.signed, hasLength(1));
       expect(rig.completions, 0);
@@ -299,7 +309,7 @@ void main() {
       await tester.pumpAndSettle();
 
       gate.hold = Completer<bool>();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pump();
       expect(tester.widget<FilledButton>(_confirmNow()).onPressed, isNull, reason: 'the interaction is on from the first tap, not only once the request is on its way');
       await tester.tap(_confirmNow(), warnIfMissed: false);
@@ -322,7 +332,7 @@ void main() {
       await tester.pumpAndSettle();
 
       sdk.holdSigning = Completer<void>();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pump();
       expect(tester.widget<FilledButton>(_confirmNow()).onPressed, isNull);
       await tester.tap(_confirmNow(), warnIfMissed: false);
@@ -381,7 +391,7 @@ void main() {
       await _open(tester, rig.server, sdk, _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.textContaining('đã bị thu hồi, hết hạn hoặc bị tạm dừng'), findsOneWidget);
       expect(rig.completions, 0);
@@ -428,7 +438,7 @@ void main() {
       await _open(tester, rig.server, sdk, _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
 
       expect(find.text('Bộ ký số của nhà cung cấp chưa dùng được lúc này.'), findsOneWidget);
@@ -452,7 +462,7 @@ void main() {
       await _open(tester, rig.server, sdk, _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.text('Bộ ký số gặp lỗi nên chưa ký được.'), findsOneWidget);
       expect(find.widgetWithText(OutlinedButton, 'Thử lại'), findsOneWidget);
@@ -466,7 +476,7 @@ void main() {
       await _open(tester, rig.server, FakeSdk(), _Gate());
       await tester.tap(_start());
       await tester.pumpAndSettle();
-      await tester.tap(_confirm());
+      await _signNow(tester);
       await tester.pumpAndSettle();
       expect(find.text('PROVIDER_UNAVAILABLE'), findsOneWidget);
       expect(find.text('Kết quả ký'), findsNothing);

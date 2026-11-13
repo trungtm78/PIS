@@ -26,6 +26,8 @@ export const BUSINESS_TYPES: readonly BusinessTypeSpec[] = [
   { code: 'document.review', documentType: 'DOCUMENT_REVIEW', commands: { APPROVED: 'approveDocumentReview', RETURNED: 'requestDocumentSupplement', REJECTED: 'rejectDocumentReview' }, ownerModule: 'DOC', enabledByDefault: false },
   { code: 'fnd.figures.accept', documentType: 'FND_FIGURE_ACCEPT', commands: { APPROVED: 'acceptFundingFigures', RETURNED: 'returnFundingFigures', REJECTED: 'rejectFundingFigures' }, ownerModule: 'FND', enabledByDefault: false },
   { code: 'ind.entry.accept', documentType: 'IND_ENTRY_ACCEPT', commands: { APPROVED: 'acceptIndicatorEntry', RETURNED: 'returnIndicatorEntry', REJECTED: 'rejectIndicatorEntry' }, ownerModule: 'IND', enabledByDefault: false },
+  // PWF-3 (R43): the response of a person to their score, handled by the approvers of the tenant when it published a workflow for the type; without one a person with `staff_score.approve` handles it directly.
+  { code: 'score.response', documentType: 'STAFF_SCORE_RESPONSE', commands: { APPROVED: 'upholdStaffScoreResponse', RETURNED: 'returnStaffScoreResponse', REJECTED: 'keepStaffScore' }, ownerModule: 'PWF', enabledByDefault: false },
 ];
 
 export const businessTypeOf = (code: string): BusinessTypeSpec | undefined => BUSINESS_TYPES.find((type) => type.code === code);

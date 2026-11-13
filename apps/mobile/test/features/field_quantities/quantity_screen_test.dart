@@ -175,7 +175,9 @@ void main() {
       await tapText(tester, 'Lưu khối lượng');
       final CommandQueue queue = await _queue(tester, world);
       await waitUntil(tester, () async => queue.commands().isNotEmpty);
-      await tapText(tester, 'Lưu khối lượng');
+      await settleReal(tester, rounds: 6);
+      // The queue has met no network, so the bar now says that the save waits for one.
+      await tapText(tester, 'Lưu, gửi khi có mạng');
       expect(queue.commands().where((QueuedCommand c) => c.commandType == kMeasurementRecordCommand), hasLength(1));
       expect(find.text('Cần nhập mục này.'), findsWidgets, reason: 'the empty form is not a second record');
     });
@@ -296,7 +298,7 @@ void main() {
       final DraftStore store = (await tester.runAsync(() => world.container.read(draftStoreProvider.future)))!;
       expect(QuantityDraft.fromJson(store.list(kind: kQuantityDraftKind).single.fields)!.place.consent, isFalse, reason: 'the withdrawal is already written to the phone');
 
-      await settleReal(tester, rounds: 8);
+      await waitUntil(tester, () async => tester.widget<FilledButton>(save).onPressed != null);
       expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
       final QuantityDraft after = QuantityDraft.fromJson(store.list(kind: kQuantityDraftKind).single.fields)!;
       expect(readJpegMetadata(File(after.photos.single.path).readAsBytesSync()).carriesPlaceOrTime, isFalse);

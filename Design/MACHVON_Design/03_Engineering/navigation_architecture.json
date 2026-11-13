@@ -3,12 +3,12 @@
   "generatedFrom": "02_Prototype/workspace-navigation.js at runtime (hand-written groups + workspaceExtensions + workspaceSeeds + data-driven completion over screen_catalog.json)",
   "date": "2026-11-07",
   "coverage": {
-    "webRoutes": 594,
-    "webCatalog": 594,
-    "webModules": 38,
-    "mobileRoutes": 82,
-    "mobileCatalog": 82,
-    "modulesTotal": 39
+    "webRoutes": 611,
+    "webCatalog": 611,
+    "webModules": 40,
+    "mobileRoutes": 87,
+    "mobileCatalog": 87,
+    "modulesTotal": 40
   },
   "libraryGroups": [
     {
@@ -2621,13 +2621,47 @@
           "description": "Bảng deadline toàn danh mục và chính sách ngưỡng xanh, vàng, đỏ",
           "ids": [
             7,
-            8
+            8,
+            15
           ],
           "primary": [
             7
           ],
           "parents": {
-            "8": 7
+            "8": 7,
+            "15": 7
+          }
+        },
+        {
+          "title": "KPI và chính sách chấm điểm",
+          "description": "Bộ KPI của workflow và chính sách chấm điểm nhân viên, mỗi mục do người khác duyệt",
+          "ids": [
+            9,
+            10
+          ],
+          "primary": [
+            9
+          ],
+          "parents": {
+            "10": 9
+          }
+        },
+        {
+          "title": "Điểm của nhân viên",
+          "description": "Bảng điểm của tôi, bảng điểm đơn vị, chi tiết điểm và kỳ chấm điểm",
+          "ids": [
+            11,
+            12,
+            13,
+            14
+          ],
+          "primary": [
+            11,
+            12
+          ],
+          "parents": {
+            "13": 12,
+            "14": 12
           }
         }
       ]
@@ -3119,6 +3153,10 @@
       [
         8,
         "Chính sách ba màu"
+      ],
+      [
+        11,
+        "Bảng điểm của tôi"
       ]
     ]
   },
@@ -8642,6 +8680,76 @@
       "parent": "PWF-07"
     },
     {
+      "id": "PWF-09",
+      "title": "Bộ KPI workflow",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "KPI và chính sách chấm điểm",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-10",
+      "title": "Chính sách chấm điểm",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "KPI và chính sách chấm điểm",
+      "role": "detail",
+      "parent": "PWF-09"
+    },
+    {
+      "id": "PWF-11",
+      "title": "Bảng điểm của tôi",
+      "kind": "dashboard",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Điểm của nhân viên",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-12",
+      "title": "Bảng điểm đơn vị",
+      "kind": "table",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Điểm của nhân viên",
+      "role": "workspace",
+      "parent": null
+    },
+    {
+      "id": "PWF-13",
+      "title": "Chi tiết điểm",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Điểm của nhân viên",
+      "role": "detail",
+      "parent": "PWF-12"
+    },
+    {
+      "id": "PWF-14",
+      "title": "Kỳ chấm điểm",
+      "kind": "detail",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Điểm của nhân viên",
+      "role": "detail",
+      "parent": "PWF-12"
+    },
+    {
+      "id": "PWF-15",
+      "title": "Nhắc hạn của tôi",
+      "kind": "form",
+      "area": "investment",
+      "module": "PWF",
+      "group": "Hạn ba màu",
+      "role": "detail",
+      "parent": "PWF-07"
+    },
+    {
       "id": "DOC-24",
       "title": "Kho hồ sơ dự án",
       "kind": "table",
@@ -9747,22 +9855,22 @@
       "id": "MOB-41",
       "title": "Danh sách đồng bộ",
       "kind": "table",
-      "bottomNavigation": "projects",
-      "tabRoot": "MOB-09"
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
     },
     {
       "id": "MOB-42",
       "title": "Xử lý xung đột",
       "kind": "compare",
-      "bottomNavigation": "projects",
-      "tabRoot": "MOB-09"
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
     },
     {
       "id": "MOB-43",
       "title": "Mất kết nối",
       "kind": "offline",
-      "bottomNavigation": "projects",
-      "tabRoot": "MOB-09"
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
     },
     {
       "id": "MOB-44",
@@ -10036,6 +10144,41 @@
       "kind": "list",
       "bottomNavigation": "projects",
       "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-78",
+      "title": "Workflow dự án trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-79",
+      "title": "Chi tiết việc trên điện thoại",
+      "kind": "detail",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-80",
+      "title": "Việc của tôi theo hạn",
+      "kind": "list",
+      "bottomNavigation": "home",
+      "tabRoot": "MOB-07"
+    },
+    {
+      "id": "MOB-81",
+      "title": "Điểm KPI của tôi",
+      "kind": "dashboard",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-82",
+      "title": "Cài đặt nhắc hạn cá nhân",
+      "kind": "form",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
     }
   ]
 }

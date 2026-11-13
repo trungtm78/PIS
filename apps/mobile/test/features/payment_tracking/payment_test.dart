@@ -49,6 +49,13 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// Presses "Ghi nhận", then confirms in the sheet that says what will be written (nothing is sent before the confirmation).
+Future<void> _explainAndConfirm(WidgetTester tester) async {
+  await _tap(tester, _explain());
+  await tester.tap(find.widgetWithText(FilledButton, 'Xác nhận ghi nhận'));
+  await tester.pumpAndSettle();
+}
+
 Future<void> _choose(WidgetTester tester, String label) async {
   await _tap(tester, find.widgetWithText(DropdownButtonFormField<String>, 'Việc đã làm'));
   await tester.tap(find.text(label).last);
@@ -90,14 +97,14 @@ void main() {
       await _open(tester, server, _chain);
       expect(find.text('PR-B-001'), findsOneWidget);
 
-      await _tap(tester, find.widgetWithText(DropdownButtonFormField<String?>, 'Hợp đồng'));
-      await tester.tap(find.text('HD-A-002').last);
+      await tester.ensureVisible(find.text('HD-A-002'));
+      await tester.tap(find.text('HD-A-002'));
       await tester.pumpAndSettle();
       expect(find.text('PR-B-001'), findsOneWidget);
       expect(find.text('PR-A-001'), findsNothing);
 
-      await _tap(tester, find.widgetWithText(DropdownButtonFormField<String?>, 'Hợp đồng'));
-      await tester.tap(find.text('Tất cả hợp đồng').last);
+      await tester.ensureVisible(find.text('Tất cả hợp đồng'));
+      await tester.tap(find.text('Tất cả hợp đồng'));
       await tester.pumpAndSettle();
       expect(find.text('PR-A-001'), findsOneWidget);
     });
@@ -176,7 +183,7 @@ void main() {
       for (final (String location, Finder content, bool empty) in <(String, Finder, bool)>[
         ('/projects/mob-27', find.text('DA-001'), true),
         (_chain, find.text('PR-A-001'), false),
-        (_request, find.text('Số tiền (đồng nguyên)'), false),
+        (_request, find.text('PR-A-001'), false),
       ]) {
         await expectEveryState(
           tester,
@@ -230,13 +237,13 @@ void main() {
       expect(find.text('2'), findsOneWidget);
       expect(find.text('-10.000.000 đồng'), findsWidgets);
       expect(tester.getTopLeft(find.text('Thiếu xác nhận')).dy, lessThan(tester.getTopLeft(find.text('Lệch số tiền')).dy), reason: 'the late one first');
-      expect(find.text('Quá hạn'), findsOneWidget);
+      expect(find.text('Quá hạn'), findsNWidgets(2), reason: 'the summary says how many are late, and the late row carries the word itself');
       expect(find.text('Số nội bộ 1.000.000.000 đồng · Kho bạc xác nhận 990.000.000 đồng · chênh lệch -10.000.000 đồng'), findsOneWidget);
       expect(find.text('Số nội bộ 500.000.000 đồng · Kho bạc xác nhận chưa có số · chênh lệch chưa có số'), findsOneWidget);
       expect(find.text('DA-001 · PR-A-002 · CT-0201'), findsNWidgets(2));
       expect(find.text('Đã xử lý xong'), findsNothing, reason: 'only what waits, by default');
 
-      await tester.tap(find.text('Chỉ hạng mục đang chờ'));
+      await tester.tap(find.text('Tất cả'));
       await tester.pumpAndSettle();
       expect(find.text('Đã xử lý xong'), findsOneWidget);
 
@@ -320,7 +327,7 @@ void main() {
     testWidgets('every state is drawn and the contract of the board and of the item holds', (WidgetTester tester) async {
       for (final (String location, Finder content, bool empty) in <(String, Finder, bool)>[
         (_board, find.text('Lệch số tiền'), true),
-        (_item, find.text('Hai con số và chênh lệch'), false),
+        (_item, find.text('Lệch số tiền'), false),
       ]) {
         await expectEveryState(
           tester,
@@ -347,7 +354,7 @@ void main() {
 
       await _choose(tester, 'Giải trình nguyên nhân chênh lệch');
       await tester.enterText(_note(), '  Kho bạc trừ phí 10.000.000 theo thông báo TB-77  ');
-      await _tap(tester, _explain());
+      await _explainAndConfirm(tester);
 
       final HttpCall call = server.callsTo('POST', '/reconciliation-items/i-1/resolve').single;
       expect(call.headers['if-match'], '"4"');
@@ -357,6 +364,62 @@ void main() {
       expect(find.text('1.000.000.000 đồng'), findsOneWidget);
       expect(find.text('990.000.000 đồng'), findsOneWidget);
       expect(find.text('-10.000.000 đồng'), findsOneWidget);
+    });
+
+    testWidgets('the sheet says what will be written, the figures that stay and under whose name; "review again" sends nothing', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      await _open(tester, server, _item);
+      await _choose(tester, 'Giải trình nguyên nhân chênh lệch');
+      await tester.enterText(_note(), 'Phí');
+      await _tap(tester, _explain());
+
+      expect(find.text('Xác nhận ghi giải trình'), findsOneWidget);
+      expect(find.text('Việc đã làm: Giải trình nguyên nhân chênh lệch'), findsOneWidget);
+      expect(find.text('Lời ghi: Phí'), findsOneWidget);
+      expect(find.text('Hạng mục sẽ chuyển sang trạng thái: Đã giải trình'), findsOneWidget);
+      expect(find.textContaining('Số nội bộ 1.000.000.000 đồng · Kho bạc xác nhận 990.000.000 đồng'), findsWidgets);
+      expect(find.text('Thao tác được ghi vào nhật ký kiểm toán dưới tên bạn.'), findsOneWidget);
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Xem lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Xác nhận ghi giải trình'), findsNothing);
+      expect(server.calls.where((HttpCall call) => call.method == 'POST'), isEmpty);
+    });
+
+    testWidgets('R39 a version conflict is never overwritten: the item is read again, the note stays, and the new write is under the new version and a new key', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server);
+      int reads = 0;
+      server.on('GET', '/reconciliation-items/i-1', (_) {
+        reads += 1;
+        return reads == 1 ? item('i-1') : item('i-1', version: 5);
+      });
+      int attempt = 0;
+      server.answer('POST', '/reconciliation-items/i-1/resolve', (_) {
+        attempt += 1;
+        return attempt == 1 ? problem(409, 'VERSION_CONFLICT') : recorded('i-1', version: 6, status: 'EXPLAINED');
+      });
+      await _open(tester, server, _item);
+      await _choose(tester, 'Giải trình nguyên nhân chênh lệch');
+      await tester.enterText(_note(), 'Phí');
+      await _explainAndConfirm(tester);
+      expect(find.text('Có người đã thay đổi trong lúc đó. Hãy mở lại để đọc lại.'), findsOneWidget);
+      expect(server.callsTo('POST', '/reconciliation-items/i-1/resolve'), hasLength(1), reason: 'the refused write is not replayed behind the person');
+
+      await _tap(tester, find.text('Tải lại hạng mục'));
+      expect(reads, 2, reason: 'the item is read again from the server');
+      expect(find.text('VERSION_CONFLICT'), findsNothing);
+      expect(tester.widget<TextField>(_note()).controller!.text, 'Phí', reason: 'what the person wrote is still there');
+
+      await _choose(tester, 'Giải trình nguyên nhân chênh lệch');
+      await _explainAndConfirm(tester);
+      final List<HttpCall> calls = server.callsTo('POST', '/reconciliation-items/i-1/resolve');
+      expect(calls, hasLength(2));
+      expect(calls[0].headers['if-match'], '"4"');
+      expect(calls[1].headers['if-match'], '"5"', reason: 'the new write is made on the version that is there now');
+      expect(calls[1].headers['idempotency-key'], isNot(calls[0].headers['idempotency-key']));
     });
 
     testWidgets('only what the server offers is offered: no explain means no explanation, and an item that waits for nothing has no form', (WidgetTester tester) async {
@@ -409,7 +472,7 @@ void main() {
       await _open(tester, server, _item);
       await _choose(tester, 'Giải trình nguyên nhân chênh lệch');
       await tester.enterText(_note(), 'Phí');
-      await _tap(tester, _explain());
+      await _explainAndConfirm(tester);
       expect(find.text('Chưa xác định kết quả'), findsOneWidget);
       await _tap(tester, find.text('Gửi lại cùng thao tác'));
       final List<HttpCall> calls = server.callsTo('POST', '/reconciliation-items/i-1/resolve');
@@ -441,7 +504,7 @@ void main() {
         await _open(tester, server, _item);
         await _choose(tester, 'Giải trình nguyên nhân chênh lệch');
         await tester.enterText(_note(), 'Phí');
-        await _tap(tester, _explain());
+        await _explainAndConfirm(tester);
         expect(find.text(entry.value), findsOneWidget, reason: entry.key);
         expect(find.text(entry.key), findsOneWidget);
       }

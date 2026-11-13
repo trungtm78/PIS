@@ -138,6 +138,7 @@ class CommandQueue {
     CommandAttempt? attempt,
     String? draftId,
     bool releaseDraft = false,
+    String? subjectRef,
   }) {
     if (commandType.isEmpty) throw ArgumentError.value(commandType, 'commandType', 'is empty');
     if (baseServerVersion < 0) throw ArgumentError.value(baseServerVersion, 'baseServerVersion', 'is negative');
@@ -168,6 +169,7 @@ class CommandQueue {
       state: CommandState.queued,
       draftId: draftId,
       releaseDraft: releaseDraft,
+      subjectRef: subjectRef,
       createdAt: now,
       updatedAt: now,
     );
@@ -490,6 +492,41 @@ class CommandQueue {
     }
     return _renew(command, payload: payload, baseServerVersion: baseServerVersion);
   }
+
+  /// The person looked at a record as it is now and chose to send again a chain of their commands that waits on it. [plan] is given the commands of the queue as
+  /// they are when the queue is free (no flush is in the middle of a send) and returns, in the order they are to go, the commands of the chain with the version
+  /// each is now based on. Every command named that is in conflict or still queued gets that base and a new key (the old key is settled on the server as a conflict
+  /// and would answer from its receipt) and goes back to the queue; one in any other state is left as it is. The commands keep their place in the order they were
+  /// made in: nothing is dropped and made again, so there is no moment in which part of the chain is missing, and the whole change is one transaction that is kept
+  /// or undone together. The listeners are told after the commit; whoever wants the queue to send now calls the runner once this has returned. Returns the commands as
+  /// they are now.
+  Future<List<QueuedCommand>> rebaseChain(List<({String id, int baseServerVersion})> Function(List<QueuedCommand> commands) plan) => _serial(() async {
+        if (_disposed) return const <QueuedCommand>[];
+        final List<QueuedCommand> changed = <QueuedCommand>[];
+        final List<CommandState> before = <CommandState>[];
+        _store.transaction<void>(() {
+          for (final ({String id, int baseServerVersion}) step in plan(_store.commands.all())) {
+            final QueuedCommand? current = _store.commands.byId(step.id);
+            if (current == null || current.payload == null || (current.state != CommandState.conflict && current.state != CommandState.queued)) continue;
+            final String key = CommandAttempt.fresh(_newKey).key;
+            QueuedCommand change(QueuedCommand c) => c.copyWith(
+                  baseServerVersion: step.baseServerVersion,
+                  idempotencyKey: key,
+                  supersededKeys: <String>[...c.supersededKeys, c.idempotencyKey],
+                  attempts: 0,
+                  nextAttemptAt: 0,
+                  clearError: true,
+                  updatedAt: _now,
+                );
+            before.add(current.state);
+            changed.add(current.state == CommandState.conflict ? _store.commands.move(current.id, CommandState.queued, change) : _store.commands.update(current.id, change));
+          }
+        });
+        for (int index = 0; index < changed.length; index += 1) {
+          _announce(changed[index], before[index]);
+        }
+        return changed;
+      });
 
   // --------------------------------------------------------------------------------------------- transitions
 

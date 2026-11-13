@@ -110,6 +110,10 @@ export const WORK_KINDS = [
   'COMMITTEE_SECTOR_BEHIND',
   'COMMITTEE_UNIT_NOT_REPORTING',
   'COMMITTEE_DIRECTIVE_OVERDUE',
+  // The tasks of the project workflow (lane PWF-2): a task within the days of its three-colour policy, a task past its day, a milestone forecast past its baseline.
+  'PWF_TASK_DUE_SOON',
+  'PWF_TASK_OVERDUE',
+  'PWF_MILESTONE_AT_RISK',
 ] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
 export const BUCKETS = ['OVERDUE', 'NEAR', 'LATER'] as const;
@@ -236,6 +240,9 @@ export function pathOf(item: Pick<WorkItem, 'target'>): string | undefined {
       return `/pay/pay-12?advance=${item.target.id}`;
     case 'CAP-07':
       return `/cap/cap-07?proposal=${item.target.id}`;
+    // The tasks of the project workflow (lane PWF-2): the item names the task, whose detail opens by its id.
+    case 'PWF-04':
+      return `/pwf/pwf-04?id=${item.target.id}`;
     default:
       return undefined;
   }

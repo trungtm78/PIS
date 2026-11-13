@@ -11,19 +11,27 @@ import '../../../core/offline/attachments/attachment_policy.dart';
 import '../../../core/offline/attachments/attachment_uploader.dart';
 import '../../../core/offline/offline_providers.dart';
 import '../../../core/session/session.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/components.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/notice_panel.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../command_support/command_flow.dart';
 import '../../command_support/command_outcome.dart';
+import '../../command_support/field_widgets.dart';
 import '../../read_support/clock.dart';
 import '../../read_support/navigate.dart';
-import '../../read_support/widgets.dart';
 import '../clearance_commands.dart';
 import '../clearance_models.dart';
 import '../clearance_support.dart';
 import '../inventory_drafts.dart';
 import '../inventory_rules.dart';
+import 'household_views.dart';
 
 /// The body of the task of one household: who it is (by code), the parcels, the inventory counted and its answer, the record being
-/// typed and the ones kept on the phone, the photos of the site and the appointments.
+/// typed and the ones kept on the phone, the photos of the site and the appointments. The bar at the foot is the one action of the moment:
+/// recording the answer of the household while one is open, else keeping or sending the count being typed.
 class HouseholdTaskBody extends ConsumerStatefulWidget {
   const HouseholdTaskBody({required this.task, required this.fromCopy, required this.onChanged, super.key});
 
@@ -231,11 +239,12 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
   Widget _outcome(BuildContext context, CommandOutcome result) {
     switch (result) {
       case CommandDone():
-        return OutcomeCard(title: context.t('mob.clearance.result.done.title'), lines: <String>[context.t('mob.clearance.result.done.body')]);
+        return OutcomeCard(title: context.t('mob.clearance.result.done.title'), lines: <String>[context.t('mob.clearance.result.done.body')], tone: NoticeTone.ok);
       case CommandUnknown():
         return OutcomeCard(
           title: context.t('mob.clearance.result.unknown.title'),
           lines: <String>[context.t('mob.clearance.result.unknown.body')],
+          tone: NoticeTone.warning,
           actionLabel: context.t('mob.clearance.result.unknown.action'),
           onAction: _last == null
               ? null
@@ -249,7 +258,7 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
                 },
         );
       case CommandOffline():
-        return OutcomeCard(title: gateText(context, ClearanceGate.offline));
+        return OutcomeCard(title: gateText(context, ClearanceGate.offline), tone: NoticeTone.info);
       case CommandRefused():
         return OutcomeCard(title: problemText(context, problemOf(result)), code: result.code);
     }
@@ -262,6 +271,7 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
     final ClearanceGate sendGate = gateOf(offline: offline, fromCopy: false, session: session);
     final ClearanceGate answerGate = gateOf(offline: offline, fromCopy: widget.fromCopy, session: session);
     final CommandOutcome? result = outcome;
+    final List<InventoryRecord> records = widget.task.records;
     // The outcome of a command is pinned above the list, so it is seen whatever the page is scrolled to.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -269,86 +279,59 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
         if (result != null) ConstrainedBox(constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.35), child: SingleChildScrollView(child: _outcome(context, result))),
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+            padding: const EdgeInsets.only(bottom: MachvonV2Space.s16),
             children: <Widget>[
-              _householdCard(context),
-              _recordsCard(context, answerGate, session),
-              if (_household.workable) _formCard(context, sendGate) else GateNote(text: context.t('mob.clearance.household.notWorkable')),
-              _draftsCard(context, sendGate),
-              _photosCard(context),
-              SectionCard(
+              HouseholdFacts(household: _household),
+              GroupHeader(title: context.t('mob.clearance.records.title'), count: records.length),
+              if (records.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.clearance.records.none'), style: context.v2text.body)),
+              for (int index = 0; index < records.length; index += 1)
+                InventoryRecordRow(record: records[index], dividerAbove: index > 0, answer: mayAnswer(records[index], session.membershipId) ? _answerBlock(context, records[index], answerGate) : null),
+              if (_household.workable) _formSection(context) else NoticePanel(tone: NoticeTone.warning, title: context.t('mob.clearance.household.notWorkable'), live: false),
+              _draftsSection(context, sendGate),
+              _photosSection(context),
+              FormSection(
                 title: context.t('mob.clearance.appointments.title'),
-                children: <Widget>[Text(context.t('mob.clearance.appointments.note'), style: Theme.of(context).textTheme.bodyMedium)],
+                children: <Widget>[Text(context.t('mob.clearance.appointments.note'), style: context.v2text.body)],
               ),
             ],
           ),
         ),
+        ?_bar(context, records, sendGate, answerGate),
       ],
     );
   }
 
-  Widget _householdCard(BuildContext context) {
-    final Household household = _household;
-    return SectionCard(
-      title: context.t('mob.clearance.household.title'),
-      children: <Widget>[
-        FactLine(label: context.t('mob.clearance.household.code'), value: household.code),
-        FactLine(label: context.t('mob.clearance.household.status'), value: householdStatusLabel(context, household.status)),
-        if (household.memberCount != null) FactLine(label: context.t('mob.clearance.household.members'), value: '${household.memberCount}'),
-        FactLine(label: context.t('mob.clearance.household.basis'), value: legalBasisLabel(context, household.legalBasis)),
-        if (household.legalBasis == 'CONSENT')
-          FactLine(label: context.t('mob.clearance.household.consent'), value: household.hasConsentRecord ? context.t('mob.clearance.household.consent.yes') : context.t('mob.clearance.household.consent.no')),
-        if (household.restricted) Text(context.t('mob.clearance.household.restricted'), style: Theme.of(context).textTheme.bodyMedium),
-        if (household.anonymised) Text(context.t('mob.clearance.household.anonymised'), style: Theme.of(context).textTheme.bodyMedium),
-        Text(context.t('mob.clearance.household.privacy'), style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: MachvonSpace.space8),
-        Text(context.t('mob.clearance.parcels.title'), style: Theme.of(context).textTheme.titleSmall),
-        if (household.parcels.isEmpty) Text(context.t('mob.clearance.parcels.none'), style: Theme.of(context).textTheme.bodyMedium),
-        for (final HouseholdParcel parcel in household.parcels)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
-            child: MergeSemantics(child: Text(context.t('mob.clearance.parcels.line', <String, Object>{'code': parcel.parcelCode, 'right': rightKindLabel(context, parcel.rightKind)}))),
-          ),
-      ],
-    );
-  }
-
-  Widget _recordsCard(BuildContext context, ClearanceGate gate, SessionSnapshot session) {
-    final ThemeData theme = Theme.of(context);
-    return SectionCard(
-      title: context.t('mob.clearance.records.title'),
-      children: <Widget>[
-        if (widget.task.records.isEmpty) Text(context.t('mob.clearance.records.none'), style: theme.textTheme.bodyMedium),
-        for (final InventoryRecord record in widget.task.records) ...<Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
-            child: MergeSemantics(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(context.t('mob.clearance.records.item', <String, Object>{'kind': itemKindLabel(context, record.itemKind), 'description': record.description}), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-                  Text(
-                    context.t('mob.clearance.records.count', <String, Object>{'quantity': record.quantity, 'unit': record.unitCode, 'parcel': record.parcelCode, 'amount': moneyExactLabel(context, record.amountVnd)}),
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  Text(context.t('mob.clearance.records.state', <String, Object>{'status': recordStatusLabel(context, record.status), 'day': formatDay(record.surveyedOn)}), style: theme.textTheme.bodySmall),
-                  if (record.note != null) Text(context.t('mob.clearance.records.note', <String, Object>{'note': record.note!}), style: theme.textTheme.bodySmall),
-                ],
-              ),
-            ),
-          ),
-          if (mayAnswer(record, session.membershipId)) _answerBlock(context, record, gate),
-        ],
-      ],
+  /// The one action of the moment: the answer of the household while its form is open, else the count being typed (kept on the phone, or kept
+  /// and sent). A household that may not be worked on has none. A locked send says why in the line above the buttons.
+  Widget? _bar(BuildContext context, List<InventoryRecord> records, ClearanceGate sendGate, ClearanceGate answerGate) {
+    InventoryRecord? answering;
+    for (final InventoryRecord record in records) {
+      if (record.id == _answering) answering = record;
+    }
+    if (answering != null) {
+      final InventoryRecord record = answering;
+      final bool open = answerGate == ClearanceGate.open && !sending;
+      return ActionBar(
+        primary: ActionBarButton(label: sending ? context.t('mob.clearance.sending.label') : context.t('mob.clearance.answer.submit.action'), onPressed: open ? () => _answer(record) : null),
+        secondary: ActionBarButton(label: context.t('mob.clearance.answer.close.action'), onPressed: sending ? null : () => setState(() => _answering = null)),
+        why: answerGate == ClearanceGate.open ? null : gateText(context, answerGate),
+      );
+    }
+    if (!_household.workable) return null;
+    final bool open = sendGate == ClearanceGate.open && !sending;
+    return ActionBar(
+      primary: ActionBarButton(label: sending ? context.t('mob.clearance.sending.label') : context.t('mob.clearance.form.send.action'), onPressed: open ? _keepAndSend : null),
+      secondary: ActionBarButton(label: context.t('mob.clearance.form.keep.action'), onPressed: sending ? null : _keep),
+      why: sendGate == ClearanceGate.open ? null : gateText(context, sendGate),
     );
   }
 
   Widget _answerBlock(BuildContext context, InventoryRecord record, ClearanceGate gate) {
-    final bool open = gate == ClearanceGate.open && !sending;
     if (_answering != record.id) {
       return Align(
         alignment: Alignment.centerLeft,
         child: OutlinedButton(
+          style: v2QuietButtonStyle(context.v2),
           onPressed: () => setState(() {
             _answering = record.id;
             _answerDay.text = vietnamDayOf(ref.read(clockProvider)());
@@ -358,33 +341,15 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
         ),
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        DropdownButtonFormField<String>(
-          initialValue: _outcomeChoice,
-          isExpanded: true,
-          decoration: InputDecoration(labelText: context.t('mob.clearance.answer.outcome.label'), errorText: _answerError('outcome')),
-          items: <DropdownMenuItem<String>>[
-            DropdownMenuItem<String>(value: 'CONFIRMED', child: Text(context.t('mob.clearance.answer.outcome.confirmed'))),
-            DropdownMenuItem<String>(value: 'DISPUTED', child: Text(context.t('mob.clearance.answer.outcome.disputed'))),
-          ],
-          onChanged: sending ? null : (String? value) => setState(() => _outcomeChoice = value),
-        ),
-        const SizedBox(height: MachvonSpace.space8),
-        TextField(controller: _answerDay, readOnly: sending, decoration: InputDecoration(labelText: context.t('mob.clearance.answer.day.label'), errorText: _answerError('day'))),
-        const SizedBox(height: MachvonSpace.space8),
-        TextField(controller: _answerNote, readOnly: sending, maxLines: 3, decoration: InputDecoration(labelText: context.t('mob.clearance.answer.note.label'), errorText: _answerError('note'))),
-        const SizedBox(height: MachvonSpace.space8),
-        if (gate != ClearanceGate.open) GateNote(text: gateText(context, gate)),
-        FilledButton(onPressed: open ? () => _answer(record) : null, child: Text(sending ? context.t('mob.clearance.sending.label') : context.t('mob.clearance.answer.submit.action'))),
-      ],
+    return HouseholdAnswerFields(
+      outcome: _outcomeChoice,
+      day: _answerDay,
+      note: _answerNote,
+      errors: <String, String>{for (final MapEntry<String, AnswerProblem> entry in _answerProblems.entries) entry.key: answerProblemText(context, entry.value)},
+      sending: sending,
+      consentMissing: _household.legalBasis == 'CONSENT' && !_household.hasConsentRecord,
+      onOutcome: (String? value) => setState(() => _outcomeChoice = value),
     );
-  }
-
-  String? _answerError(String field) {
-    final AnswerProblem? problem = _answerProblems[field];
-    return problem == null ? null : answerProblemText(context, problem);
   }
 
   String? _problem(String field) {
@@ -392,11 +357,18 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
     return problem == null ? null : inventoryProblemText(context, problem);
   }
 
-  Widget _formCard(BuildContext context, ClearanceGate sendGate) {
-    final ThemeData theme = Theme.of(context);
+  Widget _formSection(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
     final String? amount = amountOf(_quantity.text, _price.text);
-    final bool open = sendGate == ClearanceGate.open && !sending;
-    return SectionCard(
+    final Widget quantity = TextField(
+      controller: _quantity,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      textInputAction: TextInputAction.next,
+      onChanged: (_) => setState(() {}),
+      decoration: InputDecoration(labelText: context.t('mob.clearance.form.quantity.label'), errorText: _problem('quantity'), errorMaxLines: 3),
+    );
+    final Widget unit = TextField(controller: _unit, textInputAction: TextInputAction.next, decoration: InputDecoration(labelText: context.t('mob.clearance.form.unit.label'), errorText: _problem('unit'), errorMaxLines: 3));
+    return FormSection(
       title: _editing == null ? context.t('mob.clearance.form.title') : context.t('mob.clearance.form.title.edit'),
       children: <Widget>[
         DropdownButtonFormField<String>(
@@ -406,7 +378,7 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
           items: <DropdownMenuItem<String>>[for (final HouseholdParcel parcel in _household.parcels) DropdownMenuItem<String>(value: parcel.parcelId, child: Text(parcel.parcelCode))],
           onChanged: (String? value) => setState(() => _parcelId = value),
         ),
-        const SizedBox(height: MachvonSpace.space8),
+        const SizedBox(height: MachvonV2Space.s12),
         DropdownButtonFormField<String>(
           initialValue: _itemKind,
           isExpanded: true,
@@ -414,104 +386,78 @@ class _HouseholdTaskBodyState extends ConsumerState<HouseholdTaskBody> with Comm
           items: <DropdownMenuItem<String>>[for (final String kind in itemKinds) DropdownMenuItem<String>(value: kind, child: Text(itemKindLabel(context, kind)))],
           onChanged: (String? value) => setState(() => _itemKind = value),
         ),
-        const SizedBox(height: MachvonSpace.space8),
-        TextField(controller: _description, maxLines: 2, decoration: InputDecoration(labelText: context.t('mob.clearance.form.description.label'), errorText: _problem('description'))),
-        const SizedBox(height: MachvonSpace.space8),
-        TextField(
-          controller: _quantity,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(labelText: context.t('mob.clearance.form.quantity.label'), errorText: _problem('quantity')),
-        ),
-        const SizedBox(height: MachvonSpace.space8),
-        TextField(controller: _unit, decoration: InputDecoration(labelText: context.t('mob.clearance.form.unit.label'), errorText: _problem('unit'))),
-        const SizedBox(height: MachvonSpace.space8),
+        const SizedBox(height: MachvonV2Space.s12),
+        TextField(controller: _description, maxLines: 2, decoration: InputDecoration(labelText: context.t('mob.clearance.form.description.label'), errorText: _problem('description'), errorMaxLines: 3)),
+        const SizedBox(height: MachvonV2Space.s12),
+        // The count and its unit sit side by side; at a large text scale they stack, so neither label is cut.
+        if (largeText(context))
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: <Widget>[quantity, const SizedBox(height: MachvonV2Space.s12), unit])
+        else
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[Expanded(flex: 3, child: quantity), const SizedBox(width: MachvonV2Space.s12), Expanded(flex: 2, child: unit)]),
+        const SizedBox(height: MachvonV2Space.s12),
         TextField(
           controller: _price,
           keyboardType: TextInputType.number,
+          textInputAction: TextInputAction.next,
           onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(labelText: context.t('mob.clearance.form.price.label'), errorText: _problem('price')),
+          decoration: InputDecoration(labelText: context.t('mob.clearance.form.price.label'), errorText: _problem('price'), errorMaxLines: 3),
         ),
-        if (amount != null) Padding(padding: const EdgeInsets.only(top: MachvonSpace.space4), child: Text(context.t('mob.clearance.form.amount', <String, Object>{'amount': moneyExactLabel(context, amount)}), style: theme.textTheme.bodySmall)),
-        const SizedBox(height: MachvonSpace.space8),
-        TextField(controller: _reference, decoration: InputDecoration(labelText: context.t('mob.clearance.form.reference.label'), errorText: _problem('reference'))),
-        const SizedBox(height: MachvonSpace.space8),
-        TextField(controller: _day, decoration: InputDecoration(labelText: context.t('mob.clearance.form.day.label'), errorText: _problem('day'))),
-        const SizedBox(height: MachvonSpace.space12),
-        if (sendGate != ClearanceGate.open) GateNote(text: gateText(context, sendGate)),
-        OutlinedButton(onPressed: sending ? null : _keep, child: Text(context.t('mob.clearance.form.keep.action'))),
-        const SizedBox(height: MachvonSpace.space8),
-        FilledButton(onPressed: open ? _keepAndSend : null, child: Text(sending ? context.t('mob.clearance.sending.label') : context.t('mob.clearance.form.send.action'))),
+        if (amount != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s4), child: Text(context.t('mob.clearance.form.amount', <String, Object>{'amount': moneyExactLabel(context, amount)}), style: text.caption)),
+        const SizedBox(height: MachvonV2Space.s12),
+        TextField(controller: _reference, textInputAction: TextInputAction.next, decoration: InputDecoration(labelText: context.t('mob.clearance.form.reference.label'), errorText: _problem('reference'), errorMaxLines: 3)),
+        const SizedBox(height: MachvonV2Space.s12),
+        TextField(controller: _day, decoration: InputDecoration(labelText: context.t('mob.clearance.form.day.label'), errorText: _problem('day'), errorMaxLines: 3)),
       ],
     );
   }
 
-  Widget _draftsCard(BuildContext context, ClearanceGate sendGate) {
-    final ThemeData theme = Theme.of(context);
-    final bool open = sendGate == ClearanceGate.open && !sending;
-    return SectionCard(
-      title: context.t('mob.clearance.drafts.title'),
+  Widget _draftsSection(BuildContext context, ClearanceGate sendGate) {
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2 v2 = context.v2;
+    final bool canSend = sendGate == ClearanceGate.open;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Text(context.t('mob.clearance.drafts.note'), style: theme.textTheme.bodySmall),
-        if (_storeUnavailable) Text(context.t('mob.clearance.drafts.unavailable'), style: theme.textTheme.bodyMedium),
-        if (_drafts.isEmpty && !_storeUnavailable) Text(context.t('mob.clearance.drafts.none'), style: theme.textTheme.bodyMedium),
-        for (final InventoryDraft draft in _drafts)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                MergeSemantics(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        context.t('mob.clearance.drafts.line', <String, Object>{
-                          'kind': itemKindLabel(context, draft.form.itemKind ?? 'OTHER'),
-                          'quantity': draft.form.quantity,
-                          'unit': draft.form.unitCode,
-                          'parcel': draft.parcelCode,
-                        }),
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      Text(draft.form.description, style: theme.textTheme.bodySmall),
-                      Text(
-                        draft.awaitingAnswer
-                            ? context.t('mob.clearance.drafts.unsettled')
-                            : draft.lastRefusal == null ? context.t('mob.clearance.drafts.waiting') : context.t('mob.clearance.drafts.refused', <String, Object>{'code': draft.lastRefusal!}),
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                Wrap(
-                  spacing: MachvonSpace.space8,
-                  children: <Widget>[
-                    FilledButton(onPressed: open ? () => _send(draft) : null, child: Text(context.t('mob.clearance.drafts.send.action'))),
-                    OutlinedButton(onPressed: sending || draft.awaitingAnswer ? null : () => _edit(draft), child: Text(context.t('mob.clearance.drafts.edit.action'))),
-                    OutlinedButton(onPressed: sending ? null : () => _discard(draft), child: Text(context.t('mob.clearance.drafts.discard.action'))),
-                  ],
-                ),
-              ],
-            ),
+        GroupHeader(title: context.t('mob.clearance.drafts.title'), count: _drafts.length),
+        Padding(
+          padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s8, right: MachvonV2Space.s16),
+          child: Text(context.t('mob.clearance.drafts.note'), style: text.caption.copyWith(color: v2.palette.ink2)),
+        ),
+        // A household that may not be worked on has no form and so no bar: the reason a draft cannot be sent is said here.
+        if (!_household.workable && !canSend && _drafts.isNotEmpty) Padding(padding: const EdgeInsets.only(left: MachvonV2Space.s16, top: MachvonV2Space.s8, right: MachvonV2Space.s16), child: GateNote(text: gateText(context, sendGate))),
+        if (_storeUnavailable) NoticePanel(tone: NoticeTone.warning, title: context.t('mob.clearance.drafts.unavailable')),
+        if (_drafts.isEmpty && !_storeUnavailable) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.clearance.drafts.none'), style: text.body)),
+        for (int index = 0; index < _drafts.length; index += 1)
+          InventoryDraftRow(
+            draft: _drafts[index],
+            dividerAbove: index > 0,
+            canSend: canSend,
+            busy: sending,
+            onSend: () => _send(_drafts[index]),
+            onEdit: () => _edit(_drafts[index]),
+            onDiscard: () => _discard(_drafts[index]),
           ),
       ],
     );
   }
 
-  Widget _photosCard(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+  Widget _photosSection(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2 v2 = context.v2;
     final bool hasPicker = ref.watch(attachmentPickerProvider) != null;
-    return SectionCard(
+    return FormSection(
       title: context.t('mob.clearance.photos.title'),
       children: <Widget>[
-        Text(context.t('mob.clearance.photos.note'), style: theme.textTheme.bodySmall),
-        if (_photoRefusal != null) Text(context.t('mob.clearance.photos.refused', <String, Object>{'code': _photoRefusal!}), style: theme.textTheme.bodyMedium),
-        if (!hasPicker) Text(context.t('mob.clearance.photos.noPicker'), style: theme.textTheme.bodyMedium),
-        const SizedBox(height: MachvonSpace.space8),
-        if (hasPicker) FilledButton(onPressed: _addPhotos, child: Text(context.t('mob.clearance.photos.add.action'))),
-        if (hasPicker) const SizedBox(height: MachvonSpace.space8),
+        Text(context.t('mob.clearance.photos.note'), style: text.caption.copyWith(color: v2.palette.ink2)),
+        if (_photoRefusal != null) NoticePanel(tone: NoticeTone.problem, title: context.t('mob.clearance.photos.refused', <String, Object>{'code': _photoRefusal!}), margin: const EdgeInsets.only(top: MachvonV2Space.s8)),
+        if (!hasPicker) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.clearance.photos.noPicker'), style: text.body)),
+        const SizedBox(height: MachvonV2Space.s12),
+        if (hasPicker) ...<Widget>[
+          OutlinedButton.icon(style: v2QuietButtonStyle(v2), onPressed: _addPhotos, icon: const Icon(Icons.add_a_photo_outlined, size: 20), label: Text(context.t('mob.clearance.photos.add.action'))),
+          const SizedBox(height: MachvonV2Space.s8),
+        ],
         OutlinedButton(
+          style: v2QuietButtonStyle(v2),
           onPressed: () => openScreen(context, 'MOB-19', query: <String, String>{'owner': clearancePhotoOwner, 'ref': _household.id}, stacked: true),
           child: Text(context.t('mob.clearance.photos.list.action')),
         ),

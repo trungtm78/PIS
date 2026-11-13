@@ -20,7 +20,7 @@ import 'field_world.dart';
 /// The phone on MOB-29 for a draft that exists.
 Future<(FieldWorld, String)> _open(WidgetTester tester, {bool consent = false, ScriptedServer? api}) async {
   final FieldWorld world = FieldWorld.create(server: FieldServer(api: api ?? (ScriptedServer()..on('GET', '/resources/project', (_) => <String, Object?>{'items': <Object?>[], 'next_cursor': null}))));
-  await world.open(tester, '/projects/mob-41');
+  await world.open(tester, '/account/mob-41');
   final String id = await world.seedDraft(tester, consent: consent);
   await world.go(tester, '/projects/mob-29/$id');
   return (world, id);
@@ -306,7 +306,7 @@ void main() {
         healthy: (ScriptedServer server) {},
         open: (WidgetTester tester, ScriptedServer server) async {
           final FieldWorld world = FieldWorld.create(server: FieldServer(api: server));
-          await world.open(tester, '/projects/mob-41');
+          await world.open(tester, '/account/mob-41');
           final String id = await world.seedDraft(
             tester,
             place: FieldPlace.none.withConsent(true),

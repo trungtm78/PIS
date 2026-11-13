@@ -10,7 +10,7 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
 import '../../core/state/screen_state.dart';
 import '../../core/state/state_boundary.dart';
-import '../../core/widgets/context_bar.dart';
+import '../../core/widgets/context_line.dart';
 import '../release/telemetry.dart';
 import 'clock.dart';
 import 'loaded.dart';
@@ -41,7 +41,8 @@ class DataView<T> extends ConsumerStatefulWidget {
     required this.cacheKey,
     required this.read,
     required this.parse,
-    required this.builder,
+    this.builder,
+    this.contextBuilder,
     this.asOf,
     this.isEmpty,
     this.emptyOnCodes = const <String>{},
@@ -53,8 +54,9 @@ class DataView<T> extends ConsumerStatefulWidget {
     this.onLoaded,
     this.scopeLabel,
     this.closingLabel,
+    this.contextParts,
     super.key,
-  });
+  }) : assert((builder == null) != (contextBuilder == null), 'give the builder or the contextBuilder, not both and not neither');
 
   /// Names the read inside the tenant and the person: the screen, its parameters and its filters.
   final String cacheKey;
@@ -86,7 +88,16 @@ class DataView<T> extends ConsumerStatefulWidget {
   /// The scope the figures describe ("Whole company · Year 2026") and their closing date, shown in the context bar above the content.
   final String? scopeLabel;
   final String? closingLabel;
-  final Widget Function(BuildContext context, Loaded<T> data) builder;
+
+  /// More pieces of the context line, worded from the data once it is read (the scope of a figure is known only then); they come after the
+  /// scope and the closing date and before the freshness.
+  final List<String> Function(Loaded<T> data)? contextParts;
+  final Widget Function(BuildContext context, Loaded<T> data)? builder;
+
+  /// The same as [builder] for a screen that places the line of context itself, inside its scroll (under a command band): the line is
+  /// given to it and DataView draws none above the content.
+  final Widget Function(BuildContext context, Loaded<T> data, Widget contextLine)? contextBuilder;
+
 
   @override
   ConsumerState<DataView<T>> createState() => _DataViewState<T>();
@@ -234,6 +245,15 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
     _load();
   }
 
+  Widget _line(Loaded<T> data) => FreshnessBar(
+        data: data,
+        ttl: widget.ttl,
+        onRefresh: _refreshing ? null : _load,
+        scope: widget.scopeLabel,
+        closing: widget.closingLabel,
+        extra: widget.contextParts?.call(data) ?? const <String>[],
+      );
+
   @override
   Widget build(BuildContext context) {
     ref.listen<SessionSnapshot>(sessionProvider, _sessionChanged);
@@ -242,7 +262,7 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (showsData) FreshnessBar(data: data, ttl: widget.ttl, onRefresh: _refreshing ? null : _load, scope: widget.scopeLabel, closing: widget.closingLabel),
+        if (showsData && widget.contextBuilder == null) _line(data),
         if (_refreshing) const _RefreshingBar(),
         Expanded(
           child: StateBoundary(
@@ -252,7 +272,9 @@ class _DataViewState<T> extends ConsumerState<DataView<T>> {
             activeFilters: widget.activeFilters,
             onClearFilters: widget.onClearFilters,
             keepContent: false,
-            child: data == null || _state != ScreenState.defaultState ? const SizedBox.shrink() : widget.builder(context, data),
+            child: data == null || _state != ScreenState.defaultState
+                ? const SizedBox.shrink()
+                : (widget.contextBuilder != null ? widget.contextBuilder!(context, data, _line(data)) : widget.builder!(context, data)),
           ),
         ),
       ],
@@ -273,18 +295,19 @@ class _RefreshingBar extends StatelessWidget {
   }
 }
 
-/// The context bar of a screen that reads (design.md "ContextBar"): the scope the figures describe, their closing date, where
-/// the data came from and the moment it describes. A copy kept on the device says so, says the amounts are reference data that
+/// The one line of context of a screen that reads (design B "ContextLine"): the scope the figures describe, their closing date, where
+/// the data came from and the moment it describes, in one line that opens on a tap. A copy kept on the device says so, says the amounts are reference data that
 /// cannot be edited, and says when it is out of date ("Stale figures"). Never says the data is the newest. It does not repeat the
 /// offline notice of the shell: with the shell strip up, the saved copy is named by its moment only.
 class FreshnessBar extends ConsumerWidget {
-  const FreshnessBar({required this.data, required this.ttl, this.onRefresh, this.scope, this.closing, super.key});
+  const FreshnessBar({required this.data, required this.ttl, this.onRefresh, this.scope, this.closing, this.extra = const <String>[], super.key});
 
   final Loaded<Object?> data;
   final Duration ttl;
   final VoidCallback? onRefresh;
   final String? scope;
   final String? closing;
+  final List<String> extra;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -308,15 +331,11 @@ class FreshnessBar extends ConsumerWidget {
       if (data.fromCache) context.t('mob.read.saved.readOnly'),
       if (stale) context.t('mob.read.stale.line', <String, Object>{'hours': ttl.inHours}),
     ];
-    return ContextBar(
-      scope: scope,
-      closing: closing,
-      freshness: line,
+    return ContextLine(
+      parts: <String>[?scope, if (closing != null) context.t('mob.ctx.closing.label', <String, Object>{'date': closing!}), ...extra, line, ...notes],
       stale: stale,
-      notes: notes,
-      highlighted: data.fromCache,
       onRefresh: onRefresh,
-      refreshTooltip: context.t('mob.read.refresh.action'),
+      refreshLabel: context.t('mob.read.refresh.action'),
     );
   }
 }

@@ -42,6 +42,7 @@ LocalDraft draft(QueueRig rig, {String id = 'draft-0000000000000001', Map<String
 }
 
 void main() {
+  rebaseTests();
   group('AC-ST-MOB-005-1 UAT-AC502 a submit whose answer is lost is unknown, then looked up, never created again', () {
     test('the connection is cut after the server did the work: UNKNOWN, then ACCEPTED by the lookup, one effect, no new batch', () async {
       final QueueRig rig = await QueueRig.create();
@@ -599,6 +600,119 @@ void main() {
       expect(() => rig.store.commands.move('nope', CommandState.sending, (QueuedCommand c) => c), throwsStateError);
       expect(() => rig.store.commands.update(command.id, (QueuedCommand c) => c.copyWith(state: CommandState.sending)), throwsStateError);
       expect(() => rig.store.commands.update('nope', (QueuedCommand c) => c), throwsStateError);
+    });
+  });
+}
+
+/// The commands of a chain of work on one record: each names the record, and the server takes a command only on the version it holds.
+QueuedCommand step(QueueRig rig, int base, {String type = 'pwf.task.start', String subject = 'task-0000000000000001'}) =>
+    rig.queue.enqueue(commandType: type, payload: <String, Object?>{'task_id': subject}, baseServerVersion: base, subjectRef: subject);
+
+void rebaseTests() {
+  group('rebaseChain: a whole chain is based again on the version of the server in one step', () {
+    ServerOutcome decide(Map<String, Object?> item) =>
+        (item['base_server_version']! as int) < 5 ? const ServerOutcome.conflict(version: 5) : ServerOutcome.accepted(version: (item['base_server_version']! as int) + 1);
+
+    test('the commands keep their place, get the new base and a new key each in one change, the old keys are remembered, and nobody is told a command was made', () async {
+      final QueueRig rig = await QueueRig.create(server: FakeSyncServer(decide: decide));
+      final List<QueuedCommand> made = <QueuedCommand>[step(rig, 1), step(rig, 2, type: 'pwf.task.checklist.complete'), step(rig, 3, type: 'pwf.task.complete')];
+      await rig.queue.flush();
+      expect(made.map((QueuedCommand c) => rig.queue.command(c.id)!.state), everyElement(CommandState.conflict));
+      final List<QueueEvent> events = <QueueEvent>[];
+      final StreamSubscription<QueueEvent> subscription = rig.queue.events.listen(events.add);
+
+      final List<QueuedCommand> changed = await rig.queue.rebaseChain((List<QueuedCommand> commands) => <({String id, int baseServerVersion})>[
+            for (int index = 0; index < made.length; index += 1) (id: made[index].id, baseServerVersion: 5 + index),
+          ]);
+      await Future<void>.delayed(Duration.zero);
+      await subscription.cancel();
+
+      expect(changed.map((QueuedCommand c) => c.id), made.map((QueuedCommand c) => c.id).toList(), reason: 'the same commands, in the order they were made');
+      expect(rig.queue.commands().map((QueuedCommand c) => c.id), made.map((QueuedCommand c) => c.id).toList());
+      for (int index = 0; index < made.length; index += 1) {
+        final QueuedCommand now = rig.queue.command(made[index].id)!;
+        expect(now.state, CommandState.queued);
+        expect(now.baseServerVersion, 5 + index);
+        expect(now.idempotencyKey, isNot(made[index].idempotencyKey));
+        expect(now.supersededKeys, contains(made[index].idempotencyKey));
+        expect(now.createdAt, made[index].createdAt, reason: 'the order of sending is the order they were made in, with no gap to leave between them');
+        expect(now.payload, made[index].payload);
+        expect(now.subjectRef, made[index].subjectRef);
+      }
+      expect(events.where((QueueEvent e) => e.from == null), isEmpty, reason: 'no command was made, so nothing wakes the runner before the chain is whole');
+      expect(events.map((QueueEvent e) => e.from), everyElement(CommandState.conflict));
+
+      final FlushResult sent = await rig.queue.flush();
+      expect(sent.accepted, 3);
+      expect(rig.server.batchPosts, 2);
+    });
+
+    test('a base lower than the old one is accepted, a command in any other state is left alone, and a name the queue does not know is ignored', () async {
+      final QueueRig rig = await QueueRig.create(server: FakeSyncServer(decide: decide));
+      final QueuedCommand refused = step(rig, 9);
+      await rig.queue.flush();
+      expect(rig.queue.command(refused.id)!.state, CommandState.accepted);
+      final QueuedCommand moved = step(rig, 1);
+      await rig.queue.flush();
+      expect(rig.queue.command(moved.id)!.state, CommandState.conflict);
+      final QueuedCommand waiting = step(rig, 8);
+      rig.server.offline = true;
+      await rig.queue.flush();
+      expect(rig.queue.command(waiting.id)!.state, CommandState.unknown);
+
+      final List<QueuedCommand> changed = await rig.queue.rebaseChain((List<QueuedCommand> commands) => <({String id, int baseServerVersion})>[
+            (id: refused.id, baseServerVersion: 2),
+            (id: moved.id, baseServerVersion: 0),
+            (id: waiting.id, baseServerVersion: 2),
+            (id: 'no-such-command', baseServerVersion: 2),
+          ]);
+
+      expect(changed.map((QueuedCommand c) => c.id), <String>[moved.id]);
+      expect(rig.queue.command(moved.id)!.baseServerVersion, 0);
+      expect(rig.queue.command(refused.id)!.state, CommandState.accepted);
+      expect(rig.queue.command(waiting.id)!.state, CommandState.unknown);
+      expect(rig.queue.command(waiting.id)!.baseServerVersion, 8);
+    });
+
+    test('a plan that fails changes nothing: the chain is still in conflict under its old keys and versions', () async {
+      final QueueRig rig = await QueueRig.create(server: FakeSyncServer(decide: decide));
+      final QueuedCommand first = step(rig, 1);
+      final QueuedCommand second = step(rig, 2);
+      await rig.queue.flush();
+      await expectLater(rig.queue.rebaseChain((List<QueuedCommand> commands) => throw StateError('the plan failed')), throwsStateError);
+      for (final QueuedCommand before in <QueuedCommand>[first, second]) {
+        final QueuedCommand now = rig.queue.command(before.id)!;
+        expect(now.state, CommandState.conflict);
+        expect(now.idempotencyKey, before.idempotencyKey);
+        expect(now.baseServerVersion, before.baseServerVersion);
+      }
+    });
+
+    test('the plan sees the queue as it is when the queue is free: a flush that is running finishes first', () async {
+      final QueueRig rig = await QueueRig.create(server: FakeSyncServer(decide: decide));
+      final QueuedCommand command = step(rig, 1);
+      final Future<FlushResult> flushing = rig.queue.flush();
+      List<CommandState>? seen;
+      final Future<List<QueuedCommand>> rebased = rig.queue.rebaseChain((List<QueuedCommand> commands) {
+        seen = <CommandState>[for (final QueuedCommand c in commands) c.state];
+        return <({String id, int baseServerVersion})>[(id: command.id, baseServerVersion: 5)];
+      });
+      await flushing;
+      expect((await rebased).single.id, command.id);
+      expect(seen, <CommandState>[CommandState.conflict], reason: 'the plan ran after the send had been answered, not in the middle of it');
+    });
+  });
+
+  group('the record a command is about outlives its payload', () {
+    test('an accepted command keeps no payload but still names its record, and the version it produced', () async {
+      final QueueRig rig = await QueueRig.create(server: FakeSyncServer(decide: (Map<String, Object?> item) => const ServerOutcome.accepted(version: 7)));
+      final QueuedCommand command = step(rig, 6, subject: 'task-0000000000000042');
+      await rig.queue.flush();
+      final QueuedCommand settled = rig.queue.command(command.id)!;
+      expect(settled.state, CommandState.accepted);
+      expect(settled.payload, isNull);
+      expect(settled.subjectRef, 'task-0000000000000042');
+      expect(settled.serverVersion, 7);
     });
   });
 }

@@ -1,5 +1,4 @@
 import { DomainError, isWorkingDay, vietnamDateOf } from '@machvon/kernel';
-import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { bandResolver } from './pwf-workflow-reads.ts';
@@ -84,30 +83,29 @@ interface GroupSql {
   kind: 'TASK' | 'MILESTONE';
   priority: 'LOW' | 'NORMAL' | 'HIGH' | 'CRITICAL';
   phase_code: string;
+  unit_path: string | null;
   n: string;
 }
 
 export class PwfDeadlineReads {
-  private readonly policy: GovernancePolicyPort;
   private readonly calendars: HomeWorkCalendars;
 
-  constructor(policy: GovernancePolicyPort = new GovernancePolicyPort(), calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
-    this.policy = policy;
+  constructor(calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
     this.calendars = calendars;
   }
 
   private bandOfGroup(resolver: BandResolver, group: GroupSql): BandView {
-    return resolver.of({ status: 'IN_PROGRESS', excluded: false, tracked: true, plannedFinish: group.d, kind: group.kind, priority: group.priority, phaseCode: group.phase_code });
+    return resolver.of({ status: 'IN_PROGRESS', excluded: false, tracked: true, plannedFinish: group.d, kind: group.kind, priority: group.priority, phaseCode: group.phase_code }, group.unit_path);
   }
 
   /** The tasks of the portfolio that are not over, by official colour, nearest finish first; the totals are exact counts and do not depend on the page. */
   async board(tx: TenantTx, scope: ScopeBuilder, filter: BoardFilter, page: { limit: number; after?: { code: string; id: string } | undefined }, now: Date): Promise<Record<string, unknown>> {
     if (filter.band !== undefined && !(BANDS as readonly string[]).includes(filter.band)) throw invalid('band');
-    const resolver = await bandResolver(tx, this.policy, this.calendars, now);
+    const resolver = await bandResolver(tx, this.calendars, now);
     const where = conditionsOf(scope, filter, vietnamDateOf(now));
     const groups = await tx.query<GroupSql>(
-      `select t.planned_finish::text as d, t.kind, t.priority, t.phase_code, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${where.sql} group by t.planned_finish, t.kind, t.priority, t.phase_code`,
+      `select t.planned_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
+        where ${where.sql} group by t.planned_finish, t.kind, t.priority, t.phase_code, ou.path`,
       where.params,
     );
     const counts = emptyCounts();
@@ -126,7 +124,8 @@ export class PwfDeadlineReads {
     };
     const parts = [where.sql];
     if (filter.band !== undefined) {
-      const keys = `(t.planned_finish::text, t.kind, t.priority, t.phase_code) in (select * from unnest(${bind(dated.map((one) => one.d))}::text[], ${bind(dated.map((one) => one.kind))}::text[], ${bind(dated.map((one) => one.priority))}::text[], ${bind(dated.map((one) => one.phase_code))}::text[]))`;
+      const keys = `(t.planned_finish::text, t.kind, t.priority, t.phase_code, coalesce(ou.path, '')) in (select * from unnest(${bind(dated.map((one) => one.d))}::text[], ${bind(dated.map((one) => one.kind))}::text[], ${bind(dated.map((one) => one.priority))}::text[], ${bind(dated.map((one) => one.phase_code))}::text[], ${bind(dated.map((one) => one.unit_path ?? ''))}::text[]))`;
+      // The tasks with no day have no colour either way, under any unit: they are kept whenever the filter keeps one of the groups without a day.
       parts.push(wanted.some((group) => group.d === null) ? `(${keys} or t.planned_finish is null)` : keys);
     }
     const after = page.after;
@@ -134,8 +133,8 @@ export class PwfDeadlineReads {
       if (!DAY.test(after.code)) throw invalid('cursor');
       parts.push(`(coalesce(t.planned_finish, ${bind(FAR_DAY)}::date), t.id) > (${bind(after.code)}::date, ${bind(after.id)}::uuid)`);
     }
-    const rows = await tx.query<{ id: string; task_code: string; name: string; project_id: string; project_code: string; project_name: string; phase_code: string; kind: 'TASK' | 'MILESTONE'; priority: GroupSql['priority']; status: string; due_date: string | null; critical: boolean; sort_day: string }>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, p.name as project_name, t.phase_code, t.kind, t.priority, t.status, t.planned_finish::text as due_date, t.critical, coalesce(t.planned_finish, date '${FAR_DAY}')::text as sort_day
+    const rows = await tx.query<{ id: string; task_code: string; name: string; project_id: string; project_code: string; project_name: string; phase_code: string; kind: 'TASK' | 'MILESTONE'; priority: GroupSql['priority']; status: string; due_date: string | null; critical: boolean; sort_day: string; unit_path: string | null }>(
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, p.name as project_name, t.phase_code, t.kind, t.priority, t.status, t.planned_finish::text as due_date, t.critical, coalesce(t.planned_finish, date '${FAR_DAY}')::text as sort_day, ou.path as unit_path
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${parts.join(' and ')} order by coalesce(t.planned_finish, date '${FAR_DAY}'), t.id limit ${bind(page.limit + 1)}`,
       params,
@@ -155,7 +154,7 @@ export class PwfDeadlineReads {
         kind: row.kind,
         status: row.status,
         due_date: row.due_date,
-        band: resolver.of({ status: row.status as never, excluded: false, tracked: true, plannedFinish: row.due_date, kind: row.kind, priority: row.priority, phaseCode: row.phase_code }),
+        band: resolver.of({ status: row.status as never, excluded: false, tracked: true, plannedFinish: row.due_date, kind: row.kind, priority: row.priority, phaseCode: row.phase_code }, row.unit_path),
         critical: row.critical,
         assignee: assignees.get(row.id) ?? null,
       })),
@@ -185,11 +184,11 @@ export class PwfDeadlineReads {
     if (parsed === null) throw invalid('month');
     const from = `${month}-01`;
     const to = addDays(`${parsed[2] === '12' ? Number(parsed[1]) + 1 : parsed[1]}-${parsed[2] === '12' ? '01' : String(Number(parsed[2]) + 1).padStart(2, '0')}-01`, -1);
-    const resolver = await bandResolver(tx, this.policy, this.calendars, now);
+    const resolver = await bandResolver(tx, this.calendars, now);
     const where = conditionsOf(scope, { ...filter, dueFrom: from, dueTo: to }, vietnamDateOf(now));
     const groups = await tx.query<GroupSql>(
-      `select t.planned_finish::text as d, t.kind, t.priority, t.phase_code, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
-        where ${where.sql} group by t.planned_finish, t.kind, t.priority, t.phase_code`,
+      `select t.planned_finish::text as d, t.kind, t.priority, t.phase_code, ou.path as unit_path, count(*)::text as n from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
+        where ${where.sql} group by t.planned_finish, t.kind, t.priority, t.phase_code, ou.path`,
       where.params,
     );
     const days = new Map<string, { total: number; counts: Counts }>();
@@ -199,8 +198,8 @@ export class PwfDeadlineReads {
       entry.counts[this.bandOfGroup(resolver, group).band] += Number(group.n);
       days.set(group.d as string, entry);
     }
-    const rows = await tx.query<{ id: string; task_code: string; name: string; project_id: string; project_code: string; due_date: string; kind: 'TASK' | 'MILESTONE'; priority: GroupSql['priority']; phase_code: string }>(
-      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.planned_finish::text as due_date, t.kind, t.priority, t.phase_code from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
+    const rows = await tx.query<{ id: string; task_code: string; name: string; project_id: string; project_code: string; due_date: string; kind: 'TASK' | 'MILESTONE'; priority: GroupSql['priority']; phase_code: string; unit_path: string | null }>(
+      `select t.id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.planned_finish::text as due_date, t.kind, t.priority, t.phase_code, ou.path as unit_path from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id
         where ${where.sql} order by t.planned_finish, t.id limit ${CALENDAR_CAP}`,
       where.params,
     );
@@ -213,7 +212,7 @@ export class PwfDeadlineReads {
           date,
           total: entry.total,
           counts_by_band: entry.counts,
-          tasks: rows.filter((row) => row.due_date === date).map((row) => ({ task_id: row.id, task_code: row.task_code, name: row.name, project_id: row.project_id, project_code: row.project_code, band: resolver.of({ status: 'IN_PROGRESS', excluded: false, tracked: true, plannedFinish: row.due_date, kind: row.kind, priority: row.priority, phaseCode: row.phase_code }).band })),
+          tasks: rows.filter((row) => row.due_date === date).map((row) => ({ task_id: row.id, task_code: row.task_code, name: row.name, project_id: row.project_id, project_code: row.project_code, band: resolver.of({ status: 'IN_PROGRESS', excluded: false, tracked: true, plannedFinish: row.due_date, kind: row.kind, priority: row.priority, phaseCode: row.phase_code }, row.unit_path).band })),
         })),
       shown: rows.length,
       total,
@@ -227,10 +226,10 @@ export class PwfDeadlineReads {
     if (!Number.isInteger(days) || days < 1 || days > 366) throw invalid('days');
     const today = vietnamDateOf(now);
     const to = addDays(today, days);
-    const resolver = await bandResolver(tx, this.policy, this.calendars, now);
+    const resolver = await bandResolver(tx, this.calendars, now);
     const where = conditionsOf(scope, { ...filter, dueFrom: today, dueTo: to }, today, [`t.kind = 'MILESTONE'`]);
-    const rows = await tx.query<{ id: string; milestone_id: string | null; task_code: string; name: string; project_id: string; project_code: string; planned_date: string; baseline_date: string | null; slip: number | null; critical: boolean; total_float: number | null; priority: GroupSql['priority']; phase_code: string; status: string }>(
-      `select t.id, t.milestone_id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.planned_finish::text as planned_date, t.baseline_finish::text as baseline_date, (t.planned_finish - t.baseline_finish) as slip, t.critical, t.total_float, t.priority, t.phase_code, t.status
+    const rows = await tx.query<{ id: string; milestone_id: string | null; task_code: string; name: string; project_id: string; project_code: string; planned_date: string; baseline_date: string | null; slip: number | null; critical: boolean; total_float: number | null; priority: GroupSql['priority']; phase_code: string; status: string; unit_path: string | null }>(
+      `select t.id, t.milestone_id, t.task_code, t.name, p.id as project_id, p.code as project_code, t.planned_finish::text as planned_date, t.baseline_finish::text as baseline_date, (t.planned_finish - t.baseline_finish) as slip, t.critical, t.total_float, t.priority, t.phase_code, t.status, ou.path as unit_path
          from ${SCOPE_FROM} join machvon.project_task t on t.tenant_id = p.tenant_id and t.project_id = p.id where ${where.sql} order by t.planned_finish, t.id limit ${MILESTONE_CAP}`,
       where.params,
     );
@@ -249,7 +248,7 @@ export class PwfDeadlineReads {
         baseline_date: row.baseline_date,
         forecast_slip_days: row.slip,
         at_risk: (row.slip ?? 0) > 0 || (row.critical && (row.total_float ?? 0) < 0),
-        band: resolver.of({ status: row.status as never, excluded: false, tracked: true, plannedFinish: row.planned_date, kind: 'MILESTONE', priority: row.priority, phaseCode: row.phase_code }),
+        band: resolver.of({ status: row.status as never, excluded: false, tracked: true, plannedFinish: row.planned_date, kind: 'MILESTONE', priority: row.priority, phaseCode: row.phase_code }, row.unit_path),
       })),
       total: Number(counted[0]?.n ?? 0),
       as_of: now.toISOString(),

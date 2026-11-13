@@ -7,12 +7,18 @@ import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/session/session.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/action_bar.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
-import '../../read_support/navigate.dart';
-import '../../read_support/widgets.dart';
 import '../approval_models.dart';
 import '../approval_support.dart';
+import 'decision_panels.dart';
 
 /// Reads a task and, when the record is a report, the report and the revision it corrects; the unit is read for its name.
 /// Those three are separate rights and each is optional: a refusal leaves the part out, a lost connection fails the read so
@@ -41,9 +47,10 @@ Future<Object?> _optional(Future<Object?> Function() read) async {
   }
 }
 
-/// MOB-24: one approval. What the record is, the comparison with the revision before it, and the evidence attached; then the
-/// two decisions, as buttons that lead to a confirmation (MOB-25) or to the return form (MOB-26). Offline, or on a copy, the
-/// buttons are disabled and the screen says why: the approval is never queued.
+/// MOB-24: one approval. What the record is and what is at stake (the amount in full, the unit, the step, the deadline), the comparison with
+/// the revision before it, and the evidence attached; then the two decisions on a bar that stays at the bottom. Each opens a sheet with the
+/// facts of the decision and its button (the confirmation is MOB-25 and the return MOB-26 as sheets; the screens stay for a deep link).
+/// Offline, or on a copy, the buttons are disabled and the bar says why: the approval is never queued.
 Widget buildApprovalDetailScreen(BuildContext context, ScreenContext screen) => ApprovalDetailScreen(taskId: screen.pathParameters['taskId'] ?? '');
 
 class ApprovalDetailScreen extends ConsumerWidget {
@@ -55,7 +62,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool offline = isOffline(ref);
     final SessionSnapshot session = ref.watch(sessionProvider);
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.apv.detail.title'),
       body: DataView<ApprovalDetail>(
         cacheKey: 'approvals.detail.$taskId',
@@ -64,6 +71,7 @@ class ApprovalDetailScreen extends ConsumerWidget {
         parse: parseApprovalDetail,
         builder: (BuildContext context, Loaded<ApprovalDetail> loaded) => _DetailBody(
           detail: loaded.value,
+          fromCopy: loaded.fromCache,
           gate: gateOf(task: loaded.value.task, offline: offline, fromCopy: loaded.fromCache, session: session),
         ),
       ),
@@ -72,157 +80,237 @@ class ApprovalDetailScreen extends ConsumerWidget {
 }
 
 class _DetailBody extends StatelessWidget {
-  const _DetailBody({required this.detail, required this.gate});
+  const _DetailBody({required this.detail, required this.fromCopy, required this.gate});
 
   final ApprovalDetail detail;
+  final bool fromCopy;
   final DecisionGate gate;
 
   @override
   Widget build(BuildContext context) {
     final ApprovalTask task = detail.task;
     final bool open = gate == DecisionGate.open;
-    return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2 v2 = context.v2;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        SectionCard(
-          title: context.t('mob.apv.detail.content.title'),
-          children: <Widget>[
-            if (task.amountVnd != null) ...<Widget>[
-              KpiTile(label: context.t('mob.apv.detail.content.amount'), value: moneyLabel(context, task.amountVnd)),
-              const SizedBox(height: MachvonSpace.space8),
-            ],
-            FactLine(label: context.t('mob.apv.detail.content.type'), value: businessTypeLabel(context, task.businessType)),
-            if (task.stepName.isNotEmpty) FactLine(label: context.t('mob.apv.detail.content.step'), value: task.stepName),
-            if (detail.unitName != null) FactLine(label: context.t('mob.apv.detail.content.unit'), value: detail.unitName!),
-            FactLine(label: context.t('mob.apv.detail.content.due'), value: formatMoment(task.dueAt)),
-            FactLine(label: context.t('mob.apv.detail.content.status'), value: taskStatusLabel(context, task.status)),
-            if (detail.report != null) FactLine(label: context.t('mob.apv.detail.content.record'), value: '${detail.report!.projectCode} · ${detail.report!.projectName} · ${detail.report!.periodCode}'),
-          ],
-        ),
-        _ComparisonCard(detail: detail),
-        _EvidenceCard(report: detail.report),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        Expanded(
+          child: ListView(
             children: <Widget>[
-              if (!open)
-                Semantics(
-                  liveRegion: true,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: MachvonSpace.space8),
-                    child: Text(gateText(context, gate), style: Theme.of(context).textTheme.bodyMedium),
-                  ),
+              if (task.overdue && task.isPending) StatusBanner(tone: BannerTone.late, text: context.t('mob.apv.detail.late.banner', <String, Object>{'time': formatMoment(task.dueAt)})),
+              if (task.escalated && task.isPending) StatusBanner(tone: BannerTone.warning, text: context.t('mob.apv.detail.escalated.banner')),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s16, MachvonV2Space.s12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Semantics(header: true, child: Text(businessTypeLabel(context, task.businessType), style: text.title, textScaler: cappedScaler(context, MachvonV2Type.titleScaleCap))),
+                    if (task.amountVnd != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: MachvonV2Space.s4),
+                        child: Semantics(
+                          label: '${context.t('mob.apv.detail.content.amount')}: ${moneyFullLabel(context, task.amountVnd)}',
+                          excludeSemantics: true,
+                          child: Text(moneyFullLabel(context, task.amountVnd), style: text.title.copyWith(color: v2.palette.primaryStrong)),
+                        ),
+                      ),
+                  ],
                 ),
-              FilledButton(
-                onPressed: open ? () => openScreen(context, 'MOB-25', pathSuffix: '/${Uri.encodeComponent(task.id)}', stacked: true) : null,
-                child: Text(context.t('mob.apv.detail.approve.action')),
               ),
-              const SizedBox(height: MachvonSpace.space8),
-              OutlinedButton(
-                onPressed: open ? () => openScreen(context, 'MOB-26', pathSuffix: '/${Uri.encodeComponent(task.id)}', stacked: true) : null,
-                child: Text(context.t('mob.apv.detail.return.action')),
-              ),
+              GroupHeader(title: context.t('mob.apv.detail.content.title')),
+              InfoRow(label: context.t('mob.apv.detail.content.type'), value: businessTypeLabel(context, task.businessType), divider: false),
+              InfoRow(label: context.t('mob.apv.detail.content.step'), value: task.stepName),
+              InfoRow(label: context.t('mob.apv.detail.content.unit'), value: detail.unitName),
+              InfoRow(label: context.t('mob.apv.detail.content.due'), value: formatMoment(task.dueAt)),
+              InfoRow(label: context.t('mob.apv.detail.content.status'), value: taskStatusLabel(context, task.status)),
+              if (detail.report != null)
+                InfoRow(label: context.t('mob.apv.detail.content.record'), value: '${detail.report!.projectCode} · ${detail.report!.projectName} · ${detail.report!.periodCode}'),
+              GroupHeader(title: context.t('mob.apv.detail.compare.title')),
+              _Comparison(detail: detail),
+              GroupHeader(title: context.t('mob.apv.detail.evidence.title'), count: detail.report?.evidence.length),
+              _Evidence(report: detail.report),
+              const SizedBox(height: MachvonV2Space.s16),
             ],
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _ComparisonCard extends StatelessWidget {
-  const _ComparisonCard({required this.detail});
-
-  final ApprovalDetail detail;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final ReportFigures? report = detail.report;
-    final ReportFigures? previous = detail.previous;
-    final List<CellChange>? changes = detail.changes;
-    final String language = AppStrings.of(context).language;
-    return SectionCard(
-      title: context.t('mob.apv.detail.compare.title'),
-      children: <Widget>[
-        if (report == null)
-          Text(context.t('mob.apv.detail.compare.unavailable'), style: theme.textTheme.bodyMedium)
-        else if (previous == null || changes == null)
-          Text(context.t('mob.apv.detail.compare.first'), style: theme.textTheme.bodyMedium)
-        else ...<Widget>[
-          Text(context.t('mob.apv.detail.compare.revision', <String, Object>{'current': report.revision, 'previous': previous.revision}), style: theme.textTheme.bodyMedium),
-          if (report.amendmentReason != null) Text(context.t('mob.apv.detail.compare.amendment', <String, Object>{'reason': report.amendmentReason!}), style: theme.textTheme.bodySmall),
-          for (final CellChange change in changes) _CellLine(change: change, language: language),
-          Padding(
-            padding: const EdgeInsets.only(top: MachvonSpace.space8),
-            child: Text(
-              context.t('mob.apv.detail.compare.total', <String, Object>{
-                'previous': moneyLabel(context, previous.totalVnd),
-                'current': moneyLabel(context, report.totalVnd),
-                'change': _change(context, differenceDong(report.totalVnd, previous.totalVnd), language),
-              }),
-              style: theme.textTheme.bodyLarge,
-            ),
+        ActionBar(
+          primary: ActionBarButton(
+            label: context.t('mob.apv.detail.approve.action'),
+            onPressed: open ? () => showApprovalConfirmSheet(context, task: task, unitName: detail.unitName, fromCopy: fromCopy) : null,
           ),
-          Text(context.t('mob.apv.detail.compare.ctmtqg', <String, Object>{'value': moneyLabel(context, report.ctmtqgVnd)}), style: theme.textTheme.bodySmall),
-        ],
+          secondary: ActionBarButton(
+            label: context.t('mob.apv.detail.return.action'),
+            onPressed: open ? () => showApprovalReturnSheet(context, task: task, unitName: detail.unitName, fromCopy: fromCopy) : null,
+          ),
+          why: open ? null : gateText(context, gate),
+        ),
       ],
     );
   }
 }
 
 /// The change of an amount as a person reads it: a rise has a plus, a fall a minus, no change says so.
-String _change(BuildContext context, String changeVnd, String language) =>
-    changeVnd == '0' ? context.t('mob.apv.detail.compare.unchanged') : signedMoneyLabel(context, changeVnd);
+String _change(BuildContext context, String changeVnd) => changeVnd == '0' ? context.t('mob.apv.detail.compare.unchanged') : signedMoneyLabel(context, changeVnd);
 
-class _CellLine extends StatelessWidget {
-  const _CellLine({required this.change, required this.language});
+class _Comparison extends StatelessWidget {
+  const _Comparison({required this.detail});
 
-  final CellChange change;
-  final String language;
+  final ApprovalDetail detail;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
-      child: MergeSemantics(
-        child: Text(
-          context.t('mob.apv.detail.compare.cell', <String, Object>{
-            'cell': cellLabel(context, change.bucket, change.level),
-            'previous': moneyLabel(context, change.previousVnd),
-            'current': moneyLabel(context, change.currentVnd),
-            'change': _change(context, change.changeVnd, language),
-          }),
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: change.changed ? FontWeight.w700 : FontWeight.w400),
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2 v2 = context.v2;
+    final ReportFigures? report = detail.report;
+    final ReportFigures? previous = detail.previous;
+    final List<CellChange>? changes = detail.changes;
+    Widget note(String line, {Color? color}) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+          child: Text(line, style: text.body.copyWith(color: color ?? v2.palette.ink2)),
+        );
+    if (report == null) return note(context.t('mob.apv.detail.compare.unavailable'));
+    if (previous == null || changes == null) return note(context.t('mob.apv.detail.compare.first'));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        note(context.t('mob.apv.detail.compare.revision', <String, Object>{'current': report.revision, 'previous': previous.revision})),
+        if (report.amendmentReason != null) note(context.t('mob.apv.detail.compare.amendment', <String, Object>{'reason': report.amendmentReason!})),
+        for (final CellChange change in changes)
+          _FigureRow(
+            label: cellLabel(context, change.bucket, change.level),
+            previousVnd: change.previousVnd,
+            currentVnd: change.currentVnd,
+            changeVnd: change.changeVnd,
+            changed: change.changed,
+          ),
+        _FigureRow(
+          label: context.t('mob.apv.detail.compare.totalLabel'),
+          previousVnd: previous.totalVnd,
+          currentVnd: report.totalVnd,
+          changeVnd: differenceDong(report.totalVnd, previous.totalVnd),
+          changed: true,
+          total: true,
         ),
+        note(context.t('mob.apv.detail.compare.ctmtqg', <String, Object>{'value': moneyLabel(context, report.ctmtqgVnd)})),
+      ],
+    );
+  }
+}
+
+/// One figure of two revisions: what the record says now, and under it what it said before and what changed (a fall carries a minus sign and
+/// a down arrow, a rise a plus sign and an up arrow: never colour alone). A screen reader gets the whole sentence.
+class _FigureRow extends StatelessWidget {
+  const _FigureRow({required this.label, required this.previousVnd, required this.currentVnd, required this.changeVnd, required this.changed, this.total = false});
+
+  final String label;
+  final String previousVnd;
+  final String currentVnd;
+  final String changeVnd;
+  final bool changed;
+  /// The cumulative total: its label is a heading figure and its sentence has no cell name.
+  final bool total;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2 v2 = context.v2;
+    final String change = _change(context, changeVnd);
+    final String previous = moneyLabel(context, previousVnd);
+    final String current = moneyLabel(context, currentVnd);
+    final bool noChange = changeVnd == '0';
+    final bool fall = changeVnd.startsWith('-');
+    final String spoken = total
+        ? context.t('mob.apv.detail.compare.total', <String, Object>{'previous': previous, 'current': current, 'change': change})
+        : context.t('mob.apv.detail.compare.cell', <String, Object>{'cell': label, 'previous': previous, 'current': current, 'change': change});
+    return Semantics(
+      container: true,
+      label: spoken,
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          SizedBox(height: 1, child: ColoredBox(color: v2.palette.line)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(flex: 3, child: Text(label, style: total ? text.bodyStrong : text.body)),
+                const SizedBox(width: MachvonV2Space.s12),
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(current, textAlign: TextAlign.end, style: text.bodyStrong),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          if (changed && !noChange) ...<Widget>[Icon(fall ? Icons.arrow_downward : Icons.arrow_upward, size: 14, color: v2.palette.ink2), const SizedBox(width: 2)],
+                          Flexible(
+                            child: Text(
+                              context.t('mob.apv.detail.compare.cellNote', <String, Object>{'previous': previous, 'change': change}),
+                              textAlign: TextAlign.end,
+                              style: changed && !noChange ? text.captionStrong : text.caption,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _EvidenceCard extends StatelessWidget {
-  const _EvidenceCard({required this.report});
+class _Evidence extends StatelessWidget {
+  const _Evidence({required this.report});
 
   final ReportFigures? report;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2 v2 = context.v2;
     final List<Evidence> files = report?.evidence ?? const <Evidence>[];
-    return SectionCard(
-      title: context.t('mob.apv.detail.evidence.title'),
+    if (files.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+        child: Text(context.t('mob.apv.detail.evidence.none'), style: text.body.copyWith(color: v2.palette.ink2)),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        if (files.isEmpty) Text(context.t('mob.apv.detail.evidence.none'), style: theme.textTheme.bodyMedium),
         for (final Evidence file in files)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space4),
-            child: MergeSemantics(
-              child: Column(
+          Semantics(
+            container: true,
+            label: context.t('mob.apv.detail.evidence.file', <String, Object>{'name': file.fileName, 'type': file.contentType, 'size': (file.sizeBytes / 1024).ceil()}),
+            excludeSemantics: true,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(context.t('mob.apv.detail.evidence.file', <String, Object>{'name': file.fileName, 'type': file.contentType, 'size': (file.sizeBytes / 1024).ceil()}), style: theme.textTheme.bodyMedium),
-                  if (file.sha256.isNotEmpty) Text(context.t('mob.apv.detail.evidence.hash', <String, Object>{'hash': file.sha256.length > 16 ? '${file.sha256.substring(0, 16)}…' : file.sha256}), style: theme.textTheme.bodySmall),
+                  Icon(Icons.attach_file, size: 20, color: v2.palette.ink2),
+                  const SizedBox(width: MachvonV2Space.s8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(file.fileName, style: text.bodyStrong),
+                        Text(context.t('mob.apv.detail.evidence.meta', <String, Object>{'type': file.contentType, 'size': (file.sizeBytes / 1024).ceil()}), style: text.caption),
+                        if (file.sha256.isNotEmpty)
+                          Text(context.t('mob.apv.detail.evidence.hash', <String, Object>{'hash': file.sha256.length > 16 ? '${file.sha256.substring(0, 16)}…' : file.sha256}), style: text.caption),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

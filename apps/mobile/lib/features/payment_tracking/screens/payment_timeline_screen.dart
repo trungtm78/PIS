@@ -5,6 +5,15 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 import '../../../core/format/format.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/filter_chips.dart';
+import '../../../core/widgets/info_row.dart';
+import '../../../core/widgets/stage_strip.dart';
+import '../../../core/widgets/state_view.dart';
+import '../../../core/widgets/timeline.dart';
+import '../../acceptance_handover/widgets/fact_row.dart';
 import '../../project_views/project_models.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
@@ -43,7 +52,7 @@ class _ProjectsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.paytrack.projects.title'),
       body: DataView<ProjectRegister>(
         cacheKey: 'paytrack.projects',
@@ -54,27 +63,17 @@ class _ProjectsScreen extends StatelessWidget {
         builder: (BuildContext context, Loaded<ProjectRegister> loaded) => ListView(
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(MachvonSpace.space16),
-              child: Text(context.t('mob.paytrack.projects.intro'), style: Theme.of(context).textTheme.bodyMedium),
+              padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s4, MachvonV2Space.s16, MachvonV2Space.s12),
+              child: Text(context.t('mob.paytrack.projects.intro'), style: context.v2text.caption.copyWith(color: context.v2.palette.ink2)),
             ),
-            for (final ProjectLine project in loaded.value.projects)
-              TappableRow(
-                semanticLabel: context.t('mob.paytrack.projects.row.aria', <String, Object>{'code': project.code, 'name': project.name}),
-                onTap: () => openScreen(context, 'MOB-27', query: <String, String>{'project': project.id}, stacked: true),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(project.code, style: Theme.of(context).textTheme.bodyLarge),
-                          Text(project.name, style: Theme.of(context).textTheme.bodyMedium),
-                        ],
-                      ),
-                    ),
-                    const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-                  ],
-                ),
+            for (int index = 0; index < loaded.value.projects.length; index += 1)
+              FactRow(
+                title: loaded.value.projects[index].code,
+                icon: Icons.account_balance_wallet_outlined,
+                lines: <String>[loaded.value.projects[index].name],
+                dividerAbove: index > 0,
+                semanticLabel: context.t('mob.paytrack.projects.row.aria', <String, Object>{'code': loaded.value.projects[index].code, 'name': loaded.value.projects[index].name}),
+                onTap: () => openScreen(context, 'MOB-27', query: <String, String>{'project': loaded.value.projects[index].id}, stacked: true),
               ),
           ],
         ),
@@ -98,7 +97,7 @@ class _ChainScreenState extends State<_ChainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.paytrack.chain.title'),
       body: DataView<PaymentChain>(
         cacheKey: 'paytrack.chain.${widget.projectId}',
@@ -126,60 +125,59 @@ class _ChainBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final List<ChainNode> contracts = chain.nodesOf('contract');
     final List<ChainNode> requests = chain.requests(contractId: contractId);
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         SectionCard(
           title: context.t('mob.paytrack.chain.totals.title'),
           children: <Widget>[
-            KpiGroup(
-              columns: 1,
-              tiles: <Widget>[
-                KpiTile(label: context.t('mob.paytrack.chain.totals.count'), value: '${chain.countedRequests}'),
-                KpiTile(label: context.t('mob.paytrack.chain.totals.gross'), value: moneyExactLabel(context, chain.countedGrossVnd)),
-                KpiTile(label: context.t('mob.paytrack.chain.totals.settled'), value: moneyExactLabel(context, chain.settledGrossVnd)),
-              ],
-            ),
-            const SizedBox(height: MachvonSpace.space8),
-            Text(context.t('mob.paytrack.readOnly'), style: theme.textTheme.bodySmall),
+            InfoRow(label: context.t('mob.paytrack.chain.totals.count'), value: '${chain.countedRequests}', divider: false),
+            InfoRow(label: context.t('mob.paytrack.chain.totals.gross'), value: moneyExactLabel(context, chain.countedGrossVnd)),
+            InfoRow(label: context.t('mob.paytrack.chain.totals.settled'), value: moneyExactLabel(context, chain.settledGrossVnd)),
+            Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.paytrack.readOnly'), style: text.caption)),
           ],
         ),
         if (contracts.length > 1)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16, vertical: MachvonSpace.space8),
-            child: DropdownButtonFormField<String?>(
-              initialValue: contractId,
-              isExpanded: true,
-              decoration: InputDecoration(labelText: context.t('mob.paytrack.chain.contract.label')),
-              items: <DropdownMenuItem<String?>>[
-                DropdownMenuItem<String?>(child: Text(context.t('mob.paytrack.chain.contract.all'))),
-                for (final ChainNode contract in contracts) DropdownMenuItem<String?>(value: contract.id, child: Text(contract.label)),
-              ],
-              onChanged: onContract,
+          FilterChips<String?>(
+            options: <ChipOption<String?>>[
+              ChipOption<String?>(value: null, label: context.t('mob.paytrack.chain.contract.all')),
+              for (final ChainNode contract in contracts) ChipOption<String?>(value: contract.id, label: contract.label),
+            ],
+            selected: contractId,
+            onChanged: onContract,
+          ),
+        if (chain.truncated.isNotEmpty) StatusBanner(text: context.t('mob.paytrack.chain.truncated'), tone: BannerTone.warning),
+        if (requests.isEmpty)
+          SizedBox(
+            height: 360,
+            child: StateView(
+              kind: StateKind.empty,
+              title: context.t('mob.paytrack.chain.none'),
+              body: context.t('mob.paytrack.chain.none.body'),
+              actionLabel: contractId == null ? context.t('mob.paytrack.chain.none.other') : context.t('mob.paytrack.chain.none.action'),
+              onAction: contractId == null ? () => openScreen(context, 'MOB-27') : () => onContract(null),
             ),
           ),
-        if (chain.truncated.isNotEmpty) Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonSpace.space16), child: Text(context.t('mob.paytrack.chain.truncated'), style: theme.textTheme.bodySmall)),
-        if (requests.isEmpty)
-          Padding(padding: const EdgeInsets.all(MachvonSpace.space16), child: Text(context.t('mob.paytrack.chain.none'), style: theme.textTheme.bodyMedium)),
-        for (final ChainNode request in requests) _RequestRow(projectId: projectId, request: request),
+        for (int index = 0; index < requests.length; index += 1) _RequestRow(projectId: projectId, request: requests[index], dividerAbove: index > 0),
       ],
     );
   }
 }
 
 class _RequestRow extends StatelessWidget {
-  const _RequestRow({required this.projectId, required this.request});
+  const _RequestRow({required this.projectId, required this.request, required this.dividerAbove});
 
   final String projectId;
   final ChainNode request;
+  final bool dividerAbove;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final String status = paymentStatusLabel(context, request.status ?? 'DRAFT');
+    final String statusCode = request.status ?? 'DRAFT';
+    final String status = paymentStatusLabel(context, statusCode);
     final String kind = paymentKindLabel(context, request.fact('request_kind') ?? 'INTERIM');
     final String? net = request.fact('net_vnd');
     final String? created = request.fact('created_at');
@@ -187,26 +185,18 @@ class _RequestRow extends StatelessWidget {
       'gross': request.amountVnd == null ? context.t('mob.treasury.figure.none') : moneyExactLabel(context, request.amountVnd),
       'net': net == null ? context.t('mob.treasury.figure.none') : moneyExactLabel(context, net),
     });
-    return TappableRow(
+    return FactRow(
+      title: request.label,
+      icon: Icons.receipt_long_outlined,
+      lines: <String>[
+        kind,
+        amounts,
+        if (created != null) context.t('mob.paytrack.chain.row.created', <String, Object>{'time': formatMoment(created)}),
+      ],
+      trailing: StatusPill(label: status, tone: paymentTone(statusCode)),
+      dividerAbove: dividerAbove,
       semanticLabel: context.t('mob.paytrack.chain.row.aria', <String, Object>{'no': request.label, 'kind': kind, 'status': status, 'amounts': amounts}),
       onTap: () => openScreen(context, 'MOB-27', query: <String, String>{'project': projectId, 'request': request.id}, stacked: true),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(request.label, style: theme.textTheme.bodyLarge),
-                Text(kind, style: theme.textTheme.bodyMedium),
-                StatusPill(label: status),
-                Text(amounts, style: theme.textTheme.bodyMedium),
-                if (created != null) Text(context.t('mob.paytrack.chain.row.created', <String, Object>{'time': formatMoment(created)}), style: theme.textTheme.bodySmall),
-              ],
-            ),
-          ),
-          const ExcludeSemantics(child: Icon(Icons.chevron_right)),
-        ],
-      ),
     );
   }
 }
@@ -219,7 +209,7 @@ class _RequestScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenFrame(
+    return AppScaffold(
       title: context.t('mob.paytrack.request.title'),
       body: DataView<PaymentTimeline>(
         cacheKey: 'paytrack.request.$requestId',
@@ -239,43 +229,55 @@ class _TimelineBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final PaymentRequest request = timeline.request;
+    final int? step = paymentStep(request.status);
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         SectionCard(
           title: request.requestNo,
           children: <Widget>[
             Wrap(
-              spacing: MachvonSpace.space8,
-              children: <Widget>[StatusPill(label: paymentStatusLabel(context, request.status)), StatusPill(label: paymentKindLabel(context, request.kind))],
+              spacing: MachvonV2Space.s8,
+              runSpacing: MachvonV2Space.s4,
+              children: <Widget>[
+                StatusPill(label: paymentStatusLabel(context, request.status), tone: paymentTone(request.status)),
+                StatusPill(label: paymentKindLabel(context, request.kind), tone: MachvonTone.neutral),
+              ],
             ),
-            if (request.contractCode.isNotEmpty) FactLine(label: context.t('mob.paytrack.request.contract'), value: request.contractCode),
-            if (timeline.lastEventAt != null) FactLine(label: context.t('mob.paytrack.request.lastEvent'), value: formatMoment(timeline.lastEventAt!)),
-            if (request.returnReason != null) Text(context.t('mob.paytrack.request.returnReason', <String, Object>{'reason': request.returnReason!}), style: theme.textTheme.bodyMedium),
-            if (request.cancelReason != null) Text(context.t('mob.paytrack.request.cancelReason', <String, Object>{'reason': request.cancelReason!}), style: theme.textTheme.bodyMedium),
-            Text(context.t('mob.paytrack.readOnly'), style: theme.textTheme.bodySmall),
+            InfoRow(label: context.t('mob.paytrack.request.contract'), value: request.contractCode),
+            InfoRow(label: context.t('mob.paytrack.request.lastEvent'), value: timeline.lastEventAt == null ? null : formatMoment(timeline.lastEventAt!)),
+            if (request.returnReason != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.paytrack.request.returnReason', <String, Object>{'reason': request.returnReason!}), style: text.body)),
+            if (request.cancelReason != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.paytrack.request.cancelReason', <String, Object>{'reason': request.cancelReason!}), style: text.body)),
+            Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.paytrack.readOnly'), style: text.caption)),
           ],
         ),
+        if (step != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s8),
+            child: StageStrip(
+              total: paymentSteps,
+              current: step,
+              currentFraction: 1,
+              label: context.t('mob.paytrack.request.stage', <String, Object>{'n': step, 'total': paymentSteps, 'status': paymentStatusLabel(context, request.status)}),
+            ),
+          ),
         SectionCard(
           title: context.t('mob.paytrack.amounts.title'),
           children: <Widget>[
-            KpiTile(label: context.t('mob.paytrack.amounts.gross'), value: moneyExactLabel(context, request.grossVnd)),
-            const SizedBox(height: MachvonSpace.space8),
-            FactLine(label: context.t('mob.paytrack.amounts.advance'), value: moneyExactLabel(context, request.advanceRecoveryVnd)),
-            FactLine(label: context.t('mob.paytrack.amounts.retention'), value: moneyExactLabel(context, request.retentionVnd)),
-            if (request.taxAdjustmentVnd != null) FactLine(label: context.t('mob.paytrack.amounts.tax'), value: moneyExactLabel(context, request.taxAdjustmentVnd)),
-            if (request.advanceRecoveryExtraVnd != null) FactLine(label: context.t('mob.paytrack.amounts.extra'), value: moneyExactLabel(context, request.advanceRecoveryExtraVnd)),
-            const SizedBox(height: MachvonSpace.space8),
-            KpiTile(label: context.t('mob.paytrack.amounts.net'), value: moneyExactLabel(context, request.netVnd)),
+            InfoRow(label: context.t('mob.paytrack.amounts.gross'), value: moneyExactLabel(context, request.grossVnd), divider: false),
+            InfoRow(label: context.t('mob.paytrack.amounts.advance'), value: moneyExactLabel(context, request.advanceRecoveryVnd)),
+            InfoRow(label: context.t('mob.paytrack.amounts.retention'), value: moneyExactLabel(context, request.retentionVnd)),
+            InfoRow(label: context.t('mob.paytrack.amounts.tax'), value: request.taxAdjustmentVnd == null ? null : moneyExactLabel(context, request.taxAdjustmentVnd)),
+            InfoRow(label: context.t('mob.paytrack.amounts.extra'), value: request.advanceRecoveryExtraVnd == null ? null : moneyExactLabel(context, request.advanceRecoveryExtraVnd)),
+            InfoRow(label: context.t('mob.paytrack.amounts.net'), value: moneyExactLabel(context, request.netVnd)),
           ],
         ),
         SectionCard(
           title: context.t('mob.paytrack.events.title'),
           children: <Widget>[
-            if (timeline.events.isEmpty) Text(context.t('mob.paytrack.events.none'), style: theme.textTheme.bodyMedium),
-            for (final TimelineEvent event in timeline.events) _EventLine(event: event),
+            if (timeline.events.isEmpty) Text(context.t('mob.paytrack.events.none'), style: text.body) else TimelineList(entries: <TimelineEntry>[for (final TimelineEvent event in timeline.events) _entry(context, event)]),
           ],
         ),
       ],
@@ -283,48 +285,43 @@ class _TimelineBody extends StatelessWidget {
   }
 }
 
-class _EventLine extends StatelessWidget {
-  const _EventLine({required this.event});
-
-  final TimelineEvent event;
-
-  String _name(BuildContext context) {
-    switch (event.kind) {
-      case 'created':
-        return context.t('mob.paytrack.event.created');
-      case 'submitted':
-        return context.t('mob.paytrack.event.submitted');
-      case 'sentTreasury':
-        return context.t('mob.paytrack.event.sentTreasury');
-      case 'transaction':
-        return context.t('mob.paytrack.event.transaction', <String, Object>{'voucher': event.label ?? ''});
-      case 'refund':
-        return context.t('mob.paytrack.event.refund', <String, Object>{'voucher': event.label ?? ''});
-      case 'paid':
-        return context.t('mob.paytrack.event.paid');
-      case 'reversed':
-        return context.t('mob.paytrack.event.reversed');
-      default:
-        return context.t('mob.paytrack.event.settlement', <String, Object>{'label': event.label ?? ''});
-    }
+String _eventName(BuildContext context, TimelineEvent event) {
+  switch (event.kind) {
+    case 'created':
+      return context.t('mob.paytrack.event.created');
+    case 'submitted':
+      return context.t('mob.paytrack.event.submitted');
+    case 'sentTreasury':
+      return context.t('mob.paytrack.event.sentTreasury');
+    case 'transaction':
+      return context.t('mob.paytrack.event.transaction', <String, Object>{'voucher': event.label ?? ''});
+    case 'refund':
+      return context.t('mob.paytrack.event.refund', <String, Object>{'voucher': event.label ?? ''});
+    case 'paid':
+      return context.t('mob.paytrack.event.paid');
+    case 'reversed':
+      return context.t('mob.paytrack.event.reversed');
+    default:
+      return context.t('mob.paytrack.event.settlement', <String, Object>{'label': event.label ?? ''});
   }
+}
 
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final String? when = event.instant != null ? formatMoment(event.instant!) : (event.day != null ? formatDay(event.day!) : null);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space8),
-      child: MergeSemantics(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(_name(context), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
-            if (when != null) Text(when, style: theme.textTheme.bodySmall),
-            if (event.amountVnd != null) Text(moneyExactLabel(context, event.amountVnd), style: theme.textTheme.bodySmall),
-          ],
-        ),
-      ),
-    );
-  }
+IconData _eventIcon(String kind) => switch (kind) {
+      'created' => Icons.edit_note,
+      'submitted' => Icons.outbox_outlined,
+      'sentTreasury' => Icons.account_balance_outlined,
+      'transaction' => Icons.swap_horiz,
+      'refund' || 'reversed' => Icons.undo,
+      'paid' => Icons.check_circle_outline,
+      _ => Icons.task_alt,
+    };
+
+TimelineEntry _entry(BuildContext context, TimelineEvent event) {
+  final String? when = event.instant != null ? formatMoment(event.instant!) : (event.day != null ? formatDay(event.day!) : null);
+  return TimelineEntry(
+    title: _eventName(context, event),
+    when: when ?? '',
+    detail: event.amountVnd == null ? null : moneyExactLabel(context, event.amountVnd),
+    icon: _eventIcon(event.kind),
+  );
 }

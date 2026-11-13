@@ -177,7 +177,11 @@ Khối migration **PWF-1: 3000–3019** (workflow, lịch, deadline, nhắc; PWF
 - `staff_score_line` (mới): id, period_id, membership_id, unit_id_at_period (đơn vị tại thời điểm kỳ), score_computed, score_adjusted, rating, state (RATED | NOT_RATED | SMALL_SAMPLE), rated_task_count, effective_weight, contributions (jsonb), excluded (jsonb), flags (jsonb). RLS theo chủ thể và phạm vi (V3023): chính người đó, hoặc quản lý có scope trên `unit_id_at_period`, hoặc quyền `staff_score.read_hr`.
 - `staff_score_adjustment` (mới): id, line_id, points, reason, evidence_ref, status, requested_by, decided_by, decided_at; CHECK `requested_by <> decided_by`.
 - `staff_score_response` (mới): id, line_id, body, status (OPEN | HANDLED), submitted_at, handled_by, handled_at, approval_instance_id (ADM).
-- Chính sách lưu trữ (V3024): job xóa hoặc ẩn danh theo `retention_months`.
+- `staff_score_signal` (mới, chỉ người rà soát đọc): id, period_id, membership_id, unit_id_at_period, code (`CANCELLED_SHARE_HIGH`, `TASKS_SPLIT_AFTER_BASELINE`, `BASELINE_REVISED_IN_PERIOD`, `ASSIGNEE_CHANGED_NEAR_DUE`), task_codes; chính sách không có đường chủ thể nên người được chấm không bao giờ thấy.
+- `staff_score_line`, `staff_score_adjustment`, `staff_score_response`, `staff_score_signal` mang `unit_id_at_period` (và `subject_membership_id` ở hai bảng giữa) để chính sách `scope_units_guard` không cần nối bảng: hàng chỉ hiện khi `app.scope_units` là `*` hoặc nêu đơn vị đó, hoặc (trừ bảng tín hiệu) `app.score_subject` là chính người đó; không đặt thì không thấy hàng nào và không ghi được. Điều chỉnh tích lũy của một dòng không vượt `max_adjustment_points`; `adjustment_points` là tổng điểm đã duyệt, điểm tính không đổi.
+- `project_task.kpi_recorded_version` (mở rộng): phiên bản của việc khi KPI được tính lần cuối; job chỉ đọc lại việc đã xong hoặc đã hủy mà `version` đã đổi (tăng dần, R35).
+- Chính sách lưu trữ (V3033): hàm `machvon.pwf_expire_staff_scores(period)` (SECURITY DEFINER, chỉ cho tenant của giao dịch, chỉ kỳ OFFICIAL) ẩn danh dữ liệu cá nhân của kỳ khi hết `retention_months`: dòng mất `membership_id`, đóng góp và phép loại trừ; điều chỉnh và phản hồi mất lời và người; ảnh chụp thay bằng dấu; giữ băm, điểm và số tổng hợp không tên (`staff_score_period.summary`).
+- Số migration PWF-3 dùng cuối khối: V3030 `task_kpi_result`, V3031 `staff_score_period`, V3032 `staff_score_line` (cùng điều chỉnh, phản hồi, tín hiệu), V3033 lưu trữ, V3034 `kpi_recorded_version`; V3020 đến V3029 để cho làn pwf2 (đã ghi `retired` trong `blocks.json` của nhánh này cho đến khi gộp).
 - Nhật ký xem: dùng ADM-11 sẵn có, không bảng riêng.
 
 **Bất biến DB (tóm tắt).** `project_task_log`, `project_task_evidence`, `project_task_assignment`, `project_schedule_version`, `project_task_baseline`, `task_kpi_result` chỉ thêm (trigger chặn UPDATE/DELETE); `decided_by <> requested_by` ở bảng ngoại lệ và điều chỉnh; một workflow mỗi dự án; một đề nghị dời lịch `PROPOSED` mỗi workflow (UNIQUE một phần); mốc ghi vào đúng một `project_milestone`.
@@ -241,6 +245,7 @@ Tất cả đăng ký bằng `node scripts/contract-patch.mjs`; tag `PWF`; lện
 | `getMyStaffScore` | GET /me/staff-scores | staff_score.read_own | `MyStaffScorePage` (điểm, phân rã, điều chỉnh, phản hồi) | — | không | không |
 | `getStaffScoreLine` | GET /staff-score-lines/{id} | staff_score.read_own hoặc read_unit hoặc read_hr | `StaffScoreLine` (phân rã tới việc và dữ kiện; ghi ADM-11 khi người khác xem) | 404 | không | không |
 | `compareStaffScoreLines` | GET /staff-score-lines/compare | staff_score.read_own hoặc read_unit | `StaffScoreComparison` (so sánh kỳ của cùng người; không xếp hạng chéo mẫu chênh) | — | không | không |
+| `getStaffScoreOverview` | GET /staff-score-periods/{id}/overview | staff_score.read_hr | `StaffScoreOverview` (theo đơn vị tại kỳ: số người, xếp loại, mẫu nhỏ, trung bình, số điều chỉnh, phản hồi mở; không tên, không điểm từng người; chỉ cấp toàn tenant) | `SCOPE_DENIED` | không | không |
 | `exportStaffScorePeriod` | GET /staff-score-periods/{id}/export | staff_score.export | tệp Excel; kiểm lại quyền trên tài liệu nguồn; ghi ADM-11 | `SCOPE_DENIED` | không | không |
 | `listStaffScoreSignals` | GET /staff-score-periods/{id}/signals | staff_score.review | `StaffScoreSignalPage` (cờ thao túng) | — | không | không |
 | `requestStaffScoreAdjustment` | POST /staff-score-lines/{id}/adjustments | staff_score.adjust | `StaffScoreAdjustmentRequest` (points, reason, evidence_ref) → `CommandResult` | `STAFF_SCORE_ADJUSTMENT_INVALID`, `STAFF_SCORE_PERIOD_LOCKED` | có | không |
@@ -248,6 +253,8 @@ Tất cả đăng ký bằng `node scripts/contract-patch.mjs`; tag `PWF`; lện
 | `submitStaffScoreResponse` | POST /staff-score-lines/{id}/responses | staff_score.read_own | `StaffScoreResponseInput` → `CommandResult` | `STAFF_SCORE_RESPONSE_WINDOW_CLOSED`, `VALIDATION_FAILED` | có | không |
 | `handleStaffScoreResponse` | POST /staff-score-responses/{id}/handle | staff_score.approve | `StaffScoreResponseHandle` (kết luận, giữ hay điều chỉnh) → `CommandResult` | `SELF_APPROVAL_DENIED` | có | có |
 | `officializeStaffScorePeriod` | POST /staff-score-periods/{id}/officialize | staff_score.manage (hoặc job) | → `CommandResult` | `STAFF_SCORE_PERIOD_LOCKED` | có | có |
+
+**Nghiệp vụ ADM `score.response` (R43).** Loại nghiệp vụ `score.response` (tài liệu `STAFF_SCORE_RESPONSE`, mô-đun PWF, bật bằng cấu hình `MACHVON_APPROVAL_BUSINESS_TYPES`) có handler thật `scoreResponseHandler` đăng ký lúc khởi động (kiểm R14): lệnh cuối `upholdStaffScoreResponse` (duyệt: phản hồi được chấp nhận), `returnStaffScoreResponse` (trả lại), `keepStaffScore` (từ chối: giữ điểm) đều đặt phản hồi `HANDLED` kèm lý do của người duyệt cuối, kết thúc đồng hồ `PWF_SCORE_RESPONSE` (đồng hồ làm việc của trung tâm cảnh báo, chủ là đơn vị của người được chấm) và ghi nhật ký cùng sự kiện `pwf.score.response.handled.v1`. Khi tenant đã công bố quy trình cho loại này, `submitStaffScoreResponse` mở một phiên bản của bộ máy trong cùng giao dịch và `handleStaffScoreResponse` bị từ chối 409 `WORKFLOW_ALREADY_RUNNING`; chưa công bố thì phản hồi do người có `staff_score.approve` xử lý trực tiếp.
 
 Cổng nội bộ (không phải REST): `ProjectWorkflowGate.assert(tx, project, target)` cho `prj-stage-store` và consumer sự kiện hệ thống; `ProjectScheduleReadPort` cho look-ahead, EVM, IPF; `LegalDocTypeResolver` theo bản.
 
@@ -391,7 +398,7 @@ Không có câu hỏi nào chờ chủ sở hữu: mọi lựa chọn mở đã 
 | ST-PWF-019 | Là cán bộ, tôi theo dõi việc trên điện thoại | MOB-78 đến 80 | BR-PWF-23, 26 | AC-ST-PWF-019-1 |
 | ST-PWF-020 | Là lãnh đạo, tôi xem tải công việc theo người | PWF-07 | BR-PWF-18 | AC-ST-PWF-020-1 |
 
-Đăng ký câu chuyện vào `implementation_plan.json`, `traceability.json` và `test_cases.json` do làn tích hợp thực hiện sau khi hợp đồng JSON đã gộp (các tệp đó không nằm trong công cụ `contract-patch`); các ID trên là khóa cho việc đó.
+Đã đăng ký (làn `pwfreg`, 2026-11-13) vào `implementation_plan.json` (epic EP-PWF, tám feature FT-PWF-01..08, 20 câu chuyện), `test_cases.json` (T-PWF-01..21, UAT-PWF, UI-PWF-01..16, UI-MOB-78..82), `traceability.json` (FR-PWF-01..16, FR-MOB-78..82), `implementation_backlog.json` (BL-PWF-01..16, BL-MOB-78..82) và `navigation_architecture.json`, bằng `node scripts/contract-patch.mjs apply --spec docs/plans/pwf-register.json` (công cụ `contract-patch` có thêm các lệnh `add-epic`, `add-feature`, `add-story`, `add-test-case`, `add-trace`, `add-backlog`, `add-route`, `add-nav-group`); các ID trên là khóa của việc đó.
 
 ## 15. Kiểm chứng đã thực hiện trong làn này
 

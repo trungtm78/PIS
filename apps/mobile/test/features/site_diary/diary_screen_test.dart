@@ -80,7 +80,7 @@ void main() {
       useDevice(tester, kTall);
       final FieldWorld world = await _open(tester, date: _day);
       await world.typeInto(tester, 'Công việc trong ngày', 'Đào móng trụ T3');
-      await world.go(tester, '/projects/mob-41');
+      await world.go(tester, '/account/mob-41');
       await world.go(tester, '/projects/mob-62/c-1?date=$_day');
       expect(find.text('Đào móng trụ T3'), findsOneWidget);
     });
@@ -220,7 +220,7 @@ void main() {
 
       // Typed after the save: the draft still carries the command that the server took.
       await world.typeInto(tester, 'Ghi chú', 'Thêm sau khi lưu');
-      await world.go(tester, '/projects/mob-41');
+      await world.go(tester, '/account/mob-41');
       await world.go(tester, '/projects/mob-62/c-1?date=$_day');
       await waitUntil(tester, () async => find.widgetWithText(TextField, 'Công việc trong ngày').evaluate().isNotEmpty);
       expect(find.text('Thêm sau khi lưu'), findsOneWidget, reason: 'the newer unsent edit is not replaced by the server form');
@@ -262,7 +262,7 @@ void main() {
       final CommandQueue queue = await _queue(tester, world);
       await waitUntil(tester, () async => queue.commands().any((QueuedCommand c) => c.state == CommandState.unknown));
       await world.typeInto(tester, 'Công việc trong ngày', 'Đào móng trụ T3 và T4');
-      await tapText(tester, 'Lưu nhật ký');
+      await tapText(tester, 'Lưu, gửi khi có mạng');
       await settleReal(tester, rounds: 8);
 
       expect(find.text('Lần lưu trước chưa được máy chủ xác nhận xong nên chưa lưu thêm được. Xem trạng thái ở hàng đợi.'), findsOneWidget);
@@ -294,7 +294,7 @@ void main() {
       expect(find.text('Chọn phiên bản'), findsOneWidget, reason: 'shown beside the diary, with the way to MOB-42');
 
       await tapText(tester, 'Chọn phiên bản');
-      expect(currentLocation(world.container), '/projects/mob-42/${command.id}');
+      expect(currentLocation(world.container), '/account/mob-42/${command.id}');
       expect(find.text('content.summary'), findsOneWidget);
       expect(find.text('Bản trên máy: Bản của tôi trên máy'), findsOneWidget);
       expect(find.text('Bản trên server: Bản của người sửa trước'), findsOneWidget);
@@ -324,7 +324,8 @@ void main() {
       expect(find.text('Lưu nhật ký'), findsNothing);
       expect(find.text('Lưu bản sửa của nhật ký'), findsNothing);
       expect(find.widgetWithText(TextField, 'Công việc trong ngày'), findsNothing, reason: 'the content cannot be edited');
-      expect(find.textContaining('Nhà thầu: Lê Văn C, Xác nhận trong ứng dụng (OTP)'), findsOneWidget);
+      expect(find.text('Nhà thầu'), findsWidgets);
+      expect(find.textContaining('Lê Văn C, Xác nhận trong ứng dụng (OTP)'), findsOneWidget);
       expect(find.text('Nhật ký đã ký nên không sửa được nội dung: mọi thay đổi phải qua một bản điều chỉnh.'), findsOneWidget);
     });
 
@@ -442,13 +443,13 @@ void main() {
       useDevice(tester, kTall);
       final FieldServer server = FieldServer();
       final FieldWorld world = await _open(tester, server: server, diaries: <Map<String, Object?>>[diaryRow('d-1')], date: _day);
-      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Ký nhật ký')).onPressed, isNotNull);
+      expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Ký nhật ký')).onPressed, isNotNull);
 
       server.offline = true;
       await world.typeInto(tester, 'Công việc trong ngày', 'Đã sửa trên máy');
       await tapText(tester, 'Lưu bản sửa của nhật ký');
       await settleReal(tester, rounds: 10);
-      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Ký nhật ký')).onPressed, isNull);
+      expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Ký nhật ký')).onPressed, isNull);
       expect(find.textContaining('Không có mạng hoặc đang xem bản đã lưu'), findsWidgets);
       expect(server.api.callsTo('POST', '/site-diaries/d-1/contractor-sign'), isEmpty, reason: 'no signature from the queue or from a copy');
     });
@@ -462,7 +463,7 @@ void main() {
         session: FakeSession(const SessionSnapshot(status: SessionStatus.signedIn, tenantId: 'tenant-a', userId: 'user-1', mode: SessionMode.readOnly)),
       );
       expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Lưu bản sửa của nhật ký')).onPressed, isNull);
-      expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Ký nhật ký')).onPressed, isNull);
+      expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Ký nhật ký')).onPressed, isNull);
     });
   });
 
@@ -535,7 +536,7 @@ void main() {
       final DraftStore store = (await tester.runAsync(() => world.container.read(draftStoreProvider.future)))!;
       expect(DiaryDraft.fromJson(store.list(kind: kDiaryDraftKind).single.fields)!.place.consent, isFalse, reason: 'the withdrawal is already written to the phone');
 
-      await settleReal(tester, rounds: 8);
+      await waitUntil(tester, () async => tester.widget<FilledButton>(save).onPressed != null);
       expect(tester.widget<FilledButton>(save).onPressed, isNotNull);
       final DiaryDraft after = DiaryDraft.fromJson(store.list(kind: kDiaryDraftKind).single.fields)!;
       expect(readJpegMetadata(File(after.photos.single.path).readAsBytesSync()).carriesPlaceOrTime, isFalse);

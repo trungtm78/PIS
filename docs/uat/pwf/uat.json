@@ -51,11 +51,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-01",
-        "PWF-02"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-01",
+      "story_ids": [
         "ST-PWF-001"
       ],
       "linked_acs": [
@@ -73,7 +70,7 @@
         "T-PWF-04",
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -123,11 +120,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-05",
-        "PWF-03"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-05",
+      "story_ids": [
         "ST-PWF-002"
       ],
       "linked_acs": [
@@ -146,7 +140,7 @@
         "T-PWF-01",
         "T-PWF-16"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -196,11 +190,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-05",
-        "PWF-03"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-05",
+      "story_ids": [
         "ST-PWF-002"
       ],
       "linked_acs": [
@@ -214,7 +205,7 @@
       "linked_tests": [
         "T-PWF-05"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -264,10 +255,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-05"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-05",
+      "story_ids": [
         "ST-PWF-003"
       ],
       "linked_acs": [
@@ -281,7 +270,7 @@
       "linked_tests": [
         "T-PWF-16"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -332,11 +321,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04",
-        "MOB-79"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-005",
         "ST-PWF-006"
       ],
@@ -353,7 +339,7 @@
       "linked_tests": [
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -403,10 +389,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-03"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-03",
+      "story_ids": [
         "ST-PWF-009"
       ],
       "linked_acs": [
@@ -419,7 +403,7 @@
       "linked_tests": [
         "T-PWF-14"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -469,10 +453,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-06"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-06",
+      "story_ids": [
         "ST-PWF-010"
       ],
       "linked_acs": [
@@ -487,7 +469,7 @@
         "T-PWF-07",
         "T-PWF-17"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -537,11 +519,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-08",
-        "PWF-07"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-08",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -555,7 +534,7 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -607,13 +586,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-15",
-        "PWF-07",
-        "MOB-80",
-        "MOB-82"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-15",
+      "story_ids": [
         "ST-PWF-014",
         "ST-PWF-012",
         "ST-PWF-019"
@@ -632,7 +606,7 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -683,11 +657,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-14",
-        "PWF-11"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-14",
+      "story_ids": [
         "ST-PWF-016",
         "ST-PWF-017"
       ],
@@ -707,7 +678,7 @@
         "T-PWF-17",
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -757,11 +728,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-11",
-        "PWF-14"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-11",
+      "story_ids": [
         "ST-PWF-017"
       ],
       "linked_acs": [
@@ -774,7 +742,7 @@
       "linked_tests": [
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -824,10 +792,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-13"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-13",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -840,7 +806,7 @@
       "linked_tests": [
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -890,11 +856,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-12",
-        "PWF-13"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-12",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -906,7 +869,7 @@
       "linked_tests": [
         "T-PWF-18"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -974,10 +937,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-12"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-12",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -990,7 +951,7 @@
       "linked_tests": [
         "T-PWF-09"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -1041,13 +1002,8 @@
         "uat-case"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "MOB-78",
-        "MOB-79",
-        "MOB-80",
-        "MOB-81"
-      ],
-      "linked_stories": [
+      "screen_id": "MOB-78",
+      "story_ids": [
         "ST-PWF-019",
         "ST-PWF-005",
         "ST-PWF-017"
@@ -1064,7 +1020,7 @@
       "linked_tests": [
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "MOBILE-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -1112,10 +1068,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-08"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-08",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -1128,10 +1082,14 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1176,10 +1134,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-08"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-08",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -1191,10 +1147,14 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1239,10 +1199,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-08"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-08",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -1254,10 +1212,14 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1302,10 +1264,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-07"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-07",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -1318,10 +1278,14 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1366,10 +1330,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-08"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-08",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -1382,10 +1344,14 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1430,10 +1396,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-08"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-08",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -1446,10 +1410,14 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1494,11 +1462,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-07",
-        "PWF-08"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-07",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -1512,10 +1477,14 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -1561,10 +1530,8 @@
         "web-e2e"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-16"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-16",
+      "story_ids": [
         "ST-PWF-008"
       ],
       "linked_acs": [
@@ -1577,7 +1544,7 @@
         "T-PWF-16",
         "T-PWF-09"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -1626,10 +1593,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-006",
         "ST-PWF-007"
       ],
@@ -1643,7 +1608,7 @@
       "linked_tests": [
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -1691,10 +1656,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-13"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-13",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -1707,7 +1670,7 @@
         "T-PWF-11",
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -1755,10 +1718,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-12"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-12",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -1770,7 +1731,7 @@
       "linked_tests": [
         "T-PWF-09"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -1818,10 +1779,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-02"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-02",
+      "story_ids": [
         "ST-PWF-001"
       ],
       "linked_acs": [
@@ -1834,7 +1793,7 @@
       "linked_tests": [
         "T-PWF-04"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -1883,10 +1842,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-13"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-13",
+      "story_ids": [
         "ST-PWF-007",
         "ST-PWF-016"
       ],
@@ -1903,7 +1860,7 @@
         "T-PWF-09",
         "T-PWF-11"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -1952,10 +1909,8 @@
         "web-e2e"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-05"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-05",
+      "story_ids": [
         "ST-PWF-002"
       ],
       "linked_acs": [
@@ -1968,7 +1923,7 @@
       "linked_tests": [
         "T-PWF-01"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2016,10 +1971,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-11"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-11",
+      "story_ids": [
         "ST-PWF-017"
       ],
       "linked_acs": [
@@ -2031,7 +1984,7 @@
       "linked_tests": [
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2079,10 +2032,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-05"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-05",
+      "story_ids": [
         "ST-PWF-002"
       ],
       "linked_acs": [
@@ -2095,11 +2046,6 @@
       "linked_tests": [
         "T-PWF-16"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/db/test/pwf-workflow-store.test.ts"
@@ -2148,11 +2094,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-02",
-        "PWF-09"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-02",
+      "story_ids": [
         "ST-PWF-001",
         "ST-PWF-015"
       ],
@@ -2168,7 +2111,7 @@
       "linked_tests": [
         "T-PWF-12"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2216,10 +2159,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-005"
       ],
       "linked_acs": [
@@ -2232,11 +2173,6 @@
       "linked_tests": [
         "T-PWF-02"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/db/test/pwf-workflow-store.test.ts"
@@ -2285,10 +2221,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-006",
         "ST-PWF-007"
       ],
@@ -2304,11 +2238,6 @@
         "T-PWF-09",
         "T-PWF-19"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/db/test/pwf-workflow-store.test.ts"
@@ -2356,10 +2285,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-06"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-06",
+      "story_ids": [
         "ST-PWF-010"
       ],
       "linked_acs": [
@@ -2372,11 +2299,6 @@
       "linked_tests": [
         "T-PWF-17"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/db/test/pwf-workflow-store.test.ts"
@@ -2424,11 +2346,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-15",
-        "MOB-82"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-15",
+      "story_ids": [
         "ST-PWF-014"
       ],
       "linked_acs": [
@@ -2440,10 +2359,14 @@
       "linked_tests": [
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
     },
     {
@@ -2488,10 +2411,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-05"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-05",
+      "story_ids": [
         "ST-PWF-003"
       ],
       "linked_acs": [
@@ -2503,11 +2424,6 @@
       "linked_tests": [
         "T-PWF-16"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/db/test/pwf-workflow-store.test.ts"
@@ -2556,12 +2472,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04",
-        "PWF-13",
-        "PWF-14"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-007",
         "ST-PWF-016"
       ],
@@ -2577,7 +2489,7 @@
       "linked_tests": [
         "T-PWF-10"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2625,10 +2537,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-14"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-14",
+      "story_ids": [
         "ST-PWF-016"
       ],
       "linked_acs": [
@@ -2641,7 +2551,7 @@
       "linked_tests": [
         "T-PWF-17"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2690,11 +2600,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-07",
-        "PWF-03"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-07",
+      "story_ids": [
         "ST-PWF-002",
         "ST-PWF-011"
       ],
@@ -2711,7 +2618,7 @@
         "T-PWF-05",
         "T-PWF-08"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2760,10 +2667,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-005",
         "ST-PWF-006"
       ],
@@ -2776,7 +2681,7 @@
       "linked_tests": [
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2830,10 +2735,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-007",
         "ST-PWF-003"
       ],
@@ -2847,7 +2750,7 @@
       "linked_tests": [
         "T-PWF-07"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2900,10 +2803,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-14"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-14",
+      "story_ids": [
         "ST-PWF-016"
       ],
       "linked_acs": [
@@ -2915,7 +2816,7 @@
       "linked_tests": [
         "T-PWF-17"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -2969,10 +2870,8 @@
         "concurrency"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-06"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-06",
+      "story_ids": [
         "ST-PWF-010"
       ],
       "linked_acs": [
@@ -2985,11 +2884,6 @@
       "linked_tests": [
         "T-PWF-17"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/db/test/pwf-workflow-store.test.ts"
@@ -3038,10 +2932,8 @@
         "concurrency"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-05"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-05",
+      "story_ids": [
         "ST-PWF-002"
       ],
       "linked_acs": [
@@ -3055,11 +2947,6 @@
         "T-PWF-16",
         "T-PWF-17"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "apps/api/test/pwf/project-workflow.test.ts"
@@ -3109,11 +2996,8 @@
         "concurrency"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-14",
-        "PWF-13"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-14",
+      "story_ids": [
         "ST-PWF-016",
         "ST-PWF-018"
       ],
@@ -3128,7 +3012,7 @@
       "linked_tests": [
         "T-PWF-17"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -3177,11 +3061,8 @@
         "concurrency"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04",
-        "MOB-79"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-005"
       ],
       "linked_acs": [
@@ -3194,11 +3075,6 @@
       "linked_tests": [
         "T-PWF-17"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "apps/api/test/pwf/project-workflow.test.ts"
@@ -3246,10 +3122,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-05"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-05",
+      "story_ids": [
         "ST-PWF-002"
       ],
       "linked_acs": [
@@ -3262,11 +3136,6 @@
       "linked_tests": [
         "T-PWF-16"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "apps/api/test/pwf/project-workflow.test.ts"
@@ -3314,10 +3183,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "MOB-80"
-      ],
-      "linked_stories": [
+      "screen_id": "MOB-80",
+      "story_ids": [
         "ST-PWF-013"
       ],
       "linked_acs": [
@@ -3331,10 +3198,14 @@
         "T-PWF-15",
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
     },
     {
@@ -3379,10 +3250,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-07"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-07",
+      "story_ids": [
         "ST-PWF-013"
       ],
       "linked_acs": [
@@ -3395,10 +3264,14 @@
       "linked_tests": [
         "T-PWF-15"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
     },
     {
@@ -3445,11 +3318,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-03",
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-03",
+      "story_ids": [
         "ST-PWF-002",
         "ST-PWF-004"
       ],
@@ -3465,10 +3335,9 @@
         "T-PWF-16",
         "T-PWF-18"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/project-workflow.test.ts"
       },
       "access": {
         "url": "/project-tasks/{task_id}",
@@ -3488,10 +3357,6 @@
           "planned_finish",
           "template_hash"
         ]
-      },
-      "automation": {
-        "state": "AUTOMATED",
-        "suite": "apps/api/test/pwf/project-workflow.test.ts"
       }
     },
     {
@@ -3537,11 +3402,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-12",
-        "PWF-14"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-12",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -3553,7 +3415,7 @@
       "linked_tests": [
         "T-PWF-18"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -3619,11 +3481,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-12",
-        "PWF-13"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-12",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -3635,7 +3494,7 @@
       "linked_tests": [
         "T-PWF-18"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -3704,12 +3563,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-11",
-        "PWF-13",
-        "MOB-81"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-11",
+      "story_ids": [
         "ST-PWF-018",
         "ST-PWF-017"
       ],
@@ -3723,7 +3578,7 @@
       "linked_tests": [
         "T-PWF-18"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -3790,10 +3645,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-12"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-12",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -3806,7 +3659,7 @@
       "linked_tests": [
         "T-PWF-18"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -3871,10 +3724,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-04",
+      "story_ids": [
         "ST-PWF-006"
       ],
       "linked_acs": [
@@ -3886,10 +3737,9 @@
       "linked_tests": [
         "T-PWF-19"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/pwf-workflow-store.test.ts"
       },
       "access": {
         "url": "/project-tasks/{task_id}/approve-completion",
@@ -3904,10 +3754,6 @@
         "must_not_contain": [
           "template_hash"
         ]
-      },
-      "automation": {
-        "state": "AUTOMATED",
-        "suite": "packages/db/test/pwf-workflow-store.test.ts"
       }
     },
     {
@@ -3955,12 +3801,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-06",
-        "PWF-04",
-        "PWF-02"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-06",
+      "story_ids": [
         "ST-PWF-001",
         "ST-PWF-010",
         "ST-PWF-007"
@@ -3978,7 +3820,7 @@
       "linked_tests": [
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4041,10 +3883,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-13"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-13",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -4057,7 +3897,7 @@
       "linked_tests": [
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4122,12 +3962,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-03",
-        "PWF-04",
-        "PWF-16"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-03",
+      "story_ids": [
         "ST-PWF-005",
         "ST-PWF-008",
         "ST-PWF-009"
@@ -4146,7 +3982,7 @@
         "T-PWF-18",
         "T-PWF-19"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4210,10 +4046,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-14"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-14",
+      "story_ids": [
         "ST-PWF-016"
       ],
       "linked_acs": [
@@ -4227,7 +4061,7 @@
         "T-PWF-10",
         "T-PWF-18"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4292,12 +4126,8 @@
         "security"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-11",
-        "PWF-12",
-        "PWF-13"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-11",
+      "story_ids": [
         "ST-PWF-018",
         "ST-PWF-017"
       ],
@@ -4312,7 +4142,7 @@
       "linked_tests": [
         "T-PWF-18"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4362,11 +4192,8 @@
         "mobile-e2e"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "MOB-79",
-        "MOB-80"
-      ],
-      "linked_stories": [
+      "screen_id": "MOB-79",
+      "story_ids": [
         "ST-PWF-005",
         "ST-PWF-019",
         "ST-PWF-013"
@@ -4383,7 +4210,7 @@
       "linked_tests": [
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "MOBILE-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4433,10 +4260,8 @@
         "mobile-e2e"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "MOB-81"
-      ],
-      "linked_stories": [
+      "screen_id": "MOB-81",
+      "story_ids": [
         "ST-PWF-019",
         "ST-PWF-017",
         "ST-PWF-018"
@@ -4452,7 +4277,7 @@
         "T-PWF-18",
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "MOBILE-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4502,12 +4327,8 @@
         "web-e2e"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-07",
-        "PWF-15",
-        "MOB-80"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-07",
+      "story_ids": [
         "ST-PWF-011",
         "ST-PWF-012"
       ],
@@ -4522,7 +4343,7 @@
       "linked_tests": [
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4573,13 +4394,8 @@
         "manual"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-01",
-        "PWF-03",
-        "PWF-07",
-        "PWF-11"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-01",
+      "story_ids": [
         "ST-PWF-002",
         "ST-PWF-004",
         "ST-PWF-012"
@@ -4595,10 +4411,9 @@
       "linked_tests": [
         "T-PWF-21"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "MANUAL",
-        "layer": "MANUAL",
-        "reason": "Cần người đóng vai persona đánh giá nhãn và hành động ở bảy trạng thái; phần đo được (axe, i18n:check) đã nằm ở ca A11-01 và cổng i18n"
+        "layer": "MANUAL"
       }
     },
     {
@@ -4644,10 +4459,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-07"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-07",
+      "story_ids": [
         "ST-PWF-012",
         "ST-PWF-020"
       ],
@@ -4661,10 +4474,9 @@
       "linked_tests": [
         "T-PWF-20"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/db/test/pwf-reconciliation.test.ts"
       },
       "perf_budget": {
         "url": "/pwf/deadlines",
@@ -4673,10 +4485,6 @@
         "sample": 20,
         "warmup": 3,
         "max_error_rate": 0
-      },
-      "automation": {
-        "state": "AUTOMATED",
-        "suite": "packages/db/test/pwf-reconciliation.test.ts"
       }
     },
     {
@@ -4721,10 +4529,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-14"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-14",
+      "story_ids": [
         "ST-PWF-018"
       ],
       "linked_acs": [
@@ -4737,7 +4543,7 @@
       "linked_tests": [
         "T-PWF-18"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4785,10 +4591,8 @@
         "kernel"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-08"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-08",
+      "story_ids": [
         "ST-PWF-011"
       ],
       "linked_acs": [
@@ -4802,10 +4606,14 @@
         "T-PWF-08",
         "T-PWF-15"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "KERNEL",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      },
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/deadline-band-personal.test.ts"
       }
     },
     {
@@ -4850,10 +4658,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-03"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-03",
+      "story_ids": [
         "ST-PWF-009"
       ],
       "linked_acs": [
@@ -4865,11 +4671,6 @@
       "linked_tests": [
         "T-PWF-14"
       ],
-      "automation_intent": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
-      },
       "automation": {
         "state": "AUTOMATED",
         "suite": "packages/db/test/pwf-workflow-store.test.ts"
@@ -4917,10 +4718,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-03"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-03",
+      "story_ids": [
         "ST-PWF-009"
       ],
       "linked_acs": [
@@ -4932,7 +4731,7 @@
       "linked_tests": [
         "T-PWF-13"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -4981,10 +4780,8 @@
         "web-e2e"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-07"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-07",
+      "story_ids": [
         "ST-PWF-020"
       ],
       "linked_acs": [
@@ -4997,7 +4794,7 @@
       "linked_tests": [
         "T-PWF-20"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -5046,10 +4843,8 @@
         "web-e2e"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-07"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-07",
+      "story_ids": [
         "ST-PWF-012"
       ],
       "linked_acs": [
@@ -5062,7 +4857,7 @@
       "linked_tests": [
         "T-PWF-20"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -5111,10 +4906,8 @@
         "web-e2e"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-03"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-03",
+      "story_ids": [
         "ST-PWF-004"
       ],
       "linked_acs": [
@@ -5128,7 +4921,7 @@
         "T-PWF-01",
         "T-PWF-07"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "WEB-E2E",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -5177,11 +4970,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-09",
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-09",
+      "story_ids": [
         "ST-PWF-007",
         "ST-PWF-015"
       ],
@@ -5199,7 +4989,7 @@
         "T-PWF-09",
         "T-PWF-12"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -5247,10 +5037,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-14"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-14",
+      "story_ids": [
         "ST-PWF-016"
       ],
       "linked_acs": [
@@ -5264,7 +5052,7 @@
         "T-PWF-10",
         "T-PWF-17"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
@@ -5313,11 +5101,8 @@
         "api-jest"
       ],
       "module": "PWF",
-      "linked_screens": [
-        "PWF-02",
-        "PWF-04"
-      ],
-      "linked_stories": [
+      "screen_id": "PWF-02",
+      "story_ids": [
         "ST-PWF-001",
         "ST-PWF-005"
       ],
@@ -5331,7 +5116,7 @@
       "linked_tests": [
         "T-PWF-12"
       ],
-      "automation_intent": {
+      "automation": {
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"

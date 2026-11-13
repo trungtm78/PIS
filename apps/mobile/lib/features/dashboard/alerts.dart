@@ -202,6 +202,7 @@ final class AlertItem {
     required this.targetId,
     this.subtitle,
     this.dueOn,
+    this.originalDueOn,
     this.consequence,
     this.claimedBy,
     this.assignee,
@@ -225,6 +226,9 @@ final class AlertItem {
   final String title;
   final String? subtitle;
   final String? dueOn;
+
+  /// The due day before it was moved; null when it was not moved.
+  final String? originalDueOn;
   final AlertLifecycle lifecycle;
   final bool overdue;
   final int daysLate;
@@ -283,6 +287,7 @@ AlertItem? _alertItem(Object? raw) {
     title: text(row['title']) ?? '',
     subtitle: filled(row['subtitle']),
     dueOn: filled(row['due_on']),
+    originalDueOn: filled(row['original_due_on']) == filled(row['due_on']) ? null : filled(row['original_due_on']),
     lifecycle: lifecycle,
     overdue: row['overdue'] == true || row['bucket'] == 'OVERDUE',
     daysLate: count(row['days_late']),
@@ -503,7 +508,7 @@ const List<String> kAlertSources = <String>[
   'SOD_EXCEPTION', 'PAYMENT_INTEGRITY', 'DISBURSEMENT_EXCEPTION', 'PROJECT_GOVERNANCE', 'CONNECTOR', 'EGP_POSTING', 'VENDOR',
   'CONTRACT_CLAIM', 'CONTRACT_EARLY_WARNING', 'ESCALATION', 'COVERAGE', 'RED_FLAG', 'CONTRACT_CLOCK', 'DOC_REVIEW', 'DATA_FRESHNESS',
   'ANOMALY', 'ALERT_FEEDBACK', 'PAYMENT_CLOCK', 'DISBURSEMENT_FORECAST', 'SETTLEMENT_CLOCK', 'CONTRACT_ADJUSTMENT', 'LOOK_AHEAD',
-  'LESSONS_LEARNED', 'PROJECT_RISK', 'COMMITTEE',
+  'LESSONS_LEARNED', 'PROJECT_RISK', 'COMMITTEE', 'PROJECT_TASK',
 ];
 
 /// How the web screen an alert names opens on the phone: the screen of the phone, and whether the id of the record goes into its path.
@@ -562,6 +567,9 @@ const Map<String, AlertTargetRule> kAlertTargets = <String, AlertTargetRule>{
   // the cover of an absence (alert coverage): the delegations and absences view
   'ADM-28': (screenId: 'MOB-75', withId: false),
   'MOB-75': (screenId: 'MOB-75', withId: false),
+  // the workflow of a project: the alert of a task that is due (PWF-04, the detail of a task) opens the task on the phone (MOB-79), keyed by the id of the task
+  'PWF-04': (screenId: 'MOB-79', withId: true),
+  'MOB-79': (screenId: 'MOB-79', withId: true),
 };
 
 /// The target screens of the server that the phone has no screen for, each once. The alert is then handled from its actions (claim, assign, snooze).

@@ -245,6 +245,12 @@
       "module": "IPF",
       "title": "Investment profile of a project (enterprise edition)",
       "goal": "Show, for one project, its type, whether it starts in the plan year or carries over, its lifecycle milestones against the catalogue of the company, its legal documents by type of the catalogue and its capital plan split by who gave the capital, as a read model over the register."
+    },
+    {
+      "id": "EP-PWF",
+      "module": "PWF",
+      "title": "Project workflow, three-colour deadlines, KPI and staff scoring",
+      "goal": "Give every public investment project a workflow that is a versioned rule frozen at the start: stages and tasks with durations in working days, four dependency types, branches by project group and funding source, evidence and checklists, gates on the lifecycle commands of the project, a schedule with float and critical path, deadlines in green, yellow and red decided by a rule, reminders without duplicates, and KPI and staff scores that are computed from immutable results, shown to the person first, adjusted only with a second approver and never ranked across unequal samples."
     }
   ],
   "features": [
@@ -1162,6 +1168,46 @@
       "id": "FT-IPF-01",
       "epic": "EP-IPF",
       "title": "Investment profile read model and screen (MD.01, MD.02, CN.01, aud2 and aud5)"
+    },
+    {
+      "id": "FT-PWF-01",
+      "epic": "EP-PWF",
+      "title": "Workflow templates as versioned rules: draft, validate, preview, approve by another person (PWF-01, PWF-02)"
+    },
+    {
+      "id": "FT-PWF-02",
+      "epic": "EP-PWF",
+      "title": "Start and adopt a project workflow, schedule with critical path, gates on the project lifecycle (PWF-03, PWF-05)"
+    },
+    {
+      "id": "FT-PWF-03",
+      "epic": "EP-PWF",
+      "title": "Task execution: evidence, completion, approval, exceptions and the assignment ledger (PWF-04, PWF-16)"
+    },
+    {
+      "id": "FT-PWF-04",
+      "epic": "EP-PWF",
+      "title": "Reschedule with preview, approval and a baseline that does not move (PWF-06)"
+    },
+    {
+      "id": "FT-PWF-05",
+      "epic": "EP-PWF",
+      "title": "Three-colour deadlines: policy, portfolio board, alerts and personal reminders (PWF-07, PWF-08, PWF-15, MOB-82)"
+    },
+    {
+      "id": "FT-PWF-06",
+      "epic": "EP-PWF",
+      "title": "KPI sets, scoring policy and the lock of a scoring period (PWF-09, PWF-10, PWF-14)"
+    },
+    {
+      "id": "FT-PWF-07",
+      "epic": "EP-PWF",
+      "title": "Staff scores: own score, unit scores, response, adjustment and export (PWF-11 to PWF-13, MOB-81)"
+    },
+    {
+      "id": "FT-PWF-08",
+      "epic": "EP-PWF",
+      "title": "Project workflow on the phone (MOB-78 to MOB-80)"
     }
   ],
   "stories": [
@@ -15158,7 +15204,8 @@
         "submitBiPublication",
         "decideBiPublication",
         "post_dashboards_id_publish",
-        "listBiPublicationRequests"
+        "listBiPublicationRequests",
+        "checkBiPublication"
       ],
       "tables": [
         "bi_publication_request"
@@ -59861,9 +59908,7 @@
         "createProjectDocument",
         "updateProjectDocument"
       ],
-      "tables": [
-        "project_document_legal_type"
-      ],
+      "tables": [],
       "nfr": [
         "NFR-TENANCY-01",
         "NFR-SECURITY-01"
@@ -59882,7 +59927,7 @@
           "id": "AC-ST-IPF-001-2",
           "given": "A tenant of the enterprise edition and a tenant of the public edition, each with a file staged for a project document",
           "when": "the document is created and changed with a legal document type",
-          "then": "the enterprise edition keeps a code in force of ENT_LEGAL_DOC_TYPE with the document and refuses another with 422 on legal_doc_type; the public edition creates the document as before and refuses a named type with 422 NOT_AVAILABLE",
+          "then": "the enterprise edition keeps a code in force of ENT_LEGAL_DOC_TYPE with the document and refuses another with 422 on legal_doc_type; the public edition creates the document as before and refuses a named type with 422 and the reason NOT_AVAILABLE",
           "test_id": "UAT-ENT-IPF-04"
         },
         {
@@ -59946,6 +59991,2252 @@
           "title": "Screen-contract tests for the seven standard UI states",
           "test_ids": [
             "UI-IPF-01"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-001",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-01",
+      "module": "PWF",
+      "title": "Draft, validate, submit and approve a project workflow template by another person",
+      "narrative": "As a project process administrator I draft a workflow template for a project type, see the errors and the schedule preview while I edit, submit it, and a second person approves it, so that a template is a reviewed rule with a version and an effective date and not a file that one person can change.",
+      "release": "R1",
+      "screens": [
+        "PWF-01",
+        "PWF-02"
+      ],
+      "operations": [
+        "validateProjectWorkflowTemplate",
+        "previewProjectWorkflowTemplate"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-04",
+        "NFR-LEGAL-02"
+      ],
+      "cxn": [
+        "CXN-13"
+      ],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-001-1",
+          "given": "A template whose tasks contain a dependency cycle",
+          "when": "the draft is saved",
+          "then": "the save is rejected with PROJECT_WORKFLOW_TEMPLATE_INVALID or GOVERNANCE_RULE_PARAMS_INVALID and the detail names the predecessors field of the task that closes the cycle (PWF_DEPENDENCY_CYCLE)",
+          "test_id": "T-PWF-04"
+        },
+        {
+          "id": "AC-ST-PWF-001-2",
+          "given": "A template drafted and submitted by one maker, and a second approver",
+          "when": "the maker tries to approve it, and then the second approver does",
+          "then": "the first attempt is refused with SELF_APPROVAL_DENIED; the second makes the version ACTIVE from the chosen effective date, and projects that already run keep the version they froze",
+          "test_id": "T-PWF-19"
+        },
+        {
+          "id": "AC-ST-PWF-001-UI1",
+          "given": "PWF-01 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-01"
+        },
+        {
+          "id": "AC-ST-PWF-001-UI2",
+          "given": "PWF-02 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-02"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "authorization",
+          "legal-template",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "The template is an ADM governance rule of type PROJECT_WORKFLOW_TEMPLATE with the maker-checker flow of the rule store; the default templates carry legalStatus UNVERIFIED until the customer legal office confirms them (CXN-13)."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-001-1",
+          "kind": "backend",
+          "title": "Template validator (cycles, references, limits of 400 tasks and 12 stages) behind validateProjectWorkflowTemplate and the schedule preview behind previewProjectWorkflowTemplate; template rule type in the ADM rule store",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-001-2",
+          "kind": "web",
+          "title": "PWF-01 library with version compare and PWF-02 editor with live errors and schedule preview, on the governance editor and the BID-31 pattern",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-001-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-01, PWF-02; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-001-4",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-07"
+          ]
+        },
+        {
+          "id": "TK-PWF-001-5",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-04",
+            "T-PWF-19",
+            "UAT-PWF-01",
+            "UAT-PWF-BND-12",
+            "UAT-PWF-NEG-02",
+            "UAT-PWF-SEC-07",
+            "UAT-PWF-EDN-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-001-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-01",
+            "UI-PWF-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-002",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-02",
+      "module": "PWF",
+      "title": "Start the workflow of a project from its planned start date and read the deadline of every task",
+      "narrative": "As a project manager I start the workflow of a project that has none, choosing the template and the planned start date, so that every task gets a start date, a deadline, a float and a critical-path mark and the template is frozen with its hash for the life of the project.",
+      "release": "R1",
+      "screens": [
+        "PWF-05",
+        "PWF-03"
+      ],
+      "operations": [
+        "startProjectWorkflow",
+        "getProjectWorkflow"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-TENANCY-02",
+        "NFR-SECURITY-04"
+      ],
+      "cxn": [
+        "CXN-13"
+      ],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-002-1",
+          "given": "A project with no workflow, a planned start date of 2026-11-02 and the PUBLIC_INVESTMENT template",
+          "when": "startProjectWorkflow runs",
+          "then": "every task has a start date, a deadline, a float and a critical-path mark equal to the hand-computed table of the test, and the frozen template carries its hash",
+          "test_id": "T-PWF-01"
+        },
+        {
+          "id": "AC-ST-PWF-002-2",
+          "given": "A work calendar that holds 2026 only and a project whose schedule runs into 2027",
+          "when": "the schedule is computed",
+          "then": "each task that falls in 2027 reports CALENDAR_UNAVAILABLE with missing_year 2027, no guessed date is kept, and the project has no end date",
+          "test_id": "T-PWF-05"
+        },
+        {
+          "id": "AC-ST-PWF-002-UI1",
+          "given": "PWF-05 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-05"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-001"
+      ],
+      "review": {
+        "required": [
+          "migration",
+          "authorization",
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1.5,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 32,
+          "max": 72
+        },
+        "confidence": "medium",
+        "assumption": "The template is frozen into the workflow with its hash; the planned start date comes from the effective baseline when there is one; a year the work calendar does not cover is reported as CALENDAR_UNAVAILABLE and never guessed."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-002-1",
+          "kind": "db",
+          "title": "Migration of the workflow tables of block PWF-1 (V3000 to V3019): project_workflow, project_task, dependencies, checklist, evidence, log and schedule version, with RLS and tenant-leading indexes; planned_start_date on project by expand-contract",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-002-2",
+          "kind": "backend",
+          "title": "startProjectWorkflow (freeze the template and its hash, create the tasks, the default assignment ledger and schedule version 1) and getProjectWorkflow, on the pure schedule core of the kernel",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-002-3",
+          "kind": "web",
+          "title": "PWF-05 start form with branch facts and PWF-03 workflow of the project in the PRJ-03 tab",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-002-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-05, PWF-03; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-002-5",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-002-6",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-01",
+            "T-PWF-05",
+            "T-PWF-02",
+            "T-PWF-03",
+            "T-PWF-06",
+            "T-PWF-13",
+            "UAT-PWF-02",
+            "UAT-PWF-03",
+            "UAT-PWF-BND-14",
+            "UAT-PWF-NEG-01",
+            "UAT-PWF-NEG-10",
+            "UAT-PWF-CON-02",
+            "UAT-PWF-IDM-01",
+            "UAT-PWF-SEC-01",
+            "UAT-PWF-UX-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-002-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-05"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-003",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-02",
+      "module": "PWF",
+      "title": "Adopt a project that is already running, with a dry run",
+      "narrative": "As a project manager I adopt a project that was running before the workflow existed, choosing an effective date and reading a dry run first, so that the work of the past is not scored and the rest of the project gets dates, deadlines and gates.",
+      "release": "R1",
+      "screens": [
+        "PWF-05"
+      ],
+      "operations": [
+        "adoptProjectWorkflow"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-TENANCY-02",
+        "NFR-SECURITY-04"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-003-1",
+          "given": "A running project and an effective date in the middle of its life",
+          "when": "adoptProjectWorkflow runs with dry_run set to true, and then for real",
+          "then": "the dry run writes nothing, and after the real run the tasks that ended before the effective date are NOT_TRACKED and take no part in any score",
+          "test_id": "T-PWF-16"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "Work of the past is NOT_TRACKED from an effective date the manager chooses; a dry run returns the plan of the adoption and writes nothing; bulk adoption is R2."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-003-1",
+          "kind": "backend",
+          "title": "adoptProjectWorkflow with dry run, NOT_TRACKED for the past and the adoption entry in the task log",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-003-2",
+          "kind": "web",
+          "title": "Adoption section of PWF-05 with the dry-run result and the effective date",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-003-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-05; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-003-4",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-16",
+            "UAT-PWF-04",
+            "UAT-PWF-NEG-07",
+            "UAT-PWF-STA-02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-004",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-02",
+      "module": "PWF",
+      "title": "See the process tree, the Gantt with the critical path and the tasks of a stage",
+      "narrative": "As a leader I open the workflow of a project and see the process tree, the Gantt chart with the critical path and the baseline, and the tasks of every stage with their official colour, so that I can tell where the project is and which task decides its end date.",
+      "release": "R1",
+      "screens": [
+        "PWF-03"
+      ],
+      "operations": [
+        "getProjectSchedule",
+        "listProjectTasks"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-PERFORMANCE-02"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-004-1",
+          "given": "A workflow with branches by project group and funding source",
+          "when": "the progress of the project is read",
+          "then": "the Gantt chart and the tree carry the same dates, the critical path is marked, and a branch that does not apply to the project is absent",
+          "test_id": "T-PWF-01"
+        },
+        {
+          "id": "AC-ST-PWF-004-UI1",
+          "given": "PWF-03 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-03"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "The tree, the Gantt with critical path and baseline and the stage table are read from one schedule version; the what-if of a moved start date is a preview that writes nothing."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-004-1",
+          "kind": "backend",
+          "title": "getProjectSchedule and listProjectTasks as scoped read models with the schedule version and the as-of time",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-004-2",
+          "kind": "web",
+          "title": "PWF-03 on ProcessTree, Timeline, DayStrip and Stepper with the critical path, the baseline and the what-if control",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-004-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-03; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-004-4",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-004-5",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-01",
+            "UAT-PWF-SEC-01",
+            "UAT-PWF-UX-01",
+            "UAT-PWF-GAN-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-004-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-005",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-03",
+      "module": "PWF",
+      "title": "Attach evidence and complete a task, with the missing items named",
+      "narrative": "As the person who does a task I start it, attach evidence, tick the checklist and complete it, and when something required is missing I am told exactly what, so that a task is never reported as done on an incomplete file.",
+      "release": "R1",
+      "screens": [
+        "PWF-04",
+        "MOB-79"
+      ],
+      "operations": [
+        "getProjectTask",
+        "startProjectTask",
+        "attachProjectTaskEvidence",
+        "completeProjectTaskChecklistItem",
+        "completeProjectTask"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-04"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-005-1",
+          "given": "A task with a required evidence item missing",
+          "when": "completeProjectTask is called",
+          "then": "the answer is 422 PWF_TASK_COMPLETION_BLOCKED with the list of blockers, and the task keeps its state",
+          "test_id": "T-PWF-19"
+        },
+        {
+          "id": "AC-ST-PWF-005-2",
+          "given": "A task with every required evidence and checklist item present",
+          "when": "completeProjectTask is called",
+          "then": "the task moves to the wait for approval, or to DONE when its approver role is empty, and the task log records the step with the actor and the time",
+          "test_id": "T-PWF-07"
+        },
+        {
+          "id": "AC-ST-PWF-005-UI1",
+          "given": "PWF-04 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-04"
+        },
+        {
+          "id": "AC-ST-PWF-005-UI2",
+          "given": "MOB-79 opened on 360x800 and 390x844 devices by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every figure carries its source and date, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-79"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "money",
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "Completion needs every required evidence item and checklist item; a command queued offline carries the version it was made against and is refused when the task has moved."
+      },
+      "mobile": "flutter-offline",
+      "tasks": [
+        {
+          "id": "TK-PWF-005-1",
+          "kind": "backend",
+          "title": "Task commands start, attach evidence, tick checklist and complete with the state guard of the task state machine and the blockers list",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-005-2",
+          "kind": "web",
+          "title": "PWF-04 task detail with evidence, forms generated from the template, checklist, history and the KPI of the task",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-005-3",
+          "kind": "mobile",
+          "title": "MOB-79 task detail on the phone with evidence upload, completion and the offline command queue that checks the task version",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-005-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-04, MOB-79; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-005-5",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-09"
+          ]
+        },
+        {
+          "id": "TK-PWF-005-6",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-19",
+            "T-PWF-07",
+            "UAT-PWF-05",
+            "UAT-PWF-15",
+            "UAT-PWF-NEG-03",
+            "UAT-PWF-STA-01",
+            "UAT-PWF-CON-04",
+            "UAT-PWF-SEC-09",
+            "UAT-PWF-OFF-01",
+            "UAT-PWF-EDN-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-005-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-04",
+            "UI-MOB-79"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-006",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-03",
+      "module": "PWF",
+      "title": "Approve or return the completion of a task by someone other than the doer",
+      "narrative": "As the approver of a task I approve its completion or return it with a reason, so that the person who did the work is never the one who accepts it.",
+      "release": "R1",
+      "screens": [
+        "PWF-04"
+      ],
+      "operations": [
+        "approveProjectTaskCompletion",
+        "returnProjectTask"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-04"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-006-1",
+          "given": "A task completed by one person who also holds the approver role",
+          "when": "that person tries to approve the completion, with and without an exception on the task",
+          "then": "both attempts are refused with SELF_APPROVAL_DENIED and the task stays in the wait for approval",
+          "test_id": "T-PWF-19"
+        },
+        {
+          "id": "AC-ST-PWF-006-2",
+          "given": "A task in the wait for approval",
+          "when": "the approver returns it with a reason, and then without one",
+          "then": "the return with a reason raises the return count by 1 and reopens the task; the return without a reason is refused with 422",
+          "test_id": "T-PWF-09"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-005"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1.5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 10,
+          "max": 24
+        },
+        "confidence": "high",
+        "assumption": "The approver is a role of the task and is never the person who did it, exceptions included; a return needs a reason and raises the return count that the KPI reads."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-006-1",
+          "kind": "backend",
+          "title": "approveProjectTaskCompletion and returnProjectTask with the separation of duties and the return count",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-006-2",
+          "kind": "web",
+          "title": "Approve and return controls of PWF-04 with the reason field and the can_* flags from the server",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-006-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-04; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-006-4",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-06"
+          ]
+        },
+        {
+          "id": "TK-PWF-006-5",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-19",
+            "T-PWF-09",
+            "UAT-PWF-05",
+            "UAT-PWF-BND-09",
+            "UAT-PWF-NEG-04",
+            "UAT-PWF-STA-01",
+            "UAT-PWF-SEC-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-007",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-03",
+      "module": "PWF",
+      "title": "Request a pause, a cancellation, a waiver or an external delay that another person approves",
+      "narrative": "As the person who does a task I request a pause, a cancellation, a waiver of a requirement or the record of an external delay, and a person other than me decides it, so that the time that was not the doer's fault is not held against the doer and the time that was is.",
+      "release": "R1",
+      "screens": [
+        "PWF-04"
+      ],
+      "operations": [
+        "requestProjectTaskException",
+        "decideProjectTaskException",
+        "resumeProjectTask"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-04"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-007-1",
+          "given": "A task with an approved pause, a task with an approved external delay and a task with a pause that was refused",
+          "when": "the date deviation of each task is computed for its KPI",
+          "then": "only the approved pause and the approved external delay are taken out of the deviation, and the refused pause is not",
+          "test_id": "T-PWF-09"
+        },
+        {
+          "id": "AC-ST-PWF-007-2",
+          "given": "A task cancelled without an approved exception",
+          "when": "the KPI of the task is computed",
+          "then": "the cancellation counts as not achieved and not as not applicable",
+          "test_id": "T-PWF-10"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-005"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1.5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "An exception is one table with four kinds (waive an item, cancel the task, pause, external delay); only an approved pause or external delay is taken out of the date deviation that the KPI reads."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-007-1",
+          "kind": "backend",
+          "title": "requestProjectTaskException, decideProjectTaskException and resumeProjectTask with the decided_by different from requested_by rule",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-007-2",
+          "kind": "web",
+          "title": "Exception, pause and resume sections of PWF-04",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-007-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-04; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-007-4",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-07"
+          ]
+        },
+        {
+          "id": "TK-PWF-007-5",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-09",
+            "T-PWF-10",
+            "UAT-PWF-BND-09",
+            "UAT-PWF-BND-13",
+            "UAT-PWF-NEG-04",
+            "UAT-PWF-NEG-08",
+            "UAT-PWF-STA-02",
+            "UAT-PWF-SEC-07",
+            "UAT-PWF-KPI-01"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-008",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-03",
+      "module": "PWF",
+      "title": "Record who works on a task, by interval and share, in an append-only ledger",
+      "narrative": "As a manager I record who is responsible, accountable, consulted and informed for a task, for which interval and with what share, so that a score reads the work of the person during the time that the person held it.",
+      "release": "R2",
+      "screens": [
+        "PWF-16"
+      ],
+      "operations": [
+        "listProjectTaskAssignments",
+        "assignProjectTask"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-04"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-008-1",
+          "given": "A task with an assignment of 60 percent for one role, and a new assignment that overlaps the interval or brings the total share of the role above 100",
+          "when": "the new assignment is recorded",
+          "then": "it is refused at the database as well as in the service, and the ledger is unchanged",
+          "test_id": "T-PWF-16"
+        },
+        {
+          "id": "AC-ST-PWF-008-UI1",
+          "given": "PWF-16 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-16"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "The assignment ledger is append-only with a validity interval and a share; the database refuses two intervals of the same role on the same task that overlap, and a total share above 100 for one role."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-008-1",
+          "kind": "db",
+          "title": "Assignment ledger with the exclusion constraint on overlapping intervals and the append-only trigger",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-008-2",
+          "kind": "backend",
+          "title": "assignProjectTask and listProjectTaskAssignments",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-008-3",
+          "kind": "web",
+          "title": "PWF-16 assignment ledger with the overlap refusal shown beside the field",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-008-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-16; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-008-5",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-09"
+          ]
+        },
+        {
+          "id": "TK-PWF-008-6",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-16",
+            "UAT-PWF-BND-08",
+            "UAT-PWF-SEC-09"
+          ]
+        },
+        {
+          "id": "TK-PWF-008-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-16"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-009",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-02",
+      "module": "PWF",
+      "title": "A stage that is not finished blocks the lifecycle command of the project",
+      "narrative": "As an investor I cannot move the project to the next lifecycle step while a required task of the blocking stage is open, and I am shown which tasks are missing, so that the sequence of the law on public investment is kept by the system and not by memory.",
+      "release": "R1",
+      "screens": [
+        "PWF-03"
+      ],
+      "operations": [
+        "evaluateProjectGate"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01"
+      ],
+      "cxn": [
+        "CXN-13"
+      ],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-009-1",
+          "given": "A project with a workflow whose blocking stage still has a required task open",
+          "when": "startProjectImplementation is called, and the system event that would do the same arrives",
+          "then": "the command is refused with 422 PWF_GATE_CLOSED and the list of the open tasks with a path to each, and the project does not change state on either path",
+          "test_id": "T-PWF-14"
+        },
+        {
+          "id": "AC-ST-PWF-009-2",
+          "given": "A project with no workflow",
+          "when": "the same lifecycle commands are called",
+          "then": "they run as they did before the module existed and the existing project tests pass without a changed assertion",
+          "test_id": "T-PWF-14"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1.5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 12,
+          "max": 28
+        },
+        "confidence": "medium",
+        "assumption": "The template says which stage blocks which lifecycle command or event of the project; a project with no workflow keeps the old behaviour exactly."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-009-1",
+          "kind": "backend",
+          "title": "evaluateProjectGate and the gate hook on the lifecycle commands and system events of PRJ, with the PRJ behaviour unchanged for a project with no workflow",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-009-2",
+          "kind": "web",
+          "title": "Gate panel of PWF-03 with the list of the open tasks",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-009-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-03; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-009-4",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-09"
+          ]
+        },
+        {
+          "id": "TK-PWF-009-5",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-14",
+            "UAT-PWF-06",
+            "UAT-PWF-SEC-09",
+            "UAT-PWF-REG-02",
+            "UAT-PWF-REG-03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-010",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-04",
+      "module": "PWF",
+      "title": "Reschedule with a preview, a second approver and a baseline that stays",
+      "narrative": "As a manager I propose a new start date or a changed duration, read the before and after in working days, and another person approves it, so that the plan moves by a decision and the baseline still shows what was first promised.",
+      "release": "R1",
+      "screens": [
+        "PWF-06"
+      ],
+      "operations": [
+        "proposeProjectReschedule",
+        "decideProjectReschedule",
+        "getProjectReschedule"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-SECURITY-04"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-010-1",
+          "given": "A proposal made against schedule version 3, and a second person who proposes against version 3 at the same time",
+          "when": "both are decided",
+          "then": "the second is refused with 409, the approved proposal publishes version 4, and the baseline of the project is unchanged",
+          "test_id": "T-PWF-17"
+        },
+        {
+          "id": "AC-ST-PWF-010-UI1",
+          "given": "PWF-06 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-06"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "A proposal carries the schedule version it was made against; the second proposer on the same version is refused; the baseline is never rewritten by a reschedule."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-010-1",
+          "kind": "backend",
+          "title": "proposeProjectReschedule, decideProjectReschedule and getProjectReschedule with the optimistic version check and the change list",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-010-2",
+          "kind": "web",
+          "title": "PWF-06 with the before and after in working days, the change of float and critical path and the baseline deviation",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-010-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-06; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-010-4",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-07"
+          ]
+        },
+        {
+          "id": "TK-PWF-010-5",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-17",
+            "UAT-PWF-07",
+            "UAT-PWF-NEG-05",
+            "UAT-PWF-CON-01",
+            "UAT-PWF-SEC-07"
+          ]
+        },
+        {
+          "id": "TK-PWF-010-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-06"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-011",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-05",
+      "module": "PWF",
+      "title": "Set the green, yellow and red thresholds in days and preview them",
+      "narrative": "As an administrator I set the thresholds of the three colours in days for each source of deadlines and see a preview of the colour at each distance from the deadline, so that the colours mean what the organisation decided and nothing else.",
+      "release": "R1",
+      "screens": [
+        "PWF-08"
+      ],
+      "operations": [
+        "previewDeadlineBand"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-LEGAL-02",
+        "NFR-ACCESSIBILITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-011-1",
+          "given": "The thresholds 5, 2 and 0 and a day d that is a working day",
+          "when": "a deadline lies 6, 5, 3, 2, 1, 0 and -1 working days from d",
+          "then": "the colours are NONE, GREEN, GREEN, YELLOW, YELLOW, RED and RED in that order",
+          "test_id": "T-PWF-08"
+        },
+        {
+          "id": "AC-ST-PWF-011-2",
+          "given": "The default policies of HOME_WORK and REPORT_SCHEDULE",
+          "when": "the colour is decided for every remaining-day count from -400 to 400",
+          "then": "the result equals the constants that the policies replace, so that the alert centre tests pass unchanged",
+          "test_id": "T-PWF-15"
+        },
+        {
+          "id": "AC-ST-PWF-011-UI1",
+          "given": "PWF-08 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-08"
+        }
+      ],
+      "dependencies": [],
+      "review": {
+        "required": [
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1.5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 12,
+          "max": 28
+        },
+        "confidence": "high",
+        "assumption": "The thresholds are a versioned rule per source (HOME_WORK, REPORT_SCHEDULE, PROJECT_TASK) in days; the defaults for the two existing sources equal the constants they replace, for every remaining-day count from -400 to 400."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-011-1",
+          "kind": "backend",
+          "title": "previewDeadlineBand and the DEADLINE_BAND_POLICY rule type with its three tiers (official, unit, personal never later than official)",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-011-2",
+          "kind": "web",
+          "title": "PWF-08 policy editor with the preview \"5 days left: green, 2 days left: yellow, under 1 day: red\" and the unit of each source",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-011-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-08; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-011-4",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-08",
+            "T-PWF-15",
+            "UAT-PWF-08",
+            "UAT-PWF-BND-01",
+            "UAT-PWF-BND-02",
+            "UAT-PWF-BND-03",
+            "UAT-PWF-BND-04",
+            "UAT-PWF-BND-05",
+            "UAT-PWF-BND-06",
+            "UAT-PWF-BND-07",
+            "UAT-PWF-NEG-10",
+            "UAT-PWF-A11-01",
+            "UAT-PWF-REG-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-011-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-08"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-012",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-05",
+      "module": "PWF",
+      "title": "The deadline board of the whole portfolio, the month calendar and the next 30 days",
+      "narrative": "As a leader I see all the tasks of all the projects in my scope by colour, stage, person and unit, in a month calendar and with the milestones of the next 30 days, so that I see what is late or about to be late without opening each project.",
+      "release": "R1",
+      "screens": [
+        "PWF-07"
+      ],
+      "operations": [
+        "getDeadlineBoard",
+        "getDeadlineCalendar",
+        "getUpcomingMilestones"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-PERFORMANCE-01",
+        "NFR-ACCESSIBILITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-012-1",
+          "given": "A portfolio larger than the page of the list",
+          "when": "the board is read with a filter by colour",
+          "then": "the totals by colour are exact for the whole filter, the screen says showing N of M, and only the official colour is shown",
+          "test_id": "T-PWF-20"
+        },
+        {
+          "id": "AC-ST-PWF-012-UI1",
+          "given": "PWF-07 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-07"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002",
+        "ST-PWF-011"
+      ],
+      "review": {
+        "required": [
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "medium",
+        "assumption": "The board shows the official colour only; the totals by colour are exact when the list is cut and the screen says \"showing N of M\"; the query count has a ceiling."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-012-1",
+          "kind": "backend",
+          "title": "getDeadlineBoard, getDeadlineCalendar and getUpcomingMilestones as scoped read models with exact totals and a ceiling on the number of queries",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-012-2",
+          "kind": "web",
+          "title": "PWF-07 board, month calendar, milestones of the next 30 days, filters and the showing N of M line, with the colour always carried by a word and an icon",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-012-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-07; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-012-4",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-20",
+            "UAT-PWF-09",
+            "UAT-PWF-A11-01",
+            "UAT-PWF-UX-01",
+            "UAT-PWF-PERF-01",
+            "UAT-PWF-BRD-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-012-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-07"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-013",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-05",
+      "module": "PWF",
+      "title": "Reminders and alerts that arrive once, at the right time, and follow every change of the schedule",
+      "narrative": "As the person assigned to a task I get a reminder at each configured distance from the deadline, exactly once, and the alerts follow a reschedule, a pause, a cancellation or a completion in the same transaction, so that I am not told twice and I am not told something that is no longer true.",
+      "release": "R1",
+      "screens": [],
+      "operations": [],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-OBSERVABILITY-02"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-013-1",
+          "given": "A task with reminders at 7 and 3 days and a job that runs again after a failure",
+          "when": "the job runs twice, and the task is rescheduled, paused, cancelled and completed in turn",
+          "then": "each reminder day fires exactly once, the alerts of the task are opened and closed in the same transaction as the change, and a second run creates no alert",
+          "test_id": "T-PWF-15"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-002",
+        "ST-PWF-011"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1.5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "The alert types PWF_TASK_DUE_SOON, PWF_TASK_OVERDUE and PWF_MILESTONE_AT_RISK are in the alert centre with the source PROJECT_TASK; the reminder key is task, schedule version and reminder day."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-013-1",
+          "kind": "backend",
+          "title": "Alert types of the source PROJECT_TASK, the reminder key that prevents repeats, the schedule job and the in-transaction update of the alerts",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-013-2",
+          "kind": "observability",
+          "title": "Metric and alert for the reminder job with an owner and a runbook, without personal data",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-013-3",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-15",
+            "UAT-PWF-IDM-02",
+            "UAT-PWF-IDM-03",
+            "UAT-PWF-OFF-01"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-014",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-05",
+      "module": "PWF",
+      "title": "Ask for an earlier reminder for myself only",
+      "narrative": "As a user I set my own thresholds and reminder days, earlier than the official ones, so that I am warned sooner without changing what my manager sees or what my score reads.",
+      "release": "R1",
+      "screens": [
+        "PWF-15",
+        "MOB-82"
+      ],
+      "operations": [
+        "getDeadlinePreference",
+        "setDeadlinePreference"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-ACCESSIBILITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-014-1",
+          "given": "An official threshold of 2 days and a personal threshold of 1 day, and one of 3 days",
+          "when": "both are saved",
+          "then": "the threshold that is later than the official one is refused at save, and neither the official alert nor any KPI changes with the personal option",
+          "test_id": "T-PWF-08"
+        },
+        {
+          "id": "AC-ST-PWF-014-UI1",
+          "given": "PWF-15 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-15"
+        },
+        {
+          "id": "AC-ST-PWF-014-UI2",
+          "given": "MOB-82 opened on 360x800 and 390x844 devices by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every figure carries its source and date, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-82"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-011"
+      ],
+      "review": {
+        "required": [
+          "authorization"
+        ],
+        "hours": {
+          "min": 0.5,
+          "max": 1.5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 12,
+          "max": 32
+        },
+        "confidence": "medium",
+        "assumption": "A personal threshold can only be earlier than the official one; the official colour, the manager board and every KPI ignore it."
+      },
+      "mobile": "flutter-screen",
+      "tasks": [
+        {
+          "id": "TK-PWF-014-1",
+          "kind": "backend",
+          "title": "getDeadlinePreference and setDeadlinePreference with the never-later rule and the preview",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-014-2",
+          "kind": "web",
+          "title": "PWF-15 personal reminders with the warning when the threshold is raised to the official level",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-014-3",
+          "kind": "mobile",
+          "title": "MOB-82 personal reminder settings on the phone",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-014-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-15, MOB-82; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-014-5",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-08",
+            "UAT-PWF-09",
+            "UAT-PWF-NEG-06"
+          ]
+        },
+        {
+          "id": "TK-PWF-014-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-15",
+            "UI-MOB-82"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-015",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-06",
+      "module": "PWF",
+      "title": "Compose a KPI set and a staff scoring policy from a closed catalogue",
+      "narrative": "As an administrator I compose a workflow KPI set from the operations of the catalogue, with parameters, scales and weights, and a scoring policy with the period, role factors, minimum sample and bands, and another person approves each, so that the rules of the score are decided in the open and cannot hide a formula.",
+      "release": "R2",
+      "screens": [
+        "PWF-09",
+        "PWF-10"
+      ],
+      "operations": [
+        "getKpiOperations"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-LEGAL-02"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-015-1",
+          "given": "A KPI set that refers to a KPI code that does not exist, and a set whose references all exist",
+          "when": "each is submitted",
+          "then": "the first is refused with GOV_REFERENCE_MISSING and the name of the code, and the default set refers only to codes that exist",
+          "test_id": "T-PWF-12"
+        },
+        {
+          "id": "AC-ST-PWF-015-UI1",
+          "given": "PWF-09 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-09"
+        },
+        {
+          "id": "AC-ST-PWF-015-UI2",
+          "given": "PWF-10 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-10"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-001"
+      ],
+      "review": {
+        "required": [
+          "legal-rule",
+          "authorization"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "A KPI set only refers to KPI_DEFINITION and RAG_THRESHOLDS codes that exist and chooses its operations from a closed catalogue of the kernel; there is no free expression."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-015-1",
+          "kind": "backend",
+          "title": "getKpiOperations, the rule types WORKFLOW_KPI_SET and STAFF_SCORING_POLICY and the reference check of governance:check",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-015-2",
+          "kind": "web",
+          "title": "PWF-09 KPI set editor with the preview of the conversion curve and PWF-10 scoring policy editor",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-015-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-09, PWF-10; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-015-4",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-12",
+            "UAT-PWF-NEG-02",
+            "UAT-PWF-KPI-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-015-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-09",
+            "UI-PWF-10"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-016",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-06",
+      "module": "PWF",
+      "title": "Compute, lock and officialise a scoring period from a hashed snapshot",
+      "narrative": "As a human resources officer I compute a draft of a scoring period, lock it, let the staff respond within a window and make it official after the responses are handled, so that the official score is the one that was locked and a later change of assignment or baseline cannot move it.",
+      "release": "R2",
+      "screens": [
+        "PWF-14"
+      ],
+      "operations": [
+        "computeStaffScorePeriod",
+        "lockStaffScorePeriod",
+        "listStaffScorePeriods",
+        "getStaffScorePeriod",
+        "officializeStaffScorePeriod",
+        "listTaskKpiResults",
+        "listStaffScoreSignals"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-02",
+        "NFR-PRIVACY-02",
+        "NFR-RETENTION-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-016-1",
+          "given": "A locked period, and an assignment and a baseline that change after the lock",
+          "when": "the period is recomputed from its snapshot, and read again",
+          "then": "the locked period carries its hash, the recomputation from the snapshot gives the same hash, and no score of the locked period changes",
+          "test_id": "T-PWF-17"
+        },
+        {
+          "id": "AC-ST-PWF-016-UI1",
+          "given": "PWF-14 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-14"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-015",
+        "ST-PWF-005"
+      ],
+      "review": {
+        "required": [
+          "migration",
+          "authorization",
+          "tenant-isolation",
+          "privacy",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2.5,
+          "max": 6
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "low",
+        "assumption": "Task KPI results are immutable rows; a period is computed from a snapshot with a hash, locked, opened to response and made official; the retention job removes or anonymises after the retention months of the policy."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-016-1",
+          "kind": "db",
+          "title": "Migration of block PWF-3 (V3020 to V3039): task_kpi_result, staff_score_period, line, adjustment and response with append-only triggers, RLS by subject and scope, and the retention policy",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-016-2",
+          "kind": "backend",
+          "title": "Task KPI results, computeStaffScorePeriod, lockStaffScorePeriod, officializeStaffScorePeriod, the signals for the reviewer and the scheduled lock",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-016-3",
+          "kind": "web",
+          "title": "PWF-14 period screen with draft, lock, response window, pending responses, officialise and the signals",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-016-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-14; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-016-5",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-10"
+          ]
+        },
+        {
+          "id": "TK-PWF-016-6",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-17",
+            "T-PWF-11",
+            "UAT-PWF-10",
+            "UAT-PWF-BND-13",
+            "UAT-PWF-NEG-08",
+            "UAT-PWF-NEG-09",
+            "UAT-PWF-STA-03",
+            "UAT-PWF-CON-03",
+            "UAT-PWF-SEC-10",
+            "UAT-PWF-LCK-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-016-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-14"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-017",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-07",
+      "module": "PWF",
+      "title": "See my own score down to each task and respond to it",
+      "narrative": "As an employee I see my own score with its breakdown to each task and fact, compare it with the earlier period, and respond to it inside the window, so that I can check it and contest it before it becomes official.",
+      "release": "R2",
+      "screens": [
+        "PWF-11",
+        "MOB-81"
+      ],
+      "operations": [
+        "getMyStaffScore",
+        "submitStaffScoreResponse",
+        "compareStaffScoreLines"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-PRIVACY-02"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-017-1",
+          "given": "A locked period with a response window, and an employee with a score in it",
+          "when": "the employee reads the score, responds inside the window, and the response is handled",
+          "then": "the breakdown reaches every task and fact behind the score, the response is accepted only inside the window, and the period becomes official only after the response is handled",
+          "test_id": "T-PWF-21"
+        },
+        {
+          "id": "AC-ST-PWF-017-UI1",
+          "given": "PWF-11 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-11"
+        },
+        {
+          "id": "AC-ST-PWF-017-UI2",
+          "given": "MOB-81 opened on 360x800 and 390x844 devices by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every figure carries its source and date, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-81"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-016"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation",
+          "privacy"
+        ],
+        "hours": {
+          "min": 1.5,
+          "max": 4
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 16,
+          "max": 40
+        },
+        "confidence": "medium",
+        "assumption": "A person reads only their own score, down to each task and fact, with the formula behind every figure; a response is made inside the window and the period becomes official after the responses are handled."
+      },
+      "mobile": "flutter-screen",
+      "tasks": [
+        {
+          "id": "TK-PWF-017-1",
+          "kind": "backend",
+          "title": "getMyStaffScore, compareStaffScoreLines and submitStaffScoreResponse with the window check",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-017-2",
+          "kind": "web",
+          "title": "PWF-11 own score with the breakdown, the period comparison and the response form",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-017-3",
+          "kind": "mobile",
+          "title": "MOB-81 own KPI score on the phone with no cache of anyone else's score",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-017-4",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-11, MOB-81; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-017-5",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-SEC-04"
+          ]
+        },
+        {
+          "id": "TK-PWF-017-6",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-21",
+            "UAT-PWF-10",
+            "UAT-PWF-11",
+            "UAT-PWF-15",
+            "UAT-PWF-BND-15",
+            "UAT-PWF-SEC-04",
+            "UAT-PWF-SEC-11",
+            "UAT-PWF-OFF-02"
+          ]
+        },
+        {
+          "id": "TK-PWF-017-7",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-11",
+            "UI-MOB-81"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-018",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-07",
+      "module": "PWF",
+      "title": "Unit scores, adjustments with a second approver, responses and export, inside the scope",
+      "narrative": "As a manager I read the scores of my unit, request an adjustment with a reason, and export what my scope allows, and as HR I handle responses and decide adjustments, so that no score is read outside its scope and no score is changed by one person.",
+      "release": "R2",
+      "screens": [
+        "PWF-12",
+        "PWF-13"
+      ],
+      "operations": [
+        "listStaffScoreLines",
+        "getStaffScoreLine",
+        "requestStaffScoreAdjustment",
+        "decideStaffScoreAdjustment",
+        "handleStaffScoreResponse",
+        "exportStaffScorePeriod"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-PRIVACY-02",
+        "NFR-SECURITY-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-018-1",
+          "given": "A manager who has left the unit, a user of another unit and a bulk export",
+          "when": "each reads the scores of the unit or exports them",
+          "then": "none sees a score outside the permission, the read answers 404 without disclosing, and every read of another person is logged in ADM-11",
+          "test_id": "T-PWF-18"
+        },
+        {
+          "id": "AC-ST-PWF-018-2",
+          "given": "An adjustment requested by a manager",
+          "when": "the requester decides it, and then a second approver decides one inside the range and one outside it",
+          "then": "the requester is refused with SELF_APPROVAL_DENIED, the one inside the range is applied and the one outside it is refused",
+          "test_id": "T-PWF-19"
+        },
+        {
+          "id": "AC-ST-PWF-018-3",
+          "given": "A person with fewer rated tasks than the minimum sample of the policy",
+          "when": "the period is computed",
+          "then": "the line is SMALL_SAMPLE with no rating and is not ranked against others",
+          "test_id": "T-PWF-09"
+        },
+        {
+          "id": "AC-ST-PWF-018-UI1",
+          "given": "PWF-12 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-12"
+        },
+        {
+          "id": "AC-ST-PWF-018-UI2",
+          "given": "PWF-13 opened at 1440 px and 390 px by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every labelled field of the screen is present, 0 console errors and no horizontal overflow at 1440 px",
+          "test_id": "UI-PWF-13"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-016"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "tenant-isolation",
+          "privacy",
+          "legal-rule"
+        ],
+        "hours": {
+          "min": 2,
+          "max": 5
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 56
+        },
+        "confidence": "low",
+        "assumption": "A manager reads the lines of the unit as it was in the period, not today; HR reads the tenant by the staff_score.read_hr permission; every read of another person is logged in ADM-11; an adjustment needs a second approver and stays inside the range of the policy."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-018-1",
+          "kind": "backend",
+          "title": "listStaffScoreLines, getStaffScoreLine, requestStaffScoreAdjustment, decideStaffScoreAdjustment, handleStaffScoreResponse and exportStaffScorePeriod with the period-time scope and the read log",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-018-2",
+          "kind": "web",
+          "title": "PWF-12 unit scores with the Excel export and PWF-13 score detail with the adjustment request",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-018-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-12, PWF-13; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-018-4",
+          "kind": "security",
+          "title": "Authorization negative tests: cross-tenant and out-of-scope reads answer 404, self-approval is refused, extra fields are rejected",
+          "test_ids": [
+            "UAT-PWF-13",
+            "UAT-PWF-SEC-02",
+            "UAT-PWF-SEC-03",
+            "UAT-PWF-SEC-04",
+            "UAT-PWF-SEC-05",
+            "UAT-PWF-SEC-08"
+          ]
+        },
+        {
+          "id": "TK-PWF-018-5",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-18",
+            "T-PWF-19",
+            "T-PWF-09",
+            "UAT-PWF-12",
+            "UAT-PWF-13",
+            "UAT-PWF-14",
+            "UAT-PWF-BND-10",
+            "UAT-PWF-BND-11",
+            "UAT-PWF-CON-03",
+            "UAT-PWF-SEC-02",
+            "UAT-PWF-SEC-03",
+            "UAT-PWF-SEC-04",
+            "UAT-PWF-SEC-05",
+            "UAT-PWF-SEC-08",
+            "UAT-PWF-SEC-11",
+            "UAT-PWF-OFF-02",
+            "UAT-PWF-RET-01"
+          ]
+        },
+        {
+          "id": "TK-PWF-018-6",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-PWF-12",
+            "UI-PWF-13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-019",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-08",
+      "module": "PWF",
+      "title": "Follow the project workflow and my tasks by deadline on the phone",
+      "narrative": "As an officer on the move I see the stages and the tasks of a project by deadline colour, my own tasks by deadline with my personal colour and the real date, and I complete a task from the phone, so that the work does not wait for a desk.",
+      "release": "R1",
+      "screens": [
+        "MOB-78",
+        "MOB-79",
+        "MOB-80"
+      ],
+      "operations": [
+        "getMyTasks"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-ACCESSIBILITY-02",
+        "NFR-TENANCY-01",
+        "NFR-PRIVACY-02"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-019-1",
+          "given": "A phone that was online, goes offline, and comes back, and a person whose access was revoked",
+          "when": "the person reads the workflow and my tasks, completes a task offline, and the queue is sent",
+          "then": "the workflow and my tasks show with the label \"as you set it\" and the real date, the sync time is shown for stale data, the queued command is refused if the task moved, and no score of another person is kept on the device after the revocation",
+          "test_id": "T-PWF-21"
+        },
+        {
+          "id": "AC-ST-PWF-019-UI1",
+          "given": "MOB-78 opened on 360x800 and 390x844 devices by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every figure carries its source and date, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-78"
+        },
+        {
+          "id": "AC-ST-PWF-019-UI2",
+          "given": "MOB-80 opened on 360x800 and 390x844 devices by a reader with the read permission and one without",
+          "when": "each of the seven standard states is forced in turn",
+          "then": "loading skeleton, populated, empty with its own reason, validation error, service error with retry, permission denied and stale marker all render, every figure carries its source and date, tap targets are at least 44 pt or 48 dp and the screen reader announces each region",
+          "test_id": "UI-MOB-80"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-005",
+        "ST-PWF-011"
+      ],
+      "review": {
+        "required": [
+          "authorization",
+          "security"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 3
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 24,
+          "max": 64
+        },
+        "confidence": "low",
+        "assumption": "The phone reads the official colour and, for my own tasks, my personal colour with the label \"as you set it\" and the real date; stale data shows its sync time; the phone never edits a template or a rule and never caches another person's score."
+      },
+      "mobile": "flutter-offline",
+      "tasks": [
+        {
+          "id": "TK-PWF-019-1",
+          "kind": "backend",
+          "title": "getMyTasks as a scoped read model",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-019-2",
+          "kind": "mobile",
+          "title": "MOB-78 workflow, MOB-79 task detail and MOB-80 my tasks by deadline on the MUX-1 kit, with the version-checked offline queue",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-019-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for MOB-78, MOB-79, MOB-80; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-019-4",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-21",
+            "UAT-PWF-09",
+            "UAT-PWF-15",
+            "UAT-PWF-OFF-01",
+            "UAT-PWF-OFF-02"
+          ]
+        },
+        {
+          "id": "TK-PWF-019-5",
+          "kind": "qa",
+          "title": "Screen-contract tests for the seven standard UI states and accessibility",
+          "test_ids": [
+            "UI-MOB-78",
+            "UI-MOB-80"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ST-PWF-020",
+      "epic": "EP-PWF",
+      "feature": "FT-PWF-05",
+      "module": "PWF",
+      "title": "See the workload of each person across the projects",
+      "narrative": "As a leader I see how many tasks and how much planned work each person carries over the coming weeks, so that I can see an overload before it becomes a delay.",
+      "release": "R2",
+      "screens": [
+        "PWF-07"
+      ],
+      "operations": [
+        "getProjectWorkload"
+      ],
+      "tables": [],
+      "nfr": [
+        "NFR-TENANCY-01",
+        "NFR-PERFORMANCE-01"
+      ],
+      "cxn": [],
+      "spikes": [],
+      "acceptance": [
+        {
+          "id": "AC-ST-PWF-020-1",
+          "given": "A person with assignments in several projects",
+          "when": "the workload is read",
+          "then": "the load by person is shown within the performance budget, and reading it changes no date of any task",
+          "test_id": "T-PWF-20"
+        }
+      ],
+      "dependencies": [
+        "ST-PWF-008",
+        "ST-PWF-012"
+      ],
+      "review": {
+        "required": [
+          "tenant-isolation"
+        ],
+        "hours": {
+          "min": 1,
+          "max": 2
+        }
+      },
+      "effort": {
+        "agent_hours": {
+          "min": 10,
+          "max": 24
+        },
+        "confidence": "medium",
+        "assumption": "The workload by person is read from the assignment ledger and the task dates; it is shown and never changes a schedule."
+      },
+      "mobile": "none",
+      "tasks": [
+        {
+          "id": "TK-PWF-020-1",
+          "kind": "backend",
+          "title": "getProjectWorkload as a scoped read model within the query budget",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-020-2",
+          "kind": "web",
+          "title": "Workload view of PWF-07",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-020-3",
+          "kind": "i18n",
+          "title": "Message keys in vi and en for PWF-07; no hard-coded display strings",
+          "test_ids": []
+        },
+        {
+          "id": "TK-PWF-020-4",
+          "kind": "qa",
+          "title": "Kernel, database, API and UAT cases of the acceptance criteria and the business rules of the story",
+          "test_ids": [
+            "T-PWF-20",
+            "UAT-PWF-PERF-01",
+            "UAT-PWF-WRK-01"
           ]
         }
       ]

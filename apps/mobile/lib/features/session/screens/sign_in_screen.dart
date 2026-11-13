@@ -12,7 +12,10 @@ import '../../../core/navigation/feature.dart';
 import '../../../core/navigation/router.dart' show homeLocation;
 import '../../../core/state/screen_state.dart';
 import '../../../core/state/state_boundary.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
 import '../../../core/widgets/brand_logo.dart';
+import '../../../core/widgets/info_row.dart';
 import '../auth/auth_service.dart';
 import '../auth/oidc_client.dart';
 import '../auth/session_vault.dart';
@@ -115,6 +118,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final FlowState flow = ref.watch(signInFlowProvider);
     final OidcConfig? config = _config;
     final String? organisation = _organisationName();
+    final MachvonV2Text text = context.v2text;
+    final MachvonV2Palette p = context.v2.palette;
     return AuthPage(
       child: StateBoundary(
         state: flow.state,
@@ -123,44 +128,40 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         // A scrolling column rather than a lazy list: every control is built at once, so the sign-in button is reachable
         // (and found by assistive technology) at 200 percent text on a small phone.
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: MachvonSpace.space24),
+          padding: const EdgeInsets.symmetric(vertical: MachvonV2Space.s24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               const BrandHeader(),
-              const SizedBox(height: MachvonSpace.space24),
-              Semantics(header: true, child: Text(context.t('mob.signIn.title.text'), style: Theme.of(context).textTheme.headlineSmall)),
-              const SizedBox(height: MachvonSpace.space12),
-              Text(context.t('mob.signIn.body.text')),
-              const SizedBox(height: MachvonSpace.space24),
+              const SizedBox(height: MachvonV2Space.s24),
+              AuthHeading(title: context.t('mob.signIn.title.text'), body: context.t('mob.signIn.body.text')),
+              const SizedBox(height: MachvonV2Space.s24),
               if (config != null) ...<Widget>[
                 // The organisation by its name; when only the host of the provider is known, a neutral line (the host is not a name).
                 if (organisation == null)
-                  Text(context.t('mob.signIn.tenant.unnamed.text'))
-                else ...<Widget>[
-                  Text(context.t('mob.signIn.tenant.label'), style: Theme.of(context).textTheme.labelMedium),
-                  Text(organisation),
-                ],
-                const SizedBox(height: MachvonSpace.space8),
+                  Text(context.t('mob.signIn.tenant.unnamed.text'), style: text.body)
+                else
+                  InfoRow(label: context.t('mob.signIn.tenant.label'), value: organisation, divider: false),
+                const SizedBox(height: MachvonV2Space.s8),
               ],
               if (widget.unlock) ...<Widget>[
-                Text(context.t('mob.signIn.unlock.title'), style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: MachvonSpace.space8),
-                Text(context.t('mob.signIn.unlock.body')),
-                const SizedBox(height: MachvonSpace.space12),
+                Text(context.t('mob.signIn.unlock.title'), style: text.heading),
+                const SizedBox(height: MachvonV2Space.s8),
+                Text(context.t('mob.signIn.unlock.body'), style: text.body),
+                const SizedBox(height: MachvonV2Space.s12),
                 FilledButton(onPressed: _unlock, child: Text(context.t('mob.signIn.unlock.action'))),
                 if (_unlockFailed) ...<Widget>[
-                  const SizedBox(height: MachvonSpace.space8),
-                  Semantics(liveRegion: true, child: Text(context.t('mob.signIn.unlock.failed'))),
+                  const SizedBox(height: MachvonV2Space.s8),
+                  Semantics(liveRegion: true, child: Text(context.t('mob.signIn.unlock.failed'), style: text.body.copyWith(color: p.lateFg))),
                 ],
-                const SizedBox(height: MachvonSpace.space16),
+                const SizedBox(height: MachvonV2Space.s16),
               ],
               if (_cancelled) ...<Widget>[
-                Semantics(liveRegion: true, child: Text(context.t('mob.signIn.cancelled.hint'))),
-                const SizedBox(height: MachvonSpace.space12),
+                Semantics(liveRegion: true, child: Text(context.t('mob.signIn.cancelled.hint'), style: text.body.copyWith(color: p.ink2))),
+                const SizedBox(height: MachvonV2Space.s12),
               ],
               FilledButton(onPressed: config == null ? null : _signIn, child: Text(context.t('mob.signIn.submit.action'))),
-              const SizedBox(height: MachvonSpace.space8),
+              const SizedBox(height: MachvonV2Space.s8),
               OutlinedButton(
                 onPressed: () => context.go(withReturn(ref.read(routeTableProvider).locationOf('MOB-01'), widget.returnTo)),
                 child: Text(context.t('mob.signIn.tenantChange.action')),

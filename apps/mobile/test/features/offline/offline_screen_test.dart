@@ -23,7 +23,7 @@ void main() {
       DraftStore(rig.store).save(kind: 'report', fields: <String, Object?>{'a': 1});
       DraftStore(rig.store).save(kind: 'issue', fields: <String, Object?>{'a': 1});
       rig.queue.enqueue(commandType: 'report.submit', payload: <String, Object?>{'report_id': '5b3c0e7a-0a56-4c0e-8c33-0f2f6b7f1a01'});
-      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/projects/mob-43');
+      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/account/mob-43');
       container.read(reachabilityProvider.notifier).report(Reachability.offline);
       await tester.pumpAndSettle();
 
@@ -46,7 +46,7 @@ void main() {
     testWidgets('without any synced data it says so instead of showing a time, and the same in English', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final QueueRig rig = await realClockRig();
-      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/projects/mob-43', locale: const Locale('en'));
+      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/account/mob-43', locale: const Locale('en'));
       container.read(reachabilityProvider.notifier).report(Reachability.offline);
       await tester.pumpAndSettle();
       expect(find.text('You are offline'), findsOneWidget);
@@ -56,7 +56,7 @@ void main() {
       expect(allText(tester).toLowerCase(), isNot(contains('latest')));
       expect(allText(tester).toLowerCase(), isNot(contains('mới nhất')));
       rig.store.dataAsOf = DateTime.utc(2026, 11, 3, 2, 7);
-      await openOfflineApp(tester, rig, location: '/projects/mob-43', locale: const Locale('en'));
+      await openOfflineApp(tester, rig, location: '/account/mob-43', locale: const Locale('en'));
       expect(find.text('Data on this device as of 2026-11-03 09:07'), findsOneWidget);
     });
 
@@ -64,12 +64,12 @@ void main() {
       useDevice(tester, kTallDevice);
       final QueueRig rig = await realClockRig();
       rig.store.dataAsOf = DateTime.utc(2026, 11, 3, 7, 5);
-      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/projects/mob-43');
+      final ProviderContainer container = await openOfflineApp(tester, rig, location: '/account/mob-43');
       expect(find.text('Bạn đang trực tuyến'), findsOneWidget);
       expect(find.textContaining('có thể đã khác trên server'), findsOneWidget);
       await tester.tap(find.text('Xem hàng đợi gửi (0)'));
       await tester.pumpAndSettle();
-      expect(currentLocation(container), '/projects/mob-41');
+      expect(currentLocation(container), '/account/mob-41');
     });
   });
 
@@ -81,7 +81,7 @@ void main() {
       await openOfflineApp(
         tester,
         rig,
-        location: '/projects/mob-43',
+        location: '/account/mob-43',
         overrides: [localStoreProvider.overrideWith((Ref ref) async {
           await gate.passed;
           return rig.store;
@@ -93,12 +93,12 @@ void main() {
       expect(find.text('Làm được khi ngoại tuyến'), findsOneWidget, reason: 'default');
 
       rig = await realClockRig();
-      await openOfflineApp(tester, rig, location: '/projects/mob-43', overrides: [localStoreProvider.overrideWith((Ref ref) async => throw StateError('disk'))]);
+      await openOfflineApp(tester, rig, location: '/account/mob-43', overrides: [localStoreProvider.overrideWith((Ref ref) async => throw StateError('disk'))]);
       expect(find.text('Chưa thể tải dữ liệu'), findsOneWidget, reason: 'error');
       expect(find.text('CLIENT_ERROR'), findsOneWidget);
 
       rig = await realClockRig();
-      await openOfflineApp(tester, rig, location: '/projects/mob-43', overrides: [localStoreProvider.overrideWith((Ref ref) async => throw const OfflineUnavailable())]);
+      await openOfflineApp(tester, rig, location: '/account/mob-43', overrides: [localStoreProvider.overrideWith((Ref ref) async => throw const OfflineUnavailable())]);
       expect(find.text('Phiên làm việc đã hết hạn'), findsOneWidget, reason: 'signed out');
       expect(tester.takeException(), isNull);
     });
@@ -108,7 +108,7 @@ void main() {
         final QueueRig rig = await realClockRig();
         rig.store.dataAsOf = DateTime.utc(2026, 11, 3, 7, 5);
         DraftStore(rig.store).save(kind: 'report', fields: <String, Object?>{'a': 1});
-        final ProviderContainer container = await openOfflineApp(t, rig, location: '/projects/mob-43');
+        final ProviderContainer container = await openOfflineApp(t, rig, location: '/account/mob-43');
         container.read(reachabilityProvider.notifier).report(Reachability.offline);
         await t.pumpAndSettle();
       });

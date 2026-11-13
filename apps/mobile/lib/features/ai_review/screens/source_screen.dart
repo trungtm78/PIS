@@ -4,6 +4,9 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/theme/typography.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../read_support/widgets.dart';
 import '../../read_support/wire.dart';
 import '../ai_models.dart';
@@ -20,7 +23,7 @@ import '../paged_lookup.dart';
 /// (n from 0). Anything else names nothing and is shown as not found.
 Widget buildSourceScreen(BuildContext context, ScreenContext screen) {
   final Map<String, String> query = screen.queryParameters;
-  return ScreenFrame(
+  return AppScaffold(
     title: context.t('mob.ai.source.title'),
     body: FreshRead<SourceView>(
       resource: (query.keys.toList()..sort()).map((String key) => '$key=${query[key]}').join('&'),
@@ -146,11 +149,11 @@ class _Source extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2Text text = context.v2text;
     final SourcePage? page = view.page;
     final String? title = page?.fileTitle;
     return ListView(
-      padding: const EdgeInsets.only(bottom: MachvonSpace.space24),
+      padding: const EdgeInsets.only(bottom: MachvonV2Space.s24),
       children: <Widget>[
         SectionCard(
           title: context.t('mob.ai.source.where.title'),
@@ -159,22 +162,22 @@ class _Source extends StatelessWidget {
             FactLine(label: context.t('mob.ai.source.page'), value: '${view.pageIndex + 1}'),
             if (view.verified != null) FactLine(label: context.t('mob.ai.source.check'), value: view.verified! ? context.t('mob.ai.evidence.verified') : context.t('mob.ai.evidence.notFound')),
             if (page != null) FactLine(label: context.t('mob.ai.source.ocr'), value: reviewStatusLabel(context, page.reviewStatus)),
-            if (page != null && page.waitsForPerson) Text(context.t('mob.ai.source.ocr.waiting'), style: theme.textTheme.bodyMedium),
+            if (page != null && page.waitsForPerson) Text(context.t('mob.ai.source.ocr.waiting'), style: text.body),
           ],
         ),
         if (view.quote != null)
           SectionCard(
             title: context.t('mob.ai.source.quote.title'),
-            children: <Widget>[Text('“${view.quote}”', style: theme.textTheme.bodyLarge)],
+            children: <Widget>[Text('“${view.quote}”', style: text.bodyStrong)],
           ),
         SectionCard(
           title: context.t('mob.ai.source.text.title'),
           children: <Widget>[
-            if (view.pageDenied) Text(context.t('mob.ai.source.text.denied'), style: theme.textTheme.bodyMedium),
-            if (!view.pageDenied && (page == null || page.text == null)) Text(context.t('mob.ai.source.text.unreadable'), style: theme.textTheme.bodyMedium),
+            if (view.pageDenied) Text(context.t('mob.ai.source.text.denied'), style: text.body),
+            if (!view.pageDenied && (page == null || page.text == null)) Text(context.t('mob.ai.source.text.unreadable'), style: text.body),
             if (page?.text != null) _PageText(text: page!.text!, quote: view.quote),
-            const SizedBox(height: MachvonSpace.space8),
-            Text(context.t('mob.ai.source.text.note'), style: theme.textTheme.bodySmall),
+            const SizedBox(height: MachvonV2Space.s8),
+            Text(context.t('mob.ai.source.text.note'), style: text.caption),
           ],
         ),
       ],
@@ -192,16 +195,17 @@ class _PageText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final MachvonV2 v2 = context.v2;
+    final MachvonV2Text style = context.v2text;
     final ({int start, int end})? at = quote == null ? null : locateQuote(text, quote!);
-    final TextStyle? base = theme.textTheme.bodyMedium;
+    final TextStyle base = style.body;
     if (at == null) return Text(text, style: base);
     return Text.rich(
       TextSpan(
         style: base,
         children: <InlineSpan>[
           TextSpan(text: text.substring(0, at.start)),
-          TextSpan(text: text.substring(at.start, at.end), style: base?.copyWith(backgroundColor: MachvonColors.primarySoft, fontWeight: FontWeight.w700, color: MachvonColors.ink)),
+          TextSpan(text: text.substring(at.start, at.end), style: style.bodyStrong.copyWith(backgroundColor: v2.palette.primarySoft, color: v2.palette.ink)),
           TextSpan(text: text.substring(at.end)),
         ],
       ),

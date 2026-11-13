@@ -5,6 +5,7 @@ import { SectionCard, StatusPill } from '../../../ui';
 import { FigureInfo } from '../components';
 import { dependencyWord, gateWord, kindWord, priorityWord } from '../labels';
 import { CheckField, CodeListField, NumberField, SelectField, TextField } from './editor-fields';
+import { KpiCodePicker } from './KpiCodePicker';
 import type { ProblemMap } from './editor-fields';
 import {
   CONDITION_FIELDS,
@@ -340,6 +341,7 @@ function TaskPanel({ template, index, task, onChange, problems, show, disabled, 
           <CodeListField label={t('pwf.templates.docs.forms.label')} path={`${at}.form_templates`} hint={t('pwf.templates.docs.forms.hint')} value={task.form_templates} onChange={(value) => patch({ form_templates: value })} {...common} />
           <CodeListField label={t('pwf.templates.docs.kpi.label')} path={`${at}.kpi_codes`} hint={t('pwf.templates.docs.kpi.hint')} value={task.kpi_codes} onChange={(value) => patch({ kpi_codes: value })} {...common} />
         </div>
+        <KpiCodePicker taskCode={task.code} value={task.kpi_codes} disabled={disabled} enabled onChange={(value) => patch({ kpi_codes: value })} />
       </fieldset>
       <fieldset className="pwf-tpl-sub">
         <legend>

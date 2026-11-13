@@ -27353,6 +27353,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff-score-periods/{id}/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tổng hợp kỳ chấm điểm theo đơn vị (bộ phận nhân sự, toàn tenant) */
+        get: operations["getStaffScoreOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -29629,7 +29646,7 @@ export interface components {
             items: {
                 idempotency_key: string;
                 /** @enum {string} */
-                command_type: "report.submit" | "report.draft.save" | "issue.create" | "site_diary.append" | "measurement.record" | "inspection.result";
+                command_type: "report.submit" | "report.draft.save" | "issue.create" | "site_diary.append" | "measurement.record" | "inspection.result" | "pwf.task.start" | "pwf.task.checklist.complete" | "pwf.task.evidence.attach" | "pwf.task.complete" | "pwf.task.exception.request";
                 base_server_version: number;
                 payload: Record<string, never>;
             }[];
@@ -37027,7 +37044,7 @@ export interface components {
              * @description The kind of source the item comes from.
              * @enum {string}
              */
-            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR" | "CONTRACT_CLAIM" | "CONTRACT_EARLY_WARNING" | "ESCALATION" | "COVERAGE" | "RED_FLAG" | "CONTRACT_CLOCK" | "DOC_REVIEW" | "DATA_FRESHNESS" | "ANOMALY" | "ALERT_FEEDBACK" | "PAYMENT_CLOCK" | "DISBURSEMENT_FORECAST" | "SETTLEMENT_CLOCK" | "CONTRACT_ADJUSTMENT" | "LOOK_AHEAD" | "LESSONS_LEARNED" | "PROJECT_RISK" | "COMMITTEE";
+            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR" | "CONTRACT_CLAIM" | "CONTRACT_EARLY_WARNING" | "ESCALATION" | "COVERAGE" | "RED_FLAG" | "CONTRACT_CLOCK" | "DOC_REVIEW" | "DATA_FRESHNESS" | "ANOMALY" | "ALERT_FEEDBACK" | "PAYMENT_CLOCK" | "DISBURSEMENT_FORECAST" | "SETTLEMENT_CLOCK" | "CONTRACT_ADJUSTMENT" | "LOOK_AHEAD" | "LESSONS_LEARNED" | "PROJECT_RISK" | "COMMITTEE" | "PROJECT_TASK";
             source_id: string;
             /**
              * Format: uuid
@@ -37430,7 +37447,7 @@ export interface components {
              * @description The kind of source the item comes from.
              * @enum {string}
              */
-            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR" | "CONTRACT_CLAIM" | "CONTRACT_EARLY_WARNING" | "ESCALATION" | "COVERAGE" | "RED_FLAG" | "CONTRACT_CLOCK" | "DOC_REVIEW" | "DATA_FRESHNESS" | "ANOMALY" | "ALERT_FEEDBACK" | "PAYMENT_CLOCK" | "DISBURSEMENT_FORECAST" | "SETTLEMENT_CLOCK" | "CONTRACT_ADJUSTMENT" | "LOOK_AHEAD" | "LESSONS_LEARNED" | "PROJECT_RISK" | "COMMITTEE";
+            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR" | "CONTRACT_CLAIM" | "CONTRACT_EARLY_WARNING" | "ESCALATION" | "COVERAGE" | "RED_FLAG" | "CONTRACT_CLOCK" | "DOC_REVIEW" | "DATA_FRESHNESS" | "ANOMALY" | "ALERT_FEEDBACK" | "PAYMENT_CLOCK" | "DISBURSEMENT_FORECAST" | "SETTLEMENT_CLOCK" | "CONTRACT_ADJUSTMENT" | "LOOK_AHEAD" | "LESSONS_LEARNED" | "PROJECT_RISK" | "COMMITTEE" | "PROJECT_TASK";
             source_id: string;
             /** @description Why the clocks stop, a code of the pause reasons of the CLOCK_POLICY rule in force. */
             reason_code: string;
@@ -37452,7 +37469,7 @@ export interface components {
              * @description The kind of source the item comes from.
              * @enum {string}
              */
-            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR" | "CONTRACT_CLAIM" | "CONTRACT_EARLY_WARNING" | "ESCALATION" | "COVERAGE" | "RED_FLAG" | "CONTRACT_CLOCK" | "DOC_REVIEW" | "DATA_FRESHNESS" | "ANOMALY" | "ALERT_FEEDBACK" | "PAYMENT_CLOCK" | "DISBURSEMENT_FORECAST" | "SETTLEMENT_CLOCK" | "CONTRACT_ADJUSTMENT" | "LOOK_AHEAD" | "LESSONS_LEARNED" | "PROJECT_RISK" | "COMMITTEE";
+            source: "APPROVAL" | "EXPLANATION" | "EXPLANATION_CONCLUDE" | "REPORT" | "OBLIGATION" | "EARLY_WARNING" | "ADVANCE" | "PERMIT" | "AUDIT_RECOMMENDATION" | "ISSUE" | "SITE_DIARY" | "GUARANTEE" | "MONEY_CONTROL" | "DIRECTIVE" | "CLOCK" | "PROCUREMENT_WORKFLOW" | "TREASURY_RECON" | "CROSS_TOTAL" | "SOD_EXCEPTION" | "PAYMENT_INTEGRITY" | "DISBURSEMENT_EXCEPTION" | "PROJECT_GOVERNANCE" | "CONNECTOR" | "EGP_POSTING" | "VENDOR" | "CONTRACT_CLAIM" | "CONTRACT_EARLY_WARNING" | "ESCALATION" | "COVERAGE" | "RED_FLAG" | "CONTRACT_CLOCK" | "DOC_REVIEW" | "DATA_FRESHNESS" | "ANOMALY" | "ALERT_FEEDBACK" | "PAYMENT_CLOCK" | "DISBURSEMENT_FORECAST" | "SETTLEMENT_CLOCK" | "CONTRACT_ADJUSTMENT" | "LOOK_AHEAD" | "LESSONS_LEARNED" | "PROJECT_RISK" | "COMMITTEE" | "PROJECT_TASK";
             source_id: string;
             /** @description Why the clocks run again before the end of the pause, if the person wants to say. */
             reason?: string;
@@ -49945,8 +49962,11 @@ export interface components {
             /** @enum {string} */
             status: "DRAFT" | "LOCKED" | "OFFICIAL";
             policy_code: string;
-            /** Format: uuid */
-            policy_rule_id: string;
+            /**
+             * Format: uuid
+             * @description Dòng quy tắc đã quyết định; rỗng khi dùng mặc định của hệ thống (phiên bản 0)
+             */
+            policy_rule_id: string | null;
             policy_version: number;
             snapshot_hash: string | null;
             /** Format: uuid */
@@ -50171,6 +50191,26 @@ export interface components {
             size_bytes: number;
             sha256: string;
             content_base64: string;
+            /** Format: date-time */
+            as_of: string;
+        };
+        /** @description Tổng hợp một kỳ chấm điểm theo đơn vị của từng người tại thời điểm của kỳ, cho bộ phận nhân sự (toàn tenant); không có tên người, không có điểm từng người */
+        StaffScoreOverview: {
+            /** Format: uuid */
+            period_id: string;
+            units: {
+                /** Format: uuid */
+                unit_id: string;
+                unit_code: string;
+                unit_name: string;
+                people: number;
+                rated: number;
+                small_sample: number;
+                not_rated: number;
+                mean_score: number | null;
+                adjusted_count: number;
+                open_response_count: number;
+            }[];
             /** Format: date-time */
             as_of: string;
         };
@@ -218594,6 +218634,100 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PwfReschedulePreview"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getStaffScoreOverview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffScoreOverview"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

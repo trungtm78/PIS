@@ -613,5 +613,12 @@ export const screenModules: Readonly<Record<string, ScreenLoader>> = {
   'PWF-06': () => import('../../screens/pwf/reschedule/RescheduleScreen'),
   'PWF-07': () => import('../../screens/pwf/board/DeadlineBoardScreen'),
   'PWF-08': () => import('../../screens/pwf/bands/BandPolicyScreen'),
+  'PWF-15': () => import('../../screens/pwf/preference/DeadlinePreferenceScreen'),
   'PWF-16': () => import('../../screens/pwf/assignments/AssignmentLedgerScreen'),
+  'PWF-09': () => import('../../screens/pwf/score/policy/KpiSetScreen'),
+  'PWF-10': () => import('../../screens/pwf/score/policy/ScoringPolicyScreen'),
+  'PWF-11': () => import('../../screens/pwf/score/MyScoreScreen'),
+  'PWF-12': () => import('../../screens/pwf/score/UnitScoreboardScreen'),
+  'PWF-13': () => import('../../screens/pwf/score/ScoreDetailScreen'),
+  'PWF-14': () => import('../../screens/pwf/score/PeriodScreen'),
 };
