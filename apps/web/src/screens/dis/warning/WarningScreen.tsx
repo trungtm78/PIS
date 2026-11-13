@@ -175,7 +175,7 @@ function Rules({ rules, onRevise, manage, approve }: { rules: RuleView[]; onRevi
   const columns: DataTableColumn<RuleView>[] = [
     {
       key: 'rule',
-      header: t('dis.warning.rule.col.rule'),
+      header: t('dis.warning.rule.col.code'),
       pinned: true,
       render: (rule) => (
         <span data-rule={rule.id} data-status={rule.status}>

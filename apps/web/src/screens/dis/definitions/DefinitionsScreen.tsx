@@ -38,6 +38,15 @@ function termStatusLabel(t: T, status: GlossaryTermView['status'] | undefined): 
   }
 }
 
+/** The basis a required metric is counted on (BR-DIS-12): the period, the year to date, the project to date, or the plan year of a denominator; read from the code of the term. */
+function basisOf(t: T, code: string): string {
+  if (code.endsWith('_PERIOD')) return t('dis.definitions.basis.period');
+  if (code.endsWith('_YTD')) return t('dis.definitions.basis.ytd');
+  if (code.endsWith('_PTD')) return t('dis.definitions.basis.ptd');
+  if (code.startsWith('MAU_SO_')) return t('dis.definitions.basis.plan');
+  return '—';
+}
+
 function fixtureTitle(t: T, id: GoldenFixture['id']): string {
   switch (id) {
     case 'FX-DIS-001':
@@ -108,6 +117,7 @@ function DefinitionsContent({ route }: ScreenProps) {
         return term?.formulaRef === null || term === undefined ? <span>—</span> : <code>{term.formulaRef}</code>;
       },
     },
+    { key: 'basis', header: t('dis.definitions.col.basis'), render: (code) => basisOf(t, code) },
     {
       key: 'status',
       header: t('dis.definitions.col.status'),
@@ -125,7 +135,7 @@ function DefinitionsContent({ route }: ScreenProps) {
   const fixtureColumns: DataTableColumn<GoldenFixture>[] = [
     {
       key: 'id',
-      header: t('dis.definitions.fixtures.col.id'),
+      header: t('dis.definitions.fixtures.col.golden'),
       pinned: true,
       render: (fixture) => (
         <span data-fixture={fixture.id}>

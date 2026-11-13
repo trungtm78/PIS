@@ -120,8 +120,8 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
     const table = screen.getByRole('table', { name: vi_['dis.full.table.aria'] });
     expect(headers(table)).not.toContain(vi_['dis.snapshot.line.treasury']);
     // Both rates leave together: never one alone.
-    expect(headers(table)).not.toContain(vi_['dis.rates.col.ratePm']);
-    expect(headers(table)).not.toContain(vi_['dis.rates.col.rateTotal']);
+    expect(headers(table)).not.toContain((vi_ as Record<string, string>)['dis.rates.col.rateTtg']);
+    expect(headers(table)).not.toContain((vi_ as Record<string, string>)['dis.rates.col.rateWithExtra']);
     expect(table.querySelectorAll('[data-rate]')).toHaveLength(0);
     // The CTMTQG stays, and the pinned columns cannot be switched off.
     expect(headers(table)).toContain(vi_['dis.full.col.ctmtqg']);
@@ -133,7 +133,7 @@ describe('DIS-16 the full table and the configuration of its columns', () => {
     expect(again.querySelectorAll('[data-rate]')).toHaveLength(0);
     await user.click(screen.getByRole('button', { name: vi_['dis.full.columns.action'] }));
     await user.click(within(await screen.findByTestId('column-config')).getByLabelText(vi_['dis.full.column.rates']));
-    expect(headers(screen.getByRole('table', { name: vi_['dis.full.table.aria'] }))).toEqual(expect.arrayContaining([vi_['dis.rates.col.ratePm'], vi_['dis.rates.col.rateTotal']]));
+    expect(headers(screen.getByRole('table', { name: vi_['dis.full.table.aria'] }))).toEqual(expect.arrayContaining([(vi_ as Record<string, string>)['dis.rates.col.rateTtg'], (vi_ as Record<string, string>)['dis.rates.col.rateWithExtra']]));
   });
 
   it('closes the table with a total row of the lines that are shown: the reported figures and, apart, the CTMTQG that is inside them, under a two-tier head that groups the columns', async () => {
