@@ -1,6 +1,8 @@
 import { DomainError, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
 import { HomeWorkCalendars } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
+import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
+import { currentFormRevisions } from './pwf-form-revision.ts';
 import { TASK_COLUMNS, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow, TaskSql } from './pwf-schedule-support.ts';
 import { bandResolver, taskItemOf, unitPathOfProject } from './pwf-workflow-reads.ts';
@@ -48,6 +50,7 @@ const ASSIGNMENT_SELECT = `select a.id, a.task_id, a.membership_id, u.display_na
 
 export class PwfTaskReads {
   private readonly calendars: HomeWorkCalendars;
+  private readonly assignment = new PwfAssignmentReads();
 
   constructor(calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
     this.calendars = calendars;
@@ -81,8 +84,8 @@ export class PwfTaskReads {
       `select item_code, name, required, evidence_kinds, done, done_by, ${ISO('done_at')} as done_at from machvon.project_task_checklist_item where task_id = $1::uuid order by item_code`,
       [task.id],
     );
-    const evidence = await tx.query<{ id: string; item_code: string | null; evidence_kind: string; document_id: string | null; legal_doc_type: string | null; form_template_code: string | null; external_ref: string | null; note: string | null; attached_by: string; attached_at: string }>(
-      `select id, item_code, evidence_kind, document_id, legal_doc_type, form_template_code, external_ref, note, attached_by, ${ISO('attached_at')} as attached_at from machvon.project_task_evidence where task_id = $1::uuid order by attached_at, id`,
+    const evidence = await tx.query<{ id: string; item_code: string | null; evidence_kind: string; document_id: string | null; legal_doc_type: string | null; form_template_code: string | null; form_template_revision: number | null; form_template_sha256: string | null; external_ref: string | null; note: string | null; attached_by: string; attached_at: string }>(
+      `select id, item_code, evidence_kind, document_id, legal_doc_type, form_template_code, form_template_revision, form_template_sha256::text as form_template_sha256, external_ref, note, attached_by, ${ISO('attached_at')} as attached_at from machvon.project_task_evidence where task_id = $1::uuid order by attached_at, id`,
       [task.id],
     );
     const exceptions = await tx.query<{ id: string; task_id: string; kind: string; items: string[]; valid_from: string; valid_to: string | null; reason: string; evidence_ref: string | null; status: string; requested_by: string; decided_by: string | null; decided_at: string | null; decision_note: string | null; version: number }>(
@@ -116,6 +119,32 @@ export class PwfTaskReads {
     const assignee = current === undefined ? undefined : { membership_id: current.membership_id, display_name: current.display_name ?? current.membership_id };
     const variance = task.baselineFinish === null || task.plannedFinish === null ? null : Math.round((Date.parse(`${task.plannedFinish}T00:00:00Z`) - Date.parse(`${task.baselineFinish}T00:00:00Z`)) / 86_400_000);
     const notMaker = !makers.has(viewer);
+    // R44, R45: the step the task belongs to and the legal grounds of the step and of the task, each with what the catalogue says of the document today.
+    const step = definition === undefined ? undefined : pwfWorkflow.stepsOf(template).find((one) => one.code === pwfWorkflow.stepCodeOf(template, definition) && one.phase === definition.phase);
+    const cites = (definition?.legalBasis ?? []).length + (step?.legalBasis.length ?? 0) > 0;
+    const catalogue = cites ? await this.assignment.legalDocuments(tx, today) : new Map();
+    // R46: the revision of each form in force today, the one the evidence of the task was made from, and whether a newer one exists since.
+    const formCodes = definition?.formTemplates ?? [];
+    const currentForms = await currentFormRevisions(tx, formCodes, today);
+    const forms = formCodes.map((code) => {
+      const policy = pwfWorkflow.formPolicyOf(definition ?? {}, code);
+      const used = [...evidence].reverse().find((one) => one.form_template_code === code);
+      const now = currentForms.get(code);
+      const usedRevision = used?.form_template_revision ?? null;
+      return {
+        code,
+        satisfied: used !== undefined,
+        document_id: evidence.find((one) => one.form_template_code === code)?.document_id ?? null,
+        policy: policy.policy,
+        pinned_revision: policy.revision,
+        current_revision: now?.revision ?? null,
+        current_title: now?.title ?? null,
+        current_effective_from: now?.effectiveFrom ?? null,
+        used_revision: usedRevision,
+        used_sha256: used?.form_template_sha256?.trim() ?? null,
+        newer_available: policy.policy === 'LATEST_APPROVED' && usedRevision !== null && now !== undefined && now.revision > usedRevision,
+      };
+    });
     return {
       ...taskItemOf(task, resolver.of(task, unit), assignee),
       responsible_role: task.responsibleRole,
@@ -137,8 +166,11 @@ export class PwfTaskReads {
       predecessors: links.map((one) => ({ task: one.task, kind: one.kind, lag_working_days: one.lag_working_days })),
       checklist: checklist.map((one) => ({ item_code: one.item_code, name: one.name, required: one.required, evidence_kinds: one.evidence_kinds, done: one.done, done_by: one.done_by, done_at: one.done_at })),
       legal_doc_types: (definition?.legalDocTypes ?? []).map((code) => ({ code, satisfied: evidence.some((one) => one.legal_doc_type === code) })),
-      form_templates: (definition?.formTemplates ?? []).map((code) => ({ code, satisfied: evidence.some((one) => one.form_template_code === code), document_id: evidence.find((one) => one.form_template_code === code)?.document_id ?? null })),
-      evidence: evidence.map((one) => ({ id: one.id, item_code: one.item_code, evidence_kind: one.evidence_kind, document_id: one.document_id, legal_doc_type: one.legal_doc_type, form_template_code: one.form_template_code, external_ref: one.external_ref, note: one.note, attached_by: one.attached_by, attached_at: one.attached_at })),
+      form_templates: forms,
+      step: step === undefined ? null : { code: step.code, name: step.name, phase_code: step.phase, order: step.order, implicit: step.implicit, responsible_role: step.responsibleRole },
+      legal_basis: (definition?.legalBasis ?? []).map((basis) => legalBasisView(basis, catalogue)),
+      step_legal_basis: (step?.legalBasis ?? []).map((basis) => legalBasisView(basis, catalogue)),
+      evidence: evidence.map((one) => ({ id: one.id, item_code: one.item_code, evidence_kind: one.evidence_kind, document_id: one.document_id, legal_doc_type: one.legal_doc_type, form_template_code: one.form_template_code, form_template_revision: one.form_template_revision, form_template_sha256: one.form_template_sha256?.trim() ?? null, external_ref: one.external_ref, note: one.note, attached_by: one.attached_by, attached_at: one.attached_at })),
       completion,
       exceptions,
       assignments: assignmentRows.map(assignmentOf),

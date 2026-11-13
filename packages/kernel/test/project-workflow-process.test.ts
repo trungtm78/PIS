@@ -21,7 +21,7 @@ import {
   templateHash,
   templateParamsOf,
 } from '../src/project-workflow.ts';
-import { scheduleProject, tasksFromTemplate } from '../src/project-schedule.ts';
+import { scheduleProject, standardTimes, tasksFromTemplate } from '../src/project-schedule.ts';
 import type { PinnedCalendar } from '../src/project-schedule.ts';
 
 type Params = Record<string, unknown>;
@@ -187,6 +187,24 @@ describe('phase -> step -> task (R44)', () => {
       { step: 'S3', phase: 'P2', start: '2026-01-13', finish: '2026-01-14', durationWorkingDays: 2, taskCount: 1 },
     ]);
     expect(run({ project_group: 'C' })[2]).toEqual({ step: 'S3', phase: 'P2', start: null, finish: null, durationWorkingDays: 0, taskCount: 0 });
+  });
+
+  it('gives the standard time of a template and of its steps on plain working weeks, whatever the calendar of a year', () => {
+    const template = parseProjectWorkflowTemplate(stepped());
+    expect(standardTimes(template, { project_group: 'A' })).toEqual({
+      totalWorkingDays: 8,
+      steps: [
+        { step: 'S1', phase: 'P1', durationWorkingDays: 4, taskCount: 2 },
+        { step: 'S2', phase: 'P1', durationWorkingDays: 2, taskCount: 1 },
+        { step: 'S3', phase: 'P2', durationWorkingDays: 2, taskCount: 1 },
+      ],
+    });
+    expect(standardTimes(template, {}).totalWorkingDays).toBe(6);
+    const shipped = parseProjectWorkflowTemplate(builtInDefault(PROJECT_WORKFLOW_RULE_TYPE, 'PUBLIC_INVESTMENT')?.params);
+    const times = standardTimes(shipped, { project_group: 'C', funding_source: 'BUDGET' });
+    expect(times.steps).toHaveLength(13);
+    expect(times.totalWorkingDays).toBeGreaterThan(300);
+    expect(times.steps.every((step) => step.taskCount > 0)).toBe(true);
   });
 
   it('ships the three templates in three tiers: every task in a step of its phase, every step with a legal ground of the catalogue, all of them unverified', () => {

@@ -1,5 +1,6 @@
-import { DomainError, pwfDeadlineBand, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
+import { DomainError, legalDocument, pwfDeadlineBand, pwfSchedule, pwfWorkflow, vietnamDateOf } from '@machvon/kernel';
 import type { WorkCalendarSource } from '@machvon/kernel';
+import { PwfAssignmentReads, legalBasisView } from './pwf-assignment.ts';
 import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
@@ -140,6 +141,7 @@ export interface TaskFilter {
 export class PwfWorkflowReads {
   private readonly calendars: HomeWorkCalendars;
   private readonly gate = new SqlProjectWorkflowGate();
+  private readonly assignment = new PwfAssignmentReads();
 
   constructor(calendars: HomeWorkCalendars = new HomeWorkCalendars()) {
     this.calendars = calendars;
@@ -149,7 +151,7 @@ export class PwfWorkflowReads {
     if (!UUID.test(projectId)) throw new DomainError('RESOURCE_NOT_FOUND', 404);
     const predicate = scope(2);
     const rows = await tx.query<Record<string, unknown>>(
-      `select w.id, w.project_id, w.template_code, w.template_rule_version, w.template_hash, w.template, w.facts, w.status, w.planned_start_date::text as planned_start_date, w.schedule_version, w.adopted_on::text as adopted_on, w.version,
+      `select w.id, w.project_id, w.template_code, w.template_rule_version, w.template_hash, w.template, w.facts, w.status, w.planned_start_date::text as planned_start_date, w.schedule_version, w.adopted_on::text as adopted_on, w.version, w.selection,
               ${ISO('w.updated_at')} as updated_at, p.code as project_code, w.calendar_pins
          from ${SCOPE_FROM} join machvon.project_workflow w on w.tenant_id = p.tenant_id and w.project_id = p.id where p.id = $1::uuid and ${predicate.sql}`,
       [projectId.toLowerCase(), ...predicate.params],
@@ -180,6 +182,51 @@ export class PwfWorkflowReads {
       const outcome = await this.gate.assess(tx, row.project_id as string, target);
       gates.push({ target, open: outcome?.open ?? true, missing_count: outcome?.missing.length ?? 0 });
     }
+    // R44: phase -> step -> task -> checklist. The step of a task is the one its frozen template gives it (a task the project added itself belongs to no step); the progress of a step is counted from its tasks and their checklists.
+    const definitions = new Map(template.tasks.map((one) => [one.code, one] as const));
+    const stepOf = (code: string): string | null => {
+      const definition = definitions.get(code);
+      return definition === undefined ? null : pwfWorkflow.stepCodeOf(template, definition);
+    };
+    const checks = await tx.query<{ task_id: string; total: number; done: number }>(
+      `select task_id, count(*)::int as total, (count(*) filter (where done))::int as done from machvon.project_task_checklist_item where task_id = any($1::uuid[]) group by task_id`,
+      [tasks.map((one) => one.id)],
+    );
+    const checklistOf = new Map(checks.map((one) => [one.task_id, one] as const));
+    const catalogue = await this.assignment.legalDocuments(tx, today);
+    const standard = pwfSchedule.standardTimes(template, (row.facts ?? {}) as pwfWorkflow.ProjectFacts);
+    const standardOf = new Map(standard.steps.map((one) => [`${one.phase}/${one.step}`, one.durationWorkingDays] as const));
+    const isOver = (status: string): boolean => status === 'DONE' || status === 'CANCELLED';
+    const steps = pwfWorkflow.stepsOf(template).map((step) => {
+      const mine = tasks.filter((one) => one.phaseCode === step.phase && stepOf(one.code) === step.code && !one.excluded && one.tracked);
+      const required = mine.filter((one) => one.required);
+      const over = mine.filter((one) => isOver(one.status)).length;
+      const starts = mine.map((one) => one.plannedStart).filter((day): day is string => day !== null).sort();
+      const finishes = mine.map((one) => one.plannedFinish).filter((day): day is string => day !== null).sort();
+      return {
+        code: step.code,
+        name: step.name,
+        phase_code: step.phase,
+        order: step.order,
+        implicit: step.implicit,
+        responsible_role: step.responsibleRole,
+        status: mine.length === 0 ? 'NOT_APPLICABLE' : over === mine.length ? 'DONE' : mine.some((one) => one.status !== 'NOT_STARTED') ? 'IN_PROGRESS' : 'NOT_STARTED',
+        standard_working_days: standardOf.get(`${step.phase}/${step.code}`) ?? 0,
+        planned_start: starts[0] ?? null,
+        planned_finish: finishes[finishes.length - 1] ?? null,
+        task_total: mine.length,
+        task_done: over,
+        required_total: required.length,
+        required_done: required.filter((one) => isOver(one.status)).length,
+        checklist_total: mine.reduce((sum, one) => sum + (checklistOf.get(one.id)?.total ?? 0), 0),
+        checklist_done: mine.reduce((sum, one) => sum + (checklistOf.get(one.id)?.done ?? 0), 0),
+        legal_basis: step.legalBasis.map((basis) => legalBasisView(basis, catalogue)),
+      };
+    });
+    const lapsed = pwfWorkflow.citedLegalDocuments(template).filter((code) => {
+      const document = catalogue.get(code);
+      return document !== undefined && legalDocument.isLapsed(document.state);
+    });
     const counts: Record<string, number> = { NONE: 0, GREEN: 0, YELLOW: 0, RED: 0, UNKNOWN: 0 };
     for (const item of items) if (!item.excluded && item.tracked && item.status !== 'DONE' && item.status !== 'CANCELLED') counts[item.band.band] = (counts[item.band.band] ?? 0) + 1;
     let openPhase: string | null = null;
@@ -203,7 +250,11 @@ export class PwfWorkflowReads {
       adopted_on: row.adopted_on ?? null,
       open_phase: openPhase,
       phases,
-      tasks: items,
+      steps,
+      tasks: items.map((item) => ({ ...item, step_code: stepOf(item.task_code), checklist_total: checklistOf.get(item.id)?.total ?? 0, checklist_done: checklistOf.get(item.id)?.done ?? 0 })),
+      standard_working_days: standard.totalWorkingDays,
+      lapsed_legal_documents: lapsed,
+      selection: row.selection ?? null,
       gates,
       counts_by_band: counts,
       can_manage: can.manage,
