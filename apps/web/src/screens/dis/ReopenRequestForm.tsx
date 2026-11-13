@@ -91,7 +91,7 @@ export function ReopenRequestForm({ periods }: ReopenRequestFormProps) {
           </Field>
         </div>
         <fieldset className="dis-scope">
-          <legend>{t('dis.reopen.form.scope.label')}</legend>
+          <legend>{t('dis.reopen.form.projectScope.label')}</legend>
           {SCOPES.map((scope) => (
             <label key={scope} className="dis-radio">
               <input type="radio" name="reopen-scope" value={scope} checked={form.scope === scope} onChange={() => change({ scope, projectIds: [] }, 'projects')} />

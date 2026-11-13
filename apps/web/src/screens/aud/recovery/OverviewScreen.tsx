@@ -55,6 +55,9 @@ function OverviewContent({ route }: ScreenProps) {
           <>
             <div data-testid="tiles">
               <KpiStrip label={t('w2iss.aud.kpi.label')}>
+                <div className="aud-tile" data-testid="tile-ongoing">
+                  <KpiTile label={t('aud.overview.tile.ongoing')} value={String(data.engagementsOngoing)} />
+                </div>
                 <div className="aud-tile" data-testid="tile-engagements">
                   <KpiTile label={t('aud.overview.tile.engagements')} value={String(data.engagementsOngoing + data.engagementsFollowUp)} sub={t('aud.overview.tile.engagements.parts', { ongoing: data.engagementsOngoing, followUp: data.engagementsFollowUp })} />
                 </div>

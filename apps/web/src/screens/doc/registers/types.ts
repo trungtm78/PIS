@@ -37,6 +37,8 @@ export interface RegisterEntry {
   symbol: string;
   documentId: string;
   issuedOn: string;
+  /** The summary (trích yếu) of the numbered document; null when the server did not send it. */
+  title: string | null;
   status: EntryStatus;
 }
 
@@ -91,6 +93,7 @@ export function toEntry(raw: unknown): RegisterEntry {
     symbol: text(row.symbol),
     documentId: text(row.document_id),
     issuedOn: text(row.issued_on),
+    title: typeof row.title === 'string' && row.title !== '' ? row.title : null,
     status: row.status === 'VOIDED' || row.status === 'RECALLED' ? row.status : 'ALLOCATED',
   };
 }

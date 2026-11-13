@@ -58,6 +58,8 @@ export function recommendationView(line: BoardLine): Record<string, unknown> {
       completed_on: action.completedOn,
       status: action.status,
       evidence_document_id: action.evidenceDocumentId,
+      evidence_attached_by: action.evidenceAttachedBy === null ? null : { id: action.evidenceAttachedBy.id, display_name: action.evidenceAttachedBy.name },
+      evidence_attached_at: action.evidenceAttachedAt,
       version: action.version,
     })),
     evidence_count: line.evidenceCount,

@@ -307,10 +307,14 @@ describe('IncomingIntakeScreen (DOC-11): receiving a letter', () => {
       },
     });
     await fill();
-    expect(document.getElementById('incoming-reason')).toBeNull();
+    // The reason stands on the form but closed until the server warned of a duplicate.
+    expect((document.getElementById('incoming-reason') as HTMLTextAreaElement).disabled).toBe(true);
+    expect(screen.getByTestId('duplicate-check').textContent).toContain(word('doc.incoming.intake.duplicateNone'));
     submit();
     expect((await screen.findByTestId('refusal')).textContent).toContain(word('doc.incoming.error.duplicate'));
     expect(screen.getByTestId('duplicate-link').getAttribute('href')).toBe(`/doc/doc-13?id=${letterId(1)}`);
+    expect(screen.getByTestId('duplicate-check').textContent).toContain(word('doc.incoming.intake.duplicateFound'));
+    expect((document.getElementById('incoming-reason') as HTMLTextAreaElement).disabled).toBe(false);
     // The reason is asked for now, at least ten characters.
     pick('incoming-reason', 'ngắn');
     submit();

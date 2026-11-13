@@ -37,13 +37,13 @@ export interface MoveUnitBody {
 export { AttemptRegistry };
 
 /** Every unit of the tenant the caller may read (all pages), keyed by tenant so a tenant switch never shows another tenant's tree. */
-export function useOrgUnits() {
+export function useOrgUnits(enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<OrgUnit[]>({
     queryKey: orgUnitsKey(tenant?.id),
     queryFn: async () => toOrgUnits(await client.readAll('get_resources_organization_unit')),
-    enabled: tenant !== undefined,
+    enabled: enabled && tenant !== undefined,
     retry: false,
   });
 }

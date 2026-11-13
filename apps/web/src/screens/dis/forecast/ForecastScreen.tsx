@@ -151,9 +151,9 @@ function ForecastContent({ route }: ScreenProps) {
                 </p>
                 <div data-testid="forecast-tiles">
                   <KpiStrip label={t('dis.forecast.total.title', { year: String(first.planYear) })}>
-                    <KpiTile label={t('dis.forecast.tile.disbursed')} value={money(first.disbursedVnd)} />
+                    <KpiTile label={t('dis.forecast.tile.disbursedTreasury')} value={money(first.disbursedVnd)} />
                     <KpiTile
-                      label={t('dis.forecast.tile.eac')}
+                      label={t('dis.forecast.tile.yearEnd')}
                       value={money(first.eacVnd)}
                       tone="info"
                       sub={
@@ -163,9 +163,13 @@ function ForecastContent({ route }: ScreenProps) {
                       }
                     />
                     <KpiTile label={t('dis.forecast.tile.plan')} value={money(first.planTotalVnd)} />
-                    <KpiTile label={t('dis.forecast.tile.gap')} value={first.gapVnd === null ? NONE : signedVnd(first.gapVnd)} sub={first.ratioPct === null ? undefined : t('dis.forecast.ratio.text', { value: first.ratioPct })} />
+                    <KpiTile label={t('dis.forecast.tile.gapPlan')} value={first.gapVnd === null ? NONE : signedVnd(first.gapVnd)} sub={first.ratioPct === null ? undefined : t('dis.forecast.ratio.text', { value: first.ratioPct })} />
                   </KpiStrip>
                 </div>
+                <dl className="w2dis-facts" data-testid="forecast-method">
+                  <dt>{t('dis.forecast.method.title')}</dt>
+                  <dd>{t('dis.forecast.method.text')}</dd>
+                </dl>
                 {overall === undefined ? null : (
                   <p className="w2dis-verdict" data-testid="forecast-verdict">
                     <StatusPill tone={overall.tone}>{overall.text}</StatusPill> <span className="w2dis-note">{t('dis.forecast.assumption.note')}</span>
@@ -215,6 +219,7 @@ function ForecastContent({ route }: ScreenProps) {
                   </tbody>
                 </table>
               </div>
+              <h3>{t('dis.forecast.months.title')}</h3>
               <div className="tablewrap">
                 <table className="table" aria-label={t('dis.forecast.months.aria')} data-testid="forecast-months-table">
                   <thead>
@@ -262,7 +267,7 @@ function ProjectTable({ projects, threshold }: { projects: readonly ProjectEstim
   const columns: DataTableColumn<ProjectEstimate>[] = [
     {
       key: 'project',
-      header: t('dis.forecast.projects.col.project'),
+      header: t('dis.forecast.projects.col.projectUnit'),
       pinned: true,
       render: (project) => (
         <>
@@ -271,10 +276,10 @@ function ProjectTable({ projects, threshold }: { projects: readonly ProjectEstim
         </>
       ),
     },
-    { key: 'disbursed', header: t('dis.forecast.tile.disbursed'), align: 'right', render: (project) => money(project.disbursedVnd) },
-    { key: 'eac', header: t('dis.forecast.tile.eac'), align: 'right', render: (project) => money(project.eacVnd) },
+    { key: 'disbursed', header: t('dis.forecast.tile.disbursedTreasury'), align: 'right', render: (project) => money(project.disbursedVnd) },
+    { key: 'eac', header: t('dis.forecast.tile.yearEnd'), align: 'right', render: (project) => money(project.eacVnd) },
     { key: 'plan', header: t('dis.forecast.tile.plan'), align: 'right', render: (project) => money(project.planTotalVnd) },
-    { key: 'gap', header: t('dis.forecast.tile.gap'), align: 'right', render: (project) => (project.gapVnd === null ? NONE : signedVnd(project.gapVnd)) },
+    { key: 'gap', header: t('dis.forecast.tile.gapPlan'), align: 'right', render: (project) => (project.gapVnd === null ? NONE : signedVnd(project.gapVnd)) },
     {
       key: 'verdict',
       header: t('dis.forecast.projects.col.verdict'),

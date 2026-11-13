@@ -178,7 +178,9 @@ describe('SignedUploadScreen (DOC-09): the leader signed with their own tool (AC
     await waitingReady();
     await readFile(userEvent.setup());
     expect(screen.getByTestId('verdict').getAttribute('data-overall')).toBe('INVALID');
-    expect(screen.getAllByText(vi_['doc.signed.overall.invalid']).length).toBe(2);
+    // The verdict, the row of the signature and the declared result of the verification.
+    expect(screen.getAllByText(vi_['doc.signed.overall.invalid']).length).toBe(3);
+    expect(screen.getByTestId('declared-verdict').textContent).toBe(vi_['doc.signed.overall.invalid']);
     expect(screen.getByText(vi_['doc.signed.chain.untrusted'])).toBeTruthy();
   });
 
@@ -294,7 +296,7 @@ describe('SignedUploadScreen (DOC-09): a document signed and numbered in another
         },
       }),
     );
-    expect((await screen.findByText(new RegExp('128/QD-UBND'))).closest('p')?.getAttribute('data-done')).toBe('EXTERNAL');
+    expect((await screen.findByText(new RegExp('128/QD-UBND'), { selector: 'p' })).getAttribute('data-done')).toBe('EXTERNAL');
     expect(screen.getByRole('link', { name: vi_['doc.signed.done.external.next'] }).getAttribute('href')).toBe('/doc/doc-03');
   });
 

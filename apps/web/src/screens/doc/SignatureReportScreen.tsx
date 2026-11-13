@@ -6,7 +6,7 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
-import { PILL_CLASS, checksOf } from './signatures/checks';
+import { CHECK_IDS, PILL_CLASS, checksOf } from './signatures/checks';
 import { useSignatureReport, useVerifySignatures, useVersionFacts, useVersions } from './signatures/hooks';
 import { chainLabel, checkHint, checkTitle, findingLabel, overallLabel, problemMessage, profileLabel, regimeLabel, revocationLabel, roleLabel, stateLabel } from './signatures/labels';
 import { describeProblem } from './signatures/problems';
@@ -132,6 +132,19 @@ function SignatureReportContent({ route }: ScreenProps) {
                 {t('doc.signatureReport.pick.more.action')}
               </button>
             ) : null}
+            {/* What the report of a version holds, before one is chosen: the same six checks, none of them run yet. */}
+            <h3>{t('doc.signatureReport.pick.report.title')}</h3>
+            <div className="checklist" data-testid="report-outline">
+              {CHECK_IDS.map((id) => (
+                <div className="item row between" key={id} data-check={id} data-state="none">
+                  <div>
+                    <div className="title">{checkTitle(t, id)}</div>
+                    <div className="sub">{checkHint(t, id)}</div>
+                  </div>
+                  <span className={PILL_CLASS.none}>{stateLabel(t, 'none')}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </StateBoundary>
       ) : (

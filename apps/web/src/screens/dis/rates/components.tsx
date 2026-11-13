@@ -171,8 +171,8 @@ export function RateCell({ rate, reason, kind }: { rate: string | null; reason: 
 export function rateColumns<Row>(t: T, pick: (row: Row) => { ratePmPct: string | null; rateTotalPct: string | null; reason: NullReason | null }): DataTableColumn<Row>[] {
   const group = t('w2dis.rates.group.rates');
   return [
-    { key: 'ratePm', header: t('dis.rates.col.ratePm'), group, align: 'right', render: (row) => <RateCell kind="pm" rate={pick(row).ratePmPct} reason={pick(row).reason} /> },
-    { key: 'rateTotal', header: t('dis.rates.col.rateTotal'), group, align: 'right', render: (row) => <RateCell kind="total" rate={pick(row).rateTotalPct} reason={pick(row).reason} /> },
+    { key: 'ratePm', header: t('dis.rates.col.rateTtg'), group, align: 'right', render: (row) => <RateCell kind="pm" rate={pick(row).ratePmPct} reason={pick(row).reason} /> },
+    { key: 'rateTotal', header: t('dis.rates.col.rateWithExtra'), group, align: 'right', render: (row) => <RateCell kind="total" rate={pick(row).rateTotalPct} reason={pick(row).reason} /> },
   ];
 }
 

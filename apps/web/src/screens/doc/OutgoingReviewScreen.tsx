@@ -6,6 +6,10 @@ import type { ScreenProps } from '../../routes/types';
 import { useSession } from '../../session/SessionContext';
 import { StateBoundary } from '../../states/StateBoundary';
 import { useScreenState } from '../../states/useScreenState';
+import { resolveDoa, unitPathsOf } from '../adm/doa/engine';
+import { useDoaMatrices, useRoleOptions } from '../adm/doa/hooks';
+import { previewFailureMessage } from '../adm/doa/labels';
+import { useOrgUnits } from '../adm/org-tree/hooks';
 import { listItems, useDecideReview, useDraft, useDraftList, useReturnDocument, useTimeline } from './drafts/hooks';
 import { checklistLabel, eventLabel, failureMessage, fieldProblemMessage, problemMessage, signingModeLabel, statusLabel, urgencyLabel } from './drafts/labels';
 import { describeProblem } from './drafts/problems';
@@ -19,6 +23,9 @@ const EDITOR_PATH = '/doc/doc-02';
 const SIGNING_PATH = '/doc/doc-05';
 const SHORT_ID = 8;
 const shortId = (id: string | null): string => (id === null || id === '' ? '' : id.slice(-SHORT_ID));
+/** What the screen reads to say who may sign under the delegation-of-authority matrix: the matrix, the units (for the subtree of a rule) and the roles. */
+const DOA_READS = ['adm.doa.read', 'organization_unit.read', 'role_grant.read'] as const;
+const todayInVietnam = (): string => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
 
 /** DOC-04: a reviewer other than the drafter checks the format, and the final PDF is locked for the signer. */
 export default function OutgoingReviewScreen({ route }: ScreenProps) {
@@ -50,6 +57,11 @@ function ReviewContent({ route }: ScreenProps) {
   const decide = useDecideReview();
   const sendBack = useReturnDocument();
   const busy = decide.isPending || sendBack.isPending;
+  // The signing authority under the DoA matrix in force: read only by a reviewer who may read the matrix, the units and the roles; the server checks the signer again when the document is signed.
+  const doaReadable = permissions !== undefined && DOA_READS.every((permission) => permissions.includes(permission));
+  const matrices = useDoaMatrices(doaReadable);
+  const units = useOrgUnits(doaReadable);
+  const roles = useRoleOptions(doaReadable);
   const state = useScreenState({
     isLoading: inReview.isLoading || submitted.isLoading,
     error: inReview.error ?? submitted.error,
@@ -61,6 +73,24 @@ function ReviewContent({ route }: ScreenProps) {
   // Only the final PDF that is current is the one that is locked; an earlier one that was taken back stays in the history.
   const finalFile = doc?.versions.find((version) => version.id === doc.currentVersionId && version.stage === 'RENDERED_FINAL');
   const lockedSha = done?.sha ?? finalFile?.checksum ?? doc?.latestReview?.fileSha256 ?? undefined;
+  const reviewing = doc?.status === 'IN_REVIEW';
+  // A document already approved shows the checklist and the opinion its reviewer recorded, read-only.
+  const recorded = doc?.latestReview?.kind === 'REVIEW_APPROVED' ? doc.latestReview : undefined;
+  const shownChecks = reviewing ? checks : (recorded?.checklist ?? {});
+  const shownComment = reviewing ? comment : (recorded?.comment ?? '');
+  const authority = ((): string => {
+    if (doc === undefined) return '';
+    if (!doaReadable) return t('doc.review.doa.unreadable');
+    if (matrices.isError || units.isError || roles.isError) return t('doc.review.doa.failed');
+    if (matrices.data === undefined || units.data === undefined || roles.data === undefined) return t('doc.review.doa.loading');
+    if (doc.draftingUnitId === '') return previewFailureMessage(t, 'unit');
+    const amount = typeof doc.payload.amount_vnd === 'string' && doc.payload.amount_vnd.trim() !== '' ? doc.payload.amount_vnd.trim() : null;
+    const records = matrices.data.map((matrix) => ({ id: matrix.id, status: matrix.status, effectiveFrom: matrix.effectiveFrom, effectiveUntil: matrix.effectiveUntil, rules: matrix.rules }));
+    const found = resolveDoa(records, unitPathsOf(units.data), { documentType: doc.docTypeCode, amountVnd: amount, unitId: doc.draftingUnitId, businessDate: todayInVietnam() });
+    if (!found.ok) return previewFailureMessage(t, found.failure);
+    const role = roles.data.find((entry) => entry.id === found.resolution.approverRoleId)?.code ?? found.resolution.approverRoleId;
+    return t('doc.review.doa.resolved', { role, levels: found.resolution.approvalLevels });
+  })();
 
   const choose = (id: string): void => {
     setParams({ doc: id });
@@ -212,13 +242,25 @@ function ReviewContent({ route }: ScreenProps) {
                       </div>
                     ))}
                 </dl>
-                {lockedSha === undefined ? (
-                  <p className="muted">{t('doc.review.hash.pending')}</p>
-                ) : (
-                  <p data-final-sha={lockedSha}>
-                    <strong>{t('doc.review.hash.label')}</strong> <span className="hash">{lockedSha}</span>
-                  </p>
-                )}
+                <dl className="facts">
+                  <div>
+                    <dt>{t('doc.review.hash.title')}</dt>
+                    {lockedSha === undefined ? (
+                      <dd className="muted">{t('doc.review.hash.pending')}</dd>
+                    ) : (
+                      <dd data-final-sha={lockedSha}>
+                        <span className="hash">{lockedSha}</span>
+                      </dd>
+                    )}
+                  </div>
+                  <div>
+                    <dt>{t('doc.review.doa.title')}</dt>
+                    <dd data-testid="doa-authority">
+                      {authority}
+                      <small className="sub">{t('doc.review.doa.hint', { delegation: doc.delegationId === null ? t('doc.review.doa.noDelegation') : shortId(doc.delegationId) })}</small>
+                    </dd>
+                  </div>
+                </dl>
                 {doc.latestReview?.kind === 'RETURNED' && doc.status === 'DRAFT' ? (
                   <p className="callout warning" role="status">
                     {t('doc.review.returned.text', { comment: doc.latestReview.comment ?? '' })}
@@ -230,23 +272,21 @@ function ReviewContent({ route }: ScreenProps) {
                     {done.kind === 'approved' ? <Link to={`${SIGNING_PATH}?doc=${doc.id}`}>{t('doc.review.approved.next')}</Link> : <Link to={`${EDITOR_PATH}?doc=${doc.id}`}>{t('doc.review.returned.next')}</Link>}
                   </p>
                 )}
-                {doc.status === 'IN_REVIEW' ? (
-                  <fieldset className="checklist" disabled={!canReview || busy || own}>
-                    <legend>{t('doc.review.checklist.title')}</legend>
-                    <ul className="checklist-items">
-                      {REVIEW_CHECKLIST.map((key) => (
-                        <li key={key} className="check">
-                          <input id={`check-${key}`} type="checkbox" checked={checks[key] === true} onChange={(event) => setChecks({ ...checks, [key]: event.target.checked })} />
-                          <label htmlFor={`check-${key}`}>{checklistLabel(t, key)}</label>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="field">
-                      <label htmlFor="review-comment">{t('doc.review.comment.label')}</label>
-                      <textarea id="review-comment" value={comment} onChange={(event) => setComment(event.target.value)} />
-                    </div>
-                  </fieldset>
-                ) : null}
+                <fieldset className="checklist" disabled={!reviewing || !canReview || busy || own}>
+                  <legend>{t('doc.review.checklist.title')}</legend>
+                  <ul className="checklist-items">
+                    {REVIEW_CHECKLIST.map((key) => (
+                      <li key={key} className="check">
+                        <input id={`check-${key}`} type="checkbox" checked={shownChecks[key] === true} onChange={(event) => setChecks({ ...checks, [key]: event.target.checked })} />
+                        <label htmlFor={`check-${key}`}>{checklistLabel(t, key)}</label>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="field">
+                    <label htmlFor="review-comment">{t('doc.review.comment.label')}</label>
+                    <textarea id="review-comment" value={shownComment} onChange={(event) => setComment(event.target.value)} />
+                  </div>
+                </fieldset>
                 {own && doc.status === 'IN_REVIEW' ? (
                   <p className="callout warning" role="status" data-self-review="true">
                     {t('doc.review.own.notice')}

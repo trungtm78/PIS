@@ -282,10 +282,170 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
       <div className="heading">
         <div>
           <h1 id="screen-title">{t('adm.doa.page.title')}</h1>
-          <p>{t('adm.doa.page.subtitle')}</p>
+          <p>{t('adm.doa.page.lead')}</p>
         </div>
       </div>
       <div className="adm-doa">
+        <SectionCard title={editing === undefined ? t('adm.doa.form.title') : t('adm.doa.form.editing.title')}>
+          <div data-testid="editor">
+          {!canManage ? (
+            <p className="callout warning" role="status">
+              {frozen ? t('adm.doa.frozen.notice') : t('adm.doa.readOnly.notice')}
+            </p>
+          ) : null}
+          {saved !== undefined && unchanged ? (
+            <p className="callout" role="status">
+              {t('adm.doa.draft.accepted.notice')}
+            </p>
+          ) : null}
+          {writeProblem === undefined ? null : (
+            <div className="callout warning" role="alert">
+              <p>{problemMessage(t, writeProblem)}</p>
+              {writeProblem.findings.length === 0 ? null : (
+                <ul>
+                  {writeProblem.findings.map((finding, index) => (
+                    <li key={index}>{findingMessage(t, finding)}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          <form onSubmit={save} noValidate aria-label={t('adm.doa.form.title')}>
+            <h3>{t('adm.doa.rules.title')}</h3>
+            {header('rules') === undefined ? null : (
+              <small role="alert" className="field-error">
+                {header('rules')}
+              </small>
+            )}
+            <div className="adm-kit-scroll" role="region" aria-label={t('adm.doa.rules.title')} tabIndex={0}>
+            <table className="table doa-rules" data-testid="rule-rows">
+              <thead>
+                <tr>
+                  <th>{t('adm.doa.rule.documentType.label')}</th>
+                  <th>{t('adm.doa.rule.appliedUnit.label')}</th>
+                  <th>{t('adm.doa.rule.subtree.label')}</th>
+                  <th>{t('adm.doa.rule.min.label')}</th>
+                  <th>{t('adm.doa.rule.max.label')}</th>
+                  <th>{t('adm.doa.rule.role.label')}</th>
+                  <th>{t('adm.doa.rule.approvalLevels.label')}</th>
+                  <th>{t('adm.doa.rule.distinct.label')}</th>
+                  <th>
+                    <span className="sr-only">{t('adm.doa.col.actions')}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {values.rules.map((rule, index) => (
+                  <tr key={rule.key} data-rule-row={index + 1}>
+                    <td>
+                      <input aria-label={t('adm.doa.rule.documentType.row', { row: index + 1 })} value={rule.documentType} disabled={!canManage} aria-invalid={rowError(index, 'documentType') !== undefined} onChange={(event) => setRule(rule.key, { documentType: event.target.value })} />
+                      {rowError(index, 'documentType') === undefined ? null : <small role="alert" className="field-error">{rowError(index, 'documentType')}</small>}
+                    </td>
+                    <td>
+                      <select aria-label={t('adm.doa.rule.unit.row', { row: index + 1 })} value={rule.unitId} disabled={!canManage} aria-invalid={rowError(index, 'unitId') !== undefined} onChange={(event) => setRule(rule.key, { unitId: event.target.value })}>
+                        <option value="">{t('adm.doa.rule.unit.placeholder')}</option>
+                        {usableUnits.map((unit) => (
+                          <option key={unit.id} value={unit.id}>
+                            {unitLabel(unit.id)}
+                          </option>
+                        ))}
+                      </select>
+                      {rowError(index, 'unitId') === undefined ? null : <small role="alert" className="field-error">{rowError(index, 'unitId')}</small>}
+                    </td>
+                    <td>
+                      <input type="checkbox" aria-label={t('adm.doa.rule.subtree.row', { row: index + 1 })} checked={rule.includeSubtree} disabled={!canManage} onChange={(event) => setRule(rule.key, { includeSubtree: event.target.checked })} />
+                    </td>
+                    <td>
+                      <input inputMode="numeric" aria-label={t('adm.doa.rule.min.row', { row: index + 1 })} value={rule.min} disabled={!canManage} onChange={(event) => setRule(rule.key, { min: event.target.value })} />
+                    </td>
+                    <td>
+                      <input inputMode="numeric" aria-label={t('adm.doa.rule.max.row', { row: index + 1 })} placeholder={t('adm.doa.chart.noEnd')} value={rule.max} disabled={!canManage} onChange={(event) => setRule(rule.key, { max: event.target.value })} />
+                    </td>
+                    <td>
+                      <select aria-label={t('adm.doa.rule.role.row', { row: index + 1 })} value={rule.roleId} disabled={!canManage} aria-invalid={rowError(index, 'roleId') !== undefined} onChange={(event) => setRule(rule.key, { roleId: event.target.value })}>
+                        <option value="">{t('adm.doa.rule.role.placeholder')}</option>
+                        {roles.map((role) => (
+                          <option key={role.id} value={role.id}>
+                            {role.code}
+                          </option>
+                        ))}
+                      </select>
+                      {rowError(index, 'roleId') === undefined ? null : <small role="alert" className="field-error">{rowError(index, 'roleId')}</small>}
+                    </td>
+                    <td>
+                      <select aria-label={t('adm.doa.rule.levels.row', { row: index + 1 })} value={rule.levels} disabled={!canManage} onChange={(event) => setRule(rule.key, { levels: Number(event.target.value) })}>
+                        {LEVELS.map((level) => (
+                          <option key={level} value={level}>
+                            {level}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <input type="checkbox" aria-label={t('adm.doa.rule.distinct.row', { row: index + 1 })} checked={rule.distinct} disabled={!canManage} onChange={(event) => setRule(rule.key, { distinct: event.target.checked })} />
+                    </td>
+                    <td className="row-actions">
+                      {canManage ? (
+                        <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('adm.doa.rule.remove.row', { row: index + 1 })} onClick={() => removeRule(rule.key)}>
+                          {t('adm.doa.rule.remove.action')}
+                        </button>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            </div>
+            {canManage ? (
+              <button type="button" className="ui-button ui-button--outline" onClick={addRule}>
+                {t('adm.doa.rules.add.action')}
+              </button>
+            ) : null}
+            {/* The period and the basis of the matrix come after its bands, in the order of the catalogue (ADM-15). */}
+            <div className="formgrid">
+              <Field id="doa-from" label={t('adm.doa.effectiveFrom.label')} error={header('effectiveFrom')}>
+                <input id="doa-from" type="date" value={values.effectiveFrom} disabled={!canManage} aria-invalid={header('effectiveFrom') !== undefined} onChange={(event) => { const { value } = event.target; edit((current) => ({ ...current, effectiveFrom: value })); }} />
+              </Field>
+              <Field id="doa-until" label={t('adm.doa.effectiveUntil.label')} error={header('effectiveUntil')} hint={t('adm.doa.effectiveUntil.hint')}>
+                <input id="doa-until" type="date" value={values.effectiveUntil} disabled={!canManage} aria-invalid={header('effectiveUntil') !== undefined} onChange={(event) => { const { value } = event.target; edit((current) => ({ ...current, effectiveUntil: value })); }} />
+              </Field>
+            </div>
+            <Field id="doa-basis" label={t('adm.doa.basis.label')} error={header('legalBasis')}>
+              <input id="doa-basis" value={values.legalBasis} disabled={!canManage} aria-invalid={header('legalBasis') !== undefined} onChange={(event) => { const { value } = event.target; edit((current) => ({ ...current, legalBasis: value })); }} />
+            </Field>
+            <h3>{t('adm.doa.chart.title')}</h3>
+            <BandChart rules={rules} unitLabel={unitLabel} roleLabel={roleLabel} />
+            <div data-testid="blockers" aria-live="polite">
+              {problems.submit.length === 0 ? (
+                <p className="callout" role="status">
+                  {t('adm.doa.blockers.none')}
+                </p>
+              ) : (
+                <div className="callout warning">
+                  <p>{t('adm.doa.blockers.title')}</p>
+                  <ul>
+                    {problems.submit.map((finding, index) => (
+                      <li key={index} data-code={finding.code}>
+                        {findingMessage(t, finding)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <p className="adm-kit-sub">{t('adm.doa.form.hint')}</p>
+            {canManage ? (
+              <StickyActions
+                primary={
+                  <button type="submit" className="ui-button ui-button--primary" disabled={busy || unchanged}>
+                    {editing === undefined ? t('adm.doa.draft.save.action') : t('adm.doa.draft.update.action')}
+                  </button>
+                }
+              />
+            ) : null}
+          </form>
+          </div>
+        </SectionCard>
         <SectionCard title={t('adm.doa.versions.title')}>
           <div data-testid="versions" className="adm-kit-stack">
           {register.length === 0 ? <p className="muted">{t('adm.doa.versions.empty')}</p> : null}
@@ -366,165 +526,6 @@ function WorkspaceContent({ route, matrices, units, roles }: DoaWorkspaceProps) 
               )}
             </div>
           )}
-          </div>
-        </SectionCard>
-        <SectionCard title={editing === undefined ? t('adm.doa.form.title') : t('adm.doa.form.editing.title')}>
-          <div data-testid="editor">
-          {!canManage ? (
-            <p className="callout warning" role="status">
-              {frozen ? t('adm.doa.frozen.notice') : t('adm.doa.readOnly.notice')}
-            </p>
-          ) : null}
-          {saved !== undefined && unchanged ? (
-            <p className="callout" role="status">
-              {t('adm.doa.draft.accepted.notice')}
-            </p>
-          ) : null}
-          {writeProblem === undefined ? null : (
-            <div className="callout warning" role="alert">
-              <p>{problemMessage(t, writeProblem)}</p>
-              {writeProblem.findings.length === 0 ? null : (
-                <ul>
-                  {writeProblem.findings.map((finding, index) => (
-                    <li key={index}>{findingMessage(t, finding)}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-          <form onSubmit={save} noValidate aria-label={t('adm.doa.form.title')}>
-            <div className="formgrid">
-              <Field id="doa-from" label={t('adm.doa.effectiveFrom.label')} error={header('effectiveFrom')}>
-                <input id="doa-from" type="date" value={values.effectiveFrom} disabled={!canManage} aria-invalid={header('effectiveFrom') !== undefined} onChange={(event) => { const { value } = event.target; edit((current) => ({ ...current, effectiveFrom: value })); }} />
-              </Field>
-              <Field id="doa-until" label={t('adm.doa.effectiveUntil.label')} error={header('effectiveUntil')} hint={t('adm.doa.effectiveUntil.hint')}>
-                <input id="doa-until" type="date" value={values.effectiveUntil} disabled={!canManage} aria-invalid={header('effectiveUntil') !== undefined} onChange={(event) => { const { value } = event.target; edit((current) => ({ ...current, effectiveUntil: value })); }} />
-              </Field>
-            </div>
-            <Field id="doa-basis" label={t('adm.doa.basis.label')} error={header('legalBasis')}>
-              <input id="doa-basis" value={values.legalBasis} disabled={!canManage} aria-invalid={header('legalBasis') !== undefined} onChange={(event) => { const { value } = event.target; edit((current) => ({ ...current, legalBasis: value })); }} />
-            </Field>
-            <h3>{t('adm.doa.rules.title')}</h3>
-            {header('rules') === undefined ? null : (
-              <small role="alert" className="field-error">
-                {header('rules')}
-              </small>
-            )}
-            <div className="adm-kit-scroll" role="region" aria-label={t('adm.doa.rules.title')} tabIndex={0}>
-            <table className="table doa-rules" data-testid="rule-rows">
-              <thead>
-                <tr>
-                  <th>{t('adm.doa.rule.documentType.label')}</th>
-                  <th>{t('adm.doa.rule.unit.label')}</th>
-                  <th>{t('adm.doa.rule.subtree.label')}</th>
-                  <th>{t('adm.doa.rule.min.label')}</th>
-                  <th>{t('adm.doa.rule.max.label')}</th>
-                  <th>{t('adm.doa.rule.role.label')}</th>
-                  <th>{t('adm.doa.rule.levels.label')}</th>
-                  <th>{t('adm.doa.rule.distinct.label')}</th>
-                  <th>
-                    <span className="sr-only">{t('adm.doa.col.actions')}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {values.rules.map((rule, index) => (
-                  <tr key={rule.key} data-rule-row={index + 1}>
-                    <td>
-                      <input aria-label={t('adm.doa.rule.documentType.row', { row: index + 1 })} value={rule.documentType} disabled={!canManage} aria-invalid={rowError(index, 'documentType') !== undefined} onChange={(event) => setRule(rule.key, { documentType: event.target.value })} />
-                      {rowError(index, 'documentType') === undefined ? null : <small role="alert" className="field-error">{rowError(index, 'documentType')}</small>}
-                    </td>
-                    <td>
-                      <select aria-label={t('adm.doa.rule.unit.row', { row: index + 1 })} value={rule.unitId} disabled={!canManage} aria-invalid={rowError(index, 'unitId') !== undefined} onChange={(event) => setRule(rule.key, { unitId: event.target.value })}>
-                        <option value="">{t('adm.doa.rule.unit.placeholder')}</option>
-                        {usableUnits.map((unit) => (
-                          <option key={unit.id} value={unit.id}>
-                            {unitLabel(unit.id)}
-                          </option>
-                        ))}
-                      </select>
-                      {rowError(index, 'unitId') === undefined ? null : <small role="alert" className="field-error">{rowError(index, 'unitId')}</small>}
-                    </td>
-                    <td>
-                      <input type="checkbox" aria-label={t('adm.doa.rule.subtree.row', { row: index + 1 })} checked={rule.includeSubtree} disabled={!canManage} onChange={(event) => setRule(rule.key, { includeSubtree: event.target.checked })} />
-                    </td>
-                    <td>
-                      <input inputMode="numeric" aria-label={t('adm.doa.rule.min.row', { row: index + 1 })} value={rule.min} disabled={!canManage} onChange={(event) => setRule(rule.key, { min: event.target.value })} />
-                    </td>
-                    <td>
-                      <input inputMode="numeric" aria-label={t('adm.doa.rule.max.row', { row: index + 1 })} placeholder={t('adm.doa.chart.noEnd')} value={rule.max} disabled={!canManage} onChange={(event) => setRule(rule.key, { max: event.target.value })} />
-                    </td>
-                    <td>
-                      <select aria-label={t('adm.doa.rule.role.row', { row: index + 1 })} value={rule.roleId} disabled={!canManage} aria-invalid={rowError(index, 'roleId') !== undefined} onChange={(event) => setRule(rule.key, { roleId: event.target.value })}>
-                        <option value="">{t('adm.doa.rule.role.placeholder')}</option>
-                        {roles.map((role) => (
-                          <option key={role.id} value={role.id}>
-                            {role.code}
-                          </option>
-                        ))}
-                      </select>
-                      {rowError(index, 'roleId') === undefined ? null : <small role="alert" className="field-error">{rowError(index, 'roleId')}</small>}
-                    </td>
-                    <td>
-                      <select aria-label={t('adm.doa.rule.levels.row', { row: index + 1 })} value={rule.levels} disabled={!canManage} onChange={(event) => setRule(rule.key, { levels: Number(event.target.value) })}>
-                        {LEVELS.map((level) => (
-                          <option key={level} value={level}>
-                            {level}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <input type="checkbox" aria-label={t('adm.doa.rule.distinct.row', { row: index + 1 })} checked={rule.distinct} disabled={!canManage} onChange={(event) => setRule(rule.key, { distinct: event.target.checked })} />
-                    </td>
-                    <td className="row-actions">
-                      {canManage ? (
-                        <button type="button" className="ui-button ui-button--outline ui-button--small" aria-label={t('adm.doa.rule.remove.row', { row: index + 1 })} onClick={() => removeRule(rule.key)}>
-                          {t('adm.doa.rule.remove.action')}
-                        </button>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>
-            {canManage ? (
-              <button type="button" className="ui-button ui-button--outline" onClick={addRule}>
-                {t('adm.doa.rules.add.action')}
-              </button>
-            ) : null}
-            <h3>{t('adm.doa.chart.title')}</h3>
-            <BandChart rules={rules} unitLabel={unitLabel} roleLabel={roleLabel} />
-            <div data-testid="blockers" aria-live="polite">
-              {problems.submit.length === 0 ? (
-                <p className="callout" role="status">
-                  {t('adm.doa.blockers.none')}
-                </p>
-              ) : (
-                <div className="callout warning">
-                  <p>{t('adm.doa.blockers.title')}</p>
-                  <ul>
-                    {problems.submit.map((finding, index) => (
-                      <li key={index} data-code={finding.code}>
-                        {findingMessage(t, finding)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-            <p className="adm-kit-sub">{t('adm.doa.form.hint')}</p>
-            {canManage ? (
-              <StickyActions
-                primary={
-                  <button type="submit" className="ui-button ui-button--primary" disabled={busy || unchanged}>
-                    {editing === undefined ? t('adm.doa.draft.save.action') : t('adm.doa.draft.update.action')}
-                  </button>
-                }
-              />
-            ) : null}
-          </form>
           </div>
         </SectionCard>
       </div>

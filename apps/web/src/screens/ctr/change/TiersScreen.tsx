@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../i18n';
@@ -9,6 +9,7 @@ import { useScreenState } from '../../../states/useScreenState';
 import { BackLink } from '../components';
 import { LIST_PATH } from '../model';
 import { ProjectPicker } from './components';
+import { useProjectOptions } from '../hooks';
 import { useChain, useSetTiers } from './hooks';
 import { formProblemMessage, problemMessage, stageLabel } from './labels';
 import { TIER_COUNTS, chainLink, describeProblem, emptyTiers, stagesOf, tiersBody, validateTiers } from './model';
@@ -32,6 +33,11 @@ function TiersContent({ route }: ScreenProps) {
   const [search, setSearch] = useSearchParams();
   const projectId = search.get('project');
   const chain = useChain(projectId);
+  // Opened without a project, the screen takes the first one the caller may see; the picker stays to change it.
+  const first = useProjectOptions().data?.[0]?.id;
+  useEffect(() => {
+    if (projectId === null && first !== undefined) setSearch({ project: first }, { replace: true });
+  }, [projectId, first, setSearch]);
   const state = useScreenState({
     isLoading: chain.isLoading,
     error: chain.error,
@@ -48,9 +54,8 @@ function TiersContent({ route }: ScreenProps) {
         </div>
       </div>
       <BackLink to={LIST_PATH}>{t('ctr.back.list.link')}</BackLink>
-      {projectId === null ? (
-        <ProjectPicker onPick={(id) => setSearch({ project: id })} />
-      ) : (
+      <ProjectPicker onPick={(id) => setSearch({ project: id })} />
+      {projectId === null ? null : (
         <StateBoundary state={state} onRetry={() => void chain.refetch()}>
           {chain.data === null || chain.data === undefined ? null : <Tiers chain={chain.data} readOnly={mode === 'READ_ONLY'} />}
         </StateBoundary>
@@ -60,8 +65,13 @@ function TiersContent({ route }: ScreenProps) {
   );
 }
 
+/** The permission of setChangeChainTiers (x-permission in openapi.json); the server judges the command again. */
+const CONFIGURE_TIERS_PERMISSION = 'change.tiers.configure';
+
 function Tiers({ chain, readOnly }: { chain: Chain; readOnly: boolean }) {
   const { t } = useTranslation();
+  const projects = useProjectOptions();
+  const projectLabel = projects.data?.find((project) => project.id === chain.projectId)?.label;
   const { config } = chain;
   const locked = config?.locked === true;
   const set = useSetTiers();
@@ -69,7 +79,9 @@ function Tiers({ chain, readOnly }: { chain: Chain; readOnly: boolean }) {
   const [submitted, setSubmitted] = useState(false);
   const [done, setDone] = useState(false);
   const problems = validateTiers(form);
-  const editable = chain.canConfigure && !readOnly && !locked;
+  const { permissions } = useSession();
+  // The server says the membership may set the tiers of this project; the session of the person must hold the right too.
+  const editable = chain.canConfigure && !readOnly && !locked && (permissions === undefined || permissions.includes(CONFIGURE_TIERS_PERMISSION));
 
   const send = (event: FormEvent): void => {
     event.preventDefault();
@@ -91,6 +103,17 @@ function Tiers({ chain, readOnly }: { chain: Chain; readOnly: boolean }) {
           {t('ctr.change.tiers.readOnly.notice')}
         </p>
       ) : null}
+      {/* The policy as it stands (CTR-20 fields): the project, whether it is locked and by which first change, and who set it. */}
+      <dl className="ctr-facts" data-testid="tiers-facts">
+        <dt>{t('ctr.change.tiers.fact.project')}</dt>
+        <dd>{projectLabel ?? chain.projectId.slice(0, 8)}</dd>
+        <dt>{t('ctr.change.tiers.fact.locked')}</dt>
+        <dd data-testid="fact-locked">{locked ? t('ctr.change.tiers.fact.lockedYes', { day: config?.lockedAt?.slice(0, 10) ?? '' }) : t('ctr.change.tiers.fact.lockedNo')}</dd>
+        <dt>{t('ctr.change.tiers.fact.firstChange')}</dt>
+        <dd data-testid="fact-first-change">{config?.lockedBy == null ? t('ctr.change.tiers.fact.noChange') : (config.lockedBy.code ?? config.lockedBy.id.slice(0, 8))}</dd>
+        <dt>{t('ctr.change.tiers.fact.setBy')}</dt>
+        <dd data-testid="fact-set-by">{config === undefined ? t('ctr.change.tiers.fact.notSet') : config.setBy === null ? t('ctr.change.none.text') : config.setBy.slice(0, 8)}</dd>
+      </dl>
       <form onSubmit={send} noValidate>
         {set.isError ? (
           <p className="callout warning" role="alert" data-testid="refusal">

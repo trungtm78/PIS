@@ -138,9 +138,13 @@ function EvaluationContent({ route }: ScreenProps) {
           {t('ast.evaluation.noRight.notice')}
         </p>
       ) : projectId === undefined ? (
-        <p className="callout" role="status" data-testid="choose-project">
-          {t('ast.evaluation.project.notice')}
-        </p>
+        <>
+          <p className="callout" role="status" data-testid="choose-project">
+            {t('ast.evaluation.project.notice')}
+          </p>
+          {/* The columns of the triggers stand before a project is chosen: what the screen will list is said by them. */}
+          <TriggerTable items={[]} />
+        </>
       ) : (
         <>
           {may ? <SchedulePanel key={projectId} projectId={projectId} handovers={handovers.data ?? []} loading={handovers.isLoading} failed={handovers.isError} onRetry={() => void handovers.refetch()} /> : null}
@@ -150,9 +154,8 @@ function EvaluationContent({ route }: ScreenProps) {
               <p className="callout" role="status" data-testid="empty">
                 {t('ast.evaluation.empty.notice')}
               </p>
-            ) : (
-              <TriggerTable items={items} />
-            )}
+            ) : null}
+            <TriggerTable items={items} />
           </StateBoundary>
         </>
       )}

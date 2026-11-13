@@ -137,3 +137,11 @@
   content: "! ";
   white-space: pre;
 }
+
+/* CTR-22: a fieldset that only closes the fields of a command until an action is chosen; no frame of its own. */
+.ctr-plain {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}

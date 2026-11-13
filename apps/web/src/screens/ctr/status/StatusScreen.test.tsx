@@ -43,14 +43,30 @@ describe('StatusScreen (CTR-22): suspend, resume and terminate a contract', () =
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['ctr.halt.page.title']);
   });
 
+  it('offers no command to a session that only reads, even where the contract would take one', async () => {
+    mount(<StatusScreen route={ROUTE} />, client({ summary: active({ suspend: true, terminate: true }) }), { permissions: ['contract.read'], path: PATH });
+    await screen.findByTestId('facts');
+    expect(radios()).toEqual([]);
+    expect(screen.getByTestId('no-command')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: text('ctr.halt.action.suspend') })).toBeNull();
+  });
+
+  it('offers the suspension alone to a session that may suspend but not terminate', async () => {
+    mount(<StatusScreen route={ROUTE} />, client({ summary: active({ suspend: true, terminate: true }) }), { permissions: ['contract.read', 'contract.suspend'], path: PATH });
+    await screen.findByTestId('facts');
+    expect(radios()).toEqual(['suspend']);
+  });
+
   it('UI-CTR-22: shows the contract and offers the actions the caller may take, and nothing else', async () => {
     open({ summary: active({ suspend: true, terminate: true }) });
     await screen.findByTestId('facts');
     expect(screen.getByTestId('contract-code').textContent).toBe('HD-A-001');
     expect(screen.getByTestId('value').textContent).toBe(text('ctr.value.amount', { amount: '10.200.000.000' }));
     expect(radios()).toEqual(['suspend', 'terminate']);
-    // Nothing is asked until an action is chosen.
-    expect(document.getElementById('halt-reason')).toBeNull();
+    // The fields stand from the start but stay closed until an action is chosen; no command can be sent yet.
+    expect((document.getElementById('halt-reason') as HTMLTextAreaElement).closest('fieldset')?.disabled).toBe(true);
+    expect(screen.getByTestId('impact').textContent).toContain(text('ctr.halt.impact.choose'));
+    expect(screen.getByTestId('guarantee-kept').textContent).toBe(text('ctr.halt.guarantee.kept'));
     expect(screen.getByText(text('ctr.halt.footer.reference', { id: 'CTR-22', req: 'FR-CTR-22' }))).toBeTruthy();
   });
 

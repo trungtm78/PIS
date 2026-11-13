@@ -107,7 +107,7 @@ function GuestContractorsContent({ routeId, requirement }: { routeId: string; re
       <div className="heading">
         <div>
           <h1 id="screen-title">{t('adm.guests.page.title')}</h1>
-          <p>{t('adm.guests.page.subtitle')}</p>
+          <p>{t('adm.guests.page.lead')}</p>
         </div>
         {(state === 'default' || state === 'empty') && canInvite ? (
           <div className="actions">

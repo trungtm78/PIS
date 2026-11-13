@@ -93,7 +93,7 @@ describe('IAM-09: my effective access', () => {
   it('keeps the title of the card outside the data, so the frame of the page is there in every state', async () => {
     const { h } = setup();
     mount(<EffectiveAccessScreen route={ROUTE} />, h, MEMBER);
-    expect(screen.getByRole('heading', { level: 1, name: vi_['iam.effectiveAccess.page.title'] })).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 1, name: (vi_ as Record<string, string>)['iam.effectiveAccess.page.heading'] })).toBeTruthy();
     expect(screen.getByRole('heading', { level: 2, name: vi_['iam.effectiveAccess.card.title'] })).toBeTruthy();
     await loaded();
     expect(h.read).toHaveBeenCalledWith('getMyEffectiveAccess');

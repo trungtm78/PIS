@@ -54,6 +54,11 @@ describe('DIS-25 metric definitions and the golden fixtures', () => {
     expect(within(ytd).getByText('formula(GIAI_NGAN_YTD)')).toBeTruthy();
     expect(within(ytd).getByText(vi_['dis.definitions.term.inReview'])).toBeTruthy();
     expect(within(ytd).getByText('Chờ ký D03')).toBeTruthy();
+    // The basis each metric is counted on (DIS-25 "Basis"), read from its code.
+    const words = vi_ as Record<string, string>;
+    expect(within(ytd).getByText(words['dis.definitions.basis.ytd'] ?? '')).toBeTruthy();
+    expect(within(rowOfTerm(table, 'GIAI_NGAN_PERIOD')).getByText(words['dis.definitions.basis.period'] ?? '')).toBeTruthy();
+    expect(within(rowOfTerm(table, 'MAU_SO_KH_TONG')).getByText(words['dis.definitions.basis.plan'] ?? '')).toBeTruthy();
     const fixtures = screen.getByRole('table', { name: vi_['dis.definitions.fixtures.aria'] });
     expect(Array.from(fixtures.querySelectorAll('[data-fixture]')).map((row) => row.getAttribute('data-fixture'))).toEqual(['FX-DIS-001', 'FX-DIS-002', 'FX-DIS-003', 'FX-DIS-004', 'FX-DIS-005', 'FX-DIS-006', 'FX-DIS-007']);
     expect(screen.getByTestId('expected-FX-DIS-004').textContent).toBe('{"rate_pm_pct":"60.0000","rate_total_pct":"48.0000"}');

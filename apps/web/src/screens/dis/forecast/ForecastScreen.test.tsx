@@ -62,7 +62,7 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
     expect(await screen.findByRole('heading', { level: 1, name: vi_['dis.forecast.page.title'] })).toBeTruthy();
     const tiles = await screen.findByTestId('forecast-tiles');
     const tile = (label: string): string => within(tiles).getByText(label).closest('article')?.querySelector('.ui-kpi__value')?.textContent ?? '';
-    expect([tile(vi_['dis.forecast.tile.disbursed']), tile(vi_['dis.forecast.tile.eac']), tile(vi_['dis.forecast.tile.plan']), tile(vi_['dis.forecast.tile.gap'])]).toEqual(['400.000.000', '650.000.000', '1.000.000.000', '-350.000.000']);
+    expect([tile(((vi_ as Record<string, string>)['dis.forecast.tile.disbursedTreasury'] ?? '')), tile(((vi_ as Record<string, string>)['dis.forecast.tile.yearEnd'] ?? '')), tile(vi_['dis.forecast.tile.plan']), tile(((vi_ as Record<string, string>)['dis.forecast.tile.gapPlan'] ?? ''))]).toEqual(['400.000.000', '650.000.000', '1.000.000.000', '-350.000.000']);
     expect(tiles.textContent).toContain(vi_['dis.forecast.ratio.text'].replace('{value}', '65.0'));
     expect(screen.getByTestId('forecast-coverage').textContent).toBe(vi_['dis.forecast.coverage.complete']);
     expect(screen.getByTestId('forecast-verdict').textContent).toContain(vi_['dis.forecast.candidate.yes'].replace('{pct}', '80'));
@@ -70,6 +70,7 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
     expect(screen.getByTestId('definition-pending').textContent).toBe('CHỜ KÝ D03');
     expect(screen.queryByTestId('forecast-partial-note')).toBeNull();
     expect(screen.getByTestId('forecast-cutoff').textContent).toBe(vi_['dis.forecast.cutoff.text'].replace('{cutoff}', '2027-10-31'));
+    expect(screen.getByTestId('forecast-method').textContent).toContain((vi_ as Record<string, string>)['dis.forecast.method.text'] ?? 'missing');
   });
 
   it('AC-ST-DIS-018-2 / UI-DIS-23: the chart is a described picture with a solid line, a dashed line and a dotted line, a legend that says each in words, and a table with the same numbers', async () => {
@@ -120,7 +121,7 @@ describe('DIS-23 disbursement forecast and year-end estimate', () => {
     open(forecastRecord({ disbursed_vnd: null, eac_vnd: null, gap_vnd: null, ratio_pct: null, coverage: 'NONE', reallocation_candidate: null, method: 'NO_TREASURY_DATA', curve: [], projects: [] }));
     expect((await screen.findByTestId('forecast-verdict')).textContent).toContain(vi_['dis.forecast.candidate.noData']);
     expect(screen.getByTestId('forecast-partial-note').textContent).toBe(vi_['dis.forecast.partial.noData']);
-    expect(within(screen.getByTestId('forecast-tiles')).getByText(vi_['dis.forecast.tile.eac']).closest('article')?.querySelector('.ui-kpi__value')?.textContent).toBe('—');
+    expect(within(screen.getByTestId('forecast-tiles')).getByText(((vi_ as Record<string, string>)['dis.forecast.tile.yearEnd'] ?? '')).closest('article')?.querySelector('.ui-kpi__value')?.textContent).toBe('—');
     cleanup();
     open(forecastRecord({ reallocation_candidate: false, projects: [{ project: { id: '00000000-0000-4000-8000-0000000000a3', code: 'P-A-003', name: 'Cầu' }, ...estimate({ reallocation_candidate: false }) }] }));
     expect((await screen.findByTestId('forecast-verdict')).textContent).toContain(vi_['dis.forecast.candidate.no'].replace('{pct}', '80'));

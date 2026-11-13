@@ -289,7 +289,7 @@ describe('AUD-04 conclusion of an engagement', () => {
   });
 
   describe('choosing the engagement', () => {
-    it('with none chosen asks for one, and lists the engagements that can take a conclusion or have one', async () => {
+    it('opened without a choice takes the first engagement that awaits its conclusion, and lists the engagements that can take a conclusion or have one', async () => {
       const state = world({
         engagements: [
           engagementRecord(1, { status: 'FOLLOW_UP' }),
@@ -300,8 +300,9 @@ describe('AUD-04 conclusion of an engagement', () => {
         ],
       });
       mount(<ConclusionScreen route={ROUTE} />, client(state), { permissions: RECORDER, path: '/aud/aud-04' });
-      expect((await screen.findByTestId('conclusion-choose')).textContent).toBe(vi_['aud.conclusion.choose.text']);
       await waitFor(() => expect(screen.getAllByRole('option').length).toBe(4));
+      // TTCP-2026-003 is the first that awaits its conclusion (ONGOING): the work to do comes first.
+      await waitFor(() => expect((screen.getByLabelText(vi_['aud.conclusion.picker.label']) as HTMLSelectElement).value).toBe(engagementRecord(3).id));
       expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
         vi_['aud.conclusion.picker.choose'],
         vi_['aud.conclusion.picker.option'].replace('{code}', 'TTCP-2026-001').replace('{status}', vi_['aud.engagementStatus.followUp']),
@@ -319,6 +320,10 @@ describe('AUD-04 conclusion of an engagement', () => {
       expect(await screen.findByTestId('conclusion-card')).toBeTruthy();
       await user.selectOptions(screen.getByLabelText(vi_['aud.conclusion.picker.label']), '');
       expect(await screen.findByTestId('conclusion-choose')).toBeTruthy();
+      // Until an engagement is chosen the form of the conclusion stands closed, with every field it will ask for.
+      const closed = screen.getByTestId('conclusion-form');
+      expect(closed.querySelector('fieldset')?.disabled).toBe(true);
+      expect(within(closed).getByText((vi_ as Record<string, string>)['aud.conclusion.dates.title'] ?? 'missing')).toBeTruthy();
     });
   });
 

@@ -187,3 +187,24 @@
 .aud-column {
   background: var(--mv-color-surface2);
 }
+/* AUD-04: the day the conclusion was issued and the day it was received are one field of the catalogue. */
+.aud-dates {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+.aud-dates legend {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+/* A fieldset that only closes a form (AUD-04 before an engagement is chosen): no frame of its own. */
+.aud-plain {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}

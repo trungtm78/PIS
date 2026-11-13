@@ -71,8 +71,8 @@ describe('DIS-19 the two rates side by side', () => {
   it('AC-ST-DIS-010-5: never shows one rate alone: the pair, the headers and the cells of every row come together, whatever is shown', async () => {
     open();
     const table = await screen.findByRole('table', { name: vi_['dis.paired.table.aria'] });
-    expect(within(table).getByRole('columnheader', { name: vi_['dis.rates.col.ratePm'] })).toBeTruthy();
-    expect(within(table).getByRole('columnheader', { name: vi_['dis.rates.col.rateTotal'] })).toBeTruthy();
+    expect(within(table).getByRole('columnheader', { name: (vi_ as Record<string, string>)['dis.rates.col.rateTtg'] })).toBeTruthy();
+    expect(within(table).getByRole('columnheader', { name: (vi_ as Record<string, string>)['dis.rates.col.rateWithExtra'] })).toBeTruthy();
     for (const row of Array.from(table.querySelectorAll('tbody tr'))) {
       expect(row.querySelectorAll('[data-rate="pm"]')).toHaveLength(1);
       expect(row.querySelectorAll('[data-rate="total"]')).toHaveLength(1);

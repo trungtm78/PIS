@@ -137,10 +137,14 @@ function ClaimCard({ claim, onAct, t }: { claim: ClaimLine; onAct(dialog: Dialog
   return (
     <article className="card ast-claim" data-claim={claim.id} data-status={claim.status}>
       <h3>
-        <code>{claim.claimNo}</code> <span className={severityClass(claim)}>{severityLabel(t, claim.severity)}</span>
+        <code>{claim.claimNo}</code>
       </h3>
       <p>{claim.defect}</p>
       <dl>
+        <dt>{t('ast.claims.card.severity')}</dt>
+        <dd data-testid="severity">
+          <span className={severityClass(claim)}>{severityLabel(t, claim.severity)}</span>
+        </dd>
         <dt>{t('ast.claims.card.contract')}</dt>
         <dd>{claim.contract.code}</dd>
         <dt>{t('ast.claims.card.contractor')}</dt>
@@ -163,11 +167,11 @@ function ClaimCard({ claim, onAct, t }: { claim: ClaimLine; onAct(dialog: Dialog
         <dd>{claim.committedFixOn ?? NONE}</dd>
         <dt>{t('ast.claims.card.cost')}</dt>
         <dd data-testid="cost">{bearerLabel(t, claim.costBorneBy)}</dd>
-        {claim.evidence.documentId === null && claim.evidence.photoId === null ? null : (
-          <>
-            <dt>{t('ast.claims.card.evidence')}</dt>
-            <dd data-testid="evidence">{[claim.evidence.documentId, claim.evidence.photoId].flatMap((code) => (code === null ? [] : [code])).join(' · ')}</dd>
-          </>
+        <dt>{t('ast.claims.card.evidence')}</dt>
+        {claim.evidence.documentId === null && claim.evidence.photoId === null ? (
+          <dd data-testid="no-evidence">{NONE}</dd>
+        ) : (
+          <dd data-testid="evidence">{[claim.evidence.documentId, claim.evidence.photoId].flatMap((code) => (code === null ? [] : [code])).join(' · ')}</dd>
         )}
         {claim.fixNote === null ? null : (
           <>

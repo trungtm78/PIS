@@ -43,6 +43,8 @@ export interface LayoutProfile {
   id: string;
   profileCode: string;
   revision: number;
+  /** The paper of the page (A4 by Appendix I). */
+  pageSize: string;
   marginsMm: { top: number; bottom: number; left: number; right: number };
   fontFamily: string;
   fontSubstitute: string | null;
@@ -88,6 +90,7 @@ export function toProfile(raw: unknown): LayoutProfile {
     id: text(row.id),
     profileCode: text(row.profile_code),
     revision: count(row.revision),
+    pageSize: text(row.page_size),
     marginsMm: { top: count(margins.top), bottom: count(margins.bottom), left: count(margins.left), right: count(margins.right) },
     fontFamily: text(row.font_family),
     fontSubstitute: nullableText(row.font_substitute),

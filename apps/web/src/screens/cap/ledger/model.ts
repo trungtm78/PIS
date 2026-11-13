@@ -16,6 +16,8 @@ export interface EntryView {
   allocationLineId: string | null;
   project: { id: string; code: string; name: string } | null;
   sourceRefKind: string;
+  /** The record of the source document (a plan, an appropriation, a payment request…) the entry was posted from. */
+  sourceRefId: string | null;
   reversalOfId: string | null;
   reason: string | null;
   postedAt: string;
@@ -48,6 +50,7 @@ function toEntry(raw: unknown): EntryView | undefined {
     allocationLineId: nullableText(row.allocation_line_id),
     project: projectId === undefined ? null : { id: projectId, code: text(project?.code) ?? '', name: text(project?.name) ?? '' },
     sourceRefKind: text(row.source_ref_kind) ?? '',
+    sourceRefId: nullableText(row.source_ref_id),
     reversalOfId: nullableText(row.reversal_of_id),
     reason: nullableText(row.reason),
     postedAt,

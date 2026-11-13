@@ -78,7 +78,7 @@ describe('what the reads answer', () => {
       version: 3,
       engagement: { code: 'TTCP-2026-001' },
     });
-    expect(read.actions).toEqual([{ id: actionRecord(1).id, code: 'HD-01', description: 'Chấn chỉnh quy trình thanh toán.', plannedOn: '2026-11-15', completedOn: '2026-10-24', status: 'DONE', evidenceDocumentId: DOCUMENT, version: 2 }]);
+    expect(read.actions).toEqual([{ id: actionRecord(1).id, code: 'HD-01', description: 'Chấn chỉnh quy trình thanh toán.', plannedOn: '2026-11-15', completedOn: '2026-10-24', status: 'DONE', evidenceDocumentId: DOCUMENT, evidenceAttachedBy: null, evidenceAttachedAt: null, version: 2 }]);
   });
 
   it('keeps what is missing as null or empty, drops an action it cannot read, and drops a recommendation it cannot read rather than show it half', () => {

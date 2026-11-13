@@ -95,6 +95,8 @@ export interface RegisterEntry {
   symbol: string;
   documentId: string;
   issuedOn: string;
+  /** The summary (trích yếu) of the numbered document; null for an allocation read without its document. */
+  title: string | null;
   /** RECALLED is the ledger's word for a number whose document was recalled: the allocation stays ALLOCATED, the number is never freed (BR-DOC-21). */
   status: 'ALLOCATED' | 'VOIDED' | 'RECALLED';
 }
@@ -125,6 +127,7 @@ interface EntryRow {
   symbol: string;
   document_id: string;
   issued_on: string;
+  title?: string | null;
   status: 'ALLOCATED' | 'VOIDED' | 'RECALLED';
 }
 
@@ -154,7 +157,7 @@ function toRegister(row: RegisterRow): RegisterRecord {
 }
 
 function toEntry(row: EntryRow): RegisterEntry {
-  return { allocationId: row.id, number: row.number, symbol: row.symbol, documentId: row.document_id, issuedOn: row.issued_on, status: row.status };
+  return { allocationId: row.id, number: row.number, symbol: row.symbol, documentId: row.document_id, issuedOn: row.issued_on, title: row.title ?? null, status: row.status };
 }
 
 function notFound(): DomainError {
@@ -351,7 +354,7 @@ export class NumberRegisterStore {
   /** The log of a register in number order, in keyset pages of the number. */
   async listEntries(tx: TenantTx, registerId: string, page: EntryPage): Promise<RegisterEntry[]> {
     const rows = await tx.query<EntryRow>(
-      `select a.id, a.number, a.symbol, a.document_id, a.issued_on::text as issued_on,
+      `select a.id, a.number, a.symbol, a.document_id, a.issued_on::text as issued_on, d.title,
               case when a.status = 'ALLOCATED' and d.effect_status = 'RECALLED' then 'RECALLED' else a.status end as status
          from machvon.document_number_allocation a join machvon.document d on d.tenant_id = a.tenant_id and d.id = a.document_id
         where a.register_id = $1::uuid and a.number > $2 order by a.number limit $3`,

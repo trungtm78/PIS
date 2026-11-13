@@ -980,7 +980,7 @@
   "listDocumentComments": {"items":[{"id":"00000000-0000-4000-8000-000000000001","version_id":"00000000-0000-4000-8000-000000000001","citation_id":"sample","citation_label":"sample","parent_id":"00000000-0000-4000-8000-000000000001","review_id":"00000000-0000-4000-8000-000000000001","body":"sample","author_name":"sample","author_id":"00000000-0000-4000-8000-000000000001","status":"OPEN","resolved_by":"00000000-0000-4000-8000-000000000001","resolved_at":"sample","resolution_note":"sample","created_at":"sample"}],"open_count":100,"as_of":"sample"},
   "listDocumentLayoutProfiles": {},
   "listDocumentNumberRegisters": {},
-  "listDocumentRegisterEntries": {"number":100,"symbol":"sample","document_id":"00000000-0000-4000-8000-000000000001","issued_on":"2026-01-01","status":"sample"},
+  "listDocumentRegisterEntries": {"number":100,"symbol":"sample","document_id":"00000000-0000-4000-8000-000000000001","issued_on":"2026-01-01","title":"sample","status":"sample"},
   "listDocumentRetentionRules": {},
   "listDocumentReviews": {"items":[{"id":"00000000-0000-4000-8000-000000000001","document_id":"00000000-0000-4000-8000-000000000001","document_title":"sample","doc_class":"LEGAL_BASIS","project":{"id":"00000000-0000-4000-8000-000000000001","code":"sample","name":"sample"},"version_id":"00000000-0000-4000-8000-000000000001","version_no":100,"round":100,"status":"IN_REVIEW","submitted_by_name":"sample","submitted_at":"sample","concluded_at":"sample","current_stage":"sample"}],"next_cursor":"sample","as_of":"sample"},
   "listDocumentTemplates": {},

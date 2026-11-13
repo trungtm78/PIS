@@ -255903,6 +255903,14 @@
             "type": "string",
             "format": "date"
           },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 4000,
+            "description": "Trích yếu of the numbered document (DOC-10)"
+          },
           "status": {
             "type": "string",
             "maxLength": 4000

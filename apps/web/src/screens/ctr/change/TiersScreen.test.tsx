@@ -3,7 +3,7 @@ import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import vi_ from '../../../i18n/vi.json';
 import TiersScreen from './TiersScreen';
-import { PROJECT, SECOND_PROJECT, chain, client, config, mount, requestId, routeOf, world } from './test-support';
+import { PROJECT, SECOND_PROJECT, UUID_A, chain, client, config, mount, requestId, routeOf, world } from './test-support';
 import type { World } from './test-support';
 
 const ROUTE = routeOf('CTR-20', 'FR-CTR-20');
@@ -17,9 +17,9 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function open(state: World, options: { command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY'; path?: string } = {}) {
+function open(state: World, options: { command?: (operation: string, input: unknown) => unknown; mode?: 'FULL' | 'READ_ONLY'; path?: string; permissions?: string[] } = {}) {
   const h = client(state, options.command ?? (() => OK));
-  mount(<TiersScreen route={ROUTE} />, h, { permissions: ['change.read'], path: options.path ?? PATH, ...(options.mode === undefined ? {} : { mode: options.mode }) });
+  mount(<TiersScreen route={ROUTE} />, h, { permissions: options.permissions ?? ['change.read', 'change.tiers.configure'], path: options.path ?? PATH, ...(options.mode === undefined ? {} : { mode: options.mode }) });
   return h;
 }
 
@@ -33,9 +33,10 @@ const save = (): void => {
 };
 
 describe('TiersScreen (CTR-20): the number of tiers of the chain of a project', () => {
-  it('asks for a project when the address names none', async () => {
+  it('takes the first project when the address names none, and keeps the picker to choose another', async () => {
     const h = open(world(), { path: '/ctr/ctr-20' });
     await screen.findByRole('heading', { level: 2, name: vi_['ctr.change.pick.project.title'] });
+    await waitFor(() => expect(h.read).toHaveBeenCalledWith('getChangeChain', expect.anything()));
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(vi_['ctr.change.tiers.page.title']);
     fireEvent.change(document.getElementById('change-project') as HTMLElement, { target: { value: SECOND_PROJECT } });
     await waitFor(() => expect(h.read).toHaveBeenCalledWith('getChangeChain', { path: { id: SECOND_PROJECT } }));
@@ -63,6 +64,13 @@ describe('TiersScreen (CTR-20): the number of tiers of the chain of a project', 
     expect(screen.getByTestId('board-link').getAttribute('href')).toBe(`/ctr/ctr-19?project=${PROJECT}`);
   });
 
+  it('offers no way to set the tiers to a session that may only read, even where the server would take the command', async () => {
+    open(world({ chain: chain({ config: undefined }) }), { permissions: ['change.read'] });
+    await screen.findByLabelText(vi_['ctr.change.tiers.form.title']);
+    expect(screen.queryByRole('button', { name: vi_['ctr.change.tiers.submit'] })).toBeNull();
+    expect(radios().every((radio) => radio.disabled)).toBe(true);
+  });
+
   it('starts from the tiers already set, and may set them again while they are not locked', async () => {
     const h = open(world({ chain: chain({ config: config({ tier_count: 3 }) }) }));
     await screen.findByLabelText(vi_['ctr.change.tiers.form.title']);
@@ -84,6 +92,10 @@ describe('TiersScreen (CTR-20): the number of tiers of the chain of a project', 
     ]);
     expect(screen.queryByRole('button', { name: vi_['ctr.change.tiers.submit'] })).toBeNull();
     expect(h.command).not.toHaveBeenCalled();
+    // The facts of the policy: locked since the day of the first change, which is named, and who set it.
+    expect(screen.getByTestId('fact-locked').textContent).toBe(text('ctr.change.tiers.fact.lockedYes', { day: '2026-10-24' }));
+    expect(screen.getByTestId('fact-first-change').textContent).toBe('CE-001');
+    expect(screen.getByTestId('fact-set-by').textContent).toBe(UUID_A.slice(0, 8));
   });
 
   it('names the locking request by its id when it has no code, and by a dash when the lock names none', async () => {

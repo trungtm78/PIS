@@ -74,7 +74,7 @@ export default function EffectiveAccessScreen({ route }: ScreenProps) {
     <section data-screen-id={route.id} aria-labelledby="screen-title">
       <div className="heading">
         <div>
-          <h1 id="screen-title">{t('iam.effectiveAccess.page.title')}</h1>
+          <h1 id="screen-title">{t('iam.effectiveAccess.page.heading')}</h1>
           <p>{t('iam.effectiveAccess.page.subtitle')}</p>
         </div>
       </div>

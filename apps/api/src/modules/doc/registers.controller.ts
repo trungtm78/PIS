@@ -52,6 +52,7 @@ function entryView(row: RegisterEntry): Record<string, unknown> {
     symbol: row.symbol,
     document_id: row.documentId,
     issued_on: row.issuedOn,
+    title: row.title,
     status: row.status,
   };
 }

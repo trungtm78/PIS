@@ -9,14 +9,14 @@ import type { DoaMatrixView, matrixBody } from './model';
 /** The queries that show matrix versions begin with this key: a command refreshes all of them. */
 const matricesKey = (tenantId: string | undefined) => ['adm', 'doa-matrices', tenantId] as const;
 
-/** Every version of the matrix of the tenant with its rules, keyed by tenant. */
-export function useDoaMatrices() {
+/** Every version of the matrix of the tenant with its rules, keyed by tenant. `enabled` false keeps a screen that may not read the matrix from asking. */
+export function useDoaMatrices(enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<DoaMatrixView[]>({
     queryKey: matricesKey(tenant?.id),
     queryFn: async () => (await client.readAll('get_resources_doa_matrix_version')).flatMap((raw) => toMatrix(raw) ?? []),
-    enabled: tenant !== undefined,
+    enabled: enabled && tenant !== undefined,
     retry: false,
   });
 }
@@ -27,7 +27,7 @@ export interface RoleOption {
 }
 
 /** The roles an approver can be named by (the role catalogue of the tenant). */
-export function useRoleOptions() {
+export function useRoleOptions(enabled = true) {
   const client = useApiClient();
   const { tenant } = useSession();
   return useQuery<RoleOption[]>({
@@ -37,7 +37,7 @@ export function useRoleOptions() {
         const row = raw as Record<string, unknown>;
         return typeof row.id === 'string' && typeof row.code === 'string' ? [{ id: row.id, code: row.code }] : [];
       }),
-    enabled: tenant !== undefined,
+    enabled: enabled && tenant !== undefined,
     retry: false,
   });
 }

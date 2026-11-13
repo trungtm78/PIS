@@ -24061,6 +24061,7 @@ final class DocRegisterEntryResponse implements ResponseModel {
     required this.documentId,
     required this.issuedOn,
     required this.status,
+    this.title,
     this.extra = const <String, Object?>{},
   });
 
@@ -24071,8 +24072,9 @@ final class DocRegisterEntryResponse implements ResponseModel {
       symbol: requiredField(map, path, 'symbol', asString),
       documentId: requiredField(map, path, 'document_id', asString),
       issuedOn: requiredField(map, path, 'issued_on', asString),
+      title: optionalField(map, path, 'title', nullable(asString)),
       status: requiredField(map, path, 'status', asString),
-      extra: unknownFields(map, path, const <String>{'number', 'symbol', 'document_id', 'issued_on', 'status'}, strict: true),
+      extra: unknownFields(map, path, const <String>{'number', 'symbol', 'document_id', 'issued_on', 'title', 'status'}, strict: true),
     );
   }
 
@@ -24080,6 +24082,7 @@ final class DocRegisterEntryResponse implements ResponseModel {
   final String symbol;
   final String documentId;
   final String issuedOn;
+  final String? title;
   final String status;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
@@ -24091,6 +24094,7 @@ final class DocRegisterEntryResponse implements ResponseModel {
         'symbol': symbol,
         'document_id': documentId,
         'issued_on': issuedOn,
+        if (title != null) 'title': title,
         'status': status,
         ...extra,
       };

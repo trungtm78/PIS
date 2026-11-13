@@ -123,9 +123,9 @@ function ProjectTable({ groups, whole }: { groups: readonly RateGroup[]; whole: 
         </>
       ),
     },
-    { key: 'planPm', header: t('dis.rates.col.planPm'), group: planGroup, align: 'right', render: (group) => money(group.planPmVnd) },
+    { key: 'planPm', header: t('dis.rates.col.planTtg'), group: planGroup, align: 'right', render: (group) => money(group.planPmVnd) },
     { key: 'planLocal', header: t('dis.rates.col.planLocal'), group: planGroup, align: 'right', render: (group) => money(group.planLocalVnd) },
-    { key: 'numerator', header: t('dis.rates.col.numerator'), align: 'right', render: (group) => money(group.numeratorVnd) },
+    { key: 'numerator', header: t('dis.rates.col.disbursedTreasury'), align: 'right', render: (group) => money(group.numeratorVnd) },
     ...rateColumns<RateGroup>(t, (group) => ({ ratePmPct: group.ratePmPct, rateTotalPct: group.rateTotalPct, reason: group.nullReason })),
     { key: 'coverage', header: t('dis.rates.col.coverage'), render: (group) => <CoveragePill coverage={group.coverage} /> },
   ];
