@@ -10,6 +10,7 @@ import '../../core/widgets/stat_strip.dart';
 import '../../core/widgets/state_view.dart';
 import '../../core/widgets/work_row.dart';
 import 'pwf_models.dart';
+import 'pwf_process_widgets.dart';
 import 'pwf_widgets.dart';
 
 /// The official colour a list can be narrowed to. Only the official bands are here: a shared screen never shows a personal one (R40).
@@ -76,6 +77,7 @@ class _PwfWorkflowPanelState extends State<PwfWorkflowPanel> {
       children: <Widget>[
         if (workflow.status != 'ACTIVE') StatusBanner(text: _statusText(context, workflow.status), tone: workflow.status == 'CANCELLED' ? BannerTone.warning : BannerTone.info, icon: Icons.info_outline),
         if (workflow.unverified) StatusBanner(text: context.t('mob.pwf.panel.unverified'), icon: Icons.info_outline),
+        if (workflow.lapsedLegalDocuments.isNotEmpty) StatusBanner(text: context.t('mob.pwf.process.lapsed', <String, Object>{'count': workflow.lapsedLegalDocuments.length}), tone: BannerTone.warning, icon: Icons.gavel_outlined),
         const SizedBox(height: MachvonV2Space.s12),
         if (total > 0)
           StageStrip(
@@ -146,9 +148,31 @@ class _PwfWorkflowPanelState extends State<PwfWorkflowPanel> {
         dividerAbove: false,
       ),
       if (open && ordered.isEmpty) Padding(padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12), child: Text(context.t('mob.pwf.panel.phaseEmpty'), style: context.v2text.caption)),
-      if (open)
+      // PWF-4: a phase that has steps shows its tasks under them, each step with its progress and its legal grounds; a colour filter and an answer from before steps existed keep the flat list.
+      if (open && active == null && workflow.stepsOf(phase.code).isNotEmpty)
+        ..._steps(context, workflow, phase)
+      else if (open)
         for (int index = 0; index < ordered.length; index += 1) pwfTaskRow(context, ordered[index], onTap: () => widget.onOpenTask(ordered[index]), dividerAbove: index > 0),
     ];
+  }
+
+  List<Widget> _steps(BuildContext context, PwfWorkflow workflow, PwfPhase phase) {
+    final List<Widget> out = <Widget>[];
+    for (final PwfStep step in workflow.stepsOf(phase.code)) {
+      final List<PwfTaskRow> tasks = <PwfTaskRow>[...workflow.tasksOfStep(phase.code, step.code)]..sort(_byUrgency);
+      out.add(PwfStepHeader(step: step, onLegal: step.legalBasis.isEmpty ? null : () => showPwfLegalBasisSheet(context, title: step.name, basis: step.legalBasis)));
+      for (int index = 0; index < tasks.length; index += 1) {
+        out.add(pwfTaskRow(context, tasks[index], onTap: () => widget.onOpenTask(tasks[index]), dividerAbove: index > 0));
+      }
+    }
+    final List<PwfTaskRow> loose = <PwfTaskRow>[...workflow.tasksOfStep(phase.code, null)]..sort(_byUrgency);
+    if (loose.isNotEmpty) {
+      out.add(GroupHeader(title: context.t('mob.pwf.process.loose'), count: loose.length));
+      for (int index = 0; index < loose.length; index += 1) {
+        out.add(pwfTaskRow(context, loose[index], onTap: () => widget.onOpenTask(loose[index]), dividerAbove: index > 0));
+      }
+    }
+    return out;
   }
 
   /// A task that is not over comes before one that is; among the open ones the redder and the nearer first, and the server's own order of the rest.
