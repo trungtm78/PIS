@@ -58,8 +58,10 @@ function PolicyMatrixContent({ route }: ScreenProps) {
                     <th scope="col">{t('llm.policy.column.revision')}</th>
                     <th scope="col">{t('llm.policy.column.status')}</th>
                     <th scope="col">{t('llm.policy.column.international')}</th>
+                    <th scope="col">{t('scr2.llm.policy.column.conditions')}</th>
                     <th scope="col">{t('llm.policy.column.basis')}</th>
                     <th scope="col">{t('llm.policy.column.effective')}</th>
+                    <th scope="col">{t('scr2.llm.policy.column.approver')}</th>
                     <th scope="col">{t('llm.policy.column.action')}</th>
                   </tr>
                 </thead>
@@ -79,6 +81,11 @@ function PolicyMatrixContent({ route }: ScreenProps) {
   );
 }
 
+/** The heading of the column of a route in the matrix (the routes of BR-LLM-01). */
+function routeColumn(t: ReturnType<typeof useTranslation>['t'], route: Route): string {
+  return { DOMESTIC_HOSTED: t('scr2.llm.policy.route.domestic'), SELF_HOSTED: t('scr2.llm.policy.route.selfHosted'), INTERNATIONAL: t('scr2.llm.policy.route.international') }[route];
+}
+
 function MatrixTable({ matrix, testId, label }: { matrix: Matrix; testId: string; label: string }) {
   const { t } = useTranslation();
   return (
@@ -89,7 +96,8 @@ function MatrixTable({ matrix, testId, label }: { matrix: Matrix; testId: string
             <th scope="col">{t('llm.policy.matrix.level')}</th>
             {ROUTES.map((route) => (
               <th key={route} scope="col">
-                {routeLabel(t, route)}
+                {routeColumn(t, route)}
+                <small className="sub"> {routeLabel(t, route)}</small>
               </th>
             ))}
           </tr>
@@ -124,8 +132,10 @@ function PolicyRow({ policy, mayPublish }: { policy: PolicyEntry; mayPublish: bo
         <td>{t('llm.policy.revision', { revision: policy.revision })}</td>
         <td>{policyStatusLabel(t, policy.status)}</td>
         <td>{policy.internationalEnabled ? t('llm.policy.international.on', { ref: policy.d07Ref ?? '' }) : t('llm.policy.international.off')}</td>
+        <td data-testid="conditions">{policy.internationalEnabled ? t('scr2.llm.policy.conditions.international', { ref: policy.d07Ref ?? '' }) : t('scr2.llm.policy.conditions.domestic')}</td>
         <td>{policy.legalBasis}</td>
         <td>{vietnamDay(policy.effectiveFrom)}</td>
+        <td data-testid="approver">{policy.approvedBy === null ? '—' : <code>{policy.approvedBy}</code>}</td>
         <td>
           {mayPublish && policy.status === 'DRAFT' ? (
             <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={publish.isPending} onClick={() => publish.mutate({ policyId: policy.id, version: policy.version })}>
@@ -140,7 +150,7 @@ function PolicyRow({ policy, mayPublish }: { policy: PolicyEntry; mayPublish: bo
         </td>
       </tr>
       <tr data-policy-preview={policy.id}>
-        <td colSpan={6}>
+        <td colSpan={8}>
           <details>
             <summary>{t('llm.policy.preview', { revision: policy.revision })}</summary>
             <MatrixTable
