@@ -6,8 +6,8 @@
     "webRoutes": 594,
     "webCatalog": 594,
     "webModules": 38,
-    "mobileRoutes": 82,
-    "mobileCatalog": 82,
+    "mobileRoutes": 87,
+    "mobileCatalog": 87,
     "modulesTotal": 39
   },
   "libraryGroups": [
@@ -9999,6 +9999,41 @@
       "id": "MOB-77",
       "title": "Danh mục biểu mẫu báo cáo trên điện thoại",
       "kind": "list",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-78",
+      "title": "Workflow dự án trên điện thoại",
+      "kind": "list",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-79",
+      "title": "Chi tiết việc trên điện thoại",
+      "kind": "detail",
+      "bottomNavigation": "projects",
+      "tabRoot": "MOB-09"
+    },
+    {
+      "id": "MOB-80",
+      "title": "Việc của tôi theo hạn",
+      "kind": "list",
+      "bottomNavigation": "home",
+      "tabRoot": "MOB-07"
+    },
+    {
+      "id": "MOB-81",
+      "title": "Điểm KPI của tôi",
+      "kind": "dashboard",
+      "bottomNavigation": "account",
+      "tabRoot": "MOB-47"
+    },
+    {
+      "id": "MOB-82",
+      "title": "Cài đặt nhắc hạn cá nhân",
+      "kind": "form",
       "bottomNavigation": "account",
       "tabRoot": "MOB-47"
     },
