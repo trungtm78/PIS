@@ -130,10 +130,9 @@ function BiContent({ route }: ScreenProps) {
             )}
             {state === 'error' || state === 'offline' || state === 'signedOut' || state === 'expired' ? (
               <ErrorBlock title={t('int.bi.error.title')} body={t('int.bi.error.body')} onRetry={() => void readers.refetch()} />
-            ) : first !== undefined && rows.length === 0 ? (
-              <EmptyBlock title={t('int.bi.empty.title')} body={t('int.bi.empty.body')} />
             ) : (
               <>
+                {first !== undefined && rows.length === 0 ? <EmptyBlock title={t('int.bi.empty.title')} body={t('int.bi.empty.body')} /> : null}
                 <DataTable
                   caption={t('int.bi.table.caption')}
                   columns={readerColumns(t, mayManage, setDialog, setSelected)}
@@ -279,7 +278,7 @@ function readerColumns(t: T, may: boolean, open: (dialog: BiDialog) => void, sel
       ),
     },
     { key: 'limit', header: t('int.bi.column.limit'), align: 'right', render: (row) => row.connection_limit },
-    { key: 'rotated', header: t('int.bi.column.rotated'), render: (row) => instantText(row.password_rotated_at) },
+    { key: 'rotated', header: t('scr2.int.bi.column.rotated'), render: (row) => instantText(row.password_rotated_at) },
     {
       key: 'actions',
       header: t('int.bi.column.actions'),

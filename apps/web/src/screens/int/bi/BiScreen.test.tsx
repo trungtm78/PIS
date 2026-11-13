@@ -44,7 +44,11 @@ describe('BiScreen (INT-04): certified datasets and the logins of BI tools', () 
     expect(screen.getByTestId('schema-note').textContent).toBe(t('int.bi.list.schema', { schema: 'machvon_bi', views: 'v_disbursement_lines, v_contract_lines' }));
     expect(screen.getAllByTestId('view-entry')).toHaveLength(2);
     const table = screen.getByRole('table', { name: t('int.bi.table.caption') });
-    expect(Array.from(table.querySelectorAll('thead th')).map((cell) => cell.textContent)).toEqual(['name', 'tool', 'login', 'status', 'limit', 'rotated', 'actions'].map((column) => t(`int.bi.column.${column}` as never)));
+    expect(Array.from(table.querySelectorAll('thead th')).map((cell) => cell.textContent)).toEqual([
+      ...['name', 'tool', 'login', 'status', 'limit'].map((column) => t(`int.bi.column.${column}` as never)),
+      'Lần đổi mật khẩu gần nhất',
+      t('int.bi.column.actions' as never),
+    ]);
   });
 
   it('shows a dataset that is open and a closed one with the reason it carries', async () => {
