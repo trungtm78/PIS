@@ -91,10 +91,14 @@ class AuthPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppScaffold(
       showTopBar: false,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 480),
-          child: Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16), child: child),
+      // These screens sit outside the tab shell, so nothing else keeps the form clear of the system navigation area at the bottom.
+      body: SafeArea(
+        top: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Padding(padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16), child: child),
+          ),
         ),
       ),
     );
