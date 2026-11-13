@@ -125,7 +125,15 @@ export class ScoreFixtures {
         seed.estimate ?? null, seed.actual ?? null, seed.createdAt ?? null, memberId(this.options.maker),
       ],
     );
-    return (rows[0] as { id: string }).id;
+    const id = (rows[0] as { id: string }).id;
+    // A task sent back has an entry of the log for every return, on the day it happened: the counts of a period are read from the log, never from the present counter.
+    for (let n = 0; n < (seed.returns ?? 0); n += 1) {
+      await this.owner(
+        "insert into machvon.project_task_log (tenant_id, workflow_id, task_id, kind, at, actor, subject) values ($1, $2::uuid, $3::uuid, 'RETURNED', $4::timestamptz, $5::uuid, '{}'::jsonb)",
+        [TENANT_A, wf.id, id, `${seed.baselineStart ?? seed.baselineFinish}T03:00:00Z`, memberId(this.options.maker)],
+      );
+    }
+    return id;
   }
 
   hold(taskId: string, who: number, over: { role?: string; from?: string; to?: string | null; share?: number } = {}): Promise<unknown> {
