@@ -1,4 +1,4 @@
-import { DomainError, canonicalJson, pwfKpi } from '@machvon/kernel';
+import { DomainError, pwfKpi } from '@machvon/kernel';
 import { GovernancePolicyPort } from './governance-policy-port.ts';
 import { calendarFingerprint, dayOfInstant, factsOf, itemsFor, loadCalendars, loadKpiSets, loadTaskBundles, readingOf, yearSpanOf } from './pwf-score-facts.ts';
 import type { CalendarSet, ResolvedKpiSet, TaskBundle, TaskReading } from './pwf-score-facts.ts';

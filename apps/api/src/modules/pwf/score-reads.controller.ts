@@ -181,7 +181,6 @@ export class StaffScoreReadsController {
   async overview(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Param('id', ParseUUIDPipe) id: string): Promise<Schemas['StaffScoreOverview']> {
     const now = new Date();
     return this.database.withTenant(tenant, async (tx) => {
-      const reach = await reachOf(tx, access, now);
       // The overview is the human resources' own: a grant of `staff_score.read_hr` over the whole tenant, never a unit.
       if ((await scoreUnitsOf(tx, access, [READ_HR_PERMISSION], now)) !== '*') throw new DomainError('SCOPE_DENIED', 403);
       const units = await this.reads.overview(tx, { units: '*', subject: '' }, id.toLowerCase());
