@@ -29646,7 +29646,7 @@ export interface components {
             items: {
                 idempotency_key: string;
                 /** @enum {string} */
-                command_type: "report.submit" | "report.draft.save" | "issue.create" | "site_diary.append" | "measurement.record" | "inspection.result";
+                command_type: "report.submit" | "report.draft.save" | "issue.create" | "site_diary.append" | "measurement.record" | "inspection.result" | "pwf.task.start" | "pwf.task.checklist.complete" | "pwf.task.evidence.attach" | "pwf.task.complete" | "pwf.task.exception.request";
                 base_server_version: number;
                 payload: Record<string, never>;
             }[];

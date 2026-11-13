@@ -51,9 +51,9 @@ void main() {
   });
 
   group('TK-MOB-001-1 the screens of the catalogue', () {
-    test('there are 82 screens: the 77 MOB screens, the four web screens that are also on the phone and DIR-06 (the directives of the steering meetings)', () {
-      expect(kMobileRoutes, hasLength(82));
-      expect(kMobileRoutes.where((MobileRoute route) => route.id.startsWith('MOB-')), hasLength(77));
+    test('there are 87 screens: the 82 MOB screens, the four web screens that are also on the phone and DIR-06 (the directives of the steering meetings)', () {
+      expect(kMobileRoutes, hasLength(87));
+      expect(kMobileRoutes.where((MobileRoute route) => route.id.startsWith('MOB-')), hasLength(82));
     });
 
     test('every screen has its functional requirement and its UI test id', () {

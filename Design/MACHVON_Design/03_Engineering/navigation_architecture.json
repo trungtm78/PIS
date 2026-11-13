@@ -10201,8 +10201,8 @@
       "id": "MOB-80",
       "title": "Việc của tôi theo hạn",
       "kind": "list",
-      "bottomNavigation": "projects",
-      "tabRoot": "MOB-09"
+      "bottomNavigation": "home",
+      "tabRoot": "MOB-07"
     },
     {
       "id": "MOB-81",

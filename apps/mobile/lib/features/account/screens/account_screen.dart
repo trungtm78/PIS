@@ -186,6 +186,11 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               DeadlinePreview(
                 thresholds: ref.watch(deadlineThresholdsProvider),
               ),
+              NavRow(
+                icon: Icons.tune,
+                label: context.t('mob.pwf.entry.reminders'),
+                onTap: () => context.push(location('MOB-82')),
+              ),
               GroupHeader(title: context.t('mob.account.appearance.title')),
               _Choice(
                 label: context.t('mob.account.appearance.mode.label'),
@@ -297,6 +302,18 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 label: context.t('mob.reads.entry.kpi'),
                 dividerAbove: true,
                 onTap: () => context.push(location('MOB-76')),
+              ),
+              NavRow(
+                icon: Icons.event_available_outlined,
+                label: context.t('mob.pwf.entry.tasks'),
+                dividerAbove: true,
+                onTap: () => context.push(location('MOB-80')),
+              ),
+              NavRow(
+                icon: Icons.insights_outlined,
+                label: context.t('mob.pwf.entry.score'),
+                dividerAbove: true,
+                onTap: () => context.push(location('MOB-81')),
               ),
               NavRow(
                 icon: Icons.description_outlined,

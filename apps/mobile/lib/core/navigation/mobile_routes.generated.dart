@@ -85,4 +85,9 @@ const List<MobileRoute> kMobileRoutes = <MobileRoute>[
   MobileRoute(id: 'DOC-22', kind: 'approval', requirement: 'FR-DOC-22', tab: AppTab.approval),
   MobileRoute(id: 'DOC-23', kind: 'list', requirement: 'FR-DOC-23', tab: AppTab.approval),
   MobileRoute(id: 'DIR-06', kind: 'list', requirement: 'FR-DIR-06', tab: AppTab.projects),
+  MobileRoute(id: 'MOB-78', kind: 'list', requirement: 'FR-MOB-78', tab: AppTab.projects),
+  MobileRoute(id: 'MOB-79', kind: 'detail', requirement: 'FR-MOB-79', tab: AppTab.projects),
+  MobileRoute(id: 'MOB-80', kind: 'list', requirement: 'FR-MOB-80', tab: AppTab.home),
+  MobileRoute(id: 'MOB-81', kind: 'dashboard', requirement: 'FR-MOB-81', tab: AppTab.account),
+  MobileRoute(id: 'MOB-82', kind: 'form', requirement: 'FR-MOB-82', tab: AppTab.account),
 ];

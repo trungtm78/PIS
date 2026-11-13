@@ -15,13 +15,13 @@ import '../../../core/widgets/stage_strip.dart';
 import '../../../core/widgets/stat_strip.dart';
 import '../../../core/widgets/underline_tabs.dart';
 import '../../../core/widgets/work_row.dart';
+import '../../project_workflow/pwf_progress_section.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
 import '../../read_support/widgets.dart';
 import '../labels.dart';
 import '../project_models.dart';
-import '../project_tasks.dart';
 
 /// MOB-10: one project, in four tabs. Overview (the facts that are known, the capital as one figure, the risks), Progress (the stage strip
 /// is above the tabs; the milestones grouped by what needs attention, what is coming and what is over, and the tasks of the workflow once
@@ -275,8 +275,8 @@ List<Widget> _progress(BuildContext context, ProjectDetail detail) {
             for (int index = 0; index < members.length; index += 1) _MilestoneRow(milestone: members[index], dividerAbove: index > 0),
           ];
         })(),
-    // The tasks of the workflow of the project (PWF): nothing is drawn until a source gives them.
-    ProjectTaskList(projectId: detail.line.id),
+    // The workflow of the project (PWF): its stages and its tasks by official colour. A project with no workflow, or a reader who may not read it, draws nothing here.
+    PwfProgressSection(projectId: detail.line.id, showMilestones: false),
   ];
 }
 

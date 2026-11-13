@@ -17,6 +17,13 @@ The body is `device_id` and 1 to 50 `items` (`idempotency_key`, `command_type`, 
 | `site_diary.append` | `POST /site-diaries` (a new draft), or `POST /site-diaries/{diary_id}/draft` when the payload names `diary_id` | the second one, `If-Match` |
 | `measurement.record` | `POST /contracts/{contract_id}/measurements` | – |
 | `inspection.result` | `POST /inspections/{inspection_id}/result` | `If-Match` = `base_server_version` |
+| `pwf.task.start` | `POST /project-tasks/{task_id}/start` | `If-Match` = `base_server_version` |
+| `pwf.task.checklist.complete` | `POST /project-tasks/{task_id}/checklist/{item_code}/complete` (`item_code` in the payload) | `If-Match` = `base_server_version` |
+| `pwf.task.complete` | `POST /project-tasks/{task_id}/complete` | `If-Match` = `base_server_version` |
+| `pwf.task.evidence.attach` | `POST /project-tasks/{task_id}/evidence` | – |
+| `pwf.task.exception.request` | `POST /project-tasks/{task_id}/exceptions` | – |
+
+The `pwf.task.*` commands (PWF, MOB-79) carry the work of the person who does a task of a project workflow. Each of them is a version-checked change of the task except evidence and a request for an exception, which leave the version of the task as it is. A queue of several commands on one task is sent in order, and the phone bases each versioned one on the version it read plus the versioned commands queued before it (start, a checklist item and complete each add one), so a command whose predecessor was refused or whose task changed meanwhile comes back as a conflict and is never written over. An approval, a return and a signing are decisions of another person: they are not command types and are made online.
 
 The ids that go into the path must be UUIDs (anything else is `VALIDATION_FAILED`, never forwarded).
 

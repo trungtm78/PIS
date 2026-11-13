@@ -26,6 +26,7 @@ import 'personal_bi/personal_bi_feature.dart' as f_personal_bi;
 import 'phone_search/phone_search_feature.dart' as f_phone_search;
 import 'procurement_workflow/procurement_workflow_feature.dart' as f_procurement_workflow;
 import 'project_views/project_views_feature.dart' as f_project_views;
+import 'project_workflow/project_workflow_feature.dart' as f_project_workflow;
 import 'read_support/read_support_feature.dart' as f_read_support;
 import 'release/release_feature.dart' as f_release;
 import 'reporting/reporting_feature.dart' as f_reporting;
@@ -64,6 +65,7 @@ final List<MobileFeature> kAllFeatures = <MobileFeature>[
   f_phone_search.feature,
   f_procurement_workflow.feature,
   f_project_views.feature,
+  f_project_workflow.feature,
   f_read_support.feature,
   f_release.feature,
   f_reporting.feature,
