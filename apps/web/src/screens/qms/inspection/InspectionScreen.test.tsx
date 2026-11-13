@@ -83,6 +83,9 @@ describe('InspectionScreen (QMS-04): the inspection requests', () => {
     await waitFor(() => expect(rows()).toEqual([inspectionId(2)]));
     pick('inspections-contract', contractId(1));
     expect((await screen.findByTestId('no-inspections')).textContent).toBe(vi_['qms.inspection.none.notice']);
+    // The columns stand over the notice, and the table is not yet the list: what waits for the list waits for its first line.
+    expect(screen.queryByTestId('inspections')).toBeNull();
+    expect(screen.getAllByRole('columnheader').length).toBeGreaterThan(0);
     pick('inspections-contract', '');
     await waitFor(() => expect(rows()).toHaveLength(2));
   });

@@ -90,7 +90,8 @@ function InspectionContent({ route }: ScreenProps) {
       <StateBoundary state={state} onRetry={() => void inspections.refetch()}>
         <div className="card">
           <ScrollRegion label={t('qms.inspection.page.title')}>
-            <table className="table" data-testid="inspections">
+            {/* The table names itself the list only once it holds a line: until then the columns stand over the empty notice, and nothing waits on a list that is not there yet. */}
+            <table className="table" data-testid={lines.length === 0 ? undefined : 'inspections'}>
               <thead>
                 <tr>
                   <th scope="col">{t('qms.inspection.column.no')}</th>

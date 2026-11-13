@@ -107,6 +107,9 @@ describe('AcceptanceScreen (QMS-05): the quality acceptance minutes', () => {
     cleanup();
     open(world(), { query: `?contract=${contractId(1)}` });
     expect((await screen.findByTestId('no-acceptances')).textContent).toBe(vi_['qms.acceptance.none.notice']);
+    // The columns stand over the notice, and the table is not yet the list: what waits for the list waits for its first line.
+    expect(screen.queryByTestId('acceptances')).toBeNull();
+    expect(screen.getAllByRole('columnheader').length).toBeGreaterThan(0);
     pick('acceptances-contract', '');
     await screen.findByTestId('no-acceptances');
   });
