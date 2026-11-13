@@ -7715,6 +7715,30 @@
       "module": "PWF",
       "statusBasis": "spec",
       "source": "spec:PWF"
+    },
+    "PWF_FORM_REVISION_UNAVAILABLE": {
+      "status": 422,
+      "title": "Pinned form revision unavailable",
+      "meaning": "Phiên bản biểu mẫu được ghim không tồn tại, chưa được duyệt hoặc khác phiên bản của tài liệu đính kèm",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_SELECTION_REASON_REQUIRED": {
+      "status": 422,
+      "title": "Reason required to override the suggested workflow template",
+      "meaning": "Chọn loại quy trình khác đề xuất của quy tắc ánh xạ phải kèm lý do",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
+    },
+    "PWF_TEMPLATE_NOT_ASSIGNED": {
+      "status": 422,
+      "title": "No workflow template assigned",
+      "meaning": "Không chọn loại quy trình và quy tắc ánh xạ không đề xuất loại nào cho dự án: phải chọn loại quy trình",
+      "module": "PWF",
+      "statusBasis": "spec",
+      "source": "spec:PWF"
     }
   }
 }

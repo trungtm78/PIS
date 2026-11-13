@@ -1,9 +1,8 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PwfWorkflowReads, PwfWorkflowStore, TenantDatabase, projectScope } from '@machvon/db';
-import type { AdoptOutcome } from '@machvon/db';
-import { DomainError, pwfQuality, pwfWorkflow, validateRuleParams } from '@machvon/kernel';
-import type { pwfSchedule } from '@machvon/kernel';
+import { PrjProjectStore, PwfAssignmentReads, PwfWorkflowReads, PwfWorkflowStore, TenantDatabase, approvedFormRevision, projectInScope, projectScope } from '@machvon/db';
+import type { AdoptOutcome, LegalDocumentView, PwfSelectionRecord, TenantTx } from '@machvon/db';
+import { DomainError, legalDocument, pwfQuality, pwfSchedule, pwfWorkflow, validateRuleParams, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
 import { commandResult } from '../../command-result';
@@ -14,7 +13,8 @@ import { CurrentAccess } from '../../current-access.decorator';
 import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
-import { WORKFLOW_RESOURCE, announce, canOf, queryText, scopesOf } from './pwf-support';
+import { reaches } from '../prj/reach';
+import { WORKFLOW_RESOURCE, announce, canOf, idOf, queryText, scopesOf } from './pwf-support';
 
 const READ = PERMISSIONS.getProjectWorkflow;
 
@@ -67,8 +67,33 @@ const namesOf = (template: pwfWorkflow.ProjectWorkflowTemplate): { names: Record
   phases: Object.fromEntries(template.tasks.map((one) => [one.code, one.phase])),
 });
 
-/** The checks of a template that the person who writes it sees live (F1): the schema and the graph (the first defect), the references to document types and evidence kinds, and the quality flags that never block. */
-export function validateTemplate(params: unknown, now: Date): Schemas['PwfTemplateValidation'] {
+/** What the tenant can answer for about the references of a template (R45, R46): the catalogue of legal documents as it is today, and the pinned revisions of forms that are approved. */
+export interface TemplateReferenceFacts {
+  documents: ReadonlyMap<string, LegalDocumentView>;
+  formRevisions: ReadonlySet<string>;
+}
+
+/** Reads what a template refers to from the tenant: the catalogue of legal documents, and each pinned revision of a form. */
+export async function referenceFactsOf(tx: TenantTx, params: unknown, now: Date): Promise<TemplateReferenceFacts> {
+  const documents = await new PwfAssignmentReads().legalDocuments(tx, vietnamDateOf(now));
+  const formRevisions = new Set<string>();
+  const tasks = typeof params === 'object' && params !== null && Array.isArray((params as { tasks?: unknown }).tasks) ? ((params as { tasks: unknown[] }).tasks as unknown[]) : [];
+  for (const raw of tasks) {
+    const policies = typeof raw === 'object' && raw !== null && Array.isArray((raw as { form_policies?: unknown }).form_policies) ? (raw as { form_policies: unknown[] }).form_policies : [];
+    for (const entry of policies) {
+      const policy = entry as { form?: unknown; revision?: unknown };
+      if (typeof policy.form !== 'string' || typeof policy.revision !== 'number' || !Number.isInteger(policy.revision) || policy.revision < 1) continue;
+      if ((await approvedFormRevision(tx, policy.form, policy.revision)) !== undefined) formRevisions.add(`${policy.form}#${policy.revision}`);
+    }
+  }
+  return { documents, formRevisions };
+}
+
+/**
+ * The checks of a template that the person who writes it sees live (F1): the schema and the graph (the first defect), the references to document types and evidence kinds, and the quality flags that never block. With the facts of the
+ * tenant (R45, R46) a legal ground that cites a document the catalogue does not have and a form pinned to a revision that is not approved are errors, and a ground whose document lapsed is a warning that never blocks.
+ */
+export function validateTemplate(params: unknown, now: Date, facts?: TemplateReferenceFacts): Schemas['PwfTemplateValidation'] {
   const findings: Schemas['PwfTemplateValidation']['findings'] = [];
   let template: pwfWorkflow.ProjectWorkflowTemplate | undefined;
   try {
@@ -79,11 +104,21 @@ export function validateTemplate(params: unknown, now: Date): Schemas['PwfTempla
     findings.push({ code: error.code, path: error.detail ?? '', severity: 'ERROR' });
   }
   if (template !== undefined) {
-    for (const one of pwfWorkflow.checkTemplateReferences(template, {})) findings.push({ code: one.code, path: one.field, severity: 'ERROR' });
+    const references: pwfWorkflow.TemplateReferences = facts === undefined ? {} : { legalDocument: (code) => facts.documents.has(code), formRevision: (form, revision) => facts.formRevisions.has(`${form}#${revision}`) };
+    for (const one of pwfWorkflow.checkTemplateReferences(template, references)) findings.push({ code: one.code, path: one.field, severity: 'ERROR' });
+    if (facts !== undefined) {
+      const lapsed = (basis: readonly pwfWorkflow.TemplateLegalBasis[], at: string): void =>
+        basis.forEach((one, position) => {
+          const document = facts.documents.get(one.document);
+          if (document !== undefined && legalDocument.isLapsed(document.state)) findings.push({ code: 'LEGAL_BASIS_LAPSED', path: `${at}.legal_basis[${position}].document`, severity: 'WARNING', detail: document.supersededBy ?? document.state });
+        });
+      (template.steps ?? []).forEach((step, index) => lapsed(step.legalBasis, `steps[${index}]`));
+      template.tasks.forEach((one, index) => lapsed(one.legalBasis ?? [], `tasks[${index}]`));
+    }
   }
   const flags = template === undefined ? [] : pwfQuality.templateQualityFlags(template);
   return {
-    valid: findings.length === 0,
+    valid: findings.every((one) => one.severity !== 'ERROR'),
     findings,
     quality_flags: flags.map((flag) => ({ code: flag.code, task: flag.task, detail: flag.detail })),
     task_count: template?.tasks.length ?? 0,
@@ -106,7 +141,8 @@ export class ProjectWorkflowController {
   @OperationId('validateProjectWorkflowTemplate')
   @Command({ operation: 'validateProjectWorkflowTemplate' })
   async validate(@Scope() scope: CommandScope, @Body() body: Schemas['PwfTemplateParams']): Promise<Schemas['PwfTemplateValidation']> {
-    const checked = validateTemplate(body, new Date());
+    const now = new Date();
+    const checked = validateTemplate(body, now, await referenceFactsOf(scope.tx, body, now));
     await this.record(scope, 'workflow.template_validated', checked);
     return checked;
   }
@@ -122,9 +158,9 @@ export class ProjectWorkflowController {
   @Command({ operation: 'previewProjectWorkflowTemplate' })
   async preview(@Scope() scope: CommandScope, @Body() body: Schemas['PwfTemplatePreviewRequest']): Promise<Schemas['PwfSchedulePreview']> {
     const now = new Date();
-    const checked = validateTemplate(body.params, now);
+    const checked = validateTemplate(body.params, now, await referenceFactsOf(scope.tx, body.params, now));
     await this.record(scope, 'workflow.template_previewed', checked);
-    const failure = checked.findings[0];
+    const failure = checked.findings.find((one) => one.severity === 'ERROR');
     if (failure !== undefined) throw new DomainError(failure.code === 'PWF_DEPENDENCY_CYCLE' ? 'PWF_DEPENDENCY_CYCLE' : 'PROJECT_WORKFLOW_TEMPLATE_INVALID', 422, failure.path);
     const template = pwfWorkflow.parseProjectWorkflowTemplate(body.params);
     const facts = factsOf(body.facts);
@@ -144,15 +180,12 @@ export class ProjectWorkflowController {
       templateVersion: body.template_version,
       plannedStartDate: body.planned_start_date,
       facts: factsOf(body.facts),
+      selectionReason: body.selection_reason,
       actor: scope.tenant.membershipId,
       scopes: scopesOf(access, PERMISSIONS.startProjectWorkflow, now),
       now,
     });
-    await announce(
-      scope,
-      { resource: WORKFLOW_RESOURCE, id: done.id, version: done.version, action: 'workflow.started', type: 'pwf.workflow.started.v1', fromStatus: null, status: done.status, facts: { project_id: done.projectId, template_code: done.templateCode, template_hash: done.templateHash, schedule_version: done.scheduleVersion } },
-      now,
-    );
+    await announceStarted(scope, done, now);
     return commandResult(scope, done.status, done.version, done.id);
   }
 
@@ -166,6 +199,7 @@ export class ProjectWorkflowController {
       projectId: projectId.toLowerCase(),
       templateCode: body.template_code,
       templateVersion: body.template_version,
+      selectionReason: body.selection_reason,
       plannedStartDate: body.planned_start_date,
       effectiveDate: body.effective_date,
       dryRun: body.dry_run,
@@ -185,7 +219,7 @@ export class ProjectWorkflowController {
     if (outcome.workflow !== null) {
       await announce(
         scope,
-        { resource: WORKFLOW_RESOURCE, id: outcome.workflow.id, version: outcome.workflow.version, action: 'workflow.adopted', type: 'pwf.workflow.adopted.v1', fromStatus: null, status: outcome.workflow.status, facts: { project_id: outcome.workflow.projectId, template_code: outcome.templateCode, template_hash: outcome.templateHash, schedule_version: outcome.workflow.scheduleVersion, effective_date: outcome.effectiveDate } },
+        { resource: WORKFLOW_RESOURCE, id: outcome.workflow.id, version: outcome.workflow.version, action: 'workflow.adopted', type: 'pwf.workflow.adopted.v1', fromStatus: null, status: outcome.workflow.status, facts: { project_id: outcome.workflow.projectId, template_code: outcome.templateCode, template_hash: outcome.templateHash, schedule_version: outcome.workflow.scheduleVersion, effective_date: outcome.effectiveDate, ...selectionFacts(outcome.selection) } },
         now,
       );
     }
@@ -205,16 +239,139 @@ function adoptView(outcome: AdoptOutcome, now: Date): Schemas['PwfAdoptResult'] 
     tasks: outcome.tasks.map((one) => ({ task_code: one.taskCode, name: one.name, treatment: one.treatment, planned_start: one.plannedStart, planned_finish: one.plannedFinish, needs_decision: one.needsDecision })),
     schedule: schedulePreviewOf(outcome.schedule, { names, phases: {}, plannedStart: outcome.workflow?.plannedStartDate ?? outcome.effectiveDate, excluded: outcome.excluded, now }),
     findings: outcome.findings,
+    selection: outcome.selection,
     as_of: now.toISOString(),
   };
+}
+
+/** What the audit row and the event say of how the template was chosen (R47): codes, the version of the rule and the mode, never the words of the reason (the reason is the reason of the audit row). */
+export const selectionFacts = (selection: PwfSelectionRecord): Record<string, unknown> => ({
+  selection_mode: selection.mode,
+  suggested_template_code: selection.suggested_template_code,
+  selection_basis: selection.basis,
+  selection_line: selection.line,
+  assignment_rule_version: selection.rule_version,
+});
+
+/** The audit row and the event of a workflow that started, whoever started it (PWF-05, or the registration of a project). */
+export async function announceStarted(scope: CommandScope, done: Awaited<ReturnType<PwfWorkflowStore['start']>>, now: Date): Promise<void> {
+  await announce(
+    scope,
+    {
+      resource: WORKFLOW_RESOURCE,
+      id: done.id,
+      version: done.version,
+      action: 'workflow.started',
+      type: 'pwf.workflow.started.v1',
+      fromStatus: null,
+      status: done.status,
+      facts: { project_id: done.projectId, template_code: done.templateCode, template_hash: done.templateHash, schedule_version: done.scheduleVersion, ...selectionFacts(done.selection) },
+      ...(done.selection.reason === null ? {} : { reason: done.selection.reason }),
+    },
+    now,
+  );
 }
 
 /** The reads of the workflow of a project: the workflow, its tasks, the schedule, a gate (PWF-03, PWF-06): the scope of `pwf.read`, the official colour only. */
 @Controller()
 export class ProjectWorkflowReadsController {
   private readonly reads = new PwfWorkflowReads();
+  private readonly assignment = new PwfAssignmentReads();
+  private readonly workflows = new PwfWorkflowStore();
+  private readonly projects = new PrjProjectStore();
 
   constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
+
+  /**
+   * Which kind of workflow the rule suggests (R47) for a project that exists (`project_id`, PWF-05) or for one that is being registered (the unit, the type and the facts the form holds, PRJ-02), the templates the tenant has, and
+   * the schedule the chosen (or suggested) template gives from the planned start: the total of working days, the steps and what stops the schedule from being told (a fact a branch needs, a year without a calendar). It writes nothing.
+   */
+  @Get('project-workflow/suggestion')
+  @OperationId('suggestProjectWorkflow')
+  async suggestion(@CurrentTenant() tenant: TenantContext, @CurrentAccess() access: EffectiveAccess, @Query() query: Record<string, unknown>): Promise<Schemas['PwfWorkflowSuggestion']> {
+    const now = new Date();
+    const today = vietnamDateOf(now);
+    const text = (name: string): string | undefined => queryText(query[name], name);
+    const projectId = query.project_id === undefined ? undefined : idOf(query.project_id, 'project_id');
+    const typeVersion = query.project_type_master_version_id === undefined ? undefined : idOf(query.project_type_master_version_id, 'project_type_master_version_id');
+    const plannedStart = text('planned_start_date');
+    const chosen = text('template_code');
+    return this.database.withTenant(tenant, async (tx) => {
+      const facts: Record<string, string | undefined> = {};
+      let unitId: string | null = query.owner_unit_id === undefined ? null : idOf(query.owner_unit_id, 'owner_unit_id');
+      let canStart = false;
+      if (projectId !== undefined) {
+        // A project out of the scope of `pwf.read` does not exist for the caller.
+        if (!(await projectInScope(tx, projectId, projectScope(access, READ, now)))) throw new DomainError('RESOURCE_NOT_FOUND', 404);
+        const own = await this.assignment.projectFacts(tx, projectId);
+        Object.assign(facts, own.facts);
+        unitId = own.ownerUnitId;
+        canStart = await projectInScope(tx, projectId, projectScope(access, PERMISSIONS.startProjectWorkflow, now));
+      } else if (unitId !== null) {
+        const unit = await this.projects.unitRef(tx, unitId);
+        if (unit === undefined) throw new DomainError('VALIDATION_FAILED', 422, 'owner_unit_id');
+        canStart = reaches(access, PERMISSIONS.startProjectWorkflow, unit, now);
+      }
+      if (typeVersion !== undefined) {
+        const rows = await tx.query<{ business_key: string }>('select r.business_key from machvon.master_record_version v join machvon.master_record r on r.id = v.master_record_id where v.id = $1::uuid', [typeVersion]);
+        if (rows[0] !== undefined && /^[A-Za-z0-9_.-]{1,40}$/.test(rows[0].business_key)) facts.project_type = rows[0].business_key;
+      }
+      for (const field of pwfWorkflow.CONDITION_FIELDS) {
+        const said = text(field);
+        if (said !== undefined) facts[field] = said;
+      }
+      const view = await this.assignment.suggest(tx, { facts, unitId, asOf: today });
+      const code = chosen ?? view.suggestion.templateCode;
+      let preview: Schemas['PwfWorkflowSuggestion']['preview'] = null;
+      if (code !== null && plannedStart !== undefined) {
+        const resolved = await this.workflows.resolveTemplate(tx, code, undefined, today);
+        const template = resolved.template;
+        const steps = pwfWorkflow.stepsOf(template);
+        const needed = [...new Set(template.tasks.flatMap((one) => one.when.map((condition) => condition.field)))].sort();
+        const missing = needed.filter((field) => view.facts[field] === undefined);
+        const base = { template_code: resolved.code, template_version: resolved.version, template_hash: resolved.hash, planned_start_date: plannedStart, phase_count: template.phases.length };
+        if (missing.length > 0) {
+          // A fact a branch reads is not known: the schedule is not guessed, the template is still described.
+          preview = { ...base, project_start: null, project_finish: null, total_working_days: null, standard_working_days: null, step_count: steps.length, task_count: template.tasks.length, excluded_tasks: [], missing_facts: missing, findings: [], steps: steps.map((step) => ({ code: step.code, name: step.name, phase_code: step.phase, order: step.order, implicit: step.implicit, start: null, finish: null, duration_working_days: 0, task_count: 0 })) };
+        } else {
+          const planned = await this.workflows.previewTemplate(tx, template, plannedStart, view.facts);
+          const scheduled = planned.result.tasks.map((one) => ({ code: one.code, start: one.start, finish: one.finish, startSlot: one.startSlot, endSlot: one.endSlot, passThrough: one.state === 'PASS_THROUGH' }));
+          const live = scheduled.filter((one) => !one.passThrough);
+          const spans = new Map(pwfWorkflow.stepSpans(template, scheduled).map((one) => [`${one.phase}/${one.step}`, one] as const));
+          const complete = planned.result.projectFinish !== null && live.length > 0;
+          preview = {
+            ...base,
+            project_start: planned.result.projectStart,
+            project_finish: planned.result.projectFinish,
+            total_working_days: complete ? Math.max(...live.map((one) => one.endSlot)) - Math.min(...live.map((one) => one.startSlot)) : null,
+            standard_working_days: pwfSchedule.standardTimes(template, view.facts).totalWorkingDays,
+            step_count: [...spans.values()].filter((one) => one.taskCount > 0).length,
+            task_count: live.length,
+            excluded_tasks: planned.excluded,
+            missing_facts: [],
+            findings: planned.result.findings.map((one) => ({ code: one.code, task: one.task, ...(one.year === undefined ? {} : { year: one.year }) })),
+            steps: steps.map((step) => {
+              const span = spans.get(`${step.phase}/${step.code}`);
+              return { code: step.code, name: step.name, phase_code: step.phase, order: step.order, implicit: step.implicit, start: span?.start ?? null, finish: span?.finish ?? null, duration_working_days: span?.durationWorkingDays ?? 0, task_count: span?.taskCount ?? 0 };
+            }),
+          };
+        }
+      }
+      return {
+        suggested_template_code: view.suggestion.templateCode,
+        basis: view.suggestion.basis,
+        line: view.suggestion.line,
+        rule: { rule_id: view.rule.ruleId, version: view.rule.version, unit_id: view.rule.unitId, unverified: view.rule.unverified },
+        candidates: view.suggestion.candidates.map((one) => ({ template_code: one.templateCode, basis: one.basis, line: one.line })),
+        unknown_templates: view.suggestion.unknownTemplates,
+        templates: view.templates.map((one) => ({ code: one.code, name: one.name, project_type: one.projectType, version: one.version, unverified: one.unverified, phase_count: one.phaseCount, step_count: one.stepCount, task_count: one.taskCount, fact_fields: one.factFields as Array<'project_group' | 'funding_source' | 'project_type'> })),
+        facts: view.facts,
+        preview,
+        can_start: canStart,
+        as_of: now.toISOString(),
+      };
+    });
+  }
 
   @Get('projects/:project_id/workflow')
   @OperationId('getProjectWorkflow')

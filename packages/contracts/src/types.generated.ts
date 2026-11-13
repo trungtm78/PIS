@@ -3240,7 +3240,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Tạo dự án ở giai đoạn CONCEPT */
+        /** Tạo dự án ở giai đoạn CONCEPT; kèm loại quy trình và ngày dự định bắt đầu thì khởi tạo workflow trong cùng giao dịch (R47) */
         post: operations["createProject"];
         delete?: never;
         options?: never;
@@ -27370,6 +27370,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/project-workflow/suggestion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Đề xuất loại quy trình cho dự án theo quy tắc ánh xạ, kèm danh sách loại quy trình và bản xem trước lịch (PRJ-02, PWF-05; R47) */
+        get: operations["suggestProjectWorkflow"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -27908,6 +27925,21 @@ export interface components {
             end_year?: number;
             /** @enum {string} */
             classification?: "PUBLIC" | "INTERNAL" | "CONFIDENTIAL";
+            /** @description Loại quy trình và ngày dự định bắt đầu (R47): có thì workflow được khởi tạo trong cùng giao dịch tạo dự án (cần quyền pwf.workflow.manage); không có thì dự án được tạo như trước và workflow khởi tạo sau ở PWF-05 */
+            workflow?: {
+                /** @description Bỏ trống: lấy đề xuất của quy tắc ánh xạ */
+                template_code?: string;
+                template_version?: number;
+                /** Format: date */
+                planned_start_date: string;
+                facts?: {
+                    project_group?: string;
+                    funding_source?: string;
+                    project_type?: string;
+                };
+                /** @description Bắt buộc khi chọn khác đề xuất (PWF_SELECTION_REASON_REQUIRED) */
+                selection_reason?: string;
+            };
         };
         PrjProfileChange: {
             name?: string;
@@ -48876,7 +48908,7 @@ export interface components {
             /** Format: date */
             actual_on: string | null;
         };
-        /** @description Tham số của quy tắc PROJECT_WORKFLOW_TEMPLATE: tối đa 400 việc, 12 giai đoạn, 20 liên kết mỗi việc, chuỗi dài nhất 100 (BR-PWF-12) */
+        /** @description Tham số của quy tắc PROJECT_WORKFLOW_TEMPLATE: giai đoạn, bước, công việc và danh mục kiểm của từng việc; tối đa 400 việc, 12 giai đoạn, 80 bước, 20 liên kết mỗi việc, chuỗi dài nhất 100 (BR-PWF-12, R44) */
         PwfTemplateParams: {
             name: string;
             project_type: string | null;
@@ -48884,6 +48916,14 @@ export interface components {
                 code: string;
                 name: string;
                 gates: ("submitProjectForAppraisal" | "decideProjectAppraisal" | "capital.plan_published.v1" | "startProjectImplementation" | "suspendProject" | "resumeProject" | "completeProject" | "settlement.closed.v1" | "closeProject")[];
+            }[];
+            /** @description Các bước của từng giai đoạn (R44). Bỏ trống: mỗi giai đoạn là một bước ngầm định, băm của mẫu không đổi */
+            steps?: {
+                code: string;
+                name: string;
+                phase: string;
+                responsible_role?: string | null;
+                legal_basis?: components["schemas"]["PwfLegalBasis"][];
             }[];
             tasks: {
                 code: string;
@@ -48921,6 +48961,16 @@ export interface components {
                     /** @enum {string} */
                     field: "project_group" | "funding_source" | "project_type";
                     in: string[];
+                }[];
+                /** @description Mã bước của giai đoạn; bắt buộc khi mẫu khai bước */
+                step?: string | null;
+                legal_basis?: components["schemas"]["PwfLegalBasis"][];
+                /** @description Chính sách phiên bản biểu mẫu (R46); biểu mẫu không khai dùng LATEST_APPROVED */
+                form_policies?: {
+                    form: string;
+                    /** @enum {string} */
+                    policy: "LATEST_APPROVED" | "PINNED";
+                    revision?: number | null;
                 }[];
             }[];
         };
@@ -49013,7 +49063,8 @@ export interface components {
             as_of: string;
         };
         PwfWorkflowStart: {
-            template_code: string;
+            /** @description Bỏ trống: hệ thống chọn theo quy tắc PROJECT_WORKFLOW_ASSIGNMENT (R47); không có đề xuất: PWF_TEMPLATE_NOT_ASSIGNED */
+            template_code?: string;
             /** @description Bỏ trống: phiên bản đang hiệu lực của mẫu */
             template_version?: number;
             /** Format: date */
@@ -49023,9 +49074,12 @@ export interface components {
                 funding_source?: string;
                 project_type?: string;
             };
+            /** @description Lý do chọn loại quy trình khác đề xuất */
+            selection_reason?: string;
         };
         PwfWorkflowAdopt: {
-            template_code: string;
+            /** @description Bỏ trống: hệ thống chọn theo quy tắc PROJECT_WORKFLOW_ASSIGNMENT (R47); không có đề xuất: PWF_TEMPLATE_NOT_ASSIGNED */
+            template_code?: string;
             template_version?: number;
             /** Format: date */
             planned_start_date: string;
@@ -49056,6 +49110,8 @@ export interface components {
                 remaining_working_days: number;
                 percent_complete?: number;
             }[];
+            /** @description Lý do chọn loại quy trình khác đề xuất */
+            selection_reason?: string;
         };
         PwfAdoptResult: {
             dry_run: boolean;
@@ -49084,6 +49140,7 @@ export interface components {
             }[];
             /** Format: date-time */
             as_of: string;
+            selection: components["schemas"]["PwfWorkflowSelection"];
         };
         PwfWorkflowDetail: {
             /** Format: uuid */
@@ -49154,6 +49211,9 @@ export interface components {
                 } | null;
                 return_count: number;
                 version: number;
+                step_code: string | null;
+                checklist_total: number;
+                checklist_done: number;
             }[];
             gates: {
                 /** @enum {string} */
@@ -49173,6 +49233,34 @@ export interface components {
             version: number;
             /** Format: date-time */
             as_of: string;
+            /** @description Các bước theo thứ tự giai đoạn (R44); mẫu không khai bước: mỗi giai đoạn một bước ngầm định */
+            steps: {
+                code: string;
+                name: string;
+                phase_code: string;
+                order: number;
+                implicit: boolean;
+                responsible_role: string | null;
+                /** @enum {string} */
+                status: "NOT_APPLICABLE" | "NOT_STARTED" | "IN_PROGRESS" | "DONE";
+                /** @description Thời hạn chuẩn của bước, suy từ lịch các việc của nó trên tuần làm việc chuẩn */
+                standard_working_days: number;
+                /** Format: date */
+                planned_start: string | null;
+                /** Format: date */
+                planned_finish: string | null;
+                task_total: number;
+                task_done: number;
+                required_total: number;
+                required_done: number;
+                checklist_total: number;
+                checklist_done: number;
+                legal_basis: components["schemas"]["PwfLegalBasisView"][];
+            }[];
+            standard_working_days: number;
+            /** @description Mã văn bản mà workflow viện dẫn đã hết hiệu lực hoặc bị thay thế hôm nay (R45) */
+            lapsed_legal_documents: string[];
+            selection: components["schemas"]["PwfWorkflowSelection"] | null;
         };
         PwfTaskPage: {
             items: {
@@ -49392,6 +49480,19 @@ export interface components {
                 satisfied: boolean;
                 /** Format: uuid */
                 document_id: string | null;
+                /** @enum {string} */
+                policy: "LATEST_APPROVED" | "PINNED";
+                pinned_revision: number | null;
+                /** @description Revision đã duyệt mới nhất đang hiệu lực hôm nay */
+                current_revision: number | null;
+                current_title: string | null;
+                /** Format: date */
+                current_effective_from: string | null;
+                /** @description Revision mà bằng chứng mới nhất của việc đã dùng */
+                used_revision: number | null;
+                used_sha256: string | null;
+                /** @description Biểu mẫu có bản mới sau khi việc đã sinh tài liệu */
+                newer_available: boolean;
             }[];
             evidence: {
                 /** Format: uuid */
@@ -49408,6 +49509,8 @@ export interface components {
                 attached_by: string;
                 /** Format: date-time */
                 attached_at: string;
+                form_template_revision: number | null;
+                form_template_sha256: string | null;
             }[];
             completion: {
                 ok: boolean;
@@ -49512,6 +49615,16 @@ export interface components {
             can_assign: boolean;
             /** Format: date-time */
             as_of: string;
+            step: {
+                code: string;
+                name: string;
+                phase_code: string;
+                order: number;
+                implicit: boolean;
+                responsible_role: string | null;
+            } | null;
+            legal_basis: components["schemas"]["PwfLegalBasisView"][];
+            step_legal_basis: components["schemas"]["PwfLegalBasisView"][];
         };
         PwfTaskStart: {
             /** @description Bắt buộc khi bắt đầu trước khi tiền nhiệm đủ điều kiện theo loại liên kết (quản lý cho phép bắt đầu sớm) */
@@ -50213,6 +50326,141 @@ export interface components {
                 adjusted_count: number;
                 open_response_count: number;
             }[];
+            /** Format: date-time */
+            as_of: string;
+        };
+        /** @description Một căn cứ pháp lý của bước hoặc công việc (R45) */
+        PwfLegalBasis: {
+            /** @description Mã văn bản trong danh mục LEGAL_DOCUMENT (không chép nội dung văn bản vào mẫu) */
+            document: string;
+            /** @description Điều, khoản, điểm; bỏ trống khi chưa chắc (không đoán) */
+            article?: string;
+            note?: string;
+            /** @enum {string} */
+            verification: "VERIFIED" | "UNVERIFIED";
+        };
+        /** @description Căn cứ pháp lý kèm văn bản của danh mục mà nó viện dẫn và tình trạng hiệu lực hôm nay (R45) */
+        PwfLegalBasisView: {
+            document_code: string;
+            article: string | null;
+            note: string | null;
+            /** @enum {string} */
+            verification: "VERIFIED" | "UNVERIFIED";
+            /** @enum {string|null} */
+            doc_kind: "LAW" | "RESOLUTION" | "DECREE" | "DECISION" | "CIRCULAR" | "DIRECTIVE" | "OTHER" | null;
+            number: string | null;
+            title: string | null;
+            issuer: string | null;
+            /** Format: date */
+            effective_from: string | null;
+            /** Format: date */
+            effective_to: string | null;
+            superseded_by: string | null;
+            /** @enum {string|null} */
+            document_verification: "VERIFIED" | "UNVERIFIED" | null;
+            /** Format: uuid */
+            document_id: string | null;
+            url: string | null;
+            /**
+             * @description Tình trạng của văn bản hôm nay theo danh mục; UNKNOWN khi danh mục không còn mã
+             * @enum {string}
+             */
+            state: "NOT_YET_IN_FORCE" | "IN_FORCE" | "EXPIRED" | "SUPERSEDED" | "UNKNOWN";
+        };
+        /** @description Loại quy trình được chọn thế nào: đề xuất của quy tắc PROJECT_WORKFLOW_ASSIGNMENT, lựa chọn, cách chọn và lý do (R47) */
+        PwfWorkflowSelection: {
+            /** @enum {string} */
+            mode: "AUTO" | "CONFIRMED" | "OVERRIDE" | "MANUAL";
+            chosen_template_code: string;
+            suggested_template_code: string | null;
+            /** @enum {string} */
+            basis: "RULE" | "PROJECT_TYPE" | "DEFAULT" | "NONE";
+            line: string | null;
+            /** Format: uuid */
+            rule_id: string | null;
+            rule_version: number;
+            /** Format: uuid */
+            rule_unit_id: string | null;
+            reason: string | null;
+        };
+        /** @description Đề xuất loại quy trình cho một dự án theo quy tắc ánh xạ, danh sách loại quy trình và bản xem trước lịch (R47) */
+        PwfWorkflowSuggestion: {
+            suggested_template_code: string | null;
+            /** @enum {string} */
+            basis: "RULE" | "PROJECT_TYPE" | "DEFAULT" | "NONE";
+            line: string | null;
+            rule: {
+                /** Format: uuid */
+                rule_id: string | null;
+                version: number;
+                /** Format: uuid */
+                unit_id: string | null;
+                unverified: boolean;
+            };
+            candidates: {
+                template_code: string;
+                /** @enum {string} */
+                basis: "RULE" | "PROJECT_TYPE" | "DEFAULT";
+                line: string | null;
+            }[];
+            unknown_templates: string[];
+            templates: {
+                code: string;
+                name: string;
+                project_type: string | null;
+                version: number;
+                unverified: boolean;
+                phase_count: number;
+                step_count: number;
+                task_count: number;
+                fact_fields: ("project_group" | "funding_source" | "project_type")[];
+            }[];
+            facts: {
+                project_group?: string;
+                funding_source?: string;
+                project_type?: string;
+            };
+            /** @description Xem trước lịch của loại quy trình được chọn (hoặc được đề xuất) từ ngày dự định bắt đầu; null khi chưa có ngày hoặc không có loại quy trình */
+            preview: {
+                template_code: string;
+                template_version: number;
+                template_hash: string;
+                /** Format: date */
+                planned_start_date: string;
+                /** Format: date */
+                project_start: string | null;
+                /** Format: date */
+                project_finish: string | null;
+                /** @description Số ngày làm việc từ đầu việc đầu tiên tới cuối việc cuối cùng trên lịch làm việc đã công bố; null khi thiếu dữ kiện hoặc thiếu lịch */
+                total_working_days: number | null;
+                standard_working_days: number | null;
+                phase_count: number;
+                step_count: number;
+                task_count: number;
+                excluded_tasks: string[];
+                /** @description Dữ kiện mà nhánh của mẫu cần và chưa biết: chưa tính được lịch */
+                missing_facts: ("project_group" | "funding_source" | "project_type")[];
+                findings: {
+                    code: string;
+                    task: string | null;
+                    year?: number;
+                }[];
+                steps: {
+                    code: string;
+                    name: string;
+                    phase_code: string;
+                    order: number;
+                    implicit: boolean;
+                    /** Format: date */
+                    start: string | null;
+                    /** Format: date */
+                    finish: string | null;
+                    duration_working_days: number;
+                    task_count: number;
+                }[];
+            } | null;
+            /** @description Người gọi có quyền khởi tạo workflow (pwf.workflow.manage) hay không */
+            can_start: boolean;
             /** Format: date-time */
             as_of: string;
         };
@@ -218730,6 +218978,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StaffScoreOverview"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    suggestProjectWorkflow: {
+        parameters: {
+            query?: {
+                /** @description Dự án đã có (PWF-05): lấy loại, nhóm và đơn vị của dự án */
+                project_id?: string;
+                /** @description Đơn vị quản lý của dự án đang đăng ký (PRJ-02): quy tắc của đơn vị gần nhất thắng */
+                owner_unit_id?: string;
+                project_type_master_version_id?: string;
+                project_type?: string;
+                project_group?: string;
+                funding_source?: string;
+                /** @description Loại quy trình người dùng đang chọn; bỏ trống: xem trước loại được đề xuất */
+                template_code?: string;
+                planned_start_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Scoped DTO; amounts as decimal strings; carries as_of */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfWorkflowSuggestion"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

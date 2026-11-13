@@ -1677,6 +1677,7 @@ export const OPERATIONS = {
   "submitStaffScoreResponse": { method: "post", path: "/staff-score-lines/{id}/responses", versioned: false, stepUp: null, permission: "staff_score.read_own" },
   "submitTemplateRevision": { method: "post", path: "/notification-templates/{templateId}/submit", versioned: true, stepUp: null, permission: "notification.template.manage" },
   "submitWhistleReport": { method: "post", path: "/public/portals/{slug}/reports", versioned: false, stepUp: null, permission: "public.portal.write" },
+  "suggestProjectWorkflow": { method: "get", path: "/project-workflow/suggestion", versioned: false, stepUp: null, permission: "pwf.read" },
   "suspendContract": { method: "post", path: "/contracts/{id}/suspend", versioned: true, stepUp: null, permission: "contract.suspend" },
   "suspendLicense": { method: "post", path: "/licenses/{id}/suspend", versioned: true, stepUp: null, permission: "system.license.manage" },
   "suspendMembership": { method: "post", path: "/memberships/{membershipId}/suspend", versioned: true, stepUp: null, permission: "iam.member.manage" },

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PrjProjectStore, TenantDatabase, projectScope } from '@machvon/db';
+import { PrjProjectStore, PwfWorkflowStore, TenantDatabase, projectScope } from '@machvon/db';
 import type { ProfileChange } from '@machvon/db';
 import { DomainError, NOOP_METRICS, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, MetricsSink, TenantContext } from '@machvon/kernel';
@@ -16,6 +16,8 @@ import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { SHARED_PIPELINE_CACHE } from './pipeline-cache';
 import type { PipelineCache } from './pipeline-cache';
+import { announceStarted } from '../pwf/workflow.controller';
+import { scopesOf as workflowScopesOf } from '../pwf/pwf-support';
 import { projectDetailView, projectLineView } from './project-view';
 import { reaches } from './reach';
 import { PRJ_METRICS, PRJ_PIPELINE_CACHE } from './tokens';
@@ -49,6 +51,7 @@ function profileChangeOf(body: Schemas['PrjProfileChange']): ProfileChange {
 @Controller()
 export class ProjectController {
   private readonly projects = new PrjProjectStore();
+  private readonly workflows = new PwfWorkflowStore();
   private readonly cache: PipelineCache;
 
   constructor(@Optional() @Inject(PRJ_PIPELINE_CACHE) cache?: PipelineCache) {
@@ -119,6 +122,27 @@ export class ProjectController {
       },
       eventKey: `${RESOURCE_TYPE}:${created.id}:${created.version}`,
     });
+    // R47: the kind of workflow and the planned start that come with the registration start the workflow in this same transaction (the template frozen, the branches cut by the facts, the schedule laid from the planned start), so a
+    // project is never registered with half a workflow: whatever refuses the workflow refuses the registration, and the idempotency key of the command covers both. Without them the project is registered as it always was.
+    if (body.workflow !== undefined) {
+      const group = created.groupSuggestion?.groupKey;
+      const started = await this.workflows.start(scope.tx, {
+        projectId: created.id,
+        templateCode: body.workflow.template_code,
+        templateVersion: body.workflow.template_version,
+        plannedStartDate: body.workflow.planned_start_date,
+        facts: Object.fromEntries(Object.entries(body.workflow.facts ?? {}).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
+        selectionReason: body.workflow.selection_reason,
+        // Choosing against the rule at registration is said in a sentence.
+        reasonRequired: true,
+        // The group the register suggests is what the project is known by until a decision names its group.
+        ...(group === undefined || !/^[A-Za-z0-9_.-]{1,40}$/.test(group) ? {} : { knownFacts: { project_group: group } }),
+        actor: scope.tenant.membershipId,
+        scopes: workflowScopesOf(access, PERMISSIONS.startProjectWorkflow, now),
+        now,
+      });
+      await announceStarted(scope, started, now);
+    }
     this.dropBoardPages(scope);
     return commandResult(scope, created.status, created.version, created.id);
   }

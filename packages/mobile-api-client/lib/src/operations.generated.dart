@@ -1679,6 +1679,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'submitStaffScoreResponse': OperationDescriptor(method: 'POST', path: '/staff-score-lines/{id}/responses', versioned: false, stepUp: null, permission: 'staff_score.read_own'),
   'submitTemplateRevision': OperationDescriptor(method: 'POST', path: '/notification-templates/{templateId}/submit', versioned: true, stepUp: null, permission: 'notification.template.manage'),
   'submitWhistleReport': OperationDescriptor(method: 'POST', path: '/public/portals/{slug}/reports', versioned: false, stepUp: null, permission: 'public.portal.write'),
+  'suggestProjectWorkflow': OperationDescriptor(method: 'GET', path: '/project-workflow/suggestion', versioned: false, stepUp: null, permission: 'pwf.read'),
   'suspendContract': OperationDescriptor(method: 'POST', path: '/contracts/{id}/suspend', versioned: true, stepUp: null, permission: 'contract.suspend'),
   'suspendLicense': OperationDescriptor(method: 'POST', path: '/licenses/{id}/suspend', versioned: true, stepUp: null, permission: 'system.license.manage'),
   'suspendMembership': OperationDescriptor(method: 'POST', path: '/memberships/{membershipId}/suspend', versioned: true, stepUp: null, permission: 'iam.member.manage'),
