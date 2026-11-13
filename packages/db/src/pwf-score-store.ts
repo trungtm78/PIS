@@ -405,13 +405,19 @@ export class PwfScoreStore {
     return verifySnapshot(row.snapshot, row.snapshot_hash, policy, source);
   }
 
-  /** The periods whose personal data has outlived the retention of their policy, official ones only (the job anonymises them one by one). */
+  /** The periods whose personal data has outlived the retention of their policy, official ones only (the job deletes them one by one), and those V3033 marked erased but whose individual rows are still held. */
   async expiredPeriodIds(tx: TenantTx, now: Date): Promise<string[]> {
-    const rows = await tx.query<{ id: string }>(
-      `select p.id from machvon.staff_score_period p
-        where p.status = 'OFFICIAL' and p.erased_at is null and p.period_to < ($1::date - make_interval(months => coalesce((p.snapshot #>> '{policy,params,retention_months}')::int, 60)))::date
-        order by p.period_to, p.id limit 100`,
-      [dayOfInstant(now)],
+    // The lines and signals are only visible to the reach of the caller: the job is the system, so it looks with the whole tenant, or it would never see the rows a marked period still holds.
+    const rows = await withScoreScope(tx, SYSTEM_SCORE_SCOPE, () =>
+      tx.query<{ id: string }>(
+        `select p.id from machvon.staff_score_period p
+          where p.status = 'OFFICIAL'
+            and ((p.erased_at is null and p.period_to < ($1::date - make_interval(months => coalesce((p.snapshot #>> '{policy,params,retention_months}')::int, 60)))::date)
+              or (p.erased_at is not null and (exists (select 1 from machvon.staff_score_line l where l.tenant_id = p.tenant_id and l.period_id = p.id)
+                                               or exists (select 1 from machvon.staff_score_signal s where s.tenant_id = p.tenant_id and s.period_id = p.id))))
+          order by p.period_to, p.id limit 100`,
+        [dayOfInstant(now)],
+      ),
     );
     return rows.map((row) => row.id);
   }

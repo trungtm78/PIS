@@ -733,6 +733,40 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       expect((await owner<{ erased_at: string | null }>('select erased_at::text from machvon.staff_score_period where id = $1::uuid', [preview.period.id]))[0]?.erased_at).not.toBeNull();
       expect(await run()).toMatchObject({ officialized: 0, expired: 0 });
     });
+
+    it('cleans a period that V3033 already marked erased while its lines, responses, signals and approval links were retained (an upgrade), without judging the retention again', async () => {
+      const wf = await workflow();
+      const task = await seedTask(wf, 'U1', { baselineFinish: `${Y - 3}-11-13`, actualFinish: `${Y - 3}-11-13` });
+      await hold(task, WORKER);
+      const draft = await compute({ from: `${Y - 3}-10-01`, to: `${Y - 3}-12-31` });
+      await lockIt(draft.period.id, draft.period.version);
+      const id = draft.period.id;
+      const line = (await lineOf(id, WORKER)).id;
+      const answered = await as((tx) => adjustments.submit(tx, { lineId: line, body: 'The delay came from the agency; here is the letter I sent them.', actor: memberId(WORKER), today: TODAY }), WORKER);
+      await owner("update machvon.staff_score_period set status = 'OFFICIAL', official_at = now(), official_by = $2::uuid where id = $1::uuid", [id, memberId(HR)]);
+      // The state V3033 left behind: the person, the words and the tasks blanked and the period marked erased, but every row, the approval link of the response and the unit of each line still there.
+      await owner('update machvon.staff_score_response set approval_instance_id = gen_random_uuid() where id = $1::uuid', [answered.id]);
+      await owner("update machvon.staff_score_response set subject_membership_id = null, body = '[erased]', conclusion = null where line_id = $1::uuid", [line]);
+      await owner("update machvon.staff_score_line set membership_id = null, contributions = '[]'::jsonb, excluded = '[]'::jsonb, erased_at = now() where period_id = $1::uuid", [id]);
+      await owner("update machvon.staff_score_signal set membership_id = null, task_codes = '[]'::jsonb where period_id = $1::uuid", [id]);
+      await owner(`update machvon.staff_score_period set snapshot = '{"erased": true}'::jsonb, erased_at = now() - interval '1 day' where id = $1::uuid`, [id]);
+      const rows = async (): Promise<number> => Number((await owner<{ n: number }>(
+        `select (select count(*) from machvon.staff_score_line where period_id = $1::uuid) + (select count(*) from machvon.staff_score_signal where period_id = $1::uuid)
+              + (select count(*) from machvon.staff_score_response where line_id = $2::uuid) as n`, [id, line]))[0]?.n);
+      expect(await rows()).toBeGreaterThan(1);
+      // The period is still inside its retention by the clock of the policy, yet it is picked and cleaned: its erasure was decided already.
+      expect(await as((tx) => scores.expiredPeriodIds(tx, new Date()))).toContain(id);
+      expect(await as((tx) => scores.expiredPeriodIds(tx, new Date()), MANAGER, TENANT_B)).not.toContain(id);
+      expect(await as((tx) => scores.expire(tx, id), MANAGER, TENANT_B)).toBe(false);
+      expect(await rows()).toBeGreaterThan(1);
+      expect(await as((tx) => scores.expire(tx, id))).toBe(true);
+      expect(await rows()).toBe(0);
+      const [period] = await owner<{ snapshot: unknown; erased_at: string | null; summary: { people: number } }>('select snapshot, erased_at::text, summary from machvon.staff_score_period where id = $1::uuid', [id]);
+      expect(period).toMatchObject({ snapshot: { erased: true }, summary: { people: expect.any(Number) } });
+      expect(period?.erased_at).not.toBeNull();
+      expect(await as((tx) => scores.expire(tx, id))).toBe(false);
+      expect(await as((tx) => scores.expiredPeriodIds(tx, new Date()))).not.toContain(id);
+    });
   });
 
   describe('a past period is read as it stood then (R34)', () => {
