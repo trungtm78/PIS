@@ -3208,7 +3208,7 @@ Màn hình: `MOB-13` Chọn kỳ báo cáo (tab projects); `MOB-20` Rà soát b�
 
 Nền tảng: phone; 16.6 giây; chỉ trong chương cắt riêng
 
-Màn hình: `MOB-43` Mất kết nối (tab projects); `MOB-41` Danh sách đồng bộ (tab projects); `MOB-42` Xử lý xung đột (tab projects)
+Màn hình: `MOB-43` Mất kết nối (tab account); `MOB-41` Danh sách đồng bộ (tab account); `MOB-42` Xử lý xung đột (tab account)
 
 **Lời đọc**
 
@@ -3233,9 +3233,9 @@ Màn hình: `MOB-43` Mất kết nối (tab projects); `MOB-41` Danh sách đồ
 
 **Cần thấy trên hình**
 
-- [ ] Màn MOB-43 "Mất kết nối" trên điện thoại (tab projects) hiện đủ nội dung, không bị hệ điều hành che
-- [ ] Màn MOB-41 "Danh sách đồng bộ" trên điện thoại (tab projects) hiện đủ nội dung, không bị hệ điều hành che
-- [ ] Màn MOB-42 "Xử lý xung đột" trên điện thoại (tab projects) hiện đủ nội dung, không bị hệ điều hành che
+- [ ] Màn MOB-43 "Mất kết nối" trên điện thoại (tab account) hiện đủ nội dung, không bị hệ điều hành che
+- [ ] Màn MOB-41 "Danh sách đồng bộ" trên điện thoại (tab account) hiện đủ nội dung, không bị hệ điều hành che
+- [ ] Màn MOB-42 "Xử lý xung đột" trên điện thoại (tab account) hiện đủ nội dung, không bị hệ điều hành che
 - [ ] Không hiện nhãn MÔ PHỎNG, tên nội bộ của sản phẩm hay chữ tiếng Anh ngoài tên riêng và từ viết tắt đã có trong bảng phiên âm
 
 ### `ph-security`
