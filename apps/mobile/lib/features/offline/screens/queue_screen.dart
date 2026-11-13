@@ -78,6 +78,12 @@ class _QueueScreenState extends ConsumerState<QueueScreen> {
   }
 
   void _resolve(QueuedCommand command) {
+    // A command that is settled on the screen of its record (the work on a task) goes there; the person sees the record as it is now. Anything else is compared field by field.
+    final ScreenTarget? target = ref.read(conflictScreensProvider)[command.commandType]?.call(command);
+    if (target != null) {
+      context.push('${ref.read(routeTableProvider).locationOf(target.screenId)}${target.pathSuffix}');
+      return;
+    }
     final String base = ref.read(routeTableProvider).locationOf('MOB-42');
     context.push('$base/${command.id}');
   }

@@ -97,41 +97,25 @@ class PwfTaskService {
     final List<QueuedCommand> mine = pwfCommandsOf(queue.commands(), task.id);
     final QueuedCommand? same = mine.where((QueuedCommand c) => c.idempotencyKey == intention).firstOrNull;
     if (same == null && mine.any((QueuedCommand c) => c.state == CommandState.conflict || c.state == CommandState.rejected)) throw const PwfEarlierCommandUnresolved();
-    // The screen may still hold the task as it was before a command of the person was taken: the version the server answered to that command is newer.
-    final int known = queue.commands().where((QueuedCommand c) => isPwfCommand(c) && pwfTaskOf(c) == task.id && c.state == CommandState.accepted).fold<int>(task.version, (int most, QueuedCommand c) => c.serverVersion != null && c.serverVersion! > most ? c.serverVersion! : most);
+    // The screen may still hold the task as it was before a command of the person was taken (the read after it failed): the version the server answered to that command is newer.
+    final int known = pwfKnownVersion(queue.commands(), task.id, task.version);
     final int base = kPwfVersionedCommands.contains(commandType) ? pwfBaseVersion(known, mine.where((QueuedCommand c) => c.idempotencyKey != intention)) : known;
-    final QueuedCommand command = queue.enqueue(commandType: commandType, payload: payload, baseServerVersion: base, attempt: CommandAttempt(intention));
+    final QueuedCommand command = queue.enqueue(commandType: commandType, payload: payload, baseServerVersion: base, attempt: CommandAttempt(intention), subjectRef: task.id);
     (await _ref.read(queueRunnerProvider.future)).trigger();
     return command;
   }
 
-  /// The person looked at the task as it is now and chose to send their commands again on it. From the first command in conflict on, the commands
-  /// that have not been taken go back to the queue in the order they were made, each on the version the server holds plus the versioned commands
-  /// before it, under a new key (the old one is settled on the server as a conflict). Nothing is written over: the server checks every version again.
-  /// A command that follows one the server refused was based on a version the server never reached, so its new base can be lower than its old one;
-  /// the queue does not renew a command on a lower base, so such a command is dropped and made again. [serverVersion] is the version of the task they
-  /// were looking at.
+  /// The person looked at the task as it is now and chose to send their commands again on it. From the first command in conflict on, the commands that have not been taken
+  /// are based again on the version the server holds plus the versioned commands before them, each under a new key (the old one is settled on the server as a conflict). Nothing is
+  /// written over: the server checks every version again. The whole chain is changed in place and in one step under the lock of the queue (see [CommandQueue.rebaseChain]): the
+  /// commands keep the order they were made in, none is dropped and made again, so a crash or a failure in the middle loses nothing, and the runner is woken only once the change is
+  /// kept, never while part of the chain still has its old version. A command that follows one the server refused was based on a version the server never reached, so its new base can
+  /// be lower than its old one; the chain is rebased all the same. [serverVersion] is the version of the task they were looking at.
   Future<int> resendConflicts(String taskId, int serverVersion) async {
     final CommandQueue queue = await _ref.read(commandQueueProvider.future);
-    final List<QueuedCommand> mine = pwfCommandsOf(queue.commands(), taskId);
-    final int first = mine.indexWhere((QueuedCommand c) => c.state == CommandState.conflict);
-    if (first < 0) return 0;
-    final int ahead = mine.take(first).where((QueuedCommand c) => c.state != CommandState.rejected && kPwfVersionedCommands.contains(c.commandType)).length;
-    int resent = 0;
-    int before = ahead;
-    for (final QueuedCommand command in mine.skip(first)) {
-      if (command.state != CommandState.conflict && command.state != CommandState.queued) continue;
-      final int base = serverVersion + before;
-      final Map<String, Object?> payload = command.payload!;
-      queue.discard(command.id);
-      // The queue sends commands in the order of their creation time, to the millisecond: a gap keeps the order of the chain.
-      await Future<void>.delayed(const Duration(milliseconds: 2));
-      queue.enqueue(commandType: command.commandType, payload: payload, baseServerVersion: base, attempt: CommandAttempt.fresh());
-      resent += 1;
-      if (kPwfVersionedCommands.contains(command.commandType)) before += 1;
-    }
-    (await _ref.read(queueRunnerProvider.future)).trigger();
-    return resent;
+    final List<QueuedCommand> changed = await queue.rebaseChain((List<QueuedCommand> commands) => pwfResendPlan(commands, taskId, serverVersion));
+    if (changed.isNotEmpty) (await _ref.read(queueRunnerProvider.future)).trigger();
+    return changed.length;
   }
 
   /// The person chose to drop what they did offline on this task, because it no longer fits what the server holds.

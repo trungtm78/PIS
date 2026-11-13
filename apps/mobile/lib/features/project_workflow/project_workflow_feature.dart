@@ -1,7 +1,5 @@
 import '../../core/navigation/feature.dart';
-import '../../core/offline/drafts/conflict_adapter.dart' show ConflictAdapter;
 import 'pwf_commands.dart';
-import 'pwf_conflict.dart';
 import 'pwf_strings.dart';
 import 'screens/deadline_preference_screen.dart';
 import 'screens/my_score_screen.dart';
@@ -15,7 +13,8 @@ import 'screens/workflow_screen.dart';
 /// kept on the device) and MOB-82 the reminders of the person.
 ///
 /// The work on a task is queued on the device and sent as `pwf.task.*` commands on the version of the task that was read; an approval and a return
-/// are made online. A command that came back in conflict is settled in MOB-79, and in MOB-42 through the adapter declared here.
+/// are made online. A command that came back in conflict is settled in MOB-79, where the person sees the task as it is now: the queue sends them there and not to the comparison of MOB-42, because what they did on a task
+/// is not a field of the record to choose between.
 const MobileFeature feature = MobileFeature(
   id: 'project_workflow',
   strings: pwfStrings,
@@ -26,11 +25,11 @@ const MobileFeature feature = MobileFeature(
     ScreenSpec(screenId: 'MOB-81', builder: buildMyScoreScreen),
     ScreenSpec(screenId: 'MOB-82', builder: buildDeadlinePreferenceScreen),
   ],
-  conflictAdapters: <String, ConflictAdapter>{
-    kPwfStartCommand: pwfTaskConflictAdapter,
-    kPwfChecklistCommand: pwfTaskConflictAdapter,
-    kPwfEvidenceCommand: pwfTaskConflictAdapter,
-    kPwfCompleteCommand: pwfTaskConflictAdapter,
-    kPwfExceptionCommand: pwfTaskConflictAdapter,
+  conflictScreens: <String, ConflictScreenOf>{
+    kPwfStartCommand: pwfConflictScreen,
+    kPwfChecklistCommand: pwfConflictScreen,
+    kPwfEvidenceCommand: pwfConflictScreen,
+    kPwfCompleteCommand: pwfConflictScreen,
+    kPwfExceptionCommand: pwfConflictScreen,
   },
 );

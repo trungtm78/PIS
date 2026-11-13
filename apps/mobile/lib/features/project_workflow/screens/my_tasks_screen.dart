@@ -84,6 +84,10 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
   bool _loading = false;
   String? _failure;
 
+  /// Which first page the pages after it belong to: a request that left before the list was read again (pull to refresh, a new first page) answers for a cursor that no
+  /// longer exists, and its answer, success or failure, must change nothing.
+  int _generation = 0;
+
   @override
   void initState() {
     super.initState();
@@ -94,22 +98,25 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
   void didUpdateWidget(PwfMyTasksList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.first, widget.first)) {
+      _generation += 1;
       _more.clear();
       _cursor = widget.first.nextCursor;
       _failure = null;
+      _loading = false;
     }
   }
 
   Future<void> _loadMore() async {
     final String? cursor = _cursor;
     if (_loading || cursor == null) return;
+    final int generation = _generation;
     setState(() {
       _loading = true;
       _failure = null;
     });
     try {
       final PwfMyTasks? page = parsePwfMyTasks(await ref.read(apiClientProvider).getMyTasks(query: <String, Object?>{'limit': 50, 'cursor': cursor}));
-      if (!mounted) return;
+      if (!mounted || generation != _generation) return;
       if (page == null) throw const ContractMismatch('getMyTasks', 'does not hold what the screen needs');
       setState(() {
         _more.addAll(page.items);
@@ -117,7 +124,7 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
         _loading = false;
       });
     } on Object catch (error) {
-      if (!mounted) return;
+      if (!mounted || generation != _generation) return;
       setState(() {
         _failure = ProblemView.from(error).code;
         _loading = false;

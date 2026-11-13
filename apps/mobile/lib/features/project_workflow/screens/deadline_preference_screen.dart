@@ -12,6 +12,7 @@ import '../../../core/theme/components.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/state_view.dart';
+import '../../account/deadline_thresholds.dart';
 import '../../command_support/command_outcome.dart';
 import '../../read_support/attempts.dart';
 import '../../read_support/data_view.dart';
@@ -164,6 +165,7 @@ class _PwfPreferenceFormState extends ConsumerState<PwfPreferenceForm> {
       _result = said.$1;
       _resultIsProblem = said.$2;
     });
+    if (outcome is CommandDone) ref.invalidate(deadlineThresholdsProvider);
     if (outcome is CommandDone || (outcome is CommandRefused && outcome.code == 'VERSION_CONFLICT')) widget.onSaved();
   }
 

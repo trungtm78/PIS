@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,10 +9,13 @@ import 'package:machvon_mobile/core/navigation/mobile_routes.generated.dart';
 import 'package:machvon_mobile/core/navigation/route_table.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/offline/queue/command_queue.dart';
+import 'package:machvon_mobile/core/offline/queue/queue_results.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
 import 'package:machvon_mobile/core/widgets/sheets.dart';
 import 'package:machvon_mobile/features/project_workflow/project_workflow_feature.dart' as pwf;
 import 'package:machvon_mobile/features/project_workflow/pwf_commands.dart';
+import 'package:machvon_mobile/features/project_workflow/pwf_models.dart';
+import 'package:machvon_mobile/features/project_workflow/pwf_task_service.dart';
 
 import '../../support/fake_sync_server.dart';
 import '../../support/harness.dart';
@@ -236,6 +241,38 @@ void main() {
     });
   });
 
+  group('R39 the version the server answered to a command is not forgotten', () {
+    testWidgets('a command the server took, then a read of the task that failed, then another action: the next command is based on the version the server answered, not on the stale one on the screen', (WidgetTester tester) async {
+      final _Phone phone = await _open(tester, TaskState());
+      // The screen holds the task as it was read: version 3. The person ticks an item; the server takes it and moves to version 4.
+      final PwfTaskDetail stale = parsePwfTaskDetail(taskDetailJson(TaskState()))!;
+      final PwfTaskService service = phone.container.read(pwfTaskServiceProvider);
+      final QueuedCommand tick = (await tester.runAsync(() => service.completeChecklistItem(stale, 'C1', intention: 'tick-c1-0000000000001')))!;
+      expect(tick.subjectRef, kTaskId, reason: 'the queue keeps which task the command is about');
+      await phone.flush();
+      expect(phone.server.state.version, 4);
+      final QueuedCommand receipt = (await phone.queue).command(tick.id)!;
+      expect(receipt.state, CommandState.accepted);
+      expect(receipt.payload, isNull, reason: 'a command the server took keeps no data');
+      expect(pwfTaskOf(receipt), kTaskId);
+      expect(receipt.serverVersion, 4);
+      // The read of the task after it failed: the screen still has version 3. The next action must still start from 4.
+      final QueuedCommand complete = (await tester.runAsync(() => service.complete(stale, intention: 'complete-0000000000000001')))!;
+      expect(complete.baseServerVersion, 4);
+      await phone.flush();
+      expect(phone.server.applied.map((({String type, int base}) c) => c.base), <int>[3, 4]);
+      expect(phone.server.state.status, 'AWAITING_APPROVAL');
+    });
+
+    testWidgets('a command queued before the queue kept the task apart still names its task from its payload', (WidgetTester tester) async {
+      final _Phone phone = await _open(tester, TaskState());
+      final CommandQueue queue = await phone.queue;
+      final QueuedCommand old = queue.enqueue(commandType: kPwfStartCommand, payload: pwfStartPayload(kTaskId), baseServerVersion: 3);
+      expect(old.subjectRef, isNull);
+      expect(pwfTaskOf(old), kTaskId);
+    });
+  });
+
   group('R39 the task changed while the person was offline', () {
     testWidgets('the command comes back as a conflict, is not written over, and the screen shows the task as it is now; the person sends their work again on the new version, under a new key, and it is carried out once', (WidgetTester tester) async {
       final _Phone phone = await _open(tester, TaskState());
@@ -263,6 +300,7 @@ void main() {
       await phone.flush();
       final ({String type, int base}) done = phone.server.applied.single;
       expect(done, (type: kPwfCompleteCommand, base: 4));
+      expect((await phone.queue).commands().where((QueuedCommand c) => c.id == first.id).single.supersededKeys, contains(first.idempotencyKey), reason: 'the command was based again in place: same command, new key, the old key remembered');
       expect(phone.server.state.status, 'AWAITING_APPROVAL');
       expect(phone.server.sync.effectsOf(first.idempotencyKey), 0, reason: 'the old key never did anything');
       expect(find.text('Công việc đã thay đổi'), findsNothing);
@@ -293,6 +331,83 @@ void main() {
       await phone.flush();
       expect(phone.server.applied.single, (type: kPwfCompleteCommand, base: 3), reason: 'the refused item does not count: the completion is based on what the server holds');
       expect(phone.server.state.status, 'AWAITING_APPROVAL');
+    });
+
+    testWidgets('sending the chain again keeps every command and its place, and the runner is not woken by a command that is made but by the change that is kept', (WidgetTester tester) async {
+      final _Phone phone = await _open(tester, TaskState());
+      await phone.goOffline();
+      await tester.tap(find.text('Dự thảo hồ sơ mời thầu'));
+      await settleReal(tester, rounds: 10);
+      await tester.tap(find.text('Đánh dấu mục này đã xong'));
+      await settleReal(tester, rounds: 10);
+      await phone.sheet('Đánh dấu đã xong');
+      await phone.bar('Hoàn thành việc');
+      await phone.sheet('Hoàn thành việc');
+      final List<QueuedCommand> made = await phone.pending();
+      expect(made, hasLength(2));
+      // Two other people changed the task meanwhile: the version is 5, and neither command (based on 3 and 4) is carried out.
+      phone.server.changedByAnotherPerson();
+      phone.server.changedByAnotherPerson();
+      await phone.goOnline();
+      await phone.flush();
+      expect((await phone.pending()).map((QueuedCommand c) => c.state), <CommandState>[CommandState.conflict, CommandState.conflict]);
+      final CommandQueue queue = await phone.queue;
+      final List<QueueEvent> events = <QueueEvent>[];
+      final sub = queue.events.listen(events.add);
+      await tester.tap(find.text('Gửi lại trên bản mới'));
+      await settleReal(tester, rounds: 14);
+      unawaited(sub.cancel());
+      expect(events.where((QueueEvent e) => e.from == null), isEmpty, reason: 'no command was discarded and made again, so nothing woke the runner on a half-built chain');
+      expect(queue.commands().map((QueuedCommand c) => c.id).toList(), containsAllInOrder(made.map((QueuedCommand c) => c.id)));
+      expect(queue.commands().where((QueuedCommand c) => c.state == CommandState.discarded), isEmpty);
+      await phone.flush();
+      expect(phone.server.applied.map((({String type, int base}) c) => (c.type, c.base)), <(String, int)>[(kPwfChecklistCommand, 5), (kPwfCompleteCommand, 6)]);
+    });
+
+    test('the plan of a resend: the commands from the first conflict on, each on the version of the server plus the versioned ones before it; a refused one counts for nothing', () {
+      QueuedCommand cmd(int n, String type, CommandState state, int base) => QueuedCommand(
+            id: 'c$n',
+            tenantId: 't',
+            userId: 'u',
+            commandType: type,
+            payload: <String, Object?>{'task_id': kTaskId},
+            payloadBytes: 10,
+            baseServerVersion: base,
+            idempotencyKey: 'key-$n-000000000000000',
+            state: state,
+            createdAt: n,
+            updatedAt: n,
+            subjectRef: kTaskId,
+          );
+      List<(String, int)> plan(List<QueuedCommand> commands, int version) => <(String, int)>[for (final step in pwfResendPlan(commands, kTaskId, version)) (step.id, step.baseServerVersion)];
+      expect(plan(<QueuedCommand>[cmd(1, kPwfChecklistCommand, CommandState.queued, 3)], 7), isEmpty, reason: 'nothing is in conflict');
+      expect(plan(<QueuedCommand>[cmd(1, kPwfChecklistCommand, CommandState.conflict, 3), cmd(2, kPwfEvidenceCommand, CommandState.queued, 4), cmd(3, kPwfCompleteCommand, CommandState.queued, 4)], 7), <(String, int)>[('c1', 7), ('c2', 8), ('c3', 8)]);
+      expect(plan(<QueuedCommand>[cmd(1, kPwfChecklistCommand, CommandState.rejected, 3), cmd(2, kPwfCompleteCommand, CommandState.conflict, 4)], 3), <(String, int)>[('c2', 3)], reason: 'the refused item does not count');
+      expect(plan(<QueuedCommand>[cmd(1, kPwfChecklistCommand, CommandState.queued, 3), cmd(2, kPwfCompleteCommand, CommandState.conflict, 4)], 6), <(String, int)>[('c2', 7)], reason: 'a versioned command still waiting before the conflict is carried out first');
+      expect(plan(<QueuedCommand>[cmd(1, kPwfCompleteCommand, CommandState.conflict, 4), cmd(2, kPwfStartCommand, CommandState.sending, 5)], 6), <(String, int)>[('c1', 6)], reason: 'a command that is being sent is not touched');
+    });
+
+    testWidgets('the queue sends a command of the work on a task that is in conflict to the screen of the task, not to the comparison of fields, and offers no argument of the command as a field to choose', (WidgetTester tester) async {
+      useDevice(tester, kTall);
+      final PwfTaskServer server = PwfTaskServer(TaskState());
+      final FieldWorld world = FieldWorld.create(server: server.field);
+      await world.open(tester, '/account/mob-41', extra: <MobileFeature>[pwf.feature]);
+      await settleReal(tester, rounds: 8);
+      final ProviderContainer container = world.container;
+      expect(container.read(conflictAdaptersProvider).forType(kPwfCompleteCommand), isNull, reason: 'what a person did on a task is not a record to compare field by field');
+      final CommandQueue queue = (await tester.runAsync(() => container.read(commandQueueProvider.future)))!;
+      server.field.offline = true;
+      final PwfTaskDetail task = parsePwfTaskDetail(taskDetailJson(TaskState()))!;
+      await tester.runAsync(() => container.read(pwfTaskServiceProvider).start(task, intention: 'start-0000000000000001', note: 'Bắt đầu theo kế hoạch'));
+      server.changedByAnotherPerson();
+      server.field.offline = false;
+      await tester.runAsync(queue.flush);
+      await settleReal(tester, rounds: 12);
+      expect(queue.commands().single.state, CommandState.conflict);
+      expect(find.text('Xem và chọn'), findsOneWidget);
+      await tester.tap(find.text('Xem và chọn'));
+      await settleReal(tester, rounds: 12);
+      expect(currentLocation(container), _location, reason: 'the person sees the task as it is now and sends the work again there');
     });
 
     testWidgets('the person can drop what they did instead: the task on the server is left as it is', (WidgetTester tester) async {

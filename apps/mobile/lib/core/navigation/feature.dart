@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../l10n/string_table.dart';
 import '../offline/drafts/conflict_adapter.dart' show ConflictAdapter;
+import '../offline/queue/queued_command.dart' show QueuedCommand;
 import 'deep_link_guard.dart' show LocationRule;
 
 /// What a screen builder receives: the parameters of the location it was opened with.
@@ -49,6 +50,17 @@ final class ScreenSpec {
   final String pathSuffix;
 }
 
+/// A screen of the application and the rest of its path, as a feature names where a command is settled.
+final class ScreenTarget {
+  const ScreenTarget(this.screenId, {this.pathSuffix = ''});
+
+  final String screenId;
+  final String pathSuffix;
+}
+
+/// Where a command that came back in conflict is settled, when it is settled on the screen of the record rather than field by field.
+typedef ConflictScreenOf = ScreenTarget? Function(QueuedCommand command);
+
 /// One feature of the application: the screens of a story together with their strings. A feature is the unit a story
 /// adds without editing a shared file: it lives in `lib/features/<name>/<name>_feature.dart` and is declared there as
 /// the top-level `feature` that `tool/generate_registry.dart` lists.
@@ -59,6 +71,7 @@ final class MobileFeature {
     this.strings,
     this.locationRules = const <LocationRule>[],
     this.conflictAdapters = const <String, ConflictAdapter>{},
+    this.conflictScreens = const <String, ConflictScreenOf>{},
   });
 
   /// The directory name of the feature.
@@ -74,4 +87,8 @@ final class MobileFeature {
   /// How a command of this feature that came back in conflict finds the server's copy of its record (MOB-42), by command type. The
   /// queue and the conflict screen know nothing about the shape of a diary or a measurement; the feature that queues the command does.
   final Map<String, ConflictAdapter> conflictAdapters;
+
+  /// For a command that is not a record to compare field by field (what the person did on a task: start it, tick an item, complete it), the screen where it is settled by
+  /// command type. The queue sends the person there instead of to the comparison of MOB-42, which would offer the arguments of the command as if they were fields of the record.
+  final Map<String, ConflictScreenOf> conflictScreens;
 }

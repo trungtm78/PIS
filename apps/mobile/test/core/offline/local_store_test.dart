@@ -79,6 +79,26 @@ void main() {
       await expectLater(test.open(), throwsStateError);
     });
 
+    test('a database of the first schema gets the column of the record a command is about, and the commands of the work on a task name their task from their payload', () async {
+      final TestStorage test = TestStorage.create();
+      final LocalStore store = await test.open();
+      store.commands.insert(command('pwf-1'));
+      store.close();
+      final String key = test.keys.keys.values.single;
+      // Take the database back to the first schema: no column, no index, version 1; one command of the work on a task and one of a report.
+      final Database old = sqlite3.open(store.path)..execute("PRAGMA key = '$key'");
+      old.execute('DROP INDEX queued_command_subject_idx');
+      old.execute('ALTER TABLE queued_command DROP COLUMN subject_ref');
+      old.execute("UPDATE queued_command SET command_type = 'pwf.task.start', payload = '{\"task_id\":\"task-77\"}' WHERE id = 'pwf-1'");
+      old.execute("INSERT INTO queued_command (id, tenant_id, user_id, command_type, payload, payload_bytes, base_server_version, idempotency_key, state, created_at, updated_at) VALUES ('rep-1', 'tenant-a', 'user-1', 'report.submit', '{\"task_id\":\"not-a-task\"}', 2, 1, 'idem-report-0000000001', 'queued', 2, 2)");
+      old.execute('PRAGMA user_version = 1');
+      old.close();
+      final LocalStore migrated = await test.open();
+      expect(migrated.commands.byId('pwf-1')!.subjectRef, 'task-77');
+      expect(migrated.commands.byId('rep-1')!.subjectRef, isNull, reason: 'only the work on a task is backfilled');
+      expect(migrated.commands.byId('pwf-1')!.copyWith().subjectRef, 'task-77');
+    });
+
     test('purge removes the file, its journals and its key, so nothing of the tenant can be read again', () async {
       final TestStorage test = TestStorage.create();
       final LocalStore store = await test.open();

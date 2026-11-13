@@ -107,6 +107,18 @@ final Provider<ConflictAdapters> conflictAdaptersProvider = Provider<ConflictAda
   return adapters;
 });
 
+/// Where each kind of command in conflict is settled when it is not on the comparison of MOB-42, by command type, as the features declare it (`MobileFeature.conflictScreens`).
+final Provider<Map<String, ConflictScreenOf>> conflictScreensProvider = Provider<Map<String, ConflictScreenOf>>((Ref ref) {
+  final Map<String, ConflictScreenOf> screens = <String, ConflictScreenOf>{};
+  for (final MobileFeature feature in ref.watch(featuresProvider)) {
+    for (final MapEntry<String, ConflictScreenOf> entry in feature.conflictScreens.entries) {
+      if (screens.containsKey(entry.key) || feature.conflictAdapters.containsKey(entry.key)) throw StateError('the conflict of ${entry.key} is settled in two places');
+      screens[entry.key] = entry.value;
+    }
+  }
+  return screens;
+});
+
 /// How the runners probe a connection that was lost (see [OfflineProbePolicy]). No probe until the application root installs one
 /// (`productionOverrides` installs [OfflineProbePolicy.standard]), so a screen test that goes offline leaves no timer behind.
 final Provider<OfflineProbePolicy> offlineProbePolicyProvider = Provider<OfflineProbePolicy>((Ref ref) => OfflineProbePolicy.none);

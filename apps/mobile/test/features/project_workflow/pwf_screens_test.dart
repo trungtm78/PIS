@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -11,7 +12,10 @@ import 'package:machvon_mobile/core/navigation/mobile_routes.generated.dart';
 import 'package:machvon_mobile/core/navigation/route_table.dart';
 import 'package:machvon_mobile/core/offline/offline_providers.dart';
 import 'package:machvon_mobile/core/session/session.dart';
+import 'package:machvon_mobile/core/theme/colors.dart' show DeadlineBand;
+import 'package:machvon_mobile/features/account/deadline_thresholds.dart';
 import 'package:machvon_mobile/features/project_workflow/project_workflow_feature.dart' as pwf;
+import 'package:machvon_mobile/features/project_workflow/pwf_models.dart';
 import 'package:machvon_mobile/features/read_support/read_cache.dart';
 
 import '../../support/harness.dart';
@@ -210,6 +214,35 @@ void main() {
       expect(reads, 2);
     });
 
+    testWidgets('a page asked for before the list was read again answers for a cursor that no longer exists: its list is not added to the new one, and its failure is not shown', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      final Completer<void> late = Completer<void>();
+      bool refreshed = false;
+      server.answer('GET', '/me/project-tasks', (HttpCall call) async {
+        if (call.url.queryParameters['cursor'] != null) {
+          await late.future;
+          return FakeTransport.json(200, myTasksJson(items: <Map<String, Object?>>[myTask('7f3a0000-0000-4000-8000-000000000042', 'Việc trang cũ')], total: 2));
+        }
+        if (refreshed) return FakeTransport.json(200, myTasksJson(items: <Map<String, Object?>>[myTask('7f3a0000-0000-4000-8000-000000000043', 'Việc đọc lại')], total: 1));
+        return FakeTransport.json(200, myTasksJson(items: <Map<String, Object?>>[myTask('7f3a0000-0000-4000-8000-000000000041', 'Việc trang một')], next: 'c2', total: 2));
+      });
+      await _open(tester, server, 'MOB-80');
+      await tester.tap(find.text('Tải thêm'));
+      await tester.pump();
+      // While the second page is on its way the person reads the list again; it has one page and no cursor.
+      refreshed = true;
+      await tester.tap(find.byTooltip('Làm mới'));
+      await tester.pumpAndSettle();
+      expect(find.text('Việc đọc lại'), findsOneWidget);
+      expect(find.text('Hiển thị 1 trên 1 việc'), findsOneWidget);
+      late.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('Việc trang cũ'), findsNothing, reason: 'the answer of the old cursor is ignored');
+      expect(find.text('Hiển thị 1 trên 1 việc'), findsOneWidget);
+      expect(find.text('Tải thêm'), findsNothing);
+    });
+
     testWidgets('the reminder settings open from the note', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ProviderContainer container = await _open(tester, mine()..on('GET', '/me/deadline-preference', (_) => preferenceJson()), 'MOB-80');
@@ -344,6 +377,47 @@ void main() {
       expect(find.text('Vàng: còn từ 2 đến 3 ngày'), findsOneWidget);
       expect(find.text('Xanh: còn từ 4 đến 7 ngày'), findsOneWidget);
       expect(find.textContaining('Cảnh báo chính thức, leo thang và điểm KPI vẫn theo quy định của đơn vị'), findsOneWidget);
+    });
+
+    testWidgets('the preview of the account follows the thresholds in force: the personal ones from the server, read again after a save, with the band boundaries inclusive', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      Map<String, Object?> stored = preferenceJson(green: 7, yellow: 3, red: 1, reminders: <int>[5, 2]);
+      final ScriptedServer server = ScriptedServer()
+        ..on('GET', '/me/deadline-preference', (_) => stored)
+        ..on('PUT', '/me/deadline-preference', (HttpCall call) {
+          stored = preferenceJson(green: 8, yellow: 4, red: 2, reminders: <int>[5, 2], version: 3);
+          return <String, Object?>{'operation_id': 'o1', 'status': 'SAVED', 'resource_version': 3};
+        });
+      final ProviderContainer container = await _open(tester, server, 'MOB-82');
+      container.read(deadlineThresholdsProvider);
+      await tester.pumpAndSettle();
+      // Red up to 1 day left, yellow up to 3: red is the days below 2, and the days on the boundaries (1 and 3) are in the band they close.
+      final DeadlineThresholds before = container.read(deadlineThresholdsProvider);
+      expect(before, const DeadlineThresholds(lateBelow: 2, soonUpTo: 3));
+      expect(<int>[0, 1, 2, 3, 4].map((int days) => before.bandOf(days)), <DeadlineBand>[DeadlineBand.late, DeadlineBand.late, DeadlineBand.soon, DeadlineBand.soon, DeadlineBand.ok]);
+      await tester.enterText(find.widgetWithText(TextField, 'Đỏ khi còn tối đa (ngày)'), '2');
+      await tester.enterText(find.widgetWithText(TextField, 'Vàng khi còn tối đa (ngày)'), '4');
+      await tester.enterText(find.widgetWithText(TextField, 'Xanh khi còn tối đa (ngày)'), '8');
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Lưu cài đặt'));
+      await tester.pumpAndSettle();
+      container.read(deadlineThresholdsProvider);
+      await tester.pumpAndSettle();
+      expect(container.read(deadlineThresholdsProvider), const DeadlineThresholds(lateBelow: 3, soonUpTo: 4), reason: 'invalidated by the save and read again');
+    });
+
+    test('the thresholds in force: the personal ones, else the official ones, else the system ones; an unordered set is not shown', () {
+      PwfPreference preference({int? yellow, int? red, PwfThresholds? official}) => PwfPreference(reminderDays: const <int>[], version: 1, yellow: yellow, red: red, official: official);
+      const PwfThresholds official = PwfThresholds(yellow: 2, red: 0, green: 5);
+      expect(DeadlineThresholds.effective(preference(yellow: 3, red: 1, official: official)), const DeadlineThresholds(lateBelow: 2, soonUpTo: 3));
+      expect(DeadlineThresholds.effective(preference(official: official)), const DeadlineThresholds(lateBelow: 1, soonUpTo: 2), reason: 'none of their own: the official rule');
+      expect(DeadlineThresholds.effective(preference(red: 1, official: official)), const DeadlineThresholds(lateBelow: 2, soonUpTo: 2), reason: 'red from the person, yellow from the rule');
+      expect(DeadlineThresholds.effective(preference(red: 2, official: official)), DeadlineThresholds.system, reason: 'red as late as the yellow of the rule: not ordered');
+      expect(DeadlineThresholds.effective(preference()), DeadlineThresholds.system);
+      expect(DeadlineThresholds.effective(preference(red: -1, yellow: 3)), const DeadlineThresholds(lateBelow: 0, soonUpTo: 3), reason: 'red only once the day has passed');
+      expect(DeadlineThresholds.effective(preference(red: 4, yellow: 3)), DeadlineThresholds.system);
+      final DeadlineThresholds own = DeadlineThresholds.effective(preference(yellow: 3, red: 0));
+      expect(<int>[-1, 0, 1, 3, 4].map((int days) => own.bandOf(days)), <DeadlineBand>[DeadlineBand.late, DeadlineBand.late, DeadlineBand.soon, DeadlineBand.soon, DeadlineBand.ok], reason: 'a band includes the day it is named for');
     });
 
     testWidgets('a level later than the official rule is refused on the screen before anything is sent', (WidgetTester tester) async {
