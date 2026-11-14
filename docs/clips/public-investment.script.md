@@ -70,6 +70,7 @@ Bộ dữ liệu: `public` (docs/clip-data.md)
 | `clip-public-committee` | RUN_VERIFIED |
 | `clip-public-extras` | RUN_VERIFIED |
 | `clip-public-contractor-portal` | WRITTEN_NOT_RUN |
+| `clip-public-phone-work` | WRITTEN_NOT_RUN |
 
 **Nhóm dữ liệu cần viết thêm (chưa có trong bộ dữ liệu)**
 
