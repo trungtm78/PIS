@@ -190,7 +190,7 @@ class _Summary extends StatelessWidget {
           child: Semantics(container: true, header: true, child: Text(context.t('mob.apv.sum.body.title'), style: text.captionStrong)),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, 0, MachvonV2Space.s16, MachvonV2Space.s12),
+          padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
           child: Text(summary.body ?? context.t('mob.apv.sum.body.none'), style: text.body),
         ),
       ],
