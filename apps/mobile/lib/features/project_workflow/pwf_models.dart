@@ -374,7 +374,8 @@ PwfWorkflowView? parsePwfWorkflowView(Object? raw) {
 // ---- My tasks (MOB-80) -----------------------------------------------------------------------------------------------------------
 
 /// One task of the person, with the official band and the band of their own settings (R40): the personal band is shown only on the screen of
-/// their own tasks, with its label and the real date.
+/// their own tasks, with its label and the real date. A person who set no level of their own has none: the contract answers `personal_band: null`
+/// for them (and for a task their level cannot be applied to), and the task then follows the official level.
 final class PwfMyTask {
   const PwfMyTask({
     required this.taskId,
@@ -384,9 +385,9 @@ final class PwfMyTask {
     required this.projectCode,
     required this.status,
     required this.official,
-    required this.personal,
     required this.critical,
     required this.version,
+    this.personal,
     this.dueDate,
     this.forecastFinish,
   });
@@ -402,12 +403,17 @@ final class PwfMyTask {
   /// The day the progress now points to, when it is another day than the deadline.
   final String? forecastFinish;
   final PwfBand official;
-  final PwfBand personal;
+
+  /// The band by the person's own level; null when they have none for this task.
+  final PwfBand? personal;
   final bool critical;
   final int version;
 
+  /// The band the person's own view colours the task with: their own where they have one, the official one otherwise.
+  PwfBand get own => personal ?? official;
+
   /// The personal setting gives another colour than the official rule does.
-  bool get personalDiffers => personal.kind != official.kind;
+  bool get personalDiffers => personal != null && personal!.kind != official.kind;
 }
 
 final class PwfMyTasks {
@@ -432,9 +438,12 @@ PwfMyTasks? parsePwfMyTasks(Object? raw) {
     final String? projectId = filled(item?['project_id']);
     final PwfTaskStatus? status = PwfTaskStatus.parse(item?['status']);
     final PwfBand? official = parsePwfBand(item?['official_band']);
-    final PwfBand? personal = parsePwfBand(item?['personal_band']);
+    // The member is required and may be null (PwfMyTaskPage): a person with no level of their own. A member that is there and is no band is a mismatch.
+    final Object? ownBand = item?['personal_band'];
+    final PwfBand? personal = ownBand == null ? null : parsePwfBand(ownBand);
     final int? version = whole(item?['version']);
-    if (item == null || id == null || code == null || name == null || projectId == null || status == null || official == null || personal == null || version == null) return null;
+    if (item == null || id == null || code == null || name == null || projectId == null || status == null || official == null || version == null) return null;
+    if (!item.containsKey('personal_band') || (ownBand != null && personal == null)) return null;
     items.add(
       PwfMyTask(
         taskId: id,

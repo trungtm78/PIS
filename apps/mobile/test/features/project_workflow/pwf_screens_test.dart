@@ -201,6 +201,20 @@ void main() {
       expect(find.text('Không có việc nào ở mục này.'), findsNothing, reason: 'one task of the list is done');
     });
 
+    testWidgets('a person with no level of their own (the real answer of the enterprise stack, personal_band null) sees their tasks, coloured by the official level and said to be so', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      await _open(tester, mine(body: jsonDecode(kEnterpriseMyTasksAnswer) as Map<String, Object?>), 'MOB-80');
+      expect(find.text('Chưa thể tải dữ liệu'), findsNothing);
+      expect(find.textContaining('CONTRACT_MISMATCH'), findsNothing);
+      expect(find.text('Xác định nhu cầu, mục tiêu và sự cần thiết đầu tư'), findsOneWidget);
+      expect(find.text('Thẩm định chủ trương đầu tư và nguồn vốn'), findsOneWidget);
+      expect(find.text('hạn 10/11'), findsOneWidget);
+      // Nothing claims a personal setting the person does not have; each open task says whose level colours it.
+      expect(find.textContaining('Theo cài đặt của bạn', findRichText: true), findsNothing);
+      expect(find.text('Theo mức chính thức'), findsNWidgets(2));
+      expect(find.text('Trễ hạn'), findsWidgets);
+    });
+
     testWidgets('on the official view the same list is grouped by the official colour and says nothing of a personal setting', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await _open(tester, mine(), 'MOB-80');

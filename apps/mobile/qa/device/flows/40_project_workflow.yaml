@@ -1,6 +1,6 @@
-# STATUS: NOT RUN to the end. UAT 2026-11-13 (emulator "guide", public edition) ran the first version twice: it stopped at "Việc của tôi theo hạn"
-# after the tab Cá nhân opened, because that entry sits in the group "Công cụ" below the first screen of the tab and a tap does not scroll
-# (uat/run/uat-2026-11-13-merge/public/mobile/diag-after-40.png). This version scrolls to it; it has not been run since.
+# STATUS: see the end of this header for the last run of this version (lane fix9, 2026-11-14, emulator "guide", debug builds of both editions).
+# History: UAT 2026-11-13 (public edition) ran the first version twice: it stopped at "Việc của tôi theo hạn" after the tab Cá nhân opened, because that entry
+# sat below the first screen of the tab and a tap does not scroll (uat/run/uat-2026-11-13-merge/public/mobile/diag-after-40.png).
 # Written against the screens MOB-78 to MOB-82 (lane pwfmob).
 # Supports: AC-ST-MOB-040-3 (the work of the person offline), TC-UAT-PWF-15 (my tasks by deadline, the task, my score) and TC-UAT-PWF-OFF-01 (a command sent again after the task changed).
 # UAT 2026-11-14 (both editions): NOT RUN to the end, it stopped at '.*Theo cài đặt của bạn.*': the list was empty, because the stack had no project workflow and so no task of the person.
@@ -10,7 +10,14 @@
 # with a project that has a workflow and a task assigned to the user that is IN PROGRESS (the bar of a task not started offers "Bắt đầu", not "Hoàn thành việc"):
 #   node scripts/clip-seed.mjs apply --dataset public|enterprise --api <url> --stack-info <file>      (the whole dataset; or --groups clip-public-phone-work / clip-ent-phone-work on a seeded stack)
 # The flow completes one task in each run; the seed keeps two in progress and starts more when it is applied again. On a stack without the clip seed, start the workflow and the task on the web first.
-# The offline half needs the airplane mode, which Maestro sets with the commands below.
+# The seed also gives the person reminder levels of their own: without them the rows say "Theo mức chính thức", not "Theo cài đặt của bạn", and the first assertion on the list is false.
+# UAT 2026-11-15 run 3 found two things this version answers:
+#   - public edition: the first task has a mandatory checklist item that is open ("Mục danh mục kiểm chưa xong: ..."), so "Hoàn thành việc" is off ("Còn 1 điều kiện chưa đủ để hoàn thành").
+#     The flow now does what the person does: while the task names an open checklist item, it opens the mandatory item, marks it done (online) and waits until the server has it; then it completes.
+#     A task whose blocker is a missing document or form is not handled here (the flow then stops at "Hoàn thành việc", which stays off: that is a true stop, give the task its evidence first).
+#   - enterprise edition: the list answered CONTRACT_MISMATCH (the phone refused `personal_band: null`); fixed in the application (pwf_models.dart), nothing to do with this flow.
+# The offline half needs the airplane mode, which Maestro sets with the commands below. The application notices the lost radio within 7 s (it reads the interfaces every 2 s); a command given
+# before that is sent at once on an emulator (adb reverse keeps the loopback up in airplane mode), so the flow waits for the offline banner before it completes the task.
 # Matching: Maestro matches a regex against the whole text of a node, and a row of a list is one node whose text is its spoken label
 # ("<task>, <project>, <code>, <deadline words>, hạn dd/mm/yyyy, Theo cài đặt của bạn"), so the row texts are matched with ".*" around them.
 # Run:   maestro test --format junit --output results/<device>/40_workflow.xml flows/40_project_workflow.yaml
@@ -42,7 +49,34 @@ appId: vn.machvon.app
     visible: 'Chi tiết việc'
     timeout: 20000
 - takeScreenshot: 40_task
+# What is still needed before the task can be completed, done in the order a person does it, online: each mandatory checklist item that is open is opened and marked done.
+# The blocker line at the head of the tab "Cần làm" tells that one is left; the row of the item is one node whose spoken label is "<item>, Bắt buộc, Chưa xong".
+- repeat:
+    times: 6
+    while:
+      visible: 'Mục danh mục kiểm chưa xong: .*'
+    commands:
+      - scrollUntilVisible:
+          element: '.*, Bắt buộc, Chưa xong'
+          centerElement: true
+      - tapOn: '.*, Bắt buộc, Chưa xong'
+      - tapOn: 'Đánh dấu mục này đã xong'
+      # The note sheet "Mục đã xong": its confirm button.
+      - tapOn: 'Đánh dấu đã xong'
+      # The command is sent and the task is read again: the item is no longer open (the list shows it "Xong").
+      - extendedWaitUntil:
+          notVisible: '.*(đang gửi|Chờ gửi).*'
+          timeout: 30000
+      - scrollUntilVisible:
+          element: 'Cần làm.*'
+          direction: UP
+- takeScreenshot: 40_task_ready
+# No condition is left: the bar offers "Hoàn thành việc".
+- assertNotVisible: 'Còn [0-9]+ điều kiện chưa đủ để hoàn thành.'
 - setAirplaneMode: enabled
+- extendedWaitUntil:
+    visible: 'Bạn đang ngoại tuyến.*'
+    timeout: 15000
 - tapOn: 'Hoàn thành việc'
 # The sheet: its title (a heading) and its confirm button carry the same words; the button is the second (a tap waits until it is there).
 - tapOn:
@@ -51,6 +85,10 @@ appId: vn.machvon.app
 - assertVisible: '.*sẽ gửi khi có mạng.*'
 - takeScreenshot: 40_task_queued
 - setAirplaneMode: disabled
+# The queue sends the command once the radio is back: the line of what waits goes away and the task says what the server answered.
+- extendedWaitUntil:
+    notVisible: '.*sẽ gửi khi có mạng.*'
+    timeout: 60000
 - extendedWaitUntil:
     visible: '.*(Chờ duyệt hoàn thành|Đã xong|Công việc đã thay đổi).*'
     timeout: 60000

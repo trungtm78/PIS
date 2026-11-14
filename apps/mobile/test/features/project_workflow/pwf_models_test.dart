@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:machvon_mobile/core/api/answer.dart';
 import 'package:machvon_mobile/core/offline/queue/queued_command.dart';
 import 'package:machvon_mobile/features/project_workflow/pwf_commands.dart';
 import 'package:machvon_mobile/features/project_workflow/pwf_models.dart';
@@ -90,7 +93,8 @@ void main() {
       final PwfMyTasks tasks = parsePwfMyTasks(myTasksJson())!;
       expect(tasks.items, hasLength(5));
       expect(tasks.items.first.official.kind, PwfBandKind.yellow);
-      expect(tasks.items.first.personal.kind, PwfBandKind.red);
+      expect(tasks.items.first.personal?.kind, PwfBandKind.red);
+      expect(tasks.items.first.own.kind, PwfBandKind.red);
       expect(tasks.items.first.personalDiffers, isTrue);
       expect(tasks.items[1].personalDiffers, isFalse);
     });
@@ -121,6 +125,35 @@ void main() {
       final Map<String, Object?> json = myTasksJson();
       ((json['items']! as List<Object?>).first! as Map<String, Object?>).remove('personal_band');
       expect(parsePwfMyTasks(json), isNull);
+      // A personal band that is there and is no band is a mismatch as well; only null means "none".
+      final Map<String, Object?> wrong = myTasksJson();
+      ((wrong['items']! as List<Object?>).first! as Map<String, Object?>)['personal_band'] = <String, Object?>{'band': 'PURPLE', 'unit': 'WORKING'};
+      expect(parsePwfMyTasks(wrong), isNull);
+      final Map<String, Object?> noOfficial = myTasksJson();
+      ((noOfficial['items']! as List<Object?>).first! as Map<String, Object?>)['official_band'] = null;
+      expect(parsePwfMyTasks(noOfficial), isNull);
+    });
+
+    test('the real answer of the enterprise stack is read: a person with no level of their own has no personal band, and each task follows the official one', () {
+      final Object? json = jsonDecode(kEnterpriseMyTasksAnswer);
+      // The decoder generated from the contract accepts the answer (the contract says the member may be null) ...
+      expect(() => decodeAnswer('getMyTasks', json), returnsNormally);
+      // ... and so does the reader of the screen.
+      final PwfMyTasks? tasks = parsePwfMyTasks(json);
+      expect(tasks, isNotNull);
+      expect(tasks!.items, hasLength(2));
+      expect(tasks.total, 2);
+      expect(tasks.asOf, '2026-11-14T10:38:54.753Z');
+      final PwfMyTask late = tasks.items.first;
+      expect(late.code, 'PREP_NEEDS');
+      expect(late.personal, isNull);
+      expect(late.official.kind, PwfBandKind.red);
+      expect(late.own.kind, PwfBandKind.red, reason: 'the view of the person is coloured by the official band where they have none of their own');
+      expect(late.personalDiffers, isFalse);
+      expect(tasks.items[1].own.reason, 'FAR');
+      // The list groups it under "late" in either colour mode.
+      expect(pwfGroupOf(late, PwfColourMode.personal), PwfGroup.late);
+      expect(pwfGroupOf(late, PwfColourMode.official), PwfGroup.late);
     });
   });
 

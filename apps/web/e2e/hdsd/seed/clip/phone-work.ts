@@ -9,6 +9,14 @@ import { ensureWorkCalendar } from '../field-assurance/shared.ts';
  * Real commands of the product only, the way a person does it on the web: the kind of workflow the rule suggests is read for a project that has none (`suggestProjectWorkflow`), the calendars the schedule
  * needs are published, the workflow is started (`startProjectWorkflow`), the first tasks that can start are given to the person (`assignProjectTask`, RESPONSIBLE) and started by them
  * (`startProjectTask`). Idempotent: nothing is done while the person holds enough tasks in progress; the flow completes one in each run, so the group keeps two.
+ *
+ * The papers a task of the person still asks for are handed in as well (`attachProjectTaskEvidence`: its legal documents, its forms, the evidence of a checklist item), the way the person does at the
+ * desk, and the checklist itself is left alone: on the phone the person ticks the mandatory items that are open and then completes the task, which is what the flow does. Before this a task could be
+ * first in the list of the phone with a legal document missing, and the flow had no way on (lane fix9, 2026-11-14).
+ *
+ * The person also gets reminder levels of their own (`putMyDeadlinePreference`, earlier than the official 5/2/0), so that the list of the phone is coloured by a personal setting and each row says
+ * "Theo cài đặt của bạn" (MOB-80, the field "Màu cá nhân kèm nhãn"), which the flow reads. Without them the API answers `personal_band: null` and the rows say they follow the official level: that is
+ * what the enterprise dataset had (only the public one ran the group `clip-public-pwf-review`, which sets the same levels), and the flow could not read a personal colour there (UAT 2026-11-15 run 3).
  */
 
 const PERSON = 'owner';
@@ -30,6 +38,28 @@ interface Suggestion {
   facts: Record<string, string>;
   preview: Preview | null;
   can_start: boolean;
+}
+
+interface TaskNeeds {
+  task_code: string;
+  legal_doc_types: Array<{ code: string; satisfied: boolean }>;
+  form_templates: Array<{ code: string; satisfied: boolean }>;
+  checklist: Array<{ item_code: string; done: boolean; evidence_kinds: string[] }>;
+  completion: { blockers: Array<{ code: string; subject: string }> };
+}
+
+/** Hands in what the task still asks for besides the ticks of its checklist; what it already has is not given twice (the blockers of the task say what is missing). */
+async function handInPapers(ctx: SeedContext, taskId: string): Promise<void> {
+  const task = await ctx.get<TaskNeeds>(PERSON, `/project-tasks/${taskId}`);
+  const give = (body: Obj): Promise<unknown> => ctx.attempt(PERSON, 'POST', `/project-tasks/${taskId}/evidence`, body);
+  for (const blocker of task.completion.blockers) {
+    if (blocker.code === 'LEGAL_DOC_MISSING') await give({ evidence_kind: 'DECISION_DOCUMENT', legal_doc_type: blocker.subject, external_ref: `Văn bản ${blocker.subject} của việc ${task.task_code}, bản gốc lưu tại văn thư`, note: 'Văn bản đã ký' });
+    else if (blocker.code === 'FORM_MISSING') await give({ evidence_kind: 'DOCUMENT', form_template_code: blocker.subject, external_ref: `Văn bản lập theo biểu mẫu ${blocker.subject}`, note: 'Lập từ biểu mẫu của kho văn bản' });
+    else if (blocker.code === 'EVIDENCE_MISSING') {
+      const kind = task.checklist.find((item) => item.item_code === blocker.subject)?.evidence_kinds[0];
+      if (kind !== undefined) await give({ evidence_kind: kind, item_code: blocker.subject, external_ref: `Hồ sơ kèm mục ${blocker.subject}, lưu tại Ban quản lý dự án` });
+    }
+  }
 }
 
 const inProgress = async (ctx: SeedContext): Promise<number> => (await ctx.get<{ items: Obj[] }>(PERSON, '/me/project-tasks', { status: 'IN_PROGRESS', limit: 50 })).items.length;
@@ -96,6 +126,12 @@ async function startTasks(ctx: SeedContext, projectId: string, wanted: number): 
   return started;
 }
 
+/** Every task the person has in progress, whichever run started it, has its papers in. */
+async function papersOfMyTasks(ctx: SeedContext): Promise<void> {
+  const mine = (await ctx.get<{ items: Array<{ task_id: string }> }>(PERSON, '/me/project-tasks', { status: 'IN_PROGRESS', limit: 50 })).items;
+  for (const task of mine) await handInPapers(ctx, task.task_id);
+}
+
 async function workInProgress(ctx: SeedContext): Promise<void> {
   let held = await inProgress(ctx);
   if (held >= WANTED_IN_PROGRESS) return;
@@ -116,6 +152,15 @@ async function workInProgress(ctx: SeedContext): Promise<void> {
   if (held === 0) ctx.warn(`no task of a project workflow is in progress for ${PERSON}: the phone flow 40 has nothing to open`);
 }
 
+/** The reminder levels of the person of the phone, the same as the group `clip-public-pwf-review` gives them: set once, never over a level the person chose. */
+async function ownReminderLevels(ctx: SeedContext): Promise<void> {
+  const now = await ctx.get<Obj>(PERSON, '/me/deadline-preference');
+  if (now.green_days !== null && now.green_days !== undefined) return;
+  await ctx.attempt(PERSON, 'PUT', '/me/deadline-preference', { green_days: 8, yellow_days: 4, red_days: 1, reminder_days: [5, 3, 1, 0] }, { version: Number(now.version ?? 0) });
+}
+
 export async function seedClipPhoneWork(ctx: SeedContext): Promise<void> {
+  await ctx.step('PWF', 'reminder levels of their own for the person of the phone (MOB-80, MOB-82)', () => ownReminderLevels(ctx));
   await ctx.step('PWF', `tasks in progress for the person of the phone (${WANTED_IN_PROGRESS}, MOB-80, MOB-81)`, () => workInProgress(ctx));
+  await ctx.step('PWF', 'the papers the tasks of the person still ask for are handed in (the checklist is left for the phone)', () => papersOfMyTasks(ctx));
 }

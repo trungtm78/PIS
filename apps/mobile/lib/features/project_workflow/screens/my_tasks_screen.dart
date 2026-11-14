@@ -55,7 +55,7 @@ class PwfMyTasksScreen extends StatelessWidget {
 /// The group of a task in the band the list is coloured by.
 PwfGroup pwfGroupOf(PwfMyTask task, PwfColourMode mode) {
   if (task.status == PwfTaskStatus.done || task.status == PwfTaskStatus.cancelled) return PwfGroup.done;
-  final PwfBand band = mode == PwfColourMode.personal ? task.personal : task.official;
+  final PwfBand band = mode == PwfColourMode.personal ? task.own : task.official;
   return switch (band.kind) {
     // Red is not the same as late (R49): a task is under "late" only when its deadline has passed; a red one that is not overdue (due today, or inside the red line of the ladder) is "due".
     PwfBandKind.red => band.overdue ? PwfGroup.late : PwfGroup.due,
@@ -237,11 +237,14 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
       };
 
   Widget _row(BuildContext context, PwfMyTask task, bool personal, bool divider) {
-    final PwfBand band = personal ? task.personal : task.official;
+    final PwfBand band = personal ? task.own : task.official;
     // A personal colour is always said to be one, and always comes with the real day (R40); where it differs from the official one, the official one is said too.
+    // A task with no personal colour (the person set no level of their own) is not said to have one: it says it follows the official level.
     final String? note = !personal || task.status.isFinal
         ? null
-        : (task.personalDiffers
+        : task.personal == null
+            ? context.t('mob.pwf.mine.row.follows')
+            : (task.personalDiffers
             ? context.t('mob.pwf6.mine.note', <String, Object>{'personal': context.t('mob.pwf.mine.row.personal'), 'official': context.t('mob.pwf.mine.row.official', <String, Object>{'words': pwfDeadlineWords(context, task.official)})})
             : context.t('mob.pwf.mine.row.personal'));
     // The deadline is a line of its own under the name, across the width of the row, and the note of a personal colour a line under it: in a narrow end column they
