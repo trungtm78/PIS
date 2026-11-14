@@ -5,7 +5,7 @@ import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
 import { SectionCard, Tabs, useTabParam } from '../../../ui';
-import { PERMISSIONS, holds, startLink } from '../model';
+import { PERMISSIONS, holds, stampText, startLink } from '../model';
 import { StepsPanel } from '../process/StepsPanel';
 import type { WorkflowDetail } from '../model';
 import { Board } from './Board';
@@ -83,7 +83,7 @@ function Loaded({ detail, projectId, readAt, refetchFailed, frozen, onReload }: 
       ) : null}
       {stale ? (
         <p className="callout warning pwf-notice" role="status" data-testid="stale">
-          {t('pwf.flow.stale.text', { time: detail.as_of.slice(11, 16) })}{' '}
+          {t('shots3.flow.stale.text', { time: stampText(detail.as_of) })}{' '}
           <button type="button" className="ui-button ui-button--outline ui-button--small" onClick={onReload}>
             {t('ui.common.retry')}
           </button>

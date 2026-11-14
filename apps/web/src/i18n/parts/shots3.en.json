@@ -1,3 +1,4 @@
 {
-  "shots3.period.col.unit": "Unit"
+  "shots3.period.col.unit": "Unit",
+  "shots3.flow.stale.text": "The figures may be out of date: computed at {time}. Read them again."
 }
