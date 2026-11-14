@@ -4,7 +4,7 @@ import { useApiClient } from '../../../api/ApiClientContext';
 import { useBandPreview } from '../bands/hooks';
 import { usePwfCommand, usePwfKey } from '../hooks';
 import { MY_TASKS_PAGE, PREFERENCE_UNIT, bodyOf, formOf, isDirty, ladderOf, problemsOf, setsLevel, viewOf, withLevel } from './model';
-import type { Level, MyTaskPage, PreferenceBody, PreferenceForm, PreferenceView } from './model';
+import type { Level, MyTaskPage, MyTasksView, PreferenceBody, PreferenceForm, PreferenceView } from './model';
 
 /** What the person set for their own reminders, with the official ladder in force beside it. */
 export function usePreference(enabled: boolean) {
@@ -31,13 +31,14 @@ export function useSavePreference() {
 }
 
 /** The tasks of the person by deadline, a page after another: the official colour, and their own colour when it differs, with the real due date. */
-export function useMyTasks(enabled: boolean) {
+export function useMyTasks(enabled: boolean, view: MyTasksView = 'open') {
   const client = useApiClient();
   const key = usePwfKey();
   return useInfiniteQuery<MyTaskPage, Error, { pages: MyTaskPage[] }, readonly unknown[], string | undefined>({
-    queryKey: [...key, 'my-tasks'],
+    queryKey: [...key, 'my-tasks', view],
     initialPageParam: undefined,
-    queryFn: ({ pageParam }) => client.read('getMyTasks', { query: { limit: MY_TASKS_PAGE, ...(pageParam === undefined ? {} : { cursor: pageParam }) } }),
+    // R51: the list of what the person finished lately is the same read asked for DONE; the open list sends no status, as before.
+    queryFn: ({ pageParam }) => client.read('getMyTasks', { query: { limit: MY_TASKS_PAGE, ...(view === 'done' ? { status: 'DONE' } : {}), ...(pageParam === undefined ? {} : { cursor: pageParam }) } }),
     getNextPageParam: (page) => page.next_cursor ?? undefined,
     enabled: enabled && key[1] !== undefined,
     placeholderData: keepPreviousData,

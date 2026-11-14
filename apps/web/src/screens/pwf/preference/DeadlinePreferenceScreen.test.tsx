@@ -362,6 +362,32 @@ describe('PWF-15: my coming tasks (R40)', () => {
     fireEvent.click(screen.getByRole('button', { name: text('pwf.pref.tasks.more.action') }));
     await waitFor(() => expect(screen.getByTestId('tasks-count').textContent).toBe('Đang hiện 2 trên 2'));
     expect(h.read.mock.calls.filter((call) => call[0] === 'getMyTasks').map((call) => (call[1] as { query: Record<string, unknown> }).query)).toEqual([{ limit: 20 }, { limit: 20, cursor: 'c2' }]);
+  });
+
+  it('R51: lists what the person finished lately on request: the same read asked for DONE, with the day each was finished, on time or late, and no colour', async () => {
+    const { h } = open({
+      tasks: (input: Record<string, unknown>) => {
+        const query = input.query as { status?: string };
+        if (query.status !== 'DONE') return myTasks();
+        return myTasks(
+          [myTask(7, { status: 'DONE', due_date: '2026-11-10', finished_on: '2026-11-09', official_band: band('NONE'), personal_band: null }), myTask(8, { status: 'DONE', due_date: '2026-11-03', finished_on: '2026-11-06', official_band: band('NONE'), personal_band: null })],
+          { total: 2, done_window_days: 90 },
+        );
+      },
+    });
+    await screen.findByTestId('my-tasks');
+    expect(screen.getByTestId('my-tasks-note').textContent).toBe(text('pwf.pref.tasks.note.text'));
+    fireEvent.click(screen.getByRole('button', { name: text('fix10.mytasks.view.done') }));
+    await waitFor(() => expect(screen.getAllByTestId('finished')).toHaveLength(2));
+    expect(h.read.mock.calls.filter((call) => call[0] === 'getMyTasks').map((call) => (call[1] as { query: Record<string, unknown> }).query)).toContainEqual({ limit: 20, status: 'DONE' });
+    expect(screen.getByTestId('my-tasks-note').textContent).toBe(text('fix10.mytasks.done.note', { days: 90 }));
+    const [onTime, late] = screen.getAllByTestId('finished');
+    expect(onTime?.textContent).toContain('09/11/2026');
+    expect(onTime?.textContent).toContain(text('fix10.mytasks.done.onTime'));
+    expect(late?.getAttribute('data-late')).toBe('true');
+    expect(late?.textContent).toContain(text('fix10.mytasks.done.late'));
+    expect(screen.queryByTestId('official-band')).toBeNull();
+    expect(screen.getByRole('button', { name: text('fix10.mytasks.view.done') }).getAttribute('aria-pressed')).toBe('true');
     expect(screen.queryByRole('button', { name: text('pwf.pref.tasks.more.action') })).toBeNull();
   });
 

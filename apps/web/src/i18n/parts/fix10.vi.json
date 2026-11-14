@@ -11,5 +11,12 @@
   "fix10.score.lock.early": "Kỳ này kết thúc ngày {day}. Chốt trước khi kỳ kết thúc là chốt sớm: số liệu cắt tại hôm nay, việc còn trong hạn không được chấm.",
   "fix10.task.kpi.none": "Chưa có kết quả KPI. Kết quả được tính khi công việc hoàn thành hoặc bị hủy.",
   "fix10.task.kpi.failed": "Chưa tải được kết quả KPI của công việc.",
-  "fix10.task.kpi.loading": "Đang tải kết quả KPI…"
+  "fix10.task.kpi.loading": "Đang tải kết quả KPI…",
+  "fix10.mytasks.view.label": "Chọn danh sách việc",
+  "fix10.mytasks.view.open": "Đang mở",
+  "fix10.mytasks.view.done": "Đã xong gần đây",
+  "fix10.mytasks.done.note": "Việc bạn đã hoàn thành trong {days} ngày gần đây, mới nhất trước. Việc đã xong không còn màu hạn.",
+  "fix10.mytasks.done.column": "Hoàn thành",
+  "fix10.mytasks.done.onTime": "Đúng hạn",
+  "fix10.mytasks.done.late": "Trễ hạn"
 }

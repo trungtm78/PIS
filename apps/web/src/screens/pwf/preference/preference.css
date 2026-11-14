@@ -67,3 +67,6 @@
 .pwfp-personal__label {
   color: var(--mv-color-text-secondary);
 }
+
+/* The two lists of "my tasks" (open, finished lately): a pair of buttons above the table. */
+.pwfp-views { display: flex; flex-wrap: wrap; gap: var(--mv-space-8); margin-bottom: var(--mv-space-8); }

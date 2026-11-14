@@ -224,5 +224,12 @@ export function describeRefusal(error: unknown): PreferenceRefusal {
 /** The task has a colour of its own for the person that differs from the official one: only then is the personal colour shown (R40), under the official one. */
 export const showsPersonal = (task: Pick<MyTask, 'official_band' | 'personal_band'>): boolean => task.personal_band !== null && task.personal_band.band !== task.official_band.band;
 
+/** The two lists of "my tasks": what is open, by deadline, and what the person finished lately, newest first (R51). */
+export type MyTasksView = 'open' | 'done';
+export const MY_TASKS_VIEWS: readonly MyTasksView[] = ['open', 'done'];
+
+/** Whether a finished task was finished after its official deadline; a task with no deadline or no day of finish is not said to be late. */
+export const finishedLate = (task: Pick<MyTask, 'due_date' | 'finished_on'>): boolean => typeof task.finished_on === 'string' && task.due_date !== null && task.finished_on > task.due_date;
+
 /** How many tasks the first page asks for. */
 export const MY_TASKS_PAGE = 20;

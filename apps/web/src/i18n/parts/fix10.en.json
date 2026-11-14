@@ -11,5 +11,12 @@
   "fix10.score.lock.early": "This period ends on {day}. Locking it before it ends is an early lock: the figures are cut today and tasks still inside their deadline are not scored.",
   "fix10.task.kpi.none": "No KPI result yet. Results are computed when the task is done or cancelled.",
   "fix10.task.kpi.failed": "The KPI results of the task could not be loaded.",
-  "fix10.task.kpi.loading": "Loading the KPI results…"
+  "fix10.task.kpi.loading": "Loading the KPI results…",
+  "fix10.mytasks.view.label": "Choose the list of tasks",
+  "fix10.mytasks.view.open": "Open",
+  "fix10.mytasks.view.done": "Finished lately",
+  "fix10.mytasks.done.note": "Tasks you finished in the last {days} days, newest first. A finished task has no deadline colour.",
+  "fix10.mytasks.done.column": "Finished",
+  "fix10.mytasks.done.onTime": "On time",
+  "fix10.mytasks.done.late": "Late"
 }
