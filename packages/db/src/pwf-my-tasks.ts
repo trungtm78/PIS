@@ -90,7 +90,16 @@ export class PwfMyTaskReads {
       params,
     );
     let total = 0;
-    const kept = groups.filter((group) => filter.band === undefined || officialOf(group.kind, group.priority, group.phase_code, group.unit_path, group.d).band === filter.band);
+    // The exact count of the person's open tasks by OFFICIAL colour, whatever the colour filter and the page: what the block "tasks by deadline" of a home screen shows from one small read (limit 3 gives the three nearest and these counts).
+    const counts: Record<(typeof BANDS)[number], number> = { NONE: 0, GREEN: 0, YELLOW: 0, RED: 0, UNKNOWN: 0 };
+    let overdueCount = 0;
+    const kept: typeof groups = [];
+    for (const group of groups) {
+      const judged = officialOf(group.kind, group.priority, group.phase_code, group.unit_path, group.d);
+      counts[judged.band] += Number(group.n);
+      if (judged.overdue) overdueCount += Number(group.n);
+      if (filter.band === undefined || judged.band === filter.band) kept.push(group);
+    }
     for (const group of kept) total += Number(group.n);
     const pageParams = [...params];
     const pageBind = (value: unknown): string => {
@@ -148,6 +157,8 @@ export class PwfMyTaskReads {
       })),
       next: rows.length > page.limit && last !== undefined ? { code: last.row.sort_day, id: last.row.id } : null,
       total,
+      counts_by_band: counts,
+      overdue_count: overdueCount,
       as_of: now.toISOString(),
     };
   }

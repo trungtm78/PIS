@@ -450,6 +450,9 @@ describe('my tasks, bounded and exact', () => {
     }
     expect(total).toBe(7);
     expect(new Set(seen).size).toBe(7);
+    // The counts by official colour are exact whatever the page and the filter (the block of a home screen reads them with a page of three): days -2, -1 and 0 are red, 1 and 2 yellow, 3 and 4 green; two are overdue.
+    const small = (await as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { band: 'GREEN' }, { limit: 1 }, NOW))) as { counts_by_band: Record<string, number>; overdue_count: number; total: number };
+    expect(small).toMatchObject({ total: 2, counts_by_band: { RED: 3, YELLOW: 2, GREEN: 2, NONE: 0, UNKNOWN: 0 }, overdue_count: 2 });
     const red = (await as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { band: 'RED' }, { limit: 10 }, NOW))) as { items: Array<{ official_band: { band: string } }>; total: number };
     expect(red.total).toBe(3);
     expect(red.items.every((one) => one.official_band.band === 'RED')).toBe(true);

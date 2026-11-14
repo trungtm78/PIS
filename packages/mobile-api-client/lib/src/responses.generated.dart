@@ -59821,6 +59821,8 @@ final class PwfMyTaskPageResponse implements ResponseModel {
     required this.nextCursor,
     required this.total,
     required this.asOf,
+    this.countsByBand,
+    this.overdueCount,
     this.extra = const <String, Object?>{},
   });
 
@@ -59831,7 +59833,9 @@ final class PwfMyTaskPageResponse implements ResponseModel {
       nextCursor: requiredField(map, path, 'next_cursor', nullable(asString)),
       total: requiredField(map, path, 'total', asInt),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'total', 'as_of'}, strict: true),
+      countsByBand: optionalField(map, path, 'counts_by_band', PwfMyTaskPageResponseCountsByBand.fromJson),
+      overdueCount: optionalField(map, path, 'overdue_count', asInt),
+      extra: unknownFields(map, path, const <String>{'items', 'next_cursor', 'total', 'as_of', 'counts_by_band', 'overdue_count'}, strict: true),
     );
   }
 
@@ -59839,6 +59843,8 @@ final class PwfMyTaskPageResponse implements ResponseModel {
   final String? nextCursor;
   final int total;
   final String asOf;
+  final PwfMyTaskPageResponseCountsByBand? countsByBand;
+  final int? overdueCount;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59849,6 +59855,50 @@ final class PwfMyTaskPageResponse implements ResponseModel {
         'next_cursor': nextCursor,
         'total': total,
         'as_of': asOf,
+        if (countsByBand != null) 'counts_by_band': countsByBand!.toJson(),
+        if (overdueCount != null) 'overdue_count': overdueCount,
+        ...extra,
+      };
+}
+
+final class PwfMyTaskPageResponseCountsByBand implements ResponseModel {
+  const PwfMyTaskPageResponseCountsByBand({
+    required this.nONE,
+    required this.gREEN,
+    required this.yELLOW,
+    required this.rED,
+    required this.uNKNOWN,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfMyTaskPageResponseCountsByBand.fromJson(Object? json, [String path = 'PwfMyTaskPageResponseCountsByBand']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfMyTaskPageResponseCountsByBand(
+      nONE: requiredField(map, path, 'NONE', asInt),
+      gREEN: requiredField(map, path, 'GREEN', asInt),
+      yELLOW: requiredField(map, path, 'YELLOW', asInt),
+      rED: requiredField(map, path, 'RED', asInt),
+      uNKNOWN: requiredField(map, path, 'UNKNOWN', asInt),
+      extra: unknownFields(map, path, const <String>{'NONE', 'GREEN', 'YELLOW', 'RED', 'UNKNOWN'}, strict: true),
+    );
+  }
+
+  final int nONE;
+  final int gREEN;
+  final int yELLOW;
+  final int rED;
+  final int uNKNOWN;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'NONE': nONE,
+        'GREEN': gREEN,
+        'YELLOW': yELLOW,
+        'RED': rED,
+        'UNKNOWN': uNKNOWN,
         ...extra,
       };
 }

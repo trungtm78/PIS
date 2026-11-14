@@ -43,6 +43,10 @@ String pwfDeadlineWords(BuildContext context, PwfBand band, {int? missingYear}) 
       if (days == null) return context.t('mob.pwf.deadline.unknown');
       if (days < 0 && band.isWorking) return context.t('mob.pwf.deadline.lateWorking', <String, Object>{'days': -days});
       if (days < 0) return context.t('mob.pwf.deadline.late', <String, Object>{'days': -days});
+      // The one wording of the server (R49): overdue with no working day of lateness counted yet (the weekend after the deadline) is overdue, never "today"; "today" is the day of the deadline only; a
+      // deadline still ahead that falls on a day off has no working day left before it.
+      if (days == 0 && band.overdue) return context.t('mob.pwf.deadline.overdueNow');
+      if (days == 0 && band.dueToday == false) return context.t('mob.pwf.deadline.noDayLeft');
       if (days == 0) return context.t('mob.pwf.deadline.today');
       if (band.isWorking) return context.t('mob.pwf.deadline.leftWorking', <String, Object>{'days': days});
       return context.t('mob.pwf.deadline.left', <String, Object>{'days': days});

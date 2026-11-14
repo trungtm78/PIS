@@ -330244,6 +330244,45 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "counts_by_band": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "NONE",
+              "GREEN",
+              "YELLOW",
+              "RED",
+              "UNKNOWN"
+            ],
+            "description": "Số việc đang mở của người gọi theo màu CHÍNH THỨC, đếm chính xác, không phụ thuộc trang và bộ lọc màu (khối \"việc theo hạn\" của trang chủ)",
+            "properties": {
+              "NONE": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "GREEN": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "YELLOW": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "RED": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "UNKNOWN": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "overdue_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Số việc đang mở đã quá hạn chính thức (R49)"
           }
         }
       },

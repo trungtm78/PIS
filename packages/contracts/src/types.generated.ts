@@ -50115,6 +50115,16 @@ export interface components {
             total: number;
             /** Format: date-time */
             as_of: string;
+            /** @description Số việc đang mở của người gọi theo màu CHÍNH THỨC, đếm chính xác, không phụ thuộc trang và bộ lọc màu (khối "việc theo hạn" của trang chủ) */
+            counts_by_band?: {
+                NONE: number;
+                GREEN: number;
+                YELLOW: number;
+                RED: number;
+                UNKNOWN: number;
+            };
+            /** @description Số việc đang mở đã quá hạn chính thức (R49) */
+            overdue_count?: number;
         };
         PwfDeadlinePreference: {
             green_days?: number | null;

@@ -227,6 +227,8 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       expect(plain.status).toBe(200);
       const items = plain.json.items as Array<{ due_date: string; official_band: { band: string }; personal_band: { band: string } | null }>;
       expect(plain.json.total).toBe(3);
+      // The block "tasks by deadline" of a home screen reads the same operation with a small page: the counts by official colour are exact whatever the page.
+      expect((await call('GET', '/me/project-tasks?limit=1', { member: WORKER })).json).toMatchObject({ total: 3, counts_by_band: { RED: 1, YELLOW: 0, GREEN: 1, NONE: 1, UNKNOWN: 0 }, overdue_count: 0 });
       expect(items.map((one) => [one.due_date, one.official_band.band, one.personal_band])).toEqual([[day(0), 'RED', null], [day(3), 'GREEN', null], [day(6), 'NONE', null]]);
       await call('PUT', '/me/deadline-preference', { member: WORKER, ifMatch: '"0"', body: { green_days: 8, yellow_days: 4, red_days: 1, reminder_days: [] } });
       const mine = (await call('GET', '/me/project-tasks', { member: WORKER })).json.items as Array<{ due_date: string; official_band: { band: string }; personal_band: { band: string } | null }>;
