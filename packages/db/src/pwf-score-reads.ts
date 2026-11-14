@@ -30,6 +30,7 @@ export interface LineSummary {
   displayName: string;
   unitIdAtPeriod: string;
   unitCode: string;
+  unitName: string | null;
   scoreComputed: number | null;
   scoreAdjusted: number | null;
   rating: string | null;
@@ -50,6 +51,7 @@ interface LineSql {
   display_name: string | null;
   unit_id_at_period: string;
   unit_code: string;
+  unit_name: string | null;
   score_computed: string | null;
   score_adjusted: string | null;
   rating: string | null;
@@ -65,7 +67,7 @@ interface LineSql {
 
 const NAME = (member: string): string => `(select d.display_name from machvon.tenant_user_directory d where d.tenant_id = l.tenant_id and d.membership_id = ${member})`;
 
-const LINE_COLUMNS = `l.id, l.period_id, l.membership_id, ${NAME('l.membership_id')} as display_name, l.unit_id_at_period, (select u.code from machvon.organization_unit u where u.tenant_id = l.tenant_id and u.id = l.unit_id_at_period) as unit_code, l.score_computed::text as score_computed, l.score_adjusted::text as score_adjusted, l.rating, l.state,
+const LINE_COLUMNS = `l.id, l.period_id, l.membership_id, ${NAME('l.membership_id')} as display_name, l.unit_id_at_period, (select u.code from machvon.organization_unit u where u.tenant_id = l.tenant_id and u.id = l.unit_id_at_period) as unit_code, (select u.name from machvon.organization_unit u where u.tenant_id = l.tenant_id and u.id = l.unit_id_at_period) as unit_name, l.score_computed::text as score_computed, l.score_adjusted::text as score_adjusted, l.rating, l.state,
   l.rated_task_count, l.effective_weight::text as effective_weight,
   exists (select 1 from machvon.staff_score_adjustment a where a.tenant_id = l.tenant_id and a.line_id = l.id and a.status = 'APPROVED') as has_adjustment,
   exists (select 1 from machvon.staff_score_response r where r.tenant_id = l.tenant_id and r.line_id = l.id and r.status = 'OPEN') as has_open_response,
@@ -80,6 +82,7 @@ const toSummary = (row: LineSql): LineSummary => ({
   displayName: row.display_name ?? '',
   unitIdAtPeriod: row.unit_id_at_period,
   unitCode: row.unit_code,
+  unitName: row.unit_name ?? null,
   scoreComputed: numberOf(row.score_computed),
   scoreAdjusted: numberOf(row.score_adjusted),
   rating: row.rating,
@@ -111,7 +114,9 @@ export interface AdjustmentView {
   evidenceRef: string | null;
   status: 'REQUESTED' | 'APPROVED' | 'REJECTED';
   requestedBy: string;
+  requestedByName: string | null;
   decidedBy: string | null;
+  decidedByName: string | null;
   decidedAt: string | null;
   version: number;
 }
@@ -123,6 +128,7 @@ export interface ResponseView {
   status: 'OPEN' | 'HANDLED';
   submittedAt: string;
   handledBy: string | null;
+  handledByName: string | null;
   handledAt: string | null;
   conclusion: string | null;
   approvalInstanceId: string | null;
@@ -162,7 +168,9 @@ interface AdjustmentSql {
   evidence_ref: string | null;
   status: AdjustmentView['status'];
   requested_by: string;
+  requested_by_name?: string | null;
   decided_by: string | null;
+  decided_by_name?: string | null;
   decided_at: string | null;
   version: number;
 }
@@ -174,12 +182,15 @@ interface ResponseSql {
   status: ResponseView['status'];
   submitted_at: string;
   handled_by: string | null;
+  handled_by_name?: string | null;
   handled_at: string | null;
   conclusion: string | null;
   approval_instance_id: string | null;
 }
 
 const ISO = (column: string): string => `to_char(${column} at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`;
+/** The name of a person from the directory of the tenant, for a row of the alias `alias`. */
+const PERSON = (alias: string, member: string): string => `(select d.display_name from machvon.tenant_user_directory d where d.tenant_id = ${alias}.tenant_id and d.membership_id = ${member})`;
 
 export const toAdjustment = (row: AdjustmentSql): AdjustmentView => ({
   id: row.id,
@@ -189,13 +200,15 @@ export const toAdjustment = (row: AdjustmentSql): AdjustmentView => ({
   evidenceRef: row.evidence_ref,
   status: row.status,
   requestedBy: row.requested_by,
+  requestedByName: row.requested_by_name ?? null,
   decidedBy: row.decided_by,
+  decidedByName: row.decided_by_name ?? null,
   decidedAt: row.decided_at,
   version: row.version,
 });
 
-export const ADJUSTMENT_COLUMNS = `a.id, a.line_id, a.points::text as points, a.reason, a.evidence_ref, a.status, a.requested_by, a.decided_by, ${ISO('a.decided_at')} as decided_at, a.version`;
-export const RESPONSE_COLUMNS = `r.id, r.line_id, r.body, r.status, ${ISO('r.submitted_at')} as submitted_at, r.handled_by, ${ISO('r.handled_at')} as handled_at, r.conclusion, r.approval_instance_id`;
+export const ADJUSTMENT_COLUMNS = `a.id, a.line_id, a.points::text as points, a.reason, a.evidence_ref, a.status, a.requested_by, ${PERSON('a', 'a.requested_by')} as requested_by_name, a.decided_by, ${PERSON('a', 'a.decided_by')} as decided_by_name, ${ISO('a.decided_at')} as decided_at, a.version`;
+export const RESPONSE_COLUMNS = `r.id, r.line_id, r.body, r.status, ${ISO('r.submitted_at')} as submitted_at, r.handled_by, ${PERSON('r', 'r.handled_by')} as handled_by_name, ${ISO('r.handled_at')} as handled_at, r.conclusion, r.approval_instance_id`;
 
 export const toResponse = (row: ResponseSql): ResponseView => ({
   id: row.id,
@@ -204,6 +217,7 @@ export const toResponse = (row: ResponseSql): ResponseView => ({
   status: row.status,
   submittedAt: row.submitted_at,
   handledBy: row.handled_by,
+  handledByName: row.handled_by_name ?? null,
   handledAt: row.handled_at,
   conclusion: row.conclusion,
   approvalInstanceId: row.approval_instance_id,
@@ -444,6 +458,8 @@ export class PwfScoreReads {
 interface PeriodSql {
   id: string;
   scope_unit_id: string;
+  scope_unit_code: string | null;
+  scope_unit_name: string | null;
   period_kind: PeriodRow['periodKind'];
   period_from: string;
   period_to: string;

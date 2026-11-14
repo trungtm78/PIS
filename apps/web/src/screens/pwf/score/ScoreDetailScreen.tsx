@@ -89,7 +89,7 @@ function Detail({ line }: { line: ScoreLine }) {
             </dd>
             <dt>{t('pwfs.detail.unitAt.label')}</dt>
             <dd data-testid="unit-at" title={line.unit_id_at_period}>
-              <UnitName id={line.unit_id_at_period} />
+              {line.unit_name_at_period ?? line.unit_code_at_period ?? <UnitName id={line.unit_id_at_period} />}
             </dd>
           </dl>
         </div>

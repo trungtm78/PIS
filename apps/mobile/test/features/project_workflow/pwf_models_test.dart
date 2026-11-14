@@ -86,10 +86,24 @@ void main() {
 
     test('the groups follow the band the list is coloured by, and a task that is over is its own group', () {
       final PwfMyTasks tasks = parsePwfMyTasks(myTasksJson())!;
-      expect(pwfGroupOf(tasks.items.first, PwfColourMode.personal), PwfGroup.late);
+      // Red by the person's ladder with two days left is due, not late: only a deadline that has passed is under "late" (R49).
+      expect(pwfGroupOf(tasks.items.first, PwfColourMode.personal), PwfGroup.due);
+      expect(pwfGroupOf(tasks.items[1], PwfColourMode.personal), PwfGroup.late);
+      expect(pwfGroupOf(tasks.items[1], PwfColourMode.official), PwfGroup.late);
       expect(pwfGroupOf(tasks.items.first, PwfColourMode.official), PwfGroup.soon);
       expect(pwfGroupOf(tasks.items[3], PwfColourMode.personal), PwfGroup.far);
       expect(pwfGroupOf(tasks.items.last, PwfColourMode.personal), PwfGroup.done);
+    });
+
+    test('B7: the band says whether the deadline has passed and whether it is today, as the server counted (the weekend after a Friday is overdue with no working day of lateness)', () {
+      final PwfBand saturday = parsePwfBand(<String, Object?>{'band': 'RED', 'remaining_days': 0, 'unit': 'WORKING', 'overdue': true, 'due_today': false})!;
+      expect(saturday.overdue, isTrue);
+      expect(saturday.dueToday, isFalse);
+      final PwfBand friday = parsePwfBand(<String, Object?>{'band': 'RED', 'remaining_days': 0, 'unit': 'WORKING', 'overdue': false, 'due_today': true})!;
+      expect(friday.overdue, isFalse);
+      expect(friday.dueToday, isTrue);
+      // A copy kept before the server said so tells nothing of today.
+      expect(parsePwfBand(<String, Object?>{'band': 'RED', 'remaining_days': 0, 'unit': 'WORKING', 'overdue': false})!.dueToday, isNull);
     });
 
     test('a row without its two bands is refused', () {

@@ -6,7 +6,7 @@ import type { ScopeBuilder } from './scope-version.ts';
 import { dateOf, lockProject } from './prj-stage-support.ts';
 import type { StageScopes } from './prj-stage-support.ts';
 import { logWorkflow, publishSchedule, resultHashOf } from './pwf-publish.ts';
-import { baselineOfRows, earliestYear, inputHashOf, loadLinks, loadTasks, pinPublishedCalendars, resultOfRows, scheduleTasksOf } from './pwf-schedule-support.ts';
+import { baselineOfRows, dueOf, earliestYear, inputHashOf, loadLinks, loadTasks, pinPublishedCalendars, resultOfRows, scheduleTasksOf } from './pwf-schedule-support.ts';
 import type { PinnedCalendar, TaskLink, TaskRow } from './pwf-schedule-support.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -177,8 +177,9 @@ export class PwfRescheduleStore {
     const tasks = proposedTasks(rows, links, request.input, template.phases.map((phase) => phase.code));
     const first = request.input.plannedStartDate === undefined ? undefined : plannedStart;
     const input = { tasks, plannedStart, calendars, statusDate };
-    const rescheduled = pwfSchedule.rescheduleProject({ before: resultOfRows(rows), input, baseline: baselineOfRows(rows) });
-    const before = rows.map((row) => row.plannedFinish).filter((day): day is string => day !== null).sort().pop() ?? null;
+    // R49: a proposal asks to move the days that were RELEASED (the official deadlines), so what moves is measured against them, never against the forecast a recomputation left behind.
+    const rescheduled = pwfSchedule.rescheduleProject({ before: resultOfRows(rows, 'COMMITTED'), input, baseline: baselineOfRows(rows) });
+    const before = rows.filter((row) => !row.excluded).map((row) => dueOf(row)).filter((day): day is string => day !== null).sort().pop() ?? null;
     const projectFinishShiftDays = before === null || rescheduled.schedule.projectFinish === null ? null : (processCore.workingDaysBetween(sourceOf(calendars), before, rescheduled.schedule.projectFinish) ?? null);
     const names = Object.fromEntries([...rows.map((row) => [row.code, row.name] as const), ...(request.input.overrides?.add ?? []).map((one) => [one.code, one.name] as const)]);
     const phases = Object.fromEntries([...rows.map((row) => [row.code, row.phaseCode] as const), ...(request.input.overrides?.add ?? []).map((one) => [one.code, one.phase] as const)]);

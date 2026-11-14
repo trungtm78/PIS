@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { DomainError, canonicalJson, sha256Hex } from '@machvon/kernel';
 import type { pwfSchedule } from '@machvon/kernel';
 import { PrjBaselineStore } from './prj-baseline-store.ts';
-import { loadTasks, pinsOf, writeScheduleDays } from './pwf-schedule-support.ts';
+import { dueOf, loadTasks, pinsOf, writeScheduleDays } from './pwf-schedule-support.ts';
 import type { PinnedCalendar, TaskRow } from './pwf-schedule-support.ts';
 import type { TenantTx } from './tenant-database.ts';
 
@@ -50,6 +50,7 @@ interface MilestoneSql {
 /**
  * Makes the milestone tasks of a workflow the milestones of the project (R28): a task takes the milestone of its code that the project already has (a row is never copied), else a milestone is made with the first day of the
  * schedule as its baseline day; a milestone that moves later than it was is a move of a date and goes through the baseline hook of PRJ (counted, deviation looked at again); a done or cancelled task closes its milestone.
+ * The day of the milestone is the COMMITTED day of its task (R49): a recomputation of the forecast from progress never moves a milestone of the project, only a released schedule does.
  */
 export async function syncMilestones(tx: TenantTx, projectId: string, tasks: readonly TaskRow[], actor: string, today: string, baseline: PrjBaselineStore, firstPublication = false): Promise<void> {
   const linked = new Set<string>();
@@ -64,7 +65,7 @@ export async function syncMilestones(tx: TenantTx, projectId: string, tasks: rea
     if (!MILESTONE_CODE.test(code)) throw new DomainError('PWF_SCHEDULE_INVALID', 422, 'task_code');
     let milestoneId = task.milestoneId;
     if (milestoneId === null) {
-      if (task.plannedFinish === null) continue;
+      if (dueOf(task) === null) continue;
       const found = await tx.query<MilestoneSql>('select id, status, planned_date::text as planned_date from machvon.project_milestone where project_id = $1::uuid and code = $2', [projectId, code]);
       if (found[0] !== undefined) {
         milestoneId = found[0].id;
@@ -74,7 +75,7 @@ export async function syncMilestones(tx: TenantTx, projectId: string, tasks: rea
         await tx.query(
           `insert into machvon.project_milestone (tenant_id, id, project_id, code, name, baseline_date, planned_date, status, created_by, updated_by)
            values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3, $4, $5::date, $5::date, 'PLANNED', $6::uuid, $6::uuid)`,
-          [milestoneId, projectId, code, task.name.padEnd(2, '.'), task.baselineFinish ?? task.plannedFinish, actor],
+          [milestoneId, projectId, code, task.name.padEnd(2, '.'), task.baselineFinish ?? dueOf(task), actor],
         );
       }
       await tx.query('update machvon.project_task set milestone_id = $2::uuid where id = $1::uuid', [task.id, milestoneId]);
@@ -93,13 +94,14 @@ export async function syncMilestones(tx: TenantTx, projectId: string, tasks: rea
       }
       continue;
     }
-    if (task.plannedFinish === null || row.planned_date === task.plannedFinish || (row.status !== 'PLANNED' && row.status !== 'DELAYED')) continue;
-    const later = task.plannedFinish > row.planned_date;
+    const due = dueOf(task);
+    if (due === null || row.planned_date === due || (row.status !== 'PLANNED' && row.status !== 'DELAYED')) continue;
+    const later = due > row.planned_date;
     await tx.query(
       `update machvon.project_milestone set planned_date = $2::date, status = $3, status_reason = $4, updated_at = now(), updated_by = $5::uuid, version = version + 1 where id = $1::uuid`,
-      [row.id, task.plannedFinish, later ? 'DELAYED' : row.status, later || row.status === 'DELAYED' ? MILESTONE_REASON : null, actor],
+      [row.id, due, later ? 'DELAYED' : row.status, later || row.status === 'DELAYED' ? MILESTONE_REASON : null, actor],
     );
-    if (later) await baseline.afterMilestoneMove(tx, { id: projectId }, { milestoneId: row.id, code, fromDate: row.planned_date, toDate: task.plannedFinish, reason: MILESTONE_REASON }, actor, today);
+    if (later) await baseline.afterMilestoneMove(tx, { id: projectId }, { milestoneId: row.id, code, fromDate: row.planned_date, toDate: due, reason: MILESTONE_REASON }, actor, today);
   }
 }
 
@@ -140,7 +142,8 @@ export async function publishSchedule(tx: TenantTx, request: PublishRequest): Pr
      values (nullif(current_setting('app.tenant_id', true), '')::uuid, $1::uuid, $2::uuid, $3::int, $4, $5, $6, $7::jsonb, $8::jsonb, $9::jsonb, $10::date, $11::date, $12, $13::uuid, $14::uuid)`,
     [randomUUID(), workflow.id, scheduleVersion, request.kind, request.inputHash, resultHash, JSON.stringify(pinsOf(request.calendars)), JSON.stringify(result.criticalPath), JSON.stringify(request.changes), result.projectStart, result.projectFinish, request.reason, request.proposedBy, request.approvedBy],
   );
-  await writeScheduleDays(tx, workflow.id, result, scheduleVersion, firstBaseline);
+  // R49: the committed days (the official deadlines) are written by a schedule that is released by a decision; a recomputation from progress publishes the forecast alone.
+  await writeScheduleDays(tx, workflow.id, result, scheduleVersion, firstBaseline, request.kind !== 'PROGRESS');
   const rows = await loadTasks(tx, workflow.id);
   if (firstBaseline) {
     const baselineId = randomUUID();

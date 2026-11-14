@@ -151,7 +151,6 @@
   "pwf6.milestone.col.phase": "Phase",
   "pwf6.milestone.col.state": "State",
   "pwf6.milestone.noDay.text": "Day cannot be counted yet",
-  "pwf6.gate.upcoming.word": "Phase not reached yet",
   "pwf6.gate.missing.summary": "Show the {count} tasks to finish first",
   "pwf6.board.filter.title": "Filters",
   "pwf6.board.filter.clear.count": "Clear filters ({count})",
@@ -264,5 +263,9 @@
   "pwf6.lib.type.label": "Project type:",
   "pwf6.lib.from.label": "from",
   "pwf6.lib.option.text": "{name} ({code})",
-  "pwf6.workload.week.header": "Week of {date}"
+  "pwf6.workload.week.header": "Week of {date}",
+  "pwf6.forecast.finish.text": "Forecast finish {day}",
+  "pwf6.exception.col.people": "Requested by, decided by",
+  "pwf6.exception.requestedBy.text": "Requested: {name}",
+  "pwf6.exception.decidedBy.text": "Decided: {name}"
 }

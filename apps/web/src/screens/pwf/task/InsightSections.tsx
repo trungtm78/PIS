@@ -9,6 +9,12 @@ import { historyWord, kpiFormula, kpiStateWord } from './labels';
 import { historyGroups, kpiInputs } from './model';
 import type { KpiResult } from './model';
 
+/** The first letters of the first and the last word of a name, for the mark beside an entry of the history. */
+export const initialsOf = (name: string): string => {
+  const words = name.trim().split(/\s+/).filter((word) => word !== '');
+  return ((words[0]?.[0] ?? '') + (words.length > 1 ? (words[words.length - 1]?.[0] ?? '') : '')).toUpperCase();
+};
+
 /** The log of the task, newest first: when, what happened in words, and the reason given with it. Closed until asked for. */
 export function HistorySection({ task }: { task: TaskDetail }) {
   const { t } = useTranslation();
@@ -33,7 +39,14 @@ export function HistorySection({ task }: { task: TaskDetail }) {
                     <li key={entry.id} className="pwf-history__entry" data-kind={entry.kind}>
                       <span className="pwf-history__time">{stampText(entry.at).slice(11)}</span>
                       <span className="pwf-history__what">
-                        <strong>{historyWord(t, entry.kind)}</strong>
+                        <span className="pwf-history__line">
+                          <strong>{historyWord(t, entry.kind)}</strong>
+                          {typeof entry.actor_name === 'string' && entry.actor_name !== '' ? (
+                            <span className="pwf-history__who" data-testid="history-actor">
+                              {entry.actor_name}
+                            </span>
+                          ) : null}
+                        </span>
                         {entry.reason === null ? null : <span className="pwf-history__reason">{entry.reason}</span>}
                       </span>
                     </li>

@@ -134,6 +134,25 @@ describe('phase -> step -> task (R44)', () => {
     expect(templateDefect(stepWithoutSteps)).toBe('tasks[0].step');
   });
 
+
+  it('A4: a form of a task is named by the code the document store gives it (document_template.template_code: capitals, digits, dot, underscore and hyphen, 3 to 80 characters), and nothing else', () => {
+    const withForms = (forms: unknown[], policies?: unknown[]): Params => {
+      const made = stepped();
+      const second = (made.tasks as Params[])[1] as Params;
+      second.form_templates = forms;
+      if (policies === undefined) delete second.form_policies;
+      else second.form_policies = policies;
+      return made;
+    };
+    const stored = withForms(['DOC-QD-PHE-DUYET-DU-AN', 'PAY.C2-02A_NS', '01-BM'], [{ form: 'DOC-QD-PHE-DUYET-DU-AN', policy: 'PINNED', revision: 2 }]);
+    expect(() => validateRuleParams(PROJECT_WORKFLOW_RULE_TYPE, stored)).not.toThrow();
+    const parsed = parseProjectWorkflowTemplate(stored);
+    expect(parsed.tasks[1]?.formTemplates).toEqual(['DOC-QD-PHE-DUYET-DU-AN', 'PAY.C2-02A_NS', '01-BM']);
+    expect(formPolicyOf(parsed.tasks[1] ?? {}, 'DOC-QD-PHE-DUYET-DU-AN')).toEqual({ form: 'DOC-QD-PHE-DUYET-DU-AN', policy: 'PINNED', revision: 2 });
+    expect((templateParamsOf(parsed).tasks as Params[])[1]?.form_templates).toEqual(['DOC-QD-PHE-DUYET-DU-AN', 'PAY.C2-02A_NS', '01-BM']);
+    for (const bad of ['doc-qd', 'AB', '-DOC', 'DOC QD', 'DOC/QD', `D${'X'.repeat(80)}`]) expect(() => validateRuleParams(PROJECT_WORKFLOW_RULE_TYPE, withForms([bad]))).toThrow();
+    expect(() => validateRuleParams(PROJECT_WORKFLOW_RULE_TYPE, withForms(['DOC-QD'], [{ form: 'doc-qd', policy: 'LATEST_APPROVED' }]))).toThrow();
+  });
   it('refuses the same document and article cited twice, and a form policy that names no form of the task or pins no revision', () => {
     const twice = stepped();
     ((twice.steps as Params[])[0] as Params).legal_basis = [cite('LAW_58_2024_QH15'), cite('LAW_58_2024_QH15')];

@@ -42,15 +42,18 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-/i;
 function EvidenceWhat({ row, task }: { row: EvidenceRow; task: TaskDetail }) {
   const { t } = useTranslation();
   const form = row.form_template_code === null ? undefined : task.form_templates.find((item) => item.code === row.form_template_code);
-  const title = row.legal_doc_type !== null ? docTypeName(t, row.legal_doc_type) : row.form_template_code !== null ? (form?.current_title ?? row.form_template_code) : null;
-  const code = row.legal_doc_type ?? row.form_template_code;
-  const reference = row.external_ref !== null && !UUID.test(row.external_ref) ? row.external_ref : null;
+  // The title the document store gives the attached document comes first: it is what the person filed.
   const stored = row.document_id !== null;
+  const documentTitle = typeof row.document_title === 'string' && row.document_title !== '' ? row.document_title : null;
+  const title = documentTitle ?? (row.legal_doc_type !== null ? docTypeName(t, row.legal_doc_type) : row.form_template_code !== null ? (form?.current_title ?? row.form_template_code) : null);
+  const code = documentTitle !== null ? null : (row.legal_doc_type ?? row.form_template_code);
+  const reference = row.external_ref !== null && !UUID.test(row.external_ref) ? row.external_ref : null;
   return (
     <span className="pwf-cellstack">
       {title === null ? null : <Named name={title} code={code} />}
       {reference === null ? null : <span>{reference}</span>}
-      {stored ? (
+      {documentTitle !== null && row.legal_doc_type !== null ? <span className="pwf-hint">{docTypeName(t, row.legal_doc_type)}</span> : null}
+      {stored && documentTitle === null ? (
         <span className="pwf-hint" title={row.document_id ?? undefined}>
           {t('pwf6.task.evidence.stored')}
         </span>
@@ -73,7 +76,16 @@ export function RequirementsSection({ task, canWork, onTick, onResult }: Require
     { key: 'kind', header: t('pwf.task.evidence.col.kind'), render: (row) => evidenceKindName(t, row.evidence_kind) },
     { key: 'item', header: t('pwf.task.evidence.col.item'), render: (row) => itemName(row.item_code) ?? '' },
     { key: 'note', header: t('pwf.task.evidence.col.note'), render: (row) => row.note ?? '' },
-    { key: 'at', header: t('pwf.task.evidence.col.at'), render: (row) => stampText(row.attached_at) },
+    {
+      key: 'at',
+      header: t('pwf.task.evidence.col.at'),
+      render: (row) => (
+        <span className="pwf-cellstack">
+          <span>{stampText(row.attached_at)}</span>
+          {typeof row.attached_by_name === 'string' && row.attached_by_name !== '' ? <span className="pwf-hint">{row.attached_by_name}</span> : null}
+        </span>
+      ),
+    },
   ];
   const doneCount = task.checklist.filter((item) => item.done).length;
   const forms = task.form_templates;
@@ -102,6 +114,7 @@ export function RequirementsSection({ task, canWork, onTick, onResult }: Require
                   {item.done ? (
                     <StatusPill tone="success" icon="✓">
                       {t('pwf.task.checklist.done', { at: stampText(item.done_at) })}
+                      {typeof item.done_by_name === 'string' && item.done_by_name !== '' ? ` · ${item.done_by_name}` : ''}
                     </StatusPill>
                   ) : (
                     <>

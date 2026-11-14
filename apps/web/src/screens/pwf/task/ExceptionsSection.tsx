@@ -45,6 +45,16 @@ export function ExceptionsSection({ task, canRequest, canDecide, prefill, onDeci
       ),
     },
     {
+      key: 'people',
+      header: t('pwf6.exception.col.people'),
+      render: (item) => (
+        <span className="pwf-cellstack">
+          {typeof item.requested_by_name === 'string' && item.requested_by_name !== '' ? <span>{t('pwf6.exception.requestedBy.text', { name: item.requested_by_name })}</span> : null}
+          {typeof item.decided_by_name === 'string' && item.decided_by_name !== '' ? <span>{t('pwf6.exception.decidedBy.text', { name: item.decided_by_name })}</span> : null}
+        </span>
+      ),
+    },
+    {
       key: 'decide',
       header: t('pwf.task.exception.col.decide'),
       render: (item) =>

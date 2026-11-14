@@ -24,7 +24,7 @@ describe('PWF components: the band badge', () => {
     const { unmount } = wrap(<BandBadge band={band('RED', { unit: 'CALENDAR' })} />);
     expect(screen.getByText(text('pwf.band.overdue.text', { days: 2, unit: text('pwf.unit.calendar.word') }))).toBeTruthy();
     unmount();
-    wrap(<BandBadge band={band('RED', { remaining_days: 0 })} />);
+    wrap(<BandBadge band={band('RED', { remaining_days: 0, overdue: false, due_today: true })} />);
     expect(screen.getByText(text('pwf.band.today.text'))).toBeTruthy();
   });
 
@@ -181,5 +181,20 @@ describe('PWF labels', () => {
   it('writes the days left of a band, and nothing for a band without a count', () => {
     expect(remainingText(t, band('GREEN'))).toContain('5');
     expect(remainingText(t, band('NONE'))).toBeUndefined();
+  });
+
+  it('B7: says "due today" on the day of the deadline only, "overdue" from the day after it even with no working day of lateness counted, and "no working day left" before a deadline that falls on a day off', () => {
+    const working = (over: Parameters<typeof band>[1]) => remainingText(t, band('RED', { unit: 'WORKING', ...over }));
+    // Friday, the day of the deadline.
+    expect(working({ remaining_days: 0, overdue: false, due_today: true })).toBe(text('pwf.band.today.text'));
+    // The Saturday after it: overdue, never "today".
+    expect(working({ remaining_days: 0, overdue: true, due_today: false })).toBe(text('pwf.band.overdueNow.text'));
+    // The Monday after it: one working day late.
+    expect(working({ remaining_days: -1, overdue: true, due_today: false })).toBe(text('pwf.band.overdue.text', { days: 1, unit: text('pwf.unit.working.word') }));
+    // A deadline on the Sunday, read on the Friday before.
+    expect(working({ remaining_days: 0, overdue: false, due_today: false })).toBe(text('pwf.band.noDayLeft.text', { unit: text('pwf.unit.working.word') }));
+    expect(remainingText(t, band('YELLOW', { remaining_days: 1, overdue: false, due_today: false }))).toBe(text('pwf.band.remaining.text', { days: 1, unit: text('pwf.unit.working.word') }));
+    // A band that does not say whether the deadline is today (the example of a ladder) reads as before.
+    expect(remainingText(t, band('RED', { remaining_days: 0, overdue: false }))).toBe(text('pwf.band.today.text'));
   });
 });

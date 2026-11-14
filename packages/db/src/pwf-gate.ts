@@ -13,6 +13,10 @@ export interface GateOutcome {
   gated: boolean;
   open: boolean;
   missing: Array<{ task: string; taskId: string | null; phase: string; reason: pwfWorkflow.GateMissingReason }>;
+  /** How the gate stands for the reader (R49): a closed gate of phases the project has not reached is NOT_DUE, never CLOSED. The verdict (`open`) is what the commands are judged by. */
+  standing: pwfWorkflow.GateStandingCode;
+  /** The phases of the template that list the target. */
+  phases: string[];
 }
 
 export interface ProjectWorkflowGatePort {
@@ -49,6 +53,8 @@ interface TaskGateSql {
   approved_by: string | null;
   cancelled_by: string | null;
   waived: boolean;
+  phase_code: string;
+  required: boolean;
 }
 
 export const gateRefusal = (outcome: GateOutcome): DomainError =>
@@ -61,9 +67,9 @@ export class SqlProjectWorkflowGate implements ProjectWorkflowGatePort {
     if (workflow === undefined) return undefined;
     const template = pwfWorkflow.parseProjectWorkflowTemplate(workflow.template);
     // A command no phase lists is not gated: nothing else is read.
-    if (!template.phases.some((phase) => (phase.gates as readonly string[]).includes(target))) return { workflowId: workflow.workflow_id, target, gated: false, open: true, missing: [] };
+    if (!template.phases.some((phase) => (phase.gates as readonly string[]).includes(target))) return { workflowId: workflow.workflow_id, target, gated: false, open: true, missing: [], standing: 'UNGATED', phases: [] };
     const rows = await tx.query<TaskGateSql>(
-      `select t.id, t.task_code, t.status, t.tracked, t.excluded, t.approver_role, t.approved_by, t.cancelled_by,
+      `select t.id, t.task_code, t.status, t.tracked, t.excluded, t.approver_role, t.approved_by, t.cancelled_by, t.phase_code, t.required,
               exists (select 1 from machvon.project_task_exception e
                        where e.tenant_id = t.tenant_id and e.task_id = t.id and e.kind = 'WAIVE_REQUIREMENT' and e.status in ('APPROVED', 'USED') and e.items ? 'TASK') as waived
          from machvon.project_task t where t.workflow_id = $1::uuid`,
@@ -79,7 +85,8 @@ export class SqlProjectWorkflowGate implements ProjectWorkflowGatePort {
       cancelApproved: row.cancelled_by !== null,
     }));
     const verdict = pwfWorkflow.gateFor(template, target, workflow.facts, states);
-    return { workflowId: workflow.workflow_id, target, gated: verdict.gated, open: verdict.open, missing: verdict.missing.map((one) => ({ task: one.task, taskId: ids.get(one.task) ?? null, phase: one.phase, reason: one.reason })) };
+    const standing = pwfWorkflow.gateStanding(template, target, verdict, pwfWorkflow.openPhaseOf(template, rows.map((row) => ({ phase: row.phase_code, required: row.required, excluded: row.excluded, tracked: row.tracked, status: row.status }))));
+    return { workflowId: workflow.workflow_id, target, gated: verdict.gated, open: verdict.open, missing: verdict.missing.map((one) => ({ task: one.task, taskId: ids.get(one.task) ?? null, phase: one.phase, reason: one.reason })), standing: standing.standing, phases: standing.phases };
   }
 
   async follow(tx: TenantTx, projectId: string, stage: string): Promise<void> {

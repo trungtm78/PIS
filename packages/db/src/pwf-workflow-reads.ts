@@ -5,7 +5,7 @@ import { PwfBandPolicies } from './pwf-band-policies.ts';
 import { HomeWorkCalendars, WORK_CALENDAR_CODE } from './home-work-clock-store.ts';
 import { SCOPE_FROM } from './prj-project-store.ts';
 import { SqlProjectWorkflowGate } from './pwf-gate.ts';
-import { TASK_COLUMNS, loadLinks, toTaskRow } from './pwf-schedule-support.ts';
+import { TASK_COLUMNS, dueOf, dueStartOf, loadLinks, toTaskRow } from './pwf-schedule-support.ts';
 import type { TaskRow, TaskSql } from './pwf-schedule-support.ts';
 import type { ScopeBuilder } from './scope-version.ts';
 import type { TenantTx } from './tenant-database.ts';
@@ -24,8 +24,24 @@ export interface BandView {
   band: pwfDeadlineBand.Band;
   remaining_days: number | null;
   unit: pwfDeadlineBand.DeadlineUnit;
+  /** The day of the deadline has passed (true from the calendar day after it, a worked day or not). */
   overdue: boolean;
+  /** The deadline is today, by the calendar: the only day a screen says "due today" (R49). */
+  due_today: boolean;
   reason?: string | null;
+}
+
+/** The band of the kernel as the contract writes it: the one shape of every read (R49: one source for the words and the colour of the web and the phone). */
+export const bandViewOf = (result: pwfDeadlineBand.DeadlineBandResult): BandView => ({ band: result.band, remaining_days: result.remainingDays, unit: result.unit, overdue: result.overdue, due_today: result.dueToday, reason: result.reason ?? null });
+
+/** What the colour of a deadline is judged on: the state of the task, what it is, and its OFFICIAL deadline (`dueOn`, the finish of the schedule last released by a decision, R49). */
+export type BandSubject = Pick<TaskRow, 'status' | 'excluded' | 'tracked' | 'kind' | 'priority' | 'phaseCode'> & { dueOn: string | null };
+export const bandSubjectOf = (row: TaskRow): BandSubject => ({ status: row.status, excluded: row.excluded, tracked: row.tracked, kind: row.kind, priority: row.priority, phaseCode: row.phaseCode, dueOn: dueOf(row) });
+
+/** The forecast of a task that is not over, when the current computation differs from the days that were released; null when there is nothing else to tell. */
+export function forecastOf(row: Pick<TaskRow, 'status' | 'plannedStart' | 'plannedFinish' | 'committedStart' | 'committedFinish'>): { start: string | null; finish: string | null } {
+  if (row.status === 'DONE' || row.status === 'CANCELLED' || row.plannedFinish === null || row.committedFinish === null) return { start: null, finish: null };
+  return { start: row.plannedStart === row.committedStart ? null : row.plannedStart, finish: row.plannedFinish === row.committedFinish ? null : row.plannedFinish };
 }
 
 export interface TaskListItem {
@@ -40,8 +56,12 @@ export interface TaskListItem {
   excluded: boolean;
   tracked: boolean;
   state: string;
+  /** The days of the schedule last released by a decision: `planned_finish` is the official deadline, the one the band is judged on (R49). */
   planned_start: string | null;
   planned_finish: string | null;
+  /** The current computation from the progress, told only when it differs from the released days of a task that is not over. */
+  forecast_start: string | null;
+  forecast_finish: string | null;
   baseline_finish: string | null;
   missing_year: number | null;
   total_float: number | null;
@@ -63,7 +83,7 @@ export interface Can {
 /** The tier "official" of the colour of a task: the rule in force for the source of the project tasks (default 5, 2, 0 working days), with the overrides by kind, priority and phase. */
 export interface BandResolver {
   /** The colour of a task under the rule of the unit that owns its project (`unitPath`, the path of that unit; null or absent: the rule of the whole tenant), the nearest unit with a rule of its own winning. */
-  of(task: Pick<TaskRow, 'status' | 'excluded' | 'tracked' | 'plannedFinish' | 'kind' | 'priority' | 'phaseCode'>, unitPath?: string | null): BandView;
+  of(task: BandSubject, unitPath?: string | null): BandView;
 }
 
 /** The path of the unit that owns a project (the unit whose rule judges the deadlines of its tasks), or null when it has none. */
@@ -80,10 +100,9 @@ export async function bandResolver(tx: TenantTx, calendars: HomeWorkCalendars, n
     of: (task, unitPath = null): BandView => {
       const policy = policies.forUnitPath(unitPath);
       // A task that is over, cancelled, left out of the project or not tracked has no colour.
-      if (task.status === 'DONE' || task.status === 'CANCELLED' || task.excluded || !task.tracked) return { band: 'NONE', remaining_days: null, unit: policy.unit, overdue: false, reason: 'NO_DUE' };
+      if (task.status === 'DONE' || task.status === 'CANCELLED' || task.excluded || !task.tracked) return { band: 'NONE', remaining_days: null, unit: policy.unit, overdue: false, due_today: false, reason: 'NO_DUE' };
       const thresholds = pwfDeadlineBand.thresholdsFor(policy, { taskKind: task.kind, priority: task.priority, phase: task.phaseCode });
-      const result = pwfDeadlineBand.deadlineBand({ dueOn: task.plannedFinish, today, unit: policy.unit, calendars: source, thresholds });
-      return { band: result.band, remaining_days: result.remainingDays, unit: result.unit, overdue: result.overdue, reason: result.reason ?? null };
+      return bandViewOf(pwfDeadlineBand.deadlineBand({ dueOn: task.dueOn, today, unit: policy.unit, calendars: source, thresholds }));
     },
   };
 }
@@ -119,8 +138,10 @@ export const taskItemOf = (row: TaskRow, band: BandView, assignee: { membership_
   excluded: row.excluded,
   tracked: row.tracked,
   state: row.state,
-  planned_start: row.plannedStart,
-  planned_finish: row.plannedFinish,
+  planned_start: dueStartOf(row),
+  planned_finish: dueOf(row),
+  forecast_start: forecastOf(row).start,
+  forecast_finish: forecastOf(row).finish,
   baseline_finish: row.baselineFinish,
   missing_year: row.missingYear,
   total_float: row.totalFloat,
@@ -174,13 +195,13 @@ export class PwfWorkflowReads {
     const resolver = await bandResolver(tx, this.calendars, now);
     const unit = await unitPathOfProject(tx, projectId);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
-    const items = tasks.map((one) => taskItemOf(one, resolver.of(one, unit), assignees.get(one.id)));
+    const items = tasks.map((one) => taskItemOf(one, resolver.of(bandSubjectOf(one), unit), assignees.get(one.id)));
     const gated = new Set(template.phases.flatMap((phase) => phase.gates));
     const gates = [];
     for (const target of pwfWorkflow.WORKFLOW_GATE_TARGETS) {
       if (!gated.has(target)) continue;
       const outcome = await this.gate.assess(tx, row.project_id as string, target);
-      gates.push({ target, open: outcome?.open ?? true, missing_count: outcome?.missing.length ?? 0 });
+      gates.push({ target, open: outcome?.open ?? true, missing_count: outcome?.missing.length ?? 0, standing: outcome?.standing ?? 'UNGATED', phases: outcome?.phases ?? [] });
     }
     // R44: phase -> step -> task -> checklist. The step of a task is the one its frozen template gives it (a task the project added itself belongs to no step); the progress of a step is counted from its tasks and their checklists.
     const definitions = new Map(template.tasks.map((one) => [one.code, one] as const));
@@ -201,8 +222,8 @@ export class PwfWorkflowReads {
       const mine = tasks.filter((one) => one.phaseCode === step.phase && stepOf(one.code) === step.code && !one.excluded && one.tracked);
       const required = mine.filter((one) => one.required);
       const over = mine.filter((one) => isOver(one.status)).length;
-      const starts = mine.map((one) => one.plannedStart).filter((day): day is string => day !== null).sort();
-      const finishes = mine.map((one) => one.plannedFinish).filter((day): day is string => day !== null).sort();
+      const starts = mine.map((one) => dueStartOf(one)).filter((day): day is string => day !== null).sort();
+      const finishes = mine.map((one) => dueOf(one)).filter((day): day is string => day !== null).sort();
       return {
         code: step.code,
         name: step.name,
@@ -237,6 +258,12 @@ export class PwfWorkflowReads {
       if (open && openPhase === null) openPhase = phase.code;
       return { code: phase.code, name: phase.name, order: phase.order, gates: [...phase.gates], required_total: required.length, required_done: done, open };
     });
+    // A6: the one proposal that waits for a decision (the database keeps at most one per workflow), so the screen of the decision opens it without its id in the address.
+    const pending = await tx.query<{ id: string; base_version: number; proposed_by: string; display_name: string | null }>(
+      `select pr.id, pr.base_version, pr.proposed_by, u.display_name from machvon.project_reschedule_proposal pr left join machvon.tenant_user_directory u on u.tenant_id = pr.tenant_id and u.membership_id = pr.proposed_by
+        where pr.workflow_id = $1::uuid and pr.status = 'PROPOSED' order by pr.id limit 1`,
+      [row.id],
+    );
     return {
       id: row.id,
       project_id: row.project_id,
@@ -255,6 +282,7 @@ export class PwfWorkflowReads {
       standard_working_days: standard.totalWorkingDays,
       lapsed_legal_documents: lapsed,
       selection: row.selection ?? null,
+      pending_reschedule: pending[0] === undefined ? null : { proposal_id: pending[0].id, base_version: pending[0].base_version, proposed_by: pending[0].proposed_by, proposed_by_name: pending[0].display_name },
       gates,
       counts_by_band: counts,
       can_manage: can.manage,
@@ -272,7 +300,7 @@ export class PwfWorkflowReads {
     const unit = await unitPathOfProject(tx, projectId);
     const tasks = await this.tasksOf(tx, row.id as string);
     const assignees = await assigneesOf(tx, tasks.map((one) => one.id), today);
-    const all = tasks.map((one) => taskItemOf(one, resolver.of(one, unit), assignees.get(one.id)));
+    const all = tasks.map((one) => taskItemOf(one, resolver.of(bandSubjectOf(one), unit), assignees.get(one.id)));
     const matching = all.filter(
       (item) =>
         (filter.phase === undefined || item.phase_code === filter.phase) &&
@@ -319,6 +347,8 @@ export class PwfWorkflowReads {
         state: task.state,
         start: task.plannedStart,
         finish: task.plannedFinish,
+        due_start: dueStartOf(task),
+        due_finish: dueOf(task),
         late_start: task.lateStart,
         late_finish: task.lateFinish,
         total_float: task.totalFloat,
@@ -347,6 +377,8 @@ export class PwfWorkflowReads {
       gated: outcome?.gated ?? false,
       open: outcome?.open ?? true,
       missing: (outcome?.missing ?? []).map((one) => ({ task: one.task, task_id: one.taskId, phase: one.phase, reason: one.reason })),
+      standing: outcome?.standing ?? 'UNGATED',
+      phases: outcome?.phases ?? [],
       as_of: now.toISOString(),
     };
   }

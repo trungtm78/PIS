@@ -136,7 +136,7 @@ function taskFields(before: EditorTask, after: EditorTask, nameOf: (code: string
     ...single('required', { type: 'flag', on: before.required }, { type: 'flag', on: after.required }),
     ...single('priority', { type: 'enum', group: 'priority', code: before.priority }, { type: 'enum', group: 'priority', code: after.priority }),
     ...single('responsibleRole', { type: 'role', code: before.responsible_role }, { type: 'role', code: after.responsible_role }),
-    ...single('approverRole', { type: 'role', code: before.approver_role }, { type: 'role', code: after.approver_role }),
+    ...single('approverRole', { type: 'role', code: before.approver_role ?? null }, { type: 'role', code: after.approver_role ?? null }),
     ...keyedDiff('predecessors', before.predecessors, after.predecessors, (item) => item.task, predecessor),
     ...single('constraint', constraint(before), constraint(after)),
     ...listDiff('legalDocs', before.legal_doc_types, after.legal_doc_types),

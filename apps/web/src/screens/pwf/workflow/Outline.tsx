@@ -5,7 +5,7 @@ import { SectionCard, StatusPill } from '../../../ui';
 import type { Tone } from '../../../ui';
 import { ScrollRegion } from '../../scroll-region';
 import { RoleName, Named } from '../codes';
-import { BandBadge, CalendarMissingCell, Meter } from '../components';
+import { BandBadge, CalendarMissingCell, Forecast, Meter } from '../components';
 import { statusWord } from '../labels';
 import { calendarMissing, dayText, hasBand, taskLink } from '../model';
 import type { WorkflowDetail, WorkflowTask } from '../model';
@@ -53,7 +53,10 @@ function TaskRow({ task, projectId }: { task: WorkflowTask; projectId: string })
           {hasBand(task) && task.band.band !== 'NONE' ? <BandBadge band={task.band} /> : null}
         </span>
       </td>
-      <td className="pwf-num">{missing ? <CalendarMissingCell year={task.missing_year} /> : task.planned_finish === null ? null : dayText(task.planned_finish)}</td>
+      <td className="pwf-num">
+        {missing ? <CalendarMissingCell year={task.missing_year} /> : task.planned_finish === null ? null : dayText(task.planned_finish)}
+        {missing ? null : <Forecast task={task} />}
+      </td>
       <td>{task.assignee === null ? <span className="pwf-hint">{t('pwf.flow.board.unassigned.text')}</span> : task.assignee.display_name}</td>
       <td>{(task.checklist_total ?? 0) > 0 ? <Meter done={task.checklist_done ?? 0} total={task.checklist_total ?? 0} label={t('pwf6.outline.checklist.label')} testId={`checklist-${task.task_code}`} /> : null}</td>
     </tr>

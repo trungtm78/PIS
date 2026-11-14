@@ -188,7 +188,7 @@ function PeriodPicker({ periods, chosen, onChoose }: { periods: readonly ScorePe
       <select id="pwfs-period" value={chosen ?? ''} data-testid="period" onChange={(event) => onChoose(event.target.value)}>
         {periods.map((one) => (
           <option key={one.id} value={one.id}>
-            {t('pwf6.score.period.option', { range: rangeText(one.period_from, one.period_to), unit: unitName(one.scope_unit_id) })}
+            {t('pwf6.score.period.option', { range: rangeText(one.period_from, one.period_to), unit: one.scope_unit_name ?? one.scope_unit_code ?? unitName(one.scope_unit_id) })}
           </option>
         ))}
       </select>

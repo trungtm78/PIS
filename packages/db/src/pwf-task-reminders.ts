@@ -95,14 +95,14 @@ export class PwfTaskReminders {
     // The tasks of the window are read a page at a time, in the order of their days, so that a tenant with many of them is reached to the end and not only at its first rows.
     for (;;) {
       const tasks: Array<TaskSql & { sort_day: string }> = await tx.query<TaskSql & { sort_day: string }>(
-        `select t.id, t.project_id, t.schedule_version, t.kind, t.priority, t.phase_code, t.planned_finish::text as due_on, t.planned_finish::text as sort_day, ou.path as unit_path
+        `select t.id, t.project_id, t.schedule_version, t.kind, t.priority, t.phase_code, t.committed_finish::text as due_on, t.committed_finish::text as sort_day, ou.path as unit_path
            from machvon.project_task t
            join machvon.project_workflow w on w.tenant_id = t.tenant_id and w.id = t.workflow_id and w.status = 'ACTIVE'
            join machvon.project p on p.tenant_id = t.tenant_id and p.id = t.project_id
            left join machvon.organization_unit ou on ou.tenant_id = p.tenant_id and ou.id = p.owner_unit_id
-          where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.planned_finish between $1::date and $2::date
-            and ($3::date is null or (t.planned_finish, t.id) > ($3::date, $4::uuid))
-          order by t.planned_finish, t.id limit ${this.pageSize}`,
+          where t.tracked and not t.excluded and t.status in ('NOT_STARTED', 'IN_PROGRESS') and t.committed_finish between $1::date and $2::date
+            and ($3::date is null or (t.committed_finish, t.id) > ($3::date, $4::uuid))
+          order by t.committed_finish, t.id limit ${this.pageSize}`,
         [window[0], window[1], after?.day ?? null, after?.id ?? null],
       );
       notices.push(...(await this.firePage(tx, tasks, { today, set, calendars, eligible })));
@@ -146,8 +146,10 @@ export class PwfTaskReminders {
       // The days cannot be counted without the calendar of the year: no reminder is made up.
       if (remaining === null) continue;
       const thresholds = pwfDeadlineBand.thresholdsFor(policy, { taskKind: task.kind, priority: task.priority, phase: task.phase_code });
-      const band = pwfDeadlineBand.bandOf(remaining, thresholds);
-      const severity = severityOf('PROJECT_TASK', remaining < 0 ? 'OVERDUE' : band === 'NONE' ? 'GREEN' : band);
+      // R49: overdue is the day of the deadline having passed (a count of working days stays 0 over the days nobody works after it), and an overdue task is red on every ladder.
+      const overdue = task.due_on < today;
+      const band = overdue ? 'RED' : pwfDeadlineBand.bandOf(remaining, thresholds);
+      const severity = severityOf('PROJECT_TASK', overdue ? 'OVERDUE' : band === 'NONE' ? 'GREEN' : band);
       const own = holders.get(task.id) ?? [];
       if (own.length === 0) continue;
       const official = pwfDeadlineBand.dueReminders({ previousRemaining: null, remaining, reminderDays: policy.reminder_days }).filter((point) => !known.has(firedKey(task.id, task.schedule_version, point, null)));

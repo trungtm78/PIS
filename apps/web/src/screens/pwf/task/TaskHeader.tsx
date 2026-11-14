@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from '../../../i18n';
 import { StatusPill } from '../../../ui';
 import { RoleName, phaseName } from '../codes';
-import { BandBadge, CalendarMissingCell, FigureInfo, Meter } from '../components';
+import { BandBadge, CalendarMissingCell, FigureInfo, Forecast, Meter } from '../components';
 import { priorityWord, statusWord } from '../labels';
 import { calendarMissing, dayText, hasBand } from '../model';
 import type { TaskDetail } from '../model';
@@ -61,6 +61,7 @@ export function TaskHeader({ task, children }: { task: TaskDetail; children?: Re
         <div className="pwf-stats__item" data-tone={tone}>
           <dt>{task.status === 'DONE' ? t('pwf6.task.finished.label') : t('pwf6.task.due.label')}</dt>
           <dd data-testid="task-due">{missing ? <CalendarMissingCell year={task.missing_year} /> : task.status === 'DONE' && task.actual_finish !== null ? dayText(task.actual_finish) : task.planned_finish === null ? t('pwf6.task.due.none') : dayText(task.planned_finish)}</dd>
+          <Forecast task={task} testId="task-forecast" />
         </div>
         <div className="pwf-stats__item">
           <dt>{t('pwf6.task.doer.label')}</dt>

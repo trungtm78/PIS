@@ -151,7 +151,6 @@
   "pwf6.milestone.col.phase": "Giai đoạn",
   "pwf6.milestone.col.state": "Tình trạng",
   "pwf6.milestone.noDay.text": "Chưa tính được ngày",
-  "pwf6.gate.upcoming.word": "Chưa tới giai đoạn",
   "pwf6.gate.missing.summary": "Xem {count} việc cần xong trước",
   "pwf6.board.filter.title": "Bộ lọc",
   "pwf6.board.filter.clear.count": "Bỏ lọc ({count})",
@@ -264,5 +263,9 @@
   "pwf6.lib.type.label": "Loại dự án:",
   "pwf6.lib.from.label": "từ",
   "pwf6.lib.option.text": "{name} ({code})",
-  "pwf6.workload.week.header": "Tuần {date}"
+  "pwf6.workload.week.header": "Tuần {date}",
+  "pwf6.forecast.finish.text": "Dự báo xong {day}",
+  "pwf6.exception.col.people": "Người đề nghị, người quyết định",
+  "pwf6.exception.requestedBy.text": "Đề nghị: {name}",
+  "pwf6.exception.decidedBy.text": "Quyết định: {name}"
 }

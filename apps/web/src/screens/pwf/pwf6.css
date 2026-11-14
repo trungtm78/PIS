@@ -657,3 +657,23 @@ span.pwf-suggestion__why {
 .pwf-outline .ui-button {
   white-space: nowrap;
 }
+.pwf-forecast {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--mv-color-text-secondary);
+  white-space: nowrap;
+}
+.pwf-forecast.pwf-late {
+  color: var(--mv-color-danger);
+}
+.pwf-history__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+.pwf-history__who {
+  font-size: 13px;
+  color: var(--mv-color-text-secondary);
+}

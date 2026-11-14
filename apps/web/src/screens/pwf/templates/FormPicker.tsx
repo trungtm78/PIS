@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from '../../../i18n';
 import { useTemplates } from '../../doc/templates/hooks';
-import { CODE_PATTERN } from './template-model';
+import { FORM_CODE_PATTERN } from './template-model';
 
 export interface FormPickerProps {
   /** The form codes the task holds now. */
@@ -13,8 +13,8 @@ export interface FormPickerProps {
 }
 
 /**
- * The forms of a task are picked from the published templates of the document store, by title, with a search: nobody has to remember a code. A form whose code the workflow template cannot hold (the code of a workflow form is
- * capital letters, digits and underscores) is listed and said to be unusable, never offered as if it worked. When the store cannot be read the list of codes above stays the way to write them and this stays out of the way.
+ * The forms of a task are picked from the published templates of the document store, by title, with a search: nobody has to remember a code. The codes are the ones of the store (capitals, digits, dot, underscore, hyphen); a form whose code a
+ * workflow template still could not hold is listed and said to be unusable, never offered as if it worked. When the store cannot be read the list of codes above stays the way to write them and this stays out of the way.
  */
 export function FormPicker({ value, onChange, disabled, taskCode }: FormPickerProps) {
   const { t } = useTranslation();
@@ -43,7 +43,7 @@ export function FormPicker({ value, onChange, disabled, taskCode }: FormPickerPr
       {store.isLoading ? <p className="pwf-hint">{t('pwf6.editor.picker.loading')}</p> : null}
       <ul className="pwf-picker__list">
         {shown.map((form) => {
-          const usable = CODE_PATTERN.test(form.code);
+          const usable = FORM_CODE_PATTERN.test(form.code);
           return (
             <li key={form.code}>
               <label>

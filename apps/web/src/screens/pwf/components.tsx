@@ -180,3 +180,19 @@ export function BandStrip({ counts, label, unit, info, selected = '', onSelect, 
     </div>
   );
 }
+
+/**
+ * "Forecast finish 20/12/2026" beside an official deadline, only when the forecast is another day (R49: the committed day is the deadline, the forecast is where the schedule now says the task will end). A task that is
+ * over, or one with no forecast, shows nothing; a forecast later than the deadline is said as late.
+ */
+export function Forecast({ task, testId }: { task: { status: string; planned_finish: string | null; forecast_finish?: string | null | undefined }; testId?: string }) {
+  const { t } = useTranslation();
+  const forecast = task.forecast_finish ?? null;
+  if (forecast === null || forecast === task.planned_finish || task.status === 'DONE' || task.status === 'CANCELLED') return null;
+  const late = task.planned_finish !== null && forecast > task.planned_finish;
+  return (
+    <span className={late ? 'pwf-forecast pwf-late' : 'pwf-forecast'} data-testid={testId} data-late={late}>
+      {t('pwf6.forecast.finish.text', { day: dayText(forecast) })}
+    </span>
+  );
+}

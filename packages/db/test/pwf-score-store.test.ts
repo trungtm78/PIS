@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { Client } from 'pg';
 import { pwfKpi, vietnamDateOf } from '@machvon/kernel';
 import { BASELINE_PACK, applyBaseline } from '../src/master-baseline';
 import { PrjProjectStore } from '../src/prj-project-store';
@@ -950,6 +951,51 @@ describe('the KPIs of the tasks and the scores of the staff (PWF-3: results, per
       const seen = await as((tx) => reads.line(tx, viewer(HR, { readUnits: '*', reviewUnits: '*' }), hrLine, everything));
       expect(seen.flags.map((flag) => flag.code)).toEqual(['BASELINE_REVISED_IN_PERIOD', 'CANCELLED_SHARE_HIGH', 'TASKS_SPLIT_AFTER_BASELINE']);
       expect((await as((tx) => reads.line(tx, viewer(HR, { readUnits: '*' }), hrLine, everything))).flags).toEqual([]);
+    });
+  });
+  describe('B11 (R49): who is scored', () => {
+    it('scores the staff of the unit, each person once: a guest of a contractor and a service account hold no line, and the memberships of one person are one line', async () => {
+      const TEAM = 9;
+      const STAFF = 21;
+      const GUEST = 22;
+      const EARLIER = 23;
+      const ROBOT = 24;
+      await harness.seedUnits(TENANT_A, [{ n: TEAM, path: '/u1/u9/', parent: PROVINCE }]);
+      await harness.seedMembership(TENANT_A, STAFF, TEAM);
+      await harness.seedMembership(TENANT_A, GUEST, TEAM, { validUntil: `${Y + 2}-01-01T00:00:00Z` });
+      await harness.seedMembership(TENANT_A, ROBOT, TEAM);
+      // The guest is tied to a contractor the fixture does not need to exist: the foreign key is not judged for this one statement.
+      const admin = new Client({ connectionString: harness.database.adminUrl });
+      await admin.connect();
+      try {
+        await admin.query('set session_replication_role = replica');
+        await admin.query(`update machvon.membership set membership_type = 'GUEST_CONTRACTOR', contractor_id = gen_random_uuid() where id = $1::uuid`, [memberId(GUEST)]);
+      } finally {
+        await admin.end();
+      }
+      await owner(`update machvon.membership set membership_type = 'SERVICE_ACCOUNT' where id = $1::uuid`, [memberId(ROBOT)]);
+      // The same person had an earlier membership in the unit, which ended: a row of its own, the same user.
+      await owner(
+        `insert into machvon.membership (tenant_id, id, user_id, organization_id, status, valid_from, valid_until) select tenant_id, $2::uuid, user_id, organization_id, 'Ended', valid_from - interval '400 days', valid_from - interval '1 day' from machvon.membership where id = $1::uuid`,
+        [memberId(STAFF), memberId(EARLIER)],
+      );
+      const wf = await workflow();
+      const quarter = { from: `${Y - 1}-01-01`, to: `${Y - 1}-03-31` };
+      const now = await seedTask(wf, 'W1', { baselineFinish: `${Y - 1}-02-13`, actualFinish: `${Y - 1}-02-13` });
+      await hold(now, STAFF);
+      const then = await seedTask(wf, 'W2', { baselineFinish: `${Y - 1}-01-20`, actualFinish: `${Y - 1}-01-20` });
+      await hold(then, EARLIER);
+      const byGuest = await seedTask(wf, 'W3', { baselineFinish: `${Y - 1}-02-20`, actualFinish: `${Y - 1}-03-20` });
+      await hold(byGuest, GUEST);
+      const preview = await compute(quarter, { scopeUnitId: unitId(TEAM) });
+      const lines = await owner<{ membership_id: string; state: string; rated_task_count: number }>('select membership_id, state, rated_task_count from machvon.staff_score_line where period_id = $1::uuid order by membership_id', [preview.period.id]);
+      // One line: the person, under the membership that is live, with the two tasks the ledger gave to either of their memberships.
+      expect(lines).toEqual([{ membership_id: memberId(STAFF), state: 'RATED', rated_task_count: 2 }]);
+      expect(preview).toMatchObject({ ratedCount: 1, smallSampleCount: 0, notRatedCount: 0 });
+      const board = await as((tx) => reads.lines(tx, { units: '*', subject: '' }, preview.period.id, {}, { limit: 50 }));
+      expect(board.items.map((one) => [one.membershipId, one.displayName, one.unitCode, one.unitName])).toEqual([[memberId(STAFF), `User ${STAFF}`, `U${TEAM}`, `Unit ${TEAM}`]]);
+      // B9: the period names its unit, never the bare id.
+      expect(await as((tx) => reads.period(tx, { units: '*', subject: '' }, preview.period.id))).toMatchObject({ scopeUnitId: unitId(TEAM), scopeUnitCode: `U${TEAM}`, scopeUnitName: `Unit ${TEAM}` });
     });
   });
 });

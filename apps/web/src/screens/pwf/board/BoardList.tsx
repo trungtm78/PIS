@@ -3,7 +3,7 @@ import { useTranslation } from '../../../i18n';
 import { DataTable } from '../../../ui';
 import type { DataTableColumn } from '../../../ui';
 import { phaseName } from '../codes';
-import { BandBadge } from '../components';
+import { BandBadge, Forecast } from '../components';
 import { dayText, taskLink, workflowLink } from '../model';
 import type { DeadlineBoard } from '../model';
 import type { BoardRow } from './model';
@@ -21,10 +21,15 @@ export interface BoardListProps {
 }
 
 /** The deadline of a row: the day, or the words that say it cannot be counted (a calendar is missing): never a guessed date. */
-export function DueCell({ row }: { row: Pick<DeadlineBoard['items'][number], 'due_date' | 'band'> }) {
+export function DueCell({ row, task }: { row: Pick<DeadlineBoard['items'][number], 'due_date' | 'band'>; task?: Pick<DeadlineBoard['items'][number], 'status' | 'forecast_finish'> }) {
   const { t } = useTranslation();
   if (row.band.band === 'UNKNOWN') return <span className="pwf-missing">{t('pwf.board.unknown.text')}</span>;
-  return <>{dayText(row.due_date)}</>;
+  return (
+    <span className="pwf-cellstack">
+      <span>{dayText(row.due_date)}</span>
+      {task === undefined ? null : <Forecast task={{ status: task.status, planned_finish: row.due_date, forecast_finish: task.forecast_finish }} />}
+    </span>
+  );
 }
 
 /** The rows of the board, the official colour of each, the "showing N of M" line with the exact total, the notice of a cut list and the control that loads the next page. */
@@ -57,7 +62,7 @@ export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore
     },
     { key: 'phase', header: t('pwf.board.col.phase.header'), render: (row) => phaseName(t, row.phase_code) },
     { key: 'person', header: t('pwf.board.col.person.header'), render: (row) => row.assignee?.display_name ?? <span className="pwf-hint">{t('pwf.board.unassigned.text')}</span> },
-    { key: 'due', header: t('pwf.board.col.due.header'), render: (row) => <DueCell row={row} /> },
+    { key: 'due', header: t('pwf.board.col.due.header'), render: (row) => <DueCell row={row} task={row} /> },
     { key: 'band', header: t('pwf.board.col.band.header'), render: (row) => <BandBadge band={row.band} /> },
   ];
   return (

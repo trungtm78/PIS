@@ -334,16 +334,22 @@ describe('PWF-03: the gates of the project commands', () => {
     expect(open.textContent).toContain(text('pwf.flow.gate.open.word'));
   });
 
-  it('says a gate of a phase the workflow has not reached in neutral words, never as a failure', async () => {
-    show({ gate: (input: Record<string, unknown>) => ({ ...gate(input), open: false, missing: [{ task: 'T3', task_id: TASKS[2]?.id ?? null, phase: 'EXECUTION', reason: 'NOT_DONE' as const }] }) });
-    const later = await screen.findByTestId('gate-startProjectImplementation');
-    await waitFor(() => expect(later.querySelector('ul')).not.toBeNull());
-    expect(later.getAttribute('data-state')).toBe('upcoming');
-    expect(later.textContent).toContain(text('pwf6.gate.upcoming.word'));
-    expect(later.textContent).not.toContain('⛔');
-    expect(later.textContent).not.toContain(text('pwf.flow.gate.closed.word'));
-    // Its list of tasks is there, folded until asked for.
-    expect((later.querySelector('details') as HTMLDetailsElement).open).toBe(false);
+  it('B15: a gate of a phase the project has not reached says so in neutral words, not that it is closed', async () => {
+    show({
+      workflow: () => detail({ gates: detail().gates.map((one) => (one.target === 'startProjectImplementation' ? { ...one, open: false, missing_count: 1, standing: 'NOT_DUE' as const, phases: ['EXECUTION'] } : one)) }),
+      gate: (input: unknown) => {
+        const answer = gate(input as Record<string, unknown>);
+        return answer.target === 'startProjectImplementation' ? { ...answer, open: false, standing: 'NOT_DUE', phases: ['EXECUTION'] } : { ...answer, standing: 'CLOSED', phases: ['PREPARATION'] };
+      },
+    });
+    const ahead = await screen.findByTestId('gate-startProjectImplementation');
+    await waitFor(() => expect(ahead.getAttribute('data-standing')).toBe('NOT_DUE'));
+    expect(ahead.textContent).toContain(text('pwf.flow.gate.notDue.word'));
+    expect(ahead.textContent).not.toContain(text('pwf.flow.gate.closed.word'));
+    expect(screen.getByTestId('gate-submitProjectForAppraisal').getAttribute('data-standing')).toBe('CLOSED');
+    // The standing of the server decides the look: neutral words, no red glyph, and the list of tasks folded until asked for.
+    expect(ahead.getAttribute('data-state')).toBe('upcoming');
+    expect(ahead.textContent).not.toContain('⛔');
   });
 
   it('says a command with no gate has none, and a workflow with no gate declared says so', async () => {

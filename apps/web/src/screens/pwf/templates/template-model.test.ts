@@ -166,6 +166,14 @@ describe('template model: the checks made before anything is sent', () => {
     expect(paths).toEqual(expect.arrayContaining(['tasks[0].checklist[0].code:pattern', 'tasks[0].checklist[0].name:required', 'tasks[0].checklist[0].evidence_kinds:pattern', 'tasks[0].when[0].in:required', 'tasks[0].legal_doc_types:pattern']));
   });
 
+  it('A4: takes the code of a form the way the document store writes it (hyphens and dots), and refuses what is not such a code', () => {
+    const withForms = (forms: string[]) => localProblems({ ...base, tasks: [{ ...base.tasks[0]!, form_templates: forms }, base.tasks[1]!] }).map((problem) => `${problem.path}:${problem.problem}`);
+    expect(withForms(['DOC-QD-PHE-DUYET-DU-AN', 'PAY.C2-02A_NS', '01-BM'])).toEqual([]);
+    expect(withForms(['doc-qd'])).toContain('tasks[0].form_templates:pattern');
+    expect(withForms(['AB'])).toContain('tasks[0].form_templates:pattern');
+    expect(splitCodes('DOC-QD-PHE-DUYET-DU-AN, PAY.C2-02A_NS')).toEqual(['DOC-QD-PHE-DUYET-DU-AN', 'PAY.C2-02A_NS']);
+  });
+
   it('asks for at least one phase and one task', () => {
     expect(localProblems(blankTemplate()).map((problem) => problem.path)).toEqual(expect.arrayContaining(['name', 'phases', 'tasks']));
   });

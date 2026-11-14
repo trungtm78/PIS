@@ -325396,7 +325396,6 @@
                 "duration_working_days",
                 "required",
                 "responsible_role",
-                "approver_role",
                 "priority",
                 "predecessors"
               ],
@@ -325436,7 +325435,8 @@
                   "type": [
                     "string",
                     "null"
-                  ]
+                  ],
+                  "description": "Vai trò duyệt hoàn thành; bỏ trống hoặc null: việc không cần người duyệt (dạng chuẩn của mẫu đã lưu không có trường này)"
                 },
                 "priority": {
                   "type": "string",
@@ -325516,8 +325516,11 @@
                 },
                 "form_templates": {
                   "type": "array",
+                  "maxItems": 10,
+                  "description": "Mã biểu mẫu của kho văn bản (document_template.template_code): chữ hoa, số, chấm, gạch dưới, gạch nối, 3 đến 80 ký tự (R49)",
                   "items": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^[A-Z0-9][A-Z0-9_.-]{2,79}$"
                   }
                 },
                 "checklist": {
@@ -325613,7 +325616,7 @@
                     "properties": {
                       "form": {
                         "type": "string",
-                        "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+                        "pattern": "^[A-Z0-9][A-Z0-9_.-]{2,79}$"
                       },
                       "policy": {
                         "type": "string",
@@ -326571,14 +326574,16 @@
                     "string",
                     "null"
                   ],
-                  "format": "date"
+                  "format": "date",
+                  "description": "Ngày bắt đầu theo lịch đã PHÁT HÀNH gần nhất (lịch đầu, tiếp nhận, dời lịch được duyệt) (R49)"
                 },
                 "planned_finish": {
                   "type": [
                     "string",
                     "null"
                   ],
-                  "format": "date"
+                  "format": "date",
+                  "description": "Hạn chính thức: ngày kết thúc theo lịch đã PHÁT HÀNH gần nhất; màu hạn, nhắc và cảnh báo tính theo ngày này; tính lại lịch theo tiến độ không làm đổi (R49)"
                 },
                 "baseline_finish": {
                   "type": [
@@ -326649,6 +326654,10 @@
                         "CALENDAR_UNAVAILABLE",
                         null
                       ]
+                    },
+                    "due_today": {
+                      "type": "boolean",
+                      "description": "Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói \"đến hạn hôm nay\"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ"
                     }
                   }
                 },
@@ -326692,6 +326701,22 @@
                 "checklist_done": {
                   "type": "integer",
                   "minimum": 0
+                },
+                "forecast_start": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày bắt đầu dự báo theo lần tính lại gần nhất, chỉ có khi khác lịch đã phát hành và việc chưa kết thúc (R49)"
+                },
+                "forecast_finish": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)"
                 }
               }
             }
@@ -326727,6 +326752,23 @@
                 "missing_count": {
                   "type": "integer",
                   "minimum": 0
+                },
+                "standing": {
+                  "type": "string",
+                  "enum": [
+                    "UNGATED",
+                    "OPEN",
+                    "CLOSED",
+                    "NOT_DUE"
+                  ],
+                  "description": "Trạng thái cổng để hiển thị (R49): cổng đang đóng của giai đoạn dự án chưa tới là NOT_DUE (trung tính), không phải CLOSED; lệnh vẫn bị từ chối theo open"
+                },
+                "phases": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Các giai đoạn của mẫu khai lệnh này"
                 }
               }
             }
@@ -326906,6 +326948,37 @@
                 "type": "null"
               }
             ]
+          },
+          "pending_reschedule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "proposal_id",
+              "base_version"
+            ],
+            "description": "Đề nghị dời lịch đang chờ quyết định của workflow (tối đa một); PWF-06 tự mở đề nghị này (R49)",
+            "properties": {
+              "proposal_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "base_version": {
+                "type": "integer"
+              },
+              "proposed_by": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "proposed_by_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
           }
         }
       },
@@ -327011,14 +327084,16 @@
                     "string",
                     "null"
                   ],
-                  "format": "date"
+                  "format": "date",
+                  "description": "Ngày bắt đầu theo lịch đã PHÁT HÀNH gần nhất (lịch đầu, tiếp nhận, dời lịch được duyệt) (R49)"
                 },
                 "planned_finish": {
                   "type": [
                     "string",
                     "null"
                   ],
-                  "format": "date"
+                  "format": "date",
+                  "description": "Hạn chính thức: ngày kết thúc theo lịch đã PHÁT HÀNH gần nhất; màu hạn, nhắc và cảnh báo tính theo ngày này; tính lại lịch theo tiến độ không làm đổi (R49)"
                 },
                 "baseline_finish": {
                   "type": [
@@ -327089,6 +327164,10 @@
                         "CALENDAR_UNAVAILABLE",
                         null
                       ]
+                    },
+                    "due_today": {
+                      "type": "boolean",
+                      "description": "Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói \"đến hạn hôm nay\"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ"
                     }
                   }
                 },
@@ -327118,6 +327197,22 @@
                 },
                 "version": {
                   "type": "integer"
+                },
+                "forecast_start": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày bắt đầu dự báo theo lần tính lại gần nhất, chỉ có khi khác lịch đã phát hành và việc chưa kết thúc (R49)"
+                },
+                "forecast_finish": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)"
                 }
               }
             }
@@ -327378,6 +327473,22 @@
                       }
                     }
                   }
+                },
+                "due_start": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày bắt đầu theo lịch đã phát hành (R49)"
+                },
+                "due_finish": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Hạn chính thức của việc theo lịch đã phát hành (R49); start/finish là lịch tính lại hiện hành (dự báo)"
                 }
               }
             }
@@ -327502,6 +327613,23 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "standing": {
+            "type": "string",
+            "enum": [
+              "UNGATED",
+              "OPEN",
+              "CLOSED",
+              "NOT_DUE"
+            ],
+            "description": "Trạng thái cổng để hiển thị (R49): cổng đang đóng của giai đoạn dự án chưa tới là NOT_DUE (trung tính), không phải CLOSED; lệnh vẫn bị từ chối theo open"
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Các giai đoạn của mẫu khai lệnh này"
           }
         }
       },
@@ -327628,14 +327756,16 @@
               "string",
               "null"
             ],
-            "format": "date"
+            "format": "date",
+            "description": "Ngày bắt đầu theo lịch đã PHÁT HÀNH gần nhất (lịch đầu, tiếp nhận, dời lịch được duyệt) (R49)"
           },
           "planned_finish": {
             "type": [
               "string",
               "null"
             ],
-            "format": "date"
+            "format": "date",
+            "description": "Hạn chính thức: ngày kết thúc theo lịch đã PHÁT HÀNH gần nhất; màu hạn, nhắc và cảnh báo tính theo ngày này; tính lại lịch theo tiến độ không làm đổi (R49)"
           },
           "baseline_finish": {
             "type": [
@@ -327706,6 +327836,10 @@
                   "CALENDAR_UNAVAILABLE",
                   null
                 ]
+              },
+              "due_today": {
+                "type": "boolean",
+                "description": "Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói \"đến hạn hôm nay\"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ"
               }
             }
           },
@@ -327920,6 +328054,13 @@
                     "null"
                   ],
                   "format": "date-time"
+                },
+                "done_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người đánh dấu mục kiểm theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -328101,6 +328242,27 @@
                     "string",
                     "null"
                   ]
+                },
+                "attached_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người nộp bằng chứng theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "document_title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tiêu đề tài liệu của kho văn bản"
+                },
+                "document_symbol": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Số, ký hiệu tài liệu của kho văn bản"
                 }
               }
             }
@@ -328276,6 +328438,20 @@
                 },
                 "version": {
                   "type": "integer"
+                },
+                "requested_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người đề nghị theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "decided_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người quyết định theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -328352,6 +328528,20 @@
                     "null"
                   ],
                   "format": "uuid"
+                },
+                "assigned_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người giao theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "approved_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người duyệt theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -328392,6 +328582,13 @@
                     "string",
                     "null"
                   ]
+                },
+                "actor_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người thực hiện thao tác theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -328570,6 +328767,22 @@
             "items": {
               "$ref": "#/components/schemas/PwfLegalBasisView"
             }
+          },
+          "forecast_start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "Ngày bắt đầu dự báo theo lần tính lại gần nhất, chỉ có khi khác lịch đã phát hành và việc chưa kết thúc (R49)"
+          },
+          "forecast_finish": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "Ngày kết thúc dự báo theo lần tính lại gần nhất, chỉ có khi khác hạn chính thức và việc chưa kết thúc (R49)"
           }
         }
       },
@@ -328879,6 +329092,20 @@
                     "null"
                   ],
                   "format": "uuid"
+                },
+                "assigned_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người giao theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "approved_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người duyệt theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -329298,7 +329525,8 @@
                     "string",
                     "null"
                   ],
-                  "format": "date"
+                  "format": "date",
+                  "description": "Hạn chính thức của việc (lịch đã phát hành gần nhất, R49)"
                 },
                 "band": {
                   "type": "object",
@@ -329347,6 +329575,10 @@
                         "CALENDAR_UNAVAILABLE",
                         null
                       ]
+                    },
+                    "due_today": {
+                      "type": "boolean",
+                      "description": "Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói \"đến hạn hôm nay\"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ"
                     }
                   }
                 },
@@ -329372,6 +329604,14 @@
                       "type": "string"
                     }
                   }
+                },
+                "forecast_finish": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)"
                 }
               }
             }
@@ -329639,7 +329879,8 @@
                     "string",
                     "null"
                   ],
-                  "format": "date"
+                  "format": "date",
+                  "description": "Ngày chính thức của mốc (lịch đã phát hành gần nhất, R49)"
                 },
                 "baseline_date": {
                   "type": [
@@ -329704,8 +329945,20 @@
                         "CALENDAR_UNAVAILABLE",
                         null
                       ]
+                    },
+                    "due_today": {
+                      "type": "boolean",
+                      "description": "Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói \"đến hạn hôm nay\"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ"
                     }
                   }
+                },
+                "forecast_date": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày dự báo hiện hành của mốc (R49)"
                 }
               }
             }
@@ -329847,7 +330100,8 @@
                     "string",
                     "null"
                   ],
-                  "format": "date"
+                  "format": "date",
+                  "description": "Hạn chính thức của việc (lịch đã phát hành gần nhất, R49)"
                 },
                 "official_band": {
                   "type": "object",
@@ -329896,6 +330150,10 @@
                         "CALENDAR_UNAVAILABLE",
                         null
                       ]
+                    },
+                    "due_today": {
+                      "type": "boolean",
+                      "description": "Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói \"đến hạn hôm nay\"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ"
                     }
                   }
                 },
@@ -329949,6 +330207,10 @@
                         "CALENDAR_UNAVAILABLE",
                         null
                       ]
+                    },
+                    "due_today": {
+                      "type": "boolean",
+                      "description": "Hạn rơi đúng hôm nay theo lịch (R49): chỉ khi đó màn mới nói \"đến hạn hôm nay\"; overdue đúng từ ngày lịch sau hạn, kể cả ngày nghỉ"
                     }
                   }
                 },
@@ -329957,6 +330219,14 @@
                 },
                 "version": {
                   "type": "integer"
+                },
+                "forecast_finish": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date",
+                  "description": "Ngày kết thúc dự báo, chỉ có khi khác hạn chính thức (R49)"
                 }
               }
             }
@@ -329974,6 +330244,45 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "counts_by_band": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "NONE",
+              "GREEN",
+              "YELLOW",
+              "RED",
+              "UNKNOWN"
+            ],
+            "description": "Số việc đang mở của người gọi theo màu CHÍNH THỨC, đếm chính xác, không phụ thuộc trang và bộ lọc màu (khối \"việc theo hạn\" của trang chủ)",
+            "properties": {
+              "NONE": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "GREEN": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "YELLOW": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "RED": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "UNKNOWN": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "overdue_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Số việc đang mở đã quá hạn chính thức (R49)"
           }
         }
       },
@@ -330491,6 +330800,20 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "scope_unit_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Mã đơn vị của kỳ"
+          },
+          "scope_unit_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Tên đơn vị của kỳ"
           }
         }
       },
@@ -330849,6 +331172,20 @@
                 },
                 "version": {
                   "type": "integer"
+                },
+                "requested_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người đề nghị điều chỉnh theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "decided_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người duyệt điều chỉnh theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -330918,6 +331255,13 @@
                     "null"
                   ],
                   "format": "uuid"
+                },
+                "handled_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người xử lý phản hồi theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -330957,6 +331301,20 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "unit_code_at_period": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Mã đơn vị của người được chấm tại thời điểm của kỳ"
+          },
+          "unit_name_at_period": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Tên đơn vị của người được chấm tại thời điểm của kỳ"
           }
         }
       },
@@ -331053,6 +331411,20 @@
                 },
                 "has_open_response": {
                   "type": "boolean"
+                },
+                "unit_code_at_period": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Mã đơn vị của người được chấm tại thời điểm của kỳ"
+                },
+                "unit_name_at_period": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên đơn vị của người được chấm tại thời điểm của kỳ"
                 }
               }
             }

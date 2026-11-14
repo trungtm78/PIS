@@ -332,7 +332,7 @@ describe('the processing workflow of a project over HTTP (PWF-4)', () => {
       const lapsed = await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: withBasis([cite('DECREE_24_2024_ND_CP')]) });
       expect(lapsed.json).toMatchObject({ valid: true, findings: [{ code: 'LEGAL_BASIS_LAPSED', path: 'steps[0].legal_basis[0].document', severity: 'WARNING', detail: 'DECREE_214_2025_ND_CP' }] });
       const pinned = { ...PROCESS, tasks: [{ ...PROCESS.tasks[0], form_templates: ['FORM_X'], form_policies: [{ form: 'FORM_X', policy: 'PINNED', revision: 3 }] }, ...PROCESS.tasks.slice(1)] };
-      expect((await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: pinned })).json).toMatchObject({ valid: false, findings: [{ code: 'FORM_REVISION_UNKNOWN', path: 'tasks[0].form_policies[0].revision', severity: 'ERROR' }] });
+      expect((await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: pinned })).json).toMatchObject({ valid: false, findings: [{ code: 'FORM_REVISION_UNKNOWN', path: 'tasks[0].form_policies[0].revision', severity: 'ERROR' }, { code: 'FORM_TEMPLATE_UNKNOWN', path: 'tasks[0].form_templates[0]', severity: 'WARNING', detail: 'FORM_X' }] });
       const noStep = { ...PROCESS, tasks: [{ ...PROCESS.tasks[0], step: null }, ...PROCESS.tasks.slice(1)] };
       expect((await call('POST', '/project-workflow/templates/validate', { member: MANAGER, body: noStep })).json).toMatchObject({ valid: false });
       // A warning never stops the preview of the schedule.

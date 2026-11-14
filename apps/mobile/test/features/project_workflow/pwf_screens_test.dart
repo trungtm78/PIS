@@ -178,7 +178,7 @@ void main() {
       // The first task is red by the person's setting and yellow by the official rule: the screen says both.
       expect(find.textContaining('Chính thức: Còn 2 ngày làm việc'), findsOneWidget);
       // It is grouped by the person's own band: the first and the second are in "Trễ hạn".
-      expect(find.text('Cần xử lý ngay'), findsOneWidget);
+      expect(find.text('Trễ hạn'), findsOneWidget);
       expect(find.text('Chưa vào tầm'), findsNWidgets(2), reason: 'the group and the words of the task that is not in range');
       expect(find.text('Đã xong hoặc đã hủy'), findsOneWidget);
     });
@@ -257,7 +257,7 @@ void main() {
       expect(find.text('Chưa có dữ liệu'), findsOneWidget);
       await _open(tester, mine(), 'MOB-80', locale: const Locale('en'));
       expect(find.text('Your colours'), findsOneWidget);
-      expect(find.text('Act now'), findsOneWidget);
+      expect(find.text('Late'), findsOneWidget);
     });
 
     testWidgets('every state, the three devices and 200 percent text', (WidgetTester tester) async {

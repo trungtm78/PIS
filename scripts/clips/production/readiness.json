@@ -52,6 +52,9 @@
         "clip-public-contractor-portal": {
           "proof": "WRITTEN_NOT_RUN"
         },
+        "clip-public-pwf-review": {
+          "proof": "WRITTEN_NOT_RUN"
+        },
         "clip-public-phone-work": {
           "proof": "RUN_VERIFIED"
         }

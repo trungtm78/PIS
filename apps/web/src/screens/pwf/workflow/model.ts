@@ -260,18 +260,21 @@ export interface GateRow {
   /** From the assessment of the gate, once it was read. */
   assessment: GateAssessment | undefined;
   failed: boolean;
-  /** The gate belongs to a phase the workflow has not reached yet: it is not expected to be open, so it is said in neutral words and never as a failure. */
-  upcoming: boolean;
+  /** How the gate stands for the reader (the assessment once read, else what the workflow says): a closed gate of a phase the project has not reached is NOT_DUE, never CLOSED. */
+  standing: GateStanding;
 }
 
-/** Whether the phase that carries the gate comes after the phase the workflow is in. */
-function gateUpcoming(detail: WorkflowDetail, target: GateTarget): boolean {
-  const open = detail.phases.find((phase) => phase.open);
-  const own = detail.phases.find((phase) => phase.gates.includes(target));
-  return open !== undefined && own !== undefined && own.order > open.order;
+export type GateStanding = 'UNGATED' | 'OPEN' | 'CLOSED' | 'NOT_DUE';
+
+/** The standing the server gives; a server that gives none is read as before (ungated, open or closed). */
+export function gateStandingOf(gate: { open: boolean; standing?: GateStanding | undefined }, assessment: (GateAssessment & { standing?: GateStanding | undefined }) | undefined): GateStanding {
+  const told = assessment?.standing ?? (assessment === undefined ? gate.standing : undefined);
+  if (told !== undefined) return told;
+  if (assessment !== undefined && !assessment.gated) return 'UNGATED';
+  return (assessment?.open ?? gate.open) ? 'OPEN' : 'CLOSED';
 }
 
 /** The gates the workflow declares, each with the assessment read for it (a gate whose assessment failed to read says so and keeps what the workflow knows). */
 export function gateRows(detail: WorkflowDetail, results: readonly { data: GateAssessment | undefined; failed: boolean }[], t: T): GateRow[] {
-  return detail.gates.map((gate, index) => ({ target: gate.target, word: gateWord(t, gate.target), missingCount: gate.missing_count, assessment: results[index]?.data, failed: results[index]?.failed ?? false, upcoming: gateUpcoming(detail, gate.target) }));
+  return detail.gates.map((gate, index) => ({ target: gate.target, word: gateWord(t, gate.target), missingCount: gate.missing_count, assessment: results[index]?.data, failed: results[index]?.failed ?? false, standing: gateStandingOf(gate, results[index]?.data) }));
 }

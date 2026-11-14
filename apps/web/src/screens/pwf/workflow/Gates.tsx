@@ -12,10 +12,10 @@ function GateItem({ row, projectId, names }: { row: GateRow; projectId: string; 
   const open = assessment === undefined ? row.missingCount === 0 : assessment.open;
   const gated = assessment?.gated ?? true;
   const count = assessment === undefined ? row.missingCount : assessment.missing.length;
-  // A gate of a phase the workflow has not reached is not a failure: it is said in neutral words. Only a gate of the phase in hand (or of one already passed) that is still shut is red.
-  const state = !gated ? 'ungated' : open ? 'open' : row.upcoming ? 'upcoming' : 'waiting';
+  // The standing is the server's: a closed gate of a phase the project has not reached is NOT_DUE, said in neutral words and never as a failure. Only a gate that is CLOSED is red.
+  const state = row.standing === 'NOT_DUE' ? 'upcoming' : row.standing === 'UNGATED' || !gated ? 'ungated' : open ? 'open' : 'waiting';
   return (
-    <li className="pwf-gate" data-testid={`gate-${row.target}`} data-open={open} data-state={state}>
+    <li className="pwf-gate" data-testid={`gate-${row.target}`} data-open={open} data-state={state} data-standing={row.standing}>
       <div className="pwf-gate__head">
         <strong>{row.word}</strong>
         {state === 'ungated' ? (
@@ -28,7 +28,7 @@ function GateItem({ row, projectId, names }: { row: GateRow; projectId: string; 
           </StatusPill>
         ) : state === 'upcoming' ? (
           <StatusPill tone="neutral" icon="○">
-            {t('pwf6.gate.upcoming.word')}
+            {t('pwf.flow.gate.notDue.word')}
           </StatusPill>
         ) : (
           <StatusPill tone="danger" icon="⛔">

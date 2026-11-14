@@ -23,6 +23,8 @@ const summaryDto = (line: StaffScoreLineSummary): Schemas['StaffScoreLinePage'][
   membership_id: line.membershipId,
   display_name: line.displayName,
   unit_id_at_period: line.unitIdAtPeriod,
+  unit_code_at_period: line.unitCode,
+  unit_name_at_period: line.unitName,
   score_computed: line.scoreComputed,
   score_adjusted: line.scoreAdjusted,
   rating: line.rating,

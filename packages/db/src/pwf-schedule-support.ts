@@ -86,6 +86,9 @@ export interface TaskRow {
   plannedFinish: string | null;
   baselineStart: string | null;
   baselineFinish: string | null;
+  /** The days of the schedule last RELEASED by a decision (R49): the official deadline of the task is `committedFinish`; `plannedStart`/`plannedFinish` are the current computation (the forecast). */
+  committedStart: string | null;
+  committedFinish: string | null;
   lateStart: string | null;
   lateFinish: string | null;
   totalFloat: number | null;
@@ -135,6 +138,8 @@ export interface TaskSql {
   planned_finish: string | null;
   baseline_start: string | null;
   baseline_finish: string | null;
+  committed_start: string | null;
+  committed_finish: string | null;
   late_start: string | null;
   late_finish: string | null;
   total_float: number | null;
@@ -164,6 +169,7 @@ export interface TaskSql {
 /** The columns of a task as `toTaskRow` reads them, for the alias `t`. */
 export const TASK_COLUMNS = `t.id, t.workflow_id, t.project_id, t.task_code, t.name, t.phase_code, t.sort_order, t.kind, t.required, t.responsible_role, t.approver_role, t.priority, t.duration_working_days, t.own_task, t.status,
   t.excluded, t.tracked, t.state, t.planned_start::text as planned_start, t.planned_finish::text as planned_finish, t.baseline_start::text as baseline_start, t.baseline_finish::text as baseline_finish,
+  t.committed_start::text as committed_start, t.committed_finish::text as committed_finish,
   t.late_start::text as late_start, t.late_finish::text as late_finish, t.total_float, t.free_float, t.critical, t.driving_predecessor, t.missing_year, t.constraint_kind, t.constraint_offset, t.schedule_version,
   t.actual_start::text as actual_start, t.actual_finish::text as actual_finish, t.remaining_working_days, t.percent_complete, t.return_count, t.reschedule_count, t.early_start_reason,
   t.estimate_vnd::text as estimate_vnd, t.actual_vnd::text as actual_vnd, t.completion_requested_by, t.approved_by, t.cancelled_by, t.milestone_id, t.version`;
@@ -191,6 +197,8 @@ export const toTaskRow = (row: TaskSql): TaskRow => ({
   plannedFinish: row.planned_finish,
   baselineStart: row.baseline_start,
   baselineFinish: row.baseline_finish,
+  committedStart: row.committed_start,
+  committedFinish: row.committed_finish,
   lateStart: row.late_start,
   lateFinish: row.late_finish,
   totalFloat: row.total_float,
@@ -277,15 +285,24 @@ export const baselineOfRows = (rows: readonly TaskRow[]): pwfSchedule.ScheduleBa
   return baseline;
 };
 
-/** The schedule in force as the pure functions of reschedule take it: rebuilt from the stored days, so a preview is measured against what people see, not against a recomputation. */
-export function resultOfRows(rows: readonly TaskRow[]): pwfSchedule.ScheduleResult {
+/** The official deadline of a task (R49): its finish in the schedule last released by a decision; a task that was never dated has none. */
+export const dueOf = (row: Pick<TaskRow, 'committedFinish' | 'plannedFinish'>): string | null => row.committedFinish ?? row.plannedFinish;
+/** The official start of a task: its start in the schedule last released by a decision. */
+export const dueStartOf = (row: Pick<TaskRow, 'committedStart' | 'plannedStart'>): string | null => row.committedStart ?? row.plannedStart;
+
+/**
+ * The schedule in force as the pure functions of reschedule take it: rebuilt from the stored days, so a preview is measured against what people see, not against a recomputation. `days` says which days: the current computation
+ * (`FORECAST`, what a recomputation from progress is compared with) or the days last released by a decision (`COMMITTED`, what a proposal to move the schedule is compared with: it asks to move the official days, R49).
+ */
+export function resultOfRows(rows: readonly TaskRow[], days: 'FORECAST' | 'COMMITTED' = 'FORECAST'): pwfSchedule.ScheduleResult {
+  const committed = days === 'COMMITTED';
   return {
     tasks: rows.map((row) => ({
       code: row.code,
       kind: row.kind,
       state: row.state,
-      start: row.plannedStart,
-      finish: row.plannedFinish,
+      start: committed ? dueStartOf(row) : row.plannedStart,
+      finish: committed ? dueOf(row) : row.plannedFinish,
       lateStart: row.lateStart,
       lateFinish: row.lateFinish,
       startSlot: 0,
@@ -320,8 +337,12 @@ export function pinsFromJson(value: unknown): CalendarPin[] {
   return value.map((entry) => ({ year: Number((entry as CalendarPin).year), version: Number((entry as CalendarPin).version) }));
 }
 
-/** Writes the days of a computed schedule on the tasks in one statement, whatever the number of tasks. `baseline: true` sets the first baseline of the tasks that have none yet (it is never changed afterwards). */
-export async function writeScheduleDays(tx: TenantTx, workflowId: string, result: pwfSchedule.ScheduleResult, scheduleVersion: number, baseline: boolean): Promise<void> {
+/**
+ * Writes the days of a computed schedule on the tasks in one statement, whatever the number of tasks. `baseline: true` sets the first baseline of the tasks that have none yet (it is never changed afterwards). `release: true`
+ * (the first schedule, an adoption, an approved reschedule) also writes the COMMITTED days of the tasks that are not over: the official deadline moves only then (R49). A recomputation from progress (`release: false`) writes the
+ * forecast alone; a task that had no day at all takes its first days as committed ones either way (there was nothing to keep). The database refuses any other move of a committed day (`pwf.release`).
+ */
+export async function writeScheduleDays(tx: TenantTx, workflowId: string, result: pwfSchedule.ScheduleResult, scheduleVersion: number, baseline: boolean, release = false): Promise<void> {
   const payload = result.tasks.map((task) => ({
     code: task.code,
     state: task.state,
@@ -335,20 +356,30 @@ export async function writeScheduleDays(tx: TenantTx, workflowId: string, result
     driving: task.drivingPredecessor,
     missing_year: task.missingYear,
   }));
-  await tx.query(
-    `update machvon.project_task t
-        set state = x.state, planned_start = x.start, planned_finish = x.finish, late_start = x.late_start, late_finish = x.late_finish, total_float = x.total_float, free_float = x.free_float,
-            critical = x.critical, driving_predecessor = x.driving, missing_year = x.missing_year, schedule_version = $2::int,
-            baseline_start = case when $3::boolean and t.baseline_start is null then x.start else t.baseline_start end,
-            baseline_finish = case when $3::boolean and t.baseline_finish is null then x.finish else t.baseline_finish end,
-            updated_at = now(), version = t.version + 1
-       from jsonb_to_recordset($4::jsonb) as x(code text, state text, start date, finish date, late_start date, late_finish date, total_float int, free_float int, critical boolean, driving text, missing_year int)
-      where t.workflow_id = $1::uuid and t.task_code = x.code
-        and ((t.state, t.planned_start, t.planned_finish, t.late_start, t.late_finish, t.total_float, t.free_float, t.critical, t.driving_predecessor, t.missing_year)
-             is distinct from (x.state, x.start, x.finish, x.late_start, x.late_finish, x.total_float, x.free_float, x.critical, x.driving, x.missing_year)
-             or ($3::boolean and t.baseline_start is null and x.start is not null))`,
-    [workflowId, scheduleVersion, baseline, JSON.stringify(payload)],
-  );
+  // The committed days are written for a task that is not over when a schedule is released, and for a task that has none yet.
+  const commits = `(($5::boolean and t.status not in ('DONE', 'CANCELLED')) or t.committed_finish is null)`;
+  if (release) await tx.query("select set_config('pwf.release', 'on', true)");
+  try {
+    await tx.query(
+      `update machvon.project_task t
+          set state = x.state, planned_start = x.start, planned_finish = x.finish, late_start = x.late_start, late_finish = x.late_finish, total_float = x.total_float, free_float = x.free_float,
+              critical = x.critical, driving_predecessor = x.driving, missing_year = x.missing_year, schedule_version = $2::int,
+              baseline_start = case when $3::boolean and t.baseline_start is null then x.start else t.baseline_start end,
+              baseline_finish = case when $3::boolean and t.baseline_finish is null then x.finish else t.baseline_finish end,
+              committed_start = case when ${commits} then x.start else t.committed_start end,
+              committed_finish = case when ${commits} then x.finish else t.committed_finish end,
+              updated_at = now(), version = t.version + 1
+         from jsonb_to_recordset($4::jsonb) as x(code text, state text, start date, finish date, late_start date, late_finish date, total_float int, free_float int, critical boolean, driving text, missing_year int)
+        where t.workflow_id = $1::uuid and t.task_code = x.code
+          and ((t.state, t.planned_start, t.planned_finish, t.late_start, t.late_finish, t.total_float, t.free_float, t.critical, t.driving_predecessor, t.missing_year)
+               is distinct from (x.state, x.start, x.finish, x.late_start, x.late_finish, x.total_float, x.free_float, x.critical, x.driving, x.missing_year)
+               or ($3::boolean and t.baseline_start is null and x.start is not null)
+               or (${commits} and (t.committed_start, t.committed_finish) is distinct from (x.start, x.finish)))`,
+      [workflowId, scheduleVersion, baseline, JSON.stringify(payload), release],
+    );
+  } finally {
+    if (release) await tx.query("select set_config('pwf.release', 'off', true)");
+  }
 }
 
 /** The first calendar year a schedule reaches: the line of working days starts at the earliest day it mentions (the planned start, the day of the status, the first baseline, the real dates), so the calendars are pinned from that year (a year without a calendar is never guessed). */
