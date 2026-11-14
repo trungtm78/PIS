@@ -5,7 +5,7 @@
   "domain_pack": "docs/uat/_domain-pack.md",
   "coverage_ledger": "docs/uat/pwf/_coverage-ledger.md",
   "evidence_profile": "signoff",
-  "tc_count": 86,
+  "tc_count": 102,
   "test_cases": [
     {
       "tc_id": "TC-UAT-PWF-01",
@@ -5679,6 +5679,758 @@
         "state": "PLANNED",
         "layer": "API-JEST",
         "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-01",
+      "title": "Thư viện mẫu workflow (PWF-01): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-tri-quy-trinh-du-an",
+      "journey_ref": "J-FR-PWF-01",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-01",
+      "oracle_source": "Claim → FR-PWF-01; kỳ vọng nguyên văn của ca thiết kế UI-PWF-01 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-01",
+      "catches_bug": "Màn hình Thư viện mẫu workflow (PWF-01) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-01"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-quy-trinh-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-01",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-01\n1. Open PWF-01 at 1440 px and at 390 px; check the labelled fields: Mã mẫu và tên; Loại dự án; Phiên bản và trạng thái duyệt; Hiệu lực từ ngày; Số giai đoạn và số việc; Cờ \"mặc định, chưa xác nhận\"; So sánh hai phiên bản\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-01",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-02",
+      "title": "Soạn mẫu workflow (PWF-02): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-tri-quy-trinh-du-an",
+      "journey_ref": "J-FR-PWF-02",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-02",
+      "oracle_source": "Claim → FR-PWF-02; kỳ vọng nguyên văn của ca thiết kế UI-PWF-02 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-02",
+      "catches_bug": "Màn hình Soạn mẫu workflow (PWF-02) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-02"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-quy-trinh-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.template.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-02",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.template.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-02\n1. Open PWF-02 at 1440 px and at 390 px; check the labelled fields: Giai đoạn và cổng chặn lệnh PRJ; Cây công việc: thời lượng ngày làm việc, bắt buộc, vai phụ trách, người duyệt hoàn thành; Liên kết FS, SS, FF, SF và độ trễ; Nhánh theo nhóm dự án và nguồn vốn; Loại chứng từ pháp lý và biểu mẫu; Danh mục kiểm; Mã KPI; Lỗi kiểm trực tiếp và gợi ý chất lượng lịch; Xem trước lịch\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-02",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-03",
+      "title": "Workflow của dự án (PWF-03): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-FR-PWF-03",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-03",
+      "oracle_source": "Claim → FR-PWF-03; kỳ vọng nguyên văn của ca thiết kế UI-PWF-03 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-03",
+      "catches_bug": "Màn hình Workflow của dự án (PWF-03) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-03"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-03",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-03\n1. Open PWF-03 at 1440 px and at 390 px; check the labelled fields: Cây tiến trình theo giai đoạn; Gantt có đường găng và đường cơ sở; Bảng việc theo giai đoạn với màu hạn chính thức; Cổng của lệnh PRJ và danh sách việc còn thiếu; Mô phỏng \"nếu dời ngày bắt đầu\"; Việc chưa tính được hạn: thiếu lịch năm N\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-03",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-04",
+      "title": "Chi tiết công việc (PWF-04): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "nguoi-thuc-hien",
+      "journey_ref": "J-FR-PWF-04",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-04",
+      "oracle_source": "Claim → FR-PWF-04; kỳ vọng nguyên văn của ca thiết kế UI-PWF-04 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-04",
+      "catches_bug": "Màn hình Chi tiết công việc (PWF-04) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-04"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-thuc-hien",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-04",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-04\n1. Open PWF-04 at 1440 px and at 390 px; check the labelled fields: Chứng từ pháp lý và biểu mẫu sinh từ mẫu; Danh mục kiểm và bằng chứng; Ngoại lệ, tạm dừng, hủy, trì hoãn bên ngoài; Sổ phân công; Lịch sử và số lần trả lại; KPI của việc kèm nút \"i\"\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-04",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-05",
+      "title": "Khởi tạo và tiếp nhận workflow (PWF-05): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-FR-PWF-05",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-05",
+      "oracle_source": "Claim → FR-PWF-05; kỳ vọng nguyên văn của ca thiết kế UI-PWF-05 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-05",
+      "catches_bug": "Màn hình Khởi tạo và tiếp nhận workflow (PWF-05) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-05"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.workflow.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-05",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.workflow.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-05\n1. Open PWF-05 at 1440 px and at 390 px; check the labelled fields: Chọn mẫu theo loại dự án; Ngày dự định bắt đầu; Dữ kiện nhánh: nhóm dự án, nguồn vốn, loại dự án; Ngày hiệu lực khi tiếp nhận; Chạy thử và kết quả từng việc; Việc quá khứ: NOT_TRACKED hoặc đã xong kèm bằng chứng; Nhập hàng loạt theo danh mục dự án\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-05",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-06",
+      "title": "Xem trước và duyệt dời lịch (PWF-06): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-FR-PWF-06",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-06",
+      "oracle_source": "Claim → FR-PWF-06; kỳ vọng nguyên văn của ca thiết kế UI-PWF-06 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-06",
+      "catches_bug": "Màn hình Xem trước và duyệt dời lịch (PWF-06) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-06"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-06",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-06\n1. Open PWF-06 at 1440 px and at 390 px; check the labelled fields: So sánh lịch trước và sau theo ngày làm việc; Thay đổi độ trễ cho phép và đường găng; Độ lệch so với đường cơ sở đầu; Lý do dời lịch; Duyệt hoặc trả\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-06",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-07",
+      "title": "Bảng deadline toàn danh mục (PWF-07): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-FR-PWF-07",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-07",
+      "oracle_source": "Claim → FR-PWF-07; kỳ vọng nguyên văn của ca thiết kế UI-PWF-07 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-07",
+      "catches_bug": "Màn hình Bảng deadline toàn danh mục (PWF-07) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-07"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-07",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-07\n1. Open PWF-07 at 1440 px and at 390 px; check the labelled fields: Lọc theo màu, giai đoạn, người, đơn vị; Số việc theo màu: đỏ, vàng, xanh; Hàng việc có hạn, màu và biểu tượng; Lịch tháng; Mốc 30 ngày tới; Tải công việc theo người và tuần; \"Đang hiện N trên M\"\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-07",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-08",
+      "title": "Chính sách ba màu (PWF-08): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-tri-quy-trinh-du-an",
+      "journey_ref": "J-FR-PWF-08",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-08",
+      "oracle_source": "Claim → FR-PWF-08; kỳ vọng nguyên văn của ca thiết kế UI-PWF-08 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-08",
+      "catches_bug": "Màn hình Chính sách ba màu (PWF-08) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-08"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-quy-trinh-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-08",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-08\n1. Open PWF-08 at 1440 px and at 390 px; check the labelled fields: Nguồn cảnh báo: HOME_WORK, REPORT_SCHEDULE, PROJECT_TASK; Đơn vị: ngày lịch hoặc ngày làm việc; Ngưỡng xanh, vàng, đỏ; Ghi đè theo loại việc, mức ưu tiên, giai đoạn; Mốc nhắc và ngày leo thang; Xem trước \"còn 5 ngày: xanh, còn 2 ngày: vàng, dưới 1 ngày: đỏ\"\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-08",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-09",
+      "title": "Bộ KPI workflow (PWF-09): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-tri-quy-trinh-du-an",
+      "journey_ref": "J-FR-PWF-09",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-09",
+      "oracle_source": "Claim → FR-PWF-09; kỳ vọng nguyên văn của ca thiết kế UI-PWF-09 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-09",
+      "catches_bug": "Màn hình Bộ KPI workflow (PWF-09) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-09"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-quy-trinh-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.template.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-09",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.template.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-09\n1. Open PWF-09 at 1440 px and at 390 px; check the labelled fields: Mã bộ và mẫu workflow áp dụng; Phép tính chọn từ danh mục kernel; Tham số phép tính và phạm vi áp dụng; Thang điểm tuyến tính hoặc bậc thang có xem trước đường quy đổi; Trọng số; Tham chiếu mã KPI_DEFINITION và RAG_THRESHOLDS\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-09",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-10",
+      "title": "Chính sách chấm điểm (PWF-10): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-tri-quy-trinh-du-an",
+      "journey_ref": "J-FR-PWF-10",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-10",
+      "oracle_source": "Claim → FR-PWF-10; kỳ vọng nguyên văn của ca thiết kế UI-PWF-10 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-10",
+      "catches_bug": "Màn hình Chính sách chấm điểm (PWF-10) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-10"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-tri-quy-trinh-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.template.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-10",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.template.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-10\n1. Open PWF-10 at 1440 px and at 390 px; check the labelled fields: Kỳ: tháng, quý hoặc năm; Hệ số vai R, A, C, I; Trọng số ưu tiên; Mẫu nhỏ: số việc và tổng trọng số tối thiểu; Dải xếp loại; Biên độ điều chỉnh và độ dài lý do tối thiểu; Cửa sổ phản hồi; Thời hạn lưu trữ\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-10",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-11",
+      "title": "Bảng điểm của tôi (PWF-11): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "nhan-vien-duoc-danh-gia",
+      "journey_ref": "J-FR-PWF-11",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-11",
+      "oracle_source": "Claim → FR-PWF-11; kỳ vọng nguyên văn của ca thiết kế UI-PWF-11 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-11",
+      "catches_bug": "Màn hình Bảng điểm của tôi (PWF-11) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-11"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nhan-vien-duoc-danh-gia",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with staff_score.read_own; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-11",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with staff_score.read_own; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-11\n1. Open PWF-11 at 1440 px and at 390 px; check the labelled fields: Điểm kỳ và xếp loại hoặc \"chưa đủ dữ liệu\"; Phân rã tới từng việc và dữ kiện; Nút \"i\" công thức, nguồn, phiên bản quy tắc; So sánh các kỳ; Điều chỉnh làm đổi điểm; Phản hồi và trạng thái xử lý\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-11",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-12",
+      "title": "Bảng điểm đơn vị (PWF-12): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-ly-truc-tiep",
+      "journey_ref": "J-FR-PWF-12",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-12",
+      "oracle_source": "Claim → FR-PWF-12; kỳ vọng nguyên văn của ca thiết kế UI-PWF-12 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-12",
+      "catches_bug": "Màn hình Bảng điểm đơn vị (PWF-12) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-12"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-truc-tiep",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with staff_score.read_unit; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-12",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with staff_score.read_unit; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-12\n1. Open PWF-12 at 1440 px and at 390 px; check the labelled fields: Người được chấm; Điểm tính và điểm điều chỉnh; Xếp loại hoặc mẫu nhỏ; Số việc xếp loại và tổng trọng số; Có điều chỉnh, có phản hồi mở; Xuất Excel\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-12",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-13",
+      "title": "Chi tiết điểm (PWF-13): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-ly-truc-tiep",
+      "journey_ref": "J-FR-PWF-13",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-13",
+      "oracle_source": "Claim → FR-PWF-13; kỳ vọng nguyên văn của ca thiết kế UI-PWF-13 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-13",
+      "catches_bug": "Màn hình Chi tiết điểm (PWF-13) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-13"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-truc-tiep",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with staff_score.read_unit; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-13",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with staff_score.read_unit; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-13\n1. Open PWF-13 at 1440 px and at 390 px; check the labelled fields: Việc đóng góp: phần của người, trọng số, điểm việc; Khoảng phân công, tỷ lệ và hệ số vai; Phép loại trừ và lý do; Cờ bất thường; Điều chỉnh đã có và đề nghị điều chỉnh\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-13",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-14",
+      "title": "Kỳ chấm điểm (PWF-14): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "bo-phan-nhan-su",
+      "journey_ref": "J-FR-PWF-14",
+      "priority": "P0",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-14",
+      "oracle_source": "Claim → FR-PWF-14; kỳ vọng nguyên văn của ca thiết kế UI-PWF-14 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-14",
+      "catches_bug": "Màn hình Kỳ chấm điểm (PWF-14) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-14"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "bo-phan-nhan-su",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with staff_score.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-14",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with staff_score.manage; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-14\n1. Open PWF-14 at 1440 px and at 390 px; check the labelled fields: Tính nháp kỳ cho đơn vị và chính sách; Chốt kỳ và mã băm ảnh chụp; Cửa sổ phản hồi; Phản hồi chờ xử lý; Chính thức hóa kỳ; Tín hiệu thao túng cho người rà soát\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-14",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-15",
+      "title": "Nhắc hạn của tôi (PWF-15): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "nguoi-thuc-hien",
+      "journey_ref": "J-FR-PWF-15",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-15",
+      "oracle_source": "Claim → FR-PWF-15; kỳ vọng nguyên văn của ca thiết kế UI-PWF-15 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-15",
+      "catches_bug": "Màn hình Nhắc hạn của tôi (PWF-15) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-15"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "nguoi-thuc-hien",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.preference.own; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-15",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.preference.own; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-15\n1. Open PWF-15 at 1440 px and at 390 px; check the labelled fields: Ngưỡng cá nhân xanh, vàng, đỏ; Mốc nhắc; Xem trước màu; Cảnh báo khi ngưỡng bị nâng bằng mức chính thức\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-15",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
+      }
+    },
+    {
+      "tc_id": "TC-UI-PWF-16",
+      "title": "Sổ phân công (PWF-16): hợp đồng màn hình",
+      "type": "UX",
+      "platform": "web",
+      "platform_scope": "web",
+      "category": "accessibility",
+      "persona": "quan-ly-du-an",
+      "journey_ref": "J-FR-PWF-16",
+      "priority": "P1",
+      "severity_if_fail": "S2",
+      "oracle_type": "Claim",
+      "rule_ref": "FR-PWF-16",
+      "oracle_source": "Claim → FR-PWF-16; kỳ vọng nguyên văn của ca thiết kế UI-PWF-16 (Design/MACHVON_Design/03_Engineering/test_cases.json), yêu cầu FR-PWF-16",
+      "catches_bug": "Màn hình Sổ phân công (PWF-16) sập hoặc tràn, có control thiếu nhãn, hoặc cho thao tác ngoài quyền của vai",
+      "coverage_ids": [
+        "COV-FR-PWF-16"
+      ],
+      "backend_policy": "live",
+      "determinism": {
+        "auth_role": "quan-ly-du-an",
+        "clock_freeze": null,
+        "network_stubs": [],
+        "serial": false
+      },
+      "seeding_method": "api",
+      "precondition": "Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-16",
+      "steps": "Chuẩn bị: Tenant TNT-A; a user with pwf.read; a project with a workflow and tasks in the three colours (and a locked scoring period for the score screens); route PWF-16\n1. Open PWF-16 at 1440 px and at 390 px; check the labelled fields: Người; Vai R, A, C, I; Khoảng từ ngày đến ngày; Tỷ lệ đóng góp; Lý do và người phân công; Thêm phân công\n2. Open it with a user who lacks the permission, and with a record outside the scope\n3. Force the 7 standard states and the states of the module: the deadline cannot be computed because a year of the work calendar is missing, and the template is not confirmed",
+      "expected": "Every labelled field is present, a colour is always carried by a word and an icon as well, a figure that cannot be computed says so and is never 0, a record outside the scope is not found, no horizontal overflow at 1440 px, 0 console errors",
+      "evidence_required": [
+        "trace",
+        "response-bodies",
+        "screenshot-final"
+      ],
+      "design_evidence": null,
+      "design_type": "screen-contract",
+      "screen_id": "PWF-16",
+      "tags": [
+        "screen-contract"
+      ],
+      "module": "PWF",
+      "automation": {
+        "state": "AUTOMATED",
+        "suite": "apps/web/e2e/screen-contract.spec.ts",
+        "registry": "apps/web/e2e/support/screen-contract-cases.json"
       }
     }
   ]
