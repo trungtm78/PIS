@@ -242,6 +242,14 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       expect(portfolio.json).toMatchObject({ official_only: true, total: 4 });
       expect(JSON.stringify(portfolio.json)).not.toContain('personal');
       expect((await call('GET', '/me/project-tasks?band=PURPLE', { member: WORKER })).status).toBe(422);
+      // R51: what the person finished lately is a list of its own, by `status=DONE`; a done task never joins the open list, and a status that is neither open nor done is refused.
+      const finished = await task(-4, WORKER, 'IN_PROGRESS');
+      await rows("update machvon.project_task set status = 'DONE', actual_finish = $2::date where id = $1::uuid", [finished, day(-2)]);
+      const done = await call('GET', '/me/project-tasks?status=DONE&limit=5', { member: WORKER });
+      expect(done).toMatchObject({ status: 200, json: { total: 1, done_window_days: 90, next_cursor: null, items: [{ task_id: finished, status: 'DONE', finished_on: day(-2), official_band: { band: 'NONE' }, personal_band: null }] } });
+      expect(((await call('GET', '/me/project-tasks', { member: WORKER })).json.items as Array<{ task_id: string }>).map((one) => one.task_id)).not.toContain(finished);
+      expect((await call('GET', '/me/project-tasks?status=DONE', { member: PEER })).json).toMatchObject({ total: 0, items: [] });
+      expect((await call('GET', '/me/project-tasks?status=CANCELLED', { member: WORKER })).status).toBe(422);
       expect((await call('GET', '/me/project-tasks', { member: READER })).status).toBe(403);
     });
 

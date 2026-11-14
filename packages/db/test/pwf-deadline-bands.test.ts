@@ -480,6 +480,44 @@ describe('my tasks, bounded and exact', () => {
     expect(((await as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { band: 'UNKNOWN' }, { limit: 5 }, NOW))) as { total: number; items: unknown[] })).toMatchObject({ total: 0, items: [] });
     await expect(as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { band: 'PURPLE' }, { limit: 10 }, NOW))).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
   });
+
+  it('R51: lists what the person finished lately when asked for DONE: newest first, in pages, inside the window, with the day each was finished, and never what somebody else finished', async () => {
+    await clearTasks();
+    type DonePage = { items: Array<{ task_id: string; status: string; finished_on: string | null; due_date: string | null; official_band: Record<string, unknown>; personal_band: unknown }>; next: { code: string; id: string } | null; total: number; done_window_days?: number; counts_by_band: Record<string, number>; overdue_count: number };
+    const finishOn = (id: string, offset: number): Promise<unknown> => admin('update machvon.project_task set actual_start = $2::date - 2, actual_finish = $2::date where id = $1::uuid', [id, day(offset)]);
+    const open = await task(2);
+    const newest = await task(-3, { status: 'DONE' });
+    const middle = await task(-10, { status: 'DONE' });
+    await finishOn(middle, -8);
+    const oldest = await task(-40, { status: 'DONE' });
+    await finishOn(oldest, -30);
+    const stale = await task(-210, { status: 'DONE' });
+    await finishOn(stale, -200);
+    await task(-3, { status: 'DONE', assignee: PEER });
+    // A task the person handed over before it was finished is not theirs to show as done.
+    const handed = await task(-6, { status: 'DONE' });
+    await finishOn(handed, -5);
+    await admin('update machvon.project_task_assignment set valid_to = $2::date where task_id = $1::uuid', [handed, day(-20)]);
+    // A task that only consulted the person is not theirs either.
+    await task(-4, { status: 'DONE', role: 'CONSULTED' });
+
+    const list = (page: { limit: number; after?: { code: string; id: string } | undefined }): Promise<DonePage> => as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { status: 'DONE' }, page, NOW)) as Promise<DonePage>;
+    const first = await list({ limit: 2 });
+    expect(first.items.map((one) => one.task_id)).toEqual([newest, middle]);
+    expect(first).toMatchObject({ total: 3, done_window_days: 90, overdue_count: 0, counts_by_band: { NONE: 0, GREEN: 0, YELLOW: 0, RED: 0, UNKNOWN: 0 } });
+    expect(first.items[0]).toMatchObject({ status: 'DONE', finished_on: day(-1), due_date: day(-3), official_band: { band: 'NONE', remaining_days: null, overdue: false }, personal_band: null });
+    expect(first.next).not.toBeNull();
+    const second = await list({ limit: 2, after: first.next ?? undefined });
+    expect(second.items.map((one) => one.task_id)).toEqual([oldest]);
+    expect(second).toMatchObject({ total: 3, next: null });
+    // The open list is what it was: no done task in it, and it says nothing of a window.
+    const still = (await as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), {}, { limit: 10 }, NOW))) as DonePage;
+    expect(still.items.map((one) => one.task_id)).toEqual([open]);
+    expect(still.items[0]?.finished_on).toBeNull();
+    expect(still.done_window_days).toBeUndefined();
+    await expect(as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { status: 'CANCELLED' }, { limit: 10 }, NOW))).rejects.toMatchObject({ code: 'VALIDATION_FAILED', detail: 'status' });
+    await expect(as((tx) => myTasks.list(tx, EVERYTHING, memberId(WORKER), { status: 'DONE', band: 'RED' }, { limit: 10 }, NOW))).rejects.toMatchObject({ code: 'VALIDATION_FAILED', detail: 'band' });
+  });
 });
 
 describe('the multi-point reminders (BR-PWF-24)', () => {
