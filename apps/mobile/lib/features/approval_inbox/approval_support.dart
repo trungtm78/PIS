@@ -64,13 +64,15 @@ String businessTypeLabel(BuildContext context, String code) {
       return context.t('mob.apv.type.contractChange');
     case 'period.reopen':
       return context.t('mob.apv.type.periodReopen');
+    case 'score.response':
+      return context.t('mob.apv.type.scoreResponse');
     default:
       return context.t('mob.apv.type.other');
   }
 }
 
 /// The kinds of record the inbox can be narrowed to.
-const List<String> businessTypes = <String>['report.accept', 'plan.publish', 'payment.approve', 'contract.change', 'period.reopen'];
+const List<String> businessTypes = <String>['report.accept', 'plan.publish', 'payment.approve', 'contract.change', 'period.reopen', 'score.response'];
 
 String taskStatusLabel(BuildContext context, String status) {
   switch (status) {

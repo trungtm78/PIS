@@ -14,6 +14,7 @@ import { seedClipAlerts } from './clip/public-alerts.ts';
 import { seedClipEnterpriseAlertTriage, seedClipEnterpriseAlerts } from './clip/enterprise-alerts.ts';
 import { seedClipContractorPortal } from './clip/contractor-portal.ts';
 import { seedClipPhoneWork } from './clip/phone-work.ts';
+import { seedClipPublicApprovals } from './clip/public-approvals.ts';
 import { seedClipPwfReview } from './clip/pwf-review.ts';
 import { seedClipEnterpriseAppraisal } from './clip/enterprise-appraisal.ts';
 import { seedClipEnterpriseNarrative, seedClipEnterpriseProjectDocs } from './clip/enterprise-records.ts';
@@ -78,6 +79,7 @@ export const GROUPS: SeedGroup[] = [
   { name: 'clip-public-extras', seed: seedClipExtras },
   { name: 'clip-public-contractor-portal', seed: seedClipContractorPortal },
   { name: 'clip-public-pwf-review', seed: seedClipPwfReview },
+  { name: 'clip-public-approvals', seed: seedClipPublicApprovals },
   { name: 'clip-public-phone-work', seed: seedClipPhoneWork },
   { name: 'clip-ent-projects', seed: seedClipEnterpriseProjects },
   { name: 'clip-ent-capital', seed: seedClipEnterpriseCapital },
