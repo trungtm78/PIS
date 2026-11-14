@@ -10,14 +10,18 @@ import type { BoardRow } from './model';
 
 export interface BoardListProps {
   rows: readonly BoardRow[];
-  /** The exact total the server counted for the filters, and whether it cut the list it sent. */
+  /** The exact total the server counted for the filters. */
   total: number;
-  truncated: boolean;
   hasMore: boolean;
   loadingMore: boolean;
   onMore: () => void;
   filtered: boolean;
   onClearFilters: () => void;
+  /** The export of the whole list to Excel: what starts it, whether it is running, and what the last one answered. */
+  onExport: () => void;
+  exporting: boolean;
+  exported?: { name: string; rows: number } | undefined;
+  exportFailed?: boolean | undefined;
 }
 
 /** The deadline of a row: the day, or the words that say it cannot be counted (a calendar is missing): never a guessed date. */
@@ -32,8 +36,11 @@ export function DueCell({ row, task }: { row: Pick<DeadlineBoard['items'][number
   );
 }
 
-/** The rows of the board, the official colour of each, the "showing N of M" line with the exact total, the notice of a cut list and the control that loads the next page. */
-export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore, filtered, onClearFilters }: BoardListProps) {
+/**
+ * The rows of the board and the official colour of each. The list comes in pages: the line "showing N of M" (the exact total) is always there, the tasks still to load are said in plain words beside the control
+ * that loads the next page (a list in pages is not a fault, so nothing warns that it was "cut"), and the Excel file always holds every one of the M tasks whatever the page shown.
+ */
+export function BoardList({ rows, total, hasMore, loadingMore, onMore, filtered, onClearFilters, onExport, exporting, exported, exportFailed }: BoardListProps) {
   const { t } = useTranslation();
   const columns: DataTableColumn<BoardRow>[] = [
     {
@@ -63,13 +70,22 @@ export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore
   ];
   return (
     <div data-testid="board-list">
-      <p data-testid="range" role="status">
-        {t('pwf.board.range.text', { shown: rows.length, total })}
-      </p>
-      {truncated ? (
-        <p className="callout warning pwf-notice" data-testid="truncated" role="status">
-          <span aria-hidden="true">⚠ </span>
-          {t('pwf.board.truncated.notice', { total })}
+      <div className="pwf-boardbar">
+        <p data-testid="range" role="status">
+          {t('pwf.board.range.text', { shown: rows.length, total })}
+        </p>
+        <button type="button" className="ui-button ui-button--outline ui-button--small" data-testid="export" disabled={exporting || total === 0} onClick={onExport}>
+          {t('fix10.board.export.action', { total })}
+        </button>
+      </div>
+      {exported === undefined ? null : (
+        <p className="pwf-hint" role="status" data-testid="export-done">
+          {t('fix10.board.export.done', { name: exported.name, rows: exported.rows })}
+        </p>
+      )}
+      {exportFailed === true ? (
+        <p className="callout danger" role="alert" data-testid="export-failed">
+          {t('fix10.board.export.failed')}
         </p>
       ) : null}
       <div className="pwf-free">
@@ -86,8 +102,11 @@ export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore
       </div>
       {hasMore ? (
         <p className="pwf-actions">
+          <span className="pwf-hint" data-testid="rest">
+            {t('fix10.board.rest.text', { rest: Math.max(0, total - rows.length), total })}
+          </span>
           <button type="button" className="ui-button ui-button--outline" data-testid="more" disabled={loadingMore} onClick={onMore}>
-            {t('pwf.board.more.action')}
+            {t('fix10.board.more.action')}
           </button>
         </p>
       ) : null}

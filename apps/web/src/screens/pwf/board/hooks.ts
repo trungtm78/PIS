@@ -1,9 +1,9 @@
-import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import { useApiClient } from '../../../api/ApiClientContext';
 import { usePwfKey } from '../hooks';
 import type { DeadlineBoard, DeadlineCalendar, MilestoneList, Workload } from '../model';
-import { MILESTONE_DAYS, WORKLOAD_WEEKS, boardQuery, calendarQuery, optionsOf } from './model';
-import type { Filters, Option } from './model';
+import { MILESTONE_DAYS, WORKLOAD_WEEKS, boardQuery, calendarQuery, exportQuery, optionsOf } from './model';
+import type { DeadlineExport, Filters, Option } from './model';
 
 /** The board, a page after another: the totals and the counts of the colours are the server's, whatever page was read. It refreshes when the window is focused again. */
 export function useBoard(filters: Filters, enabled: boolean) {
@@ -23,6 +23,12 @@ export function useBoard(filters: Filters, enabled: boolean) {
 }
 
 /** The month calendar; read only while its view is open. */
+/** The whole list the filters leave, as an Excel file made by the server (every row, whatever the page the screen shows); the making is written to the audit trail. */
+export function useExportBoard() {
+  const client = useApiClient();
+  return useMutation<DeadlineExport, Error, Filters>({ mutationFn: (filters) => client.read('exportDeadlineBoard', { query: exportQuery(filters) }), gcTime: 0 });
+}
+
 export function useCalendar(month: string, filters: Filters, enabled: boolean) {
   const client = useApiClient();
   const key = usePwfKey();

@@ -241,6 +241,25 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       expect(portfolio.status).toBe(200);
       expect(portfolio.json).toMatchObject({ official_only: true, total: 4 });
       expect(JSON.stringify(portfolio.json)).not.toContain('personal');
+      // The board as a file holds EVERY task the filters leave, whatever a page of the screen shows (here a page of one), with the official colour only, and is written to the audit trail.
+      expect((await call('GET', '/pwf/deadlines?limit=1', { member: MANAGER })).json).toMatchObject({ shown: 1, total: 4, truncated: true });
+      const file = await call('GET', '/pwf/deadlines/export?format=csv', { member: MANAGER });
+      expect(file).toMatchObject({ status: 200, json: { row_count: 4, content_type: 'text/csv; charset=utf-8' } });
+      expect(String(file.json.file_name)).toMatch(/^bang-deadline-\d{4}-\d{2}-\d{2}\.csv$/);
+      const csv = Buffer.from(String(file.json.content_base64), 'base64').toString('utf8');
+      expect(csv.split(/\r?\n/).filter((line) => /^[^,]*,[^,]*,Task \d+,T\d{4},/.test(line))).toHaveLength(4);
+      expect(csv).toContain('project_code,project,task,task_code,person,status,due,forecast,band,remaining,critical');
+      expect(csv).not.toMatch(/personal|cá nhân/i);
+      const red = (portfolio.json.counts_by_band as { RED: number }).RED;
+      const workbook = await call('GET', '/pwf/deadlines/export?band=RED', { member: MANAGER });
+      expect(workbook).toMatchObject({ status: 200, json: { row_count: red, content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' } });
+      expect(Buffer.from(String(workbook.json.content_base64), 'base64').subarray(0, 2).toString('latin1')).toBe('PK');
+      const audits = await rows<{ diff: { rows: number; format: string; sha256: string } }>("select safe_diff as diff from machvon.audit_event where action = 'pwf.deadlines_exported' and actor_id = $1 order by occurred_at", [memberId(MANAGER)]);
+      expect(audits.map((one) => [one.diff.rows, one.diff.format])).toEqual([[4, 'csv'], [red, 'xlsx']]);
+      expect(audits[0]?.diff.sha256).toBe(file.json.sha256);
+      expect((await call('GET', '/pwf/deadlines/export?format=pdf', { member: MANAGER })).status).toBe(422);
+      // The file is for who may read the board: the same answer as the board itself gives the caller.
+      expect((await call('GET', '/pwf/deadlines/export', { member: READER })).status).toBe((await call('GET', '/pwf/deadlines', { member: READER })).status);
       expect((await call('GET', '/me/project-tasks?band=PURPLE', { member: WORKER })).status).toBe(422);
       // R51: what the person finished lately is a list of its own, by `status=DONE`; a done task never joins the open list, and a status that is neither open nor done is refused.
       const finished = await task(-4, WORKER, 'IN_PROGRESS');

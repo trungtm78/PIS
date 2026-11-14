@@ -388,6 +388,7 @@ final Map<String, Decoder<Object?>> responseDecoders = <String, Decoder<Object?>
   'exportAuditLog': CommandResultResponse.fromJson,
   'exportContractorRecords': CommandResultResponse.fromJson,
   'exportContractReport': CtrReportFileResponse.fromJson,
+  'exportDeadlineBoard': PwfDeadlineExportResponse.fromJson,
   'exportHomeFigures': asObject,
   'exportInvestmentAppraisal': PrjFinAppraisalExportResultResponse.fromJson,
   'exportPackageWorkflowReport': PackageWorkflowExportResponse.fromJson,
@@ -59181,6 +59182,56 @@ final class PwfDeadlineCalendarResponseDaysItemTasksItem implements ResponseMode
         'project_id': projectId,
         'project_code': projectCode,
         'band': band,
+        ...extra,
+      };
+}
+
+final class PwfDeadlineExportResponse implements ResponseModel {
+  const PwfDeadlineExportResponse({
+    required this.fileName,
+    required this.contentType,
+    required this.sizeBytes,
+    required this.sha256,
+    required this.contentBase64,
+    required this.rowCount,
+    required this.asOf,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfDeadlineExportResponse.fromJson(Object? json, [String path = 'PwfDeadlineExportResponse']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfDeadlineExportResponse(
+      fileName: requiredField(map, path, 'file_name', asString),
+      contentType: requiredField(map, path, 'content_type', asString),
+      sizeBytes: requiredField(map, path, 'size_bytes', asInt),
+      sha256: requiredField(map, path, 'sha256', asString),
+      contentBase64: requiredField(map, path, 'content_base64', asString),
+      rowCount: requiredField(map, path, 'row_count', asInt),
+      asOf: requiredField(map, path, 'as_of', asString),
+      extra: unknownFields(map, path, const <String>{'file_name', 'content_type', 'size_bytes', 'sha256', 'content_base64', 'row_count', 'as_of'}, strict: true),
+    );
+  }
+
+  final String fileName;
+  final String contentType;
+  final int sizeBytes;
+  final String sha256;
+  final String contentBase64;
+  final int rowCount;
+  final String asOf;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'file_name': fileName,
+        'content_type': contentType,
+        'size_bytes': sizeBytes,
+        'sha256': sha256,
+        'content_base64': contentBase64,
+        'row_count': rowCount,
+        'as_of': asOf,
         ...extra,
       };
 }

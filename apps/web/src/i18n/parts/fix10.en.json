@@ -18,5 +18,10 @@
   "fix10.mytasks.done.note": "Tasks you finished in the last {days} days, newest first. A finished task has no deadline colour.",
   "fix10.mytasks.done.column": "Finished",
   "fix10.mytasks.done.onTime": "On time",
-  "fix10.mytasks.done.late": "Late"
+  "fix10.mytasks.done.late": "Late",
+  "fix10.board.rest.text": "{rest} more of {total} tasks are not shown yet.",
+  "fix10.board.more.action": "Show more",
+  "fix10.board.export.action": "Export to Excel ({total} tasks)",
+  "fix10.board.export.done": "Exported {name} with all {rows} tasks.",
+  "fix10.board.export.failed": "The Excel file could not be made. Try again or narrow the filters."
 }

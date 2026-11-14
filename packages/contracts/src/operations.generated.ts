@@ -385,6 +385,7 @@ export const OPERATIONS = {
   "exportAuditLog": { method: "post", path: "/audit-exports", versioned: false, stepUp: null, permission: "audit.export" },
   "exportContractReport": { method: "get", path: "/contracts/analytics/reports/{code}/export", versioned: false, stepUp: null, permission: "contract.analytics.read" },
   "exportContractorRecords": { method: "post", path: "/contractor-exports", versioned: false, stepUp: null, permission: "contractor.export" },
+  "exportDeadlineBoard": { method: "get", path: "/pwf/deadlines/export", versioned: false, stepUp: null, permission: "pwf.read" },
   "exportHomeFigures": { method: "get", path: "/home/command-center/export", versioned: false, stepUp: null, permission: "home.read" },
   "exportInvestmentAppraisal": { method: "post", path: "/investment-appraisals/{id}/export", versioned: false, stepUp: null, permission: "project.fin.export" },
   "exportPackageWorkflowReport": { method: "get", path: "/package-workflows/statistics/export", versioned: false, stepUp: null, permission: "bid.read" },

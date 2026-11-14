@@ -1,4 +1,4 @@
-import type { operations } from '@machvon/contracts';
+import type { components, operations } from '@machvon/contracts';
 import { isDay, monthOf } from '../model';
 import type { Band, DeadlineBoard, DeadlineCalendar, MilestoneList, Workload } from '../model';
 
@@ -91,6 +91,27 @@ export function boardQuery(filters: Filters, cursor: string | undefined): BoardQ
   set(query, 'due_to', filters.dueTo);
   if (cursor !== undefined) query.cursor = cursor;
   return query;
+}
+
+export type DeadlineExport = components['schemas']['PwfDeadlineExport'];
+
+/** The query of the Excel file of the board: the filters that are set and no page, so that the file holds every task they leave. */
+export function exportQuery(filters: Filters): Record<string, string> {
+  const query: Record<string, string> = { format: 'xlsx' };
+  for (const [name, value] of Object.entries(boardQuery(filters, undefined))) if (name !== 'limit' && name !== 'cursor' && typeof value === 'string') query[name] = value;
+  return query;
+}
+
+/** Hands a file the server made (base64) to the browser to save; nothing happens where the browser cannot make a file. */
+export function saveFile(file: Pick<DeadlineExport, 'file_name' | 'content_type' | 'content_base64'>): void {
+  if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return;
+  const bytes = Uint8Array.from(atob(file.content_base64), (char) => char.charCodeAt(0));
+  const url = URL.createObjectURL(new Blob([bytes], { type: file.content_type }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = file.file_name;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 /** The calendar answers for one month and for the people and units the filters name (the colour, phase and status filters do not narrow it: the calendar shows every colour of a day). */

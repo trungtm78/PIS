@@ -387,6 +387,7 @@ const Map<String, OperationDescriptor> operationDescriptors = <String, Operation
   'exportAuditLog': OperationDescriptor(method: 'POST', path: '/audit-exports', versioned: false, stepUp: null, permission: 'audit.export'),
   'exportContractReport': OperationDescriptor(method: 'GET', path: '/contracts/analytics/reports/{code}/export', versioned: false, stepUp: null, permission: 'contract.analytics.read'),
   'exportContractorRecords': OperationDescriptor(method: 'POST', path: '/contractor-exports', versioned: false, stepUp: null, permission: 'contractor.export'),
+  'exportDeadlineBoard': OperationDescriptor(method: 'GET', path: '/pwf/deadlines/export', versioned: false, stepUp: null, permission: 'pwf.read'),
   'exportHomeFigures': OperationDescriptor(method: 'GET', path: '/home/command-center/export', versioned: false, stepUp: null, permission: 'home.read'),
   'exportInvestmentAppraisal': OperationDescriptor(method: 'POST', path: '/investment-appraisals/{id}/export', versioned: false, stepUp: null, permission: 'project.fin.export'),
   'exportPackageWorkflowReport': OperationDescriptor(method: 'GET', path: '/package-workflows/statistics/export', versioned: false, stepUp: null, permission: 'bid.read'),

@@ -1159,6 +1159,9 @@ extension MachvonOperations on MachvonApiClient {
   Future<Object?> exportContractorRecords(CtrExportContractorRecords body, {CommandAttempt? attempt}) =>
       execute('exportContractorRecords', body: body, attempt: attempt);
 
+  Future<Object?> exportDeadlineBoard({Map<String, Object?>? query}) =>
+      execute('exportDeadlineBoard', query: query);
+
   Future<Object?> exportHomeFigures({Map<String, Object?>? query}) =>
       execute('exportHomeFigures', query: query);
 

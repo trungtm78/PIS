@@ -1736,6 +1736,7 @@ describe('tenant isolation conformance suite (ST-KERNEL-026, API and database ch
         'decideProjectTaskException',
         'decideStaffScoreAdjustment',
         'evaluateProjectGate',
+        'exportDeadlineBoard',
         'exportStaffScorePeriod',
         'getDeadlineBoard',
         'getDeadlineCalendar',

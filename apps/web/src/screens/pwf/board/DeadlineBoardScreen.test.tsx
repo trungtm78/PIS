@@ -30,6 +30,7 @@ interface Setup {
   workload?: Answer;
   units?: unknown[];
   members?: unknown[] | Error;
+  exportFile?: Answer;
 }
 
 const open = (setup: Setup = {}) => {
@@ -38,6 +39,7 @@ const open = (setup: Setup = {}) => {
     getDeadlineCalendar: setup.calendar ?? calendarBody(),
     getUpcomingMilestones: setup.milestones ?? milestoneBody(),
     getProjectWorkload: setup.workload ?? workloadBody(),
+    ...(setup.exportFile === undefined ? {} : { exportDeadlineBoard: setup.exportFile }),
   });
   (h.client as { readAll: unknown }).readAll = vi.fn(async (operation: string) => {
     if (operation === 'get_resources_organization_unit') return setup.units ?? [{ id: uuid(60), name: 'Ban quản lý dự án 1', code: 'BQL1' }];
@@ -93,7 +95,7 @@ describe('PWF-07: the list of the board', () => {
     expect(document.body.textContent).not.toContain('theo cài đặt của bạn');
   });
 
-  it('says the list is cut when the server cut it, and loads the next page with the cursor', async () => {
+  it('always says "showing N of M", says how many are still to load without calling the list cut, and loads the next page with the cursor', async () => {
     const h = open({
       board: (input: Record<string, unknown>) => {
         const cursor = (input.query as { cursor?: string }).cursor;
@@ -103,12 +105,51 @@ describe('PWF-07: the list of the board', () => {
       },
     });
     await ready();
-    expect(screen.getByTestId('truncated').textContent).toContain(text('pwf.board.truncated.notice', { total: 3 }));
+    // A list in pages is not a fault: no warning says it was "cut"; the line says how many are shown and that the rest loads on demand.
+    expect(screen.queryByTestId('truncated')).toBeNull();
+    expect(screen.getByTestId('range').textContent).toBe(text('pwf.board.range.text', { shown: 1, total: 3 }));
+    expect(screen.getByTestId('rest').textContent).toBe(text('fix10.board.rest.text', { rest: 2, total: 3 }));
+    expect(screen.getByTestId('more').textContent).toBe(text('fix10.board.more.action'));
     fireEvent.click(screen.getByTestId('more'));
     await waitFor(() => expect(document.querySelectorAll('[data-task-id]')).toHaveLength(2));
     expect(queryOf(h, 'getDeadlineBoard').cursor).toBe('c2');
     expect(screen.getByTestId('range').textContent).toBe(text('pwf.board.range.text', { shown: 2, total: 3 }));
     expect(screen.queryByTestId('more')).toBeNull();
+    expect(screen.queryByTestId('rest')).toBeNull();
+  });
+
+  it('exports the whole list the filters leave to Excel (every task, not the page shown), and says how many rows the file holds', async () => {
+    const saved: Array<{ name: string }> = [];
+    // jsdom makes no object URL: the two functions the save uses are given for the length of the test.
+    const original = { create: URL.createObjectURL, revoke: URL.revokeObjectURL };
+    URL.createObjectURL = vi.fn(() => 'blob:board');
+    URL.revokeObjectURL = vi.fn();
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function click(this: HTMLAnchorElement) {
+      saved.push({ name: this.download });
+    });
+    const h = open({
+      path: '/pwf/pwf-07?band=RED',
+      board: board({ truncated: true, total: 152, shown: 1, next_cursor: 'c2' }),
+      exportFile: { file_name: 'bang-deadline-2026-11-14.xlsx', content_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', size_bytes: 3, sha256: 'a'.repeat(64), content_base64: 'UEsD', row_count: 152, as_of: '2026-11-14T03:00:00.000Z' },
+    });
+    await ready();
+    const button = screen.getByTestId('export');
+    expect(button.textContent).toBe(text('fix10.board.export.action', { total: 152 }));
+    fireEvent.click(button);
+    await waitFor(() => expect(screen.getByTestId('export-done').textContent).toBe(text('fix10.board.export.done', { name: 'bang-deadline-2026-11-14.xlsx', rows: 152 })));
+    // The file is asked with the filters of the screen and without a page: the server writes every row.
+    expect(h.read).toHaveBeenCalledWith('exportDeadlineBoard', { query: { band: 'RED', format: 'xlsx' } });
+    expect(saved).toEqual([{ name: 'bang-deadline-2026-11-14.xlsx' }]);
+    URL.createObjectURL = original.create;
+    URL.revokeObjectURL = original.revoke;
+  });
+
+  it('says so when the file could not be made, and keeps the list', async () => {
+    open({ exportFile: refusal('VALIDATION_FAILED', 422) });
+    await ready();
+    fireEvent.click(screen.getByTestId('export'));
+    expect((await screen.findByTestId('export-failed')).getAttribute('role')).toBe('alert');
+    expect(document.querySelectorAll('[data-task-id]').length).toBeGreaterThan(0);
   });
 
   it('never shows a date or a green for a task whose deadline cannot be counted, and says how many there are', async () => {

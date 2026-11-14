@@ -18,5 +18,10 @@
   "fix10.mytasks.done.note": "Việc bạn đã hoàn thành trong {days} ngày gần đây, mới nhất trước. Việc đã xong không còn màu hạn.",
   "fix10.mytasks.done.column": "Hoàn thành",
   "fix10.mytasks.done.onTime": "Đúng hạn",
-  "fix10.mytasks.done.late": "Trễ hạn"
+  "fix10.mytasks.done.late": "Trễ hạn",
+  "fix10.board.rest.text": "Còn {rest} việc chưa hiện trong tổng số {total}.",
+  "fix10.board.more.action": "Xem thêm",
+  "fix10.board.export.action": "Xuất Excel ({total} việc)",
+  "fix10.board.export.done": "Đã xuất tệp {name} với đủ {rows} việc.",
+  "fix10.board.export.failed": "Chưa xuất được tệp Excel. Hãy thử lại hoặc lọc hẹp hơn."
 }

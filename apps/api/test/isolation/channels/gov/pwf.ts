@@ -87,6 +87,7 @@ export const PWF_OPERATIONS: readonly string[] = [
   'getProjectReschedule',
   'decideProjectReschedule',
   'getDeadlineBoard',
+  'exportDeadlineBoard',
   'getDeadlineCalendar',
   'getUpcomingMilestones',
   'getProjectWorkload',

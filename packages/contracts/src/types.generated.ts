@@ -27387,6 +27387,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pwf/deadlines/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Xuất bảng deadline ra tệp Excel: đủ mọi việc mà bộ lọc để lại, chỉ màu chính thức; ghi nhật ký (PWF-07) */
+        get: operations["exportDeadlineBoard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -50691,6 +50708,17 @@ export interface components {
         StaffScorePeriodLockRequest: {
             /** @description Lý do chốt trước ngày cuối kỳ (bắt buộc khi kỳ chưa hết, độ dài tối thiểu theo chính sách chấm điểm); ghi vào nhật ký */
             early_reason?: string;
+        };
+        PwfDeadlineExport: {
+            file_name: string;
+            content_type: string;
+            size_bytes: number;
+            sha256: string;
+            content_base64: string;
+            /** @description Số việc trong tệp: đúng bằng tổng số việc mà bộ lọc để lại (không cắt theo trang) */
+            row_count: number;
+            /** Format: date-time */
+            as_of: string;
         };
     };
     responses: never;
@@ -219315,6 +219343,109 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PwfWorkflowSuggestion"];
+                };
+            };
+            /** @description Invalid request / field not allowed (DTO allowlist) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden / scope / self-approval / entitlement */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Not found within scope (never discloses other tenants) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Version / state / idempotency conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Domain invariant failure */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Rate limit */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    exportDeadlineBoard: {
+        parameters: {
+            query?: {
+                unit_id?: string;
+                project_id?: string;
+                band?: string;
+                phase?: string;
+                assignee_id?: string;
+                status?: string;
+                due_from?: string;
+                due_to?: string;
+                /** @description xlsx (mặc định) hoặc csv */
+                format?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tệp bảng deadline (base64) kèm số dòng và mã băm */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PwfDeadlineExport"];
                 };
             };
             /** @description Invalid request / field not allowed (DTO allowlist) */

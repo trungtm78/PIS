@@ -199,3 +199,7 @@ button.pwf-day .pwf-day__number {
   background: var(--mv-color-success-soft);
   color: var(--mv-color-success);
 }
+
+/* The line "showing N of M" with the export beside it. */
+.pwf-boardbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--mv-space-8) var(--mv-space-16); }
+.pwf-boardbar > p { margin: 0; }

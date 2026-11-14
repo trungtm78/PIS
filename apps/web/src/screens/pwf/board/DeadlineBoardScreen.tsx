@@ -15,9 +15,9 @@ import { CalendarView, MonthNav } from './CalendarView';
 import { FilterBar } from './FilterBar';
 import { MilestonesView } from './MilestonesView';
 import { WorkloadView } from './WorkloadView';
-import { useBoard, useCalendar, useMilestones, usePersonOptions, useUnitOptions, useWorkload } from './hooks';
+import { useBoard, useCalendar, useExportBoard, useMilestones, usePersonOptions, useUnitOptions, useWorkload } from './hooks';
 import { viewWord } from './labels';
-import { BAND_FILTERS, NO_FILTERS, STALE_MINUTES, VIEWS, assigneesOf, filtersOf, isMonth, isStale, paramsOf, phasesOf, shiftMonth, viewOf } from './model';
+import { BAND_FILTERS, NO_FILTERS, STALE_MINUTES, VIEWS, assigneesOf, filtersOf, isMonth, isStale, paramsOf, phasesOf, saveFile, shiftMonth, viewOf } from './model';
 import type { Filters, View } from './model';
 import '../pwf.css';
 import './board.css';
@@ -42,6 +42,7 @@ function BoardContent({ route }: ScreenProps) {
   const write = (nextFilters: Filters, nextView: View, nextMonth: string | undefined): void => setParams(paramsOf(nextFilters, nextView, nextMonth), { replace: true });
 
   const board = useBoard(filters, allowed);
+  const exporter = useExportBoard();
   const calendar = useCalendar(month, filters, allowed && view === 'calendar');
   const milestones = useMilestones(filters, allowed && view === 'milestones');
   const workload = useWorkload(filters, allowed && view === 'workload');
@@ -104,10 +105,13 @@ function BoardContent({ route }: ScreenProps) {
                 <BoardList
                   rows={rows}
                   total={last.total}
-                  truncated={last.truncated}
                   hasMore={board.hasNextPage}
                   loadingMore={board.isFetchingNextPage}
                   onMore={() => void board.fetchNextPage()}
+                  onExport={() => exporter.mutate(filters, { onSuccess: saveFile })}
+                  exporting={exporter.isPending}
+                  exported={exporter.data === undefined ? undefined : { name: exporter.data.file_name, rows: exporter.data.row_count }}
+                  exportFailed={exporter.isError}
                   filtered={Object.values(filters).some((value) => value !== '')}
                   onClearFilters={() => write(NO_FILTERS, view, undefined)}
                 />
