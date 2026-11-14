@@ -370,9 +370,9 @@ describe('the processing workflow of a project (PWF-4)', () => {
       const mine = rows.filter((row) => row.id.startsWith(done.id));
       expect(mine).toHaveLength(1);
       expect(mine[0]).toMatchObject({ id: `${done.id}:TEST_DECREE_OLD`, source: 'PROJECT_TASK', severity: 'WATCH', status: 'AT_RISK', target: { screen: 'PWF-03', id: p.id }, dueOn: '2026-01-01' });
-      expect(mine[0]?.title).toContain('1/2020/ND-CP');
-      expect(mine[0]?.title).toContain(p.code);
-      expect(mine[0]?.subtitle).toContain('2/2026/ND-CP');
+      // The words name the document by its number and the project by its name; no code of the document is in them.
+      expect(mine[0]?.title).toBe('Căn cứ pháp lý 1/2020/ND-CP đã hết hiệu lực');
+      expect(mine[0]?.subtitle).toBe(`Project ${p.code} · được thay bằng 2/2026/ND-CP`);
       expect(mine[0]?.consequence).toBeTruthy();
       // One item per workflow and document, whatever the number of steps and tasks that cite it; a workflow that cites nothing lapsed has none.
       expect(new Set(rows.map((row) => row.id)).size).toBe(rows.length);
