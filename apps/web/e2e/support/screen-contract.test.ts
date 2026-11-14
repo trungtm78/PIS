@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { BASE_CLAUSES, MIN_TEXT_PX, aliasesOf, clausesOf, isOpenToEveryone, undecidedOf, fieldsOutOfOrder, fold, judgeScreen, missingFields, operationMatchers, segmentsOf, showsDenied, unboundCalls } from './screen-contract.ts';
+import { BASE_CLAUSES, MIN_TEXT_PX, aliasesOf, clausesOf, isOpenToEveryone, undecidedOf, fieldsOutOfOrder, fold, judgeScreen, missingFields, operationMatchers, segmentsOf, showsDenied, unboundCalls, wordingPattern } from './screen-contract.ts';
 import type { ApiCall, Clause, ContractInput, Observation, ScreenFacts } from './screen-contract.ts';
 import { PERSONAL_PERMISSIONS, READER_KEY, readerPermissions, withReaderPersona } from './screen-personas.ts';
 
@@ -99,6 +99,17 @@ test('a field is told by its name without the explanation in brackets, or by eac
   assert.deepEqual(missingFields(['Mã và tên bộ kết nối'], 'Mã hiệu của bộ'), ['Mã và tên bộ kết nối'], 'one of the two things is not enough');
   assert.deepEqual(missingFields(['Đơn'], 'đơn vị'), [], 'a word of the text');
   assert.deepEqual(missingFields(['Đơ'], 'đơn vị'), ['Đơ'], 'never a part of another word');
+});
+
+test('a field given wholly in quotation marks is the wording of the screen, a lone capital letter in it a number the screen fills in', () => {
+  assert.deepEqual(missingFields(['"Đang hiện N trên M"'], 'Đang hiện 20 trên 57 việc'), []);
+  assert.deepEqual(missingFields(['"Đang hiện N trên M"'], 'Đang hiện 1.250 trên 3.000 việc'), []);
+  assert.deepEqual(missingFields(['"Đang hiện N trên M"'], 'Đang hiện các việc trên bảng'), ['"Đang hiện N trên M"'], 'the figures are not there');
+  assert.deepEqual(missingFields(['"Đang hiện N trên M"'], 'Hiển thị 20 trên 57 việc'), ['"Đang hiện N trên M"'], 'other words');
+  assert.deepEqual(missingFields(['"Đang hiện N trên M"'], 'đang hiện 20 trên 57x'), ['"Đang hiện N trên M"'], 'never a part of another word');
+  assert.equal(wordingPattern('Cờ "mặc định, chưa xác nhận"'), undefined, 'a quotation inside a longer name is part of the name');
+  assert.deepEqual(missingFields(['Cờ "mặc định, chưa xác nhận"'], 'cờ mặc định, chưa xác nhận'), ['Cờ "mặc định, chưa xác nhận"']);
+  assert.deepEqual(missingFields(['Cờ "mặc định, chưa xác nhận"'], 'Cờ "mặc định, chưa xác nhận"'), []);
 });
 
 test('a path of the contract binds the calls that match its pattern and its method, and names the others', () => {

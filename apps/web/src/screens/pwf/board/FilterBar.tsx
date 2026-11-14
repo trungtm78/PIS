@@ -46,7 +46,7 @@ export function FilterBar({ filters, onChange, onClear, phases, people, units, u
   );
   const applied = appliedCount(filters);
   return (
-    <section className="pwf-filterbar" aria-label={t('pwf6.board.filter.title')} data-testid="filter-bar">
+    <section className="pwf-filterbar" aria-label={t('fix9.pwf07.filter.title')} data-testid="filter-bar">
       <div className="pwf-chips" role="group" aria-label={t('pwf.board.filter.status.label')}>
         <span className="pwf-chips__label">{t('pwf.board.filter.status.label')}</span>
         <button type="button" className="pwf-chip" aria-pressed={filters.status === ''} data-testid="filter-status-any" onClick={() => onChange({ status: '' })}>

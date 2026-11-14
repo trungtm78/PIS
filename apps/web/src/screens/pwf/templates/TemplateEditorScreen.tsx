@@ -15,6 +15,7 @@ import { StepsEditor } from './editor-steps';
 import { PhasesPanel, RolesPanel, TasksPanel } from './editor-panels';
 import { PreviewPanel, ValidationPanel } from './editor-checks';
 import { TextField, problemMapOf } from './editor-fields';
+import { TemplateOutline } from './editor-summary';
 import { useDebouncedValue, usePreviewTemplate, useValidateTemplate } from './hooks';
 import { RuleSavePanel, RuleVersionList } from './store';
 import { addPhase, blankTemplate, localProblems, paramsOfTemplate, readTemplate } from './template-model';
@@ -154,6 +155,7 @@ function EditorContent({ route }: ScreenProps) {
             />
           </div>
         </SectionCard>
+        <TemplateOutline template={template} localProblems={local.length} checked={validated?.key === key ? validated.result : undefined} />
         <Tabs
           label={t('pwf6.editor.tabs.label')}
           testId="editor"

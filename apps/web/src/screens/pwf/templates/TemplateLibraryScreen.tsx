@@ -116,24 +116,29 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
   const columns: DataTableColumn<LibraryRow>[] = [
     {
       key: 'template',
-      header: t('pwf.templates.col.template.header'),
+      header: t('fix9.pwf01.col.template'),
       pinned: true,
       render: (row) => (
         <span className="pwf-tpl-name">
           <strong>{row.summary?.name === '' || row.summary === null ? t('pwf.templates.lib.noName.text') : row.summary.name}</strong>
           <span className="pwf-code">{row.code}</span>
-          {row.summary?.projectType === null || row.summary?.projectType === undefined ? null : (
-            <span className="pwf-hint">
-              {t('pwf6.lib.type.label')} <span>{templateKnown(row.summary.projectType) ? templateName(t, row.summary.projectType) : factName(t, row.summary.projectType)}</span>
-            </span>
-          )}
-          {row.unverified ? <UnverifiedLabel /> : null}
         </span>
       ),
     },
     {
+      // The kind of project the template is for; a template for every kind says so (the field is empty in the editor).
+      key: 'type',
+      header: t('fix9.pwf01.col.type'),
+      render: (row) =>
+        row.summary === null ? null : row.summary.projectType === null || row.summary.projectType === undefined ? (
+          <span className="pwf-hint">{t('fix9.pwf01.type.any')}</span>
+        ) : (
+          <span data-testid={`type-${row.code}`}>{templateKnown(row.summary.projectType) ? templateName(t, row.summary.projectType) : factName(t, row.summary.projectType)}</span>
+        ),
+    },
+    {
       key: 'versions',
-      header: t('pwf.templates.col.versions.header'),
+      header: t('fix9.pwf01.col.versions'),
       render: (row) =>
         row.versions.length === 0 ? (
           <span className="pwf-hint">{t('pwf.templates.lib.noVersions.text')}</span>
@@ -149,21 +154,17 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
     },
     {
       key: 'force',
-      header: t('pwf.templates.col.force.header'),
+      header: t('fix9.pwf01.col.from'),
       render: (row) => (
         <span className="pwf-tpl-name">
+          {row.effectiveFrom === null ? null : <span data-testid={`from-${row.code}`}>{dayText(row.effectiveFrom)}</span>}
           <ForceCell row={row} />
-          {row.effectiveFrom === null ? null : (
-            <span className="pwf-hint">
-              {t('pwf6.lib.from.label')} <span>{dayText(row.effectiveFrom)}</span>
-            </span>
-          )}
         </span>
       ),
     },
     {
       key: 'size',
-      header: t('pwf.templates.col.size.header'),
+      header: t('fix9.pwf01.col.size'),
       render: (row) =>
         row.summary === null ? null : (
           <span className="pwf-tpl-name pwf-nowrap">
@@ -171,6 +172,12 @@ function LibraryTable({ rows, canEdit }: { rows: readonly LibraryRow[]; canEdit:
             {row.summary.steps === undefined ? null : <span className="pwf-hint">{t('pwf.templates.lib.steps.text', { steps: row.summary.steps })}</span>}
           </span>
         ),
+    },
+    {
+      // The flag of a built-in default nobody of the organisation has confirmed yet; a template the organisation approved carries none.
+      key: 'flag',
+      header: t('fix9.pwf01.col.flag'),
+      render: (row) => (row.unverified ? <UnverifiedLabel /> : <span className="pwf-hint">{t('fix9.pwf01.flag.none')}</span>),
     },
     {
       key: 'actions',

@@ -89,7 +89,7 @@ function PolicyContent({ route }: ScreenProps) {
                 setAttempted(false);
               }}
             />
-            <RuleSelect label={t('pwfs.policy.period.label')} path="period_kind" value={form.periodKind} disabled={!canStore} options={PERIOD_KINDS.map((value) => ({ value, label: value === 'MONTH' ? t('pwfs.policy.period.month.option') : value === 'QUARTER' ? t('pwfs.policy.period.quarter.option') : t('pwfs.policy.period.year.option') }))} onChange={(periodKind) => set({ ...form, periodKind })} />
+            <RuleSelect label={t('fix9.pwf10.period.label')} path="period_kind" value={form.periodKind} disabled={!canStore} options={PERIOD_KINDS.map((value) => ({ value, label: value === 'MONTH' ? t('pwfs.policy.period.month.option') : value === 'QUARTER' ? t('pwfs.policy.period.quarter.option') : t('pwfs.policy.period.year.option') }))} onChange={(periodKind) => set({ ...form, periodKind })} />
           </div>
           <p className="adm-kit-sub" data-testid="base-note">
             {baseNote}
@@ -101,7 +101,7 @@ function PolicyContent({ route }: ScreenProps) {
           ) : null}
         </SectionCard>
         <StateBoundary state={effective.isLoading ? 'loading' : 'default'}>
-          <SectionCard title={t('pwfs.policy.roles.title')}>
+          <SectionCard title={t('fix9.pwf10.roles.title')}>
             <p className="adm-kit-sub">{t('pwfs.policy.roles.hint')}</p>
             <div className="pwf-tpl-row">
               {ROLES.map((role) => (
@@ -132,7 +132,7 @@ function PolicyContent({ route }: ScreenProps) {
               onChange={(cancelledUnapproved) => set({ ...form, cancelledUnapproved })}
             />
           </SectionCard>
-          <SectionCard title={t('pwfs.policy.sample.title')}>
+          <SectionCard title={t('fix9.pwf10.sample.title')}>
             <p className="adm-kit-sub">{t('pwfs.policy.sample.hint')}</p>
             <div className="pwf-tpl-row">
               <RuleField label={t('pwfs.policy.sample.tasks.label')} path="min_rated_tasks" value={form.minRatedTasks} inputMode="numeric" onChange={(minRatedTasks) => set({ ...form, minRatedTasks })} {...common} />
@@ -160,7 +160,7 @@ function PolicyContent({ route }: ScreenProps) {
             <p className="adm-kit-sub">{t('pwfs.policy.calibration.hint')}</p>
             <div className="pwf-tpl-row">
               <RuleField label={t('pwfs.policy.calibration.max.label')} path="calibration.max_adjustment_points" value={form.maxAdjustment} inputMode="numeric" onChange={(maxAdjustment) => set({ ...form, maxAdjustment })} {...common} />
-              <RuleField label={t('pwfs.policy.calibration.reason.label')} path="calibration.min_reason_length" value={form.minReason} inputMode="numeric" onChange={(minReason) => set({ ...form, minReason })} {...common} />
+              <RuleField label={t('fix9.pwf10.reason.label')} path="calibration.min_reason_length" value={form.minReason} inputMode="numeric" onChange={(minReason) => set({ ...form, minReason })} {...common} />
             </div>
             <label className="pwf-field">
               <span>
@@ -173,12 +173,12 @@ function PolicyContent({ route }: ScreenProps) {
             <div className="pwf-tpl-row">
               <RuleField label={t('pwfs.policy.window.days.label')} path="response_window_days" value={form.responseWindow} inputMode="numeric" hint={t('pwfs.policy.window.days.hint')} onChange={(responseWindow) => set({ ...form, responseWindow })} {...common} />
               <RuleField
-                label={t('pwfs.policy.retention.label')}
+                label={t('fix9.pwf10.retention.label')}
                 path="retention_months"
                 value={form.retention}
                 inputMode="numeric"
                 hint={t('pwfs.policy.retention.hint')}
-                info={<FigureInfo name={t('pwfs.policy.retention.label')} formula={t('pwfs.policy.retention.formula')} source={t('pwfs.policy.info.source')} asOf={null} version={t('pwfs.policy.info.version')} unverified />}
+                info={<FigureInfo name={t('fix9.pwf10.retention.label')} formula={t('pwfs.policy.retention.formula')} source={t('pwfs.policy.info.source')} asOf={null} version={t('pwfs.policy.info.version')} unverified />}
                 onChange={(retention) => set({ ...form, retention })}
                 {...common}
               />

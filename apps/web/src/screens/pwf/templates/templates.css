@@ -89,3 +89,23 @@
 .pwf-band-sentence {
   font-weight: 600;
 }
+
+/* PWF-02, the outline of the template above the tabs: a term and its figure on a line, two columns where the page is wide enough. */
+.pwf-tpl-outline {
+  display: grid;
+  gap: 8px 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin: 0;
+}
+.pwf-tpl-outline > div {
+  min-width: 0;
+}
+.pwf-tpl-outline dt {
+  color: var(--mv-color-text-secondary);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.pwf-tpl-outline dd {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+}

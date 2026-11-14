@@ -134,7 +134,7 @@ function SetContent({ route }: ScreenProps) {
             {baseNote}
           </p>
           <div className="pwf-figure">
-            <span>{t('pwfs.kpiset.referenceOnly.note')}</span>
+            <span>{t('fix9.pwf09.reference.note')}</span>
             <FigureInfo name={t('pwfs.kpiset.title.text')} formula={t('pwfs.kpiset.info.formula')} source={t('pwfs.kpiset.info.source')} asOf={null} version={t('pwfs.kpiset.info.version')} />
           </div>
         </SectionCard>
@@ -199,7 +199,7 @@ function ItemEditor({ form, index, item, problems, show, disabled, references, o
       <legend>{t('pwfs.kpiset.item.legend', { number: index + 1 })}</legend>
       <div className="pwf-tpl-row">
         <RuleField label={t('pwfs.kpiset.item.kpi.label')} path={`${prefix}.kpi_code`} value={item.kpiCode} suggestions={references.kpiCodes} hint={t('pwfs.kpiset.item.kpi.hint')} onChange={(kpiCode) => patch({ kpiCode })} {...common} />
-        <RuleSelect label={t('pwfs.kpiset.item.operation.label')} path={`${prefix}.operation`} value={item.operation} options={operationOptions} disabled={disabled} onChange={(operation) => patch({ operation })} />
+        <RuleSelect label={t('fix9.pwf09.operation.label')} path={`${prefix}.operation`} value={item.operation} options={operationOptions} disabled={disabled} onChange={(operation) => patch({ operation })} />
         <RuleField label={t('pwfs.kpiset.item.weight.label')} path={`${prefix}.weight`} value={item.weight} inputMode="numeric" hint={t('pwfs.kpiset.item.weight.hint')} onChange={(weight) => patch({ weight })} {...common} />
         <RuleField label={t('pwfs.kpiset.item.rag.label')} path={`${prefix}.rag_code`} value={item.ragCode} suggestions={references.ragCodes} hint={t('pwfs.kpiset.item.rag.hint')} onChange={(ragCode) => patch({ ragCode })} {...common} />
       </div>
@@ -208,7 +208,10 @@ function ItemEditor({ form, index, item, problems, show, disabled, references, o
           {t('pwfs.kpiset.item.facts.text', { unit: unitOfValueWord(t, entry.unit), direction: directionWord(t, entry.good_direction) })}
         </p>
       )}
-      <div className="pwf-tpl-row">
+      <fieldset className="pwf-tpl-sub" data-testid={`operation-params-${index}`}>
+        <legend>{t('fix9.pwf09.params.legend')}</legend>
+        {takes.some((name) => name === 'unit' || name === 'against' || name === 'grace_days') ? null : <p className="adm-kit-sub">{t('fix9.pwf09.params.none')}</p>}
+        <div className="pwf-tpl-row">
         {takes.includes('unit') ? (
           <RuleSelect
             label={t('pwfs.kpiset.item.unit.label')}
@@ -231,9 +234,10 @@ function ItemEditor({ form, index, item, problems, show, disabled, references, o
           />
         ) : null}
         {takes.includes('grace_days') ? <RuleField label={t('pwfs.kpiset.item.grace.label')} path={`${prefix}.grace`} value={item.grace} inputMode="numeric" onChange={(grace) => patch({ grace })} {...common} /> : null}
-      </div>
+        </div>
+      </fieldset>
       <fieldset className="pwf-tpl-sub">
-        <legend>{t('pwfs.kpiset.item.applies.legend')}</legend>
+        <legend>{t('fix9.pwf09.applies.legend')}</legend>
         <p className="adm-kit-sub">{t('pwfs.kpiset.item.applies.hint')}</p>
         <div className="pwf-tpl-row">
           {KINDS.map((kind) => (
@@ -269,7 +273,7 @@ function ScaleEditor({ form, index, item, problems, show, disabled, onChange }: 
   const common = { problems, show, disabled };
   return (
     <fieldset className="pwf-tpl-sub" data-testid={`scale-${index}`}>
-      <legend>{t('pwfs.kpiset.scale.legend')}</legend>
+      <legend>{t('fix9.pwf09.scale.legend')}</legend>
       <div className="pwf-tpl-row">
         <RuleSelect
           label={t('pwfs.kpiset.scale.kind.label')}

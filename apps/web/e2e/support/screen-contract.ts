@@ -342,8 +342,21 @@ const wordAt = (text: string, phrase: string): number => {
   return found === null ? -1 : found.index;
 };
 
+/**
+ * A field the catalogue gives wholly in quotation marks is the wording the screen shows, and a capital letter that stands alone in it is a number the screen fills in: "Đang hiện N trên M" is on a screen
+ * that says "Đang hiện 20 trên 57 việc", and not on one that says neither figure. Undefined for any other field (a quotation inside a longer name stays part of the name, marks and all).
+ */
+export function wordingPattern(field: string): RegExp | undefined {
+  const quoted = /^"([^"]+)"$/.exec(field.trim());
+  if (quoted === null) return undefined;
+  const words = (quoted[1] ?? '').trim().split(/\s+/).map((word) => (/^[A-Z]$/.test(word) ? '\\d[\\d.,]*' : fold(word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  return new RegExp(`(?<![a-z0-9])${words.join(' ')}(?![a-z0-9])`);
+}
+
 /** Where on the screen text the field stands (the first place), or -1 when it is not there. */
 function positionOf(field: string, text: string): number {
+  const wording = wordingPattern(field);
+  if (wording !== undefined) return wording.exec(text)?.index ?? -1;
   const { whole, parts } = aliasesOf(field);
   const at = whole === '' ? -1 : wordAt(text, whole);
   if (at >= 0 || parts.length === 0) return at;

@@ -70,6 +70,18 @@ describe('PWF-02: starting the template', () => {
     expect(screen.getAllByTestId('limit').length).toBeGreaterThanOrEqual(2);
   });
 
+  it('says above the tabs what the template holds, part by part, in the words of the screen catalogue', async () => {
+    open();
+    await ready();
+    const outline = screen.getByTestId('outline');
+    for (const key of ['phases', 'tasks', 'links', 'branches', 'documents', 'checklist', 'kpi', 'checks']) expect(within(outline).getByText(text(`fix9.pwf02.dt.${key}`))).toBeTruthy();
+    // One phase with one gate; two tasks of 20 working days, both mandatory, both with a responsible role, one with a completion approver; one FS link without a lag.
+    expect(screen.getByTestId('outline-phases').textContent).toBe(text('fix9.pwf02.dd.phases', { phases: 1, gates: 1 }));
+    expect(screen.getByTestId('outline-tasks').textContent).toBe(text('fix9.pwf02.dd.tasks', { tasks: 2, days: 20, required: 2, responsible: 2, approver: 1 }));
+    expect(screen.getByTestId('outline-links').textContent).toBe(text('fix9.pwf02.dd.links', { fs: 1, ss: 0, ff: 0, sf: 0, lagged: 0 }));
+    expect(screen.getByTestId('outline-checklist').textContent).toBe(text('fix9.pwf02.dd.checklist', { count: 0 }));
+  });
+
   it('labels a template that ships unconfirmed, and says it is the shipped one', async () => {
     open({ path: '/pwf/pwf-02?code=PUBLIC_REPAIR', effective: shippedEffective() });
     await ready();

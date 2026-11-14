@@ -18,10 +18,49 @@ import {
   renameTask,
   splitCodes,
   summaryOf,
+  templateFigures,
   templateRoleName,
   updateTask,
   usedRoleCodes,
 } from './template-model';
+
+describe('template model: the figures of the outline (PWF-02)', () => {
+  it('counts the phases and gates, the tasks and their days, the links by kind and lag, the branches, the documents, the checklist and the KPI codes', () => {
+    const template = readTemplate(
+      templateParams({
+        phases: [
+          { code: 'P1', name: 'Một', gates: ['submitProjectForAppraisal', 'closeProject'] },
+          { code: 'P2', name: 'Hai', gates: [] },
+        ],
+        tasks: [
+          { code: 'T1', name: 'A', phase: 'P1', kind: 'TASK', duration_working_days: 20, required: true, responsible_role: 'PM', approver_role: 'APPROVER', priority: 'NORMAL', predecessors: [], legal_doc_types: ['QD', 'TT'], form_templates: ['F1'], checklist: [{ code: 'C1', name: 'x', required: true, evidence_kinds: [] }], kpi_codes: ['K1'], when: [{ field: 'project_group', in: ['A'] }] },
+          { code: 'T2', name: 'B', phase: 'P1', kind: 'TASK', duration_working_days: 5, required: false, responsible_role: 'PM', approver_role: null, priority: 'NORMAL', predecessors: [{ task: 'T1', kind: 'FS', lag_working_days: 2 }, { task: 'T1', kind: 'SS', lag_working_days: 0 }], legal_doc_types: ['QD'], form_templates: ['F1', 'F2'] },
+          { code: 'T3', name: 'C', phase: 'P2', kind: 'MILESTONE', duration_working_days: 0, required: true, responsible_role: '', approver_role: null, priority: 'NORMAL', predecessors: [{ task: 'T2', kind: 'FF', lag_working_days: -1 }] },
+        ],
+      }),
+    );
+    expect(templateFigures(template)).toEqual({
+      phases: 2,
+      gates: 2,
+      tasks: 3,
+      workingDays: 25,
+      required: 2,
+      withResponsible: 2,
+      withApprover: 1,
+      links: { FS: 1, SS: 1, FF: 1, SF: 0 },
+      lagged: 2,
+      branched: 1,
+      legalDocTypes: 2,
+      forms: 2,
+      checklistItems: 1,
+      withKpi: 1,
+    });
+  });
+
+  it('is all zeros for a blank template', () => {
+    expect(templateFigures(blankTemplate())).toMatchObject({ phases: 0, gates: 0, tasks: 0, workingDays: 0, links: { FS: 0, SS: 0, FF: 0, SF: 0 }, checklistItems: 0 });
+  });
+});
 
 describe('template model: reading a rule', () => {
   it('reads the params of a rule into a template with every optional part present', () => {

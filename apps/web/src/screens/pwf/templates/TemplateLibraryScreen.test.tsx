@@ -56,6 +56,17 @@ describe('PWF-01: the library of workflow templates', () => {
     expect(within(investment).getByText(text('pwf.templates.lib.count.text', { status: text('gova1.status.approved'), count: 1 }))).toBeTruthy();
     expect(within(investment).getByText(text('pwf.templates.lib.count.text', { status: text('gova1.status.retired'), count: 1 }))).toBeTruthy();
     expect(within(investment).queryByText(text('pwf.common.unverified.label'))).toBeNull();
+    // A template the organisation approved carries no flag, and the column says so.
+    expect(within(investment).getByText(text('fix9.pwf01.flag.none'))).toBeTruthy();
+  });
+
+  it('names its columns as the screen catalogue names the fields: code and name, project type, versions and approval status, in force from, size, the flag', async () => {
+    open();
+    await screen.findByText('Mẫu bản 2');
+    const headers = within(screen.getByRole('table')).getAllByRole('columnheader').map((header) => header.textContent);
+    expect(headers).toEqual([text('fix9.pwf01.col.template'), text('fix9.pwf01.col.type'), text('fix9.pwf01.col.versions'), text('fix9.pwf01.col.from'), text('fix9.pwf01.col.size'), text('fix9.pwf01.col.flag'), text('pwf.templates.col.actions.header')]);
+    expect(screen.getByTestId('from-PUBLIC_INVESTMENT').textContent).toBe('01/12/2026');
+    expect(screen.getByTestId('type-PUBLIC_INVESTMENT').textContent).toBe('CONSTRUCTION');
   });
 
   it('shows the shipped template as "default, not yet confirmed", with no day and no version of the tenant', async () => {

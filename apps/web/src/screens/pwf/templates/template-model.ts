@@ -639,3 +639,55 @@ export function compareTemplates(before: Template, after: Template): TemplateCha
   const own = differing(before, after, ['name', 'project_type']);
   return [...(own.length === 0 ? [] : [{ scope: 'template' as const, code: '', kind: 'changed' as const, fields: own }]), ...compareParts('phase', before.phases, after.phases, ['name', 'gates']), ...compareParts('step', stepsOf(before), stepsOf(after), STEP_FIELDS), ...compareParts('task', before.tasks, after.tasks, TASK_FIELDS)];
 }
+
+/** What a template holds, counted for the outline above the tabs of the editor (PWF-02): each figure is read from the template on the screen, nothing is asked of the server. */
+export interface TemplateFigures {
+  phases: number;
+  /** Gates of PRJ commands or events over all phases. */
+  gates: number;
+  tasks: number;
+  workingDays: number;
+  required: number;
+  withResponsible: number;
+  withApprover: number;
+  /** Links between tasks by kind, and how many of them carry a lag. */
+  links: Readonly<Record<'FS' | 'SS' | 'FF' | 'SF', number>>;
+  lagged: number;
+  /** Tasks that only exist on a branch (a condition on the group of the project, the source of the funding or the kind of project). */
+  branched: number;
+  legalDocTypes: number;
+  forms: number;
+  checklistItems: number;
+  withKpi: number;
+}
+
+export function templateFigures(template: Template): TemplateFigures {
+  const links = { FS: 0, SS: 0, FF: 0, SF: 0 };
+  let lagged = 0;
+  const legal = new Set<string>();
+  const forms = new Set<string>();
+  for (const task of template.tasks) {
+    for (const link of task.predecessors) {
+      links[link.kind] += 1;
+      if (link.lag_working_days !== 0) lagged += 1;
+    }
+    for (const code of task.legal_doc_types) legal.add(code);
+    for (const code of task.form_templates) forms.add(code);
+  }
+  return {
+    phases: template.phases.length,
+    gates: template.phases.reduce((sum, phase) => sum + phase.gates.length, 0),
+    tasks: template.tasks.length,
+    workingDays: template.tasks.reduce((sum, task) => sum + (Number.isFinite(task.duration_working_days) ? task.duration_working_days : 0), 0),
+    required: template.tasks.filter((task) => task.required).length,
+    withResponsible: template.tasks.filter((task) => task.responsible_role !== '').length,
+    withApprover: template.tasks.filter((task) => task.approver_role !== null && task.approver_role !== undefined && task.approver_role !== '').length,
+    links,
+    lagged,
+    branched: template.tasks.filter((task) => task.when.length > 0).length,
+    legalDocTypes: legal.size,
+    forms: forms.size,
+    checklistItems: template.tasks.reduce((sum, task) => sum + task.checklist.length, 0),
+    withKpi: template.tasks.filter((task) => task.kpi_codes.length > 0).length,
+  };
+}

@@ -78,7 +78,7 @@ export function BoardList({ rows, total, truncated, hasMore, loadingMore, onMore
           rows={[...rows]}
           rowKey={(row) => row.task_id}
           rowAttrs={(row) => ({ 'data-task-id': row.task_id, 'data-band': row.band.band })}
-          caption={t('pwf.board.list.caption')}
+          caption={t('fix9.pwf07.list.caption')}
           state="ready"
           emptyKind={filtered ? 'filtered' : 'none'}
           onClearFilters={onClearFilters}

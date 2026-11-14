@@ -12,7 +12,7 @@ export function viewWord(t: T, view: View): string {
     case 'milestones':
       return t('pwf.board.tab.milestones.label');
     case 'workload':
-      return t('pwf.board.tab.workload.label');
+      return t('fix9.pwf07.tab.workload');
   }
 }
 

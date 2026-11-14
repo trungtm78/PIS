@@ -129,12 +129,12 @@ function Counts({ counts, asOf, selected, onSelect }: { counts: Readonly<Record<
   return (
     <BandStrip
       counts={counts}
-      label={t('pwf.board.counts.title')}
+      label={t('fix9.pwf07.counts.title')}
       unit={t('pwf.board.count.unit')}
       selected={selected}
       onSelect={onSelect}
       selectable={BAND_FILTERS}
-      info={<FigureInfo name={t('pwf.board.counts.title')} formula={t('pwf.board.count.formula')} source={t('pwf.board.count.source')} asOf={asOf} version={t('pwf.board.count.version')} />}
+      info={<FigureInfo name={t('fix9.pwf07.counts.title')} formula={t('pwf.board.count.formula')} source={t('pwf.board.count.source')} asOf={asOf} version={t('pwf.board.count.version')} />}
     />
   );
 }

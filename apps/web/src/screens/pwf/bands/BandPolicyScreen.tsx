@@ -131,6 +131,10 @@ function PolicyContent({ route }: ScreenProps) {
                   </option>
                 ))}
               </select>
+              {/* The codes the three sources carry in the rule store, where the versions of this rule are listed by code. */}
+              <span className="gova1-hint" data-testid="source-codes">
+                {t('fix9.pwf08.source.codes')}
+              </span>
             </div>
             <SelectUnit value={form.unit} source={source} disabled={!canStore} problems={problems} show={show} onChange={(unit) => set({ ...form, unit })} />
           </div>
@@ -144,7 +148,7 @@ function PolicyContent({ route }: ScreenProps) {
           ) : null}
         </SectionCard>
         <StateBoundary state={effective.isLoading ? 'loading' : 'default'}>
-        <SectionCard title={t('pwf.bands.ladder.title')}>
+        <SectionCard title={t('fix9.pwf08.ladder.title')}>
           <LadderFields prefix="" ladder={form.ladder} disabled={!canStore} problems={problems} show={show} onChange={(ladder) => set({ ...form, ladder })} withInfo />
           <Preview thresholds={thresholds} unit={form.unit} preview={preview} />
         </SectionCard>
@@ -163,7 +167,7 @@ function PolicyContent({ route }: ScreenProps) {
             </button>
           </p>
         </SectionCard>
-        <SectionCard title={t('pwf.bands.reminders.title')}>
+        <SectionCard title={t('fix9.pwf08.reminders.title')}>
           <div className="pwf-tpl-row">
             <BandField label={t('pwf.bands.reminders.label')} path="reminder_days" hint={t('pwf.bands.reminders.hint')} value={form.reminders} disabled={!canStore} problems={problems} show={show} onChange={(value) => set({ ...form, reminders: value })} />
             <BandField label={t('pwf.bands.escalate.label')} path="escalate_after_overdue_days" hint={t('pwf.bands.escalate.hint')} value={form.escalate} disabled={!canStore} problems={problems} show={show} onChange={(value) => set({ ...form, escalate: value })} />
@@ -238,7 +242,7 @@ function SelectUnit({ value, source, disabled, problems, show, onChange }: { val
   const invalid = show && problem !== undefined;
   return (
     <div className="pwf-field">
-      <label htmlFor={id}>{t('pwf.bands.unit.label')}</label>
+      <label htmlFor={id}>{t('fix9.pwf08.unit.label')}</label>
       <select id={id} value={value} disabled={disabled} aria-invalid={invalid} aria-describedby={`${id}-hint`} data-testid="field-unit" onChange={(event) => onChange(event.target.value as BandUnit)}>
         {UNITS.map((unit) => (
           <option key={unit} value={unit}>
@@ -340,6 +344,9 @@ function Preview({ thresholds, unit, preview }: { thresholds: Thresholds | undef
   return (
     <div className="pwf-tpl-sub" data-testid="preview">
       <h3>{t('pwf.bands.preview.title')}</h3>
+      <p className="pwf-hint" data-testid="preview-pattern">
+        {t('fix9.pwf08.preview.pattern')}
+      </p>
       {thresholds !== undefined && thresholds.green_days === OWNER_EXAMPLE.green_days && thresholds.yellow_days === OWNER_EXAMPLE.yellow_days && thresholds.red_days === OWNER_EXAMPLE.red_days ? null : (
         <p className="pwf-band-sentence" data-testid="owner-example">
           <StatusPill tone="info" icon="ⓘ">
