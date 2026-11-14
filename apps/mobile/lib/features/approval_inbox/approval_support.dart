@@ -135,6 +135,10 @@ String problemText(BuildContext context, DecisionProblem problem) {
       return context.t('mob.apv.problem.sessionEnded');
     case DecisionProblem.general:
       return context.t('mob.apv.problem.general');
+    case DecisionProblem.maker:
+      return context.t('mob.apv.problem.maker');
+    case DecisionProblem.moved:
+      return context.t('mob.apv.problem.moved');
   }
 }
 
@@ -192,6 +196,12 @@ String? summaryFactLabel(BuildContext context, String code) => switch (code) {
       'CURRENT_FINISH' => context.t('mob.apv.sum.fact.currentFinish'),
       'POINTS' => context.t('mob.apv.sum.fact.points'),
       'EXCEPTION_KIND' => context.t('mob.apv.sum.fact.exceptionKind'),
+      'ACTUAL_FINISH' => context.t('mob.apv.sum.fact.actualFinish'),
+      'VALID_FROM' => context.t('mob.apv.sum.fact.validFrom'),
+      'VALID_TO' => context.t('mob.apv.sum.fact.validTo'),
+      'WAIVED_ITEMS' => context.t('mob.apv.sum.fact.waivedItems'),
+      'FINISH_SHIFT_DAYS' => context.t('mob.apv.sum.fact.finishShiftDays'),
+      'CHANGED_TASKS' => context.t('mob.apv.sum.fact.changedTasks'),
       _ => null,
     };
 
@@ -207,6 +217,15 @@ String summaryFactValue(BuildContext context, SummaryFact fact) {
       'RATED' => context.t('mob.apv.sum.state.rated'),
       'SMALL_SAMPLE' => context.t('mob.apv.sum.state.smallSample'),
       _ => context.t('mob.apv.sum.state.notRated'),
+    };
+  }
+  if (fact.code == 'EXCEPTION_KIND') {
+    return switch (raw) {
+      'WAIVE_REQUIREMENT' => context.t('mob.apv.sum.exception.waive'),
+      'CANCEL_TASK' => context.t('mob.apv.sum.exception.cancel'),
+      'PAUSE' => context.t('mob.apv.sum.exception.pause'),
+      'EXTERNAL_DELAY' => context.t('mob.apv.sum.exception.delay'),
+      _ => context.t('mob.apv.pend.kind.exception'),
     };
   }
   if (fact.code == 'RATING') {

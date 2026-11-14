@@ -22,6 +22,8 @@ import '../../read_support/paged.dart';
 import '../../read_support/wire.dart';
 import '../approval_models.dart';
 import '../approval_support.dart';
+import '../pending_decisions.dart';
+import 'pending_decision_sheet.dart';
 
 /// MOB-23: the approvals waiting for the person, the late ones first. A row opens the detail (MOB-24); there is no swipe and no
 /// one-tap way to approve from the list. The number of tasks waiting is the badge of the Approvals tab.
@@ -52,9 +54,9 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
         read: _read,
         parse: parseApprovalInbox,
         asOf: (ApprovalInbox inbox) => inbox.asOf,
-        isEmpty: (ApprovalInbox inbox) => inbox.tasks.isEmpty,
+        isEmpty: (ApprovalInbox inbox) => inbox.waitingCount == 0 && !inbox.pendingUnavailable,
         emptyBody: context.t('mob.apv.inbox.none.body'),
-        onLoaded: (Loaded<ApprovalInbox> loaded) => ref.read(tabBadgeProvider.notifier).set(AppTab.approval, loaded.value.tasks.length),
+        onLoaded: (Loaded<ApprovalInbox> loaded) => ref.read(tabBadgeProvider.notifier).set(AppTab.approval, loaded.value.waitingCount),
         builder: (BuildContext context, Loaded<ApprovalInbox> loaded) {
           return _InboxBody(
             inbox: loaded.value,
@@ -76,7 +78,23 @@ class _ApprovalInboxScreenState extends ConsumerState<ApprovalInboxScreen> {
     } on ApiError catch (error) {
       if (error.code == networkErrorCode) rethrow;
     }
-    return <String, Object?>{'items': tasks['items'], 'as_of': tasks['as_of'], 'units': units};
+    // The records of the modules that wait for the person outside the engine (PWF 20.9). A source that cannot be read is named, never shown as "nothing waits"; a lost connection fails the read so that the copy is shown.
+    Object? pending;
+    bool pendingUnavailable = false;
+    try {
+      pending = await client.listMyPendingDecisions();
+    } on ApiError catch (error) {
+      if (error.code == networkErrorCode) rethrow;
+      pendingUnavailable = true;
+    }
+    final Json? pendingBody = asRecord(pending);
+    return <String, Object?>{
+      'items': tasks['items'],
+      'as_of': tasks['as_of'],
+      'units': units,
+      'pending': pendingBody?['items'] ?? const <Object?>[],
+      'pending_unavailable': pendingUnavailable || (listOf(pendingBody?['unavailable_sources']).isNotEmpty),
+    };
   }
 }
 
@@ -109,7 +127,7 @@ class _InboxBody extends StatelessWidget {
     final List<ApprovalTask> late = <ApprovalTask>[for (final ApprovalTask task in shown) if (task.overdue) task];
     final List<ApprovalTask> open = <ApprovalTask>[for (final ApprovalTask task in shown) if (!task.overdue) task];
     final List<ChipOption<String>> chips = <ChipOption<String>>[
-      ChipOption<String>(value: _chipAll, label: context.t('mob.apv.inbox.filter.all'), count: inbox.tasks.length),
+      ChipOption<String>(value: _chipAll, label: context.t('mob.apv.inbox.filter.all'), count: inbox.waitingCount),
       if (inbox.overdueCount > 0) ChipOption<String>(value: _chipLate, label: context.t('mob.apv.inbox.chip.late'), count: inbox.overdueCount),
       for (final String type in businessTypes)
         if (inbox.tasks.any((ApprovalTask task) => task.businessType == type))
@@ -122,12 +140,17 @@ class _InboxBody extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, bottom: MachvonV2Space.s4),
           child: Text(
-            context.t('mob.apv.inbox.counts', <String, Object>{'open': inbox.tasks.length, 'late': inbox.overdueCount}),
+            context.t('mob.apv.inbox.counts', <String, Object>{'open': inbox.waitingCount, 'late': inbox.overdueCount}),
             style: text.caption.copyWith(color: context.v2.palette.ink2),
           ),
         ),
         FilterChips<String>(options: chips, selected: chip, onChanged: (String next) => onFilter(_filterOfChip(next))),
-        if (shown.isEmpty)
+        if (inbox.pendingUnavailable)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: MachvonV2Space.s16, vertical: MachvonV2Space.s8),
+            child: Semantics(liveRegion: true, container: true, child: Text(context.t('mob.apv.pend.unavailable'), key: const ValueKey<String>('pending-unavailable'), style: text.captionStrong.copyWith(color: context.v2.palette.soonFg))),
+          ),
+        if (shown.isEmpty && !(filter.isEmpty && inbox.pending.isNotEmpty))
           SizedBox(
             height: 360,
             child: StateView(
@@ -147,6 +170,10 @@ class _InboxBody extends StatelessWidget {
         for (int index = 0; index < late.length; index += 1) ApprovalRow(task: late[index], unitName: inbox.unitNames[late[index].unitId], dividerAbove: index > 0),
         if (open.isNotEmpty) GroupHeader(title: context.t('mob.apv.inbox.group.open'), count: open.length),
         for (int index = 0; index < open.length; index += 1) ApprovalRow(task: open[index], unitName: inbox.unitNames[open[index].unitId], dividerAbove: index > 0),
+        // The records of the modules that wait outside the engine are listed when nothing narrows the list: a kind or the late ones filter the tasks of the engine.
+        if (filter.isEmpty && inbox.pending.isNotEmpty) GroupHeader(title: context.t('mob.apv.pend.group'), count: inbox.pending.length),
+        if (filter.isEmpty)
+          for (int index = 0; index < inbox.pending.length; index += 1) PendingRow(item: inbox.pending[index], dividerAbove: index > 0),
       ],
     );
   }
@@ -230,6 +257,40 @@ class ApprovalRow extends StatelessWidget {
       semanticLabel: spoken,
       dividerAbove: dividerAbove,
       onTap: () => openScreen(context, 'MOB-24', pathSuffix: '/${Uri.encodeComponent(task.id)}'),
+    );
+  }
+}
+
+/// One record that waits outside the approval engine (PWF 20.9): the kind, the project or the person, who sent it and the day. It opens as a sheet that reads the record in full
+/// and offers the decisions its own command takes; no decision is made from the list.
+class PendingRow extends StatelessWidget {
+  const PendingRow({required this.item, this.dividerAbove = false, super.key});
+
+  final PendingDecision item;
+  final bool dividerAbove;
+
+  @override
+  Widget build(BuildContext context) {
+    final String kind = pendingKindLabel(context, item.kind);
+    final ApprovalSummary summary = item.summary;
+    final String? project = summaryProjectLine(summary);
+    final MachvonV2Text text = context.v2text;
+    final String language = AppStrings.of(context).language;
+    final String subtitle = <String>[?project, ?summary.subjectName, ?summary.unitName].join(' · ');
+    final String sender = <String>[
+      if (item.initiatorName != null) context.t('mob.apv.inbox.row.sender', <String, Object>{'name': item.initiatorName!}),
+      context.t('mob.apv.inbox.row.sent', <String, Object>{'day': formatDay(item.submittedAt, language: language)}),
+    ].join(' · ');
+    final String spoken = <String>[kind, if (subtitle.isNotEmpty) subtitle, sender, context.t('mob.apv.pend.row.waiting')].join('. ');
+    return WorkRow(
+      title: kind,
+      subtitle: subtitle.isEmpty ? null : subtitle,
+      footer: Text(sender, style: text.caption),
+      leading: const DeadlineGlyph(band: DeadlineBand.ok),
+      trailing: Text(context.t('mob.apv.pend.row.waiting'), style: text.caption, textAlign: TextAlign.end),
+      semanticLabel: spoken,
+      dividerAbove: dividerAbove,
+      onTap: () => showPendingDecisionSheet(context, item),
     );
   }
 }

@@ -74,3 +74,35 @@ HttpResult decided() => HttpResult(
       headers: <String, String>{'content-type': 'application/json'},
       body: jsonEncode(<String, Object?>{'operation_id': '3f2b6c1e-0000-4000-8000-0000000000b1', 'status': 'DECIDED', 'resource_version': 5, 'resource_id': 't-1'}),
     );
+
+/// `listMyPendingDecisions`: the records of PWF that wait for the person outside the approval engine.
+Map<String, Object?> pendingPage(List<Object?> items, {List<String> unavailable = const <String>[]}) => <String, Object?>{'items': items, 'unavailable_sources': unavailable, 'truncated': false, 'as_of': '2026-11-02T09:00:00Z'};
+
+/// One pending completion of a task (PWF 20.9), as the server lists it.
+Map<String, Object?> pendingCompletion(String id, {int version = 4, String? initiator = 'Nguyễn Văn An'}) => <String, Object?>{
+      'id': 'pwf.task.completion:$id',
+      'kind': 'pwf.task.completion',
+      'resource': <String, Object?>{'type': 'project_task', 'id': id},
+      'version': version,
+      'submitted_at': '2026-11-14T03:00:00.000Z',
+      'initiator': <String, Object?>{'name': initiator},
+      'due_at': null,
+      'overdue': false,
+      'summary': <String, Object?>{
+        'kind': 'pwf.task.completion',
+        'subject': null,
+        'unit': <String, Object?>{'id': 'u-bql1', 'code': 'BQL1', 'name': 'Ban QLDA giao thông'},
+        'project': <String, Object?>{'id': 'p-1', 'code': 'DA-001', 'name': 'Đường vành đai 1'},
+        'period': null,
+        'facts': <Object?>[
+          <String, Object?>{'code': 'TASK', 'value': 'Lập hồ sơ dự toán'},
+          <String, Object?>{'code': 'DUE_DATE', 'value': '2026-11-20'},
+        ],
+        'body': 'Đã đủ chứng từ, đề nghị duyệt hoàn thành.',
+        'target': <String, Object?>{'screen': 'PWF-04', 'id': id},
+      },
+      'actions': <Object?>[
+        <String, Object?>{'decision': 'approve', 'operation_id': 'approveProjectTaskCompletion', 'reason_required': false, 'reason_min': 5, 'reason_max': 500},
+        <String, Object?>{'decision': 'return', 'operation_id': 'returnProjectTask', 'reason_required': true, 'reason_min': 20, 'reason_max': 500},
+      ],
+    };

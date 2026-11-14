@@ -135,7 +135,7 @@ class _DetailBody extends StatelessWidget {
                       if (task.initiatorName != null) InfoRow(label: context.t('mob.apv.sum.row.sender'), value: task.initiatorName),
                       if (task.submittedAt != null) InfoRow(label: context.t('mob.apv.sum.row.sent'), value: formatDay(task.submittedAt!, language: AppStrings.of(context).language)),
                       // What the record IS, as its module says it (lane fix11): nobody approves a response, an exception or an adjustment they cannot read.
-                      if (task.summary != null) _Summary(summary: task.summary!),
+                      if (task.summary != null) ApprovalSummaryView(summary: task.summary!),
                     ],
                   ),
                   // The comparison of two revisions and the files are of a report. A record whose module says what it is (a summary) and that is no report is not given two tabs that only say "not available".
@@ -166,8 +166,8 @@ class _DetailBody extends StatelessWidget {
 }
 
 /// The record of the task as its module says it: who it is about, the project, the period with where it stands, the named facts, and what the sender wrote, in full.
-class _Summary extends StatelessWidget {
-  const _Summary({required this.summary});
+class ApprovalSummaryView extends StatelessWidget {
+  const ApprovalSummaryView({required this.summary, super.key});
 
   final ApprovalSummary summary;
 
