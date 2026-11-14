@@ -857,6 +857,33 @@ describe('the workflow of a project (PWF-1: start, adopt, tasks, gate, reschedul
       expect(await refusal(as((tx) => reads.detail(tx, nothing, p.id, now(), { manage: false, proposeReschedule: false, work: false, approve: false, assign: false })))).toMatchObject({ status: 404 });
     });
 
+    it('B9, B10: names the people and the document of a task: who did each entry of its history, who attached and ticked, who gave the task, and the title of the document, never a bare id', async () => {
+      const p = await project();
+      const wf = await start(p.id);
+      await doneA(wf.id);
+      const a = await taskOf(wf.id, 'TA');
+      const full = (await as((tx) => taskReads.task(tx, everything, a.id as string, now(), memberId(MANAGER), { manage: true, proposeReschedule: true, work: true, approve: true, assign: true }))) as {
+        history: Array<{ kind: string; actor: string; actor_name: string | null }>;
+        evidence: Array<Record<string, unknown>>;
+        checklist: Array<Record<string, unknown>>;
+        assignments: Array<Record<string, unknown>>;
+      };
+      const who = Object.fromEntries(full.history.map((one) => [one.kind, [one.actor, one.actor_name]]));
+      expect(who).toMatchObject({
+        ASSIGNED: [memberId(MANAGER), `User ${MANAGER}`],
+        START: [memberId(WORKER), `User ${WORKER}`],
+        EVIDENCE_ATTACHED: [memberId(WORKER), `User ${WORKER}`],
+        CHECKLIST_DONE: [memberId(WORKER), `User ${WORKER}`],
+        COMPLETE_REQUESTED: [memberId(WORKER), `User ${WORKER}`],
+        APPROVED: [memberId(CHECKER), `User ${CHECKER}`],
+      });
+      expect(full.history.every((one) => one.actor_name !== null)).toBe(true);
+      expect(full.evidence[0]).toMatchObject({ attached_by: memberId(WORKER), attached_by_name: `User ${WORKER}`, document_title: 'A paper' });
+      expect(String(full.evidence[0]?.document_symbol)).toMatch(/^QD-/);
+      expect(full.checklist[0]).toMatchObject({ done: true, done_by: memberId(WORKER), done_by_name: `User ${WORKER}` });
+      expect(full.assignments[0]).toMatchObject({ membership_id: memberId(WORKER), display_name: `User ${WORKER}`, assigned_by: memberId(MANAGER), assigned_by_name: `User ${MANAGER}` });
+    });
+
     it('does not show a project of another tenant (404)', async () => {
       const p = await project();
       await start(p.id);

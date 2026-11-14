@@ -512,7 +512,7 @@ function taskProblems(task: EditorTask, index: number, taken: ReadonlySet<string
   }
   if (!whole(task.duration_working_days, 0, MAX_DURATION)) out.push({ path: `${path}.duration_working_days`, problem: 'range' });
   push(codeProblem(`${path}.responsible_role`, task.responsible_role));
-  if (task.approver_role !== null && !CODE_PATTERN.test(task.approver_role)) out.push({ path: `${path}.approver_role`, problem: 'pattern' });
+  if (typeof task.approver_role === 'string' && !CODE_PATTERN.test(task.approver_role)) out.push({ path: `${path}.approver_role`, problem: 'pattern' });
   out.push(...linkProblems(path, task, codes), ...detailProblems(path, task));
   return out;
 }

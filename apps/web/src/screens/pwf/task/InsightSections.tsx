@@ -34,6 +34,12 @@ export function PredecessorsSection({ task }: { task: TaskDetail }) {
   );
 }
 
+/** The first letters of the first and the last word of a name, for the mark beside an entry of the history. */
+export const initialsOf = (name: string): string => {
+  const words = name.trim().split(/\s+/).filter((word) => word !== '');
+  return ((words[0]?.[0] ?? '') + (words.length > 1 ? (words[words.length - 1]?.[0] ?? '') : '')).toUpperCase();
+};
+
 const timelineKind = (entry: HistoryEntry): 'return' | 'hold' | 'note' => (entry.kind === 'RETURNED' ? 'return' : entry.kind === 'PAUSE_APPROVED' ? 'hold' : 'note');
 
 /** The log of the task: who did what and when, newest first, with the reason of a return. */
@@ -41,7 +47,7 @@ export function HistorySection({ task }: { task: TaskDetail }) {
   const { t } = useTranslation();
   const groups: TimelineGroup[] = historyGroups(task.history).map((group) => ({
     date: group.date,
-    entries: group.entries.map((entry) => ({ id: entry.id, at: entry.at, kind: timelineKind(entry), title: historyWord(t, entry.kind), ...(entry.reason === null ? {} : { note: entry.reason }) })),
+    entries: group.entries.map((entry) => ({ id: entry.id, at: entry.at, kind: timelineKind(entry), title: historyWord(t, entry.kind), ...(typeof entry.actor_name === 'string' && entry.actor_name !== '' ? { actor: { name: entry.actor_name, initials: initialsOf(entry.actor_name) } } : {}), ...(entry.reason === null ? {} : { note: entry.reason }) })),
   }));
   return (
     <SectionCard title={t('pwf.task.history.title')}>

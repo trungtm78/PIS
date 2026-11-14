@@ -87,7 +87,7 @@ function Detail({ line }: { line: ScoreLine }) {
               <Link to={periodLink(line.period_id)}>{t('pwfs.detail.period.link')}</Link> · <Link to={unitLink(line.period_id)}>{t('pwfs.detail.unit.link')}</Link>
             </dd>
             <dt>{t('pwfs.detail.unitAt.label')}</dt>
-            <dd data-testid="unit-at">{line.unit_id_at_period}</dd>
+            <dd data-testid="unit-at">{line.unit_name_at_period ?? line.unit_code_at_period ?? line.unit_id_at_period}</dd>
           </dl>
         </div>
       </SectionCard>

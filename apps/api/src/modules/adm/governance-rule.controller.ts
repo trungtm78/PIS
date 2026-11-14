@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
 import { GovernanceRuleStore, GovernancePolicyPort, TenantDatabase, governanceRulePhaseOf } from '@machvon/db';
-import type { GovernanceRuleRow } from '@machvon/db';
+import type { GovernanceRuleRow, TenantTx } from '@machvon/db';
 import { DomainError, isRuleCode, isRuleDay, isRuleTypeName, ruleTypeOf } from '@machvon/kernel';
 import type { EffectiveAccess, GovernanceRuleStatus, ResolvedGovernanceRule, TenantContext } from '@machvon/kernel';
 import { Command, Scope } from '../../command.decorator';
@@ -92,6 +92,25 @@ function viewOf(row: GovernanceRuleRow, today: string): Record<string, unknown> 
     retire_reason: row.retireReason,
     resource_version: row.rowVersion,
   };
+}
+
+/**
+ * The versions with the names of the people and of the unit they name (B9): who drafted, submitted, approved and retired each version, from the directory of the tenant, and the unit of an override by its name. A screen then says
+ * "approved by Trần Thị Bích" and never a piece of an identifier. A person who is no longer in the directory, or a unit that is gone, is null: the id stays beside it.
+ */
+async function named(tx: TenantTx, views: ReadonlyArray<Record<string, unknown>>): Promise<Array<Record<string, unknown>>> {
+  const fields = ['created_by', 'submitted_by', 'approved_by', 'retired_by'] as const;
+  const people = [...new Set(views.flatMap((view) => fields.map((field) => view[field])).filter((id): id is string => typeof id === 'string'))];
+  const units = [...new Set(views.map((view) => view.unit_id).filter((id): id is string => typeof id === 'string'))];
+  const names = people.length === 0 ? [] : await tx.query<{ membership_id: string; display_name: string | null }>('select membership_id, display_name from machvon.tenant_user_directory where membership_id = any($1::uuid[])', [people]);
+  const unitRows = units.length === 0 ? [] : await tx.query<{ id: string; name: string }>('select id, name from machvon.organization_unit where id = any($1::uuid[])', [units]);
+  const nameOf = new Map(names.map((row) => [row.membership_id, row.display_name] as const));
+  const unitOfId = new Map(unitRows.map((row) => [row.id, row.name] as const));
+  return views.map((view) => ({
+    ...view,
+    ...Object.fromEntries(fields.map((field) => [`${field}_name`, typeof view[field] === 'string' ? (nameOf.get(view[field] as string) ?? null) : null])),
+    unit_name: typeof view.unit_id === 'string' ? (unitOfId.get(view.unit_id) ?? null) : null,
+  }));
 }
 
 function resolvedView(resolved: ResolvedGovernanceRule, asOf: string): Record<string, unknown> {
@@ -263,7 +282,7 @@ export class GovernanceRuleReadsController {
       const rows = await this.store.list(tx, filter);
       const shown = rows.slice(0, request.limit);
       const last = shown[shown.length - 1];
-      return { items: shown.map((row) => viewOf(row, today)), next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.createdAt, id: last.id }) : null };
+      return { items: await named(tx, shown.map((row) => viewOf(row, today))), next_cursor: rows.length > request.limit && last !== undefined ? encodeCursor({ code: last.createdAt, id: last.id }) : null };
     });
   }
 
@@ -338,7 +357,7 @@ export class GovernanceRuleReadsController {
     return this.database.withTenant(tenant, async (tx) => {
       const today = await this.store.today(tx);
       const rows = await this.store.versions(tx, wantedType, wantedCode, unitId ?? null);
-      return { items: rows.map((row) => viewOf(row, today)) };
+      return { items: await named(tx, rows.map((row) => viewOf(row, today))) };
     });
   }
 
@@ -349,7 +368,7 @@ export class GovernanceRuleReadsController {
     return this.database.withTenant(tenant, async (tx) => {
       const row = await this.store.find(tx, ruleId);
       if (row === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-      return viewOf(row, await this.store.today(tx));
+      return (await named(tx, [viewOf(row, await this.store.today(tx))]))[0] as Record<string, unknown>;
     });
   }
 
@@ -421,7 +440,7 @@ export class AlertTypeReadsController {
       const found = await this.store.effective(tx, ALERT_TYPE, code, when, unitId ?? null);
       if (found === undefined) throw new DomainError('GOVERNANCE_RULE_NOT_FOUND', 404, 'code');
       const versions = await this.store.versions(tx, ALERT_TYPE, code, unitId ?? null);
-      return { ...alertView(found, today), versions: versions.map((row) => viewOf(row, today)) };
+      return { ...alertView(found, today), versions: await named(tx, versions.map((row) => viewOf(row, today))) };
     });
   }
 }

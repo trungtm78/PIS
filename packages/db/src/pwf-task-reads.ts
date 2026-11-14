@@ -28,7 +28,9 @@ interface AssignmentSql {
   share_pct: number;
   reason: string;
   assigned_by: string;
+  assigned_by_name: string | null;
   approved_by: string | null;
+  approved_by_name: string | null;
 }
 
 const assignmentOf = (row: AssignmentSql): Record<string, unknown> => ({
@@ -42,10 +44,15 @@ const assignmentOf = (row: AssignmentSql): Record<string, unknown> => ({
   share_pct: row.share_pct,
   reason: row.reason,
   assigned_by: row.assigned_by,
+  assigned_by_name: row.assigned_by_name,
   approved_by: row.approved_by,
+  approved_by_name: row.approved_by_name,
 });
 
-const ASSIGNMENT_SELECT = `select a.id, a.task_id, a.membership_id, u.display_name, a.role, a.valid_from::text as valid_from, a.valid_to::text as valid_to, a.share_pct, a.reason, a.assigned_by, a.approved_by
+/** The name of a person from the directory of the tenant, for a row of the alias `alias` (B9, B10: a screen names people, units and documents, never their ids). */
+const PERSON = (alias: string, member: string): string => `(select d.display_name from machvon.tenant_user_directory d where d.tenant_id = ${alias}.tenant_id and d.membership_id = ${member})`;
+
+const ASSIGNMENT_SELECT = `select a.id, a.task_id, a.membership_id, u.display_name, a.role, a.valid_from::text as valid_from, a.valid_to::text as valid_to, a.share_pct, a.reason, a.assigned_by, ${PERSON('a', 'a.assigned_by')} as assigned_by_name, a.approved_by, ${PERSON('a', 'a.approved_by')} as approved_by_name
   from machvon.project_task_assignment a left join machvon.tenant_user_directory u on u.tenant_id = a.tenant_id and u.membership_id = a.membership_id`;
 
 export class PwfTaskReads {
@@ -80,21 +87,26 @@ export class PwfTaskReads {
     const assignmentRows = await tx.query<AssignmentSql>(`${ASSIGNMENT_SELECT} where a.task_id = $1::uuid order by a.valid_from, a.role, a.id`, [task.id]);
     const current = assignmentRows.find((row) => row.role === 'RESPONSIBLE' && row.valid_from <= today && (row.valid_to === null || row.valid_to >= today));
     const held = (roles: readonly string[]): boolean => assignmentRows.some((row) => row.membership_id === viewer && roles.includes(row.role) && row.valid_from <= today && (row.valid_to === null || row.valid_to >= today));
-    const checklist = await tx.query<{ item_code: string; name: string; required: boolean; evidence_kinds: string[]; done: boolean; done_by: string | null; done_at: string | null }>(
-      `select item_code, name, required, evidence_kinds, done, done_by, ${ISO('done_at')} as done_at from machvon.project_task_checklist_item where task_id = $1::uuid order by item_code`,
+    const checklist = await tx.query<{ item_code: string; name: string; required: boolean; evidence_kinds: string[]; done: boolean; done_by: string | null; done_by_name: string | null; done_at: string | null }>(
+      `select i.item_code, i.name, i.required, i.evidence_kinds, i.done, i.done_by, ${PERSON('i', 'i.done_by')} as done_by_name, ${ISO('i.done_at')} as done_at from machvon.project_task_checklist_item i where i.task_id = $1::uuid order by i.item_code`,
       [task.id],
     );
-    const evidence = await tx.query<{ id: string; item_code: string | null; evidence_kind: string; document_id: string | null; legal_doc_type: string | null; form_template_code: string | null; form_template_revision: number | null; form_template_sha256: string | null; external_ref: string | null; note: string | null; attached_by: string; attached_at: string }>(
-      `select id, item_code, evidence_kind, document_id, legal_doc_type, form_template_code, form_template_revision, form_template_sha256::text as form_template_sha256, external_ref, note, attached_by, ${ISO('attached_at')} as attached_at from machvon.project_task_evidence where task_id = $1::uuid order by attached_at, id`,
+    const evidence = await tx.query<{ id: string; item_code: string | null; evidence_kind: string; document_id: string | null; legal_doc_type: string | null; form_template_code: string | null; form_template_revision: number | null; form_template_sha256: string | null; external_ref: string | null; note: string | null; attached_by: string; attached_by_name: string | null; attached_at: string; document_title: string | null; document_symbol: string | null }>(
+      `select e.id, e.item_code, e.evidence_kind, e.document_id, e.legal_doc_type, e.form_template_code, e.form_template_revision, e.form_template_sha256::text as form_template_sha256, e.external_ref, e.note, e.attached_by,
+              ${PERSON('e', 'e.attached_by')} as attached_by_name, ${ISO('e.attached_at')} as attached_at, d.title as document_title, d.symbol as document_symbol
+         from machvon.project_task_evidence e left join machvon.document d on d.tenant_id = e.tenant_id and d.id = e.document_id
+        where e.task_id = $1::uuid order by e.attached_at, e.id`,
       [task.id],
     );
-    const exceptions = await tx.query<{ id: string; task_id: string; kind: string; items: string[]; valid_from: string; valid_to: string | null; reason: string; evidence_ref: string | null; status: string; requested_by: string; decided_by: string | null; decided_at: string | null; decision_note: string | null; version: number }>(
-      `select id, task_id, kind, items, valid_from::text as valid_from, valid_to::text as valid_to, reason, evidence_ref, status, requested_by, decided_by, ${ISO('decided_at')} as decided_at, decision_note, version
-         from machvon.project_task_exception where task_id = $1::uuid order by requested_at, id`,
+    const exceptions = await tx.query<{ id: string; task_id: string; kind: string; items: string[]; valid_from: string; valid_to: string | null; reason: string; evidence_ref: string | null; status: string; requested_by: string; requested_by_name: string | null; decided_by: string | null; decided_by_name: string | null; decided_at: string | null; decision_note: string | null; version: number }>(
+      `select x.id, x.task_id, x.kind, x.items, x.valid_from::text as valid_from, x.valid_to::text as valid_to, x.reason, x.evidence_ref, x.status, x.requested_by, ${PERSON('x', 'x.requested_by')} as requested_by_name,
+              x.decided_by, ${PERSON('x', 'x.decided_by')} as decided_by_name, ${ISO('x.decided_at')} as decided_at, x.decision_note, x.version
+         from machvon.project_task_exception x where x.task_id = $1::uuid order by x.requested_at, x.id`,
       [task.id],
     );
-    const history = await tx.query<{ id: string; kind: string; at: string; actor: string | null; reason: string | null }>(
-      `select id, kind, ${ISO('at')} as at, actor, reason from machvon.project_task_log where task_id = $1::uuid order by at desc, id desc limit ${HISTORY_LIMIT}`,
+    // B10: every entry of the log was written by a person (the actor of the command); the read names them, so that no screen falls back to "the system".
+    const history = await tx.query<{ id: string; kind: string; at: string; actor: string | null; actor_name: string | null; reason: string | null }>(
+      `select l.id, l.kind, ${ISO('l.at')} as at, l.actor, ${PERSON('l', 'l.actor')} as actor_name, l.reason from machvon.project_task_log l where l.task_id = $1::uuid order by l.at desc, l.id desc limit ${HISTORY_LIMIT}`,
       [task.id],
     );
     const links = await tx.query<{ task: string; kind: string; lag_working_days: number }>(
@@ -165,17 +177,17 @@ export class PwfTaskReads {
       actual_vnd: task.actualVnd,
       milestone_id: task.milestoneId,
       predecessors: links.map((one) => ({ task: one.task, kind: one.kind, lag_working_days: one.lag_working_days })),
-      checklist: checklist.map((one) => ({ item_code: one.item_code, name: one.name, required: one.required, evidence_kinds: one.evidence_kinds, done: one.done, done_by: one.done_by, done_at: one.done_at })),
+      checklist: checklist.map((one) => ({ item_code: one.item_code, name: one.name, required: one.required, evidence_kinds: one.evidence_kinds, done: one.done, done_by: one.done_by, done_by_name: one.done_by_name, done_at: one.done_at })),
       legal_doc_types: (definition?.legalDocTypes ?? []).map((code) => ({ code, satisfied: evidence.some((one) => one.legal_doc_type === code) })),
       form_templates: forms,
       step: step === undefined ? null : { code: step.code, name: step.name, phase_code: step.phase, order: step.order, implicit: step.implicit, responsible_role: step.responsibleRole },
       legal_basis: (definition?.legalBasis ?? []).map((basis) => legalBasisView(basis, catalogue)),
       step_legal_basis: (step?.legalBasis ?? []).map((basis) => legalBasisView(basis, catalogue)),
-      evidence: evidence.map((one) => ({ id: one.id, item_code: one.item_code, evidence_kind: one.evidence_kind, document_id: one.document_id, legal_doc_type: one.legal_doc_type, form_template_code: one.form_template_code, form_template_revision: one.form_template_revision, form_template_sha256: one.form_template_sha256?.trim() ?? null, external_ref: one.external_ref, note: one.note, attached_by: one.attached_by, attached_at: one.attached_at })),
+      evidence: evidence.map((one) => ({ id: one.id, item_code: one.item_code, evidence_kind: one.evidence_kind, document_id: one.document_id, legal_doc_type: one.legal_doc_type, form_template_code: one.form_template_code, form_template_revision: one.form_template_revision, form_template_sha256: one.form_template_sha256?.trim() ?? null, external_ref: one.external_ref, note: one.note, attached_by: one.attached_by, attached_by_name: one.attached_by_name, attached_at: one.attached_at, document_title: one.document_title, document_symbol: one.document_symbol })),
       completion,
       exceptions,
       assignments: assignmentRows.map(assignmentOf),
-      history: history.map((one) => ({ id: one.id, kind: one.kind, at: one.at, actor: one.actor, reason: one.reason })),
+      history: history.map((one) => ({ id: one.id, kind: one.kind, at: one.at, actor: one.actor, actor_name: one.actor_name, reason: one.reason })),
       can_start: can.work && live && task.status === 'NOT_STARTED' && held(['RESPONSIBLE', 'ACCOUNTABLE']),
       can_complete: can.work && live && task.status === 'IN_PROGRESS' && held(['RESPONSIBLE', 'ACCOUNTABLE']),
       can_approve: can.approve && live && task.status === 'AWAITING_APPROVAL' && notMaker,

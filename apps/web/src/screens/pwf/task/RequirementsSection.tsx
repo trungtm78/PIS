@@ -39,7 +39,7 @@ export function RequirementsSection({ task, canWork, onTick, onResult }: Require
   const evidenceColumns: DataTableColumn<EvidenceRow>[] = [
     { key: 'kind', header: t('pwf.task.evidence.col.kind'), render: (row) => row.evidence_kind },
     { key: 'item', header: t('pwf.task.evidence.col.item'), render: (row) => row.item_code ?? '–' },
-    { key: 'what', header: t('pwf.task.evidence.col.what'), render: (row) => row.legal_doc_type ?? row.form_template_code ?? row.document_id ?? row.external_ref ?? '–' },
+    { key: 'what', header: t('pwf.task.evidence.col.what'), render: (row) => row.document_title ?? row.legal_doc_type ?? row.form_template_code ?? row.document_id ?? row.external_ref ?? '–' },
     { key: 'note', header: t('pwf.task.evidence.col.note'), render: (row) => row.note ?? '–' },
     { key: 'at', header: t('pwf.task.evidence.col.at'), render: (row) => stampText(row.attached_at) },
   ];

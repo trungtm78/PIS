@@ -328054,6 +328054,13 @@
                     "null"
                   ],
                   "format": "date-time"
+                },
+                "done_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người đánh dấu mục kiểm theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -328235,6 +328242,27 @@
                     "string",
                     "null"
                   ]
+                },
+                "attached_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người nộp bằng chứng theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "document_title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tiêu đề tài liệu của kho văn bản"
+                },
+                "document_symbol": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Số, ký hiệu tài liệu của kho văn bản"
                 }
               }
             }
@@ -328410,6 +328438,20 @@
                 },
                 "version": {
                   "type": "integer"
+                },
+                "requested_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người đề nghị theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "decided_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người quyết định theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -328486,6 +328528,20 @@
                     "null"
                   ],
                   "format": "uuid"
+                },
+                "assigned_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người giao theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "approved_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người duyệt theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -328526,6 +328582,13 @@
                     "string",
                     "null"
                   ]
+                },
+                "actor_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người thực hiện thao tác theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -329029,6 +329092,20 @@
                     "null"
                   ],
                   "format": "uuid"
+                },
+                "assigned_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người giao theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "approved_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người duyệt theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -330684,6 +330761,20 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "scope_unit_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Mã đơn vị của kỳ"
+          },
+          "scope_unit_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Tên đơn vị của kỳ"
           }
         }
       },
@@ -331042,6 +331133,20 @@
                 },
                 "version": {
                   "type": "integer"
+                },
+                "requested_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người đề nghị điều chỉnh theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
+                },
+                "decided_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người duyệt điều chỉnh theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -331111,6 +331216,13 @@
                     "null"
                   ],
                   "format": "uuid"
+                },
+                "handled_by_name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên người xử lý phản hồi theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ"
                 }
               }
             }
@@ -331150,6 +331262,20 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "unit_code_at_period": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Mã đơn vị của người được chấm tại thời điểm của kỳ"
+          },
+          "unit_name_at_period": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Tên đơn vị của người được chấm tại thời điểm của kỳ"
           }
         }
       },
@@ -331246,6 +331372,20 @@
                 },
                 "has_open_response": {
                   "type": "boolean"
+                },
+                "unit_code_at_period": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Mã đơn vị của người được chấm tại thời điểm của kỳ"
+                },
+                "unit_name_at_period": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Tên đơn vị của người được chấm tại thời điểm của kỳ"
                 }
               }
             }

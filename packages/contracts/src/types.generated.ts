@@ -49549,6 +49549,8 @@ export interface components {
                 done_by: string | null;
                 /** Format: date-time */
                 done_at: string | null;
+                /** @description Tên người đánh dấu mục kiểm theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                done_by_name?: string | null;
             }[];
             legal_doc_types: {
                 code: string;
@@ -49590,6 +49592,12 @@ export interface components {
                 attached_at: string;
                 form_template_revision?: number | null;
                 form_template_sha256?: string | null;
+                /** @description Tên người nộp bằng chứng theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                attached_by_name?: string | null;
+                /** @description Tiêu đề tài liệu của kho văn bản */
+                document_title?: string | null;
+                /** @description Số, ký hiệu tài liệu của kho văn bản */
+                document_symbol?: string | null;
             }[];
             completion: {
                 ok: boolean;
@@ -49628,6 +49636,10 @@ export interface components {
                 decided_at: string | null;
                 decision_note: string | null;
                 version: number;
+                /** @description Tên người đề nghị theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                requested_by_name?: string | null;
+                /** @description Tên người quyết định theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                decided_by_name?: string | null;
             }[];
             assignments: {
                 /** Format: uuid */
@@ -49649,6 +49661,10 @@ export interface components {
                 assigned_by: string;
                 /** Format: uuid */
                 approved_by: string | null;
+                /** @description Tên người giao theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                assigned_by_name?: string | null;
+                /** @description Tên người duyệt theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                approved_by_name?: string | null;
             }[];
             history: {
                 /** Format: uuid */
@@ -49659,6 +49675,8 @@ export interface components {
                 /** Format: uuid */
                 actor: string | null;
                 reason: string | null;
+                /** @description Tên người thực hiện thao tác theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                actor_name?: string | null;
             }[];
             /** @description Chỉ có khi người xem có quyền xem KPI của việc */
             kpi_results?: {
@@ -49804,6 +49822,10 @@ export interface components {
                 assigned_by: string;
                 /** Format: uuid */
                 approved_by: string | null;
+                /** @description Tên người giao theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                assigned_by_name?: string | null;
+                /** @description Tên người duyệt theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                approved_by_name?: string | null;
             }[];
             next_cursor: string | null;
             /** Format: date-time */
@@ -50220,6 +50242,10 @@ export interface components {
             version: number;
             /** Format: date-time */
             as_of: string;
+            /** @description Mã đơn vị của kỳ */
+            scope_unit_code?: string | null;
+            /** @description Tên đơn vị của kỳ */
+            scope_unit_name?: string | null;
         };
         StaffScorePeriodPreview: {
             period: components["schemas"]["StaffScorePeriod"];
@@ -50299,6 +50325,10 @@ export interface components {
                 /** Format: date-time */
                 decided_at: string | null;
                 version: number;
+                /** @description Tên người đề nghị điều chỉnh theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                requested_by_name?: string | null;
+                /** @description Tên người duyệt điều chỉnh theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                decided_by_name?: string | null;
             }[];
             responses: {
                 /** Format: uuid */
@@ -50317,6 +50347,8 @@ export interface components {
                 conclusion: string | null;
                 /** Format: uuid */
                 approval_instance_id: string | null;
+                /** @description Tên người xử lý phản hồi theo danh bạ của tenant (tenant_user_directory); null khi không còn trong danh bạ */
+                handled_by_name?: string | null;
             }[];
             basis: {
                 policy_code: string;
@@ -50328,6 +50360,10 @@ export interface components {
             version: number;
             /** Format: date-time */
             as_of: string;
+            /** @description Mã đơn vị của người được chấm tại thời điểm của kỳ */
+            unit_code_at_period?: string | null;
+            /** @description Tên đơn vị của người được chấm tại thời điểm của kỳ */
+            unit_name_at_period?: string | null;
         };
         StaffScoreLinePage: {
             items: {
@@ -50349,6 +50385,10 @@ export interface components {
                 effective_weight: number;
                 has_adjustment: boolean;
                 has_open_response: boolean;
+                /** @description Mã đơn vị của người được chấm tại thời điểm của kỳ */
+                unit_code_at_period?: string | null;
+                /** @description Tên đơn vị của người được chấm tại thời điểm của kỳ */
+                unit_name_at_period?: string | null;
             }[];
             next_cursor: string | null;
             total: number;
