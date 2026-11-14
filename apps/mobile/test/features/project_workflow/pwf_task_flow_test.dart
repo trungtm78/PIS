@@ -460,6 +460,17 @@ void main() {
   });
 
   group('what is never queued: the decisions of another person', () {
+    testWidgets('a task that waits for approval says so once, in the head: the state is not repeated as a fact under it (owner review of 14/11/2026)', (WidgetTester tester) async {
+      await _open(tester, TaskState(status: 'AWAITING_APPROVAL', canApprove: true, assignee: false));
+      expect(find.text('Chờ duyệt hoàn thành'), findsOneWidget);
+      expect(find.text('Trạng thái'), findsNothing);
+    });
+
+    testWidgets('a task that is under way keeps its state as a fact: its head shows the days left, not the state', (WidgetTester tester) async {
+      await _open(tester, TaskState(status: 'IN_PROGRESS'));
+      expect(find.text('Trạng thái'), findsOneWidget);
+    });
+
     testWidgets('an approval needs a connection: offline the button is locked and says why, nothing is queued; online it is sent on the version that is on the screen', (WidgetTester tester) async {
       final _Phone phone = await _open(tester, TaskState(status: 'AWAITING_APPROVAL', canApprove: true, assignee: false));
       await phone.goOffline();

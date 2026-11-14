@@ -80,7 +80,8 @@ PwfLegalBasis? parsePwfLegalBasis(Object? raw) {
     issuer: filled(record['issuer']),
     effectiveFrom: day(record['effective_from']),
     effectiveTo: day(record['effective_to']),
-    supersededBy: filled(record['superseded_by']),
+    // The document that replaced it by its number (the catalogue has it); its code only when the catalogue does not.
+    supersededBy: filled(record['superseded_by_number']) ?? filled(record['superseded_by']),
     note: filled(record['note']),
   );
 }
@@ -180,7 +181,10 @@ List<PwfStep> parsePwfSteps(Object? raw) => <PwfStep>[for (final Object? item in
 
 /// The step a task belongs to, as the detail of the task names it.
 final class PwfTaskStep {
-  const PwfTaskStep({required this.code, required this.name, required this.order, this.responsibleRole});
+  const PwfTaskStep({required this.code, required this.name, required this.order, this.responsibleRole, this.responsibleRoleName});
+
+  /// What the template calls the role of the step; null when it does not name it.
+  final String? responsibleRoleName;
 
   final String code;
   final String name;
@@ -193,7 +197,7 @@ PwfTaskStep? parsePwfTaskStep(Object? raw) {
   final String? code = filled(record?['code']);
   final String? name = filled(record?['name']);
   if (record == null || code == null || name == null) return null;
-  return PwfTaskStep(code: code, name: name, order: whole(record['order']) ?? 1, responsibleRole: filled(record['responsible_role']));
+  return PwfTaskStep(code: code, name: name, order: whole(record['order']) ?? 1, responsibleRole: filled(record['responsible_role']), responsibleRoleName: filled(record['responsible_role_name']));
 }
 
 /// The revision of a form of a task: the one in force today, the one the evidence of the task was made from, and whether a newer one exists

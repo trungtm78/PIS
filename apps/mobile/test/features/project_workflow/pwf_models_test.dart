@@ -52,6 +52,17 @@ void main() {
       expect(workflow.countsByBand[PwfBandKind.red], 1);
     });
 
+    test('one stage is where the project is: the stage the server names, never every stage that still has required work', () {
+      Map<String, Object?> phase(String code, int order, String standing) => <String, Object?>{'code': code, 'name': code, 'order': order, 'required_total': 2, 'required_done': standing == 'DONE' ? 2 : 0, 'open': standing != 'DONE', 'current': standing == 'CURRENT', 'standing': standing};
+      final PwfWorkflow parallel = (parsePwfWorkflowView(workflowJson()..['phases'] = <Object?>[phase('A', 1, 'DONE'), phase('B', 2, 'CURRENT'), phase('C', 3, 'STARTED'), phase('D', 4, 'UPCOMING')]..['open_phase'] = 'B')! as PwfWorkflowPresent).workflow;
+      expect(parallel.phases.map((PwfPhase p) => p.standing), <PwfPhaseStanding>[PwfPhaseStanding.done, PwfPhaseStanding.current, PwfPhaseStanding.started, PwfPhaseStanding.upcoming]);
+      expect(parallel.currentIndex, 2);
+      expect(parallel.phases.where((PwfPhase p) => p.standing == PwfPhaseStanding.current), hasLength(1));
+      // An answer from before the server said where each stage stands: the earliest stage that is still open is the current one, the ones before it are done, the ones after it are ahead.
+      final PwfWorkflow older = (parsePwfWorkflowView(workflowJson())! as PwfWorkflowPresent).workflow;
+      expect(older.phases.map((PwfPhase p) => p.standing), <PwfPhaseStanding>[PwfPhaseStanding.done, PwfPhaseStanding.current, PwfPhaseStanding.upcoming]);
+    });
+
     test('the milestones ahead come nearest first and never include a task that is over', () {
       final PwfWorkflow workflow = (parsePwfWorkflowView(workflowJson())! as PwfWorkflowPresent).workflow;
       expect(workflow.upcomingMilestones().map((PwfTaskRow t) => t.name), <String>['Ký hợp đồng thi công']);
@@ -154,6 +165,17 @@ void main() {
       expect(task.people.map((PwfTaskPerson p) => '${p.role}:${p.name}'), <String>['RESPONSIBLE:Nguyễn Văn An', 'ACCOUNTABLE:Trần Thị Bích'], reason: 'an assignment that ended is not a person of the task now');
       // A row of a list carries the forecast too, and an answer from before these fields existed reads as before.
       expect(parsePwfTaskRow(<String, Object?>{...taskRow(kTaskId, 'Việc', status: 'IN_PROGRESS', official: band('RED', days: -2), finish: '2026-11-10', version: 1), 'forecast_finish': '2026-11-20'})!.forecastFinish, '2026-11-20');
+      // The names of the codes a tenant made up itself (owner review of 14/11/2026): the role as its template names it, the type of a legal document as its edition names it.
+      final Map<String, Object?> named = taskDetailJson(TaskState())
+        ..['responsible_role'] = 'PROVINCE_CLERK'
+        ..['responsible_role_name'] = 'Văn thư của tỉnh'
+        ..['approver_role'] = 'PROVINCE_LEAD'
+        ..['approver_role_name'] = null
+        ..['legal_doc_types'] = <Object?>[<String, Object?>{'code': 'PROVINCE_NOTE', 'name': 'Tờ trình của tỉnh', 'satisfied': false}, <String, Object?>{'code': 'OTHER_NOTE', 'satisfied': true}];
+      final PwfTaskDetail roles = parsePwfTaskDetail(named)!;
+      expect(roles.responsibleRoleName, 'Văn thư của tỉnh');
+      expect(roles.approverRoleName, isNull);
+      expect(roles.legalDocTypes.map((PwfRequirement r) => r.name), <String?>['Tờ trình của tỉnh', null]);
       expect(parsePwfTaskDetail(taskDetailJson(TaskState()))!.forecastFinish, isNull);
       expect(parsePwfTaskDetail(taskDetailJson(TaskState()))!.people, isEmpty);
     });
@@ -210,6 +232,18 @@ void main() {
       expect(line.canRespond, isTrue);
       expect(line.periodFrom, '2026-07-01');
       expect(line.policyVersion, 1);
+    });
+
+    test('a point names the project of its task, so two tasks of the same name are told apart; an answer without it reads as before', () {
+      final Map<String, Object?> item = scoreItem();
+      final Map<String, Object?> line = item['line']! as Map<String, Object?>;
+      line['contributions'] = <Object?>[
+        <String, Object?>{'task_code': 'T-11', 'task_id': null, 'name': 'Lập hồ sơ', 'project_code': 'DA-01', 'project_name': 'Đường tỉnh 207', 'fraction': 1, 'weight': 2, 'score': 90, 'spans': <Object?>[]},
+        <String, Object?>{'task_code': 'T-11', 'task_id': null, 'name': 'Lập hồ sơ', 'project_code': 'DA-02', 'project_name': null, 'fraction': 1, 'weight': 2, 'score': 70, 'spans': <Object?>[]},
+        <String, Object?>{'task_code': 'T-12', 'task_id': null, 'name': 'Thẩm định', 'fraction': 1, 'weight': 1, 'score': 70, 'spans': <Object?>[]},
+      ];
+      final PwfScoreLine read = parsePwfMyScores(scoresJson(items: <Map<String, Object?>>[item]))!.lines.single;
+      expect(read.contributions.map((PwfScoreContribution c) => c.project), <String?>['Đường tỉnh 207', 'DA-02', null]);
     });
 
     test('a line without its state or version is refused as a whole', () {

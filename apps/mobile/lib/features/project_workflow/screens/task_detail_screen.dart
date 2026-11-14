@@ -402,8 +402,8 @@ class _TaskBody extends StatelessWidget {
     final List<Widget> facts = <Widget>[
       ..._group(context.t('mob.pwf7.group.people'), <(String, String?)>[
         for (final PwfTaskPerson person in detail.people) if (!(person.role == 'RESPONSIBLE' && person.name == detail.assignee)) (pwfPartName(context, person.role), person.name),
-        (context.t('mob.pwf.fact.role'), detail.responsibleRole == null ? null : pwfRoleName(context, detail.responsibleRole!)),
-        (context.t('mob.pwf.fact.approver'), detail.approverRole == null ? null : pwfRoleName(context, detail.approverRole!)),
+        (context.t('mob.pwf.fact.role'), detail.responsibleRole == null ? null : (detail.responsibleRoleName ?? pwfRoleName(context, detail.responsibleRole!))),
+        (context.t('mob.pwf.fact.approver'), detail.approverRole == null ? null : (detail.approverRoleName ?? pwfRoleName(context, detail.approverRole!))),
       ]),
       ..._group(context.t('mob.pwf7.group.schedule'), <(String, String?)>[
         (context.t('mob.pwf.fact.plannedStart'), dayOf(detail.plannedStart)),
@@ -417,7 +417,7 @@ class _TaskBody extends StatelessWidget {
       ..._group(context.t('mob.pwf7.group.place'), <(String, String?)>[
         (context.t('mob.pwf7.fact.phase'), pwfPhaseName(context, detail.phaseCode)),
         (context.t('mob.pwf.process.fact.step'), detail.step == null ? null : context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
-        (context.t('mob.pwf.process.fact.stepRole'), detail.step?.responsibleRole == null ? null : pwfRoleName(context, detail.step!.responsibleRole!)),
+        (context.t('mob.pwf.process.fact.stepRole'), detail.step?.responsibleRole == null ? null : (detail.step!.responsibleRoleName ?? pwfRoleName(context, detail.step!.responsibleRole!))),
         (context.t('mob.pwf.fact.critical'), detail.critical ? context.t('mob.pwf.fact.critical.value') : null),
         (context.t('mob.pwf.fact.returns'), detail.returnCount > 0 ? '${detail.returnCount}' : null),
         (context.t('mob.pwf7.fact.code'), detail.code),
@@ -466,8 +466,9 @@ class _TaskBody extends StatelessWidget {
               if (queue.refused.isNotEmpty) _RefusedCard(detail: detail, queue: queue, onDrop: onDrop),
               if (queue.inFlight.isNotEmpty) StatusBanner(text: _pendingText(context, queue.inFlight, online), icon: Icons.schedule),
               // The two facts every reader wants first stay above the tabs: where the task stands and who has it.
-              InfoRow(label: context.t('mob.pwf.fact.status'), value: pwfStatusLabel(context, detail.status), divider: false),
-              if (detail.assignee != null) InfoRow(label: context.t('mob.pwf.fact.assignee'), value: detail.assignee),
+              // The head already says the state in words when the state replaces the deadline (waiting for approval, on hold, over): it is not said a second time here.
+              if (!pwfDeadlineLineSaysStatus(detail.status)) InfoRow(label: context.t('mob.pwf.fact.status'), value: pwfStatusLabel(context, detail.status), divider: false),
+              if (detail.assignee != null) InfoRow(label: context.t('mob.pwf.fact.assignee'), value: detail.assignee, divider: !pwfDeadlineLineSaysStatus(detail.status)),
               PwfTabs(
                 tabs: <PwfTab>[
                   PwfTab(label: context.t('mob.pwf6.tab.todo'), count: detail.checklist.where((PwfChecklistItem item) => !item.done).length, children: todo),
@@ -549,7 +550,7 @@ class _TaskBody extends StatelessWidget {
   }
 
   Widget _requirement(BuildContext context, PwfRequirement requirement, String kind, bool divider) => WorkRow(
-        title: pwfDocTypeName(context, requirement.code),
+        title: requirement.name ?? pwfDocTypeName(context, requirement.code),
         titleMaxLines: 3,
         subtitle: kind,
         leading: Icon(requirement.satisfied ? Icons.check_circle : Icons.radio_button_unchecked),

@@ -8,6 +8,7 @@ import '../../core/theme/components.dart';
 import '../../core/theme/typography.dart';
 import '../../core/widgets/filter_chips.dart';
 import '../../core/widgets/sheets.dart';
+import 'pwf_codes.dart';
 import 'pwf_commands.dart';
 import 'pwf_models.dart';
 
@@ -196,7 +197,7 @@ class _EvidenceSheetState extends State<_EvidenceSheet> {
         for (final PwfChecklistItem item in task.checklist) ChipOption<String>(value: 'item:${item.code}', label: item.name)
       else
         for (final PwfChecklistItem item in task.checklist.where((PwfChecklistItem i) => i.code == widget.itemCode)) ChipOption<String>(value: 'item:${item.code}', label: item.name),
-      for (final PwfRequirement doc in task.legalDocTypes) ChipOption<String>(value: 'legal:${doc.code}', label: doc.code),
+      for (final PwfRequirement doc in task.legalDocTypes) ChipOption<String>(value: 'legal:${doc.code}', label: doc.name ?? pwfDocTypeName(context, doc.code)),
       for (final PwfRequirement form in task.formTemplates) ChipOption<String>(value: 'form:${form.code}', label: form.code),
     ];
     return Column(

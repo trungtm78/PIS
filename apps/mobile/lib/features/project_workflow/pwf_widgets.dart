@@ -87,6 +87,10 @@ class PwfGlyph extends StatelessWidget {
 /// The deadline of a task on one line under its name, across the width of the row: the words of the band with its shape, the day the deadline falls on
 /// and, when the progress points to another day, the forecast. A task that waits for an approval, is paused or is over says its status instead of a
 /// count of days. It replaces the narrow end column, where "Còn 1 ngày làm việc" and "Chờ duyệt hoàn thành" broke into four or five lines.
+/// Whether the line of the deadline says the STATE of the task instead of the days left: a task that is over, waiting for approval or on hold has no
+/// countdown to show. A screen that shows the line does not say the state a second time beside it.
+bool pwfDeadlineLineSaysStatus(PwfTaskStatus status) => status.isFinal || status == PwfTaskStatus.awaitingApproval || status == PwfTaskStatus.onHold;
+
 class PwfDeadlineLine extends StatelessWidget {
   const PwfDeadlineLine({required this.band, required this.status, this.dueDay, this.forecastDay, this.missingYear, super.key});
 
@@ -101,7 +105,7 @@ class PwfDeadlineLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MachvonV2Text text = context.v2text;
-    final bool byStatus = status.isFinal || status == PwfTaskStatus.awaitingApproval || status == PwfTaskStatus.onHold;
+    final bool byStatus = pwfDeadlineLineSaysStatus(status);
     final DeadlineBand? colour = byStatus ? (status == PwfTaskStatus.done ? DeadlineBand.done : null) : pwfDeadlineBandOf(band);
     final String words = byStatus ? pwfStatusLabel(context, status) : pwfDeadlineWords(context, band, missingYear: missingYear);
     // A deadline that is not in range yet, or cannot be counted, may fall in another year: its day is then written with the year.
