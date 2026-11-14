@@ -226,7 +226,7 @@ describe('the forms', () => {
 });
 
 describe('the comparison of periods', () => {
-  const point = (state: 'RATED' | 'SMALL_SAMPLE', score: number) => ({ period_id: uuid(1), period_from: '2026-01-01', period_to: '2026-03-31', period_status: 'OFFICIAL' as const, score_computed: score, score_adjusted: null, rating: state === 'RATED' ? 'GOOD' : null, state, rated_task_count: 5, effective_weight: 5 });
+  const point = (state: 'RATED' | 'SMALL_SAMPLE', score: number) => ({ period_id: uuid(1), period_from: '2026-01-01', period_to: '2026-03-31', period_status: 'OFFICIAL' as const, unit_id: uuid(7001), unit_code: 'U', unit_name: 'Unit', score_computed: score, score_adjusted: null, rating: state === 'RATED' ? 'GOOD' : null, state, rated_task_count: 5, effective_weight: 5 });
 
   it('says the change only between two rated periods', () => {
     expect(changeBetween(point('RATED', 70), point('RATED', 82.5))).toBe(12.5);
