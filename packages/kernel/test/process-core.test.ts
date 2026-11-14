@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { DomainError } from '../src/errors.ts';
 import * as bid from '../src/bid-workflow.ts';
 import { MAX_SCAN_DAYS, addWorkingDays, dayNumber, dayText, isWorkflowDay, workflowAddDays, workflowDaysBetween, workingDaysBetween } from '../src/process-core.ts';
@@ -49,5 +51,21 @@ describe('process-core: the arithmetic of days shared by the processes', () => {
     expect(bid.isWorkflowDay).toBe(isWorkflowDay);
     expect(bid.workflowAddDays).toBe(workflowAddDays);
     expect(bid.workflowDaysBetween).toBe(workflowDaysBetween);
+  });
+
+  it('UAT-PWF-REG-03: PRC-1 exports again the very functions of process-core and keeps its own tables: no module of the procurement workflow reads the project workflow, so PWF can neither block it nor change its transitions', () => {
+    const shared = { addWorkingDays, workingDaysBetween, isWorkflowDay, workflowAddDays, workflowDaysBetween };
+    for (const [name, pure] of Object.entries(shared)) expect((bid as Record<string, unknown>)[name]).toBe(pure);
+    // The same answer through either name, on a day the calendar decides.
+    expect(bid.addWorkingDays(SOURCE, '2026-11-10', 1)).toBe(addWorkingDays(SOURCE, '2026-11-10', 1));
+    expect(bid.addWorkingDays(SOURCE, '2026-11-10', 1)).toBe('2026-11-12');
+    for (const module of ['bid-workflow.ts', 'bid-process-tree.ts', 'bid-timeline.ts']) {
+      const imports = readFileSync(join(__dirname, '..', 'src', module), 'utf8').split(/\r?\n/).filter((line) => /^\s*(import|export)\b.*\bfrom\b/.test(line));
+      expect(imports.length).toBeGreaterThan(0);
+      expect(imports.filter((line) => /project-workflow|project-schedule|pwf-/.test(line))).toEqual([]);
+    }
+    // The tables of PRC-1 are its own: the ways into and out of a step it always had.
+    expect([...bid.ENTRY_KINDS]).toEqual(['START', 'ADVANCE', 'RETURN', 'CORRECTION']);
+    expect([...bid.EXIT_KINDS]).toEqual(['ADVANCE', 'RETURN', 'CANCEL', 'COMPLETE', 'CORRECTED']);
   });
 });

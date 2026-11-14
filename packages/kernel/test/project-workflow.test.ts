@@ -278,6 +278,24 @@ describe('references of a template: legal documents by edition, forms, evidence,
     expect(checkTemplateReferences(parsed, {})).toEqual([]);
     expect(() => registerLegalDocTypeResolver({ edition: 'test-edition', resolve: () => undefined, list: () => [] })).toThrow();
   });
+
+  it('UAT-PWF-EDN-01: the public edition resolves the codes of the public investment catalogue and knows no other code; another edition adds its types through the registry, and the catalogue of the public edition is not touched by it', () => {
+    const publicEdition = legalDocTypeResolvers().find((one) => one.edition === 'public');
+    const before = publicEdition?.list().map((one) => one.code) ?? [];
+    expect(before).toEqual(expect.arrayContaining(['INVESTMENT_POLICY_DECISION', 'CONTRACT', 'TREASURY_CONTROL']));
+    expect(resolveLegalDocType('XYZ_UNKNOWN')).toBeUndefined();
+    const drafted = parseProjectWorkflowTemplate(template([task('A', { legal_doc_types: ['CONTRACT', 'XYZ_UNKNOWN'] })]));
+    expect(checkTemplateReferences(drafted, {}).map((one) => `${one.field}:${one.code}`)).toEqual(['tasks[0].legal_doc_types[1]:LEGAL_DOC_TYPE_UNKNOWN']);
+    registerLegalDocTypeResolver({
+      edition: 'uat-other-edition',
+      resolve: (code) => (code === 'XYZ_UNKNOWN' ? { code, label: 'Loại chứng từ của bản khác', documentClass: 'OTHER' } : undefined),
+      list: () => [{ code: 'XYZ_UNKNOWN', label: 'Loại chứng từ của bản khác', documentClass: 'OTHER' }],
+    });
+    expect(resolveLegalDocType('XYZ_UNKNOWN')?.documentClass).toBe('OTHER');
+    expect(checkTemplateReferences(drafted, {})).toEqual([]);
+    expect(publicEdition?.list().map((one) => one.code)).toEqual(before);
+    expect(publicEdition?.resolve('XYZ_UNKNOWN')).toBeUndefined();
+  });
 });
 
 describe('assessTaskCompletion: a task is done only with its checklist, evidence, documents, forms and a different approver', () => {

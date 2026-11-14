@@ -275,6 +275,44 @@ describe('the personal deadline preference, my tasks and the reminders of the ta
       expect(counts).toMatchObject({ PWF_TASK_OVERDUE: 2, PWF_TASK_DUE_SOON: 3 });
     });
 
+    it('UAT-PWF-08: with the official ladder 5/2/0 in working days, tasks with 6, 5, 3, 2, 1, 0 and -1 days left are NONE, GREEN, GREEN, YELLOW, YELLOW, RED, RED, and the preview of the ladder says the same as the real list', async () => {
+      const left = [6, 5, 3, 2, 1, 0, -1];
+      const expected = ['NONE', 'GREEN', 'GREEN', 'YELLOW', 'YELLOW', 'RED', 'RED'];
+      for (const days of left) await task(days);
+      const mine = (await call('GET', '/me/project-tasks?limit=50', { member: WORKER })).json.items as Array<{ due_date: string; official_band: { band: string; remaining_days: number; unit: string } }>;
+      const real = Object.fromEntries(mine.map((one) => [one.due_date, one.official_band.band]));
+      expect(left.map((days) => real[day(days)])).toEqual(expected);
+      expect(mine.every((one) => one.official_band.unit === 'WORKING')).toBe(true);
+      expect(left.map((days) => mine.find((one) => one.due_date === day(days))?.official_band.remaining_days)).toEqual(left);
+      // The preview of the screen of the thresholds gives the same colour for the same days as the list does.
+      const previewed: Record<string, string> = {};
+      for (const days of left) {
+        const preview = await call('GET', `/pwf/deadline-band/preview?green_days=5&yellow_days=2&red_days=0&unit=WORKING&remaining_days=${days}`, { member: READER });
+        expect(preview.status).toBe(200);
+        for (const one of preview.json.examples as Array<{ remaining_days: number; band: string }>) previewed[String(one.remaining_days)] = one.band;
+      }
+      expect(left.map((days) => previewed[String(days)])).toEqual(expected);
+      // The board of the manager counts the same colours.
+      expect((await call('GET', '/pwf/deadlines', { member: MANAGER })).json.counts_by_band).toMatchObject({ NONE: 1, GREEN: 2, YELLOW: 2, RED: 2, UNKNOWN: 0 });
+    });
+
+    it('UAT-PWF-09: a person who sets 7/4/1 sees a task with 4 working days left as YELLOW by their own setting, with the real due day, while the board of the manager keeps the official GREEN; a ladder that turns green later than the official one is refused DEADLINE_PERSONAL_NOT_EARLIER; the official alert does not change', async () => {
+      const id = await task(4);
+      const alertOf = async (): Promise<unknown> => ((await call('GET', '/home/my-work', { member: WORKER })).json.items as Array<{ id: string; kind: string; severity: string; due_on: string }>).filter((one) => one.id.startsWith(id)).map((one) => [one.kind, one.severity, one.due_on]);
+      const alertBefore = await alertOf();
+      expect((await call('PUT', '/me/deadline-preference', { member: WORKER, ifMatch: '"0"', body: { green_days: 7, yellow_days: 4, red_days: 1, reminder_days: [] } })).status).toBe(200);
+      const [mine] = (await call('GET', '/me/project-tasks', { member: WORKER })).json.items as Array<{ due_date: string; official_band: { band: string }; personal_band: { band: string } | null }>;
+      expect([mine?.due_date, mine?.official_band.band, mine?.personal_band?.band]).toEqual([day(4), 'GREEN', 'YELLOW']);
+      // The manager reads the official colour only, with no trace of the setting of the person.
+      const board = await call('GET', '/pwf/deadlines', { member: MANAGER });
+      expect(board.json).toMatchObject({ official_only: true, total: 1, counts_by_band: { GREEN: 1, YELLOW: 0 } });
+      expect(JSON.stringify(board.json)).not.toContain('personal');
+      const later = await call('PUT', '/me/deadline-preference', { member: WORKER, ifMatch: '"1"', body: { green_days: 4, yellow_days: 2, red_days: 0, reminder_days: [] } });
+      expect(later.json.code).toBe('DEADLINE_PERSONAL_NOT_EARLIER');
+      expect((await call('GET', '/me/deadline-preference', { member: WORKER })).json).toMatchObject({ green_days: 7, yellow_days: 4, red_days: 1 });
+      expect(await alertOf()).toEqual(alertBefore);
+    });
+
     it('UAT-PWF-IDM-03: leaves the list by itself when a task is done, paused or cancelled, and moves to one item when it is rescheduled', async () => {
       const id = await task(1);
       const ids = async (): Promise<string[]> => ((await call('GET', '/home/my-work', { member: WORKER })).json.items as Array<{ id: string; source: string }>).filter((one) => one.source === 'PROJECT_TASK').map((one) => one.id);

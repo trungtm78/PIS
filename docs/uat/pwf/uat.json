@@ -530,9 +530,8 @@
         "T-PWF-08"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "WEB-E2E",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
     },
     {
@@ -602,9 +601,8 @@
         "T-PWF-08"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "WEB-E2E",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/deadline-preference.test.ts"
       }
     },
     {
@@ -674,9 +672,8 @@
         "T-PWF-21"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "WEB-E2E",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/staff-score.test.ts"
       }
     },
     {
@@ -738,9 +735,8 @@
         "T-PWF-21"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "WEB-E2E",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/staff-score.test.ts"
       }
     },
     {
@@ -802,9 +798,8 @@
         "T-PWF-19"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "WEB-E2E",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "apps/api/test/pwf/staff-score.test.ts"
       }
     },
     {
@@ -4680,9 +4675,8 @@
         "T-PWF-13"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/process-core.test.ts"
       }
     },
     {
@@ -5061,9 +5055,8 @@
         "T-PWF-12"
       ],
       "automation": {
-        "state": "PLANNED",
-        "layer": "API-JEST",
-        "note": "Kế hoạch: chưa có kịch bản đặt tên theo mã ca, chưa chạy, chưa có bằng chứng"
+        "state": "AUTOMATED",
+        "suite": "packages/kernel/test/project-workflow.test.ts"
       }
     },
     {
