@@ -7,13 +7,5 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "jest --coverage"
-  },
-  "jest": {
-    "preset": "../../jest.preset.cjs",
-    "coverageThreshold": {},
-    "testMatch": [
-      "<rootDir>/src/**/*.test.ts",
-      "<rootDir>/test/**/*.test.ts"
-    ]
   }
 }

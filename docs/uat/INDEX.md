@@ -80,6 +80,22 @@ Làm tay còn lại và lý do: trường `automation.reason` của từng ca; t
 
 `docs/uat/pwf/uat.json` (76 ca) và `_coverage-ledger.md`: 15 ca `UAT-PWF-01..15` của mục 10 đặc tả `Design/MACHVON_Design/01_Documents/05_modules/PWF.md` khai triển đủ, cộng ca âm tính, biên (ngưỡng 5/2/0 tại 6, 5, 3, 2, 1, 0, -1), đồng thời, idempotency, cách ly tenant, IDOR điểm nhân viên, tự duyệt, mẫu nhỏ, thiếu lịch năm, ngoại tuyến điện thoại, quyền riêng tư và hồi quy. Phủ đủ 20 câu chuyện ST-PWF và 29 tiêu chí AC-ST-PWF. Câu chuyện, màn hình, ca thiết kế, truy vết và backlog của PWF đã đăng ký (lane pwfreg, `docs/plans/pwf-register.json`); ca dùng `screen_id`, `story_ids`, `automation` theo chuẩn. Ca chưa có kịch bản mang `automation.state = PLANNED` (một ca `MANUAL` có lý do): chưa chạy, không có bằng chứng.
 
+## Các bộ test một lượt UAT phải ghi journal (lane cov1, 2026-11-14)
+
+Ca được ghép với test theo mã ca trong tên test, ở mọi bộ của repo. Lượt 2026-11-15 (run 3) chỉ ghi journal của Jest `apps/api`, Playwright và `flutter test`, nên 53 ca đã có test mang mã ở các bộ khác bị báo KHÔNG CHẠY "khong-co-kich-ban". Một lượt UAT phải đặt `UAT_JOURNAL=<tệp>` và chạy đủ các bộ sau (mỗi bộ ghi cùng một dạng dòng, `scripts/uat-run.mjs` và cầu nối `journal-to-checks.mjs` đọc được ngay):
+
+| Bộ | Lệnh (từ thư mục gốc, đặt `UAT_JOURNAL` trước) | Reporter |
+| --- | --- | --- |
+| Jest `apps/api` | `npm test -w @machvon/api -- --coverage=false` | `scripts/uat-jest-reporter.mjs` |
+| Jest `packages/db` | `npm test -w @machvon/db -- --coverage=false` | `scripts/uat-jest-reporter.mjs` |
+| Jest `packages/kernel` | `npm test -w @machvon/kernel -- --coverage=false` | `scripts/uat-jest-reporter.mjs` (qua `packages/kernel/jest.config.cjs`) |
+| Vitest `apps/web` | `npx vitest run` trong `apps/web` | `scripts/uat-vitest-reporter.mjs` |
+| `node:test` của `scripts/` | `node --test --test-reporter=./scripts/uat-node-reporter.mjs --test-reporter-destination=stdout scripts/*.test.mjs` | `scripts/uat-node-reporter.mjs` |
+| Playwright `apps/web/e2e` | `npx playwright test` trong `apps/web` | `apps/web/e2e/support/uat-reporter.ts` |
+| Flutter `apps/mobile` | `flutter test --reporter json <tệp>` rồi `node scripts/uat-dart-journal.mjs` | `scripts/uat-dart-journal.mjs` |
+
+Hai bộ Jest dùng PostgreSQL nhúng chạy lần lượt (làn `db` của `scripts/lane.mjs`), không song song.
+
 ## Việc còn lại của writer (nợ có chủ đích)
 
 1. **Đào sâu theo thao tác:** `openapi.json` có 1.017 thao tác (545 có body, 1.493 trường bắt buộc, 818 trường có ràng buộc, 296 enum). Ca "thiếu trường X thì 422" chỉ có giá trị khi khẳng định `detail` nêu đúng trường X, nếu không nó vẫn đạt khi có lỗi 422 khác (oracle yếu). Cần bộ sinh ví dụ hợp lệ theo schema trước khi sinh ca.
