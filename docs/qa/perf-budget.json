@@ -137,6 +137,7 @@
     {"id":"PB-R014","operationId":"exportPortalOc4ids","method":"GET","path":"/portal/oc4ids","permission":"project.portal.read","class":"REPORT","area":"PRJ"},
     {"id":"PB-R015","operationId":"exportVendorOcdsParties","method":"GET","path":"/vendor/ocds/parties","permission":"vnd.ocds.export","class":"REPORT","area":"VND"},
     {"id":"PB-R016","operationId":"getReportCrosscheck","method":"GET","path":"/report-engine/crosscheck","permission":"rpt.crosscheck.read","class":"REPORT","area":"RPT","query":{"kind":"MONTH","year":"$periodYear","index":"$periodMonth"}},
-    {"id":"PB-R017","operationId":"exportStaffScorePeriod","method":"GET","path":"/staff-score-periods/{id}/export","permission":"staff_score.export","class":"REPORT","area":"PWF","pathVars":{"id":"staffScorePeriodId"}}
+    {"id":"PB-R017","operationId":"exportStaffScorePeriod","method":"GET","path":"/staff-score-periods/{id}/export","permission":"staff_score.export","class":"REPORT","area":"PWF","pathVars":{"id":"staffScorePeriodId"}},
+    {"id":"PB-R018","operationId":"exportDeadlineBoard","method":"GET","path":"/pwf/deadlines/export","permission":"pwf.read","class":"REPORT","area":"PWF"}
   ]
 }
