@@ -325396,7 +325396,6 @@
                 "duration_working_days",
                 "required",
                 "responsible_role",
-                "approver_role",
                 "priority",
                 "predecessors"
               ],
@@ -325436,7 +325435,8 @@
                   "type": [
                     "string",
                     "null"
-                  ]
+                  ],
+                  "description": "Vai trò duyệt hoàn thành; bỏ trống hoặc null: việc không cần người duyệt (dạng chuẩn của mẫu đã lưu không có trường này)"
                 },
                 "priority": {
                   "type": "string",
@@ -325516,8 +325516,11 @@
                 },
                 "form_templates": {
                   "type": "array",
+                  "maxItems": 10,
+                  "description": "Mã biểu mẫu của kho văn bản (document_template.template_code): chữ hoa, số, chấm, gạch dưới, gạch nối, 3 đến 80 ký tự (R49)",
                   "items": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^[A-Z0-9][A-Z0-9_.-]{2,79}$"
                   }
                 },
                 "checklist": {
@@ -325613,7 +325616,7 @@
                     "properties": {
                       "form": {
                         "type": "string",
-                        "pattern": "^[A-Z][A-Z0-9_]{1,39}$"
+                        "pattern": "^[A-Z0-9][A-Z0-9_.-]{2,79}$"
                       },
                       "policy": {
                         "type": "string",
@@ -326727,6 +326730,23 @@
                 "missing_count": {
                   "type": "integer",
                   "minimum": 0
+                },
+                "standing": {
+                  "type": "string",
+                  "enum": [
+                    "UNGATED",
+                    "OPEN",
+                    "CLOSED",
+                    "NOT_DUE"
+                  ],
+                  "description": "Trạng thái cổng để hiển thị (R49): cổng đang đóng của giai đoạn dự án chưa tới là NOT_DUE (trung tính), không phải CLOSED; lệnh vẫn bị từ chối theo open"
+                },
+                "phases": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Các giai đoạn của mẫu khai lệnh này"
                 }
               }
             }
@@ -326906,6 +326926,37 @@
                 "type": "null"
               }
             ]
+          },
+          "pending_reschedule": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "proposal_id",
+              "base_version"
+            ],
+            "description": "Đề nghị dời lịch đang chờ quyết định của workflow (tối đa một); PWF-06 tự mở đề nghị này (R49)",
+            "properties": {
+              "proposal_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "base_version": {
+                "type": "integer"
+              },
+              "proposed_by": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "proposed_by_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
           }
         }
       },
@@ -327502,6 +327553,23 @@
           "as_of": {
             "type": "string",
             "format": "date-time"
+          },
+          "standing": {
+            "type": "string",
+            "enum": [
+              "UNGATED",
+              "OPEN",
+              "CLOSED",
+              "NOT_DUE"
+            ],
+            "description": "Trạng thái cổng để hiển thị (R49): cổng đang đóng của giai đoạn dự án chưa tới là NOT_DUE (trung tính), không phải CLOSED; lệnh vẫn bị từ chối theo open"
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Các giai đoạn của mẫu khai lệnh này"
           }
         }
       },

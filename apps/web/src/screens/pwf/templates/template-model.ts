@@ -50,6 +50,8 @@ export const MAX_NOTE = 400;
 export const FORM_POLICY_KINDS: readonly FormPolicyKind[] = ['LATEST_APPROVED', 'PINNED'];
 export const DOCUMENT_CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,63}$/;
 export const CODE_PATTERN = /^[A-Z][A-Z0-9_]{1,39}$/;
+/** The code of a form as the document store names it (document_template.template_code): capitals, digits, dot, underscore and hyphen, 3 to 80 characters. */
+export const FORM_CODE_PATTERN = /^[A-Z0-9][A-Z0-9_.-]{2,79}$/;
 const VALUE_PATTERN = /^[A-Za-z0-9_.-]{1,40}$/;
 
 /** A task as the editor holds it: every optional part of the contract is present (an empty list, no constraint). */
@@ -465,7 +467,7 @@ function detailProblems(path: string, task: EditorTask): TemplateProblem[] {
     else if (condition.in.length > 20 || condition.in.some((value) => !VALUE_PATTERN.test(value))) out.push({ path: base, problem: 'pattern' });
   });
   out.push(...codeListProblems(`${path}.legal_doc_types`, task.legal_doc_types));
-  out.push(...codeListProblems(`${path}.form_templates`, task.form_templates));
+  out.push(...codeListProblems(`${path}.form_templates`, task.form_templates, FORM_CODE_PATTERN));
   out.push(...codeListProblems(`${path}.kpi_codes`, task.kpi_codes));
   out.push(...legalBasisProblems(path, task.legal_basis ?? []));
   (task.form_policies ?? []).forEach((policy, at) => {

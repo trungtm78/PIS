@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Inject, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { PERMISSIONS } from '@machvon/contracts';
-import { PrjProjectStore, PwfAssignmentReads, PwfWorkflowReads, PwfWorkflowStore, TenantDatabase, approvedFormRevision, projectInScope, projectScope } from '@machvon/db';
+import { PrjProjectStore, PwfAssignmentReads, PwfWorkflowReads, PwfWorkflowStore, TenantDatabase, approvedFormRevision, knownFormCodes, projectInScope, projectScope } from '@machvon/db';
 import type { AdoptOutcome, LegalDocumentView, PwfSelectionRecord, TenantTx } from '@machvon/db';
 import { DomainError, legalDocument, pwfQuality, pwfSchedule, pwfWorkflow, validateRuleParams, vietnamDateOf } from '@machvon/kernel';
 import type { EffectiveAccess, TenantContext } from '@machvon/kernel';
@@ -14,7 +14,7 @@ import { OperationId } from '../../operation-id.decorator';
 import { encodeCursor, parsePageRequest } from '../../pagination';
 import { CurrentTenant } from '../../tenant-context.decorator';
 import { reaches } from '../prj/reach';
-import { WORKFLOW_RESOURCE, announce, canOf, idOf, queryText, scopesOf } from './pwf-support';
+import { CLASSIFICATION, WORKFLOW_RESOURCE, announce, canOf, idOf, queryText, scopesOf } from './pwf-support';
 
 const READ = PERMISSIONS.getProjectWorkflow;
 
@@ -71,6 +71,8 @@ const namesOf = (template: pwfWorkflow.ProjectWorkflowTemplate): { names: Record
 export interface TemplateReferenceFacts {
   documents: ReadonlyMap<string, LegalDocumentView>;
   formRevisions: ReadonlySet<string>;
+  /** The codes of the forms the template names that the document store of the tenant has (any revision); absent: the store was not asked. */
+  forms?: ReadonlySet<string>;
 }
 
 /** Reads what a template refers to from the tenant: the catalogue of legal documents, and each pinned revision of a form. */
@@ -78,6 +80,8 @@ export async function referenceFactsOf(tx: TenantTx, params: unknown, now: Date)
   const documents = await new PwfAssignmentReads().legalDocuments(tx, vietnamDateOf(now));
   const formRevisions = new Set<string>();
   const tasks = typeof params === 'object' && params !== null && Array.isArray((params as { tasks?: unknown }).tasks) ? ((params as { tasks: unknown[] }).tasks as unknown[]) : [];
+  const named = [...new Set(tasks.flatMap((raw) => (typeof raw === 'object' && raw !== null && Array.isArray((raw as { form_templates?: unknown }).form_templates) ? (raw as { form_templates: unknown[] }).form_templates : [])).filter((code): code is string => typeof code === 'string'))];
+  const forms = await knownFormCodes(tx, named);
   for (const raw of tasks) {
     const policies = typeof raw === 'object' && raw !== null && Array.isArray((raw as { form_policies?: unknown }).form_policies) ? (raw as { form_policies: unknown[] }).form_policies : [];
     for (const entry of policies) {
@@ -86,7 +90,7 @@ export async function referenceFactsOf(tx: TenantTx, params: unknown, now: Date)
       if ((await approvedFormRevision(tx, policy.form, policy.revision)) !== undefined) formRevisions.add(`${policy.form}#${policy.revision}`);
     }
   }
-  return { documents, formRevisions };
+  return { documents, formRevisions, forms };
 }
 
 /**
@@ -114,6 +118,9 @@ export function validateTemplate(params: unknown, now: Date, facts?: TemplateRef
         });
       (template.steps ?? []).forEach((step, index) => lapsed(step.legalBasis, `steps[${index}]`));
       template.tasks.forEach((one, index) => lapsed(one.legalBasis ?? [], `tasks[${index}]`));
+      // R49: a form is named by its code in the document store. A code the store does not have is told and never blocks: the evidence of such a form is recorded without a revision, as it always was (R46).
+      const { forms } = facts;
+      if (forms !== undefined) template.tasks.forEach((one, index) => one.formTemplates.forEach((code, position) => forms.has(code) || findings.push({ code: 'FORM_TEMPLATE_UNKNOWN', path: `tasks[${index}].form_templates[${position}]`, severity: 'WARNING', detail: code })));
     }
   }
   const flags = template === undefined ? [] : pwfQuality.templateQualityFlags(template);
@@ -216,7 +223,25 @@ export class ProjectWorkflowController {
       scopes: scopesOf(access, PERMISSIONS.adoptProjectWorkflow, now),
       now,
     });
-    if (outcome.workflow !== null) {
+    if (outcome.workflow === null) {
+      // A dry run writes nothing of the workflow, and it is still a command somebody ran on a project (the pattern of every preview in the repository: the import of national codes, the check of a template): the audit row says
+      // who tried which template on which day and what came of it, in codes and counts only. No event is announced: nothing changed.
+      await scope.audit({
+        action: 'workflow.adoption_previewed',
+        resourceType: 'project',
+        resourceId: projectId.toLowerCase(),
+        classification: CLASSIFICATION,
+        diff: {
+          template_code: outcome.templateCode,
+          template_hash: outcome.templateHash,
+          effective_date: outcome.effectiveDate,
+          task_count: outcome.tasks.length,
+          needs_decision: outcome.tasks.filter((one) => one.needsDecision).length,
+          findings: outcome.findings.length,
+          ...selectionFacts(outcome.selection),
+        },
+      });
+    } else {
       await announce(
         scope,
         { resource: WORKFLOW_RESOURCE, id: outcome.workflow.id, version: outcome.workflow.version, action: 'workflow.adopted', type: 'pwf.workflow.adopted.v1', fromStatus: null, status: outcome.workflow.status, facts: { project_id: outcome.workflow.projectId, template_code: outcome.templateCode, template_hash: outcome.templateHash, schedule_version: outcome.workflow.scheduleVersion, effective_date: outcome.effectiveDate, ...selectionFacts(outcome.selection) } },

@@ -180,7 +180,7 @@ export class PwfWorkflowReads {
     for (const target of pwfWorkflow.WORKFLOW_GATE_TARGETS) {
       if (!gated.has(target)) continue;
       const outcome = await this.gate.assess(tx, row.project_id as string, target);
-      gates.push({ target, open: outcome?.open ?? true, missing_count: outcome?.missing.length ?? 0 });
+      gates.push({ target, open: outcome?.open ?? true, missing_count: outcome?.missing.length ?? 0, standing: outcome?.standing ?? 'UNGATED', phases: outcome?.phases ?? [] });
     }
     // R44: phase -> step -> task -> checklist. The step of a task is the one its frozen template gives it (a task the project added itself belongs to no step); the progress of a step is counted from its tasks and their checklists.
     const definitions = new Map(template.tasks.map((one) => [one.code, one] as const));
@@ -237,6 +237,12 @@ export class PwfWorkflowReads {
       if (open && openPhase === null) openPhase = phase.code;
       return { code: phase.code, name: phase.name, order: phase.order, gates: [...phase.gates], required_total: required.length, required_done: done, open };
     });
+    // A6: the one proposal that waits for a decision (the database keeps at most one per workflow), so the screen of the decision opens it without its id in the address.
+    const pending = await tx.query<{ id: string; base_version: number; proposed_by: string; display_name: string | null }>(
+      `select pr.id, pr.base_version, pr.proposed_by, u.display_name from machvon.project_reschedule_proposal pr left join machvon.tenant_user_directory u on u.tenant_id = pr.tenant_id and u.membership_id = pr.proposed_by
+        where pr.workflow_id = $1::uuid and pr.status = 'PROPOSED' order by pr.id limit 1`,
+      [row.id],
+    );
     return {
       id: row.id,
       project_id: row.project_id,
@@ -255,6 +261,7 @@ export class PwfWorkflowReads {
       standard_working_days: standard.totalWorkingDays,
       lapsed_legal_documents: lapsed,
       selection: row.selection ?? null,
+      pending_reschedule: pending[0] === undefined ? null : { proposal_id: pending[0].id, base_version: pending[0].base_version, proposed_by: pending[0].proposed_by, proposed_by_name: pending[0].display_name },
       gates,
       counts_by_band: counts,
       can_manage: can.manage,
@@ -347,6 +354,8 @@ export class PwfWorkflowReads {
       gated: outcome?.gated ?? false,
       open: outcome?.open ?? true,
       missing: (outcome?.missing ?? []).map((one) => ({ task: one.task, task_id: one.taskId, phase: one.phase, reason: one.reason })),
+      standing: outcome?.standing ?? 'UNGATED',
+      phases: outcome?.phases ?? [],
       as_of: now.toISOString(),
     };
   }

@@ -12,9 +12,13 @@ function GateItem({ row, projectId }: { row: GateRow; projectId: string }) {
   const open = assessment === undefined ? row.missingCount === 0 : assessment.open;
   const gated = assessment?.gated ?? true;
   return (
-    <li className="pwf-gate" data-testid={`gate-${row.target}`} data-open={open}>
+    <li className="pwf-gate" data-testid={`gate-${row.target}`} data-open={open} data-standing={row.standing}>
       <strong>{row.word}</strong>{' '}
-      {!gated ? (
+      {row.standing === 'NOT_DUE' ? (
+        <StatusPill tone="neutral" icon="○">
+          {t('pwf.flow.gate.notDue.word')}
+        </StatusPill>
+      ) : !gated ? (
         <StatusPill tone="neutral" icon="○">
           {t('pwf.flow.gate.ungated.word')}
         </StatusPill>

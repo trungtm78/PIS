@@ -299,6 +299,21 @@ describe('PWF-03: the gates of the project commands', () => {
     expect(open.textContent).toContain(text('pwf.flow.gate.open.word'));
   });
 
+  it('B15: a gate of a phase the project has not reached says so in neutral words, not that it is closed', async () => {
+    show({
+      workflow: () => detail({ gates: detail().gates.map((one) => (one.target === 'startProjectImplementation' ? { ...one, open: false, missing_count: 1, standing: 'NOT_DUE' as const, phases: ['EXECUTION'] } : one)) }),
+      gate: (input: unknown) => {
+        const answer = gate(input as Record<string, unknown>);
+        return answer.target === 'startProjectImplementation' ? { ...answer, open: false, standing: 'NOT_DUE', phases: ['EXECUTION'] } : { ...answer, standing: 'CLOSED', phases: ['PREPARATION'] };
+      },
+    });
+    const ahead = await screen.findByTestId('gate-startProjectImplementation');
+    await waitFor(() => expect(ahead.getAttribute('data-standing')).toBe('NOT_DUE'));
+    expect(ahead.textContent).toContain(text('pwf.flow.gate.notDue.word'));
+    expect(ahead.textContent).not.toContain(text('pwf.flow.gate.closed.word'));
+    expect(screen.getByTestId('gate-submitProjectForAppraisal').getAttribute('data-standing')).toBe('CLOSED');
+  });
+
   it('says a command with no gate has none, and a workflow with no gate declared says so', async () => {
     show({ gate: (input: Record<string, unknown>) => ({ ...gate(input), gated: false, open: true, missing: [] }) });
     const row = await screen.findByTestId('gate-submitProjectForAppraisal');

@@ -59264,6 +59264,8 @@ final class PwfGateAssessmentResponse implements ResponseModel {
     required this.open,
     required this.missing,
     required this.asOf,
+    this.standing,
+    this.phases,
     this.extra = const <String, Object?>{},
   });
 
@@ -59275,7 +59277,9 @@ final class PwfGateAssessmentResponse implements ResponseModel {
       open: requiredField(map, path, 'open', asBool),
       missing: requiredField(map, path, 'missing', asList(PwfGateAssessmentResponseMissingItem.fromJson)),
       asOf: requiredField(map, path, 'as_of', asString),
-      extra: unknownFields(map, path, const <String>{'target', 'gated', 'open', 'missing', 'as_of'}, strict: true),
+      standing: optionalField(map, path, 'standing', asString),
+      phases: optionalField(map, path, 'phases', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'target', 'gated', 'open', 'missing', 'as_of', 'standing', 'phases'}, strict: true),
     );
   }
 
@@ -59284,6 +59288,8 @@ final class PwfGateAssessmentResponse implements ResponseModel {
   final bool open;
   final List<PwfGateAssessmentResponseMissingItem> missing;
   final String asOf;
+  final String? standing;
+  final List<String>? phases;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -59295,6 +59301,8 @@ final class PwfGateAssessmentResponse implements ResponseModel {
         'open': open,
         'missing': missing.map((e0) => e0.toJson()).toList(),
         'as_of': asOf,
+        if (standing != null) 'standing': standing,
+        if (phases != null) 'phases': phases,
         ...extra,
       };
 }
@@ -61962,6 +61970,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
     this.standardWorkingDays,
     this.lapsedLegalDocuments,
     this.selection,
+    this.pendingReschedule,
     this.extra = const <String, Object?>{},
   });
 
@@ -61991,7 +62000,8 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
       standardWorkingDays: optionalField(map, path, 'standard_working_days', asInt),
       lapsedLegalDocuments: optionalField(map, path, 'lapsed_legal_documents', asList(asString)),
       selection: optionalField(map, path, 'selection', asAny),
-      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'template_code', 'template_rule_version', 'template_hash', 'unverified', 'status', 'planned_start_date', 'schedule_version', 'adopted_on', 'open_phase', 'phases', 'tasks', 'gates', 'counts_by_band', 'can_manage', 'can_propose_reschedule', 'version', 'as_of', 'steps', 'standard_working_days', 'lapsed_legal_documents', 'selection'}, strict: true),
+      pendingReschedule: optionalField(map, path, 'pending_reschedule', nullable(PwfWorkflowDetailResponsePendingReschedule.fromJson)),
+      extra: unknownFields(map, path, const <String>{'id', 'project_id', 'template_code', 'template_rule_version', 'template_hash', 'unverified', 'status', 'planned_start_date', 'schedule_version', 'adopted_on', 'open_phase', 'phases', 'tasks', 'gates', 'counts_by_band', 'can_manage', 'can_propose_reschedule', 'version', 'as_of', 'steps', 'standard_working_days', 'lapsed_legal_documents', 'selection', 'pending_reschedule'}, strict: true),
     );
   }
 
@@ -62018,6 +62028,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
   final int? standardWorkingDays;
   final List<String>? lapsedLegalDocuments;
   final Object? selection;
+  final PwfWorkflowDetailResponsePendingReschedule? pendingReschedule;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -62047,6 +62058,7 @@ final class PwfWorkflowDetailResponse implements ResponseModel {
         if (standardWorkingDays != null) 'standard_working_days': standardWorkingDays,
         if (lapsedLegalDocuments != null) 'lapsed_legal_documents': lapsedLegalDocuments,
         if (selection != null) 'selection': selection,
+        if (pendingReschedule != null) 'pending_reschedule': pendingReschedule!.toJson(),
         ...extra,
       };
 }
@@ -62098,6 +62110,8 @@ final class PwfWorkflowDetailResponseGatesItem implements ResponseModel {
     required this.target,
     required this.open,
     required this.missingCount,
+    this.standing,
+    this.phases,
     this.extra = const <String, Object?>{},
   });
 
@@ -62107,13 +62121,17 @@ final class PwfWorkflowDetailResponseGatesItem implements ResponseModel {
       target: requiredField(map, path, 'target', asString),
       open: requiredField(map, path, 'open', asBool),
       missingCount: requiredField(map, path, 'missing_count', asInt),
-      extra: unknownFields(map, path, const <String>{'target', 'open', 'missing_count'}, strict: true),
+      standing: optionalField(map, path, 'standing', asString),
+      phases: optionalField(map, path, 'phases', asList(asString)),
+      extra: unknownFields(map, path, const <String>{'target', 'open', 'missing_count', 'standing', 'phases'}, strict: true),
     );
   }
 
   final String target;
   final bool open;
   final int missingCount;
+  final String? standing;
+  final List<String>? phases;
 
   /// The members the contract does not name (kept so that writing the response back gives what was read).
   final Map<String, Object?> extra;
@@ -62123,6 +62141,46 @@ final class PwfWorkflowDetailResponseGatesItem implements ResponseModel {
         'target': target,
         'open': open,
         'missing_count': missingCount,
+        if (standing != null) 'standing': standing,
+        if (phases != null) 'phases': phases,
+        ...extra,
+      };
+}
+
+final class PwfWorkflowDetailResponsePendingReschedule implements ResponseModel {
+  const PwfWorkflowDetailResponsePendingReschedule({
+    required this.proposalId,
+    required this.baseVersion,
+    this.proposedBy,
+    this.proposedByName,
+    this.extra = const <String, Object?>{},
+  });
+
+  factory PwfWorkflowDetailResponsePendingReschedule.fromJson(Object? json, [String path = 'PwfWorkflowDetailResponsePendingReschedule']) {
+    final Map<String, Object?> map = asObject(json, path);
+    return PwfWorkflowDetailResponsePendingReschedule(
+      proposalId: requiredField(map, path, 'proposal_id', asString),
+      baseVersion: requiredField(map, path, 'base_version', asInt),
+      proposedBy: optionalField(map, path, 'proposed_by', asString),
+      proposedByName: optionalField(map, path, 'proposed_by_name', nullable(asString)),
+      extra: unknownFields(map, path, const <String>{'proposal_id', 'base_version', 'proposed_by', 'proposed_by_name'}, strict: true),
+    );
+  }
+
+  final String proposalId;
+  final int baseVersion;
+  final String? proposedBy;
+  final String? proposedByName;
+
+  /// The members the contract does not name (kept so that writing the response back gives what was read).
+  final Map<String, Object?> extra;
+
+  @override
+  Map<String, Object?> toJson() => <String, Object?>{
+        'proposal_id': proposalId,
+        'base_version': baseVersion,
+        if (proposedBy != null) 'proposed_by': proposedBy,
+        if (proposedByName != null) 'proposed_by_name': proposedByName,
         ...extra,
       };
 }

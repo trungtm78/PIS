@@ -38712,6 +38712,7 @@
   "pwf.flow.gate.open.word": "Open: the command can run",
   "pwf.flow.gate.closed.word": "Closed: the command cannot run yet",
   "pwf.flow.gate.ungated.word": "No gate",
+  "pwf.flow.gate.notDue.word": "Not due yet",
   "pwf.flow.gate.summary.text": "{count} tasks still do not qualify",
   "pwf.flow.gate.missing.label": "Tasks still missing",
   "pwf.flow.gate.failed.text": "The detail of this gate could not be read, showing the count from the workflow.",

@@ -44,6 +44,13 @@ export async function currentFormRevisions(tx: TenantTx, codes: readonly string[
   return new Map(rows.map((row) => [row.template_code, current(row)] as const));
 }
 
+/** The codes among `codes` that the document store of the tenant has a form for (any revision, whatever its status): what a template may name (R49). */
+export async function knownFormCodes(tx: TenantTx, codes: readonly string[]): Promise<Set<string>> {
+  if (codes.length === 0) return new Set();
+  const rows = await tx.query<{ template_code: string }>('select distinct t.template_code from machvon.document_template t where t.template_code = any($1::text[])', [[...codes]]);
+  return new Set(rows.map((row) => row.template_code));
+}
+
 /** Whether a form has this revision, approved at some time (published now or replaced since): what a pinned revision must be. */
 export async function approvedFormRevision(tx: TenantTx, code: string, revision: number): Promise<FormRevision | undefined> {
   const rows = await tx.query<RevisionSql>(`select ${COLUMNS} from machvon.document_template t where t.template_code = $1 and t.revision = $2::int and t.status in ('PUBLISHED', 'SUPERSEDED')`, [code, revision]);

@@ -200,8 +200,12 @@ const LEGAL_BASIS: FieldSpec = object({
   verification: { kind: 'enum', values: LEGAL_BASIS_VERIFICATIONS },
 });
 
+/** The code of a form as the document store names it (`document_template.template_code`, the pattern of `document-template-store.ts`): capitals, digits, dot, underscore and hyphen, 3 to 80 characters (R49). */
+export const FORM_TEMPLATE_CODE_PATTERN = '^[A-Z0-9][A-Z0-9_.-]{2,79}$';
+const formCode: FieldSpec = { kind: 'text', max: 80, pattern: FORM_TEMPLATE_CODE_PATTERN };
+
 const FORM_POLICY: FieldSpec = object({
-  form: codeText(),
+  form: formCode,
   policy: { kind: 'enum', values: FORM_VERSION_POLICIES },
   revision: { kind: 'int', min: 1, max: 100000, optional: true },
 });
@@ -240,7 +244,7 @@ const TASK: FieldSpec = object({
   predecessors: list(DEPENDENCY, 20),
   constraint: { ...object({ kind: { kind: 'enum', values: CONSTRAINT_KINDS }, offset_working_days: { kind: 'int', min: 0, max: 1095 } }), optional: true },
   legal_doc_types: list(codeText(), 10),
-  form_templates: list(codeText(), 10),
+  form_templates: list(formCode, 10),
   form_policies: { ...list(FORM_POLICY, 10), optional: true },
   legal_basis: { ...list(LEGAL_BASIS, MAX_LEGAL_BASIS), optional: true },
   checklist: list(CHECKLIST_ITEM, 30),
@@ -853,6 +857,40 @@ export function gateFor(template: ProjectWorkflowTemplate, target: string, facts
     else if (one.approverRole !== null && !state.completionApproved) miss('COMPLETION_NOT_APPROVED');
   }
   return { gated: true, open: missing.length === 0, missing };
+}
+
+export const GATE_STANDINGS = ['UNGATED', 'OPEN', 'CLOSED', 'NOT_DUE'] as const;
+export type GateStandingCode = (typeof GATE_STANDINGS)[number];
+
+/** What decides the phase a project is in: the required tasks of each phase that belong to the project and are tracked. */
+export interface PhaseTaskState {
+  phase: string;
+  required: boolean;
+  excluded: boolean;
+  tracked: boolean;
+  status: string;
+}
+
+/** The phase the project is in: the first phase of the template with a required task (of the project, tracked) that is neither done nor cancelled; null when every phase is through. */
+export function openPhaseOf(template: ProjectWorkflowTemplate, tasks: readonly PhaseTaskState[]): string | null {
+  for (const phase of template.phases) {
+    if (tasks.some((one) => one.phase === phase.code && one.required && !one.excluded && one.tracked && one.status !== 'DONE' && one.status !== 'CANCELLED')) return phase.code;
+  }
+  return null;
+}
+
+/**
+ * How a gate stands for the reader (R49): a command no phase lists is UNGATED; one whose tasks are all through is OPEN; one that is closed is CLOSED only when the project has reached a phase that lists it (the phase it is in, or one
+ * behind it). A closed gate of phases that are all still ahead is NOT_DUE: nothing is late, the command simply does not belong to this part of the project yet. The verdict itself (`open`, `missing`) is unchanged: the command is refused
+ * either way.
+ */
+export function gateStanding(template: ProjectWorkflowTemplate, target: string, verdict: Pick<GateAssessment, 'gated' | 'open'>, openPhase: string | null): { standing: GateStandingCode; phases: string[] } {
+  const listing = template.phases.map((phase, index) => ({ code: phase.code, index, lists: (phase.gates as readonly string[]).includes(target) })).filter((one) => one.lists);
+  const phases = listing.map((one) => one.code);
+  if (!verdict.gated || listing.length === 0) return { standing: 'UNGATED', phases };
+  if (verdict.open) return { standing: 'OPEN', phases };
+  const reached = openPhase === null ? template.phases.length : template.phases.findIndex((phase) => phase.code === openPhase);
+  return { standing: listing.some((one) => one.index <= reached) ? 'CLOSED' : 'NOT_DUE', phases };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

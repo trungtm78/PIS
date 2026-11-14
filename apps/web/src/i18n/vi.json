@@ -38712,6 +38712,7 @@
   "pwf.flow.gate.open.word": "Mở: lệnh chạy được",
   "pwf.flow.gate.closed.word": "Đóng: lệnh chưa chạy được",
   "pwf.flow.gate.ungated.word": "Không có cổng",
+  "pwf.flow.gate.notDue.word": "Chưa tới giai đoạn này",
   "pwf.flow.gate.summary.text": "Còn {count} việc chưa đủ điều kiện",
   "pwf.flow.gate.missing.label": "Việc còn thiếu",
   "pwf.flow.gate.failed.text": "Không đọc được chi tiết của cổng này, đang hiện số việc theo workflow.",

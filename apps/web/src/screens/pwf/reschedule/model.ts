@@ -1,6 +1,6 @@
 import type { components } from '@machvon/contracts';
 import { dayProblem, optionalText, reasonProblem, textProblem, wholeProblem } from '../model';
-import type { FormProblem, Schedule, ReschedulePreview, ScheduleTask } from '../model';
+import type { FormProblem, Schedule, ReschedulePreview, ScheduleTask, WorkflowDetail } from '../model';
 
 type Schemas = components['schemas'];
 
@@ -209,6 +209,12 @@ export function heldFromAddress(params: Pick<URLSearchParams, 'get'>): HeldPropo
   if (id === null || !UUID.test(id)) return undefined;
   const version = Number(params.get('v') ?? '');
   return { id, baseVersion: Number.isInteger(version) && version > 0 ? version : 1 };
+}
+
+/** The proposal that waits on the workflow, when the address names none: who decides opens the screen from the menu and finds it (its details are then read from the server). */
+export function heldFromWorkflow(workflow: Pick<WorkflowDetail, 'pending_reschedule'>): HeldProposal | undefined {
+  const pending = workflow.pending_reschedule;
+  return pending === undefined || pending === null ? undefined : { id: pending.proposal_id, baseVersion: pending.base_version };
 }
 
 export const heldFromPreview = (preview: ReschedulePreview): HeldProposal => ({ id: preview.proposal_id, baseVersion: preview.base_version, preview });

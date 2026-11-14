@@ -48934,7 +48934,8 @@ export interface components {
                 duration_working_days: number;
                 required: boolean;
                 responsible_role: string;
-                approver_role: string | null;
+                /** @description Vai trò duyệt hoàn thành; bỏ trống hoặc null: việc không cần người duyệt (dạng chuẩn của mẫu đã lưu không có trường này) */
+                approver_role?: string | null;
                 /** @enum {string} */
                 priority: "LOW" | "NORMAL" | "HIGH" | "CRITICAL";
                 predecessors: {
@@ -48949,6 +48950,7 @@ export interface components {
                     offset_working_days: number;
                 } | null;
                 legal_doc_types?: string[];
+                /** @description Mã biểu mẫu của kho văn bản (document_template.template_code): chữ hoa, số, chấm, gạch dưới, gạch nối, 3 đến 80 ký tự (R49) */
                 form_templates?: string[];
                 checklist?: {
                     code: string;
@@ -49220,6 +49222,13 @@ export interface components {
                 target: "submitProjectForAppraisal" | "decideProjectAppraisal" | "capital.plan_published.v1" | "startProjectImplementation" | "suspendProject" | "resumeProject" | "completeProject" | "settlement.closed.v1" | "closeProject";
                 open: boolean;
                 missing_count: number;
+                /**
+                 * @description Trạng thái cổng để hiển thị (R49): cổng đang đóng của giai đoạn dự án chưa tới là NOT_DUE (trung tính), không phải CLOSED; lệnh vẫn bị từ chối theo open
+                 * @enum {string}
+                 */
+                standing?: "UNGATED" | "OPEN" | "CLOSED" | "NOT_DUE";
+                /** @description Các giai đoạn của mẫu khai lệnh này */
+                phases?: string[];
             }[];
             counts_by_band: {
                 NONE: number;
@@ -49261,6 +49270,15 @@ export interface components {
             /** @description Mã văn bản mà workflow viện dẫn đã hết hiệu lực hoặc bị thay thế hôm nay (R45) */
             lapsed_legal_documents?: string[];
             selection?: components["schemas"]["PwfWorkflowSelection"] | null;
+            /** @description Đề nghị dời lịch đang chờ quyết định của workflow (tối đa một); PWF-06 tự mở đề nghị này (R49) */
+            pending_reschedule?: {
+                /** Format: uuid */
+                proposal_id: string;
+                base_version: number;
+                /** Format: uuid */
+                proposed_by?: string;
+                proposed_by_name?: string | null;
+            } | null;
         };
         PwfTaskPage: {
             items: {
@@ -49388,6 +49406,13 @@ export interface components {
             }[];
             /** Format: date-time */
             as_of: string;
+            /**
+             * @description Trạng thái cổng để hiển thị (R49): cổng đang đóng của giai đoạn dự án chưa tới là NOT_DUE (trung tính), không phải CLOSED; lệnh vẫn bị từ chối theo open
+             * @enum {string}
+             */
+            standing?: "UNGATED" | "OPEN" | "CLOSED" | "NOT_DUE";
+            /** @description Các giai đoạn của mẫu khai lệnh này */
+            phases?: string[];
         };
         PwfTaskDetail: {
             /** Format: uuid */
