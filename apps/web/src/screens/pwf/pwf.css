@@ -99,3 +99,23 @@
   gap: 4px;
 }
 
+/* The facts behind a KPI result (lane fix11): a fact a row, and the whole of the stored inputs behind a disclosure. The JSON wraps inside its cell; it never widens the table or is cut at its edge. */
+.pwf-kpi-inputs {
+  min-width: 220px;
+}
+.pwf-kpi-json {
+  margin-top: 6px;
+  font-size: 12px;
+}
+.pwf-kpi-json summary {
+  cursor: pointer;
+  color: var(--mv-color-text-secondary);
+}
+.pwf-kpi-json pre {
+  margin: 6px 0 0;
+  max-width: 100%;
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

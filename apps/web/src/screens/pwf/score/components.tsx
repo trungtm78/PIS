@@ -10,7 +10,7 @@ import { FigureInfo } from '../components';
 import { roleWord } from '../labels';
 import { dayText, stampText } from '../model';
 import { kpiFormula, kpiStateWord } from '../task/labels';
-import { kpiInputs } from '../task/model';
+import { KpiInputs } from '../task/KpiInputs';
 import { useTaskKpiResults } from './hooks';
 import { adjustmentStatusWord, excludedReasonWord, flagHint, flagWord, lineStateHint, lineStateWord, periodStatusHint, periodStatusWord, responseStatusWord, scoreProblemText } from './labels';
 import { hasAdjustedScore, isRated, isRestricted, lineIcon, lineTone, periodIcon, periodTone, scoreTaskLink, scoreText } from './model';
@@ -140,14 +140,7 @@ function TaskFacts({ taskId }: { taskId: string }) {
             <strong>{item.kpi_code}</strong>: {item.value === null ? '–' : item.value} → {item.score === null ? '–' : item.score} ({kpiStateWord(t, item.state)}, {t('pwfs.facts.weight.text', { weight: item.weight })})
             <FigureInfo name={item.kpi_code} formula={kpiFormula(t, item.operation)} source={t('pwf.task.kpi.source.text', { hash: item.inputs_hash.slice(0, 12) })} asOf={item.computed_at} version={t('pwf.task.kpi.version.text', { version: item.kpi_set_version })} />
           </span>
-          <dl className="pwf-facts">
-            {kpiInputs(item.inputs).map(([name, value]) => (
-              <div key={name} className="pwf-input">
-                <dt>{name}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-          </dl>
+          <KpiInputs inputs={item.inputs} />
         </li>
       ))}
     </ul>

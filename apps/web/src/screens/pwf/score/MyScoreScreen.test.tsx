@@ -82,8 +82,9 @@ describe('PWF-11: my score', () => {
     const facts = await screen.findByTestId(`facts-${uuid(1001)}`);
     expect(h.read).toHaveBeenCalledWith('listTaskKpiResults', { path: { task_id: uuid(1001) } });
     expect(within(facts).getByText('PWF_TASK_DEVIATION_DAYS')).toBeTruthy();
-    expect(within(facts).getByText('baselineDueFirst')).toBeTruthy();
-    expect(within(facts).getByText('2026-12-08')).toBeTruthy();
+    expect(within(facts).getByText(text('fix11.kpiFact.baselineDueFirst.label'))).toBeTruthy();
+    expect(within(facts).getByText('08/12/2026')).toBeTruthy();
+    expect(within(facts).queryByText('baselineDueFirst')).toBeNull();
   });
 
   it('explains the score with the "i": the formula, the policy, the hash of the snapshot and the version', async () => {

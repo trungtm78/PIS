@@ -11,7 +11,8 @@ import {
   evidenceBody,
   exceptionBody,
   historyGroups,
-  kpiInputs,
+  kpiInputRows,
+  kpiInputsJson,
   returnBody,
   startBody,
   statusTone,
@@ -148,13 +149,32 @@ describe('PWF-04 presentation helpers', () => {
     expect(groups[1]?.entries.map((entry) => entry.id)).toEqual(['a']);
   });
 
-  it('lists the inputs of a KPI result as name and value pairs, text for anything that is not a plain value', () => {
-    expect(kpiInputs({ due: '2026-12-10', days: 3, done: true, nothing: null, nested: { a: 1 } })).toEqual([
-      ['days', '3'],
-      ['done', 'true'],
-      ['due', '2026-12-10'],
-      ['nested', '{"a":1}'],
-      ['nothing', '–'],
+  it('reads the inputs of a KPI result as the facts a person reads, in a fixed order, and leaves the envelope of the server out of them (lane fix11)', () => {
+    const inputs = {
+      operation: 'DAYS_DEVIATION',
+      params: { unit: 'WORKING', against: 'FIRST_BASELINE', graceDays: 0 },
+      facts: { actualFinish: '2026-12-11', baselineDueFirst: '2026-12-08', status: 'DONE', somethingNew: 7 },
+      as_of: '2026-12-31',
+      calendars: [{ year: 2026, version: 3 }],
+      scale: { kind: 'LINEAR' },
+      rag_code: 'DEFAULT',
+    };
+    expect(kpiInputRows(inputs)).toEqual([
+      { key: 'baselineDueFirst', value: '2026-12-08' },
+      { key: 'actualFinish', value: '2026-12-11' },
+      { key: 'asOf', value: '2026-12-31' },
+      { key: 'status', value: 'DONE' },
+      { key: 'unit', value: 'WORKING' },
+      { key: 'against', value: 'FIRST_BASELINE' },
+      { key: 'graceDays', value: 0 },
+      { key: 'calendars', value: [{ year: 2026, version: 3 }] },
     ]);
+    expect(kpiInputRows({})).toEqual([]);
+    expect(kpiInputRows({ facts: 'not an object', params: null })).toEqual([]);
+    // The whole of what was stored is kept for the disclosure: every key, the unknown one too, indented and in a stable order.
+    const json = kpiInputsJson(inputs);
+    expect(JSON.parse(json)).toEqual(inputs);
+    expect(json).toContain('\n  "as_of": "2026-12-31"');
+    expect(json.indexOf('"as_of"')).toBeLessThan(json.indexOf('"calendars"'));
   });
 });

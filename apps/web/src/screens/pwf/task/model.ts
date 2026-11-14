@@ -220,13 +220,63 @@ export function historyGroups(history: readonly HistoryEntry[]): HistoryGroup[] 
 }
 
 
-/** The inputs of a KPI result as name and value pairs by name; a value that is not plain is written as its JSON. */
-export function kpiInputs(inputs: Record<string, unknown>): Array<[string, string]> {
-  const text = (value: unknown): string => {
-    if (value === null || value === undefined) return '–';
-    return typeof value === 'object' ? JSON.stringify(value) : String(value);
+/** The facts of a task a KPI reads, in the order a person reads them (the days first, then the counts and the amounts). A key that is not here has no label and stays in the full data only. */
+export const KPI_FACT_KEYS = [
+  'baselineDueFirst',
+  'baselineDueCurrent',
+  'actualStart',
+  'actualFinish',
+  'asOf',
+  'status',
+  'priority',
+  'plannedWorkingDays',
+  'returnCount',
+  'rescheduleCount',
+  'requiredEvidence',
+  'providedEvidence',
+  'estimateVnd',
+  'actualVnd',
+  'cancelApproved',
+  'excusals',
+  'unit',
+  'against',
+  'graceDays',
+  'calendars',
+] as const;
+export type KpiFactKey = (typeof KPI_FACT_KEYS)[number];
+
+/** One fact behind a KPI result, named by a key the screen has a label for; the value is as the server stored it. */
+export interface KpiInputRow {
+  key: KpiFactKey;
+  value: unknown;
+}
+
+const plainRecord = (value: unknown): Record<string, unknown> => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : {});
+
+/**
+ * The inputs of a KPI result as the facts a person reads (lane fix11): the facts of the task the operation read (`facts`), the day they were read on (`as_of`), how the operation counts (`params`) and the calendars
+ * behind the working days. The envelope the server keeps for a recomputation (the operation, the scale, the colour rule) and any key the screen has no label for are NOT rows: they are in the full data, which the
+ * screen shows on demand. Rows come in the order of [KPI_FACT_KEYS], one per key.
+ */
+export function kpiInputRows(inputs: Record<string, unknown>): KpiInputRow[] {
+  const facts = plainRecord(inputs.facts);
+  const params = plainRecord(inputs.params);
+  const found = new Map<string, unknown>();
+  // A result kept before the envelope existed holds its facts at the top: a key the screen has a label for is read from there as well.
+  for (const [key, value] of Object.entries(inputs)) if (key !== 'calendars' && (KPI_FACT_KEYS as readonly string[]).includes(key)) found.set(key, value);
+  for (const [key, value] of Object.entries(facts)) found.set(key, value);
+  for (const [key, value] of Object.entries(params)) if (!found.has(key)) found.set(key, value);
+  if (!found.has('asOf') && inputs.as_of !== undefined) found.set('asOf', inputs.as_of);
+  if (Array.isArray(inputs.calendars) && inputs.calendars.length > 0) found.set('calendars', inputs.calendars);
+  return KPI_FACT_KEYS.filter((key) => found.has(key)).map((key) => ({ key, value: found.get(key) }));
+}
+
+/** The whole of the inputs as the server stored them, for the reader who checks a recomputation: indented, keys in a stable order. */
+export function kpiInputsJson(inputs: Record<string, unknown>): string {
+  const ordered = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(ordered);
+    if (typeof value === 'object' && value !== null) return Object.fromEntries(Object.keys(value as Record<string, unknown>).sort().map((key) => [key, ordered((value as Record<string, unknown>)[key])]));
+    return value;
   };
-  return Object.entries(inputs)
-    .map(([name, value]): [string, string] => [name, text(value)])
-    .sort(([a], [b]) => a.localeCompare(b));
+  return JSON.stringify(ordered(inputs), null, 2);
 }

@@ -25,7 +25,7 @@ const ReadOnly = ({ children }: { children: ReactNode }) => {
 
 const kpiPage = (items: unknown[] = []) => ({ items, next_cursor: null, as_of: '2026-11-12T03:00:00.000Z' });
 const kpiRow = (n: number, over: Record<string, unknown> = {}) => ({
-  id: uuid(700 + n), kpi_code: 'ON_TIME', operation: 'DAYS_DEVIATION', kpi_set_rule_id: null, kpi_set_version: 2, state: 'OK', value: 3, score: 90, weight: 1, inputs_hash: 'c'.repeat(64), inputs: { due: '2026-12-10' },
+  id: uuid(700 + n), kpi_code: 'ON_TIME', operation: 'DAYS_DEVIATION', kpi_set_rule_id: null, kpi_set_version: 2, state: 'OK', value: 3, score: 90, weight: 1, inputs_hash: 'c'.repeat(64), inputs: { operation: 'DAYS_DEVIATION', params: { unit: 'WORKING' }, facts: { baselineDueFirst: '2026-12-10', actualFinish: null, providedEvidence: 2 }, as_of: '2026-12-31', scale: { kind: 'LINEAR' } },
   computed_at: '2026-12-11T02:00:00.000Z', supersedes_id: null, ...over,
 });
 
@@ -180,7 +180,7 @@ describe('PWF-04: the states of the screen', () => {
   it('has no serious accessibility violation', async () => {
     open({
       task: detail({
-        kpi_results: [{ id: uuid(7), kpi_code: 'ON_TIME', operation: 'ON_TIME_RATE', kpi_set_rule_id: null, kpi_set_version: 2, state: 'OK', value: 100, score: 90, weight: 1, inputs_hash: 'c'.repeat(64), inputs: { due: '2026-12-10' }, computed_at: '2026-12-11T01:00:00.000Z', supersedes_id: null }],
+        kpi_results: [{ id: uuid(7), kpi_code: 'ON_TIME', operation: 'ON_TIME_RATE', kpi_set_rule_id: null, kpi_set_version: 2, state: 'OK', value: 100, score: 90, weight: 1, inputs_hash: 'c'.repeat(64), inputs: { operation: 'DAYS_DEVIATION', params: { unit: 'WORKING' }, facts: { baselineDueFirst: '2026-12-10', actualFinish: null, providedEvidence: 2 }, as_of: '2026-12-31', scale: { kind: 'LINEAR' } }, computed_at: '2026-12-11T01:00:00.000Z', supersedes_id: null }],
         exceptions: [{ id: uuid(8), task_id: TASK, kind: 'PAUSE', items: [], valid_from: '2026-12-01', valid_to: null, reason: LONG, evidence_ref: null, status: 'REQUESTED', requested_by: OTHER, decided_by: null, decided_at: null, decision_note: null, version: 1 }],
         can_approve: true,
       }),
@@ -574,7 +574,21 @@ describe('PWF-04: ledger, history and KPI', () => {
     expect(kpi.getByText('3,25')).toBeTruthy();
     expect(kpi.getByText(text('pwf.task.kpi.state.ok'))).toBeTruthy();
     expect(kpi.getByText(text('pwf.task.kpi.state.missingFact'))).toBeTruthy();
-    expect(kpi.getByText('2026-12-10')).toBeTruthy();
+    // The facts are named and read as a person reads them (lane fix11): a day as dd/mm/yyyy, a missing fact as "none", never the stored JSON in the cell.
+    const firstFacts = within(kpi.getAllByTestId('kpi-inputs')[0] as HTMLElement);
+    expect(firstFacts.getByText(text('fix11.kpiFact.baselineDueFirst.label'))).toBeTruthy();
+    expect(firstFacts.getByText('10/12/2026')).toBeTruthy();
+    expect(firstFacts.getByText('31/12/2026')).toBeTruthy();
+    expect(firstFacts.getByText(text('fix11.kpi.unit.working'))).toBeTruthy();
+    expect(firstFacts.getByText(text('fix11.kpi.fact.none'))).toBeTruthy();
+    expect(kpi.queryByText('2026-12-10')).toBeNull();
+    expect(kpi.queryByText(/"kind":"LINEAR"/)).toBeNull();
+    // The whole of the stored inputs is behind a disclosure, closed until asked for.
+    const full = firstFacts.getByText(text('fix11.kpi.inputs.full')).closest('details') as HTMLDetailsElement;
+    expect(full.open).toBe(false);
+    expect(JSON.parse(firstFacts.getByTestId('kpi-inputs-json').textContent ?? '')).toMatchObject({ scale: { kind: 'LINEAR' }, facts: { baselineDueFirst: '2026-12-10' } });
+    // A result that kept no inputs says so.
+    expect(within(kpi.getAllByTestId('kpi-inputs')[1] as HTMLElement).getByText(text('fix11.kpi.inputs.none'))).toBeTruthy();
     fireEvent.click(kpi.getByRole('button', { name: text('govc.bi.info.open', { name: 'ON_TIME' }) }));
     expect(screen.getByRole('dialog').textContent).toContain(text('pwf.task.kpi.formula.daysDeviation'));
     expect(screen.getByRole('dialog').textContent).toContain(text('pwf.task.kpi.source.text', { hash: 'c'.repeat(12) }));

@@ -9,7 +9,8 @@ import { dayText, stampText } from '../model';
 import type { TaskDetail } from '../model';
 import { useTaskKpiResults } from './hooks';
 import { historyWord, kpiFormula, kpiStateWord } from './labels';
-import { historyGroups, kpiInputs } from './model';
+import { KpiInputs } from './KpiInputs';
+import { historyGroups } from './model';
 import type { KpiResult } from './model';
 
 /** The log of the task, newest first: when, what happened in words, and the reason given with it. Closed until asked for. */
@@ -132,14 +133,7 @@ export function KpiSection({ results }: { results: readonly KpiResult[] }) {
       key: 'inputs',
       header: t('pwf.task.kpi.col.inputs'),
       render: (item) => (
-        <dl className="pwf-facts">
-          {kpiInputs(item.inputs).map(([name, value]) => (
-            <div key={name} className="pwf-input">
-              <dt>{name}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-        </dl>
+        <KpiInputs inputs={item.inputs} />
       ),
     },
   ];
