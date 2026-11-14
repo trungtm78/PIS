@@ -358,6 +358,20 @@ describe('the rule types', () => {
     }
   };
 
+  it('UAT-PWF-NEG-02: a KPI set with two items of one kpi_code or with weights that add up to 0 is refused when it is saved, naming the field; the default set passes and names only KPI and RAG codes that exist', () => {
+    expect(failing(valid())).toBeUndefined();
+    const twice = valid();
+    itemsOf(twice)[1]!.kpi_code = itemsOf(twice)[0]!.kpi_code;
+    expect(failing(twice)).toBe('items[1].kpi_code');
+    const weightless = valid();
+    for (const item of itemsOf(weightless)) item.weight = 0;
+    expect(failing(weightless)).toMatch(/weight/);
+    for (const item of itemsOf(valid())) {
+      expect(builtInDefault('KPI_DEFINITION', item.kpi_code as string)).toBeDefined();
+      if (typeof item.rag_code === 'string') expect(builtInDefault('RAG_THRESHOLDS', item.rag_code)).toBeDefined();
+    }
+  });
+
   it('accepts the default and refuses what the schema or the refine cannot accept', () => {
     expect(failing(valid())).toBeUndefined();
     const duplicate = valid();
@@ -625,6 +639,47 @@ describe('aggregateStaffPeriod: the score of a person in a period', () => {
     expect(of(light, 'ann')).toMatchObject({ rating: null, state: 'SMALL_SAMPLE' });
     const enough = aggregateStaffPeriod({ ...base, policy: { ...policy, minEffectiveWeight: 0 }, tasks: ['A', 'B', 'C', 'D', 'E'].map((code) => task(code)) });
     expect(of(enough, 'ann')).toMatchObject({ rating: 'GOOD', state: 'RATED' });
+  });
+
+  it('UAT-PWF-BND-11: with at least 5 rated tasks and a weight of 3 asked, 4 tasks of weight 4 are SMALL_SAMPLE, 5 tasks of weight 2.5 are SMALL_SAMPLE, 5 tasks of weight 3 are RATED with a rating, and nobody with no rated task is NOT_RATED with no score and no NaN', () => {
+    expect([policy.minRatedTasks, policy.minEffectiveWeight]).toEqual([5, 3]);
+    const held = (id: string) => [{ membershipId: id, role: 'RESPONSIBLE' as const, from: '2026-10-01', to: null, sharePct: 100 }];
+    // The weight of a task is the weight of its priority (LOW 0.5, NORMAL 1) times its planned days (1).
+    const tasks = [
+      ...['X1', 'X2', 'X3', 'X4'].map((code) => task(code, { assignments: held('x') })),
+      ...['Y1', 'Y2', 'Y3', 'Y4', 'Y5'].map((code) => task(code, { priority: 'LOW', assignments: held('y') })),
+      ...['Z1', 'Z2', 'Z3', 'Z4'].map((code) => task(code, { priority: 'LOW', assignments: held('z') })),
+      task('Z5', { assignments: held('z') }),
+      task('W1', { state: 'NOT_STARTED', taskScore: null, assignments: held('w') }),
+    ];
+    const result = aggregateStaffPeriod({ ...base, policy, tasks });
+    expect(of(result, 'x')).toMatchObject({ state: 'SMALL_SAMPLE', rating: null, score: 80, ratedTaskCount: 4, effectiveWeight: 4 });
+    expect(of(result, 'y')).toMatchObject({ state: 'SMALL_SAMPLE', rating: null, score: 80, ratedTaskCount: 5, effectiveWeight: 2.5 });
+    expect(of(result, 'z')).toMatchObject({ state: 'RATED', ratedTaskCount: 5, effectiveWeight: 3 });
+    expect(typeof of(result, 'z')?.rating).toBe('string');
+    expect(of(result, 'w')).toMatchObject({ state: 'NOT_RATED', score: null, rating: null, ratedTaskCount: 0 });
+    for (const person of result) expect(Number.isNaN(person.score)).toBe(false);
+  });
+
+  it('UAT-PWF-NEG-08: a task cancelled without an approved request counts as 0 points and the score does not rise; one cancelled with approval leaves the denominator with its reason; the signals of a high share of cancellations and of tasks split after the baseline are for the reviewer and change no score', () => {
+    expect(policy.cancelledUnapproved).toBe('COUNT_AS_MISSED');
+    const kept = [task('D1', { taskScore: 90 }), task('D2', { taskScore: 90 })];
+    const before = of(aggregateStaffPeriod({ ...base, tasks: kept }), 'ann');
+    const withBoth = aggregateStaffPeriod({ ...base, tasks: [...kept, task('C1', { state: 'CANCELLED_UNAPPROVED', taskScore: null }), task('C2', { state: 'CANCELLED_APPROVED', taskScore: null })] });
+    const after = of(withBoth, 'ann');
+    expect(after?.contributions.find((one) => one.taskCode === 'C1')).toMatchObject({ score: 0 });
+    expect(after?.score).toBe(60);
+    expect((after?.score as number) < (before?.score as number)).toBe(true);
+    expect(after?.excluded).toEqual([{ taskCode: 'C2', reason: 'CANCELLED_APPROVED' }]);
+    expect(after?.ratedTaskCount).toBe(3);
+    // The signals: a separate list, read by the reviewer; the score above is what it was whether they are computed or not.
+    const signalTask = (code: string, patch: Record<string, unknown> = {}) => ({ taskCode: code, state: 'RATED' as const, parentCode: null as string | null, createdOn: '2026-09-01', plannedWorkingDays: 10, baselineDue: '2026-10-20' as string | null, finishedOn: '2026-10-20' as string | null, assignments: [{ membershipId: 'ann', role: 'RESPONSIBLE' as const, from: '2026-09-01', to: null as string | null }], ...patch });
+    const window = { periodFrom: '2026-10-01', periodTo: '2026-12-31', baselineLockedOn: '2026-09-15', baselineRevisions: [] };
+    const cancelled = gamingSignals({ ...window, tasks: [signalTask('D1'), signalTask('C1', { state: 'CANCELLED_UNAPPROVED' }), signalTask('C2', { state: 'CANCELLED_APPROVED' }), signalTask('D2')] });
+    expect(cancelled.find((entry) => entry.membershipId === 'ann')?.flags).toEqual([{ code: 'CANCELLED_SHARE_HIGH', taskCodes: ['C1', 'C2'] }]);
+    const split = gamingSignals({ ...window, tasks: [signalTask('S1', { parentCode: 'P', createdOn: '2026-10-02', plannedWorkingDays: 1 }), signalTask('S2', { parentCode: 'P', createdOn: '2026-10-02', plannedWorkingDays: 1 }), signalTask('S3', { parentCode: 'P', createdOn: '2026-10-03', plannedWorkingDays: 1 })] });
+    expect(split.find((entry) => entry.membershipId === 'ann')?.flags).toEqual([{ code: 'TASKS_SPLIT_AFTER_BASELINE', taskCodes: ['S1', 'S2', 'S3'] }]);
+    expect(of(aggregateStaffPeriod({ ...base, tasks: [...kept, task('C1', { state: 'CANCELLED_UNAPPROVED', taskScore: null }), task('C2', { state: 'CANCELLED_APPROVED', taskScore: null })] }), 'ann')?.score).toBe(after?.score);
   });
 
   it('lists the people in a stable order whatever the order of the tasks', () => {

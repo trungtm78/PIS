@@ -138,7 +138,7 @@ describe('governance:check findings', () => {
     assert.deepEqual(found.findings.map((finding) => finding.code), ['GOV_ALERT_TYPE_MISSING', 'GOV_ALERT_TYPE_MISSING']);
   });
 
-  it('finds a KPI set or a workflow template that refers to a code the other type does not have (R37)', async () => {
+  it('UAT-PWF-NEG-02: finds a KPI set or a workflow template that refers to a code the other type does not have (R37)', async () => {
     const kpiSet = (kpiCode, ragCode = 'PWF_SCORE', templateCode = 'PUBLIC_INVESTMENT') => alert({ params: { template_code: templateCode, items: [{ kpi_code: kpiCode, rag_code: ragCode }] } });
     const kernel = (setDefaults, templateDefaults) => ({
       RULE_TYPE_PATTERN: /^[A-Z][A-Z0-9_]{2,63}$/,
@@ -160,7 +160,7 @@ describe('governance:check findings', () => {
     assert.ok(missing.findings.some((finding) => finding.message.includes('refers to NOPE at tasks[].kpi_codes[]')));
   });
 
-  it('holds the built-in project workflow data of the repository to its references', async () => {
+  it('UAT-PWF-NEG-02: holds the built-in project workflow data of the repository to its references', async () => {
     const found = await checkGovernance({ today: '2026-11-12', root: REPO });
     assert.deepEqual(found.findings.filter((finding) => finding.code === 'GOV_REFERENCE_MISSING'), []);
   });

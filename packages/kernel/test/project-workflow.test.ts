@@ -244,7 +244,7 @@ describe('references of a template: legal documents by edition, forms, evidence,
     ]),
   );
 
-  it('resolves legal document types through the registered editions and reports the ones nobody knows', () => {
+  it('UAT-PWF-NEG-02: resolves legal document types through the registered editions and reports the ones nobody knows (LEGAL_DOC_TYPE_UNKNOWN)', () => {
     const findings = checkTemplateReferences(parsed, {});
     expect(findings.map((one) => `${one.field}:${one.code}`)).toEqual(['tasks[0].legal_doc_types[1]:LEGAL_DOC_TYPE_UNKNOWN']);
   });
