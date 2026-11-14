@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { DEFAULT_BUDGET, budgetProblems, buildRequest, discoverVariables, evaluateEntry, exitCode, formatLine, main, percentile, pickValue, runBudget, selectOperations, summarize, summaryOf } from './perf-budget.mjs';
+import { DEFAULT_BUDGET, LAPSED_SESSION_CODES, TOKEN_MARGIN_MS, budgetProblems, buildRequest, createTokenSource, discoverVariables, evaluateEntry, exitCode, formatLine, lapsedSession, main, percentile, pickValue, runBudget, selectOperations, summarize, summaryOf, tokenExpiryMs, tokenOfText } from './perf-budget.mjs';
 
 const budget = {
   version: 1,
@@ -608,4 +608,287 @@ test('a discovery with `where` keeps the rows that hold the value and takes the 
   const broken = budgetProblems({ ...filtering, discovery: { lineId: { path: '/resources/allocation_line', pick: 'id', where: { pick: '' } } } });
   assert.ok(broken.some((problem) => problem.includes('filters rows without what a row must hold')));
   assert.ok(broken.some((problem) => problem.includes('names none (rows)')));
+});
+
+// ---- a token that expires during the run (UAT 2026-11-15 run 3: 11 of the 17 REPORT rows answered 400 TENANT_CONTEXT_INVALID once the 300 s development token had lapsed) ----
+
+const jwtOf = (claims) => `${Buffer.from('{"alg":"none"}').toString('base64url')}.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.sig`;
+const devTokenOf = (claims) => `${Buffer.from(JSON.stringify(claims)).toString('base64url')}.sig`;
+const problem = (status, code) => ({ status, arrayBuffer: async () => new TextEncoder().encode(JSON.stringify({ type: `urn:machvon:error:${code}`, title: code, status, code, correlation_id: 'c' })).buffer });
+
+test('tokenOfText reads a bare token, a Bearer value and a JSON object, and gives nothing for a text that holds no token', () => {
+  assert.equal(tokenOfText(' abc.def \n'), 'abc.def');
+  assert.equal(tokenOfText('Bearer abc.def'), 'abc.def');
+  assert.equal(tokenOfText('{"authorization":"Bearer abc.def","tenant":null}'), 'abc.def');
+  assert.equal(tokenOfText('{"token":"abc"}'), 'abc');
+  assert.equal(tokenOfText(''), undefined);
+  assert.equal(tokenOfText(undefined), undefined);
+  assert.equal(tokenOfText('{"other":1}'), undefined);
+  assert.equal(tokenOfText('{not json'), undefined);
+  assert.equal(tokenOfText('two words'), undefined);
+});
+
+test('tokenExpiryMs reads the exp of a JWT and of a development session token, and nothing from an opaque token', () => {
+  assert.equal(tokenExpiryMs(jwtOf({ exp: 1000 })), 1_000_000);
+  assert.equal(tokenExpiryMs(devTokenOf({ tenantId: 't', exp: 2000 })), 2_000_000);
+  assert.equal(tokenExpiryMs(jwtOf({ sub: 'x' })), undefined);
+  assert.equal(tokenExpiryMs('opaque'), undefined);
+  assert.equal(tokenExpiryMs('a.b.c'), undefined);
+  assert.equal(tokenExpiryMs(undefined), undefined);
+  assert.equal(tokenExpiryMs('a.b.c.d'), undefined);
+});
+
+test('lapsedSession tells a refusal of the session from a refusal of the request', () => {
+  assert.equal(lapsedSession({ status: 401 }), true);
+  for (const code of LAPSED_SESSION_CODES) assert.equal(lapsedSession({ status: 400, code }), true);
+  assert.equal(lapsedSession({ status: 403, code: 'SESSION_EXPIRED' }), true);
+  assert.equal(lapsedSession({ status: 400, code: 'VALIDATION_FAILED' }), false);
+  assert.equal(lapsedSession({ status: 400 }), false);
+  assert.equal(lapsedSession({ status: 403, code: 'SCOPE_DENIED' }), false);
+  assert.equal(lapsedSession({ status: 500, code: 'TENANT_CONTEXT_INVALID' }), false);
+  assert.equal(lapsedSession({ status: 200 }), false);
+});
+
+test('a token source without a file or a command keeps its one token; with a command it renews before the expiry and on demand, and says why it could not', () => {
+  const fixed = createTokenSource({ token: 'only' });
+  assert.equal(fixed.renewable, false);
+  assert.equal(fixed.current(), 'only');
+  assert.equal(fixed.refresh(), false);
+  assert.equal(fixed.refreshes, 0);
+  assert.equal(createTokenSource().current(), undefined);
+
+  let at = 0;
+  let made = 0;
+  const run = () => {
+    made += 1;
+    return `${devTokenOf({ n: made, exp: at / 1000 + 300 })}\n`;
+  };
+  const source = createTokenSource({ command: 'mint', clock: () => at, run });
+  // No token was given: the first one is taken when it is first asked for, and that is not a renewal.
+  const first = source.current();
+  assert.equal(made, 1);
+  assert.equal(source.refreshes, 0);
+  at = 200_000;
+  assert.equal(source.current(), first, 'still more than the margin before its expiry');
+  at = 300_000 - TOKEN_MARGIN_MS;
+  const second = source.current();
+  assert.notEqual(second, first, 'renewed once the expiry is within the margin');
+  assert.equal(source.refreshes, 1);
+  assert.equal(source.refresh(), true, 'the API refused it: a new one is taken at once');
+  assert.equal(source.refreshes, 2);
+
+  // A token with no expiry is renewed after --token-ttl; without a ttl it is kept until the API refuses it.
+  let opaque = 0;
+  const byAge = createTokenSource({ token: 't0', command: 'mint', ttlMs: 1000, clock: () => at, run: () => `t${(opaque += 1)}` });
+  assert.equal(byAge.current(), 't0');
+  at += 1000;
+  assert.equal(byAge.current(), 't1');
+  const kept = createTokenSource({ token: 't0', command: 'mint', clock: () => at, run: () => 'never' });
+  at += 10_000_000;
+  assert.equal(kept.current(), 't0');
+
+  // A command that fails, or prints nothing, leaves the token in hand and says so once (never the token itself).
+  const broken = createTokenSource({
+    token: 'old',
+    command: 'mint',
+    clock: () => at,
+    run: () => {
+      throw new Error('boom');
+    },
+  });
+  assert.equal(broken.refresh(), false);
+  assert.equal(broken.refresh(), false);
+  assert.equal(broken.current(), 'old');
+  assert.deepEqual(broken.problems, ['the token command failed']);
+  const silent = createTokenSource({ token: 'old', command: 'mint', run: () => '  ' });
+  assert.equal(silent.refresh(), false);
+  assert.deepEqual(silent.problems, ['the token command printed no token']);
+  // The same token again is no renewal: the request is not sent a second time for nothing.
+  const same = createTokenSource({ token: 'old', command: 'mint', run: () => 'old' });
+  assert.equal(same.refresh(), false);
+  assert.equal(same.refreshes, 0);
+});
+
+test('a token file is read again each time a new token is needed, in any of its three forms', () => {
+  const dir = scratch();
+  try {
+    const file = join(dir, 'token.json');
+    writeFileSync(file, JSON.stringify({ authorization: 'Bearer first' }));
+    const source = createTokenSource({ file });
+    assert.equal(source.renewable, true);
+    assert.equal(source.current(), 'first');
+    writeFileSync(file, 'second\n');
+    assert.equal(source.current(), 'first', 'not due: the file is not read again');
+    assert.equal(source.refresh(), true);
+    assert.equal(source.current(), 'second');
+    rmSync(file);
+    assert.equal(source.refresh(), false);
+    assert.deepEqual(source.problems, [`the token file ${file} cannot be read`]);
+    writeFileSync(file, '');
+    assert.equal(source.refresh(), false);
+    assert.deepEqual(source.problems, [`the token file ${file} cannot be read`, `the token file ${file} holds no token`]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('runBudget sends a request again with a new token when the API refuses it for a lapsed session, and only the second answer is a sample', async () => {
+  let minted = 0;
+  const tokenSource = createTokenSource({ token: 'tok-0', command: 'mint', run: () => `tok-${(minted += 1)}` });
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push(init.headers.authorization);
+    // The server takes each token for four requests, then answers what the e2e stack answers once the development token is over.
+    const used = calls.filter((value) => value === init.headers.authorization).length;
+    return used > 4 ? problem(400, 'TENANT_CONTEXT_INVALID') : answer();
+  };
+  const only = { ...budget, operations: [budget.operations[0]] };
+  const results = await runBudget({ budget: only, baseUrl: 'https://h/v1', tokenSource, samples: 9, warmup: 1, fetchImpl, now: clockOf([10]) });
+  assert.equal(results[0].status, 'PASS');
+  assert.equal(results[0].stats.samples, 9);
+  assert.equal(results[0].stats.failed, 0);
+  assert.equal(results[0].renewals, 2);
+  assert.equal(tokenSource.refreshes, 2);
+  // Ten requests that count and two that were refused and sent again.
+  assert.equal(calls.length, 12);
+  assert.deepEqual([...new Set(calls)], ['Bearer tok-0', 'Bearer tok-1', 'Bearer tok-2']);
+});
+
+test('runBudget keeps the refusal as a failed sample when no new token can be had, and says what would help; a refusal of the request itself is never sent again', async () => {
+  const only = { ...budget, operations: [budget.operations[0]] };
+  let calls = 0;
+  const count = (reply) => async () => {
+    calls += 1;
+    return reply();
+  };
+  const lapsed = await runBudget({ budget: only, baseUrl: 'https://h/v1', token: 'fixed', samples: 3, warmup: 0, fetchImpl: count(() => problem(400, 'TENANT_CONTEXT_INVALID')), now: clockOf([10]) });
+  assert.equal(calls, 3);
+  assert.equal(lapsed[0].status, 'FAIL');
+  assert.equal(lapsed[0].stats.lapsed, 3);
+  assert.equal(lapsed[0].reason, '3 of 3 samples failed (status 400); 3 refused for a lapsed session: give a token that can be renewed (--token-file or --token-command)');
+  assert.equal(lapsed[0].renewals, undefined);
+
+  calls = 0;
+  let minted = 0;
+  const tokenSource = createTokenSource({ token: 'a', command: 'mint', run: () => `b${(minted += 1)}` });
+  const refused = await runBudget({ budget: only, baseUrl: 'https://h/v1', tokenSource, samples: 2, warmup: 0, fetchImpl: count(() => problem(400, 'VALIDATION_FAILED')), now: clockOf([10]) });
+  assert.equal(calls, 2);
+  assert.equal(minted, 0);
+  assert.equal(refused[0].reason, '2 of 2 samples failed (status 400)');
+  // A 401 with a body that is no problem is still a lapsed session; a second refusal after the renewal stands.
+  calls = 0;
+  const still = await runBudget({ budget: only, baseUrl: 'https://h/v1', tokenSource, samples: 1, warmup: 0, fetchImpl: count(() => ({ status: 401, arrayBuffer: async () => new TextEncoder().encode('nope').buffer })), now: clockOf([10]) });
+  assert.equal(calls, 2);
+  assert.equal(still[0].status, 'FAIL');
+  assert.equal(still[0].renewals, 1);
+});
+
+test('main: --token-command renews the token before it expires in a long run, counts the renewals in the output and never writes a token', async () => {
+  const dir = scratch();
+  try {
+    writeFileSync(join(dir, 'budget.json'), JSON.stringify(budget));
+    let at = 0;
+    let minted = 0;
+    const run = (line) => {
+      assert.equal(line, 'mint-token');
+      minted += 1;
+      return devTokenOf({ n: minted, exp: at / 1000 + 300 });
+    };
+    const seen = [];
+    const fetchImpl = async (_url, init) => {
+      // Every request takes 40 seconds of the wall clock: the 300 s token cannot last the run.
+      const sentAt = at;
+      at += 40_000;
+      seen.push(init.headers.authorization);
+      return tokenExpiryMs(init.headers.authorization.slice('Bearer '.length)) <= sentAt ? problem(400, 'TENANT_CONTEXT_INVALID') : answer();
+    };
+    const lines = [];
+    const out = join(dir, 'out.json');
+    const code = await main(['--budget', join(dir, 'budget.json'), '--base-url', 'https://h/v1', '--only', 'HOME', '--samples', '20', '--warmup', '2', '--token-command', 'mint-token', '--out', out], { log: (line) => lines.push(line), env: {}, fetchImpl, now: clockOf([10]), clock: () => at, run });
+    assert.equal(code, 0, lines.join('\n'));
+    assert.equal(seen.length, 22, 'no request was refused, so none was sent twice');
+    assert.ok(minted >= 3);
+    assert.ok(lines.includes(`the token was renewed ${minted - 1} time(s) during the run`));
+    const written = JSON.parse(readFileSync(out, 'utf8'));
+    assert.equal(written.tokenRenewals, minted - 1);
+    assert.equal(written.results[0].renewals, minted - 1);
+    for (const value of new Set(seen)) {
+      const token = value.slice('Bearer '.length);
+      assert.ok(!JSON.stringify(written).includes(token) && !lines.join('\n').includes(token), 'a token is never written');
+    }
+
+    // The file form, from the environment; a source that cannot give a token is said at the end.
+    writeFileSync(join(dir, 'token.txt'), 'file-token');
+    const fromFile = [];
+    const record = async (_url, init) => {
+      fromFile.push(init.headers.authorization);
+      return answer();
+    };
+    assert.equal(await main(['--budget', join(dir, 'budget.json'), '--base-url', 'https://h/v1', '--only', 'HOME', '--samples', '1', '--warmup', '0'], { log: () => undefined, env: { PERF_TOKEN_FILE: join(dir, 'token.txt') }, fetchImpl: record, now: clockOf([10]) }), 0);
+    assert.deepEqual(fromFile, ['Bearer file-token']);
+    lines.length = 0;
+    assert.equal(await main(['--budget', join(dir, 'budget.json'), '--base-url', 'https://h/v1', '--only', 'HOME', '--samples', '1', '--warmup', '0', '--token-file', join(dir, 'missing.txt')], { log: (line) => lines.push(line), env: {}, fetchImpl: async () => problem(401, 'SESSION_EXPIRED'), now: clockOf([10]) }), 1);
+    assert.ok(lines.some((line) => line.startsWith('token: the token file ') && line.endsWith('cannot be read')));
+
+    // Two ways to renew at once, or a ttl that is no positive number: wrong usage.
+    for (const args of [['--token-file', 'a', '--token-command', 'b'], ['--token-ttl', '0'], ['--token-ttl', 'soon']]) {
+      assert.equal(await main(['--budget', join(dir, 'budget.json'), '--base-url', 'https://h/v1', ...args], { log: () => undefined, env: {}, fetchImpl: async () => answer() }), 2);
+    }
+    // --token-ttl renews a token that carries no expiry.
+    let opaque = 0;
+    const ttlSeen = [];
+    at = 0;
+    const slow = async (_url, init) => {
+      at += 40_000;
+      ttlSeen.push(init.headers.authorization);
+      return answer();
+    };
+    assert.equal(await main(['--budget', join(dir, 'budget.json'), '--base-url', 'https://h/v1', '--only', 'HOME', '--samples', '3', '--warmup', '0', '--token', 'o0', '--token-command', 'mint-opaque', '--token-ttl', '60'], { log: () => undefined, env: {}, fetchImpl: slow, now: clockOf([10]), clock: () => at, run: () => `o${(opaque += 1)}` }), 0);
+    assert.deepEqual(ttlSeen, ['Bearer o0', 'Bearer o0', 'Bearer o1']);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('main --discover reads the lists with the token of the source', async () => {
+  const dir = scratch();
+  try {
+    writeFileSync(join(dir, 'budget.json'), JSON.stringify({ ...budget, discovery: { projectId: { path: '/projects', pick: 'items.0.id' } } }));
+    const seen = [];
+    const fetchImpl = async (url, init) => {
+      seen.push(init.headers.authorization);
+      return url.endsWith('/projects') ? { status: 200, json: async () => ({ items: [{ id: 'p-9' }] }) } : answer();
+    };
+    assert.equal(await main(['--budget', join(dir, 'budget.json'), '--base-url', 'https://h/v1', '--discover', '--only', 'PRJ', '--samples', '1', '--warmup', '0', '--token-command', 'mint'], { log: () => undefined, env: {}, fetchImpl, now: clockOf([10]), run: () => 'minted' }), 0);
+    assert.deepEqual(seen, ['Bearer minted', 'Bearer minted']);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ---- the command that prints a development session token (scripts/dev-session-token.mjs), for --token-command on a local stack ----
+
+test('dev-session-token prints a token the runner can read the expiry of, takes the key from the environment only, and refuses wrong usage', async () => {
+  const { main: tokenMain, signDevSessionToken } = await import('./dev-session-token.mjs');
+  const key = Buffer.alloc(32, 7).toString('base64');
+  const tenant = '00000000-0000-4000-8000-00000000000a';
+  const membership = '00000000-0000-4000-8000-0000000000e1';
+  const lines = [];
+  assert.equal(tokenMain(['--tenant', tenant, '--membership', membership], { env: { E2E_SESSION_KEY: key }, log: (line) => lines.push(line), nowMs: 1_000_000 }), 0);
+  const token = lines[0];
+  assert.equal(token, signDevSessionToken({ tenantId: tenant, membershipId: membership, nowMs: 1_000_000 }, key));
+  assert.equal(tokenExpiryMs(token), (1000 + 300) * 1000);
+  assert.deepEqual(JSON.parse(Buffer.from(token.split('.')[0], 'base64url').toString('utf8')), { tenantId: tenant, membershipId: membership, scopeVersion: 1, exp: 1300 });
+  assert.equal(tokenOfText(`${token}\n`), token);
+  // Another key signs another token; a longer life is asked with --ttl.
+  assert.notEqual(signDevSessionToken({ tenantId: tenant, membershipId: membership, nowMs: 1_000_000 }, Buffer.alloc(32, 8).toString('base64')), token);
+  lines.length = 0;
+  assert.equal(tokenMain(['--tenant', tenant, '--membership', membership, '--ttl', '60', '--scope-version', '0'], { env: { E2E_SESSION_KEY: key }, log: (line) => lines.push(line), nowMs: 0 }), 0);
+  assert.equal(tokenExpiryMs(lines[0]), 60_000);
+  for (const args of [[], ['--tenant', 'x', '--membership', membership], ['--tenant', tenant, '--membership', membership, '--ttl', '0'], ['--tenant', tenant, '--membership', membership, '--nope']]) {
+    assert.equal(tokenMain(args, { env: { E2E_SESSION_KEY: key }, log: () => undefined }), 2);
+  }
+  lines.length = 0;
+  assert.equal(tokenMain(['--tenant', tenant, '--membership', membership], { env: {}, log: (line) => lines.push(line) }), 2);
+  assert.match(lines[0], /E2E_SESSION_KEY is not set/);
 });

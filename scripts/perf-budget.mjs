@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +11,10 @@ import { parseArgs } from 'node:util';
  *
  *   node scripts/perf-budget.mjs --base-url https://host/v1 --token <jwt> --vars vars.json [--only HOME,REPORT] [--samples 20] [--strict] [--out result.json]
  *
+ * A run of the whole table takes longer than a short-lived token lasts (a development session token lives 300 seconds; 88 operations of 22 requests each do not fit). The token can therefore be renewed
+ * while the run goes on: `--token-file <file>` names a file another process keeps fresh, `--token-command "<command>"` a command that prints a new token. The runner asks for a new one before the
+ * token in hand expires (its `exp`, or `--token-ttl <seconds>`) and when the API refuses a request because the session lapsed; that request is then sent again and only the second answer is a sample.
+ *
  * Exit codes: 0 every measured operation is within its budget; 1 one is over its budget or failed; 2 wrong usage or a budget table that is not valid; 3 `--strict` and an operation could not be measured.
  */
 
@@ -17,6 +22,111 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_BUDGET = join(SCRIPT_DIR, '..', 'docs', 'qa', 'perf-budget.json');
 const STATS = ['p50', 'p95', 'max'];
 const VARIABLE_REFERENCE = /^\$([A-Za-z][A-Za-z0-9]*)$/;
+
+/** The problem codes with which the API refuses a request whose token is no longer good (a 401 always means that): the request is worth sending again with a new token. */
+export const LAPSED_SESSION_CODES = Object.freeze(['TENANT_CONTEXT_INVALID', 'SESSION_EXPIRED']);
+/** A token is renewed this long before it expires: a report may take 20 seconds and must not outlive the token it was sent with. */
+export const TOKEN_MARGIN_MS = 30_000;
+
+/** The token of a text a file or a command gives: the text itself, the value after `Bearer `, or the `token` / `authorization` of a JSON object. Undefined when there is none. */
+export function tokenOfText(text) {
+  const trimmed = String(text ?? '').trim();
+  if (trimmed === '') return undefined;
+  let value = trimmed;
+  if (trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      value = String(parsed.token ?? parsed.authorization ?? '').trim();
+    } catch {
+      return undefined;
+    }
+  }
+  value = value.replace(/^Bearer\s+/i, '').trim();
+  return value === '' || /\s/.test(value) ? undefined : value;
+}
+
+/**
+ * The instant (ms since the epoch) the `exp` claim of a token names, or undefined for a token that carries none. A JWT keeps its claims in the second of three parts; the development session token of
+ * the e2e stack (`<claims>.<signature>`, apps/web/e2e/support/api.ts) in the first of two. Nothing is verified: the claim only says when to ask for a new token.
+ */
+export function tokenExpiryMs(token) {
+  const parts = String(token ?? '').split('.');
+  const claimsPart = parts.length === 3 ? parts[1] : parts.length === 2 ? parts[0] : undefined;
+  if (claimsPart === undefined) return undefined;
+  try {
+    const claims = JSON.parse(Buffer.from(claimsPart, 'base64url').toString('utf8'));
+    return typeof claims.exp === 'number' && Number.isFinite(claims.exp) ? claims.exp * 1000 : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+const runCommand = (line) => execSync(line, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 60_000 });
+
+/**
+ * The token of a run and the way to renew it. `file` is read again and `command` is run again (its standard output is the token) each time a new token is needed; with neither, the token given is the
+ * only one there will ever be. `current()` gives the token to send, renewed first when it is about to expire (the `exp` of the token, else `ttlMs` after it was taken); `refresh()` asks for a new one
+ * because the API refused the old one and says whether the token changed. A source that fails keeps the token in hand and the reason in `problems`; the token itself is never put in a message.
+ */
+export function createTokenSource({ token, file, command, ttlMs, clock = () => Date.now(), read = (path) => readFileSync(path, 'utf8'), run = runCommand } = {}) {
+  const renewable = file !== undefined || command !== undefined;
+  const state = { token, takenAt: clock(), refreshes: 0, problems: [] };
+  const note = (problem) => {
+    if (!state.problems.includes(problem)) state.problems.push(problem);
+  };
+  const take = () => {
+    let next;
+    try {
+      next = tokenOfText(file !== undefined ? read(file) : run(command));
+    } catch {
+      note(file !== undefined ? `the token file ${file} cannot be read` : 'the token command failed');
+      return false;
+    }
+    if (next === undefined) {
+      note(file !== undefined ? `the token file ${file} holds no token` : 'the token command printed no token');
+      return false;
+    }
+    const changed = next !== state.token;
+    // The first token of a source that was given none is not a renewal.
+    if (changed && state.token !== undefined) state.refreshes += 1;
+    state.token = next;
+    state.takenAt = clock();
+    return changed;
+  };
+  const due = () => {
+    if (state.token === undefined) return true;
+    const expiry = tokenExpiryMs(state.token);
+    if (expiry !== undefined) return clock() >= expiry - TOKEN_MARGIN_MS;
+    return ttlMs !== undefined && clock() - state.takenAt >= ttlMs;
+  };
+  return {
+    renewable,
+    current: () => {
+      if (renewable && due()) take();
+      return state.token;
+    },
+    refresh: () => renewable && take(),
+    get refreshes() {
+      return state.refreshes;
+    },
+    get problems() {
+      return [...state.problems];
+    },
+  };
+}
+
+/** The problem code of a refused request (`code` of an RFC 9457 body), or undefined. */
+function problemCodeOf(bytes) {
+  try {
+    const body = JSON.parse(Buffer.from(bytes).toString('utf8'));
+    return typeof body?.code === 'string' ? body.code : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Whether a sample was refused because the session behind the token lapsed (not because of what was asked). */
+export const lapsedSession = (sample) => sample.status === 401 || ((sample.status === 400 || sample.status === 403) && LAPSED_SESSION_CODES.includes(sample.code));
 
 /** Nearest-rank percentile of a list of numbers (p from 0 to 100). */
 export function percentile(values, p) {
@@ -35,9 +145,11 @@ const round = (value) => Math.round(value * 10) / 10;
 export function summarize(samples) {
   const times = samples.map((sample) => sample.ms);
   const failed = samples.filter((sample) => sample.status < 200 || sample.status >= 400);
+  const lapsed = samples.filter(lapsedSession).length;
   return {
     samples: samples.length,
     failed: failed.length,
+    ...(lapsed === 0 ? {} : { lapsed }),
     statuses: [...new Set(failed.map((sample) => sample.status))].sort((a, b) => a - b),
     min: times.length === 0 ? 0 : round(Math.min(...times)),
     p50: times.length === 0 ? 0 : round(percentile(times, 50)),
@@ -213,7 +325,10 @@ export function buildRequest(entry, baseUrl, vars) {
 /** The verdict on one operation: over budget (by the chosen statistic), failed (some samples got no 2xx or 3xx), or within the budget. */
 export function evaluateEntry(entry, stats, budget, stat) {
   const limit = limitOf(entry, budget);
-  if (stats.failed > 0) return { status: 'FAIL', reason: `${stats.failed} of ${stats.samples} samples failed (status ${stats.statuses.join(',')})`, limit };
+  if (stats.failed > 0) {
+    const lapsed = stats.lapsed > 0 ? `; ${stats.lapsed} refused for a lapsed session: give a token that can be renewed (--token-file or --token-command)` : '';
+    return { status: 'FAIL', reason: `${stats.failed} of ${stats.samples} samples failed (status ${stats.statuses.join(',')})${lapsed}`, limit };
+  }
   const measured = stats[stat];
   if (measured > limit) return { status: 'FAIL', reason: `${stat} ${measured} ms is over the budget of ${limit} ms`, limit };
   return { status: 'PASS', reason: '', limit };
@@ -226,8 +341,10 @@ const timedFetch = async (fetchImpl, url, headers, timeoutMs, now) => {
   try {
     const response = await fetchImpl(url, { method: 'GET', headers, signal: controller.signal, redirect: 'follow' });
     // The whole body counts: a report is not done until it has been received.
-    await response.arrayBuffer();
-    return { ms: now() - started, status: response.status };
+    const bytes = await response.arrayBuffer();
+    const ms = now() - started;
+    const code = response.status >= 400 && response.status <= 403 ? problemCodeOf(bytes) : undefined;
+    return { ms, status: response.status, ...(code === undefined ? {} : { code }) };
   } catch {
     return { ms: now() - started, status: 0 };
   } finally {
@@ -238,12 +355,24 @@ const timedFetch = async (fetchImpl, url, headers, timeoutMs, now) => {
 /**
  * Measures the operations of the table. Each operation is called `warmup` times (not counted) and then `samples` times, one request at a time. An operation whose variables are not given is `SKIPPED`
  * with the names of the missing variables. A request that has no answer within twice its budget is a failed sample.
+ *
+ * The token is asked of `tokenSource` before every request (outside the time that is measured), so a token that is about to expire is renewed between two requests. A request the API refuses because the
+ * session lapsed is sent once more with a new token when the source can give one, and only that second answer is a sample: the refusal says nothing about the operation. When no new token can be had the
+ * refusal stays a failed sample, as before. `renewals` of a result counts the tokens taken while that operation was measured.
  */
-export async function runBudget({ budget, baseUrl, token, vars = {}, headers = {}, samples, warmup, stat, only, fetchImpl = fetch, now = () => performance.now(), onResult }) {
+export async function runBudget({ budget, baseUrl, token, tokenSource = createTokenSource({ token }), vars = {}, headers = {}, samples, warmup, stat, only, fetchImpl = fetch, now = () => performance.now(), onResult }) {
   const count = samples ?? budget.defaults?.samples ?? 20;
   const skip = warmup ?? budget.defaults?.warmup ?? 2;
   const chosenStat = stat ?? budget.defaults?.stat ?? 'p95';
   const results = [];
+  const request = async (url, timeoutMs) => {
+    const send = () => {
+      const bearer = tokenSource.current();
+      return timedFetch(fetchImpl, url, { accept: '*/*', ...headers, ...(bearer === undefined ? {} : { authorization: `Bearer ${bearer}` }) }, timeoutMs, now);
+    };
+    const first = await send();
+    return lapsedSession(first) && tokenSource.refresh() ? send() : first;
+  };
   for (const entry of selectOperations(budget, only)) {
     const { url, missing } = buildRequest(entry, baseUrl, vars);
     const limit = limitOf(entry, budget);
@@ -251,13 +380,14 @@ export async function runBudget({ budget, baseUrl, token, vars = {}, headers = {
     if (missing.length > 0) {
       result = { id: entry.id, operationId: entry.operationId, class: entry.class, path: entry.path, status: 'SKIPPED', reason: `missing variables: ${missing.join(', ')}`, limit, stats: undefined };
     } else {
-      const requestHeaders = { accept: '*/*', ...headers, ...(token === undefined ? {} : { authorization: `Bearer ${token}` }) };
       const timeoutMs = limit * 2;
-      for (let round = 0; round < skip; round += 1) await timedFetch(fetchImpl, url, requestHeaders, timeoutMs, now);
+      const before = tokenSource.refreshes;
+      for (let round = 0; round < skip; round += 1) await request(url, timeoutMs);
       const taken = [];
-      for (let round = 0; round < count; round += 1) taken.push(await timedFetch(fetchImpl, url, requestHeaders, timeoutMs, now));
+      for (let round = 0; round < count; round += 1) taken.push(await request(url, timeoutMs));
       const stats = summarize(taken);
-      result = { id: entry.id, operationId: entry.operationId, class: entry.class, path: entry.path, stats, ...evaluateEntry(entry, stats, budget, chosenStat) };
+      const renewals = tokenSource.refreshes - before;
+      result = { id: entry.id, operationId: entry.operationId, class: entry.class, path: entry.path, stats, ...evaluateEntry(entry, stats, budget, chosenStat), ...(renewals === 0 ? {} : { renewals }) };
     }
     results.push(result);
     if (onResult !== undefined) onResult(result);
@@ -306,9 +436,11 @@ const USAGE = [
   '                                    [--budget <file>] [--header "Name: value"] [--strict] [--list] [--check] [--out <file.json>] [--discover] [--vars-out <file.json>]',
   '--discover reads the first row of the lists named in the `discovery` of the table to find the ids that --vars and --var did not give; --vars-out writes the variables that were used (for the k6 scripts).',
   'the token can also be given in PERF_TOKEN; the base URL includes the version prefix (https://host/v1).',
+  'a token that expires during the run: --token-file <file> (a file another process keeps fresh: the token, `Bearer <token>`, or JSON with `token` or `authorization`) or',
+  '--token-command "<command>" (prints a new token); also PERF_TOKEN_FILE and PERF_TOKEN_COMMAND. --token-ttl <seconds> renews a token that carries no `exp` after that time.',
 ].join('\n');
 
-export async function main(argv, { log = console.log, env = process.env, fetchImpl = fetch, now = () => performance.now() } = {}) {
+export async function main(argv, { log = console.log, env = process.env, fetchImpl = fetch, now = () => performance.now(), clock, run } = {}) {
   let values;
   try {
     ({ values } = parseArgs({
@@ -316,6 +448,9 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
       options: {
         'base-url': { type: 'string' },
         token: { type: 'string' },
+        'token-file': { type: 'string' },
+        'token-command': { type: 'string' },
+        'token-ttl': { type: 'string' },
         vars: { type: 'string' },
         var: { type: 'string', multiple: true },
         only: { type: 'string' },
@@ -373,6 +508,14 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
     log(USAGE);
     return 2;
   }
+  const tokenFile = values['token-file'] ?? env.PERF_TOKEN_FILE;
+  const tokenCommand = values['token-command'] ?? env.PERF_TOKEN_COMMAND;
+  const tokenTtl = integer(values['token-ttl'], undefined);
+  // One way to renew, not two: which of them would win is not something to guess.
+  if ((tokenFile !== undefined && tokenCommand !== undefined) || (tokenTtl !== undefined && !(Number.isFinite(tokenTtl) && tokenTtl > 0))) {
+    log(USAGE);
+    return 2;
+  }
   let vars = {};
   try {
     if (values.vars !== undefined) vars = { ...readJson(resolve(values.vars), 'the variables file') };
@@ -397,20 +540,29 @@ export async function main(argv, { log = console.log, env = process.env, fetchIm
     }
     headers[line.slice(0, at).trim().toLowerCase()] = line.slice(at + 1).trim();
   }
-  const token = values.token ?? env.PERF_TOKEN;
+  const tokenSource = createTokenSource({
+    token: values.token ?? env.PERF_TOKEN,
+    ...(tokenFile === undefined ? {} : { file: resolve(tokenFile) }),
+    ...(tokenCommand === undefined ? {} : { command: tokenCommand }),
+    ...(tokenTtl === undefined ? {} : { ttlMs: tokenTtl * 1000 }),
+    ...(clock === undefined ? {} : { clock }),
+    ...(run === undefined ? {} : { run }),
+  });
   if (values.discover) {
-    const discovered = await discoverVariables({ budget, baseUrl: values['base-url'], token, headers, vars, fetchImpl });
+    const discovered = await discoverVariables({ budget, baseUrl: values['base-url'], token: tokenSource.current(), headers, vars, fetchImpl });
     vars = { ...vars, ...discovered.found };
     for (const [name, value] of Object.entries(discovered.found)) log(`found ${name} = ${value}`);
     for (const problem of discovered.problems) log(`not found ${problem}`);
   }
   if (values['vars-out'] !== undefined) writeFileSync(resolve(values['vars-out']), `${JSON.stringify(vars, null, 2)}
 `);
-  const results = await runBudget({ budget, baseUrl: values['base-url'], token, vars, headers, samples, warmup, stat: values.stat, only, fetchImpl, now, onResult: (result) => log(formatLine(result)) });
+  const results = await runBudget({ budget, baseUrl: values['base-url'], tokenSource, vars, headers, samples, warmup, stat: values.stat, only, fetchImpl, now, onResult: (result) => log(formatLine(result)) });
   const summary = summaryOf(results);
   const code = exitCode(results, values.strict);
   log(`${summary.total} operations: ${summary.pass} within budget, ${summary.fail} over budget or failed, ${summary.skipped} not measured`);
-  if (values.out !== undefined) writeFileSync(resolve(values.out), `${JSON.stringify({ budget: budget.version, baseUrl: values['base-url'], summary, results }, null, 2)}\n`);
+  if (tokenSource.refreshes > 0) log(`the token was renewed ${tokenSource.refreshes} time(s) during the run`);
+  for (const problem of tokenSource.problems) log(`token: ${problem}`);
+  if (values.out !== undefined) writeFileSync(resolve(values.out), `${JSON.stringify({ budget: budget.version, baseUrl: values['base-url'], summary, tokenRenewals: tokenSource.refreshes, results }, null, 2)}\n`);
   return code;
 }
 

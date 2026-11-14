@@ -30,6 +30,16 @@ node scripts/perf-budget.mjs --list                 # the table without calling 
 
 Exit codes: 0 every measured operation is within budget; 1 one is over its budget or had a failed sample (a 4xx, a 5xx, a timeout; a request is aborted after twice its budget); 2 wrong usage or an invalid table; 3 `--strict` and something could not be measured. Requests go one after the other, so the figures are those of one user; the token is never written to the output or to `--out`.
 
+### A token that expires during the run
+
+A run of the whole table (88 operations of 22 requests each) lasts longer than a short-lived token: the development session token of the e2e stack lives 300 seconds, and in UAT 2026-11-15 run 3 the last 11 rows of the class `REPORT` answered 400 `TENANT_CONTEXT_INVALID` for that reason alone. The runner can renew the token:
+
+- `--token-file <file>` (or `PERF_TOKEN_FILE`): a file another process keeps fresh. It holds the token, `Bearer <token>`, or JSON with `token` or `authorization`.
+- `--token-command "<command>"` (or `PERF_TOKEN_COMMAND`): a command whose standard output is a new token. For a local stack: `E2E_SESSION_KEY=<key of the stack> node scripts/perf-budget.mjs --base-url http://127.0.0.1:<port> --token-command "node scripts/dev-session-token.mjs --tenant <tenant id> --membership <membership id>" --discover`. `scripts/dev-session-token.mjs` signs the development session token of one membership (300 s, `--ttl` for another life); the key is read from `E2E_SESSION_KEY` only, never from the command line.
+- `--token-ttl <seconds>`: renews a token that carries no expiry after that time. A JWT and the development token carry `exp`, and are renewed 30 seconds before it without this option.
+
+The token is asked for before every request, outside the time that is measured. A request the API refuses because the session lapsed (401, or 400/403 with the code `TENANT_CONTEXT_INVALID` or `SESSION_EXPIRED`) is sent once more with a new token and only that second answer is a sample; a refusal of the request itself (any other code) is never sent again. Without `--token-file` or `--token-command` nothing changes: the refusal is a failed sample, and the line of the row says how many samples were refused for a lapsed session. The output says how many times the token was renewed (`tokenRenewals` in `--out`, `renewals` on a row); no token is ever written. Only one of the two ways can be given.
+
 For an acceptance run: a tenant seeded with realistic volumes, a token of a person who holds the permissions of the table, the runner on a machine in the same network as the users, `--strict`, and the `--out` file kept as evidence.
 
 ## Run it with k6 (for those who have k6; not run in CI)
