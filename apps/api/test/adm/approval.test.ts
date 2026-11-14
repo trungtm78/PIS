@@ -309,6 +309,22 @@ describe('the approval workflows over HTTP (ST-ADM-012)', () => {
     const taskId = (await taskOf(instanceId, LEADER_A))?.id;
     expect(await call('GET', `/resources/approval_task/${taskId}`, { member: READER })).toMatchObject({ status: 404 });
     expect(await call('GET', `/resources/approval_task/${taskId}`, { member: LEADER_A })).toMatchObject({ status: 200, json: { id: taskId, status: 'Pending', business_type: 'report.accept' } });
+    // Lane fix11: the owning module says what the record is, and only the person who decides the task reads it: in their inbox and in the task. The administrator who sees every task reads no record.
+    expect((await call('GET', `/resources/approval_task/${taskId}`, { member: LEADER_A })).json.summary).toBeNull();
+    const asked: Array<{ resourceId: string; unitId: string }> = [];
+    registry.registerSummary('report.accept', (_tx, task) => {
+      asked.push({ resourceId: task.resourceId, unitId: task.unitId });
+      return Promise.resolve({ kind: 'report.accept', subject: null, unit: { id: task.unitId, code: 'U', name: 'Unit' }, project: { id: task.resourceId, code: 'DA-1', name: 'Project 1' }, period: { from: '2026-07-01', to: '2026-09-30', status: 'LOCKED' }, facts: [{ code: 'TOTAL_VND', value: '1000' }], body: 'What was sent', target: { screen: 'DIS-07', id: task.resourceId } });
+    });
+    const detail = await call('GET', `/resources/approval_task/${taskId}`, { member: LEADER_A });
+    expect(detail.json.summary).toMatchObject({ kind: 'report.accept', project: { code: 'DA-1' }, period: { from: '2026-07-01', status: 'LOCKED' }, facts: [{ code: 'TOTAL_VND', value: '1000' }], body: 'What was sent' });
+    expect(asked.length).toBe(1);
+    expect((await call('GET', `/resources/approval_task/${taskId}`, { member: ADMIN })).json).toMatchObject({ id: taskId, summary: null });
+    expect(asked.length).toBe(1);
+    const inbox = ((await call('GET', '/resources/approval_task?mine=true&status=Pending', { member: LEADER_A })).json.items as Array<{ id: string; summary: unknown }>).find((item) => item.id === taskId);
+    expect(inbox?.summary).toMatchObject({ kind: 'report.accept', project: { code: 'DA-1' } });
+    const monitor = ((await call('GET', `/resources/approval_task?workflow_instance_id=${instanceId}`, { member: ADMIN })).json.items as Array<{ id: string; summary?: unknown }>).find((item) => item.id === taskId);
+    expect(monitor?.summary).toBeUndefined();
     expect(await call('GET', `/resources/workflow_instance/${instanceId}`, { member: MAKER })).toMatchObject({ status: 200, json: { id: instanceId, status: 'Running', initiator_id: memberId(MAKER) } });
     expect(await call('GET', `/resources/workflow_instance/${instanceId}`, { member: READER })).toMatchObject({ status: 404 });
     expect(await call('GET', `/resources/workflow_instance/${instanceId}`, { member: OTHER_TENANT, tenantId: TENANT_B })).toMatchObject({ status: 404 });

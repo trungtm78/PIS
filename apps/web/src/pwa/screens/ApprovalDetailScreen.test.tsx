@@ -120,6 +120,45 @@ describe('ApprovalDetailScreen (PWA-05)', () => {
     expect((await screen.findAllByRole('alert')).some((node) => node.textContent?.includes(word('pwa2.approvalDetail.readFailed.note')))).toBe(true);
   });
 
+  it('lets a response to a score be read before it is decided: whose it is, the period with where it stands, the score, and what the person wrote (lane fix11)', async () => {
+    const summary = {
+      kind: 'score.response',
+      subject: { name: 'Phạm Quốc Dũng' },
+      unit: { id: taskId(1), code: 'BQLDA', name: 'Ban QLDA giao thông' },
+      project: null,
+      period: { from: '2026-07-01', to: '2026-09-30', status: 'LOCKED' },
+      facts: [
+        { code: 'SCORE_COMPUTED', value: 58.67 },
+        { code: 'SCORE_ADJUSTED', value: null },
+        { code: 'RATING', value: 'WEAK' },
+        { code: 'SCORE_STATE', value: 'RATED' },
+        { code: 'RATED_TASKS', value: 6 },
+        { code: 'A_CODE_THE_SCREEN_DOES_NOT_KNOW', value: 'x' },
+      ],
+      body: 'Việc trễ do cơ quan thẩm định trả hồ sơ chậm.',
+      target: { screen: 'PWF-13', id: taskId(5) },
+    };
+    open({ task: approvalTask(1, { business_type: 'score.response', resource: { type: 'staff_score_response', id: taskId(901) }, initiator: { name: 'Phạm Quốc Dũng' }, summary }) });
+    const block = await screen.findByTestId('record-summary');
+    expect(block.textContent).toContain('Phạm Quốc Dũng');
+    expect(screen.getByTestId('record-period').textContent).toBe('01/07/2026 đến 30/09/2026 · Đã chốt');
+    expect(block.querySelector('[data-fact="SCORE_COMPUTED"]')?.textContent).toBe('58,67');
+    expect(block.querySelector('[data-fact="SCORE_ADJUSTED"]')?.textContent).toBe(word('fix11.apv.fact.none'));
+    expect(block.querySelector('[data-fact="RATING"]')?.textContent).toBe('Cần cải thiện');
+    expect(block.querySelector('[data-fact="SCORE_STATE"]')?.textContent).toBe('Đã xếp loại');
+    expect(block.querySelector('[data-fact="A_CODE_THE_SCREEN_DOES_NOT_KNOW"]')).toBeNull();
+    expect(screen.getByTestId('record-body').textContent).toBe('Việc trễ do cơ quan thẩm định trả hồ sơ chậm.');
+    // A record that says what it is gets no card that only says it is not a report.
+    expect(screen.queryByText(word('pwa2.approvalDetail.notReport.note'))).toBeNull();
+    expect(screen.getByTestId('actions')).toBeTruthy();
+  });
+
+  it('shows no summary block for a task the server gave none for', async () => {
+    open({ reports: { [REPORT]: report(REPORT, 1) } });
+    await screen.findByTestId('summary');
+    expect(screen.queryByTestId('record-summary')).toBeNull();
+  });
+
   it('says the item is not there for a 404 and shows no controls', async () => {
     open({ task: failure(404, 'RESOURCE_NOT_FOUND') });
     expect((await screen.findByTestId('not-found')).textContent).toContain(word('pwa2.approvalDetail.notFound.title'));

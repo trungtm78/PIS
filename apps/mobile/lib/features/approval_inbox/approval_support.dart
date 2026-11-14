@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/format/format.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/session/session.dart';
 import '../../core/widgets/deadline.dart' show DeadlineBand;
@@ -156,4 +157,67 @@ String returnProblemText(BuildContext context, ReturnProblem problem) {
     case ReturnProblem.dueInvalid:
       return context.t('mob.apv.return.error.dueInvalid');
   }
+}
+
+/// Where the period of a record stands, in words; null for a standing the phone has no word for (nothing is shown rather than a code).
+String? summaryPeriodStatus(BuildContext context, String? status) => switch (status) {
+      'DRAFT' => context.t('mob.apv.sum.period.draft'),
+      'LOCKED' => context.t('mob.apv.sum.period.locked'),
+      'OFFICIAL' => context.t('mob.apv.sum.period.official'),
+      _ => null,
+    };
+
+/// The period of the record of a task as a row of the inbox and of the detail says it: its days and where it stands.
+String? summaryPeriodLine(BuildContext context, ApprovalSummary summary) {
+  if (!summary.hasPeriod) return null;
+  final String language = AppStrings.of(context).language;
+  final String days = context.t('mob.apv.sum.period.days', <String, Object>{'from': formatDay(summary.periodFrom!, language: language), 'to': formatDay(summary.periodTo!, language: language)});
+  final String? status = summaryPeriodStatus(context, summary.periodStatus);
+  return status == null ? days : context.t('mob.apv.sum.period.line', <String, Object>{'days': days, 'status': status});
+}
+
+/// The project of the record: its code and its name.
+String? summaryProjectLine(ApprovalSummary summary) => summary.hasProject ? <String>[?summary.projectCode, ?summary.projectName].join(' · ') : null;
+
+/// The name of a fact of a record, by its code; null for a code the phone does not know (the fact is then not shown: a code is never a label).
+String? summaryFactLabel(BuildContext context, String code) => switch (code) {
+      'SCORE_COMPUTED' => context.t('mob.apv.sum.fact.scoreComputed'),
+      'SCORE_ADJUSTED' => context.t('mob.apv.sum.fact.scoreAdjusted'),
+      'RATING' => context.t('mob.apv.sum.fact.rating'),
+      'SCORE_STATE' => context.t('mob.apv.sum.fact.scoreState'),
+      'RATED_TASKS' => context.t('mob.apv.sum.fact.ratedTasks'),
+      'TASK' => context.t('mob.apv.sum.fact.task'),
+      'DUE_DATE' => context.t('mob.apv.sum.fact.dueDate'),
+      'PROPOSED_FINISH' => context.t('mob.apv.sum.fact.proposedFinish'),
+      'CURRENT_FINISH' => context.t('mob.apv.sum.fact.currentFinish'),
+      'POINTS' => context.t('mob.apv.sum.fact.points'),
+      'EXCEPTION_KIND' => context.t('mob.apv.sum.fact.exceptionKind'),
+      _ => null,
+    };
+
+/// The value of a fact as a person reads it: a day as dd/mm/yyyy, a number with the decimal comma of the language, a known code in words, a missing value as "none".
+String summaryFactValue(BuildContext context, SummaryFact fact) {
+  final Object? value = fact.value;
+  final String language = AppStrings.of(context).language;
+  if (value == null) return context.t('mob.apv.sum.fact.none');
+  if (value is num) return formatMeasure(value.toDouble(), language);
+  final String raw = value as String;
+  if (fact.code == 'SCORE_STATE') {
+    return switch (raw) {
+      'RATED' => context.t('mob.apv.sum.state.rated'),
+      'SMALL_SAMPLE' => context.t('mob.apv.sum.state.smallSample'),
+      _ => context.t('mob.apv.sum.state.notRated'),
+    };
+  }
+  if (fact.code == 'RATING') {
+    return switch (raw) {
+      'EXCELLENT' => context.t('mob.apv.sum.rating.excellent'),
+      'GOOD' => context.t('mob.apv.sum.rating.good'),
+      'FAIR' => context.t('mob.apv.sum.rating.fair'),
+      'WEAK' => context.t('mob.apv.sum.rating.weak'),
+      _ => raw,
+    };
+  }
+  if (RegExp(r'^\d{4}-\d{2}-\d{2}').hasMatch(raw)) return formatDay(raw, language: language);
+  return raw;
 }

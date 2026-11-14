@@ -332923,6 +332923,174 @@
             "format": "date-time"
           }
         }
+      },
+      "ApprovalRecordSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "subject",
+          "unit",
+          "project",
+          "period",
+          "facts",
+          "body",
+          "target"
+        ],
+        "description": "Tóm tắt hồ sơ của một việc phê duyệt (trường summary của approval_task): phân hệ sở hữu loại nghiệp vụ khai, chỉ người quyết định việc đó đọc được; null khi phân hệ không khai hoặc người đọc không phải người quyết định. Mã và giá trị, không phải câu chữ: màn hình tự diễn đạt.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "Loại nghiệp vụ (business type), ví dụ score.response"
+          },
+          "subject": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "description": "Người mà hồ sơ nói về"
+          },
+          "unit": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "project": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "code",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          "period": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to",
+              "status"
+            ],
+            "properties": {
+              "from": {
+                "type": "string",
+                "format": "date"
+              },
+              "to": {
+                "type": "string",
+                "format": "date"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          },
+          "facts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "value"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": [
+                    "string",
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "body": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Nội dung người gửi viết"
+          },
+          "target": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "screen",
+              "id"
+            ],
+            "properties": {
+              "screen": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
       }
     }
   }

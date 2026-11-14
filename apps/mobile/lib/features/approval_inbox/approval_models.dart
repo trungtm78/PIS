@@ -7,6 +7,67 @@ const String decidePermission = 'approval.decide';
 /// The business type whose tasks carry a report; its detail compares the report with the revision before it.
 const String reportAcceptType = 'report.accept';
 
+/// One named fact of the record of a task (`ApprovalRecordSummary.facts`): a code the screen words, and its value as the server gave it.
+final class SummaryFact {
+  const SummaryFact({required this.code, this.value});
+
+  final String code;
+
+  /// A number or a text; null when the record has none (a score that was not computed).
+  final Object? value;
+}
+
+/// What the person who decides a task reads of its record before deciding (`summary` of the task, lane fix11): who it is about, the unit, the project, the period with where it stands, a few named facts and
+/// what the sender wrote. The server gives it only to the person who decides the task; null otherwise and for a kind of record whose module says nothing.
+final class ApprovalSummary {
+  const ApprovalSummary({required this.kind, required this.facts, this.subjectName, this.unitName, this.projectCode, this.projectName, this.periodFrom, this.periodTo, this.periodStatus, this.body});
+
+  final String kind;
+  final String? subjectName;
+  final String? unitName;
+  final String? projectCode;
+  final String? projectName;
+  final String? periodFrom;
+  final String? periodTo;
+  final String? periodStatus;
+  final List<SummaryFact> facts;
+  final String? body;
+
+  bool get hasPeriod => periodFrom != null && periodTo != null;
+  bool get hasProject => projectCode != null || projectName != null;
+
+  SummaryFact? fact(String code) {
+    for (final SummaryFact one in facts) {
+      if (one.code == code) return one;
+    }
+    return null;
+  }
+}
+
+ApprovalSummary? parseApprovalSummary(Object? raw) {
+  final Json? row = asRecord(raw);
+  final String? kind = filled(row?['kind']);
+  if (row == null || kind == null) return null;
+  final Json? unit = asRecord(row['unit']);
+  final Json? project = asRecord(row['project']);
+  final Json? period = asRecord(row['period']);
+  return ApprovalSummary(
+    kind: kind,
+    subjectName: filled(asRecord(row['subject'])?['name']),
+    unitName: filled(unit?['name']) ?? filled(unit?['code']),
+    projectCode: filled(project?['code']),
+    projectName: filled(project?['name']),
+    periodFrom: filled(period?['from']),
+    periodTo: filled(period?['to']),
+    periodStatus: filled(period?['status']),
+    facts: <SummaryFact>[
+      for (final Object? entry in listOf(row['facts']))
+        if (asRecord(entry) case final Json fact when filled(fact['code']) != null && (fact['value'] == null || fact['value'] is num || fact['value'] is String)) SummaryFact(code: fact['code']! as String, value: fact['value']),
+    ],
+    body: filled(row['body']),
+  );
+}
+
 /// One approval task awaiting a decision of the person (`/resources/approval_task?mine=true`).
 final class ApprovalTask {
   const ApprovalTask({
@@ -26,7 +87,11 @@ final class ApprovalTask {
     this.assigneeName,
     this.initiatorName,
     this.submittedAt,
+    this.summary,
   });
+
+  /// What the record is, as its module says it; null when the server gave none.
+  final ApprovalSummary? summary;
 
   /// Who sent the record for approval and when: what tells two tasks of one kind apart in the inbox. Null when the server names neither.
   final String? initiatorName;
@@ -87,6 +152,7 @@ ApprovalTask? parseApprovalTask(Object? raw) {
     status: status,
     initiatorName: filled(asRecord(row['initiator'])?['name']),
     submittedAt: filled(row['submitted_at']),
+    summary: parseApprovalSummary(row['summary']),
   );
 }
 

@@ -50738,6 +50738,44 @@ export interface components {
             /** Format: date-time */
             as_of: string;
         };
+        /** @description Tóm tắt hồ sơ của một việc phê duyệt (trường summary của approval_task): phân hệ sở hữu loại nghiệp vụ khai, chỉ người quyết định việc đó đọc được; null khi phân hệ không khai hoặc người đọc không phải người quyết định. Mã và giá trị, không phải câu chữ: màn hình tự diễn đạt. */
+        ApprovalRecordSummary: {
+            /** @description Loại nghiệp vụ (business type), ví dụ score.response */
+            kind: string;
+            /** @description Người mà hồ sơ nói về */
+            subject: {
+                name: string | null;
+            } | null;
+            unit: {
+                /** Format: uuid */
+                id: string;
+                code: string | null;
+                name: string | null;
+            } | null;
+            project: {
+                /** Format: uuid */
+                id: string;
+                code: string;
+                name: string;
+            } | null;
+            period: {
+                /** Format: date */
+                from: string;
+                /** Format: date */
+                to: string;
+                status: string;
+            } | null;
+            facts: {
+                code: string;
+                value: string | number | null;
+            }[];
+            /** @description Nội dung người gửi viết */
+            body: string | null;
+            target: {
+                screen: string;
+                id: string;
+            } | null;
+        };
     };
     responses: never;
     parameters: never;

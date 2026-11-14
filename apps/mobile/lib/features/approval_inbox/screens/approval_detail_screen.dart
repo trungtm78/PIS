@@ -131,10 +131,18 @@ class _DetailBody extends StatelessWidget {
                       InfoRow(label: context.t('mob.apv.detail.content.status'), value: taskStatusLabel(context, task.status)),
                       if (detail.report != null)
                         InfoRow(label: context.t('mob.apv.detail.content.record'), value: '${detail.report!.projectCode} · ${detail.report!.projectName} · ${detail.report!.periodCode}'),
+                      // Who sent the record and when: the person decides knowing whose request it is.
+                      if (task.initiatorName != null) InfoRow(label: context.t('mob.apv.sum.row.sender'), value: task.initiatorName),
+                      if (task.submittedAt != null) InfoRow(label: context.t('mob.apv.sum.row.sent'), value: formatDay(task.submittedAt!, language: AppStrings.of(context).language)),
+                      // What the record IS, as its module says it (lane fix11): nobody approves a response, an exception or an adjustment they cannot read.
+                      if (task.summary != null) _Summary(summary: task.summary!),
                     ],
                   ),
-                  SectionTab(label: context.t('mob.apv.detail.compare.title'), children: <Widget>[_Comparison(detail: detail)]),
-                  SectionTab(label: context.t('mob.apv.detail.evidence.title'), count: detail.report?.evidence.length, children: <Widget>[_Evidence(report: detail.report)]),
+                  // The comparison of two revisions and the files are of a report. A record whose module says what it is (a summary) and that is no report is not given two tabs that only say "not available".
+                  if (task.businessType == reportAcceptType || task.summary == null) ...<SectionTab>[
+                    SectionTab(label: context.t('mob.apv.detail.compare.title'), children: <Widget>[_Comparison(detail: detail)]),
+                    SectionTab(label: context.t('mob.apv.detail.evidence.title'), count: detail.report?.evidence.length, children: <Widget>[_Evidence(report: detail.report)]),
+                  ],
                 ],
               ),
               const SizedBox(height: MachvonV2Space.s16),
@@ -151,6 +159,39 @@ class _DetailBody extends StatelessWidget {
             onPressed: open ? () => showApprovalReturnSheet(context, task: task, unitName: detail.unitName, fromCopy: fromCopy) : null,
           ),
           why: open ? null : gateText(context, gate),
+        ),
+      ],
+    );
+  }
+}
+
+/// The record of the task as its module says it: who it is about, the project, the period with where it stands, the named facts, and what the sender wrote, in full.
+class _Summary extends StatelessWidget {
+  const _Summary({required this.summary});
+
+  final ApprovalSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final MachvonV2Text text = context.v2text;
+    final String? period = summaryPeriodLine(context, summary);
+    final String? project = summaryProjectLine(summary);
+    return Column(
+      key: const ValueKey<String>('approval-summary'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        if (summary.subjectName != null) InfoRow(label: context.t('mob.apv.sum.row.subject'), value: summary.subjectName),
+        if (project != null) InfoRow(label: context.t('mob.apv.sum.row.project'), value: project),
+        if (period != null) InfoRow(label: context.t('mob.apv.sum.row.period'), value: period),
+        for (final SummaryFact fact in summary.facts)
+          if (summaryFactLabel(context, fact.code) case final String label) InfoRow(label: label, value: summaryFactValue(context, fact)),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, MachvonV2Space.s12, MachvonV2Space.s16, MachvonV2Space.s4),
+          child: Semantics(container: true, header: true, child: Text(context.t('mob.apv.sum.body.title'), style: text.captionStrong)),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(MachvonV2Space.s16, 0, MachvonV2Space.s16, MachvonV2Space.s12),
+          child: Text(summary.body ?? context.t('mob.apv.sum.body.none'), style: text.body),
         ),
       ],
     );

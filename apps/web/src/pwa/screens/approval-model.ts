@@ -12,6 +12,53 @@ type Raw = Record<string, unknown>;
 const record = (value: unknown): Raw | undefined => (typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Raw) : undefined);
 const text = (value: unknown): string | undefined => (typeof value === 'string' && value !== '' ? value : undefined);
 
+/** One named fact of the record of a task (`ApprovalRecordSummary.facts`): a code the screen words, and its value as the server gave it. */
+export interface SummaryFact {
+  code: string;
+  value: string | number | null;
+}
+
+/**
+ * What the person who decides a task reads of its record before deciding (`summary` of the task, lane fix11): who it is about, the unit, the project, the period with where it stands, a few named facts and what
+ * the sender wrote. The server gives it only to the person who decides the task.
+ */
+export interface RecordSummary {
+  kind: string;
+  subjectName: string | null;
+  unitName: string | null;
+  project: { code: string; name: string } | null;
+  period: { from: string; to: string; status: string } | null;
+  facts: SummaryFact[];
+  body: string | null;
+}
+
+export function toRecordSummary(raw: unknown): RecordSummary | undefined {
+  const row = record(raw);
+  const kind = text(row?.kind);
+  if (row === undefined || kind === undefined) return undefined;
+  const unit = record(row.unit);
+  const project = record(row.project);
+  const period = record(row.period);
+  const from = text(period?.from);
+  const to = text(period?.to);
+  const facts: SummaryFact[] = [];
+  for (const entry of Array.isArray(row.facts) ? row.facts : []) {
+    const fact = record(entry);
+    const code = text(fact?.code);
+    const value = fact?.value;
+    if (code !== undefined && (value === null || typeof value === 'string' || typeof value === 'number')) facts.push({ code, value });
+  }
+  return {
+    kind,
+    subjectName: text(record(row.subject)?.name) ?? null,
+    unitName: text(unit?.name) ?? text(unit?.code) ?? null,
+    project: project === undefined ? null : { code: text(project.code) ?? '', name: text(project.name) ?? '' },
+    period: from === undefined || to === undefined ? null : { from, to, status: text(period?.status) ?? '' },
+    facts,
+    body: text(row.body) ?? null,
+  };
+}
+
 /** One approval task waiting for the person (`get_resources_approval_task` with `mine=true`), as the manager queue shows it. */
 export interface ApprovalTask {
   id: string;
@@ -34,6 +81,10 @@ export interface ApprovalTask {
   status: string;
   /** The workflow instance the task belongs to: its other tasks are the step history. */
   instanceId: string | null;
+  /** What the record is, as its module says it; undefined when the server gave none. */
+  summary?: RecordSummary | undefined;
+  /** Who sent the record for approval, when the server names them. */
+  initiatorName?: string | undefined;
 }
 
 /** A task of any status (the detail opens a task that was decided meanwhile and says so), or undefined when the row is not a task. */
@@ -62,6 +113,8 @@ export function toTaskRecord(raw: unknown): ApprovalTask | undefined {
     canDecide: actions?.decide === true,
     status,
     instanceId: text(instance?.id) ?? text(row.workflow_instance_id) ?? null,
+    summary: toRecordSummary(row.summary),
+    initiatorName: text(record(row.initiator)?.name),
   };
 }
 

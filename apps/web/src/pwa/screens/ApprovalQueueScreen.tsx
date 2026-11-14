@@ -15,6 +15,7 @@ import type { ApprovalTask, Decision, Problem, QueueFilter } from './approval-mo
 import { problemText } from './approval-problem';
 import { DecisionSheet } from './DecisionSheet';
 import { PwaBackLink } from './PwaBackLink';
+import { summaryPeriodText } from './ApprovalRecordSummary';
 import './pwa.css';
 
 /** How old the list may be before the screen says so (the list is read again when the page comes back to the front). */
@@ -233,6 +234,25 @@ function QueueContent() {
                     <dd>{task.stepName === '' ? '—' : task.stepName}</dd>
                     <dt>{t('pwa.approvals.field.record')}</dt>
                     <dd data-testid="record-name">{recordName(task)}</dd>
+                    {/* What the record is of (lane fix11): its project, its period with where it stands, the person it is about. */}
+                    {task.summary?.project == null ? null : (
+                      <>
+                        <dt>{t('fix11.apv.project.label')}</dt>
+                        <dd>{[task.summary.project.code, task.summary.project.name].filter((part) => part !== '').join(' · ')}</dd>
+                      </>
+                    )}
+                    {task.summary?.period == null ? null : (
+                      <>
+                        <dt>{t('fix11.apv.period.label')}</dt>
+                        <dd data-testid="row-period">{summaryPeriodText(t, task.summary.period)}</dd>
+                      </>
+                    )}
+                    {task.summary?.subjectName == null ? null : (
+                      <>
+                        <dt>{t('fix11.apv.subject.label')}</dt>
+                        <dd>{task.summary.subjectName}</dd>
+                      </>
+                    )}
                     {unit === undefined ? null : (
                       <>
                         <dt>{t('pwa.approvals.field.unit')}</dt>

@@ -17,6 +17,7 @@ import type { ApprovalTask, Decision, Problem } from './approval-model';
 import { taskStatusLabel } from './approval-labels';
 import { problemText } from './approval-problem';
 import { EvidenceList, PlanComparison, RevisionComparison, StepHistory, money } from './ApprovalDetailSections';
+import { RecordSummaryFacts } from './ApprovalRecordSummary';
 import { DecisionSheet } from './DecisionSheet';
 import { PwaBackLink } from './PwaBackLink';
 import './pwa.css';
@@ -216,9 +217,16 @@ function DetailContent({ taskId }: { taskId: string }) {
                   </dd>
                 </dl>
               </SectionCard>
+              {record.summary === undefined ? null : (
+                <SectionCard title={t('fix11.apv.record.title')}>
+                  <RecordSummaryFacts summary={record.summary} sender={record.initiatorName} />
+                </SectionCard>
+              )}
+              {!isReport && record.summary !== undefined ? null : (
               <SectionCard title={t('pwa2.approvalDetail.plan.title')}>
                 {!isReport ? <p role="status">{t('pwa2.approvalDetail.notReport.note')}</p> : report.isLoading ? <Loading label={t('states.loading.label')} /> : report.data === undefined ? <ReadFailed retry={() => void report.refetch()} /> : <PlanComparison read={report.data} locale={locale} />}
               </SectionCard>
+              )}
               {reportFigures === undefined ? null : (
                 <SectionCard title={t('pwa2.approvalDetail.revision.title')}>
                   {reportFigures.supersedesId !== null && previous.isLoading ? (

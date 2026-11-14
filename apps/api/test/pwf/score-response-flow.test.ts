@@ -112,6 +112,27 @@ describe('the response to a score handled by the approval engine of ADM (R43, R1
       expect((await rows<{ status: string }>("select status from machvon.work_clock where subject_id = $1", [sent.result.id]))[0]?.status).toBe('RUNNING');
     });
 
+    it('tells the person who decides the task what the record is: the response, the score it is about, the period and the unit, inside that unit only (lane fix11)', async () => {
+      const subject = { businessType: 'score.response', resourceType: 'staff_score_response', resourceId: openResponse, unitId: unitId(ROOT) };
+      const summary = await as(REVIEWER, (tx) => registry.summaryOf(tx, subject));
+      expect(summary).toMatchObject({
+        kind: 'score.response',
+        body: 'The delay came from the agency; here is the letter I sent on the due day.',
+        subject: { name: expect.anything() },
+        unit: { id: unitId(ROOT) },
+        project: null,
+        period: { from: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/), to: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/), status: expect.stringMatching(/^(LOCKED|OFFICIAL)$/) },
+        target: { screen: 'PWF-13', id: lineId },
+      });
+      expect(summary?.facts.map((fact) => fact.code)).toEqual(['SCORE_COMPUTED', 'SCORE_ADJUSTED', 'RATING', 'SCORE_STATE', 'RATED_TASKS', 'SUBMITTED_AT']);
+      expect(typeof summary?.facts[0]?.value).toBe('number');
+      // The reach is the unit of the instance: the same record asked for under another unit is not there, and a business type whose module bound no reader has no summary.
+      expect(await as(REVIEWER, (tx) => registry.summaryOf(tx, { ...subject, unitId: randomUUID() }))).toBeNull();
+      expect(await as(REVIEWER, (tx) => registry.summaryOf(tx, { ...subject, businessType: 'report.accept' }))).toBeNull();
+      // The reach the transaction had is put back: the read of the record does not widen what follows it.
+      expect(await as(REVIEWER, async (tx) => { await registry.summaryOf(tx, subject); return (await tx.query<{ units: string | null }>("select current_setting('app.scope_units', true) as units"))[0]?.units ?? ''; })).toBe('');
+    });
+
     it('ends in the final command: an approval upholds the response with the reason, the clock is met, and the audit row and the event follow the decision', async () => {
       const sent = await respond('Please look at my task again: the letter is dated before the due day.');
       const task = await pendingTask(sent.instanceId as string);

@@ -1,7 +1,7 @@
-import { ApprovalStore, HomeWorkClockStore, PwfScoreAdjustmentStore } from '@machvon/db';
+import { ApprovalStore, HomeWorkClockStore, PwfScoreAdjustmentStore, PwfScoreReads } from '@machvon/db';
 import type { ApprovalEffects, FinalCommand, StaffScoreResponseResult, TenantTx } from '@machvon/db';
 import { DomainError, PWF_SCORE_TEXT, pwfKpi } from '@machvon/kernel';
-import type { FinalCommandRegistry } from '../adm/approval.service';
+import type { ApprovalSummaryReader, FinalCommandRegistry } from '../adm/approval.service';
 
 /** The clock a response runs: this many working minutes (three working days of eight hours) to be handled. */
 const HANDLING_MINUTES = 3 * 8 * 60;
@@ -96,5 +96,38 @@ export function scoreResponseHandler(): FinalCommand {
       eventKey: `staff_score_response:${done.id}:handled`,
     });
     return 'APPLIED';
+  };
+}
+
+/** The screen a response to a score is handled on, on the web: the detail of the line (PWF-13). */
+const SUMMARY_SCREEN = 'PWF-13';
+
+/**
+ * What the approver of a `score.response` task reads before deciding (lane fix11): what the person wrote, the score it is about (computed, adjusted, the rating, how many tasks were rated), the period with where it
+ * stands, and the unit. The person the score is about is named: the approver decides about that person. Read inside the unit of the instance and nothing wider.
+ */
+export function scoreResponseSummary(): ApprovalSummaryReader {
+  const reads = new PwfScoreReads();
+  return async (tx, task) => {
+    if (task.resourceType !== pwfKpi.SCORE_RESPONSE_RESOURCE) return undefined;
+    const brief = await reads.responseBrief(tx, task.resourceId, task.unitId);
+    if (brief === undefined) return undefined;
+    return {
+      kind: pwfKpi.SCORE_RESPONSE_BUSINESS_TYPE,
+      subject: { name: brief.subjectName },
+      unit: { id: brief.unitId, code: brief.unitCode, name: brief.unitName },
+      project: null,
+      period: { from: brief.periodFrom, to: brief.periodTo, status: brief.periodStatus },
+      facts: [
+        { code: 'SCORE_COMPUTED', value: brief.scoreComputed },
+        { code: 'SCORE_ADJUSTED', value: brief.scoreAdjusted },
+        { code: 'RATING', value: brief.rating },
+        { code: 'SCORE_STATE', value: brief.state },
+        { code: 'RATED_TASKS', value: brief.ratedTaskCount },
+        { code: 'SUBMITTED_AT', value: brief.submittedAt },
+      ],
+      body: brief.body,
+      target: { screen: SUMMARY_SCREEN, id: brief.lineId },
+    };
   };
 }

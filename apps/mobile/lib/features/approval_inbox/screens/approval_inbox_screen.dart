@@ -174,6 +174,14 @@ class ApprovalRow extends StatelessWidget {
       if (unitName != null) unitName!,
       ?amount,
     ].join(' · ');
+    // What the record is of (lane fix11): its project, its period, the person it is about. A row of a response to a score says which period and whose.
+    final ApprovalSummary? summary = task.summary;
+    final String? periodLine = summary == null ? null : summaryPeriodLine(context, summary);
+    final String context_ = <String>[
+      if (summary != null && summaryProjectLine(summary) != null) summaryProjectLine(summary)!,
+      if (periodLine != null) context.t('mob.apv.sum.inbox.period', <String, Object>{'period': periodLine}),
+      if (summary?.subjectName != null) context.t('mob.apv.sum.inbox.subject', <String, Object>{'name': summary!.subjectName!}),
+    ].join(' · ');
     // What tells two tasks of one kind apart (six weekly reports read alike otherwise): who sent the record, and the day it was sent.
     final String sender = <String>[
       if (task.initiatorName != null) context.t('mob.apv.inbox.row.sender', <String, Object>{'name': task.initiatorName!}),
@@ -182,6 +190,7 @@ class ApprovalRow extends StatelessWidget {
     final String spoken = <String>[
       type,
       if (task.stepName.isNotEmpty) task.stepName,
+      if (context_.isNotEmpty) context_,
       if (sender.isNotEmpty) sender,
       if (unitName != null) context.t('mob.apv.inbox.row.unit', <String, Object>{'unit': unitName!}),
       if (task.amountVnd != null) context.t('mob.apv.inbox.row.amount', <String, Object>{'value': moneyLabel(context, task.amountVnd)}),
@@ -193,7 +202,16 @@ class ApprovalRow extends StatelessWidget {
     return WorkRow(
       title: type,
       subtitle: subtitle.isEmpty ? null : subtitle,
-      footer: sender.isEmpty ? null : Text(sender, style: text.caption),
+      footer: sender.isEmpty && context_.isEmpty
+          ? null
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                if (context_.isNotEmpty) Text(context_, style: text.caption),
+                if (sender.isNotEmpty) Text(sender, style: text.caption),
+              ],
+            ),
       leading: DeadlineGlyph(band: band),
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,

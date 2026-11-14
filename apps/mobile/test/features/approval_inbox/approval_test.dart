@@ -263,6 +263,65 @@ void main() {
       expect(other.callsTo('GET', '/reports/rep-2'), isEmpty);
     });
 
+    testWidgets('a response to a score is readable before it is decided: whose it is, the period with where it stands, the unit, the score and what the person wrote; no tab says "not available" (lane fix11)', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final Map<String, Object?> task = <String, Object?>{
+        ...approvalTask('t-1', businessType: 'score.response', step: 'Xem xét phản hồi', initiator: 'Phạm Quốc Dũng', submittedAt: '2026-11-14T03:00:00Z'),
+        'summary': <String, Object?>{
+          'kind': 'score.response',
+          'subject': <String, Object?>{'name': 'Phạm Quốc Dũng'},
+          'unit': <String, Object?>{'id': 'u-bql1', 'code': 'BQLDA', 'name': 'Ban QLDA giao thông'},
+          'project': null,
+          'period': <String, Object?>{'from': '2026-07-01', 'to': '2026-09-30', 'status': 'LOCKED'},
+          'facts': <Object?>[
+            <String, Object?>{'code': 'SCORE_COMPUTED', 'value': 58.67},
+            <String, Object?>{'code': 'SCORE_ADJUSTED', 'value': null},
+            <String, Object?>{'code': 'RATING', 'value': 'WEAK'},
+            <String, Object?>{'code': 'SCORE_STATE', 'value': 'RATED'},
+            <String, Object?>{'code': 'RATED_TASKS', 'value': 6},
+            <String, Object?>{'code': 'SUBMITTED_AT', 'value': '2026-11-14T03:00:00.000Z'},
+            <String, Object?>{'code': 'A_CODE_THE_PHONE_DOES_NOT_KNOW', 'value': 'x'},
+          ],
+          'body': 'Việc trễ do cơ quan thẩm định trả hồ sơ chậm; tôi đã gửi công văn đúng hạn.',
+          'target': <String, Object?>{'screen': 'PWF-13', 'id': 'l-1'},
+        },
+      };
+      final ScriptedServer server = ScriptedServer();
+      _reads(server, task: task);
+      await _open(tester, server, '/approval/mob-24/t-1');
+      expect(find.text('Phản hồi về điểm đánh giá'), findsWidgets);
+      expect(find.text('Về người'), findsOneWidget);
+      expect(find.text('Phạm Quốc Dũng'), findsNWidgets(2), reason: 'the person the score is about, and the sender');
+      expect(find.text('01/07/2026 đến 30/09/2026 · Đã chốt'), findsOneWidget);
+      expect(find.text('Điểm tính được'), findsOneWidget);
+      expect(find.text('58,67'), findsOneWidget);
+      expect(find.text('Cần cải thiện'), findsOneWidget);
+      expect(find.text('Đã xếp loại'), findsOneWidget);
+      expect(find.text('Chưa có'), findsOneWidget, reason: 'no adjusted score yet: said, not shown as zero');
+      await tester.scrollUntilVisible(find.text('Việc trễ do cơ quan thẩm định trả hồ sơ chậm; tôi đã gửi công văn đúng hạn.'), 200, scrollable: find.byType(Scrollable).first);
+      expect(find.text('Nội dung người trình viết'), findsOneWidget);
+      expect(find.textContaining('A_CODE_THE_PHONE_DOES_NOT_KNOW'), findsNothing);
+      expect(find.textContaining('SUBMITTED_AT'), findsNothing);
+      expect(find.textContaining('So sánh'), findsNothing);
+      expect(find.textContaining('Bằng chứng'), findsNothing);
+      expect(server.callsTo('GET', '/reports/rep-2'), isEmpty);
+    });
+
+    testWidgets('the row of the inbox says what the record is of: its period with where it stands and the person it is about (lane fix11)', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      _reads(server, tasks: <Map<String, Object?>>[
+        <String, Object?>{
+          ...approvalTask('t-1', businessType: 'score.response', step: 'Xem xét phản hồi'),
+          'summary': <String, Object?>{'kind': 'score.response', 'subject': <String, Object?>{'name': 'Phạm Quốc Dũng'}, 'unit': null, 'project': <String, Object?>{'id': 'p-1', 'code': 'DA-CB-017', 'name': 'Đường tỉnh 208'}, 'period': <String, Object?>{'from': '2026-07-01', 'to': '2026-09-30', 'status': 'OFFICIAL'}, 'facts': <Object?>[], 'body': null, 'target': null},
+        },
+        approvalTask('t-2', businessType: 'payment.approve', step: 'Kế toán trưởng'),
+      ]);
+      await _open(tester, server, '/approval');
+      expect(find.text('DA-CB-017 · Đường tỉnh 208 · Kỳ 01/07/2026 đến 30/09/2026 · Chính thức · Về: Phạm Quốc Dũng'), findsOneWidget);
+      expect(find.byType(ApprovalRow), findsNWidgets(2));
+    });
+
     testWidgets('online, the person who may decide has both buttons on the bar, and they open the confirmation and the return form as sheets that decide nothing by themselves', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       final ScriptedServer server = ScriptedServer();

@@ -1964,6 +1964,7 @@ export type { KpiOperationEntry, KpiResultRow, RecordSummary as KpiRecordSummary
 export { PwfScoreStore, periodMatchesKind } from './pwf-score-store.ts';
 export type { ComputeRequest as StaffScoreComputeRequest, PeriodCommandResult as StaffScorePeriodResult, PeriodPreview as StaffScorePeriodPreview, PeriodRow as StaffScorePeriodRow } from './pwf-score-store.ts';
 export { PwfScoreReads } from './pwf-score-reads.ts';
+export type { ScoreResponseBrief } from './pwf-score-reads.ts';
 export type { AdjustmentView as StaffScoreAdjustmentView, LineDetail as StaffScoreLineDetail, LineSummary as StaffScoreLineSummary, PeriodView as StaffScorePeriodView, ResponseView as StaffScoreResponseView, Viewer as StaffScoreViewer } from './pwf-score-reads.ts';
 export { PwfScoreAdjustmentStore } from './pwf-score-adjustment-store.ts';
 export type { AdjustmentResult as StaffScoreAdjustmentResult, ResponseResult as StaffScoreResponseResult } from './pwf-score-adjustment-store.ts';

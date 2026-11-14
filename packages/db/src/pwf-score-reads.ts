@@ -236,6 +236,28 @@ export interface PeriodView extends PeriodRow {
   openResponseCount: number;
 }
 
+/** What an approver reads of a response to a score before deciding it (lane fix11): what the person wrote, the score it is about, the period and the unit. */
+export interface ScoreResponseBrief {
+  responseId: string;
+  status: 'OPEN' | 'HANDLED';
+  body: string;
+  submittedAt: string;
+  lineId: string;
+  subjectName: string | null;
+  unitId: string;
+  unitCode: string;
+  unitName: string | null;
+  scoreComputed: number | null;
+  scoreAdjusted: number | null;
+  rating: string | null;
+  state: LineSummary['state'];
+  ratedTaskCount: number;
+  periodId: string;
+  periodFrom: string;
+  periodTo: string;
+  periodStatus: PeriodRow['status'];
+}
+
 export class PwfScoreReads {
   /** The periods the caller reaches: the ones of a unit they read, and the ones that hold a line of a unit they read. */
   async periods(tx: TenantTx, scope: ScoreScope, filter: { scopeUnitId?: string | undefined; status?: string | undefined }, page: { limit: number; after?: { code: string; id: string } | undefined }): Promise<PageOf<PeriodView> & { total: number }> {
@@ -401,6 +423,54 @@ export class PwfScoreReads {
     const counts = points.map((one) => one.ratedTaskCount);
     const alike = points.every((one) => one.state === points[0]?.state) && (counts.length === 0 || Math.max(...counts) <= 2 * Math.max(1, Math.min(...counts)));
     return { membershipId: member, points, samplesDiffer: !alike };
+  }
+
+  /**
+   * The response an approval task is about, for the person who decides that task (lane fix11). The reach is the unit of the instance and nothing wider: the engine gave the task to this person, so they read the one
+   * record they decide, whether or not they hold a reading of the scores of the unit. Undefined when the response is not there or is not of that unit.
+   */
+  async responseBrief(tx: TenantTx, responseId: string, unitId: string): Promise<ScoreResponseBrief | undefined> {
+    const id = scoreIdOf(responseId, 'id');
+    const unit = scoreIdOf(unitId, 'unit_id');
+    const rows = await withScoreScope(tx, { units: unit, subject: '' }, () =>
+      tx.query<{
+        id: string; status: 'OPEN' | 'HANDLED'; body: string; submitted_at: string; line_id: string; display_name: string | null; unit_id_at_period: string; unit_code: string; unit_name: string | null;
+        score_computed: string | null; score_adjusted: string | null; rating: string | null; state: LineSummary['state']; rated_task_count: number; period_id: string; period_from: string; period_to: string; period_status: PeriodRow['status'];
+      }>(
+        `select r.id, r.status, r.body, ${ISO('r.submitted_at')} as submitted_at, l.id as line_id, ${NAME('l.membership_id')} as display_name, l.unit_id_at_period,
+                (select u.code from machvon.organization_unit u where u.tenant_id = l.tenant_id and u.id = l.unit_id_at_period) as unit_code,
+                (select u.name from machvon.organization_unit u where u.tenant_id = l.tenant_id and u.id = l.unit_id_at_period) as unit_name,
+                l.score_computed::text as score_computed, l.score_adjusted::text as score_adjusted, l.rating, l.state, l.rated_task_count,
+                p.id as period_id, p.period_from::text as period_from, p.period_to::text as period_to, p.status as period_status
+           from machvon.staff_score_response r
+           join machvon.staff_score_line l on l.tenant_id = r.tenant_id and l.id = r.line_id
+           join machvon.staff_score_period p on p.tenant_id = l.tenant_id and p.id = l.period_id
+          where r.id = $1::uuid and r.unit_id_at_period = $2::uuid and l.erased_at is null`,
+        [id, unit],
+      ),
+    );
+    const row = rows[0];
+    if (row === undefined) return undefined;
+    return {
+      responseId: row.id,
+      status: row.status,
+      body: row.body,
+      submittedAt: row.submitted_at,
+      lineId: row.line_id,
+      subjectName: row.display_name,
+      unitId: row.unit_id_at_period,
+      unitCode: row.unit_code,
+      unitName: row.unit_name,
+      scoreComputed: numberOf(row.score_computed),
+      scoreAdjusted: numberOf(row.score_adjusted),
+      rating: row.rating,
+      state: row.state,
+      ratedTaskCount: row.rated_task_count,
+      periodId: row.period_id,
+      periodFrom: row.period_from,
+      periodTo: row.period_to,
+      periodStatus: row.period_status,
+    };
   }
 
   /** The signals of a period for the reviewer, by person, in pages. */

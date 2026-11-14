@@ -309,7 +309,20 @@ export class WorkflowInstanceReadsController {
 export class ApprovalTaskReadsController {
   private readonly store = new ApprovalStore();
 
-  constructor(@Inject(TenantDatabase) private readonly database: TenantDatabase) {}
+  constructor(
+    @Inject(TenantDatabase) private readonly database: TenantDatabase,
+    @Optional() @Inject(APPROVAL_FINAL_COMMANDS) private readonly commands?: FinalCommandRegistry,
+  ) {}
+
+  /**
+   * The summary of the record, for the person who decides the task and for nobody else (lane fix11): the assignee, or the one who decides on their behalf. Who runs workflows sees every task of the tenant in the
+   * monitor, and reads there the type, the step and the figure, never the content of a record they do not decide (a response to a score is personal data).
+   */
+  private async summaryFor(tx: Parameters<ApprovalStore['findTask']>[0], row: ApprovalTaskRecord, membershipId: string): Promise<Record<string, unknown>> {
+    const decides = row.assigneeId === membershipId || row.delegatedToMe;
+    if (this.commands === undefined || !decides) return { summary: null };
+    return { summary: await this.commands.summaryOf(tx, { businessType: row.businessType, resourceType: row.resourceType, resourceId: row.resourceId, unitId: row.unitId }) };
+  }
 
   @Get()
   @OperationId('get_resources_approval_task')
@@ -330,8 +343,13 @@ export class ApprovalTaskReadsController {
       mine: mine === 'true',
     };
     const viewer = { membershipId: tenant.membershipId, all: holdsOnWholeTenant(access, OPERATE) };
-    const rows = await this.database.withTenant(tenant, (tx) => this.store.listTasks(tx, viewer, filters, { limit: request.limit + 1, after: request.after }));
-    return pageOf(rows, request.limit, (row) => taskView(row, tenant.membershipId, viewer.all));
+    return this.database.withTenant(tenant, async (tx) => {
+      const rows = await this.store.listTasks(tx, viewer, filters, { limit: request.limit + 1, after: request.after });
+      // The inbox of a person (`mine=true`) says what each record is of (its period, its project, its unit), so that two tasks of one kind are told apart; the monitor of all tasks does not read the records.
+      const summaries = new Map<string, Record<string, unknown>>();
+      if (filters.mine) for (const row of rows.slice(0, request.limit)) summaries.set(row.id, await this.summaryFor(tx, row, tenant.membershipId));
+      return pageOf(rows, request.limit, (row) => ({ ...taskView(row, tenant.membershipId, viewer.all), ...(summaries.get(row.id) ?? {}) }));
+    });
   }
 
   @Get(':id')
@@ -341,11 +359,10 @@ export class ApprovalTaskReadsController {
     const found = await this.database.withTenant(tenant, async (tx) => {
       const task = await this.store.findTask(tx, id.toLowerCase(), tenant.membershipId);
       if (task === undefined) return undefined;
-      if (all) return task;
-      const visible = await this.store.listTasks(tx, { membershipId: tenant.membershipId, all: false }, { id: task.id }, { limit: 1, after: undefined });
-      return visible.length > 0 ? task : undefined;
+      const visible = all || (await this.store.listTasks(tx, { membershipId: tenant.membershipId, all: false }, { id: task.id }, { limit: 1, after: undefined })).length > 0;
+      return visible ? { task, summary: await this.summaryFor(tx, task, tenant.membershipId) } : undefined;
     });
     if (found === undefined) throw new DomainError('RESOURCE_NOT_FOUND', 404);
-    return { ...taskView(found, tenant.membershipId, all), as_of: new Date().toISOString() };
+    return { ...taskView(found.task, tenant.membershipId, all), ...found.summary, as_of: new Date().toISOString() };
   }
 }
