@@ -390,6 +390,7 @@ final class PwfMyTask {
     this.personal,
     this.dueDate,
     this.forecastFinish,
+    this.finishedOn,
   });
 
   final String taskId;
@@ -414,15 +415,24 @@ final class PwfMyTask {
 
   /// The personal setting gives another colour than the official rule does.
   bool get personalDiffers => personal != null && personal!.kind != official.kind;
+
+  /// The day the task was finished; only a task of the list of what the person finished carries it (R51).
+  final String? finishedOn;
+
+  /// Whether the task was finished after its deadline; null when either day is not known (nothing is said then).
+  bool? get finishedLate => finishedOn == null || dueDate == null ? null : finishedOn!.compareTo(dueDate!) > 0;
 }
 
 final class PwfMyTasks {
-  const PwfMyTasks({required this.items, required this.total, required this.asOf, this.nextCursor});
+  const PwfMyTasks({required this.items, required this.total, required this.asOf, this.nextCursor, this.doneWindowDays});
 
   final List<PwfMyTask> items;
   final int total;
   final String asOf;
   final String? nextCursor;
+
+  /// How many days back the list of what the person finished goes; only the answer for `status=DONE` carries it (R51).
+  final int? doneWindowDays;
 }
 
 PwfMyTasks? parsePwfMyTasks(Object? raw) {
@@ -454,6 +464,7 @@ PwfMyTasks? parsePwfMyTasks(Object? raw) {
         status: status,
         dueDate: day(item['due_date']),
         forecastFinish: day(item['forecast_finish']),
+        finishedOn: day(item['finished_on']),
         official: official,
         personal: personal,
         critical: item['critical'] == true,
@@ -461,7 +472,7 @@ PwfMyTasks? parsePwfMyTasks(Object? raw) {
       ),
     );
   }
-  return PwfMyTasks(items: items, total: count(record['total']), asOf: asOf, nextCursor: filled(record['next_cursor']));
+  return PwfMyTasks(items: items, total: count(record['total']), asOf: asOf, nextCursor: filled(record['next_cursor']), doneWindowDays: whole(record['done_window_days']));
 }
 
 // ---- A task (MOB-79) -------------------------------------------------------------------------------------------------------------

@@ -179,7 +179,9 @@ void main() {
   });
 
   group('MOB-80 my tasks', () {
-    ScriptedServer mine({Map<String, Object?>? body}) => ScriptedServer()..on('GET', '/me/project-tasks', (_) => body ?? myTasksJson());
+    // The open list and the list of what the person finished are the same read; the second one asks for `status=DONE` (R51).
+    ScriptedServer mine({Map<String, Object?>? body, Map<String, Object?>? done}) => ScriptedServer()
+      ..on('GET', '/me/project-tasks', (call) => call.url.queryParameters['status'] == 'DONE' ? (done ?? doneTasksJson()) : (body ?? myTasksJson()));
 
     testWidgets('the colours are the person\'s own: every row that has a deadline says "Theo cài đặt của bạn" and carries the real day; the official one is said where it differs', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
@@ -198,7 +200,64 @@ void main() {
       await tester.tap(find.textContaining('Đã xong').first);
       await tester.pumpAndSettle();
       expect(find.text('Trễ hạn'), findsNothing);
-      expect(find.text('Không có việc nào ở mục này.'), findsNothing, reason: 'one task of the list is done');
+      expect(find.text('Không có việc nào ở mục này.'), findsNothing, reason: 'the tab reads what the person finished');
+    });
+
+    testWidgets('R51: the tab "Đã xong" reads what the person finished lately from the server (status=DONE), newest first, each with the day it was finished and whether that was in time, and reads more with the cursor', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      final ScriptedServer server = ScriptedServer();
+      final List<Map<String, String>> asked = <Map<String, String>>[];
+      server.on('GET', '/me/project-tasks', (call) {
+        final Map<String, String> query = call.url.queryParameters;
+        if (query['status'] != 'DONE') return myTasksJson(items: <Map<String, Object?>>[myTask('7f3a0000-0000-4000-8000-000000000041', 'Việc còn mở')]);
+        asked.add(query);
+        if (query['cursor'] == null) {
+          return doneTasksJson(items: <Map<String, Object?>>[doneTask('7f3a0000-0000-4000-8000-000000000051', 'Lập tờ trình phê duyệt dự toán', due: '2026-11-10', finished: '2026-11-09')], next: 'd2', total: 2);
+        }
+        return doneTasksJson(items: <Map<String, Object?>>[doneTask('7f3a0000-0000-4000-8000-000000000052', 'Thẩm định hồ sơ mời thầu', due: '2026-11-03', finished: '2026-11-06')], total: 2);
+      });
+      await _open(tester, server, 'MOB-80');
+      expect(asked, isEmpty, reason: 'the done list is read when its tab is opened, not with the open list');
+      await tester.tap(find.textContaining('Đã xong').first);
+      await tester.pumpAndSettle();
+      expect(asked.single['status'], 'DONE');
+      expect(find.text('Lập tờ trình phê duyệt dự toán'), findsOneWidget);
+      expect(find.text('Việc còn mở'), findsNothing);
+      expect(find.text('Hoàn thành 09/11/2026 · đúng hạn'), findsOneWidget);
+      expect(find.text('Việc bạn đã hoàn thành trong 90 ngày gần đây, mới nhất trước.'), findsOneWidget);
+      expect(find.text('Hiển thị 1 trên 2 việc'), findsOneWidget);
+      await tester.tap(find.text('Tải thêm'));
+      await tester.pumpAndSettle();
+      expect(asked.last['cursor'], 'd2');
+      expect(find.text('Thẩm định hồ sơ mời thầu'), findsOneWidget);
+      expect(find.text('Hoàn thành 06/11/2026 · trễ hạn'), findsOneWidget);
+      expect(find.text('Hiển thị 2 trên 2 việc'), findsOneWidget);
+      expect(find.text('Tải thêm'), findsNothing);
+    });
+
+    testWidgets('R51: a person who finished nothing lately is told so in words of the tab, and a done list that cannot be read says so with a way to try again', (WidgetTester tester) async {
+      useDevice(tester, kTallDevice);
+      await _open(tester, mine(done: doneTasksJson(items: <Map<String, Object?>>[])), 'MOB-80');
+      await tester.tap(find.textContaining('Đã xong').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Chưa có việc nào hoàn thành trong 90 ngày gần đây.'), findsOneWidget);
+      expect(find.text('Không có việc nào ở mục này.'), findsNothing);
+
+      bool broken = true;
+      final ScriptedServer server = ScriptedServer();
+      server.answer('GET', '/me/project-tasks', (HttpCall call) async {
+        if (call.url.queryParameters['status'] != 'DONE') return FakeTransport.json(200, myTasksJson());
+        return broken ? FakeTransport.json(503, <String, Object?>{'code': 'DEPENDENCY_UNAVAILABLE', 'status': 503, 'title': 'x'}) : FakeTransport.json(200, doneTasksJson());
+      });
+      await _open(tester, server, 'MOB-80');
+      await tester.tap(find.textContaining('Đã xong').first);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Chưa tải được việc đã xong'), findsOneWidget);
+      broken = false;
+      await tester.tap(find.text('Thử lại'));
+      await tester.pumpAndSettle();
+      expect(find.text('Hồ sơ đã nộp'), findsOneWidget);
+      expect(find.textContaining('Chưa tải được việc đã xong'), findsNothing);
     });
 
     testWidgets('a person with no level of their own (the real answer of the enterprise stack, personal_band null) sees their tasks, coloured by the official level and said to be so', (WidgetTester tester) async {

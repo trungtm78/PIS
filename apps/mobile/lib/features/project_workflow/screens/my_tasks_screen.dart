@@ -5,6 +5,7 @@ import 'package:machvon_tokens/machvon_tokens.dart';
 
 import '../../../core/api/problem.dart';
 import '../../../core/di/providers.dart' show apiClientProvider;
+import '../../../core/format/date_time.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/navigation/feature.dart';
 import '../../../core/theme/colors.dart';
@@ -93,6 +94,18 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
   /// longer exists, and its answer, success or failure, must change nothing.
   int _generation = 0;
 
+  /// What the person finished lately (R51): a list of its own, read from the server with `status=DONE` when its tab is first opened and in pages after that. Null until it was read.
+  List<PwfMyTask>? _done;
+  int _doneTotal = 0;
+  int _doneWindow = _doneWindowFallback;
+  String? _doneCursor;
+  bool _doneLoading = false;
+  String? _doneFailure;
+
+  /// The window the server keeps the list of finished tasks to, said until the first page says it.
+  static const int _doneWindowFallback = 90;
+  static const int _doneTab = 2;
+
   @override
   void initState() {
     super.initState();
@@ -108,7 +121,47 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
       _cursor = widget.first.nextCursor;
       _failure = null;
       _loading = false;
+      // The list was read again: what was finished is read again with it, at once when its tab is the one shown.
+      _done = null;
+      _doneCursor = null;
+      _doneFailure = null;
+      _doneLoading = false;
+      if (_tab == _doneTab) WidgetsBinding.instance.addPostFrameCallback((_) => _loadDone());
     }
+  }
+
+  /// Reads the first page of what the person finished, or the page after the ones shown.
+  Future<void> _loadDone({bool more = false}) async {
+    final String? cursor = more ? _doneCursor : null;
+    if (!mounted || _doneLoading || (more && cursor == null)) return;
+    final int generation = _generation;
+    setState(() {
+      _doneLoading = true;
+      _doneFailure = null;
+    });
+    try {
+      final PwfMyTasks? page = parsePwfMyTasks(await ref.read(apiClientProvider).getMyTasks(query: <String, Object?>{'status': 'DONE', 'limit': 50, 'cursor': ?cursor}));
+      if (!mounted || generation != _generation) return;
+      if (page == null) throw const ContractMismatch('getMyTasks', 'does not hold what the screen needs');
+      setState(() {
+        _done = <PwfMyTask>[...?(more ? _done : null), ...page.items];
+        _doneTotal = page.total;
+        _doneWindow = page.doneWindowDays ?? _doneWindowFallback;
+        _doneCursor = page.nextCursor;
+        _doneLoading = false;
+      });
+    } on Object catch (error) {
+      if (!mounted || generation != _generation) return;
+      setState(() {
+        _doneFailure = ProblemView.from(error).code;
+        _doneLoading = false;
+      });
+    }
+  }
+
+  void _showTab(int next) {
+    setState(() => _tab = next);
+    if (next == _doneTab && _done == null) _loadDone();
   }
 
   Future<void> _loadMore() async {
@@ -151,8 +204,9 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
     final bool personal = _mode == PwfColourMode.personal;
     // One purpose a tab: what the person still has to do (by deadline), what waits for another person's approval, and what is over.
     final List<PwfMyTask> waiting = <PwfMyTask>[for (final PwfMyTask task in all) if (task.status == PwfTaskStatus.awaitingApproval) task];
-    final List<PwfMyTask> over = groups[PwfGroup.done]!;
-    final int todoCount = all.length - waiting.length - over.length;
+    // What is over is not in the open list (the server keeps it to what is still open): it is the list of its own that the third tab reads.
+    final List<PwfMyTask> over = _done ?? const <PwfMyTask>[];
+    final int todoCount = all.length - waiting.length - groups[PwfGroup.done]!.length;
     int inGroups(List<PwfGroup> which) => which.fold<int>(0, (int sum, PwfGroup group) => sum + groups[group]!.where((PwfMyTask task) => task.status != PwfTaskStatus.awaitingApproval).length);
     final int tab = _tab.clamp(0, 2);
     return ListView(
@@ -168,11 +222,11 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
         ),
         UnderlineTabs(
           index: tab,
-          onChanged: (int next) => setState(() => _tab = next),
+          onChanged: _showTab,
           tabs: <TabOption>[
             TabOption(label: context.t('mob.pwf7.mine.tab.todo'), count: todoCount == 0 ? null : todoCount),
             TabOption(label: context.t('mob.pwf7.mine.tab.waiting'), count: waiting.isEmpty ? null : waiting.length),
-            TabOption(label: context.t('mob.pwf7.mine.tab.over'), count: over.isEmpty ? null : over.length),
+            TabOption(label: context.t('mob.pwf7.mine.tab.over'), count: _done == null || _doneTotal == 0 ? null : _doneTotal),
           ],
         ),
         if (tab == 0) ...<Widget>[
@@ -204,21 +258,42 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
           for (int index = 0; index < waiting.length; index += 1) _row(context, waiting[index], false, index > 0),
           if (waiting.isEmpty) _none(context),
         ],
-        if (tab == 2) ...<Widget>[
-          for (int index = 0; index < over.length; index += 1) _row(context, over[index], false, index > 0),
-          if (over.isEmpty) _none(context),
-        ],
-        Padding(
-          padding: const EdgeInsets.all(MachvonV2Space.s16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(context.t('mob.pwf.mine.count', <String, Object>{'shown': all.length, 'total': widget.first.total}), style: text.caption),
-              if (_failure != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.pwf.mine.more.failed', <String, Object>{'code': _failure!}), style: text.caption)),
-              if (_cursor != null && widget.canLoadMore) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: OutlinedButton(onPressed: _loading ? null : _loadMore, child: Text(context.t('mob.pwf.mine.more.action')))),
-            ],
+        if (tab == _doneTab) ...<Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: MachvonV2Space.s16, right: MachvonV2Space.s16, top: MachvonV2Space.s12, bottom: MachvonV2Space.s12),
+            child: Semantics(container: true, child: Text(context.t('mob.pwf10.mine.done.note', <String, Object>{'days': _doneWindow}), style: text.caption)),
           ),
-        ),
+          for (int index = 0; index < over.length; index += 1) _doneRow(context, over[index], index > 0),
+          if (_done == null && _doneFailure == null)
+            Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Semantics(liveRegion: true, child: Text(context.t('mob.pwf10.mine.done.loading'), style: text.body))),
+          if (_done != null && over.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf10.mine.done.none', <String, Object>{'days': _doneWindow}), style: text.body)),
+          Padding(
+            padding: const EdgeInsets.all(MachvonV2Space.s16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                if (_done != null && over.isNotEmpty) Text(context.t('mob.pwf.mine.count', <String, Object>{'shown': over.length, 'total': _doneTotal}), style: text.caption),
+                if (_doneFailure != null) ...<Widget>[
+                  Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Semantics(liveRegion: true, child: Text(context.t('mob.pwf10.mine.done.failed', <String, Object>{'code': _doneFailure!}), style: text.caption))),
+                  Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: OutlinedButton(onPressed: _doneLoading ? null : () => _loadDone(more: _done != null), child: Text(context.t('mob.pwf10.mine.done.retry')))),
+                ] else if (_doneCursor != null)
+                  Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: OutlinedButton(onPressed: _doneLoading ? null : () => _loadDone(more: true), child: Text(context.t('mob.pwf.mine.more.action')))),
+              ],
+            ),
+          ),
+        ],
+        if (tab != _doneTab)
+          Padding(
+            padding: const EdgeInsets.all(MachvonV2Space.s16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(context.t('mob.pwf.mine.count', <String, Object>{'shown': all.length, 'total': widget.first.total}), style: text.caption),
+                if (_failure != null) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: Text(context.t('mob.pwf.mine.more.failed', <String, Object>{'code': _failure!}), style: text.caption)),
+                if (_cursor != null && widget.canLoadMore) Padding(padding: const EdgeInsets.only(top: MachvonV2Space.s8), child: OutlinedButton(onPressed: _loading ? null : _loadMore, child: Text(context.t('mob.pwf.mine.more.action')))),
+              ],
+            ),
+          ),
         NavRow(label: context.t('mob.pwf.mine.settings'), icon: Icons.tune, dividerAbove: true, onTap: widget.onSettings),
       ],
     );
@@ -235,6 +310,30 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
         PwfGroup.unknown => context.t('mob.pwf.group.unknown'),
         PwfGroup.done => context.t('mob.pwf.group.done'),
       };
+
+  /// A task the person finished: its name, its project, and the day it was finished with whether that was within its deadline. It has no colour: nothing is left to count down.
+  Widget _doneRow(BuildContext context, PwfMyTask task, bool divider) {
+    final String language = Localizations.localeOf(context).languageCode;
+    final String? finished = task.finishedOn == null ? null : formatDay(task.finishedOn!, language: language);
+    final bool? late = task.finishedLate;
+    final String? words = finished == null
+        ? null
+        : late == null
+            ? context.t('mob.pwf10.mine.done.plain', <String, Object>{'date': finished})
+            : (late ? context.t('mob.pwf10.mine.done.late', <String, Object>{'date': finished}) : context.t('mob.pwf10.mine.done.onTime', <String, Object>{'date': finished}));
+    final List<String> facts = <String>[task.projectCode].where((String part) => part.isNotEmpty).toList();
+    return WorkRow(
+      title: task.name,
+      titleMaxLines: 3,
+      subtitle: facts.isEmpty ? null : facts.join(' · '),
+      leading: PwfGlyph(band: task.official, status: task.status),
+      footer: words == null ? null : Text(words, style: context.v2text.caption),
+      trailing: Icon(Icons.chevron_right, color: context.v2.palette.ink3),
+      onTap: () => widget.onOpenTask(task),
+      semanticLabel: <String>[task.name, ...facts, ?words].join(', '),
+      dividerAbove: divider,
+    );
+  }
 
   Widget _row(BuildContext context, PwfMyTask task, bool personal, bool divider) {
     final PwfBand band = personal ? task.own : task.official;

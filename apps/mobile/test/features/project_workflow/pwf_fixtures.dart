@@ -189,6 +189,18 @@ Map<String, Object?> myTask(
 const String kEnterpriseMyTasksAnswer =
     r'{"items":[{"task_id":"942d9c1b-ee00-4be8-bbe5-099099a820f6","task_code":"PREP_NEEDS","name":"Xác định nhu cầu, mục tiêu và sự cần thiết đầu tư","project_id":"63ee23bd-8958-40ef-ae05-543aa7198c82","project_code":"DA-PMDT105","status":"IN_PROGRESS","due_date":"2026-11-10","forecast_finish":null,"official_band":{"band":"RED","remaining_days":-3,"unit":"WORKING","overdue":true,"due_today":false,"reason":null},"personal_band":null,"critical":true,"version":3},{"task_id":"b4e40841-de9c-4761-a519-f583a1576de9","task_code":"PREP_POLICY_APPRAISAL","name":"Thẩm định chủ trương đầu tư và nguồn vốn","project_id":"63ee23bd-8958-40ef-ae05-543aa7198c82","project_code":"DA-PMDT105","status":"IN_PROGRESS","due_date":"2026-12-08","forecast_finish":null,"official_band":{"band":"NONE","remaining_days":17,"unit":"WORKING","overdue":false,"due_today":false,"reason":"FAR"},"personal_band":null,"critical":true,"version":3}],"total":2,"counts_by_band":{"NONE":1,"GREEN":0,"YELLOW":0,"RED":1,"UNKNOWN":0},"overdue_count":1,"as_of":"2026-11-14T10:38:54.753Z","next_cursor":null}';
 
+/// A task the person finished, as `GET /me/project-tasks?status=DONE` gives it (R51): no colour, the day it was finished beside its deadline.
+Map<String, Object?> doneTask(String id, String name, {String? due = '2026-11-05', String finished = '2026-11-04'}) => <String, Object?>{
+      ...myTask(id, name, status: 'DONE', official: band('NONE'), due: due),
+      'personal_band': null,
+      'finished_on': finished,
+    };
+
+Map<String, Object?> doneTasksJson({List<Map<String, Object?>>? items, String? next, int? total}) {
+  final List<Map<String, Object?>> rows = items ?? <Map<String, Object?>>[doneTask('7f3a0000-0000-4000-8000-000000000035', 'Hồ sơ đã nộp')];
+  return <String, Object?>{'items': rows, 'next_cursor': next, 'total': total ?? rows.length, 'done_window_days': 90, 'as_of': kAsOf};
+}
+
 Map<String, Object?> myTasksJson({List<Map<String, Object?>>? items, String? next, int? total}) {
   final List<Map<String, Object?>> rows = items ??
       <Map<String, Object?>>[
