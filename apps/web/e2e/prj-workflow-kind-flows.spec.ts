@@ -1,8 +1,13 @@
+import { existsSync, readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { apiCall } from './support/api.ts';
 import { editionOf, terms as vi } from './support/edition-terms.ts';
 import { membershipOf, sql, stackInfo } from './support/stack.ts';
+
+// The strings of this piece of work wait in a part until they are folded into the catalogue; after the fold they are read from the catalogue.
+const PART = new URL('../src/i18n/parts/pwf6.vi.json', import.meta.url);
+const part: Record<string, string> = existsSync(PART) ? (JSON.parse(readFileSync(PART, 'utf8')) as Record<string, string>) : vi;
 
 /**
  * PRJ-02, the section "Loại quy trình xử lý" (ST-PWF-024, BR-PWF-46, R47 and R48) in a real browser against the real API and database (apps/api/test/e2e-stack): the person who registers a project reads the
@@ -94,7 +99,9 @@ if (ENTERPRISE) {
       const suggestion = page.getByTestId('kind-suggestion');
       await expect(suggestion).toContainText(SUGGESTED);
       await expect(suggestion).toContainText(vi['pwf.process.basis.default.text']);
-      await expect(suggestion).toContainText(/\(Quy tắc ánh xạ phiên bản \d+\)/);
+      // The rule behind the suggestion is named with its version, or as the system default when the tenant has no version of its own.
+      await expect(suggestion).toContainText(part['pwf6.kind.rule.label']);
+      await expect(suggestion).toContainText(new RegExp(`phiên bản \\d+|${part['pwf6.version.default.text']}`));
       await expect(page.getByTestId('kind-template')).toHaveValue('');
 
       // The planned start, and the two facts the branches of this kind read: the preview tells the finish, the working days and the steps.
@@ -113,7 +120,7 @@ if (ENTERPRISE) {
       const done = page.getByTestId('created');
       await expect(done).toBeVisible();
       // The link that opens the workflow that was made with the project.
-      await expect(page.getByTestId('created-workflow').getByRole('link', { name: vi['pwf.process.kind.created.started'] })).toBeVisible();
+      await expect(page.getByTestId('created-workflow').getByRole('link', { name: part['pwf6.kind.created.open'] })).toBeVisible();
       // The form is closed after the save: a second press of the button sends nothing.
       await expect(page.getByTestId('kind-start')).toBeDisabled();
 
@@ -155,7 +162,7 @@ if (ENTERPRISE) {
       await page.getByTestId('kind-reason').fill(REASON);
       await save(page);
       await expect(page.getByTestId('created')).toBeVisible();
-      await expect(page.getByTestId('created-workflow').getByRole('link', { name: vi['pwf.process.kind.created.started'] })).toBeVisible();
+      await expect(page.getByTestId('created-workflow').getByRole('link', { name: part['pwf6.kind.created.open'] })).toBeVisible();
       const workflows = await workflowsOf(code);
       expect(workflows).toHaveLength(1);
       expect(workflows[0]).toMatchObject({ template_code: OTHER, selection: { mode: 'OVERRIDE', chosen_template_code: OTHER, suggested_template_code: SUGGESTED, reason: REASON } });
