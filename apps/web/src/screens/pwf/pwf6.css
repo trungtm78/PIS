@@ -832,6 +832,6 @@ section[data-screen-id^='PWF-'] label:has(> input[type='radio']) {
   .pwf-outline tbody td[data-label] { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); column-gap: var(--mv-space-8); row-gap: 0; align-items: start; }
   .pwf-outline tbody th { white-space: normal; }
   .pwf-outline tbody td[data-label]::before { content: attr(data-label); grid-column: 1; grid-row: 1 / span 12; justify-self: start; text-align: left; font-size: 12px; font-weight: 700; color: var(--mv-color-text-secondary); }
-  .pwf-outline tbody td[data-label] > * { grid-column: 2; min-width: 0; }
+  .pwf-outline tbody td[data-label] > * { grid-column: 2; min-width: 0; justify-self: start; }
   .pwf-outline tbody td:empty { display: none; }
 }

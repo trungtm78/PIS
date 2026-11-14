@@ -507,7 +507,7 @@ code {
   /* The label takes the left column for as many rows as the cell has parts; every part of the value goes to the right column, one under the other. */
   .ui-table--stacked .ui-table__cell[data-label] { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); column-gap: var(--mv-space-8); row-gap: 0; align-items: start; }
   .ui-table--stacked .ui-table__cell[data-label]::before { content: attr(data-label); grid-column: 1; grid-row: 1 / span 12; font-size: 12px; font-weight: 700; color: var(--mv-color-text-secondary); }
-  .ui-table--stacked .ui-table__cell[data-label] > * { grid-column: 2; min-width: 0; }
+  .ui-table--stacked .ui-table__cell[data-label] > * { grid-column: 2; min-width: 0; justify-self: start; }
   .ui-table--stacked .ui-table__cell[data-card-title] { order: -1; font-weight: 700; padding-bottom: var(--mv-space-8); }
   .ui-table--stacked .ui-table__row[data-severity] > .ui-table__cell[data-card-title] { box-shadow: none; padding-left: var(--mv-space-8); border-left: 4px solid var(--mv-color-info); }
   .ui-table--stacked .ui-table__row[data-severity='URGENT'] > .ui-table__cell[data-card-title] { border-left-color: var(--mv-color-danger); }
@@ -516,6 +516,7 @@ code {
 }
 
 /* The "i" of a figure never grows past the screen: the panel is at most 70% of the viewport high, its facts scroll inside it, and the title and the Close button stay in sight (a long formula used to push Close below the fold). */
-.ui-info__panel { max-height: min(70vh, 520px); }
+.ui-info__panel { max-height: min(70vh, 520px, var(--ui-info-room, 520px)); }
+@media (max-width: 480px) { .ui-info__panel { max-height: min(70vh, 520px); } }
 .ui-info__panel > .ui-info__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .ui-info__panel > .ui-info__title, .ui-info__panel > .ui-button, .ui-info__panel > .ui-info__note { flex: 0 0 auto; }
