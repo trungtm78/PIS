@@ -264,6 +264,7 @@ describe('PWF-02: the checks of the server', () => {
       },
     });
     const panel = await screen.findByTestId('validation', undefined, WITHIN);
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
     expect(within(panel).getByText(text('pwf.templates.validate.invalid.word'))).toBeTruthy();
     expect(within(panel).getByTestId('count-tasks').textContent).toBe('2');
     expect(within(panel).getByTestId('findings').textContent).toContain('tasks[1].predecessors[0]');
@@ -321,6 +322,7 @@ describe('PWF-02: the checks of the server', () => {
       },
     });
     await ready();
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
     expect(screen.getByTestId('preview-none')).toBeTruthy();
     fireEvent.change(screen.getByTestId('preview-start'), { target: { value: '2027-01-04' } });
     change('preview.project_group', 'A');
@@ -347,6 +349,7 @@ describe('PWF-02: the checks of the server', () => {
   it('asks for a real start day and says the schedule is old once the template changes; says a refusal of the preview in words', async () => {
     const h = open();
     await ready();
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
     fireEvent.change(screen.getByTestId('preview-start'), { target: { value: '' } });
     click('preview');
     expect(h.command).not.toHaveBeenCalledWith('previewProjectWorkflowTemplate', expect.anything());
@@ -358,6 +361,7 @@ describe('PWF-02: the checks of the server', () => {
     cleanup();
     open({ commands: { previewProjectWorkflowTemplate: refusal('CALENDAR_NOT_EFFECTIVE') } });
     await ready();
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
     click('preview');
     await waitFor(() => expect(screen.getAllByTestId('problem').some((node) => node.textContent?.includes(text('pwf.problem.calendarNotEffective.error')))).toBe(true));
   });
@@ -367,6 +371,7 @@ describe('PWF-02: the rule store', () => {
   it('saves a draft with the period and the reason, and says what the store refuses', async () => {
     const h = open({ commands: { createGovernanceRuleDraft: refusal('GOVERNANCE_RULE_PERIOD_OVERLAP', 409) } });
     await ready();
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
     fireEvent.click(screen.getByTestId('save'));
     expect((await screen.findByTestId('period-problems')).textContent).toContain(text('gova1.form.error.reason', { min: 5, max: 500 }));
     fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Sửa thời lượng giai đoạn' } });
@@ -382,6 +387,7 @@ describe('PWF-02: the rule store', () => {
   it('says the refusal of the module itself when the store rejects the template', async () => {
     open({ commands: { createGovernanceRuleDraft: refusal('PROJECT_WORKFLOW_TEMPLATE_INVALID', 422, {}, 'tasks[1]') } });
     await ready();
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
     fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Mẫu cần được lưu' } });
     fireEvent.click(screen.getByTestId('save'));
     expect((await screen.findByTestId('refusal')).textContent).toBe(text('pwf.problem.templateInvalidField.error', { field: 'tasks[1]' }));
@@ -390,6 +396,7 @@ describe('PWF-02: the rule store', () => {
   it('lets a new draft be written after one was saved', async () => {
     open();
     await ready();
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
     fireEvent.change(screen.getByTestId('reason'), { target: { value: 'Lưu bản nháp đầu' } });
     fireEvent.click(screen.getByTestId('save'));
     fireEvent.click(await screen.findByTestId('again'));
@@ -400,6 +407,7 @@ describe('PWF-02: the rule store', () => {
   it('warns that the new version takes over from the version in force', async () => {
     open({ versions: [templateVersion(2, { effective_from: '2026-06-01', approved_by: OTHER, approved_at: '2026-05-01T03:00:00.000Z' })] });
     await ready();
+    fireEvent.click(screen.getByTestId('editor-tab-checks'));
     expect(await screen.findByTestId('notice-takeover')).toBeTruthy();
   });
 

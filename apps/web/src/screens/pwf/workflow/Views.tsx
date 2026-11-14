@@ -133,6 +133,52 @@ export function MilestoneTimeline({ detail, version, projectId }: Common & { pro
   );
 }
 
+/**
+ * What needs a person now, on the overview: the open tasks that are red or yellow (or whose deadline cannot be counted), the most pressing first, at most eight, each by name with its colour and its deadline; and a line
+ * that says so when nothing does. The whole list is one tab away.
+ */
+export function Attention({ detail, projectId, onAll }: { detail: WorkflowDetail; projectId: string; onAll: () => void }) {
+  const { t } = useTranslation();
+  const rank = (band: string): number => (band === 'RED' ? 0 : band === 'YELLOW' ? 1 : 2);
+  const pressing = detail.tasks
+    .filter((task) => hasBand(task) && (task.band.band === 'RED' || task.band.band === 'YELLOW' || task.band.band === 'UNKNOWN'))
+    .sort((a, b) => rank(a.band.band) - rank(b.band.band) || (a.planned_finish ?? '9999').localeCompare(b.planned_finish ?? '9999'));
+  const shown = pressing.slice(0, 8);
+  return (
+    <SectionCard
+      title={t('pwf6.flow.attention.title')}
+      status={pressing.length === 0 ? undefined : <span className="pwf-hint">{t('pwf6.flow.attention.count', { shown: shown.length, total: pressing.length })}</span>}
+      actions={
+        <button type="button" className="ui-button ui-button--outline ui-button--small" data-action="all-tasks" onClick={onAll}>
+          {t('pwf6.flow.attention.all')}
+        </button>
+      }
+    >
+      {shown.length === 0 ? (
+        <p className="pwf-hint" role="status" data-testid="attention-none">
+          {t('pwf6.flow.attention.none')}
+        </p>
+      ) : (
+        <ul className="pwf-list" data-testid="attention">
+          {shown.map((task) => (
+            <li key={task.id} className="pwf-taskline" data-task={task.task_code}>
+              <span className="pwf-taskline__name">
+                <Link to={taskLink(task.id, projectId)}>{task.name}</Link>
+                <span className="pwf-code">{task.task_code}</span>
+              </span>
+              <span className="pwf-pills">
+                <BandBadge band={task.band} />
+                {task.planned_finish === null ? null : <span className="pwf-hint">{dayText(task.planned_finish)}</span>}
+                <span className="pwf-hint">{task.assignee === null ? t('pwf.flow.board.unassigned.text') : task.assignee.display_name}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </SectionCard>
+  );
+}
+
 /** A link to the task of a gate or a card, in the one place the address is built. */
 export function TaskLink({ id, projectId, children }: { id: string; projectId: string; children: string }) {
   return <Link to={taskLink(id, projectId)}>{children}</Link>;

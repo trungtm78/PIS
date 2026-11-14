@@ -44,7 +44,7 @@ describe('PRJ-03 tab "Workflow"', () => {
     expect(await screen.findByTestId('tab-workflow')).toBeTruthy();
     expect(await screen.findByTestId('workflow')).toBeTruthy();
     expect(screen.getByRole('tab', { name: tabName }).getAttribute('aria-selected')).toBe('true');
-    expect(screen.getByRole('tabpanel').getAttribute('aria-labelledby')).toBe(screen.getByRole('tab', { name: tabName }).id);
+    expect((document.getElementById('panel-workflow') as HTMLElement).getAttribute('aria-labelledby')).toBe(screen.getByRole('tab', { name: tabName }).id);
   });
 
   it('opens on the workflow tab named in the address', async () => {

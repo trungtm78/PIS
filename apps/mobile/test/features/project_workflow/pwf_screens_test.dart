@@ -289,6 +289,10 @@ void main() {
       expect(find.textContaining('căn cứ hỗ trợ'), findsOneWidget);
       expect(find.text('Lập hồ sơ mời thầu'), findsOneWidget);
       expect(find.text('Tạm dừng được duyệt'), findsOneWidget);
+      // The adjustments and the responses are on their own tab.
+      await tester.scrollUntilVisible(find.textContaining('Điều chỉnh, phản hồi'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.textContaining('Điều chỉnh, phản hồi'));
+      await tester.pump();
       expect(find.text('Hai việc bị tính trễ do chờ ý kiến của Sở.'), findsOneWidget);
       expect(find.textContaining('trên bản máy tính đến ngày 30/11/2026'), findsOneWidget);
       expect(find.text('Chính sách chấm điểm: phiên bản 1'), findsOneWidget);
@@ -308,6 +312,9 @@ void main() {
       await _open(tester, scores(body: scoresJson(items: <Map<String, Object?>>[scoreItem(adjusted: 85)])), 'MOB-81');
       expect(find.text('85'), findsWidgets);
       expect(find.text('Điểm tính được, trước điều chỉnh'), findsOneWidget);
+      await tester.scrollUntilVisible(find.textContaining('Điều chỉnh, phản hồi'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.textContaining('Điều chỉnh, phản hồi'));
+      await tester.pump();
       expect(find.text('Điều chỉnh +2,5 điểm'), findsOneWidget);
       await _open(tester, scores(body: scoresJson(items: <Map<String, Object?>>[scoreItem(state: 'SMALL_SAMPLE', rating: null, rated: 2)])), 'MOB-81');
       expect(find.textContaining('Mới có 2 việc được chấm'), findsOneWidget);

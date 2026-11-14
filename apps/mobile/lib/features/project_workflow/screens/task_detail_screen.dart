@@ -27,6 +27,7 @@ import '../pwf_codes.dart';
 import '../pwf_commands.dart';
 import '../pwf_models.dart';
 import '../pwf_process_widgets.dart';
+import '../pwf_tabs.dart';
 import '../pwf_task_service.dart';
 import '../pwf_task_sheets.dart';
 import '../pwf_widgets.dart';
@@ -369,6 +370,75 @@ class _TaskBody extends StatelessWidget {
     final bool problem = queue.hasProblem;
     final bool locked = busy || _waitingForOwnCommand || problem;
     final ActionBar? bar = _bar(context, locked, problem);
+    // One purpose a tab (the long list of facts is no longer one page): what there is to do, the facts of the task, its legal grounds, and what happened to it.
+    final List<Widget> todo = <Widget>[
+      if (detail.blockers.isNotEmpty && !detail.status.isFinal) ...<Widget>[
+        GroupHeader(title: context.t('mob.pwf.blockers.title'), count: detail.blockers.length),
+        for (int index = 0; index < detail.blockers.length; index += 1) _blocker(context, detail.blockers[index], index > 0),
+      ],
+      if (detail.checklist.isNotEmpty) ...<Widget>[
+        GroupHeader(title: context.t('mob.pwf.checklist.title'), count: detail.checklist.length),
+        for (int index = 0; index < detail.checklist.length; index += 1) _checklist(context, detail.checklist[index], index > 0),
+      ],
+      if (detail.legalDocTypes.isNotEmpty || detail.formTemplates.isNotEmpty) ...<Widget>[
+        GroupHeader(title: context.t('mob.pwf.requirements.title'), count: detail.legalDocTypes.length + detail.formTemplates.length),
+        for (int index = 0; index < detail.legalDocTypes.length; index += 1) _requirement(context, detail.legalDocTypes[index], context.t('mob.pwf.requirements.legal'), index > 0),
+        for (int index = 0; index < detail.formTemplates.length; index += 1) _requirement(context, detail.formTemplates[index], context.t('mob.pwf.requirements.form'), true),
+      ],
+      if (detail.formRevisions.isNotEmpty) ...<Widget>[
+        GroupHeader(title: context.t('mob.pwf.process.forms.title'), count: detail.formRevisions.length),
+        for (int index = 0; index < detail.formRevisions.length; index += 1) PwfFormRevisionRow(form: detail.formRevisions[index], dividerAbove: index > 0),
+      ],
+      GroupHeader(title: context.t('mob.pwf.evidence.section'), count: detail.evidence.length),
+      if (detail.evidence.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.evidence.none'), style: text.body)),
+      for (int index = 0; index < detail.evidence.length; index += 1) _evidenceRow(context, detail.evidence[index], index > 0, language),
+      if (_canWork) WorkRow(title: context.t('mob.pwf.evidence.add'), leading: const Icon(Icons.add_circle_outline), onTap: locked ? null : () => onEvidence(detail), dividerAbove: detail.evidence.isNotEmpty),
+      WorkRow(title: context.t('mob.pwf.evidence.files.open'), subtitle: context.t('mob.pwf.evidence.files.hint'), leading: const Icon(Icons.attach_file), trailing: const Icon(Icons.chevron_right), onTap: onFiles, dividerAbove: true),
+    ];
+    final List<Widget> facts = <Widget>[
+      if (detail.responsibleRole != null) InfoRow(label: context.t('mob.pwf.fact.role'), value: pwfRoleName(context, detail.responsibleRole!)),
+      if (detail.approverRole != null) InfoRow(label: context.t('mob.pwf.fact.approver'), value: pwfRoleName(context, detail.approverRole!)),
+      if (detail.plannedStart != null) InfoRow(label: context.t('mob.pwf.fact.plannedStart'), value: formatDay(detail.plannedStart!, language: language)),
+      if (detail.plannedFinish != null) InfoRow(label: context.t('mob.pwf.fact.plannedFinish'), value: formatDay(detail.plannedFinish!, language: language)),
+      if (detail.baselineFinish != null) InfoRow(label: context.t('mob.pwf.fact.baselineFinish'), value: formatDay(detail.baselineFinish!, language: language)),
+      if (detail.finishVarianceDays != null && detail.finishVarianceDays != 0) InfoRow(label: context.t('mob.pwf.fact.variance'), value: context.t('mob.pwf.fact.variance.days', <String, Object>{'days': detail.finishVarianceDays!})),
+      if (detail.actualStart != null) InfoRow(label: context.t('mob.pwf.fact.actualStart'), value: formatDay(detail.actualStart!, language: language)),
+      if (detail.actualFinish != null) InfoRow(label: context.t('mob.pwf.fact.actualFinish'), value: formatDay(detail.actualFinish!, language: language)),
+      if (detail.critical) InfoRow(label: context.t('mob.pwf.fact.critical'), value: context.t('mob.pwf.fact.critical.value')),
+      if (detail.returnCount > 0) InfoRow(label: context.t('mob.pwf.fact.returns'), value: '${detail.returnCount}'),
+      if (detail.step != null) InfoRow(label: context.t('mob.pwf.process.fact.step'), value: context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
+      if (detail.step?.responsibleRole != null) InfoRow(label: context.t('mob.pwf.process.fact.stepRole'), value: pwfRoleName(context, detail.step!.responsibleRole!)),
+    ];
+    final List<Widget> grounds = <Widget>[
+      // PWF-4: the legal grounds of the task and of its step (read only), and the revision of each form with a warning when the form was revised since.
+      if (detail.legalBasis.isNotEmpty) ...<Widget>[
+        GroupHeader(title: context.t('mob.pwf.process.legal.task'), count: detail.legalBasis.length),
+        for (int index = 0; index < detail.legalBasis.length; index += 1) PwfLegalBasisRow(basis: detail.legalBasis[index], dividerAbove: index > 0),
+      ],
+      if (detail.stepLegalBasis.isNotEmpty) ...<Widget>[
+        GroupHeader(title: context.t('mob.pwf.process.legal.step'), count: detail.stepLegalBasis.length),
+        for (int index = 0; index < detail.stepLegalBasis.length; index += 1) PwfLegalBasisRow(basis: detail.stepLegalBasis[index], dividerAbove: index > 0),
+      ],
+      if (detail.legalBasis.isEmpty && detail.stepLegalBasis.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.tab.legal.none'), style: text.body)),
+    ];
+    final List<Widget> log = <Widget>[
+      if (detail.exceptions.isNotEmpty) ...<Widget>[
+        GroupHeader(title: context.t('mob.pwf.exceptions.title'), count: detail.exceptions.length),
+        for (int index = 0; index < detail.exceptions.length; index += 1) _exceptionRow(context, detail.exceptions[index], index > 0, language),
+      ],
+      if (detail.history.isNotEmpty) ...<Widget>[
+        GroupHeader(title: context.t('mob.pwf.history.title'), count: detail.history.length),
+        Padding(
+          padding: const EdgeInsets.all(MachvonV2Space.s16),
+          child: TimelineList(
+            entries: <TimelineEntry>[
+              for (final PwfHistoryEntry entry in detail.history) TimelineEntry(title: _historyKind(context, entry.kind), when: formatMoment(entry.at, language: language), detail: entry.reason),
+            ],
+          ),
+        ),
+      ],
+      if (detail.exceptions.isEmpty && detail.history.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.tab.log.none'), style: text.body)),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -381,66 +451,17 @@ class _TaskBody extends StatelessWidget {
               if (queue.conflicts.isNotEmpty) _ConflictCard(detail: detail, queue: queue, fresh: fresh, onResend: onResend, onDrop: onDrop),
               if (queue.refused.isNotEmpty) _RefusedCard(detail: detail, queue: queue, onDrop: onDrop),
               if (queue.inFlight.isNotEmpty) StatusBanner(text: _pendingText(context, queue.inFlight, online), icon: Icons.schedule),
+              // The two facts every reader wants first stay above the tabs: where the task stands and who has it.
               InfoRow(label: context.t('mob.pwf.fact.status'), value: pwfStatusLabel(context, detail.status), divider: false),
               if (detail.assignee != null) InfoRow(label: context.t('mob.pwf.fact.assignee'), value: detail.assignee),
-              if (detail.responsibleRole != null) InfoRow(label: context.t('mob.pwf.fact.role'), value: pwfRoleName(context, detail.responsibleRole!)),
-              if (detail.approverRole != null) InfoRow(label: context.t('mob.pwf.fact.approver'), value: pwfRoleName(context, detail.approverRole!)),
-              if (detail.plannedStart != null) InfoRow(label: context.t('mob.pwf.fact.plannedStart'), value: formatDay(detail.plannedStart!, language: language)),
-              if (detail.plannedFinish != null) InfoRow(label: context.t('mob.pwf.fact.plannedFinish'), value: formatDay(detail.plannedFinish!, language: language)),
-              if (detail.baselineFinish != null) InfoRow(label: context.t('mob.pwf.fact.baselineFinish'), value: formatDay(detail.baselineFinish!, language: language)),
-              if (detail.finishVarianceDays != null && detail.finishVarianceDays != 0) InfoRow(label: context.t('mob.pwf.fact.variance'), value: context.t('mob.pwf.fact.variance.days', <String, Object>{'days': detail.finishVarianceDays!})),
-              if (detail.actualStart != null) InfoRow(label: context.t('mob.pwf.fact.actualStart'), value: formatDay(detail.actualStart!, language: language)),
-              if (detail.actualFinish != null) InfoRow(label: context.t('mob.pwf.fact.actualFinish'), value: formatDay(detail.actualFinish!, language: language)),
-              if (detail.critical) InfoRow(label: context.t('mob.pwf.fact.critical'), value: context.t('mob.pwf.fact.critical.value')),
-              if (detail.returnCount > 0) InfoRow(label: context.t('mob.pwf.fact.returns'), value: '${detail.returnCount}'),
-              if (detail.step != null) InfoRow(label: context.t('mob.pwf.process.fact.step'), value: context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
-              if (detail.step?.responsibleRole != null) InfoRow(label: context.t('mob.pwf.process.fact.stepRole'), value: pwfRoleName(context, detail.step!.responsibleRole!)),
-              if (detail.blockers.isNotEmpty && !detail.status.isFinal) ...<Widget>[
-                GroupHeader(title: context.t('mob.pwf.blockers.title'), count: detail.blockers.length),
-                for (int index = 0; index < detail.blockers.length; index += 1) _blocker(context, detail.blockers[index], index > 0),
-              ],
-              if (detail.checklist.isNotEmpty) ...<Widget>[
-                GroupHeader(title: context.t('mob.pwf.checklist.title'), count: detail.checklist.length),
-                for (int index = 0; index < detail.checklist.length; index += 1) _checklist(context, detail.checklist[index], index > 0),
-              ],
-              if (detail.legalDocTypes.isNotEmpty || detail.formTemplates.isNotEmpty) ...<Widget>[
-                GroupHeader(title: context.t('mob.pwf.requirements.title'), count: detail.legalDocTypes.length + detail.formTemplates.length),
-                for (int index = 0; index < detail.legalDocTypes.length; index += 1) _requirement(context, detail.legalDocTypes[index], context.t('mob.pwf.requirements.legal'), index > 0),
-                for (int index = 0; index < detail.formTemplates.length; index += 1) _requirement(context, detail.formTemplates[index], context.t('mob.pwf.requirements.form'), true),
-              ],
-              // PWF-4: the legal grounds of the task and of its step (read only), and the revision of each form with a warning when the form was revised since.
-              if (detail.legalBasis.isNotEmpty) ...<Widget>[
-                GroupHeader(title: context.t('mob.pwf.process.legal.task'), count: detail.legalBasis.length),
-                for (int index = 0; index < detail.legalBasis.length; index += 1) PwfLegalBasisRow(basis: detail.legalBasis[index], dividerAbove: index > 0),
-              ],
-              if (detail.stepLegalBasis.isNotEmpty) ...<Widget>[
-                GroupHeader(title: context.t('mob.pwf.process.legal.step'), count: detail.stepLegalBasis.length),
-                for (int index = 0; index < detail.stepLegalBasis.length; index += 1) PwfLegalBasisRow(basis: detail.stepLegalBasis[index], dividerAbove: index > 0),
-              ],
-              if (detail.formRevisions.isNotEmpty) ...<Widget>[
-                GroupHeader(title: context.t('mob.pwf.process.forms.title'), count: detail.formRevisions.length),
-                for (int index = 0; index < detail.formRevisions.length; index += 1) PwfFormRevisionRow(form: detail.formRevisions[index], dividerAbove: index > 0),
-              ],
-              GroupHeader(title: context.t('mob.pwf.evidence.section'), count: detail.evidence.length),
-              if (detail.evidence.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf.evidence.none'), style: text.body)),
-              for (int index = 0; index < detail.evidence.length; index += 1) _evidenceRow(context, detail.evidence[index], index > 0, language),
-              if (_canWork) WorkRow(title: context.t('mob.pwf.evidence.add'), leading: const Icon(Icons.add_circle_outline), onTap: locked ? null : () => onEvidence(detail), dividerAbove: detail.evidence.isNotEmpty),
-              WorkRow(title: context.t('mob.pwf.evidence.files.open'), subtitle: context.t('mob.pwf.evidence.files.hint'), leading: const Icon(Icons.attach_file), trailing: const Icon(Icons.chevron_right), onTap: onFiles, dividerAbove: true),
-              if (detail.exceptions.isNotEmpty) ...<Widget>[
-                GroupHeader(title: context.t('mob.pwf.exceptions.title'), count: detail.exceptions.length),
-                for (int index = 0; index < detail.exceptions.length; index += 1) _exceptionRow(context, detail.exceptions[index], index > 0, language),
-              ],
-              if (detail.history.isNotEmpty) ...<Widget>[
-                GroupHeader(title: context.t('mob.pwf.history.title'), count: detail.history.length),
-                Padding(
-                  padding: const EdgeInsets.all(MachvonV2Space.s16),
-                  child: TimelineList(
-                    entries: <TimelineEntry>[
-                      for (final PwfHistoryEntry entry in detail.history) TimelineEntry(title: _historyKind(context, entry.kind), when: formatMoment(entry.at, language: language), detail: entry.reason),
-                    ],
-                  ),
-                ),
-              ],
+              PwfTabs(
+                tabs: <PwfTab>[
+                  PwfTab(label: context.t('mob.pwf6.tab.todo'), count: detail.checklist.where((PwfChecklistItem item) => !item.done).length, children: todo),
+                  PwfTab(label: context.t('mob.pwf6.tab.facts'), children: facts),
+                  PwfTab(label: context.t('mob.pwf6.tab.legal'), count: detail.legalBasis.length + detail.stepLegalBasis.length, children: grounds),
+                  PwfTab(label: context.t('mob.pwf6.tab.log'), count: detail.history.length, children: log),
+                ],
+              ),
             ],
           ),
         ),

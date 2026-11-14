@@ -220,21 +220,30 @@ void main() {
     testWidgets('the step of the task, its checklist, the legal grounds of the task and of its step, and a form that was revised since', (WidgetTester tester) async {
       useDevice(tester, kTallDevice);
       await open(tester);
+      // The screen is in tabs. "Thông tin": the step of the task and the role that answers for it, by name.
+      await tester.tap(find.textContaining('Thông tin'));
+      await tester.pump();
       expect(find.text('Bước 1. Lựa chọn nhà thầu'), findsOneWidget);
       expect(find.text('Cán bộ đấu thầu'), findsOneWidget);
-      // The checklist of the task, item by item, is still there.
+      // "Việc cần làm": the checklist of the task, item by item, and the revision of its forms.
+      await tester.tap(find.textContaining('Việc cần làm'));
+      await tester.pump();
       await tester.scrollUntilVisible(find.text('Dự thảo hồ sơ mời thầu'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text('Biên bản họp tổ chuyên gia'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Phiên bản biểu mẫu'), 200, scrollable: find.byType(Scrollable).first);
+      expect(find.text('Hồ sơ mời thầu'), findsOneWidget);
+      expect(find.text('Dùng bản đã duyệt mới nhất · Đang hiệu lực: bản 3 · Đã dùng: bản 2'), findsOneWidget);
+      expect(find.text('Có bản mới'), findsOneWidget);
+      // "Căn cứ": the legal grounds of the task and of its step.
+      await tester.scrollUntilVisible(find.textContaining('Căn cứ'), -200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.textContaining('Căn cứ').first);
+      await tester.pump();
       await tester.scrollUntilVisible(find.text('Căn cứ pháp lý của công việc'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text('Nghị định 214/2025/NĐ-CP'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Căn cứ pháp lý của bước'), 200, scrollable: find.byType(Scrollable).first);
       // A document the catalogue no longer has is named by its code and said to be missing, never shown as in force.
       expect(find.text('GONE_ONE'), findsOneWidget);
       expect(find.text('Không có trong danh mục'), findsOneWidget);
-      await tester.scrollUntilVisible(find.text('Phiên bản biểu mẫu'), 200, scrollable: find.byType(Scrollable).first);
-      expect(find.text('Hồ sơ mời thầu'), findsOneWidget);
-      expect(find.text('Dùng bản đã duyệt mới nhất · Đang hiệu lực: bản 3 · Đã dùng: bản 2'), findsOneWidget);
-      expect(find.text('Có bản mới'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump(Duration.zero);
     });

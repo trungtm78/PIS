@@ -5,7 +5,7 @@ import type { ScreenProps } from '../../../routes/types';
 import { useSession } from '../../../session/SessionContext';
 import { StateBoundary } from '../../../states/StateBoundary';
 import { useScreenState } from '../../../states/useScreenState';
-import { SectionCard } from '../../../ui';
+import { SectionCard, Tabs, useTabParam } from '../../../ui';
 import { useEffective, useRule } from '../../adm/governance/hooks';
 import { isRuleCode, isUuid, textParam } from '../../adm/governance/model';
 import { UnverifiedLabel } from '../components';
@@ -24,6 +24,9 @@ import './templates.css';
 
 /** The editor waits this long after the last change before it asks the server to check the template. */
 export const VALIDATE_DELAY_MS = 500;
+
+/** The tabs of the editor, in the address as `?view=`: the structure (phases and tasks), the steps with their legal basis, the checks and the schedule preview. */
+export const EDITOR_VIEWS = ['structure', 'steps', 'checks'] as const;
 
 /**
  * PWF-02: the editor of a workflow template. Phases with the commands of the project they hold shut, the task tree, links of four kinds with a lag, branches by the facts of the project, documents, forms, checklist and
@@ -55,6 +58,7 @@ function EditorContent({ route }: ScreenProps) {
   const [edited, setEdited] = useState<Template | undefined>(undefined);
   const [attempted, setAttempted] = useState(false);
   const [selected, setSelected] = useState<number | undefined>(undefined);
+  const [view, setView] = useTabParam('view', EDITOR_VIEWS);
 
   const baseParams = base.data?.params ?? effective.data?.params;
   const initial = useMemo(() => (baseParams === undefined ? addPhase(blankTemplate()) : readTemplate(baseParams)), [baseParams]);
@@ -150,27 +154,60 @@ function EditorContent({ route }: ScreenProps) {
             />
           </div>
         </SectionCard>
-        <PhasesPanel template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} />
-        <StepsEditor template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} />
-        <TasksPanel template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} selected={selected} onSelect={setSelected} />
-        <ValidationPanel
-          local={local}
-          attempted={attempted}
-          result={validated?.result}
-          current={validated?.key === key}
-          pending={validate.isPending}
-          error={validate.error}
-          canRun={canEdit}
-          onRun={checkNow}
-        />
-        <PreviewPanel
-          template={template}
-          canRun={canEdit}
-          pending={preview.isPending}
-          error={preview.error}
-          result={previewed?.result}
-          current={previewed?.key === key}
-          onRun={(input) => preview.mutate(input, { onSuccess: (result) => setPreviewed({ key, result }) })}
+        <Tabs
+          label={t('pwf6.editor.tabs.label')}
+          testId="editor"
+          value={view}
+          onChange={setView}
+          tabs={[
+            {
+              id: 'structure',
+              label: t('pwf6.editor.tab.structure'),
+              count: template.tasks.length,
+              panel: (
+                <>
+                  <PhasesPanel template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} />
+                  <TasksPanel template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} selected={selected} onSelect={setSelected} />
+                </>
+              ),
+            },
+            {
+              id: 'steps',
+              label: t('pwf6.editor.tab.steps'),
+              panel: (
+                <>
+                  <StepsEditor template={template} onChange={setEdited} problems={problems} show={attempted} disabled={!canEdit} />
+                </>
+              ),
+            },
+            {
+              id: 'checks',
+              label: t('pwf6.editor.tab.checks'),
+              panel: (
+                <>
+                  <ValidationPanel
+                    local={local}
+                    attempted={attempted}
+                    result={validated?.result}
+                    current={validated?.key === key}
+                    pending={validate.isPending}
+                    error={validate.error}
+                    canRun={canEdit}
+                    onRun={checkNow}
+                  />
+                  <PreviewPanel
+                    template={template}
+                    canRun={canEdit}
+                    pending={preview.isPending}
+                    error={preview.error}
+                    result={previewed?.result}
+                    current={previewed?.key === key}
+                    onRun={(input) => preview.mutate(input, { onSuccess: (result) => setPreviewed({ key, result }) })}
+                  />
+                </>
+              ),
+            },
+          ]}
         />
         {canStore && canEdit ? (
           <RuleSavePanel ruleType={TEMPLATE_RULE_TYPE} code={code} codeValid={codeOk} params={() => paramsOfTemplate(template)} formOk={local.length === 0} onAttempt={() => setAttempted(true)} disabled={false} />

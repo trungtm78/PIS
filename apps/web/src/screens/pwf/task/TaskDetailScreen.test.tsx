@@ -39,6 +39,8 @@ const open = (setup: Setup = {}) => {
 };
 
 const ready = async () => screen.findByTestId('task-facts');
+/** Opens a tab of the task (`?view=`). */
+const tab = (id: string) => fireEvent.click(screen.getByTestId(`task-tab-${id}`));
 const dialog = async () => within(await screen.findByRole('dialog'));
 const press = (action: string) => fireEvent.click(document.querySelector(`[data-action="${action}"]`) as HTMLElement);
 const change = (testId: string, value: string) => fireEvent.change(screen.getByTestId(testId), { target: { value } });
@@ -68,6 +70,7 @@ describe('PWF-04: the head of the task', () => {
   it('gives every figure its "i" with formula and source, and a critical task its marker', async () => {
     open({ task: detail({ critical: true }) });
     await ready();
+    tab('schedule');
     expect(screen.getByText(text('pwf.task.critical.word'))).toBeTruthy();
     const info = screen.getByRole('button', { name: text('govc.bi.info.open', { name: text('pwf.task.float.name') }) });
     fireEvent.click(info);
@@ -102,6 +105,28 @@ describe('PWF-04: the head of the task', () => {
     open();
     await ready();
     expect(within(screen.getByTestId('predecessors')).getByText(text('pwf.task.predecessor.empty'))).toBeTruthy();
+  });
+});
+
+describe('PWF-04: one purpose a tab', () => {
+  it('keeps the head above the tabs, opens on what there is to do, counts what is open, and keeps the tab in the address', async () => {
+    open({ task: detail({ kpi_results: [] }) });
+    await ready();
+    expect(screen.getAllByRole('tab').map((one) => one.getAttribute('data-testid'))).toEqual(['todo', 'legal', 'schedule', 'exceptions', 'history', 'kpi'].map((id) => `task-tab-${id}`));
+    expect(screen.getByTestId('task-tab-todo').getAttribute('aria-selected')).toBe('true');
+    expect(screen.getByTestId('task-tab-todo').textContent).toContain('1');
+    expect(screen.getByTestId('task-head')).toBeTruthy();
+    expect(screen.getByTestId('task-panel-history').hasAttribute('hidden')).toBe(true);
+    tab('history');
+    expect(screen.getByTestId('task-panel-history').hasAttribute('hidden')).toBe(false);
+    expect(screen.getByTestId('task-panel-todo').hasAttribute('hidden')).toBe(true);
+    expect((screen.getByTestId('history') as HTMLDetailsElement).open).toBe(true);
+  });
+
+  it('has no KPI tab for a person who may not see the KPI of the task', async () => {
+    open();
+    await ready();
+    expect(screen.queryByTestId('task-tab-kpi')).toBeNull();
   });
 });
 
@@ -382,6 +407,7 @@ describe('PWF-04: exceptions', () => {
   it('lists the requests with their kind, period, reason and status', async () => {
     open({ task: detail({ exceptions: [requested, { ...requested, id: uuid(9), kind: 'WAIVE_REQUIREMENT', items: ['C1', 'F1'], valid_from: null, valid_to: null, status: 'REJECTED' }, { ...requested, id: uuid(10), status: 'USED' }] }) });
     await ready();
+    tab('exceptions');
     const table = within(screen.getByTestId('exceptions')).getByRole('table');
     expect(within(table).getAllByText(text('pwf.exception.pause.word'), { selector: 'td' })).toHaveLength(2);
     expect(within(table).getByText('Có biên bản họp, F1')).toBeTruthy();
@@ -481,6 +507,7 @@ describe('PWF-04: ledger, history and KPI', () => {
   it('shows the assignment ledger of the task with a link to its own screen', async () => {
     open();
     await ready();
+    tab('schedule');
     expect(await screen.findByTestId('ledger')).toBeTruthy();
     expect(screen.getByRole('link', { name: text('pwf.task.ledger.link') }).getAttribute('href')).toBe(`/pwf/pwf-16?id=${TASK}`);
   });
@@ -508,6 +535,7 @@ describe('PWF-04: ledger, history and KPI', () => {
   it('shows the KPI results with the "i" of each and the facts they were computed from', async () => {
     open({ task: detail({ kpi_results: [{ id: uuid(7), kpi_code: 'ON_TIME', operation: 'DAYS_DEVIATION', kpi_set_rule_id: null, kpi_set_version: 2, state: 'OK', value: 3, score: 90, weight: 1, inputs_hash: 'c'.repeat(64), inputs: { due: '2026-12-10', waived: null }, computed_at: '2026-12-11T01:00:00.000Z', supersedes_id: null }, { id: uuid(8), kpi_code: 'RET', operation: 'RETURN_COUNT', kpi_set_rule_id: null, kpi_set_version: 2, state: 'MISSING_FACT', value: null, score: null, weight: 1, inputs_hash: 'd'.repeat(64), inputs: {}, computed_at: '2026-12-11T01:00:00.000Z', supersedes_id: null }] }) });
     await ready();
+    tab('kpi');
     const kpi = within(screen.getByTestId('kpi'));
     expect(kpi.getByText(text('pwf.task.kpi.state.ok'))).toBeTruthy();
     expect(kpi.getByText(text('pwf.task.kpi.state.missingFact'))).toBeTruthy();

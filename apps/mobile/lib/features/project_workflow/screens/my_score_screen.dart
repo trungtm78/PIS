@@ -18,6 +18,7 @@ import '../../read_support/loaded.dart';
 import '../pwf_codes.dart';
 import '../pwf_models.dart';
 import '../pwf_score_privacy.dart';
+import '../pwf_tabs.dart';
 
 /// MOB-81: "Điểm KPI của tôi", read-only. The score of the person for each period, how it was worked out (task by task, with its weight), what was left
 /// out and why, the adjustments that were made and the responses that were given. It is only ever the person's own score (the server answers
@@ -94,39 +95,58 @@ class _PwfScoreViewState extends State<PwfScoreView> {
             label: context.t('mob.pwf.score.basis'),
             value: line.policyVersion == null ? line.policyCode : context.t('mob.pwf6.score.basis', <String, Object>{'version': pwfVersionText(context, line.policyVersion!)}),
           ),
-        if (line.contributions.isNotEmpty) ...<Widget>[
-          GroupHeader(title: context.t('mob.pwf.score.contributions'), count: line.contributions.length),
-          for (int index = 0; index < line.contributions.length; index += 1) _contribution(context, line.contributions[index], index > 0, language),
-        ],
-        if (line.excluded.isNotEmpty) ...<Widget>[
-          GroupHeader(title: context.t('mob.pwf.score.excluded'), count: line.excluded.length),
-          for (int index = 0; index < line.excluded.length; index += 1) WorkRow(title: line.excluded[index].taskCode, subtitle: line.excluded[index].reason, leading: const Icon(Icons.remove_circle_outline), dividerAbove: index > 0),
-        ],
-        if (line.adjustments.isNotEmpty) ...<Widget>[
-          GroupHeader(title: context.t('mob.pwf.score.adjustments'), count: line.adjustments.length),
-          for (int index = 0; index < line.adjustments.length; index += 1)
-            WorkRow(
-              title: context.t('mob.pwf.score.adjustment', <String, Object>{'points': formatNumber(line.adjustments[index].points.toString(), language, signed: true)}),
-              subtitle: '${line.adjustments[index].reason} · ${_adjustmentStatus(context, line.adjustments[index].status)}',
-              leading: const Icon(Icons.tune),
-              dividerAbove: index > 0,
+        // One purpose a tab: how the score was worked out task by task, and what was changed or said about it afterwards.
+        PwfTabs(
+          tabs: <PwfTab>[
+            PwfTab(
+              label: context.t('mob.pwf6.score.tab.tasks'),
+              count: line.contributions.length,
+              children: <Widget>[
+                if (line.contributions.isNotEmpty) ...<Widget>[
+                  GroupHeader(title: context.t('mob.pwf.score.contributions'), count: line.contributions.length),
+                  for (int index = 0; index < line.contributions.length; index += 1) _contribution(context, line.contributions[index], index > 0, language),
+                ],
+                if (line.excluded.isNotEmpty) ...<Widget>[
+                  GroupHeader(title: context.t('mob.pwf.score.excluded'), count: line.excluded.length),
+                  for (int index = 0; index < line.excluded.length; index += 1) WorkRow(title: line.excluded[index].taskCode, subtitle: line.excluded[index].reason, leading: const Icon(Icons.remove_circle_outline), dividerAbove: index > 0),
+                ],
+                if (line.contributions.isEmpty && line.excluded.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.score.tab.tasks.none'), style: text.body)),
+              ],
             ),
-        ],
-        if (line.responses.isNotEmpty) ...<Widget>[
-          GroupHeader(title: context.t('mob.pwf.score.responses'), count: line.responses.length),
-          for (int index = 0; index < line.responses.length; index += 1)
-            WorkRow(
-              title: line.responses[index].body,
-              subtitle: <String>[line.responses[index].status == 'HANDLED' ? context.t('mob.pwf.score.response.handled') : context.t('mob.pwf.score.response.open'), if (line.responses[index].conclusion != null) line.responses[index].conclusion!].join(' · '),
-              leading: const Icon(Icons.forum_outlined),
-              dividerAbove: index > 0,
+            PwfTab(
+              label: context.t('mob.pwf6.score.tab.changes'),
+              count: line.adjustments.length + line.responses.length,
+              children: <Widget>[
+                if (line.adjustments.isNotEmpty) ...<Widget>[
+                  GroupHeader(title: context.t('mob.pwf.score.adjustments'), count: line.adjustments.length),
+                  for (int index = 0; index < line.adjustments.length; index += 1)
+                    WorkRow(
+                      title: context.t('mob.pwf.score.adjustment', <String, Object>{'points': formatNumber(line.adjustments[index].points.toString(), language, signed: true)}),
+                      subtitle: '${line.adjustments[index].reason} · ${_adjustmentStatus(context, line.adjustments[index].status)}',
+                      leading: const Icon(Icons.tune),
+                      dividerAbove: index > 0,
+                    ),
+                ],
+                if (line.responses.isNotEmpty) ...<Widget>[
+                  GroupHeader(title: context.t('mob.pwf.score.responses'), count: line.responses.length),
+                  for (int index = 0; index < line.responses.length; index += 1)
+                    WorkRow(
+                      title: line.responses[index].body,
+                      subtitle: <String>[line.responses[index].status == 'HANDLED' ? context.t('mob.pwf.score.response.handled') : context.t('mob.pwf.score.response.open'), if (line.responses[index].conclusion != null) line.responses[index].conclusion!].join(' · '),
+                      leading: const Icon(Icons.forum_outlined),
+                      dividerAbove: index > 0,
+                    ),
+                ],
+                if (line.canRespond)
+                  Padding(
+                    padding: const EdgeInsets.all(MachvonV2Space.s16),
+                    child: Text(line.responseUntil == null ? context.t('mob.pwf.score.respond') : context.t('mob.pwf.score.respond.until', <String, Object>{'date': formatDay(line.responseUntil!, language: language)}), style: text.caption),
+                  ),
+                if (line.adjustments.isEmpty && line.responses.isEmpty && !line.canRespond) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.score.tab.changes.none'), style: text.body)),
+              ],
             ),
-        ],
-        if (line.canRespond)
-          Padding(
-            padding: const EdgeInsets.all(MachvonV2Space.s16),
-            child: Text(line.responseUntil == null ? context.t('mob.pwf.score.respond') : context.t('mob.pwf.score.respond.until', <String, Object>{'date': formatDay(line.responseUntil!, language: language)}), style: text.caption),
-          ),
+          ],
+        ),
       ],
     );
   }

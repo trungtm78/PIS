@@ -10,12 +10,12 @@ import { historyGroups, kpiInputs } from './model';
 import type { KpiResult } from './model';
 
 /** The log of the task, newest first: when, what happened in words, and the reason given with it. Closed until asked for. */
-export function HistorySection({ task }: { task: TaskDetail }) {
+export function HistorySection({ task, open = false }: { task: TaskDetail; open?: boolean }) {
   const { t } = useTranslation();
   const groups = historyGroups(task.history);
   const count = task.history.length;
   return (
-    <details className="pwf-fold" data-testid="history">
+    <details className="pwf-fold" data-testid="history" open={open}>
       <summary>
         {t('pwf.task.history.title')}
         <span className="pwf-fold__note pwf-hint">{t('pwf6.task.history.count', { count })}</span>

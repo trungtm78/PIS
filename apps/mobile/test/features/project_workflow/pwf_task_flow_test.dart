@@ -108,8 +108,12 @@ void main() {
       expect(find.text('Thiếu biểu mẫu FORM_BID'), findsOneWidget);
       expect(find.text('Dự thảo hồ sơ mời thầu'), findsOneWidget);
       expect(find.text('Chứng từ pháp lý'), findsWidgets);
-      expect(find.text('INVESTMENT_DECISION'), findsOneWidget);
+      expect(find.text('Quyết định đầu tư'), findsOneWidget, reason: 'a legal document type is said by its name');
       expect(find.text('QD-12/2026'), findsOneWidget);
+      // The history is on its own tab.
+      await tester.scrollUntilVisible(find.textContaining('Diễn biến'), -200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.textContaining('Diễn biến').first);
+      await tester.pump();
       expect(find.text('Trả lại'), findsOneWidget, reason: 'the history says it was returned');
       expect(find.textContaining('Thiếu phụ lục kỹ thuật'), findsOneWidget);
       // The completion is locked while the checklist is open, and says why.

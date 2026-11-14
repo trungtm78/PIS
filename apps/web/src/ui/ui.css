@@ -484,3 +484,12 @@ code {
   .ui-timeline__entry { grid-template-columns: 40px 28px 1fr; }
   .ui-timeline__gap { padding-inline-start: 0; }
 }
+
+/* ---- Tabs: one purpose a tab; the row wraps on a narrow screen (no sideways scrolling row), the chosen tab carries a bar and bold words ------------------------------- */
+.ui-tabs__list { display: flex; flex-wrap: wrap; gap: var(--mv-space-4); margin: var(--mv-space-16) 0; border-bottom: 1px solid var(--mv-color-border); }
+.ui-tabs__tab { display: inline-flex; align-items: center; gap: var(--mv-space-8); min-height: 44px; padding: 0 var(--mv-space-16); font: inherit; font-size: 14px; color: var(--mv-color-text-secondary); background: transparent; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.ui-tabs__tab:hover { color: var(--mv-color-ink); background: var(--mv-color-surface2); }
+.ui-tabs__tab[aria-selected='true'] { color: var(--mv-color-ink); font-weight: 700; border-bottom-color: var(--mv-color-primary); }
+.ui-tabs__tab:focus-visible { outline: 2px solid var(--mv-color-focus); outline-offset: -2px; }
+.ui-tabs__count { min-width: 20px; padding: 0 var(--mv-space-4); border-radius: 999px; font-size: 12px; font-weight: 700; text-align: center; background: var(--mv-color-neutral-soft); color: var(--mv-color-neutral); font-variant-numeric: tabular-nums; }
+.ui-tabs__panel[hidden] { display: none; }

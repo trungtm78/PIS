@@ -50,3 +50,5 @@ export { DayStrip } from './DayStrip';
 export type { DayStripBar, DayStripProps } from './DayStrip';
 export { PresentationMode, PresentButton, PRESENTATION_INTERVALS, PRESENTATION_SIZES } from './PresentationMode';
 export type { PresentationBoard, PresentationModeProps } from './PresentationMode';
+export { Tabs, useTabParam } from './Tabs';
+export type { TabItem, TabsProps } from './Tabs';

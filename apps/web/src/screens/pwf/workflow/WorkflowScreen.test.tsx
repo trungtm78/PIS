@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { describeViolations, seriousViolations } from '../../../test/axe';
 import { mount } from '../../prj/test-support';
 import { ALL_PERMISSIONS, PROJECT_ID, READ_ONLY, refusal, routeOf, text, workflowTask } from '../test/fixtures';
@@ -8,7 +8,10 @@ import { TASKS, detail, gate, open, schedule, taskList } from './test/fixtures';
 import type { Setup } from './test/fixtures';
 import WorkflowScreen from './WorkflowScreen';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  view = '';
+});
 
 const route = routeOf('PWF-03');
 const PATH = `/pwf/pwf-03?id=${PROJECT_ID}`;
@@ -18,7 +21,10 @@ function Where() {
   return <output data-testid="where">{`${location.pathname}${location.search}`}</output>;
 }
 
-const show = (setup: Setup = {}, permissions: readonly string[] = ALL_PERMISSIONS, path = PATH, mode?: 'FULL' | 'READ_ONLY') => {
+/** The tab of the workflow the next `show` opens (`?view=`); the first tab when empty. Reset after every case. */
+let view = '';
+
+const show = (setup: Setup = {}, permissions: readonly string[] = ALL_PERMISSIONS, path = view === '' ? PATH : `${PATH}&view=${view}`, mode?: 'FULL' | 'READ_ONLY') => {
   const h = open(setup);
   const view = mount(
     <>
@@ -56,7 +62,7 @@ describe('PWF-03: the workflow of a project', () => {
     expect(group.textContent).toContain('⛔');
     // One "i" for the strip of counts, and one for each figure of the schedule.
     expect(within(group).getAllByRole('button', { name: /Công thức và nguồn của/ }).length).toBe(1);
-    expect(infoButtons().length).toBeGreaterThan(6);
+    expect(infoButtons().length).toBeGreaterThan(4);
   });
 
   it('labels a template that was not confirmed, and says a workflow on hold is on hold', async () => {
@@ -182,6 +188,7 @@ describe('PWF-03: the states', () => {
 
 describe('PWF-03: the tree, the schedule and the milestones', () => {
   it('reads the workflow as one tree in a table: phase, then task, each with its state, day, person and progress; a phase folds and filters the board', async () => {
+    view = 'tasks';
     show();
     await ready();
     const outline = screen.getByTestId('outline');
@@ -201,6 +208,10 @@ describe('PWF-03: the tree, the schedule and the milestones', () => {
     expect((selectOf(text('pwf.flow.filter.phase.label')) as HTMLSelectElement).value).toBe('EXECUTION');
     fireEvent.click(outline.querySelector('[data-action="filter-phase-EXECUTION"]') as HTMLElement);
     await waitFor(() => expect((selectOf(text('pwf.flow.filter.phase.label')) as HTMLSelectElement).value).toBe(''));
+    // Filtering to a phase opened the board (the tab is kept in the address); back on the tab of the tasks:
+    expect(screen.getByTestId('where').textContent).toContain('view=board');
+    expect(screen.getByTestId('flow-tab-board').getAttribute('aria-selected')).toBe('true');
+    fireEvent.click(screen.getByTestId('flow-tab-tasks'));
     // A phase folds: its tasks leave the table, and "collapse all" folds every phase.
     fireEvent.click(within(phase).getByRole('button', { expanded: true }));
     expect(outline.querySelector('[data-task="T2"]')).toBeNull();
@@ -212,6 +223,7 @@ describe('PWF-03: the tree, the schedule and the milestones', () => {
   });
 
   it('draws the schedule on a time axis with a legend, names the tasks, says the critical path by name, and gives the same facts as a table', async () => {
+    view = 'schedule';
     show();
     await ready();
     await waitFor(() => expect(screen.getByTestId('critical-path').textContent).toContain('Việc T2'));
@@ -232,6 +244,7 @@ describe('PWF-03: the tree, the schedule and the milestones', () => {
   });
 
   it('says when no task has a date yet, and that no task is on the critical path', async () => {
+    view = 'schedule';
     show({ schedule: () => schedule({ critical_path: [], tasks: [schedule().tasks[4] as never] }) });
     await ready();
     expect((await screen.findByTestId('gantt-empty')).textContent).toBe(text('pwf6.gantt.empty.text'));
@@ -239,11 +252,13 @@ describe('PWF-03: the tree, the schedule and the milestones', () => {
   });
 
   it('says the schedule cannot be read, with a retry, when its read fails', async () => {
+    view = 'schedule';
     show({ schedule: () => new Error('down') });
     expect((await screen.findByTestId('gantt-failed')).textContent).toContain(text('pwf6.gantt.failed.text'));
   });
 
   it('lists the milestones by date with the word of their colour, or says there are none with a date', async () => {
+    view = 'gates';
     const { unmount } = show();
     await ready();
     // A plan table of its own: the day, the milestone by name with its code, its phase and its state; nothing of a log (no hour, no author).
@@ -260,6 +275,9 @@ describe('PWF-03: the tree, the schedule and the milestones', () => {
 });
 
 describe('PWF-03: the board and its filters', () => {
+  beforeEach(() => {
+    view = 'board';
+  });
   it('shows the tasks by phase with status, colour, person and the critical marker, and "showing N of M" with the exact total', async () => {
     show();
     const board = await screen.findByTestId('board');
@@ -318,6 +336,9 @@ describe('PWF-03: the board and its filters', () => {
 });
 
 describe('PWF-03: the gates of the project commands', () => {
+  beforeEach(() => {
+    view = 'gates';
+  });
   it('shows each gate open or closed in words and glyph and, for a closed one, the missing tasks with the reason and a link to each', async () => {
     show();
     const closed = await screen.findByTestId('gate-submitProjectForAppraisal');
@@ -359,6 +380,29 @@ describe('PWF-03: the gates of the project commands', () => {
     cleanup();
     show({ workflow: () => detail({ gates: [] }) });
     expect((await screen.findByTestId('no-gates')).textContent).toBe(text('pwf.flow.gate.none.text'));
+  });
+});
+
+describe('PWF-03: one purpose a tab', () => {
+  it('opens on the overview: the figures, the phases and what needs a person now; the other parts are one tab away and kept in the address', async () => {
+    show();
+    await ready();
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent?.replace(/\d+$/, ''))).toEqual(['overview', 'tasks', 'schedule', 'gates', 'board'].map((id) => text(`pwf6.flow.tab.${id}`)));
+    expect(screen.getByTestId('flow-tab-overview').getAttribute('aria-selected')).toBe('true');
+    // The tasks that are red, yellow or cannot be counted, the red one first, each by name.
+    expect([...screen.getByTestId('attention').querySelectorAll('[data-task]')].map((row) => row.getAttribute('data-task'))).toEqual(['T2', 'T3', 'T5']);
+    expect(screen.getByTestId('flow-panel-schedule').hasAttribute('hidden')).toBe(true);
+    fireEvent.click(document.querySelector('[data-action="all-tasks"]') as HTMLElement);
+    expect(screen.getByTestId('where').textContent).toBe(`${PATH}&view=tasks`);
+    expect(screen.getByTestId('flow-panel-tasks').hasAttribute('hidden')).toBe(false);
+    fireEvent.click(screen.getByTestId('flow-tab-overview'));
+    expect(screen.getByTestId('where').textContent).toBe(PATH);
+  });
+
+  it('says so on the overview when no task is red or yellow', async () => {
+    show({ workflow: () => detail({ tasks: [TASKS[0] as never, TASKS[3] as never] }) });
+    await ready();
+    expect(screen.getByTestId('attention-none').textContent).toBe(text('pwf6.flow.attention.none'));
   });
 });
 
