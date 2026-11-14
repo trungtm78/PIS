@@ -1,1 +1,10 @@
-Lane shots3 (15/11/2026): không đổi. No golden changed: the lane changed no code of the phone application (apps/mobile/lib), only the web, the seeds and the headers of the device flows.
+Lane fix11 (15/11/2026): 2 golden images changed. The Windows copies were generated again in this lane; the Linux copies must be generated again on Linux (CI).
+
+apps/mobile/test/golden/goldens/pwf_score_light.png
+apps/mobile/test/golden/goldens/pwf_score_dark.png
+
+Linux copies to regenerate:
+apps/mobile/test/golden/goldens-linux/pwf_score_light.png
+apps/mobile/test/golden/goldens-linux/pwf_score_dark.png
+
+Why: MOB-81 names a task left out of the score by its name and says the reason in words. Tests: test/golden/pwf_golden_test.dart, "golden score in the light mode" and "golden score in the dark mode". Every other golden test passed unchanged on Windows.

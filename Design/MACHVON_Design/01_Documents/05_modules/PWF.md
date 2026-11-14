@@ -572,3 +572,56 @@ Nguồn: mục "Khiếm khuyết còn lại" của `docs/pwf-screens/README.md` 
 
 - Yêu cầu hoàn thành việc workflow, đề nghị dời lịch và điều chỉnh điểm vẫn được duyệt ở màn riêng của PWF; chúng CHƯA vào hộp Phê duyệt chung (MOB-23/24 và web). Trong PWF chỉ phản hồi về điểm (`score.response`) đi qua bộ máy duyệt chung.
 - Hàng Phê duyệt chưa nêu "kỳ" của hồ sơ (bộ máy duyệt chưa có nhãn chủ đề theo từng loại tài nguyên); hiện phân biệt bằng người trình, ngày trình và đơn vị.
+
+## 20. Sửa sau lượt xác nhận trên ứng dụng thật (làn `fix11`, 15/11/2026)
+
+Lượt chụp `shots3` (docs/pwf-screens/README.md, mục khiếm khuyết còn lại) tìm ra các điểm dưới đây. Mỗi mục ghi quyết định và lý do; chỗ chưa làm ghi ở 20.9.
+
+### 20.1 R53 (sửa): máy chủ nói bố cục trang chủ; "Việc hôm nay" chỉ đọc cái của chính người đó
+
+- **Ai là lãnh đạo.** `getMyEffectiveAccess` trả thêm `home_audience` (`LEADER` hoặc `OFFICER`), tính ở kernel (`home-audience.ts`): `LEADER` khi người đó có `approval.decide` đang hiệu lực (grant hoặc ủy quyền nhận) trên phạm vi đơn vị trở lên (`TENANT`, `UNIT_SUBTREE`, `UNIT_ONLY`), hoặc đang giữ vị trí TRƯỞNG hay PHÓ của Ban chỉ đạo (`committee_member`). Quyền ĐỌC (`committee.read`, `home.read`) không bao giờ làm một người thành lãnh đạo; quyền quyết định chỉ trên một dự án hay một hợp đồng là việc của cán bộ dự án đó. Một quy tắc ở máy chủ, điện thoại không tự suy từ tên vai trò; máy chủ cũ không trả trường này thì điện thoại suy theo đúng quy tắc trên từ grant.
+- **"Việc hôm nay" đọc gì.** Ba nguồn mà một người đọc về chính mình, mỗi nguồn một quyền riêng: việc workflow của tôi (`getMyTasks`, `pwf.task.work`), phê duyệt chờ tôi (`approval_task?mine=true`, `approval_task.read`), thông báo của tôi (`listMyNotifications`, `notification.self`). Màn không gọi thao tác nào cần `home.read`. Nguồn bị từ chối (403) thì khối đó không vẽ; nguồn lỗi thì khối đó nói lỗi và có nút đọc lại, các khối khác giữ nguyên; chỉ khi hết phiên hoặc mất mạng ở cả ba nguồn mới là trạng thái của cả màn. Không có gì chờ thì nói "Hôm nay bạn đã xong việc".
+- **Vai mặc định của sản phẩm (đã rà, KHÔNG đổi).** `MEMBER` có `notification.self`, `profile.self`, `session.self`; chưa có `pwf.task.work`, `approval_task.read`. Không thêm vào `MEMBER` vì `MEMBER` cũng là vai nền của khách (nhà thầu, `guestAllowed`): thêm là cấp quyền workflow cho khách. `SPECIALIST`, `INVESTOR_OFFICER` vẫn rỗng, chờ chủ nghiệp vụ ký ma trận (IAM mục 2, PENDING SIGN-OFF); đổi vai hệ thống còn cần migration cho tenant đã có. Vì màn tự ẩn khối không có quyền nên không vai nào còn nhận lỗi cả màn. **Cần chủ sản phẩm quyết:** một vai nhân viên mặc định (không dành cho khách) mang ba quyền đọc "của tôi".
+- **Seed.** Vai `KE_TOAN_THANH_TOAN` của stack tài liệu có thêm các quyền đọc "của tôi" (`STAFF_OWN_READS`), không có `home.read`.
+
+### 20.2 So sánh kỳ: người được chấm không thấy kỳ nháp của mình; mỗi dòng ghi đơn vị và trạng thái
+
+`compareStaffScoreLines`: khi người hỏi là chính người được chấm, chỉ trả kỳ `LOCKED` hoặc `OFFICIAL`, dù người đó có quyền đọc điểm đơn vị (trước đây quyền đọc đơn vị làm lộ điểm nháp của chính mình). Người khác đọc theo đơn vị mình đọc được, kể cả kỳ nháp. Mỗi điểm trả `unit_id`, `unit_code`, `unit_name` bên cạnh `period_status`. Web (PWF-11, PWF-13): thêm cột Đơn vị; mức thay đổi chỉ tính giữa hai kỳ CÙNG đơn vị và không tính từ hoặc đến kỳ nháp; có kỳ nháp thì có ghi chú giải thích. Điện thoại (MOB-81): ghi "Đơn vị chấm", và nhãn chọn kỳ ghi đơn vị khi hai kỳ trùng ngày.
+
+### 20.3 Tóm tắt hồ sơ phê duyệt (ADM) và `score.response`
+
+- Sổ đăng ký lệnh kết thúc của ADM (`FinalCommandRegistry`) nhận thêm **bộ đọc tóm tắt** theo loại nghiệp vụ (`registerSummary`): phân hệ sở hữu loại nghiệp vụ khai hồ sơ là gì, như đã khai lệnh kết thúc. `approval_task` (chi tiết, và danh sách `mine=true`) trả `summary` (schema `ApprovalRecordSummary`: người hồ sơ nói về, đơn vị, dự án, kỳ và trạng thái kỳ, các dữ kiện có mã, nội dung người trình viết, màn đích).
+- **Ai đọc được.** Chỉ người quyết định việc đó (người được giao hoặc người được ủy quyền). Người vận hành quy trình thấy mọi việc ở màn giám sát nhưng `summary` là null: phản hồi về điểm là dữ liệu cá nhân, không ai đọc hồ sơ mình không quyết định.
+- **PWF.** `score.response` khai tóm tắt: nội dung phản hồi, điểm tính được, điểm sau điều chỉnh, xếp loại, số việc được chấm, kỳ, đơn vị, người được chấm. Đọc trong đúng đơn vị của phiên duyệt (`responseBrief`), không rộng hơn, và trả lại phạm vi đọc của giao dịch sau khi đọc.
+- **Màn.** MOB-24 và trang chi tiết phê duyệt của web hiện khối hồ sơ; hàng của MOB-23 và hàng đợi web ghi dự án, kỳ (kèm trạng thái) và người hồ sơ nói về. Mã dữ kiện màn không biết thì không hiện (mã không bao giờ là nhãn).
+
+### 20.4 Băng "Số liệu có thể đã cũ"
+
+Nguyên nhân: màn so `as_of` (đồng hồ MÁY CHỦ, luôn là thời điểm của chính yêu cầu) với thời điểm trình duyệt nhận câu trả lời (đồng hồ TRÌNH DUYỆT). Hiệu đó chỉ đo độ lệch của hai đồng hồ, nên máy chủ hay máy người dùng lệch quá 15 phút là băng hiện ở mọi lần đọc mới. Không liên quan múi giờ, `schedule_version` hay ghim lịch. Sửa: chỉ dùng một đồng hồ, của trình duyệt (màn đã giữ số liệu quá 15 phút, hoặc lần đọc lại thất bại); `as_of` chỉ để HIỂN THỊ trong băng.
+
+### 20.5 Mốc đo khởi động nguội (flow Maestro 20)
+
+Mốc là KHỐI ĐẦU của trang chủ đã tải, đúng định nghĩa ngân sách (`mobile.coldStart`): tiêu đề "Tổng quan" (lãnh đạo) hoặc "Việc hôm nay" (cán bộ). Tiêu đề chỉ vẽ cùng nội dung, không có ở màn đang tải hay màn lỗi. Flow, script lấy mẫu và test ràng buộc chữ đổi theo. Dòng STATUS giữ nguyên quy ước: chưa chạy trên điện thoại thật.
+
+### 20.6 Trình bày
+
+- **Dữ kiện nguồn của KPI** (PWF-04, PWF-11, PWF-13): mỗi dữ kiện một dòng "tên: giá trị" (ngày dd/mm/yyyy, số theo dấu thập phân của ngôn ngữ, có/không, mã đã biết thành chữ); phần bao của máy chủ (phép tính, thang, quy tắc màu) và khóa màn không có nhãn chỉ nằm trong "Xem dữ liệu đầy đủ (JSON)", đóng sẵn.
+- **Tệp bảng deadline**: bộ xuất dùng chung nhận tham số bố cục (`ExportLayout`: `sheetName`, `headings: 'LABEL'`); mặc định không đổi nên các bản xuất khác giữ nguyên. Bảng deadline dùng tên trang tính và tiêu đề cột theo ngôn ngữ của người dùng (`accept-language`; tiếng Việt khi không phải `en`), cả xlsx và csv.
+- **Tên thay cho mã**: việc không tính điểm ghi TÊN việc (mã là dòng nhỏ), người không đọc được dự án của việc thì chỉ thấy mã; trên điện thoại lý do loại cũng thành chữ. Vai trò của BƯỚC ở PWF-02 có dòng tên dưới ô mã như vai trò của việc.
+- **PWF-09, tab Thang điểm**: mỗi lúc mở một thang; thang đóng ghi một dòng tóm tắt và số chỗ cần sửa của nó.
+- **390 px**: bảng "Chứng từ đã nộp", bảng "Xem trước màu" thành thẻ; cây công việc bỏ bề rộng tối thiểu 720 px khi ở dạng thẻ (đó là lý do tên bước và nhãn "Đường găng" bị cắt).
+
+### 20.7 Mốc không phải là việc quá hạn
+
+Hạn của mốc vẫn là ngày cam kết (R49). Nhưng mốc không phải việc ai đó làm: khi còn việc đứng trước chưa xong thì việc đó mang cảnh báo, mốc không được liệt kê thêm một dòng "quá hạn N ngày" cùng ngày (độ trượt của mốc là cảnh báo `PWF_MILESTONE_AT_RISK` của người chịu trách nhiệm dự án). Mốc không còn việc mở đứng trước thì được liệt kê với câu riêng: "mốc chưa được ghi nhận, quá hạn N ngày làm việc".
+
+### 20.8 Sửa nhỏ
+
+Tab "Đã xong" của MOB-80 đọc cùng màn nên có số đếm trước khi mở; nhãn "Cảnh báo mở" một dòng; nhóm trường của các form PRJ không còn khung viền của trình duyệt; ô và nút trong một hàng của PWF-02 đứng cùng một dòng (nhãn một hay hai dòng cao như nhau), ô "Nội dung mục" rộng hai cột.
+
+### 20.9 Chưa làm trong làn này
+
+- **Hộp Phê duyệt hợp nhất cho các phê duyệt khác của PWF** (duyệt hoàn thành việc, đề nghị dời lịch, ngoại lệ checklist hoặc chứng từ, điều chỉnh điểm). Các loại này không qua bộ máy phê duyệt của ADM mà dùng lệnh riêng (`approveProjectTaskCompletion`, `returnProjectTask`, `decideProjectTaskException`, `decideProjectReschedule`, `decideStaffScoreAdjustment`), người duyệt xác định theo quyền trong phạm vi chứ không theo một người được giao. Hướng đã chọn, chưa cài: một nguồn đọc hợp nhất ở ADM (`listMyPendingDecisions`) do các phân hệ đăng ký, mỗi mục mang `ApprovalRecordSummary` và trỏ tới đúng lệnh nghiệp vụ hiện có (không tạo đường duyệt thứ hai); web và MOB-23/24 gộp hai nguồn. Cơ chế tóm tắt ở 20.3 đã sẵn cho việc này (mã dữ kiện `TASK`, `DUE_DATE`, `PROPOSED_FINISH`, `POINTS`, `EXCEPTION_KIND` đã có nhãn ở hai màn).
+- Seed (7 lệnh bị từ chối ở bản công, 39 dòng cảnh báo ở bản doanh nghiệp) chưa rà: cần dựng stack và chạy seed để kiểm.
+- Các mục nhẹ 17, 18, 23 của README (cột cuối bị cắt ở PWF-06 và PWF-03, khối "Cập nhật thông tin" ở PRJ-03, ô ngày theo ngôn ngữ trình duyệt).
+- Chưa xác nhận lại trên màn thật và chưa chụp lại ảnh.
