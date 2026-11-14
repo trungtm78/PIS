@@ -267,3 +267,29 @@ export const operationOf = (operations: readonly KpiOperationEntry[] | undefined
 
 /** The parameters the catalogue says an operation takes. */
 export const paramNames = (entry: KpiOperationEntry | undefined, fallback: readonly string[] = []): readonly string[] => entry?.params.map((param) => param.name) ?? fallback;
+
+// ---- the tabs of PWF-09 ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+/** PWF-09 in four short pages: the KPIs of the set, the scale of each, what each applies to, and the versions of the set. */
+export const KPI_SET_VIEWS = ['catalog', 'scale', 'applies', 'versions'] as const;
+export type KpiSetView = (typeof KPI_SET_VIEWS)[number];
+/** The parts of a KPI a tab edits. */
+export type KpiSetPart = Exclude<KpiSetView, 'versions'>;
+
+/** The tab a problem of the form belongs to, by the path of its field: a problem in a tab that is not shown is counted on that tab. */
+export function partOfPath(path: string): KpiSetPart {
+  if (path.includes('.scale')) return 'scale';
+  if (path === 'template_code' || /\.(unit|against|grace|phases|tasks|kind)(\.|$)/.test(path)) return 'applies';
+  return 'catalog';
+}
+
+/** The positions of the items a search keeps: the words are looked for in the code of the KPI and in its name (`nameOf`), whatever the case; an empty search keeps every item. */
+export function matchingItems(form: KpiSetForm, find: string, nameOf: (kpiCode: string) => string): number[] {
+  const wanted = find.trim().toLowerCase();
+  const all = form.items.map((_, index) => index);
+  if (wanted === '') return all;
+  return all.filter((index) => {
+    const code = (form.items[index] as ItemForm).kpiCode;
+    return code.toLowerCase().includes(wanted) || nameOf(code).toLowerCase().includes(wanted);
+  });
+}

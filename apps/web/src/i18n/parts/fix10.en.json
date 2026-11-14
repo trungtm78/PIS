@@ -25,5 +25,14 @@
   "fix10.board.export.done": "Exported {name} with all {rows} tasks.",
   "fix10.board.export.failed": "The Excel file could not be made. Try again or narrow the filters.",
   "fix10.ledger.heading.text": "Assignment ledger · {name}",
-  "fix10.editor.task.unnamed": "Task not named yet"
+  "fix10.editor.task.unnamed": "Task not named yet",
+  "fix10.kpiset.tabs.label": "Parts of the KPI set",
+  "fix10.kpiset.tab.catalog": "KPI list",
+  "fix10.kpiset.tab.scale": "Scales",
+  "fix10.kpiset.tab.applies": "Applies to template and tasks",
+  "fix10.kpiset.tab.versions": "Versions",
+  "fix10.kpiset.find.label": "Find a KPI",
+  "fix10.kpiset.find.placeholder": "Type a KPI name or code",
+  "fix10.kpiset.find.count": "Showing {shown} of {total} KPIs",
+  "fix10.kpiset.problems.text": "{count} fields still need fixing; the number beside a tab says where they are."
 }

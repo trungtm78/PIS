@@ -147,3 +147,27 @@ describe('the catalogue of operations', () => {
     expect(paramNames(undefined, ['unit'])).toEqual(['unit']);
   });
 });
+
+describe('the tabs of PWF-09', () => {
+  it('puts a problem on the tab of its field', async () => {
+    const { partOfPath } = await import('./kpi-set-model');
+    expect(partOfPath('items[0].scale.worst')).toBe('scale');
+    expect(partOfPath('items[2].scale.steps[1].bound')).toBe('scale');
+    expect(partOfPath('template_code')).toBe('applies');
+    expect(partOfPath('items[1].phases')).toBe('applies');
+    expect(partOfPath('items[1].kpi_code')).toBe('catalog');
+    expect(partOfPath('items')).toBe('catalog');
+  });
+
+  it('keeps the items a search names by code or by name, whatever the case, and every item for an empty search', async () => {
+    const { matchingItems, blankForm, addItem, updateItem } = await import('./kpi-set-model');
+    let form = addItem(blankForm());
+    form = updateItem(form, 0, { kpiCode: 'PWF_ON_TIME_RATE' });
+    form = updateItem(form, 1, { kpiCode: 'PWF_RETURN_COUNT' });
+    const nameOf = (code: string): string => (code === 'PWF_ON_TIME_RATE' ? 'Tỷ lệ đúng hạn' : code);
+    expect(matchingItems(form, '', nameOf)).toEqual([0, 1]);
+    expect(matchingItems(form, '  đúng HẠN ', nameOf)).toEqual([0]);
+    expect(matchingItems(form, 'return', nameOf)).toEqual([1]);
+    expect(matchingItems(form, 'nothing', nameOf)).toEqual([]);
+  });
+});

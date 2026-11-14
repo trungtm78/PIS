@@ -44,6 +44,50 @@ const field = (path: string) => screen.getByTestId(`field-${path}`) as HTMLInput
 const change = (path: string, value: string) => fireEvent.change(field(path), { target: { value } });
 const ready = async () => screen.findByTestId('items');
 
+describe('PWF-09: four short pages instead of one long one', () => {
+  it('splits the set into tabs (the KPIs, the scales, what each applies to, the versions), keeps the tab in the address, and shows one part of a KPI a tab', async () => {
+    open();
+    await ready();
+    expect(screen.getAllByRole('tab').map((tab) => tab.getAttribute('data-testid'))).toEqual(['catalog', 'scale', 'applies', 'versions'].map((id) => `kpiset-tab-${id}`));
+    expect(screen.getByTestId('kpiset-tab-catalog').getAttribute('aria-selected')).toBe('true');
+    // Each field lives in one tab only: the weight with the KPI, the scale in its tab, the conditions in theirs.
+    expect(screen.getByTestId('kpiset-panel-catalog').contains(field('items[0].weight'))).toBe(true);
+    expect(screen.getByTestId('kpiset-panel-scale').contains(screen.getByTestId('scale-0'))).toBe(true);
+    expect(screen.getByTestId('kpiset-panel-applies').contains(field('items[0].phases'))).toBe(true);
+    expect(screen.getByTestId('kpiset-panel-applies').contains(field('template_code'))).toBe(true);
+    expect(screen.getByTestId('kpiset-panel-scale').hasAttribute('hidden')).toBe(true);
+    fireEvent.click(screen.getByTestId('kpiset-tab-scale'));
+    expect(screen.getByTestId('kpiset-panel-scale').hasAttribute('hidden')).toBe(false);
+    expect(screen.getByTestId('kpiset-panel-catalog').hasAttribute('hidden')).toBe(true);
+    cleanup();
+    open({ path: '/pwf/pwf-09?view=versions' });
+    await ready();
+    expect(screen.getByTestId('kpiset-tab-versions').getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('finds a KPI by its name or its code in every tab and always says how many of how many are shown', async () => {
+    open();
+    await ready();
+    const total = screen.getByTestId('items').querySelectorAll('[data-item]').length;
+    expect(total).toBeGreaterThan(1);
+    expect(screen.getByTestId('kpi-find-count').textContent).toBe(text('fix10.kpiset.find.count', { shown: total, total }));
+    fireEvent.change(screen.getByTestId('kpi-find'), { target: { value: 'return_count' } });
+    expect(screen.getByTestId('items').querySelectorAll('[data-item]')).toHaveLength(1);
+    expect(screen.getByTestId('items-scale').querySelectorAll('[data-item-part]')).toHaveLength(1);
+    expect(screen.getByTestId('kpi-find-count').textContent).toBe(text('fix10.kpiset.find.count', { shown: 1, total }));
+    fireEvent.change(screen.getByTestId('kpi-find'), { target: { value: '' } });
+    expect(screen.getByTestId('items').querySelectorAll('[data-item]')).toHaveLength(total);
+  });
+
+  it('counts on its tab a problem that is in a tab not shown, so nothing wrong is out of sight', async () => {
+    open();
+    await ready();
+    change('items[0].scale.worst', 'abc');
+    expect(screen.getByTestId('kpiset-tab-scale').textContent).toContain('1');
+    expect(screen.getByTestId('kpiset-tab-catalog').textContent).toBe(text('fix10.kpiset.tab.catalog'));
+  });
+});
+
 describe('PWF-09: reading the set', () => {
   it('opens the default set: six KPIs with their operation, weight, scale and the RAG line, and says it is a default', async () => {
     open();
@@ -72,7 +116,7 @@ describe('PWF-09: reading the set', () => {
   });
 
   it('draws the conversion curve of each scale with the same points in words', async () => {
-    open();
+    open({ path: '/pwf/pwf-09?view=scale' });
     await ready();
     const curve = screen.getByTestId('scale-0').querySelector('[data-testid="curve"]') as HTMLElement;
     expect(curve.querySelector('svg')?.getAttribute('role')).toBe('img');
@@ -146,6 +190,7 @@ describe('PWF-09: editing', () => {
     expect(screen.getByTestId('item-count').textContent).toBe(text('pwfs.kpiset.items.count', { count: 2, max: 20 }));
     fireEvent.click(screen.getAllByRole('button', { name: text('pwfs.kpiset.item.remove.action') })[1] as HTMLElement);
     expect(screen.getByTestId('item-count').textContent).toBe(text('pwfs.kpiset.items.count', { count: 1, max: 20 }));
+    fireEvent.click(screen.getByTestId('kpiset-tab-scale'));
     fireEvent.change(screen.getByTestId('field-items[0].scale.kind'), { target: { value: 'STEPPED' } });
     fireEvent.click(screen.getByRole('button', { name: text('pwfs.kpiset.scale.addStep.action') }));
     expect(within(screen.getByTestId('steps-0')).getAllByRole('listitem')).toHaveLength(2);

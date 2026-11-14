@@ -25,5 +25,14 @@
   "fix10.board.export.done": "Đã xuất tệp {name} với đủ {rows} việc.",
   "fix10.board.export.failed": "Chưa xuất được tệp Excel. Hãy thử lại hoặc lọc hẹp hơn.",
   "fix10.ledger.heading.text": "Sổ phân công · {name}",
-  "fix10.editor.task.unnamed": "Công việc chưa đặt tên"
+  "fix10.editor.task.unnamed": "Công việc chưa đặt tên",
+  "fix10.kpiset.tabs.label": "Các phần của bộ KPI",
+  "fix10.kpiset.tab.catalog": "Danh mục KPI",
+  "fix10.kpiset.tab.scale": "Thang điểm",
+  "fix10.kpiset.tab.applies": "Áp dụng cho mẫu và việc",
+  "fix10.kpiset.tab.versions": "Phiên bản",
+  "fix10.kpiset.find.label": "Tìm KPI",
+  "fix10.kpiset.find.placeholder": "Nhập tên hoặc mã KPI",
+  "fix10.kpiset.find.count": "Đang hiện {shown} trên {total} KPI",
+  "fix10.kpiset.problems.text": "Còn {count} chỗ cần sửa; số bên cạnh tên tab cho biết chỗ sai nằm ở tab nào."
 }

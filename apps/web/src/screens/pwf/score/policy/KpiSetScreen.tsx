@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../../../i18n';
 import type { ScreenProps } from '../../../../routes/types';
 import { useSession } from '../../../../session/SessionContext';
 import { StateBoundary } from '../../../../states/StateBoundary';
 import { useScreenState } from '../../../../states/useScreenState';
-import { SectionCard } from '../../../../ui';
+import { SectionCard, Tabs, useTabParam } from '../../../../ui';
 import { useCatalogue, useEffective } from '../../../adm/governance/hooks';
 import type { RuleTypeEntry } from '../../../adm/governance/model';
+import { kpiName } from '../../codes';
 import { FigureInfo, UnverifiedLabel } from '../../components';
 import { PATHS, PERMISSIONS, RULE_PERMISSIONS, holds } from '../../model';
 import { RuleSavePanel, RuleVersionList } from '../../templates/store';
@@ -21,6 +22,7 @@ import {
   AGAINST_CHOICES,
   DEFAULT_KPI_SET_CODE,
   KINDS,
+  KPI_SET_VIEWS,
   KPI_DEFINITION_TYPE,
   KPI_SET_RULE_TYPE,
   MAX_ITEMS,
@@ -33,9 +35,11 @@ import {
   addStep,
   blankForm,
   formOf,
+  matchingItems,
   operationOf,
   paramNames,
   paramsOf,
+  partOfPath,
   problemsOf,
   removeItem,
   removeStep,
@@ -43,7 +47,7 @@ import {
   updateScale,
   updateStep,
 } from './kpi-set-model';
-import type { ItemForm, KpiSetForm, References } from './kpi-set-model';
+import type { ItemForm, KpiSetForm, KpiSetPart, References } from './kpi-set-model';
 import { CODE } from './rule-model';
 import type { RuleProblems } from './rule-model';
 import '../../pwf.css';
@@ -88,6 +92,16 @@ function SetContent({ route }: ScreenProps) {
   const state = useScreenState({ isLoading: effective.isLoading, error: effective.error, data: effective.isLoading ? undefined : true, isEmpty: () => false });
   const screenState = !mayRead ? 'denied' : state;
   const set = (next: KpiSetForm): void => setEdited(next);
+  // PWF-09 is four short pages instead of one of nine thousand pixels: the KPIs of the set, the scale of each, what each applies to, and the versions. The tab is kept in the address.
+  const [view, setView] = useTabParam('view', KPI_SET_VIEWS);
+  const [find, setFind] = useState('');
+  const findId = useId();
+  const visible = useMemo(() => matchingItems(form, find, (kpiCode) => kpiName(t, kpiCode)), [form, find, t]);
+  // A problem in a tab that is not the one shown is counted on that tab, so nothing wrong is out of sight.
+  const countOf = (part: KpiSetPart): number | undefined => {
+    const count = show ? problems.filter((problem) => partOfPath(problem.path) === part).length : 0;
+    return count === 0 ? undefined : count;
+  };
   const unverified = effective.data?.unverified === true;
   const setCodes = codesOf(catalogue.data, KPI_SET_RULE_TYPE) ?? [];
   const baseNote = effective.data === null || effective.data === undefined ? t('pwfs.kpiset.base.blank') : effective.data.source === 'RULE' ? t('pwfs.kpiset.base.rule', { version: effective.data.version }) : t('pwfs.kpiset.base.default');
@@ -128,7 +142,6 @@ function SetContent({ route }: ScreenProps) {
                 setAttempted(false);
               }}
             />
-            <RuleField label={t('pwfs.kpiset.template.label')} path="template_code" value={form.templateCode} disabled={!canStore} show={show} problems={problems} suggestions={references.templateCodes} hint={t('pwfs.kpiset.template.hint')} onChange={(templateCode) => set({ ...form, templateCode })} />
           </div>
           <p className="adm-kit-sub" data-testid="base-note">
             {baseNote}
@@ -139,33 +152,105 @@ function SetContent({ route }: ScreenProps) {
           </div>
         </SectionCard>
         <StateBoundary state={effective.isLoading ? 'loading' : 'default'}>
-          <SectionCard title={t('pwfs.kpiset.items.title')} status={<span data-testid="item-count">{t('pwfs.kpiset.items.count', { count: form.items.length, max: MAX_ITEMS })}</span>}>
-            <ol className="pwf-tpl-rows" data-testid="items">
-              {form.items.map((item, index) => (
-                <li key={index}>
-                  <ItemEditor form={form} index={index} item={item} problems={problems} show={show} disabled={!canStore} references={references} onChange={set} operations={operations.data?.items} />
-                </li>
-              ))}
-            </ol>
-            <p className="pwfs-actions">
-              <button type="button" className="ui-button ui-button--outline" disabled={!canStore || form.items.length >= MAX_ITEMS} data-action="add-item" onClick={() => set(addItem(form))}>
-                {t('pwfs.kpiset.item.add.action')}
-              </button>
+          <div className="pwf-filters pwfs-kpifind">
+            <div className="pwf-field">
+              <label htmlFor={findId}>{t('fix10.kpiset.find.label')}</label>
+              <input id={findId} type="search" autoComplete="off" value={find} placeholder={t('fix10.kpiset.find.placeholder')} data-testid="kpi-find" onChange={(event) => setFind(event.target.value)} />
+            </div>
+            <p className="adm-kit-sub" role="status" data-testid="kpi-find-count">
+              {t('fix10.kpiset.find.count', { shown: visible.length, total: form.items.length })}
             </p>
-          </SectionCard>
-        </StateBoundary>
-        {canStore ? <RuleSavePanel ruleType={KPI_SET_RULE_TYPE} code={code} codeValid={codeValid} formOk={problems.length === 0} params={() => paramsOf(form)} onAttempt={() => setAttempted(true)} disabled={false} /> : null}
-        {codeValid ? (
-          <RuleVersionList
-            ruleType={KPI_SET_RULE_TYPE}
-            code={code}
-            canManage={canStore}
-            canApprove={canApprove}
-            writable={writable}
-            editLink={() => `${SCORE_PATHS.kpiSet}?code=${code}`}
-            diffLink={(id, against) => `${PATHS.ruleDiff}?rule=${id}${against === undefined ? '' : `&against=${against}`}`}
+          </div>
+          <Tabs
+            label={t('fix10.kpiset.tabs.label')}
+            testId="kpiset"
+            value={view}
+            onChange={setView}
+            tabs={[
+              {
+                id: 'catalog',
+                label: t('fix10.kpiset.tab.catalog'),
+                count: countOf('catalog'),
+                panel: (
+                  <SectionCard title={t('pwfs.kpiset.items.title')} status={<span data-testid="item-count">{t('pwfs.kpiset.items.count', { count: form.items.length, max: MAX_ITEMS })}</span>}>
+                    <ol className="pwf-tpl-rows" data-testid="items">
+                      {visible.map((index) => (
+                        <li key={index}>
+                          <ItemEditor part="catalog" form={form} index={index} item={form.items[index] as ItemForm} problems={problems} show={show} disabled={!canStore} references={references} onChange={set} operations={operations.data?.items} />
+                        </li>
+                      ))}
+                    </ol>
+                    <p className="pwfs-actions">
+                      <button type="button" className="ui-button ui-button--outline" disabled={!canStore || form.items.length >= MAX_ITEMS} data-action="add-item" onClick={() => set(addItem(form))}>
+                        {t('pwfs.kpiset.item.add.action')}
+                      </button>
+                    </p>
+                  </SectionCard>
+                ),
+              },
+              {
+                id: 'scale',
+                label: t('fix10.kpiset.tab.scale'),
+                count: countOf('scale'),
+                panel: (
+                  <SectionCard title={t('fix10.kpiset.tab.scale')}>
+                    <ol className="pwf-tpl-rows" data-testid="items-scale">
+                      {visible.map((index) => (
+                        <li key={index}>
+                          <ItemEditor part="scale" form={form} index={index} item={form.items[index] as ItemForm} problems={problems} show={show} disabled={!canStore} references={references} onChange={set} operations={operations.data?.items} />
+                        </li>
+                      ))}
+                    </ol>
+                  </SectionCard>
+                ),
+              },
+              {
+                id: 'applies',
+                label: t('fix10.kpiset.tab.applies'),
+                count: countOf('applies'),
+                panel: (
+                  <SectionCard title={t('fix10.kpiset.tab.applies')}>
+                    <div className="pwf-tpl-row">
+                      <RuleField label={t('pwfs.kpiset.template.label')} path="template_code" value={form.templateCode} disabled={!canStore} show={show} problems={problems} suggestions={references.templateCodes} hint={t('pwfs.kpiset.template.hint')} onChange={(templateCode) => set({ ...form, templateCode })} />
+                    </div>
+                    <ol className="pwf-tpl-rows" data-testid="items-applies">
+                      {visible.map((index) => (
+                        <li key={index}>
+                          <ItemEditor part="applies" form={form} index={index} item={form.items[index] as ItemForm} problems={problems} show={show} disabled={!canStore} references={references} onChange={set} operations={operations.data?.items} />
+                        </li>
+                      ))}
+                    </ol>
+                  </SectionCard>
+                ),
+              },
+              {
+                id: 'versions',
+                label: t('fix10.kpiset.tab.versions'),
+                panel: (
+                  <>
+                    {canStore ? <RuleSavePanel ruleType={KPI_SET_RULE_TYPE} code={code} codeValid={codeValid} formOk={problems.length === 0} params={() => paramsOf(form)} onAttempt={() => setAttempted(true)} disabled={false} /> : null}
+                    {canStore && show && problems.length > 0 ? (
+                      <p className="callout warning" role="status" data-testid="kpiset-problems">
+                        {t('fix10.kpiset.problems.text', { count: problems.length })}
+                      </p>
+                    ) : null}
+                    {codeValid ? (
+                      <RuleVersionList
+                        ruleType={KPI_SET_RULE_TYPE}
+                        code={code}
+                        canManage={canStore}
+                        canApprove={canApprove}
+                        writable={writable}
+                        editLink={() => `${SCORE_PATHS.kpiSet}?code=${code}`}
+                        diffLink={(id, against) => `${PATHS.ruleDiff}?rule=${id}${against === undefined ? '' : `&against=${against}`}`}
+                      />
+                    ) : null}
+                  </>
+                ),
+              },
+            ]}
           />
-        ) : null}
+        </StateBoundary>
       </StateBoundary>
       <p className="adm-kit-foot" data-testid="footer">
         {t('gova1.footer.reference', { id: route.id, req: route.req ?? '' })}
@@ -184,9 +269,11 @@ interface ItemEditorProps {
   references: References;
   operations: Parameters<typeof operationOf>[0];
   onChange: (form: KpiSetForm) => void;
+  /** Which part of the KPI this tab edits: what it is (the KPI, the operation, the weight), its scale, or what it applies to. */
+  part: KpiSetPart;
 }
 
-function ItemEditor({ form, index, item, problems, show, disabled, references, operations, onChange }: ItemEditorProps) {
+function ItemEditor({ form, index, item, problems, show, disabled, references, operations, onChange, part }: ItemEditorProps) {
   const { t } = useTranslation();
   const prefix = `items[${index}]`;
   const entry = operationOf(operations, item.operation);
@@ -195,8 +282,13 @@ function ItemEditor({ form, index, item, problems, show, disabled, references, o
   const common = { problems, show, disabled };
   const operationOptions = (operations === undefined ? OPERATIONS.map((code) => ({ code })) : operations).map((one) => ({ value: one.code as ItemForm['operation'], label: operationWord(t, one.code) }));
   return (
-    <fieldset className="pwf-tpl-sub" data-item={index}>
-      <legend>{t('pwfs.kpiset.item.legend', { number: index + 1 })}</legend>
+    <fieldset className="pwf-tpl-sub" {...(part === 'catalog' ? { 'data-item': index } : { 'data-item-part': `${part}-${index}` })}>
+      <legend>
+        {t('pwfs.kpiset.item.legend', { number: index + 1 })}
+        {item.kpiCode.trim() === '' ? null : <span className="pwfs-kpilegend"> · {kpiName(t, item.kpiCode)}</span>}
+      </legend>
+      {part !== 'catalog' ? null : (
+      <>
       <div className="pwf-tpl-row">
         <RuleField label={t('pwfs.kpiset.item.kpi.label')} path={`${prefix}.kpi_code`} value={item.kpiCode} suggestions={references.kpiCodes} hint={t('pwfs.kpiset.item.kpi.hint')} onChange={(kpiCode) => patch({ kpiCode })} {...common} />
         <RuleSelect label={t('fix9.pwf09.operation.label')} path={`${prefix}.operation`} value={item.operation} options={operationOptions} disabled={disabled} onChange={(operation) => patch({ operation })} />
@@ -208,6 +300,10 @@ function ItemEditor({ form, index, item, problems, show, disabled, references, o
           {t('pwfs.kpiset.item.facts.text', { unit: unitOfValueWord(t, entry.unit), direction: directionWord(t, entry.good_direction) })}
         </p>
       )}
+      </>
+      )}
+      {part !== 'applies' ? null : (
+      <>
       <fieldset className="pwf-tpl-sub" data-testid={`operation-params-${index}`}>
         <legend>{t('fix9.pwf09.params.legend')}</legend>
         {takes.some((name) => name === 'unit' || name === 'against' || name === 'grace_days') ? null : <p className="adm-kit-sub">{t('fix9.pwf09.params.none')}</p>}
@@ -258,10 +354,14 @@ function ItemEditor({ form, index, item, problems, show, disabled, references, o
           <RuleField label={t('pwfs.kpiset.item.tasks.label')} path={`${prefix}.tasks`} value={item.tasks} onChange={(tasks) => patch({ tasks })} {...common} />
         </div>
       </fieldset>
-      <ScaleEditor form={form} index={index} item={item} problems={problems} show={show} disabled={disabled} onChange={onChange} />
-      <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={disabled || form.items.length <= 1} data-action={`remove-item-${index}`} onClick={() => onChange(removeItem(form, index))}>
-        {t('pwfs.kpiset.item.remove.action')}
-      </button>
+      </>
+      )}
+      {part === 'scale' ? <ScaleEditor form={form} index={index} item={item} problems={problems} show={show} disabled={disabled} onChange={onChange} /> : null}
+      {part === 'catalog' ? (
+        <button type="button" className="ui-button ui-button--outline ui-button--small" disabled={disabled || form.items.length <= 1} data-action={`remove-item-${index}`} onClick={() => onChange(removeItem(form, index))}>
+          {t('pwfs.kpiset.item.remove.action')}
+        </button>
+      ) : null}
     </fieldset>
   );
 }
