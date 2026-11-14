@@ -221,7 +221,7 @@ void main() {
       useDevice(tester, kTallDevice);
       await open(tester);
       expect(find.text('Bước 1. Lựa chọn nhà thầu'), findsOneWidget);
-      expect(find.text('PROCUREMENT_OFFICER'), findsOneWidget);
+      expect(find.text('Cán bộ đấu thầu'), findsOneWidget);
       // The checklist of the task, item by item, is still there.
       await tester.scrollUntilVisible(find.text('Dự thảo hồ sơ mời thầu'), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text('Biên bản họp tổ chuyên gia'), findsOneWidget);

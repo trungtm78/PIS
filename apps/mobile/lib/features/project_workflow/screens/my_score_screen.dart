@@ -15,6 +15,7 @@ import '../../../core/widgets/state_view.dart';
 import '../../../core/widgets/work_row.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
+import '../pwf_codes.dart';
 import '../pwf_models.dart';
 import '../pwf_score_privacy.dart';
 
@@ -91,7 +92,7 @@ class _PwfScoreViewState extends State<PwfScoreView> {
         if (line.policyCode != null)
           InfoRow(
             label: context.t('mob.pwf.score.basis'),
-            value: line.policyVersion == null ? line.policyCode : context.t('mob.pwf.score.basis.value', <String, Object>{'code': line.policyCode!, 'version': line.policyVersion!}),
+            value: line.policyVersion == null ? line.policyCode : context.t('mob.pwf6.score.basis', <String, Object>{'version': pwfVersionText(context, line.policyVersion!)}),
           ),
         if (line.contributions.isNotEmpty) ...<Widget>[
           GroupHeader(title: context.t('mob.pwf.score.contributions'), count: line.contributions.length),
@@ -141,7 +142,7 @@ class _PwfScoreViewState extends State<PwfScoreView> {
 
   String _rating(BuildContext context, PwfScoreLine line) {
     if (line.state != 'RATED') return context.t('mob.pwf.score.rating.none');
-    return line.rating ?? context.t('mob.pwf.score.rating.none');
+    return line.rating == null ? context.t('mob.pwf.score.rating.none') : pwfGradeName(context, line.rating!);
   }
 
   String _periodStatus(BuildContext context, String status) => switch (status) {

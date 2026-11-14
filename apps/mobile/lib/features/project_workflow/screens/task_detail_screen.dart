@@ -23,6 +23,7 @@ import '../../read_support/clock.dart';
 import '../../read_support/data_view.dart';
 import '../../read_support/loaded.dart';
 import '../../read_support/navigate.dart';
+import '../pwf_codes.dart';
 import '../pwf_commands.dart';
 import '../pwf_models.dart';
 import '../pwf_process_widgets.dart';
@@ -177,7 +178,7 @@ class _PwfTaskDetailScreenState extends ConsumerState<PwfTaskDetailScreen> {
       context,
       title: context.t('mob.pwf.complete.title'),
       facts: <String>[
-        task.approverRole == null ? context.t('mob.pwf.complete.fact.done') : context.t('mob.pwf.complete.fact.approval', <String, Object>{'role': task.approverRole!}),
+        task.approverRole == null ? context.t('mob.pwf.complete.fact.done') : context.t('mob.pwf.complete.fact.approval', <String, Object>{'role': pwfRoleName(context, task.approverRole!)}),
         context.t('mob.pwf.complete.fact.check'),
       ],
       confirmLabel: context.t('mob.pwf.complete.confirm'),
@@ -194,7 +195,7 @@ class _PwfTaskDetailScreenState extends ConsumerState<PwfTaskDetailScreen> {
       builder: (BuildContext sheet) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          WorkRow(title: context.t('mob.pwf.item.evidence'), subtitle: item.evidenceKinds.isEmpty ? null : context.t('mob.pwf.item.kinds', <String, Object>{'kinds': item.evidenceKinds.join(', ')}), leading: const Icon(Icons.attach_file), onTap: () => Navigator.pop(sheet, 'evidence')),
+          WorkRow(title: context.t('mob.pwf.item.evidence'), subtitle: item.evidenceKinds.isEmpty ? null : context.t('mob.pwf.item.kinds', <String, Object>{'kinds': item.evidenceKinds.map((String kind) => pwfEvidenceKindName(context, kind)).join(', ')}), leading: const Icon(Icons.attach_file), onTap: () => Navigator.pop(sheet, 'evidence')),
           WorkRow(title: context.t('mob.pwf.item.done'), leading: const Icon(Icons.check_circle_outline), onTap: () => Navigator.pop(sheet, 'done'), dividerAbove: true),
         ],
       ),
@@ -204,7 +205,7 @@ class _PwfTaskDetailScreenState extends ConsumerState<PwfTaskDetailScreen> {
     final String? note = await showPwfNoteSheet(
       context,
       title: context.t('mob.pwf.item.done.title'),
-      facts: <String>[item.name, if (item.evidenceKinds.isNotEmpty) context.t('mob.pwf.item.needsEvidence', <String, Object>{'kinds': item.evidenceKinds.join(', ')})],
+      facts: <String>[item.name, if (item.evidenceKinds.isNotEmpty) context.t('mob.pwf.item.needsEvidence', <String, Object>{'kinds': item.evidenceKinds.map((String kind) => pwfEvidenceKindName(context, kind)).join(', ')})],
       confirmLabel: context.t('mob.pwf.item.done.confirm'),
       noteLabel: context.t('mob.pwf.sheet.note.label'),
     );
@@ -382,8 +383,8 @@ class _TaskBody extends StatelessWidget {
               if (queue.inFlight.isNotEmpty) StatusBanner(text: _pendingText(context, queue.inFlight, online), icon: Icons.schedule),
               InfoRow(label: context.t('mob.pwf.fact.status'), value: pwfStatusLabel(context, detail.status), divider: false),
               if (detail.assignee != null) InfoRow(label: context.t('mob.pwf.fact.assignee'), value: detail.assignee),
-              if (detail.responsibleRole != null) InfoRow(label: context.t('mob.pwf.fact.role'), value: detail.responsibleRole),
-              if (detail.approverRole != null) InfoRow(label: context.t('mob.pwf.fact.approver'), value: detail.approverRole),
+              if (detail.responsibleRole != null) InfoRow(label: context.t('mob.pwf.fact.role'), value: pwfRoleName(context, detail.responsibleRole!)),
+              if (detail.approverRole != null) InfoRow(label: context.t('mob.pwf.fact.approver'), value: pwfRoleName(context, detail.approverRole!)),
               if (detail.plannedStart != null) InfoRow(label: context.t('mob.pwf.fact.plannedStart'), value: formatDay(detail.plannedStart!, language: language)),
               if (detail.plannedFinish != null) InfoRow(label: context.t('mob.pwf.fact.plannedFinish'), value: formatDay(detail.plannedFinish!, language: language)),
               if (detail.baselineFinish != null) InfoRow(label: context.t('mob.pwf.fact.baselineFinish'), value: formatDay(detail.baselineFinish!, language: language)),
@@ -393,7 +394,7 @@ class _TaskBody extends StatelessWidget {
               if (detail.critical) InfoRow(label: context.t('mob.pwf.fact.critical'), value: context.t('mob.pwf.fact.critical.value')),
               if (detail.returnCount > 0) InfoRow(label: context.t('mob.pwf.fact.returns'), value: '${detail.returnCount}'),
               if (detail.step != null) InfoRow(label: context.t('mob.pwf.process.fact.step'), value: context.t('mob.pwf.process.fact.stepValue', <String, Object>{'order': detail.step!.order, 'name': detail.step!.name})),
-              if (detail.step?.responsibleRole != null) InfoRow(label: context.t('mob.pwf.process.fact.stepRole'), value: detail.step!.responsibleRole),
+              if (detail.step?.responsibleRole != null) InfoRow(label: context.t('mob.pwf.process.fact.stepRole'), value: pwfRoleName(context, detail.step!.responsibleRole!)),
               if (detail.blockers.isNotEmpty && !detail.status.isFinal) ...<Widget>[
                 GroupHeader(title: context.t('mob.pwf.blockers.title'), count: detail.blockers.length),
                 for (int index = 0; index < detail.blockers.length; index += 1) _blocker(context, detail.blockers[index], index > 0),
@@ -506,8 +507,8 @@ class _TaskBody extends StatelessWidget {
   }
 
   Widget _requirement(BuildContext context, PwfRequirement requirement, String kind, bool divider) => WorkRow(
-        title: requirement.code,
-        subtitle: kind,
+        title: pwfDocTypeName(context, requirement.code),
+        subtitle: pwfDocTypeName(context, requirement.code) == requirement.code ? kind : '$kind · ${requirement.code}',
         leading: Icon(requirement.satisfied ? Icons.check_circle : Icons.radio_button_unchecked),
         trailing: Text(requirement.satisfied ? context.t('mob.pwf.requirements.satisfied') : context.t('mob.pwf.requirements.missing'), style: context.v2text.label),
         dividerAbove: divider,
@@ -515,12 +516,13 @@ class _TaskBody extends StatelessWidget {
 
   Widget _evidenceRow(BuildContext context, PwfEvidence evidence, bool divider, String language) {
     final List<String> facts = <String>[
-      if (evidence.itemCode != null) evidence.itemCode!,
-      if (evidence.legalDocType != null) evidence.legalDocType!,
       if (evidence.formTemplateCode != null) evidence.formTemplateCode!,
       formatMoment(evidence.attachedAt, language: language),
     ];
-    return WorkRow(title: evidence.externalRef ?? evidence.kind, subtitle: <String>[evidence.kind, ...facts, if (evidence.note != null) evidence.note!].join(' · '), leading: const Icon(Icons.description_outlined), dividerAbove: divider);
+    // What the evidence is, by name: the legal document it answers, else the reference typed with it, else the kind of evidence in words (never a bare code as the title).
+    final String kind = pwfEvidenceKindName(context, evidence.kind);
+    final String title = evidence.legalDocType != null ? pwfDocTypeName(context, evidence.legalDocType!) : (evidence.externalRef ?? kind);
+    return WorkRow(title: title, subtitle: <String>[if (title != kind) kind, ...facts, if (evidence.note != null) evidence.note!].join(' · '), leading: const Icon(Icons.description_outlined), dividerAbove: divider);
   }
 
   Widget _exceptionRow(BuildContext context, PwfException exception, bool divider, String language) {

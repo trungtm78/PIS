@@ -145,6 +145,7 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
     }
     final bool personal = _mode == PwfColourMode.personal;
     return ListView(
+      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + MachvonV2Size.rowMinHeight + MachvonV2Space.s32),
       children: <Widget>[
         FilterChips<PwfColourMode>(
           options: <ChipOption<PwfColourMode>>[
@@ -177,7 +178,7 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
   }
 
   String _groupTitle(BuildContext context, PwfGroup group) => switch (group) {
-        PwfGroup.late => context.t('mob.pwf.group.late'),
+        PwfGroup.late => _mode == PwfColourMode.personal ? context.t('mob.pwf6.group.personalLate') : context.t('mob.pwf.group.late'),
         PwfGroup.soon => context.t('mob.pwf.group.soon'),
         PwfGroup.ok => context.t('mob.pwf.group.ok'),
         PwfGroup.far => context.t('mob.pwf.group.far'),
@@ -191,16 +192,31 @@ class _PwfMyTasksListState extends ConsumerState<PwfMyTasksList> {
     final String? note = !personal || task.status.isFinal
         ? null
         : (task.personalDiffers
-            ? '${context.t('mob.pwf.mine.row.personal')}\n${context.t('mob.pwf.mine.row.official', <String, Object>{'words': pwfDeadlineWords(context, task.official)})}'
+            ? context.t('mob.pwf6.mine.note', <String, Object>{'personal': context.t('mob.pwf.mine.row.personal'), 'official': context.t('mob.pwf.mine.row.official', <String, Object>{'words': pwfDeadlineWords(context, task.official)})})
             : context.t('mob.pwf.mine.row.personal'));
-    return WorkRow(
+    // The note of a personal colour is a line of its own under the row, across its whole width: in the narrow end column it broke into five lines and squeezed the name of the task.
+    final Widget row = WorkRow(
       title: task.name,
       subtitle: <String>[task.projectCode, task.code, if (task.critical) context.t('mob.pwf.mine.row.critical')].where((String part) => part.isNotEmpty).join(' · '),
       leading: PwfGlyph(band: band, status: task.status),
-      trailing: PwfDeadlineColumn(band: band, status: task.status, dueDay: task.status.isFinal ? null : task.dueDate, note: note),
+      trailing: PwfDeadlineColumn(band: band, status: task.status, dueDay: task.status.isFinal ? null : task.dueDate),
       onTap: () => widget.onOpenTask(task),
       semanticLabel: pwfSpokenRow(context, title: task.name, facts: <String>[task.projectCode, task.code].where((String part) => part.isNotEmpty).toList(), band: band, status: task.status, dueDay: task.dueDate, note: note),
       dividerAbove: divider,
+    );
+    if (note == null) return row;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        row,
+        ExcludeSemantics(
+          child: Padding(
+            padding: const EdgeInsets.only(left: MachvonV2Space.s16 + MachvonV2Size.glyph + MachvonV2Space.s12, right: MachvonV2Space.s16, bottom: MachvonV2Space.s12),
+            child: Text(note, style: context.v2text.caption),
+          ),
+        ),
+      ],
     );
   }
 }
