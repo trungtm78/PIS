@@ -689,3 +689,129 @@ span.pwf-suggestion__why {
   font-size: 13px;
   color: var(--mv-color-text-secondary);
 }
+
+/* ---- Lane shots2 (15/11/2026): what the screenshots of the running application showed. ---- */
+/* A tick box and a radio button keep their own size: the sheet of the shell gives every input the width of its row and the padding of a text box, which put the box on a line of its own above its label. */
+section[data-screen-id^='PWF-'] input[type='checkbox'],
+section[data-screen-id^='PWF-'] input[type='radio'] {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 2px 0 0;
+  padding: 0;
+}
+section[data-screen-id^='PWF-'] label:has(> input[type='checkbox']),
+section[data-screen-id^='PWF-'] label:has(> input[type='radio']) {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 24px;
+}
+/* A group of fields is a quiet box, not the grooved frame of the browser. */
+:where(section[data-screen-id^='PWF-']) fieldset {
+  min-width: 0;
+  margin: 8px 0 0;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
+}
+:where(section[data-screen-id^='PWF-']) fieldset > legend {
+  padding: 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pwf-tpl-sub {
+  border: 1px solid var(--mv-color-border);
+  border-radius: 8px;
+  padding: 8px 12px 12px;
+}
+/* The fields of one row start on one line: a hint under one of them no longer pushes its label up above the others. A row that ends with a button keeps the button on the line of the boxes. */
+.pwf-tpl-row {
+  align-items: start;
+}
+.pwf-tpl-row > button,
+.pwf-tpl-row > .ui-button,
+.pwf-tpl-row > .pwf-pills {
+  align-self: end;
+}
+.pwf-tpl-row > .pwf-field:has(> label > input[type='checkbox']) {
+  align-self: center;
+}
+/* A task of the tree is one line: name and code on the left, its figures on the right (the name used to take 160px of height). */
+.pwf-tpl-pick > .pwf-taskname {
+  flex: 1 1 160px;
+}
+.pwf-tpl-pick__name {
+  flex: 0 1 auto;
+}
+/* The library fits the page at 1440 and shows its actions: the columns share the width by fixed parts, a long header and a long pill wrap inside their column, the two actions stand one over the other. */
+.pwf-lib .ui-table {
+  table-layout: fixed;
+  min-width: 960px;
+}
+.pwf-lib .ui-table .ui-table__head {
+  white-space: normal;
+}
+.pwf-lib .ui-table .ui-table__head,
+.pwf-lib .ui-table td {
+  padding-left: 10px;
+  padding-right: 10px;
+  overflow-wrap: anywhere;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(1) {
+  width: 20%;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(2) {
+  width: 14%;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(3) {
+  width: 18%;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(4),
+.pwf-lib .ui-table .ui-table__head:nth-child(6) {
+  width: 13%;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(5) {
+  width: 11%;
+}
+.pwf-lib .ui-table .ui-table__head:nth-child(7) {
+  width: 11%;
+}
+.pwf-lib td:last-child .pwf-pills {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  white-space: normal;
+}
+.pwf-lib td:last-child .ui-button {
+  padding-left: 6px;
+  padding-right: 6px;
+  text-align: center;
+}
+.pwf-lib .ui-pill {
+  white-space: normal;
+  text-align: left;
+  border-radius: 12px;
+}
+.pwf-lib .pwf-nowrap {
+  white-space: normal;
+}
+/* The counts of a dry run are apart from each other. */
+[data-testid='result-counts'] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+}
+/* The label of a band tile leaves room for the "i" button in its corner and wraps instead of running under it. */
+.pwf-bands__tile:nth-last-child(2) .pwf-bands__label {
+  padding-right: 28px;
+}
+/* The "i" of the strip of counts stands at the right edge of the page: its box opens to the left, inside the page. */
+@media (min-width: 481px) {
+  .pwf-bands__info .ui-info__panel {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+  }
+}

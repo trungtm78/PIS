@@ -207,3 +207,9 @@
 [data-screen-id="PRJ-18"] .card {
   overflow-x: auto;
 }
+
+/* The total of the project stays on one line in its tile (it used to break in the middle of the number at 1440). */
+section[data-screen-id='PRJ-03'] .ui-kpi__value {
+  font-size: 24px;
+  overflow-wrap: normal;
+}
