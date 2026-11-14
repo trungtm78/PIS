@@ -4,7 +4,7 @@ import { CtrFactStore, contractScope, loadAccessIn } from '../src/index';
 import type { FactQuery, TenantTx } from '../src/index';
 import { REPORT_SUMS } from '@machvon/kernel';
 import { AuthzHarness, TENANT_A, id, memberId, unitId } from './support/authz-fixtures';
-import { REFERENCE_BUDGET_MS, budgetFor, median, p95Of } from './support/perf-budget';
+import { REFERENCE_BUDGET_MS, budgetFor, median, p95Of, judgedBudget } from './support/perf-budget';
 
 /**
  * R12 of the eng-review of the contract analytics: the portfolio over `contract_fact` is measured at the size of a province before anyone builds a table to make it faster. 50,000 contracts under 10 units, with their
@@ -192,7 +192,7 @@ describe('the contract fact at the size of a province (R12: 50,000 contracts, 10
 
   async function expectWithinBudget(label: string, member: number, filters: FactQuery['filters'], work: (tx: TenantTx, query: FactQuery) => Promise<unknown>): Promise<void> {
     const result = await measure(label, member, filters, work);
-    expect(result.p95).toBeLessThanOrEqual(result.budgetMs);
+    expect(result.p95).toBeLessThanOrEqual(judgedBudget(result.budgetMs));
   }
 
   it('has the 50,000 contracts the budget is about', async () => {

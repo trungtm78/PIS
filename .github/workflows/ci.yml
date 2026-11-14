@@ -227,6 +227,9 @@ jobs:
 
       - name: Typecheck and unit tests
         shell: bash
+        # The budgets of the timed suites are stated for the x86 reference machine and judged by the Protocol gates job; this shared ARM runner runs the same workloads without a verdict of the clock (packages/db/test/support/perf-budget.ts).
+        env:
+          PERF_BUDGET_VERDICT: 'off'
         run: |
           { npm run typecheck && npm test; } 2>&1 | tee "$RUNNER_TEMP/arm64-tests.log"; exit "${PIPESTATUS[0]}"
 

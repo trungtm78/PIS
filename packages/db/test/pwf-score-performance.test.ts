@@ -4,7 +4,7 @@ import { PwfKpiStore } from '../src/pwf-kpi-store';
 import { PwfScoreStore } from '../src/pwf-score-store';
 import type { TenantTx } from '../src/tenant-database';
 import { AuthzHarness, TENANT_A, memberId, unitId } from './support/authz-fixtures';
-import { budgetFor, median } from './support/perf-budget';
+import { budgetFor, median, judgedBudget } from './support/perf-budget';
 import { ScoreFixtures } from './support/pwf-score-fixtures';
 
 /**
@@ -136,7 +136,7 @@ describe(`the close of a scoring period at the size of a province (R35: ${PEOPLE
     // The people the period is about are the 5,000 of the load and the members of the fixtures, each with a line.
     expect(draft.ratedCount + draft.smallSampleCount + draft.notRatedCount).toBe(PEOPLE + FIXTURE_MEMBERS);
     expect(locked.status).toBe('LOCKED');
-    expect(close).toBeLessThanOrEqual(decision.budgetMs);
+    expect(close).toBeLessThanOrEqual(judgedBudget(decision.budgetMs));
     // The period is what it says: reproducible from its snapshot to the same hash.
     expect(await as((tx) => scores.verify(tx, draft.period.id))).toMatchObject({ reproducible: true });
   });

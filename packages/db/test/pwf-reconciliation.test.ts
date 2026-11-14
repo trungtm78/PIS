@@ -12,7 +12,7 @@ import { PwfWorkflowStore } from '../src/pwf-workflow-store';
 import type { ScopeBuilder } from '../src/scope-version';
 import type { TenantTx } from '../src/tenant-database';
 import { AuthzHarness, TENANT_A, contextFor, memberId, unitId } from './support/authz-fixtures';
-import { MAX_SLOWDOWN, budgetFor, median, p95Of } from './support/perf-budget';
+import { MAX_SLOWDOWN, budgetFor, median, p95Of, judgedBudget } from './support/perf-budget';
 
 jest.setTimeout(600_000);
 
@@ -218,7 +218,7 @@ describe('the budgets of the project workflow (R35, BR-PWF-12, 29)', () => {
     // CPU (the hosted runners of CI: 926 and 1181 ms on 2026-11-14 with a scan at the reference) is measured by the CPU workload as well, as the scheduling budget is.
     const cpuNow = budgetFor(Math.max(cpuMs, median([cpu(), cpu(), cpu()])), REFERENCE_CPU_MS, decision.budgetMs / decision.factor);
     expect(cpuNow.tooSlow).toBe(false);
-    expect(p95Of(samples)).toBeLessThanOrEqual(Math.max(decision.budgetMs, after.budgetMs, cpuNow.budgetMs));
+    expect(p95Of(samples)).toBeLessThanOrEqual(judgedBudget(Math.max(decision.budgetMs, after.budgetMs, cpuNow.budgetMs)));
     expect(MAX_SLOWDOWN).toBeGreaterThan(1);
   });
 
@@ -259,7 +259,7 @@ describe('the budgets of the project workflow (R35, BR-PWF-12, 29)', () => {
     }
     process.stdout.write(`PWF schedule of 500 tasks: median ${median(samples).toFixed(0)} ms, budget ${decision.budgetMs.toFixed(0)} ms
 `);
-    expect(median(samples)).toBeLessThanOrEqual(decision.budgetMs);
+    expect(median(samples)).toBeLessThanOrEqual(judgedBudget(decision.budgetMs));
     expect(pwfWorkflow.MAX_TEMPLATE_TASKS).toBeGreaterThanOrEqual(400);
   });
 });

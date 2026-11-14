@@ -46,3 +46,16 @@ export function budgetFor(measuredMs: number, referenceMs: number, budgetMs: num
   const factor = Math.min(Math.max(1, ratio), MAX_SLOWDOWN);
   return { factor, budgetMs: budgetMs * factor, tooSlow: ratio > MAX_SLOWDOWN };
 }
+
+/**
+ * The budget a timing is held to in THIS run. The requirement states its budgets for the reference machine (x86), and the calibration workloads stretch a budget by the measured speed of such a machine;
+ * on the shared ARM64 runner of CI the same suites failed in turn on 2026-11-14 (the board, the contract fact, the close of a scoring period: a different one each run, none of them on x86), so the stretch
+ * does not describe that machine. The ARM64 leg exists to prove that the product builds and behaves on ARM (INFRA-1): it sets PERF_BUDGET_VERDICT=off, the workloads still run and every other expectation
+ * of the test still holds, and only the comparison with the clock gives no verdict there. The x86 gate (and every developer machine) judges the budgets as before.
+ */
+export function judgedBudget(budgetMs: number, env: Readonly<Record<string, string | undefined>> = process.env): number {
+  if (env.PERF_BUDGET_VERDICT !== 'off') return budgetMs;
+  process.stdout.write(`performance budget of ${budgetMs.toFixed(0)} ms is not judged in this run (PERF_BUDGET_VERDICT=off)
+`);
+  return Number.POSITIVE_INFINITY;
+}

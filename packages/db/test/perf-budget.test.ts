@@ -1,4 +1,4 @@
-import { MAX_SLOWDOWN, REFERENCE_BUDGET_MS, budgetFor, median, p95Of } from './support/perf-budget';
+import { MAX_SLOWDOWN, REFERENCE_BUDGET_MS, budgetFor, judgedBudget, median, p95Of } from './support/perf-budget';
 
 describe('the budget of a measured read, stretched by the speed of the machine', () => {
   it('keeps the reference budget on a machine as fast as the reference and on a faster one', () => {
@@ -40,5 +40,11 @@ describe('the budget of a measured read, stretched by the speed of the machine',
     expect(p95Of(samples)).toBe(19);
     expect(p95Of([7])).toBe(7);
     expect(p95Of([])).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  it('judges a budget everywhere but in a run that says PERF_BUDGET_VERDICT=off, where the clock gives no verdict', () => {
+    expect(judgedBudget(800, {})).toBe(800);
+    expect(judgedBudget(800, { PERF_BUDGET_VERDICT: 'on' })).toBe(800);
+    expect(judgedBudget(800, { PERF_BUDGET_VERDICT: 'off' })).toBe(Number.POSITIVE_INFINITY);
   });
 });
