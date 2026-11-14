@@ -227,6 +227,11 @@ void main() {
       await phone.goOnline();
       await phone.flush();
       expect(phone.server.state.exceptions, hasLength(1));
+      // The requests of the task are on the tab "Diễn biến" (the screen opens on its first tab): the row there reads "Xin dời hạn · Chờ quyết định".
+      // Not run on the machine this was written on (Smart App Control blocks sqlite3mc.dll, which this file needs): CI confirms it.
+      await tester.scrollUntilVisible(find.textContaining('Diễn biến'), -200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.textContaining('Diễn biến').first);
+      await settleReal(tester, rounds: 6);
       expect(find.textContaining('Chờ quyết định'), findsOneWidget);
     });
 

@@ -110,7 +110,7 @@ class _PwfScoreViewState extends State<PwfScoreView> {
                   GroupHeader(title: context.t('mob.pwf.score.excluded'), count: line.excluded.length),
                   for (int index = 0; index < line.excluded.length; index += 1) WorkRow(title: line.excluded[index].taskCode, subtitle: line.excluded[index].reason, leading: const Icon(Icons.remove_circle_outline), dividerAbove: index > 0),
                 ],
-                if (line.contributions.isEmpty && line.excluded.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.score.tab.tasks.none'), style: text.body)),
+                if (line.contributions.isEmpty && line.excluded.isEmpty) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.score.tasks.none'), style: text.body)),
               ],
             ),
             PwfTab(
@@ -142,7 +142,7 @@ class _PwfScoreViewState extends State<PwfScoreView> {
                     padding: const EdgeInsets.all(MachvonV2Space.s16),
                     child: Text(line.responseUntil == null ? context.t('mob.pwf.score.respond') : context.t('mob.pwf.score.respond.until', <String, Object>{'date': formatDay(line.responseUntil!, language: language)}), style: text.caption),
                   ),
-                if (line.adjustments.isEmpty && line.responses.isEmpty && !line.canRespond) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.score.tab.changes.none'), style: text.body)),
+                if (line.adjustments.isEmpty && line.responses.isEmpty && !line.canRespond) Padding(padding: const EdgeInsets.all(MachvonV2Space.s16), child: Text(context.t('mob.pwf6.score.changes.none'), style: text.body)),
               ],
             ),
           ],
