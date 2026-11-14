@@ -40226,5 +40226,9 @@
   "pwf.templates.steps.task.hint": "Only the steps of the phase of the task",
   "pwf.templates.steps.task.label": "Step",
   "pwf.templates.steps.task.legend": "Place in the procedure",
-  "pwf.templates.steps.tasks.text": "{count} tasks"
+  "pwf.templates.steps.tasks.text": "{count} tasks",
+  "pay.alert.table.label": "Table of the advances under alert",
+  "pay.alert.column.handler": "Handled by",
+  "pay.alert.handler.none": "Nobody has taken it up yet",
+  "pay.alert.handler.unnamed": "A person no longer in the directory"
 }
