@@ -198,3 +198,30 @@ APK debug bản công, đăng nhập bằng Nguyễn Văn An qua nhà cung cấp
 27. "phiên bản 0" cho mẫu, quy tắc và chính sách mặc định.
 
 Không thấy khóa i18n nào lộ nguyên dạng (kiểu `pwf.xxx.yyy`) trong các ảnh đã xem.
+
+## Đã xử lý ở nhánh lane/pwf6 (bố cục, nhãn, trình bày)
+
+CÁC ẢNH TRONG THƯ MỤC NÀY CHƯA ĐƯỢC CHỤP LẠI: chúng vẫn là ảnh trước khi sửa. Lúc làm nhánh này máy không dựng được thêm stack (PostgreSQL nhúng bị ngắt giữa chừng khi chạy migration, máy còn khoảng 1,5 GB bộ nhớ trống và đang có stack khác chạy), nên phần dưới đây mới được kiểm bằng kiểm thử giao diện (vitest) và bằng cách dựng DOM của màn với dữ liệu mẫu rồi xem trong Chromium ở 1440 và 390 px, chưa kiểm trên dữ liệu thật của nhóm seed. Cần chụp lại trên stack có nhóm `clip-public-pwf-review` trước khi dùng ảnh để đánh giá.
+
+Số trong ngoặc là số thứ tự ở mục "Khiếm khuyết nhìn thấy".
+
+- (3) Cây tiến trình: thay khung nút chồng nhau bằng bảng cây Giai đoạn → Bước → Công việc, mỗi tầng có tiến độ; giai đoạn thu gọn được và lọc bảng công việc.
+- (8) So sánh phiên bản mẫu: PWF-01 so sánh có cấu trúc (quy mô hai bản, từng giai đoạn/bước/việc thêm, bớt, đổi, giá trị trước và sau). Màn ADM-22 giữ nguyên, chỉ còn là liên kết phụ.
+- (9) Tên đơn vị: bảng điểm và chi tiết điểm tra tên đơn vị trong danh mục tổ chức; không có tên thì ghi rõ "chưa có tên trong danh mục". Tên NGƯỜI duyệt (`web/18`) và người thao tác trong lịch sử chưa có vì bản đọc chưa trả tên (thuộc nhánh pwf5).
+- (10) Lịch sử việc: sự kiện hiện bằng tiếng Việt, khuôn riêng (giờ, sự kiện, lý do), không còn "HT Hệ thống"; thu gọn mặc định.
+- (12) Xếp loại hiện bằng chữ (Xuất sắc, Tốt, Đạt, Cần cải thiện); loại yếu nhất màu đỏ, không còn dấu tích xanh. Web và điện thoại.
+- (13) Điện thoại MOB-80: nhóm theo màu cá nhân đổi tên thành "Cần xử lý ngay" (không còn việc "Còn 1 ngày" nằm dưới chữ "Trễ hạn"). Mốc "Trễ 81 ngày" ở MOB-78 chưa sửa.
+- (14) Mốc theo ngày: bảng kế hoạch riêng (ngày, mốc, giai đoạn, tình trạng), bỏ khuôn nhật ký.
+- (15) Cổng giai đoạn: cổng của giai đoạn chưa tới hiển thị trung tính "Chưa tới giai đoạn", danh sách việc thu gọn; chỉ cổng của giai đoạn đang làm mới đỏ.
+- (16), (19), (24) PWF-07: dải năm thẻ đếm một hàng (bấm để lọc theo màu), trạng thái dạng chip, các ô lọc một hàng, nút "Bỏ lọc" cao bình thường; lịch tháng có hàng tên thứ nền đậm, một kiểu ô, đánh dấu hôm nay.
+- (17) Bảng không còn bị cắt ngang: bảng của PWF cuộn ngang trong vùng riêng, trang cuộn dọc. Thư viện mẫu gộp còn năm cột, cột "Thao tác" là nút. Tải công việc: tiêu đề tuần ngắn, có ghi đơn vị.
+- (18) Gantt: trục tháng và tuần, nhãn việc (tên, mã là chú thích) cố định bên trái, đường hôm nay, đường cơ sở nét đứt, phần trễ gạch đỏ kèm số ngày, đường găng viền đậm, có chú giải và bảng thay thế. Bỏ lưới ngày.
+- (20) Nút chính có khung ở PWF-05, 06, 11, 13, 14.
+- (21) PWF-02: chỉ liệt kê KPI của workflow, có ô tìm; biểu mẫu chọn từ kho văn bản; dữ kiện xem trước là danh sách chọn; cây theo Giai đoạn → Bước → Việc; căn cứ pháp lý của bước thu gọn.
+- (22) PRJ-02: khối đề xuất (tên loại quy trình, lý do, quy tắc), thẻ tổng thời gian và số bước, bảng từng bước thu gọn nên không còn bị thanh nút che; ô chọn rộng đủ chữ; "Mở quy trình" là nút.
+- (23) MOB-80: ghi chú màu cá nhân xuống một dòng riêng dưới hàng, danh sách chừa chỗ cho thanh tab.
+- (25), (27) Vai trò, giai đoạn, loại chứng từ, loại bằng chứng, tên trường hiện bằng tên; mã chỉ là chú thích nhỏ. "phiên bản 0" ghi "Mặc định của hệ thống". Vai trò và mã văn bản do tỉnh tự đặt (không có trong danh mục tên) vẫn hiện mã.
+- (26) PWF-05 và PWF-02: dữ kiện chọn nhánh là danh sách chọn; PWF-14: chọn đơn vị từ danh mục, ngày là ô chọn ngày.
+- PWF-04: đầu trang tóm tắt (tên việc, trạng thái, hạn có màu, người làm, người duyệt, nút thao tác), rồi Danh mục kiểm, Chứng từ và biểu mẫu, Căn cứ pháp lý (việc và bước gộp một danh sách), Lịch và độ trễ (thu gọn), Ngoại lệ, Sổ phân công, Lịch sử (thu gọn). Trường chưa có giá trị được ẩn.
+
+Chưa xử lý ở nhánh này: (1), (2), (4), (5), (6), (7), (11) là logic hoặc dữ liệu của máy chủ; việc trùng tên trong bảng điểm chưa kèm mã dự án vì bản đọc không trả dự án; các điểm gãy dòng ở MOB-78 và MOB-79.
