@@ -44,7 +44,8 @@ Danh mục vai trò hệ thống (seed khi provisioning, `is_system=true`, bất
 | AUDITOR | 25 | không | đọc/xuất, `audit.read` | không mutate |
 | BILLING_VIEWER | 20 | không | đọc thuê bao/hóa đơn của tenant | không đọc hồ sơ nghiệp vụ |
 | GUEST_CONTRACTOR | 10 | có | đọc hợp đồng được giao, gửi nhật ký/khối lượng/hồ sơ thanh toán | scope chỉ CONTRACT |
-| MEMBER | 5 | có | hộp thông báo, hồ sơ cá nhân | mặc định khi chấp nhận lời mời |
+| STAFF_MEMBER | 6 | không | việc được giao (`pwf.task.work`), điểm của tôi (`staff_score.read_own`), thông báo của tôi, phê duyệt chờ tôi (`approval_task.read`), nhắc hạn của tôi (`pwf.preference.own`), hộp phê duyệt hợp nhất (`session.self`) | vai nền của nhân sự nội bộ (membership STAFF), cấp mặc định khi tạo cùng vai MEMBER hoặc các vai người mời chọn, migration V3042 cấp cho STAFF đang có; chỉ đọc/làm việc của CHÍNH MÌNH, không có quyền đọc hay duyệt việc của người khác; không bao giờ cấp cho khách hay nhà thầu (quyết định của điều phối theo quy tắc "quản trị sâu nhất" của chủ sở hữu, lane fix12) |
+| MEMBER | 5 | có | hộp thông báo, hồ sơ cá nhân | mặc định khi chấp nhận lời mời; cũng là vai nền của khách nên KHÔNG mang quyền workflow |
 
 | Actor | Tenant/scope | Hành động được phép | Hành động bị cấm |
 |---|---|---|---|

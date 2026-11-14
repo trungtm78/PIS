@@ -9,7 +9,9 @@ import { ProblemFilter } from '../../src/problem.filter';
 import { MyPendingDecisionsController } from '../../src/modules/adm/approval.controller';
 import { APPROVAL_FINAL_COMMANDS, FinalCommandRegistry } from '../../src/modules/adm/approval.service';
 import { workScopes } from '../../src/modules/home/work-scope';
+import { SYSTEM_ROLES } from '@machvon/db';
 import { pwfModule } from '../../src/modules/pwf';
+import { PwfPreferenceController } from '../../src/modules/pwf/preference.controller';
 import { PwfPendingDecisionsBinding } from '../../src/modules/pwf/pending-decisions.binding';
 import { PwfDeadlineReadsController } from '../../src/modules/pwf/deadline.controller';
 import { ProjectRescheduleController } from '../../src/modules/pwf/reschedule.controller';
@@ -35,6 +37,7 @@ const READER = 4; // pwf.read only
 const NOBODY = 5;
 const OUTSIDE_CHECKER = 6; // the rights of the checker, over a unit that owns no project
 const SIBLING = 3;
+const STAFFER = 7; // only the role STAFF_MEMBER of the system, on the department
 const B_MANAGER = 1;
 const ROOT = 1;
 const DEPARTMENT = 2;
@@ -108,7 +111,7 @@ describe('the unified approval inbox reads what waits in PWF for the reader (PWF
       ]);
       await harness.tenants.withTenant({ tenantId: tenant, membershipId: WORKER_SYSTEM, scopeVersion: 0 }, (tx) => applyBaseline(tx, BASELINE_PACK, WORKER_SYSTEM, TODAY));
     }
-    for (const n of [MANAGER, WORKER, CHECKER, READER, NOBODY, OUTSIDE_CHECKER]) await harness.seedMembership(TENANT_A, n, ROOT);
+    for (const n of [MANAGER, WORKER, CHECKER, READER, NOBODY, OUTSIDE_CHECKER, STAFFER]) await harness.seedMembership(TENANT_A, n, ROOT);
     await harness.seedMembership(TENANT_B, B_MANAGER, ROOT);
     const all = ['session.self', 'project.create', 'project.read', 'pwf.template.manage', 'pwf.workflow.manage', 'pwf.workflow.adopt', 'pwf.read', 'pwf.task.work', 'pwf.task.approve', 'pwf.task.assign', 'pwf.schedule.propose', 'pwf.schedule.approve', 'project.stage.complete', 'project.stage.implement'];
     await harness.seedRole(TENANT_A, 1, 'PWF_MANAGER', all, 40);
@@ -116,12 +119,14 @@ describe('the unified approval inbox reads what waits in PWF for the reader (PWF
     await harness.seedRole(TENANT_A, 3, 'PWF_CHECKER', ['session.self', 'pwf.read', 'pwf.task.approve', 'pwf.schedule.approve'], 20);
     await harness.seedRole(TENANT_A, 4, 'PWF_READER', ['session.self', 'pwf.read'], 10);
     await harness.seedRole(TENANT_B, 1, 'PWF_MANAGER', all, 40);
+    await harness.seedRole(TENANT_A, 6, 'STAFF_MEMBER', SYSTEM_ROLES.find((role) => role.code === 'STAFF_MEMBER')?.permissions ?? [], 6);
     await harness.seedGrants(TENANT_A, [
       { n: 1, member: MANAGER, role: 1, kind: 'TENANT' },
       { n: 2, member: WORKER, role: 2, kind: 'TENANT' },
       { n: 3, member: CHECKER, role: 3, kind: 'TENANT' },
       { n: 4, member: READER, role: 4, kind: 'TENANT' },
       { n: 5, member: OUTSIDE_CHECKER, role: 3, kind: 'UNIT_SUBTREE', refs: [unitId(SIBLING)] },
+      { n: 6, member: STAFFER, role: 6, kind: 'UNIT_ONLY', refs: [unitId(DEPARTMENT)] },
     ]);
     await harness.seedGrants(TENANT_B, [{ n: 1, member: B_MANAGER, role: 1, kind: 'TENANT' }]);
     const recordId = randomUUID();
@@ -152,7 +157,7 @@ describe('the unified approval inbox reads what waits in PWF for the reader (PWF
         CommandModule.register({ database: tenants }),
         PolicyModule.register({ database: tenants, access: new EffectiveAccessStore(tenants, new InMemoryAuthzCache()) }),
       ],
-      controllers: [ProjectController, ProjectReadsController, ProjectStageController, ProjectLifecycleReadsController, ProjectWorkflowController, ProjectWorkflowReadsController, ProjectTaskController, ProjectTaskReadsController, ProjectRescheduleController, PwfDeadlineReadsController, MyPendingDecisionsController],
+      controllers: [ProjectController, ProjectReadsController, ProjectStageController, ProjectLifecycleReadsController, ProjectWorkflowController, ProjectWorkflowReadsController, ProjectTaskController, ProjectTaskReadsController, ProjectRescheduleController, PwfDeadlineReadsController, PwfPreferenceController, MyPendingDecisionsController],
       providers: [
         { provide: APPROVAL_FINAL_COMMANDS, useValue: new FinalCommandRegistry() },
         PwfPendingDecisionsBinding,
@@ -218,6 +223,18 @@ describe('the unified approval inbox reads what waits in PWF for the reader (PWF
     expect((await send()).json).toEqual(first.json);
     expect((await rows("select 1 from machvon.audit_event where resource_id = $1 and action = 'task.approved'", [taskId])).length).toBe(1);
     expect(of(await inbox(CHECKER), taskId)).toBeUndefined();
+  });
+
+  it('gives a person who holds only the role of the staff something to read: their own tasks and the inbox, and no right over the work of others (lane fix12)', async () => {
+    const { taskId, version } = await awaitingCompletion();
+    // The home of an officer reads the tasks given to the person and the records that wait for their decision; neither is refused to the base role of the staff.
+    expect((await call('GET', '/me/project-tasks', { member: STAFFER })).status).toBe(200);
+    expect(await inbox(STAFFER)).toEqual([]);
+    // What it does not carry: reading the board of everybody's deadlines, deciding a completion, or taking up a task nobody gave them.
+    expect((await call('GET', '/pwf/deadlines?limit=1', { member: STAFFER })).status).toBe(403);
+    expect((await call('POST', `/project-tasks/${taskId}/approve-completion`, { member: STAFFER, ifMatch: `"${version}"`, body: { decision: 'APPROVE' } })).status).toBe(403);
+    const fresh = await taskOf((await startFlow(await project('IMPLEMENTATION'))).json.resource_id as string, 'TA');
+    expect((await call('POST', `/project-tasks/${fresh.id}/start`, { member: STAFFER, ifMatch: `"${fresh.version}"` })).status).toBe(403);
   });
 
   it('sends a completion back through returnProjectTask, and the item leaves the inbox', async () => {

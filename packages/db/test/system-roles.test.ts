@@ -29,7 +29,7 @@ const matches = (pattern: string, permission: string): boolean =>
   pattern.endsWith('.*') ? permission.startsWith(pattern.slice(0, -1)) : pattern === permission;
 
 describe('SYSTEM_ROLES', () => {
-  it('lists the eighteen system roles of the IAM role table with their ranks', () => {
+  it('lists the nineteen system roles of the IAM role table with their ranks', () => {
     expect(SYSTEM_ROLES.map((role) => [role.code, role.rank])).toEqual([
       ['TENANT_OWNER', 99],
       ['TENANT_ADMIN', 90],
@@ -48,6 +48,7 @@ describe('SYSTEM_ROLES', () => {
       ['BILLING_VIEWER', 20],
       ['GUEST_CONTRACTOR', 10],
       ['PORTAL_CONTRACTOR', 10],
+      ['STAFF_MEMBER', 6],
       ['MEMBER', 5],
     ]);
   });
@@ -143,11 +144,11 @@ describe('seedSystemRoles', () => {
       tx.query<RoleRow>('select code, rank, guest_allowed, is_system, status, permissions from machvon.role_definition order by rank desc, code'),
     );
 
-  it('inserts the eighteen roles once and nothing the second time', async () => {
-    expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 18 });
+  it('inserts the nineteen roles once and nothing the second time', async () => {
+    expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 19 });
     expect(await tenants.withTenant(ctx(TENANT_A), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 0 });
     const rows = await rolesOf(TENANT_A);
-    expect(rows).toHaveLength(18);
+    expect(rows).toHaveLength(19);
     expect(rows.every((row) => row.is_system && row.status === 'Active')).toBe(true);
     expect(rows.find((row) => row.code === 'TENANT_OWNER')).toMatchObject({ rank: 99, guest_allowed: false });
     expect(rows.find((row) => row.code === 'MEMBER')).toMatchObject({ rank: 5, guest_allowed: true });
@@ -209,7 +210,7 @@ describe('seedSystemRoles', () => {
 
   it('keeps the roles of one tenant invisible to another', async () => {
     expect(await rolesOf(TENANT_B)).toEqual([]);
-    expect(await tenants.withTenant(ctx(TENANT_B), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 18 });
-    expect(await rolesOf(TENANT_B)).toHaveLength(18);
+    expect(await tenants.withTenant(ctx(TENANT_B), (tx) => seedSystemRoles(tx, ACTOR))).toEqual({ inserted: 19 });
+    expect(await rolesOf(TENANT_B)).toHaveLength(19);
   });
 });
