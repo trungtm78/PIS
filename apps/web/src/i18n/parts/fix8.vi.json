@@ -17,5 +17,13 @@
   "fix8.editor.roles.none.text": "Mẫu chưa dùng vai trò nào. Nhập vai trò ở bước và công việc trước.",
   "fix8.editor.role.named.hint": "Tên hiển thị: {name}",
   "fix8.editor.role.unnamed.hint": "Mã này chưa có tên. Đặt tên ở tab Vai trò.",
-  "fix8.legal.pick.option": "{name} ({code})"
+  "fix8.legal.pick.option": "{name} ({code})",
+  "fix8.task.kpi.denied.title": "Bạn không có quyền xem KPI của công việc này",
+  "fix8.task.kpi.denied.body": "Kết quả KPI nằm ngoài phạm vi dữ liệu của bạn nên được ẩn. Nếu cần xem, hãy đề nghị quản trị viên của đơn vị cấp quyền.",
+  "fix8.score.tabs.label": "Các phần của bảng điểm",
+  "fix8.score.tab.score": "Điểm",
+  "fix8.score.tab.tasks": "Theo việc",
+  "fix8.score.tab.review": "Điều chỉnh và phản hồi",
+  "fix8.score.tab.compare": "So sánh kỳ",
+  "fix8.score.tab.periods": "Điểm theo kỳ"
 }

@@ -17,5 +17,13 @@
   "fix8.editor.roles.none.text": "The template uses no role yet. Enter the roles of the steps and the tasks first.",
   "fix8.editor.role.named.hint": "Shown as: {name}",
   "fix8.editor.role.unnamed.hint": "This code has no name yet. Name it on the Roles tab.",
-  "fix8.legal.pick.option": "{name} ({code})"
+  "fix8.legal.pick.option": "{name} ({code})",
+  "fix8.task.kpi.denied.title": "You may not see the KPI of this task",
+  "fix8.task.kpi.denied.body": "The KPI results are outside your data scope, so they are hidden. Ask the administrator of your unit for the right if you need to see them.",
+  "fix8.score.tabs.label": "The parts of the scoreboard",
+  "fix8.score.tab.score": "Score",
+  "fix8.score.tab.tasks": "By task",
+  "fix8.score.tab.review": "Adjustments and responses",
+  "fix8.score.tab.compare": "Periods compared",
+  "fix8.score.tab.periods": "Scores by period"
 }

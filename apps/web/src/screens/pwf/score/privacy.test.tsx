@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, configure, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { ApiClientProvider } from '../../../api/ApiClientContext';
 import { ALL_MODULES_VISIBLE } from '../../../navigation/model';
 import { isNeverCachedPath } from '../../../pwa/cache-policy';
@@ -14,6 +14,14 @@ import ScoreDetailScreen from './ScoreDetailScreen';
 import { SCORE_ROOT } from './hooks';
 import UnitScoreboardScreen from './UnitScoreboardScreen';
 import { LINE_ID, OTHER, SCORE_ALL, comparison, line, linePage, myScore, periodPage, routeOf, row, serve, text, uuid } from './test/fixtures';
+
+// The screen is a set of tabs and every panel stays in the page (hidden when not chosen): the checks of what a panel holds reach it by role whether or not its tab is the open one. Which tab is open is checked on its own.
+beforeAll(() => {
+  configure({ defaultHidden: true });
+});
+afterAll(() => {
+  configure({ defaultHidden: false });
+});
 
 afterEach(() => {
   cleanup();
